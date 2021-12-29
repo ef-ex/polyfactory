@@ -1,0 +1,8 @@
+{
+    "env": [
+    {
+        "POLYFACTORY": "path/to/polyfactory"
+    }],
+    "enable" : true,
+    "path" : "$POLYFACTORY",
+}
