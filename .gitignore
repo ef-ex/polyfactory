@@ -1,3 +1,8 @@
+# ignore houdini dirs and files
+backup/
+*.hip
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
