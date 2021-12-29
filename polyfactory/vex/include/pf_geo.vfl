@@ -1,0 +1,123 @@
+
+int onedge(vector pCheck; vector p1; vector p2){
+    // check if point is on edge
+    float p1p2 = distance(p1, p2);
+    float check = distance(p1, pCheck) + distance(pCheck, p2);
+
+    if (p1p2 == check){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
+
+int[] primhedges(int geometry, primnum){
+    // return all half-edges of prim
+    int hedge = primhedge(geometry, primnum);
+    int start = hedge;
+    int hedges[];
+    append(hedges, hedge);
+    while (hedge != -1){
+        hedge = hedge_next(geometry, hedge);
+        if (hedge == start){
+            break;
+        }
+        append(hedges, hedge);
+    }
+    return hedges;
+}
+
+
+int[] hedgepoints(int geometry, hedge){
+    // return both pointnumbers of half-edge
+    int pts[];
+    append(pts, hedge_srcpoint(geometry, hedge));
+    append(pts, hedge_dstpoint(geometry, hedge));
+    return pts;
+}
+
+
+int[] edgeprims(int geometry, hedge){
+    // return both primnumbers of given edge
+    int prims[];
+    append(prims, hedge_prim(geometry, hedge));
+    hedge = hedge_nextequiv(geometry, hedge);
+    append(prims, hedge_prim(geometry, hedge));
+    return prims;
+}
+
+
+void sethedgeattrib(int geometry; string name; int hedge, value){
+    // set attribute on both points on hedge
+    int hpts[] = hedgepoints(0, hedge);
+    foreach(int pt; hpts){
+        setpointattrib(geometry, name, pt, value, "set");
+    }
+}
+
+
+int[] primpointneighbour(int geometry, prim, ptnum){
+    // return neighbour points of same prim
+    int pts[];
+    int primPts[] = primpoints(geometry, prim);
+    foreach(int pt; neighbours(geometry, ptnum)){
+        if (find(primPts, pt) > -1){
+            append(pts, pt);
+        }
+    }
+    return pts;
+}
+
+
+int pointshedge(int geometry, src, dst, prim){
+    // returns hedge of prim ignoring point order 
+    int hedge = -1;
+    int hedges[] = primhedges(geometry, prim);
+    hedge = pointhedge(geometry, src, dst);
+    if (hedge > -1){
+        if (find(hedges, hedge) > -1){
+            return hedge;
+        }
+        else{
+            return hedge_nextequiv(geometry, hedge);
+        }
+    }
+    else{
+        return pointhedge(geometry, dst, src);
+    }
+}
+
+
+int oppositehedge (int geometry, hedge){
+    // return opposite hedge, assumes prim with 4 points
+    int prim = hedge_prim(geometry, hedge);
+    int prPts[] = primpoints(geometry, prim);
+    int hedgePts[] = hedgepoints(geometry, hedge);
+    int newHedgePts[];
+    foreach(int pt; prPts){
+        if (find(hedgePts, pt) < 0){
+            append(newHedgePts, pt);
+        }
+    }
+    if (len(newHedgePts)==2){
+        return pointshedge(geometry, newHedgePts[0], newHedgePts[1], prim);
+    }
+    return -1;
+}
+
+
+int sharedhedgepoint(int geometry, hedgeA, hedgeB){
+    // returns the shared point of two hedges
+    int ptsA[] = hedgepoints(geometry, hedgeA);
+    int ptsB[] = hedgepoints(geometry, hedgeB);
+    if (find(ptsB, ptsA[0]) > -1){
+        return ptsA[0];
+    }
+    if (find(ptsB, ptsA[1]) > -1){
+        return ptsA[1];
+    }
+    return -1;
+    
+}

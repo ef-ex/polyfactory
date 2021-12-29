@@ -1,0 +1,24 @@
+<menuDocument>
+  <!-- menuDocument can only contain 1 menu element, whose id is 
+         implicitly "root_menu"
+      -->
+  <menu>
+    <scriptItem id="pf_test_entry">
+      <label>Poly Factory Test Entry</label>
+      <insertAtIndex>49</insertAtIndex>
+      <context>
+        <expression>
+          <![CDATA[
+if isinstance(kwargs["node"].type(), hou.SopNodeType):
+  return True
+else:
+  return False]]>
+        </expression>
+      </context>
+      <scriptCode>
+        <![CDATA[
+print('Hello')]]>
+      </scriptCode>
+    </scriptItem>
+  </menu>
+</menuDocument>

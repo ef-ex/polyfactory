@@ -1,0 +1,58 @@
+#include <pf_geo.vfl>
+
+int nextpoint(int geometry, currP, currHedge){
+    int currPr = hedge_prim(geometry, currHedge);
+    int pts[] = primpointneighbour(geometry, currPr, currP);
+    int hedgePts[] = hedgepoints(geometry, currHedge);
+    if (find(hedgePts, pts[0]) > -1){
+        return pts[1];
+    }
+    if (find(hedgePts, pts[1]) > -1){
+        return pts[0];
+    }
+
+    return -1;
+}
+
+
+int[] loop(int geometry, srcPt, srcHedge){
+    int currHedge = srcHedge;
+    int currPt = srcPt;
+    int iter = 1;
+    int lastPt = currPt;
+    int prevHedge = -1;
+    int nextHedge, nextPt;
+    int pts[];
+
+    if (find(pts, currPt) < 0){
+        append(pts, currPt);
+    }
+    while(iter == 1){
+    
+
+        
+        nextPt = nextpoint(geometry, currPt, currHedge);
+        if (nextPt == lastPt || nextPt < 0){
+            iter=0;
+        }
+        currPt = nextPt;
+        if (len(neighbours(geometry, currPt)) != 4){
+            iter=0;
+        }
+        nextHedge = oppositehedge(geometry, currHedge);
+        if (nextHedge == prevHedge || nextHedge < 0){
+            iter=0;
+        }
+        prevHedge = currHedge;
+        currHedge = hedge_nextequiv(geometry, nextHedge);
+        if (currHedge == -1){
+            iter=0;
+        }
+
+        if (find(pts, currPt) < 0){
+            append(pts, currPt);
+        }
+
+    }
+    return pts;
+}
