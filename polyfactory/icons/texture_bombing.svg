@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="100mm"
-   height="100mm"
-   viewBox="0 0 99.999996 100"
+   width="48"
+   height="48"
+   viewBox="0 0 12.699999 12.7"
    version="1.1"
    id="svg128"
    inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
@@ -24,10 +24,10 @@
      inkscape:pagecheckerboard="1"
      inkscape:document-units="px"
      showgrid="false"
-     units="mm"
-     inkscape:zoom="1.5554293"
-     inkscape:cx="397.63942"
-     inkscape:cy="256.84228"
+     units="px"
+     inkscape:zoom="24.886869"
+     inkscape:cx="25.515464"
+     inkscape:cy="23.084463"
      inkscape:window-width="3840"
      inkscape:window-height="2066"
      inkscape:window-x="-11"
@@ -51,15 +51,15 @@
     <marker
        style="overflow:visible"
        id="Arrow1Lstart"
-       refX="0.0"
-       refY="0.0"
+       refX="0"
+       refY="0"
        orient="auto"
        inkscape:stockid="Arrow1Lstart"
        inkscape:isstock="true">
       <path
-         transform="scale(0.8) translate(12.5,0)"
-         style="fill-rule:evenodd;fill:context-stroke;stroke:context-stroke;stroke-width:1.0pt"
-         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         transform="matrix(0.8,0,0,0.8,10,0)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
          id="path1201" />
     </marker>
     <linearGradient
@@ -137,7 +137,7 @@
        fx="-10.183372"
        fy="71.269402"
        r="30.11412"
-       gradientTransform="matrix(1,0,0,1.0145751,-0.00375587,0.23785569)"
+       gradientTransform="matrix(0.13156757,0,0,0.13348519,-1.0316295,0.69871796)"
        gradientUnits="userSpaceOnUse" />
   </defs>
   <g
@@ -149,16 +149,16 @@
      id="layer2"
      inkscape:label="Layer 2">
     <rect
-       style="fill:url(#radialGradient6783);fill-opacity:1;stroke:#663000;stroke-width:1.34016;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:url(#radialGradient6783);fill-opacity:1;stroke:#663000;stroke-width:0.176321;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect6616"
-       width="60.009079"
-       height="60.886909"
-       x="-40.191669"
-       y="42.102558"
+       width="7.8952494"
+       height="8.0107431"
+       x="-6.319056"
+       y="6.2067552"
        transform="matrix(0.76257027,-0.64690539,0.80171793,0.59770257,0,0)" />
     <g
        id="g65866"
-       transform="matrix(0.46820442,-0.19837085,0.24085154,0.38562389,-7.5736908,62.929305)">
+       transform="matrix(0.06160051,-0.02609917,0.03168825,0.0507356,-1.2476796,9.3454238)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
          id="rect65858"
@@ -190,7 +190,7 @@
     </g>
     <g
        id="g65881"
-       transform="matrix(0.49560699,0.23489931,-0.29147537,0.39940849,-36.440826,8.0505569)">
+       transform="matrix(0.06520581,0.03090513,-0.0383487,0.0525492,-5.0456584,2.1251606)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
          id="rect65873"
@@ -222,7 +222,7 @@
     </g>
     <g
        id="g65896"
-       transform="matrix(0.41740974,-0.30371305,0.39349573,0.3537598,-11.46125,105.35911)">
+       transform="matrix(0.05491759,-0.03995879,0.05177128,0.04654332,-1.7591562,14.927809)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.264583;stroke-opacity:1"
          id="rect65888"
