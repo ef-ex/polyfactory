@@ -13,5 +13,3 @@ Polyfactory is a simple houdini package following the [package rules](https://ww
 * open the json file with a text editor and replace path/to/polyfactory with your install location.
   * Do not remove "" from the path
 * save the json file and launch houdini
-
->>>>>>> development
