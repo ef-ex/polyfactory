@@ -26,16 +26,28 @@
      showgrid="false"
      inkscape:zoom="0.90583672"
      inkscape:rotation="-1"
-     inkscape:cx="-99.091023"
-     inkscape:cy="300.24715"
+     inkscape:cx="20.428376"
+     inkscape:cy="94.758828"
      inkscape:window-width="3840"
      inkscape:window-height="2066"
      inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer2" />
+     inkscape:current-layer="layer1" />
   <defs
      id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient33779">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop33775" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop33777" />
+    </linearGradient>
     <linearGradient
        inkscape:collect="always"
        id="linearGradient15741">
@@ -156,7 +168,16 @@
        fx="108.54366"
        fy="212.56155"
        r="97.69091"
-       gradientTransform="matrix(1,0,0,0.09012726,0,193.40396)"
+       gradientTransform="matrix(1,0,0,0.09012726,5.2916669,193.40396)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient33779"
+       id="linearGradient33781"
+       x1="15.460244"
+       y1="212.5502"
+       x2="205.18259"
+       y2="212.5502"
        gradientUnits="userSpaceOnUse" />
   </defs>
   <g
@@ -202,14 +223,14 @@
        sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:23.2519px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:url(#radialGradient40055);fill-opacity:1;stroke:#000000;stroke-width:1.32291667;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
-       x="8.69559"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:23.2519px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:url(#radialGradient40055);fill-opacity:1;stroke:#002a3b;stroke-width:1.32292;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       x="13.987252"
        y="221.01421"
        id="text31299"><tspan
          sodipodi:role="line"
          id="tspan31297"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:23.2519px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:1.32291667;fill-opacity:1;fill:url(#radialGradient40055);stroke:#000000;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
-         x="8.69559"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:23.2519px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:url(#radialGradient40055);fill-opacity:1;stroke:#002a3b;stroke-width:1.32292;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         x="13.987252"
          y="221.01421">POLY FACTORY</tspan></text>
   </g>
   <g
