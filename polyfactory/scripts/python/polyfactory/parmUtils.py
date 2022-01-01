@@ -18,6 +18,7 @@ def get_multiparm(multi):
     Returns:
         generator: generator with hou.Parm objects for each parm in multiparmindex
     """
+    multi.eval()
     return zip(*[iter(multi.multiParmInstances())]*multi.multiParmInstancesPerItem())
 
 
