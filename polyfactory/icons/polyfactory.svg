@@ -26,14 +26,14 @@
      showgrid="false"
      inkscape:zoom="0.90583672"
      inkscape:rotation="-1"
-     inkscape:cx="-99.136434"
-     inkscape:cy="300.23215"
+     inkscape:cx="-99.091023"
+     inkscape:cy="300.24715"
      inkscape:window-width="3840"
      inkscape:window-height="2066"
      inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="layer2" />
   <defs
      id="defs2">
     <linearGradient
@@ -221,39 +221,5 @@
        d="M 76.353215,99.412716 108.39869,123.26127 142.59776,101.81352 112.60688,82.986582 Z"
        id="path5064"
        sodipodi:nodetypes="ccccc" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 76.353214,99.412715 113.89609,26.90959"
-       id="path6327" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 142.59776,101.81352 113.89609,26.90959"
-       id="path6329" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 112.60688,82.98658 1.28921,-56.07699"
-       id="path6331" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 108.39869,123.26127 5.4974,-96.35168"
-       id="path6333" />
-    <path
-       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="path6441"
-       sodipodi:type="arc"
-       sodipodi:cx="113.89609"
-       sodipodi:cy="26.909592"
-       sodipodi:rx="0.76410496"
-       sodipodi:ry="0.76410496"
-       sodipodi:start="6.2783507"
-       sodipodi:end="6.2783158"
-       sodipodi:open="true"
-       sodipodi:arc-type="arc"
-       d="m 114.66018,26.905898 a 0.76410496,0.76410496 0 0 1 -0.76039,0.76779 0.76410496,0.76410496 0 0 1 -0.7678,-0.760389 0.76410496,0.76410496 0 0 1 0.76038,-0.767803 0.76410496,0.76410496 0 0 1 0.76781,0.760375" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.79375;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 113.89609,26.90959 0,-20.8781689"
-       id="path6652"
-       sodipodi:nodetypes="cc" />
   </g>
 </svg>
