@@ -23,7 +23,7 @@ def hex_to_rgb(hexString):
     gHex = hexString[2:4]
     bHex = hexString[4:6]
 
-    return int(rHex, 16)/255.0, int(gHex, 16)/255.0, int(bHex, 16)/255.0
+    return hou.Color(int(rHex, 16)/255.0, int(gHex, 16)/255.0, int(bHex, 16)/255.0)
 
 
 def chunk_array(array, chunk, newArray = None):
