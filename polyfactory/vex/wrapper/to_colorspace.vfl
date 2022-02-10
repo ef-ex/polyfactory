@@ -1,0 +1,10 @@
+
+cvex
+to_colorspace(
+    string from = 'Utility - sRGB - Texture';
+    string to = 'ACES - ACEScg';
+    color colorin = {1,1,1};
+    export color colorout = {0,0,0})
+{
+    colorout = ocio_transform(from, to, colorin);
+}
