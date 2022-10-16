@@ -2,7 +2,10 @@
     "env": [
     {
         "POLYFACTORY": "path/to/polyfactory"
+    },
+    {
+        "PF_LDRAW":"path/to/ldraw/library"
     }],
     "enable" : true,
-    "path" : "$POLYFACTORY",
+    "path" : "$POLYFACTORY"
 }

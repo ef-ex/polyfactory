@@ -23,7 +23,7 @@ def hex_to_rgb(hexString):
     gHex = hexString[2:4]
     bHex = hexString[4:6]
 
-    return int(rHex, 16)/255.0, int(gHex, 16)/255.0, int(bHex, 16)/255.0
+    return hou.Color(int(rHex, 16)/255.0, int(gHex, 16)/255.0, int(bHex, 16)/255.0)
 
 
 def chunk_array(array, chunk, newArray = None):
@@ -49,3 +49,22 @@ def chunk_array(array, chunk, newArray = None):
 
     return newArray
 
+
+def unpack(array, numElements, default=None):
+    """unpacks arrays to defined number of elements assigning default value if not existing
+
+    Args:
+        array (list, tuple): input array
+        numElements (int): number of elements to unpack
+        default ([any type], optional): default value if element does not exist in input array. Defaults to None.
+
+    Returns:
+        list: unpacked array
+    """
+    pack = []
+    for i in range(numElements):
+        if len(array) <= i:
+            pack.append(default)
+        else:
+            pack.append(array[i])
+    return pack
