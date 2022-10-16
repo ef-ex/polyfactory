@@ -1,5 +1,7 @@
 #include <pf_geo.vfl>
 
+// Row Column utilities
+
 int nextpoint(int geometry, currP, currHedge){
     int currPr = hedge_prim(geometry, currHedge);
     int pts[] = primpointneighbour(geometry, currPr, currP);

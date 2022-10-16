@@ -49,3 +49,22 @@ def chunk_array(array, chunk, newArray = None):
 
     return newArray
 
+
+def unpack(array, numElements, default=None):
+    """unpacks arrays to defined number of elements assigning default value if not existing
+
+    Args:
+        array (list, tuple): input array
+        numElements (int): number of elements to unpack
+        default ([any type], optional): default value if element does not exist in input array. Defaults to None.
+
+    Returns:
+        list: unpacked array
+    """
+    pack = []
+    for i in range(numElements):
+        if len(array) <= i:
+            pack.append(default)
+        else:
+            pack.append(array[i])
+    return pack

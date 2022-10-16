@@ -1,11 +1,11 @@
 import hou
 import numpy as np
-import json, re
+import json, re, os
 
 from pathlib import Path
 from copy import deepcopy
 from itertools import zip_longest
-from pprint import pprint
+from polyfactory import utils as pfutils
 
 FILES = {}
 
@@ -147,6 +147,16 @@ def get_lib(lDrawLib):
     for p in list(partlib.glob('**'))[1:]:
         paths[p] = p.stem
 
+    partlib = lib / 'UnOfficial/parts'
+    paths[partlib] = ''
+    for p in list(partlib.glob('**'))[1:]:
+        paths[p] = p.stem
+
+    partlib = lib / 'UnOfficial/p'
+    paths[partlib] = ''
+    for p in list(partlib.glob('**'))[1:]:
+        paths[p] = p.stem
+
     get_files(paths)
 
 
@@ -186,6 +196,11 @@ def get_brick(brickID, houLib):
     return None
 
 
+def get_brick_save(brickID, houLib):
+    brick  = get_brick(brickID, houLib)
+    return brick or os.getenv('POLYFACTORY')+'/geo/unknown_brick.bgeo.sc'
+
+
 def setup_ldr(lDrawFile, lDrawLib, houLib, brand='lego', yUp = False):
     """This method will prepare parts for the given ldr file
     the method does not expect geometry to be written directly in this file
@@ -211,10 +226,11 @@ def setup_ldr(lDrawFile, lDrawLib, houLib, brand='lego', yUp = False):
             # remove \\ and / to get the default mesh
             fileName = cmd[-1].split('\\')[-1].split('/')[-1].lower()
             bricks.add(fileName)
-    
+
     for brick in bricks:
         brickID = '{}_{}'.format(brand, brick.split('.')[0])
-        if not get_brick(brickID, houLib):
+        brickCheck = get_brick(brickID, houLib)
+        if not brickCheck:
             importDat.append(brickID)
             
     return importDat
@@ -250,16 +266,20 @@ def import_ldr(lDrawFile, lDrawLib, houLib, geo, brand='lego', yUp = False):
             brickID = "{}_{}".format(brand, fileName.split('.')[0])
             bricks.add(brickID)
             brickPath = get_brick(brickID, houLib)
-            m = get_matrix(cmd[2:-1]) * globalM
+            coords = cmd[2:14]
+            m = get_matrix(coords) * globalM
             pt = add_point(hou.Vector3(0,0,0), geo, m)
             up = hou.Vector3(0,1,0) * m.extractRotationMatrix3()
             n = hou.Vector3(0,0,1) * m.extractRotationMatrix3()
             colorID = cmd[1]
-            basecolor = hou.Vector3(*hex_to_rgb(colors[colorID]['VALUE']))
+            if int(colorID) >= 0 and colors.get(colorID):
+                # basecolor = hou.Vector3(*hex_to_rgb(colors[colorID]['VALUE']))
+                pt.setAttribValue('Cd', colors[colorID]['sRGB'].rgb())
+                pt.setAttribValue('basecolor', colors[colorID]['ACEScg'].rgb())
+            pt.setAttribValue('colorID', int(colorID))
             pt.setAttribValue('up', up)
             pt.setAttribValue('N', n)
             pt.setAttribValue('brickID', brickID)
-            pt.setAttribValue('colorID', int(colorID))
 
     return bricks
 
@@ -290,5 +310,9 @@ def get_colors(LDrawLib):
                 mat = dict(zip_longest(cmd[matIdx::2], cmd[matIdx+1::2]))
                 if mat:
                     c['ADDMAT'] = mat
+                c['sRGB'] = pfutils.hex_to_rgb(c['VALUE'])
+                c['ACEScg'] = c['sRGB'].ocio_transform('Utility - sRGB - Texture', 'ACES - ACEScg', '')
+                c['linear sRGB'] = c['sRGB'].ocio_transform('Utility - sRGB - Texture', 'Utility - Linear - sRGB', '')
+
 
     return colors
