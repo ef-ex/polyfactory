@@ -121,3 +121,26 @@ int sharedhedgepoint(int geometry, hedgeA, hedgeB){
     return -1;
     
 }
+
+
+int insideBox(vector xDir, yDir, zDir, center, currP; float xLen, yLen, zLen) {
+    /* check if currP is inside box
+    Args:
+        xDir : direction from xMin to xMax of box along local space
+        yDir : direction from yMin to yMax of box along local space
+        zDir : direction from zMin to zMax of box along local space
+        center : current center point of box
+        currP : point to check if inside or outside
+        xLen : length of x side
+        yLen : length of y side
+        zLen : length of z side
+    Returns:
+        int : 1 if point is inside box
+    */
+    vector posVec = currP - center;
+    int inside = 0;
+    if (abs( dot(posVec, xDir)) <= xLen/2 && abs( dot(posVec, yDir)) <= yLen/2 && abs( dot(posVec, zDir)) <= zLen/2) {
+        inside = 1;
+    }
+    return inside;
+}
