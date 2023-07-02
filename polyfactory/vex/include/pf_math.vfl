@@ -7,7 +7,11 @@ vector barycentric(vector v1; vector v2; vector v3; float w1; float w2){
 }
 
 
+<<<<<<< HEAD
 float getAngle(vector v1; vector v2){
+=======
+float getangle(vector v1; vector v2){
+>>>>>>> experimental
     // return the angle between 2 vectors in degrees
     return degrees(atan2(length(cross(v1, v2)), dot(v1, v2)));
 }
