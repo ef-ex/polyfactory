@@ -144,3 +144,22 @@ int insideBox(vector xDir, yDir, zDir, center, currP; float xLen, yLen, zLen) {
     }
     return inside;
 }
+
+
+int draw_line(int geo, poly, points[]){
+
+    int p1, p2;
+    int ptnum = len(points);
+    for (int i=0; i < ptnum; i++){
+        p1 = points[i];
+        if (i+1 == ptnum){
+            p2 = points[0];
+        }
+        else {
+            p2 = points[i+1];
+        }
+        addvertex(geo, poly, p1);
+        addvertex(geo, poly, p2);
+    }
+    return poly;
+}
