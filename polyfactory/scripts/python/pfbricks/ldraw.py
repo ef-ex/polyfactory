@@ -2,6 +2,7 @@ import hou
 import numpy as np
 import json, re, os
 
+from glob import glob
 from pathlib import Path
 from copy import deepcopy
 from itertools import zip_longest
@@ -172,7 +173,7 @@ def import_dat(lDrawFile, lDrawLib, geo, brand='lego', yUp = False):
 
         # convert brickname into conform namings
         # example: 0 Plate  1 x  2 -> plate__1_x__2
-        brickName = f.readline().split(' ',1)[-1].strip().replace(' ','_').lower()
+        brickName = f.readline().split(' ',1)[-1].strip().replace(' ','_').lower().replace('__','_')
         
     parse_dat(p, geo, yUp=yUp)
 
@@ -183,12 +184,25 @@ def import_dat(lDrawFile, lDrawLib, geo, brand='lego', yUp = False):
         prim.setAttribValue("brickName", brickName)
 
 
-def get_brick(brickID, houLib):
-    hLib = Path(houLib) / 'library/{}.bgeo.sc'.format(brickID)
-    hImport = Path(houLib) / 'import/{}.bgeo.sc'.format(brickID)
+def get_brick(brickID, houLib, ldraw=False):
 
-    if hLib.exists():
+    nonPrint = brickID
+    if "p" in brickID:
+        nonPrint = brickID.split("p")[0]
+
+    hLib = Path(houLib) / 'library/{}.bgeo.sc'.format(brickID)
+    nonPrintHLib = Path(houLib) / 'library/{}.bgeo.sc'.format(nonPrint)
+    hImport = Path(houLib) / 'import/{}.bgeo.sc'.format(brickID)
+    nonPrintHImport = Path(houLib) / 'import/{}.bgeo.sc'.format(nonPrint)
+
+    if nonPrintHLib.exists() and not ldraw:
+        return nonPrintHLib
+
+    elif hLib.exists() and not ldraw:
         return hLib
+
+    elif nonPrintHImport.exists():
+        return nonPrintHImport
 
     elif hImport.exists():
         return hImport
@@ -196,12 +210,12 @@ def get_brick(brickID, houLib):
     return None
 
 
-def get_brick_save(brickID, houLib):
-    brick  = get_brick(brickID, houLib)
+def get_brick_save(brickID, houLib, ldraw=False):
+    brick  = get_brick(brickID, houLib, ldraw)
     return brick or os.getenv('POLYFACTORY')+'/geo/unknown_brick.bgeo.sc'
 
 
-def setup_ldr(lDrawFile, lDrawLib, houLib, brand='lego', yUp = False):
+def setup_ldr(lDrawFile, lDrawLib, houLib, brand='lego', yUp = False, ldraw=False):
     """This method will prepare parts for the given ldr file
     the method does not expect geometry to be written directly in this file
     but expects only references to other .dat files
@@ -229,7 +243,7 @@ def setup_ldr(lDrawFile, lDrawLib, houLib, brand='lego', yUp = False):
 
     for brick in bricks:
         brickID = '{}_{}'.format(brand, brick.split('.')[0])
-        brickCheck = get_brick(brickID, houLib)
+        brickCheck = get_brick(brickID, houLib, ldraw)
         if not brickCheck:
             importDat.append(brickID)
             
@@ -316,3 +330,23 @@ def get_colors(LDrawLib):
 
 
     return colors
+
+
+def get_brick_data(brickName):
+    regex = r"(?P<category>[a-zA-Z0-9]+|[a-zA-Z0-9]+_[a-zA-Z0-9]+)_*(?P<angle>(?=[_x]*)[0-9]*)?_+(?P<width>[0-9]+)[_x]+(?P<length>[0-9]+)[_x]*(?P<height>[0-9]*)?_*(?P<description>.*)?"
+    return re.search(regex, brickName)
+
+
+def get_category(library, brickID):
+
+    for f in glob(f"{library}/*.ldr"):
+        with open(f) as ldr:
+            for line in ldr:
+                cLine = line.strip()
+                cmd = re.split(r'\s+', cLine)
+                if not cmd[0] == '1':
+                    continue
+                id = f"lego_{cmd[-1].split('.')[0]}"
+                if id==brickID:
+                    return Path(f).stem
+
