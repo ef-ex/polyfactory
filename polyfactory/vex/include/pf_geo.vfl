@@ -120,7 +120,6 @@ int sharedhedgepoint(int geometry, hedgeA, hedgeB){
     }
     return -1;
     
-<<<<<<< HEAD
 }
 
 
@@ -163,6 +162,4 @@ int draw_line(int geo, poly, points[]){
         addvertex(geo, poly, p2);
     }
     return poly;
-=======
->>>>>>> experimental
 }

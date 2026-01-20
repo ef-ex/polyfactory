@@ -1,10 +1,6 @@
 vector getNewDir( vector prevDir, newDir; int vf, npt; string direction){
     vector dirvec = set(0,0,0);
-<<<<<<< HEAD
-    int npts[] = nearpoints(vf, point(vf, "P", npt), 5);
-=======
     int npts[] = nearpoints(vf, point(vf, "P", npt), 20);
->>>>>>> experimental
 
     foreach(int pt; npts){
         dirvec += point(vf, direction, pt)*point(vf, "weight", pt);
@@ -41,8 +37,3 @@ int drawStreet( int vf, steps; vector pos; float stepSize ; string dir){
     }
     return prim;
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> experimental
