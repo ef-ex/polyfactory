@@ -4,7 +4,7 @@ Handles kitbash asset management, export, and import workflows
 """
 
 from .database import AssetDatabase
-from .exporter import AssetExporter
-from .render import TurntableRenderer
+from .exporter import export_asset
+from .render import render_turntable
 
-__all__ = ['AssetDatabase', 'AssetExporter', 'TurntableRenderer']
+__all__ = ['AssetDatabase', 'export_asset', 'render_turntable']

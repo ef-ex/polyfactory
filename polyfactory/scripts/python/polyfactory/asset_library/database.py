@@ -11,11 +11,12 @@ from typing import List, Dict, Optional, Tuple
 class AssetDatabase:
     """Manages the asset library SQLite database"""
     
-    def __init__(self, db_path: str = None):
+    def __init__(self, db_path: str = None, debug: bool = False):
         """Initialize database connection
         
         Args:
             db_path: Path to SQLite database. If None, uses PF_ASSET_DB env var
+            debug: Enable debug print statements
         """
         if db_path is None:
             db_path = os.environ.get('PF_ASSET_DB', '')
@@ -23,6 +24,7 @@ class AssetDatabase:
                 raise ValueError("Database path not specified and PF_ASSET_DB environment variable not set")
         
         self.db_path = db_path
+        self.debug = debug
         self._ensure_directory()
         self.conn = None
         self.cursor = None
@@ -31,15 +33,46 @@ class AssetDatabase:
     
     def _ensure_directory(self):
         """Create database directory if it doesn't exist"""
+        # Resolve the full path first
+        self.db_path = os.path.abspath(self.db_path)
         db_dir = os.path.dirname(self.db_path)
-        if db_dir and not os.path.exists(db_dir):
-            os.makedirs(db_dir)
+        
+        if not db_dir:
+            # If no directory specified, use current directory
+            self.db_path = os.path.join(os.getcwd(), os.path.basename(self.db_path))
+            db_dir = os.path.dirname(self.db_path)
+        
+        # Create directory structure
+        try:
+            os.makedirs(db_dir, exist_ok=True)
+            if self.debug:
+                print(f"Database directory ensured: {db_dir}")
+        except Exception as e:
+            raise IOError(f"Cannot create database directory {db_dir}: {e}")
+        
+        # Verify directory is writable by trying to create a test file
+        test_file = os.path.join(db_dir, '.test_write')
+        try:
+            with open(test_file, 'w') as f:
+                f.write('test')
+            os.remove(test_file)
+            if self.debug:
+                print(f"Directory is writable: {db_dir}")
+        except Exception as e:
+            raise IOError(f"Directory is not writable {db_dir}: {e}")
     
     def _connect(self):
         """Establish database connection"""
-        self.conn = sqlite3.connect(self.db_path)
-        self.conn.row_factory = sqlite3.Row  # Allow access by column name
-        self.cursor = self.conn.cursor()
+        if self.debug:
+            print(f"Connecting to database: {self.db_path}")
+        try:
+            self.conn = sqlite3.connect(self.db_path)
+            self.conn.row_factory = sqlite3.Row  # Allow access by column name
+            self.cursor = self.conn.cursor()
+            if self.debug:
+                print(f"Database connection successful")
+        except Exception as e:
+            raise IOError(f"Cannot connect to database {self.db_path}: {e}")
     
     def _initialize_schema(self):
         """Create database tables if they don't exist"""

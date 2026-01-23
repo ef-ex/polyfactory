@@ -78,6 +78,7 @@ class AssetExportDialog(QtWidgets.QDialog):
         self.use_prepare_mesh = QtWidgets.QCheckBox("Use Prepare Mesh HDA")
         self.use_prepare_mesh.setChecked(True)
         self.use_prepare_mesh.setToolTip("Apply pf_prepare_mesh to normalize the geometry")
+        
         prep_layout.addWidget(self.use_prepare_mesh)
         
         # Sub-options for prepare mesh
@@ -129,28 +130,6 @@ class AssetExportDialog(QtWidgets.QDialog):
         prep_group.setLayout(prep_layout)
         layout.addWidget(prep_group)
         
-        # Render Options
-        render_group = QtWidgets.QGroupBox("Thumbnail Render")
-        render_layout = QtWidgets.QVBoxLayout()
-        
-        turntable_info = QtWidgets.QLabel("Turntable animation will be rendered automatically (36 frames)")
-        turntable_info.setWordWrap(True)
-        turntable_info.setStyleSheet("color: #888; font-style: italic;")
-        render_layout.addWidget(turntable_info)
-        
-        self.turntable_frames = QtWidgets.QSpinBox()
-        self.turntable_frames.setRange(12, 72)
-        self.turntable_frames.setValue(36)
-        self.turntable_frames.setSuffix(" frames")
-        frames_layout = QtWidgets.QHBoxLayout()
-        frames_layout.addWidget(QtWidgets.QLabel("Frame Count:"))
-        frames_layout.addWidget(self.turntable_frames)
-        frames_layout.addStretch()
-        render_layout.addLayout(frames_layout)
-        
-        render_group.setLayout(render_layout)
-        layout.addWidget(render_group)
-        
         # Export path preview
         path_group = QtWidgets.QGroupBox("Export Destination")
         path_layout = QtWidgets.QVBoxLayout()
@@ -167,13 +146,15 @@ class AssetExportDialog(QtWidgets.QDialog):
         self.name_edit.textChanged.connect(self._update_path_preview)
         self.category_combo.currentTextChanged.connect(self._update_path_preview)
         
+        # Debug options
+        self.debug_prints = QtWidgets.QCheckBox("Debug Prints")
+        self.debug_prints.setChecked(False)
+        self.debug_prints.setToolTip("Show detailed debug information in console")
+        layout.addWidget(self.debug_prints)
+        
         # Buttons
         button_layout = QtWidgets.QHBoxLayout()
         button_layout.addStretch()
-        
-        self.preview_button = QtWidgets.QPushButton("Preview Network")
-        self.preview_button.clicked.connect(self._on_preview)
-        button_layout.addWidget(self.preview_button)
         
         self.export_button = QtWidgets.QPushButton("Export Asset")
         self.export_button.setDefault(True)
@@ -194,7 +175,19 @@ class AssetExportDialog(QtWidgets.QDialog):
         try:
             from polyfactory.asset_library.database import AssetDatabase
             
+            # Get library path
+            library_path = os.environ.get('PF_ASSET_LIBRARY', '')
+            if not library_path:
+                return
+            
+            # Construct database path
             db_path = os.environ.get('PF_ASSET_DB', '')
+            if not db_path:
+                db_path = os.path.join(library_path, 'asset_library.db')
+            elif not db_path.endswith('.db'):
+                db_path = os.path.join(db_path, 'asset_library.db')
+            
+            # Only try to load if database exists
             if os.path.exists(db_path):
                 with AssetDatabase(db_path) as db:
                     categories = db.get_all_categories()
@@ -218,7 +211,7 @@ class AssetExportDialog(QtWidgets.QDialog):
         safe_category = safe_category.replace(' ', '_')
         
         library_path = os.environ.get('PF_ASSET_LIBRARY', '$PF_ASSET_LIBRARY')
-        export_path = os.path.join(library_path, safe_category, f"{safe_name}.bgeo.sc")
+        export_path = os.path.join(library_path, safe_category, f"{safe_name}.usd")
         
         self.export_path_label.setText(export_path)
     
@@ -240,78 +233,6 @@ class AssetExportDialog(QtWidgets.QDialog):
         
         return True
     
-    def _on_preview(self):
-        """Handle preview button click - create network without exporting"""
-        if not self._validate_inputs():
-            return
-        
-        # Build the export data
-        export_data = {
-            'name': self.name_edit.text().strip(),
-            'category': self.category_combo.currentText().strip(),
-            'tags': [t.strip() for t in self.tags_edit.text().split(',') if t.strip()],
-            'notes': self.notes_edit.toPlainText().strip(),
-            'use_prepare_mesh': self.use_prepare_mesh.isChecked(),
-            'scale_to': self.scale_to_combo.currentIndex(),
-            'up': self.up_combo.currentIndex(),
-            'y_z': self.y_z_swap.isChecked(),
-            'align_x': self.align_x_combo.currentIndex(),
-            'align_y': self.align_y_combo.currentIndex(),
-            'align_z': self.align_z_combo.currentIndex(),
-            'turntable_frames': self.turntable_frames.value(),
-            'selection_node': self.selection_node,
-            'selected_prims': self.selected_prims
-        }
-        
-        # Create the network
-        from polyfactory.asset_library.exporter import AssetExporter
-        exporter = AssetExporter()
-        export_node = exporter._build_export_network(
-            export_data['selection_node'],
-            export_data['selected_prims'],
-            export_data
-        )
-        
-        if export_node:
-            # Set display flag on the final node
-            export_node.setDisplayFlag(True)
-            export_node.setRenderFlag(True)
-            
-            # Select and frame the node
-            parent = export_node.parent()
-            parent.setSelected(False, clear_all_selected=True)
-            export_node.setSelected(True, clear_all_selected=True)
-            
-            # Layout and frame
-            parent.layoutChildren()
-            
-            # Get the network editor and frame
-            import hou
-            desktop = hou.ui.curDesktop()
-            network_editor = desktop.paneTabOfType(hou.paneTabType.NetworkEditor)
-            if network_editor:
-                network_editor.setCurrentNode(export_node)
-                network_editor.homeToSelection()
-            
-            # Show info
-            node_names = ' → '.join([n.name() for n in exporter.temp_nodes])
-            print(f"Preview network created: {node_names}")
-            print(f"Output node: {export_node.path()}")
-            
-            QtWidgets.QMessageBox.information(
-                self,
-                "Network Created",
-                f"Export network created!\n\n"
-                f"Output node: {export_node.name()}\n"
-                f"Node chain: {node_names}\n\n"
-                "Check the network editor. Dialog is non-modal so you can inspect the nodes."
-            )
-        else:
-            QtWidgets.QMessageBox.warning(
-                self,
-                "Error",
-                "Failed to create preview network. Check the console for details."
-            )
     
     def _on_export(self):
         """Handle export button click"""
@@ -331,15 +252,13 @@ class AssetExportDialog(QtWidgets.QDialog):
             'align_x': self.align_x_combo.currentIndex(),
             'align_y': self.align_y_combo.currentIndex(),
             'align_z': self.align_z_combo.currentIndex(),
-            'turntable_frames': self.turntable_frames.value(),
             'selection_node': self.selection_node,
             'selected_prims': self.selected_prims
         }
         
         # Execute the export
-        from polyfactory.asset_library.exporter import AssetExporter
-        exporter = AssetExporter()
-        result = exporter.export_asset(self.export_data)
+        from polyfactory.asset_library.exporter import export_asset
+        result = export_asset(self.export_data, debug=self.debug_prints.isChecked())
         
         if result:
             QtWidgets.QMessageBox.information(
