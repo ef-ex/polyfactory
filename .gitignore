@@ -2,6 +2,12 @@
 backup/
 *.hip
 
+# dev/test scripts
+devScripts/
+
+# asset library and database
+polyfactory/library/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <toolshelf name="polyfactory" label="Polyfactory">
+    <memberTool name="pf_export_to_library"/>
+  </toolshelf>
+
+  <tool name="pf_export_to_library" label="Export to Library" icon="MISC_saver">
+    <helpText><![CDATA[Export selected geometry to the asset library.
+
+Select primitives in the viewport, then click this tool to open the export dialog.]]></helpText>
+    <script scriptType="python"><![CDATA[from importlib import reload
+
+from polyfactory.asset_library import hotkey_export, export_ui, exporter, render
+reload(render)
+reload(exporter)
+reload(export_ui)
+reload(hotkey_export)
+hotkey_export.export_selected_to_library()]]></script>
+  </tool>
+</shelfDocument>
