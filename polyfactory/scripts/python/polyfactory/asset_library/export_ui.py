@@ -5,6 +5,7 @@ Export UI Panel for Asset Library
 import hou
 from PySide6 import QtWidgets, QtCore, QtGui
 import os
+from polyfactory.widgets.tag_input import TagInputWidget
 
 
 class AssetExportDialog(QtWidgets.QDialog):
@@ -52,6 +53,15 @@ class AssetExportDialog(QtWidgets.QDialog):
         
         self.name_edit = QtWidgets.QLineEdit()
         self.name_edit.setPlaceholderText("Enter asset name...")
+        self.name_edit.editingFinished.connect(self._on_name_confirmed)
+        self.name_edit.returnPressed.connect(self._on_name_confirmed)
+        
+        # Add completer for existing names
+        self.name_completer = QtWidgets.QCompleter()
+        self.name_completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.name_completer.setFilterMode(QtCore.Qt.MatchContains)
+        self.name_edit.setCompleter(self.name_completer)
+        
         asset_layout.addRow("Name:*", self.name_edit)
         
         self.category_combo = QtWidgets.QComboBox()
@@ -59,9 +69,8 @@ class AssetExportDialog(QtWidgets.QDialog):
         self.category_combo.addItem("")  # Empty default
         asset_layout.addRow("Category:*", self.category_combo)
         
-        self.tags_edit = QtWidgets.QLineEdit()
-        self.tags_edit.setPlaceholderText("tag1, tag2, tag3")
-        asset_layout.addRow("Tags:", self.tags_edit)
+        self.tags_widget = TagInputWidget()
+        asset_layout.addRow("Tags:", self.tags_widget)
         
         self.notes_edit = QtWidgets.QPlainTextEdit()
         self.notes_edit.setMaximumHeight(80)
@@ -172,6 +181,11 @@ class AssetExportDialog(QtWidgets.QDialog):
     
     def _load_existing_data(self):
         """Load existing categories from database"""
+        # Store for auto-matching
+        self.db_categories = []
+        self.db_tags = []
+        self.db_names = []
+        
         try:
             from polyfactory.asset_library.database import AssetDatabase
             
@@ -190,10 +204,53 @@ class AssetExportDialog(QtWidgets.QDialog):
             # Only try to load if database exists
             if os.path.exists(db_path):
                 with AssetDatabase(db_path) as db:
-                    categories = db.get_all_categories()
-                    self.category_combo.addItems(categories)
+                    # Load categories
+                    self.db_categories = db.get_all_categories()
+                    self.category_combo.addItems(self.db_categories)
+                    
+                    # Load tags
+                    self.db_tags = db.get_all_tags()
+                    self.tags_widget.setAvailableTags(self.db_tags)
+                    
+                    # Load existing asset names for autocomplete
+                    self.db_names = db.get_all_names()
+                    name_model = QtCore.QStringListModel(self.db_names)
+                    self.name_completer.setModel(name_model)
         except Exception as e:
             print(f"Could not load existing categories: {e}")
+    
+    def _on_name_confirmed(self):
+        """Handle name confirmation (Enter key or lost focus) - auto-suggest category and tags"""
+        text = self.name_edit.text().strip().lower()
+        if not text or len(text) < 3:
+            return
+        
+        # Find matching category (case-insensitive substring match)
+        matched_category = None
+        for category in self.db_categories:
+            if category.lower() in text or text in category.lower():
+                matched_category = category
+                break
+        
+        # Auto-fill category if found and field is empty
+        if matched_category and not self.category_combo.currentText().strip():
+            self.category_combo.setCurrentText(matched_category)
+        
+        # Find matching tags
+        current_tags = set(self.tags_widget.getTags())
+        new_tags = []
+        
+        for tag in self.db_tags:
+            tag_lower = tag.lower()
+            # Check if tag is substring of name or name contains tag as word
+            if tag_lower in text or text in tag_lower:
+                if tag not in current_tags:
+                    new_tags.append(tag)
+        
+        # Auto-add matching tags
+        if new_tags:
+            all_tags = list(current_tags) + new_tags
+            self.tags_widget.setTags(all_tags)
     
     def _update_path_preview(self):
         """Update the export path preview"""
@@ -243,7 +300,7 @@ class AssetExportDialog(QtWidgets.QDialog):
         self.export_data = {
             'name': self.name_edit.text().strip(),
             'category': self.category_combo.currentText().strip(),
-            'tags': [t.strip() for t in self.tags_edit.text().split(',') if t.strip()],
+            'tags': self.tags_widget.getTags(),
             'notes': self.notes_edit.toPlainText().strip(),
             'use_prepare_mesh': self.use_prepare_mesh.isChecked(),
             'scale_to': self.scale_to_combo.currentIndex(),

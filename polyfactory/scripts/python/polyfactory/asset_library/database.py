@@ -320,6 +320,17 @@ class AssetDatabase:
         """)
         return [row[0] for row in self.cursor.fetchall()]
     
+    def get_all_names(self) -> List[str]:
+        """Get all unique asset names
+        
+        Returns:
+            List of asset name strings
+        """
+        self.cursor.execute("""
+            SELECT DISTINCT name FROM assets ORDER BY name
+        """)
+        return [row[0] for row in self.cursor.fetchall()]
+    
     def update_asset(self, asset_id: int, **kwargs):
         """Update asset fields
         
