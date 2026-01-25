@@ -1,0 +1,75 @@
+{
+  "todo-tree.general.tags": [
+    "TODO",
+    "FIXME",
+    "UNTESTED",
+    "WIP",
+    "HACK",
+    "XXX",
+    "NOTE",
+    "OPTIMIZE"
+  ],
+  "todo-tree.general.tagGroups": {
+    "CRITICAL": ["FIXME", "XXX"],
+    "TESTING": ["UNTESTED", "WIP"]
+  },
+  "todo-tree.highlights.defaultHighlight": {
+    "icon": "alert",
+    "type": "text",
+    "foreground": "#ffffff",
+    "background": "#808080",
+    "opacity": 50,
+    "iconColour": "#808080"
+  },
+  "todo-tree.highlights.customHighlight": {
+    "TODO": {
+      "icon": "check",
+      "iconColour": "#3498db",
+      "background": "#3498db"
+    },
+    "FIXME": {
+      "icon": "flame",
+      "iconColour": "#e74c3c",
+      "background": "#e74c3c"
+    },
+    "UNTESTED": {
+      "icon": "beaker",
+      "iconColour": "#f39c12",
+      "background": "#f39c12"
+    },
+    "WIP": {
+      "icon": "tools",
+      "iconColour": "#9b59b6",
+      "background": "#9b59b6"
+    },
+    "HACK": {
+      "icon": "alert",
+      "iconColour": "#e67e22",
+      "background": "#e67e22"
+    },
+    "XXX": {
+      "icon": "x",
+      "iconColour": "#c0392b",
+      "background": "#c0392b"
+    },
+    "NOTE": {
+      "icon": "note",
+      "iconColour": "#2ecc71",
+      "background": "#2ecc71"
+    },
+    "OPTIMIZE": {
+      "icon": "rocket",
+      "iconColour": "#1abc9c",
+      "background": "#1abc9c"
+    }
+  },
+  "todo-tree.filtering.excludeGlobs": [
+    "**/node_modules/**",
+    "**/backup/**",
+    "**/addons/gdUnit4/**",
+    "**/.git/**"
+  ],
+  "todo-tree.filtering.includeGlobs": [],
+  "todo-tree.tree.showScanModeButton": true,
+  "todo-tree.tree.showCountsInTree": true
+}
