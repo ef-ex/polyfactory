@@ -22,6 +22,7 @@ def reload_widgets():
         'polyfactory.widgets.binding_manager',
         'polyfactory.widgets.widgets',
         'polyfactory.widgets.layouts',
+        'polyfactory.widgets.parm_panel',
         'polyfactory.widgets'
     ]
     return _reload_modules(modules, "widget library")

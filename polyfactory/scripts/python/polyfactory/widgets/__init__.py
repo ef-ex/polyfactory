@@ -45,6 +45,10 @@ from .widgets import (
     ParmButton
 )
 from .layouts import HoudiniVLayout, HoudiniHLayout, HoudiniGroupBox
+from .parm_panel import (
+    show_floating_parm_panel,
+    show_selected_node_parms
+)
 
 __all__ = [
     'BindingManager',
@@ -57,6 +61,8 @@ __all__ = [
     'ParmButton',
     'HoudiniVLayout',
     'HoudiniHLayout',
-    'HoudiniGroupBox'
+    'HoudiniGroupBox',
+    'show_floating_parm_panel',
+    'show_selected_node_parms'
 ]
 
