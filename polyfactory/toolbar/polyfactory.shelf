@@ -7,20 +7,21 @@
 
   <toolshelf name="polyfactory" label="Polyfactory">
     <memberTool name="pf_export_to_library"/>
+    <memberTool name="asset_browser"/>
   </toolshelf>
 
   <tool name="pf_export_to_library" label="Export to Library" icon="BUTTONS_addasset">
     <helpText><![CDATA[Export selected geometry to the asset library.
 
 Select primitives in the viewport, then click this tool to open the export dialog.]]></helpText>
-    <script scriptType="python"><![CDATA[from importlib import reload
-
-from polyfactory.asset_library import hotkey_export, export_ui, exporter, render, database
-reload(database)
-reload(render)
-reload(exporter)
-reload(export_ui)
-reload(hotkey_export)
+    <script scriptType="python"><![CDATA[from polyfactory.asset_library import reload_modules, hotkey_export
+reload_modules.reload_asset_library()
 hotkey_export.export_selected_to_library()]]></script>
+  </tool>
+
+  <tool name="asset_browser" label="Asset Browser" icon="LOP_layout">
+    <script scriptType="python"><![CDATA[from polyfactory.asset_library import reload_modules, browser_ui
+reload_modules.reload_asset_library()
+browser_ui.show_asset_browser()]]></script>
   </tool>
 </shelfDocument>

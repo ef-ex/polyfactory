@@ -5,6 +5,9 @@ backup/
 # dev/test scripts
 devScripts/
 
+# dev shelf (testing only)
+polyfactory/toolbar/polyfactory_dev.shelf
+
 # asset library and database
 polyfactory/library/
 
