@@ -33,6 +33,7 @@ TODO: Add validation and constraints
 
 # Import submodules to ensure they're loaded for reloading
 from . import parm_utils
+from . import hover_outline
 
 from .binding_manager import BindingManager
 from .widgets import (
@@ -49,6 +50,7 @@ from .parm_panel import (
     show_floating_parm_panel,
     show_selected_node_parms
 )
+from .hover_outline import HoverOutlineMixin
 
 __all__ = [
     'BindingManager',
@@ -63,6 +65,7 @@ __all__ = [
     'HoudiniHLayout',
     'HoudiniGroupBox',
     'show_floating_parm_panel',
-    'show_selected_node_parms'
+    'show_selected_node_parms',
+    'HoverOutlineMixin'
 ]
 

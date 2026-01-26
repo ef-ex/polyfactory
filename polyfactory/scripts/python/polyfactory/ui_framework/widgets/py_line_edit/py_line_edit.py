@@ -18,6 +18,15 @@
 # ///////////////////////////////////////////////////////////////
 from ...qt_core import *
 
+try:
+    from polyfactory.widgets.hover_outline import HoverOutlineMixin
+    _has_hover_mixin = True
+except ImportError:
+    _has_hover_mixin = False
+    class HoverOutlineMixin:
+        """Fallback if hover_outline not available"""
+        pass
+
 # STYLE
 # ///////////////////////////////////////////////////////////////
 style = '''
@@ -39,7 +48,7 @@ QLineEdit:focus {{
 
 # PY PUSH BUTTON
 # ///////////////////////////////////////////////////////////////
-class PyLineEdit(QLineEdit):
+class PyLineEdit(HoverOutlineMixin, QLineEdit):
     def __init__(
         self, 
         text = "",
@@ -70,6 +79,17 @@ class PyLineEdit(QLineEdit):
             bg_color_active,
             context_color
         )
+        
+        # Setup animated hover outline if available
+        if _has_hover_mixin:
+            self.setup_hover_outline(color="#61afef", width=1, radius=radius, fade_duration=150, inset=0)
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        if _has_hover_mixin and hasattr(self, 'paint_hover_outline'):
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing)
+            self.paint_hover_outline(painter)
 
     # SET STYLESHEET
     def set_stylesheet(

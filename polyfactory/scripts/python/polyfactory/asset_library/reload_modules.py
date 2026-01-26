@@ -23,6 +23,8 @@ def reload_widgets():
         'polyfactory.widgets.widgets',
         'polyfactory.widgets.layouts',
         'polyfactory.widgets.parm_panel',
+        'polyfactory.widgets.tag_input',
+        'polyfactory.widgets.hover_outline',
         'polyfactory.widgets'
     ]
     return _reload_modules(modules, "widget library")

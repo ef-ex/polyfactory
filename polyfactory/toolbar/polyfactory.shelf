@@ -15,13 +15,13 @@
 
 Select primitives in the viewport, then click this tool to open the export dialog.]]></helpText>
     <script scriptType="python"><![CDATA[from polyfactory.asset_library import reload_modules, hotkey_export
-reload_modules.reload_asset_library()
+reload_modules.reload_all()
 hotkey_export.export_selected_to_library()]]></script>
   </tool>
 
   <tool name="asset_browser" label="Asset Browser" icon="LOP_layout">
     <script scriptType="python"><![CDATA[from polyfactory.asset_library import reload_modules, browser_ui
-reload_modules.reload_asset_library()
+reload_modules.reload_all()
 browser_ui.show_asset_browser()]]></script>
   </tool>
 </shelfDocument>

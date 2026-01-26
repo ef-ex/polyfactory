@@ -132,6 +132,176 @@ Features:
 See `devScripts/hda_ui_example.py` for complete example.
 Module: `polyfactory/scripts/python/polyfactory/widgets/`
 
+### PyOneDark UI Framework
+
+**Modern UI Styling for All Tools**
+
+Polyfactory uses the PyOneDark UI framework (based on PyOneDark Qt Widgets by Wanderson M. Pimenta) for consistent, polished tool interfaces across Houdini panels and standalone applications.
+
+**Location:** `polyfactory/scripts/python/polyfactory/ui_framework/`
+
+**Color Palette (OneDark Theme):**
+```python
+# Primary Colors
+BLUE_PRIMARY   = "#61afef"  # Main accent, buttons, highlights
+BLUE_HOVER     = "#6c99f4"  # Hover states
+BLUE_PRESSED   = "#3f6fd1"  # Pressed/active states
+
+# Backgrounds
+BG_DARKEST     = "#1e1e1e"  # Main dialog/window background
+BG_DARK        = "#252525"  # Group boxes, panels
+BG_MEDIUM      = "#2c2c2c"  # Input fields, thumbnails
+BG_LIGHT       = "#3a3a3a"  # Borders, separators
+
+# Text Colors
+TEXT_PRIMARY   = "#e0e0e0"  # Main text, input text
+TEXT_SECONDARY = "#abb2bf"  # Labels, descriptions
+TEXT_DISABLED  = "#4f5b6e"  # Disabled elements
+TEXT_ACCENT    = "#dce1ec"  # Highlighted text, titles
+
+# Utility Colors
+RED            = "#ff5555"  # Errors, warnings
+GREEN          = "#00ff7f"  # Success states
+YELLOW         = "#f1fa8c"  # Caution
+```
+
+**Usage in Custom UIs:**
+
+```python
+from polyfactory.ui_framework.widgets.py_push_button import PyPushButton
+from polyfactory.ui_framework.widgets.py_line_edit import PyLineEdit
+
+# Styled button with blue accent
+export_btn = PyPushButton(
+    text="Export Asset",
+    radius=8,
+    color="#61afef",
+    bg_color="#2c2c2c",
+    bg_color_hover="#3a5f7d",
+    bg_color_pressed="#4a6f8d"
+)
+
+# Styled line edit
+name_edit = PyLineEdit()
+name_edit.setPlaceholderText("Enter name...")
+```
+
+**Standard Widget Styling (for non-framework widgets):**
+
+Apply consistent OneDark theme to standard Qt widgets:
+
+```python
+# Dialogs
+self.setStyleSheet("""
+    QDialog {
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+    }
+""")
+
+# Input fields
+self.input.setStyleSheet("""
+    QLineEdit {
+        background-color: #2c2c2c;
+        border: 1px solid #3a3a3a;
+        border-radius: 4px;
+        padding: 6px;
+        color: #e0e0e0;
+    }
+    QLineEdit:focus {
+        border: 1px solid #61afef;
+    }
+""")
+
+# Hover outlines (for thumbnails, cards)
+def paintEvent(self, event):
+    if self.is_hovered:
+        painter = QtGui.QPainter(self)
+        pen = QtGui.QPen(QtGui.QColor("#61afef"), 2)
+        painter.setPen(pen)
+        painter.drawRoundedRect(self.rect().adjusted(1,1,-1,-1), 6, 6)
+```
+
+**Design Guidelines:**
+- **Consistency:** All Polyfactory tools should use the OneDark color scheme
+- **Blue accents:** Primary actions and focus states use `#61afef`
+- **Dark backgrounds:** Main windows use `#1e1e1e`, panels use `#252525`
+- **Rounded corners:** 4-8px radius for modern look
+- **Spacing:** 8-16px margins, 8-12px spacing between elements
+- **Hover feedback:** Always provide visual feedback (blue outline, lighter background)
+
+**Attribution:**
+Original PyOneDark framework by Wanderson M. Pimenta (MIT License).
+See `ui_framework/README.md` for full attribution.
+
+### Animated Hover Outline (Standard Widget Enhancement)
+
+**HoverOutlineMixin** provides animated blue outline on hover for any widget.
+
+**Location:** `polyfactory/scripts/python/polyfactory/widgets/hover_outline.py`
+
+**Features:**
+- Smooth fade-in/fade-out animation (150ms by default)
+- PyOneDark blue accent color (#61afef)
+- Customizable color, width, radius, duration
+- Works with any QWidget subclass
+
+**Usage:**
+
+```python
+from polyfactory.widgets.hover_outline import HoverOutlineMixin
+
+class MyWidget(HoverOutlineMixin, QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        
+        # Setup animated hover outline (call in __init__)
+        self.setup_hover_outline(
+            color="#61afef",      # Outline color
+            width=2,              # Pen width
+            radius=6,             # Corner radius
+            fade_duration=150,    # Animation duration (ms)
+            inset=1              # Inset from edge
+        )
+        
+        # Your widget setup...
+    
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        
+        # Paint hover outline with animation
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.paint_hover_outline(painter)  # Mixin handles opacity
+```
+
+**How It Works:**
+- Uses `QPropertyAnimation` on `hover_outline_opacity` property (0.0 to 1.0)
+- `enterEvent()` fades in, `leaveEvent()` fades out
+- `paint_hover_outline()` applies alpha channel to outline color
+- Animation triggers `update()` to repaint during transition
+
+**Example (Asset Thumbnail):**
+```python
+class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
+    def __init__(self, asset_data, size=150, parent=None):
+        super().__init__(parent)
+        self.setup_hover_outline(color="#61afef", width=2, radius=6, fade_duration=150)
+        # ... widget setup
+    
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.paint_hover_outline(painter)  # Animated outline
+```
+
+**Design Philosophy:**
+- Default widget enhancement for all Polyfactory tools
+- Consistent hover feedback across UI
+- Smooth, polished user experience
+- Minimal boilerplate (just 2 lines to enable)
+
 ### Enhanced Widget System - Advanced Patterns
 
 **Architecture: Inherit from Houdini Native Widgets**
