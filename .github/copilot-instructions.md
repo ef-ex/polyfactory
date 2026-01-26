@@ -302,6 +302,96 @@ class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
 - Smooth, polished user experience
 - Minimal boilerplate (just 2 lines to enable)
 
+**Creating Hover-Enabled Wrapper Classes:**
+
+When PyOneDark framework widgets need hover effects, create thin wrapper classes:
+
+```python
+from polyfactory.widgets.hover_outline import HoverOutlineMixin
+
+class HoverComboBox(HoverOutlineMixin, QtWidgets.QComboBox):
+    """QComboBox with animated hover outline"""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setup_hover_outline(color="#61afef", width=1, radius=4, fade_duration=150)
+    
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.paint_hover_outline(painter)
+```
+
+**Optional Dependency Pattern:**
+
+For framework widgets that may be used outside Polyfactory, use try/except import:
+
+```python
+try:
+    from polyfactory.widgets.hover_outline import HoverOutlineMixin
+    _has_hover_mixin = True
+except ImportError:
+    _has_hover_mixin = False
+    class HoverOutlineMixin:
+        """Fallback if hover_outline not available"""
+        pass
+
+class PyLineEdit(HoverOutlineMixin, QLineEdit):
+    def __init__(self, ...):
+        super().__init__()
+        # ... setup code
+        if _has_hover_mixin:
+            self.setup_hover_outline(...)
+    
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        if _has_hover_mixin and hasattr(self, 'paint_hover_outline'):
+            painter = QPainter(self)
+            self.paint_hover_outline(painter)
+```
+
+### FlowLayout - Responsive Widget Wrapping
+
+**Location:** `polyfactory/widgets/tag_input.py` (FlowLayout class)
+
+Custom QLayout subclass that wraps widgets like text flow. Used for tag chips and asset thumbnails.
+
+**Features:**
+- Automatic wrapping to multiple lines based on width
+- Dynamic height calculation (implements `hasHeightForWidth()`)
+- Configurable horizontal/vertical spacing
+- Works with any QWidget
+
+**Usage:**
+
+```python
+from polyfactory.widgets.tag_input import FlowLayout
+
+container = QtWidgets.QWidget()
+layout = FlowLayout(container)
+layout.spacing_x = 8
+layout.spacing_y = 8
+
+# Add widgets - they wrap automatically
+for item in items:
+    widget = MyWidget(item)
+    layout.addWidget(widget)
+
+# Force layout recalculation after size changes
+container.updateGeometry()
+```
+
+**When to Use:**
+- Tag chips that need to wrap in narrow panels
+- Asset thumbnails with variable sizes
+- Any grid that should reflow responsively
+- Alternative to QGridLayout with fixed columns
+
+**Important:**
+- Does NOT support `addStretch()` - add fixed widgets instead
+- Layout recalculates on resize automatically
+- Use `updateGeometry()` to force immediate recalculation
+
 ### Enhanced Widget System - Advanced Patterns
 
 **Architecture: Inherit from Houdini Native Widgets**
