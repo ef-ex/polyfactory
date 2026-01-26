@@ -40,6 +40,18 @@ def reload_asset_library():
     return _reload_modules(modules, "asset library")
 
 
+def reload_ui_framework():
+    """Reload UI framework modules (PyOneDark-based)."""
+    modules = [
+        'polyfactory.ui_framework.qt_core',
+        'polyfactory.ui_framework.core',
+        'polyfactory.ui_framework.themes',
+        'polyfactory.ui_framework.widgets',
+        'polyfactory.ui_framework'
+    ]
+    return _reload_modules(modules, "UI framework")
+
+
 def reload_all():
     """Reload all Polyfactory modules."""
     print("="*60)
@@ -48,6 +60,7 @@ def reload_all():
     
     reload_widgets()
     reload_asset_library()
+    reload_ui_framework()
     
     print("="*60)
     print("All modules reloaded!")
