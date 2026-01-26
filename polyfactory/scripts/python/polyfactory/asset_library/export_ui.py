@@ -6,6 +6,8 @@ import hou
 from PySide6 import QtWidgets, QtCore, QtGui
 import os
 from polyfactory.widgets.tag_input import TagInputWidget
+from polyfactory.ui_framework.widgets.py_push_button import PyPushButton
+from polyfactory.ui_framework.widgets.py_line_edit import PyLineEdit
 
 
 class AssetExportDialog(QtWidgets.QDialog):
@@ -18,8 +20,70 @@ class AssetExportDialog(QtWidgets.QDialog):
         self.selected_prims = selected_prims
         
         self.setWindowTitle("Export to Asset Library")
-        self.setMinimumWidth(500)
-        self.setMinimumHeight(600)
+        self.setMinimumWidth(600)
+        self.setMinimumHeight(700)
+        
+        # Apply modern dark theme styling
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #1e1e1e;
+                color: #e0e0e0;
+            }
+            QGroupBox {
+                background-color: #252525;
+                border: 1px solid #3a3a3a;
+                border-radius: 6px;
+                margin-top: 12px;
+                padding-top: 16px;
+                font-weight: bold;
+                color: #e0e0e0;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                subcontrol-position: top left;
+                padding: 4px 8px;
+                color: #61afef;
+            }
+            QLabel {
+                color: #abb2bf;
+            }
+            QLineEdit, QComboBox, QPlainTextEdit {
+                background-color: #2c2c2c;
+                border: 1px solid #3a3a3a;
+                border-radius: 4px;
+                padding: 6px;
+                color: #e0e0e0;
+            }
+            QLineEdit:focus, QComboBox:focus, QPlainTextEdit:focus {
+                border: 1px solid #61afef;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+            QComboBox::down-arrow {
+                image: none;
+                border-left: 4px solid transparent;
+                border-right: 4px solid transparent;
+                border-top: 6px solid #abb2bf;
+                margin-right: 6px;
+            }
+            QCheckBox {
+                color: #abb2bf;
+                spacing: 8px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+                border-radius: 3px;
+                border: 1px solid #3a3a3a;
+                background-color: #2c2c2c;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #61afef;
+                border-color: #61afef;
+            }
+        """)
         
         # Make dialog non-modal so user can interact with Houdini
         self.setModal(False)
@@ -30,6 +94,8 @@ class AssetExportDialog(QtWidgets.QDialog):
     def _setup_ui(self):
         """Create UI elements"""
         layout = QtWidgets.QVBoxLayout(self)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(12)
         
         # Selection info
         info_group = QtWidgets.QGroupBox("Selection Info")
@@ -50,8 +116,9 @@ class AssetExportDialog(QtWidgets.QDialog):
         # Asset Information
         asset_group = QtWidgets.QGroupBox("Asset Information")
         asset_layout = QtWidgets.QFormLayout()
+        asset_layout.setVerticalSpacing(10)
         
-        self.name_edit = QtWidgets.QLineEdit()
+        self.name_edit = PyLineEdit()
         self.name_edit.setPlaceholderText("Enter asset name...")
         self.name_edit.editingFinished.connect(self._on_name_confirmed)
         self.name_edit.returnPressed.connect(self._on_name_confirmed)
@@ -145,7 +212,13 @@ class AssetExportDialog(QtWidgets.QDialog):
         
         self.export_path_label = QtWidgets.QLabel("")
         self.export_path_label.setWordWrap(True)
-        self.export_path_label.setStyleSheet("font-family: monospace; color: #666;")
+        self.export_path_label.setStyleSheet("""
+            font-family: 'Consolas', 'Courier New', monospace; 
+            color: #61afef;
+            padding: 8px;
+            background-color: #2c2c2c;
+            border-radius: 4px;
+        """)
         path_layout.addWidget(self.export_path_label)
         
         path_group.setLayout(path_layout)
@@ -163,14 +236,32 @@ class AssetExportDialog(QtWidgets.QDialog):
         
         # Buttons
         button_layout = QtWidgets.QHBoxLayout()
+        button_layout.setSpacing(8)
         button_layout.addStretch()
         
-        self.export_button = QtWidgets.QPushButton("Export Asset")
-        self.export_button.setDefault(True)
+        self.export_button = PyPushButton(
+            text="Export Asset",
+            radius=8,
+            color="#61afef",
+            bg_color="#2c2c2c",
+            bg_color_hover="#3a5f7d",
+            bg_color_pressed="#4a6f8d"
+        )
+        self.export_button.setMinimumHeight(40)
+        self.export_button.setMinimumWidth(140)
         self.export_button.clicked.connect(self._on_export)
         button_layout.addWidget(self.export_button)
         
-        cancel_button = QtWidgets.QPushButton("Cancel")
+        cancel_button = PyPushButton(
+            text="Cancel",
+            radius=8,
+            color="#abb2bf",
+            bg_color="#2c2c2c",
+            bg_color_hover="#3a3a3a",
+            bg_color_pressed="#4a4a4a"
+        )
+        cancel_button.setMinimumHeight(40)
+        cancel_button.setMinimumWidth(100)
         cancel_button.clicked.connect(self.reject)
         button_layout.addWidget(cancel_button)
         
