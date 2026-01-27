@@ -2,50 +2,103 @@
 
 ## Overview
 
-Enables AI agents in VS Code to control Houdini via WebSocket + MessagePack protocol.
+Enables AI agents and external tools to control Houdini via WebSocket + MessagePack protocol.
 
-## Architecture
+**Features:**
+- WebSocket server running in Houdini (localhost:9876)
+- Binary MessagePack protocol for efficient communication
+- Synchronous API (no asyncio) compatible with Houdini's threading model
+- Safe command execution with approval modes
+- Session state management
 
+## Dependencies
+
+### Houdini (Server-side)
+
+Install these in Houdini's Python environment:
+
+```powershell
+# Using hython (Houdini's Python)
+& "C:\Program Files\Side Effects Software\Houdini 21.0.603\bin\hython.exe" -m pip install websockets msgpack
 ```
-VS Code Extension (AI Agent)
-    |
-    | WebSocket (localhost:9876)
-    | MessagePack binary protocol
-    |
-Houdini Bridge Server
-    |
-    +-- MessageHandler (protocol parsing)
-    +-- CommandExecutor (Houdini operations)
-    +-- ApprovalManager (safety controls)
+
+**Required packages:**
+- `websockets==16.0` - WebSocket server/client library
+- `msgpack==1.1.2` - MessagePack binary serialization
+
+### External Python (Client-side)
+
+For testing or building custom clients:
+
+```bash
+pip install websockets msgpack
 ```
 
 ## Quick Start
 
 ### 1. Start Server in Houdini
 
+**Option A: Shelf Button**
+- Click the "AI Bridge" shelf button in Houdini
+- Server starts on port 9876 (or next available port)
+
+**Option B: Python Shell**
 ```python
-# In Houdini Python Shell or shelf button
 from polyfactory.houdini_bridge import start_server
 
 server = start_server()
 # Server now listening on localhost:9876
 ```
 
-### 2. Connect from VS Code
+**Option C: Houdini Startup Script**
+```python
+# In $HOUDINI_USER_PREF_DIR/scripts/123.py
+from polyfactory.houdini_bridge import start_server
+start_server()
+```
+
+### 2. Connect from External Python
+
+```python
+from websockets.sync.client import connect as ws_connect
+import msgpack
+
+# Connect to server
+with ws_connect('ws://localhost:9876') as websocket:
+    # Send command (MessagePack binary)
+    command = {
+        'type': 'command',
+        'data': {
+            'command': 'create_node',
+            'parent': '/obj',
+            'node_type': 'geo',
+            'name': 'my_geo'
+        }
+    }
+    
+    websocket.send(msgpack.packb(command, use_bin_type=True))
+    
+    # Receive response
+    response_data = websocket.recv()
+    response = msgpack.unpackb(response_data, raw=False)
+    
+    print(response)
+    # {'success': True, 'data': {'node_path': '/obj/my_geo', ...}}
+```
+
+### 3. Connect from VS Code Extension (TypeScript)
 
 ```typescript
-// VS Code extension (TypeScript)
 import * as WebSocket from 'ws';
 import * as msgpack from 'msgpack-lite';
 
 const ws = new WebSocket('ws://localhost:9876');
 
 ws.on('open', () => {
-    // Send command
     const command = {
         type: 'command',
         data: {
-            type: 'create_node',
+            command: 'create_node',
             parent: '/obj',
             node_type: 'geo',
             name: 'my_geo'
@@ -261,6 +314,94 @@ Control command execution safety:
 - execute_python
 - load_scene
 
+## Testing
+
+### Run Test Suite
+
+A comprehensive test client is included:
+
+```powershell
+# Start Houdini and run the bridge server first
+# Then from external terminal:
+python devScripts/test_bridge_client.py --port 9876
+```
+
+**Test coverage:**
+1. ✓ Ping - Server connectivity
+2. ✓ Get Selection - Command execution
+3. ✓ Create Node - Node creation
+4. ✓ Get Node Info - Parameter introspection
+5. ✓ Set Approval Mode - Configuration
+6. ✓ Session State - State management
+
+### Manual Testing
+
+```python
+from websockets.sync.client import connect as ws_connect
+import msgpack
+
+with ws_connect('ws://localhost:9876') as ws:
+    # Ping test
+    ws.send(msgpack.packb({'type': 'ping'}, use_bin_type=True))
+    response = msgpack.unpackb(ws.recv(), raw=False)
+    print(response)  # {'success': True, 'data': {'pong': True}}
+```
+
+## Troubleshooting
+
+### Port Already in Use
+
+If you see "Port 9876 already in use":
+1. Click the AI Bridge shelf button to stop/restart the server
+2. If that fails, restart Houdini to clear zombie sockets
+3. Server will automatically try alternate ports (9877-9880)
+
+### Connection Timeout
+
+If connection times out:
+1. Verify server is running: Check for "WebSocket server running on..." message
+2. Check firewall settings (allow localhost connections)
+3. Verify websockets library is installed in both Houdini and external Python
+
+### Module Not Found
+
+If you get "No module named 'websockets'":
+```powershell
+# Install in Houdini's Python
+& "C:\Program Files\Side Effects Software\Houdini 21.0.603\bin\hython.exe" -m pip install websockets msgpack
+```
+
+### Performance Issues
+
+If commands are slow:
+- Use batch commands to reduce round-trips
+- MessagePack is already optimized for speed
+- Consider running expensive operations in background threads
+
+## Architecture
+
+```
+External Client (Python/VS Code)
+    |
+    | WebSocket (localhost:9876)
+    | MessagePack binary protocol
+    |
+Houdini Bridge Server (Background Thread)
+    |
+    +-- MessageHandler (protocol parsing)
+    +-- CommandExecutor (Houdini operations)
+    +-- ApprovalManager (safety controls)
+    |
+    v
+Houdini Python API (Main Thread)
+```
+
+**Threading Model:**
+- Server runs in daemon background thread
+- Synchronous `serve_forever()` accepts connections
+- Each connection handled synchronously
+- Commands executed in main thread via Houdini API
+
 ## Server Management
 
 ```python
@@ -283,40 +424,35 @@ server.broadcast({
 stop_server()
 ```
 
-## Dependencies
-
-- `websockets` - WebSocket server
-- `msgpack` - MessagePack binary serialization
-
-Install via pip:
-```bash
-pip install websockets msgpack
-```
-
-Or in Houdini's Python:
-```bash
-hython -m pip install websockets msgpack
-```
-
 ## Security Considerations
 
 - Server only listens on **localhost** - not accessible from network
 - Approval system prevents accidental destructive operations
 - Python code execution requires user approval by default
 - All file operations use Houdini's file access permissions
+- No authentication required (localhost-only trusted environment)
+
+## Technical Notes
+
+### Why Synchronous WebSockets?
+
+Houdini's custom `asyncio` implementation (haio.py) enforces main thread execution, causing `RuntimeError` with async WebSocket servers. The synchronous `websockets.sync.server` API works in background threads without conflicts.
+
+### Port Selection
+
+Server tries ports in order: 9876, 9877, 9878, 9879, 9880. This prevents conflicts when restarting after crashes or when multiple Houdini instances run.
+
+### Module Reloading
+
+Server instance stored in `hou.session` to survive module reloads during development. Avoid reloading server module in production.
 
 ## Performance
 
 - **MessagePack** ~3x faster than JSON for encoding/decoding
 - Binary protocol reduces bandwidth by ~30-40% vs JSON
 - WebSocket maintains persistent connection (no HTTP overhead)
-- Asyncio allows concurrent command processing
+- Synchronous processing ensures thread-safe Houdini API access
 
-## Future Enhancements
+## License
 
-- [ ] Authentication tokens for additional security
-- [ ] Rate limiting for command execution
-- [ ] Command history and undo support
-- [ ] Event subscriptions (scene changes, parameter updates)
-- [ ] Remote debugging support
-- [ ] Multi-session support (multiple Houdini instances)
+Part of Polyfactory package. See LICENSE file in repository root.

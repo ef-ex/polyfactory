@@ -35,15 +35,21 @@ Server listens on localhost:9876 for connections.
 Click once to start, click again to stop.
 
 Status shown in Python Shell console.]]></helpText>
-    <script scriptType="python"><![CDATA[from polyfactory.houdini_bridge import get_server
+    <script scriptType="python"><![CDATA[from polyfactory.houdini_bridge import get_server, stop_server, start_server
 
-server = get_server()
-if server.is_running():
-    server.stop()
-    print("[Bridge] Server stopped")
-else:
-    server.start()
-    print("[Bridge] Server started on localhost:9876")
-    print(f"[Bridge] Active connections: {server.get_connection_count()}")]]></script>
+# Always stop any existing server first
+try:
+    stop_server()
+except:
+    pass
+
+# Small delay to ensure port is released
+import time
+time.sleep(0.3)
+
+# Always start fresh server after stopping
+server = start_server()
+print(f"[Bridge] Server status: {'Running' if server.is_running() else 'Failed'}")
+print(f"[Bridge] Active connections: {server.get_connection_count()}")]]></script>
   </tool>
 </shelfDocument>
