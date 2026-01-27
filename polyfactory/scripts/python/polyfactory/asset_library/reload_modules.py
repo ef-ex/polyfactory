@@ -54,6 +54,18 @@ def reload_ui_framework():
     return _reload_modules(modules, "UI framework")
 
 
+def reload_houdini_bridge():
+    """Reload Houdini Bridge modules."""
+    modules = [
+        'polyfactory.houdini_bridge.approval',
+        'polyfactory.houdini_bridge.commands',
+        'polyfactory.houdini_bridge.message_handler',
+        'polyfactory.houdini_bridge.server',
+        'polyfactory.houdini_bridge'
+    ]
+    return _reload_modules(modules, "Houdini Bridge")
+
+
 def reload_all():
     """Reload all Polyfactory modules."""
     print("="*60)
@@ -63,6 +75,7 @@ def reload_all():
     reload_widgets()
     reload_asset_library()
     reload_ui_framework()
+    reload_houdini_bridge()
     
     print("="*60)
     print("All modules reloaded!")

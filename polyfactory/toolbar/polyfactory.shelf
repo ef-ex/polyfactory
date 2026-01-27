@@ -8,6 +8,7 @@
   <toolshelf name="polyfactory" label="Polyfactory">
     <memberTool name="pf_export_to_library"/>
     <memberTool name="asset_browser"/>
+    <memberTool name="houdini_bridge"/>
   </toolshelf>
 
   <tool name="pf_export_to_library" label="Export to Library" icon="BUTTONS_addasset">
@@ -23,5 +24,26 @@ hotkey_export.export_selected_to_library()]]></script>
     <script scriptType="python"><![CDATA[from polyfactory.asset_library import reload_modules, browser_ui
 reload_modules.reload_all()
 browser_ui.show_asset_browser()]]></script>
+  </tool>
+
+  <tool name="houdini_bridge" label="AI Bridge" icon="NETWORKS_cop2">
+    <helpText><![CDATA[Start/Stop AI Bridge Server
+
+Enables AI agents in VS Code to control Houdini via WebSocket.
+
+Server listens on localhost:9876 for connections.
+Click once to start, click again to stop.
+
+Status shown in Python Shell console.]]></helpText>
+    <script scriptType="python"><![CDATA[from polyfactory.houdini_bridge import get_server
+
+server = get_server()
+if server.is_running():
+    server.stop()
+    print("[Bridge] Server stopped")
+else:
+    server.start()
+    print("[Bridge] Server started on localhost:9876")
+    print(f"[Bridge] Active connections: {server.get_connection_count()}")]]></script>
   </tool>
 </shelfDocument>
