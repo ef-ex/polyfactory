@@ -130,15 +130,22 @@ def export_asset(export_data: Dict, debug: bool = False) -> bool:
             return False
         
         # Export geometry
-        if not _export_geometry(export_node, asset_file, temp_nodes):
+        if debug:
+            print("=== Starting USD export ===")
+        if not _export_geometry(export_node, asset_file, temp_nodes, debug=debug):
             print("Error: Failed to export geometry")
             return False
+        
+        if debug:
+            print(f"=== USD export complete: {asset_file} ===")
         
         # Get geometry stats
         geo_stats = _get_geometry_stats(export_node)
         
         # Render turntable
         render_success = False
+        if debug:
+            print("=== Starting turntable render ===")
         try:
             from polyfactory.asset_library.render import render_turntable
             render_success = render_turntable(
@@ -148,6 +155,8 @@ def export_asset(export_data: Dict, debug: bool = False) -> bool:
                 asset_usd_path=asset_file,
                 debug=debug
             )
+            if debug:
+                print(f"=== Turntable render complete: {render_success} ===")
         except ImportError:
             if debug:
                 print("render_turntable not yet implemented, skipping render")
@@ -245,6 +254,45 @@ def _build_export_network(source_node: hou.SopNode,
             
             current_node = prepare
         
+        # Optionally remove attributes
+        if export_data.get('remove_attribs', False):
+            attrib_delete = parent.createNode('attribdelete')
+            attrib_delete.setInput(0, current_node)
+            temp_nodes.append(attrib_delete)
+            
+            # Get attributes by class
+            geo = current_node.geometry()
+            keep_attribs = {'N', 'uv'}
+            
+            # Point attributes to remove
+            pt_attribs_to_remove = [attr.name() for attr in geo.pointAttribs() 
+                                    if attr.name() not in keep_attribs]
+            
+            # Vertex attributes to remove
+            vtx_attribs_to_remove = [attr.name() for attr in geo.vertexAttribs() 
+                                     if attr.name() not in keep_attribs]
+            
+            # Primitive attributes to remove (keep none)
+            prim_attribs_to_remove = [attr.name() for attr in geo.primAttribs()]
+            
+            # Set patterns for each attribute class separately
+            if pt_attribs_to_remove:
+                attrib_delete.parm('ptdel').set(' '.join(pt_attribs_to_remove))
+            
+            if vtx_attribs_to_remove:
+                attrib_delete.parm('vtxdel').set(' '.join(vtx_attribs_to_remove))
+            
+            if prim_attribs_to_remove:
+                attrib_delete.parm('primdel').set(' '.join(prim_attribs_to_remove))
+            
+            if debug:
+                print(f"Removing point attributes: {', '.join(pt_attribs_to_remove) if pt_attribs_to_remove else 'none'}")
+                print(f"Removing vertex attributes: {', '.join(vtx_attribs_to_remove) if vtx_attribs_to_remove else 'none'}")
+                print(f"Removing primitive attributes: {', '.join(prim_attribs_to_remove) if prim_attribs_to_remove else 'none'}")
+                print(f"Keeping N and uv on points and vertices")
+            
+            current_node = attrib_delete
+        
         # Position nodes nicely
         current_node.moveToGoodPosition()
         
@@ -310,23 +358,26 @@ def _export_geometry(node: hou.SopNode, file_path: str, temp_nodes: List, debug:
         True if successful
     """
     try:
-        # Create LOP network for USD export
-        stage = hou.node("/obj").createNode("lopnet", "usd_export_temp")
-        temp_nodes.append(stage)
+        if debug:
+            # Print what attributes are on the source geometry
+            geo = node.geometry()
+            print(f"Source geometry attributes:")
+            print(f"  Point: {[a.name() for a in geo.pointAttribs()]}")
+            print(f"  Vertex: {[a.name() for a in geo.vertexAttribs()]}")
+            print(f"  Primitive: {[a.name() for a in geo.primAttribs()]}")
         
-        # Import SOP geometry
-        sop_import = stage.createNode("sopimport", "import_geo")
-        sop_import.parm("soppath").set(node.path())
-        sop_import.parm("pathprefix").set("/asset")
+        # Create usdexport node in SOP context
+        parent = node.parent()
+        usd_export = parent.createNode("usdexport", "usd_export_temp")
+        usd_export.setInput(0, node)
+        temp_nodes.append(usd_export)
         
-        # Create USD ROP
-        usd_rop = stage.createNode("usd_rop", "export_usd")
-        usd_rop.setInput(0, sop_import)
-        usd_rop.parm("lopoutput").set(file_path)
-        usd_rop.parm("trange").set(0)  # Current frame only
+        # Configure export
+        usd_export.parm("lopoutput").set(file_path)
+        usd_export.parm("pathprefix").set("/asset")
         
         # Execute export
-        usd_rop.parm("execute").pressButton()
+        usd_export.parm("execute").pressButton()
         
         if debug:
             print(f"USD exported: {file_path}")

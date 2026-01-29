@@ -106,17 +106,31 @@ def _create_render_scene(geo_node: hou.SopNode, num_frames: int,
         last_node.cook()
         stage = last_node.stage()
         
-        # Compute bounds using USD BBoxCache
+        # Compute bounds using USD BBoxCache - ONLY for the asset, not the whole stage
         from pxr import UsdGeom, Gf, Usd
         
+        # Get the asset prim specifically, not the root
+        asset_prim = stage.GetPrimAtPath('/asset')
+        if not asset_prim:
+            raise ValueError("Asset prim not found at /asset")
+        
         bbox_cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_])
-        root = stage.GetPseudoRoot()
-        bbox = bbox_cache.ComputeWorldBound(root)
+        bbox = bbox_cache.ComputeWorldBound(asset_prim)  # Use asset prim, not root
         bbox_range = bbox.ComputeAlignedRange()
         
         size = bbox_range.GetSize()
         max_size = max(size[0], size[1], size[2])
-        distance = max_size * 3.0
+        
+        # Sanity check - if bbox is invalid or too large, use default
+        if max_size <= 0 or max_size > 1000000:
+            if debug:
+                print(f"Warning: Invalid bbox size {max_size}, using default distance")
+            distance = 10.0
+        else:
+            distance = max_size * 3.0
+        
+        if debug:
+            print(f"Asset bbox size: {size}, max: {max_size}, camera distance: {distance}")
         
         # Set camera distance
         python_node = lop_net.createNode('pythonscript', 'set_camera_distance')

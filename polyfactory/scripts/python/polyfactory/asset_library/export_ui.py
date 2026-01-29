@@ -200,6 +200,12 @@ class AssetExportDialog(QtWidgets.QDialog):
         prep_options_widget.setLayout(prep_options_layout)
         prep_layout.addWidget(prep_options_widget)
         
+        # Remove attributes option
+        self.remove_attribs = QtWidgets.QCheckBox("Remove Attributes (keep only N and uv)")
+        self.remove_attribs.setChecked(True)
+        self.remove_attribs.setToolTip("Remove all attributes except N (normals) and uv (texture coordinates)")
+        prep_layout.addWidget(self.remove_attribs)
+        
         # Connect checkbox to enable/disable sub-options
         self.use_prepare_mesh.toggled.connect(prep_options_widget.setEnabled)
         
@@ -400,6 +406,7 @@ class AssetExportDialog(QtWidgets.QDialog):
             'align_x': self.align_x_combo.currentIndex(),
             'align_y': self.align_y_combo.currentIndex(),
             'align_z': self.align_z_combo.currentIndex(),
+            'remove_attribs': self.remove_attribs.isChecked(),
             'selection_node': self.selection_node,
             'selected_prims': self.selected_prims
         }
