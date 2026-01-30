@@ -26,6 +26,59 @@ Defined in `polyfactory.json`:
 
 ## Key Workflows
 
+### Houdini Bridge - AI Agent Integration
+
+**Location:** `polyfactory/scripts/python/polyfactory/houdini_bridge/`
+
+WebSocket server that enables AI agents to control Houdini programmatically:
+- **server.py** - Synchronous WebSocket server (port 9876)
+- **commands.py** - Command executor (create nodes, set parameters, execute Python)
+- **message_handler.py** - MessagePack protocol handler
+- **approval.py** - Safety system (defaults to DISABLED for AI agents)
+
+**Starting the Server (in Houdini Python Shell):**
+```python
+from polyfactory.houdini_bridge import BridgeServer
+server = BridgeServer()
+server.start()
+```
+
+**AI Agent Interface (Token-Efficient CLI):**
+Located in `devScripts/houdiniBridge/houdini_cmd.py` (local dev tool, not in git):
+
+```bash
+# Single operations (~200-400 tokens)
+python devScripts/houdiniBridge/houdini_cmd.py create_node geo my_geo
+python devScripts/houdiniBridge/houdini_cmd.py delete_node /obj/geo1
+python devScripts/houdiniBridge/houdini_cmd.py get_selection
+
+# Batch operations (very efficient - ~350 tokens for multiple nodes)
+python devScripts/houdiniBridge/houdini_cmd.py batch_create /obj geo:terrain null:cam merge:final
+
+# Query scene structure
+python devScripts/houdiniBridge/houdini_cmd.py get_tree /obj
+python devScripts/houdiniBridge/houdini_cmd.py get_node_info /obj/geo1
+python devScripts/houdiniBridge/houdini_cmd.py get_parms /obj/geo1
+
+# Execute Python code (stdout captured)
+python devScripts/houdiniBridge/houdini_cmd.py exec "import hou; print(hou.node('/obj').children())"
+```
+
+**Key Features:**
+- Direct WebSocket communication (bypasses VS Code API limitations)
+- MessagePack binary protocol for efficiency
+- Batch operations for multiple nodes in single command
+- Stdout capture - Python `print()` statements return to client
+- Approval system disabled by default for AI trust
+
+**Token Efficiency:**
+- Single operation: ~200-400 tokens (vs 800-1500 with alternatives)
+- Batch operation: ~350 tokens for multiple nodes
+- Complex Python execution: ~300-600 tokens
+
+**VS Code Extension (Future):**
+Full extension exists in `devScripts/houdiniBridge/` (separate git repo) with chat participant and Language Model tools, waiting for Copilot API to expose tools to agents. See `devScripts/houdiniBridge/IMPLEMENTATION_NOTES.md` for details.
+
 ### Developing HDAs
 HDAs live in `polyfactory/otls/`. Naming convention: `pf_<descriptive_name>.hda`
 
@@ -97,13 +150,82 @@ Uses **PySide6** for Qt widgets (Houdini 21+):
 ```python
 from PySide6 import QtWidgets
 
-def createInterface():
+def onCreateInterface():
     widget = QtWidgets.QWidget()
     # Build UI
     return widget  # Must return top-level widget
 ```
 
 **Important**: If you see `PySide2` imports in legacy code, migrate to `PySide6`. The API is largely compatible but some signal/slot syntax changed.
+
+**Python Panel Lifecycle Functions:**
+
+Python panels require specific callback functions:
+- `onCreateInterface()` - Creates and returns the root widget (NOT `createInterface()`)
+- `onActivateInterface()` - Called when pane becomes active
+- `onDeactivateInterface()` - Called when pane becomes inactive
+- `onDestroyInterface()` - Called when interface is destroyed
+- `onNodePathChanged(node)` - Called when node path changes
+
+**Automatic Node Binding with `<showInParametersPane>`:**
+
+To automatically show a Python Panel for specific node types, use the `<showInParametersPane>` tag with the correct optype syntax:
+
+```xml
+<interface name="my_ui" label="My Tool" ...>
+  <script><![CDATA[
+    # Python code with onCreateInterface(), etc.
+  ]]></script>
+  <showInParametersPane optype="namespace::context/nodename::version"/>
+</interface>
+```
+
+**Critical optype Syntax:**
+- Format: `namespace::context/nodename::version`
+- Use `*` wildcard for any part
+- Example: `pf::Sop/pf_kitbash::*` matches all versions of pf_kitbash SOP
+- Example: `*::Sop/mynode::*` matches mynode in any namespace
+- Get exact node type: `node.type().nameWithCategory()` (e.g., `Sop pf::pf_kitbash::1.0`)
+- Context is `Sop`, `Lop`, `Object`, `Cop2`, etc.
+
+**Note:** The `node` variable is automatically available in the script scope (passed by Houdini), so you don't need to extract it from kwargs.
+
+**Font Scaling for Houdini UI:**
+
+**CRITICAL:** Always use Houdini's UI scaling for all custom Qt interfaces. Never hardcode font sizes.
+
+Module: `polyfactory/scripts/python/polyfactory/ui_utils.py`
+
+```python
+from polyfactory.ui_utils import get_scaled_font_size, get_font_stylesheet
+
+# Get scaled font size (respects hou.ui.globalScaleFactor())
+base_font_size = get_scaled_font_size(11)  # Default Houdini base size
+
+# Use in stylesheets (f-strings require doubled braces)
+widget.setStyleSheet(f"""
+    QWidget {{
+        font-size: {base_font_size}px;
+        color: #e0e0e0;
+    }}
+""")
+
+# Or use helper function
+label.setStyleSheet(get_font_stylesheet(size=11, weight="bold", color="#61afef"))
+```
+
+**Why this matters:**
+- Houdini's UI scale can be changed by users (View → Display Options → Global UI Size)
+- Custom panels with hardcoded font sizes will look too small or too large
+- `hou.ui.globalScaleFactor()` returns the current scale multiplier
+- All Polyfactory UIs must respect this setting for consistency
+
+**Guidelines:**
+- Use `get_scaled_font_size(11)` for default text (Houdini's base size)
+- Use `get_scaled_font_size(13)` for section headers
+- Use `get_scaled_font_size(9)` for small labels/captions
+- Always double curly braces `{{` `}}` in f-string stylesheets
+- Apply to all Qt widgets: QLabel, QLineEdit, QComboBox, QGroupBox, etc.
 
 ### HDA Widget Library
 Unified widget system for HDA Python Panel UIs with automatic parameter binding:

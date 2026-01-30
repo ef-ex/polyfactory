@@ -8,6 +8,7 @@ import os
 from polyfactory.widgets.tag_input import TagInputWidget
 from polyfactory.ui_framework.widgets.py_push_button import PyPushButton
 from polyfactory.ui_framework.widgets.py_line_edit import PyLineEdit
+from polyfactory.ui_utils import get_scaled_font_size
 
 
 class AssetExportDialog(QtWidgets.QDialog):
@@ -23,66 +24,76 @@ class AssetExportDialog(QtWidgets.QDialog):
         self.setMinimumWidth(600)
         self.setMinimumHeight(700)
         
-        # Apply modern dark theme styling
-        self.setStyleSheet("""
-            QDialog {
+        # Get scaled font sizes
+        base_font_size = get_scaled_font_size(11)
+        label_font_size = get_scaled_font_size(11)
+        input_font_size = get_scaled_font_size(11)
+        
+        # Apply modern dark theme styling with scaled fonts
+        self.setStyleSheet(f"""
+            QDialog {{
                 background-color: #1e1e1e;
                 color: #e0e0e0;
-            }
-            QGroupBox {
+                font-size: {base_font_size}px;
+            }}
+            QGroupBox {{
                 background-color: #252525;
                 border: 1px solid #3a3a3a;
                 border-radius: 6px;
                 margin-top: 12px;
                 padding-top: 16px;
                 font-weight: bold;
+                font-size: {base_font_size}px;
                 color: #e0e0e0;
-            }
-            QGroupBox::title {
+            }}
+            QGroupBox::title {{
                 subcontrol-origin: margin;
                 subcontrol-position: top left;
                 padding: 4px 8px;
                 color: #61afef;
-            }
-            QLabel {
+            }}
+            QLabel {{
                 color: #abb2bf;
-            }
-            QLineEdit, QComboBox, QPlainTextEdit {
+                font-size: {label_font_size}px;
+            }}
+            QLineEdit, QComboBox, QPlainTextEdit {{
                 background-color: #2c2c2c;
                 border: 1px solid #3a3a3a;
                 border-radius: 4px;
                 padding: 6px;
                 color: #e0e0e0;
-            }
-            QLineEdit:focus, QComboBox:focus, QPlainTextEdit:focus {
+                font-size: {input_font_size}px;
+            }}
+            QLineEdit:focus, QComboBox:focus, QPlainTextEdit:focus {{
                 border: 1px solid #61afef;
-            }
-            QComboBox::drop-down {
+            }}
+            QComboBox::drop-down {{
                 border: none;
                 width: 20px;
-            }
-            QComboBox::down-arrow {
+            }}
+            QComboBox::down-arrow {{
                 image: none;
                 border-left: 4px solid transparent;
                 border-right: 4px solid transparent;
                 border-top: 6px solid #abb2bf;
                 margin-right: 6px;
-            }
-            QCheckBox {
+            }}
+            QCheckBox {{
                 color: #abb2bf;
                 spacing: 8px;
-            }
-            QCheckBox::indicator {
+                font-size: {base_font_size}px;
+            }}
+            QCheckBox::indicator {{
                 width: 18px;
                 height: 18px;
                 border-radius: 3px;
                 border: 1px solid #3a3a3a;
                 background-color: #2c2c2c;
-            }
-            QCheckBox::indicator:checked {
+            }}
+            QCheckBox::indicator:checked {{
                 background-color: #61afef;
                 border-color: #61afef;
-            }
+            }}
         """)
         
         # Make dialog non-modal so user can interact with Houdini

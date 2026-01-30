@@ -10,6 +10,7 @@ from polyfactory.ui_framework.widgets.py_push_button import PyPushButton
 from polyfactory.ui_framework.widgets.py_line_edit import PyLineEdit
 from polyfactory.widgets.tag_input import FlowLayout
 from polyfactory.widgets.hover_outline import HoverOutlineMixin
+from polyfactory.ui_utils import get_scaled_font_size, get_font_stylesheet
 
 
 class HoverSlider(HoverOutlineMixin, QtWidgets.QSlider):
@@ -53,7 +54,7 @@ class AssetInfoPanel(QtWidgets.QWidget):
         self.mouse_enter_x = 0
         
         self.setMinimumWidth(280)
-        self.setMaximumWidth(320)
+        # No maximum width - allow resizing via splitter
         
         # Enable mouse tracking for turntable animation
         self.setMouseTracking(True)
@@ -68,17 +69,19 @@ class AssetInfoPanel(QtWidgets.QWidget):
         
         # Title
         title_label = QtWidgets.QLabel("Asset Information")
-        title_label.setStyleSheet("""
+        title_font_size = get_scaled_font_size(13)
+        title_label.setStyleSheet(f"""
             color: #61afef;
-            font-size: 14px;
+            font-size: {title_font_size}px;
             font-weight: bold;
             padding-bottom: 8px;
         """)
         layout.addWidget(title_label)
         
-        # Large preview image with animation support
+        # Large preview image with animation support (responsive sizing)
         self.preview_label = QtWidgets.QLabel()
-        self.preview_label.setFixedSize(280, 280)
+        self.preview_label.setMinimumSize(280, 280)
+        self.preview_label.setMaximumSize(512, 512)
         self.preview_label.setScaledContents(True)
         self.preview_label.setAlignment(QtCore.Qt.AlignCenter)
         self.preview_label.setStyleSheet("""
@@ -87,12 +90,44 @@ class AssetInfoPanel(QtWidgets.QWidget):
             border-radius: 4px;
         """)
         self.preview_label.setMouseTracking(True)
+        # Make it square - height follows width
+        self.preview_label.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Fixed
+        )
         layout.addWidget(self.preview_label)
         
-        # Content area (no scroll)
-        content_layout = QtWidgets.QFormLayout()
+        # Scroll area for content
+        scroll_area = QtWidgets.QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
+        scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        scroll_area.setStyleSheet("""
+            QScrollArea {
+                background-color: transparent;
+                border: none;
+            }
+            QScrollBar:vertical {
+                background-color: #2c2c2c;
+                width: 8px;
+                border-radius: 4px;
+            }
+            QScrollBar::handle:vertical {
+                background-color: #61afef;
+                border-radius: 4px;
+                min-height: 20px;
+            }
+        """)
+        
+        # Content widget
+        content_widget = QtWidgets.QWidget()
+        scroll_area.setWidget(content_widget)
+        
+        # Content area
+        content_layout = QtWidgets.QFormLayout(content_widget)
         content_layout.setVerticalSpacing(10)
         content_layout.setLabelAlignment(QtCore.Qt.AlignRight)
+        content_layout.setContentsMargins(0, 8, 0, 8)
         
         # Asset name (read-only)
         self.name_label = QtWidgets.QLabel("—")
@@ -103,10 +138,11 @@ class AssetInfoPanel(QtWidgets.QWidget):
         # File path (read-only)
         self.path_label = QtWidgets.QLabel("—")
         self.path_label.setWordWrap(True)
-        self.path_label.setStyleSheet("""
+        path_font_size = get_scaled_font_size(9)
+        self.path_label.setStyleSheet(f"""
             color: #abb2bf;
             font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 10px;
+            font-size: {path_font_size}px;
         """)
         content_layout.addRow(self._create_label("Path:"), self.path_label)
         
@@ -164,8 +200,8 @@ class AssetInfoPanel(QtWidgets.QWidget):
         self.save_button.setEnabled(False)
         content_layout.addRow("", self.save_button)
         
-        layout.addLayout(content_layout)
-        layout.addStretch()
+        # Add scroll area to main layout
+        layout.addWidget(scroll_area, stretch=1)
         
         # Placeholder message when no asset selected
         self.placeholder_label = QtWidgets.QLabel("Select an asset to view details")
@@ -177,10 +213,21 @@ class AssetInfoPanel(QtWidgets.QWidget):
         self.preview_label.hide()
         title_label.hide()
     
+    def resizeEvent(self, event):
+        """Handle resize to update preview image size"""
+        super().resizeEvent(event)
+        
+        # Calculate preview size (square, based on panel width with padding)
+        panel_width = self.width() - 24  # Subtract margins
+        preview_size = max(280, min(512, panel_width))  # Clamp between 280 and 512
+        
+        # Update preview label size (square)
+        self.preview_label.setFixedSize(preview_size, preview_size)
+    
     def _create_label(self, text):
         """Create styled label for form"""
         label = QtWidgets.QLabel(text)
-        label.setStyleSheet("color: #abb2bf; font-size: 11px;")
+        label.setStyleSheet(get_font_stylesheet(size=11, color="#abb2bf"))
         return label
     
     def _load_turntable_frames(self, asset_data: Dict):
@@ -338,7 +385,8 @@ class AssetInfoPanel(QtWidgets.QWidget):
 class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
     """Individual asset thumbnail with animated hover outline"""
     
-    assetClicked = QtCore.Signal(dict)  # Emits asset data
+    assetClicked = QtCore.Signal(dict)  # Emits asset data on single-click
+    assetDoubleClicked = QtCore.Signal(dict)  # Emits asset data on double-click
     
     def __init__(self, asset_data: Dict, size=150, parent=None):
         super().__init__(parent)
@@ -377,7 +425,7 @@ class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
         name_label.setWordWrap(True)
         name_label.setAlignment(QtCore.Qt.AlignCenter)
         name_label.setMaximumHeight(40)
-        name_label.setStyleSheet("color: #abb2bf; font-size: 11px;")
+        name_label.setStyleSheet(get_font_stylesheet(size=11, color="#abb2bf"))
         layout.addWidget(name_label)
     
     def set_size(self, size):
@@ -419,10 +467,16 @@ class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
             self.thumbnail_label.setText("No Preview")
     
     def mousePressEvent(self, event):
-        """Handle click"""
+        """Handle single-click"""
         if event.button() == QtCore.Qt.LeftButton:
             # Single click - emit for info panel
             self.assetClicked.emit(self.asset_data)
+    
+    def mouseDoubleClickEvent(self, event):
+        """Handle double-click"""
+        if event.button() == QtCore.Qt.LeftButton:
+            # Double-click - emit for placement
+            self.assetDoubleClicked.emit(self.asset_data)
 
 
 class AssetBrowserWidget(QtWidgets.QWidget):
@@ -431,21 +485,34 @@ class AssetBrowserWidget(QtWidgets.QWidget):
     assetSelected = QtCore.Signal(dict)  # Emits when asset is selected for placement
     assetInfoChanged = QtCore.Signal(dict)  # Emits when asset is clicked for info display
     
-    def __init__(self, parent=None):
+    def __init__(self, show_info_panel=True, parent=None):
         super().__init__(parent)
         self.all_assets = []
         self.filtered_assets = []
         self.selected_asset = None  # Track selected asset
+        self.show_info_panel = show_info_panel
         
         self._setup_ui()
         self._load_assets()
     
     def _setup_ui(self):
         """Create UI elements"""
-        # Main horizontal layout: browser on left, info panel on right
-        main_layout = QtWidgets.QHBoxLayout(self)
+        # Main layout
+        main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
+        
+        # Splitter for resizable panels
+        self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
+        self.splitter.setHandleWidth(4)
+        self.splitter.setStyleSheet("""
+            QSplitter::handle {
+                background-color: #3a3a3a;
+            }
+            QSplitter::handle:hover {
+                background-color: #61afef;
+            }
+        """)
+        main_layout.addWidget(self.splitter)
         
         # Left side - browser
         browser_widget = QtWidgets.QWidget()
@@ -601,22 +668,21 @@ class AssetBrowserWidget(QtWidgets.QWidget):
         """)
         layout.addWidget(self.status_label)
         
-        # Add browser to main layout
-        main_layout.addWidget(browser_widget, stretch=1)
+        # Add browser to splitter
+        self.splitter.addWidget(browser_widget)
         
-        # Vertical separator
-        separator = QtWidgets.QFrame()
-        separator.setFrameShape(QtWidgets.QFrame.VLine)
-        separator.setStyleSheet("background-color: #3a3a3a;")
-        separator.setFixedWidth(1)
-        main_layout.addWidget(separator)
-        
-        # Right side - info panel
-        self.info_panel = AssetInfoPanel()
-        self.info_panel.categoryChanged.connect(self._on_asset_category_changed)
-        self.info_panel.tagsChanged.connect(self._on_asset_tags_changed)
-        self.info_panel.setStyleSheet("background-color: #252525;")
-        main_layout.addWidget(self.info_panel)
+        # Right side - info panel (optional)
+        if self.show_info_panel:
+            self.info_panel = AssetInfoPanel()
+            self.info_panel.categoryChanged.connect(self._on_asset_category_changed)
+            self.info_panel.tagsChanged.connect(self._on_asset_tags_changed)
+            self.info_panel.setStyleSheet("background-color: #252525;")
+            self.splitter.addWidget(self.info_panel)
+            
+            # Set initial sizes (browser gets 70%, info panel gets 30%)
+            self.splitter.setSizes([700, 300])
+        else:
+            self.info_panel = None
     
     def _load_assets(self):
         """Load assets from database"""
@@ -695,6 +761,7 @@ class AssetBrowserWidget(QtWidgets.QWidget):
         for asset in self.filtered_assets:
             thumbnail_widget = AssetThumbnailWidget(asset, size=size)
             thumbnail_widget.assetClicked.connect(self._on_asset_clicked)
+            thumbnail_widget.assetDoubleClicked.connect(self._on_asset_double_clicked)
             self.grid_layout.addWidget(thumbnail_widget)
         
         # Update status
@@ -705,7 +772,8 @@ class AssetBrowserWidget(QtWidgets.QWidget):
     def _on_asset_clicked(self, asset_data):
         """Handle asset single-click - show in info panel"""
         self.selected_asset = asset_data
-        self.info_panel.set_asset(asset_data)
+        if self.info_panel:
+            self.info_panel.set_asset(asset_data)
         self.assetInfoChanged.emit(asset_data)
     
     def _on_asset_double_clicked(self, asset_data):

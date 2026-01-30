@@ -5,43 +5,51 @@
  used by the application.  Note, that two definitions of the
  same interface or of the interfaces menu are not allowed
  in a single file. -->
-  <interface name="pf_testpanel" label="PF Test Panel" icon="MISC_python" showNetworkNavigationBar="false" help_url="">
+  <interface name="pf_kitbash_ui" label="Kitbash Assets" icon="SOP_file" showNetworkNavigationBar="true" help_url="">
     <script><![CDATA[########################################################################
-# Replace the sample code below with your own to create a
-# PyQt5 or PySide2 interface.  Your code must define an
-# onCreateInterface() function that returns the root widget of
-# your interface.
+# Kitbash HDA UI - Asset browser and placed assets manager
 #
-# The 'hutil.Qt' is for internal-use only.
-# It is a wrapper module that enables the sample code below to work with
-# either a Qt4 or Qt5 environment for backwards-compatibility.
-#
-# When developing your own Python Panel, import directly from PySide2
-# or PyQt5 instead of from 'hutil.Qt'.
+# This interface is automatically loaded for pf_kitbash nodes.
 ########################################################################
 
-#
-# SAMPLE CODE
-#
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
+from polyfactory.asset_library.kitbash_ui import KitbashNodeUI
 
-def createInterface():
-     # Create a calendar widget and a label.
-     calendar = QtWidgets.QCalendarWidget()
-     title = QtWidgets.QLabel("My Calendar")
+g_kitbash_ui = None
 
-     # Create a widget with a vertical box layout.
-     # Add the label and calendar to the layout.
-     root_widget = QtWidgets.QWidget()
-     layout = QtWidgets.QVBoxLayout()
-     layout.addWidget(title)
-     layout.addWidget(calendar)
-     root_widget.setLayout(layout)
+def onCreateInterface():
+    """
+    Entry point for pf_kitbash Python Panel UI.
+    Returns the root widget with asset browser and placed assets list.
+    Node is not available yet - will be set via onNodePathChanged.
+    """
+    global g_kitbash_ui
+    
+    # Create UI without node - it will be initialized when onNodePathChanged is called
+    g_kitbash_ui = KitbashNodeUI()
+    return g_kitbash_ui
 
-     # Return the top-level widget.
-     return root_widget]]></script>
-    <includeInPaneTabMenu menu_position="0" create_separator="false"/>
-    <includeInToolbarMenu menu_position="0" create_separator="false"/>
+
+def onActivateInterface():
+    """Called when the interface pane becomes active."""
+    global g_kitbash_ui
+    g_kitbash_ui.refresh()
+
+def onDeactivateInterface():
+    """Called when the interface pane becomes inactive."""
+    pass
+
+def onDestroyInterface():
+    """Called when the interface is destroyed."""
+    global g_kitbash_ui
+    g_kitbash_ui = None
+
+def onNodePathChanged(node):
+    """Called when the node path changes - this provides the actual node."""
+    global g_kitbash_ui
+    g_kitbash_ui.set_node(node)
+]]></script>
+    <showInParametersPane optype="pf::Sop/pf_kitbash*"/>
     <help><![CDATA[]]></help>
   </interface>
 </pythonPanelDocument>
