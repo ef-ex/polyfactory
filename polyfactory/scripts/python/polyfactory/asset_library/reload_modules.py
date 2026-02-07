@@ -37,9 +37,22 @@ def reload_asset_library():
         'polyfactory.asset_library.exporter',
         'polyfactory.asset_library.render',
         'polyfactory.asset_library.export_ui',
-        'polyfactory.asset_library.browser_ui'
+        'polyfactory.asset_library.browser_ui',
+        'polyfactory.asset_library.kitbash_ui',
+        'polyfactory.asset_library.kitbash_placement_state'
     ]
     return _reload_modules(modules, "asset library")
+
+
+def reload_viewer_utils():
+    """Reload viewer utilities modules."""
+    modules = [
+        'polyfactory.viewer_utils.raycasting',
+        'polyfactory.viewer_utils.drawing',
+        'polyfactory.viewer_utils.input_handling',
+        'polyfactory.viewer_utils'
+    ]
+    return _reload_modules(modules, "viewer utilities")
 
 
 def reload_ui_framework():
@@ -61,6 +74,7 @@ def reload_all():
     print("="*60)
     
     reload_widgets()
+    reload_viewer_utils()
     reload_asset_library()
     reload_ui_framework()
     

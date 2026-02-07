@@ -1,8 +1,14 @@
 """
 Kitbash HDA UI - Python Panel interface for pf_kitbash node
 
+NEW WORKFLOW:
+- Asset browser for browsing assets
+- Button to add selected asset to library multiparm
+- List of placed assets with transform controls
+- Press Enter in viewport to activate kitbash mode
+
 Displays:
-1. Asset browser at top for adding new assets
+1. Asset browser at top for adding new assets to library
 2. List of currently placed assets with transform controls
 """
 
@@ -417,14 +423,32 @@ class KitbashNodeUI(QtWidgets.QWidget):
         layout.setSpacing(16)
         
         # Asset Browser
-        browser_label = QtWidgets.QLabel("Asset Library")
+        browser_label = QtWidgets.QLabel("Asset Library Browser")
         browser_label.setStyleSheet(get_font_stylesheet(size=13, weight="bold", color="#61afef"))
         layout.addWidget(browser_label)
         
         self.browser = AssetBrowserWidget(show_info_panel=True)
-        self.browser.setMinimumHeight(600)  # At least twice as high
-        self.browser.assetSelected.connect(self._on_asset_selected)
+        self.browser.setMinimumHeight(400)
         layout.addWidget(self.browser)
+        
+        # Button to add selected asset to library
+        add_to_library_btn = PyPushButton(
+            text="Add Selected to Library",
+            radius=6,
+            color="#ffffff",
+            bg_color="#61afef",
+            bg_color_hover="#6c99f4",
+            bg_color_pressed="#3f6fd1"
+        )
+        add_to_library_btn.setFixedHeight(36)
+        add_to_library_btn.clicked.connect(self._on_add_to_library)
+        layout.addWidget(add_to_library_btn)
+        
+        # Instructions label
+        instructions = QtWidgets.QLabel("Press Enter in viewport to activate kitbash mode")
+        instructions.setStyleSheet(get_font_stylesheet(size=11, color="#abb2bf", style="italic"))
+        instructions.setAlignment(QtCore.Qt.AlignCenter)
+        layout.addWidget(instructions)
         
         # Separator
         separator = QtWidgets.QFrame()
@@ -539,33 +563,41 @@ class KitbashNodeUI(QtWidgets.QWidget):
             self.placed_assets.node = node
             self.placed_assets._refresh_list()
     
-    def _on_asset_selected(self, asset_data):
-        """Handle asset selection from browser"""
-        import json
-        
-        # Get the scene viewer
-        scene_viewer = hou.ui.paneTabOfType(hou.paneTabType.SceneViewer)
-        if not scene_viewer:
-            hou.ui.displayMessage("No scene viewer found", severity=hou.severityType.Warning)
+    def _on_add_to_library(self):
+        """Add selected asset from browser to library multiparm"""
+        if not self.node:
             return
         
-        # Store asset data globally for state to access
-        if not hasattr(hou.session, 'kitbash_asset_data'):
-            hou.session.kitbash_asset_data = {}
-        hou.session.kitbash_asset_data['current'] = asset_data
+        # Get selected asset from browser
+        selected_asset = self.browser.selected_asset
+        if not selected_asset:
+            hou.ui.displayMessage("No asset selected in browser", severity=hou.severityType.Warning)
+            return
         
-        # Activate the kitbash placement state
-        try:
-            scene_viewer.setCurrentState("polyfactory.kitbash_placement", 
-                                        generate=hou.stateGenerateMode.Insert)
-            
-            print(f"Entering placement mode for: {asset_data['name']}")
-            
-        except Exception as e:
-            hou.ui.displayMessage(f"Error activating placement state: {e}", severity=hou.severityType.Error)
-            print(f"Error: {e}")
-            import traceback
-            traceback.print_exc()
+        file_path = selected_asset.get('file_path')
+        if not file_path:
+            hou.ui.displayMessage("Asset has no file path", severity=hou.severityType.Error)
+            return
+        
+        # Add to library multiparm
+        library_parm = self.node.parm("library")
+        if not library_parm:
+            hou.ui.displayMessage("Library parameter not found on node", severity=hou.severityType.Error)
+            return
+        
+        num_library = library_parm.eval()
+        new_index = num_library + 1
+        
+        library_parm.set(new_index)
+        
+        # Set the mesh path
+        mesh_parm = self.node.parm(f"lMesh{new_index}")
+        if mesh_parm:
+            mesh_parm.set(file_path)
+            print(f"Added to library: {file_path}")
+        
+        hou.ui.displayMessage(f"Added {selected_asset.get('name')} to library", 
+                            severity=hou.severityType.Message)
 
 
 def createInterface():

@@ -49,62 +49,6 @@ def test_workflow():
     print("=" * 60)
 
 
-# Instructions for creating the HDA manually
-HDA_CREATION_INSTRUCTIONS = """
-=== Creating pf_kitbash HDA ===
-
-1. Create a new Geometry node at SOP level
-2. Inside, create this network:
-
-   [ForEach Begin]
-        |
-   [Python/File] - Load USD based on multiparm index
-        |
-   [Transform] - Apply translate/rotate/scale from multiparm
-        |
-   [Switch] - Enable/disable based on multiparm toggle
-        |
-   [ForEach End]
-        |
-   [Merge] - Combine all assets
-        |
-   [OUT]
-
-3. Create Digital Asset:
-   - Right-click node → Create Digital Asset
-   - Name: pf_kitbash
-   - Label: PolyFactory Kitbash
-   - Save to: $HOUDINI_USER_PREF_DIR/otls/pf_kitbash.hda
-
-4. Edit Type Properties → Parameters:
-   - Add Multiparm Block named "assets_folder" with label "Assets"
-   - Inside multiparm add:
-     * String: asset_file# (File) - USD File path
-     * Vector3: asset_t# - Translate
-     * Vector3: asset_r# - Rotate  
-     * Vector3: asset_s# (default 1,1,1) - Scale
-     * Toggle: asset_enable# (default On) - Enable
-
-5. In the ForEach node:
-   - Method: By Count
-   - Count: ch("../assets_folder")
-
-6. In the Python/File node for loading:
-   - Use expression to get: chs("../asset_file" + chs("../_iterated_name"))
-   - Or use Python SOP to load USD programmatically
-
-7. In Transform node:
-   - Translate: ch("../asset_t" + chs("../_iterated_name") + "x/y/z")
-   - Rotate: ch("../asset_r" + chs("../_iterated_name") + "x/y/z")
-   - Scale: ch("../asset_s" + chs("../_iterated_name") + "x/y/z")
-
-8. Save and install the HDA
-
-Alternative: Use the provided create_kitbash_hda.py script
-(Note: Script creates basic structure, manual refinement recommended)
-"""
-
-
 if __name__ == "__main__":
     # Print instructions
     print(HDA_CREATION_INSTRUCTIONS)

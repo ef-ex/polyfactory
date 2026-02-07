@@ -90,6 +90,41 @@ When creating new HDAs:
 3. Reference `$POLYFACTORY` in file paths within HDA
 4. Test with environment variable resolution
 
+### Kitbash Workflow (pf_kitbash HDA)
+
+**Interactive viewport-based kitbashing system:**
+
+**HDA Parameters:**
+- `library` (multiparm) - User-defined library of meshes with `lMesh#` (string) file paths
+- `currentMesh` (string) - Path to currently selected mesh for placement
+- `currentActive` (toggle) - True when mesh selected, false when idle
+- `num_meshes` (multiparm) - Placed instances with `file#`, `t#`, `r#`, `scale#`
+
+**Workflow:**
+1. User populates `library` multiparm with USD/geometry file paths
+2. HDA displays all library meshes in viewport (with `mesh_index` attribute for picking)
+3. User presses **Enter** in viewport → activates kitbash placement state
+4. User clicks library mesh in viewport → state sets `currentMesh` parameter and `currentActive=true`
+5. HDA updates to show preview of selected mesh following cursor
+6. User clicks to place → state adds entry to `num_meshes` multiparm, clears `currentMesh`, sets `currentActive=false`
+7. User can press ESC to cancel selection or Enter again to exit state
+
+**Python State:** `polyfactory/scripts/python/polyfactory/asset_library/kitbash_placement_state.py`
+- State name: `polyfactory.kitbash_placement`
+- Registered in `polyfactory/scripts/123.py` on Houdini startup
+- Uses raycasting to detect clicks on library meshes (via `mesh_index` primitive attribute)
+- Handles placement by setting transform parameters in multiparm
+- HDA handles all geometry loading and preview rendering (state doesn't load USD files)
+
+**Python Panel UI:** `polyfactory/scripts/python/polyfactory/asset_library/kitbash_ui.py`
+- Asset browser for browsing available meshes
+- "Add to Library" button to populate library multiparm from browser
+- List of placed assets with transform controls
+- Instructions: "Press Enter in viewport to activate kitbash mode"
+- No double-click integration - browser is kept generic for reuse
+
+**Key Design Principle:** State is viewport-interaction only. HDA handles geometry, preview, and display. This keeps the state simple and performant.
+
 ### Python Scripts
 Two locations:
 - `devScripts/` - Development/debugging scripts (not loaded by Houdini)
