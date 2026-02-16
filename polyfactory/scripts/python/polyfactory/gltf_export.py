@@ -20,7 +20,7 @@ import os
 def export_module_with_connection_points(
     geometry_node: hou.Node,
     output_path: str,
-    connection_point_pattern: str = "*connection*"
+    connection_point_pattern: str = "ConnectionPoint_*"
 ) -> bool:
     """
     Export module to GLB with connection points preserved.
@@ -35,6 +35,7 @@ def export_module_with_connection_points(
         geometry_node: SOP node containing module geometry
         output_path: Output .glb file path
         connection_point_pattern: Pattern to match connection point nulls
+                                 (e.g., "ConnectionPoint_*" matches ConnectionPoint_internal1, etc.)
         
     Returns:
         True if export successful, False otherwise
@@ -42,6 +43,11 @@ def export_module_with_connection_points(
     Example:
         >>> geo = hou.node("/obj/module_chassis/OUT")
         >>> export_module_with_connection_points(geo, "D:/galaxia/assets/chassis_basic.glb")
+        
+    Expected null naming in Houdini:
+        - ConnectionPoint_internal (or ConnectionPoint_internal1, ConnectionPoint_internal2, etc.)
+        - ConnectionPoint_external (for hull-surface modules like radiators, sensors)
+        - ConnectionPoint_structural (for chassis-to-chassis connections)
     """
     try:
         # 1. Export to GLB using Houdini ROP
@@ -98,10 +104,11 @@ def _extract_connection_points(geometry_node: hou.Node, pattern: str) -> List[Di
     Extract connection point data from Houdini scene.
     
     Looks for null objects in the scene hierarchy matching the pattern.
-    Connection points are typically null nodes with specific naming.
+    Connection points should follow naming: ConnectionPoint_<type><number>
+    where type is: internal, external, or structural (number is optional).
     
     Returns list of dicts with:
-        - name: Node name (e.g., "connection_top", "connection_bottom")
+        - name: Node name (e.g., "ConnectionPoint_internal1", "ConnectionPoint_structural")
         - transform: World transform matrix
         - node_index: Index in scene hierarchy (for GLB matching)
     """
@@ -185,7 +192,7 @@ def batch_export_modules(module_definitions: List[Dict], output_dir: str) -> Non
             continue
             
         output_path = os.path.join(output_dir, module_def["output_name"])
-        pattern = module_def.get("pattern", "*connection*")
+        pattern = module_def.get("pattern", "ConnectionPoint_*")
         
         if export_module_with_connection_points(node, output_path, pattern):
             success_count += 1
@@ -198,12 +205,13 @@ def batch_export_modules(module_definitions: List[Dict], output_dir: str) -> Non
 # Example usage for testing
 if __name__ == "__main__":
     # Test export - adjust paths to your scene
+    # Expects null nodes named: ConnectionPoint_internal, ConnectionPoint_external, etc.
     test_node = hou.node("/obj/test_module/OUT")
     if test_node:
         export_module_with_connection_points(
             test_node,
             "D:/test_export.glb",
-            "*connection*"
+            "ConnectionPoint_*"
         )
     else:
         print("Create a test module at /obj/test_module/OUT to test export")
