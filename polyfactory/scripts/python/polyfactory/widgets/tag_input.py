@@ -196,7 +196,7 @@ class TagInputWidget(HoverOutlineMixin, QtWidgets.QWidget):
         self.line_edit.setPlaceholderText("Type to add tags...")
         self.line_edit.setFrame(False)
         self.line_edit.setMinimumWidth(150)
-        self.line_edit.returnPressed.connect(self._on_return_pressed)
+        self.line_edit.installEventFilter(self)
         self.line_edit.textChanged.connect(self._on_text_changed)
         
         # Completer for autocomplete
@@ -392,6 +392,14 @@ class TagInputWidget(HoverOutlineMixin, QtWidgets.QWidget):
             # Keep the last part (after the last comma)
             self.line_edit.setText(parts[-1].strip())
     
+    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
+        """Intercept Enter/Return on the line edit to prevent QDialog default button activation."""
+        if obj is self.line_edit and event.type() == QtCore.QEvent.Type.KeyPress:
+            if event.key() in (QtCore.Qt.Key.Key_Return, QtCore.Qt.Key.Key_Enter):
+                self._on_return_pressed()
+                return True  # Consume event - parent QDialog must not see Return
+        return super().eventFilter(obj, event)
+
     def _on_chip_removed(self, tag_text):
         """Handle chip removal"""
         self._remove_chip(tag_text)

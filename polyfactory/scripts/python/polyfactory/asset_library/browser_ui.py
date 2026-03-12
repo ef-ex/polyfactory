@@ -5,6 +5,7 @@ Asset Browser UI - Grid view of assets with search and filtering
 import hou
 from PySide6 import QtWidgets, QtCore, QtGui
 import os
+import shutil
 from typing import Optional, List, Dict
 from polyfactory.ui_framework.widgets.py_push_button import PyPushButton
 from polyfactory.ui_framework.widgets.py_line_edit import PyLineEdit
@@ -392,6 +393,7 @@ class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
         super().__init__(parent)
         self.asset_data = asset_data
         self._size = size
+        self._is_selected: bool = False
         
         # Setup animated hover outline
         self.setup_hover_outline(color="#61afef", width=2, radius=6, fade_duration=150)
@@ -436,13 +438,28 @@ class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
         self.thumbnail_label.setFixedSize(thumb_size, thumb_size)
         self._load_static_frame()  # Reload with new size
     
+    def set_selected(self, selected: bool) -> None:
+        """Toggle selection highlight on this thumbnail."""
+        self._is_selected = selected
+        self.update()
+
     def paintEvent(self, event):
-        """Draw widget with animated hover outline"""
+        """Draw widget with selection highlight and animated hover outline."""
         super().paintEvent(event)
         
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        self.paint_hover_outline(painter)
+        
+        if self._is_selected:
+            # Semi-transparent blue fill
+            painter.fillRect(self.rect(), QtGui.QColor(97, 175, 239, 50))
+            # Solid blue border
+            pen = QtGui.QPen(QtGui.QColor("#61afef"), 2)
+            painter.setPen(pen)
+            painter.setBrush(QtCore.Qt.NoBrush)
+            painter.drawRoundedRect(self.rect().adjusted(1, 1, -1, -1), 6, 6)
+        else:
+            self.paint_hover_outline(painter)
     
     def _load_static_frame(self):
         """Load only frame 5 for static display (no animation)"""
@@ -489,10 +506,16 @@ class AssetBrowserWidget(QtWidgets.QWidget):
         super().__init__(parent)
         self.all_assets = []
         self.filtered_assets = []
-        self.selected_asset = None  # Track selected asset
+        self.selected_assets: List[Dict] = []   # multi-select list
+        self._thumbnail_widgets: List[AssetThumbnailWidget] = []
         self.show_info_panel = show_info_panel
         
         self._setup_ui()
+        
+        # Delete key removes selected assets from the library
+        delete_shortcut = QtGui.QShortcut(QtGui.QKeySequence.Delete, self)
+        delete_shortcut.activated.connect(self._delete_selected_assets)
+        
         self._load_assets()
     
     def _setup_ui(self):
@@ -758,20 +781,43 @@ class AssetBrowserWidget(QtWidgets.QWidget):
         size = self.size_slider.value()
         
         # Add all thumbnails to flow layout (wraps automatically)
+        self._thumbnail_widgets = []
         for asset in self.filtered_assets:
             thumbnail_widget = AssetThumbnailWidget(asset, size=size)
             thumbnail_widget.assetClicked.connect(self._on_asset_clicked)
             thumbnail_widget.assetDoubleClicked.connect(self._on_asset_double_clicked)
             self.grid_layout.addWidget(thumbnail_widget)
+            self._thumbnail_widgets.append(thumbnail_widget)
+        
+        # Clear selection when grid is rebuilt
+        self.selected_assets = []
         
         # Update status
         count = len(self.filtered_assets)
         total = len(self.all_assets)
         self.status_label.setText(f"Showing {count} of {total} assets")
     
-    def _on_asset_clicked(self, asset_data):
-        """Handle asset single-click - show in info panel"""
-        self.selected_asset = asset_data
+    def _on_asset_clicked(self, asset_data: Dict) -> None:
+        """Handle asset single-click.  Ctrl+click to toggle multi-select."""
+        modifiers = QtWidgets.QApplication.keyboardModifiers()
+        
+        if modifiers & QtCore.Qt.ControlModifier:
+            # Ctrl+click: toggle this asset in the selection
+            if any(a.get('id') == asset_data.get('id') for a in self.selected_assets):
+                self.selected_assets = [a for a in self.selected_assets
+                                        if a.get('id') != asset_data.get('id')]
+            else:
+                self.selected_assets.append(asset_data)
+        else:
+            # Plain click: replace selection
+            self.selected_assets = [asset_data]
+        
+        # Sync visual state on all thumbnail widgets
+        selected_ids = {a.get('id') for a in self.selected_assets}
+        for widget in self._thumbnail_widgets:
+            widget.set_selected(widget.asset_data.get('id') in selected_ids)
+        
+        # Show last-clicked asset in info panel
         if self.info_panel:
             self.info_panel.set_asset(asset_data)
         self.assetInfoChanged.emit(asset_data)
@@ -780,17 +826,78 @@ class AssetBrowserWidget(QtWidgets.QWidget):
         """Handle asset double-click - trigger placement"""
         self.assetSelected.emit(asset_data)
     
+    def _get_db_path(self) -> str:
+        """Return the resolved path to the asset database."""
+        db_path = os.environ.get('PF_ASSET_DB', '')
+        if not db_path:
+            library_path = os.environ.get('PF_ASSET_LIBRARY', '')
+            db_path = os.path.join(library_path, 'asset_library.db')
+        elif not db_path.endswith('.db'):
+            db_path = os.path.join(db_path, 'asset_library.db')
+        return db_path
+
+    def _delete_selected_assets(self) -> None:
+        """Delete all selected assets from the library database (Delete key)."""
+        if not self.selected_assets:
+            return
+        
+        count = len(self.selected_assets)
+        names = "\n".join(f"  {a['name']}" for a in self.selected_assets)
+        
+        msg = QtWidgets.QMessageBox(self)
+        msg.setWindowTitle("Delete Assets")
+        msg.setText(f"Permanently delete {count} asset{'s' if count > 1 else ''} from the library?")
+        msg.setInformativeText(names)
+        msg.setIcon(QtWidgets.QMessageBox.Warning)
+        msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel)
+        msg.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+        msg.setStyleSheet("""
+            QMessageBox  { background-color: #252525; color: #e0e0e0; }
+            QLabel       { color: #e0e0e0; }
+            QPushButton  {
+                background-color: #2c2c2c; color: #e0e0e0;
+                border: 1px solid #3a3a3a; border-radius: 4px;
+                padding: 6px 16px; min-width: 80px;
+            }
+            QPushButton:hover  { background-color: #3a3a3a; border: 1px solid #61afef; }
+            QPushButton:focus  { border: 1px solid #61afef; }
+        """)
+        
+        if msg.exec() != QtWidgets.QMessageBox.Yes:
+            return
+        
+        try:
+            from polyfactory.asset_library.database import AssetDatabase
+            with AssetDatabase(self._get_db_path()) as db:
+                for asset in self.selected_assets:
+                    db.delete_asset(asset['id'])
+                    self._delete_asset_files(asset)
+            self.selected_assets = []
+            self._thumbnail_widgets = []
+            self._load_assets()
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Delete failed", f"Could not delete assets:\n{e}")
+
+    def _delete_asset_files(self, asset: Dict) -> None:
+        """Delete USD file, static thumbnail, and turntable folder for an asset."""
+        file_path = asset.get('file_path', '')
+        if file_path and os.path.isfile(file_path):
+            os.remove(file_path)
+
+        static = asset.get('thumbnail_static', '')
+        if static and os.path.isfile(static):
+            os.remove(static)
+
+        turntable = asset.get('thumbnail_turntable', '')
+        if turntable and os.path.isdir(turntable):
+            shutil.rmtree(turntable)
+
     def _on_asset_category_changed(self, asset_path, new_category):
         """Handle category change from info panel"""
         try:
             from polyfactory.asset_library.database import AssetDatabase
             
-            db_path = os.environ.get('PF_ASSET_DB', '')
-            if not db_path:
-                library_path = os.environ.get('PF_ASSET_LIBRARY', '')
-                db_path = os.path.join(library_path, 'asset_library.db')
-            
-            with AssetDatabase(db_path) as db:
+            with AssetDatabase(self._get_db_path()) as db:
                 db.update_asset_category(asset_path, new_category)
             
             # Reload assets to reflect changes
@@ -805,12 +912,7 @@ class AssetBrowserWidget(QtWidgets.QWidget):
         try:
             from polyfactory.asset_library.database import AssetDatabase
             
-            db_path = os.environ.get('PF_ASSET_DB', '')
-            if not db_path:
-                library_path = os.environ.get('PF_ASSET_LIBRARY', '')
-                db_path = os.path.join(library_path, 'asset_library.db')
-            
-            with AssetDatabase(db_path) as db:
+            with AssetDatabase(self._get_db_path()) as db:
                 db.update_asset_tags(asset_path, new_tags)
             
             # Reload assets to reflect changes
