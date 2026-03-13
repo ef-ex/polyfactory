@@ -15,11 +15,11 @@ def register_viewer_states():
         from polyfactory.asset_library.kitbash_placement_state import createViewerStateTemplate
         template = createViewerStateTemplate()
         hou.ui.registerViewerState(template)
-        print("Registered viewer state: polyfactory.kitbash_placement")
+    except hou.NotAvailable:
+        # Headless / hython context — viewer states not supported, skip silently
+        pass
     except Exception as e:
         print(f"Failed to register kitbash placement state: {e}")
-        import traceback
-        traceback.print_exc()
 
 
 # Register on startup

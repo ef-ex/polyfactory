@@ -15,14 +15,12 @@
     <helpText><![CDATA[Export selected geometry to the asset library.
 
 Select primitives in the viewport, then click this tool to open the export dialog.]]></helpText>
-    <script scriptType="python"><![CDATA[from polyfactory.asset_library import reload_modules, hotkey_export
-reload_modules.reload_all()
+    <script scriptType="python"><![CDATA[from polyfactory.asset_library import hotkey_export
 hotkey_export.export_selected_to_library()]]></script>
   </tool>
 
   <tool name="asset_browser" label="Asset Browser" icon="LOP_layout">
-    <script scriptType="python"><![CDATA[from polyfactory.asset_library import reload_modules, browser_ui
-reload_modules.reload_all()
+    <script scriptType="python"><![CDATA[from polyfactory.asset_library import browser_ui
 browser_ui.show_asset_browser()]]></script>
   </tool>
 

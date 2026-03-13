@@ -9,6 +9,7 @@ from polyfactory.widgets.tag_input import TagInputWidget
 from polyfactory.ui_framework.widgets.py_push_button import PyPushButton
 from polyfactory.ui_framework.widgets.py_line_edit import PyLineEdit
 from polyfactory.ui_utils import get_scaled_font_size
+from polyfactory.asset_library.batch_ui import AssetGroupRow
 
 
 class AssetExportDialog(QtWidgets.QDialog):
@@ -16,12 +17,14 @@ class AssetExportDialog(QtWidgets.QDialog):
     
     def __init__(self, parent=None, selection_node=None, selected_prims=None):
         super(AssetExportDialog, self).__init__(parent)
-        
+
         self.selection_node = selection_node
         self.selected_prims = selected_prims
-        
+        self._groups = []
+        self._rows = []
+
         self.setWindowTitle("Export to Asset Library")
-        self.setMinimumWidth(600)
+        self.setMinimumWidth(620)
         self.setMinimumHeight(700)
         
         # Get scaled font sizes
@@ -107,7 +110,17 @@ class AssetExportDialog(QtWidgets.QDialog):
         layout = QtWidgets.QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(12)
-        
+
+        # Mode toggle
+        mode_row = QtWidgets.QHBoxLayout()
+        self.batch_mode_checkbox = QtWidgets.QCheckBox("Batch Export  (detect and export multiple assets from one node)")
+        self.batch_mode_checkbox.toggled.connect(self._on_batch_mode_toggled)
+        mode_row.addWidget(self.batch_mode_checkbox)
+        mode_row.addStretch()
+        layout.addLayout(mode_row)
+
+        # ── Single-mode widgets ───────────────────────────────────────────────
+
         # Selection info
         info_group = QtWidgets.QGroupBox("Selection Info")
         info_layout = QtWidgets.QFormLayout()
@@ -124,13 +137,13 @@ class AssetExportDialog(QtWidgets.QDialog):
         info_group.setLayout(info_layout)
         layout.addWidget(info_group)
         
-        # Asset Information
-        asset_group = QtWidgets.QGroupBox("Asset Information")
+        # Asset Information (also acts as batch defaults when in batch mode)
+        self.asset_group = QtWidgets.QGroupBox("Asset Information")
         asset_layout = QtWidgets.QFormLayout()
         asset_layout.setVerticalSpacing(10)
         
         self.name_edit = PyLineEdit()
-        self.name_edit.setPlaceholderText("Enter asset name...")
+        self.name_edit.setPlaceholderText("Enter asset name")
         self.name_edit.editingFinished.connect(self._on_name_confirmed)
         self.name_edit.returnPressed.connect(self._on_name_confirmed)
         
@@ -155,8 +168,8 @@ class AssetExportDialog(QtWidgets.QDialog):
         self.notes_edit.setPlaceholderText("Optional notes about this asset...")
         asset_layout.addRow("Notes:", self.notes_edit)
         
-        asset_group.setLayout(asset_layout)
-        layout.addWidget(asset_group)
+        self.asset_group.setLayout(asset_layout)
+        layout.addWidget(self.asset_group)
         
         # Preparation Options
         prep_group = QtWidgets.QGroupBox("Geometry Preparation")
@@ -240,22 +253,143 @@ class AssetExportDialog(QtWidgets.QDialog):
         
         path_group.setLayout(path_layout)
         layout.addWidget(path_group)
-        
+
         # Update path preview when name or category changes
         self.name_edit.textChanged.connect(self._update_path_preview)
+        self.name_edit.textChanged.connect(self._update_batch_row_placeholders)
         self.category_combo.currentTextChanged.connect(self._update_path_preview)
-        
+
+        # Track single-mode-only groups for easy show/hide
+        # prep_group and asset_group excluded — both are shared/always visible
+        self._single_widgets = [info_group, path_group]
+
+        # ── Batch-mode widgets ────────────────────────────────────────────────
+
+        # Source node picker
+        self.batch_source_group = QtWidgets.QGroupBox("Source Geometry")
+        src_row = QtWidgets.QHBoxLayout()
+        src_row.addWidget(QtWidgets.QLabel("Node path:"))
+        self.batch_node_path_edit = PyLineEdit()
+        self.batch_node_path_edit.setPlaceholderText("Click Pick or enter a SOP node path...")
+        src_row.addWidget(self.batch_node_path_edit, 1)
+        pick_btn = PyPushButton(
+            text="Pick", radius=6,
+            color="#e0e0e0", bg_color="#2c2c2c",
+            bg_color_hover="#3a3a3a", bg_color_pressed="#4a4a4a",
+        )
+        pick_btn.setMinimumHeight(32)
+        pick_btn.setFixedWidth(64)
+        pick_btn.clicked.connect(self._batch_pick_node)
+        src_row.addWidget(pick_btn)
+        self.batch_source_group.setLayout(src_row)
+        self.batch_source_group.setVisible(False)
+        layout.addWidget(self.batch_source_group)
+
+        # Detect row
+        self.batch_detect_widget = QtWidgets.QWidget()
+        detect_row = QtWidgets.QHBoxLayout(self.batch_detect_widget)
+        detect_row.setContentsMargins(0, 0, 0, 0)
+        detect_btn = PyPushButton(
+            text="Detect Assets", radius=8,
+            color="#61afef", bg_color="#2c2c2c",
+            bg_color_hover="#3a5f7d", bg_color_pressed="#4a6f8d",
+        )
+        detect_btn.setMinimumHeight(36)
+        detect_btn.setMinimumWidth(140)
+        detect_btn.clicked.connect(self._batch_detect)
+        detect_row.addWidget(detect_btn)
+        self.batch_detect_status = QtWidgets.QLabel("")
+        self.batch_detect_status.setStyleSheet("color: #61afef;")
+        detect_row.addWidget(self.batch_detect_status)
+        detect_row.addStretch()
+        self.batch_detect_widget.setVisible(False)
+        layout.addWidget(self.batch_detect_widget)
+
+        # Geometry prep (shared — always visible)
+        layout.addWidget(prep_group)
+
+        # Results area (batch only)
+        self.batch_results_group = QtWidgets.QGroupBox("Detected Assets")
+        results_outer = QtWidgets.QVBoxLayout()
+        results_outer.setContentsMargins(0, 0, 0, 0)
+        results_outer.setSpacing(0)
+
+        # Column header
+        hdr = QtWidgets.QWidget()
+        hdr.setStyleSheet("background-color: #1e1e1e;")
+        hdr_row = QtWidgets.QHBoxLayout(hdr)
+        hdr_row.setContentsMargins(8, 4, 8, 4)
+        hdr_row.setSpacing(8)
+        hs = "color: #61afef; font-weight: bold;"
+        _lbl = QtWidgets.QLabel("")
+        _lbl.setFixedWidth(20)
+        _lbl.setStyleSheet(hs)
+        hdr_row.addWidget(_lbl)
+        _lbl2 = QtWidgets.QLabel("#")
+        _lbl2.setFixedWidth(32)
+        _lbl2.setStyleSheet(hs)
+        hdr_row.addWidget(_lbl2)
+        for txt, stretch in [("Name", 2), ("Category", 1), ("Tags", 2)]:
+            l = QtWidgets.QLabel(txt)
+            l.setStyleSheet(hs)
+            hdr_row.addWidget(l, stretch)
+        _lbl3 = QtWidgets.QLabel("Prims / Islands")
+        _lbl3.setFixedWidth(88)
+        _lbl3.setStyleSheet(hs)
+        hdr_row.addWidget(_lbl3)
+        results_outer.addWidget(hdr)
+
+        self.batch_scroll = QtWidgets.QScrollArea()
+        self.batch_scroll.setWidgetResizable(True)
+        self.batch_scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.batch_scroll.setMinimumHeight(160)
+        self.batch_rows_container = QtWidgets.QWidget()
+        self.batch_rows_container.setStyleSheet("background-color: transparent;")
+        self.batch_rows_layout = QtWidgets.QVBoxLayout(self.batch_rows_container)
+        self.batch_rows_layout.setContentsMargins(0, 0, 0, 0)
+        self.batch_rows_layout.setSpacing(0)
+        self.batch_rows_layout.addStretch()
+        self.batch_scroll.setWidget(self.batch_rows_container)
+        results_outer.addWidget(self.batch_scroll)
+        self.batch_results_group.setLayout(results_outer)
+        self.batch_results_group.setVisible(False)
+        layout.addWidget(self.batch_results_group, stretch=1)
+
+        # Select All / None (batch only)
+        self.batch_sel_widget = QtWidgets.QWidget()
+        sel_row = QtWidgets.QHBoxLayout(self.batch_sel_widget)
+        sel_row.setContentsMargins(0, 0, 0, 0)
+        for label, checked in [("All", True), ("None", False)]:
+            btn = QtWidgets.QPushButton(label)
+            btn.setFixedWidth(52)
+            btn.setStyleSheet("""
+                QPushButton { background-color:#2c2c2c; border:1px solid #3a3a3a;
+                border-radius:4px; color:#abb2bf; padding:4px; }
+                QPushButton:hover { border-color:#61afef; }
+            """)
+            btn.clicked.connect(lambda _=None, c=checked: self._batch_set_all_checked(c))
+            sel_row.addWidget(btn)
+        sel_row.addStretch()
+        self.batch_sel_widget.setVisible(False)
+        layout.addWidget(self.batch_sel_widget)
+
+        # ── Shared bottom ─────────────────────────────────────────────────────
+
         # Debug options
         self.debug_prints = QtWidgets.QCheckBox("Debug Prints")
         self.debug_prints.setChecked(False)
         self.debug_prints.setToolTip("Show detailed debug information in console")
         layout.addWidget(self.debug_prints)
-        
+
         # Buttons
         button_layout = QtWidgets.QHBoxLayout()
         button_layout.setSpacing(8)
+        self.batch_progress_label = QtWidgets.QLabel("")
+        self.batch_progress_label.setStyleSheet("color: #abb2bf;")
+        self.batch_progress_label.setVisible(False)
+        button_layout.addWidget(self.batch_progress_label)
         button_layout.addStretch()
-        
+
         self.export_button = PyPushButton(
             text="Export Asset",
             radius=8,
@@ -268,7 +402,7 @@ class AssetExportDialog(QtWidgets.QDialog):
         self.export_button.setMinimumWidth(140)
         self.export_button.clicked.connect(self._on_export)
         button_layout.addWidget(self.export_button)
-        
+
         cancel_button = PyPushButton(
             text="Cancel",
             radius=8,
@@ -281,12 +415,227 @@ class AssetExportDialog(QtWidgets.QDialog):
         cancel_button.setMinimumWidth(100)
         cancel_button.clicked.connect(self.reject)
         button_layout.addWidget(cancel_button)
-        
+
         layout.addLayout(button_layout)
-        
+
         # Spacer
         layout.addStretch()
-    
+
+    # ── Batch mode ────────────────────────────────────────────────────────────
+
+    def _on_batch_mode_toggled(self, checked: bool) -> None:
+        for w in self._single_widgets:
+            w.setVisible(not checked)
+        self.asset_group.setTitle(
+            "Batch Defaults  (applied to rows without individual values)"
+            if checked else "Asset Information"
+        )
+        self.batch_source_group.setVisible(checked)
+        self.batch_detect_widget.setVisible(checked)
+        self.batch_results_group.setVisible(checked)
+        self.batch_sel_widget.setVisible(checked)
+        self.batch_progress_label.setVisible(checked)
+        self.export_button.setText("Export Selected" if checked else "Export Asset")
+        self.adjustSize()
+
+    def _batch_pick_node(self) -> None:
+        try:
+            current = self.batch_node_path_edit.text().strip()
+            initial = hou.node(current) if current else None
+            path = hou.ui.selectNode(initial_node=initial)
+            if path:
+                self.batch_node_path_edit.setText(path)
+        except Exception as e:
+            print(f"Error picking node: {e}")
+
+    def _batch_detect(self) -> None:
+        node_path = self.batch_node_path_edit.text().strip()
+        if not node_path:
+            hou.ui.displayMessage(
+                "Please enter or pick a source SOP node path first.",
+                severity=hou.severityType.Warning,
+            )
+            return
+        sop_node = hou.node(node_path)
+        if not sop_node:
+            hou.ui.displayMessage(
+                f"Node not found: {node_path}",
+                severity=hou.severityType.Error,
+            )
+            return
+
+        # Clear previous results
+        while self.batch_rows_layout.count() > 1:
+            item = self.batch_rows_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        self._rows = []
+        self._groups = []
+        self.export_button.setEnabled(False)
+
+        self.batch_detect_status.setText("Running connectivity...")
+        QtWidgets.QApplication.processEvents()
+
+        def _on_group(group: dict) -> None:
+            """Called by detect_asset_groups each time a cluster is confirmed."""
+            self._groups.append(group)
+            i: int = len(self._groups) - 1
+            row = AssetGroupRow(
+                index=i,
+                group=group,
+                categories=self.db_categories,
+                available_tags=self.db_tags,
+                parent=self.batch_rows_container,
+            )
+            self.batch_rows_layout.insertWidget(self.batch_rows_layout.count() - 1, row)
+            self._rows.append(row)
+            self.batch_detect_status.setText(f"Found {len(self._groups)} groups...")
+            self.batch_rows_container.updateGeometry()
+            QtWidgets.QApplication.processEvents()
+
+        try:
+            from polyfactory.asset_library.batch_importer import detect_asset_groups
+            detect_asset_groups(sop_node, on_group_detected=_on_group)
+            count = len(self._groups)
+            self.batch_detect_status.setText(
+                f"{count} asset{'s' if count != 1 else ''} detected"
+            )
+            self._update_batch_row_placeholders()
+            self.export_button.setEnabled(count > 0)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            self.batch_detect_status.setText(f"Error: {e}")
+
+    def _batch_populate_rows(self) -> None:
+        while self.batch_rows_layout.count() > 1:
+            item = self.batch_rows_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        self._rows = []
+        for i, group in enumerate(self._groups):
+            row = AssetGroupRow(
+                index=i,
+                group=group,
+                categories=self.db_categories,
+                available_tags=self.db_tags,
+                parent=self.batch_rows_container,
+            )
+            self.batch_rows_layout.insertWidget(self.batch_rows_layout.count() - 1, row)
+            self._rows.append(row)
+        self.batch_rows_container.updateGeometry()
+        self._update_batch_row_placeholders()
+
+    def _update_batch_row_placeholders(self) -> None:
+        """Keep blank row name fields showing the effective base name they will use."""
+        default = self.name_edit.text().strip() if hasattr(self, 'name_edit') else ''
+        for row in getattr(self, '_rows', []):
+            if not row.name_edit.text():
+                row.name_edit.setPlaceholderText(default or "asset")
+
+    def _batch_set_all_checked(self, checked: bool) -> None:
+        for row in self._rows:
+            row.checkbox.setChecked(checked)
+
+    def _run_batch_export(self) -> None:
+        node_path = self.batch_node_path_edit.text().strip()
+        sop_node = hou.node(node_path) if node_path else None
+        if not sop_node:
+            hou.ui.displayMessage(
+                "Please pick a source SOP node first.",
+                severity=hou.severityType.Warning,
+            )
+            return
+        checked_rows = [r for r in self._rows if r.is_checked()]
+        if not checked_rows:
+            hou.ui.displayMessage("No assets selected.", severity=hou.severityType.Warning)
+            return
+        # Dialog-level defaults applied to rows that leave fields blank
+        default_name = self.name_edit.text().strip()
+        default_category = self.category_combo.currentText().strip()
+        default_tags = self.tags_widget.getTags()
+        for row in checked_rows:
+            if not (row.get_category() or default_category):
+                row_name = row.get_name() or default_name or "asset"
+                hou.ui.displayMessage(
+                    f"Asset #{row.index + 1} ({row_name!r}) has no category.\n"
+                    "Set a category in the row or in Batch Defaults above.",
+                    severity=hou.severityType.Warning,
+                )
+                return
+        library_path = os.environ.get('PF_ASSET_LIBRARY', '')
+        if not library_path:
+            hou.ui.displayMessage(
+                "PF_ASSET_LIBRARY environment variable is not set.",
+                severity=hou.severityType.Error,
+            )
+            return
+        db_path = os.environ.get('PF_ASSET_DB', '')
+        if not db_path:
+            db_path = os.path.join(library_path, 'asset_library.db')
+        elif not db_path.endswith('.db'):
+            db_path = os.path.join(db_path, 'asset_library.db')
+        prep_settings = {
+            'use_prepare_mesh': self.use_prepare_mesh.isChecked(),
+            'scale_to': self.scale_to_combo.currentIndex(),
+            'up': self.up_combo.currentIndex(),
+            'y_z': self.y_z_swap.isChecked(),
+            'align_x': self.align_x_combo.currentIndex(),
+            'align_y': self.align_y_combo.currentIndex(),
+            'align_z': self.align_z_combo.currentIndex(),
+            'remove_attribs': self.remove_attribs.isChecked(),
+        }
+        from polyfactory.asset_library.batch_importer import next_free_filename, export_batch_group
+        from polyfactory.asset_library.render import acquire_shared_panel, release_shared_panel
+        total = len(checked_rows)
+        success_count = 0
+        debug = self.debug_prints.isChecked()
+        self.export_button.setEnabled(False)
+        # Create one shared SceneViewer panel for the whole batch so Houdini doesn't
+        # pay the Qt widget construction + 0.5 s init sleep on every single asset.
+        acquire_shared_panel()
+        try:
+            for i, row in enumerate(checked_rows):
+                base_name = row.get_name() or default_name or "asset"
+                category = row.get_category() or default_category
+                tags = row.get_tags() or default_tags
+                group = self._groups[row.index]
+                self.batch_progress_label.setText(f"Exporting {i + 1}/{total}: {base_name}...")
+                row.set_export_status('exporting')
+                QtWidgets.QApplication.processEvents()
+                final_name = next_free_filename(base_name, category, library_path, db_path)
+                try:
+                    ok = export_batch_group(
+                        sop_node=sop_node,
+                        prim_numbers=group['prim_numbers'],
+                        name=final_name,
+                        category=category,
+                        tags=tags,
+                        prep_settings=prep_settings,
+                        debug=debug,
+                    )
+                    if ok:
+                        success_count += 1
+                        row.set_export_status('done')
+                    else:
+                        row.set_export_status('error')
+                        print(f"Warning: export returned False for {final_name!r}")
+                except Exception as e:
+                    import traceback
+                    traceback.print_exc()
+                    row.set_export_status('error')
+                    print(f"Error exporting {final_name!r}: {e}")
+                QtWidgets.QApplication.processEvents()
+        finally:
+            release_shared_panel()
+        self.export_button.setEnabled(True)
+        self.batch_progress_label.setText(f"Done: {success_count}/{total} exported")
+        if success_count > 0:
+            hou.ui.displayMessage(
+                f"Batch export complete.\n{success_count}/{total} assets exported successfully.",
+                severity=hou.severityType.Message,
+            )
+
     def _load_existing_data(self):
         """Load existing categories from database"""
         # Store for auto-matching
@@ -393,7 +742,12 @@ class AssetExportDialog(QtWidgets.QDialog):
             return False
         
         if not self.selected_prims:
-            QtWidgets.QMessageBox.warning(self, "Selection Error", "No primitives selected.")
+            QtWidgets.QMessageBox.warning(
+                self,
+                "No Selection",
+                "No primitives selected.\n\n"
+                "Select geometry in the viewport and click Export Asset again.",
+            )
             return False
         
         return True
@@ -401,6 +755,9 @@ class AssetExportDialog(QtWidgets.QDialog):
     
     def _on_export(self):
         """Handle export button click"""
+        if self.batch_mode_checkbox.isChecked():
+            self._run_batch_export()
+            return
         if not self._validate_inputs():
             return
         
@@ -483,15 +840,7 @@ def show_export_dialog(parent=None):
         import traceback
         traceback.print_exc()
     
-    # Check if we have a valid selection
-    if not selected_prims:
-        hou.ui.displayMessage(
-            "No primitives selected. Please select geometry in the viewport first.",
-            severity=hou.severityType.Warning
-        )
-        return None
-    
-    # Show dialog (non-modal)
+    # Show dialog (non-modal) — selection may be empty; validation runs on Export click
     if parent is None:
         parent = hou.qt.mainWindow()
     

@@ -4,7 +4,44 @@ Turntable Renderer - Creates rotating preview animations for assets
 
 import hou
 import os
+import time
 from typing import Optional, List, Tuple
+
+
+# ── Shared panel (batch mode) ─────────────────────────────────────────────────
+# A single SceneViewer floating panel created once for the whole batch so we
+# don't pay the Qt widget construction + 0.5 s sleep on every single asset.
+
+_shared_panel = None
+
+
+def acquire_shared_panel() -> None:
+    """Create a shared floating panel for batch renders.
+
+    Call once before starting a batch export loop.  The panel is kept alive
+    across all render_turntable calls and is only destroyed by
+    release_shared_panel().
+    """
+    global _shared_panel
+    if _shared_panel is not None:
+        return  # already acquired
+    desktop = hou.ui.curDesktop()
+    _shared_panel = desktop.createFloatingPanel(hou.paneTabType.SceneViewer)
+    time.sleep(0.5)  # Wait once for the viewer to fully initialize
+
+
+def release_shared_panel() -> None:
+    """Close the shared panel acquired by acquire_shared_panel().
+
+    Call once after the batch export loop finishes (even on error).
+    """
+    global _shared_panel
+    if _shared_panel is not None:
+        try:
+            _shared_panel.close()
+        except Exception:
+            pass
+        _shared_panel = None
 
 
 def render_turntable(geo_node: hou.SopNode, output_dir: str, 
@@ -118,6 +155,10 @@ def _create_render_scene(geo_node: hou.SopNode, num_frames: int,
         bbox = bbox_cache.ComputeWorldBound(asset_prim)  # Use asset prim, not root
         bbox_range = bbox.ComputeAlignedRange()
         
+        center = bbox_range.GetMidpoint()
+        center_x = float(center[0])
+        center_y = float(center[1])
+        center_z = float(center[2])
         size = bbox_range.GetSize()
         max_size = max(size[0], size[1], size[2])
         
@@ -126,20 +167,34 @@ def _create_render_scene(geo_node: hou.SopNode, num_frames: int,
             if debug:
                 print(f"Warning: Invalid bbox size {max_size}, using default distance")
             distance = 10.0
+            center_x = center_y = center_z = 0.0
         else:
             distance = max_size * 3.0
         
         if debug:
-            print(f"Asset bbox size: {size}, max: {max_size}, camera distance: {distance}")
+            print(f"Asset bbox size: {size}, center: ({center_x:.3f}, {center_y:.3f}, {center_z:.3f}), camera distance: {distance}")
         
-        # Set camera distance
-        python_node = lop_net.createNode('pythonscript', 'set_camera_distance')
+        # Center asset at world origin and set camera distance
+        python_node = lop_net.createNode('pythonscript', 'setup_camera')
         python_node.setInput(0, last_node)
         
         python_code = f"""
 from pxr import UsdGeom, Gf
 
 stage = hou.pwd().editableStage()
+
+# Translate asset so its bbox center sits at world origin
+asset_prim = stage.GetPrimAtPath('/asset')
+if asset_prim:
+    xformable = UsdGeom.Xformable(asset_prim)
+    existing = [op for op in xformable.GetOrderedXformOps()
+                if op.GetOpName() == 'xformOp:translate:centering']
+    if existing:
+        existing[0].Set(Gf.Vec3d({-center_x}, {-center_y}, {-center_z}))
+    else:
+        xformable.AddTranslateOp(opSuffix='centering').Set(Gf.Vec3d({-center_x}, {-center_y}, {-center_z}))
+
+# Set camera Z distance
 cam_prim = stage.GetPrimAtPath('/cameras/anim/rotate/turntable_cam')
 if cam_prim:
     xformable = UsdGeom.Xformable(cam_prim)
@@ -192,18 +247,21 @@ def _render_frames(lop_net, cam_node, output_dir: str, num_frames: int, temp_pan
         output_path = os.path.join(output_dir, 'frame_$F4.png').replace('\\', '/')
         cam_path = '/cameras/anim/rotate/turntable_cam'
         
-        # Create floating panel with scene viewer
-        desktop = hou.ui.curDesktop()
-        floating_panel = desktop.createFloatingPanel(hou.paneTabType.SceneViewer)
-        temp_panes.append(floating_panel)
-        
+        # Use shared panel when available (batch mode), otherwise create one.
+        # Creating a new floating panel every render is expensive — Qt widget
+        # construction + 0.5 s sleep adds up noticeably on large batches.
+        if _shared_panel is not None:
+            floating_panel = _shared_panel
+            # Do NOT append to temp_panes — it lives beyond this render call.
+        else:
+            desktop = hou.ui.curDesktop()
+            floating_panel = desktop.createFloatingPanel(hou.paneTabType.SceneViewer)
+            temp_panes.append(floating_panel)
+            time.sleep(0.5)  # Wait for initialization (only needed on first creation)
+
         scene_viewer = floating_panel.panes()[0].tabs()[0]
         scene_viewer.setPwd(lop_net)
         cam_node.setDisplayFlag(True)
-        
-        # Wait for scene viewer to initialize
-        import time
-        time.sleep(0.5)
         
         # Configure viewport
         viewport = scene_viewer.curViewport()

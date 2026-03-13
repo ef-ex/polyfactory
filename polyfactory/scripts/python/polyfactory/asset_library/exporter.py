@@ -37,7 +37,7 @@ def export_asset(export_data: Dict, debug: bool = False) -> bool:
         source_node = export_data['selection_node']
         parent = source_node.parent()
         for node in parent.children():
-            if node.isDisplayFlagSet():
+            if hasattr(node, 'isDisplayFlagSet') and node.isDisplayFlagSet():
                 original_display_node = node
                 break
         
@@ -75,7 +75,7 @@ def export_asset(export_data: Dict, debug: bool = False) -> bool:
         thumbnail_turntable = thumbnails_dir
         
         # Check if asset already exists
-        if os.path.exists(asset_file):
+        if os.path.exists(asset_file) and not export_data.get('_skip_conflict_check', False):
             result = hou.ui.displayMessage(
                 f"Asset '{export_data['name']}' already exists.\n\nDo you want to overwrite it?",
                 buttons=("Overwrite", "Cancel"),
@@ -86,7 +86,6 @@ def export_asset(export_data: Dict, debug: bool = False) -> bool:
             )
             
             if result == 1:  # Cancel
-                print("Export cancelled by user")
                 return False
             
             # If overwriting, delete old database entry

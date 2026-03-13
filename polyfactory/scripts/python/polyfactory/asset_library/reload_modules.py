@@ -37,9 +37,12 @@ def reload_asset_library():
         'polyfactory.asset_library.exporter',
         'polyfactory.asset_library.render',
         'polyfactory.asset_library.export_ui',
+        'polyfactory.asset_library.asset_browser_widgets',
         'polyfactory.asset_library.browser_ui',
         'polyfactory.asset_library.kitbash_ui',
-        'polyfactory.asset_library.kitbash_placement_state'
+        'polyfactory.asset_library.kitbash_placement_state',
+        'polyfactory.asset_library.batch_importer',
+        'polyfactory.asset_library.batch_ui',
     ]
     return _reload_modules(modules, "asset library")
 
