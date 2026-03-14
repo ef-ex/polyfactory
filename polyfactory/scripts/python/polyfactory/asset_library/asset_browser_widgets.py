@@ -10,11 +10,39 @@ Contains:
 
 from PySide6 import QtWidgets, QtCore, QtGui
 import os
+import json
 from typing import Optional, Dict
 
 from polyfactory.ui_framework.widgets.py_push_button import PyPushButton
 from polyfactory.widgets.hover_outline import HoverOutlineMixin
 from polyfactory.ui_utils import get_scaled_font_size, get_font_stylesheet
+
+# ── Module-level thumbnail cache ──────────────────────────────────────────────
+# Keyed by absolute image path → pre-scaled QPixmap (max 300px).
+# Persists for the lifetime of the Houdini session so repeated browser opens
+# and multiple HDA panels all share the same pixmaps — no extra disk I/O.
+_PIXMAP_CACHE: dict[str, QtGui.QPixmap] = {}
+_CACHE_MAX_PX = 300
+
+
+def _load_pixmap_cached(path: str) -> QtGui.QPixmap | None:
+    """Return a cached, pre-scaled pixmap for path, loading from disk on miss."""
+    cached = _PIXMAP_CACHE.get(path)
+    if cached is not None:
+        return cached
+    if not os.path.exists(path):
+        return None
+    pixmap = QtGui.QPixmap(path)
+    if pixmap.isNull():
+        return None
+    if pixmap.width() > _CACHE_MAX_PX or pixmap.height() > _CACHE_MAX_PX:
+        pixmap = pixmap.scaled(
+            _CACHE_MAX_PX, _CACHE_MAX_PX,
+            QtCore.Qt.KeepAspectRatio,
+            QtCore.Qt.SmoothTransformation,
+        )
+    _PIXMAP_CACHE[path] = pixmap
+    return pixmap
 
 
 class HoverSlider(HoverOutlineMixin, QtWidgets.QSlider):
@@ -389,8 +417,9 @@ class AssetInfoPanel(QtWidgets.QWidget):
 class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
     """Individual asset thumbnail with animated hover outline"""
 
-    assetClicked = QtCore.Signal(dict)  # Emits asset data on single-click
+    assetClicked = QtCore.Signal(dict)        # Emits asset data on single-click
     assetDoubleClicked = QtCore.Signal(dict)  # Emits asset data on double-click
+    assetDroppedAt = QtCore.Signal(dict, QtCore.QPoint)  # Emits (asset_data, cursor_pos) after drag
 
     def __init__(self, asset_data: Dict, size=150, parent=None):
         super().__init__(parent)
@@ -420,8 +449,9 @@ class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
             border-radius: 4px;
         """)
 
-        # Load only frame 5 - no animation on thumbnails
-        self._load_static_frame()
+        # Load only frame 5 - deferred so the grid renders before disk I/O starts
+        self._cached_pixmap: QtGui.QPixmap | None = None
+        QtCore.QTimer.singleShot(0, self._load_static_frame)
 
         layout.addWidget(self.thumbnail_label)
 
@@ -433,13 +463,24 @@ class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
         name_label.setStyleSheet(get_font_stylesheet(size=11, color="#abb2bf"))
         layout.addWidget(name_label)
 
-    def set_size(self, size):
-        """Update thumbnail size dynamically"""
+    def set_size(self, size: int) -> None:
+        """Update thumbnail size dynamically without re-reading disk"""
         self._size = size
         self.setFixedSize(size, int(size * 1.2))
         thumb_size = size - 8
         self.thumbnail_label.setFixedSize(thumb_size, thumb_size)
-        self._load_static_frame()  # Reload with new size
+        self._apply_cached_pixmap(thumb_size)
+
+    def _apply_cached_pixmap(self, thumb_size: int) -> None:
+        """Scale the cached pixmap to the current thumb size (no disk I/O)"""
+        if self._cached_pixmap and not self._cached_pixmap.isNull():
+            self.thumbnail_label.setPixmap(
+                self._cached_pixmap.scaled(
+                    thumb_size, thumb_size,
+                    QtCore.Qt.KeepAspectRatio,
+                    QtCore.Qt.SmoothTransformation,
+                )
+            )
 
     def set_selected(self, selected: bool) -> None:
         """Toggle selection highlight on this thumbnail."""
@@ -465,32 +506,63 @@ class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
             self.paint_hover_outline(painter)
 
     def _load_static_frame(self):
-        """Load only frame 5 for static display (no animation)"""
+        """Load frame 5 for static display, using the module-level pixmap cache."""
         turntable_path = self.asset_data.get('thumbnail_turntable', '')
         static_path = self.asset_data.get('thumbnail_static', '')
 
         pixmap = None
 
-        # Try to load frame 5 from turntable directory
+        # Try frame 5 from turntable directory
         if turntable_path and os.path.isdir(turntable_path):
             frame_file = os.path.join(turntable_path, "frame_0005.png")
-            if os.path.exists(frame_file):
-                pixmap = QtGui.QPixmap(frame_file)
+            pixmap = _load_pixmap_cached(frame_file)
 
         # Fall back to static thumbnail
-        if not pixmap and static_path and os.path.exists(static_path):
-            pixmap = QtGui.QPixmap(static_path)
+        if pixmap is None and static_path:
+            pixmap = _load_pixmap_cached(static_path)
 
         if pixmap:
-            self.thumbnail_label.setPixmap(pixmap)
+            self._cached_pixmap = pixmap
+            self._apply_cached_pixmap(self._size - 8)
         else:
+            self._cached_pixmap = None
             self.thumbnail_label.setText("No Preview")
 
     def mousePressEvent(self, event):
-        """Handle single-click"""
+        """Handle single-click — also record drag start position."""
         if event.button() == QtCore.Qt.LeftButton:
-            # Single click - emit for info panel
+            self._drag_start_pos = event.pos()
             self.assetClicked.emit(self.asset_data)
+
+    def mouseMoveEvent(self, event):
+        """Start a drag if the mouse has moved far enough from the press point."""
+        if not (event.buttons() & QtCore.Qt.LeftButton):
+            return
+        if not hasattr(self, "_drag_start_pos"):
+            return
+        dist = (event.pos() - self._drag_start_pos).manhattanLength()
+        if dist < QtWidgets.QApplication.startDragDistance():
+            return
+
+        drag = QtGui.QDrag(self)
+        mime = QtCore.QMimeData()
+        mime.setData(
+            "application/x-polyfactory-asset",
+            QtCore.QByteArray(json.dumps(self.asset_data).encode()),
+        )
+        drag.setMimeData(mime)
+
+        # Drag thumbnail image as cursor feedback
+        if self._cached_pixmap and not self._cached_pixmap.isNull():
+            drag.setPixmap(self._cached_pixmap.scaled(
+                80, 80, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+            ))
+            drag.setHotSpot(QtCore.QPoint(40, 40))
+
+        drag.exec(QtCore.Qt.CopyAction)
+        # After drag.exec() returns, emit regardless of result so the handler
+        # can check whether the cursor landed over a Houdini pane.
+        self.assetDroppedAt.emit(self.asset_data, QtGui.QCursor.pos())
 
     def mouseDoubleClickEvent(self, event):
         """Handle double-click"""

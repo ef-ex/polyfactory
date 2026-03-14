@@ -52,4 +52,36 @@ def onNodePathChanged(node):
     <showInParametersPane optype="pf::Sop/pf_kitbash*"/>
     <help><![CDATA[]]></help>
   </interface>
+
+  <interface name="pf_asset_place_ui" label="Asset Browser" icon="SOP_file" showNetworkNavigationBar="true" help_url="">
+    <script><![CDATA[
+from polyfactory.asset_library.asset_place_ui import AssetPlaceNodeUI
+
+g_ui = None
+
+def onCreateInterface():
+    global g_ui
+    g_ui = AssetPlaceNodeUI()
+    return g_ui
+
+def onActivateInterface():
+    global g_ui
+    if g_ui:
+        g_ui.refresh()
+
+def onDeactivateInterface():
+    pass
+
+def onDestroyInterface():
+    global g_ui
+    g_ui = None
+
+def onNodePathChanged(node):
+    global g_ui
+    if g_ui:
+        g_ui.set_node(node)
+]]></script>
+    <showInParametersPane optype="pf::Sop/pf_asset_place*"/>
+    <help><![CDATA[]]></help>
+  </interface>
 </pythonPanelDocument>

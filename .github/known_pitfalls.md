@@ -162,6 +162,20 @@ with a reference to the rule.
     — material/reactor specs
   Only ask the user if the docs do not contain the answer.
 
+### RESOLVED (2026-07-18) -- ViewerStateTemplate.bindNodeType does not exist in Houdini 22
+- **Date:** 2026-07-18
+- **What happened:** Used `template.bindNodeType(hou.sopNodeTypeCategory(), ...)` in
+  `createViewerStateTemplate()` in `asset_place_state.py`. This call crashes Houdini
+  at startup with `'ViewerStateTemplate' object has no attribute 'bindNodeType'`.
+- **Root cause:** `bindNodeType` was never a valid method on `ViewerStateTemplate` in
+  Houdini 22 (and likely any version). The method list has no such entry.
+- **Fix:** Removed the `bindNodeType` call entirely. For externally-registered states
+  (via `123.py`), the `onCreated` HDA callback handles auto-activation on node
+  creation. Re-entry after ESC uses the viewport state menu (standard Houdini UX).
+- **Secondary fix:** `except hou.NotAvailable` in `123.py` did not catch
+  `AttributeError` raised when `hou.ui` is absent in hython (headless) mode. Changed
+  guard to `except (hou.NotAvailable, AttributeError)` to suppress noisy prints.
+
 ### OPEN -- Proceeding on a vague creative/design prompt without breaking it down first
 - **Date:** 2026-02-25
 - **What happened:** User asked to "create a node which creates hull panels".

@@ -1092,9 +1092,45 @@ elif hasattr(pt, 'defaultExpression'):
 These scripts serve as templates for creating new inspection utilities when exploring unfamiliar Houdini APIs.
 
 ### HDA Development Workflow
-1. Create/edit HDA in Houdini (unlocked)
-2. Test thoroughly with various inputs
-3. Lock HDA and save to `otls/`
+
+**HDA files can be created entirely from the command line using hython — no interactive Houdini session required.**
+
+**Houdini installation paths:**
+- Houdini 22 (current): `C:\Program Files\Side Effects Software\Houdini 22.0.240\`
+- hython: `C:\Program Files\Side Effects Software\Houdini 22.0.240\bin\hython.exe`
+- Houdini 21 (legacy): `C:\Program Files\Side Effects Software\Houdini 21.0.631\`
+
+**Creating an HDA from a devScript (preferred workflow):**
+```powershell
+# Set POLYFACTORY so the script can resolve paths
+$env:POLYFACTORY = "f:/projects/polyfactory/polyfactory"
+$env:PF_ASSET_LIBRARY = "f:/projects/polyfactory/polyfactory/library/assets"
+$env:PF_ASSET_DB = "f:/projects/polyfactory/polyfactory/library/assets/asset_library.db"
+& "C:\Program Files\Side Effects Software\Houdini 22.0.240\bin\hython.exe" `
+    "f:/projects/polyfactory/devScripts/create_pf_my_node_hda.py"
+```
+
+**When to use hython vs interactive Houdini:**
+- Use hython for: creating/rebuilding HDA files from devScripts, batch operations, CI
+- Use interactive Houdini for: iterative parameter tweaking, visual testing, node wiring inspection
+
+**devScript convention:** Every HDA in `otls/` must have a corresponding `devScripts/create_pf_<name>_hda.py` that fully recreates it from scratch. This is the source of truth — the `.hda` file is a build artifact.
+
+**Standard devScript structure:**
+```python
+# 1. Remove existing HDA file
+# 2. Build a temporary geo node + subnet in /obj for construction context
+# 3. Build inner network (SOPs/LOPs/COPs)
+# 4. Wrap with createDigitalAsset(name='pf::<name>::1.0', ...)
+# 5. allowEditingOfContents() then re-wire (createDigitalAsset resets connections)
+# 6. Build ParmTemplateGroup and setParmTemplateGroup()
+# 7. defn.save(HDA_PATH, template_node=hda_node)
+# 8. Destroy temp nodes (hda_node.destroy(); build_geo.destroy())
+```
+
+1. Create/edit HDA via devScript in `devScripts/create_pf_<name>_hda.py`
+2. Run with hython to produce the `.hda` file in `otls/`
+3. Test in interactive Houdini (install with `hou.hda.installFile(path)`)
 4. Document parameters and usage in HDA help
 5. Add to shelf if frequently used
 

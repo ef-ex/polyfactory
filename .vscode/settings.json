@@ -71,5 +71,12 @@
   ],
   "todo-tree.filtering.includeGlobs": [],
   "todo-tree.tree.showScanModeButton": true,
-  "todo-tree.tree.showCountsInTree": true
+  "todo-tree.tree.showCountsInTree": true,
+  "python-envs.pythonProjects": [
+    {
+      "path": ".",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    }
+  ]
 }

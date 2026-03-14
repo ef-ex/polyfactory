@@ -57,7 +57,6 @@ class KitbashPlacementState(object):
                                 severity=hou.severityType.Warning)
             return
         
-        print(f"Kitbash mode active on: {self.kitbash_node.path()}")
         self._update_prompt_message()
     
     def onExit(self, kwargs):
@@ -124,7 +123,6 @@ class KitbashPlacementState(object):
                     if current_mesh_parm and active_parm:
                         current_mesh_parm.set(mesh_path)
                         active_parm.set(True)
-                        print(f"Selected library mesh: {mesh_path}")
                         self._update_prompt_message()
     
     def _place_current_mesh(self, ui_event):
@@ -187,8 +185,6 @@ class KitbashPlacementState(object):
             r_parm.set(self.placement_rotation)
         if scale_parm:
             scale_parm.set(self.placement_scale.x())
-        
-        print(f"Placed mesh: {mesh_path} at {self.placement_position}")
         
         # Deactivate placement mode
         active_parm = self.kitbash_node.parm("currentActive")

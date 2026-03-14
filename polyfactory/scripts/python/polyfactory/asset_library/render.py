@@ -314,11 +314,11 @@ def _cleanup(temp_nodes: List, temp_panes: List):
     for node in temp_nodes:
         try:
             node.destroy()
-        except:
+        except Exception:
             pass
     
     for pane in temp_panes:
         try:
             pane.close()
-        except:
+        except Exception:
             pass

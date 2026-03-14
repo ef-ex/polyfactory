@@ -460,7 +460,7 @@ def _cleanup(temp_nodes: List, original_display_node: Optional[hou.Node],
     for node in temp_nodes:
         try:
             node.destroy()
-        except:
+        except Exception:
             pass
     
     # Restore network editor path

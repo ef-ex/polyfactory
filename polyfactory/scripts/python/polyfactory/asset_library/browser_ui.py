@@ -3,8 +3,10 @@ Asset Browser UI - Grid view of assets with search and filtering
 """
 
 import hou
+import hdefereval
 from PySide6 import QtWidgets, QtCore, QtGui
 import os
+import json
 import shutil
 from typing import Optional, List, Dict
 from polyfactory.ui_framework.widgets.py_push_button import PyPushButton
@@ -19,8 +21,9 @@ from polyfactory.asset_library.asset_browser_widgets import (
 class AssetBrowserWidget(QtWidgets.QWidget):
     """Asset browser with grid view, search, and filters"""
     
-    assetSelected = QtCore.Signal(dict)  # Emits when asset is selected for placement
+    assetSelected = QtCore.Signal(dict)    # Emits when asset is selected for placement
     assetInfoChanged = QtCore.Signal(dict)  # Emits when asset is clicked for info display
+    assetDroppedAt = QtCore.Signal(dict, QtCore.QPoint)  # Forwards thumbnail drag drops
     
     def __init__(self, show_info_panel=True, parent=None):
         super().__init__(parent)
@@ -29,15 +32,17 @@ class AssetBrowserWidget(QtWidgets.QWidget):
         self.selected_assets: List[Dict] = []   # multi-select list
         self._thumbnail_widgets: List[AssetThumbnailWidget] = []
         self.show_info_panel = show_info_panel
-        
+
+        self._drop_handler = AssetDropHandler(self)
         self._setup_ui()
-        
+        self.assetDroppedAt.connect(self._drop_handler.handle_dropped_at)
+
         # Delete key removes selected assets from the library
         delete_shortcut = QtGui.QShortcut(QtGui.QKeySequence.Delete, self)
         delete_shortcut.activated.connect(self._delete_selected_assets)
-        
+
         self._load_assets()
-    
+
     def _setup_ui(self):
         """Create UI elements"""
         # Main layout
@@ -107,6 +112,11 @@ class AssetBrowserWidget(QtWidgets.QWidget):
         """)
         self.size_slider.valueChanged.connect(self._on_size_changed)
         size_layout.addWidget(self.size_slider)
+
+        # Debounce timer — actual resize fires 150 ms after the user stops dragging
+        self._resize_timer = QtCore.QTimer(self)
+        self._resize_timer.setSingleShot(True)
+        self._resize_timer.timeout.connect(self._apply_size_change)
         
         self.size_value_label = QtWidgets.QLabel("150px")
         self.size_value_label.setStyleSheet("color: #abb2bf; min-width: 50px;")
@@ -306,12 +316,13 @@ class AssetBrowserWidget(QtWidgets.QWidget):
             thumbnail_widget = AssetThumbnailWidget(asset, size=size)
             thumbnail_widget.assetClicked.connect(self._on_asset_clicked)
             thumbnail_widget.assetDoubleClicked.connect(self._on_asset_double_clicked)
+            thumbnail_widget.assetDroppedAt.connect(self._on_thumbnail_dropped_at)
             self.grid_layout.addWidget(thumbnail_widget)
             self._thumbnail_widgets.append(thumbnail_widget)
         
         # Clear selection when grid is rebuilt
         self.selected_assets = []
-        
+
         # Update status
         count = len(self.filtered_assets)
         total = len(self.all_assets)
@@ -342,6 +353,10 @@ class AssetBrowserWidget(QtWidgets.QWidget):
             self.info_panel.set_asset(asset_data)
         self.assetInfoChanged.emit(asset_data)
     
+    def _on_thumbnail_dropped_at(self, asset_data: dict, pos: QtCore.QPoint) -> None:
+        """Forward thumbnail drop to the browser-level signal."""
+        self.assetDroppedAt.emit(asset_data, pos)
+
     def _on_asset_double_clicked(self, asset_data):
         """Handle asset double-click - trigger placement"""
         self.assetSelected.emit(asset_data)
@@ -442,19 +457,20 @@ class AssetBrowserWidget(QtWidgets.QWidget):
         except Exception as e:
             hou.ui.displayMessage(f"Error updating tags: {e}", severity=hou.severityType.Error)
     
-    def _on_size_changed(self, value):
-        """Handle thumbnail size slider change"""
+    def _on_size_changed(self, value: int) -> None:
+        """Update size label immediately; schedule the actual resize with debounce"""
         self.size_value_label.setText(f"{value}px")
-        
-        # Update all existing thumbnails
+        self._resize_timer.start(150)
+
+    def _apply_size_change(self) -> None:
+        """Resize all thumbnails — called once after the slider stops moving"""
+        value: int = self.size_slider.value()
         for i in range(self.grid_layout.count()):
             item = self.grid_layout.itemAt(i)
             if item and item.widget():
                 widget = item.widget()
                 if isinstance(widget, AssetThumbnailWidget):
                     widget.set_size(value)
-        
-        # Force layout recalculation
         self.grid_container.updateGeometry()
     
     def resizeEvent(self, event):
@@ -507,33 +523,136 @@ class AssetBrowserDialog(QtWidgets.QDialog):
         
         layout.addLayout(button_layout)
     
-    def _on_asset_selected(self, asset_data):
-        """Handle asset selection - trigger viewport placement"""
-        import json
-        
-        # Get the scene viewer
-        scene_viewer = hou.ui.paneTabOfType(hou.paneTabType.SceneViewer)
-        if not scene_viewer:
-            hou.ui.displayMessage("No scene viewer found", severity=hou.severityType.Warning)
-            return
-        
-        # Activate the kitbash placement state
-        try:
-            # Pass asset data to the state
-            state_parms = {"asset_data": json.dumps(asset_data)}
-            scene_viewer.enterViewerState("polyfactory.kitbash_placement", state_parms)
-            
-            print(f"Entering placement mode for: {asset_data['name']}")
-            
-            # Optionally close the dialog
-            # self.accept()
-            
-        except Exception as e:
-            hou.ui.displayMessage(f"Error activating placement state: {e}", severity=hou.severityType.Error)
-            print(f"Error: {e}")
+    def _on_asset_selected(self, asset_data: dict) -> None:
+        """Double-click in the floating browser: create and connect the
+        asset placement node without entering the viewer state."""
+        AssetDropHandler._handle_drop(asset_data, enter_state=False)
 
 
 def show_asset_browser():
     """Show the asset browser dialog"""
     dialog = AssetBrowserDialog(hou.qt.mainWindow())
     dialog.show()
+
+
+# ── Drag/Drop handler ────────────────────────────────────────────────────
+
+MIME_TYPE = "application/x-polyfactory-asset"
+NODE_TYPE = "pf::pf_asset_place::1.0"
+
+
+class AssetDropHandler(QtCore.QObject):
+    """Handles drops from the asset browser onto Houdini's viewport or network
+    editor. Houdini's native OpenGL panes do not accept Qt drops, so the
+    approach is signal-based: AssetThumbnailWidget emits assetDroppedAt after
+    drag.exec() returns, carrying the cursor position. This method checks
+    whether that position falls inside a known Houdini pane and acts
+    accordingly.
+
+    Usage::
+        handler = AssetDropHandler(parent)
+        browser.assetDroppedAt.connect(handler.handle_dropped_at)
+    """
+
+    def __init__(self, parent: QtCore.QObject | None = None) -> None:
+        super().__init__(parent)
+
+    # ── Public API ───────────────────────────────────────────────────────
+
+    def install(self) -> None:
+        """No-op — wiring is done via signal connections."""
+
+    def uninstall(self) -> None:
+        """No-op."""
+
+    def handle_dropped_at(self, asset_data: dict, pos: QtCore.QPoint) -> None:
+        """Called after a drag completes. If the cursor is outside our own
+        window, the user dropped onto Houdini — create the node and enter the
+        viewer state."""
+        # Walk up to find the top-level window that owns this handler
+        source_window: QtWidgets.QWidget | None = self.parent()
+        while source_window and not source_window.isWindow():
+            source_window = source_window.parent()
+
+        if source_window:
+            win_rect = QtCore.QRect(
+                source_window.mapToGlobal(QtCore.QPoint(0, 0)),
+                source_window.size()
+            )
+            dropped_outside = not win_rect.contains(pos)
+        else:
+            dropped_outside = True
+
+        if dropped_outside:
+            self._handle_drop(asset_data, enter_state=True)
+
+    # ── Private helpers ─────────────────────────────────────────────────
+
+    @staticmethod
+    def _handle_drop(asset_data: dict, enter_state: bool) -> None:
+        """Create a pf_asset_place node in the current network, wire it to the
+        currently selected node (if any), and optionally enter the viewer state."""
+        try:
+            # Find the SOP context under the current network location
+            editor = hou.ui.paneTabOfType(hou.paneTabType.NetworkEditor)
+            pwd = editor.pwd() if editor else hou.node("/obj")
+
+            # If pwd is an obj-level subnet, look inside for a SOP context
+            if isinstance(pwd, hou.ObjNode):
+                # Find an existing geo container or work at obj level
+                geo_children = [n for n in pwd.children() if isinstance(n, hou.SopNode)]
+                if not geo_children:
+                    # Create inside a geometry node
+                    geo = pwd.createNode("geo", "asset_place_geo")
+                    pwd = geo
+                else:
+                    pwd = geo_children[0].parent()
+
+            # Create the pf_asset_place node
+            node = pwd.createNode(NODE_TYPE, "asset_place")
+
+            # Set asset parameters
+            asset_id = asset_data.get("asset_id") or asset_data.get("name", "")
+            asset_path = asset_data.get("file_path", "")
+            asset_name = asset_data.get("name", "")
+            for parm_name, value in (("asset_id", asset_id),
+                                     ("asset_path", asset_path),
+                                     ("asset_name", asset_name)):
+                parm = node.parm(parm_name)
+                if parm:
+                    parm.set(value)
+
+            # Connect to the currently selected node if it has SOP output
+            selected = [n for n in pwd.selectedChildren()
+                        if isinstance(n, hou.SopNode) and n is not node]
+            if selected:
+                upstream = selected[-1]
+                node.setInput(0, upstream)
+                node.setPosition(upstream.position() + hou.Vector2(0, -2))
+            else:
+                node.setPosition(hou.Vector2(0, 0))
+
+            node.setSelected(True, clear_all_selected=True)
+            node.setDisplayFlag(True)
+            node.setRenderFlag(True)
+
+            # Enter viewer state if dropped on viewport
+            if enter_state:
+                sv = hou.ui.paneTabOfType(hou.paneTabType.SceneViewer)
+                if sv:
+                    # Signal the state to start in surface-align (one-shot).
+                    import sys
+                    _aps = sys.modules.get("polyfactory.asset_library.asset_place_state")
+                    if _aps:
+                        _aps._drop_triggered = True
+                    sv.setCurrentState("polyfactory.asset_place")
+                    def _focus_viewer():
+                        sv.setIsCurrentTab()
+                        try:
+                            hou.qt.mainWindow().activateWindow()
+                        except Exception:
+                            pass
+                    hdefereval.executeDeferred(_focus_viewer)
+
+        except Exception as e:
+            print(f"[AssetDropHandler] Drop failed: {e}")

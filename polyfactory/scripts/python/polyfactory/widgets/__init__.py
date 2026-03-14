@@ -33,6 +33,8 @@ TODO: Add validation and constraints
 
 # Import submodules to ensure they're loaded for reloading
 from . import parm_utils
+from . import parm_widgets_base
+from . import parm_widgets_numeric
 from . import hover_outline
 
 from .binding_manager import BindingManager

@@ -19,6 +19,8 @@ def reload_widgets():
     """Reload widget library modules."""
     modules = [
         'polyfactory.widgets.parm_utils',
+        'polyfactory.widgets.parm_widgets_base',
+        'polyfactory.widgets.parm_widgets_numeric',
         'polyfactory.widgets.binding_manager',
         'polyfactory.widgets.widgets',
         'polyfactory.widgets.layouts',
