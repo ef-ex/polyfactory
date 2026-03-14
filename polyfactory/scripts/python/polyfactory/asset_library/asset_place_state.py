@@ -114,9 +114,12 @@ class AssetPlaceState:
         self._last_normal_ry = 0.0
         self._d_held = False
         self._f_held = False
+        # Show/hide the handle BEFORE the place_mode parm change so that
+        # Houdini calls onStateToHandle while the handle is already visible,
+        # positioning the gizmo at the node's current t/r/scale values.
+        self._apply_mode()
         if self.node:
             self.node.parm("place_mode").set(1 if self._mode == MODE_GIZMO else 0)
-        self._apply_mode()
 
     def onExit(self, kwargs: dict) -> None:
         # Reset parm to gizmo so the next manual entry always starts in gizmo.
@@ -374,8 +377,10 @@ class AssetPlaceState:
         self._scale_active = False
         self._rotate_active = False
         self._mode = MODE_GIZMO if self._mode == MODE_SURFACE else MODE_SURFACE
-        self.node.parm("place_mode").set(1 if self._mode == MODE_GIZMO else 0)
+        # Show/hide the handle BEFORE the parm change so onStateToHandle fires
+        # while the handle is visible and correctly positions the gizmo.
         self._apply_mode()
+        self.node.parm("place_mode").set(1 if self._mode == MODE_GIZMO else 0)
 
     def _apply_mode(self) -> None:
         """Show or hide the xform handle and update the prompt message."""

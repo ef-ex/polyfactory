@@ -250,7 +250,17 @@ def _build_export_network(source_node: hou.SopNode,
             prepare.parm('align_x').set(export_data.get('align_x', 2))
             prepare.parm('align_y').set(export_data.get('align_y', 2))
             prepare.parm('align_z').set(export_data.get('align_z', 2))
-            
+
+            if debug:
+                ax = prepare.parm('align_x').eval()
+                ay = prepare.parm('align_y').eval()
+                az = prepare.parm('align_z').eval()
+                sc = prepare.parm('scale_to').eval()
+                print(f"prepare_mesh parms: scale_to={sc}, align_x={ax}, align_y={ay}, align_z={az}")
+                geo_pm = prepare.geometry()
+                bpm = geo_pm.boundingBox()
+                print(f"prepare_mesh output bbox center: {tuple(round(v, 4) for v in bpm.center())}")
+
             current_node = prepare
         
         # Optionally remove attributes
@@ -261,7 +271,9 @@ def _build_export_network(source_node: hou.SopNode,
             
             # Get attributes by class
             geo = current_node.geometry()
-            keep_attribs = {'N', 'uv'}
+            # P is Houdini's built-in position attribute and cannot be deleted;
+            # include it in keep_attribs so it never appears in the delete lists.
+            keep_attribs = {'P', 'N', 'uv'}
             
             # Point attributes to remove
             pt_attribs_to_remove = [attr.name() for attr in geo.pointAttribs() 

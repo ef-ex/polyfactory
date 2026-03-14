@@ -30,6 +30,7 @@ class AssetBrowserWidget(QtWidgets.QWidget):
         self.all_assets = []
         self.filtered_assets = []
         self.selected_assets: List[Dict] = []   # multi-select list
+        self._last_clicked_index: int = -1      # for Shift+click range selection
         self._thumbnail_widgets: List[AssetThumbnailWidget] = []
         self.show_info_panel = show_info_panel
 
@@ -322,6 +323,7 @@ class AssetBrowserWidget(QtWidgets.QWidget):
         
         # Clear selection when grid is rebuilt
         self.selected_assets = []
+        self._last_clicked_index = -1
 
         # Update status
         count = len(self.filtered_assets)
@@ -329,19 +331,42 @@ class AssetBrowserWidget(QtWidgets.QWidget):
         self.status_label.setText(f"Showing {count} of {total} assets")
     
     def _on_asset_clicked(self, asset_data: Dict) -> None:
-        """Handle asset single-click.  Ctrl+click to toggle multi-select."""
+        """Handle asset single-click.  Ctrl+click toggles, Shift+click selects range."""
         modifiers = QtWidgets.QApplication.keyboardModifiers()
-        
-        if modifiers & QtCore.Qt.ControlModifier:
+
+        # Find the index of the clicked asset in the current filtered list
+        clicked_index = next(
+            (i for i, a in enumerate(self.filtered_assets)
+             if a.get('id') == asset_data.get('id')),
+            -1
+        )
+
+        if modifiers & QtCore.Qt.ShiftModifier and self._last_clicked_index >= 0:
+            # Shift+click: select the range between the anchor and this asset
+            lo = min(self._last_clicked_index, clicked_index)
+            hi = max(self._last_clicked_index, clicked_index)
+            range_assets = [self.filtered_assets[i] for i in range(lo, hi + 1)]
+            if modifiers & QtCore.Qt.ControlModifier:
+                # Ctrl+Shift: extend current selection with the range
+                existing_ids = {a.get('id') for a in self.selected_assets}
+                for a in range_assets:
+                    if a.get('id') not in existing_ids:
+                        self.selected_assets.append(a)
+            else:
+                # Shift only: replace selection with the range
+                self.selected_assets = range_assets
+        elif modifiers & QtCore.Qt.ControlModifier:
             # Ctrl+click: toggle this asset in the selection
             if any(a.get('id') == asset_data.get('id') for a in self.selected_assets):
                 self.selected_assets = [a for a in self.selected_assets
                                         if a.get('id') != asset_data.get('id')]
             else:
                 self.selected_assets.append(asset_data)
+            self._last_clicked_index = clicked_index
         else:
             # Plain click: replace selection
             self.selected_assets = [asset_data]
+            self._last_clicked_index = clicked_index
         
         # Sync visual state on all thumbnail widgets
         selected_ids = {a.get('id') for a in self.selected_assets}
@@ -377,28 +402,56 @@ class AssetBrowserWidget(QtWidgets.QWidget):
             return
         
         count = len(self.selected_assets)
-        names = "\n".join(f"  {a['name']}" for a in self.selected_assets)
-        
-        msg = QtWidgets.QMessageBox(self)
-        msg.setWindowTitle("Delete Assets")
-        msg.setText(f"Permanently delete {count} asset{'s' if count > 1 else ''} from the library?")
-        msg.setInformativeText(names)
-        msg.setIcon(QtWidgets.QMessageBox.Warning)
-        msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel)
-        msg.setDefaultButton(QtWidgets.QMessageBox.Cancel)
-        msg.setStyleSheet("""
-            QMessageBox  { background-color: #252525; color: #e0e0e0; }
+
+        # Build a custom dialog so the asset list is scrollable and never
+        # overflows the screen regardless of how many assets are selected.
+        dlg = QtWidgets.QDialog(self)
+        dlg.setWindowTitle("Delete Assets")
+        dlg.setMinimumWidth(420)
+        dlg.setStyleSheet("""
+            QDialog      { background-color: #252525; color: #e0e0e0; }
             QLabel       { color: #e0e0e0; }
+            QTextEdit    { background-color: #1e1e1e; color: #abb2bf;
+                           border: 1px solid #3a3a3a; border-radius: 4px; }
             QPushButton  {
                 background-color: #2c2c2c; color: #e0e0e0;
                 border: 1px solid #3a3a3a; border-radius: 4px;
                 padding: 6px 16px; min-width: 80px;
             }
             QPushButton:hover  { background-color: #3a3a3a; border: 1px solid #61afef; }
-            QPushButton:focus  { border: 1px solid #61afef; }
+            QPushButton#delete_btn { border-color: #ff5555; }
+            QPushButton#delete_btn:hover { background-color: #3a1a1a; border-color: #ff5555; }
         """)
-        
-        if msg.exec() != QtWidgets.QMessageBox.Yes:
+        dlg_layout = QtWidgets.QVBoxLayout(dlg)
+        dlg_layout.setSpacing(10)
+        dlg_layout.setContentsMargins(16, 16, 16, 16)
+
+        question = QtWidgets.QLabel(
+            f"Permanently delete {count} asset{'s' if count > 1 else ''} from the library?"
+        )
+        question.setWordWrap(True)
+        question.setStyleSheet("font-weight: bold; font-size: 13px;")
+        dlg_layout.addWidget(question)
+
+        names_edit = QtWidgets.QTextEdit()
+        names_edit.setReadOnly(True)
+        names_edit.setPlainText("\n".join(a['name'] for a in self.selected_assets))
+        names_edit.setFixedHeight(180)
+        dlg_layout.addWidget(names_edit)
+
+        btn_row = QtWidgets.QHBoxLayout()
+        btn_row.addStretch()
+        cancel_btn = QtWidgets.QPushButton("Cancel")
+        cancel_btn.setDefault(True)
+        cancel_btn.clicked.connect(dlg.reject)
+        delete_btn = QtWidgets.QPushButton(f"Delete {count}")
+        delete_btn.setObjectName("delete_btn")
+        delete_btn.clicked.connect(dlg.accept)
+        btn_row.addWidget(cancel_btn)
+        btn_row.addWidget(delete_btn)
+        dlg_layout.addLayout(btn_row)
+
+        if dlg.exec() != QtWidgets.QDialog.Accepted:
             return
         
         try:
