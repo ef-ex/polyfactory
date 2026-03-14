@@ -372,7 +372,42 @@ class AssetDatabase:
         """
         self.cursor.execute("DELETE FROM assets WHERE id = ?", (asset_id,))
         self.conn.commit()
-    
+
+    def add_tags_to_assets(self, asset_ids: List[int], tags: List[str]) -> None:
+        """Add tags to multiple assets.  Existing tag associations are left intact.
+
+        Args:
+            asset_ids: List of asset IDs to tag.
+            tags: List of tag strings to add.
+        """
+        for asset_id in asset_ids:
+            self._add_tags_to_asset(asset_id, tags)
+        self.conn.commit()
+
+    def remove_tags_from_assets(self, asset_ids: List[int], tags: List[str]) -> None:
+        """Remove specific tags from multiple assets.
+
+        Tags that do not exist on an asset are silently ignored.
+
+        Args:
+            asset_ids: List of asset IDs to untag.
+            tags: List of tag strings to remove.
+        """
+        clean_tags = [t.strip().lower() for t in tags if t.strip()]
+        if not clean_tags or not asset_ids:
+            return
+        placeholders = ','.join(['?'] * len(clean_tags))
+        for asset_id in asset_ids:
+            self.cursor.execute(
+                f"""DELETE FROM asset_tags
+                    WHERE asset_id = ?
+                      AND tag_id IN (
+                          SELECT id FROM tags WHERE tag_name IN ({placeholders})
+                      )""",
+                [asset_id] + clean_tags,
+            )
+        self.conn.commit()
+
     def close(self):
         """Close database connection"""
         if self.conn:

@@ -420,6 +420,7 @@ class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
     assetClicked = QtCore.Signal(dict)        # Emits asset data on single-click
     assetDoubleClicked = QtCore.Signal(dict)  # Emits asset data on double-click
     assetDroppedAt = QtCore.Signal(dict, QtCore.QPoint)  # Emits (asset_data, cursor_pos) after drag
+    assetRightClicked = QtCore.Signal(dict, QtCore.QPoint)  # Emits (asset_data, global_pos) on right-click
 
     def __init__(self, asset_data: Dict, size=150, parent=None):
         super().__init__(parent)
@@ -533,6 +534,8 @@ class AssetThumbnailWidget(HoverOutlineMixin, QtWidgets.QWidget):
         if event.button() == QtCore.Qt.LeftButton:
             self._drag_start_pos = event.pos()
             self.assetClicked.emit(self.asset_data)
+        elif event.button() == QtCore.Qt.RightButton:
+            self.assetRightClicked.emit(self.asset_data, event.globalPosition().toPoint())
 
     def mouseMoveEvent(self, event):
         """Start a drag if the mouse has moved far enough from the press point."""

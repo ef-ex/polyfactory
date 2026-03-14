@@ -318,6 +318,7 @@ class AssetBrowserWidget(QtWidgets.QWidget):
             thumbnail_widget.assetClicked.connect(self._on_asset_clicked)
             thumbnail_widget.assetDoubleClicked.connect(self._on_asset_double_clicked)
             thumbnail_widget.assetDroppedAt.connect(self._on_thumbnail_dropped_at)
+            thumbnail_widget.assetRightClicked.connect(self._on_asset_right_clicked)
             self.grid_layout.addWidget(thumbnail_widget)
             self._thumbnail_widgets.append(thumbnail_widget)
         
@@ -465,6 +466,159 @@ class AssetBrowserWidget(QtWidgets.QWidget):
             self._load_assets()
         except Exception as e:
             QtWidgets.QMessageBox.critical(self, "Delete failed", f"Could not delete assets:\n{e}")
+
+    def _on_asset_right_clicked(self, asset_data: Dict, global_pos: QtCore.QPoint) -> None:
+        """Show a context menu on right-click.  If the clicked asset is not already
+        selected, select it first (plain-click semantics)."""
+        asset_id = asset_data.get('id')
+        if not any(a.get('id') == asset_id for a in self.selected_assets):
+            self.selected_assets = [asset_data]
+            clicked_index = next(
+                (i for i, a in enumerate(self.filtered_assets)
+                 if a.get('id') == asset_id), -1
+            )
+            self._last_clicked_index = clicked_index
+            selected_ids = {asset_id}
+            for widget in self._thumbnail_widgets:
+                widget.set_selected(widget.asset_data.get('id') in selected_ids)
+            if self.info_panel:
+                self.info_panel.set_asset(asset_data)
+            self.assetInfoChanged.emit(asset_data)
+
+        count = len(self.selected_assets)
+        noun = f"{count} asset{'s' if count > 1 else ''}"
+
+        menu = QtWidgets.QMenu(self)
+        menu.setStyleSheet("""
+            QMenu {
+                background-color: #252525;
+                color: #e0e0e0;
+                border: 1px solid #3a3a3a;
+                border-radius: 4px;
+                padding: 4px;
+            }
+            QMenu::item {
+                padding: 6px 20px;
+                border-radius: 3px;
+            }
+            QMenu::item:selected {
+                background-color: #3a3a3a;
+                color: #61afef;
+            }
+            QMenu::separator {
+                height: 1px;
+                background: #3a3a3a;
+                margin: 4px 8px;
+            }
+        """)
+
+        manage_action = menu.addAction("Manage Tags...")
+        menu.addSeparator()
+        delete_action = menu.addAction(f"Delete {noun}")
+
+        action = menu.exec(global_pos)
+        if action == manage_action:
+            self._open_manage_tags_dialog()
+        elif action == delete_action:
+            self._delete_selected_assets()
+
+    def _open_manage_tags_dialog(self) -> None:
+        """Open a dialog to bulk-add or bulk-remove tags on the current selection."""
+        if not self.selected_assets:
+            return
+
+        count = len(self.selected_assets)
+        dlg = QtWidgets.QDialog(self)
+        dlg.setWindowTitle(f"Manage Tags  —  {count} asset{'s' if count > 1 else ''}")
+        dlg.setMinimumWidth(440)
+        dlg.setStyleSheet("""
+            QDialog     { background-color: #252525; color: #e0e0e0; }
+            QLabel      { color: #e0e0e0; }
+            QPushButton {
+                background-color: #2c2c2c; color: #e0e0e0;
+                border: 1px solid #3a3a3a; border-radius: 4px;
+                padding: 6px 16px; min-width: 80px;
+            }
+            QPushButton:hover { background-color: #3a3a3a; border: 1px solid #61afef; }
+            QPushButton#add_btn    { border-color: #98c379; }
+            QPushButton#add_btn:hover    { background-color: #1a3a1a; }
+            QPushButton#remove_btn { border-color: #e06c75; }
+            QPushButton#remove_btn:hover { background-color: #3a1a1a; }
+            QLabel#status_lbl { color: #abb2bf; font-style: italic; padding: 4px 0; }
+        """)
+
+        dlg_layout = QtWidgets.QVBoxLayout(dlg)
+        dlg_layout.setSpacing(12)
+        dlg_layout.setContentsMargins(16, 16, 16, 16)
+
+        header = QtWidgets.QLabel(
+            f"Enter tags to add or remove across {count} selected asset{'s' if count > 1 else ''}:"
+        )
+        header.setWordWrap(True)
+        dlg_layout.addWidget(header)
+
+        from polyfactory.widgets.tag_input import TagInputWidget
+        from polyfactory.asset_library.database import AssetDatabase
+
+        tag_input = TagInputWidget()
+        try:
+            with AssetDatabase(self._get_db_path()) as db:
+                tag_input.setAvailableTags(db.get_all_tags())
+        except Exception:
+            pass
+        dlg_layout.addWidget(tag_input)
+
+        status_lbl = QtWidgets.QLabel("")
+        status_lbl.setObjectName("status_lbl")
+        status_lbl.setWordWrap(True)
+        dlg_layout.addWidget(status_lbl)
+
+        btn_row = QtWidgets.QHBoxLayout()
+        add_btn = QtWidgets.QPushButton("Add")
+        add_btn.setObjectName("add_btn")
+        remove_btn = QtWidgets.QPushButton("Remove")
+        remove_btn.setObjectName("remove_btn")
+        btn_row.addWidget(add_btn)
+        btn_row.addWidget(remove_btn)
+        btn_row.addStretch()
+        close_btn = QtWidgets.QPushButton("Close")
+        close_btn.setDefault(True)
+        close_btn.clicked.connect(dlg.accept)
+        btn_row.addWidget(close_btn)
+        dlg_layout.addLayout(btn_row)
+
+        asset_ids = [a['id'] for a in self.selected_assets]
+
+        def _do_add() -> None:
+            tags = tag_input.getTags()
+            if not tags:
+                status_lbl.setText("Enter at least one tag.")
+                return
+            try:
+                with AssetDatabase(self._get_db_path()) as db:
+                    db.add_tags_to_assets(asset_ids, tags)
+                status_lbl.setText(f"Added {len(tags)} tag(s) to {count} asset(s).")
+                self._load_assets()
+            except Exception as e:
+                status_lbl.setText(f"Error: {e}")
+
+        def _do_remove() -> None:
+            tags = tag_input.getTags()
+            if not tags:
+                status_lbl.setText("Enter at least one tag.")
+                return
+            try:
+                with AssetDatabase(self._get_db_path()) as db:
+                    db.remove_tags_from_assets(asset_ids, tags)
+                status_lbl.setText(f"Removed {len(tags)} tag(s) from {count} asset(s).")
+                self._load_assets()
+            except Exception as e:
+                status_lbl.setText(f"Error: {e}")
+
+        add_btn.clicked.connect(_do_add)
+        remove_btn.clicked.connect(_do_remove)
+
+        dlg.exec()
 
     def _delete_asset_files(self, asset: Dict) -> None:
         """Delete USD file, static thumbnail, and turntable folder for an asset."""
