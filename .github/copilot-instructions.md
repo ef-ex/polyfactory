@@ -26,6 +26,13 @@ Defined in `polyfactory.json`:
 
 ## Key Workflows
 
+### Temporary / One-Off Scripts
+**All temporary scripts created by the AI agent — across any workspace (Galaxia, Polyfactory, GalaxiaWork, Graphite) — must be saved to:**
+```
+F:\projects\galaxiaWork\copilot\
+```
+This includes: patch scripts, data migration helpers, one-off exporters, inspection scripts, debug utilities. Never save throwaway scripts inside the project they operate on.
+
 ### Houdini Bridge - AI Agent Integration
 
 **Location:** `polyfactory/scripts/python/polyfactory/houdini_bridge/`

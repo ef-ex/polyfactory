@@ -54,6 +54,10 @@ class CommandExecutor:
                 return self._get_node_info(command)
             elif cmd_type == 'execute_python':
                 return self._execute_python(command)
+            elif cmd_type == 'read_network':
+                return self._read_network(command)
+            elif cmd_type == 'write_network':
+                return self._write_network(command)
             elif cmd_type == 'save_scene':
                 return self._save_scene(command)
             elif cmd_type == 'load_scene':
@@ -368,4 +372,80 @@ class CommandExecutor:
         return {
             'success': True,
             'data': {'key': key, 'value': value}
+        }
+
+    # Recipe API (read/write full networks)
+
+    def _read_network(self, command: Dict[str, Any]) -> Dict[str, Any]:
+        """Read a network as Houdini Recipe data using hou.data API.
+
+        If parent_path is given, returns all children of that node.
+        If use_selection=True or no parent_path, returns selected nodes.
+        brief=True (default) omits default parm values for compact AI output.
+        """
+        if not hou:
+            return {'success': False, 'error': 'Houdini not available'}
+
+        parent_path: Optional[str] = command.get('parent_path')
+        use_selection: bool = command.get('use_selection', False)
+        brief: bool = command.get('brief', True)
+
+        if use_selection or not parent_path:
+            nodes = hou.selectedNodes()
+            if not nodes:
+                return {
+                    'success': False,
+                    'error': 'No nodes selected and no parent_path provided'
+                }
+            data = hou.data.nodesAsData(nodes, brief=brief)
+            source = 'selection'
+        else:
+            parent = hou.node(parent_path)
+            if not parent:
+                return {'success': False, 'error': f"Node not found: {parent_path}"}
+            data = parent.childrenAsData(brief=brief)
+            source = parent_path
+
+        return {
+            'success': True,
+            'data': {
+                'recipe': data,
+                'source': source,
+                'node_count': len(data)
+            }
+        }
+
+    def _write_network(self, command: Dict[str, Any]) -> Dict[str, Any]:
+        """Create a network from Houdini Recipe data using hou.data.createItemsFromData.
+
+        recipe_data must be a Network Items dict (same format as returned by _read_network).
+        """
+        if not hou:
+            return {'success': False, 'error': 'Houdini not available'}
+
+        parent_path: str = command.get('parent_path', '/obj')
+        recipe_data: Optional[Dict[str, Any]] = command.get('recipe_data')
+
+        if not recipe_data:
+            return {'success': False, 'error': 'recipe_data is required'}
+
+        parent = hou.node(parent_path)
+        if not parent:
+            return {'success': False, 'error': f"Parent node not found: {parent_path}"}
+
+        created = hou.data.createItemsFromData(parent, recipe_data)
+
+        # createItemsFromData returns {name: hou.NetworkItem}; extract paths
+        created_paths: Dict[str, str] = {}
+        for name, item in created.items():
+            if hasattr(item, 'path'):
+                created_paths[name] = item.path()
+
+        return {
+            'success': True,
+            'data': {
+                'created': created_paths,
+                'count': len(created_paths),
+                'parent_path': parent_path
+            }
         }
