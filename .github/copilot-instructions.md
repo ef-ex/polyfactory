@@ -1130,7 +1130,11 @@ $env:PF_ASSET_DB = "f:/projects/polyfactory/polyfactory/library/assets/asset_lib
 # 3. Build inner network (SOPs/LOPs/COPs)
 # 4. Wrap with createDigitalAsset(name='pf::<name>::1.0', ...)
 # 5. allowEditingOfContents() then re-wire (createDigitalAsset resets connections)
-# 6. Build ParmTemplateGroup and setParmTemplateGroup()
+# 6. Build ParmTemplateGroup and set it on the DEFINITION:
+#        defn = hda_node.type().definition()
+#        defn.setParmTemplateGroup(ptg)
+#    NEVER use hda_node.setParmTemplateGroup() — that only adds spare parms
+#    on the instance and does NOT persist into the HDA file.
 # 7. defn.save(HDA_PATH, template_node=hda_node)
 # 8. Destroy temp nodes (hda_node.destroy(); build_geo.destroy())
 ```
@@ -1291,6 +1295,214 @@ print([p.name() for p in subnet.parms() if p.name().startswith("output")])
 
 This pattern is universally useful for any node whose multiparm entry parm
 names are unclear from docs.
+
+
+## VOP HDA Development (Inline Code VOP Pattern)
+
+### Architecture Overview
+
+VOP HDAs wrap custom VEX functions into reusable nodes for VOP networks (attribvop, pointvop, etc.). The correct approach uses the **Inline Code VOP** (`inline` node type) inside a subnet with typed connectors.
+
+**Key components:**
+- **`subnetconnector`** — Defines typed input/output wires on the HDA (vector, float, int, etc.)
+- **`inline`** — VEX code node with `$variable` substitution for wired inputs/outputs
+- **`parameter`** — Auto-promotes to HDA interface as user-facing knobs (frequency, iterations, etc.)
+
+**Do NOT use:**
+- `subinput`/`suboutput` — these are **untyped** and cause "Invalid input" errors when wiring typed data
+- `ch("../parmname")` in inline code — VEX `ch()` paths resolve relative to the evaluation node (the attribvop), not the inline VOP. Use `parameter` VOP nodes wired as inputs instead.
+
+### Reference: subnetconnector VOP
+
+Defines typed input/output connectors on a VOP subnet/HDA:
+
+| Parameter | Values | Notes |
+|-----------|--------|-------|
+| `connectorkind` | `"input"` (0), `"output"` (1), `"inputoutput"` (2) | String or int |
+| `parmtype` | `"float"`, `"int"`, `"vector"`, `"point"`, `"normal"`, `"color"`, `"string"`, ... | Full menu: 44 types |
+| `parmname` | any string | Internal VEX variable name |
+| `parmlabel` | any string | Display label on wire |
+
+### Reference: parameter VOP
+
+Creates an auto-promoted parameter on the HDA interface:
+
+| Parameter | Values | Notes |
+|-----------|--------|-------|
+| `parmtype` | `"float"`, `"int"`, `"toggle"`, `"vector"`, `"color"`, `"string"`, ... | 44 types |
+| `parmname` | any string | Parameter name on HDA |
+| `parmlabel` | any string | Display label |
+| `parmscope` | `"subnet"` | Required for auto-promotion to HDA interface |
+| `floatdef` | float | Default value (for float type) |
+| `intdef` | int | Default value (for int type) |
+
+### Reference: inline VOP
+
+| Parameter | Purpose | Notes |
+|-----------|---------|-------|
+| `code` | VEX code inside shader body | Uses `$varname` for wired inputs/outputs |
+| `outercode` | VEX code outside shader body | Define helper functions here. **Must use include guard.** |
+| `includes` | Header includes | Optional |
+| `name1`..`name64` | Input wire variable names | Map to `$name` in code |
+| `label1`..`label64` | Input wire labels | Display names |
+| `outtype1`..`outtype32` | Output types | `"float"`, `"vector"`, `"int"`, etc. Default: `"undef"` |
+| `outname1`..`outname32` | Output variable names | Map to `$name` in code |
+| `outlabel1`..`outlabel32` | Output labels | Display names |
+
+### Include Guard (Critical!)
+
+**Always wrap `outercode` functions in `#ifndef` guards.** Without this, placing two instances of the HDA in one VOP network causes "Multiple definitions of function" VEX compile errors.
+
+```python
+OUTER_CODE = r"""
+#ifndef __PF_MY_FUNCTION__
+#define __PF_MY_FUNCTION__
+float _pf_my_function(vector pos; float freq)
+{
+    // ... implementation ...
+    return result;
+}
+#endif
+"""
+```
+
+Convention: guard name = `__PF_<FUNCTION_NAME>__` (uppercase, double underscores).
+
+### Build Context
+
+VOP nodes only exist inside VOP contexts. To build in hython:
+
+```python
+obj = hou.node("/obj")
+geo = obj.createNode("geo", "_build_ctx", run_init_scripts=False)
+vop_ctx = geo.createNode("attribvop", "_vop_ctx")
+subnet = vop_ctx.createNode("subnet", "_my_node")
+```
+
+**Why `run_init_scripts=False`:** Prevents auto-creation of default nodes (file SOP, etc.) that interfere with clean HDA builds.
+
+### Building a VOP HDA (hython script pattern)
+
+```python
+# 1. Create build context
+obj = hou.node("/obj")
+geo = obj.createNode("geo", "_build_ctx", run_init_scripts=False)
+vop_ctx = geo.createNode("attribvop", "_vop_ctx")
+subnet = vop_ctx.createNode("subnet", "_my_node")
+
+# 2. Delete auto-created subinput/suboutput (they are untyped)
+for n in list(subnet.children()):
+    n.destroy()
+
+# 3. Create typed input connector
+in_conn = subnet.createNode("subnetconnector", "pos")
+in_conn.parm("connectorkind").set("input")
+in_conn.parm("parmname").set("pos")
+in_conn.parm("parmlabel").set("Position")
+in_conn.parm("parmtype").set("vector")
+
+# 4. Create typed output connector
+out_conn = subnet.createNode("subnetconnector", "result")
+out_conn.parm("connectorkind").set("output")
+out_conn.parm("parmname").set("result")
+out_conn.parm("parmlabel").set("Result")
+out_conn.parm("parmtype").set("float")
+
+# 5. Create parameter VOPs (auto-promote to HDA interface)
+freq_node = subnet.createNode("parameter", "frequency")
+freq_node.parm("parmname").set("frequency")
+freq_node.parm("parmlabel").set("Frequency")
+freq_node.parm("parmtype").set("float")
+freq_node.parm("parmscope").set("subnet")
+freq_node.parm("floatdef").set(1.0)
+
+# 6. Create inline VOP with code
+inline_node = subnet.createNode("inline", "compute")
+inline_node.parm("outercode").set(OUTER_CODE)  # function def with include guard
+inline_node.parm("code").set("$result = _pf_my_func($pos, $frequency);")
+
+# 7. Name inline inputs (must match $variable names in code)
+inline_node.parm("name1").set("pos")
+inline_node.parm("label1").set("Position")
+inline_node.parm("name2").set("frequency")
+inline_node.parm("label2").set("Frequency")
+
+# 8. Configure inline output
+inline_node.parm("outtype1").set("float")
+inline_node.parm("outname1").set("result")
+inline_node.parm("outlabel1").set("Result")
+
+# 9. Wire: input_connector -> inline[0], parameter -> inline[1], inline -> output_connector
+inline_node.setInput(0, in_conn, 0)
+inline_node.setInput(1, freq_node, 0)
+out_conn.setInput(0, inline_node, 0)
+
+# 10. Wrap as HDA
+hda_node = subnet.createDigitalAsset(
+    name="pf::my_vop_hda::1.0",
+    hda_file_name=HDA_PATH,
+    description="My VOP HDA",
+    min_num_inputs=1, max_num_inputs=1,
+)
+
+# 11. Re-wire after wrap (createDigitalAsset resets connections)
+hda_node.allowEditingOfContents()
+
+inner_inline = None
+inner_in_conn = None
+inner_out_conn = None
+inner_parms = {}
+for n in hda_node.children():
+    tname = n.type().name()
+    if tname == "inline":
+        inner_inline = n
+    elif tname == "subnetconnector":
+        kind = n.parm("connectorkind").eval()
+        if kind == 0: inner_in_conn = n
+        elif kind == 1: inner_out_conn = n
+    elif tname == "parameter":
+        inner_parms[n.parm("parmname").eval()] = n
+
+# Clear stale wiring
+for slot in range(20):
+    try: inner_inline.setInput(slot, None)
+    except: break
+for slot in range(20):
+    try: inner_out_conn.setInput(slot, None)
+    except: break
+
+# Re-establish connections
+inner_inline.setInput(0, inner_in_conn, 0)
+inner_inline.setInput(1, inner_parms["frequency"], 0)
+inner_out_conn.setInput(0, inner_inline, 0)
+
+# 12. Save (parameters auto-promoted from parameter VOPs)
+defn = hda_node.type().definition()
+defn.save(HDA_PATH, template_node=hda_node)
+
+# 13. Cleanup build context
+hda_node.destroy()
+geo.destroy()
+```
+
+### Functional Testing Pattern
+
+Always test with **two instances** in the same VOP network to catch include guard issues:
+
+```python
+avop = geo.createNode("attribvop", "test")
+avop.setInput(0, grid, 0)
+glob = avop.node("geometryvopglobal1")
+
+c1 = avop.createNode("pf::my_vop_hda::1.0", "inst1")
+c1.setInput(0, glob, 0)
+
+c2 = avop.createNode("pf::my_vop_hda::1.0", "inst2")
+c2.setInput(0, glob, 0)
+c2.parm("frequency").set(3.0)  # Different value to confirm independence
+
+# Bind both, cook, verify no errors and distinct values
+```
 
 
 ## When You're Stuck

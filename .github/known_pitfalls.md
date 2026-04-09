@@ -98,6 +98,28 @@ with a reference to the rule.
 
 ## Copernicus COP
 
+### OPEN -- `hda_node.setParmTemplateGroup()` does NOT persist into HDA file
+- **Date:** 2026-07-19
+- **What happened:** Both `create_pf_gyroid_noise_hda.py` and
+  `create_pf_fractal_noise_hda.py` used `hda_node.setParmTemplateGroup(ptg)`
+  followed by `defn.save(HDA_PATH, template_node=hda_node)`. The HDA built
+  without errors but all instances had **zero parameters** — the parameter
+  interface was empty.
+- **Root cause:** `hda_node.setParmTemplateGroup()` operates on the node
+  **instance** (adds spare parameters) but does NOT update the HDA
+  **definition's** parameter interface. `defn.save(template_node=...)` captures
+  inner contents and parameter values, but the parameter interface comes from
+  the definition, which was never set.
+- **Fix:** Use `defn.setParmTemplateGroup(ptg)` instead:
+  ```python
+  defn = hda_node.type().definition()
+  defn.setParmTemplateGroup(_build_ptg())
+  defn.save(HDA_PATH, template_node=hda_node)
+  ```
+- **Rule:** Always use `definition.setParmTemplateGroup()` for HDA parameter
+  interfaces. `node.setParmTemplateGroup()` is only for spare parameters on
+  instances. This applies to ALL HDA devScripts.
+
 ### RESOLVED -- Used COP2 context (`copnet`) instead of Copernicus (`cop`)
 - **Date:** 2026-02-25
 - **What happened:** Build script placed the HDA inside `img.createNode("copnet"
