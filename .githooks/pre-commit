@@ -1,0 +1,22 @@
+#!/bin/sh
+set -eu
+
+repo_root=$(git rev-parse --show-toplevel)
+cd "$repo_root"
+
+graphify_root=${GRAPHIFY_ROOT:-F:/projects/graphify}
+graphify_cli=${GRAPHIFY_CLI:-$graphify_root/.venv/Scripts/graphify.exe}
+
+if [ ! -x "$graphify_cli" ]; then
+    echo "[graphify] Graphify CLI not found: $graphify_cli" >&2
+    echo "[graphify] Set GRAPHIFY_CLI or create the shared Graphify venv at $graphify_root/.venv." >&2
+    exit 1
+fi
+
+echo "[graphify] Rebuilding Polyfactory graph..."
+"$graphify_cli" update . --force
+
+echo "[graphify] Staging graph outputs..."
+git add graphify-out/GRAPH_REPORT.md graphify-out/graph.json graphify-out/graph.html
+
+echo "[graphify] Graph is up to date."

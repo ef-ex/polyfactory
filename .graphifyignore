@@ -1,0 +1,41 @@
+# Houdini binary/session files
+backup/
+*.hip
+*.hiplc
+*.hipnc
+*.hda
+*.otl
+*.usd
+*.usda
+*.usdc
+*.bgeo
+*.bgeo.sc
+*.sim
+*.exr
+
+# Generated/local graph files
+graphify-out/.graphify_*
+graphify-out/cache/
+graphify-out/manifest.json
+graphify-out/cost.json
+
+# Local environments and caches
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Large/local asset library and database
+polyfactory/library/
+*.db
+*.sqlite
+*.sqlite3
+
+# Local/editor files
+.vscode/
+.idea/
+
+# Ignored by project gitignore as local dev area
+backup/
