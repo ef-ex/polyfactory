@@ -10,6 +10,20 @@ tags: sop, vex, opencl, geometry, performance, procedural, principles
 Hard-won rules from a 10-year Houdini user. Violating these produces tools that
 "have no errors" but are slow, brittle, or just wrong. Consult before any SOP work.
 
+## 0. Investigate before you assume — reverse-engineer, read, reason
+The most expensive mistake is assuming Houdini *can't* do something and building a
+workaround. Before you route around a wall:
+- **Reason about what the app must store.** If Houdini saves and reloads it (ramps,
+  parameters, networks), there is an API to read it. (That logic is how you find that
+  ramp keys are readable in VEX as multiparm channels — see [[ramp-driven-curve]].)
+- **Reverse-engineer it.** `node.asCode()` dumps any node as Python, revealing exactly
+  how its parameters are addressed. Inspect a working node to learn the real API.
+- **Read the docs.** `houdini_doc` / the local help server is version-correct truth.
+
+A hack that routes around an *assumed* limitation usually means you skipped this step.
+(The junior `ramp-curve` attempt oversampled-and-thinned because it *assumed* VEX
+couldn't read ramp keys — it can.)
+
 ## 1. Language — almost NEVER Python for geometry
 
 A SOP cooks every time anything upstream changes — potentially **thousands of
@@ -53,11 +67,21 @@ or that it lies flat in a plane.
 - Handle the awkward cases: non-quad prims / n-gons, missing `N` or `uv`, arbitrary
   scale and transform.
 
+**Canonicalize the OUTPUT too.** Emit geometry in a predictable space — known origin,
+orientation, bounds (e.g. a curve that always starts at origin and runs +X for its
+width). Normalize in, canonicalize out → tools compose reliably. See [[houdini-tool-design]].
+
 ## 4. Altitude & cook cost
 
 The node lives in a network that re-cooks constantly. Keep it efficient and
 stateless; push heavy work to VEX/OpenCL; expose tunables as **parameters**
 (data-driven), never hardcoded. See [[no-throwaway-data-driven-code]] in spirit.
+
+## 5. Explicit construction > configurable nodes (when predictability matters)
+When the exact result matters, **build the geometry yourself** (e.g. `addpoint` the
+point you need) rather than configuring a black-box node and hoping it does what you
+assume. You know exactly what happens → fewer latent bugs surfacing later, and a point
+or two is no performance concern. Predictability is a feature — see [[houdini-tool-design]].
 
 ## Worked anti-example (learn from it)
 The first `pf_conform_to_prims` prototype used a **Python SOP** with hand-rolled
@@ -66,7 +90,8 @@ errors but was slow and brittle — "not a useful tool." The correct build: **VE
 (or OpenCL), using **xyzdist + primuv**, on a **normalized** input tile.
 
 ## Done-right checklist
+- [ ] Investigated the real API (`node.asCode()` / docs) before assuming a limitation.
 - [ ] No Python SOP doing per-element geometry (VEX/OpenCL instead).
 - [ ] Reused a native node where one exists.
-- [ ] Input normalized into the tool's space before processing.
+- [ ] Input normalized into the tool's space; output canonical (predictable origin/orientation/bounds).
 - [ ] Tunables exposed as parms; verified visually with `houdini_render_view`.

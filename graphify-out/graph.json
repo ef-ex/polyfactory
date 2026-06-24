@@ -22183,9 +22183,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L316",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polyfactory_scripts_python_polyfactory_houdini_bridge_mcp_server_py",
-      "target": "houdini_bridge_mcp_server_houdini_render_view",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_render_view"
     },
     {
       "relation": "contains",
@@ -22322,9 +22322,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L331",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_houdini_render_view",
-      "target": "houdini_bridge_mcp_server_call",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_call"
     },
     {
       "relation": "rationale_for",
@@ -22332,9 +22332,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L45",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_45",
-      "target": "houdini_bridge_mcp_server_call",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_call"
     },
     {
       "relation": "rationale_for",
@@ -22373,9 +22373,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_68",
-      "target": "houdini_bridge_mcp_server_help_base",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_help_base"
     },
     {
       "relation": "rationale_for",
@@ -22404,9 +22404,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L99",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_99",
-      "target": "houdini_bridge_mcp_server_houdini_status",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_status"
     },
     {
       "relation": "rationale_for",
@@ -22434,9 +22434,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L108",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_108",
-      "target": "houdini_bridge_mcp_server_houdini_execute_python",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_execute_python"
     },
     {
       "relation": "rationale_for",
@@ -22464,9 +22464,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L119",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_119",
-      "target": "houdini_bridge_mcp_server_houdini_create_node",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_create_node"
     },
     {
       "relation": "rationale_for",
@@ -22494,9 +22494,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L127",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_127",
-      "target": "houdini_bridge_mcp_server_houdini_set_parameter",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_set_parameter"
     },
     {
       "relation": "rationale_for",
@@ -22524,9 +22524,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_133",
-      "target": "houdini_bridge_mcp_server_houdini_get_node_info",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_get_node_info"
     },
     {
       "relation": "rationale_for",
@@ -22554,9 +22554,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L140",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_140",
-      "target": "houdini_bridge_mcp_server_houdini_get_selection",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_get_selection"
     },
     {
       "relation": "rationale_for",
@@ -22584,9 +22584,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L148",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_148",
-      "target": "houdini_bridge_mcp_server_houdini_read_network",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_read_network"
     },
     {
       "relation": "rationale_for",
@@ -22614,9 +22614,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L156",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_156",
-      "target": "houdini_bridge_mcp_server_houdini_write_network",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_write_network"
     },
     {
       "relation": "rationale_for",
@@ -22644,9 +22644,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L163",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_163",
-      "target": "houdini_bridge_mcp_server_houdini_save_scene",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_save_scene"
     },
     {
       "relation": "rationale_for",
@@ -22685,9 +22685,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L173",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_173",
-      "target": "houdini_bridge_mcp_server_houdini_doc",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_doc"
     },
     {
       "relation": "rationale_for",
@@ -22705,9 +22705,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L207",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_207",
-      "target": "houdini_bridge_mcp_server_houdini_node_help",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_node_help"
     },
     {
       "relation": "rationale_for",
@@ -22725,9 +22725,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L317",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_317",
-      "target": "houdini_bridge_mcp_server_houdini_render_view",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_render_view"
     },
     {
       "relation": "rationale_for",
@@ -22735,9 +22735,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L354",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_354",
-      "target": "houdini_bridge_mcp_server_houdini_list_skills",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_list_skills"
     },
     {
       "relation": "rationale_for",
@@ -22765,9 +22765,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L362",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_362",
-      "target": "houdini_bridge_mcp_server_houdini_get_skill",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_get_skill"
     },
     {
       "relation": "rationale_for",
@@ -22795,9 +22795,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L374",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_374",
-      "target": "houdini_bridge_mcp_server_houdini_save_skill",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_save_skill"
     },
     {
       "relation": "rationale_for",
@@ -23361,9 +23361,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\server.py",
       "source_location": "L153",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_153",
-      "target": "houdini_bridge_server_bridgeserver_handle_connection",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_bridgeserver_handle_connection"
     },
     {
       "relation": "rationale_for",
@@ -23381,9 +23381,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\server.py",
       "source_location": "L179",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_179",
-      "target": "houdini_bridge_server_bridgeserver_is_running",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_bridgeserver_is_running"
     },
     {
       "relation": "rationale_for",
@@ -23401,9 +23401,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\server.py",
       "source_location": "L183",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_183",
-      "target": "houdini_bridge_server_bridgeserver_get_connection_count",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_bridgeserver_get_connection_count"
     },
     {
       "relation": "rationale_for",
@@ -23421,9 +23421,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\server.py",
       "source_location": "L187",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_187",
-      "target": "houdini_bridge_server_bridgeserver_broadcast",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_bridgeserver_broadcast"
     },
     {
       "relation": "rationale_for",
@@ -23452,9 +23452,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\server.py",
       "source_location": "L207",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_207",
-      "target": "houdini_bridge_server_get_server",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_get_server"
     },
     {
       "relation": "rationale_for",
@@ -23472,9 +23472,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\server.py",
       "source_location": "L230",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_230",
-      "target": "houdini_bridge_server_start_server",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_start_server"
     },
     {
       "relation": "rationale_for",
@@ -23492,9 +23492,9 @@
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\server.py",
       "source_location": "L237",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_237",
-      "target": "houdini_bridge_server_stop_server",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_stop_server"
     },
     {
       "relation": "rationale_for",
