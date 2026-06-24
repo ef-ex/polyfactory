@@ -2,6 +2,15 @@
 backup/
 *.hip
 
+# dev/test scripts
+devScripts/
+
+# dev shelf (testing only)
+polyfactory/toolbar/polyfactory_dev.shelf
+
+# asset library and database
+polyfactory/library/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -131,3 +140,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Graphify local-only generated files
+graphify-out/.graphify_*
+graphify-out/cache/
+graphify-out/manifest.json
+graphify-out/cost.json

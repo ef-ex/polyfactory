@@ -1,0 +1,142 @@
+// pf_nebula_noise.vfl — Nebula volume noise functions for Houdini VEX wrangles.
+//
+// Direct port of the Godot GLSL implementations in:
+//   galaxia/materials/includes/noise_gyroid.gdshaderinc
+//   galaxia/materials/includes/nebula_chunk_presets.gdshaderinc
+//
+// Usage (wrangle SOP):
+//   #include "$POLYFACTORY/vex/include/pf_nebula_noise.vfl"
+//   float n = pf_gyroid_fbm(v@P * 4.0);
+//
+// All functions operate in VEX 3D space.  Input coordinate p is expected in
+// "noise space" — pre-scaled by frequency before calling.  Both functions
+// return a value in [0, 1].
+
+
+// ---------------------------------------------------------------------------
+// Gyroid surface evaluation
+//
+// Returns a 0-1 clamped distance from the gyroid surface.
+// Port of gyroid() in noise_gyroid.gdshaderinc.
+//
+//   p         : sample position (pre-scaled by frequency)
+//   thickness : shell half-width  (0.0 = infinitely thin surface)
+//   bias      : lateral shift of the surface (0.0 = symmetric)
+//   frequency : secondary scale applied inside the evaluation
+// ---------------------------------------------------------------------------
+float pf_gyroid(vector p; float thickness; float bias; float frequency) {
+    vector sp  = sin(p * 0.5);
+    vector czx = cos(set(p.z, p.x, p.y) * 1.23) * frequency;
+    float  raw = abs(dot(sp, czx) - bias) - thickness;
+    return clamp(raw, 0.0, 3.0) / 3.0;
+}
+
+
+// ---------------------------------------------------------------------------
+// Gyroid FBM  (12-octave, per-octave matrix rotation)
+//
+// Equivalent to gyroid_fbm() in noise_gyroid.gdshaderinc.
+// Each octave rotates XY by PI/12 and scales by 1.95, preventing axis-aligned
+// banding artifacts across octave boundaries.
+//
+//   p   : sample position in noise space
+//
+// Returns 0-1.
+// ---------------------------------------------------------------------------
+float pf_gyroid_fbm(vector p) {
+    // Per-octave 2-D rotation embedded in 3x3 matrix (rotates XY, Z unchanged).
+    float a  = M_PI / 12.0;
+    float ca = cos(a);
+    float sa = sin(a);
+    matrix3 m3 = 1.95 * set(
+        ca,   sa,  0.0,
+        -sa,  ca,  0.0,
+        0.0, 0.0,  1.0
+    );
+
+    float weight    = 0.0;
+    float amplitude = 1.0;
+    float frequency = 1.0;
+    float res       = 0.0;
+    vector pp       = p;
+
+    for (int i = 0; i < 12; i++) {
+        res       += amplitude * pf_gyroid(pp, 0.1, 0.0, frequency);
+        pp         = pp * m3;
+        weight    += amplitude;
+        amplitude *= (i < 4) ? 0.9 : 0.7;
+        frequency *= (i < 3) ? 0.65 : 0.78;
+    }
+    return clamp(res / weight, 0.0, 1.0);
+}
+
+
+// ---------------------------------------------------------------------------
+// Gyroid feedback FBM  (branching tendrils, self-correlated octaves)
+//
+// Equivalent to gyroid_feedback_fbm() in nebula_chunk_presets.gdshaderinc.
+// Unlike standard FBM, each octave feeds the accumulated result back into
+// the seed along Z, creating correlated branching rather than independent
+// octave layering.  This produces the filamentary "tendril" appearance.
+//
+//   seed    : initial sample position in noise space
+//   octaves : number of octaves (1-8, clamped internally to 8)
+//
+// Returns an UNNORMALISED positive value — typical range 0-2 for 5-6 octaves.
+// Normalise downstream if needed:  n = clamp(n / expected_max, 0, 1)
+// ---------------------------------------------------------------------------
+float pf_gyroid_feedback_fbm(vector seed; int octaves) {
+    float  result = 0.0;
+    float  aa     = 0.5;
+    vector sv     = seed;
+
+    for (int i = 0; i < 8; i++) {
+        if (i >= octaves) break;
+        // Feedback: previous accumulated result shifts seed along Z.
+        sv.z += result * 0.5;
+        float g    = dot(sin(sv / aa), cos(set(sv.y, sv.z, sv.x) / aa));
+        result    += abs(g) * aa;
+        aa        *= 0.5;
+    }
+    return result;
+}
+
+
+// ---------------------------------------------------------------------------
+// Gyroid feedback FBM — normalised to [0, 1]
+//
+// Convenience wrapper around pf_gyroid_feedback_fbm that normalises the
+// output.  Normalisation constant derived empirically from 5-6 octave runs:
+// raw max ~= 1.97 for octaves=6, ~= 1.84 for octaves=5.
+// Using 2.0 as a safe ceiling (clips the absolute brightest voxels slightly).
+//
+//   p       : sample position in noise space
+//   octaves : number of octaves (recommended: 5-6)
+// ---------------------------------------------------------------------------
+float pf_gyroid_feedback_fbm01(vector p; int octaves) {
+    return clamp(pf_gyroid_feedback_fbm(p, octaves) / 2.0, 0.0, 1.0);
+}
+
+
+// ---------------------------------------------------------------------------
+// Two-layer density model with hollow core  (galaxy nebula environment shell)
+//
+// Equivalent to clouds() in noise_gyroid.gdshaderinc.
+// Produces the "glowing cave" look: dense tangled shells surrounding a clear
+// hollow eye region in the centre.
+//
+//   p            : sample position in volume-local space (un-scaled)
+//   inner_radius : hollow eye radius — no density inside this sphere
+//   outer_radius : outer bounding radius of the cloud
+//
+// Returns raw density (not normalised — integrate in the raymarch loop).
+// ---------------------------------------------------------------------------
+float pf_gyroid_clouds(vector p; float inner_radius; float outer_radius) {
+    float  noise  = pf_gyroid_fbm(p * 0.25);
+    float  r      = length(p);
+    float  structure = smooth_step(inner_radius,        inner_radius + 2.0, r)
+                     * smooth_step(0.05, 0.1, noise);
+    float  haze      = smooth_step(inner_radius * 0.67, outer_radius,       r)
+                     * smooth_step(0.02, 0.5, noise);
+    return 3e-4 + (0.5 * haze + 0.75 * structure);
+}

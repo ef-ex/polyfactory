@@ -73,7 +73,7 @@
 
 from pathlib import Path
 import subprocess
-app = 'C:/Program Files/Side Effects Software/Houdini 19.5.404/bin/imaketx.exe'
+app = hou.expandString('$HFS/bin/imaketx.exe')
 inPath = Path(r'H:\models\kitbash3d\Kitbash3D Veh Spaceships\Tex')
 outPath = Path(r'H:\projects\assets\kitbash3d\spaceships\textures')
 
