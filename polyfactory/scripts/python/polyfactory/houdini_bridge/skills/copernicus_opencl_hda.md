@@ -17,6 +17,10 @@ this recipe (build → structural verify → OpenCL cook, zero errors). The reci
 - What the noise/texture should look like (or a Shadertoy/GLSL reference).
 - A name → `pf_<name>` (HDA) + `create_pf_<name>_hda.py` (devScript).
 
+## Live reference (pull the real docs, don't guess)
+- OpenCL COP node params/bindings/signature: `houdini_node_help("cop", "opencl")`
+- HOM used in the devScript: `houdini_doc("hom/hou/NodeType")`, `houdini_doc("hom/hou/HDADefinition")`
+
 ## Workflow
 1. **Read the full guide first:** [`documentation/copernicus_opencl_hda_guide.md`](../../../../../documentation/copernicus_opencl_hda_guide.md) — it has the kernel structure, binding tables, and the Copernicus output-type index map. Do not skip it.
 2. **Copy a worked exemplar** as your starting point: `devScripts/create_pf_gyroid_noise_hda.py` (full, with layer inputs) or the minimal `@ix/@xres` template in the guide.
@@ -28,6 +32,7 @@ this recipe (build → structural verify → OpenCL cook, zero errors). The reci
    & "C:/Program Files/Side Effects Software/Houdini 21.0.631/bin/hython.exe" "F:/projects/polyfactory/devScripts/create_pf_<name>_hda.py"
    ```
 6. **Verify** parms + `ch()` bindings + kernel via the hython verification snippet in the guide. Optionally cook to confirm the kernel compiles.
+7. **Document it** — embed a Help section so the node is discoverable in the help server. Follow the `houdini-node-documentation` skill (`houdini_get_skill("houdini-node-documentation")`); add `defn.addSection("Help", HELP_TEXT)` before `defn.save(...)`. An undocumented HDA is invisible to future agents.
 
 ## The non-obvious traps (these are why a naive attempt fails)
 1. **`defn.setParmTemplateGroup()` — NOT `hda_node.setParmTemplateGroup()`.** The node-instance version only adds spare parms; they do not persist into the HDA. Always: `defn = hda_node.type().definition()`.

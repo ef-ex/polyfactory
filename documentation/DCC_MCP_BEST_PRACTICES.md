@@ -209,7 +209,7 @@ In priority order. Items marked ✅ already exist in `houdini_bridge/`.
 2. ✅ **Recipe API (`read_network` / `write_network`)** — strong structured graph I/O; this is ahead of most community MCPs. Use it as the backbone for "inspect before/after."
 3. **Build the external FastMCP shim** wrapping the existing port-9876 protocol (the v1 unblock). Map each command (`execute_python`, `create_node`, `set_parameter`, `read_network`, `write_network`, `get_node_info`) to an MCP tool.
 4. **Add `render_view`** (flipbook / OpenGL / Karma ROP → temp PNG) for the visual feedback loop — the biggest current gap.
-5. **Add `lookup_node_type` / `lookup_hom`** over HOM + node/parm docs — the biggest anti-hallucination win.
+5. ✅ **Reflection / API docs** — done elegantly via Houdini's own **local help server** (port 48626): `houdini_doc` / `houdini_node_help` fetch the live, version-correct node reference, HOM, and VEX docs straight from the running editor (no bridge needed, no hand-rolled introspection). This is the biggest anti-hallucination win; exact live params of a specific instance come from `houdini_get_node_info`.
 6. **Add typed parm setters** (`set_parameters` many-at-once; ramp/keyframe-aware) instead of stringly-typed values.
 7. **Ship `get_guide` resources** seeded from `documentation/kitbash_*` + [`copernicus_opencl_hda_guide.md`](copernicus_opencl_hda_guide.md) (the first proven recipe) + new lighting/Solaris/render guides, including a `tool-index`. Pair each recipe with its devScript template + exemplars so the agent can one-shot the task (validated 2026-06-24 — see §4).
 8. **Connection-time grounding briefing** (Y-up, context model, procedural paradigm, cook-before-read) — and **code-level guards** on destructive ops via `approval.py`.

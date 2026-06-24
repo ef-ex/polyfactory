@@ -51,6 +51,11 @@ Reload the client. Call `houdini_status` to confirm the bridge is reachable.
 `houdini_set_parameter`, `houdini_get_node_info`, `houdini_get_selection`,
 `houdini_read_network`, `houdini_write_network`, `houdini_save_scene`.
 
+**Reflection / API docs (read live from Houdini's help server, port 48626; no
+bridge needed):** `houdini_doc` (e.g. `nodes/sop/box`, `hom/hou/Node`,
+`vex/functions/noise`), `houdini_node_help(category, name)`. Use these to check
+the REAL API/params before writing code. Override the port with HOUDINI_HELP_PORT.
+
 **Skills (extendable recipe library, works without Houdini running):**
 `houdini_list_skills`, `houdini_get_skill`, `houdini_save_skill`. See `skills/README.md`.
 
