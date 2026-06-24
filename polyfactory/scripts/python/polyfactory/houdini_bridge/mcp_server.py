@@ -23,11 +23,13 @@ from __future__ import annotations
 
 import os
 import re
+import tempfile
+import time
 import urllib.error
 import urllib.request
 from typing import Any, Dict, List, Optional
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP, Image
 
 from .bridge_client import BridgeClient, BridgeError
 from . import skills_registry as skills
@@ -206,6 +208,141 @@ def houdini_node_help(category: str, name: str, max_chars: int = 8000) -> Dict[s
     context segment (sop, cop, obj, lop, dop, vop, chop, top, driver), `name` the
     node type. E.g. houdini_node_help('cop', 'opencl')."""
     return houdini_doc(f"nodes/{category}/{name}", max_chars)
+
+
+# --------------------------------------------------------------------------- #
+# Visual feedback — screenshot via a floating SceneViewer flipbook, run on
+# Houdini's MAIN thread.
+#
+# Two hard-won requirements, learned from asset_library/render.py (the working
+# turntable renderer for asset icons):
+#   1. GL/viewport work MUST run on the main thread. The bridge executes commands
+#      on a background socket thread; doing GL there crashes Houdini with the
+#      "OpenGL 3.3" fatal error. We marshal the render onto the main thread with
+#      hdefereval.executeDeferred and wait for it.
+#   2. Use a floating-panel viewport flipbook (the viewport renderer), NOT an
+#      offscreen OpenGL ROP — the ROP is unreliable/blank on some drivers.
+# The display-flag isolation is handled here so no agent has to.
+# --------------------------------------------------------------------------- #
+
+_RENDER_VIEW_BODY = r'''
+import hou, os, glob, shutil, time, threading, traceback
+try:
+    import hdefereval
+except Exception:
+    hdefereval = None
+
+_holder = {}
+_done = threading.Event()
+
+def _render_on_main():
+    panel = None
+    try:
+        node = hou.node(target_path)
+        if node is None:
+            _holder["r"] = {"ok": False, "error": "node not found: " + str(target_path)}
+            return
+        if isinstance(node, hou.SopNode):
+            sop = node; obj = node.parent()
+        elif isinstance(node, hou.ObjNode):
+            obj = node; sop = node.displayNode()
+        else:
+            obj = node.parent(); sop = None
+        # isolate: display only this object
+        for c in hou.node("/obj").children():
+            if c.type().name() == "geo":
+                try: c.setDisplayFlag(c is obj)
+                except Exception: pass
+        try: obj.setDisplayFlag(True)
+        except Exception: pass
+        if isinstance(sop, hou.SopNode):
+            sop.setDisplayFlag(True); sop.setRenderFlag(True)
+        # Floating SceneViewer panel = its own viewport context (the asset-library
+        # turntable method, proven on this machine).
+        desktop = hou.ui.curDesktop()
+        panel = desktop.createFloatingPanel(hou.paneTabType.SceneViewer)
+        time.sleep(0.5)  # let the viewer initialise
+        sv = panel.panes()[0].tabs()[0]
+        sv.setPwd(hou.node("/obj"))               # 3D object context, not COP
+        vp = sv.curViewport()
+        try: sv.referencePlane().setIsVisible(False)
+        except Exception: pass
+        try:
+            sv.setShowCameras(False); sv.setShowLights(False); sv.setShowSelection(False)
+        except Exception: pass
+        try: vp.frameAll()
+        except Exception: pass
+        out_dir = os.path.dirname(OUT_PATH)
+        pattern = os.path.join(out_dir, "__mcp_rv_frame_$F4.png").replace("\\", "/")
+        for p in glob.glob(os.path.join(out_dir, "__mcp_rv_frame_*.png")):
+            try: os.remove(p)
+            except Exception: pass
+        fb = sv.flipbookSettings().stash()
+        try: fb.beautyPassOnly(True)
+        except Exception: pass
+        f = hou.intFrame(); fb.frameRange((f, f)); fb.output(pattern)
+        fb.useResolution(True); fb.resolution((W, H))
+        try: fb.outputToMPlay(False)
+        except Exception: pass
+        sv.flipbook(vp, fb)
+        produced = sorted(glob.glob(os.path.join(out_dir, "__mcp_rv_frame_*.png")))
+        if produced:
+            if os.path.exists(OUT_PATH): os.remove(OUT_PATH)
+            shutil.copy(produced[-1], OUT_PATH)
+            for p in produced:
+                try: os.remove(p)
+                except Exception: pass
+        _holder["r"] = {"ok": os.path.exists(OUT_PATH), "png": OUT_PATH,
+                        "bytes": os.path.getsize(OUT_PATH) if os.path.exists(OUT_PATH) else 0}
+    except Exception as e:
+        _holder["r"] = {"ok": False, "error": str(e), "tb": traceback.format_exc()[-700:]}
+    finally:
+        if panel is not None:
+            try: panel.close()
+            except Exception: pass
+        _done.set()
+
+if hdefereval is not None:
+    hdefereval.executeDeferred(_render_on_main)   # GL/viewport on the MAIN thread
+    _done.wait(120.0)
+    result = _holder.get("r", {"ok": False, "error": "render did not finish on main thread in 120s"})
+else:
+    _render_on_main()
+    result = _holder.get("r", {"ok": False, "error": "no result"})
+'''
+
+
+@mcp.tool()
+def houdini_render_view(node_path: str, width: int = 900, height: int = 700):
+    """Render a deterministic screenshot of a node's geometry and return it as an
+    IMAGE. Always verify modeling by LOOKING with this — never assume geometry is
+    correct from prim counts alone.
+
+    It handles the display-flag for you (isolates + display-flags the target) and
+    renders via a floating-panel viewport flipbook on Houdini's main thread — so it
+    reliably shows YOUR geometry without crashing the GL context.
+
+    node_path: a SOP (e.g. /obj/geo1/mynode) or an object (e.g. /obj/geo1)."""
+    out = os.path.join(tempfile.gettempdir(), "__mcp_rv_%d.png" % int(time.time() * 1000)).replace("\\", "/")
+    if os.path.exists(out):
+        os.remove(out)
+    prefix = "target_path = %r\nW = %d\nH = %d\nOUT_PATH = %r\n" % (
+        node_path, int(width), int(height), out)
+    resp = _call("execute_python", code=prefix + _RENDER_VIEW_BODY)
+
+    # The render runs on the main thread and the client may time out before it
+    # finishes; poll the deterministic output path regardless of the response.
+    deadline = time.time() + 120.0
+    while time.time() < deadline:
+        if os.path.exists(out) and os.path.getsize(out) > 0:
+            return Image(path=out)
+        time.sleep(0.3)
+
+    # No image produced — surface the most useful diagnostic we have.
+    data = (resp.get("data") or {}).get("result") if resp.get("success") else None
+    if isinstance(data, dict) and not data.get("ok"):
+        return data
+    return resp
 
 
 # --------------------------------------------------------------------------- #

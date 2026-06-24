@@ -121,8 +121,13 @@ class BridgeServer:
     def _run_server(self):
         """Run synchronous WebSocket server in background thread"""
         try:
-            # Create and start WebSocket server
-            with ws_serve(self._handle_connection, self.host, self.port) as server:
+            # Create and start WebSocket server.
+            # ping_interval=None disables keepalive pings: a long-blocking command
+            # (e.g. an OpenGL render or heavy cook) would otherwise miss a ping and
+            # get the connection force-closed mid-response. Commands run synchronously
+            # so idle keepalive is unnecessary.
+            with ws_serve(self._handle_connection, self.host, self.port,
+                          ping_interval=None) as server:
                 self.server = server
                 self.server_socket = server.socket
                 print(f"[Bridge] WebSocket server running on {self.host}:{self.port}")
