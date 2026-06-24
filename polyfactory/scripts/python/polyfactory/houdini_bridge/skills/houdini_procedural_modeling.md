@@ -10,6 +10,19 @@ tags: sop, vex, opencl, geometry, performance, procedural, principles
 Hard-won rules from a 10-year Houdini user. Violating these produces tools that
 "have no errors" but are slow, brittle, or just wrong. Consult before any SOP work.
 
+## The default posture: Houdini already has the answer — find it, don't invent it
+Houdini is a deeply mature product. Across a 10-year career the problem was *never
+Houdini* — it was always not yet knowing or understanding something. It almost always
+already has a node, a workflow, or an idiom for what you want.
+
+So the **first move on any task is to find the existing solution, not build a new
+one.** Reframe "how do I make X?" into **"how does Houdini already do X, and where do
+I find it?"** This is humility doing work: friction means *you're missing something*,
+not that the tool is broken — which turns the urge to hack/reinvent into the urge to
+search. This posture is the *parent* of rule #0 (investigate) and #2 (use native
+tools) below — both are just ways of finding the answer that's already there.
+(Generalizes to any mature DCC / framework: ride the maturity, don't fight it.)
+
 ## 0. Investigate before you assume — reverse-engineer, read, reason
 The most expensive mistake is assuming Houdini *can't* do something and building a
 workaround. Before you route around a wall:
@@ -90,6 +103,7 @@ errors but was slow and brittle — "not a useful tool." The correct build: **VE
 (or OpenCL), using **xyzdist + primuv**, on a **normalized** input tile.
 
 ## Done-right checklist
+- [ ] Searched for an existing Houdini solution/workflow/idiom before inventing one.
 - [ ] Investigated the real API (`node.asCode()` / docs) before assuming a limitation.
 - [ ] No Python SOP doing per-element geometry (VEX/OpenCL instead).
 - [ ] Reused a native node where one exists.

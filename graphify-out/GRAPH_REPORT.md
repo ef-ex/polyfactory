@@ -1,7 +1,7 @@
 # Graph Report - polyfactory  (2026-06-24)
 
 ## Corpus Check
-- 129 files · ~108,430 words
+- 129 files · ~108,603 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
