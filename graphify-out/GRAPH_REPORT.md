@@ -1,7 +1,7 @@
-# Graph Report - polyfactory  (2026-06-24)
+# Graph Report - polyfactory  (2026-06-27)
 
 ## Corpus Check
-- 129 files · ~108,603 words
+- 129 files · ~109,300 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -179,11 +179,11 @@ Nodes (13): Module reloader for Polyfactory development  Intelligently reloads m
 
 ### Community 20 - "Community 20"
 Cohesion: 0.19
-Nodes (7): create(), create_pf_caustic_trig_vop_hda.py -- Build pf_caustic_trig_vop.hda for VOP netwo, BridgeClient, BridgeError, Bridge client — thin sync WebSocket + MessagePack client for the in-Houdini brid, Run a CommandExecutor command. Returns the raw response dict         ({'success', RuntimeError
+Nodes (7): create(), create_pf_caustic_trig_vop_hda.py -- Build pf_caustic_trig_vop.hda for VOP netwo, BridgeClient, BridgeError, Bridge client — thin sync WebSocket + MessagePack client for the in-Houdini bri, Run a CommandExecutor command. Returns the raw response dict         ({'success, RuntimeError
 
 ### Community 21 - "Community 21"
 Cohesion: 0.27
-Nodes (11): get_skill(), list_skills(), _parse_frontmatter(), Skills registry — the extendable recipe library the MCP serves to agents.  Pure, Split `---`-delimited frontmatter from the markdown body.      Frontmatter is si, Discovery: summary metadata for every skill (not the bodies)., Retrieval: the full markdown of one skill, by `name` or filename stem., Self-extension: write a new skill (or update an existing one). Returns the path. (+3 more)
+Nodes (11): get_skill(), list_skills(), _parse_frontmatter(), Skills registry — the extendable recipe library the MCP serves to agents.  Pur, Split `---`-delimited frontmatter from the markdown body.      Frontmatter is, Discovery: summary metadata for every skill (not the bodies)., Retrieval: the full markdown of one skill, by `name` or filename stem., Self-extension: write a new skill (or update an existing one). Returns the path. (+3 more)
 
 ### Community 22 - "Community 22"
 Cohesion: 0.18

@@ -5647,22 +5647,22 @@
       "norm_label": ".command()"
     },
     {
-      "label": "Bridge client \u2014 thin sync WebSocket + MessagePack client for the in-Houdini brid",
+      "label": "Bridge client \u2014 thin sync WebSocket + MessagePack client for the in-Houdini bri",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\bridge_client.py",
       "source_location": "L1",
       "id": "houdini_bridge_bridge_client_rationale_1",
       "community": 20,
-      "norm_label": "bridge client \u2014 thin sync websocket + messagepack client for the in-houdini brid"
+      "norm_label": "bridge client \u2014 thin sync websocket + messagepack client for the in-houdini bri"
     },
     {
-      "label": "Run a CommandExecutor command. Returns the raw response dict         ({'success'",
+      "label": "Run a CommandExecutor command. Returns the raw response dict         ({'success",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\bridge_client.py",
       "source_location": "L46",
       "id": "houdini_bridge_bridge_client_rationale_46",
       "community": 20,
-      "norm_label": "run a commandexecutor command. returns the raw response dict         ({'success'"
+      "norm_label": "run a commandexecutor command. returns the raw response dict         ({'success"
     },
     {
       "label": "commands.py",
@@ -6106,31 +6106,31 @@
       "norm_label": "houdini_save_skill()"
     },
     {
-      "label": "Houdini Bridge MCP server (v1).  A FastMCP stdio server that exposes the in-Houd",
+      "label": "Houdini Bridge MCP server (v1).  A FastMCP stdio server that exposes the in-Ho",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L1",
       "id": "houdini_bridge_mcp_server_rationale_1",
       "community": 5,
-      "norm_label": "houdini bridge mcp server (v1).  a fastmcp stdio server that exposes the in-houd"
+      "norm_label": "houdini bridge mcp server (v1).  a fastmcp stdio server that exposes the in-ho"
     },
     {
-      "label": "Forward to the bridge, surfacing connection errors as a readable result     rath",
+      "label": "Forward to the bridge, surfacing connection errors as a readable result     rat",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L45",
       "id": "houdini_bridge_mcp_server_rationale_45",
       "community": 5,
-      "norm_label": "forward to the bridge, surfacing connection errors as a readable result     rath"
+      "norm_label": "forward to the bridge, surfacing connection errors as a readable result     rat"
     },
     {
-      "label": "Resolve the live help-server base URL (cached). Honors HOUDINI_HELP_PORT,     el",
+      "label": "Resolve the live help-server base URL (cached). Honors HOUDINI_HELP_PORT,     e",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L68",
       "id": "houdini_bridge_mcp_server_rationale_68",
       "community": 5,
-      "norm_label": "resolve the live help-server base url (cached). honors houdini_help_port,     el"
+      "norm_label": "resolve the live help-server base url (cached). honors houdini_help_port,     e"
     },
     {
       "label": "Check whether the Houdini bridge is reachable. Call this first.",
@@ -6151,13 +6151,13 @@
       "norm_label": "execute arbitrary python in the houdini session (`hou` is in scope).     assign"
     },
     {
-      "label": "Create a node of `node_type` under `parent` (e.g. parent='/obj').     Optionally",
+      "label": "Create a node of `node_type` under `parent` (e.g. parent='/obj').     Optionall",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L119",
       "id": "houdini_bridge_mcp_server_rationale_119",
       "community": 5,
-      "norm_label": "create a node of `node_type` under `parent` (e.g. parent='/obj').     optionally"
+      "norm_label": "create a node of `node_type` under `parent` (e.g. parent='/obj').     optionall"
     },
     {
       "label": "Set a single parameter `value` on the node at `node_path`.",
@@ -6169,13 +6169,13 @@
       "norm_label": "set a single parameter `value` on the node at `node_path`."
     },
     {
-      "label": "Read a node's type, position, and all parameters. Ground yourself in real     st",
+      "label": "Read a node's type, position, and all parameters. Ground yourself in real     s",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L133",
       "id": "houdini_bridge_mcp_server_rationale_133",
       "community": 5,
-      "norm_label": "read a node's type, position, and all parameters. ground yourself in real     st"
+      "norm_label": "read a node's type, position, and all parameters. ground yourself in real     s"
     },
     {
       "label": "Return the paths of the currently selected nodes.",
@@ -6187,22 +6187,22 @@
       "norm_label": "return the paths of the currently selected nodes."
     },
     {
-      "label": "Read a whole network as structured Recipe data (hou.data). Pass     `parent_path",
+      "label": "Read a whole network as structured Recipe data (hou.data). Pass     `parent_pat",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L148",
       "id": "houdini_bridge_mcp_server_rationale_148",
       "community": 5,
-      "norm_label": "read a whole network as structured recipe data (hou.data). pass     `parent_path"
+      "norm_label": "read a whole network as structured recipe data (hou.data). pass     `parent_pat"
     },
     {
-      "label": "Create a network under `parent_path` from Recipe data (same shape as     houdini",
+      "label": "Create a network under `parent_path` from Recipe data (same shape as     houdin",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L156",
       "id": "houdini_bridge_mcp_server_rationale_156",
       "community": 5,
-      "norm_label": "create a network under `parent_path` from recipe data (same shape as     houdini"
+      "norm_label": "create a network under `parent_path` from recipe data (same shape as     houdin"
     },
     {
       "label": "Save the current .hip (to `filepath` if given, else in place).",
@@ -6214,40 +6214,40 @@
       "norm_label": "save the current .hip (to `filepath` if given, else in place)."
     },
     {
-      "label": "Read version-correct Houdini documentation from the running editor's local     h",
+      "label": "Read version-correct Houdini documentation from the running editor's local",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L173",
       "id": "houdini_bridge_mcp_server_rationale_173",
       "community": 5,
-      "norm_label": "read version-correct houdini documentation from the running editor's local     h"
+      "norm_label": "read version-correct houdini documentation from the running editor's local"
     },
     {
-      "label": "Convenience wrapper for node reference docs. `category` is the help-path     con",
+      "label": "Convenience wrapper for node reference docs. `category` is the help-path     co",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L207",
       "id": "houdini_bridge_mcp_server_rationale_207",
       "community": 5,
-      "norm_label": "convenience wrapper for node reference docs. `category` is the help-path     con"
+      "norm_label": "convenience wrapper for node reference docs. `category` is the help-path     co"
     },
     {
-      "label": "Render a deterministic screenshot of a node's geometry and return it as an     I",
+      "label": "Render a deterministic screenshot of a node's geometry and return it as an",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L317",
       "id": "houdini_bridge_mcp_server_rationale_317",
       "community": 5,
-      "norm_label": "render a deterministic screenshot of a node's geometry and return it as an     i"
+      "norm_label": "render a deterministic screenshot of a node's geometry and return it as an"
     },
     {
-      "label": "List available Houdini skills/recipes (name, description, when-to-use).     Chec",
+      "label": "List available Houdini skills/recipes (name, description, when-to-use).     Che",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L354",
       "id": "houdini_bridge_mcp_server_rationale_354",
       "community": 5,
-      "norm_label": "list available houdini skills/recipes (name, description, when-to-use).     chec"
+      "norm_label": "list available houdini skills/recipes (name, description, when-to-use).     che"
     },
     {
       "label": "Get the full markdown of one skill by name (from houdini_list_skills).",
@@ -6259,13 +6259,13 @@
       "norm_label": "get the full markdown of one skill by name (from houdini_list_skills)."
     },
     {
-      "label": "Bank a new skill/recipe so future agents can discover and reuse it.     Call thi",
+      "label": "Bank a new skill/recipe so future agents can discover and reuse it.     Call th",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\mcp_server.py",
       "source_location": "L374",
       "id": "houdini_bridge_mcp_server_rationale_374",
       "community": 5,
-      "norm_label": "bank a new skill/recipe so future agents can discover and reuse it.     call thi"
+      "norm_label": "bank a new skill/recipe so future agents can discover and reuse it.     call th"
     },
     {
       "label": "message_handler.py",
@@ -6727,22 +6727,22 @@
       "norm_label": "save_skill()"
     },
     {
-      "label": "Skills registry \u2014 the extendable recipe library the MCP serves to agents.  Pure",
+      "label": "Skills registry \u2014 the extendable recipe library the MCP serves to agents.  Pur",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\skills_registry.py",
       "source_location": "L1",
       "id": "houdini_bridge_skills_registry_rationale_1",
       "community": 21,
-      "norm_label": "skills registry \u2014 the extendable recipe library the mcp serves to agents.  pure"
+      "norm_label": "skills registry \u2014 the extendable recipe library the mcp serves to agents.  pur"
     },
     {
-      "label": "Split `---`-delimited frontmatter from the markdown body.      Frontmatter is si",
+      "label": "Split `---`-delimited frontmatter from the markdown body.      Frontmatter is",
       "file_type": "rationale",
       "source_file": "polyfactory\\scripts\\python\\polyfactory\\houdini_bridge\\skills_registry.py",
       "source_location": "L20",
       "id": "houdini_bridge_skills_registry_rationale_20",
       "community": 21,
-      "norm_label": "split `---`-delimited frontmatter from the markdown body.      frontmatter is si"
+      "norm_label": "split `---`-delimited frontmatter from the markdown body.      frontmatter is"
     },
     {
       "label": "Discovery: summary metadata for every skill (not the bodies).",
