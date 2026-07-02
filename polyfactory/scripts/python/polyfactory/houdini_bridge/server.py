@@ -11,6 +11,7 @@ import struct
 import time
 from typing import Optional, Set
 
+import msgpack
 from websockets.sync.server import serve as ws_serve
 from websockets.sync.server import ServerConnection
 
@@ -165,9 +166,11 @@ class BridgeServer:
                     response = self.handler.handle_binary(message)
                     websocket.send(response)
                 else:
-                    # Text messages not supported
-                    error_msg = b'\x81\xa5error\xb7Unsupported message type'
-                    websocket.send(error_msg)
+                    # Only binary MessagePack frames are supported
+                    websocket.send(msgpack.packb(
+                        {'success': False, 'error': 'Unsupported message type '
+                         '(expected binary MessagePack)'},
+                        use_bin_type=True))
                     
         except Exception as e:
             print(f"[Bridge] Connection error: {e}")
@@ -185,8 +188,6 @@ class BridgeServer:
         
     def broadcast(self, message: dict):
         """Broadcast message to all connected clients"""
-        import msgpack
-        
         if not self.active_connections:
             return
             

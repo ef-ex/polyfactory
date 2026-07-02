@@ -1,13 +1,18 @@
-# Graph Report - polyfactory  (2026-06-27)
+# Graph Report - polyfactory  (2026-07-02)
 
 ## Corpus Check
-- 129 files · ~109,300 words
+- 127 files · ~90,669 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1370 nodes · 1991 edges · 60 communities detected
-- Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 262 edges (avg confidence: 0.65)
+- 1623 nodes · 2519 edges · 99 communities (85 shown, 14 thin omitted)
+- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 273 edges (avg confidence: 0.66)
 - Token cost: 0 input · 0 output
+
+## Graph Freshness
+- Built from commit: `81437ea1`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - [[_COMMUNITY_Community 0|Community 0]]
@@ -69,141 +74,174 @@
 - [[_COMMUNITY_Community 56|Community 56]]
 - [[_COMMUNITY_Community 58|Community 58]]
 - [[_COMMUNITY_Community 59|Community 59]]
+- [[_COMMUNITY_Community 60|Community 60]]
+- [[_COMMUNITY_Community 61|Community 61]]
+- [[_COMMUNITY_Community 62|Community 62]]
+- [[_COMMUNITY_Community 63|Community 63]]
+- [[_COMMUNITY_Community 64|Community 64]]
+- [[_COMMUNITY_Community 65|Community 65]]
 - [[_COMMUNITY_Community 67|Community 67]]
+- [[_COMMUNITY_Community 69|Community 69]]
+- [[_COMMUNITY_Community 70|Community 70]]
+- [[_COMMUNITY_Community 71|Community 71]]
+- [[_COMMUNITY_Community 72|Community 72]]
+- [[_COMMUNITY_Community 73|Community 73]]
+- [[_COMMUNITY_Community 74|Community 74]]
+- [[_COMMUNITY_Community 75|Community 75]]
+- [[_COMMUNITY_Community 76|Community 76]]
+- [[_COMMUNITY_Community 77|Community 77]]
+- [[_COMMUNITY_Community 78|Community 78]]
+- [[_COMMUNITY_Community 79|Community 79]]
+- [[_COMMUNITY_Community 80|Community 80]]
+- [[_COMMUNITY_Community 81|Community 81]]
+- [[_COMMUNITY_Community 82|Community 82]]
+- [[_COMMUNITY_Community 83|Community 83]]
+- [[_COMMUNITY_Community 84|Community 84]]
+- [[_COMMUNITY_Community 85|Community 85]]
+- [[_COMMUNITY_Community 86|Community 86]]
+- [[_COMMUNITY_Community 87|Community 87]]
+- [[_COMMUNITY_Community 88|Community 88]]
+- [[_COMMUNITY_Community 89|Community 89]]
+- [[_COMMUNITY_Community 90|Community 90]]
+- [[_COMMUNITY_Community 91|Community 91]]
+- [[_COMMUNITY_Community 92|Community 92]]
+- [[_COMMUNITY_Community 93|Community 93]]
+- [[_COMMUNITY_Community 96|Community 96]]
+- [[_COMMUNITY_Community 97|Community 97]]
+- [[_COMMUNITY_Community 98|Community 98]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `AssetBrowserWidget` - 37 edges
 2. `TagInputWidget` - 35 edges
-3. `AssetDatabase` - 33 edges
-4. `AssetInfoPanel` - 23 edges
-5. `AssetExportDialog` - 23 edges
-6. `PyPushButton` - 22 edges
-7. `BindingManager` - 22 edges
-8. `BaseParmWidget` - 22 edges
-9. `PyLeftMenuButton` - 21 edges
-10. `HoverOutlineMixin` - 21 edges
+3. `AssetDatabase` - 34 edges
+4. `PyPushButton` - 24 edges
+5. `BaseParmWidget` - 24 edges
+6. `AssetInfoPanel` - 23 edges
+7. `AssetExportDialog` - 23 edges
+8. `CommandExecutor` - 23 edges
+9. `HoverOutlineMixin` - 23 edges
+10. `PyLeftMenuButton` - 22 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `createInterface()` --calls--> `BindingManager`  [INFERRED]
-  devScripts\hda_ui_example.py → polyfactory\scripts\python\polyfactory\widgets\binding_manager.py
-- `AssetBrowserState` --uses--> `AssetBrowserDialog`  [INFERRED]
-  devScripts\viewer_state_context_menu_example.py → polyfactory\scripts\python\polyfactory\asset_library\browser_ui.py
 - `pf_perlin_d()` --calls--> `pf_qerp_td()`  [INFERRED]
-  polyfactory\ocl\include\pf_noise.h → polyfactory\ocl\include\pf_util.h
-- `AssetPlaceNodeUI` --uses--> `AssetBrowserWidget`  [INFERRED]
-  polyfactory\scripts\python\polyfactory\asset_library\asset_place_ui.py → polyfactory\scripts\python\polyfactory\asset_library\browser_ui.py
-- `next_free_filename()` --calls--> `AssetDatabase`  [INFERRED]
-  polyfactory\scripts\python\polyfactory\asset_library\batch_importer.py → polyfactory\scripts\python\polyfactory\asset_library\database.py
+  polyfactory/ocl/include/pf_noise.h → polyfactory/ocl/include/pf_util.h
+- `pf_vnoise()` --calls--> `pf_interp()`  [INFERRED]
+  polyfactory/ocl/include/pf_noise.h → polyfactory/ocl/include/pf_util.h
+- `start_bridge_server()` --calls--> `start_server()`  [INFERRED]
+  polyfactory/scripts/123.py → polyfactory/scripts/python/polyfactory/houdini_bridge/server.py
+- `HoverSlider` --uses--> `PyPushButton`  [INFERRED]
+  polyfactory/scripts/python/polyfactory/asset_library/asset_browser_widgets.py → polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_push_button/py_push_button.py
+- `HoverSlider` --uses--> `HoverOutlineMixin`  [INFERRED]
+  polyfactory/scripts/python/polyfactory/asset_library/asset_browser_widgets.py → polyfactory/scripts/python/polyfactory/widgets/hover_outline.py
 
-## Communities
+## Import Cycles
+- 1-file cycle: `polyfactory/scripts/python/polyfactory/ui_framework/__init__.py -> polyfactory/scripts/python/polyfactory/ui_framework/__init__.py`
+- 1-file cycle: `polyfactory/scripts/python/polyfactory/viewer_utils/__init__.py -> polyfactory/scripts/python/polyfactory/viewer_utils/__init__.py`
+- 1-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 4-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+
+## Communities (99 total, 14 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.01
-Nodes (119): AssetInfoPanel, AssetThumbnailWidget, HoverComboBox, HoverSlider, _load_pixmap_cached(), Asset Browser Widgets - Low-level widget classes extracted from browser_ui.py., Handle resize to update preview image size, Create styled label for form (+111 more)
+Cohesion: 0.07
+Nodes (21): HoverComboBox, QComboBox with animated hover outline, AssetBrowserWidget, Asset browser with grid view, search, and filters, Load assets from database, Filter assets based on search, category, and tags, Update grid with filtered assets, Handle asset single-click.  Ctrl+click toggles, Shift+click selects range. (+13 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.02
-Nodes (84): BaseParmWidget, BindingManager, Binding Manager - Central coordinator for parameter-widget synchronization  Ma, Create a dropdown menu widget bound to a parameter., Create a color picker widget bound to a parameter tuple., Manages parameter bindings for an HDA Python Panel UI.          Coordinates up, Create a button widget (not bound to parameter)., Register a widget-parameter binding. (+76 more)
-
-### Community 2 - "Community 2"
-Cohesion: 0.03
-Nodes (27): Ui_LeftColumn, Ui_RightColumn, Settings, Themes, SetupMainWindow, UI_MainWindow, object, Ui_MainPages (+19 more)
+Cohesion: 0.10
+Nodes (15): BaseParmWidget, Base class for parameter-bound widgets., Get current parameter value. Override in subclasses., Set parameter value. Override in subclasses., Update widget from parameter (called by BindingManager)., Update widget display. Override in subclasses., Update visual feedback for expression state.                  This base implem, Show Houdini-style parameter context menu. (+7 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.03
-Nodes (63): _aabbs_overlap(), detect_asset_groups(), export_batch_group(), next_free_filename(), Batch Kitbash Importer - AABB-based asset detection and batch export backend, Find the next available numbered filename (no extension).      Scans both the, Export a single asset group detected by detect_asset_groups.      Converts pri, Detect asset groups in a SOP node using connectivity + AABB overlap.      Each (+55 more)
+Cohesion: 0.12
+Nodes (19): export_batch_group(), Export a single asset group detected by detect_asset_groups.      Converts pri, _build_export_network(), _cleanup(), export_asset(), _export_geometry(), _get_geometry_stats(), _prims_to_group_string() (+11 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.05
-Nodes (33): Enum, ApprovalManager, ApprovalMode, Approval System - Safety controls for AI commands  Modes: - AUTO: Execute rea, Command approval modes for safety, Manages command approval flow with UI dialogs, Check if command requires user approval, Show approval dialog to user.                  Args:             command: Com (+25 more)
+Cohesion: 0.14
+Nodes (13): CommandExecutor, Set node parameter value, Get node parameter value, Get current node selection, Get detailed node information, Executes commands from AI agent in Houdini session, Execute arbitrary Python code (requires approval), Execute a command on Houdini's MAIN thread and return the result.          The (+5 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.04
-Nodes (64): _call(), _help_base(), houdini_create_node(), houdini_doc(), houdini_execute_python(), houdini_get_node_info(), houdini_get_selection(), houdini_get_skill() (+56 more)
-
-### Community 6 - "Community 6"
-Cohesion: 0.06
-Nodes (8): PyIconButton, _ToolTip, PyLeftButton, _ToolTip, PyTitleButton, _ToolTip, QLabel, QPushButton
+Cohesion: 0.13
+Nodes (18): _help_base(), houdini_doc(), houdini_get_skill(), houdini_list_skills(), houdini_node_help(), houdini_write_network(), _html_to_text(), Houdini Bridge MCP server (v1).  A FastMCP stdio server that exposes the in-Ho (+10 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.06
-Nodes (27): AssetInstanceWidget, createInterface(), KitbashNodeUI, Create styled spinbox, Load values from node parameters, Handle spinbox value change, Refresh asset list from multiparm, Delete asset from multiparm (+19 more)
+Cohesion: 0.22
+Nodes (6): AssetInstanceWidget, Create styled spinbox, Load values from node parameters, Handle spinbox value change, Widget representing a single placed asset instance, Create UI for single asset instance
 
 ### Community 8 - "Community 8"
-Cohesion: 0.07
-Nodes (4): Functions, PyLeftMenuButton, _ToolTip, PyLeftMenu
+Cohesion: 0.12
+Nodes (3): PyDiv, PyLeftMenu, PyDiv
 
 ### Community 9 - "Community 9"
-Cohesion: 0.06
-Nodes (27): BridgeServer, get_server(), Bridge Server - WebSocket server for AI agent communication  Uses synchronous, Run synchronous WebSocket server in background thread, Handle client connection, Handle client connection, Check if server is running, Get number of active connections (+19 more)
+Cohesion: 0.12
+Nodes (9): BridgeServer, Run synchronous WebSocket server in background thread, Handle client connection, Check if server is running, Get number of active connections, Broadcast message to all connected clients, WebSocket server for AI agent communication, Start server in background thread (+1 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.1
-Nodes (11): AssetPlaceState, _ground_plane_hit(), _normal_to_euler(), Asset Placement Viewer State for pf_asset_place HDA.  Two modes (toggle with Q, Key DOWN / UP transitions for clean drag start/end.         Works as a suppleme, Intersect against ONLY the geometry connected to SOP input 0.          Input g, Raycast against input geometry only, set t/r parms on node., Show or hide the xform handle and update the prompt message. (+3 more)
+Cohesion: 0.16
+Nodes (4): AssetPlaceState, Key DOWN / UP transitions for clean drag start/end.         Works as a suppleme, Show or hide the xform handle and update the prompt message., Interactive placement state for the pf_asset_place HDA.
 
 ### Community 11 - "Community 11"
-Cohesion: 0.13
-Nodes (22): pf_hash1(), pf_hash21(), pf_hash2d(), pf_ihash(), pf_lattice(), pf_fbm(), pf_fbm_t(), pf_perlin() (+14 more)
+Cohesion: 0.14
+Nodes (29): float2, float3, float4, pf_hash1(), pf_hash21(), pf_hash22(), pf_hash2d(), pf_hash43() (+21 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.11
-Nodes (5): registerChatParticipant(), activate(), deactivate(), HoudiniBridgeClient, registerLanguageModelTools()
+Cohesion: 0.05
+Nodes (38): Done when, Normalize the input with Match Size (not custom VEX), Production reference — `pf::mesh_to_quad` (the battle-tested pattern), Skill: Conform a tile onto every prim of a surface (VEX + primuv), The conform (Detail wrangle: input0 = target+N, input1 = unit tile), The pipeline, The three gotchas (these are why a naive build looks wrong despite no errors), Use VEX (or OpenCL), never Python (+30 more)
 
 ### Community 13 - "Community 13"
-Cohesion: 0.1
+Cohesion: 0.10
 Nodes (14): createViewerStateTemplate(), KitbashPlacementState, Kitbash Placement State - Interactive viewport placement for assets  NEW WORKF, Place the currently selected mesh at cursor position, Handle keyboard events, Update menu state before opening, Interactive state for placing kitbash assets in viewport, Handle context menu selections (+6 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.11
-Nodes (21): copy_parameter(), delete_expression(), get_expression_language(), get_expression_string(), get_parm_color(), get_parm_display_value(), has_expression(), paste_relative_reference() (+13 more)
+Cohesion: 0.12
+Nodes (22): Parm, copy_parameter(), delete_expression(), get_expression_language(), get_expression_string(), get_parm_color(), get_parm_display_value(), has_expression() (+14 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.13
-Nodes (13): createInterface(), Example HDA Python Panel UI using hda_widgets library  This demonstrates how t, Main entry point for Python Panel UI.     Called by Houdini when panel is creat, Example button callback., reset_node(), Build a layout containing all registered widgets.                  Args:, HoudiniGroupBox, HoudiniHLayout (+5 more)
+Cohesion: 0.12
+Nodes (16): Binding Manager - Central coordinator for parameter-widget synchronization  Ma, Build a layout containing all registered widgets.                  Args:, Hover Outline Mixin - Animated blue outline on hover for any widget, Polyfactory Widgets Module  Qt widgets for Houdini workflows.  Submodules:, HoudiniGroupBox, HoudiniHLayout, HoudiniVLayout, Layout Helpers - Houdini-styled layouts  Provides layout classes styled to mat (+8 more)
 
 ### Community 16 - "Community 16"
-Cohesion: 0.13
-Nodes (10): addAssetBrowserToNodeState(), AssetBrowserState, createViewerStateTemplate(), Viewer State Context Menu Example  This shows how to add a context menu to a v, Open the asset browser dialog, Example of creating a viewer state template with a context menu          The c, Add asset browser to a node's viewer state context menu          Args:, Example viewer state with context menu (+2 more)
+Cohesion: 0.05
+Nodes (41): Accessing Package Assets, Asset Database, Branch Structure, Code Quality - Error Handling, Code Style: Functional Over Object-Oriented, Common Patterns, Creative / Procedural Tool Requests Require Design Breakdown First, Critical Conventions (+33 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.15
-Nodes (9): EnhancedInputField, Test inheritance from hou.qt.InputField to verify we can add custom features. R, Test inheriting from InputField to add custom features., Try to locate internal QLineEdit and QLabel widgets., Override to add hover effect., Override to remove hover effect., Intercept events on child widgets (like label)., Create test dialog with enhanced InputField. (+1 more)
+Cohesion: 0.05
+Nodes (36): Architecture, Automated verification via hython, Binding Types, Building, Copernicus OpenCL HDA Development Guide, Critical OpenCL vs GLSL Differences, Critical Rules, devScript Structure (+28 more)
 
 ### Community 18 - "Community 18"
-Cohesion: 0.18
-Nodes (7): AssetPlaceNodeUI, Asset Place HDA UI - Python Panel for pf_asset_place node.  Shows the full ass, Python Panel widget for pf_asset_place HDA.      Embeds the full AssetBrowserW, Called by onNodePathChanged — updates which node we drive., Reload asset list (called on pane activation)., Highlight the thumbnail matching the node's current asset_id., User double-clicked an asset — push into node parms.
+Cohesion: 0.21
+Nodes (6): AssetPlaceNodeUI, Python Panel widget for pf_asset_place HDA.      Embeds the full AssetBrowserW, Called by onNodePathChanged — updates which node we drive., Reload asset list (called on pane activation)., Highlight the thumbnail matching the node's current asset_id., User double-clicked an asset — push into node parms.
 
 ### Community 19 - "Community 19"
 Cohesion: 0.23
 Nodes (13): Module reloader for Polyfactory development  Intelligently reloads modules for, Reload widget library modules., Reload asset library modules., Reload viewer utilities modules., Reload UI framework modules (PyOneDark-based)., Reload all Polyfactory modules., Internal helper to reload a list of modules., reload_all() (+5 more)
 
 ### Community 20 - "Community 20"
-Cohesion: 0.19
-Nodes (7): create(), create_pf_caustic_trig_vop_hda.py -- Build pf_caustic_trig_vop.hda for VOP netwo, BridgeClient, BridgeError, Bridge client — thin sync WebSocket + MessagePack client for the in-Houdini bri, Run a CommandExecutor command. Returns the raw response dict         ({'success, RuntimeError
+Cohesion: 0.22
+Nodes (8): Any, BridgeClient, BridgeError, Bridge client — thin sync WebSocket + MessagePack client for the in-Houdini bri, Run a CommandExecutor command. Returns the raw response dict         ({'success, houdini_status(), Check whether the Houdini bridge is reachable. Call this first., RuntimeError
 
 ### Community 21 - "Community 21"
-Cohesion: 0.27
-Nodes (11): get_skill(), list_skills(), _parse_frontmatter(), Skills registry — the extendable recipe library the MCP serves to agents.  Pur, Split `---`-delimited frontmatter from the markdown body.      Frontmatter is, Discovery: summary metadata for every skill (not the bodies)., Retrieval: the full markdown of one skill, by `name` or filename stem., Self-extension: write a new skill (or update an existing one). Returns the path. (+3 more)
+Cohesion: 0.24
+Nodes (12): get_skill(), list_skills(), _parse_frontmatter(), Skills registry — the extendable recipe library the MCP serves to agents.  Pur, Split `---`-delimited frontmatter from the markdown body.      Frontmatter is, Discovery: summary metadata for every skill (not the bodies)., Retrieval: the full markdown of one skill, by `name` or filename stem., Self-extension: write a new skill (or update an existing one). Returns the path. (+4 more)
 
 ### Community 22 - "Community 22"
-Cohesion: 0.18
-Nodes (11): align_transform_to_normal(), extract_rotation_from_matrix(), get_geometry_under_cursor(), Raycasting utilities for viewer states Pure functions for ray-geometry intersec, Get geometry under cursor using ray intersection.          Args:         ui_e, Raycast against geometry and return hit information.          Args:         o, Create transformation matrix to align object to surface normal.          Args:, Extract Euler rotation angles (XYZ order) from transformation matrix. (+3 more)
+Cohesion: 0.16
+Nodes (13): Geometry, Matrix4, align_transform_to_normal(), extract_rotation_from_matrix(), get_geometry_under_cursor(), Raycasting utilities for viewer states Pure functions for ray-geometry intersec, Get geometry under cursor using ray intersection.          Args:         ui_e, Raycast against geometry and return hit information.          Args:         o (+5 more)
 
 ### Community 23 - "Community 23"
-Cohesion: 0.29
-Nodes (10): add_cp_empties(), apply_material(), build_module(), clear_scene(), compute_dimensions(), create_module_box(), parse_module_id(), Galaxia Module Scaffolder for Blender.  Usage:     Set MODULE_ID at the top, (+2 more)
-
-### Community 24 - "Community 24"
-Cohesion: 0.22
-Nodes (1): MainFunctions
+Cohesion: 0.06
+Nodes (19): AssetDatabase, Manages the asset library SQLite database, Add a new asset to the database                  Args:             name: Asse, Initialize database connection                  Args:             db_path: Pa, Associate tags with an asset, Get asset by ID                  Args:             asset_id: Asset ID, Get all tags for an asset                  Args:             asset_id: Asset, Search assets with various filters                  Args:             search_ (+11 more)
 
 ### Community 25 - "Community 25"
-Cohesion: 0.31
-Nodes (8): _build_parm_template_group(), _configure_opencl(), create(), Create pf_hull_panels.hda — procedural sci-fi hull panel texture generator.  O, Set kernel code, outputs (Signature tab), and constant bindings., Drive inner opencl binding value parms via ch() expressions pointing to HDA oute, Build pf_hull_panels.hda and install it in polyfactory/otls/.      Copernicus, _wire_channel_refs()
+Cohesion: 0.05
+Nodes (36): 1. Create the HDA, 2. Add Python Panel Interface, 3. Set Interface as Default, 4. Configure Multiparm Structure, Add Custom Controls, Adding Assets, Asset Browser Empty, Asset Browser Section (+28 more)
 
 ### Community 26 - "Community 26"
-Cohesion: 0.32
-Nodes (5): ExampleTool, main(), Example: Using Polyfactory UI Framework in a standalone tool  This demonstrate, Example standalone tool using UI framework., Launch the example tool.
+Cohesion: 0.05
+Nodes (36): 1. Start Server in Houdini, 2. Connect from External Python, 3. Connect from VS Code Extension (TypeScript), Approval Modes, Architecture, Batch Commands, Connection Timeout, Dependencies (+28 more)
 
 ### Community 27 - "Community 27"
 Cohesion: 0.32
@@ -222,171 +260,232 @@ Cohesion: 0.29
 Nodes (4): chunk_array(), Chunks input array into multiple arrays with length of chunksize      Args:, unpacks arrays to defined number of elements assigning default value if not exis, unpack()
 
 ### Community 31 - "Community 31"
-Cohesion: 0.53
-Nodes (5): _build_ptg(), _configure_opencl(), create(), create_pf_bnw_spots_hda.py — Build pf_bnw_spots.hda for Houdini Copernicus.  V, _wire_channel_refs()
+Cohesion: 0.05
+Nodes (37): 1. Context Window Management, 1. Houdini Python Panel (PySide6 UI), 2. Error Recovery, 2. LLM Integration Layer, 3. Scene Context Extractor, 3. Undo/Redo Integration, 4. Code Executor, 4. Cost Control (+29 more)
 
 ### Community 32 - "Community 32"
-Cohesion: 0.53
-Nodes (5): _build_ptg(), _configure_opencl(), create(), create_pf_caustic_fbm_hda.py — Build pf_caustic_fbm.hda for Houdini Copernicus., _wire_channel_refs()
+Cohesion: 0.07
+Nodes (17): AssetThumbnailWidget, HoverSlider, _load_pixmap_cached(), Asset Browser Widgets - Low-level widget classes extracted from browser_ui.py., Return a cached, pre-scaled pixmap for path, loading from disk on miss., Individual asset thumbnail with animated hover outline, Update thumbnail size dynamically without re-reading disk, Scale the cached pixmap to the current thumb size (no disk I/O) (+9 more)
 
 ### Community 33 - "Community 33"
-Cohesion: 0.53
-Nodes (5): _build_ptg(), _configure_opencl(), create(), create_pf_caustic_trig_hda.py — Build pf_caustic_trig.hda for Houdini Copernicus, _wire_channel_refs()
+Cohesion: 0.06
+Nodes (33): Adding New Placement Modes, Adding Viewer Utils Functions, Align to Mesh (Default), Alignment Issues, Architecture, Asset Data Flow, Components, Core Functions (+25 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.53
-Nodes (5): _build_ptg(), _configure_opencl(), create(), create_pf_crater_noise_hda.py — Build pf_crater_noise.hda for Houdini Copernicus, _wire_channel_refs()
+Cohesion: 0.09
+Nodes (14): Tag input widget with autocomplete and chip display, Set the list of available tags for autocomplete                  Args:, Get current list of tags                  Returns:             List of tag st, Set the current tags                  Args:             tags: List of tag str, Show dropdown menu with all available tags, Add a tag chip                  Args:             tag_text: Tag string to add, Remove a tag chip                  Args:             tag_text: Tag string to, Remove all chip widgets (+6 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.53
-Nodes (5): _build_ptg(), _configure_opencl(), create(), create_pf_gyroid_noise_hda.py — Build pf_gyroid_noise.hda for Houdini Copernicus, _wire_channel_refs()
+Cohesion: 0.11
+Nodes (17): EnhancedInputField, ExpressionDialog, Base Parameter Widgets - Label, InputField, BaseParmWidget, ExpressionDialog, Dialog for editing parameter expressions., Enhanced InputField with all Houdini parameter polish features:     - Hover eff, ParmInt, Numeric Parameter Widgets - ParmFloat, ParmInt  Float and integer parameter wi, Integer parameter widget using Enhanced InputField with slider.          Combi (+9 more)
 
 ### Community 36 - "Community 36"
-Cohesion: 0.53
-Nodes (5): _build_ptg(), _configure_opencl(), create(), create_pf_landmass_noise_hda.py — Build pf_landmass_noise.hda for Houdini Copern, _wire_channel_refs()
+Cohesion: 0.09
+Nodes (14): AssetInfoPanel, Handle resize to update preview image size, Create styled label for form, Load turntable frames for animation, Display a specific frame, Display asset information, Load full turntable sequence on hover, Return to frame 5 on leave (+6 more)
 
 ### Community 37 - "Community 37"
-Cohesion: 0.53
-Nodes (5): _build_ptg(), _configure_opencl(), create(), create_pf_nebula_noise_hda.py — Build pf_nebula_noise.hda for Houdini Copernicus, _wire_channel_refs()
+Cohesion: 0.09
+Nodes (13): HoverOutlineMixin, Initialize hover outline animation.                  Args:             color:, Get current hover outline opacity (0.0 to 1.0), Set hover outline opacity (0.0 to 1.0), Start fade-in animation on hover, Start fade-out animation on leave, Paint the hover outline. Call this in your paintEvent.                  Args:, Mixin to add animated blue hover outline to any widget.          Usage: (+5 more)
 
 ### Community 38 - "Community 38"
-Cohesion: 0.33
-Nodes (5): Test Client for Houdini Bridge  Simple Python client to test WebSocket + Messa, Test batch command execution, Test basic connection and commands, test_batch_commands(), test_connection()
+Cohesion: 0.08
+Nodes (25): 1. Start Bridge Server in Houdini, 2. Test Connection, 3. Try AI Agent Example, Approval Modes, AUTO (Default), "Command cancelled by user", "Connection refused", Debug mode (+17 more)
 
 ### Community 39 - "Community 39"
-Cohesion: 0.33
-Nodes (5): draw_crosshair(), draw_normal_indicator(), Drawing utilities for viewer states Pure functions for viewport drawing helpers, Draw simple crosshair at position.          Args:         drawable: Houdini d, Draw line indicating surface normal.          Args:         drawable: Houdini
+Cohesion: 0.38
+Nodes (4): draw_normal_indicator(), Drawing utilities for viewer states Pure functions for viewport drawing helpers, Draw line indicating surface normal.          Args:         drawable: Houdini, Viewer utilities for Houdini viewer states Reusable library components for rayc
 
 ### Community 40 - "Community 40"
-Cohesion: 0.4
-Nodes (5): Parameter Panel Utilities - Helper functions for creating floating parameter win, Open a floating parameter panel for a node using Houdini's native API., Show floating parameter panel for currently selected node.          Useful for, show_floating_parm_panel(), show_selected_node_parms()
+Cohesion: 0.08
+Nodes (24): 1. Open HDA for Editing, 2. Go to Interactive Tab, 3. Add Python Panel Section, 4. Set Python Panel Code, 5. Enable Python Panel Display, 6. Apply and Accept, 7. Test the UI, 8. Place an Asset (+16 more)
 
 ### Community 41 - "Community 41"
-Cohesion: 0.4
+Cohesion: 0.40
 Nodes (4): get_prims_at_path(), get_sdf_type(), generator which returns all prims of type     which are child of given path, get Sdf Value Type      Args:         typ (str) : requested usd type     Ret
 
 ### Community 42 - "Community 42"
-Cohesion: 0.5
-Nodes (4): main(), Lightweight Houdini Bridge command-line client Connects directly to WebSocket s, Send command to Houdini Bridge and return response, send_command()
+Cohesion: 0.13
+Nodes (13): QWidget, BindingManager, Create a dropdown menu widget bound to a parameter., Create a color picker widget bound to a parameter tuple., Manages parameter bindings for an HDA Python Panel UI.          Coordinates up, Create a button widget (not bound to parameter)., Register a widget-parameter binding., Poll for external parameter changes (from UI, expressions, etc). (+5 more)
 
 ### Community 43 - "Community 43"
-Cohesion: 0.5
-Nodes (3): create_pf_kitbash_hda(), Script to create the pf_kitbash HDA Run this in Houdini Python shell to create, Create the pf_kitbash HDA definition
+Cohesion: 0.12
+Nodes (4): Ui_LeftColumn, PyLeftColumn, PySlider, QSlider
 
 ### Community 44 - "Community 44"
 Cohesion: 0.67
 Nodes (3): dropAccept(), get_drop_context(), get the context where the drop happened      Returns:         hou.NetowrkEdit
 
 ### Community 45 - "Community 45"
-Cohesion: 0.67
-Nodes (2): Send command to Houdini Bridge and return response, send_command()
+Cohesion: 0.11
+Nodes (19): _call(), houdini_create_node(), houdini_execute_python(), houdini_get_node_info(), houdini_get_parameter(), houdini_get_selection(), houdini_render_view(), houdini_set_parameter() (+11 more)
 
 ### Community 46 - "Community 46"
-Cohesion: 0.67
-Nodes (1): Minimal WebSocket server test in Houdini  Run this in Houdini Python Shell to
+Cohesion: 0.10
+Nodes (19): Asset Browser as Pane, Asset Browser Redesign, Asset Library & Kitbash Workflow Redesign, Asset Placement Workflow, Browser Structure (Blender-Style Layout), Custom HDA Design, Drag & Drop, Export Workflow (+11 more)
 
 ### Community 47 - "Community 47"
-Cohesion: 1.0
-Nodes (1): Create pf_asset_place SOP HDA.  Run in Houdini Python Shell:     execfile(r'f
+Cohesion: 0.13
+Nodes (7): AssetExportDialog, Dialog for exporting selected geometry to asset library, Keep blank row name fields showing the effective base name they will use., Load existing categories from database, Handle name confirmation (Enter key or lost focus) - auto-suggest category and t, Update the export path preview, Get the export configuration data
 
 ### Community 48 - "Community 48"
-Cohesion: 1.0
-Nodes (1): Create pf_asset_tag SOP HDA.  Run in Houdini Python Shell:     execfile(r'f:/pro
+Cohesion: 0.12
+Nodes (10): BaseParmWidget, ParmMenu, ParmToggle, Update visual feedback for expression state., Block user input when expression is active., Dropdown menu widget with enhanced label., Menu parms can be int or string - get the string token., Update visual feedback for expression state. (+2 more)
 
 ### Community 49 - "Community 49"
-Cohesion: 1.0
-Nodes (1): Debug USD stage composition - check what's actually in the turntable render scen
+Cohesion: 0.11
+Nodes (17): Alternative: Manual Python Panel Assignment, Asset browser is empty, Automatic Setup via HDA Type Properties, Check 1: Python Panel Definition Exists, Check 2: HDA Type Properties, Check 3: Test the Node, Complete Verification Script, HDA Configuration for pf_kitbash Python Panel (+9 more)
 
 ### Community 50 - "Community 50"
-Cohesion: 1.0
-Nodes (1): Inspect renderproduct and rendersettings node parameters
+Cohesion: 0.11
+Nodes (17): Categories, Copernicus COP, Houdini / HDA Python API, How to Use This File, Known Pitfalls Log, OPEN -- Asking questions already answered in Galaxia documentation, OPEN -- `hda_node.setParmTemplateGroup()` does NOT persist into HDA file, OPEN -- menuType.Normal with item generator renders as full combobox, not text+arrow (+9 more)
 
 ### Community 51 - "Community 51"
-Cohesion: 1.0
-Nodes (1): Inspect USD Render node parameters
+Cohesion: 0.13
+Nodes (7): EnhancedLabel, Add hover glow effect., Remove hover glow effect., Apply or remove hover visual feedback., Intercept label interactions., Enhanced QLabel with Houdini parameter polish features:     - Hover effects (li, Update visual style based on hover state.
 
 ### Community 52 - "Community 52"
-Cohesion: 1.0
-Nodes (1): List LOP node types related to rendering
-
-### Community 53 - "Community 53"
-Cohesion: 1.0
-Nodes (1): List available ROP node types in Houdini
+Cohesion: 0.18
+Nodes (9): MessageHandler, Handle batch of commands, Check if command modifies scene state, Generate human-readable command description, Handles incoming messages and routes to appropriate handlers, Generate preview of command effects, Handle binary MessagePack message.                  Args:             data: M, Handle decoded message and return response.                  Args: (+1 more)
 
 ### Community 54 - "Community 54"
-Cohesion: 1.0
-Nodes (1): Test script to verify pf_kitbash node type name Run in Houdini Python Shell
+Cohesion: 0.14
+Nodes (3): PyIcon, PyLeftMenuButton, QPixmap
 
 ### Community 55 - "Community 55"
-Cohesion: 1.0
-Nodes (1): Test script to manually open the kitbash Python Panel Run in Houdini Python She
+Cohesion: 0.14
+Nodes (9): ParmFloat, Handle value change from InputField., Update widget from parameter value., Update visual feedback for expression state., Reset parameter to default value (Ctrl+MMB on label)., Toggle slider visibility (LMB on label)., Float parameter widget using Enhanced InputField with slider.          Combine, Convert float value to slider position (0-1000). (+1 more)
 
 ### Community 56 - "Community 56"
-Cohesion: 1.0
-Nodes (1): Quick test to verify USD export and lighting template
+Cohesion: 0.13
+Nodes (7): ParmTuple, ParmColor, Color picker widget using Houdini's native ColorField., Handle color change from ColorField., Update widget from parameter value., Update visual feedback for expression state., Reset parameter to default value (Ctrl+MMB on label).
 
-### Community 58 - "Community 58"
-Cohesion: 2.0
-Nodes (1): Polyfactory UI Framework =========================  Modern Qt widget library
+### Community 60 - "Community 60"
+Cohesion: 0.17
+Nodes (12): createViewerStateTemplate(), _ground_plane_hit(), _normal_to_euler(), Asset Placement Viewer State for pf_asset_place HDA.  Two modes (toggle with Q, Intersect against ONLY the geometry connected to SOP input 0.          Input g, Raycast against input geometry only, set t/r parms on node., Return XYZ Euler angles (degrees) that rotate +Y to align with normal.      Bu, Intersect ray with Y=0 ground plane. Returns hit position or None. (+4 more)
 
-### Community 59 - "Community 59"
-Cohesion: 2.0
-Nodes (1): Viewer utilities for Houdini viewer states Reusable library components for rayc
+### Community 61 - "Community 61"
+Cohesion: 0.14
+Nodes (6): AssetGroupRow, Asset Group Row widget used by the inline batch mode in AssetExportDialog., Returns the per-row name, or empty string if blank (caller applies dialog-level, Fill in category/tags only if the prim had no attributes for them., Update the status dot to reflect export progress.          Args:, One row in the detected-assets list.      Displays a checkbox, sequential inde
+
+### Community 62 - "Community 62"
+Cohesion: 0.20
+Nodes (10): Command Executor - Handles AI agent commands in Houdini session  Supports: -, Houdini Bridge - AI Agent WebSocket Server  Enables AI agents in VS Code to co, Message Handler - Processes WebSocket messages with MessagePack  Protocol: -, get_server(), Bridge Server - WebSocket server for AI agent communication  Uses synchronous, Get or create global server instance (survives module reload), Start global server instance, Stop global server instance (+2 more)
+
+### Community 63 - "Community 63"
+Cohesion: 0.19
+Nodes (12): _aabbs_overlap(), detect_asset_groups(), next_free_filename(), Batch Kitbash Importer - AABB-based asset detection and batch export backend, Find the next available numbered filename (no extension).      Scans both the, Detect asset groups in a SOP node using connectivity + AABB overlap.      Each, Return True if two AABBs (min_x,min_y,min_z,max_x,max_y,max_z) overlap., Read a string primitive attribute value; return default if absent. (+4 more)
+
+### Community 64 - "Community 64"
+Cohesion: 0.26
+Nodes (3): Settings, PyWindow, Styles
+
+### Community 65 - "Community 65"
+Cohesion: 0.18
+Nodes (3): PyLeftButton, _ToolTip, QPushButton
 
 ### Community 67 - "Community 67"
-Cohesion: 1.0
-Nodes (1): Create a pf_asset_place node in the current network, wire it to the         cur
+Cohesion: 0.11
+Nodes (15): AssetBrowserDialog, AssetDropHandler, _handle_drop(), Asset Browser UI - Grid view of assets with search and filtering, Standalone asset browser dialog, Double-click in the floating browser: create and connect the         asset plac, Show the asset browser dialog, Handles drops from the asset browser onto Houdini's viewport or network     edi (+7 more)
+
+### Community 69 - "Community 69"
+Cohesion: 0.18
+Nodes (8): createInterface(), KitbashNodeUI, Kitbash HDA UI - Python Panel interface for pf_kitbash node  NEW WORKFLOW: -, Main UI for pf_kitbash node, Handle placed assets group box toggle, Refresh the UI - called when pane becomes active, Add selected asset from browser to library multiparm, Entry point for Python Panel UI.     Called by Houdini when creating the interf
+
+### Community 70 - "Community 70"
+Cohesion: 0.33
+Nodes (5): 123.py - Auto-loaded on Houdini startup Registers custom viewer states, Register all Polyfactory viewer states, Auto-start the Houdini Bridge (AI-agent control) on interactive launch.      `, register_viewer_states(), start_bridge_server()
+
+### Community 72 - "Community 72"
+Cohesion: 0.20
+Nodes (8): Asset Place HDA UI - Python Panel for pf_asset_place node.  Shows the full ass, apply_houdini_font(), get_font_stylesheet(), get_houdini_font(), UI utilities for matching Houdini's font sizes and scaling, Get Houdini's default application font.          Returns:         QFont objec, Generate font stylesheet matching Houdini's scaling.          Args:         s, Apply Houdini's font to a widget with optional size override.          Args:
+
+### Community 73 - "Community 73"
+Cohesion: 0.31
+Nodes (5): Initialize UI components that require a node, Update the node reference - called when node path changes, get_scaled_font_size(), Get font size scaled to match Houdini's UI scaling.          Args:         ba, SopNode
+
+### Community 74 - "Community 74"
+Cohesion: 0.14
+Nodes (6): PyCircularProgress, _ToolTip, _ToolTip, QColor, QLabel, Set background color for expression state.
+
+### Community 75 - "Community 75"
+Cohesion: 0.19
+Nodes (11): SQLite database management for asset library, Asset Library Module for Polyfactory Handles kitbash asset management, export,, _cleanup(), _create_render_scene(), Turntable Renderer - Creates rotating preview animations for assets, Render frames using viewport flipbook          Args:         lop_net: LOP net, Remove temporary nodes and panes          Args:         temp_nodes: List of n, Render a turntable animation of the geometry          Args:         geo_node: (+3 more)
+
+### Community 76 - "Community 76"
+Cohesion: 0.25
+Nodes (5): Handle export button click, acquire_shared_panel(), Create a shared floating panel for batch renders.      Call once before starti, Close the shared panel acquired by acquire_shared_panel().      Call once afte, release_shared_panel()
+
+### Community 77 - "Community 77"
+Cohesion: 0.19
+Nodes (7): ApprovalManager, _display_message(), Request approval for batch of commands.                  Returns list of appro, hou.ui.displayMessage marshaled onto the main thread. Approval runs on the, Manages command approval flow with UI dialogs, Check if command requires user approval, Show approval dialog to user.                  Args:             command: Com
+
+### Community 78 - "Community 78"
+Cohesion: 0.24
+Nodes (4): HoverOutlineMixin, PyLineEdit, Fallback if hover_outline not available, QLineEdit
+
+### Community 80 - "Community 80"
+Cohesion: 0.25
+Nodes (6): Export UI Panel for Asset Library, Show the export dialog with current selection          Args:         parent:, show_export_dialog(), export_selected_to_library(), Hotkey command script to open asset export dialog This script can be bound to a, Main function to trigger asset export dialog
+
+### Community 81 - "Community 81"
+Cohesion: 0.32
+Nodes (5): PlacedAssetsListWidget, Widget displaying list of placed assets with controls, Refresh asset list from multiparm, Delete asset from multiparm, Poll for parameter changes from external sources
+
+### Community 83 - "Community 83"
+Cohesion: 0.25
+Nodes (7): 1. The rig — use Otto (native, skinned biped), 2. Rigging YOUR OWN character meshes, 3. Pose library (native — this is the "pose library" answer), 4. Animation sources, 5. Retargeting workflow (any source → Otto/custom), Canonical docs, Done when
+
+### Community 84 - "Community 84"
+Cohesion: 0.25
+Nodes (7): Attribution, Credits, Modifications, Polyfactory Integration, Polyfactory UI Framework, Structure, Usage in Polyfactory
+
+### Community 85 - "Community 85"
+Cohesion: 0.29
+Nodes (6): 1. Install MCP server deps (one time), 2. Start the in-Houdini bridge, 3. Register the MCP server with your client, Houdini Bridge MCP — Setup, Notes, Tools
+
+### Community 86 - "Community 86"
+Cohesion: 0.29
+Nodes (6): Done when, Learn the format from real nodes (don't guess), Skill: Document a custom HDA (so it's discoverable), Style, The format (Houdini wiki markup), Where the help goes
+
+### Community 87 - "Community 87"
+Cohesion: 0.29
+Nodes (4): ParmString, Update visual feedback for expression state., String input widget with enhanced label., Reset parameter to default value (Ctrl+MMB on label).
+
+### Community 88 - "Community 88"
+Cohesion: 0.20
+Nodes (10): houdini_delete_node(), houdini_read_network(), houdini_save_scene(), houdini_save_skill(), Read a whole network as structured Recipe data (hou.data). Pass     `parent_path, Delete the node at `node_path`. Destructive — confirm the path (e.g. with     h, Read a whole network as structured Recipe data (hou.data). Pass     `parent_pat, Save the current .hip (to `filepath` if given, else in place). (+2 more)
+
+### Community 90 - "Community 90"
+Cohesion: 0.50
+Nodes (3): Conventions, Houdini bridge — Skills, Skill file format
+
+### Community 91 - "Community 91"
+Cohesion: 0.28
+Nodes (3): Ui_RightColumn, object, Ui_MainPages
+
+### Community 97 - "Community 97"
+Cohesion: 0.50
+Nodes (4): Enum, ApprovalMode, Approval System - Safety controls for AI commands  Modes: - AUTO: Execute rea, Command approval modes for safety
 
 ## Knowledge Gaps
-- **462 isolated node(s):** `Galaxia Module Scaffolder for Blender.  Usage:     Set MODULE_ID at the top,`, `Extract ship class, size, height from a module id string.`, `Place CP_D# ARROWS empties at the centre of each face, pointing outward (+Z).`, `Send command to Houdini Bridge and return response`, `Script to create the pf_kitbash HDA Run this in Houdini Python shell to create` (+457 more)
+- **308 isolated node(s):** `Project Overview`, `Package Structure`, `Environment Variables`, `Temporary / One-Off Scripts`, `Houdini Bridge - AI Agent Integration` (+303 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **Thin community `Community 24`** (11 nodes): `MainFunctions`, `.get_left_menu_btn()`, `.get_title_bar_btn()`, `.left_column_is_visible()`, `.right_column_is_visible()`, `.set_left_column_menu()`, `.set_page()`, `.set_right_column_menu()`, `.start_box_animation()`, `.toggle_left_column()`, `.toggle_right_column()`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 45`** (3 nodes): `copilot_houdini_helper.py`, `Send command to Houdini Bridge and return response`, `send_command()`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 46`** (3 nodes): `handle_connection()`, `test_websocket_minimal.py`, `Minimal WebSocket server test in Houdini  Run this in Houdini Python Shell to`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 47`** (2 nodes): `create_pf_asset_place_hda.py`, `Create pf_asset_place SOP HDA.  Run in Houdini Python Shell:     execfile(r'f`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 48`** (2 nodes): `create_pf_asset_tag_hda.py`, `Create pf_asset_tag SOP HDA.  Run in Houdini Python Shell:     execfile(r'f:/pro`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 49`** (2 nodes): `debug_usd_stage.py`, `Debug USD stage composition - check what's actually in the turntable render scen`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 50`** (2 nodes): `inspect_render_nodes.py`, `Inspect renderproduct and rendersettings node parameters`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 51`** (2 nodes): `inspect_usdrender.py`, `Inspect USD Render node parameters`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 52`** (2 nodes): `list_lop_nodes.py`, `List LOP node types related to rendering`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 53`** (2 nodes): `list_rop_nodes.py`, `List available ROP node types in Houdini`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 54`** (2 nodes): `test_kitbash_node_type.py`, `Test script to verify pf_kitbash node type name Run in Houdini Python Shell`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 55`** (2 nodes): `test_open_kitbash_panel.py`, `Test script to manually open the kitbash Python Panel Run in Houdini Python She`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 56`** (2 nodes): `test_usd_setup.py`, `Quick test to verify USD export and lighting template`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 58`** (2 nodes): `__init__.py`, `Polyfactory UI Framework =========================  Modern Qt widget library`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 59`** (2 nodes): `__init__.py`, `Viewer utilities for Houdini viewer states Reusable library components for rayc`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 67`** (1 nodes): `Create a pf_asset_place node in the current network, wire it to the         cur`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **14 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `HoverOutlineMixin` connect `Community 0` to `Community 7`?**
-  _High betweenness centrality (0.119) - this node is a cross-community bridge._
-- **Why does `AssetDatabase` connect `Community 0` to `Community 3`?**
-  _High betweenness centrality (0.093) - this node is a cross-community bridge._
-- **Why does `PyPushButton` connect `Community 0` to `Community 2`, `Community 3`, `Community 6`, `Community 7`?**
-  _High betweenness centrality (0.084) - this node is a cross-community bridge._
-- **Are the 16 inferred relationships involving `AssetBrowserWidget` (e.g. with `AssetPlaceNodeUI` and `PyPushButton`) actually correct?**
+- **Why does `HoverOutlineMixin` connect `Community 37` to `Community 32`, `Community 0`, `Community 34`, `Community 36`, `Community 69`, `Community 7`, `Community 78`, `Community 15`, `Community 81`, `Community 59`?**
+  _High betweenness centrality (0.071) - this node is a cross-community bridge._
+- **Why does `PyPushButton` connect `Community 36` to `Community 32`, `Community 0`, `Community 65`, `Community 67`, `Community 69`, `Community 7`, `Community 72`, `Community 73`, `Community 43`, `Community 78`, `Community 47`, `Community 81`, `Community 24`?**
+  _High betweenness centrality (0.063) - this node is a cross-community bridge._
+- **Why does `AssetBrowserWidget` connect `Community 0` to `Community 32`, `Community 34`, `Community 67`, `Community 36`, `Community 69`, `Community 7`, `Community 73`, `Community 78`, `Community 81`, `Community 18`, `Community 23`, `Community 59`?**
+  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+- **Are the 16 inferred relationships involving `AssetBrowserWidget` (e.g. with `AssetPlaceNodeUI` and `._setup_ui()`) actually correct?**
   _`AssetBrowserWidget` has 16 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 15 inferred relationships involving `TagInputWidget` (e.g. with `HoverSlider` and `HoverComboBox`) actually correct?**
+- **Are the 15 inferred relationships involving `TagInputWidget` (e.g. with `AssetInfoPanel` and `._setup_ui()`) actually correct?**
   _`TagInputWidget` has 15 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 12 inferred relationships involving `AssetDatabase` (e.g. with `AssetBrowserWidget` and `AssetBrowserDialog`) actually correct?**
+- **Are the 12 inferred relationships involving `AssetDatabase` (e.g. with `next_free_filename()` and `AssetBrowserDialog`) actually correct?**
   _`AssetDatabase` has 12 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 7 inferred relationships involving `AssetInfoPanel` (e.g. with `PyPushButton` and `HoverOutlineMixin`) actually correct?**
-  _`AssetInfoPanel` has 7 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 19 inferred relationships involving `PyPushButton` (e.g. with `AssetInfoPanel` and `._setup_ui()`) actually correct?**
+  _`PyPushButton` has 19 INFERRED edges - model-reasoned connections that need verification._

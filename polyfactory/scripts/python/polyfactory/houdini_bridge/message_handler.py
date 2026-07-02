@@ -34,18 +34,21 @@ class MessageHandler:
         try:
             message = msgpack.unpackb(data, raw=False)
             response = self.handle_message(message)
-            
+
             # CRITICAL: Preserve message ID for request/response matching
             if 'id' in message:
                 response['id'] = message['id']
-            
-            return msgpack.packb(response, use_bin_type=True)
+
+            # default=str: a command result may contain non-primitive objects
+            # (hou.Node, ramp values, enums). Fall back to their repr instead of
+            # raising a pack error that would masquerade as a decoding error.
+            return msgpack.packb(response, use_bin_type=True, default=str)
         except Exception as e:
             error_response = {
                 'success': False,
-                'error': f"Message decoding error: {str(e)}"
+                'error': f"Message handling error: {str(e)}"
             }
-            return msgpack.packb(error_response, use_bin_type=True)
+            return msgpack.packb(error_response, use_bin_type=True, default=str)
     
     def handle_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -158,6 +161,7 @@ class MessageHandler:
             'delete_node',
             'set_parameter',
             'execute_python',
+            'write_network',
             'load_scene'
         }
         return command.get('type') in destructive_types

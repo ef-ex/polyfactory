@@ -7,6 +7,7 @@ Modes:
 - DESTRUCTIVE: Always confirm operations that modify scene
 """
 
+import threading
 from enum import Enum
 from typing import Callable, Optional, Dict, Any
 
@@ -14,6 +15,21 @@ try:
     import hou
 except ImportError:
     hou = None
+
+try:
+    import hdefereval  # Houdini-only: marshal UI dialogs onto the main thread
+except ImportError:
+    hdefereval = None
+
+
+def _display_message(*args, **kwargs) -> int:
+    """hou.ui.displayMessage marshaled onto the main thread. Approval runs on the
+    background socket thread, and Qt dialogs must be shown from the main thread."""
+    def show():
+        return hou.ui.displayMessage(*args, **kwargs)
+    if hdefereval is not None and threading.current_thread() is not threading.main_thread():
+        return hdefereval.executeInMainThreadWithResult(show)
+    return show()
 
 
 class ApprovalMode(Enum):
@@ -70,7 +86,7 @@ class ApprovalManager:
         severity = hou.severityType.Warning if is_destructive else hou.severityType.Message
         message = f"AI Agent Request:\n\n{command}\n\n{preview}\n\nExecute this operation?"
         
-        result = hou.ui.displayMessage(
+        result = _display_message(
             message,
             buttons=("Execute", "Cancel"),
             severity=severity,
@@ -99,7 +115,7 @@ class ApprovalManager:
         
         message = f"AI Agent Batch Request ({len(commands)} operations):\n\n{preview_text}\n\nExecute all?"
         
-        result = hou.ui.displayMessage(
+        result = _display_message(
             message,
             buttons=("Execute All", "Review Each", "Cancel All"),
             severity=hou.severityType.Message,

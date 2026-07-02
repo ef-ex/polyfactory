@@ -9,12 +9,18 @@ Supports:
 """
 
 from typing import Dict, Any, Optional, List
+import threading
 import traceback
 
 try:
     import hou
 except ImportError:
     hou = None
+
+try:
+    import hdefereval  # Houdini-only: marshal work onto the main thread
+except ImportError:
+    hdefereval = None
 
 
 class CommandExecutor:
@@ -25,17 +31,38 @@ class CommandExecutor:
         self.last_selection: Optional[List] = None
         
     def execute(self, command: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Execute a command and return result.
-        
-        Args:
-            command: Dict with 'type' and command-specific parameters
-            
-        Returns:
-            Result dict with 'success', 'data', and optional 'error'
+        """Execute a command on Houdini's MAIN thread and return the result.
+
+        The bridge handles connections on a background socket thread, but the HOM
+        API is not thread-safe: touching `hou` from a background thread can crash
+        Houdini intermittently (cooks, UI, GL). We marshal every command onto the
+        main thread via hdefereval so callers don't have to.
+
+        `execute_python` is the one exception — it stays on the calling thread.
+        It is the escape hatch where the caller owns thread-safety and may marshal
+        GL/viewport work to the main thread itself (see render_view). Marshaling it
+        here would deadlock that executeDeferred()+wait() pattern.
         """
         cmd_type = command.get('type')
-        
+
+        if (hou is not None and hdefereval is not None
+                and cmd_type != 'execute_python'
+                and threading.current_thread() is not threading.main_thread()):
+            try:
+                return hdefereval.executeInMainThreadWithResult(
+                    self._execute_impl, command)
+            except Exception as e:
+                return {
+                    'success': False,
+                    'error': f"Main-thread execution failed: {e}",
+                    'traceback': traceback.format_exc(),
+                }
+        return self._execute_impl(command)
+
+    def _execute_impl(self, command: Dict[str, Any]) -> Dict[str, Any]:
+        """Route a command to its handler. Runs on the main thread (see execute)."""
+        cmd_type = command.get('type')
+
         try:
             # Route to appropriate handler
             if cmd_type == 'create_node':
@@ -250,8 +277,12 @@ class CommandExecutor:
             'parameters': {}
         }
         
-        # Get all parameters
+        # Get parameters (optionally only those changed from their defaults —
+        # far less output on large HDAs).
+        non_default_only = command.get('non_default_only', False)
         for parm in node.parms():
+            if non_default_only and parm.isAtDefault():
+                continue
             info['parameters'][parm.name()] = {
                 'value': parm.eval(),
                 'label': parm.description(),
@@ -281,20 +312,19 @@ class CommandExecutor:
         
         # Capture stdout for print statements
         import io
-        import sys
+        import contextlib
         stdout_capture = io.StringIO()
-        old_stdout = sys.stdout
-        sys.stdout = stdout_capture
-        
+
         try:
-            exec(code, namespace)
-            
+            with contextlib.redirect_stdout(stdout_capture):
+                exec(code, namespace)
+
             # Extract result if 'result' variable was set
             result = namespace.get('result', None)
-            
+
             # Get captured output
             output = stdout_capture.getvalue()
-            
+
             return {
                 'success': True,
                 'data': {
@@ -308,8 +338,6 @@ class CommandExecutor:
                 'error': str(e),
                 'traceback': traceback.format_exc()
             }
-        finally:
-            sys.stdout = old_stdout
     
     # File Operations
     

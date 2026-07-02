@@ -129,10 +129,25 @@ def houdini_set_parameter(node_path: str, parameter: str, value: Any) -> Dict[st
 
 
 @mcp.tool()
-def houdini_get_node_info(node_path: str) -> Dict[str, Any]:
-    """Read a node's type, position, and all parameters. Ground yourself in real
-    state before editing and verify after."""
-    return _call("get_node_info", node_path=node_path)
+def houdini_get_node_info(node_path: str, non_default_only: bool = False) -> Dict[str, Any]:
+    """Read a node's type, position, and parameters. Ground yourself in real state
+    before editing and verify after. Set `non_default_only=True` to return only
+    parameters changed from their defaults — far less output on large HDAs."""
+    return _call("get_node_info", node_path=node_path, non_default_only=non_default_only)
+
+
+@mcp.tool()
+def houdini_get_parameter(node_path: str, parameter: str) -> Dict[str, Any]:
+    """Read one parameter's evaluated value. Cheaper than houdini_get_node_info
+    when you only need a single value."""
+    return _call("get_parameter", node_path=node_path, parameter=parameter)
+
+
+@mcp.tool()
+def houdini_delete_node(node_path: str) -> Dict[str, Any]:
+    """Delete the node at `node_path`. Destructive — confirm the path (e.g. with
+    houdini_get_node_info) before calling."""
+    return _call("delete_node", node_path=node_path)
 
 
 @mcp.tool()
@@ -182,24 +197,31 @@ def houdini_doc(path: str, max_chars: int = 8000) -> Dict[str, Any]:
 
     Returns readable text (HTML stripped), capped at max_chars. Requires Houdini
     to be open; does NOT require the bridge server."""
-    base = _help_base()
-    if not base:
-        return {"ok": False, "error": "Houdini help server not reachable on "
-                "127.0.0.1:48626(+). Is Houdini open?"}
-    url = f"{base}/{path.lstrip('/')}"
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "houdini-mcp"})
-        with urllib.request.urlopen(req, timeout=8) as r:
-            ctype = r.headers.get("Content-Type", "")
-            raw = r.read().decode("utf-8", "replace")
-    except urllib.error.HTTPError as e:
-        return {"ok": False, "url": url, "error": f"HTTP {e.code} - wrong path? "
-                "Discover node types via the bridge or try a known scheme."}
-    except Exception as e:
-        return {"ok": False, "url": url, "error": str(e)}
-    text = _html_to_text(raw) if "html" in ctype else raw
-    return {"ok": True, "url": url, "truncated": len(text) > max_chars,
-            "text": text[:max_chars]}
+    global _help_base_cache
+    for attempt in (1, 2):
+        base = _help_base()
+        if not base:
+            return {"ok": False, "error": "Houdini help server not reachable on "
+                    "127.0.0.1:48626(+). Is Houdini open?"}
+        url = f"{base}/{path.lstrip('/')}"
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "houdini-mcp"})
+            with urllib.request.urlopen(req, timeout=8) as r:
+                ctype = r.headers.get("Content-Type", "")
+                raw = r.read().decode("utf-8", "replace")
+        except urllib.error.HTTPError as e:
+            return {"ok": False, "url": url, "error": f"HTTP {e.code} - wrong path? "
+                    "Discover node types via the bridge or try a known scheme."}
+        except Exception as e:
+            # Connection failed — the cached port may be stale (Houdini restarted
+            # on a different help port). Drop the cache and re-probe once.
+            if attempt == 1:
+                _help_base_cache = None
+                continue
+            return {"ok": False, "url": url, "error": str(e)}
+        text = _html_to_text(raw) if "html" in ctype else raw
+        return {"ok": True, "url": url, "truncated": len(text) > max_chars,
+                "text": text[:max_chars]}
 
 
 @mcp.tool()
