@@ -85,6 +85,12 @@ class CommandExecutor:
                 return self._read_network(command)
             elif cmd_type == 'write_network':
                 return self._write_network(command)
+            elif cmd_type == 'get_errors':
+                return self._get_errors(command)
+            elif cmd_type == 'validate_vex':
+                return self._validate_vex(command)
+            elif cmd_type == 'validate_opencl':
+                return self._validate_opencl(command)
             elif cmd_type == 'save_scene':
                 return self._save_scene(command)
             elif cmd_type == 'load_scene':
@@ -477,3 +483,222 @@ class CommandExecutor:
                 'parent_path': parent_path
             }
         }
+
+    # Diagnostics
+
+    def _get_errors(self, command: Dict[str, Any]) -> Dict[str, Any]:
+        """Collect cook errors/warnings from nodes.
+
+        node_path given -> that node's subtree (recurse=True by default).
+        No node_path -> sweep the common context roots. Only nodes that HAVE
+        errors/warnings are returned, so output stays small on healthy scenes.
+        """
+        if not hou:
+            return {'success': False, 'error': 'Houdini not available'}
+
+        node_path = command.get('node_path')
+        recurse = command.get('recurse', True)
+        cook_first = command.get('cook_first', False)
+        include_warnings = command.get('include_warnings', True)
+        max_results = command.get('max_results', 100)
+
+        if node_path:
+            root = hou.node(node_path)
+            if not root:
+                return {'success': False, 'error': f"Node not found: {node_path}"}
+            if cook_first:
+                try:
+                    root.cook(force=True)
+                except Exception:
+                    pass  # the error we're after lands on the node(s)
+            roots = [root]
+        else:
+            roots = [n for n in (hou.node(p) for p in
+                     ('/obj', '/stage', '/mat', '/out', '/img', '/tasks')) if n]
+
+        findings = []
+        visited = 0
+        truncated = False
+        stack = list(roots)
+        while stack:
+            node = stack.pop()
+            visited += 1
+            if visited > 20000:
+                truncated = True
+                break
+            errors = list(node.errors())
+            warnings = list(node.warnings()) if include_warnings else []
+            if errors or warnings:
+                findings.append({
+                    'path': node.path(),
+                    'type': node.type().name(),
+                    'errors': errors,
+                    'warnings': warnings,
+                })
+                if len(findings) >= max_results:
+                    truncated = True
+                    break
+            if recurse:
+                stack.extend(node.children())
+
+        return {
+            'success': True,
+            'data': {
+                'findings': findings,
+                'nodes_with_issues': len(findings),
+                'nodes_scanned': visited,
+                'truncated': truncated,
+            }
+        }
+
+    def _validate_vex(self, command: Dict[str, Any]) -> Dict[str, Any]:
+        """Compile a VEX snippet in a throwaway attribwrangle and return the
+        real compiler errors/warnings. Temp nodes are undo-disabled and
+        destroyed afterwards, so the scene is left untouched.
+        """
+        if not hou:
+            return {'success': False, 'error': 'Houdini not available'}
+
+        snippet = command.get('snippet')
+        if not snippet:
+            return {'success': False, 'error': 'snippet is required'}
+        run_over = str(command.get('run_over', 'points'))
+        input_node_path = command.get('input_node')
+
+        with hou.undos.disabler():
+            container = None
+            wrangle = None
+            try:
+                if input_node_path:
+                    src = hou.node(input_node_path)
+                    if not src:
+                        return {'success': False,
+                                'error': f"Input node not found: {input_node_path}"}
+                    if not isinstance(src, hou.SopNode):
+                        return {'success': False,
+                                'error': f"input_node must be a SOP node: {input_node_path}"}
+                    wrangle = src.parent().createNode(
+                        'attribwrangle', '__bridge_vex_validate')
+                    wrangle.setInput(0, src)
+                else:
+                    # Small grid so the snippet runs over real elements.
+                    container = hou.node('/obj').createNode(
+                        'geo', '__bridge_vex_validate')
+                    grid = container.createNode('grid')
+                    grid.parm('rows').set(3)
+                    grid.parm('cols').set(3)
+                    wrangle = container.createNode('attribwrangle')
+                    wrangle.setInput(0, grid)
+
+                # Resolve the Run Over menu token from the friendly name by
+                # prefix-matching the node's real menu (tokens vary across
+                # Houdini versions).
+                class_parm = wrangle.parm('class')
+                tokens = list(class_parm.menuItems())
+                prefix = run_over.lower()[:4]
+                token = next(
+                    (t for t in tokens if t.lower().startswith(prefix)), None)
+                if token:
+                    class_parm.set(token)
+
+                wrangle.parm('snippet').set(snippet)
+                try:
+                    wrangle.cook(force=True)
+                except Exception:
+                    pass  # compile errors are read off the node below
+
+                errors = list(wrangle.errors())
+                warnings = list(wrangle.warnings())
+                data = {
+                    'ok': not errors,
+                    'errors': errors,
+                    'warnings': warnings,
+                    'run_over': token if token else
+                        f"unresolved '{run_over}' - node default used (menu: {tokens})",
+                }
+                if not errors:
+                    geo = wrangle.geometry()
+                    if geo is not None:
+                        data['result_geometry'] = {
+                            'points': geo.intrinsicValue('pointcount'),
+                            'prims': geo.intrinsicValue('primitivecount'),
+                            'point_attribs': [a.name() for a in geo.pointAttribs()],
+                            'prim_attribs': [a.name() for a in geo.primAttribs()],
+                            'detail_attribs': [a.name() for a in geo.globalAttribs()],
+                        }
+                return {'success': True, 'data': data}
+            finally:
+                try:
+                    if container is not None:
+                        container.destroy()   # takes the wrangle with it
+                    elif wrangle is not None:
+                        wrangle.destroy()
+                except Exception as e:
+                    print(f"[Bridge] validate_vex cleanup failed: {e}")
+
+    def _validate_opencl(self, command: Dict[str, Any]) -> Dict[str, Any]:
+        """Compile an OpenCL (Copernicus COP) kernel in a throwaway opencl node
+        and return the real compiler/binding errors. Temp nodes are
+        undo-disabled and destroyed afterwards, so the scene is left untouched.
+
+        The kernel must be complete kernelcode including its #bind directives
+        and a writable output bind (e.g. '#bind layer !&dst float') — without
+        one the node fails at binding before the compiler even runs.
+        """
+        if not hou:
+            return {'success': False, 'error': 'Houdini not available'}
+
+        kernel = command.get('kernel')
+        if not kernel:
+            return {'success': False, 'error': 'kernel is required'}
+        input_node_path = command.get('input_node')
+
+        with hou.undos.disabler():
+            container = None
+            ocl = None
+            try:
+                if input_node_path:
+                    src = hou.node(input_node_path)
+                    if not src:
+                        return {'success': False,
+                                'error': f"Input node not found: {input_node_path}"}
+                    if src.type().category().name() != 'Cop':
+                        return {'success': False,
+                                'error': "input_node must be a COP (Copernicus) "
+                                         f"node: {input_node_path}"}
+                    ocl = src.parent().createNode(
+                        'opencl', '__bridge_ocl_validate')
+                    ocl.setInput(0, src)
+                else:
+                    parent = hou.node('/img') or hou.node('/obj')
+                    if parent is None:
+                        return {'success': False,
+                                'error': 'No /img or /obj root to build in'}
+                    container = parent.createNode(
+                        'copnet', '__bridge_ocl_validate')
+                    ocl = container.createNode('opencl')
+
+                ocl.parm('kernelcode').set(kernel)
+                try:
+                    ocl.cook(force=True)
+                except Exception:
+                    pass  # compile/binding errors are read off the node below
+
+                errors = list(ocl.errors())
+                warnings = list(ocl.warnings())
+                return {
+                    'success': True,
+                    'data': {
+                        'ok': not errors,
+                        'errors': errors,
+                        'warnings': warnings,
+                    }
+                }
+            finally:
+                try:
+                    if container is not None:
+                        container.destroy()   # takes the opencl node with it
+                    elif ocl is not None:
+                        ocl.destroy()
+                except Exception as e:
+                    print(f"[Bridge] validate_opencl cleanup failed: {e}")

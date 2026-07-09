@@ -1580,7 +1580,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "asset_library_batch_importer_export_batch_group",
-      "community": 3,
+      "community": 63,
       "norm_label": "export_batch_group()"
     },
     {
@@ -1670,7 +1670,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_221",
-      "community": 3,
+      "community": 63,
       "norm_label": "export a single asset group detected by detect_asset_groups.      converts pri"
     },
     {
@@ -2860,7 +2860,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_setup_ui",
-      "community": 78,
+      "community": 67,
       "norm_label": "._setup_ui()"
     },
     {
@@ -3180,7 +3180,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "node",
-      "community": 3,
+      "community": 15,
       "norm_label": "node"
     },
     {
@@ -3330,7 +3330,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "object",
-      "community": 91,
+      "community": 64,
       "norm_label": "object"
     },
     {
@@ -4727,7 +4727,7 @@
       "label": "._create_node()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L111",
+      "source_location": "L117",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_create_node",
       "community": 4,
@@ -4737,7 +4737,7 @@
       "label": "._delete_node()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L142",
+      "source_location": "L148",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_delete_node",
       "community": 4,
@@ -4747,7 +4747,7 @@
       "label": "._set_parameter()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L160",
+      "source_location": "L166",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_set_parameter",
       "community": 4,
@@ -4757,7 +4757,7 @@
       "label": "._get_parameter()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L188",
+      "source_location": "L194",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_get_parameter",
       "community": 4,
@@ -4767,7 +4767,7 @@
       "label": "._get_selection()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L215",
+      "source_location": "L221",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_get_selection",
       "community": 4,
@@ -4777,7 +4777,7 @@
       "label": "._select_nodes()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L231",
+      "source_location": "L237",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_select_nodes",
       "community": 4,
@@ -4787,7 +4787,7 @@
       "label": "._get_node_info()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L259",
+      "source_location": "L265",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_get_node_info",
       "community": 4,
@@ -4797,7 +4797,7 @@
       "label": "._execute_python()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L299",
+      "source_location": "L305",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_execute_python",
       "community": 4,
@@ -4807,7 +4807,7 @@
       "label": "._save_scene()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L344",
+      "source_location": "L350",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_save_scene",
       "community": 4,
@@ -4817,7 +4817,7 @@
       "label": "._load_scene()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L361",
+      "source_location": "L367",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_load_scene",
       "community": 4,
@@ -4827,7 +4827,7 @@
       "label": "._get_session_state()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L377",
+      "source_location": "L383",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_get_session_state",
       "community": 4,
@@ -4837,7 +4837,7 @@
       "label": "._set_session_state()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L393",
+      "source_location": "L399",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_set_session_state",
       "community": 4,
@@ -4847,7 +4847,7 @@
       "label": "._read_network()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L407",
+      "source_location": "L413",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_read_network",
       "community": 4,
@@ -4857,11 +4857,41 @@
       "label": "._write_network()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L446",
+      "source_location": "L452",
       "_origin": "ast",
       "id": "houdini_bridge_commands_commandexecutor_write_network",
       "community": 4,
       "norm_label": "._write_network()"
+    },
+    {
+      "label": "._get_errors()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L489",
+      "_origin": "ast",
+      "id": "houdini_bridge_commands_commandexecutor_get_errors",
+      "community": 4,
+      "norm_label": "._get_errors()"
+    },
+    {
+      "label": "._validate_vex()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L554",
+      "_origin": "ast",
+      "id": "houdini_bridge_commands_commandexecutor_validate_vex",
+      "community": 4,
+      "norm_label": "._validate_vex()"
+    },
+    {
+      "label": "._validate_opencl()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L639",
+      "_origin": "ast",
+      "id": "houdini_bridge_commands_commandexecutor_validate_opencl",
+      "community": 4,
+      "norm_label": "._validate_opencl()"
     },
     {
       "label": "Command Executor - Handles AI agent commands in Houdini session  Supports: -",
@@ -4907,9 +4937,9 @@
       "label": "Set node parameter value",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L161",
+      "source_location": "L167",
       "_origin": "ast",
-      "id": "houdini_bridge_commands_rationale_161",
+      "id": "houdini_bridge_commands_rationale_167",
       "community": 4,
       "norm_label": "set node parameter value"
     },
@@ -4917,9 +4947,9 @@
       "label": "Get node parameter value",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L189",
+      "source_location": "L195",
       "_origin": "ast",
-      "id": "houdini_bridge_commands_rationale_189",
+      "id": "houdini_bridge_commands_rationale_195",
       "community": 4,
       "norm_label": "get node parameter value"
     },
@@ -4927,9 +4957,9 @@
       "label": "Get current node selection",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L216",
+      "source_location": "L222",
       "_origin": "ast",
-      "id": "houdini_bridge_commands_rationale_216",
+      "id": "houdini_bridge_commands_rationale_222",
       "community": 4,
       "norm_label": "get current node selection"
     },
@@ -4937,9 +4967,9 @@
       "label": "Get detailed node information",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L260",
+      "source_location": "L266",
       "_origin": "ast",
-      "id": "houdini_bridge_commands_rationale_260",
+      "id": "houdini_bridge_commands_rationale_266",
       "community": 4,
       "norm_label": "get detailed node information"
     },
@@ -4947,9 +4977,9 @@
       "label": "Execute arbitrary Python code (requires approval)",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L300",
+      "source_location": "L306",
       "_origin": "ast",
-      "id": "houdini_bridge_commands_rationale_300",
+      "id": "houdini_bridge_commands_rationale_306",
       "community": 4,
       "norm_label": "execute arbitrary python code (requires approval)"
     },
@@ -4957,9 +4987,9 @@
       "label": "Get session state variables",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L378",
+      "source_location": "L384",
       "_origin": "ast",
-      "id": "houdini_bridge_commands_rationale_378",
+      "id": "houdini_bridge_commands_rationale_384",
       "community": 4,
       "norm_label": "get session state variables"
     },
@@ -4967,9 +4997,9 @@
       "label": "Set session state variables",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L394",
+      "source_location": "L400",
       "_origin": "ast",
-      "id": "houdini_bridge_commands_rationale_394",
+      "id": "houdini_bridge_commands_rationale_400",
       "community": 4,
       "norm_label": "set session state variables"
     },
@@ -4977,9 +5007,9 @@
       "label": "Read a network as Houdini Recipe data using hou.data API.          If parent_p",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L408",
+      "source_location": "L414",
       "_origin": "ast",
-      "id": "houdini_bridge_commands_rationale_408",
+      "id": "houdini_bridge_commands_rationale_414",
       "community": 4,
       "norm_label": "read a network as houdini recipe data using hou.data api.          if parent_p"
     },
@@ -4987,11 +5017,41 @@
       "label": "Create a network from Houdini Recipe data using hou.data.createItemsFromData.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L447",
+      "source_location": "L453",
       "_origin": "ast",
-      "id": "houdini_bridge_commands_rationale_447",
+      "id": "houdini_bridge_commands_rationale_453",
       "community": 4,
       "norm_label": "create a network from houdini recipe data using hou.data.createitemsfromdata."
+    },
+    {
+      "label": "Collect cook errors/warnings from nodes.          node_path given -> that node",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L490",
+      "_origin": "ast",
+      "id": "houdini_bridge_commands_rationale_490",
+      "community": 4,
+      "norm_label": "collect cook errors/warnings from nodes.          node_path given -> that node"
+    },
+    {
+      "label": "Compile a VEX snippet in a throwaway attribwrangle and return the         real",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L555",
+      "_origin": "ast",
+      "id": "houdini_bridge_commands_rationale_555",
+      "community": 4,
+      "norm_label": "compile a vex snippet in a throwaway attribwrangle and return the         real"
+    },
+    {
+      "label": "Compile an OpenCL (Copernicus COP) kernel in a throwaway opencl node         an",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L640",
+      "_origin": "ast",
+      "id": "houdini_bridge_commands_rationale_640",
+      "community": 4,
+      "norm_label": "compile an opencl (copernicus cop) kernel in a throwaway opencl node         an"
     },
     {
       "label": "mcp_server.py",
@@ -5040,7 +5100,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_houdini_status",
-      "community": 20,
+      "community": 5,
       "norm_label": "houdini_status()"
     },
     {
@@ -5050,7 +5110,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_houdini_execute_python",
-      "community": 45,
+      "community": 20,
       "norm_label": "houdini_execute_python()"
     },
     {
@@ -5070,7 +5130,7 @@
       "source_location": "L126",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_houdini_set_parameter",
-      "community": 45,
+      "community": 5,
       "norm_label": "houdini_set_parameter()"
     },
     {
@@ -5100,7 +5160,7 @@
       "source_location": "L147",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_houdini_delete_node",
-      "community": 88,
+      "community": 45,
       "norm_label": "houdini_delete_node()"
     },
     {
@@ -5120,7 +5180,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_houdini_read_network",
-      "community": 88,
+      "community": 45,
       "norm_label": "houdini_read_network()"
     },
     {
@@ -5140,14 +5200,44 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_houdini_save_scene",
-      "community": 88,
+      "community": 45,
       "norm_label": "houdini_save_scene()"
+    },
+    {
+      "label": "houdini_get_errors()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L187",
+      "_origin": "ast",
+      "id": "houdini_bridge_mcp_server_houdini_get_errors",
+      "community": 45,
+      "norm_label": "houdini_get_errors()"
+    },
+    {
+      "label": "houdini_validate_vex()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L206",
+      "_origin": "ast",
+      "id": "houdini_bridge_mcp_server_houdini_validate_vex",
+      "community": 45,
+      "norm_label": "houdini_validate_vex()"
+    },
+    {
+      "label": "houdini_validate_opencl()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L223",
+      "_origin": "ast",
+      "id": "houdini_bridge_mcp_server_houdini_validate_opencl",
+      "community": 45,
+      "norm_label": "houdini_validate_opencl()"
     },
     {
       "label": "houdini_doc()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L187",
+      "source_location": "L244",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_houdini_doc",
       "community": 5,
@@ -5157,7 +5247,7 @@
       "label": "houdini_node_help()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L228",
+      "source_location": "L285",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_houdini_node_help",
       "community": 5,
@@ -5167,17 +5257,17 @@
       "label": "houdini_render_view()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L338",
+      "source_location": "L395",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_houdini_render_view",
-      "community": 45,
+      "community": 88,
       "norm_label": "houdini_render_view()"
     },
     {
       "label": "houdini_list_skills()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L375",
+      "source_location": "L432",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_houdini_list_skills",
       "community": 5,
@@ -5187,7 +5277,7 @@
       "label": "houdini_get_skill()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L383",
+      "source_location": "L440",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_houdini_get_skill",
       "community": 5,
@@ -5197,7 +5287,7 @@
       "label": "houdini_save_skill()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L392",
+      "source_location": "L449",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_houdini_save_skill",
       "community": 88,
@@ -5240,7 +5330,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_rationale_99",
-      "community": 20,
+      "community": 5,
       "norm_label": "check whether the houdini bridge is reachable. call this first."
     },
     {
@@ -5250,7 +5340,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_rationale_108",
-      "community": 45,
+      "community": 20,
       "norm_label": "execute arbitrary python in the houdini session (`hou` is in scope).     assign"
     },
     {
@@ -5270,7 +5360,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_rationale_127",
-      "community": 45,
+      "community": 5,
       "norm_label": "set a single parameter `value` on the node at `node_path`."
     },
     {
@@ -5300,7 +5390,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_rationale_148",
-      "community": 88,
+      "community": 45,
       "norm_label": "delete the node at `node_path`. destructive \u2014 confirm the path (e.g. with     h"
     },
     {
@@ -5320,7 +5410,7 @@
       "source_location": "L163",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_rationale_163",
-      "community": 88,
+      "community": 45,
       "norm_label": "read a whole network as structured recipe data (hou.data). pass     `parent_pat"
     },
     {
@@ -5340,16 +5430,46 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "houdini_bridge_mcp_server_rationale_178",
-      "community": 88,
+      "community": 45,
       "norm_label": "save the current .hip (to `filepath` if given, else in place)."
+    },
+    {
+      "label": "Report nodes whose last cook produced errors/warnings \u2014 the actual error     st",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L194",
+      "_origin": "ast",
+      "id": "houdini_bridge_mcp_server_rationale_194",
+      "community": 45,
+      "norm_label": "report nodes whose last cook produced errors/warnings \u2014 the actual error     st"
+    },
+    {
+      "label": "Compile a VEX snippet in a throwaway wrangle and return the REAL compiler     e",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L211",
+      "_origin": "ast",
+      "id": "houdini_bridge_mcp_server_rationale_211",
+      "community": 45,
+      "norm_label": "compile a vex snippet in a throwaway wrangle and return the real compiler     e"
+    },
+    {
+      "label": "Compile an OpenCL (Copernicus COP) kernel in a throwaway opencl node and     re",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L227",
+      "_origin": "ast",
+      "id": "houdini_bridge_mcp_server_rationale_227",
+      "community": 45,
+      "norm_label": "compile an opencl (copernicus cop) kernel in a throwaway opencl node and     re"
     },
     {
       "label": "Read version-correct Houdini documentation from the running editor's local",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L188",
+      "source_location": "L245",
       "_origin": "ast",
-      "id": "houdini_bridge_mcp_server_rationale_188",
+      "id": "houdini_bridge_mcp_server_rationale_245",
       "community": 5,
       "norm_label": "read version-correct houdini documentation from the running editor's local"
     },
@@ -5357,9 +5477,9 @@
       "label": "Convenience wrapper for node reference docs. `category` is the help-path     co",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L229",
+      "source_location": "L286",
       "_origin": "ast",
-      "id": "houdini_bridge_mcp_server_rationale_229",
+      "id": "houdini_bridge_mcp_server_rationale_286",
       "community": 5,
       "norm_label": "convenience wrapper for node reference docs. `category` is the help-path     co"
     },
@@ -5367,19 +5487,19 @@
       "label": "Render a deterministic screenshot of a node's geometry and return it as an",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L339",
+      "source_location": "L396",
       "_origin": "ast",
-      "id": "houdini_bridge_mcp_server_rationale_339",
-      "community": 45,
+      "id": "houdini_bridge_mcp_server_rationale_396",
+      "community": 88,
       "norm_label": "render a deterministic screenshot of a node's geometry and return it as an"
     },
     {
       "label": "List available Houdini skills/recipes (name, description, when-to-use).     Che",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L376",
+      "source_location": "L433",
       "_origin": "ast",
-      "id": "houdini_bridge_mcp_server_rationale_376",
+      "id": "houdini_bridge_mcp_server_rationale_433",
       "community": 5,
       "norm_label": "list available houdini skills/recipes (name, description, when-to-use).     che"
     },
@@ -5387,9 +5507,9 @@
       "label": "Get the full markdown of one skill by name (from houdini_list_skills).",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L384",
+      "source_location": "L441",
       "_origin": "ast",
-      "id": "houdini_bridge_mcp_server_rationale_384",
+      "id": "houdini_bridge_mcp_server_rationale_441",
       "community": 5,
       "norm_label": "get the full markdown of one skill by name (from houdini_list_skills)."
     },
@@ -5397,9 +5517,9 @@
       "label": "Bank a new skill/recipe so future agents can discover and reuse it.     Call th",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L396",
+      "source_location": "L453",
       "_origin": "ast",
-      "id": "houdini_bridge_mcp_server_rationale_396",
+      "id": "houdini_bridge_mcp_server_rationale_453",
       "community": 88,
       "norm_label": "bank a new skill/recipe so future agents can discover and reuse it.     call th"
     },
@@ -5497,7 +5617,7 @@
       "label": "._generate_description()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/message_handler.py",
-      "source_location": "L169",
+      "source_location": "L171",
       "_origin": "ast",
       "id": "houdini_bridge_message_handler_messagehandler_generate_description",
       "community": 52,
@@ -5507,7 +5627,7 @@
       "label": "._generate_preview()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/message_handler.py",
-      "source_location": "L184",
+      "source_location": "L186",
       "_origin": "ast",
       "id": "houdini_bridge_message_handler_messagehandler_generate_preview",
       "community": 52,
@@ -5587,9 +5707,9 @@
       "label": "Generate human-readable command description",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/message_handler.py",
-      "source_location": "L170",
+      "source_location": "L172",
       "_origin": "ast",
-      "id": "houdini_bridge_message_handler_rationale_170",
+      "id": "houdini_bridge_message_handler_rationale_172",
       "community": 52,
       "norm_label": "generate human-readable command description"
     },
@@ -5597,9 +5717,9 @@
       "label": "Generate preview of command effects",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/message_handler.py",
-      "source_location": "L185",
+      "source_location": "L187",
       "_origin": "ast",
-      "id": "houdini_bridge_message_handler_rationale_185",
+      "id": "houdini_bridge_message_handler_rationale_187",
       "community": 52,
       "norm_label": "generate preview of command effects"
     },
@@ -6210,7 +6330,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_json_themes",
-      "community": 96,
+      "community": 64,
       "norm_label": "json_themes.py"
     },
     {
@@ -6220,7 +6340,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "core_json_themes_themes",
-      "community": 96,
+      "community": 64,
       "norm_label": "themes"
     },
     {
@@ -6230,7 +6350,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "core_json_themes_themes_init",
-      "community": 96,
+      "community": 64,
       "norm_label": ".__init__()"
     },
     {
@@ -6240,7 +6360,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "core_json_themes_themes_serialize",
-      "community": 96,
+      "community": 64,
       "norm_label": ".serialize()"
     },
     {
@@ -6250,7 +6370,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "core_json_themes_themes_deserialize",
-      "community": 96,
+      "community": 64,
       "norm_label": ".deserialize()"
     },
     {
@@ -6310,7 +6430,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "columns_ui_right_column",
-      "community": 91,
+      "community": 2,
       "norm_label": "ui_right_column.py"
     },
     {
@@ -6320,7 +6440,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn",
-      "community": 91,
+      "community": 2,
       "norm_label": "ui_rightcolumn"
     },
     {
@@ -6330,7 +6450,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_setupui",
-      "community": 91,
+      "community": 2,
       "norm_label": ".setupui()"
     },
     {
@@ -6340,7 +6460,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_retranslateui",
-      "community": 91,
+      "community": 2,
       "norm_label": ".retranslateui()"
     },
     {
@@ -6420,7 +6540,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_init",
-      "community": 24,
+      "community": 2,
       "norm_label": ".__init__()"
     },
     {
@@ -6620,7 +6740,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_init_py_widgets_init",
-      "community": 43,
+      "community": 79,
       "norm_label": "__init__.py"
     },
     {
@@ -6750,7 +6870,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_grips_init",
-      "community": 92,
+      "community": 53,
       "norm_label": "__init__.py"
     },
     {
@@ -6760,7 +6880,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_grips_py_grips",
-      "community": 92,
+      "community": 53,
       "norm_label": "py_grips.py"
     },
     {
@@ -6770,7 +6890,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "py_grips_py_grips_pygrips",
-      "community": 92,
+      "community": 53,
       "norm_label": "pygrips"
     },
     {
@@ -6790,7 +6910,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "py_grips_py_grips_pygrips_mousereleaseevent",
-      "community": 92,
+      "community": 53,
       "norm_label": ".mousereleaseevent()"
     },
     {
@@ -6800,7 +6920,7 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "py_grips_py_grips_pygrips_resizeevent",
-      "community": 92,
+      "community": 53,
       "norm_label": ".resizeevent()"
     },
     {
@@ -6900,7 +7020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_icon_button_init",
-      "community": 6,
+      "community": 82,
       "norm_label": "__init__.py"
     },
     {
@@ -6910,7 +7030,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button",
-      "community": 6,
+      "community": 82,
       "norm_label": "py_icon_button.py"
     },
     {
@@ -6940,7 +7060,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button_pyiconbutton_init",
-      "community": 74,
+      "community": 82,
       "norm_label": ".__init__()"
     },
     {
@@ -7060,7 +7180,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button_tooltip",
-      "community": 74,
+      "community": 82,
       "norm_label": "_tooltip"
     },
     {
@@ -7070,7 +7190,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qlabel",
-      "community": 74,
+      "community": 78,
       "norm_label": "qlabel"
     },
     {
@@ -7080,7 +7200,7 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button_tooltip_init",
-      "community": 74,
+      "community": 82,
       "norm_label": ".__init__()"
     },
     {
@@ -7110,7 +7230,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon",
-      "community": 54,
+      "community": 43,
       "norm_label": "pyicon"
     },
     {
@@ -7120,7 +7240,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_init",
-      "community": 54,
+      "community": 43,
       "norm_label": ".__init__()"
     },
     {
@@ -7130,7 +7250,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_setup_ui",
-      "community": 54,
+      "community": 43,
       "norm_label": ".setup_ui()"
     },
     {
@@ -7140,7 +7260,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_set_icon",
-      "community": 54,
+      "community": 43,
       "norm_label": ".set_icon()"
     },
     {
@@ -7150,7 +7270,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_left_button",
-      "community": 65,
+      "community": 78,
       "norm_label": "py_left_button.py"
     },
     {
@@ -7170,7 +7290,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_init",
-      "community": 65,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -7290,7 +7410,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip",
-      "community": 65,
+      "community": 78,
       "norm_label": "_tooltip"
     },
     {
@@ -7300,7 +7420,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip_init",
-      "community": 65,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -7550,7 +7670,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_pyleftmenubutton_init",
-      "community": 74,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -7710,7 +7830,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_tooltip",
-      "community": 74,
+      "community": 78,
       "norm_label": "_tooltip"
     },
     {
@@ -7720,7 +7840,7 @@
       "source_location": "L349",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_tooltip_init",
-      "community": 74,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -7730,7 +7850,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_line_edit_init",
-      "community": 78,
+      "community": 37,
       "norm_label": "__init__.py"
     },
     {
@@ -7740,7 +7860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_line_edit_py_line_edit",
-      "community": 78,
+      "community": 37,
       "norm_label": "py_line_edit.py"
     },
     {
@@ -7750,7 +7870,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "py_line_edit_py_line_edit_hoveroutlinemixin",
-      "community": 78,
+      "community": 37,
       "norm_label": "hoveroutlinemixin"
     },
     {
@@ -7760,7 +7880,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "py_line_edit_py_line_edit_pylineedit",
-      "community": 78,
+      "community": 37,
       "norm_label": "pylineedit"
     },
     {
@@ -7770,7 +7890,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qlineedit",
-      "community": 78,
+      "community": 37,
       "norm_label": "qlineedit"
     },
     {
@@ -7780,7 +7900,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "py_line_edit_py_line_edit_pylineedit_init",
-      "community": 78,
+      "community": 37,
       "norm_label": ".__init__()"
     },
     {
@@ -7790,7 +7910,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "py_line_edit_py_line_edit_pylineedit_paintevent",
-      "community": 78,
+      "community": 37,
       "norm_label": ".paintevent()"
     },
     {
@@ -7800,7 +7920,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "py_line_edit_py_line_edit_pylineedit_set_stylesheet",
-      "community": 78,
+      "community": 37,
       "norm_label": ".set_stylesheet()"
     },
     {
@@ -7810,7 +7930,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "py_line_edit_py_line_edit_rationale_27",
-      "community": 78,
+      "community": 37,
       "norm_label": "fallback if hover_outline not available"
     },
     {
@@ -7820,7 +7940,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_init",
-      "community": 43,
+      "community": 67,
       "norm_label": "__init__.py"
     },
     {
@@ -7830,7 +7950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_py_push_button",
-      "community": 43,
+      "community": 67,
       "norm_label": "py_push_button.py"
     },
     {
@@ -7840,7 +7960,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "py_push_button_py_push_button_pypushbutton",
-      "community": 36,
+      "community": 67,
       "norm_label": "pypushbutton"
     },
     {
@@ -7850,7 +7970,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "py_push_button_py_push_button_pypushbutton_init",
-      "community": 36,
+      "community": 67,
       "norm_label": ".__init__()"
     },
     {
@@ -7860,7 +7980,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_slider_init",
-      "community": 43,
+      "community": 79,
       "norm_label": "__init__.py"
     },
     {
@@ -7870,7 +7990,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_slider_py_slider",
-      "community": 43,
+      "community": 79,
       "norm_label": "py_slider.py"
     },
     {
@@ -7880,7 +8000,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "py_slider_py_slider_pyslider",
-      "community": 43,
+      "community": 79,
       "norm_label": "pyslider"
     },
     {
@@ -7890,7 +8010,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qslider",
-      "community": 43,
+      "community": 79,
       "norm_label": "qslider"
     },
     {
@@ -7900,7 +8020,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_slider_py_slider_pyslider_init",
-      "community": 43,
+      "community": 79,
       "norm_label": ".__init__()"
     },
     {
@@ -7910,7 +8030,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_table_widget_init",
-      "community": 82,
+      "community": 79,
       "norm_label": "__init__.py"
     },
     {
@@ -7920,7 +8040,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget",
-      "community": 82,
+      "community": 79,
       "norm_label": "py_table_widget.py"
     },
     {
@@ -7930,7 +8050,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget_pytablewidget",
-      "community": 82,
+      "community": 79,
       "norm_label": "pytablewidget"
     },
     {
@@ -7940,7 +8060,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qtablewidget",
-      "community": 82,
+      "community": 79,
       "norm_label": "qtablewidget"
     },
     {
@@ -7950,7 +8070,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget_pytablewidget_init",
-      "community": 82,
+      "community": 79,
       "norm_label": ".__init__()"
     },
     {
@@ -7960,7 +8080,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget_pytablewidget_set_stylesheet",
-      "community": 82,
+      "community": 79,
       "norm_label": ".set_stylesheet()"
     },
     {
@@ -7970,7 +8090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_table_widget_style",
-      "community": 82,
+      "community": 79,
       "norm_label": "style.py"
     },
     {
@@ -8990,7 +9110,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_init",
-      "community": 3,
+      "community": 15,
       "norm_label": ".__init__()"
     },
     {
@@ -9090,7 +9210,7 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_build_layout",
-      "community": 15,
+      "community": 42,
       "norm_label": ".build_layout()"
     },
     {
@@ -9130,7 +9250,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_27",
-      "community": 3,
+      "community": 15,
       "norm_label": "initialize binding manager for a node.                  args:             nod"
     },
     {
@@ -9230,7 +9350,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_166",
-      "community": 15,
+      "community": 42,
       "norm_label": "build a layout containing all registered widgets.                  args:"
     },
     {
@@ -9830,7 +9950,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedlabel_init",
-      "community": 51,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -9890,7 +10010,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield_init",
-      "community": 51,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -10100,7 +10220,7 @@
       "source_location": "L402",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_expressiondialog",
-      "community": 35,
+      "community": 1,
       "norm_label": "expressiondialog"
     },
     {
@@ -10110,7 +10230,7 @@
       "source_location": "L405",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_expressiondialog_init",
-      "community": 51,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -10350,7 +10470,7 @@
       "source_location": "L403",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_403",
-      "community": 35,
+      "community": 1,
       "norm_label": "dialog for editing parameter expressions."
     },
     {
@@ -10720,7 +10840,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input",
-      "community": 37,
+      "community": 59,
       "norm_label": "tag_input.py"
     },
     {
@@ -10870,7 +10990,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip",
-      "community": 37,
+      "community": 59,
       "norm_label": "tagchip"
     },
     {
@@ -10880,7 +11000,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_init",
-      "community": 37,
+      "community": 59,
       "norm_label": ".__init__()"
     },
     {
@@ -10890,7 +11010,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_paintevent",
-      "community": 37,
+      "community": 59,
       "norm_label": ".paintevent()"
     },
     {
@@ -10900,7 +11020,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_on_remove",
-      "community": 37,
+      "community": 59,
       "norm_label": "._on_remove()"
     },
     {
@@ -10920,7 +11040,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_init",
-      "community": 34,
+      "community": 59,
       "norm_label": ".__init__()"
     },
     {
@@ -10930,7 +11050,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_setup_ui",
-      "community": 34,
+      "community": 59,
       "norm_label": "._setup_ui()"
     },
     {
@@ -11100,7 +11220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_1",
-      "community": 37,
+      "community": 59,
       "norm_label": "tag input widget - autocompleting tag input with removable chips similar to sho"
     },
     {
@@ -11120,7 +11240,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_90",
-      "community": 37,
+      "community": 59,
       "norm_label": "individual tag chip with remove button"
     },
     {
@@ -11130,7 +11250,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_133",
-      "community": 37,
+      "community": 59,
       "norm_label": "custom paint to draw rounded background with darker blue + animated hover outlin"
     },
     {
@@ -11140,7 +11260,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_149",
-      "community": 37,
+      "community": 59,
       "norm_label": "handle remove button click"
     },
     {
@@ -11360,7 +11480,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle",
-      "community": 48,
+      "community": 55,
       "norm_label": "parmtoggle"
     },
     {
@@ -11380,7 +11500,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_on_changed",
-      "community": 48,
+      "community": 55,
       "norm_label": "._on_changed()"
     },
     {
@@ -11400,7 +11520,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_expression_style",
-      "community": 48,
+      "community": 55,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -11580,7 +11700,7 @@
       "source_location": "L501",
       "_origin": "ast",
       "id": "widgets_widgets_parmbutton",
-      "community": 35,
+      "community": 15,
       "norm_label": "parmbutton"
     },
     {
@@ -11640,7 +11760,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_179",
-      "community": 48,
+      "community": 55,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -11760,7 +11880,7 @@
       "source_location": "L502",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_502",
-      "community": 35,
+      "community": 15,
       "norm_label": "button widget (not parameter-bound)."
     },
     {
@@ -14994,10 +15114,20 @@
       "norm_label": "session state"
     },
     {
-      "label": "Batch Commands",
+      "label": "Diagnostics",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
       "source_location": "L276",
+      "_origin": "ast",
+      "id": "houdini_bridge_readme_diagnostics",
+      "community": 26,
+      "norm_label": "diagnostics"
+    },
+    {
+      "label": "Batch Commands",
+      "file_type": "document",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
+      "source_location": "L311",
       "_origin": "ast",
       "id": "houdini_bridge_readme_batch_commands",
       "community": 26,
@@ -15007,7 +15137,7 @@
       "label": "Approval Modes",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L292",
+      "source_location": "L327",
       "_origin": "ast",
       "id": "houdini_bridge_readme_approval_modes",
       "community": 26,
@@ -15017,7 +15147,7 @@
       "label": "Testing",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L317",
+      "source_location": "L354",
       "_origin": "ast",
       "id": "houdini_bridge_readme_testing",
       "community": 26,
@@ -15027,7 +15157,7 @@
       "label": "Run Test Suite",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L319",
+      "source_location": "L356",
       "_origin": "ast",
       "id": "houdini_bridge_readme_run_test_suite",
       "community": 26,
@@ -15037,7 +15167,7 @@
       "label": "Manual Testing",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L337",
+      "source_location": "L374",
       "_origin": "ast",
       "id": "houdini_bridge_readme_manual_testing",
       "community": 26,
@@ -15047,7 +15177,7 @@
       "label": "Troubleshooting",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L350",
+      "source_location": "L387",
       "_origin": "ast",
       "id": "houdini_bridge_readme_troubleshooting",
       "community": 26,
@@ -15057,7 +15187,7 @@
       "label": "Port Already in Use",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L352",
+      "source_location": "L389",
       "_origin": "ast",
       "id": "houdini_bridge_readme_port_already_in_use",
       "community": 26,
@@ -15067,7 +15197,7 @@
       "label": "Connection Timeout",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L359",
+      "source_location": "L396",
       "_origin": "ast",
       "id": "houdini_bridge_readme_connection_timeout",
       "community": 26,
@@ -15077,7 +15207,7 @@
       "label": "Module Not Found",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L366",
+      "source_location": "L403",
       "_origin": "ast",
       "id": "houdini_bridge_readme_module_not_found",
       "community": 26,
@@ -15087,7 +15217,7 @@
       "label": "Performance Issues",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L374",
+      "source_location": "L411",
       "_origin": "ast",
       "id": "houdini_bridge_readme_performance_issues",
       "community": 26,
@@ -15097,7 +15227,7 @@
       "label": "Architecture",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L381",
+      "source_location": "L418",
       "_origin": "ast",
       "id": "houdini_bridge_readme_architecture",
       "community": 26,
@@ -15107,7 +15237,7 @@
       "label": "Server Management",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L405",
+      "source_location": "L442",
       "_origin": "ast",
       "id": "houdini_bridge_readme_server_management",
       "community": 26,
@@ -15117,7 +15247,7 @@
       "label": "Security Considerations",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L427",
+      "source_location": "L464",
       "_origin": "ast",
       "id": "houdini_bridge_readme_security_considerations",
       "community": 26,
@@ -15127,7 +15257,7 @@
       "label": "Technical Notes",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L435",
+      "source_location": "L472",
       "_origin": "ast",
       "id": "houdini_bridge_readme_technical_notes",
       "community": 26,
@@ -15137,7 +15267,7 @@
       "label": "Why Synchronous WebSockets?",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L437",
+      "source_location": "L474",
       "_origin": "ast",
       "id": "houdini_bridge_readme_why_synchronous_websockets",
       "community": 26,
@@ -15147,7 +15277,7 @@
       "label": "Port Selection",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L441",
+      "source_location": "L478",
       "_origin": "ast",
       "id": "houdini_bridge_readme_port_selection",
       "community": 26,
@@ -15157,7 +15287,7 @@
       "label": "Module Reloading",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L445",
+      "source_location": "L482",
       "_origin": "ast",
       "id": "houdini_bridge_readme_module_reloading",
       "community": 26,
@@ -15167,7 +15297,7 @@
       "label": "Performance",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L449",
+      "source_location": "L486",
       "_origin": "ast",
       "id": "houdini_bridge_readme_performance",
       "community": 26,
@@ -15177,7 +15307,7 @@
       "label": "License",
       "file_type": "document",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
-      "source_location": "L456",
+      "source_location": "L493",
       "_origin": "ast",
       "id": "houdini_bridge_readme_license",
       "community": 26,
@@ -15969,7 +16099,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_grips/__init__.py",
       "source_location": "L1",
-      "community": 92,
+      "community": 53,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_grips_init_py"
     },
@@ -15978,7 +16108,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_icon_button/__init__.py",
       "source_location": "L1",
-      "community": 6,
+      "community": 82,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_icon_button_init_py"
     },
@@ -16014,7 +16144,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_line_edit/__init__.py",
       "source_location": "L1",
-      "community": 78,
+      "community": 37,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_line_edit_init_py"
     },
@@ -16023,7 +16153,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_push_button/__init__.py",
       "source_location": "L1",
-      "community": 43,
+      "community": 67,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_push_button_init_py"
     },
@@ -16032,7 +16162,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_slider/__init__.py",
       "source_location": "L1",
-      "community": 43,
+      "community": 79,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_slider_init_py"
     },
@@ -16041,7 +16171,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_table_widget/__init__.py",
       "source_location": "L1",
-      "community": 82,
+      "community": 79,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_table_widget_init_py"
     },
@@ -16104,7 +16234,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 48,
+      "community": 55,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -16140,7 +16270,7 @@
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L146",
-      "community": 88,
+      "community": 45,
       "norm_label": "read a whole network as structured recipe data (hou.data). pass     `parent_path",
       "id": "houdini_bridge_mcp_server_rationale_146"
     },
@@ -24432,9 +24562,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/approval.py",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_approval",
-      "target": "houdini_bridge_approval_display_message",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_approval_display_message"
     },
     {
       "relation": "rationale_for",
@@ -24475,9 +24605,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/approval.py",
       "source_location": "L118",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_approval_approvalmanager_approve_batch",
-      "target": "houdini_bridge_approval_display_message",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_approval_display_message"
     },
     {
       "relation": "calls",
@@ -24486,9 +24616,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/approval.py",
       "source_location": "L89",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_approval_approvalmanager_request_approval",
-      "target": "houdini_bridge_approval_display_message",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_approval_display_message"
     },
     {
       "relation": "rationale_for",
@@ -24496,9 +24626,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/approval.py",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_approval_rationale_26",
-      "target": "houdini_bridge_approval_display_message",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_approval_display_message"
     },
     {
       "relation": "references",
@@ -24527,9 +24657,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/approval.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_approval_rationale_36",
-      "target": "houdini_bridge_approval_approvalmode",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_approval_approvalmode"
     },
     {
       "relation": "imports",
@@ -24619,9 +24749,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/approval.py",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_approval_rationale_44",
-      "target": "houdini_bridge_approval_approvalmanager",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_approval_approvalmanager"
     },
     {
       "relation": "imports",
@@ -24672,9 +24802,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/approval.py",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_approval_rationale_55",
-      "target": "houdini_bridge_approval_approvalmanager_requires_approval",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_approval_approvalmanager_requires_approval"
     },
     {
       "relation": "calls",
@@ -24693,9 +24823,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/approval.py",
       "source_location": "L67",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_approval_rationale_67",
-      "target": "houdini_bridge_approval_approvalmanager_request_approval",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_approval_approvalmanager_request_approval"
     },
     {
       "relation": "references",
@@ -24714,9 +24844,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/approval.py",
       "source_location": "L102",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_approval_rationale_102",
-      "target": "houdini_bridge_approval_approvalmanager_approve_batch",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_approval_approvalmanager_approve_batch"
     },
     {
       "relation": "references",
@@ -24791,9 +24921,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "any",
-      "confidence_score": 1.0
+      "target": "any"
     },
     {
       "relation": "references",
@@ -24805,6 +24935,17 @@
       "confidence_score": 1.0,
       "source": "houdini_bridge_commands_commandexecutor_execute_python",
       "target": "any"
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L489",
+      "weight": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor_get_errors",
+      "target": "any",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -24921,6 +25062,28 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L639",
+      "weight": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor_validate_opencl",
+      "target": "any",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L554",
+      "weight": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor_validate_vex",
+      "target": "any",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L418",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -24956,9 +25119,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L147",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_houdini_delete_node",
-      "target": "any",
-      "confidence_score": 1.0
+      "target": "any"
     },
     {
       "relation": "references",
@@ -24987,6 +25150,17 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L187",
+      "weight": 1.0,
+      "source": "houdini_bridge_mcp_server_houdini_get_errors",
+      "target": "any",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L132",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -25000,9 +25174,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L140",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_houdini_get_parameter",
-      "target": "any",
-      "confidence_score": 1.0
+      "target": "any"
     },
     {
       "relation": "references",
@@ -25080,6 +25254,28 @@
       "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_houdini_status",
       "target": "any"
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L223",
+      "weight": 1.0,
+      "source": "houdini_bridge_mcp_server_houdini_validate_opencl",
+      "target": "any",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L206",
+      "weight": 1.0,
+      "source": "houdini_bridge_mcp_server_houdini_validate_vex",
+      "target": "any",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -25343,9 +25539,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/bridge_client.py",
       "source_location": "L80",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_bridge_client_rationale_80",
-      "target": "houdini_bridge_bridge_client_bridgeclient_command",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_bridge_client_bridgeclient_command"
     },
     {
       "relation": "contains",
@@ -25425,9 +25621,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_commandexecutor",
-      "target": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_commands_commandexecutor_execute_impl"
     },
     {
       "relation": "method",
@@ -25438,6 +25634,16 @@
       "confidence_score": 1.0,
       "source": "houdini_bridge_commands_commandexecutor",
       "target": "houdini_bridge_commands_commandexecutor_execute_python"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L489",
+      "weight": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor",
+      "target": "houdini_bridge_commands_commandexecutor_get_errors",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -25553,6 +25759,26 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L639",
+      "weight": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor",
+      "target": "houdini_bridge_commands_commandexecutor_validate_opencl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L554",
+      "weight": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor",
+      "target": "houdini_bridge_commands_commandexecutor_validate_vex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L418",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -25565,9 +25791,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_rationale_27",
-      "target": "houdini_bridge_commands_commandexecutor",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_commands_commandexecutor"
     },
     {
       "relation": "imports",
@@ -25630,9 +25856,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_commandexecutor_execute",
-      "target": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_commands_commandexecutor_execute_impl"
     },
     {
       "relation": "calls",
@@ -25772,9 +25998,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_rationale_34",
-      "target": "houdini_bridge_commands_commandexecutor_execute",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_commands_commandexecutor_execute"
     },
     {
       "relation": "calls",
@@ -25783,9 +26009,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_create_node",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_commands_commandexecutor_create_node"
     },
     {
       "relation": "calls",
@@ -25794,9 +26020,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_delete_node",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_commands_commandexecutor_delete_node"
     },
     {
       "relation": "calls",
@@ -25805,8 +26031,19 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_execute_python",
+      "target": "houdini_bridge_commands_commandexecutor_execute_python"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
+      "target": "houdini_bridge_commands_commandexecutor_get_errors",
       "confidence_score": 1.0
     },
     {
@@ -25816,9 +26053,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_get_node_info",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_commands_commandexecutor_get_node_info"
     },
     {
       "relation": "calls",
@@ -25827,9 +26064,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L75",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_get_parameter",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_commands_commandexecutor_get_parameter"
     },
     {
       "relation": "calls",
@@ -25838,9 +26075,86 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L77",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_get_selection",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_commands_commandexecutor_get_selection"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L93",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
+      "target": "houdini_bridge_commands_commandexecutor_get_session_state"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L91",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
+      "target": "houdini_bridge_commands_commandexecutor_load_scene"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L85",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
+      "target": "houdini_bridge_commands_commandexecutor_read_network"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L89",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
+      "target": "houdini_bridge_commands_commandexecutor_save_scene"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L79",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
+      "target": "houdini_bridge_commands_commandexecutor_select_nodes"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L73",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
+      "target": "houdini_bridge_commands_commandexecutor_set_parameter"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L95",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
+      "target": "houdini_bridge_commands_commandexecutor_set_session_state"
     },
     {
       "relation": "calls",
@@ -25850,7 +26164,7 @@
       "source_location": "L93",
       "weight": 1.0,
       "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_get_session_state",
+      "target": "houdini_bridge_commands_commandexecutor_validate_opencl",
       "confidence_score": 1.0
     },
     {
@@ -25861,62 +26175,7 @@
       "source_location": "L91",
       "weight": 1.0,
       "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_load_scene",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L85",
-      "weight": 1.0,
-      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_read_network",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L89",
-      "weight": 1.0,
-      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_save_scene",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L79",
-      "weight": 1.0,
-      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_select_nodes",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L73",
-      "weight": 1.0,
-      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_set_parameter",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L95",
-      "weight": 1.0,
-      "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_set_session_state",
+      "target": "houdini_bridge_commands_commandexecutor_validate_vex",
       "confidence_score": 1.0
     },
     {
@@ -25926,9 +26185,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "target": "houdini_bridge_commands_commandexecutor_write_network",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_commands_commandexecutor_write_network"
     },
     {
       "relation": "rationale_for",
@@ -25936,17 +26195,17 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
       "source_location": "L63",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_commands_rationale_63",
-      "target": "houdini_bridge_commands_commandexecutor_execute_impl",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_commands_commandexecutor_execute_impl"
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L161",
+      "source_location": "L167",
       "weight": 1.0,
-      "source": "houdini_bridge_commands_rationale_161",
+      "source": "houdini_bridge_commands_rationale_167",
       "target": "houdini_bridge_commands_commandexecutor_set_parameter",
       "confidence_score": 1.0
     },
@@ -25954,9 +26213,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L189",
+      "source_location": "L195",
       "weight": 1.0,
-      "source": "houdini_bridge_commands_rationale_189",
+      "source": "houdini_bridge_commands_rationale_195",
       "target": "houdini_bridge_commands_commandexecutor_get_parameter",
       "confidence_score": 1.0
     },
@@ -25964,19 +26223,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L189",
+      "source_location": "L222",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "houdini_bridge_commands_rationale_189",
-      "target": "houdini_bridge_commands_commandexecutor_get_selection"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L216",
-      "weight": 1.0,
-      "source": "houdini_bridge_commands_rationale_216",
+      "source": "houdini_bridge_commands_rationale_222",
       "target": "houdini_bridge_commands_commandexecutor_get_selection",
       "confidence_score": 1.0
     },
@@ -25984,9 +26233,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L260",
+      "source_location": "L266",
       "weight": 1.0,
-      "source": "houdini_bridge_commands_rationale_260",
+      "source": "houdini_bridge_commands_rationale_266",
       "target": "houdini_bridge_commands_commandexecutor_get_node_info",
       "confidence_score": 1.0
     },
@@ -25994,9 +26243,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L300",
+      "source_location": "L306",
       "weight": 1.0,
-      "source": "houdini_bridge_commands_rationale_300",
+      "source": "houdini_bridge_commands_rationale_306",
       "target": "houdini_bridge_commands_commandexecutor_execute_python",
       "confidence_score": 1.0
     },
@@ -26004,9 +26253,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L378",
+      "source_location": "L384",
       "weight": 1.0,
-      "source": "houdini_bridge_commands_rationale_378",
+      "source": "houdini_bridge_commands_rationale_384",
       "target": "houdini_bridge_commands_commandexecutor_get_session_state",
       "confidence_score": 1.0
     },
@@ -26014,9 +26263,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L394",
+      "source_location": "L400",
       "weight": 1.0,
-      "source": "houdini_bridge_commands_rationale_394",
+      "source": "houdini_bridge_commands_rationale_400",
       "target": "houdini_bridge_commands_commandexecutor_set_session_state",
       "confidence_score": 1.0
     },
@@ -26024,9 +26273,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L408",
+      "source_location": "L414",
       "weight": 1.0,
-      "source": "houdini_bridge_commands_rationale_408",
+      "source": "houdini_bridge_commands_rationale_414",
       "target": "houdini_bridge_commands_commandexecutor_read_network",
       "confidence_score": 1.0
     },
@@ -26034,10 +26283,40 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
-      "source_location": "L447",
+      "source_location": "L453",
       "weight": 1.0,
-      "source": "houdini_bridge_commands_rationale_447",
+      "source": "houdini_bridge_commands_rationale_453",
       "target": "houdini_bridge_commands_commandexecutor_write_network",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L490",
+      "weight": 1.0,
+      "source": "houdini_bridge_commands_rationale_490",
+      "target": "houdini_bridge_commands_commandexecutor_get_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L555",
+      "weight": 1.0,
+      "source": "houdini_bridge_commands_rationale_555",
+      "target": "houdini_bridge_commands_commandexecutor_validate_vex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/commands.py",
+      "source_location": "L640",
+      "weight": 1.0,
+      "source": "houdini_bridge_commands_rationale_640",
+      "target": "houdini_bridge_commands_commandexecutor_validate_opencl",
       "confidence_score": 1.0
     },
     {
@@ -26076,9 +26355,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L147",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server",
-      "target": "houdini_bridge_mcp_server_houdini_delete_node",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_delete_node"
     },
     {
       "relation": "contains",
@@ -26104,6 +26383,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L187",
+      "weight": 1.0,
+      "source": "houdini_bridge_mcp_server",
+      "target": "houdini_bridge_mcp_server_houdini_get_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L87",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -26116,9 +26405,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L140",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server",
-      "target": "houdini_bridge_mcp_server_houdini_get_parameter",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_get_parameter"
     },
     {
       "relation": "contains",
@@ -26224,6 +26513,26 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L223",
+      "weight": 1.0,
+      "source": "houdini_bridge_mcp_server",
+      "target": "houdini_bridge_mcp_server_houdini_validate_opencl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L206",
+      "weight": 1.0,
+      "source": "houdini_bridge_mcp_server",
+      "target": "houdini_bridge_mcp_server_houdini_validate_vex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L110",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -26290,9 +26599,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L150",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_houdini_delete_node",
-      "target": "houdini_bridge_mcp_server_call",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_call"
     },
     {
       "relation": "calls",
@@ -26304,6 +26613,17 @@
       "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_houdini_execute_python",
       "target": "houdini_bridge_mcp_server_call"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L200",
+      "weight": 1.0,
+      "source": "houdini_bridge_mcp_server_houdini_get_errors",
+      "target": "houdini_bridge_mcp_server_call",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -26323,9 +26643,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L143",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_houdini_get_parameter",
-      "target": "houdini_bridge_mcp_server_call",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_call"
     },
     {
       "relation": "calls",
@@ -26381,6 +26701,28 @@
       "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_houdini_set_parameter",
       "target": "houdini_bridge_mcp_server_call"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L236",
+      "weight": 1.0,
+      "source": "houdini_bridge_mcp_server_houdini_validate_opencl",
+      "target": "houdini_bridge_mcp_server_call",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L218",
+      "weight": 1.0,
+      "source": "houdini_bridge_mcp_server_houdini_validate_vex",
+      "target": "houdini_bridge_mcp_server_call",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -26531,9 +26873,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L141",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_141",
-      "target": "houdini_bridge_mcp_server_houdini_get_parameter",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_get_parameter"
     },
     {
       "relation": "rationale_for",
@@ -26541,9 +26883,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L148",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_148",
-      "target": "houdini_bridge_mcp_server_houdini_delete_node",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_delete_node"
     },
     {
       "relation": "rationale_for",
@@ -26581,9 +26923,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L163",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_163",
-      "target": "houdini_bridge_mcp_server_houdini_read_network",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_read_network"
     },
     {
       "relation": "rationale_for",
@@ -26601,9 +26943,19 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L171",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_171",
-      "target": "houdini_bridge_mcp_server_houdini_write_network",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_mcp_server_houdini_write_network"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L163",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "houdini_bridge_mcp_server_rationale_163",
+      "target": "houdini_bridge_mcp_server_houdini_save_scene"
     },
     {
       "relation": "rationale_for",
@@ -26619,11 +26971,31 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L163",
+      "source_location": "L194",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "houdini_bridge_mcp_server_rationale_163",
-      "target": "houdini_bridge_mcp_server_houdini_save_scene"
+      "source": "houdini_bridge_mcp_server_rationale_194",
+      "target": "houdini_bridge_mcp_server_houdini_get_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L211",
+      "weight": 1.0,
+      "source": "houdini_bridge_mcp_server_rationale_211",
+      "target": "houdini_bridge_mcp_server_houdini_validate_vex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L227",
+      "weight": 1.0,
+      "source": "houdini_bridge_mcp_server_rationale_227",
+      "target": "houdini_bridge_mcp_server_houdini_validate_opencl",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -26650,9 +27022,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L188",
+      "source_location": "L245",
       "weight": 1.0,
-      "source": "houdini_bridge_mcp_server_rationale_188",
+      "source": "houdini_bridge_mcp_server_rationale_245",
       "target": "houdini_bridge_mcp_server_houdini_doc",
       "confidence_score": 1.0
     },
@@ -26670,9 +27042,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L229",
+      "source_location": "L286",
       "weight": 1.0,
-      "source": "houdini_bridge_mcp_server_rationale_229",
+      "source": "houdini_bridge_mcp_server_rationale_286",
       "target": "houdini_bridge_mcp_server_houdini_node_help",
       "confidence_score": 1.0
     },
@@ -26680,9 +27052,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L339",
+      "source_location": "L396",
       "weight": 1.0,
-      "source": "houdini_bridge_mcp_server_rationale_339",
+      "source": "houdini_bridge_mcp_server_rationale_396",
       "target": "houdini_bridge_mcp_server_houdini_render_view",
       "confidence_score": 1.0
     },
@@ -26700,9 +27072,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L376",
+      "source_location": "L433",
       "weight": 1.0,
-      "source": "houdini_bridge_mcp_server_rationale_376",
+      "source": "houdini_bridge_mcp_server_rationale_433",
       "target": "houdini_bridge_mcp_server_houdini_list_skills",
       "confidence_score": 1.0
     },
@@ -26710,11 +27082,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
-      "source_location": "L384",
+      "source_location": "L441",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "houdini_bridge_mcp_server_rationale_384",
-      "target": "houdini_bridge_mcp_server_houdini_get_skill"
+      "source": "houdini_bridge_mcp_server_rationale_441",
+      "target": "houdini_bridge_mcp_server_houdini_get_skill",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -26742,7 +27114,17 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
       "source_location": "L396",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_mcp_server_rationale_396",
+      "target": "houdini_bridge_mcp_server_houdini_save_skill"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/mcp_server.py",
+      "source_location": "L453",
+      "weight": 1.0,
+      "source": "houdini_bridge_mcp_server_rationale_453",
       "target": "houdini_bridge_mcp_server_houdini_save_skill",
       "confidence_score": 1.0
     },
@@ -26980,9 +27362,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/message_handler.py",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_message_handler_rationale_54",
-      "target": "houdini_bridge_message_handler_messagehandler_handle_message",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_message_handler_messagehandler_handle_message"
     },
     {
       "relation": "calls",
@@ -27012,9 +27394,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/message_handler.py",
       "source_location": "L80",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_message_handler_rationale_80",
-      "target": "houdini_bridge_message_handler_messagehandler_handle_command",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_message_handler_messagehandler_handle_command"
     },
     {
       "relation": "calls",
@@ -27055,9 +27437,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/message_handler.py",
       "source_location": "L107",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_message_handler_rationale_107",
-      "target": "houdini_bridge_message_handler_messagehandler_handle_batch",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_message_handler_messagehandler_handle_batch"
     },
     {
       "relation": "rationale_for",
@@ -27065,17 +27447,17 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/message_handler.py",
       "source_location": "L158",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_message_handler_rationale_158",
-      "target": "houdini_bridge_message_handler_messagehandler_is_destructive_command",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_message_handler_messagehandler_is_destructive_command"
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/message_handler.py",
-      "source_location": "L170",
+      "source_location": "L172",
       "weight": 1.0,
-      "source": "houdini_bridge_message_handler_rationale_170",
+      "source": "houdini_bridge_message_handler_rationale_172",
       "target": "houdini_bridge_message_handler_messagehandler_generate_description",
       "confidence_score": 1.0
     },
@@ -27083,9 +27465,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/message_handler.py",
-      "source_location": "L185",
+      "source_location": "L187",
       "weight": 1.0,
-      "source": "houdini_bridge_message_handler_rationale_185",
+      "source": "houdini_bridge_message_handler_rationale_187",
       "target": "houdini_bridge_message_handler_messagehandler_generate_preview",
       "confidence_score": 1.0
     },
@@ -27247,9 +27629,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/server.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_29",
-      "target": "houdini_bridge_server_bridgeserver",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_bridgeserver"
     },
     {
       "relation": "rationale_for",
@@ -27257,9 +27639,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/server.py",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_43",
-      "target": "houdini_bridge_server_bridgeserver_start",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_bridgeserver_start"
     },
     {
       "relation": "calls",
@@ -27289,9 +27671,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/server.py",
       "source_location": "L123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_123",
-      "target": "houdini_bridge_server_bridgeserver_run_server",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_bridgeserver_run_server"
     },
     {
       "relation": "references",
@@ -27310,9 +27692,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/server.py",
       "source_location": "L154",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_154",
-      "target": "houdini_bridge_server_bridgeserver_handle_connection",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_bridgeserver_handle_connection"
     },
     {
       "relation": "rationale_for",
@@ -27320,9 +27702,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/server.py",
       "source_location": "L182",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_182",
-      "target": "houdini_bridge_server_bridgeserver_is_running",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_bridgeserver_is_running"
     },
     {
       "relation": "rationale_for",
@@ -27330,9 +27712,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/server.py",
       "source_location": "L186",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_186",
-      "target": "houdini_bridge_server_bridgeserver_get_connection_count",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_bridgeserver_get_connection_count"
     },
     {
       "relation": "rationale_for",
@@ -27340,9 +27722,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/server.py",
       "source_location": "L190",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_190",
-      "target": "houdini_bridge_server_bridgeserver_broadcast",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_bridgeserver_broadcast"
     },
     {
       "relation": "rationale_for",
@@ -27350,9 +27732,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/server.py",
       "source_location": "L208",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_208",
-      "target": "houdini_bridge_server_get_server",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_get_server"
     },
     {
       "relation": "calls",
@@ -27371,9 +27753,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/server.py",
       "source_location": "L231",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_231",
-      "target": "houdini_bridge_server_start_server",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_start_server"
     },
     {
       "relation": "rationale_for",
@@ -27381,9 +27763,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/server.py",
       "source_location": "L238",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "houdini_bridge_server_rationale_238",
-      "target": "houdini_bridge_server_stop_server",
-      "confidence_score": 1.0
+      "target": "houdini_bridge_server_stop_server"
     },
     {
       "relation": "contains",
@@ -41442,6 +41824,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
+      "source_location": "L276",
+      "weight": 1.0,
+      "source": "houdini_bridge_readme_supported_commands",
+      "target": "houdini_bridge_readme_diagnostics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/houdini_bridge/README.md",
       "source_location": "L239",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -42273,5 +42665,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "81437ea1181fdad05bfc484107e8023cecd3f74b"
+  "built_at_commit": "ba7a6fe3590dffcc4ac12e93784147ea66aa9dc0"
 }

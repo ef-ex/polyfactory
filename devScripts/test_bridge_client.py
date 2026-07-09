@@ -129,6 +129,81 @@ def test_connection(port=9876):
         traceback.print_exc()
 
 
+def test_diagnostics(port=9876):
+    """Test get_errors and validate_vex commands"""
+    uri = f"ws://localhost:{port}"
+
+    def send(ws, cmd):
+        ws.send(msgpack.packb({'type': 'command', 'data': cmd}, use_bin_type=True))
+        return msgpack.unpackb(ws.recv(), raw=False)
+
+    with ws_connect(uri) as websocket:
+        # Test 1: scene-wide error sweep
+        print("\n--- Diagnostics 1: get_errors (scene sweep) ---")
+        r = send(websocket, {'type': 'get_errors'})
+        assert r['success'], r
+        print(f"Scanned {r['data']['nodes_scanned']} nodes, "
+              f"{r['data']['nodes_with_issues']} with issues")
+
+        # Test 2: validate a GOOD snippet — expect ok + result_geometry
+        print("\n--- Diagnostics 2: validate_vex (good snippet) ---")
+        r = send(websocket, {
+            'type': 'validate_vex',
+            'snippet': 'f@mask = rand(@ptnum); @P.y += 0.1 * sin(@P.x);',
+        })
+        assert r['success'], r
+        assert r['data']['ok'], f"good snippet reported errors: {r['data']['errors']}"
+        assert 'mask' in r['data']['result_geometry']['point_attribs']
+        print(f"ok={r['data']['ok']}, run_over={r['data']['run_over']}, "
+              f"attribs={r['data']['result_geometry']['point_attribs']}")
+
+        # Test 3: validate a BAD snippet — expect compiler error, not ok
+        print("\n--- Diagnostics 3: validate_vex (bad snippet) ---")
+        r = send(websocket, {
+            'type': 'validate_vex',
+            'snippet': '@P.y += noize(@P.x);',  # misspelled function
+        })
+        assert r['success'], r
+        assert not r['data']['ok'], "bad snippet was not flagged"
+        print(f"ok={r['data']['ok']}, errors={r['data']['errors']}")
+
+        # Test 4: validate a GOOD OpenCL kernel — expect ok
+        print("\n--- Diagnostics 4: validate_opencl (good kernel) ---")
+        r = send(websocket, {
+            'type': 'validate_opencl',
+            'kernel': "#bind layer !&dst float\n\n@KERNEL\n{\n"
+                      "    @dst.set(1.0f);\n}\n",
+        })
+        assert r['success'], r
+        assert r['data']['ok'], f"good kernel reported errors: {r['data']['errors']}"
+        print(f"ok={r['data']['ok']}, warnings={r['data']['warnings']}")
+
+        # Test 5: validate a BAD OpenCL kernel — expect compiler error
+        print("\n--- Diagnostics 5: validate_opencl (bad kernel) ---")
+        r = send(websocket, {
+            'type': 'validate_opencl',
+            'kernel': "#bind layer !&dst float\n\n@KERNEL\n{\n"
+                      "    @dst.set(nonexistent_function(1.0f));\n}\n",
+        })
+        assert r['success'], r
+        assert not r['data']['ok'], "bad kernel was not flagged"
+        print(f"ok={r['data']['ok']}, errors={r['data']['errors'][0][:120]}...")
+
+        # Test 6: temp nodes cleaned up
+        print("\n--- Diagnostics 6: cleanup check ---")
+        r = send(websocket, {
+            'type': 'execute_python',
+            'code': "result = ["
+                    "n.path() for root in ('/obj', '/img') for n in "
+                    "hou.node(root).children() if '__bridge' in n.name()]",
+        })
+        leftovers = (r.get('data') or {}).get('result')
+        assert not leftovers, f"temp nodes left behind: {leftovers}"
+        print("no temp nodes left behind")
+
+        print("\n[ok] Diagnostics tests passed!")
+
+
 def test_batch_commands():
     """Test batch command execution"""
     uri = "ws://localhost:9876"
@@ -187,6 +262,9 @@ if __name__ == "__main__":
     
     # Run basic tests
     test_connection(port)
-    
+
+    # New diagnostics commands (get_errors / validate_vex)
+    test_diagnostics(port)
+
     # Uncomment to test batch commands:
     # test_batch_commands()

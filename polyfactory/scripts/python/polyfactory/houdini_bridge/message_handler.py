@@ -162,7 +162,9 @@ class MessageHandler:
             'set_parameter',
             'execute_python',
             'write_network',
-            'load_scene'
+            'load_scene',
+            'validate_vex',  # creates/destroys a temp wrangle (undo-disabled)
+            'validate_opencl',  # creates/destroys a temp copnet (undo-disabled)
         }
         return command.get('type') in destructive_types
     

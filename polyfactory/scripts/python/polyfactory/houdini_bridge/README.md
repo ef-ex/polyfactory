@@ -273,6 +273,41 @@ Set `result` variable to return value to agent.
 }
 ```
 
+### Diagnostics
+
+**Get Errors** (nodes whose last cook errored/warned; omit `node_path` to sweep the scene):
+```python
+{
+    'type': 'get_errors',
+    'node_path': '/obj/geo1',   # Optional; None sweeps /obj, /stage, /mat, /out, /img, /tasks
+    'recurse': True,            # Optional
+    'cook_first': False,        # Optional; force-cook node_path before reading
+    'include_warnings': True,   # Optional
+    'max_results': 100          # Optional
+}
+```
+
+**Validate VEX** (compile a snippet in a throwaway wrangle, return real compiler errors):
+```python
+{
+    'type': 'validate_vex',
+    'snippet': '@P.y += 0.1 * sin(@P.x);',
+    'run_over': 'points',        # Optional: points/vertices/prims/detail
+    'input_node': '/obj/geo1/grid1'  # Optional SOP; default is a temp grid
+}
+```
+
+**Validate OpenCL** (compile a Copernicus COP kernel in a throwaway opencl node).
+The kernel must include its `#bind` directives and a writable output bind, or it
+fails at binding before the compiler runs:
+```python
+{
+    'type': 'validate_opencl',
+    'kernel': '#bind layer !&dst float\n\n@KERNEL\n{\n    @dst.set(1.0f);\n}\n',
+    'input_node': '/img/copnet1/somecop'  # Optional COP; default is a temp copnet
+}
+```
+
 ### Batch Commands
 
 Execute multiple commands:
@@ -313,6 +348,8 @@ Control command execution safety:
 - set_parameter
 - execute_python
 - load_scene
+- validate_vex (creates/destroys a temp wrangle)
+- validate_opencl (creates/destroys a temp copnet)
 
 ## Testing
 

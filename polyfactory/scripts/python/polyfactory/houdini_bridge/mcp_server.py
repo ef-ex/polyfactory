@@ -180,6 +180,63 @@ def houdini_save_scene(filepath: Optional[str] = None) -> Dict[str, Any]:
 
 
 # --------------------------------------------------------------------------- #
+# Diagnostics — read real cook errors; compile-check VEX before committing it
+# --------------------------------------------------------------------------- #
+
+@mcp.tool()
+def houdini_get_errors(
+    node_path: Optional[str] = None,
+    recurse: bool = True,
+    cook_first: bool = False,
+    include_warnings: bool = True,
+    max_results: int = 100,
+) -> Dict[str, Any]:
+    """Report nodes whose last cook produced errors/warnings — the actual error
+    strings, not guesses. Pass `node_path` to inspect one subtree (set
+    `cook_first=True` to force-cook it first); omit it to sweep the whole scene
+    (/obj, /stage, /mat, /out, /img, /tasks). Only nodes WITH issues are
+    returned. After building or editing a network, call this instead of
+    assuming the cook succeeded."""
+    return _call("get_errors", node_path=node_path, recurse=recurse,
+                 cook_first=cook_first, include_warnings=include_warnings,
+                 max_results=max_results)
+
+
+@mcp.tool()
+def houdini_validate_vex(
+    snippet: str,
+    run_over: str = "points",
+    input_node: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Compile a VEX snippet in a throwaway wrangle and return the REAL compiler
+    errors/warnings — iterate here instead of pasting unverified VEX into the
+    scene. `run_over` is one of points/vertices/prims/detail. Pass `input_node`
+    (a SOP path) to validate against that node's actual geometry and attributes;
+    otherwise a small temp grid is used. On success also returns resulting
+    point/prim counts and attribute names so you can check the snippet did what
+    you intended. Temp nodes are cleaned up automatically."""
+    return _call("validate_vex", snippet=snippet, run_over=run_over,
+                 input_node=input_node)
+
+
+@mcp.tool()
+def houdini_validate_opencl(
+    kernel: str,
+    input_node: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Compile an OpenCL (Copernicus COP) kernel in a throwaway opencl node and
+    return the REAL compiler and binding errors — iterate here instead of
+    pasting unverified kernel code into the scene. `kernel` must be complete
+    kernelcode INCLUDING its #bind directives and a writable output bind (e.g.
+    '#bind layer !&dst float'); without one the node fails at binding before
+    the compiler runs. Pass `input_node` (a COP node path) to validate a kernel
+    that binds upstream layers against real inputs; otherwise it runs
+    standalone in a temp copnet under /img. Temp nodes are cleaned up
+    automatically."""
+    return _call("validate_opencl", kernel=kernel, input_node=input_node)
+
+
+# --------------------------------------------------------------------------- #
 # Reflection / API docs — read live from Houdini's own help server
 # --------------------------------------------------------------------------- #
 
