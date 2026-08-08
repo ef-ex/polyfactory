@@ -116,6 +116,27 @@ float pfsj_corner_radius(const string street_class) {
 }
 
 
+// Arc centre for a circle of radius `radius` passing through BOTH p and q,
+// bulging away from `inside`.
+//
+// The junction polygon must use the streets' actual perpendicular cap corners,
+// but the fillet was solved from the kerb tangents, which sit at a different
+// axial distance. Re-fitting the arc through the cap corners makes the patch
+// meet each road exactly instead of overlapping it.
+vector pfsj_arc_centre_through(const vector p, q, inside; const float radius) {
+    vector mid = (p + q) * 0.5;
+    vector chord = q - p;
+    float halfc = length(chord) * 0.5;
+    if (halfc < PFSJ_EPS) return mid;
+    float r = max(radius, halfc);                 // a smaller circle cannot reach both
+    float h = sqrt(max(r * r - halfc * halfc, 0.0));
+    vector up = {0, 1, 0};
+    vector perp = normalize(cross(normalize(chord), up));
+    if (dot(perp, mid - inside) < 0) perp = -perp;   // bulge away from the node
+    return mid + perp * h;
+}
+
+
 // Sample a point on the fillet arc. `t` runs 0..1 from tanA to tanB, taking
 // the SHORT way round, which is the side the junction is on.
 vector pfsj_arc_point(const vector arc_centre, tanA, tanB; const float t) {
