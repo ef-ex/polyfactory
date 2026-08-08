@@ -31,33 +31,10 @@ def register_viewer_states():
         print(f"Failed to register asset placement state: {e}")
 
 
-def start_bridge_server():
-    """Auto-start the Houdini Bridge (AI-agent control) on interactive launch.
-
-    `123.py` runs once at Houdini startup (per SideFX docs), so the session-level
-    bridge starts a single time. Skipped in headless/hython (HDA build scripts
-    must not open a socket) and when PF_BRIDGE_AUTOSTART=0.
-
-    Fully hardened: no failure here may raise into Houdini startup. On any
-    problem we emit ONE controlled line and let Houdini carry on.
-    """
-    try:
-        import os
-        if not hou.isUIAvailable():
-            return
-        if os.environ.get("PF_BRIDGE_AUTOSTART", "1") == "0":
-            return
-        from polyfactory.houdini_bridge import start_server
-        server = start_server()
-        if server is not None and server.is_running():
-            print(f"[PF Bridge] started on {server.host}:{server.port}")
-        else:
-            print("[PF Bridge] did not start (port busy or server not running). "
-                  "Houdini is unaffected; start manually from the AI Bridge shelf.")
-    except Exception as exc:
-        # Controlled, single-line report — never a traceback at startup.
-        print(f"[PF Bridge] autostart failed: {type(exc).__name__}: {exc}. "
-              "Houdini is unaffected; start manually from the AI Bridge shelf.")
+# The in-repo Houdini bridge used to autostart here. It is gone: the bridge
+# lives in its own repo (ef-ex/houdini-mcp) and is started by that package.
+# Autostarting a second copy bound both to port 9876, so which one actually
+# served a request depended on start order.
 
 
 # Run startup hooks. Each is independently guarded so one failing cannot stop
@@ -66,4 +43,3 @@ try:
     register_viewer_states()
 except Exception as exc:
     print(f"[PF] viewer-state registration failed: {type(exc).__name__}: {exc}")
-start_bridge_server()
