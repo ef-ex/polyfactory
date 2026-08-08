@@ -1,0 +1,135 @@
+#ifndef __pf_streetjunction_vfl__
+#define __pf_streetjunction_vfl__
+
+// CityGen - S5 intersection geometry.
+// Design: ideas/citygen_streets.md section S5.
+//
+// BASED ON HANNES' OWN SOLVER (attribwrangle62 / attribwrangle77 in
+// cityGen.hip), which solves the exact point where the KERB LINES of two
+// adjacent streets intersect, then fillets that corner with a circular arc.
+// That is the correct construction and it predates any research here.
+//
+// Do NOT replace this with "trim every street back by a radius". A single
+// scalar per node is wrong whenever incident widths or angles differ, which is
+// nearly always; it gaps or overlaps by construction.
+//
+// Three refinements from sources (see resources/citygen/README.md):
+//   * the corner formula IS a stroke MITER JOIN, so it spikes to infinity at
+//     shallow angles. Cured with a miter limit + bevel fallback, exactly as in
+//     SVG stroke rendering.
+//   * trim each street per PAIR, to the fillet tangent point, not per node
+//     (A/B Street).
+//   * corner radius comes from street class via design speed, not a constant
+//     (StreetGen, all of Paris).
+
+#define PFSJ_EPS 1e-6
+
+
+// Simplification of Hannes' derivation. With beta = angle and
+// alpha = pi/2 - angle, both his sideA and sideB divide by sin(angle):
+//     corner = centre + (dirA*(wB/2) + dirB*(wA/2)) / sin(angle)
+// which is the intersection of the two offset kerb lines.
+//
+// `ok` returns 0 when the streets are collinear and no finite corner exists.
+vector pfsj_corner(const vector centre, dirA, dirB;
+                   const float wA, wB; export int ok) {
+    float d = clamp(dot(dirA, dirB), -1.0, 1.0);
+    float ang = acos(d);
+    float s = sin(ang);
+    if (s < 0.02) {                 // ~1.1 degrees: collinear, miter undefined
+        ok = 0;
+        return centre;
+    }
+    ok = 1;
+    return centre + (dirA * (wB * 0.5) + dirB * (wA * 0.5)) / s;
+}
+
+
+// Miter length relative to the widest incident half-width. Above the limit the
+// spike must be replaced by a bevel. SVG's default limit is 4.0, which bevels
+// below roughly 29 degrees.
+float pfsj_miter_ratio(const vector centre, corner; const float wA, wB) {
+    float half = max(wA, wB) * 0.5;
+    return half < PFSJ_EPS ? 1e9 : distance(centre, corner) / half;
+}
+
+
+// The two bevel points, used when the miter is over the limit: the kerb
+// offsets of each street taken at the junction centre.
+void pfsj_bevel(const vector centre, dirA, dirB; const float wA, wB;
+                export vector bA, bB) {
+    vector up = {0, 1, 0};
+    vector nA = normalize(cross(dirA, up));
+    vector nB = normalize(cross(dirB, up));
+    if (dot(nA, dirB) < 0) nA = -nA;      // face the neighbour
+    if (dot(nB, dirA) < 0) nB = -nB;
+    bA = centre + nA * (wA * 0.5);
+    bB = centre + nB * (wB * 0.5);
+}
+
+
+// Fillet inscribed in the corner: centre sits r/sin(theta/2) from the corner
+// along the inner bisector, tangents sit r/tan(theta/2) back along each kerb.
+// The radius is CLAMPED to what the junction can actually hold. The tangent
+// run is r/tan(theta/2); if that exceeds the distance from the corner back to
+// the junction centre along either street, the fillet wraps behind the centre
+// and the junction turns inside out. A 9m radius does not fit where the
+// crossing street is only 12m wide. `radius_used` reports what was applied.
+void pfsj_fillet(const vector centre, corner, dirA, dirB; const float radius;
+                 export vector arc_centre, tanA, tanB;
+                 export float radius_used; export int ok) {
+    float d = clamp(dot(dirA, dirB), -1.0, 1.0);
+    float theta = acos(d);
+    float half = theta * 0.5;
+    if (sin(half) < 0.02 || tan(half) < PFSJ_EPS) {
+        ok = 0; radius_used = 0.0;
+        arc_centre = corner; tanA = corner; tanB = corner;
+        return;
+    }
+    ok = 1;
+
+    float runA = dot(corner - centre, dirA);
+    float runB = dot(corner - centre, dirB);
+    float t = min(radius / tan(half), 0.9 * min(runA, runB));
+    t = max(t, 0.0);
+    radius_used = t * tan(half);
+
+    tanA = corner - dirA * t;
+    tanB = corner - dirB * t;
+    vector bis = normalize(dirA + dirB);
+    if (length(dirA + dirB) < PFSJ_EPS) bis = dirA;
+    arc_centre = corner - bis * (radius_used / sin(half));
+}
+
+
+// Turning radius from design speed, after StreetGen's road-type -> speed -> r
+// chain. A default the artist overrides, never a constant.
+float pfsj_corner_radius(const string street_class) {
+    if (street_class == "highway")   return 25.0;
+    if (street_class == "arterial")  return 9.0;
+    if (street_class == "collector") return 6.0;
+    if (street_class == "alley")     return 2.0;
+    return 4.0;                                   // local
+}
+
+
+// Sample a point on the fillet arc. `t` runs 0..1 from tanA to tanB, taking
+// the SHORT way round, which is the side the junction is on.
+vector pfsj_arc_point(const vector arc_centre, tanA, tanB; const float t) {
+    vector a = tanA - arc_centre;
+    vector b = tanB - arc_centre;
+    float r = length(a);
+    if (r < PFSJ_EPS) return tanA;
+    vector an = normalize(a), bn = normalize(b);
+    float d = clamp(dot(an, bn), -1.0, 1.0);
+    float sweep = acos(d);
+    if (sweep < PFSJ_EPS) return tanA;
+    vector axis = cross(an, bn);
+    if (length(axis) < PFSJ_EPS) return tanA;
+    axis = normalize(axis);
+    matrix3 m = ident();
+    rotate(m, sweep * t, axis);
+    return arc_centre + (an * m) * r;
+}
+
+#endif
