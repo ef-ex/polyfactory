@@ -268,14 +268,53 @@ straightforward once the graph is trustworthy.
 
 ### S5 — Intersections
 
-At a node of degree *n*: trim each incident street end back by a radius derived from the widest
-incident `streetWidth`, then build the junction surface joining the trimmed ends, matching
-cross-section element boundaries across the junction where the element types agree (lane meets
-lane, sidewalk meets sidewalk).
+**Hannes' own solver (`attribwrangle62` / `attribwrangle77` in `cityGen.hip`) is the basis. It is
+correct, and it predates any research.** Do not replace it — extend it.
 
-Known-hard cases to prototype rather than assume: skewed 3-way, degree ≥ 5, junctions between
-very different widths, junctions on a grade. Roundabouts are a distinct construction, not a
-parameter tweak.
+Its method, per adjacent pair of incident streets around a node: solve where the two **kerb lines**
+intersect, place a fillet centre on the bisector, find the tangent points where that circle meets
+each kerb, and emit the junction polygon with arc points between them.
+
+```c
+angle = acos(dotProd) * dirSwitch;
+alpha = piHalf - angle;  beta = piHalf - alpha;
+sideB = (widthB/2)/cos(alpha);
+sideA = (widthA/2)/sin(beta);
+newPoint = center + dirB*sideA + dirA*sideB;   // exact kerb-line intersection
+```
+
+> ⚠️ **A trim-back-by-a-radius approach cannot work and should not be attempted again.** A single
+> scalar pull-back per node is wrong whenever incident widths or angles differ, which is almost
+> always: it gaps or overlaps by construction. Measured on the generated city it left 1,380 of
+> 1,399 overlaps clustered at junctions. Solve the kerb intersection; do not approximate it.
+
+#### What the literature adds
+
+Neither Chen 2008 nor Parish & Müller build intersection surfaces (see the reference README). The
+useful sources are StreetGen 2018 and A/B Street's design notes.
+
+1. **The formula above is a miter join.** `(width/2)/cos(alpha)` is exactly the stroke-rendering
+   miter offset, and it blows up as the angle shallows — the classic **miter spike**. The standard
+   fix is a **miter limit with bevel fallback**: when miter length / width exceeds the limit,
+   replace the spike with a straight bevel. SVG's default limit of 4.0 bevels below ~29°. This is
+   the principled cure for the shallow-angle junctions that produced absurd corner points.
+2. **Trim per pair, not per node.** A/B Street trims each road back to where a perpendicular from
+   the collision point meets that road's centreline — a different distance for every road at the
+   junction. Our sweep should end at the tangent points the solver already computes.
+3. **Corner radius from street class, not a constant.** StreetGen derives the turning radius from
+   road type → design speed → radius (empirical SETRA function). `cornerRadius = 3` becomes a
+   per-class default the artist overrides — which is §1.3 applied.
+4. **Angular sort needs a distance tie-breaker.** Sorting junction points purely by angle produces
+   **bowtie** polygons when incident roads curve. A/B Street hit this and fixes it with distance.
+5. **Robust fallback when trig degenerates.** StreetGen finds the arc centre by buffering each axis
+   by `width + r` and intersecting the buffer boundaries, taking the candidate nearest the node.
+   Slower, but it survives cases where the closed form does not.
+6. **Do not boolean-union road polygons.** A/B Street reports it as unreliable for three-way
+   intersections. Ruled out.
+
+Known-hard cases still to prototype: degree ≥ 5, junctions between very different widths, junctions
+on a grade, and dual-carriageway short-road clusters (A/B Street collapses these into a single
+intersection). Roundabouts are a distinct construction, not a parameter tweak.
 
 ### S5b — Bridges, tunnels, ramps
 
