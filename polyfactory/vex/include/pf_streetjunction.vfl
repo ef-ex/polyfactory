@@ -88,17 +88,20 @@ void pfsj_fillet(const vector centre, corner, dirA, dirB; const float radius;
     }
     ok = 1;
 
-    float runA = dot(corner - centre, dirA);
-    float runB = dot(corner - centre, dirB);
-    float t = min(radius / tan(half), 0.9 * min(runA, runB));
-    t = max(t, 0.0);
-    radius_used = t * tan(half);
+    // The kerb fillet rounds the BLOCK corner, so it sits OUTSIDE the junction:
+    // the tangent points run away from the node along each kerb, and the arc
+    // centre is on the far side of the corner. Rounding inwards instead makes
+    // the tangents fall short of the kerb intersection, so each street gets
+    // trimmed LESS than the clearance it needs and the two drive straight
+    // through each other. That was the visible failure.
+    radius_used = radius;
+    float t = radius_used / tan(half);
 
-    tanA = corner - dirA * t;
-    tanB = corner - dirB * t;
+    tanA = corner + dirA * t;
+    tanB = corner + dirB * t;
     vector bis = normalize(dirA + dirB);
     if (length(dirA + dirB) < PFSJ_EPS) bis = dirA;
-    arc_centre = corner - bis * (radius_used / sin(half));
+    arc_centre = corner + bis * (radius_used / sin(half));
 }
 
 
