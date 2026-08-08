@@ -137,6 +137,39 @@ vector pfsj_arc_centre_through(const vector p, q, inside; const float radius) {
 }
 
 
+// Inward miter offset of one vertex of a closed boundary.
+//
+// The junction surface has to carry the street cross-section through it -
+// sidewalk band, kerb riser, carriageway - not be a flat plate. Offsetting the
+// outer boundary inward by the local sidewalk width gives the kerb line, and
+// because the offset at a cap corner equals that street's own sidewalk width,
+// the kerb lines up with the road's kerb exactly (citygen_streets.md S5:
+// "matching cross-section element boundaries ... sidewalk meets sidewalk").
+//
+// A plain per-edge offset would leave gaps at corners, so the vertex is moved
+// along the bisector with the usual 1/cos correction.
+vector pfsj_inward_offset(const vector prev, cur, next, inside; const float dist) {
+    vector up = {0, 1, 0};
+    vector e1 = cur - prev, e2 = next - cur;
+    e1.y = 0; e2.y = 0;
+    if (length(e1) < PFSJ_EPS) e1 = e2;
+    if (length(e2) < PFSJ_EPS) e2 = e1;
+    if (length(e1) < PFSJ_EPS) return cur;
+    e1 = normalize(e1); e2 = normalize(e2);
+
+    vector n1 = normalize(cross(e1, up));
+    vector n2 = normalize(cross(e2, up));
+    if (dot(n1, inside - cur) < 0) n1 = -n1;      // face the interior
+    if (dot(n2, inside - cur) < 0) n2 = -n2;
+
+    vector bis = n1 + n2;
+    if (length(bis) < PFSJ_EPS) return cur + n1 * dist;
+    bis = normalize(bis);
+    float c = max(dot(bis, n1), 0.25);            // clamp the miter blow-up
+    return cur + bis * (dist / c);
+}
+
+
 // Sample a point on the fillet arc. `t` runs 0..1 from tanA to tanB, taking
 // the SHORT way round, which is the side the junction is on.
 vector pfsj_arc_point(const vector arc_centre, tanA, tanB; const float t) {
