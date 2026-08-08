@@ -479,6 +479,35 @@ generation time. Everything in the edit-and-override design depends on it.
 
 ---
 
+## 6b. Shipped V1 assets
+
+Four HDAs in `polyfactory/otls/`, versioned. Examples live in `/obj/citygen_examples`.
+
+| Asset | In → Out |
+|---|---|
+| `pf_citygen_field_grid` | — → a field **source descriptor** (one point: type, centre, weight, falloff, bearing). Chainable via its input |
+| `pf_citygen_field_radial` | same, radial |
+| `pf_citygen_trace` | field sources → street centrelines (tensor sum, RK2, occupancy spacing) |
+| `pf_citygen_streets` | **any curves** → out0 city geometry · out1 blocks · out2 lots · **out3 street graph** (the data stream, Contract 8) |
+
+Field sources are descriptors rather than baked grids, so any number merge and blend for free.
+`pf_citygen_streets` accepts a hand-drawn Draw Curve and a traced field identically — that is the
+whole point of S3 being the contract.
+
+Verified end to end: drawn curves 15 streets → 2 blocks → 59 lots · grid field 64 → 9 → 520 ·
+radial field 78 → 12 → 835.
+
+⚠️ **Traps hit while building these, worth not rediscovering:**
+- `createDigitalAsset` does **not** carry a subnet's parameter interface. Set it on the
+  definition afterwards or the asset ships with no parameters.
+- Copied foreach nodes keep **absolute** `blockpath`/`templatepath` references to where they were
+  copied *from*. All three examples silently produced byte-identical output until those were made
+  relative.
+- `sweep`'s `crosssectionattrib` **cycles** cross-sections along a curve; it does not select one
+  per curve. Per-template branches, not a loop.
+- A per-piece foreach can serve **stale cache**: its output stayed bit-identical while its input
+  changed. Explicit branches are worth the node count.
+
 ## 7. Where the code goes
 
 Matching existing repo conventions:
