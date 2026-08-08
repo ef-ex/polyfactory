@@ -66,6 +66,25 @@ string pfsg_elem_id(const string prefix; const string kind; const int index) {
 }
 
 
+// Position at arc length `d` along a polyline primitive.
+// Needed because a cleaned-up street is often just two points: anything that
+// walks VERTICES rather than LENGTH will place nothing between them.
+vector pfsg_pos_at_length(const int geo, prim; const float d) {
+    int pts[] = primpoints(geo, prim);
+    if (len(pts) == 0) return {0, 0, 0};
+    float acc = 0;
+    for (int i = 1; i < len(pts); i++) {
+        vector a = point(geo, "P", pts[i - 1]);
+        vector b = point(geo, "P", pts[i]);
+        float s = distance(a, b);
+        if (acc + s >= d)
+            return lerp(a, b, s > 1e-9 ? (d - acc) / s : 0.0);
+        acc += s;
+    }
+    return vector(point(geo, "P", pts[-1]));
+}
+
+
 // Average of a primitive's points.  Exact for a rectangle, and inside the
 // loop for any convex block; an L-shaped block could in principle place it
 // outside, which would misclassify that block. Acceptable for v1.
