@@ -11,6 +11,9 @@ polyfactory/toolbar/polyfactory_dev.shelf
 # asset library and database
 polyfactory/library/
 
+# local-only reference material, scans, notes, source data
+polyfactory/resources/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
