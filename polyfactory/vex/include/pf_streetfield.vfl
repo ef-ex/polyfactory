@@ -1,0 +1,127 @@
+#ifndef __pf_streetfield_vfl__
+#define __pf_streetfield_vfl__
+
+// CityGen - S1 direction field, S2 tracing.
+// Design: ideas/citygen_streets.md
+//
+// A street direction field has 180-degree ambiguity: "east-west" and
+// "west-east" are the same street.  Averaging direction VECTORS therefore
+// cancels opposing contributions to zero, which is why naive blends collapse
+// in the middle.  The fix is Chen 2008's: encode each contribution as a
+// tensor (cos 2t, sin 2t), sum THOSE, and recover the angle at the end.
+// Opposing directions then reinforce instead of annihilating.
+//
+// Generators are pluggable and blend by weighted sum, which is what makes
+// "circle here, grid there, mix them" work.
+
+// ---------------------------------------------------------------------------
+// tensor encoding
+// ---------------------------------------------------------------------------
+
+vector2 pfsf_tensor(const float theta, weight) {
+    return weight * set(cos(2.0 * theta), sin(2.0 * theta));
+}
+
+float pfsf_theta(const vector2 t) {
+    return 0.5 * atan2(t.y, t.x);
+}
+
+// Magnitude near zero means the field is degenerate here and tracing must
+// stop - the direction is not defined.
+float pfsf_strength(const vector2 t) {
+    return length(t);
+}
+
+vector pfsf_major(const float theta) { return set(cos(theta), 0, sin(theta)); }
+vector pfsf_minor(const float theta) { return set(-sin(theta), 0, cos(theta)); }
+
+
+// ---------------------------------------------------------------------------
+// generators.  each returns a tensor contribution at p.
+// ---------------------------------------------------------------------------
+
+// Uniform grid at a fixed bearing.
+vector2 pfsf_gen_grid(const float angle_deg, weight) {
+    return pfsf_tensor(radians(angle_deg), weight);
+}
+
+// Radial: streets run toward/around a centre.  falloff is the radius at which
+// the influence has decayed to about a third.
+vector2 pfsf_gen_radial(const vector p, centre; const float weight, falloff) {
+    vector d = p - centre;
+    d.y = 0;
+    float r = length(d);
+    if (r < 1e-4) return set(0, 0);
+    float w = weight * exp(-r / max(falloff, 1e-4));
+    return pfsf_tensor(atan2(d.z, d.x), w);
+}
+
+// Organic: a base bearing perturbed by noise.  This is what produces
+// irregular, non-grid street patterns - and it IS a field, so the existing
+// tracer handles it unchanged.
+vector2 pfsf_gen_organic(const vector p; const float base_deg, amp_deg, scale, weight) {
+    float n = noise(p / max(scale, 1e-4)) * 2.0 - 1.0;
+    return pfsf_tensor(radians(base_deg + n * amp_deg), weight);
+}
+
+// Terrain-aligned: streets follow contours (perpendicular to the gradient).
+vector2 pfsf_gen_contour(const vector gradient; const float weight) {
+    vector g = set(gradient.x, 0, gradient.z);
+    if (length(g) < 1e-5) return set(0, 0);
+    return pfsf_tensor(atan2(g.x, -g.z), weight);
+}
+
+
+// ---------------------------------------------------------------------------
+// sampling + integration
+// ---------------------------------------------------------------------------
+
+// Nearest-sample the baked tensor field stored on a point cloud.
+vector2 pfsf_sample(const int geo; const vector p) {
+    int pt = nearpoint(geo, p);
+    if (pt < 0) return set(0, 0);
+    return vector2(point(geo, "tensor", pt));
+}
+
+// One RK2 (midpoint) step.  Forward Euler drifts on curved fields and gives
+// the characteristic wobble; the midpoint re-evaluation costs one extra
+// lookup and removes it.
+//
+// `prev` disambiguates the eigenvector sign: the field has no inherent
+// direction, so each step must pick the branch that continues the street
+// rather than doubling back.
+vector pfsf_step_rk2(const int geo; const vector pos, prev;
+                     const float h; const int use_minor) {
+    vector2 t0 = pfsf_sample(geo, pos);
+    if (pfsf_strength(t0) < 1e-6) return set(0, 0, 0);
+    float a0 = pfsf_theta(t0);
+    vector d0 = use_minor ? pfsf_minor(a0) : pfsf_major(a0);
+    if (dot(d0, prev) < 0) d0 = -d0;
+
+    vector mid = pos + d0 * (h * 0.5);
+    vector2 t1 = pfsf_sample(geo, mid);
+    if (pfsf_strength(t1) < 1e-6) return d0 * h;
+    float a1 = pfsf_theta(t1);
+    vector d1 = use_minor ? pfsf_minor(a1) : pfsf_major(a1);
+    if (dot(d1, prev) < 0) d1 = -d1;
+
+    return d1 * h;
+}
+
+
+// ---------------------------------------------------------------------------
+// occupancy grid - what stops the output being spaghetti
+// ---------------------------------------------------------------------------
+//
+// Independent streamlines with no spacing rule produce a mat of near-parallel
+// curves.  A coarse occupancy grid gives O(1) proximity termination: a trace
+// stops when it enters a cell an earlier trace already claimed.
+
+int pfsf_cell(const vector p, origin; const float cell; const int nx, nz) {
+    int ix = int(floor((p.x - origin.x) / cell));
+    int iz = int(floor((p.z - origin.z) / cell));
+    if (ix < 0 || iz < 0 || ix >= nx || iz >= nz) return -1;
+    return iz * nx + ix;
+}
+
+#endif
