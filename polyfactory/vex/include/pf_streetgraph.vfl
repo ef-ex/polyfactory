@@ -1,0 +1,118 @@
+#ifndef __pf_streetgraph_vfl__
+#define __pf_streetgraph_vfl__
+
+// CityGen - street graph helpers.
+// Design: ideas/citygen_streets.md
+//
+// Runtime lives in VEX, not Python: these run per element on every cook, and
+// the HOM geometry API is single threaded.  Python is reserved for things that
+// are not geometry - preset authoring and report formatting.
+//
+// Junction vocabulary follows CityEngine's connection classes. That is a
+// naming convention, not a dependency.
+
+#define PFSG_STREET      "STREET"
+#define PFSG_CROSSING    "CROSSING"
+#define PFSG_JUNCTION    "JUNCTION"
+#define PFSG_DEAD_END    "DEAD_END"
+#define PFSG_PORTAL      "PORTAL"
+#define PFSG_ROUNDABOUT  "ROUNDABOUT"
+
+
+// Arc length of a polyline primitive.
+float pfsg_primlength(const int geo, prim) {
+    float total = 0.0;
+    int pts[] = primpoints(geo, prim);
+    for (int i = 1; i < len(pts); i++) {
+        // explicit vector locals: point() is untyped, so distance() would be
+        // ambiguous between its vector2/vector/vector4 overloads
+        vector a = point(geo, "P", pts[i - 1]);
+        vector b = point(geo, "P", pts[i]);
+        total += distance(a, b);
+    }
+    return total;
+}
+
+
+// Topological class of a node from its degree.
+// Degree 2 is a pass-through, even where two streets meet end to end: that is
+// geometrically a corner but topologically not a junction.
+string pfsg_nodeclass(const int degree; const int is_portal) {
+    if (is_portal)    return PFSG_PORTAL;
+    if (degree <= 1)  return PFSG_DEAD_END;
+    if (degree == 2)  return PFSG_STREET;
+    if (degree == 3)  return PFSG_JUNCTION;
+    return PFSG_CROSSING;
+}
+
+
+// Is this primitive a dead-end edge shorter than min_len?
+// Used by the prune loop; iterative because removing one stub exposes the next.
+int pfsg_is_short_stub(const int geo, prim; const float min_len) {
+    int pts[] = primpoints(geo, prim);
+    if (len(pts) < 2) return 1;
+    int d0 = neighbourcount(geo, pts[0]);
+    int d1 = neighbourcount(geo, pts[-1]);
+    if (d0 != 1 && d1 != 1) return 0;
+    return pfsg_primlength(geo, prim) < min_len;
+}
+
+
+// Stable, deterministic element id.  Hierarchical so a pasted region is a
+// prefix rewrite (citygen.md Contract 1), and derived from a canonical sort
+// key rather than cook order so unrelated edits do not renumber it.
+string pfsg_elem_id(const string prefix; const string kind; const int index) {
+    return sprintf("%s/%s_%05d", prefix, kind, index);
+}
+
+
+// Average of a primitive's points.  Exact for a rectangle, and inside the
+// loop for any convex block; an L-shaped block could in principle place it
+// outside, which would misclassify that block. Acceptable for v1.
+vector pfsg_prim_centre(const int geo, prim) {
+    int pts[] = primpoints(geo, prim);
+    vector c = {0, 0, 0};
+    foreach (int pt; pts)
+        c += vector(point(geo, "P", pt));
+    return c / max(1, len(pts));
+}
+
+
+// Ray-crossing point-in-polygon test in the XZ plane.
+int pfsg_point_in_loop_xz(const int geo, prim; const vector p) {
+    int pts[] = primpoints(geo, prim);
+    int n = len(pts), inside = 0;
+    for (int i = 0, j = n - 1; i < n; j = i++) {
+        vector a = point(geo, "P", pts[i]);
+        vector b = point(geo, "P", pts[j]);
+        if (((a.z > p.z) != (b.z > p.z)) &&
+            (p.x < (b.x - a.x) * (p.z - a.z) / (b.z - a.z) + a.x))
+            inside = !inside;
+    }
+    return inside;
+}
+
+
+// Signed area in the XZ plane (shoelace).  Magnitude is the area; the sign is
+// winding, which polyexpand2d does NOT vary between outer and inner loops -
+// so containment, not winding, is what separates a block from a boundary.
+float pfsg_signed_area_xz(const int geo, prim) {
+    int pts[] = primpoints(geo, prim);
+    int n = len(pts);
+    float s = 0;
+    for (int i = 0; i < n; i++) {
+        vector a = point(geo, "P", pts[i]);
+        vector b = point(geo, "P", pts[(i + 1) % n]);
+        s += a.x * b.z - b.x * a.z;
+    }
+    return 0.5 * s;
+}
+
+
+// Signed angle in degrees between two directions in the XZ plane.
+float pfsg_angle_xz(const vector a, b) {
+    vector2 u = set(a.x, a.z), v = set(b.x, b.z);
+    return degrees(atan2(u.x * v.y - u.y * v.x, u.x * v.x + u.y * v.y));
+}
+
+#endif
