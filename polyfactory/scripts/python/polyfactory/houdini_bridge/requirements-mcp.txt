@@ -1,0 +1,6 @@
+# Dependencies for the Houdini Bridge MCP server (mcp_server.py).
+# Install into the env that LAUNCHES the MCP server (not Houdini's interpreter):
+#   F:/projects/polyfactory/.venv/Scripts/pip.exe install -r requirements-mcp.txt
+mcp>=1.2.0
+websockets>=13.0
+msgpack>=1.0.0

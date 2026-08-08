@@ -5,6 +5,15 @@
     },
     {
         "PF_LDRAW":"path/to/ldraw/library"
+    },
+    {
+        "PF_ASSET_LIBRARY": "$POLYFACTORY/library/assets"
+    },
+    {
+        "PF_ASSET_DB": "$POLYFACTORY/library/asset_library.db"
+    },
+    {
+        "HOUDINI_TOOLBAR_PATH": "$POLYFACTORY/toolbar;&"
     }],
     "enable" : true,
     "path" : "$POLYFACTORY"

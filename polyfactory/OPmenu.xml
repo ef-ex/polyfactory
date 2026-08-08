@@ -3,9 +3,36 @@
          implicitly "root_menu"
       -->
   <menu>
+    <scriptItem id="pf_export_to_library">
+      <label>Export to Asset Library</label>
+      <insertAtIndex>49</insertAtIndex>
+      <context>
+        <expression>
+          <![CDATA[
+# Show when in a SOP context with geometry selected
+if isinstance(kwargs["node"].type(), hou.SopNodeType):
+    try:
+        desktop = hou.ui.curDesktop()
+        scene_viewer = desktop.paneTabOfType(hou.paneTabType.SceneViewer)
+        if scene_viewer:
+            geo_selection = scene_viewer.currentGeometrySelection()
+            if geo_selection and geo_selection.prims(geo=kwargs["node"].geometry()):
+                return True
+    except:
+        pass
+return False]]>
+        </expression>
+      </context>
+      <scriptCode>
+        <![CDATA[
+from polyfactory.asset_library.hotkey_export import export_selected_to_library
+export_selected_to_library()]]>
+      </scriptCode>
+    </scriptItem>
+    
     <scriptItem id="pf_test_entry">
       <label>Poly Factory Test Entry</label>
-      <insertAtIndex>49</insertAtIndex>
+      <insertAtIndex>50</insertAtIndex>
       <context>
         <expression>
           <![CDATA[
