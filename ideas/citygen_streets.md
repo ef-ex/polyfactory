@@ -176,6 +176,17 @@ focus of our work"*; Parish only smooths curvature; Subversion does not solve in
 is why S5 has been the hardest stage — there is no canonical answer to copy, and the reference base
 is StreetGen 2018, A/B Street and Hannes' own solver. Expect to keep paying for it.
 
+A **sixth** data point, 2026-08-09: **Cities: Skylines 1 and 2 do not solve junction
+geometry either.** A junction there is a prepared **node mesh**, subdivided ~16 times and
+cut through the middle so the engine can split it around the intersection centre, deformed
+along the spline by a vertex shader. Same family as Epic's kit. Its *data model* is worth
+comparing against ours though — a node holds positions, a segment holds directions, and a
+Bezier is derived from the pair. Details in `resources/citygen/README.md` §4.
+
+There is one genuine solver worth acquiring: **JunctionArt** (AugmentedDesignLab) generates
+intersections with **three to seven incident roads** and outputs OpenDRIVE. It is the only
+reference found that addresses degree-5+ at all, which is exactly our untested case.
+
 A fifth data point, checked 2026-08-09: **Epic's City Sample does not solve junctions either.** It
 ships a modular kit indexed by width pair and quantised angle — three legal road widths (19/27/37),
 a discrete signed angle set for transition pieces, five sidewalk corner angles, and a catch-all
