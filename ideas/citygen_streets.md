@@ -176,6 +176,20 @@ focus of our work"*; Parish only smooths curvature; Subversion does not solve in
 is why S5 has been the hardest stage — there is no canonical answer to copy, and the reference base
 is StreetGen 2018, A/B Street and Hannes' own solver. Expect to keep paying for it.
 
+**⭐ The eighth check changed the conclusion.** BeyondCAD's *Civil Engine* looked like a
+counter-example — it handles intersections, roundabouts and interchanges — but it
+**requires a base model authored in SketchUp or InfraWorks** and only dresses it with
+assets, striping and traffic. It never computes the junction surface either.
+
+Which exposes the real gap: **we have only been reading games and VFX.** Civil engineering
+CAD solves this routinely, because it is regulated work — it is filed under *corridor*,
+*curb return*, *design radius*, *turning template*, *superelevation*, *intersection
+wizard*. Autodesk Civil 3D's intersection wizard builds curb returns from design radii, and
+Transoft's AutoTURN derives the corner radius from **swept-path analysis of the vehicle
+that has to turn through it** — a principled version of the rule we just adopted above.
+That literature is standardised and defensible in a way nothing in the games sources is.
+**Sweep it before the next S5 change.** Links in `resources/citygen/README.md` §4.
+
 A **sixth** data point, 2026-08-09: **Cities: Skylines 1 and 2 do not solve junction
 geometry either.** A junction there is a prepared **node mesh**, subdivided ~16 times and
 cut through the middle so the engine can split it around the intersection centre, deformed

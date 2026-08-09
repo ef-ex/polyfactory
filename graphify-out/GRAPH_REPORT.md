@@ -1,16 +1,16 @@
 # Graph Report - polyfactory  (2026-08-09)
 
 ## Corpus Check
-- 122 files · ~104,939 words
+- 122 files · ~105,094 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1595 nodes · 2442 edges · 96 communities (79 shown, 17 thin omitted)
+- 1595 nodes · 2442 edges · 95 communities (79 shown, 16 thin omitted)
 - Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 290 edges (avg confidence: 0.67)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2c0988ac`
+- Built from commit: `ce982f83`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -103,7 +103,6 @@
 - [[_COMMUNITY_Community 92|Community 92]]
 - [[_COMMUNITY_Community 93|Community 93]]
 - [[_COMMUNITY_Community 96|Community 96]]
-- [[_COMMUNITY_Community 98|Community 98]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `AssetBrowserWidget` - 37 edges
@@ -140,7 +139,7 @@
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 4-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 
-## Communities (96 total, 17 thin omitted)
+## Communities (95 total, 16 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
@@ -171,7 +170,7 @@ Cohesion: 0.05
 Nodes (57): _arc_lengths(), attribute_schema(), every_corner_is_an_arc(), every_mouth_has_a_road(), _fit_circle(), graph_is_planar(), junction_boundary_is_simple(), lot_aspect_ratio() (+49 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.13
+Cohesion: 0.11
 Nodes (5): Ui_LeftColumn, PyIcon, PyLeftColumn, PySlider, QSlider
 
 ### Community 9 - "Community 9"
@@ -199,8 +198,8 @@ Cohesion: 0.12
 Nodes (22): Parm, copy_parameter(), delete_expression(), get_expression_language(), get_expression_string(), get_parm_color(), get_parm_display_value(), has_expression() (+14 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.10
-Nodes (20): BindingManager, Binding Manager - Central coordinator for parameter-widget synchronization  Ma, Manages parameter bindings for an HDA Python Panel UI.          Coordinates up, Poll for external parameter changes (from UI, expressions, etc)., Build a layout containing all registered widgets.                  Args:, Stop polling and clean up resources., Hover Outline Mixin - Animated blue outline on hover for any widget, Polyfactory Widgets Module  Qt widgets for Houdini workflows.  Submodules: (+12 more)
+Cohesion: 0.12
+Nodes (16): Binding Manager - Central coordinator for parameter-widget synchronization  Ma, Build a layout containing all registered widgets.                  Args:, Hover Outline Mixin - Animated blue outline on hover for any widget, Polyfactory Widgets Module  Qt widgets for Houdini workflows.  Submodules:, HoudiniGroupBox, HoudiniHLayout, HoudiniVLayout, Layout Helpers - Houdini-styled layouts  Provides layout classes styled to mat (+8 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.05
@@ -295,8 +294,8 @@ Cohesion: 0.40
 Nodes (4): get_prims_at_path(), get_sdf_type(), generator which returns all prims of type     which are child of given path, get Sdf Value Type      Args:         typ (str) : requested usd type     Ret
 
 ### Community 42 - "Community 42"
-Cohesion: 0.15
-Nodes (9): QWidget, Create a dropdown menu widget bound to a parameter., Create a color picker widget bound to a parameter tuple., Create a button widget (not bound to parameter)., Register a widget-parameter binding., Create a float slider widget bound to a parameter., Create an integer spinbox widget bound to a parameter., Create a string input widget bound to a parameter. (+1 more)
+Cohesion: 0.13
+Nodes (13): QWidget, BindingManager, Create a dropdown menu widget bound to a parameter., Create a color picker widget bound to a parameter tuple., Manages parameter bindings for an HDA Python Panel UI.          Coordinates up, Create a button widget (not bound to parameter)., Register a widget-parameter binding., Poll for external parameter changes (from UI, expressions, etc). (+5 more)
 
 ### Community 43 - "Community 43"
 Cohesion: 0.67
@@ -383,12 +382,12 @@ Cohesion: 0.50
 Nodes (4): 4b. APEX — assessed 2026-08-08. Real fit, but not yet, Verdict, Where it genuinely fits, Where it is the wrong tool
 
 ### Community 74 - "Community 74"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (6): _ToolTip, _ToolTip, _ToolTip, QColor, QLabel, Set background color for expression state.
 
 ### Community 76 - "Community 76"
-Cohesion: 0.17
-Nodes (5): Settings, Themes, object, PyWindow, Styles
+Cohesion: 0.24
+Nodes (4): Settings, object, PyWindow, Styles
 
 ### Community 77 - "Community 77"
 Cohesion: 0.11
@@ -426,19 +425,19 @@ Nodes (4): ParmString, Update visual feedback for expression state., String inpu
 Cohesion: 0.22
 Nodes (6): PlacedAssetsListWidget, Widget displaying list of placed assets with controls, Refresh asset list from multiparm, Delete asset from multiparm, Poll for parameter changes from external sources, Refresh the UI - called when pane becomes active
 
-### Community 96 - "Community 96"
-Cohesion: 0.20
-Nodes (3): Ui_RightColumn, SetupMainWindow, UI_MainWindow
+### Community 91 - "Community 91"
+Cohesion: 0.10
+Nodes (5): Functions, Themes, MainFunctions, SetupMainWindow, UI_MainWindow
 
 ## Knowledge Gaps
 - **268 isolated node(s):** `Project Overview`, `Package Structure`, `Environment Variables`, `Temporary / One-Off Scripts`, `Houdini Bridge - AI Agent Integration` (+263 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **16 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `PyPushButton` connect `Community 78` to `Community 0`, `Community 65`, `Community 36`, `Community 8`, `Community 77`, `Community 47`, `Community 83`, `Community 85`, `Community 88`, `Community 91`, `Community 92`?**
+- **Why does `PyPushButton` connect `Community 78` to `Community 0`, `Community 65`, `Community 36`, `Community 8`, `Community 77`, `Community 47`, `Community 83`, `Community 85`, `Community 88`, `Community 91`?**
   _High betweenness centrality (0.091) - this node is a cross-community bridge._
 - **Why does `HoverOutlineMixin` connect `Community 32` to `Community 0`, `Community 34`, `Community 36`, `Community 78`, `Community 15`, `Community 17`, `Community 83`, `Community 85`, `Community 88`?**
   _High betweenness centrality (0.076) - this node is a cross-community bridge._
