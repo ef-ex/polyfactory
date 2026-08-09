@@ -1,0 +1,136 @@
+#ifndef __pf_streetlots_vfl__
+#define __pf_streetlots_vfl__
+
+// CityGen - S8 lot subdivision.
+// Design: ideas/citygen_streets.md S8.
+//
+// NOT VORONOI. The shipped build used voronoifracture and no reference does:
+//   Parish & Mueller 2001 4.1 - "most of these allotments are convex and
+//   rectangularly shaped ... a recursive algorithm that divides the longest
+//   edges that are approximately parallel", discarding lots that are too small
+//   or have no street access;
+//   CityEngine ships recursive OBB, offset and skeleton and nothing else;
+//   Epic's City_Layout.hda does axis-aligned recursive splitting.
+// Voronoi is why the lots "look very weird".
+//
+// Two modes ship in v1:
+//   recursive_obb - min-area oriented bounding box, split across the long axis,
+//                   recurse. Rectangular, street-facing, back-to-back lots.
+//   offset        - inward offset makes a street-facing ring plus a courtyard
+//                   remainder; the ring is cut orthogonally to the contour.
+//                   This is the EUROPEAN PERIMETER BLOCK and it is a different
+//                   algorithm, not a variation of the first.
+
+#define PFSL_EPS 1e-6
+
+// Signed area in XZ, read as (x, z). Positive = CCW in that convention.
+float pfsl_signed_area(const vector p[]) {
+    float a = 0;
+    int n = len(p);
+    for (int i = 0; i < n; i++) {
+        vector q0 = p[i], q1 = p[(i + 1) % n];
+        a += q0.x * q1.z - q1.x * q0.z;
+    }
+    return a * 0.5;
+}
+
+float pfsl_area(const vector p[]) { return abs(pfsl_signed_area(p)); }
+
+
+// Sutherland-Hodgman half-plane clip: keep the side the normal points AWAY
+// from, i.e. dot(q - p0, nrm) <= 0. Exact for the convex lots this produces,
+// which is also what Parish requires ("forbids the creation of concave
+// allotments") - so a mildly concave block degrades to a convex lot rather
+// than to a self-touching one.
+vector[] pfsl_clip(const vector p[]; const vector p0, nrm) {
+    vector out[];
+    int n = len(p);
+    if (n < 3) return out;
+    for (int i = 0; i < n; i++) {
+        vector a = p[i], b = p[(i + 1) % n];
+        float da = dot(a - p0, nrm), db = dot(b - p0, nrm);
+        if (da <= 0) append(out, a);
+        if ((da < 0 && db > 0) || (da > 0 && db < 0)) {
+            float t = da / (da - db);
+            append(out, a + (b - a) * t);
+        }
+    }
+    return out;
+}
+
+
+// Minimum-area oriented bounding box by rotating calipers over the edge
+// directions - the minimum-area rectangle always has a side flush with an edge.
+// Returns the long axis and both extents.
+void pfsl_obb(const vector p[]; export vector axis; export float lenlong, lenshort;
+              export vector centre) {
+    vector up = {0, 1, 0};
+    int n = len(p);
+    float best = 1e30;
+    axis = {1, 0, 0}; lenlong = 0; lenshort = 0; centre = {0, 0, 0};
+    for (int i = 0; i < n; i++) {
+        vector e = p[(i + 1) % n] - p[i];
+        e.y = 0;
+        if (length(e) < PFSL_EPS) continue;
+        vector u = normalize(e);
+        vector v = normalize(cross(u, up));
+        float u0 = 1e30, u1 = -1e30, v0 = 1e30, v1 = -1e30;
+        for (int k = 0; k < n; k++) {
+            float du = dot(p[k], u), dv = dot(p[k], v);
+            u0 = min(u0, du); u1 = max(u1, du);
+            v0 = min(v0, dv); v1 = max(v1, dv);
+        }
+        float a = (u1 - u0) * (v1 - v0);
+        if (a < best) {
+            best = a;
+            vector mid = u * ((u0 + u1) * 0.5) + v * ((v0 + v1) * 0.5);
+            centre = set(mid.x, 0, mid.z);
+            if ((u1 - u0) >= (v1 - v0)) { axis = u; lenlong = u1 - u0; lenshort = v1 - v0; }
+            else                        { axis = v; lenlong = v1 - v0; lenshort = u1 - u0; }
+        }
+    }
+}
+
+
+float pfsl_seg_dist(const vector a, b, q) {
+    vector ab = b - a;
+    float L2 = dot(ab, ab);
+    if (L2 < PFSL_EPS) return distance(a, q);
+    float t = clamp(dot(q - a, ab) / L2, 0.0, 1.0);
+    return distance(a + ab * t, q);
+}
+
+// Total length of lot edges lying on the block boundary - i.e. STREET FRONTAGE.
+//
+// Measure against the boundary LINES, never against a filled polygon: xyzdist
+// into a polygon returns ~0 everywhere inside it, so every lot passes,
+// including the unbuildable ones. That bug shipped once already.
+float pfsl_frontage(const vector block[], lot[]; const float tol) {
+    float total = 0;
+    int nb = len(block), nl = len(lot);
+    for (int i = 0; i < nl; i++) {
+        vector a = lot[i], b = lot[(i + 1) % nl];
+        vector mid = (a + b) * 0.5;
+        float d = 1e30;
+        for (int k = 0; k < nb; k++)
+            d = min(d, pfsl_seg_dist(block[k], block[(k + 1) % nb], mid));
+        if (d <= tol) total += distance(a, b);
+    }
+    return total;
+}
+
+
+// Emit one lot polygon, dropping the slivers a clip leaves behind.
+int pfsl_emit(const int geo; const vector p[]; const float minarea) {
+    int n = len(p);
+    if (n < 3) return -1;
+    if (pfsl_area(p) < minarea) return -1;
+    int prim = addprim(geo, "poly");
+    for (int i = 0; i < n; i++) {
+        vector q = p[i];
+        addvertex(geo, prim, addpoint(geo, set(q.x, 0, q.z)));
+    }
+    return prim;
+}
+
+#endif

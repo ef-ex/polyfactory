@@ -117,10 +117,10 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 1.01e-07
+      "value": 9.8e-08
     },
     {
-      "detail": "61 prims, 61 distinct footprints",
+      "detail": "88 prims, 88 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -147,9 +147,9 @@
       "skipped": false,
       "value": {
         "blocks": 2,
-        "city": 4271,
+        "city": 4298,
         "edges": 15,
-        "lots": 61
+        "lots": 88
       }
     }
   ],
@@ -271,10 +271,10 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 8e-09
+      "value": 1.1e-08
     },
     {
-      "detail": "419 prims, 419 distinct footprints",
+      "detail": "572 prims, 572 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -301,9 +301,9 @@
       "skipped": false,
       "value": {
         "blocks": 9,
-        "city": 23658,
+        "city": 23811,
         "edges": 66,
-        "lots": 419
+        "lots": 572
       }
     }
   ],
@@ -425,10 +425,10 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 7.8e-08
+      "value": 3.1e-08
     },
     {
-      "detail": "664 prims, 664 distinct footprints",
+      "detail": "948 prims, 948 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -455,9 +455,9 @@
       "skipped": false,
       "value": {
         "blocks": 13,
-        "city": 24280,
+        "city": 24564,
         "edges": 82,
-        "lots": 664
+        "lots": 948
       }
     }
   ]
