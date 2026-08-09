@@ -1028,6 +1028,63 @@ they meet, so the closing segment introduces a 21.3°/14.8° pair of turns again
 median. It does not fold (ratio 0.28 against a threshold of 1.0). **§S3b's curvature clamp
 is the cure** — do not patch it separately.
 
+#### The loop-closure gate, per-gate — measured, and two entries in `80dc19c` were wrong
+
+The commit message for `80dc19c` recorded a ledger of which closure gates actually reject
+anything. Two of its entries do not survive re-measurement. Corrected here, and this table
+— not the commit message — is the ledger. Measured at the tracer output over a **distinct**
+518 config sweep (2 fields × a sep/step ladder, deduplicated as a set: the earlier sweep's
+two blocks overlapped and double-counted 40 of its 584), **12,792 traced streets**. A gate is
+*proven* when it is the **sole** rejector of at least one street, which is the same thing as
+"deleting it would let a weld through".
+
+| Gate | Sole rejector, before | after | Status |
+|---|---|---|---|
+| `chord_forward \|\| seam ≤ close_road_width` | 7 | **0** | **unproven.** The 7 it rejected alone are exactly the 7 the magnitude floor recovers; the retrograde welds that carry the damage all fail a structural gate as well. Kept because it is a real failure mode, not because this field family reaches it |
+| `\|net turn\| ≤ 2π` (one lap) | 2 | 1 | proven |
+| neither half ended on a junction | 19 | 4 | proven |
+| `close_seam_cells = 1.42` | 12 | 9 | proven; worst accepted weld sits at seam/cell **1.405** |
+| `tracelen > 10 × seam` | 8 | 9 | **proven — `80dc19c` recorded it as never firing alone and that is refuted.** Worst accepted weld sits at 10.85 |
+| `close_max_end_angle = 60` | **0** | **0** | **unproven — `80dc19c` recorded it as "proven reachable" and that is refuted.** At the config it cited (radial, plaza_radius 0, domain 120, res 250, step 8, `min_street_sep` 25.6, `seed_spacing` 50) `trace_1_1_1` failed **two** gates, the chord test and the end angle, read off the wrangle's own flags. `chord_forward` subsumes it: a >60° end mismatch nearly always implies a backwards chord. It does become the sole rejector at that one config *after* the floor goes in, but across 12,792 streets it still rejects nothing alone |
+| `close_min_pts = 8` | 0 | 0 | unproven, kept |
+| `sagitta ≤ close_road_width/2` | 0 | **5** | **proven by re-deriving it.** Was `close_max_dev = 13.4`, one *arterial* half-width — and no arterial produces a weld: every weld is a pass-1 minor trace and the graph edge carrying the worst chord is `street_class = local`, `streetWidth = 14.4`. By its own stated rationale the number is **7.2**, so it was 1.86× too loose. At 7.2 it is the sole rejector for the five welds that lay a **151–201 m** straight chord across a 384 m ring |
+
+The magnitude floor under the chord test is the other half of this pass. `chord_forward` is a
+sign test with nothing under it, so it refused the case it was written for: seven closures —
+all radial, r ≈ 100, 0.987–1.000 of a lap — with seams of **0.19 / 1.17 / 1.17 / 1.94 / 1.94 /
+7.08 / 7.52 m**. `graph_fuse` (tol3d 0.5) and `graph_stitch` (proxtol 0.75) are both below
+that, so what shipped was **two dead ends 1–2 m apart**, the defect class §S2 and §4d rank as
+the worst this project has. Both bounds now come off one number, `close_road_width` = 14.4 m,
+so the value and its rationale cannot drift apart again: the chord may sit half a width off
+the arc it replaces, and a seam narrower than one full width is the two ends of the same road
+overlapping, welded regardless of chord sign.
+
+Measured after, over the same sweep: welds 323 → **325** (+7 recovered, −5 refused by the
+re-derived deviation bound), **0 retrograde welds with seam ≥ 8 m**, 0 multi-lap, **0 m** of
+already-traced road under any closing chord, **0** chord self-intersections. Defaults
+byte-identical (B 1294/19/1294, C 1441/28/1443, nine independent digests unchanged), all three
+ground-truth welds unchanged (seam 31.25 / 52.24 / 62.32), and C's r ≈ 100 ring still closes —
+walked in `OUT_graph2` as 158 nodes / 158 edges, every node degree 2, one walk consumes all of
+them and returns to its start, no degree-1 node on the ring. Suite unchanged at 17 failing with
+no movement against `baseline.json`.
+
+⚠️ **The five refusals are a trade, not a free win, and the real cure is elsewhere.** Those
+welds rasterise as a *chamfer* — a complete ring with one flat spot — not as a doubling, so
+refusing them replaces a flattened ring with **two dead ends 151–201 m apart**. Taken on the
+gate's own terms: at 13.18 m off a 14.4 m road the chord is 1.8× outside the paint of the road
+it claims to stand in for, so it is not standing in for it, it is inventing a secant. A gap
+that size is a street that genuinely ended and belongs to **§S3 extend-to-connect** and the
+**§S5 cul-de-sac bulb**, not to a loop-closure gate papering over it. Neither state is good;
+this one at least does not lie about what it is.
+
+⚠️ **The road-under-chord metric is not scale-free unless you make it so.** A fixed 8 m band
+below seam ≈ 16 m only ever sees the chord's own end segments, which is why the earlier sweep
+counted 71 welds instead of the defensible 49. The band used here is one road width (14.4 m,
+the centreline separation at which two 14.4 m ribbons stop overlapping) with a ball of the
+*same* radius around each chord endpoint excluded — nothing in it scales with the seam. It
+follows that the metric cannot register the ≤ 14.4 m of overlap the new floor deliberately
+admits; that overlap is bounded by the floor itself and is the trade being made.
+
 | Item | State |
 |---|---|
 | S5 fillet-always (§S5 "every corner is an arc") | **done, verified independently** — circle fit residual ≤ 2e-5 m, radii exactly the class radii, tangency exact in the continuous sense |
