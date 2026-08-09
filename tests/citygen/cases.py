@@ -169,5 +169,9 @@ INTERNAL = {
     # the corridor's outer boundary curve, carrying is_outer. city_is_fully_paved
     # uses it as the region that must be paved.
     "corridor": "blocks_mark_outer",
+    # S7's collect-and-close: the open kerb runs, and the loops they close into.
+    # block_boundary_closes asserts the invariant the construction rests on.
+    "kerb": "blocks_kerb_fuse",
+    "loops": "blocks_loops",
 }
 OUTPUT_INDEX = {"city": 0, "blocks": 1, "lots": 2, "graph": 3}

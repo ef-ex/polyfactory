@@ -1252,6 +1252,56 @@ def _blobs(np, mask, grid, min_area):
     return out
 
 
+def block_boundary_closes(kerb_node, loops_node):
+    """S7's collect-and-close invariant, which nothing else asserts.
+
+    The block boundary is assembled from open polylines — street frontage runs,
+    junction corner runs, dead-end caps — whose endpoints coincide exactly two
+    at a time, so every joined point has degree 2 and PolyPath falls out into
+    closed loops. PolyPath is a pure topological join: it cannot enforce that
+    precondition, and if the precondition fails it silently emits an OPEN chain,
+    which then ships as a block or as the outer boundary depending on the sign
+    of a meaningless signed area.
+
+    An audit broke it twice in one sitting using rail values that were shipping
+    three commits earlier: `graph_params_min_node_dist` 40 → 30 puts the S5 seam
+    at 0.383 m, past the 0.25 m radius `blocks_kerb` searches for a cap corner,
+    and C came out with 4 open loops of which 3 shipped as blocks;
+    `graph_prune_min_edge_len` 13 → 8 leaves B with two mouths that have no road,
+    and a 10,477 m² block vanished. `lots_tile_blocks` and
+    `lots_clear_of_junctions` stayed green through both.
+
+    Two assertions, both cheap:
+      * after the fuse, every run END coincides with exactly one other run end —
+        multiplicity 2, never 1 (nothing to join to) and never 3 (a T, which
+        PolyPath cannot resolve);
+      * every loop out of PolyPath is closed and has at least 3 vertices.
+
+    Counted over run ENDS, not point vertex counts: a polyline references each of
+    its points from exactly one vertex, interior ones included, so a vertex count
+    says nothing about whether two runs met.
+    """
+    name = "block_boundary_closes"
+    if kerb_node is None or loops_node is None:
+        return _skip(name, "S7 kerb nodes missing")
+    kg, lg = kerb_node.geometry(), loops_node.geometry()
+    seen = collections.Counter()
+    for pr in kg.prims():
+        n = pr.numVertices()
+        if pr.intrinsicValue("closed"):
+            continue                       # a ring street closes on itself
+        for vi in (0, n - 1):
+            seen[pr.vertex(vi).point().number()] += 1
+    bad = collections.Counter(v for v in seen.values() if v != 2)
+    open_loops = sum(1 for pr in lg.prims()
+                     if not pr.intrinsicValue("closed") or pr.numVertices() < 3)
+    value = {"unpaired_ends": sum(bad.values()), "multiplicity": dict(bad),
+             "open_loops": open_loops, "loops": len(lg.prims())}
+    return Result(name, not bad and not open_loops, value,
+                  "every kerb run end must meet exactly one other and every "
+                  "loop must close; an open chain still ships as a block")
+
+
 def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02):
     """No centreline may bend tighter than its class minimum curve radius.
 

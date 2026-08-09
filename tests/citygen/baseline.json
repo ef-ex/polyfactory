@@ -79,6 +79,18 @@
       }
     },
     {
+      "detail": "every kerb run end must meet exactly one other and every loop must close; an open chain still ships as a block",
+      "name": "block_boundary_closes",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "loops": 3,
+        "multiplicity": {},
+        "open_loops": 0,
+        "unpaired_ends": 0
+      }
+    },
+    {
       "detail": "segment crossings with no shared node (per layer)",
       "name": "graph_is_planar",
       "ok": true,
@@ -365,6 +377,18 @@
       }
     },
     {
+      "detail": "every kerb run end must meet exactly one other and every loop must close; an open chain still ships as a block",
+      "name": "block_boundary_closes",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "loops": 16,
+        "multiplicity": {},
+        "open_loops": 0,
+        "unpaired_ends": 0
+      }
+    },
+    {
       "detail": "segment crossings with no shared node (per layer)",
       "name": "graph_is_planar",
       "ok": true,
@@ -648,6 +672,18 @@
         "junctions": 36,
         "m2": 0.0,
         "per_junction": 0.0
+      }
+    },
+    {
+      "detail": "every kerb run end must meet exactly one other and every loop must close; an open chain still ships as a block",
+      "name": "block_boundary_closes",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "loops": 17,
+        "multiplicity": {},
+        "open_loops": 0,
+        "unpaired_ends": 0
       }
     },
     {
@@ -941,6 +977,18 @@
       }
     },
     {
+      "detail": "every kerb run end must meet exactly one other and every loop must close; an open chain still ships as a block",
+      "name": "block_boundary_closes",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "loops": 3,
+        "multiplicity": {},
+        "open_loops": 0,
+        "unpaired_ends": 0
+      }
+    },
+    {
       "detail": "segment crossings with no shared node (per layer)",
       "name": "graph_is_planar",
       "ok": true,
@@ -1224,6 +1272,18 @@
         "junctions": 1,
         "m2": 0.0,
         "per_junction": 0.0
+      }
+    },
+    {
+      "detail": "every kerb run end must meet exactly one other and every loop must close; an open chain still ships as a block",
+      "name": "block_boundary_closes",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "loops": 1,
+        "multiplicity": {},
+        "open_loops": 0,
+        "unpaired_ends": 0
       }
     },
     {

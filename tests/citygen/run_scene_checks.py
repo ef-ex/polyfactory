@@ -79,6 +79,9 @@ def run_case(name, city, field=None):
     out.append(C.city_is_fully_paved(city, inner(cases.INTERNAL["corridor"])))
     # ...and the over-covered half of the same seam
     out.append(C.lots_clear_of_junctions(g_lots, inner(cases.INTERNAL["patches"])))
+    # ...and the precondition both of those rest on
+    out.append(C.block_boundary_closes(inner(cases.INTERNAL["kerb"]),
+                                       inner(cases.INTERNAL["loops"])))
 
     out.append(C.graph_is_planar(g_graph))
     out.append(C.no_orphan_components(g_graph))
