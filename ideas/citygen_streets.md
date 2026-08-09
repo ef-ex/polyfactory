@@ -857,6 +857,24 @@ and `offset` are specified well enough by Parish + CityEngine to build now.
 and were not.** The suite passing is not the same as the feature working — every defect in
 §4e was invisible to it.
 
+⚠️ **Status vocabulary, and it is enforced.** *done* = an independent agent audited it on
+the current build. *implementer-verified* = measured and proven, but by whoever built it.
+*not started* means what it says. Three features were reported "done" in this project that
+had never worked; two of those were never audited and one was audited too late.
+
+### Overnight run — 2026-08-09/10
+
+| Item | State | Evidence |
+|---|---|---|
+| **Ring closure in the radial city** (`8a83baa`) | **implementer-verified** | The two bidirectional halves each soft-stop on the *other half's* occupancy claim, so the seam always lands on an occupancy cell boundary — proved by sweeping `min_street_sep`: 130 → gap at x −7.90, 110 → −71.46, 90 → −39.65, each the boundary that setting creates. Gap was 4.877 m at (−7.90, −99.65), far past the 0.5 m fuse tolerance. Closed on a shared point behind two gates (seam ≤ 2.5 steps **and** traced length > 10× seam; the first rejects a genuinely-ended street, the second stops a stub welding into a triangle). Verified by connectivity walk, not by eye: 5 ring edges, every ring node degree 2, one walk consumes all 5 and returns to start. Suite 23 → 18 failing. **Its audit never reported.** |
+| **S7 kerb-derived blocks, S3b turns** | in progress | — |
+| Node merge/relax, shallow-arm merge, dead ends, majors-enclose-minors | not started | queued behind S7/S3b, which share the same asset |
+
+⚠️ **Known follow-up from the ring fix:** the two halves are radially offset ~1.6 m where
+they meet, so the closing segment introduces a 21.3°/14.8° pair of turns against a 3.28°
+median. It does not fold (ratio 0.28 against a threshold of 1.0). **§S3b's curvature clamp
+is the cure** — do not patch it separately.
+
 | Item | State |
 |---|---|
 | S5 fillet-always (§S5 "every corner is an arc") | **done, verified independently** — circle fit residual ≤ 2e-5 m, radii exactly the class radii, tangency exact in the continuous sense |
