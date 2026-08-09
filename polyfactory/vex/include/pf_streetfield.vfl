@@ -124,4 +124,32 @@ int pfsf_cell(const vector p, origin; const float cell; const int nx, nz) {
     return iz * nx + ix;
 }
 
+
+// ---------------------------------------------------------------------------
+// d_lookahead support
+// ---------------------------------------------------------------------------
+//
+// Chen 2008 6.1: "we improve connectivity by continuing the tracing for a
+// distance dlookahead to search an intersection with other hyperstreamline
+// even when stopping criteria 4 or 5 is met."  Searching for that intersection
+// needs a real crossing test, not a proximity test - the point of the
+// manoeuvre is to land ON another street and become a junction.
+//
+// Returns the parametric position along [a0,a1] where it crosses [b0,b1] in
+// the XZ plane, or -1 when they do not cross.  Returning the parameter rather
+// than an output vector keeps the caller free of VEX's copy-out semantics.
+float pfsf_seg_cross_xz(const vector a0, a1, b0, b1) {
+    vector2 p = set(a0.x, a0.z);
+    vector2 r = set(a1.x - a0.x, a1.z - a0.z);
+    vector2 q = set(b0.x, b0.z);
+    vector2 s = set(b1.x - b0.x, b1.z - b0.z);
+    float den = r.x * s.y - r.y * s.x;
+    if (abs(den) < 1e-12) return -1.0;              // parallel or degenerate
+    vector2 qp = q - p;
+    float t = (qp.x * s.y - qp.y * s.x) / den;
+    float u = (qp.x * r.y - qp.y * r.x) / den;
+    if (t < 0.0 || t > 1.0 || u < 0.0 || u > 1.0) return -1.0;
+    return t;
+}
+
 #endif

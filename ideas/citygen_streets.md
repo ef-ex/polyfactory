@@ -808,8 +808,8 @@ and were not.** The suite passing is not the same as the feature working — eve
 | S8 `recursive_obb` + `offset` lots (§S8) | ⚠️ **partial.** Voronoi is gone and the structure is right, but parcels are ribbons up to 31:1, non-convex blocks produce bowties, and `offset` fails `lots_tile_blocks` (§4e-4,5,6) |
 | `land_use` written (§4d) | **done** |
 | S7 block boundary from the fillet (§S7) | not started |
-| S3 extend-to-connect (§S3 step 2) | not started |
-| S2 `d_lookahead` + priority seeding + density `d_sep` (§S2) | not started |
+| S3 extend-to-connect (§S3 step 2) | **done** — `graph_extend`, before `graph_stitch`. Interior dead ends B 15 → 7, C 28 → 12. Capped by S5, see §4f |
+| S2 `d_lookahead` (§S2) | **done** — soft stops 4 and 5 in the `trace` wrangle. Priority seeding and density `d_sep` still not started |
 | Row 3 majors-enclose-minors (§3b) | not started |
 | Rows 5/6 mask + density inputs (§3b) | not started |
 | Row 8 bridge flag rule (§3b) | not started |
@@ -936,6 +936,15 @@ Found by a fresh agent, none of it visible to the committed suite. Ordered by se
 8. **C `selfx_roads` = 12 is not plaza residue either.** 9 of the 12 are two degree-1
    streets ending 6.7 m apart at (247–255, −95…−99) and driving through each other. A
    snap/extend defect, i.e. §S3 step 2.
+   ⚠️ **Re-diagnosed 2026-08-09 while building §S3 step 2; the second sentence is wrong.**
+   The two ends meet at roughly **90°**, not head on: edge 19 is a 14.4 m `local` arriving
+   from the south-west, edge 37 a 26.8 m `arterial` arriving from the south-east. Joining
+   them yields a **degree-2 corner**, and S5 builds a junction patch only at degree ≥ 3,
+   so the two swept ribbons still overlap. Extend-to-connect cannot fix this and must not
+   try — an early version *extended* edge 19 straight past edge 37's dangling end to a
+   target beyond and took the overlap from 9 points to 26. The corridor rail in
+   `graph_extend` now refuses it and the count is back at 12. **The real fix is corner
+   geometry at degree-2 nodes (S5/S6), not the graph.**
 9. **Lots in intersections, quantified:** 18.8 / 23.2 / **37.9 m² per junction**, worst
    single case 126 m². Confirms §S7 is visibly wrong, as designed-not-yet-built.
 10. Minor: `every_corner_is_an_arc` only checks that arc *points exist*, so it cannot
@@ -944,6 +953,44 @@ Found by a fresh agent, none of it visible to the committed suite. Ordered by se
     `s5j_surface` still starts with two `// nudge` lines · `pfsl_frontage` credits a full
     edge when only its midpoint is near the boundary · `arc_steps = 5` leaves 0.11 m of
     flat-to-arc error on a 9 m corner.
+
+---
+
+## 4f. The junction-spacing ceiling — measured 2026-08-09
+
+Found while building §S2 `d_lookahead` and §S3 step 2. **It is the thing that limits how
+far dead-end elimination can go, and it is an S5 defect, not a graph one.**
+
+Control test, smallest scene where the answer is known: one straight arterial, two
+perpendicular T-junctions on it, varying the gap between them.
+
+| junction gap | `selfx_junction_surface` | streets consumed entirely |
+|---|---|---|
+| 70 / 60 / 55 / 50 m | 0 | 0 |
+| 45 m | 0 | **2** |
+| 42 m | **10** | 2 |
+
+A **lone** T-junction is clean at 90°, 60°, 45° and even 30°, and a 4-way crossing is
+clean. Degree and angle are not the problem — **spacing is**. The cause is §4e-3: with no
+radius clamp, `pfsj_fillet`'s pull-back is `r/tan(theta/2)`, unbounded, so two junctions
+closer than roughly `2 × r/tan(theta/2)` trim away the street between them.
+
+The shipped build never saw this because the tracer's `min_street_sep` of 130 m left **no
+junction pair closer than 55.9 m (B) / 72.3 m (C)**. Every mechanism that adds junctions
+walks straight into it, and the correlation is exact:
+
+| B_grid config | junction pairs < 50 m | `selfx_junction_surface` |
+|---|---|---|
+| shipped | 0 | 0 |
+| + `d_lookahead`, no spacing rail | 1 | 39 |
+| + extend-to-connect, no spacing rail | 13 | 219 |
+| both, with the rail | 0 | 0 |
+
+So `min_node_dist` (already named in §S3 step 4) is enforced as a **rejection rail** in
+both producers, defaulting to 50 m. **Clamp the fillet radius (§4e-3) and that 50 m comes
+down, and the remaining interior dead ends can be connected.** Until then the rail is what
+keeps the suite honest, and it is the single largest reason dead-end elimination stops
+where it does.
 
 ---
 
