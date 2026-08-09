@@ -110,6 +110,7 @@ Not noise — real, tracked defects, all of them findings in
 | C | `no_sweep_fold_after_trim` | ratio 3.21, 2 folds | 4e-7 — the CAUSE of C's `no_downward_faces`: 0.022 m segments under a 7.2 m half-width |
 | C | `no_downward_faces` | 4 | 4e-7 symptom of the above |
 | C | `selfx_roads` | 12 | 4e-8 — two degree-1 streets 6.7 m apart driving through each other |
+| C | `plaza_disc_is_clear` | 10,363 of 11,310 m² built over, 2.45 m gap | 4e-2 — the plaza ring is emitted correctly and deleted before it ships |
 | A B C | `lot_aspect_ratio` | max 10.6 / 31.5 / 25.6 | 4e-4 — ribbons, not rectangles; S8 names the test and never implemented it |
 | B C D | `lots_are_simple_polygons` | 24 / 47 / 1 | 4e-5 — Sutherland–Hodgman bowties on non-convex blocks |
 | D | `lots_tile_blocks` | 0.0061 | 4e-6 — `offset` mode resamples the contour and chords across block vertices |

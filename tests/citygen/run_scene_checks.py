@@ -31,7 +31,7 @@ import cases                # noqa: E402
 BASELINE = os.path.join(HERE, "baseline.json")
 
 
-def run_case(name, city):
+def run_case(name, city, field=None):
     """All checks for one city. Returns [Result]."""
     out = []
     city.allowEditingOfContents()
@@ -119,6 +119,18 @@ def run_case(name, city):
     out.append(C.no_duplicate_lot_footprints(g_lots))
     out.append(C.lot_aspect_ratio(g_lots))
     out.append(C.lots_are_simple_polygons(g_lots))
+
+    # only the radial field declares a plaza; the others report a skip rather
+    # than nothing, so a check that stops running is visible instead of silent
+    plaza = field.parm("plaza_radius") if field else None
+    if plaza is None:
+        out.append(C.Result("plaza_disc_is_clear", True, None,
+                            "no plaza declared by this case", skipped=True))
+    else:
+        out.append(C.plaza_disc_is_clear(g_blocks, g_graph,
+                                         field.parm("cx").eval(),
+                                         field.parm("cz").eval(),
+                                         plaza.eval()))
     out.append(C.no_downward_faces(g_lots))
     out[-1].name = "no_downward_lots"
     out.append(C.no_downward_faces(g_blocks))
@@ -143,7 +155,7 @@ def main():
 
     results, failures = {}, 0
     for name in sorted(built):
-        res = run_case(name, built[name]["city"])
+        res = run_case(name, built[name]["city"], built[name].get("field"))
         results[name] = [r.as_dict() for r in res]
         print("\n=== %s ===" % name)
         for r in res:

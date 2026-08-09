@@ -678,6 +678,92 @@ def no_sweep_fold_after_trim(trimmed_geo, tol=1.0):
                   "crosses itself" % tol)
 
 
+def plaza_disc_is_clear(block_geo, graph_geo, cx, cz, radius,
+                        area_frac=0.01, gap_tol=0.75, samples=160):
+    """A declared plaza that ships as ordinary city blocks.
+
+    citygen_streets.md 4e-2. The tracer emits the plaza ring correctly at
+    r = 60 exactly, but the stop test `break`s BEFORE appending the point that
+    entered the plaza, so streets end at r = 62.5–66.0 instead. That 2.5–6 m gap
+    is wider than `graph_fuse` (0.5 m) or `graph_stitch` (0.75 m) can close and
+    S3 extend-to-connect does not exist yet, so the ring ends up with no
+    degree->=3 node and `graph_drop_orphans` deletes it four nodes downstream.
+
+    This is the "reported done, never reached the output" defect: the emission
+    was correct and the metric that supposedly proved it had improved for an
+    unrelated reason (the seed/trace exclusion). So assert the OUTPUT — that the
+    declared disc is not built over — rather than that the ring was emitted.
+
+    Two numbers, because either alone can be gamed: `built` is the block area
+    inside the disc (a plaza with buildings on it is not a plaza), and `gap` is
+    how far the nearest street end stops short of the boundary (streets must be
+    trimmed TO the plaza edge, S5 "plazas and roundabouts").
+
+    The area is rasterised rather than clipped: blocks are non-convex, and
+    clipping a non-convex polygon is the very thing that produces the bowties in
+    `lots_are_simple_polygons`.
+    """
+    name = "plaza_disc_is_clear"
+    if radius <= 0:
+        return _skip(name, "no plaza declared")
+    polys = []
+    for pr in block_geo.prims():
+        pts = [v.point().position() for v in pr.vertices()]
+        if len(pts) < 3:
+            continue
+        xs = [p[0] for p in pts]
+        zs = [p[2] for p in pts]
+        polys.append((pts, min(xs), max(xs), min(zs), max(zs)))
+
+    def inside(px, pz, pts):
+        hit = False
+        n = len(pts)
+        j = n - 1
+        for i in range(n):
+            if (pts[i][2] > pz) != (pts[j][2] > pz):
+                x = ((pts[j][0] - pts[i][0]) * (pz - pts[i][2])
+                     / (pts[j][2] - pts[i][2]) + pts[i][0])
+                if px < x:
+                    hit = not hit
+            j = i
+        return hit
+
+    step = 2.0 * radius / samples
+    cell = step * step
+    built = 0.0
+    r2 = radius * radius
+    for a in range(samples):
+        px = cx - radius + (a + 0.5) * step
+        for b in range(samples):
+            pz = cz - radius + (b + 0.5) * step
+            if (px - cx) ** 2 + (pz - cz) ** 2 > r2:
+                continue
+            for (pts, x0, x1, z0, z1) in polys:
+                if px < x0 or px > x1 or pz < z0 or pz > z1:
+                    continue
+                if inside(px, pz, pts):
+                    built += cell
+                    break
+
+    ends = []
+    for pr in graph_geo.prims():
+        vs = list(pr.vertices())
+        if len(vs) < 2:
+            continue
+        for p in (vs[0].point(), vs[-1].point()):
+            q = p.position()
+            ends.append(math.hypot(q[0] - cx, q[2] - cz))
+    gap = (min(ends) - radius) if ends else None
+
+    disc = math.pi * radius * radius
+    value = {"built": round(built, 1), "disc": round(disc, 1),
+             "gap": None if gap is None else round(gap, 2)}
+    ok = built <= disc * area_frac and (gap is not None and gap <= gap_tol)
+    return Result(name, ok, value,
+                  "block area inside the declared plaza, and how far the "
+                  "nearest street end stops short of its edge")
+
+
 # ---------------------------------------------------------------------------
 # blocks and lots
 # ---------------------------------------------------------------------------
