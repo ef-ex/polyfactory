@@ -553,6 +553,41 @@ must be re-pointed at these two before it can verify them. Same for
 `trim_metric_is_consistent`: once both nodes measure axially it should assert the geometric seam —
 **the trimmed road end lies on the mouth's cap segment** — not the difference between two metrics.
 
+#### Three constructions adopted from the civil sweep — 2026-08-09
+
+Spec, not background. All three are prerequisites of the solver working at all, and each
+removes a whole failure class rather than patching an instance of one.
+
+1. **Extrapolate both kerb lines far beyond the node before intersecting them** (~100 m, a
+   default). Two kerbs at a shallow angle meet a long way out; solving on the trimmed
+   segments finds no intersection and the corner silently degenerates. This is the general
+   cure for the shallow-angle family, and it is almost certainly the same root cause as the
+   arc-fit bug fixed in `f3878b5`.
+2. **Merge incident edges within `merge_angle` (default 20°) into a single direction before
+   solving.** Two nearly-parallel arms at one node are not two corners — treating them as
+   two produces a corner with almost no angular room, which is what inverts the boundary
+   polygon. Merge first, solve once, then attach both edges to the merged mouth.
+3. **A dead-end cap is the perpendicular cross-section at the node, intersected with both
+   kerb lines** — not an offset pushed past the last point. ⚠️ This is the cap that was
+   attempted twice and reverted in `8c739d3`; the attempts failed because the construction
+   was being guessed. It also fixes §S7's "lots cut long at dead ends", because the block
+   boundary then meets the road at the same place the sweep ends.
+
+**Keep the true tangent arc.** The reference implementation uses a cubic Bézier of varying
+curvature and treats "radius" as a pushback distance; ours is tangent to both kerb lines
+with an exact radius, which is the better primitive for a film target. Take the scaffolding,
+not the corner.
+
+**Curb return, validated.** Commercial corridor tools ship exactly three corner types —
+chamfer, circular fillet, three-centred arcs — solved per quadrant. Ours is the circular
+fillet, so the construction in this section is standard practice. Two caveats worth
+recording: the published tables have **no simple-curve entry** for large articulated design
+vehicles at 90°, which need arc-plus-taper or three-centred curves (a v2 concern); and a
+curb return is properly the **offset of the design vehicle's inner rear-wheel path** at
+~0.6 m clearance, of which our arc is a fittable approximation.
+
+`min_junction_angle` now has published anchors: **90° preferred, avoid below 75°, 60° floor.**
+
 #### Higher-degree junctions — untested, and structurally unreachable from the field
 
 **Degree-5+ has never been generated once, and degree-3 exists only in the hand-drawn case** (§4d).
@@ -574,9 +609,20 @@ Consequences for the plan:
 
 Every declared degenerate point (S1) with streets terminating around it becomes a **plaza** node: a
 disc of `plaza_radius`, with the incident streets trimmed to its edge and their kerb lines filleted
-into the plaza boundary instead of into each other. A **roundabout** is the same construction with a
-central island and a one-way annular carriageway. Both are distinct constructions, not parameter
-tweaks on the corner solver.
+into the plaza boundary instead of into each other.
+
+**There are three of these, not one, and they are one construction with three radius defaults** —
+a disc with the incident kerbs filleted into it:
+
+| Node | Default radius | Notes |
+|---|---|---|
+| **plaza** | artist-set | at a declared field degeneracy |
+| **roundabout** | inscribed circle **21–67 m diameter** by type, so ~10–33 m radius | central island + one-way annular carriageway |
+| **cul-de-sac bulb** | **13.7–14.6 m** radius, with 15.2 m transition fillets | terminates a dead end deliberately, instead of leaving a stub |
+
+⚠️ **`plaza_radius` currently defaults to 60 m, which is a 120 m disc — 2–4× a real roundabout.**
+Reset it against the table above. The cul-de-sac bulb also gives §S2/§S3 somewhere to put the dead
+ends that extend-to-connect legitimately cannot rescue: a designed terminus rather than a stub.
 
 Known-hard cases still to prototype: degree ≥ 5, junctions between very different widths, junctions
 on a grade, and dual-carriageway short-road clusters (A/B Street collapses these into a single
