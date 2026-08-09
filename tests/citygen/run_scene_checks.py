@@ -69,6 +69,11 @@ def run_case(name, city):
     out[-1].name = "no_scratch_groups_blocks"
     out.append(C.no_scratch_groups(g_lots))
     out[-1].name = "no_scratch_groups_lots"
+    out.append(C.no_scratch_attribs(g_lots, C.LOT_PRIM_ATTRS, C.LOT_POINT_ATTRS,
+                                    name="no_scratch_attribs_lots"))
+
+    # the union, not the parts — see merged_city_self_intersections
+    out.append(C.merged_city_self_intersections(city))
 
     out.append(C.graph_is_planar(g_graph))
     out.append(C.no_orphan_components(g_graph))
@@ -76,9 +81,14 @@ def run_case(name, city):
 
     patches = inner(cases.INTERNAL["patches"])
     surface = inner(cases.INTERNAL["surface"])
+    solve = inner(cases.INTERNAL["solve"])
+    rscale = city.parm("s5j_params_corner_radius_scale")
     if patches and surface:
         out.append(C.no_degenerate_corner_segments(patches.geometry()))
-        out.append(C.every_corner_is_an_arc(patches.geometry()))
+        out.append(C.every_corner_is_an_arc(
+            patches.geometry(),
+            solve.geometry() if solve else None,
+            rscale.eval() if rscale else 1.0))
         out.append(C.sidewalk_bands_match_corners(patches.geometry(),
                                                   surface.geometry()))
         out.append(C.junction_boundary_is_simple(patches.geometry()))
@@ -93,10 +103,22 @@ def run_case(name, city):
     if roads:
         out.append(C.self_intersections(roads, "selfx_roads"))
 
+    # the S5 seam: the road and the patch must agree where the junction ends
+    streets = inner(cases.INTERNAL["streets"])
+    trimmed = inner(cases.INTERNAL["trim"])
+    if streets:
+        out.append(C.trim_metric_is_consistent(streets.geometry()))
+    if solve and trimmed:
+        out.append(C.every_mouth_has_a_road(solve.geometry(), trimmed.geometry()))
+    if trimmed:
+        out.append(C.no_sweep_fold_after_trim(trimmed.geometry()))
+
     out.append(C.no_nonplanar_y(g_lots))
     out[-1].name = "lots_planar"
     out.append(C.lots_tile_blocks(g_lots, g_blocks))
     out.append(C.no_duplicate_lot_footprints(g_lots))
+    out.append(C.lot_aspect_ratio(g_lots))
+    out.append(C.lots_are_simple_polygons(g_lots))
     out.append(C.no_downward_faces(g_lots))
     out[-1].name = "no_downward_lots"
     out.append(C.no_downward_faces(g_blocks))

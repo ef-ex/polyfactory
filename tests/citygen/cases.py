@@ -104,6 +104,22 @@ def build_all(parent=None):
     c.setInput(0, ct)
     cases["C_radial"] = {"city": c, "input": ct, "field": cf}
 
+    # D — the OFFSET lot mode (European perimeter block). A fourth case rather
+    # than a parameter sweep over A/B/C: the mode only changes S8, so running
+    # all three twice would re-run every street, junction and block check for no
+    # new information and roughly double the suite. One case is enough to
+    # exercise the branch, and it is pinned to the cheapest input (A's two
+    # blocks) so the cost is a rounding error.
+    #
+    # It exists because 4e-6 found `offset` had NEVER been executed by the
+    # suite. It failed a committed check — lots_tile_blocks — the first time
+    # anyone ran it, and the person who ran it was the auditor, not the author.
+    # Adding a mode means adding a case.
+    d = parent.createNode("pf_citygen_streets", "D_city")
+    d.setInput(0, draw)
+    d.parm("lots_params_subdiv_mode").set(1)          # 0 recursive_obb, 1 offset
+    cases["D_offset"] = {"city": d, "input": draw}
+
     parent.layoutChildren()
     return parent, cases
 
@@ -113,6 +129,9 @@ def build_all(parent=None):
 INTERNAL = {
     "patches": "s5j_patches",
     "surface": "s5j_surface",
+    "solve": "s5j_solve",       # patches AND street polylines, before the trim
+    "streets": "s5j_streets",   # streets carrying trim_start / trim_end
+    "trim": "s5j_trim",         # the same streets after the cut
     "roads": "OUT_roads",
     "graph": "OUT_graph2",
     "blocks": "OUT_BLOCKS_PLACEHOLDER",
