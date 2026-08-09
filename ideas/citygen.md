@@ -1,7 +1,9 @@
 # CityGen — System Architecture
 
-**Status:** design. Nothing implemented.
-Branch `cityGen`. Started 2026-08-08. Revised after clarification rounds 1 and 2.
+**Status:** design. Streets V1 implemented (see [`citygen_streets.md`](citygen_streets.md) §6b);
+every other subsystem is still design only.
+Branch `cityGen`. Started 2026-08-08. Revised after clarification rounds 1 and 2, and again
+2026-08-09 (reference review + Subversion authoring study).
 
 **This file owns:** the vision, the principles, and the contracts that span subsystems.
 **Subsystem designs:** [`citygen_streets.md`](citygen_streets.md) — streets (first subsystem).
@@ -77,6 +79,38 @@ with a sensible default and a **global "allow invalid" switch** that demotes eve
 stays inspectable and can be visualised in the viewport.
 
 The artist is allowed to build the physically wrong thing on purpose. They just get told.
+
+### 2.3 Intervene at any stage — the authoring model
+
+Added 2026-08-09 after studying **Introversion's Subversion** city generator, which Hannes singled
+out for its user-side tooling. Catalogued in `resources/citygen/README.md` §4. The relevant sentence
+from Chris Delay's dev diary, which is the whole design in one line:
+
+> You can step in at any stage of development and add your own customisations, or you can just let
+> everything generate itself randomly.
+
+Its pipeline is height map → population density → city centres → highways → streets → blocks →
+buildings → render, and **each stage is a button** with an editable input map in front of it. The
+artist paints the height map (or generates it fractally), paints where the city will be dense, and
+from there can either press "Generate All" and walk away, or stop after highways and hand-edit them
+before the streets are grown. Nothing forces a choice between "fully procedural" and "hand-built".
+
+**This is not a new principle — it is §2.1's override cascade expressed as *pipeline shape*, and it
+is what our stage design already buys us.** Recording it because it names the acceptance criterion:
+
+1. **Every stage is separately runnable and separately overridable.** Already true — S0…S8 are
+   distinct HDAs with a documented schema between them ([`citygen_streets.md`](citygen_streets.md) §3).
+2. **Every stage's *input* is a paintable map or an editable geometry**, not only a parameter set.
+   Partly true — S0 masks are maps, but the tensor field is currently parameters on descriptor
+   nodes. A `brush` field generator is already in the design and closes this.
+3. **A hand edit at stage N survives regeneration of stages N+1…** — Contract 2.
+4. **There is a one-button "generate everything" path** for when the artist does not want to author
+   any of it. We do not have this yet; it is a thin wrapper over the existing chain, and worth
+   shipping precisely because it makes the stage-wise path *optional* rather than mandatory.
+
+Subversion's generator is itself an extension of **Parish & Müller 2001** — Delay names the paper as
+his starting point — so it is the same lineage as ours, which is why its authoring model transfers
+cleanly rather than being a different architecture's ergonomics.
 
 ---
 
@@ -433,7 +467,9 @@ distribute. Studying and reimplementing is unambiguous; lifting internals may no
 Each subsystem must be usable on its own before the next begins.
 
 1. **Streets** — in design, [`citygen_streets.md`](citygen_streets.md)
-2. **Blocks & lots** — needs Vanegas et al. 2012 (not acquired)
+2. **Blocks & lots** — `recursive_obb` and `offset` (European perimeter blocks) are both v1 and
+   fully specified from Parish 2001 + CityEngine; only `skeleton` still needs Vanegas et al. 2012
+   (not acquired). See [`citygen_streets.md`](citygen_streets.md) §S8
 3. **Zoning** — §3; shares its mechanism with vegetation biomes
 4. **Buildings** — largest unknown, written from scratch
 5. **Terrain integration** — Contract 3

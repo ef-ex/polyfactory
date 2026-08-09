@@ -1,6 +1,6 @@
 # CityGen — Street Generation Design
 
-**Status:** design, not implemented. Nothing built yet.
+**Status:** V1 built and shipping as four HDAs (§6b); defects and the fix order are in §4d.
 **Owner doc for:** street field → graph → intersections → road geometry → blocks → lots.
 **System-level architecture and cross-cutting contracts:** [`citygen.md`](citygen.md) — read that first.
 **Reference library:** `polyfactory/resources/citygen/README.md` (gitignored, local).
@@ -116,6 +116,88 @@ S7/S8 hand off to the building subsystem; S3 and S8 emit the masks the biome sub
 
 ---
 
+## 3b. The unanimous baseline — where all four sources agree
+
+Added 2026-08-09. Sources: **P** = Parish & Müller 2001 · **C** = Chen et al. 2008 ·
+**CE** = CityEngine docs · **S** = Subversion dev diaries. Every row below was checked against the
+source itself, not from memory (ledger: `resources/citygen/README.md` §9).
+
+Where all four independently do the same thing, **do it their way and stop designing.** Where they
+disagree or stay silent, we are on our own and should expect it to be expensive.
+
+| # | Feature | P | C | CE | S | Ours |
+|---|---|:--:|:--:|:--:|:--:|---|
+| 1 | Pipeline: maps → street graph → blocks → lots → buildings | ✓ | ✓ | ✓ | ✓ | ✅ |
+| 2 | A block **is** a closed face of the street graph, and dies when the loop opens | ✓ | ✓ | ✓ | ✓ | ✅ |
+| 3 | **Majors traced first until they enclose regions; minors subdivide those regions** | ✓ | ✓ | ✓ | ✓ | ❌ |
+| 4 | Named patterns (grid + radial minimum) **blended by weighted sum** over maps | ✓ | ✓ | ✓ | ✓ | ✅ |
+| 5 | Terrain / water / obstacle supplied as **maps**, streets route around them | ✓ | ✓ | ✓ | ✓ | ❌ |
+| 6 | A **density map** drives both seeding and street spacing | ✓ | ✓ | ~ | ✓ | ❌ |
+| 7 | Ends **connect or extend** — dangling is a failure, not an output | ✓ | ✓ | ✓ | ~ | ❌ |
+| 8 | A short crossing of an illegal area is **allowed and flagged → becomes a bridge** | ✓ | ✓ | ~ | ✓ | ❌ |
+| 9 | Street attributes (width, type, lanes) live **on graph edges and nodes** | ✓ | ✓ | ✓ | — | ✅ |
+| 10 | Lots by **recursive splitting**, convex, discard no-frontage | ✓ | — | ✓ | (wants) | ❌ |
+| 11 | Junction / intersection **surface** construction | — | — | ✓ | ✗ | ours |
+
+`~` = consistent but not stated in those terms · `—` = source has no position · `✗` = explicitly not done.
+
+### What this changes
+
+**Row 3 is the single most valuable finding, and we get it wrong.** All four describe the *same*
+mechanism, and it is not "trace majors, then trace minors":
+
+- **C §6.2** — the major edges plus topography *divide the domain into regions*, and a minor field is
+  traced **inside each region**.
+- **CE** — *"major streets are created until they enclose an area, called a quarter. Then the quarter
+  is subdivided by minor streets."*
+- **P** — highways connect population peaks globally; streets *"cover the areas between highways […]
+  giving all neighborhoods transportation access to the nearest highway."*
+- **S** — highways first, then local roads connecting districts to the nearest highway.
+
+We trace both families globally against two separate occupancy grids. **A minor street confined to a
+region cannot dangle** — its boundary terminates it — so this one change addresses the dead-end
+defect (§4d) structurally rather than by repair, *and* it produces the hierarchy for free. It also
+means **S7 face extraction must run before minor tracing**, which reorders the pipeline: S3 and S7
+interleave rather than running once each.
+
+**Row 8 is a cheaper bridge rule than the one in §S5b.** P, C and S all use the same one: attempt the
+crossing, allow it if it is under a length threshold, **flag the segment**, and let the geometry stage
+replace it with a bridge or two tunnel mouths. P: *"Highways are allowed to cross illegal area up to
+a specified length. The generated highway segment is flagged. At the geometry creation stage it can
+then be replaced by e.g. a bridge, or two tunnel entrances on both sides."* C: *"we also allow the
+tracing to cross relatively narrow water regions to form bridges."*
+The cost-field least-cost routing in §S5b is a strictly more ambitious design that no source uses.
+**Ship the flag rule in v1; keep cost routing as the upgrade** — the `is_bridge` attribute is the same
+either way, so nothing is wasted.
+
+**Row 11 has no consensus to lean on.** Chen states outright that geometry generation *"is not the
+focus of our work"*; Parish only smooths curvature; Subversion does not solve intersections at all
+(its roads and buildings visibly interpenetrate). CityEngine does it but documents no algorithm. This
+is why S5 has been the hardest stage — there is no canonical answer to copy, and the reference base
+is StreetGen 2018, A/B Street and Hannes' own solver. Expect to keep paying for it.
+
+A fifth data point, checked 2026-08-09: **Epic's City Sample does not solve junctions either.** It
+ships a modular kit indexed by width pair and quantised angle — three legal road widths (19/27/37),
+a discrete signed angle set for transition pieces, five sidewalk corner angles, and a catch-all
+`SM_ROAD_corner_filler`. The network is constrained to fit the kit. Correct for a real-time game with
+modular Nanite meshes; unusable for us, since arbitrary angles and artist-authored cross-sections are
+requirements. Evidence and file names in `resources/citygen/README.md` §1.
+
+### Decision — 2026-08-09
+
+**Rows 1–10 are accepted as the V1 baseline and will be implemented the way the sources describe.**
+Hannes: *"everything except row 11 right now is safe to be implemented from my point of view. And for
+row 11 we already work on our own solver."* Rows 3, 5, 6, 7, 8 and 10 are therefore work items, not
+open questions — the design argument on each is closed.
+
+**Row 4 is confirmation, not a change.** We already blend grid and radial descriptors by weighted
+sum, which is exactly P's *"proposed parameter values are summed up and weighted according to the
+value in the input image grey scale map"* and C's *"blended using decaying radial basis functions"*.
+What is missing is a shipped **organic/noise** generator — P's Basic rule, C's rotation fields, CE's
+Organic. Designed in §S1, not built.
+
+---
+
 ## 4. Stage design
 
 ### S0 — Domain
@@ -155,6 +237,15 @@ Fields **blend by weighted sum** with per-generator falloff regions, which is ex
 "circle → radial, rectangle → grid, mix them" behaviour requested, and exactly Chen 2008's
 combinable basis fields.
 
+⚠️ **Every generator has degenerate points and they must be declared, not discovered.** A `radial`
+field is degenerate *at its own centre* — the eigenvectors are undefined there, so every streamline
+converges on the singularity and folds. Chen 2008 treats degeneracies as first-class: tracing stops
+on one (criterion 2), and the generator publishes their locations. Each generator therefore emits a
+**`degenerate` point set** alongside the field, with a `plaza_radius` (default, artist-overridable)
+that S2 treats as a hard exclusion. What fills the hole is S5's business: a **plaza or roundabout**,
+which is what a real radial city has at its centre. This is the root cause of the radial case's
+converging near-parallel streets and its centre fold — not a tracing bug.
+
 #### Chaotic / organic patterns — clarified, not scrapped
 
 To correct an earlier ambiguity: **the goal was never wrong, only the placement in the pipeline.**
@@ -179,15 +270,58 @@ Seeds → raw centrelines. Fixes for the diagnosed problems:
 
 - **Integration:** RK2 midpoint minimum. Evaluate direction at `pos`, step half, re-evaluate,
   full step with the corrected direction.
-- **Seeding:** jittered grid scaled by `density`, plus explicit artist seed points. Major
-  streamlines traced first and completely, then minor streamlines seeded in the gaps — this is
-  what produces a legible hierarchy rather than uniform mush.
+- **Seeding:** a **priority queue**, not a jittered grid — see below. Plus explicit artist seeds.
 - **Termination**, any of: left the domain · hit a hard mask · exceeded max length ·
-  field went degenerate · **came within `snap_radius` of an existing trace** ·
-  turned more than `max_curvature` · looped back on itself.
+  field went degenerate · entered a `plaza_radius` around a declared degenerate point ·
+  **came within `snap_radius` of an existing trace** · turned more than `max_curvature` ·
+  looped back on itself. **But see `d_lookahead` — most of these are soft, not hard.**
+- **`d_sep` is driven by the density map**, not a constant. Chen 2008 varies streamline separation
+  by density, which is what makes road density fall off toward the city edge instead of tiling the
+  whole domain uniformly.
 - Trace bidirectionally from each seed.
 
 Output is deliberately still *raw* — messy is fine, S3 cleans it.
+
+#### Dead ends are the exception, not the norm — and the fix is in the papers
+
+**This is the single largest quality defect in the current build** (measured: §4d). Both canonical
+papers address it directly and neither mechanism was implemented.
+
+**Chen 2008 §6.1 — keep tracing past the stopping criteria:**
+
+> Additionally, we improve connectivity by continuing the tracing for a distance **`d_lookahead`** to
+> search an intersection with other hyperstreamline even when stopping criteria 4 or 5 is met.
+
+So proximity-to-an-existing-trace and max-length are **soft** stops: on hitting one, keep integrating
+up to `d_lookahead` looking for a real crossing. Connect if one is found; roll back to the soft stop
+if not. **Our tracer treats them as hard stops, which manufactures a dead end every time.**
+
+**Chen 2008 Figure 9 — interleave the two families.** The caption compares a network where major and
+minor hyperstreamlines are traced *independently* against theirs, and notes that with their approach
+the graph has **fewer dangling edges**. We trace the two families independently, in two separate
+passes. That figure is a picture of our bug.
+
+**Chen 2008 §6.2 — trace minors inside regions bounded by the majors.** Minor streamlines are seeded
+and traced *within the faces the major network already closed*, not across the whole domain. A minor
+street then cannot dangle: its region boundary terminates it. This also gives the street hierarchy
+for free, and it makes S7's faces available earlier than the current stage order implies.
+
+**Seeding is a priority queue.** Chen weights candidate seeds by distance to region boundaries, to
+degenerate points, and to population centres, and pushes new candidates as tracing proceeds. That is
+what produces even coverage without a grid's tell.
+
+**Parish & Müller 2001 §3.3.1 — extend, don't dangle:**
+
+> In traffic systems **the dead end road is the exception.** Most roads end when crossing other roads
+> or circling back to themselves.
+
+Their local constraints are explicitly **extend-to-connect**: an end near an existing crossing is
+*extended to reach it*; an end near an intersecting street is *extended to form the intersection*.
+This is a graph operation, so it lands in **S3** (below) rather than here — but it is the same
+finding, and the two together are the whole answer.
+
+Dead ends that remain after all of this are real cul-de-sacs and should be **deliberate** — a
+`dead_end_ratio` the artist dials, not a leftover.
 
 ### S3 — Graph (the contract, and the missing 80%)
 
@@ -235,19 +369,27 @@ attribute exists so rail and sky lanes are a configuration problem later, not a 
 Operations, in order:
 
 1. **Snap** endpoints to nodes within `snap_radius`, **same layer only**.
-2. **Intersect** every pair of **same-layer** edges; insert a node at each crossing and
+2. **Extend dangling ends** — Parish & Müller's local constraints, applied to every degree-1 node
+   before intersection. In order of preference, within `d_extend` (default ≈ `d_lookahead`):
+   **(a)** an existing node in range → extend the edge to it and weld;
+   **(b)** an existing *edge* in range → extend to the nearest point on it, split it, weld;
+   **(c)** nothing in range → leave it, and the node keeps `DEAD_END`.
+   Extension respects `max_curvature` and the hard masks — it may not tunnel through water to make
+   a connection. **This step, not stub-pruning, is what removes dead ends.** Deleting a dangling
+   street removes the symptom and the street; extending it removes the symptom and gains a block.
+3. **Intersect** every pair of **same-layer** edges; insert a node at each crossing and
    **split both edges**. This is the step whose absence broke everything before.
    Cross-layer crossings are instead recorded and **clearance-checked**.
-3. **Cleanup**, and this is where "satisfying" is won or lost:
+4. **Cleanup**, and this is where "satisfying" is won or lost:
    - fuse nodes closer than `min_node_dist`
    - delete stubs shorter than `min_edge_len`
    - collapse pairs of edges that are near-parallel and closer than `min_street_sep`
    - enforce `min_angle` between edges at a node (merge or nudge below it)
-   - optionally prune dead ends, iteratively
-4. **Validate:** every edge has exactly two node endpoints; no duplicate edges between the same
+   - prune the dead ends that extension could not rescue, iteratively, down to `dead_end_ratio`
+5. **Validate:** every edge has exactly two node endpoints; no duplicate edges between the same
    node pair; no zero-length edges; **each layer is planar**; **all cross-layer crossings meet
    `min_clearance`**; every ramp connects exactly two distinct layers.
-5. **Extract faces per layer** → these are the blocks (consumed by S7). Only ground-layer faces
+6. **Extract faces per layer** → these are the blocks (consumed by S7). Only ground-layer faces
    normally become buildable blocks; elevated layers produce blocks only in the sci-fi case.
 
 ⚠️ **Needs prototyping before committing:** vanilla Houdini has no single planarize-polylines SOP.
@@ -312,9 +454,62 @@ useful sources are StreetGen 2018 and A/B Street's design notes.
 6. **Do not boolean-union road polygons.** A/B Street reports it as unreliable for three-way
    intersections. Ruled out.
 
+#### The invariant that was violated: **every corner is an arc, always**
+
+Added 2026-08-09 after measuring the shipped build. **Roughly half of all junction corners are
+straight chords rather than arcs** (§4d), which is exactly the "some do the expected round
+transition but some just connect straight" complaint.
+
+The cause is our own construction, not a class of geometry that resists filleting:
+
+1. Each incident street is trimmed to a cap, and the corner arc is then **re-fitted through the two
+   cap corners** — but those are not the fillet's tangent points, so the required arc frequently
+   cannot span the chord between them.
+2. `pfsj_arc_centre_through` papered over that with `r = max(radius, halfchord)`, which silently
+   grew the radius (the "radius is too big" symptom).
+3. Fixing *that* introduced a guard, `arad > halfchord + 1e-4`, which silently **drops to a straight
+   line** whenever the class radius cannot span the chord (the "some are just straight" symptom).
+
+Both symptoms are the same error. **A fillet tangent to both kerb lines exists for any non-collinear
+corner** — the construction never fails, so no fallback is legitimate. The rule:
+
+> **Compute the fillet first; trim each street to its own tangent point.** The cap corner *is* the
+> tangent point. Never fit an arc through cap corners that were placed by some other rule, and never
+> substitute a chord when the fit fails — a failed fit means the caps are in the wrong place.
+
+Radius clamping stays, but it clamps the *radius* against the shorter incident segment (a fillet may
+not eat more than `max_fillet_fraction` of a street), and the clamp changes the tangent points too.
+Below the miter limit the corner becomes a **bevel** — a deliberate, straight, documented case, and
+the only one.
+
+#### Higher-degree junctions — untested, and structurally unreachable from the field
+
+**Degree-5+ has never been generated once, and degree-3 exists only in the hand-drawn case** (§4d).
+This is not luck: two *perpendicular* eigenvector families can only ever cross at 4-way. Tensor
+tracing alone cannot produce a 3- or 5-way junction, so the solver's hardest cases are entirely
+unexercised.
+
+Consequences for the plan:
+
+- The Parish extend-to-connect rule in S3 (b) — extend to the nearest point *on an edge* — is the
+  main producer of **T-junctions (degree 3)** in a tensor-traced city. Dead-end repair and 3-way
+  coverage are the same work.
+- **Degree 5+ needs a deliberate test case**, hand-drawn, in the check suite — a star of five and
+  six streets at uneven angles and mixed widths. Add it to `tests/citygen/cases.py`.
+- Angular sort with the distance tie-breaker (item 4 above) is only actually stressed at degree ≥ 5.
+  Assume it is wrong until a test says otherwise.
+
+#### Plazas and roundabouts at degenerate points
+
+Every declared degenerate point (S1) with streets terminating around it becomes a **plaza** node: a
+disc of `plaza_radius`, with the incident streets trimmed to its edge and their kerb lines filleted
+into the plaza boundary instead of into each other. A **roundabout** is the same construction with a
+central island and a one-way annular carriageway. Both are distinct constructions, not parameter
+tweaks on the corner solver.
+
 Known-hard cases still to prototype: degree ≥ 5, junctions between very different widths, junctions
 on a grade, and dual-carriageway short-road clusters (A/B Street collapses these into a single
-intersection). Roundabouts are a distinct construction, not a parameter tweak.
+intersection).
 
 ### S5b — Bridges, tunnels, ramps
 
@@ -403,15 +598,122 @@ Storing it per street would be the cheap choice today and an expensive migration
 Closed faces of the S3 graph, inset by the relevant cross-section widths. A block is the polygon
 bounded by street kerb lines, not centrelines.
 
+⚠️ **The block boundary is the *road* boundary, not an offset of the centreline.** Two defects in
+the shipped build both come from treating the inset as a straight per-edge offset:
+
+- **Lots stick into intersections.** At a node the boundary must follow **S5's fillet arc**, because
+  that arc *is* the kerb there. A straight offset cuts the corner and the resulting lots overlap the
+  junction surface. The block polygon and the junction polygon share an edge by construction —
+  derive the block boundary from the same kerb polyline S5 already builds, rather than recomputing.
+- **Dead ends are cut long.** The current cap runs `streetWidth × streetWidth/2` past the terminal
+  node, which overshoots by half a street width and eats into the block. The cap belongs at the
+  street's end plus the sidewalk width, closed with a proper end cap — and once S3 extends dangling
+  ends (§S3 step 2) most of these stop existing at all. *Two fix attempts were made and reverted
+  (commit `8c739d3`); do not retry the cap in isolation — do it with the fillet-derived boundary.*
+
+Also: the inset scale must be resolved **per incident edge at each node**, not `max(streetWidth)`
+over the block. Using the max opened a 5.9 m gap between roads and lots where widths differed.
+
 ### S8 — Lots
 
 Subdivide blocks into buildable parcels, with artist control, plus **viability checks**: minimum
 area, minimum street frontage, minimum width at the frontage, maximum aspect ratio, slope limit.
 Non-viable parcels become courtyard, parking, planting or are merged with a neighbour.
 
-⚠️ **Knowledge gap:** the rigorous treatment is **Vanegas et al. 2012, "Procedural Generation of
-Parcels in Urban Modeling"**, which we do not have — acquire before building this. Also inspect
-what viability logic `resources/citygen/unrealCitygen/otls/City_Layout.hda` already implements.
+#### ⚠️ Voronoi is wrong for lots. Rewritten 2026-08-09.
+
+The shipped build subdivides blocks with `voronoifracture`. **No source in the reference library does
+this, and three independent ones agree on rectangular recursive subdivision.** This is the cause of
+"the lots look very weird".
+
+**Parish & Müller 2001 §4.1:**
+
+> We assume that most of these allotments are **convex and rectangularly shaped**. The system
+> therefore **forbids the creation of concave allotments**. A block is divided using a simple,
+> **recursive algorithm that divides the longest edges that are approximately parallel** until the
+> subdivided lots are under a threshold area […] all allotments that are **too small or do not have
+> direct access to a street are discarded.**
+
+**CityEngine** ships exactly three subdivision algorithms, and they are the right three to copy as a
+*vocabulary* (§1.4 — names and behaviour, no dependency).
+
+**The Unreal sample** (`resources/citygen/unrealCitygen/otls/City_Layout.hda`, 987 nodes) does the
+same family: `determinig_ideal_block_size_X/Z` → `foreach_POINT_MAKE_SPLIT_X` →
+`foreach_POINT_MAKE_SPLIT_Z` → `foreach_end_ISLAND_SUBDIVISON` → `SUBDIVIDED_CITY_LAYOUT`. Axis-aligned
+recursive splitting. Confirmed by inspection, not memory.
+
+#### The three subdivision modes — both of the first two are required
+
+| Mode | How | Produces | Status |
+|---|---|---|---|
+| **`recursive_obb`** | minimum-area **oriented** bounding box of the block; split at the midpoint of its largest edge; recurse until under `target_area` | rectangular, street-facing, back-to-back lots — American/suburban and most downtown blocks | **v1, default** |
+| **`offset`** | inset the block by `lot_depth` to make a **street-facing ring** plus an interior remainder; subdivide the ring with lines **orthogonal to the offset**; the remainder becomes courtyard or is subdivided separately | **European perimeter blocks** — continuous street frontage, shared party walls, courtyard behind | **v1, required** |
+| **`skeleton`** | straight-skeleton partition; every lot reaches a street; lot sides perpendicular to the adjacent road | irregular and organic blocks where every parcel must have frontage | v2 |
+
+> **Both `recursive_obb` and `offset` ship in v1.** Hannes, 2026-08-09: *"it is very important that we
+> are also capable of generating the european looking lots as well."* `offset` is the mode that
+> produces them — the courtyard block is not a variation of OBB splitting, it is a different
+> algorithm, and the interior remainder is a first-class output (courtyard / garden / parking), not
+> a discard.
+
+The mode is **per block**, resolved through the normal override cascade (`citygen.md` §2.1): a
+`land_use`/`district` default that the artist overrides per region or per block. A city mixes them —
+that is largely what makes a city read as a *place*.
+
+Splitting rules shared by both, all defaults:
+`target_area` · `area_variance` (identical parcels are the tell) · `min_frontage` ·
+`lot_depth` · `split_jitter` on the midpoint · `snap_to_frontage` so splits run perpendicular to the
+street edge rather than to the OBB when the two disagree.
+
+**Discard/merge rules, from Parish:** below `min_area`, below `min_frontage`, or **no street access
+at all** → not a lot. Convexity is enforced, not hoped for. Street access is tested against the
+**block's street-facing edges**, and those must be the kerb boundary from S7 — measuring frontage
+against a filled polygon returns ~0 everywhere inside it and passes everything.
+
+⚠️ **Knowledge gap, still open:** the rigorous treatment is **Vanegas et al. 2012, "Procedural
+Generation of Parcels in Urban Modeling"** (CGF), which we do not have. It is the peer-reviewed
+version of the offset/skeleton pair above. **Acquire before building `skeleton`**; `recursive_obb`
+and `offset` are specified well enough by Parish + CityEngine to build now.
+
+---
+
+## 4d. Measured state of the shipped build — 2026-08-09
+
+Recorded so the next pass starts from numbers instead of re-deriving them. Cases are the three in
+`tests/citygen/cases.py`: **A** hand-drawn streets, **B** grid field, **C** radial field.
+
+| | dead ends | degree-3 | degree-4 | degree-5+ | corners: arc / straight |
+|---|---|---|---|---|---|
+| A drawn | 8 | 2 | 4 | **0** | 14 / 8 |
+| B grid | **34** | **0** | 25 | **0** | 50 / 50 |
+| C radial | **44** | **0** | 28 | **0** | 56 / 56 |
+
+Reading:
+
+- **More dead ends than junctions** in both generated cases → §S2 `d_lookahead` + interleaving,
+  §S3 extend-to-connect.
+- **Half of all corners are straight chords** → §S5 fillet-always.
+- **No degree-3 from a field, no degree-5+ anywhere** → §S5 higher-degree; needs a test case before
+  it can even be called broken.
+
+Known-failing checks carried in `tests/citygen/baseline.json` — real, tracked, not noise:
+
+| Case | Check | Value | Cause |
+|---|---|---|---|
+| A | `selfx_junction_surface` | 4 | junction artefact at (60.8, −111.3) |
+| C | `no_downward_faces` | 10 | radial-centre fold — §S1 degenerate point, no plaza |
+| C | `selfx_roads` | 46 | same fold + 2 corridor overlaps |
+| all | `attribute_schema` | 1 | `land_use` never written to the graph |
+
+**Fix order, highest visual payoff first** (agreed 2026-08-09):
+S5 fillet-always → S8 `recursive_obb` + `offset` lots (with the S7 fillet-derived boundary) →
+S2/S3 dead-end elimination → S1/S5 radial plaza → degree-5+ test case.
+
+⚠️ **The third item is bigger than it looks.** "Dead-end elimination" is §3b row 3 — majors enclose,
+minors subdivide the enclosure — which reorders S2/S3/S7 rather than patching the tracer. Doing it as
+a repair pass (`d_lookahead` + extend-to-connect alone) will improve the numbers; doing it
+structurally is what all four sources actually describe. Repair still has to exist for the residue,
+so it is not wasted work either way — but do not mistake the repair for the fix.
 
 ---
 
@@ -581,4 +883,5 @@ being designed to make it possible later, that is all) · rail, metro and sky-la
 (`network_type` reserved, not implemented) · multi-level stacked city layouts (`layer` reserved and
 proven on bridges, but Coruscant-scale stacking is not a v1 target) · underground utilities ·
 procedural signage and road markings beyond material assignment · per-segment cross-section
-transitions (seam left open, §S6) · Voronoi graph generator (deferred, §S1).
+transitions (seam left open, §S6) · Voronoi graph generator (deferred, §S1) · `skeleton` lot
+subdivision (deferred to v2, needs Vanegas 2012 — §S8; `recursive_obb` and `offset` are both v1).
