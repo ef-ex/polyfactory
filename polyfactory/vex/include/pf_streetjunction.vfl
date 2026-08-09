@@ -17,10 +17,8 @@
 //   * the corner formula IS a stroke MITER JOIN, so it spikes to infinity at
 //     shallow angles. Cured with a miter limit + bevel fallback, exactly as in
 //     SVG stroke rendering.
-//   * trim each street per PAIR, to the fillet tangent point, not per node
-//     (A/B Street).
-//   * corner radius comes from street class via design speed, not a constant
-//     (StreetGen, all of Paris).
+//   * trim each street per PAIR, to the fillet tangent point, not per node.
+//   * corner radius comes from street class via design speed, not a constant.
 
 #define PFSJ_EPS 1e-6
 
@@ -91,8 +89,8 @@ void pfsj_fillet(const vector centre, corner, dirA, dirB; const float radius;
 }
 
 
-// Turning radius from design speed, after StreetGen's road-type -> speed -> r
-// chain. A default the artist overrides, never a constant.
+// Turning radius derived from street class via design speed, rather than a
+// fixed number. A default the artist overrides, never a constant.
 float pfsj_corner_radius(const string street_class) {
     if (street_class == "highway")   return 25.0;
     if (street_class == "arterial")  return 9.0;

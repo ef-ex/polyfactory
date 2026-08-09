@@ -1,16 +1,16 @@
 # Graph Report - polyfactory  (2026-08-09)
 
 ## Corpus Check
-- 122 files · ~105,094 words
+- 122 files · ~105,097 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1595 nodes · 2442 edges · 95 communities (79 shown, 16 thin omitted)
+- 1595 nodes · 2442 edges · 95 communities (78 shown, 17 thin omitted)
 - Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 290 edges (avg confidence: 0.67)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ce982f83`
+- Built from commit: `5615d75f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -132,14 +132,14 @@
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/ui_framework/__init__.py -> polyfactory/scripts/python/polyfactory/ui_framework/__init__.py`
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/viewer_utils/__init__.py -> polyfactory/scripts/python/polyfactory/viewer_utils/__init__.py`
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
-- 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
-- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 4-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 
-## Communities (95 total, 16 thin omitted)
+## Communities (95 total, 17 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
@@ -159,7 +159,7 @@ Nodes (17): _build_export_network(), _cleanup(), export_asset(), _export_geometr
 
 ### Community 4 - "Community 4"
 Cohesion: 0.07
-Nodes (24): build_profile_points(), _ensure_point_attribs(), geo_to_elements(), get_template(), profile_to_geo(), CityGen - street cross-section templates and profile construction.  Design: idea, Fill defaults into a raw element list. Authored keys always win., Summary attributes stamped onto the street edge.      Names follow CityEngine wh (+16 more)
+Nodes (24): build_profile_points(), _ensure_point_attribs(), geo_to_elements(), get_template(), profile_to_geo(), CityGen - street cross-section templates and profile construction.  Design: idea, Fill defaults into a raw element list. Authored keys always win., Summary attributes stamped onto the street edge.      Names follow the common in (+16 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.06
@@ -170,7 +170,7 @@ Cohesion: 0.05
 Nodes (57): _arc_lengths(), attribute_schema(), every_corner_is_an_arc(), every_mouth_has_a_road(), _fit_circle(), graph_is_planar(), junction_boundary_is_simple(), lot_aspect_ratio() (+49 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.11
+Cohesion: 0.13
 Nodes (5): Ui_LeftColumn, PyIcon, PyLeftColumn, PySlider, QSlider
 
 ### Community 9 - "Community 9"
@@ -186,8 +186,8 @@ Cohesion: 0.14
 Nodes (29): float2, float3, float4, pf_hash1(), pf_hash21(), pf_hash22(), pf_hash2d(), pf_hash43() (+21 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.14
-Nodes (14): 4. Stage design, Chaotic / organic patterns — clarified, not scrapped, Dead ends are the exception, not the norm — and the fix is in the papers, S0 — Domain, S1 — Field (pluggable generators), S2 — Trace, S4 — Classify, S5b — Bridges, tunnels, ramps (+6 more)
+Cohesion: 0.12
+Nodes (17): 4. Stage design, Chaotic / organic patterns — clarified, not scrapped, Dead ends are the exception, not the norm — and the fix is in the papers, Layers — the change bridges force, Networks are typed, S0 — Domain, S1 — Field (pluggable generators), S2 — Trace (+9 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.10
@@ -276,10 +276,6 @@ Nodes (17): EnhancedInputField, ExpressionDialog, Base Parameter Widgets - Label
 ### Community 36 - "Community 36"
 Cohesion: 0.09
 Nodes (13): AssetInfoPanel, Handle resize to update preview image size, Create styled label for form, Load turntable frames for animation, Display a specific frame, Display asset information, Load full turntable sequence on hover, Return to frame 5 on leave (+5 more)
-
-### Community 38 - "Community 38"
-Cohesion: 0.67
-Nodes (3): Layers — the change bridges force, Networks are typed, S3 — Graph (the contract, and the missing 80%)
 
 ### Community 39 - "Community 39"
 Cohesion: 0.38
@@ -386,8 +382,8 @@ Cohesion: 0.18
 Nodes (6): _ToolTip, _ToolTip, _ToolTip, QColor, QLabel, Set background color for expression state.
 
 ### Community 76 - "Community 76"
-Cohesion: 0.24
-Nodes (4): Settings, object, PyWindow, Styles
+Cohesion: 0.17
+Nodes (5): Settings, Themes, object, PyWindow, Styles
 
 ### Community 77 - "Community 77"
 Cohesion: 0.11
@@ -425,19 +421,19 @@ Nodes (4): ParmString, Update visual feedback for expression state., String inpu
 Cohesion: 0.22
 Nodes (6): PlacedAssetsListWidget, Widget displaying list of placed assets with controls, Refresh asset list from multiparm, Delete asset from multiparm, Poll for parameter changes from external sources, Refresh the UI - called when pane becomes active
 
-### Community 91 - "Community 91"
-Cohesion: 0.10
-Nodes (5): Functions, Themes, MainFunctions, SetupMainWindow, UI_MainWindow
+### Community 96 - "Community 96"
+Cohesion: 0.20
+Nodes (3): Ui_RightColumn, SetupMainWindow, UI_MainWindow
 
 ## Knowledge Gaps
 - **268 isolated node(s):** `Project Overview`, `Package Structure`, `Environment Variables`, `Temporary / One-Off Scripts`, `Houdini Bridge - AI Agent Integration` (+263 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **16 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `PyPushButton` connect `Community 78` to `Community 0`, `Community 65`, `Community 36`, `Community 8`, `Community 77`, `Community 47`, `Community 83`, `Community 85`, `Community 88`, `Community 91`?**
+- **Why does `PyPushButton` connect `Community 78` to `Community 0`, `Community 65`, `Community 36`, `Community 8`, `Community 77`, `Community 47`, `Community 83`, `Community 85`, `Community 88`, `Community 91`, `Community 92`?**
   _High betweenness centrality (0.091) - this node is a cross-community bridge._
 - **Why does `HoverOutlineMixin` connect `Community 32` to `Community 0`, `Community 34`, `Community 36`, `Community 78`, `Community 15`, `Community 17`, `Community 83`, `Community 85`, `Community 88`?**
   _High betweenness centrality (0.076) - this node is a cross-community bridge._

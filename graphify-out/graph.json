@@ -4437,7 +4437,7 @@
       "label": "build_profile_points()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L168",
+      "source_location": "L169",
       "_origin": "ast",
       "id": "citygen_init_build_profile_points",
       "community": 4,
@@ -4447,7 +4447,7 @@
       "label": "get_template()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L201",
+      "source_location": "L202",
       "_origin": "ast",
       "id": "citygen_init_get_template",
       "community": 4,
@@ -4457,7 +4457,7 @@
       "label": "_ensure_point_attribs()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L225",
+      "source_location": "L226",
       "_origin": "ast",
       "id": "citygen_init_ensure_point_attribs",
       "community": 4,
@@ -4467,7 +4467,7 @@
       "label": "template_to_geo()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L234",
+      "source_location": "L235",
       "_origin": "ast",
       "id": "citygen_init_template_to_geo",
       "community": 4,
@@ -4477,7 +4477,7 @@
       "label": "geo_to_elements()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L257",
+      "source_location": "L258",
       "_origin": "ast",
       "id": "citygen_init_geo_to_elements",
       "community": 4,
@@ -4487,7 +4487,7 @@
       "label": "profile_to_geo()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L278",
+      "source_location": "L279",
       "_origin": "ast",
       "id": "citygen_init_profile_to_geo",
       "community": 4,
@@ -4514,22 +4514,22 @@
       "norm_label": "fill defaults into a raw element list. authored keys always win."
     },
     {
-      "label": "Summary attributes stamped onto the street edge.      Names follow CityEngine wh",
+      "label": "Summary attributes stamped onto the street edge.      Names follow the common in",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L139",
       "_origin": "ast",
       "id": "citygen_init_rationale_139",
       "community": 4,
-      "norm_label": "summary attributes stamped onto the street edge.      names follow cityengine wh"
+      "norm_label": "summary attributes stamped onto the street edge.      names follow the common in"
     },
     {
       "label": "Cross-section profile, left to right, as a list of point dicts.      Two points",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L169",
+      "source_location": "L170",
       "_origin": "ast",
-      "id": "citygen_init_rationale_169",
+      "id": "citygen_init_rationale_170",
       "community": 4,
       "norm_label": "cross-section profile, left to right, as a list of point dicts.      two points"
     },
@@ -4537,9 +4537,9 @@
       "label": "Starter template by name. Raises KeyError with the valid names listed.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L202",
+      "source_location": "L203",
       "_origin": "ast",
-      "id": "citygen_init_rationale_202",
+      "id": "citygen_init_rationale_203",
       "community": 4,
       "norm_label": "starter template by name. raises keyerror with the valid names listed."
     },
@@ -4547,9 +4547,9 @@
       "label": "Write the template itself: one point per element, ordered.      This is the data",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L235",
+      "source_location": "L236",
       "_origin": "ast",
-      "id": "citygen_init_rationale_235",
+      "id": "citygen_init_rationale_236",
       "community": 4,
       "norm_label": "write the template itself: one point per element, ordered.      this is the data"
     },
@@ -4557,9 +4557,9 @@
       "label": "Read a template geometry back into an element list.      The inverse of template",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L258",
+      "source_location": "L259",
       "_origin": "ast",
-      "id": "citygen_init_rationale_258",
+      "id": "citygen_init_rationale_259",
       "community": 4,
       "norm_label": "read a template geometry back into an element list.      the inverse of template"
     },
@@ -4567,9 +4567,9 @@
       "label": "Write the swept cross-section profile as a single open polyline.      Output lie",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L279",
+      "source_location": "L280",
       "_origin": "ast",
-      "id": "citygen_init_rationale_279",
+      "id": "citygen_init_rationale_280",
       "community": 4,
       "norm_label": "write the swept cross-section profile as a single open polyline.      output lie"
     },
@@ -5030,7 +5030,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "core_functions_functions",
-      "community": 91,
+      "community": 58,
       "norm_label": "functions"
     },
     {
@@ -5040,7 +5040,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "core_functions_functions_set_svg_icon",
-      "community": 96,
+      "community": 58,
       "norm_label": ".set_svg_icon()"
     },
     {
@@ -5050,7 +5050,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "core_functions_functions_set_svg_image",
-      "community": 91,
+      "community": 58,
       "norm_label": ".set_svg_image()"
     },
     {
@@ -5060,7 +5060,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "core_functions_functions_set_image",
-      "community": 91,
+      "community": 58,
       "norm_label": ".set_image()"
     },
     {
@@ -5120,7 +5120,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_json_themes",
-      "community": 91,
+      "community": 76,
       "norm_label": "json_themes.py"
     },
     {
@@ -5130,7 +5130,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "core_json_themes_themes",
-      "community": 91,
+      "community": 76,
       "norm_label": "themes"
     },
     {
@@ -5140,7 +5140,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "core_json_themes_themes_init",
-      "community": 91,
+      "community": 76,
       "norm_label": ".__init__()"
     },
     {
@@ -5150,7 +5150,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "core_json_themes_themes_serialize",
-      "community": 91,
+      "community": 76,
       "norm_label": ".serialize()"
     },
     {
@@ -5160,7 +5160,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "core_json_themes_themes_deserialize",
-      "community": 91,
+      "community": 76,
       "norm_label": ".deserialize()"
     },
     {
@@ -5170,7 +5170,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_qt_core",
-      "community": 58,
+      "community": 92,
       "norm_label": "qt_core.py"
     },
     {
@@ -5260,7 +5260,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pages_ui_main_pages",
-      "community": 96,
+      "community": 38,
       "norm_label": "ui_main_pages.py"
     },
     {
@@ -5270,7 +5270,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages",
-      "community": 96,
+      "community": 38,
       "norm_label": "ui_mainpages"
     },
     {
@@ -5280,7 +5280,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_setupui",
-      "community": 96,
+      "community": 38,
       "norm_label": ".setupui()"
     },
     {
@@ -5290,7 +5290,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_retranslateui",
-      "community": 96,
+      "community": 38,
       "norm_label": ".retranslateui()"
     },
     {
@@ -5300,7 +5300,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_window_init",
-      "community": 91,
+      "community": 96,
       "norm_label": "__init__.py"
     },
     {
@@ -5310,7 +5310,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_window_functions_main_window",
-      "community": 91,
+      "community": 96,
       "norm_label": "functions_main_window.py"
     },
     {
@@ -5330,7 +5330,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_init",
-      "community": 91,
+      "community": 96,
       "norm_label": ".__init__()"
     },
     {
@@ -5440,7 +5440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_window_setup_main_window",
-      "community": 91,
+      "community": 96,
       "norm_label": "setup_main_window.py"
     },
     {
@@ -5450,7 +5450,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "main_window_setup_main_window_setupmainwindow",
-      "community": 91,
+      "community": 96,
       "norm_label": "setupmainwindow"
     },
     {
@@ -5460,7 +5460,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "main_window_setup_main_window_setupmainwindow_init",
-      "community": 91,
+      "community": 96,
       "norm_label": ".__init__()"
     },
     {
@@ -5470,7 +5470,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "main_window_setup_main_window_setupmainwindow_setup_btns",
-      "community": 91,
+      "community": 96,
       "norm_label": ".setup_btns()"
     },
     {
@@ -5490,7 +5490,7 @@
       "source_location": "L592",
       "_origin": "ast",
       "id": "main_window_setup_main_window_setupmainwindow_resize_grips",
-      "community": 91,
+      "community": 96,
       "norm_label": ".resize_grips()"
     },
     {
@@ -5500,7 +5500,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_window_ui_main",
-      "community": 91,
+      "community": 96,
       "norm_label": "ui_main.py"
     },
     {
@@ -5510,7 +5510,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "main_window_ui_main_ui_mainwindow",
-      "community": 91,
+      "community": 96,
       "norm_label": "ui_mainwindow"
     },
     {
@@ -5520,7 +5520,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "main_window_ui_main_ui_mainwindow_setup_ui",
-      "community": 96,
+      "community": 58,
       "norm_label": ".setup_ui()"
     },
     {
@@ -6730,7 +6730,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_init",
-      "community": 8,
+      "community": 92,
       "norm_label": "__init__.py"
     },
     {
@@ -6740,7 +6740,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_py_push_button",
-      "community": 8,
+      "community": 92,
       "norm_label": "py_push_button.py"
     },
     {
@@ -6900,7 +6900,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_div",
-      "community": 58,
+      "community": 92,
       "norm_label": "py_div.py"
     },
     {
@@ -6910,7 +6910,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_title_bar_py_div_pydiv",
-      "community": 58,
+      "community": 92,
       "norm_label": "pydiv"
     },
     {
@@ -6920,7 +6920,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_title_bar_py_div_pydiv_init",
-      "community": 58,
+      "community": 92,
       "norm_label": ".__init__()"
     },
     {
@@ -6930,7 +6930,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar",
-      "community": 58,
+      "community": 92,
       "norm_label": "py_title_bar.py"
     },
     {
@@ -6960,7 +6960,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_add_menus",
-      "community": 96,
+      "community": 58,
       "norm_label": ".add_menus()"
     },
     {
@@ -7020,7 +7020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button",
-      "community": 58,
+      "community": 92,
       "norm_label": "py_title_button.py"
     },
     {
@@ -14890,7 +14890,7 @@
       "source_location": "L351",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s3_graph_the_contract_and_the_missing_80",
-      "community": 38,
+      "community": 12,
       "norm_label": "s3 \u2014 graph (the contract, and the missing 80%)"
     },
     {
@@ -14900,7 +14900,7 @@
       "source_location": "L364",
       "_origin": "ast",
       "id": "ideas_citygen_streets_layers_the_change_bridges_force",
-      "community": 38,
+      "community": 12,
       "norm_label": "layers \u2014 the change bridges force"
     },
     {
@@ -14910,7 +14910,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "ideas_citygen_streets_networks_are_typed",
-      "community": 38,
+      "community": 12,
       "norm_label": "networks are typed"
     },
     {
@@ -15744,7 +15744,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/uis/windows/main_window/__init__.py",
       "source_location": "L1",
-      "community": 91,
+      "community": 96,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_uis_windows_main_window_init_py"
     },
@@ -15834,7 +15834,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_push_button/__init__.py",
       "source_location": "L1",
-      "community": 8,
+      "community": 92,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_push_button_init_py"
     },
@@ -15861,7 +15861,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_title_bar/py_div.py",
       "source_location": "L1",
-      "community": 58,
+      "community": 92,
       "norm_label": "py_div.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_title_bar_py_div_py"
     },
@@ -15870,7 +15870,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_title_bar/__init__.py",
       "source_location": "L1",
-      "community": 58,
+      "community": 92,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_title_bar_init_py"
     },
@@ -24304,11 +24304,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L169",
+      "source_location": "L170",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_init_rationale_169",
-      "target": "citygen_init_build_profile_points"
+      "source": "citygen_init_rationale_170",
+      "target": "citygen_init_build_profile_points",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -24435,11 +24435,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L202",
+      "source_location": "L203",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_init_rationale_202",
-      "target": "citygen_init_get_template"
+      "source": "citygen_init_rationale_203",
+      "target": "citygen_init_get_template",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -24489,31 +24489,31 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L235",
+      "source_location": "L236",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_init_rationale_235",
-      "target": "citygen_init_template_to_geo"
+      "source": "citygen_init_rationale_236",
+      "target": "citygen_init_template_to_geo",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L258",
+      "source_location": "L259",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_init_rationale_258",
-      "target": "citygen_init_geo_to_elements"
+      "source": "citygen_init_rationale_259",
+      "target": "citygen_init_geo_to_elements",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
-      "source_location": "L279",
+      "source_location": "L280",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_init_rationale_279",
-      "target": "citygen_init_profile_to_geo"
+      "source": "citygen_init_rationale_280",
+      "target": "citygen_init_profile_to_geo",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -41187,5 +41187,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "ce982f8304cd84281d426493a64b55d1d77b2133"
+  "built_at_commit": "5615d75f984e6ceefa6a27366a469615e9eda39e"
 }

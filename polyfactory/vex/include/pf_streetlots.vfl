@@ -4,14 +4,13 @@
 // CityGen - S8 lot subdivision.
 // Design: ideas/citygen_streets.md S8.
 //
-// NOT VORONOI. The shipped build used voronoifracture and no reference does:
-//   Parish & Mueller 2001 4.1 - "most of these allotments are convex and
-//   rectangularly shaped ... a recursive algorithm that divides the longest
-//   edges that are approximately parallel", discarding lots that are too small
-//   or have no street access;
-//   CityEngine ships recursive OBB, offset and skeleton and nothing else;
-//   Epic's City_Layout.hda does axis-aligned recursive splitting.
-// Voronoi is why the lots "look very weird".
+// NOT VORONOI. The shipped build subdivided with voronoifracture, and nothing
+// in the surveyed literature does it that way. Parish & Mueller 2001 section
+// 4.1: "most of these allotments are convex and rectangularly shaped ... a
+// recursive algorithm that divides the longest edges that are approximately
+// parallel", discarding lots that are too small or have no street access.
+// Every other implementation we looked at also subdivides rectangularly and
+// recursively. Voronoi is why the lots read as wrong.
 //
 // Two modes ship in v1:
 //   recursive_obb - min-area oriented bounding box, split across the long axis,

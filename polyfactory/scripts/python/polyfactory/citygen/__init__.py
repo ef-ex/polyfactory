@@ -138,8 +138,9 @@ def total_width(elements):
 def street_summary(elements):
     """Summary attributes stamped onto the street edge.
 
-    Names follow CityEngine where they overlap - a naming convention, not a
-    dependency (citygen_streets.md section 1).  sidewalk widths are the
+    Names follow the common industry vocabulary where it overlaps - a naming
+    convention, not a dependency (citygen_streets.md section 1).  Sidewalk
+    widths are the
     outermost contiguous sidewalk run on each side, which is what an artist
     means by "the pavement", even when a verge sits inboard of it.
     """
