@@ -527,12 +527,26 @@ Both were unspecified, and the audit showed the code was silently inventing an a
    nothing — and thirteen more lost over half their length. Note the threshold mismatch this
    exposes: `graph_prune` deletes stubs under 8 m, but a junction needs ~22 m of clearance, so a
    street can survive pruning and still be eaten by its own corners.
-2. **At a mixed-class corner, the wider street sets the radius.** Measured: **98% of B's corners and
-   100% of C's join two different street classes**, and the radius was taken from whichever street
-   happened to sort first by `atan2` — so the same node got a 9 m fillet on one side and 4 m on the
-   other, arbitrarily. A junction's turning radius is set by the largest vehicle using it, which is
-   the wider road. Per-side radii are the richer answer and are deliberately deferred; this rule is
-   deterministic, which the old behaviour was not.
+2. **At a mixed-class corner, the LESSER street sets the radius.**
+   ⚠️ **Reversed 2026-08-09, same day, after the civil-engineering sweep (§4f).** I first decided
+   "the wider street wins", reasoning that the turning radius follows the largest vehicle. That is
+   backwards and two independent sources say so. The arterial's own traffic goes *straight through*
+   the junction; only the turn **onto the smaller street** sizes the corner. Published class-based
+   shortcuts key off the minor road — ≥7.6 m at minor cross streets against ≥9.1 m at major ones —
+   and the one published procedural implementation uses `r = min(r1, r2)` outright. "Wider wins"
+   would have inflated every arterial-to-local corner in the city.
+
+   The real chain is **design vehicle → swept path → required effective radius → minus what
+   adjacent parking and bike lanes already provide = kerb radius**, where the design vehicle is
+   *the least manoeuvrable vehicle that routinely uses the street*. So the correct model is a
+   per-node `design_vehicle` override (`car` · `su_truck` · `bus` · `articulated`) that wins over
+   class, with `min(class)` as the fallback. One comparison and one attribute.
+
+   Our 4–9 m band is fine — it sits inside every published urban range checked.
+
+   **And it must stay an artist-facing default, not a derived constant.** The strongest evidence:
+   a random forest trained on ~14,000 kerb arcs measured off real streets still lands 1.69 m median
+   error. If that cannot predict a corner radius from street attributes, neither can we.
 
 ⚠️ `every_corner_is_an_arc` currently asserts the *old* rule (the first-sorted street's class), so it
 must be re-pointed at these two before it can verify them. Same for
@@ -757,6 +771,63 @@ and were not.** The suite passing is not the same as the feature working — eve
 
 Suite: **6 failing → 2**. Nothing regressed against baseline. But see §4e — the suite is
 measuring the wrong things, and both remaining failures were misdiagnosed.
+
+---
+
+## 4f. Civil-engineering sweep — 2026-08-09. What it changes
+
+Full write-up and sources in `resources/citygen/README.md` §4b, organised by stage, with a
+verified / computed / snippet / failed ledger. The five that change the design:
+
+1. **There is an open-source implementation that builds a filled junction polygon** — the one
+   thing eight game and VFX sources declined to do. Three constructions transfer straight into S5:
+   **extrapolate both kerb lines ~100 m before intersecting them** (removes the entire
+   "no intersection at a shallow angle" failure class); **merge incident edges within 20° into one
+   direction before solving** (the structural cure for the inverted boundaries we hit); and for a
+   dead end, take the **perpendicular cross-section at the node intersected with both kerb lines** —
+   which is exactly the cap reverted twice in `8c739d3`. Where we are *ahead*: their corner is a
+   cubic Bézier of varying curvature and their "radius" is only a pushback distance. **Our true
+   tangent arc is the better primitive for film — keep it, take their scaffolding.**
+2. **Our curb return is standard practice, for cars.** Commercial corridor tools ship exactly three
+   corner types — chamfer, circular fillet, three-centred arcs — solved per quadrant. Ours is the
+   middle one, so §S5 is validated. But the published tables have **no simple-curve entry at all**
+   for large articulated vehicles at 90°; those need arc-plus-taper or three-centred curves. A
+   curb return is properly defined as an **offset of the design vehicle's inner rear-wheel path**
+   at ~0.6 m clearance; the arc is a fittable approximation of it.
+3. **S6 is already a corridor, just with every setting at its trivial value** — one region, no
+   targets, no daylighting. Two cheap upgrades: add **point / link / shape codes** (three string
+   attributes, and the vertex code is what yields kerb, crown and frontage lines as longitudinal
+   polylines — precisely what §S7's block boundary needs); and adopt the open interchange format's
+   **`width(ds) = a + b·ds + c·ds² + d·ds³`**, which turns §S6's deferred "cross-section varies
+   along a street" from an architecture change into a schema change. Keep deferring daylighting: it
+   varies point count per station and would force sweep → loft.
+4. **Clothoids barely matter — we were worrying about the wrong artefact.** The whole visible
+   signature of a missing transition curve is a lateral shift of `Ls²/(24R)` ≈ **0.33 m** on a
+   100 km/h, R = 400 m arterial, spread over 56 m. Urban streets use normal crown with **no
+   superelevation**, so there is no runoff for a spiral to host anyway. What actually reads as CG,
+   in order: **curvature noise in the traced polyline** (loudest by far), missing superelevation on
+   fast curves, no vertical curves, radius below class minimum, clothoids last. And the cheap fix
+   yields them free: resample → discrete curvature → **smooth κ** → clamp to `1/R_min(class)` →
+   re-integrate. Any linear κ ramp that falls out *is* an Euler spiral, with no Fresnel maths.
+5. **Lot subdivision has three upgrades over Parish's recursive split.** An **area-targeted slide
+   line** — slide a fixed-direction line along the frontage until the enclosed area hits target,
+   a ~20-iteration bisection replacing our midpoint split — attacks the 31:1 ribbons (§4e-4)
+   directly. Add **vertex snapping to block corners**, which on its own removes much of the
+   procedural look. And **Vanegas 2012 is no longer blocking** (§S8): the straight-skeleton method
+   is documented step by step on a free page.
+
+Smaller, all with published anchors now: `min_junction_angle` is **90° preferred, avoid below 75°,
+60° absolute floor** · our 5 m vertical clearance is right for road-over-road but **7.11 m** is
+required over freight rail, which also imposes a lateral exclusion — make it a per-obstacle lookup ·
+bridges should adopt a **support-line abstraction** `(station, skew, role, transverse_length)`,
+which subsumes `pier_spacing`, gives skew free, and fixes uniform-spacing-plus-rejection silently
+doubling a span · the **open/spill-through abutment** (bank seat, 1.5:1 fill cone, wingwalls,
+approach slab) is what makes an overpass read as built · there are **three node constructions, not
+one** — plaza, roundabout and cul-de-sac bulb — all "disc plus fillets into it", one construction
+with three radius defaults.
+
+⚠️ **`plaza_radius = 60 m` is 2–4× too large.** Real roundabout inscribed circle diameters run
+21–67 m *total*, so 60 m as a radius is a 120 m disc. Fix with the roundabout default.
 
 ---
 
