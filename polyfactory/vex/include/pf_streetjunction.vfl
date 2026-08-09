@@ -43,6 +43,31 @@ vector pfsj_corner(const vector centre, dirA, dirB;
 }
 
 
+// The same kerb-line intersection, but with each line given EXPLICITLY as a
+// point and a direction instead of being derived from one shared node.
+//
+// Needed because the two kerb lines no longer pass through the node: each
+// street's mouth is now placed on its own polyline at the cut, with that
+// polyline's tangent, so a curved arm's kerb line is offset AND rotated
+// relative to the node frame. Solving from `centre` there put the corner in a
+// different frame from the cap it has to meet, which is the seam wedge.
+//
+// `dA`/`dB` point AWAY from the junction; `PA`/`PB` are points on the two kerb
+// lines. `ok` returns 0 when they are parallel and no finite corner exists.
+// The threshold matches pfsj_corner: |sin(angle)| < 0.02, about 1.1 degrees.
+vector pfsj_corner_lines(const vector PA, dA, PB, dB; export int ok) {
+    float den = dA.x * dB.z - dA.z * dB.x;
+    if (abs(den) < 0.02) {
+        ok = 0;
+        return PA;
+    }
+    ok = 1;
+    vector w = PB - PA;
+    float u = (w.x * dB.z - w.z * dB.x) / den;
+    return PA + dA * u;
+}
+
+
 // Miter length relative to the widest incident half-width. Above the limit the
 // spike must be replaced by a bevel. SVG's default limit is 4.0, which bevels
 // below roughly 29 degrees.
@@ -54,12 +79,16 @@ float pfsj_miter_ratio(const vector centre, corner; const float wA, wB) {
 
 // Fillet inscribed in the corner: centre sits r/sin(theta/2) from the corner
 // along the inner bisector, tangents sit r/tan(theta/2) back along each kerb.
-// The radius is CLAMPED to what the junction can actually hold. The tangent
-// run is r/tan(theta/2); if that exceeds the distance from the corner back to
-// the junction centre along either street, the fillet wraps behind the centre
-// and the junction turns inside out. A 9m radius does not fit where the
-// crossing street is only 12m wide. `radius_used` reports what was applied.
-void pfsj_fillet(const vector centre, corner, dirA, dirB; const float radius;
+//
+// The radius is CLAMPED, via `max_run`, to what the junction can actually
+// hold. `max_run` is the longest tangent run the caller will allow - S5's
+// `max_fillet_fraction` (0.4) of the shorter of the two incident streets.
+// This clamp was specified in the design and never implemented (the line used
+// to read `radius_used = radius;` under a comment claiming otherwise): cuts
+// reached 26 m, three streets were consumed whole while their junction kept a
+// mouth for them, and thirteen more lost over half their length.
+// Pass max_run <= 0 to disable it. `radius_used` reports what was applied.
+void pfsj_fillet(const vector corner, dirA, dirB; const float radius, max_run;
                  export vector arc_centre, tanA, tanB;
                  export float radius_used; export int ok) {
     float d = clamp(dot(dirA, dirB), -1.0, 1.0);
@@ -78,8 +107,10 @@ void pfsj_fillet(const vector centre, corner, dirA, dirB; const float radius;
     // the tangents fall short of the kerb intersection, so each street gets
     // trimmed LESS than the clearance it needs and the two drive straight
     // through each other. That was the visible failure.
-    radius_used = radius;
-    float t = radius_used / tan(half);
+    float tn = tan(half);
+    float t = radius / tn;
+    if (max_run > 0.0 && t > max_run) t = max_run;
+    radius_used = t * tn;
 
     tanA = corner + dirA * t;
     tanB = corner + dirB * t;

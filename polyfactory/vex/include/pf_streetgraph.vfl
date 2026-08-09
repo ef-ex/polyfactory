@@ -85,6 +85,31 @@ vector pfsg_pos_at_length(const int geo, prim; const float d) {
 }
 
 
+// Unit forward tangent of the polyline segment that contains arc length `d`.
+// This is the frame the SWEEP uses at a trimmed end - its terminal
+// cross-section lies across this segment - so a junction mouth built from it
+// is parallel to the road it caps. Using the node tangent instead rotates the
+// mouth by the whole turn of the polyline over the trim distance (up to 30.9
+// degrees, measured), which wedges a triangular hole open at the seam.
+vector pfsg_tangent_at_length(const int geo, prim; const float d) {
+    int pts[] = primpoints(geo, prim);
+    int n = len(pts);
+    vector last = {0, 0, 0};
+    float acc = 0;
+    for (int i = 1; i < n; i++) {
+        vector a = point(geo, "P", pts[i - 1]);
+        vector b = point(geo, "P", pts[i]);
+        vector s = b - a;
+        float sl = length(s);
+        if (sl < 1e-9) continue;
+        last = s / sl;
+        if (acc + sl > d) return last;
+        acc += sl;
+    }
+    return last;
+}
+
+
 // Average of a primitive's points.  Exact for a rectangle, and inside the
 // loop for any convex block; an L-shaped block could in principle place it
 // outside, which would misclassify that block. Acceptable for v1.

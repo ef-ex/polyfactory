@@ -77,18 +77,21 @@ def run_case(name, city, field=None):
 
     out.append(C.graph_is_planar(g_graph))
     out.append(C.no_orphan_components(g_graph))
+    out.append(C.dead_ends(g_graph))
     out.append(C.attribute_schema(g_graph, g_city))
 
     patches = inner(cases.INTERNAL["patches"])
     surface = inner(cases.INTERNAL["surface"])
     solve = inner(cases.INTERNAL["solve"])
     rscale = city.parm("s5j_params_corner_radius_scale")
+    maxfrac = city.parm("s5j_params_max_fillet_fraction")
     if patches and surface:
         out.append(C.no_degenerate_corner_segments(patches.geometry()))
         out.append(C.every_corner_is_an_arc(
             patches.geometry(),
             solve.geometry() if solve else None,
-            rscale.eval() if rscale else 1.0))
+            rscale.eval() if rscale else 1.0,
+            maxfrac.eval() if maxfrac else 0.4))
         out.append(C.sidewalk_bands_match_corners(patches.geometry(),
                                                   surface.geometry()))
         out.append(C.junction_boundary_is_simple(patches.geometry()))
@@ -104,11 +107,9 @@ def run_case(name, city, field=None):
         out.append(C.self_intersections(roads, "selfx_roads"))
 
     # the S5 seam: the road and the patch must agree where the junction ends
-    streets = inner(cases.INTERNAL["streets"])
     trimmed = inner(cases.INTERNAL["trim"])
-    if streets:
-        out.append(C.trim_metric_is_consistent(streets.geometry()))
     if solve and trimmed:
+        out.append(C.trim_metric_is_consistent(solve.geometry(), trimmed.geometry()))
         out.append(C.every_mouth_has_a_road(solve.geometry(), trimmed.geometry()))
     if trimmed:
         out.append(C.no_sweep_fold_after_trim(trimmed.geometry()))

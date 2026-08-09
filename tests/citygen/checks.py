@@ -314,6 +314,7 @@ def no_degenerate_corner_segments(patch_geo, tol=1e-3):
 
 
 def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
+                           max_fillet_fraction=0.4,
                            dot_tol=-0.985, fit_tol=1e-3, radius_tol=5e-3,
                            tangent_tol=1e-3):
     """A junction corner that is not a correctly-placed fillet arc.
@@ -338,28 +339,39 @@ def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
 
       fit      the points really lie on a circle (a chord dressed up as an arc,
                or a radially-clamped bevel, fails here);
-      radius   the fitted radius is one of the class radii of the streets
-               meeting at that node, scaled by corner_radius_scale — this is
-               what catches a silently grown or shrunk radius;
+      radius   the fitted radius is the one §S5's rule demands for THIS corner
+               (below) — this is what catches a silently grown or shrunk radius;
       tangent  the arc centre sits exactly `r` from BOTH kerb lines, i.e. the
                arc is tangent to each. A fillet that is not tangent leaves a
                kink in the kerb where the arc meets the straight run.
 
-    `mixed_class` is reported, not asserted: 4e-3 found the radius is taken from
-    whichever street sorts first by atan2, and 100% of C's corners join streets
-    of two different classes, so the choice is arbitrary. The design doc names
-    no tie-break rule, so this check will not invent one — it records the count
-    so the number moves when a rule is chosen.
+    RE-POINTED at the two rules §S5 decided on 2026-08-09. It used to accept any
+    class radius present at the node, because the solver took the class of
+    whichever street sorted first by atan2 and the doc named no tie-break. Both
+    ends of that are now settled, so the check asserts them:
+
+      * at a mixed-class corner the LESSER street sets the radius, `min(rA, rB)`
+        — only the turn ONTO the smaller street sizes the corner;
+      * `max_fillet_fraction` (0.4) caps the tangent run `r/tan(theta/2)` at
+        that fraction of the shorter incident street, and the cap changes the
+        radius, so the expected value is recomputed through it.
+
+    Both the fitted circle AND the solver's own `corner_r` are compared against
+    that expectation, so a solver that applies the right radius but draws the
+    wrong arc, or vice versa, still fails. `mixed_class` stays as a reported
+    count: it is no longer a defect, only a measure of how often the rule bites.
     """
     name = "every_corner_is_an_arc"
     if patch_geo.findPointAttrib("is_cap") is None:
         return _skip(name, "no is_cap attribute")
     up = (0.0, 1.0, 0.0)
 
-    # node -> the class radii of the streets meeting there. s5j_solve's output
-    # still carries both the patches and the street polylines, so junction_pt
-    # indexes straight into it.
+    # node -> the streets meeting there, each with its class radius, its length
+    # and its polyline, so a corner can be matched to the two it actually joins.
+    # s5j_solve's output still carries both the patches and the street
+    # polylines, so junction_pt indexes straight into it.
     node_radii = {}
+    node_edges = {}
     if solve_geo is not None and solve_geo.findPrimAttrib("junction_pt") is not None:
         for pr in solve_geo.prims():
             try:
@@ -368,16 +380,32 @@ def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
                 jp = int(pr.attribValue("junction_pt"))
             except Exception:
                 continue
-            rs = set()
+            rs, es = set(), []
             for e in solve_geo.point(jp).prims():
                 try:
                     if e.attribValue("is_junction_patch") == 1:
                         continue
-                    rs.add(CLASS_RADIUS.get(e.attribValue("street_class"), 4.0)
-                           * radius_scale)
+                    r = CLASS_RADIUS.get(e.attribValue("street_class"), 4.0) \
+                        * radius_scale
                 except Exception:
-                    pass
+                    continue
+                ep = [v.point().position() for v in e.vertices()]
+                rs.add(r)
+                es.append((r, _arc_lengths(ep)[-1], ep))
             node_radii[jp] = rs
+            node_edges[jp] = es
+
+    def _street_at(edges, capc):
+        """The incident street a mouth belongs to: the one its cap centre lies
+        on. Position, not direction — a curved arm's tangent at the cut is not
+        its direction at the node."""
+        best = None
+        for (r, ln, ep) in edges:
+            d = min(_seg_point_dist(ep[i - 1], ep[i], capc)
+                    for i in range(1, len(ep)))
+            if best is None or d < best[0]:
+                best = (d, r, ln)
+        return (best[1], best[2]) if best else (None, None)
 
     def _street_dir(cin, cout, capc, centre):
         v = (cout[0] - cin[0], 0.0, cout[2] - cin[2])          # across the mouth
@@ -390,7 +418,7 @@ def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
     bad = 0
     total = 0
     mixed = 0
-    max_fit = max_rad = max_tan = 0.0
+    max_fit = max_rad = max_tan = max_radfit = 0.0
     fitted = unfitted = 0
     for prim in patch_geo.prims():
         pts = [v.point() for v in prim.vertices()]
@@ -402,9 +430,11 @@ def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
         pos = [p.position() for p in pts]
         centre = [sum(p[i] for p in pos) / n for i in range(3)]
         try:
-            cand = node_radii.get(int(prim.attribValue("junction_pt")), set())
+            jp = int(prim.attribValue("junction_pt"))
         except Exception:
-            cand = set()
+            jp = -1
+        cand = node_radii.get(jp, set())
+        edges = node_edges.get(jp, [])
         for i in range(n):
             if not (cap[i] == 1 and aft[i] == 1):
                 continue                                       # not a corner start
@@ -438,29 +468,54 @@ def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
             cx, cz, r, resid = fit
             fitted += 1
             max_fit = max(max_fit, resid)
-            if cand:
-                max_rad = max(max_rad, min(abs(r - q) for q in cand))
-            # tangency: the arc centre must sit exactly r from both kerb lines.
-            # The kerb line of each mouth runs through its cap corner along that
-            # street's direction, which is the mouth cap rotated by 90 degrees.
             a = _street_dir(pos[i - 1], pos[i], pts[i].attribValue("capc"), centre)
             b = _street_dir(pos[k], pos[(k + 1) % n], pts[k].attribValue("capc"),
                             centre)
+            # §S5's radius rule for THIS corner: the lesser of the two streets'
+            # class radii, then clamped by max_fillet_fraction of the shorter of
+            # the two. Both the fitted circle and the solver's own `corner_r`
+            # have to land on it.
+            if edges:
+                ra, la = _street_at(edges, pts[i].attribValue("capc"))
+                rb, lb = _street_at(edges, pts[k].attribValue("capc"))
+                want = min(ra, rb)
+                half = math.acos(max(-1.0, min(1.0, a[0] * b[0] + a[2] * b[2]))) * 0.5
+                tn = math.tan(half)
+                run_max = max_fillet_fraction * min(la, lb)
+                if tn > 1e-9 and run_max > 0 and want / tn > run_max:
+                    want = run_max * tn
+                if patch_geo.findPointAttrib("corner_r") is not None:
+                    max_rad = max(max_rad,
+                                  abs(pts[(i + 1) % n].attribValue("corner_r") - want))
+                # The FITTED radius is only ever as trustworthy as the arc's
+                # sweep. A fillet that turns 5 degrees has a 4 mm sagitta, so a
+                # 2e-5 fit residual moves the fitted radius by ~15 mm and every
+                # near-straight corner reads as a wrong radius while nothing is
+                # wrong. Measured on C: three corners at 172-175 degrees, fitted
+                # 4.0098 against an applied and expected 4.0000. So compare it
+                # against the first-order conditioning bound, resid / (1 -
+                # cos(sweep/2)), with a factor of 2, rather than a flat number.
+                sweep = math.pi - 2.0 * half
+                allow = max(radius_tol,
+                            2.0 * resid / max(1.0 - math.cos(sweep * 0.5), 1e-9))
+                max_radfit = max(max_radfit, abs(r - want) / allow)
             for (base, d) in ((pos[i], a), (pos[k], b)):
                 perp = abs((cx - base[0]) * d[2] - (cz - base[2]) * d[0])
                 max_tan = max(max_tan, abs(perp - r))
 
     value = {"straight": bad,
              "fit": round(max_fit, 7),
-             "radius": round(max_rad, 7) if node_radii else None,
+             "radius": round(max_rad, 7) if node_edges else None,
+             "radius_fit": round(max_radfit, 3) if node_edges else None,
              "tangent": round(max_tan, 7),
              "unfitted": unfitted,
              "mixed_class": mixed}
     ok = (bad == 0 and max_fit <= fit_tol and max_tan <= tangent_tol
-          and (not node_radii or max_rad <= radius_tol))
+          and (not node_edges or (max_rad <= radius_tol and max_radfit <= 1.0)))
     return Result(name, ok, value,
-                  "%d corners, %d arcs fitted; %d join two street classes so the "
-                  "radius is arbitrary (4e-3)" % (total, fitted, mixed))
+                  "%d corners, %d arcs fitted; %d join two street classes, "
+                  "where the lesser one sets the radius (S5)"
+                  % (total, fitted, mixed))
 
 
 def sidewalk_bands_match_corners(patch_geo, surface_geo, tol=1e-3):
@@ -523,63 +578,108 @@ def junction_boundary_is_simple(patch_geo):
 # junction ends, and every per-node check passed the whole time.
 # ---------------------------------------------------------------------------
 
-def trim_metric_is_consistent(streets_geo, tol=1e-3):
-    """The two ends of the S5 handshake measure the cut in different units.
+def trim_metric_is_consistent(solve_geo, trimmed_geo, tol=0.05):
+    """THE S5 SEAM: the road's terminal cross-section IS the mouth's cap segment.
 
-    citygen_streets.md 4e-1. `s5j_solve` places the junction mouth at
-    `c + d*dist` — a STRAIGHT-LINE AXIAL distance along the first resample
-    segment — and writes `dist` to `trim_start`/`trim_end`. `s5j_trim` then cuts
-    the street at `dist` measured as ARC LENGTH along the polyline. Same number,
-    two metrics. Arc length >= chord, so the road always stops SHORT of the
-    mouth it was trimmed for and never clears the fillet. That is the direct
-    cause of the merged-city self-intersections, and no check on `s5j_solve`
-    alone or `s5j_trim` alone can see it: each is self-consistent.
+    citygen_streets.md 4e-1. This used to measure a units mismatch — `s5j_solve`
+    placed the mouth at `c + d*dist`, a straight-line AXIAL distance along the
+    node tangent, while `s5j_trim` cut the street at `dist` measured as ARC
+    LENGTH along the polyline. Same number, two metrics; the road stopped up to
+    3.34 m short of the mouth it was cut for.
 
-    This measures the disagreement itself — the distance between the two
-    candidate cut points for the same `dist`. It is zero only when both nodes
-    use one metric, which is the fix.
+    RE-POINTED, because the fix removed the thing that formulation measured.
+    `s5j_solve` now places the mouth on the polyline itself and solves the whole
+    corner in that frame, so there is only one metric and comparing two of them
+    is meaningless. §S5 named the replacement in advance: *"once both nodes
+    measure axially it should assert the geometric seam — the trimmed road end
+    lies on the mouth's cap segment"*.
 
-    Note for whoever fixes it: if the repair keeps two metrics and reconciles
-    them by converting between them, this formulation stops being the right
-    test — replace it with the geometric seam test (the trimmed road end must
-    lie ON the mouth's cap segment), which holds regardless of units.
+    So: for every junction mouth, take the street it belongs to, find that
+    street's TRIMMED terminal point and terminal tangent, build the road's own
+    terminal cross-section (the end ± streetWidth/2 across that tangent) and
+    measure how far its two endpoints land from the mouth's two cap corners.
+
+    That is strictly stronger than the old test, because it sees ORIENTATION as
+    well as position. The mouth used to be square to the node tangent while the
+    road ended square to the polyline tangent up to 30.9° away, wedging a
+    triangular hole up to 4.3 m deep open at every curved arm — 184 m² missing
+    in B — and the axial-vs-arc number could not see any of it.
     """
     name = "trim_metric_is_consistent"
-    if streets_geo.findPrimAttrib("trim_start") is None:
-        return _skip(name, "no trim_start attrib")
+    if solve_geo.findPrimAttrib("junction_pt") is None:
+        return _skip(name, "no junction_pt attrib")
+    if solve_geo.findPrimAttrib("edge_id") is None:
+        return _skip(name, "no edge_id attrib")
+    surviving = {}
+    for pr in trimmed_geo.prims():
+        try:
+            surviving[pr.attribValue("edge_id")] = pr
+        except Exception:
+            pass
+
     errs = []
-    for pr in streets_geo.prims():
-        pts = [v.point().position() for v in pr.vertices()]
-        if len(pts) < 2:
+    worst = None
+    for pr in solve_geo.prims():
+        try:
+            if pr.attribValue("is_junction_patch") != 1:
+                continue
+            jp = int(pr.attribValue("junction_pt"))
+        except Exception:
             continue
-        acc = _arc_lengths(pts)
-        length = acc[-1]
-        if length <= 0:
+        pts = [v.point() for v in pr.vertices()]
+        n = len(pts)
+        # a mouth is the cap-in -> cap-out pair; both carry the same `capc`
+        mouths = []
+        for i in range(n):
+            a, b = pts[i], pts[(i + 1) % n]
+            if (a.attribValue("is_cap") == 1 and a.attribValue("after_corner") == 0
+                    and b.attribValue("is_cap") == 1
+                    and b.attribValue("after_corner") == 1):
+                mouths.append((a.attribValue("capc"), a.position(), b.position()))
+        if not mouths:
             continue
-        for key, node_i, nb_i in (("trim_start", 0, 1),
-                                  ("trim_end", len(pts) - 1, len(pts) - 2)):
+        node = solve_geo.point(jp).position()
+        for e in solve_geo.point(jp).prims():
             try:
-                t = pr.attribValue(key)
+                if e.attribValue("is_junction_patch") == 1:
+                    continue
+                road = surviving.get(e.attribValue("edge_id"))
             except Exception:
                 continue
-            if t <= 1e-9 or t >= length:
+            if road is None:
+                continue          # deleted street: every_mouth_has_a_road owns that
+            rp = [v.point().position() for v in road.vertices()]
+            if len(rp) < 2:
                 continue
-            d = pts[nb_i] - pts[node_i]
+            if (rp[0] - node).length() <= (rp[-1] - node).length():
+                end, nb = rp[0], rp[1]
+            else:
+                end, nb = rp[-1], rp[-2]
+            d = nb - end
+            d = type(end)(d[0], 0.0, d[2])
             if d.length() < 1e-12:
                 continue
-            axial = pts[node_i] + d.normalized() * t
-            arc = _pos_at_length(pts, acc, t if key == "trim_start" else length - t)
-            errs.append((axial - arc).length())
+            d = d.normalized()
+            across = type(end)(-d[2], 0.0, d[0])
+            h = e.attribValue("streetWidth") * 0.5
+            p1, p2 = end - across * h, end + across * h
+            capc, c1, c2 = min(mouths, key=lambda m: (type(end)(m[0]) - end).length())
+            err = max(min((p1 - c1).length(), (p1 - c2).length()),
+                      min((p2 - c1).length(), (p2 - c2).length()))
+            errs.append(err)
+            if worst is None or err > worst[0]:
+                worst = (err, (round(end[0], 2), round(end[2], 2)))
     if not errs:
         return _skip(name, "no trimmed ends")
     mx = max(errs)
     value = {"max": round(mx, 4),
              "mean": round(sum(errs) / len(errs), 4),
              "ends": len(errs),
-             "over_0.25m": sum(1 for e in errs if e > 0.25)}
+             "over_0.05m": sum(1 for e in errs if e > 0.05),
+             "worst_at": worst[1]}
     return Result(name, mx <= tol, value,
-                  "axial vs arc-length cut point; s5j_solve and s5j_trim must "
-                  "agree to %.3g m" % tol)
+                  "road terminal cross-section vs mouth cap corners; both "
+                  "endpoints must land within %.3g m" % tol)
 
 
 def every_mouth_has_a_road(solve_geo, trimmed_geo):
@@ -627,6 +727,40 @@ def every_mouth_has_a_road(solve_geo, trimmed_geo):
                 pass
     return Result(name, missing == 0, missing,
                   "mouths whose street s5j_trim deleted, out of %d" % mouths)
+
+
+def dead_ends(graph_geo, margin=25.0):
+    """Dead ends, split by whether they sit on the edge of the traced domain.
+
+    Parish & Müller: "in traffic systems the dead end road is the exception".
+    A dead end AT the domain boundary is the domain being cut off, not a defect;
+    an INTERIOR one is a street that stops in the middle of the city, and that
+    is what §S2 `d_lookahead` and §S3 extend-to-connect exist to remove.
+
+    Informational, with no pass threshold: there is no correct number, only a
+    direction of travel. It is recorded because a bare count is exactly what
+    caught extend-to-connect case (b) never executing (§4g-1) — the mechanism
+    shipped, the suite was green, and the number had not moved.
+    """
+    bb = graph_geo.boundingBox()
+    lo, hi = bb.minvec(), bb.maxvec()
+    total = interior = 0
+    for p in graph_geo.points():
+        deg = 0
+        for pr in p.prims():
+            vs = list(pr.vertices())
+            for i in (0, len(vs) - 1):
+                if vs[i].point().number() == p.number():
+                    deg += 1
+        if deg != 1:
+            continue
+        total += 1
+        q = p.position()
+        if (q[0] - lo[0] > margin and hi[0] - q[0] > margin
+                and q[2] - lo[2] > margin and hi[2] - q[2] > margin):
+            interior += 1
+    return Result("dead_ends", True, {"total": total, "interior": interior},
+                  "informational; interior ones are the ones S2/S3 must remove")
 
 
 def no_sweep_fold_after_trim(trimmed_geo, tol=1.0):

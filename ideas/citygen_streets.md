@@ -522,7 +522,8 @@ Both were unspecified, and the audit showed the code was silently inventing an a
 
 1. **`max_fillet_fraction` = 0.4** (a default, artist-overridable). It was named here and never
    implemented: `pfsj_fillet` says *"the radius is CLAMPED to what the junction can actually hold"*
-   and line 83 is `radius_used = radius;`. Unclamped, cuts reached 26 m, **three streets were
+   and line 83 is `radius_used = radius;`. ✅ **Implemented §4h**, as a `max_run`
+   argument bounding the tangent run. Unclamped, cuts reached 26 m, **three streets were
    consumed entirely** while their junction kept a mouth for them — a paved stub opening onto
    nothing — and thirteen more lost over half their length. Note the threshold mismatch this
    exposes: `graph_prune` deletes stubs under 8 m, but a junction needs ~22 m of clearance, so a
@@ -552,6 +553,7 @@ Both were unspecified, and the audit showed the code was silently inventing an a
 must be re-pointed at these two before it can verify them. Same for
 `trim_metric_is_consistent`: once both nodes measure axially it should assert the geometric seam —
 **the trimmed road end lies on the mouth's cap segment** — not the difference between two metrics.
+✅ **Both re-pointed §4h.**
 
 #### Three constructions adopted from the civil sweep — 2026-08-09
 
@@ -883,6 +885,8 @@ with three radius defaults.
 Found by a fresh agent, none of it visible to the committed suite. Ordered by severity.
 
 1. **Roads and junction patches interpenetrate at every junction. SEVERE.**
+   ✅ **Fixed §4h-1** — and the root cause was bigger than the units mismatch below:
+   the mouth was also out of SQUARE with the road by up to 30.9 degrees.
    `s5j_solve` places the mouth at `c + d*dist` — a **straight-line axial** distance along
    the first resample segment. `s5j_trim` cuts the street at `dist` measured as **arc
    length** along the polyline. Same number, two different metrics. Because arc length ≥
@@ -962,7 +966,8 @@ Found by a fresh agent, none of it visible to the committed suite. Ordered by se
 **Verdict: not sound to build on.** Findings below, worst first; the junction-spacing
 ceiling that follows was measured against a mechanism that turned out not to be running.
 
-1. **Extend-to-connect case (b) is dead code.** Its validator loop is not told which prim
+1. **Extend-to-connect case (b) is dead code.** ✅ **Fixed §4h-3** — and closing it
+   exposed a second hole in the same rail. Its validator loop is not told which prim
    the landing point lies on, so the extension is rejected by the *adjacent segment of the
    very edge it is landing on* — one resample step away, inside `min_node_dist`. True for
    any `min_node_dist` ≥ ~8 m. Confirmed three ways: `graph_extend` adds 2 prims in B and 2
@@ -971,8 +976,8 @@ ceiling that follows was measured against a mechanism that turned out not to be 
    exempted. **Every new degree-3 junction came from `d_lookahead` alone.**
 2. **Both surviving connections are dead-end-to-dead-end welds** — i.e. the degree-2 corner
    §4e-8 says must not be attempted. The mechanism manufactures the defect it documents.
-3. **`d_lookahead` appends the crossing point after the last integration point instead of
-   replacing it**, leaving a residual sub-step. Any residual in **(0.5 m, 0.75 m]** falls
+3. ✅ **Fixed §4h-4.** **`d_lookahead` appends the crossing point after the last integration
+   point instead of replacing it**, leaving a residual sub-step. Any residual in **(0.5 m, 0.75 m]** falls
    between `graph_fuse` tol3d 0.5 and `graph_stitch` proxtol 0.75: stitch splits twice,
    fuse cannot weld, and the junction node lands 0.53 m off the arterial with a 90° hook.
    One of nine new junctions hit it, at (-198.94, 90.56). One-line fix in the tracer.
@@ -1023,6 +1028,83 @@ both producers, defaulting to 50 m. **Clamp the fillet radius (§4e-3) and that 
 down, and the remaining interior dead ends can be connected.** Until then the rail is what
 keeps the suite honest, and it is the single largest reason dead-end elimination stops
 where it does.
+
+⚠️ **Superseded by §4h.** The rail leaked, and the leak — not the spacing — was what
+produced the 42 m table above. It is now 40 m.
+
+---
+
+## 4h. Third pass — the seam, the radius rule, the two dead-end mechanisms. 2026-08-09
+
+Fixes for §4e-1, §4e-3, §4g-1 and §4g-3. Every number below is from
+`tests/citygen/run_scene_checks.py` on a scene built from scratch.
+
+**1. The seam was a ROTATION, not just an offset (§4e-1).** `s5j_solve` put the mouth at
+`c + node_tangent * dist` while `s5j_trim` cut at `dist` as arc length. The position error
+was up to 3.42 m, but the larger error was angular: the polyline turns up to 30.9° over the
+trim distance, so the road's terminal cross-section and the mouth cap were rotated relative
+to each other and a triangular hole up to 4.3 m deep opened at every **curved** arm — 184 m²
+missing in B, 200 in C. Straight arms had no gap, which is why it read as random.
+
+Moving only the mouth does not work and was tried twice: the kerb corner, the fillet
+tangents and the arc are all solved from the node, so the cap moves and the corner it must
+meet does not. **The whole corner solve now runs in the road's own frame** — `orig`/`fdir`
+are the street's polyline point and tangent at its current cut, and `pfsj_corner_lines`
+intersects the two kerb lines from those instead of from one shared node. Iterated 4×,
+which converges because the frame only changes at all when the cut crosses a resample
+segment. Seam error, road terminal cross-section against mouth cap corners:
+**A 0.70 → 0.0004 m · B 4.15 → 0.007 · C 4.88 → 0.035 · D 0.70 → 0.0004.**
+
+**2. The radius rule, and the clamp that was never there (§4e-3, §S5).** `min(rA, rB)` per
+corner, and `pfsj_fillet` now takes `max_run` — `max_fillet_fraction` (0.4, new parameter
+`s5j_params_max_fillet_fraction`) of the shorter incident street. Measured on the T-junction
+at (-14.52, -35.65): back edge **39.8 → 34.80 m**, both corners at r = 4.0 instead of 9 and 4.
+
+**3. Extend-to-connect case (b) now runs (§4g-1)** — the validator exempts the LANDING prim,
+not the extending one. But exempting the extending prim from `min_node_dist` is itself a
+hole, and closing case (b) walked straight into it: the street a dead end belongs to is the
+most likely thing to already cross the target near the landing, *because that is how the
+dead end got over there*. C placed a junction 21.4 m from an existing one — 43 junction
+self-intersections and a 21 m street trimmed to twice its own length. The extending prim is
+now exempt from the corridor and crossing tests only.
+
+**4. `d_lookahead` replaces the last integration point with the crossing (§4g-3)** instead of
+appending after it, whenever the residual is under `graph_stitch`'s 0.75 m.
+
+**5. The city output is WELDED at the seam** (`city_weld`, fuse 0.01 m). Closing the seam
+*raised* `selfx_city_merged` at first — A 102 → 106 — because a road that now touches the
+junction registers coincident-but-unwelded edges as crossings where a road that stopped
+0.7 m short touched nothing. A control test settles which it is: two coplanar quads sharing
+an edge give 0, so those points are adjacency, not interpenetration, and welding is the
+completion of the seam rather than a way round the check. Junction↔road crossings drop
+A 92 → 8 · B 397 → 83 · C 615 → 142 with no other change.
+
+**6. Rails re-defaulted, from the sweep** (all three measured, not guessed):
+
+| parameter | was | now | why |
+|---|---|---|---|
+| `graph_params_min_node_dist` | 50 | **40** | keeps `selfx_junction_surface` at 0, the seam under 0.05 m and C's sweep folds at 3. 45 → C roads 30 / seam 0.92 m; 40 → 13 / 0.035; 35 → 14 / 0.060; 30 → 33 / 0.383 |
+| `graph_params_max_curvature` | 45 | **25** | an extension onto a dead end makes a degree-2 corner and S5 builds no patch there, so the whole turn shows as two ribbons overlapping. At 45°, C keeps 28 road self-intersections and 5 folds; at 25°, 13 and 3 |
+| `graph_prune_min_edge_len` | 8 | **13** | the §S5 threshold mismatch, closed. B's two mouths-onto-nothing were a 12.0 m and a 9.5 m dead-end stub carrying 32.5 m and 15.8 m of trim |
+
+**Result.** `selfx_junction_surface` 0 on all four · `every_mouth_has_a_road` 0 on all four ·
+`selfx_city_merged` **A 102 → 22 · B 543 → 89 · C 794 → 187 · D 86 → 12** · dead ends
+**B 24 → 21 (8 → 5 interior) · C 39 → 35 (25 → 20 interior)** · suite 24 → 19 failing.
+
+**Still open, and honestly so:** C `selfx_roads` 12 → **13**; the extra point is at the same
+degree-2 corner family §4e-8 describes, which needs corner geometry at degree-2 nodes, not
+another rail. C `lot_aspect_ratio` max 15.1 → 25.6 (with `over` 216 → 206) on a different
+block decomposition — an §S8 defect, unchanged in kind.
+
+**Two checks were re-pointed**, both as §S5 said they would have to be:
+`trim_metric_is_consistent` now asserts the geometric seam (the road's terminal
+cross-section IS the mouth cap segment, both endpoints within 0.05 m) because the units
+mismatch it used to measure no longer exists; `every_corner_is_an_arc` asserts `min(rA, rB)`
+clamped by `max_fillet_fraction` for the corner's own two streets, against both the fitted
+circle and the solver's emitted `corner_r`. Its fitted-radius term is compared against the
+conditioning bound `resid / (1 - cos(sweep/2))`, because a fillet that turns 5° has a 4 mm
+sagitta and a 2e-5 fit residual moves the fitted radius by 15 mm — three of C's corners read
+as wrong radii when nothing was wrong. `dead_ends` is now a recorded measurement.
 
 ---
 
