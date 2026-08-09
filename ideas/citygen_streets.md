@@ -690,12 +690,16 @@ and `offset` are specified well enough by Parish + CityEngine to build now.
 
 ## 4c. Implementation status — 2026-08-09
 
+**Corrected 2026-08-09 after an independent audit. Two entries below were marked "done"
+and were not.** The suite passing is not the same as the feature working — every defect in
+§4e was invisible to it.
+
 | Item | State |
 |---|---|
-| S5 fillet-always (§S5 "every corner is an arc") | **done** — 20/2 · 100/0 · 112/0, the 2 are 180° pass-throughs |
+| S5 fillet-always (§S5 "every corner is an arc") | **done, verified independently** — circle fit residual ≤ 2e-5 m, radii exactly the class radii, tangency exact in the continuous sense |
 | S5 winding-based inward offset | **done** — A `selfx_junction_surface` 4 → 0 |
-| S1 degenerate points + plaza ring (§S1, §S5 plazas) | **done** — C `no_downward_faces` 10 → 4, `selfx_roads` 46 → 12 |
-| S8 `recursive_obb` + `offset` lots (§S8) | **done** — Voronoi removed; force-street-access included |
+| S1 degenerate points + plaza ring (§S1, §S5 plazas) | ⚠️ **NOT done.** The exclusion works; **the ring is deleted before it ships** (§4e-2). The C gains came from the seed/trace exclusion alone |
+| S8 `recursive_obb` + `offset` lots (§S8) | ⚠️ **partial.** Voronoi is gone and the structure is right, but parcels are ribbons up to 31:1, non-convex blocks produce bowties, and `offset` fails `lots_tile_blocks` (§4e-4,5,6) |
 | `land_use` written (§4d) | **done** |
 | S7 block boundary from the fillet (§S7) | not started |
 | S3 extend-to-connect (§S3 step 2) | not started |
@@ -705,8 +709,78 @@ and `offset` are specified well enough by Parish + CityEngine to build now.
 | Row 8 bridge flag rule (§3b) | not started |
 | Degree-5+ test case (§S5) | not started |
 
-Suite: **6 failing → 2**, both in the radial case (`no_downward_faces` 4,
-`selfx_roads` 12) and both residue of the same centre region. A and B are clean.
+Suite: **6 failing → 2**. Nothing regressed against baseline. But see §4e — the suite is
+measuring the wrong things, and both remaining failures were misdiagnosed.
+
+---
+
+## 4e. Independent audit findings — 2026-08-09
+
+Found by a fresh agent, none of it visible to the committed suite. Ordered by severity.
+
+1. **Roads and junction patches interpenetrate at every junction. SEVERE.**
+   `s5j_solve` places the mouth at `c + d*dist` — a **straight-line axial** distance along
+   the first resample segment. `s5j_trim` cuts the street at `dist` measured as **arc
+   length** along the polyline. Same number, two different metrics. Because arc length ≥
+   chord, the road always ends *short of* its mouth and never clears the fillet it was
+   trimmed for. Mean error A 0.05 m · B 0.28 · C 0.58, max **3.34 m**; 65 of C's 119 ends
+   are over 0.25 m out. `intersectionanalysis` on the **merged** city: **102 / 529 / 863**
+   points. **The suite cannot see this** — `selfx_junction_surface` tests the patch alone
+   and `selfx_roads` the roads alone; nothing tests the union. Fix both to one metric and
+   add a merged-city self-intersection check.
+   *Latent alongside it:* `swl`/`swr` are assigned from `nOut`, which flips at a street's
+   **end** node, so sidewalk sides are swapped there. Hidden only because all six shipped
+   templates are symmetric.
+2. **The plaza ring never reaches the output.** The tracer emits it correctly (r = 60
+   exactly), but the stop test `break`s *before appending* the point that entered the
+   plaza, so streets end at r = 62.5–65.9 — a 2.5–6 m gap that `graph_fuse` (0.5 m) and
+   `graph_stitch` (0.75 m) cannot close and S3 extend-to-connect does not yet exist. The
+   ring ends up with no degree-≥3 node, so `graph_drop_orphans` **deletes it**. What ships
+   is four 26.8 m arterial stubs dead-ending in mid-air and a 22,111 m² built-up disc
+   inside the declared plaza radius. Append the entry point, and seed the ring into the
+   graph as a real connected component.
+3. **`pfsj_fillet` has no radius clamp**, despite its own comment claiming one and §S5
+   specifying `max_fillet_fraction`. Line 83 is `radius_used = radius;`. Cuts reach 26 m;
+   **3 streets are deleted entirely** by `s5j_trim`'s `ts+te >= L*0.98` while the junction
+   still carries a mouth for them — a paved stub opening onto nothing. 13 more are over
+   half consumed. Note the threshold mismatch: `graph_prune` kills stubs under 8 m but the
+   junction needs ~22 m of clearance.
+   *Also:* the corner radius is taken from `street_class` of whichever street sorts first
+   by `atan2`. **98% of B's and 100% of C's corners join different classes**, so the same
+   node gets a 9 m fillet on one side and 4 m on the other, arbitrarily.
+   *Also:* `pfsj_bevel` was deleted but §S5 still specifies a bevel; the replacement clamps
+   `K` **radially**, moving it off both kerb lines, so the "straight kerb run" would no
+   longer be along a kerb if it ever fired.
+4. **`recursive_obb` produces ribbons, not rectangles.** OBB aspect ratio: median ~4:1,
+   p90 9:1, **max 31.5:1**; A's largest parcels are 6.2 × 62.1 m. The force-street-access
+   swap recurses with no depth limit, driving frontage down to `min_frontage` while never
+   touching depth. §S8 names *maximum aspect ratio* and *minimum width at the frontage* as
+   viability tests; neither is implemented, so 10:1 ribbons ship with `lot_viable = 1`.
+5. **Sutherland–Hodgman on non-convex blocks makes bowties.** `pfsl_clip`'s comment claims
+   a mildly concave block degrades gracefully. **Every block is non-convex** (2/2, 9/9,
+   13/13, up to 291 reflex vertices). 8 genuine two-lobe parcels in C, **7 flagged
+   viable**; 62 lots carry duplicated vertices. `lots_tile_blocks` passes because the
+   S-H bridge has zero area — exactly the defect class numbers hide.
+6. **`offset` mode fails `lots_tile_blocks`** (0.006 / 0.003 / 0.003 against a 1e-4
+   tolerance) **and the suite never runs it.** Cause: `ring[k]` uniformly resamples the
+   contour by arc length, chording across every block vertex and losing 207–1071 m². The
+   perimeter-block structure itself is correct. Courtyards up to 27,130 m² ship as one
+   parcel because "subdivided separately" was never implemented.
+7. **C `no_downward_faces` = 4 is not plaza residue.** `s5j_trim` snaps the straddling
+   point onto the cut but leaves the neighbour microns away — 0.036 m and 0.022 m segments
+   against a 7.2 m half-width, so the sweep frames cross and the ribbon folds. A and B are
+   clean by luck. Latent everywhere.
+8. **C `selfx_roads` = 12 is not plaza residue either.** 9 of the 12 are two degree-1
+   streets ending 6.7 m apart at (247–255, −95…−99) and driving through each other. A
+   snap/extend defect, i.e. §S3 step 2.
+9. **Lots in intersections, quantified:** 18.8 / 23.2 / **37.9 m² per junction**, worst
+   single case 126 m². Confirms §S7 is visibly wrong, as designed-not-yet-built.
+10. Minor: `every_corner_is_an_arc` only checks that arc *points exist*, so it cannot
+    catch a wrong radius · scratch **attributes** leak onto `OUT_lots` (`lot_reject`,
+    `is_block`, `centre`, `area`, …) and `no_scratch_groups` only checks groups ·
+    `s5j_surface` still starts with two `// nudge` lines · `pfsl_frontage` credits a full
+    edge when only its midpoint is near the boundary · `arc_steps = 5` leaves 0.11 m of
+    flat-to-arc error on a 9 m corner.
 
 ---
 
