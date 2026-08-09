@@ -430,7 +430,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_init",
-      "community": 3,
+      "community": 79,
       "norm_label": "__init__.py"
     },
     {
@@ -440,7 +440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_init_rationale_1",
-      "community": 3,
+      "community": 79,
       "norm_label": "asset library module for polyfactory handles kitbash asset management, export,"
     },
     {
@@ -450,7 +450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets",
-      "community": 34,
+      "community": 78,
       "norm_label": "asset_browser_widgets.py"
     },
     {
@@ -480,7 +480,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider",
-      "community": 34,
+      "community": 78,
       "norm_label": "hoverslider"
     },
     {
@@ -490,7 +490,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "hoveroutlinemixin",
-      "community": 34,
+      "community": 78,
       "norm_label": "hoveroutlinemixin"
     },
     {
@@ -500,7 +500,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_init",
-      "community": 34,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -510,7 +510,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_paintevent",
-      "community": 34,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -520,7 +520,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox",
-      "community": 34,
+      "community": 78,
       "norm_label": "hovercombobox"
     },
     {
@@ -530,7 +530,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_init",
-      "community": 34,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -540,7 +540,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_paintevent",
-      "community": 34,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -710,7 +710,7 @@
       "source_location": "L425",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_init",
-      "community": 34,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -750,7 +750,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_paintevent",
-      "community": 34,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -800,7 +800,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_1",
-      "community": 34,
+      "community": 78,
       "norm_label": "asset browser widgets - low-level widget classes extracted from browser_ui.py."
     },
     {
@@ -820,7 +820,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_49",
-      "community": 34,
+      "community": 78,
       "norm_label": "qslider with animated hover outline"
     },
     {
@@ -830,7 +830,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_62",
-      "community": 34,
+      "community": 78,
       "norm_label": "qcombobox with animated hover outline"
     },
     {
@@ -1000,7 +1000,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_492",
-      "community": 34,
+      "community": 78,
       "norm_label": "draw widget with selection highlight and animated hover outline."
     },
     {
@@ -1530,7 +1530,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_importer",
-      "community": 3,
+      "community": 37,
       "norm_label": "batch_importer.py"
     },
     {
@@ -1540,7 +1540,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "asset_library_batch_importer_detect_asset_groups",
-      "community": 3,
+      "community": 37,
       "norm_label": "detect_asset_groups()"
     },
     {
@@ -1550,7 +1550,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "asset_library_batch_importer_next_free_filename",
-      "community": 3,
+      "community": 37,
       "norm_label": "next_free_filename()"
     },
     {
@@ -1570,7 +1570,7 @@
       "source_location": "L269",
       "_origin": "ast",
       "id": "asset_library_batch_importer_aabbs_overlap",
-      "community": 3,
+      "community": 37,
       "norm_label": "_aabbs_overlap()"
     },
     {
@@ -1590,7 +1590,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "geometry",
-      "community": 37,
+      "community": 22,
       "norm_label": "geometry"
     },
     {
@@ -1610,7 +1610,7 @@
       "source_location": "L293",
       "_origin": "ast",
       "id": "asset_library_batch_importer_sanitize",
-      "community": 3,
+      "community": 37,
       "norm_label": "_sanitize()"
     },
     {
@@ -1620,7 +1620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_1",
-      "community": 3,
+      "community": 37,
       "norm_label": "batch kitbash importer - aabb-based asset detection and batch export backend"
     },
     {
@@ -1630,7 +1630,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_26",
-      "community": 3,
+      "community": 37,
       "norm_label": "detect asset groups in a sop node using connectivity + aabb overlap.      each"
     },
     {
@@ -1640,7 +1640,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_159",
-      "community": 3,
+      "community": 37,
       "norm_label": "find the next available numbered filename (no extension).      scans both the"
     },
     {
@@ -1660,7 +1660,7 @@
       "source_location": "L273",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_273",
-      "community": 3,
+      "community": 37,
       "norm_label": "return true if two aabbs (min_x,min_y,min_z,max_x,max_y,max_z) overlap."
     },
     {
@@ -1680,7 +1680,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_294",
-      "community": 3,
+      "community": 37,
       "norm_label": "sanitize a name for use as a filesystem component."
     },
     {
@@ -1870,7 +1870,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_setup_ui",
-      "community": 34,
+      "community": 78,
       "norm_label": "._setup_ui()"
     },
     {
@@ -2050,7 +2050,7 @@
       "source_location": "L688",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog",
-      "community": 34,
+      "community": 77,
       "norm_label": "assetbrowserdialog"
     },
     {
@@ -2110,7 +2110,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qobject",
-      "community": 92,
+      "community": 34,
       "norm_label": "qobject"
     },
     {
@@ -2340,7 +2340,7 @@
       "source_location": "L689",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_689",
-      "community": 34,
+      "community": 77,
       "norm_label": "standalone asset browser dialog"
     },
     {
@@ -2410,7 +2410,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_database",
-      "community": 3,
+      "community": 79,
       "norm_label": "database.py"
     },
     {
@@ -2420,7 +2420,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase",
-      "community": 23,
+      "community": 0,
       "norm_label": "assetdatabase"
     },
     {
@@ -2470,7 +2470,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_asset",
-      "community": 23,
+      "community": 92,
       "norm_label": ".add_asset()"
     },
     {
@@ -2480,7 +2480,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_tags_to_asset",
-      "community": 23,
+      "community": 92,
       "norm_label": "._add_tags_to_asset()"
     },
     {
@@ -2490,7 +2490,7 @@
       "source_location": "L204",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_asset",
-      "community": 23,
+      "community": 0,
       "norm_label": ".get_asset()"
     },
     {
@@ -2500,7 +2500,7 @@
       "source_location": "L225",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_asset_tags",
-      "community": 23,
+      "community": 0,
       "norm_label": ".get_asset_tags()"
     },
     {
@@ -2510,7 +2510,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_search_assets",
-      "community": 23,
+      "community": 0,
       "norm_label": ".search_assets()"
     },
     {
@@ -2520,7 +2520,7 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_categories",
-      "community": 23,
+      "community": 0,
       "norm_label": ".get_all_categories()"
     },
     {
@@ -2530,7 +2530,7 @@
       "source_location": "L312",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_tags",
-      "community": 23,
+      "community": 0,
       "norm_label": ".get_all_tags()"
     },
     {
@@ -2540,7 +2540,7 @@
       "source_location": "L323",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_names",
-      "community": 23,
+      "community": 0,
       "norm_label": ".get_all_names()"
     },
     {
@@ -2550,7 +2550,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_update_asset",
-      "community": 23,
+      "community": 0,
       "norm_label": ".update_asset()"
     },
     {
@@ -2560,7 +2560,7 @@
       "source_location": "L367",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_delete_asset",
-      "community": 23,
+      "community": 0,
       "norm_label": ".delete_asset()"
     },
     {
@@ -2570,7 +2570,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_tags_to_assets",
-      "community": 23,
+      "community": 92,
       "norm_label": ".add_tags_to_assets()"
     },
     {
@@ -2580,7 +2580,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_remove_tags_from_assets",
-      "community": 23,
+      "community": 0,
       "norm_label": ".remove_tags_from_assets()"
     },
     {
@@ -2590,7 +2590,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_close",
-      "community": 23,
+      "community": 0,
       "norm_label": ".close()"
     },
     {
@@ -2600,7 +2600,7 @@
       "source_location": "L416",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_enter",
-      "community": 23,
+      "community": 0,
       "norm_label": ".__enter__()"
     },
     {
@@ -2610,7 +2610,7 @@
       "source_location": "L419",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_exit",
-      "community": 23,
+      "community": 0,
       "norm_label": ".__exit__()"
     },
     {
@@ -2620,7 +2620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_database_rationale_1",
-      "community": 3,
+      "community": 79,
       "norm_label": "sqlite database management for asset library"
     },
     {
@@ -2630,7 +2630,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "asset_library_database_rationale_12",
-      "community": 23,
+      "community": 0,
       "norm_label": "manages the asset library sqlite database"
     },
     {
@@ -2680,7 +2680,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "asset_library_database_rationale_139",
-      "community": 23,
+      "community": 92,
       "norm_label": "add a new asset to the database                  args:             name: asse"
     },
     {
@@ -2690,7 +2690,7 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "asset_library_database_rationale_182",
-      "community": 23,
+      "community": 92,
       "norm_label": "associate tags with an asset"
     },
     {
@@ -2700,7 +2700,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "asset_library_database_rationale_205",
-      "community": 23,
+      "community": 0,
       "norm_label": "get asset by id                  args:             asset_id: asset id"
     },
     {
@@ -2710,7 +2710,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "asset_library_database_rationale_226",
-      "community": 23,
+      "community": 0,
       "norm_label": "get all tags for an asset                  args:             asset_id: asset"
     },
     {
@@ -2720,7 +2720,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "asset_library_database_rationale_244",
-      "community": 23,
+      "community": 0,
       "norm_label": "search assets with various filters                  args:             search_"
     },
     {
@@ -2730,7 +2730,7 @@
       "source_location": "L302",
       "_origin": "ast",
       "id": "asset_library_database_rationale_302",
-      "community": 23,
+      "community": 0,
       "norm_label": "get all unique categories                  returns:             list of categ"
     },
     {
@@ -2740,7 +2740,7 @@
       "source_location": "L313",
       "_origin": "ast",
       "id": "asset_library_database_rationale_313",
-      "community": 23,
+      "community": 0,
       "norm_label": "get all unique tags                  returns:             list of tag strings"
     },
     {
@@ -2750,7 +2750,7 @@
       "source_location": "L324",
       "_origin": "ast",
       "id": "asset_library_database_rationale_324",
-      "community": 23,
+      "community": 0,
       "norm_label": "get all unique asset names                  returns:             list of asse"
     },
     {
@@ -2760,7 +2760,7 @@
       "source_location": "L335",
       "_origin": "ast",
       "id": "asset_library_database_rationale_335",
-      "community": 23,
+      "community": 0,
       "norm_label": "update asset fields                  args:             asset_id: asset id"
     },
     {
@@ -2770,7 +2770,7 @@
       "source_location": "L368",
       "_origin": "ast",
       "id": "asset_library_database_rationale_368",
-      "community": 23,
+      "community": 0,
       "norm_label": "delete an asset from the database                  args:             asset_id"
     },
     {
@@ -2780,7 +2780,7 @@
       "source_location": "L377",
       "_origin": "ast",
       "id": "asset_library_database_rationale_377",
-      "community": 23,
+      "community": 92,
       "norm_label": "add tags to multiple assets.  existing tag associations are left intact."
     },
     {
@@ -2790,7 +2790,7 @@
       "source_location": "L388",
       "_origin": "ast",
       "id": "asset_library_database_rationale_388",
-      "community": 23,
+      "community": 0,
       "norm_label": "remove specific tags from multiple assets.          tags that do not exist on"
     },
     {
@@ -2800,7 +2800,7 @@
       "source_location": "L412",
       "_origin": "ast",
       "id": "asset_library_database_rationale_412",
-      "community": 23,
+      "community": 0,
       "norm_label": "close database connection"
     },
     {
@@ -2840,7 +2840,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_setup_ui",
-      "community": 47,
+      "community": 20,
       "norm_label": "._setup_ui()"
     },
     {
@@ -2870,7 +2870,7 @@
       "source_location": "L451",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_batch_detect",
-      "community": 3,
+      "community": 47,
       "norm_label": "._batch_detect()"
     },
     {
@@ -2910,7 +2910,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_run_batch_export",
-      "community": 3,
+      "community": 87,
       "norm_label": "._run_batch_export()"
     },
     {
@@ -2950,7 +2950,7 @@
       "source_location": "L732",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_validate_inputs",
-      "community": 47,
+      "community": 87,
       "norm_label": "._validate_inputs()"
     },
     {
@@ -2960,7 +2960,7 @@
       "source_location": "L756",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_on_export",
-      "community": 47,
+      "community": 87,
       "norm_label": "._on_export()"
     },
     {
@@ -3050,7 +3050,7 @@
       "source_location": "L757",
       "_origin": "ast",
       "id": "asset_library_export_ui_rationale_757",
-      "community": 47,
+      "community": 87,
       "norm_label": "handle export button click"
     },
     {
@@ -3650,7 +3650,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_hoverlistwidget",
-      "community": 90,
+      "community": 78,
       "norm_label": "hoverlistwidget"
     },
     {
@@ -3660,7 +3660,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_hoverlistwidget_init",
-      "community": 90,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -3670,7 +3670,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_hoverlistwidget_paintevent",
-      "community": 90,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -3810,7 +3810,7 @@
       "source_location": "L360",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_kitbashnodeui",
-      "community": 18,
+      "community": 90,
       "norm_label": "kitbashnodeui"
     },
     {
@@ -3840,7 +3840,7 @@
       "source_location": "L526",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_kitbashnodeui_on_placed_assets_toggled",
-      "community": 18,
+      "community": 90,
       "norm_label": "._on_placed_assets_toggled()"
     },
     {
@@ -3860,7 +3860,7 @@
       "source_location": "L546",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_kitbashnodeui_refresh",
-      "community": 85,
+      "community": 90,
       "norm_label": ".refresh()"
     },
     {
@@ -3880,7 +3880,7 @@
       "source_location": "L566",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_kitbashnodeui_on_add_to_library",
-      "community": 18,
+      "community": 90,
       "norm_label": "._on_add_to_library()"
     },
     {
@@ -3910,7 +3910,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_24",
-      "community": 90,
+      "community": 78,
       "norm_label": "qlistwidget with animated hover outline"
     },
     {
@@ -4010,7 +4010,7 @@
       "source_location": "L361",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_361",
-      "community": 18,
+      "community": 90,
       "norm_label": "main ui for pf_kitbash node"
     },
     {
@@ -4020,7 +4020,7 @@
       "source_location": "L527",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_527",
-      "community": 18,
+      "community": 90,
       "norm_label": "handle placed assets group box toggle"
     },
     {
@@ -4040,7 +4040,7 @@
       "source_location": "L547",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_547",
-      "community": 85,
+      "community": 90,
       "norm_label": "refresh the ui - called when pane becomes active"
     },
     {
@@ -4060,7 +4060,7 @@
       "source_location": "L567",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_567",
-      "community": 18,
+      "community": 90,
       "norm_label": "add selected asset from browser to library multiparm"
     },
     {
@@ -4220,7 +4220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_render",
-      "community": 3,
+      "community": 79,
       "norm_label": "render.py"
     },
     {
@@ -4230,7 +4230,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "asset_library_render_acquire_shared_panel",
-      "community": 3,
+      "community": 87,
       "norm_label": "acquire_shared_panel()"
     },
     {
@@ -4240,7 +4240,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "asset_library_render_release_shared_panel",
-      "community": 3,
+      "community": 87,
       "norm_label": "release_shared_panel()"
     },
     {
@@ -4250,7 +4250,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "asset_library_render_render_turntable",
-      "community": 3,
+      "community": 79,
       "norm_label": "render_turntable()"
     },
     {
@@ -4260,7 +4260,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "asset_library_render_create_render_scene",
-      "community": 3,
+      "community": 79,
       "norm_label": "_create_render_scene()"
     },
     {
@@ -4270,7 +4270,7 @@
       "source_location": "L231",
       "_origin": "ast",
       "id": "asset_library_render_render_frames",
-      "community": 3,
+      "community": 79,
       "norm_label": "_render_frames()"
     },
     {
@@ -4280,7 +4280,7 @@
       "source_location": "L307",
       "_origin": "ast",
       "id": "asset_library_render_cleanup",
-      "community": 3,
+      "community": 79,
       "norm_label": "_cleanup()"
     },
     {
@@ -4290,7 +4290,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_render_rationale_1",
-      "community": 3,
+      "community": 79,
       "norm_label": "turntable renderer - creates rotating preview animations for assets"
     },
     {
@@ -4300,7 +4300,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "asset_library_render_rationale_19",
-      "community": 3,
+      "community": 87,
       "norm_label": "create a shared floating panel for batch renders.      call once before starti"
     },
     {
@@ -4310,7 +4310,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "asset_library_render_rationale_34",
-      "community": 3,
+      "community": 87,
       "norm_label": "close the shared panel acquired by acquire_shared_panel().      call once afte"
     },
     {
@@ -4320,7 +4320,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "asset_library_render_rationale_49",
-      "community": 3,
+      "community": 79,
       "norm_label": "render a turntable animation of the geometry          args:         geo_node:"
     },
     {
@@ -4330,7 +4330,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "asset_library_render_rationale_90",
-      "community": 3,
+      "community": 79,
       "norm_label": "create a temporary usd render scene with geometry, camera, and lights"
     },
     {
@@ -4340,7 +4340,7 @@
       "source_location": "L232",
       "_origin": "ast",
       "id": "asset_library_render_rationale_232",
-      "community": 3,
+      "community": 79,
       "norm_label": "render frames using viewport flipbook          args:         lop_net: lop net"
     },
     {
@@ -4350,7 +4350,7 @@
       "source_location": "L308",
       "_origin": "ast",
       "id": "asset_library_render_rationale_308",
-      "community": 3,
+      "community": 79,
       "norm_label": "remove temporary nodes and panes          args:         temp_nodes: list of n"
     },
     {
@@ -5120,7 +5120,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_json_themes",
-      "community": 76,
+      "community": 72,
       "norm_label": "json_themes.py"
     },
     {
@@ -5130,7 +5130,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "core_json_themes_themes",
-      "community": 76,
+      "community": 72,
       "norm_label": "themes"
     },
     {
@@ -5140,7 +5140,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "core_json_themes_themes_init",
-      "community": 76,
+      "community": 72,
       "norm_label": ".__init__()"
     },
     {
@@ -5150,7 +5150,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "core_json_themes_themes_serialize",
-      "community": 76,
+      "community": 72,
       "norm_label": ".serialize()"
     },
     {
@@ -5160,7 +5160,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "core_json_themes_themes_deserialize",
-      "community": 76,
+      "community": 72,
       "norm_label": ".deserialize()"
     },
     {
@@ -5220,7 +5220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "columns_ui_right_column",
-      "community": 98,
+      "community": 12,
       "norm_label": "ui_right_column.py"
     },
     {
@@ -5230,7 +5230,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn",
-      "community": 98,
+      "community": 12,
       "norm_label": "ui_rightcolumn"
     },
     {
@@ -5240,7 +5240,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_setupui",
-      "community": 98,
+      "community": 12,
       "norm_label": ".setupui()"
     },
     {
@@ -5250,7 +5250,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_retranslateui",
-      "community": 98,
+      "community": 12,
       "norm_label": ".retranslateui()"
     },
     {
@@ -5300,7 +5300,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_window_init",
-      "community": 91,
+      "community": 72,
       "norm_label": "__init__.py"
     },
     {
@@ -5310,7 +5310,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_window_functions_main_window",
-      "community": 91,
+      "community": 72,
       "norm_label": "functions_main_window.py"
     },
     {
@@ -5330,7 +5330,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_init",
-      "community": 91,
+      "community": 72,
       "norm_label": ".__init__()"
     },
     {
@@ -5440,7 +5440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_window_setup_main_window",
-      "community": 91,
+      "community": 72,
       "norm_label": "setup_main_window.py"
     },
     {
@@ -5450,7 +5450,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "main_window_setup_main_window_setupmainwindow",
-      "community": 91,
+      "community": 72,
       "norm_label": "setupmainwindow"
     },
     {
@@ -5460,7 +5460,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "main_window_setup_main_window_setupmainwindow_init",
-      "community": 91,
+      "community": 72,
       "norm_label": ".__init__()"
     },
     {
@@ -5470,7 +5470,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "main_window_setup_main_window_setupmainwindow_setup_btns",
-      "community": 91,
+      "community": 72,
       "norm_label": ".setup_btns()"
     },
     {
@@ -5490,7 +5490,7 @@
       "source_location": "L592",
       "_origin": "ast",
       "id": "main_window_setup_main_window_setupmainwindow_resize_grips",
-      "community": 91,
+      "community": 72,
       "norm_label": ".resize_grips()"
     },
     {
@@ -5500,7 +5500,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "main_window_ui_main",
-      "community": 91,
+      "community": 72,
       "norm_label": "ui_main.py"
     },
     {
@@ -5510,7 +5510,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "main_window_ui_main_ui_mainwindow",
-      "community": 91,
+      "community": 72,
       "norm_label": "ui_mainwindow"
     },
     {
@@ -5580,7 +5580,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "py_circular_progress_py_circular_progress_pycircularprogress_add_shadow",
-      "community": 6,
+      "community": 73,
       "norm_label": ".add_shadow()"
     },
     {
@@ -6460,7 +6460,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_pyleftmenubutton_init",
-      "community": 12,
+      "community": 98,
       "norm_label": ".__init__()"
     },
     {
@@ -6620,7 +6620,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_tooltip",
-      "community": 12,
+      "community": 98,
       "norm_label": "_tooltip"
     },
     {
@@ -6630,7 +6630,7 @@
       "source_location": "L349",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_tooltip_init",
-      "community": 12,
+      "community": 98,
       "norm_label": ".__init__()"
     },
     {
@@ -6730,7 +6730,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_init",
-      "community": 36,
+      "community": 20,
       "norm_label": "__init__.py"
     },
     {
@@ -6740,7 +6740,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_py_push_button",
-      "community": 36,
+      "community": 20,
       "norm_label": "py_push_button.py"
     },
     {
@@ -6750,7 +6750,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "py_push_button_py_push_button_pypushbutton",
-      "community": 36,
+      "community": 20,
       "norm_label": "pypushbutton"
     },
     {
@@ -6760,7 +6760,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "py_push_button_py_push_button_pypushbutton_init",
-      "community": 36,
+      "community": 20,
       "norm_label": ".__init__()"
     },
     {
@@ -7020,7 +7020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button",
-      "community": 65,
+      "community": 83,
       "norm_label": "py_title_button.py"
     },
     {
@@ -7040,7 +7040,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_pytitlebutton_init",
-      "community": 65,
+      "community": 73,
       "norm_label": ".__init__()"
     },
     {
@@ -7160,7 +7160,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_tooltip",
-      "community": 65,
+      "community": 73,
       "norm_label": "_tooltip"
     },
     {
@@ -7170,7 +7170,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_tooltip_init",
-      "community": 65,
+      "community": 73,
       "norm_label": ".__init__()"
     },
     {
@@ -7740,7 +7740,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_raycast_to_geometry",
-      "community": 37,
+      "community": 22,
       "norm_label": "raycast_to_geometry()"
     },
     {
@@ -7760,7 +7760,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_get_geometry_under_cursor",
-      "community": 37,
+      "community": 22,
       "norm_label": "get_geometry_under_cursor()"
     },
     {
@@ -7810,7 +7810,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_rationale_12",
-      "community": 37,
+      "community": 22,
       "norm_label": "raycast against geometry and return hit information.          args:         o"
     },
     {
@@ -7830,7 +7830,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_rationale_108",
-      "community": 37,
+      "community": 22,
       "norm_label": "get geometry under cursor using ray intersection.          args:         ui_e"
     },
     {
@@ -8160,7 +8160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_hover_outline",
-      "community": 99,
+      "community": 32,
       "norm_label": "hover_outline.py"
     },
     {
@@ -8240,7 +8240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_hover_outline_rationale_1",
-      "community": 99,
+      "community": 32,
       "norm_label": "hover outline mixin - animated blue outline on hover for any widget"
     },
     {
@@ -8850,7 +8850,7 @@
       "source_location": "L200",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield_set_expression_color",
-      "community": 6,
+      "community": 73,
       "norm_label": ".set_expression_color()"
     },
     {
@@ -8860,7 +8860,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qcolor",
-      "community": 6,
+      "community": 73,
       "norm_label": "qcolor"
     },
     {
@@ -9120,7 +9120,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_201",
-      "community": 6,
+      "community": 73,
       "norm_label": "set background color for expression state."
     },
     {
@@ -9370,7 +9370,7 @@
       "source_location": "L157",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmfloat_reset_to_default",
-      "community": 100,
+      "community": 35,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -9380,7 +9380,7 @@
       "source_location": "L163",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmfloat_toggle_slider",
-      "community": 102,
+      "community": 35,
       "norm_label": "._toggle_slider()"
     },
     {
@@ -9550,7 +9550,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_158",
-      "community": 100,
+      "community": 35,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -9560,7 +9560,7 @@
       "source_location": "L164",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_164",
-      "community": 102,
+      "community": 35,
       "norm_label": "toggle slider visibility (lmb on label)."
     },
     {
@@ -9630,7 +9630,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input",
-      "community": 99,
+      "community": 32,
       "norm_label": "tag_input.py"
     },
     {
@@ -9650,7 +9650,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "widgets_tag_input_flowlayout_init",
-      "community": 87,
+      "community": 24,
       "norm_label": ".__init__()"
     },
     {
@@ -9680,7 +9680,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_tag_input_flowlayout_count",
-      "community": 79,
+      "community": 34,
       "norm_label": ".count()"
     },
     {
@@ -9690,7 +9690,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "widgets_tag_input_flowlayout_itemat",
-      "community": 79,
+      "community": 34,
       "norm_label": ".itemat()"
     },
     {
@@ -9780,7 +9780,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip",
-      "community": 87,
+      "community": 32,
       "norm_label": "tagchip"
     },
     {
@@ -9790,7 +9790,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_init",
-      "community": 87,
+      "community": 32,
       "norm_label": ".__init__()"
     },
     {
@@ -9800,7 +9800,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_paintevent",
-      "community": 87,
+      "community": 32,
       "norm_label": ".paintevent()"
     },
     {
@@ -9810,7 +9810,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_on_remove",
-      "community": 87,
+      "community": 32,
       "norm_label": "._on_remove()"
     },
     {
@@ -9830,7 +9830,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_init",
-      "community": 87,
+      "community": 24,
       "norm_label": ".__init__()"
     },
     {
@@ -9840,7 +9840,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_setup_ui",
-      "community": 87,
+      "community": 24,
       "norm_label": "._setup_ui()"
     },
     {
@@ -9870,7 +9870,7 @@
       "source_location": "L253",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_settags",
-      "community": 97,
+      "community": 34,
       "norm_label": ".settags()"
     },
     {
@@ -9880,7 +9880,7 @@
       "source_location": "L267",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_cleartags",
-      "community": 97,
+      "community": 34,
       "norm_label": ".cleartags()"
     },
     {
@@ -9890,7 +9890,7 @@
       "source_location": "L271",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_show_tag_menu",
-      "community": 79,
+      "community": 34,
       "norm_label": "._show_tag_menu()"
     },
     {
@@ -9900,7 +9900,7 @@
       "source_location": "L290",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_add_chip",
-      "community": 79,
+      "community": 34,
       "norm_label": "._add_chip()"
     },
     {
@@ -9910,7 +9910,7 @@
       "source_location": "L332",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_remove_chip",
-      "community": 79,
+      "community": 34,
       "norm_label": "._remove_chip()"
     },
     {
@@ -9920,7 +9920,7 @@
       "source_location": "L355",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_clear_chips",
-      "community": 97,
+      "community": 34,
       "norm_label": "._clear_chips()"
     },
     {
@@ -9930,7 +9930,7 @@
       "source_location": "L366",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_on_return_pressed",
-      "community": 92,
+      "community": 34,
       "norm_label": "._on_return_pressed()"
     },
     {
@@ -9960,7 +9960,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_on_text_changed",
-      "community": 79,
+      "community": 34,
       "norm_label": "._on_text_changed()"
     },
     {
@@ -9970,7 +9970,7 @@
       "source_location": "L395",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_eventfilter",
-      "community": 92,
+      "community": 34,
       "norm_label": ".eventfilter()"
     },
     {
@@ -9980,7 +9980,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qevent",
-      "community": 92,
+      "community": 34,
       "norm_label": "qevent"
     },
     {
@@ -9990,7 +9990,7 @@
       "source_location": "L403",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_on_chip_removed",
-      "community": 79,
+      "community": 34,
       "norm_label": "._on_chip_removed()"
     },
     {
@@ -10010,7 +10010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_1",
-      "community": 99,
+      "community": 32,
       "norm_label": "tag input widget - autocompleting tag input with removable chips similar to sho"
     },
     {
@@ -10030,7 +10030,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_90",
-      "community": 87,
+      "community": 32,
       "norm_label": "individual tag chip with remove button"
     },
     {
@@ -10040,7 +10040,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_133",
-      "community": 87,
+      "community": 32,
       "norm_label": "custom paint to draw rounded background with darker blue + animated hover outlin"
     },
     {
@@ -10050,7 +10050,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_149",
-      "community": 87,
+      "community": 32,
       "norm_label": "handle remove button click"
     },
     {
@@ -10090,7 +10090,7 @@
       "source_location": "L254",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_254",
-      "community": 97,
+      "community": 34,
       "norm_label": "set the current tags                  args:             tags: list of tag str"
     },
     {
@@ -10100,7 +10100,7 @@
       "source_location": "L272",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_272",
-      "community": 79,
+      "community": 34,
       "norm_label": "show dropdown menu with all available tags"
     },
     {
@@ -10110,7 +10110,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_291",
-      "community": 79,
+      "community": 34,
       "norm_label": "add a tag chip                  args:             tag_text: tag string to add"
     },
     {
@@ -10120,7 +10120,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_333",
-      "community": 79,
+      "community": 34,
       "norm_label": "remove a tag chip                  args:             tag_text: tag string to"
     },
     {
@@ -10130,7 +10130,7 @@
       "source_location": "L356",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_356",
-      "community": 97,
+      "community": 34,
       "norm_label": "remove all chip widgets"
     },
     {
@@ -10140,7 +10140,7 @@
       "source_location": "L367",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_367",
-      "community": 92,
+      "community": 34,
       "norm_label": "handle return key in line edit"
     },
     {
@@ -10170,7 +10170,7 @@
       "source_location": "L384",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_384",
-      "community": 79,
+      "community": 34,
       "norm_label": "handle text change in line edit"
     },
     {
@@ -10180,7 +10180,7 @@
       "source_location": "L396",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_396",
-      "community": 92,
+      "community": 34,
       "norm_label": "intercept enter/return on the line edit to prevent qdialog default button activa"
     },
     {
@@ -10230,7 +10230,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 35,
+      "community": 99,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -10310,7 +10310,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_expression_style",
-      "community": 35,
+      "community": 100,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -10530,7 +10530,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 35,
+      "community": 99,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -10550,7 +10550,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_179",
-      "community": 35,
+      "community": 100,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -10910,7 +10910,7 @@
       "source_location": "L224",
       "_origin": "ast",
       "id": "citygen_checks_graph_is_planar",
-      "community": 7,
+      "community": 89,
       "norm_label": "graph_is_planar()"
     },
     {
@@ -10960,7 +10960,7 @@
       "source_location": "L546",
       "_origin": "ast",
       "id": "citygen_checks_junction_boundary_is_simple",
-      "community": 7,
+      "community": 89,
       "norm_label": "junction_boundary_is_simple()"
     },
     {
@@ -11030,7 +11030,7 @@
       "source_location": "L918",
       "_origin": "ast",
       "id": "citygen_checks_no_duplicate_lot_footprints",
-      "community": 89,
+      "community": 7,
       "norm_label": "no_duplicate_lot_footprints()"
     },
     {
@@ -11070,7 +11070,7 @@
       "source_location": "L1081",
       "_origin": "ast",
       "id": "citygen_checks_attribute_schema",
-      "community": 89,
+      "community": 7,
       "norm_label": "attribute_schema()"
     },
     {
@@ -11124,20 +11124,30 @@
       "norm_label": "_blobs()"
     },
     {
-      "label": "centreline_curvature_within_class()",
+      "label": "block_boundary_closes()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1255",
       "_origin": "ast",
+      "id": "citygen_checks_block_boundary_closes",
+      "community": 97,
+      "norm_label": "block_boundary_closes()"
+    },
+    {
+      "label": "centreline_curvature_within_class()",
+      "file_type": "code",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L1305",
+      "_origin": "ast",
       "id": "citygen_checks_centreline_curvature_within_class",
-      "community": 71,
+      "community": 97,
       "norm_label": "centreline_curvature_within_class()"
     },
     {
       "label": "lots_clear_of_junctions()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L1308",
+      "source_location": "L1358",
       "_origin": "ast",
       "id": "citygen_checks_lots_clear_of_junctions",
       "community": 71,
@@ -11147,7 +11157,7 @@
       "label": "city_is_fully_paved()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L1345",
+      "source_location": "L1395",
       "_origin": "ast",
       "id": "citygen_checks_city_is_fully_paved",
       "community": 71,
@@ -11250,7 +11260,7 @@
       "source_location": "L225",
       "_origin": "ast",
       "id": "citygen_checks_rationale_225",
-      "community": 7,
+      "community": 89,
       "norm_label": "no two segments may cross except at a shared node. planarity is a     per-layer"
     },
     {
@@ -11300,7 +11310,7 @@
       "source_location": "L547",
       "_origin": "ast",
       "id": "citygen_checks_rationale_547",
-      "community": 7,
+      "community": 89,
       "norm_label": "the boundary must not self-cross. capin/capout assigned by distance to     the p"
     },
     {
@@ -11370,7 +11380,7 @@
       "source_location": "L919",
       "_origin": "ast",
       "id": "citygen_checks_rationale_919",
-      "community": 89,
+      "community": 7,
       "norm_label": "voronoifracture 2.0 emits both its `inside` and `outside` groups, so     every d"
     },
     {
@@ -11410,7 +11420,7 @@
       "source_location": "L1082",
       "_origin": "ast",
       "id": "citygen_checks_rationale_1082",
-      "community": 89,
+      "community": 7,
       "norm_label": "conformance with the schema table. identity must survive to the final     geomet"
     },
     {
@@ -11454,22 +11464,32 @@
       "norm_label": "connected components of a boolean mask as (area, cx, cz), largest first.      ru"
     },
     {
-      "label": "No centreline may bend tighter than its class minimum curve radius.      S3b. A",
+      "label": "S7's collect-and-close invariant, which nothing else asserts.      The block bou",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1256",
       "_origin": "ast",
       "id": "citygen_checks_rationale_1256",
-      "community": 71,
+      "community": 97,
+      "norm_label": "s7's collect-and-close invariant, which nothing else asserts.      the block bou"
+    },
+    {
+      "label": "No centreline may bend tighter than its class minimum curve radius.      S3b. A",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L1306",
+      "_origin": "ast",
+      "id": "citygen_checks_rationale_1306",
+      "community": 97,
       "norm_label": "no centreline may bend tighter than its class minimum curve radius.      s3b. a"
     },
     {
       "label": "No lot may lie inside a junction. The other half of city_is_fully_paved.      `c",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L1309",
+      "source_location": "L1359",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_1309",
+      "id": "citygen_checks_rationale_1359",
       "community": 71,
       "norm_label": "no lot may lie inside a junction. the other half of city_is_fully_paved.      `c"
     },
@@ -11477,9 +11497,9 @@
       "label": "Nothing inside the street corridor may be left unpaved.      THE check that woul",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L1347",
+      "source_location": "L1397",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_1347",
+      "id": "citygen_checks_rationale_1397",
       "community": 71,
       "norm_label": "nothing inside the street corridor may be left unpaved.      the check that woul"
     },
@@ -11507,7 +11527,7 @@
       "label": "main()",
       "file_type": "code",
       "source_file": "tests/citygen/run_scene_checks.py",
-      "source_location": "L154",
+      "source_location": "L157",
       "_origin": "ast",
       "id": "citygen_run_scene_checks_main",
       "community": 63,
@@ -15936,7 +15956,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/asset_library/__init__.py",
       "source_location": "L1",
-      "community": 3,
+      "community": 79,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_asset_library_init_py"
     },
@@ -15954,7 +15974,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/uis/windows/main_window/__init__.py",
       "source_location": "L1",
-      "community": 91,
+      "community": 72,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_uis_windows_main_window_init_py"
     },
@@ -16044,7 +16064,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_push_button/__init__.py",
       "source_location": "L1",
-      "community": 36,
+      "community": 20,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_push_button_init_py"
     },
@@ -36005,8 +36025,18 @@
       "source_location": "L1255",
       "weight": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_centreline_curvature_within_class",
+      "target": "citygen_checks_block_boundary_closes",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L1255",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_centreline_curvature_within_class"
     },
     {
       "relation": "contains",
@@ -36364,11 +36394,22 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L1301",
+      "source_location": "L1300",
       "weight": 1.0,
-      "source": "citygen_checks_centreline_curvature_within_class",
+      "source": "citygen_checks_block_boundary_closes",
       "target": "citygen_checks_result",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L1301",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks_centreline_curvature_within_class",
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -36674,6 +36715,17 @@
       "confidence_score": 1.0,
       "source": "citygen_checks_trim_metric_is_consistent",
       "target": "citygen_checks_result"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L1286",
+      "weight": 1.0,
+      "source": "citygen_checks_block_boundary_closes",
+      "target": "citygen_checks_skip",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -37247,6 +37299,26 @@
       "source_location": "L1256",
       "weight": 1.0,
       "source": "citygen_checks_rationale_1256",
+      "target": "citygen_checks_block_boundary_closes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L1256",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks_rationale_1256",
+      "target": "citygen_checks_centreline_curvature_within_class"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L1306",
+      "weight": 1.0,
+      "source": "citygen_checks_rationale_1306",
       "target": "citygen_checks_centreline_curvature_within_class",
       "confidence_score": 1.0
     },
@@ -37264,9 +37336,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L1309",
+      "source_location": "L1359",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_1309",
+      "source": "citygen_checks_rationale_1359",
       "target": "citygen_checks_lots_clear_of_junctions",
       "confidence_score": 1.0
     },
@@ -37274,9 +37346,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L1347",
+      "source_location": "L1397",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_1347",
+      "source": "citygen_checks_rationale_1397",
       "target": "citygen_checks_city_is_fully_paved",
       "confidence_score": 1.0
     },
@@ -41749,5 +41821,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "4c53af5ed08f9a3a2882f3691e45be00529f4037"
+  "built_at_commit": "50e51f3dd4a699bea37340207b1b8e2db5855034"
 }
