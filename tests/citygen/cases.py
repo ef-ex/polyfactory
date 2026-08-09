@@ -52,6 +52,13 @@ DRAWN_STREETS = [
     [(-200, 0, -120), (220, 0, -110)],
 ]
 
+# Case E's input: a short perpendicular T, sized from the clamp condition.
+# See build_all() for why it exists and how the numbers were chosen.
+SHORT_T_STREETS = [
+    [(-60, 0, 0), (60, 0, 0)],                   # splits into two 60 m locals
+    [(0, 0, 0), (0, 0, 20)],                     # the 20 m arm that binds
+]
+
 _DRAW_SNIPPET = """
 import hou
 g = hou.pwd().geometry(); g.clear()
@@ -119,6 +126,30 @@ def build_all(parent=None):
     d.setInput(0, draw)
     d.parm("lots_params_subdiv_mode").set(1)          # 0 recursive_obb, 1 offset
     cases["D_offset"] = {"city": d, "input": draw}
+
+    # E — the SHORT T, the one case that reaches `max_fillet_fraction`.
+    #
+    # An audit found the clamp had never executed on any of A-D: their tangent
+    # runs peak at 53% of the cap, so disabling it left every number
+    # bit-identical. Same defect class as `offset` mode in D — a mechanism the
+    # suite never runs is untested however green the run is — and the same cure.
+    #
+    # Sized from the clamp condition, which is narrower than it looks. The run
+    # is r/tan(theta/2) and it must exceed 0.4 x the shorter street, while the
+    # whole cut (kerb corner + run) must still leave the street alive and the
+    # street must clear graph_prune_min_edge_len. A shallow angle does NOT work:
+    # at 30 degrees the miter alone reaches 54 m of a 60 m arm, so the arm is
+    # eaten before the clamp is reached — the shallow-angle family is §S5's
+    # bevel, a separate unbuilt thing. A perpendicular T of local streets does:
+    # r = 4 x 2.5 = 10 m of radius wants 10 m of run, 0.4 x the 20 m arm allows
+    # 8, and the resulting 15.2 m cut leaves 4.8 m of the arm standing.
+    edraw = parent.createNode("python", "E_drawn_streets")
+    edraw.parm("python").set(_DRAW_SNIPPET.replace(
+        repr(DRAWN_STREETS), repr(SHORT_T_STREETS)))
+    e = parent.createNode("pf_citygen_streets", "E_short_t")
+    e.setInput(0, edraw)
+    e.parm("s5j_params_corner_radius_scale").set(2.5)
+    cases["E_short_t"] = {"city": e, "input": edraw}
 
     parent.layoutChildren()
     return parent, cases

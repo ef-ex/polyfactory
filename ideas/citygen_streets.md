@@ -1058,7 +1058,23 @@ segment. Seam error, road terminal cross-section against mouth cap corners:
 **2. The radius rule, and the clamp that was never there (§4e-3, §S5).** `min(rA, rB)` per
 corner, and `pfsj_fillet` now takes `max_run` — `max_fillet_fraction` (0.4, new parameter
 `s5j_params_max_fillet_fraction`) of the shorter incident street. Measured on the T-junction
-at (-14.52, -35.65): back edge **39.8 → 34.80 m**, both corners at r = 4.0 instead of 9 and 4.
+at (-14.52, -35.65): back edge **39.8 → 34.80 m**, both corners at r = 4.0 instead of 9 and 4
+— **that is `min(rA, rB)` alone, not the clamp.**
+
+⚠️ **The clamp does not fire on A–D at all.** An audit disabled it and got bit-identical
+output on every case; the worst tangent run reaches 51–53% of the cap. So it shipped
+unexercised, which is the §4e-6 pattern again — and the §4g plan to bring `min_node_dist`
+below 40 m *by* clamping the fillet is still resting on a mechanism no case had ever run.
+
+**Case E** (`E_short_t`) exists to run it, and is sized from the clamp condition, which is
+narrower than it looks. The run is `r/tan(theta/2)` and must exceed `0.4 x` the shorter
+street, while the whole cut — kerb corner **plus** run — must still leave that street alive
+and above `graph_prune_min_edge_len`. A shallow angle does **not** work: at 30° the miter
+alone reaches 54 m of a 60 m arm and eats it before the clamp is approached. That is §S5's
+bevel, a separate unbuilt thing, and it is now measured: **a 30° arm is 90% consumed by its
+own corner.** A perpendicular T of local streets does work — `r` = 4 × 2.5 = 10 m wants 10 m
+of run, `0.4 ×` the 20 m arm allows 8, and the 15.2 m cut leaves 4.8 m standing. E reports
+`corner_r` 8.0 against a class radius of 10.0, seam 0.0, `selfx_junction_surface` 0.
 
 **3. Extend-to-connect case (b) now runs (§4g-1)** — the validator exempts the LANDING prim,
 not the extending one. But exempting the extending prim from `min_node_dist` is itself a
@@ -1074,10 +1090,25 @@ appending after it, whenever the residual is under `graph_stitch`'s 0.75 m.
 **5. The city output is WELDED at the seam** (`city_weld`, fuse 0.01 m). Closing the seam
 *raised* `selfx_city_merged` at first — A 102 → 106 — because a road that now touches the
 junction registers coincident-but-unwelded edges as crossings where a road that stopped
-0.7 m short touched nothing. A control test settles which it is: two coplanar quads sharing
-an edge give 0, so those points are adjacency, not interpenetration, and welding is the
-completion of the seam rather than a way round the check. Junction↔road crossings drop
-A 92 → 8 · B 397 → 83 · C 615 → 142 with no other change.
+0.7 m short touched nothing. Junction↔road crossings drop A 92 → 8 · B 397 → 83 ·
+C 615 → 142 with no other change.
+
+⚠️ **The control test first quoted here proved nothing** and the audit caught it: two
+coplanar quads *overlapping by 50%* also score 0, because **Intersection Analysis is blind
+to coplanar overlap** and only sees transversal crossings. That is a standing limitation of
+`selfx_city_merged`, `selfx_roads` and `selfx_junction_surface`, worth knowing before
+trusting any of them — though the obvious candidate is clean: 0 of 5,148 (B) and 0 of 5,756
+(C) road-corridor sample points fall inside a lot polygon.
+
+The evidence that does settle it is a tolerance sweep: the drop **saturates at 0.5 mm**
+(A 106 → 26 at 0.1 mm → 22 at 0.5 mm → 22 at 10 mm; C 646 → 240 → 206 → 187), so ~95% of
+what the weld removes is sub-millimetre coincidence between surfaces that are meant to be
+coincident. Welding is the completion of the seam. Its real cost, also measured: a 0.01 m
+weld does erase genuine interpenetration below ~10 mm, and it removes 4 sub-0.03 m² kerb and
+sidewalk slivers in C — which are the same short-segment slivers behind C's
+`no_sweep_fold_after_trim`, so it tidies a symptom it does not fix. No lot point welds to a
+road point: the only mixed clusters are `OUT_roads | s5j_surface_fuse`, at exactly 6 per
+mouth.
 
 **6. Rails re-defaulted, from the sweep** (all three measured, not guessed):
 
@@ -1090,6 +1121,18 @@ A 92 → 8 · B 397 → 83 · C 615 → 142 with no other change.
 **Result.** `selfx_junction_surface` 0 on all four · `every_mouth_has_a_road` 0 on all four ·
 `selfx_city_merged` **A 102 → 22 · B 543 → 89 · C 794 → 187 · D 86 → 12** · dead ends
 **B 24 → 21 (8 → 5 interior) · C 39 → 35 (25 → 20 interior)** · suite 24 → 19 failing.
+
+**One failure mode found and NOT fixed: the frame refinement can limit-cycle.** At C's
+(58.58, −247.33) a cut straddles a polyline vertex at arc length 11.9766: reading the frame
+at 11.9473 returns 11.9932, reading it there returns 11.9473, forever — a period-2 cycle of
+amplitude 45.9 mm that 14 iterations does not damp. The mouth then carries one segment's
+tangent while the road ends on the next one's, 0.151° away, which on a 26.8 m arterial is
+the **0.0353 m** that `trim_metric_is_consistent` reports: 71% of tolerance, 1 of 135 ends,
+and bounded only by (vertex turn) × (half-width) — so C passes by luck, not construction.
+Clamping the cut into its frame's own segment fixes it (0.0353 → 0.0066) and was **tried and
+reverted**: it leaves a 1 mm terminal segment whenever the cut lands near a vertex, which
+folds the sweep — C went to 10 junction self-intersections and 6 downward faces. Any real
+cure has to damp the iteration or re-seat the frame without shortening the terminal segment.
 
 **Still open, and honestly so:** C `selfx_roads` 12 → **13**; the extra point is at the same
 degree-2 corner family §4e-8 describes, which needs corner geometry at degree-2 nodes, not
@@ -1105,6 +1148,14 @@ circle and the solver's emitted `corner_r`. Its fitted-radius term is compared a
 conditioning bound `resid / (1 - cos(sweep/2))`, because a fillet that turns 5° has a 4 mm
 sagitta and a 2e-5 fit residual moves the fitted radius by 15 mm — three of C's corners read
 as wrong radii when nothing was wrong. `dead_ends` is now a recorded measurement.
+
+**Two things the audit found in passing**, neither fixed: `elem_type` is a **point**
+attribute on `OUT_roads` and only a prim attribute on `s5j_surface`, so
+`no_downward_faces(skip_types=("kerb",))` skips kerbs on the junction surface and never on
+the roads — conservative, so nothing is hidden, but half the skip is inert. And at the T
+junction the **lot plate runs over the junction's far sidewalk band**, because the block
+boundary still comes from the street corridor rather than the fillet — §S7, designed and not
+yet built, and in a close-up it is the most visible remaining wrongness in the build.
 
 ---
 

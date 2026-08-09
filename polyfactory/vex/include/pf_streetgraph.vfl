@@ -91,6 +91,13 @@ vector pfsg_pos_at_length(const int geo, prim; const float d) {
 // is parallel to the road it caps. Using the node tangent instead rotates the
 // mouth by the whole turn of the polyline over the trim distance (up to 30.9
 // degrees, measured), which wedges a triangular hole open at the seam.
+//
+// The `>` is deliberate and does NOT match pfsg_pos_at_length's `>=`. That
+// function answers "where is the point at `d`", which is the same point from
+// either side of a vertex. This one answers "which segment will s5j_trim leave
+// as the road's TERMINAL one", and a cut landing exactly on a vertex keeps that
+// vertex and ends on the segment AFTER it. Aligning the two comparisons cost B
+// eleven collapsed corner segments and three downward faces.
 vector pfsg_tangent_at_length(const int geo, prim; const float d) {
     int pts[] = primpoints(geo, prim);
     int n = len(pts);

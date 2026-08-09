@@ -9430,7 +9430,7 @@
       "source_location": "L254",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_update_widget_value",
-      "community": 35,
+      "community": 51,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -9590,7 +9590,7 @@
       "source_location": "L255",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_255",
-      "community": 35,
+      "community": 51,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -10707,7 +10707,7 @@
       "label": "build_all()",
       "file_type": "code",
       "source_file": "tests/citygen/cases.py",
-      "source_location": "L68",
+      "source_location": "L75",
       "_origin": "ast",
       "id": "citygen_cases_build_all",
       "community": 59,
@@ -10737,9 +10737,9 @@
       "label": "Build every case. Returns {case_name: {role: node}}.",
       "file_type": "rationale",
       "source_file": "tests/citygen/cases.py",
-      "source_location": "L69",
+      "source_location": "L76",
       "_origin": "ast",
-      "id": "citygen_cases_rationale_69",
+      "id": "citygen_cases_rationale_76",
       "community": 59,
       "norm_label": "build every case. returns {case_name: {role: node}}."
     },
@@ -15147,7 +15147,7 @@
       "label": "4d. Measured state of the shipped build \u2014 2026-08-09 (pre-fix)",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1111",
+      "source_location": "L1162",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4d_measured_state_of_the_shipped_build_2026_08_09_pre_fix",
       "community": 17,
@@ -15157,7 +15157,7 @@
       "label": "5. Scale strategy",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1151",
+      "source_location": "L1202",
       "_origin": "ast",
       "id": "ideas_citygen_streets_5_scale_strategy",
       "community": 17,
@@ -15167,7 +15167,7 @@
       "label": "6. Attribute schema",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1167",
+      "source_location": "L1218",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6_attribute_schema",
       "community": 17,
@@ -15177,7 +15177,7 @@
       "label": "6b. Shipped V1 assets",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1215",
+      "source_location": "L1266",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6b_shipped_v1_assets",
       "community": 17,
@@ -15187,7 +15187,7 @@
       "label": "7. Where the code goes",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1244",
+      "source_location": "L1295",
       "_origin": "ast",
       "id": "ideas_citygen_streets_7_where_the_code_goes",
       "community": 17,
@@ -15197,7 +15197,7 @@
       "label": "8. Build order",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1258",
+      "source_location": "L1309",
       "_origin": "ast",
       "id": "ideas_citygen_streets_8_build_order",
       "community": 17,
@@ -15207,7 +15207,7 @@
       "label": "9. Open decisions",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1276",
+      "source_location": "L1327",
       "_origin": "ast",
       "id": "ideas_citygen_streets_9_open_decisions",
       "community": 17,
@@ -15217,7 +15217,7 @@
       "label": "10. Explicit non-goals for v1",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1308",
+      "source_location": "L1359",
       "_origin": "ast",
       "id": "ideas_citygen_streets_10_explicit_non_goals_for_v1",
       "community": 17,
@@ -35822,11 +35822,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/cases.py",
-      "source_location": "L69",
+      "source_location": "L76",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_cases_rationale_69",
-      "target": "citygen_cases_build_all"
+      "source": "citygen_cases_rationale_76",
+      "target": "citygen_cases_build_all",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -35854,9 +35854,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L732",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_dead_ends",
-      "confidence_score": 1.0
+      "target": "citygen_checks_dead_ends"
     },
     {
       "relation": "contains",
@@ -36166,9 +36166,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L762",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_dead_ends",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -36623,9 +36623,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L394",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_every_corner_is_an_arc",
-      "target": "citygen_checks_arc_lengths",
-      "confidence_score": 1.0
+      "target": "citygen_checks_arc_lengths"
     },
     {
       "relation": "calls",
@@ -36745,9 +36745,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L320",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_320",
-      "target": "citygen_checks_every_corner_is_an_arc",
-      "confidence_score": 1.0
+      "target": "citygen_checks_every_corner_is_an_arc"
     },
     {
       "relation": "rationale_for",
@@ -36755,9 +36755,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L522",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_522",
-      "target": "citygen_checks_sidewalk_bands_match_corners",
-      "confidence_score": 1.0
+      "target": "citygen_checks_sidewalk_bands_match_corners"
     },
     {
       "relation": "rationale_for",
@@ -36765,9 +36765,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L547",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_547",
-      "target": "citygen_checks_junction_boundary_is_simple",
-      "confidence_score": 1.0
+      "target": "citygen_checks_junction_boundary_is_simple"
     },
     {
       "relation": "rationale_for",
@@ -36775,9 +36775,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L582",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_582",
-      "target": "citygen_checks_trim_metric_is_consistent",
-      "confidence_score": 1.0
+      "target": "citygen_checks_trim_metric_is_consistent"
     },
     {
       "relation": "rationale_for",
@@ -36785,9 +36785,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L686",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_686",
-      "target": "citygen_checks_every_mouth_has_a_road",
-      "confidence_score": 1.0
+      "target": "citygen_checks_every_mouth_has_a_road"
     },
     {
       "relation": "rationale_for",
@@ -36795,9 +36795,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L733",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_733",
-      "target": "citygen_checks_dead_ends",
-      "confidence_score": 1.0
+      "target": "citygen_checks_dead_ends"
     },
     {
       "relation": "rationale_for",
@@ -36805,9 +36805,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L767",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_767",
-      "target": "citygen_checks_no_sweep_fold_after_trim",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_sweep_fold_after_trim"
     },
     {
       "relation": "rationale_for",
@@ -36815,9 +36815,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L817",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_817",
-      "target": "citygen_checks_plaza_disc_is_clear",
-      "confidence_score": 1.0
+      "target": "citygen_checks_plaza_disc_is_clear"
     },
     {
       "relation": "rationale_for",
@@ -36825,9 +36825,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L906",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_906",
-      "target": "citygen_checks_lots_tile_blocks",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lots_tile_blocks"
     },
     {
       "relation": "rationale_for",
@@ -36835,9 +36835,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L917",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_917",
-      "target": "citygen_checks_no_duplicate_lot_footprints",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_duplicate_lot_footprints"
     },
     {
       "relation": "rationale_for",
@@ -36845,9 +36845,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L932",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_932",
-      "target": "citygen_checks_lot_aspect_ratio",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lot_aspect_ratio"
     },
     {
       "relation": "rationale_for",
@@ -36855,9 +36855,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L978",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_978",
-      "target": "citygen_checks_lots_are_simple_polygons",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lots_are_simple_polygons"
     },
     {
       "relation": "rationale_for",
@@ -36865,9 +36865,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1039",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1039",
-      "target": "citygen_checks_no_scratch_attribs",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_scratch_attribs"
     },
     {
       "relation": "rationale_for",
@@ -36875,9 +36875,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1080",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1080",
-      "target": "citygen_checks_attribute_schema",
-      "confidence_score": 1.0
+      "target": "citygen_checks_attribute_schema"
     },
     {
       "relation": "calls",
@@ -36896,9 +36896,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1098",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1098",
-      "target": "citygen_checks_self_intersections",
-      "confidence_score": 1.0
+      "target": "citygen_checks_self_intersections"
     },
     {
       "relation": "rationale_for",
@@ -36906,9 +36906,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1136",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1136",
-      "target": "citygen_checks_merged_city_self_intersections",
-      "confidence_score": 1.0
+      "target": "citygen_checks_merged_city_self_intersections"
     },
     {
       "relation": "contains",
@@ -40460,9 +40460,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L1037",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_4h_third_pass_the_seam_the_radius_rule_the_two_dead_end_mechanisms_2026_08_09",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_4h_third_pass_the_seam_the_radius_rule_the_two_dead_end_mechanisms_2026_08_09"
     },
     {
       "relation": "contains",
@@ -41349,5 +41349,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "9d44e8ec052626904e8302182a14e2934380a2c3"
+  "built_at_commit": "323ceca35409402184adb90e81ef9ffb8e88f16d"
 }

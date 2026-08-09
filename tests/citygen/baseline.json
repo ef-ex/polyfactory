@@ -1002,5 +1002,255 @@
         "lots": 62
       }
     }
+  ],
+  "E_short_t": [
+    {
+      "detail": "degenerate prims must be dropped after the sweep",
+      "name": "no_zero_area_prims",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "points with no primitive",
+      "name": "no_loose_points",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "dt.orphan_edges_dropped, pr.Cd, pr.area, pr.centre, pr.class, pr.connectionEnd, pr.connectionStart, pr.edge_id, pr.edge_len, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.keep_component, pr.laneWidth, pr.lot_reject, pr.perimeter, pr.restlength, pr.sidewalkWidthLeft, pr.sidewalkWidthRight, pr.streetWidth, pr.street_class, pr.street_template, pt.is_node, pt.node_class, pt.node_degree, pt.offsetscale",
+      "name": "no_scratch_attribs_lots",
+      "ok": false,
+      "skipped": false,
+      "value": 27
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_city_merged",
+      "ok": false,
+      "skipped": false,
+      "value": 171
+    },
+    {
+      "detail": "segment crossings with no shared node (per layer)",
+      "name": "graph_is_planar",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "1 components total",
+      "name": "no_orphan_components",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "informational; interior ones are the ones S2/S3 must remove",
+      "name": "dead_ends",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "interior": 0,
+        "total": 3
+      }
+    },
+    {
+      "detail": "",
+      "name": "attribute_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "collapsed fillet arcs",
+      "name": "no_degenerate_corner_segments",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "3 corners, 2 arcs fitted; 0 join two street classes, where the lesser one sets the radius (S5)",
+      "name": "every_corner_is_an_arc",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fit": 2e-07,
+        "mixed_class": 0,
+        "radius": 0.0,
+        "radius_fit": 0.001,
+        "straight": 0,
+        "tangent": 1.1e-06,
+        "unfitted": 0
+      }
+    },
+    {
+      "detail": "bands vs live corner segments",
+      "name": "sidewalk_bands_match_corners",
+      "ok": true,
+      "skipped": false,
+      "value": "11/11"
+    },
+    {
+      "detail": "",
+      "name": "junction_boundary_is_simple",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_junction_surface",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_roads",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "road terminal cross-section vs mouth cap corners; both endpoints must land within 0.05 m",
+      "name": "trim_metric_is_consistent",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "ends": 3,
+        "max": 0.0,
+        "mean": 0.0,
+        "over_0.05m": 0,
+        "worst_at": [
+          -15.2,
+          0.0
+        ]
+      }
+    },
+    {
+      "detail": "mouths whose street s5j_trim deleted, out of 3",
+      "name": "every_mouth_has_a_road",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "h*tan(turn/2) / segment; > 1 means the swept ribbon crosses itself",
+      "name": "no_sweep_fold_after_trim",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "folds": 0,
+        "max_ratio": 0.0,
+        "min_seg": 0.8
+      }
+    },
+    {
+      "detail": "y spread; flatten after PolyExpand2D",
+      "name": "lots_planar",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "relative area error (lots 2223.4 vs blocks 2223.4)",
+      "name": "lots_tile_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 4.19e-07
+    },
+    {
+      "detail": "6 prims, 6 distinct footprints",
+      "name": "no_duplicate_lot_footprints",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "OBB long/short on viable lots; S8 viability caps it at 5.0:1",
+      "name": "lot_aspect_ratio",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "lots": 6,
+        "max": 2.14,
+        "median": 1.87,
+        "over": 0,
+        "p90": 2.14
+      }
+    },
+    {
+      "detail": "self-touching parcels within 0.001 m (0 of them ship as buildable)",
+      "name": "lots_are_simple_polygons",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "lots": 0,
+        "viable": 0
+      }
+    },
+    {
+      "detail": "no plaza declared by this case",
+      "name": "plaza_disc_is_clear",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "no_downward_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "informational",
+      "name": "counts",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 1,
+        "city": 237,
+        "edges": 3,
+        "lots": 6
+      }
+    }
   ]
 }
