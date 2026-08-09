@@ -172,12 +172,21 @@ float pfsg_clear_of_vertex(const int geo, prim, atstart; const float d, minseg) 
         if (acc[i] <= s) continue;                  // the segment holding the cut
         // the push must leave `minseg` of road standing, and if it cannot then
         // it does not happen at all - see the warning above
+        // ...and it must not create a worse sliver than the one it is fixing.
+        // The push is a single unchecked jump to `acc[i] +/- minseg`, so on any
+        // segment shorter than 2 x minseg it lands closer to the NEXT vertex
+        // than it started from the last one: an audit brute-forced 1778 pushes
+        // and found 780 leaving under a metre, worst 0.2 m from a 1.2 m
+        // segment. Not reachable while s5_resample is 4 m, but the push is
+        // pointless when it does not clear the vertex it is aiming past.
         if (atstart) {
             float push = acc[i] + minseg;
-            if (acc[i] - s < minseg && push <= L - minseg) s = push;
+            if (acc[i] - s < minseg && push <= L - minseg
+                && i + 1 < n && acc[i + 1] - push >= minseg) s = push;
         } else {
             float push = acc[i - 1] - minseg;
-            if (s - acc[i - 1] < minseg && push >= minseg) s = push;
+            if (s - acc[i - 1] < minseg && push >= minseg
+                && i >= 2 && push - acc[i - 2] >= minseg) s = push;
         }
         break;
     }
@@ -395,16 +404,37 @@ int pfsg_turn_fillet_seed(export vector P[]; const float rmin) {
         float ap = abs(phi);
         if (ap < 1e-6 || ap > 3.14159265 - 1e-3) { exact = 0; continue; }
         float tanh2 = abs(tan(phi * 0.5));
+
+        // THE VIRTUAL CORNER. `T` is the tangent run measured back from where
+        // the two legs MEET, so the corner has to be located before it can be
+        // used. For a single-vertex run that point is P[a] itself; for a longer
+        // one it is the intersection of the two leg lines.
+        //
+        // ⚠️ The first version measured T back from `acc[a-1]` and forward from
+        // `acc[b+1]` — the vertices OUTSIDE the run — which puts both tangent
+        // points a whole segment too far out. The circle is then tangent to
+        // neither leg, the arc overshoots the turn and the construction closes
+        // with a jump: an audit measured the seeded 90 degree bend at a clean
+        // 7.67 deg/vertex arc followed by 28.85 / 19.66 / 20.92 deg back the
+        // other way, kappa x R_min 10.524 -> 3.748 instead of -> 1. The doc's
+        // "exact in one pass for an isolated corner" was false of every input.
+        vector w = P[b + 1] - P[a - 1];
+        float den = d0.x * d1.z - d0.z * d1.x;          // = sin(phi), d unit
+        if (abs(den) < 1e-9) { exact = 0; continue; }
+        // arc position of the corner, reached along each leg in turn
+        float sV0 = acc[a - 1] + (w.x * d1.z - w.z * d1.x) / den;
+        float sV1 = acc[b + 1] + (w.x * d0.z - w.z * d0.x) / den;
+
         // the tangent run has to fit between this corner's neighbours: the end
         // of the previous fillet on one side, the start of the next run on the
         // other, and the polyline's own ends beyond those
         float nxt = (k + 1 < nr) ? acc[ra[k + 1] - 1] : L;
-        float avail = min(acc[a - 1] - prev_end, nxt - acc[b + 1]);
+        float avail = min(sV0 - prev_end, nxt - sV1);
         float ru = rmin, T = rmin * tanh2;
         if (T > avail) { T = avail; ru = avail / max(tanh2, 1e-9); exact = 0; }
         if (ru <= 1e-6 || T <= 1e-9) continue;
 
-        float sA = acc[a - 1] - T, sB = acc[b + 1] + T;
+        float sA = max(sV0 - T, 0.0), sB = min(sV1 + T, L);
         vector A = pfsg_poly_sample(P, acc, sA);
         vector B = pfsg_poly_sample(P, acc, sB);
         for (int q = 1; q < n; q++)
@@ -420,7 +450,16 @@ int pfsg_turn_fillet_seed(export vector P[]; const float rmin) {
         float sweep = a1 - a0;
         while (sweep >  3.14159265) sweep -= 6.28318531;
         while (sweep < -3.14159265) sweep += 6.28318531;
-        int steps = max(2, int(abs(sweep) * ru / max(step, 1e-6)));
+        // OVERSAMPLE THE ARC, 4x finer than the spacing the prim will end up
+        // with. The whole ideal curve is resampled onto n points afterwards, and
+        // that resample chords whatever polygon it is given - so sampling the
+        // arc at the final spacing concentrates the entire turn on the arc's own
+        // vertices and the resample cannot see the circle at all. Measured at
+        // 1x: a 135 degree bend settled at 1.0167 and never converged; at 4x it
+        // reaches 1.0008 in a single pass. `step` is derived from the ORIGINAL
+        // length, and the filleted curve is always shorter, so 1x is not even
+        // parity.
+        int steps = max(4, int(abs(sweep) * ru * 4.0 / max(step, 1e-6)));
         for (int q = 1; q < steps; q++) {
             float t = float(q) / float(steps), ang = a0 + sweep * t;
             append(ideal, set(C.x + ru * cos(ang), lerp(A.y, B.y, t),
@@ -509,6 +548,11 @@ int pfsg_turn_clamp_solve(export vector P[]; const float rmin, tol, minseg;
     while (sweeps < budget && bestr > tol) {
         if (!pfsg_turn_sweep(P, rmin, 0.5, closed)) break;
         sweeps += 1;
+        // Backstop only. The re-parametrisation below is what actually bounds
+        // the segments - it makes every one of them L/(n-1) - and an audit
+        // confirmed this test has never fired on any case or either control
+        // rig. It stays because it is the one place a shrinking polyline can
+        // be caught before it ships, not because it is doing the work.
         if (pfsg_poly_length(P, closed) < minseg * float(nseg)) break;
         pfsg_turn_reparam(P, closed);
         float r = pfsg_turn_residual(P, rmin, closed);

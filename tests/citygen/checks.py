@@ -1466,7 +1466,7 @@ def trim_leaves_road_standing(streets_geo, floor=1.0):
 
 
 def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
-    """Run the SHIPPED S3b clamp on the two inputs that broke the first one.
+    """Run the SHIPPED S3b clamp on the inputs that broke the first one.
 
     This is the only check in the suite that supplies its own geometry, and it
     exists because of a pattern this project has now repeated three times: a
@@ -1475,14 +1475,30 @@ def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
     curvature clamp was the third, and it was delivering a 12.4 m radius on a
     13.4 m half-width while this suite reported 1.000 on all five cases.
 
-    F_bend covers the feasible half of that through the real pipeline. What it
-    cannot cover is the INFEASIBLE half, because an infeasible input cannot be a
-    passing case: a 30 m square returning to within 4 m of its own start has no
-    polyline through its pinned endpoints that satisfies R = 26.8 m and is still
-    a street. The old solver's answer was to diverge — kappa x R_min 4.37 -> 22.7
-    (200 sweeps) -> 5320 (5000), ending with a 1.0e-6 m segment in the shipped
-    graph. What is asserted here is that it now says so: bounded, no collapsed
-    segment, and `turn_clamp_converged` = 0 rather than a silent ship.
+    F_bend covers the feasible half of that through the real pipeline. Three
+    things it cannot cover are here instead:
+
+    **The infeasible half**, which cannot be a passing case by definition. A
+    30 m square returning to within 4 m of its own start has no polyline through
+    its pinned endpoints that satisfies R = 26.8 m and is still a street. The
+    old solver's answer was to diverge — kappa x R_min 4.37 -> 22.7 (200 sweeps)
+    -> 5320 (5000), ending with a 1.0e-6 m segment in the shipped graph. What is
+    asserted is that it now says so: bounded, no collapsed segment, and
+    `turn_clamp_converged` = 0 rather than a silent ship.
+
+    **135 degrees**, the worst turn these legs can still absorb, because 90 was
+    passing while 135 was not — the solved arc there sits hard on the clamp for
+    its whole length and is much the harder solve.
+
+    **All three kinds of closed prim**, because no case produces one at all.
+    ⚠️ An audit caught the first version of this testing only the square ring —
+    the one closed shape the mechanism happens to fix. A closed curve's total
+    turning is 2 pi whatever its shape, so the only way to lower kappa on a
+    ROUND ring is to make it longer, and every correction here pulls toward a
+    chord, which shortens. `ring_tight` is therefore infeasible for a reason
+    `ring_square` hides, and asserting all three is the difference between
+    "closed prims are handled" and "closed prims are handled when they look
+    like this one".
 
     It copies the real `graph_turn_clamp` node so it cannot drift from what
     ships, and destroys everything it made — an audit that leaves scratch nodes
@@ -1506,28 +1522,42 @@ def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
         w.cook(force=True)
         geo = w.geometry()
         got = {}
+        src_geo = src.geometry()
         for pr in geo.prims():
             pts = [v.point().position() for v in pr.vertices()]
+            n = len(pts)
+            closed = bool(pr.intrinsicValue("closed"))
             rmin = 0.5 * pr.attribValue("streetWidth") * \
                 city_node.parm("graph_params_turn_radius_scale").eval()
             worst = 0.0
-            for i in range(1, len(pts) - 1):
-                e1, e2 = pts[i] - pts[i - 1], pts[i + 1] - pts[i]
+            for i in (range(n) if closed else range(1, n - 1)):
+                e1 = pts[i] - pts[(i - 1) % n]
+                e2 = pts[(i + 1) % n] - pts[i]
                 l1, l2 = e1.length(), e2.length()
                 if l1 < 1e-9 or l2 < 1e-9:
                     continue
                 d = max(-1.0, min(1.0, (e1 / l1).dot(e2 / l2)))
                 worst = max(worst, math.acos(d) / (0.5 * (l1 + l2)) * rmin)
+            was = [v.point().position() for v in src_geo.prims()[pr.number()].vertices()]
+            moved = max((pts[i] - was[i]).length() for i in range(n))
             got[pr.attribValue("rig")] = {
                 "kappa": round(worst, 4),
                 "R_delivered": round(rmin / max(worst, 1e-9), 2),
                 "half_width": round(0.5 * pr.attribValue("streetWidth"), 2),
-                "min_seg": round(min((pts[i] - pts[i - 1]).length()
-                                     for i in range(1, len(pts))), 4),
+                "min_seg": round(min((pts[i] - pts[(i - 1) % n]).length()
+                                     for i in (range(n) if closed
+                                               else range(1, n))), 4),
                 "converged": int(pr.attribValue("turn_clamp_converged")),
-                "sweeps": int(pr.attribValue("turn_clamp_sweeps"))}
+                "sweeps": int(pr.attribValue("turn_clamp_sweeps")),
+                "moved": round(moved, 6)}
     except Exception as exc:
-        return _skip(name, "could not run: %s" % str(exc)[:120])
+        # ⚠️ FAIL, do not skip. This used to `_skip`, and `_skip` sets ok=True —
+        # so deleting the `turn_clamp_converged` write, which makes this raise,
+        # turned a hard regression into a silent pass that the runner does not
+        # even count. An audit found it by doing exactly that. A rig that cannot
+        # run is a failure of the thing it is testing.
+        return Result(name, False, {"error": str(exc)[:160]},
+                      "the control rig could not be run at all")
     finally:
         for nd in reversed(made):
             try:
@@ -1539,23 +1569,41 @@ def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
                 shown.setDisplayFlag(True)
             except Exception:
                 pass
-    b, f = got.get("bend90"), got.get("foldback")
-    if not b or not f:
-        return _skip(name, "rig geometry missing")
-    ok = (b["converged"] == 1 and b["kappa"] <= slack
-          and b["R_delivered"] > b["half_width"] and b["min_seg"] >= floor
-          # the infeasible one: bounded, intact, and REPORTED
-          and f["converged"] == 0 and f["min_seg"] >= floor
-          and f["kappa"] <= _FOLDBACK_INPUT_KAPPA + 1e-3)
+    want = ("bend90", "bend135", "foldback", "ring_legal", "ring_square",
+            "ring_tight")
+    if any(k not in got for k in want):
+        return Result(name, False, got, "rig geometry missing: %s"
+                      % ", ".join(k for k in want if k not in got))
+
+    def solved(r):
+        return (r["converged"] == 1 and r["kappa"] <= slack
+                and r["R_delivered"] > r["half_width"] and r["min_seg"] >= floor)
+
+    def flagged(r):
+        # infeasible: bounded no worse than the input, intact, and REPORTED
+        return (r["converged"] == 0 and r["min_seg"] >= floor
+                and r["kappa"] <= _RIG_INPUT_KAPPA[
+                    "foldback" if r is got["foldback"] else "ring_tight"] + 1e-3)
+
+    ok = (solved(got["bend90"]) and solved(got["bend135"])
+          and solved(got["ring_square"])
+          and flagged(got["foldback"]) and flagged(got["ring_tight"])
+          # a ring already inside the clamp must come back BIT-IDENTICAL: the
+          # solver may not touch geometry it has nothing to fix
+          and got["ring_legal"]["converged"] == 1
+          and got["ring_legal"]["sweeps"] == 0
+          and got["ring_legal"]["moved"] == 0.0)
     return Result(name, ok, got,
-                  "the 90 deg arterial bend must converge inside the clamp with "
-                  "R above the half-width; the fold-back is infeasible and must "
-                  "be flagged, not diverged")
+                  "feasible turns (90, 135, square ring) must converge inside "
+                  "the clamp with R above the half-width; infeasible ones "
+                  "(fold-back, tight ring) must be flagged, not diverged; a "
+                  "legal ring must be untouched")
 
 
-# kappa x R_min of the fold-back rig as authored — the solver may never ship a
-# state WORSE than the input it was handed, which is what divergence looks like.
-_FOLDBACK_INPUT_KAPPA = 10.5243
+# kappa x R_min of the two infeasible rigs as authored. The solver may never
+# ship a state WORSE than the input it was handed — that is what divergence
+# looks like, and the first one went to 5320 on the fold-back.
+_RIG_INPUT_KAPPA = {"foldback": 10.5243, "ring_tight": 1.3423}
 
 _RIG_SNIPPET = '''
 """The two S3b control rigs, as geometry. See turn_clamp_control_rig()."""
@@ -1588,13 +1636,58 @@ def poly(name, ctrl, step=4.0):
     pr.setAttribValue("rig", name)
 
 
+def ring(name, ctrl, step=4.0):
+    """`ctrl` is a closed control polygon, resampled at `step` like the poly()
+    above; the first point is not repeated."""
+    loop = list(ctrl) + [ctrl[0]]
+    acc = [0.0]
+    for i in range(1, len(loop)):
+        acc.append(acc[-1] + math.dist(loop[i - 1], loop[i]))
+    L = acc[-1]
+    n = max(3, int(L / step + 0.5))
+    pr = g.createPolygon(is_closed=True)
+    for k in range(n):
+        s = L * k / n
+        j = 1
+        while j < len(acc) - 1 and acc[j] < s:
+            j += 1
+        t = 0.0 if acc[j] == acc[j - 1] else (s - acc[j - 1]) / (acc[j] - acc[j - 1])
+        pr.addVertex(g.createPoint()).point().setPosition(
+            (loop[j - 1][0] + t * (loop[j][0] - loop[j - 1][0]), 0.0,
+             loop[j - 1][1] + t * (loop[j][1] - loop[j - 1][1])))
+    pr.setAttribValue("streetWidth", 26.8)
+    pr.setAttribValue("rig", name)
+
+
+def circle(r, n):
+    return [(r * math.cos(k * 2 * math.pi / n), r * math.sin(k * 2 * math.pi / n))
+            for k in range(n)]
+
+
 # S3b's own worked example: a plain 90 degree bend on an arterial.
 poly("bend90", [(-80, 0), (0, 0), (0, 80)])
-# and the one that made the first solver diverge: a 30 m square returning to
-# within 4 m of its own start. R_min = 26.8 m needs 26.8 m of tangent run each
-# side of a right angle and the sides are 30 m, so this is INFEASIBLE by
-# construction and the only correct answer is to say so.
+# 135 degrees is the worst FEASIBLE turn on these legs: it wants
+# R x tan(67.5) = 64.7 m of tangent run and the legs are 80 m, so it only just
+# fits and the solved arc sits hard on the clamp the whole way round.
+poly("bend135", [(-80, 0), (0, 0), (-56.6, 56.6)])
+# the one that made the first solver diverge: a 30 m square returning to within
+# 4 m of its own start. R_min = 26.8 m needs 26.8 m of tangent run each side of
+# a right angle and the sides are 30 m, so this is INFEASIBLE by construction
+# and the only correct answer is to say so.
 poly("foldback", [(0, 0), (30, 0), (30, 30), (0, 30), (0, 4)])
+
+# --- closed prims. See turn_clamp_control_rig() for why all three are here. ---
+# legal: R = 120 m is well inside the clamp, so it must come back untouched.
+ring("ring_legal", circle(120.0, 188))
+# solvable: a 300 m square ring is four concentrated corners, and rounding them
+# redistributes the turning without needing the ring to grow.
+ring("ring_square", [(0, 0), (300, 0), (300, 300), (0, 300)])
+# INFEASIBLE, and for a reason the square hides: a round ring of R = 20 m is
+# over the clamp at every vertex at once, and the only way to lower kappa on a
+# closed curve is to make it LONGER. Every correction here pulls toward a chord,
+# which shortens. Its nodes are pinned by the graph, so nothing can fix it and
+# the honest output is a flag, exactly as for the fold-back.
+ring("ring_tight", circle(20.0, 31))
 '''
 
 

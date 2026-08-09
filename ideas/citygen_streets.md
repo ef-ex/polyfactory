@@ -499,10 +499,24 @@ because they are the reason the design says *solve*.
 arterial bend, 80 m + 80 m, W = 26.8, resampled 4 m. κ × R_min after 10 / 50 / **200** / 1000 /
 5000 sweeps was 4.366 / 3.383 / **2.169** / 1.031 / 1.000. At the shipped 200 the delivered
 radius was 26.8 / 2.169 = **12.4 m against a 13.4 m half-width** — inside this section's own
-inversion floor, where the inner kerb turns itself inside out. Cause: only vertices *already*
-over the clamp moved, so the corrected region grew about one vertex per sweep and equilibrated
-in O(k²); spreading 90° over the ≥ 11 vertices a 26.8 m R_min needs at 4 m spacing takes
-thousands.
+inversion floor. Cause: only vertices *already* over the clamp moved, so the corrected region
+grew about one vertex per sweep and equilibrated in O(k²); spreading 90° over the ≥ 11 vertices
+a 26.8 m R_min needs at 4 m spacing takes thousands.
+
+**And the inversion was not theoretical.** Measured on case `F_bend` through the whole pipeline,
+before and after, by offsetting the published centreline by its own half-width and asking whether
+the offset ever runs backwards:
+
+| | centreline R_min | half-width | inner kerb R | kerb steps running backwards |
+|---|---|---|---|---|
+| before | 12.35 m | 13.40 | **−1.05 m** | **2** |
+| after | 26.69 m | 13.40 | +13.29 m | 0 |
+
+A negative inner radius is the ribbon turning itself inside out, and two of its steps genuinely
+reversed direction. ⚠️ Note that `no_sweep_fold_after_trim` reported **0 folds and a max ratio of
+0.393** on that same geometry — it tests `h·tan(turn/2) / segment` per vertex, which a turn spread
+over nine vertices never trips however tight the resulting arc is. It is not an inversion test and
+must not be read as one.
 
 **On a fold-back it diverged and collapsed segments to zero.** Same rig, a 30 m square returning
 to within 4 m of its own start: 4.37 → 5.22 (50) → **22.7 (200)** → 5320 (5000), ending with a
@@ -516,16 +530,33 @@ reads geometry and writes the verdict back:
 
 - **Seed with the arc this section already specifies.** Each over-curved run is replaced by the
   circular arc of radius `R_min` tangent to the polyline on both sides, then the prim is
-  resampled back onto its own point count. That is *exact in one pass* for an isolated corner,
-  and it is what removes the O(k²) — the 90° bend now converges in **20 sweeps**, a 135° bend in
-  ~68, and every case in the shipped suite in **≤ 8**.
+  resampled back onto its own point count. That is what removes the O(k²): **every prim in every
+  shipped case is solved by the seed alone, in one sweep**, and the control rigs need 3 (90°),
+  63 (135°, the worst turn 80 m legs can absorb) and 41 (a 300 m square ring).
+
+  ⚠️ **Two details in that construction are load-bearing, and the first version got both wrong.**
+  An audit measured the seeded 90° bend at a clean 7.67°/vertex arc followed by 28.85 / 19.66 /
+  20.92° back the other way — κ × R_min 10.524 → 3.748 instead of → 1, so "exact in one pass"
+  was false of every input and the hat-spread relaxation was silently doing all the work.
+  - The tangent run `T = R_min·tan(φ/2)` is measured back from where the two legs **meet**, not
+    from the vertices either side of the run. Using `acc[a-1]` and `acc[b+1]` puts both tangent
+    points a whole segment too far out and the circle is tangent to neither leg. The corner has
+    to be located first — trivially `P[a]` for a single-vertex run, the intersection of the two
+    leg lines for a longer one.
+  - **The arc must be polygonised finer than the spacing the prim ends up with**, because the
+    whole ideal curve is resampled onto *n* points afterwards and that resample chords whatever
+    polygon it is given. Sampling the arc at the final spacing concentrates the entire turn on
+    the arc's own vertices and the resample never sees a circle: at 1× a 135° bend settled at
+    1.0167 and **never converged**; at 4× it reaches 1.0008 in a single pass.
 - **Spread each correction over the span it needs.** The excess turn needs `(φ − φmax)·R_min` of
   extra arc length, so the displacement is applied to that many vertices with a hat weight rather
   than to the single vertex.
-- **Re-parametrise to uniform spacing every sweep.** This is the collapse guard: afterwards every
-  segment is exactly `L/(n−1)`, so one scalar test on the total length bounds all of them. The
-  floor is `1.0 m`, the same constant as `s5j_params_min_end_segment`, and
-  `no_short_graph_segments` asserts it on the graph as published.
+- **Re-parametrise to uniform spacing every sweep.** *This* is the collapse guard: afterwards
+  every segment is exactly `L/(n−1)`, so the feedback that drove a segment to 1e-6 m has nowhere
+  to run. The explicit `length < minseg × nseg` test alongside it is a backstop and an audit
+  confirmed **it has never fired** on any case or any control rig; setting `minseg = 0` changes
+  no measured value. It stays because it is the one place a shrinking polyline can be caught
+  before it ships, not because it is doing the work.
 - **Keep the best iterate, not the last**, so a diverging sequence cannot ship its worst state.
   Stop on the residual (1.01, tighter than the check's 1.02 slack), on a 50-sweep stall, or at a
   200-sweep cap.
@@ -539,19 +570,56 @@ polyline through those pinned endpoints satisfies the clamp and is still a stree
 out **bounded at its input value with a 2.83 m minimum segment and `turn_clamp_converged = 0`**,
 at any budget up to 5000.
 
-**Closed prims are solved, not skipped.** The first build skipped them (`primintrinsic("closed")`)
-while the check measured them, so the day the ring closure (`011fdcb`) puts one back in the graph
-the check would have fired with nothing able to clear it. The relaxation wraps instead; a ring
-already inside the clamp is returned bit-identical (control-tested: R = 120 m ring, 0 sweeps, 0
-points moved), and a 300 m square ring goes 10.524 → 1.008 in 41 sweeps. **No case in the suite
-produces a closed prim, so this path is exercised only by that control test.**
+**Closed prims are solved where they can be, and flagged where they cannot.** The first build
+skipped them (`primintrinsic("closed")`) while the check measured them, so the day the ring
+closure (`011fdcb`) puts one back in the graph the check would have fired with nothing able to
+clear it. The relaxation wraps instead. Control-tested on all three kinds, because **no case in
+the suite produces a closed prim at all**:
+
+| ring | κ × R_min | result |
+|---|---|---|
+| R = 120 m, legal | 0.223 → 0.223 | **bit-identical.** 0 sweeps, 0 points moved |
+| 300 m square | 10.524 → **1.008** | solved, 41 sweeps |
+| R = 20 m, round | 1.342 → 1.342 | **infeasible.** Flagged, 0 points moved |
+
+⚠️ **The round ring is not a solver failure and the square one is not proof the mechanism works.**
+A closed curve's total turning is 2π whatever its shape, so κ × R_min = 2π·R_min / L and *the only
+way to lower it is to make the ring longer*. Every correction here pulls a vertex toward a chord,
+which shortens. The square works because rounding four concentrated corners redistributes turning
+without needing length; a round ring under the clamp has nothing to redistribute, and its nodes
+are pinned by the graph, so it is infeasible for exactly the reason the fold-back is.
+**An audit caught the first version of this control test using only the square** — the one closed
+shape the mechanism happens to fix. If the ring closure ever emits a ring tighter than
+`2 × half-width`, the answer is a larger ring or a smaller `turn_radius_scale`, not this solver.
 
 ⚠️ **This was the third mechanism in this project to ship green and unexercised at its design
 amplitude**, after `offset` lot mode (§4e-6) and `max_fillet_fraction` (§4h-2). All five cases
 only ever asked the clamp for a few degrees, so it read exactly 1.000 on all of them. The cure is
 the same one every time: **case `F_bend`** in `tests/citygen/cases.py` puts a real 90° corner on a
 real arterial through the real pipeline, and `turn_clamp_control_rig` runs the shipped wrangle on
-the infeasible fold-back, which cannot be a passing case.
+the five inputs no case can reach — 135°, the infeasible fold-back, and all three kinds of ring.
+
+#### Still unguarded after this pass — recorded, not fixed
+
+- **The 1.0 m segment floor is asserted, not enforced.** `no_short_graph_segments` catches a
+  short segment in the published graph, but nothing upstream prevents one. An audit built the
+  input: three drawn streets with two junctions **0.8 m apart** — above `graph_fuse`'s 0.5 m
+  tolerance — ship a 2-point, 0.8 m prim, and the check correctly fails on it. `graph_prune`
+  only kills *dead-end* stubs under 13 m, and the clamp cannot help because a 2-point prim has no
+  interior vertex to move. **The cure is §4c's unbuilt node merge/relax, not the clamp.** No case
+  produces one today.
+- **`pfsg_clear_of_vertex`'s push is still a single jump** to `acc[i] ± minseg`. It now refuses
+  to push when that would land within `minseg` of the *next* vertex, so it can no longer create a
+  worse sliver than the one it is fixing — but it does not re-solve, it just declines. Reachable
+  only through a sub-4 m resample segment, i.e. through the bullet above.
+- **A latent boundary inconsistency in the same function.** With the cut landing exactly on a
+  vertex, the `atstart` branch selects the segment *after* it (deliberate — see the comment on
+  `pfsg_tangent_at_length`) while the mirror branch selects the one *before*, so at `d = 4.00` on
+  a 20 m / 4 m polyline `atstart` returns 4.000 and `atend` returns 5.000. Measure-zero in `d`,
+  and **not fixed on purpose**: the seam is at 0.0001 m and `s5j_solve`'s cut is monotone by
+  construction (§`50e51f3`), so changing which segment holds a cut is exactly the class of change
+  that cost C 54 junction self-intersections last time. It wants its own pass with the seam
+  measured either side.
 
 ### S4 — Classify
 
@@ -934,7 +1002,7 @@ had never worked; two of those were never audited and one was audited too late.
 |---|---|---|
 | **Ring closure in the radial city** (`8a83baa`) | **implementer-verified** | The two bidirectional halves each soft-stop on the *other half's* occupancy claim, so the seam always lands on an occupancy cell boundary — proved by sweeping `min_street_sep`: 130 → gap at x −7.90, 110 → −71.46, 90 → −39.65, each the boundary that setting creates. Gap was 4.877 m at (−7.90, −99.65), far past the 0.5 m fuse tolerance. Closed on a shared point behind two gates (seam ≤ 2.5 steps **and** traced length > 10× seam; the first rejects a genuinely-ended street, the second stops a stub welding into a triangle). Verified by connectivity walk, not by eye: 5 ring edges, every ring node degree 2, one walk consumes all 5 and returns to start. Suite 23 → 18 failing. **Its audit never reported.** |
 | **S7 — block boundary IS the kerb; PolyExpand2D deleted** (`4c53af5`, `0156c30`) | **done** — audited | `city_is_fully_paved` **0 m² on all five** (was A 757, D 919, C 7). `lots_clear_of_junctions` **0 on all five** (was up to 558 m²/junction on E). `lots_tile_blocks` passes everywhere. Seam 0.0071 → **0.0001 m**. `blocks_capback` and `blocks_expand` gone |
-| **S3b — turns, built as the curvature clamp** (`50e51f3`) | ⚠️ **the mechanism did not work at its design amplitude.** Audited, root-caused, rebuilt — see §S3b "the clamp must be a SOLVE" | The 1.000 below was real but meaningless: no case asked the clamp for more than a few degrees. On a plain 90° arterial bend it delivered a **12.4 m radius against a 13.4 m half-width**, and on a fold-back it diverged to a **1.0e-6 m segment**. Rebuilt as a seeded residual solve; the bend now converges to 1.010 in 20 sweeps and the fold-back is *reported* rather than shipped. New case `F_bend` and check `turn_clamp_control_rig` |
+| **S3b — turns, built as the curvature clamp** (`50e51f3`, rebuilt `492fe7c`+) | **done** — rebuilt after audit, and the rebuild audited in turn. See §S3b "the clamp must be a SOLVE" | The 1.000 below was real but meaningless: no case asked the clamp for more than a few degrees. On a plain 90° arterial bend it delivered a **12.4 m radius against a 13.4 m half-width**, and on a fold-back it diverged to a **1.0e-6 m segment**. Now a seeded residual solve: F_bend 2.170/9-over → **1.004/0**, delivered R 12.4 → 26.7 m, and **every shipped prim solves in 1 sweep**. Infeasible inputs are *reported*, not shipped. A second audit found the seed's tangent points a segment out and its arc polygonised too coarsely; both fixed, both now covered by `turn_clamp_control_rig` |
 | **S3b — the folds it did fix** (`50e51f3`) | **implementer-verified** | `no_sweep_fold_after_trim` **0 folds on all five** (C had 2) — that part was `pfsg_clear_of_vertex`, not the clamp, and §4c already records it |
 | **Ring closure gate re-derived from cell size** (`011fdcb`) | **implementer-verified** | Defaults proven byte-identical by hashing every vertex. Audit running |
 | Node merge/relax, shallow-arm merge, dead ends, majors-enclose-minors | not started | — |
@@ -1526,7 +1594,7 @@ The stage API. Names use the standard urban-modelling vocabulary — convention 
 | `source_node` | string | **which node generated this element.** Required from v1 — it is what lets a downstream edit be committed back to the right upstream owner (`citygen.md` Contract 2) |
 | `turn_clamp_converged` | int | 1 = the S3b curvature clamp reached its residual on this edge, 0 = it did not. **A solver that cannot say whether it converged ships a broken answer silently, which is exactly what happened** (§S3b). Read by `centreline_curvature_within_class` |
 | `turn_clamp_ratio` | float | the residual it settled at, as κ × R_min — 1.0 *is* the clamp |
-| `turn_clamp_sweeps` | int | sweeps used, against a 200 cap. Every shipped case uses ≤ 8; a 90° arterial bend uses 20 |
+| `turn_clamp_sweeps` | int | sweeps used, against a 200 cap. **Every prim in every shipped case uses 1** — the tangent-arc seed solves it outright; the control rigs need 3 (90°) to 63 (135°) |
 
 `elem_id` and `source_node` must **survive all the way to the final geometry**, not merely exist at
 generation time. Everything in the edit-and-override design depends on it.
