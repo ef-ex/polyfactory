@@ -808,7 +808,8 @@ and were not.** The suite passing is not the same as the feature working — eve
 | S8 `recursive_obb` + `offset` lots (§S8) | ⚠️ **partial.** Voronoi is gone and the structure is right, but parcels are ribbons up to 31:1, non-convex blocks produce bowties, and `offset` fails `lots_tile_blocks` (§4e-4,5,6) |
 | `land_use` written (§4d) | **done** |
 | S7 block boundary from the fillet (§S7) | not started |
-| S3 extend-to-connect (§S3 step 2) | **done** — `graph_extend`, before `graph_stitch`. Interior dead ends B 15 → 7, C 28 → 12. Capped by S5, see §4f |
+| S3 extend-to-connect (§S3 step 2) | ⚠️ **case (a) only. Case (b), the branch that creates junctions, is DEAD CODE and has never executed once** — §4g-1 |
+| S2 `d_lookahead` (§S2) | **works**, and is the sole source of every new degree-3 junction — but leaves a 0.53 m hook, §4g-3 |
 | S2 `d_lookahead` (§S2) | **done** — soft stops 4 and 5 in the `trace` wrangle. Priority seeding and density `d_sep` still not started |
 | Row 3 majors-enclose-minors (§3b) | not started |
 | Rows 5/6 mask + density inputs (§3b) | not started |
@@ -956,7 +957,38 @@ Found by a fresh agent, none of it visible to the committed suite. Ordered by se
 
 ---
 
-## 4f. The junction-spacing ceiling — measured 2026-08-09
+## 4g. Second audit — the dead-end build, 2026-08-09
+
+**Verdict: not sound to build on.** Findings below, worst first; the junction-spacing
+ceiling that follows was measured against a mechanism that turned out not to be running.
+
+1. **Extend-to-connect case (b) is dead code.** Its validator loop is not told which prim
+   the landing point lies on, so the extension is rejected by the *adjacent segment of the
+   very edge it is landing on* — one resample step away, inside `min_node_dist`. True for
+   any `min_node_dist` ≥ ~8 m. Confirmed three ways: `graph_extend` adds 2 prims in B and 2
+   in C, both case (a); ablating `d_extend` changes junction count by 0; and a faithful
+   Python port finds 0 case-(b) connections, rising to B 2 / C 7 when the target edge is
+   exempted. **Every new degree-3 junction came from `d_lookahead` alone.**
+2. **Both surviving connections are dead-end-to-dead-end welds** — i.e. the degree-2 corner
+   §4e-8 says must not be attempted. The mechanism manufactures the defect it documents.
+3. **`d_lookahead` appends the crossing point after the last integration point instead of
+   replacing it**, leaving a residual sub-step. Any residual in **(0.5 m, 0.75 m]** falls
+   between `graph_fuse` tol3d 0.5 and `graph_stitch` proxtol 0.75: stitch splits twice,
+   fuse cannot weld, and the junction node lands 0.53 m off the arterial with a 90° hook.
+   One of nine new junctions hit it, at (-198.94, 90.56). One-line fix in the tracer.
+4. **Most of the claimed wins are the rider domain fix, not the mechanisms.** B's
+   `lot_aspect_ratio` gain is 82% domain fix, C's is 98%. The overshoot was 239 m, not
+   130 — `nx = ceil(W/cell) + 1` over-allocates a whole extra cell, on +x/+z only.
+5. **B `selfx_city_merged` +14 is a net figure** hiding −73 from the domain fix and +87 from
+   the mechanisms — ~12 crossings per new junction in B, ~23 in C. Mostly the §4e-1 seam,
+   but **11 points in B and 36 in C are mid-block**: lots overhanging the carriageway.
+6. **Unreported regression: C `no_sweep_fold_after_trim` 2 → 3**, caused by the mechanisms.
+7. **Degree-2 corners are not nodes at all.** `graph_polypath` merges the two edges into one
+   polyline, so the corner becomes an interior shape vertex. §4e-8's amendment is still
+   wrong: an S5 pass keyed on node degree would find nothing. Size it by sharp interior
+   turns instead — 1 shipped → 5 now, and the graph is manufacturing them.
+
+### The junction-spacing ceiling — measured 2026-08-09, and re-read after the audit
 
 Found while building §S2 `d_lookahead` and §S3 step 2. **It is the thing that limits how
 far dead-end elimination can go, and it is an S5 defect, not a graph one.**
