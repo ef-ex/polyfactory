@@ -15007,7 +15007,7 @@
       "label": "S4 \u2014 Classify",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L435",
+      "source_location": "L461",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s4_classify",
       "community": 17,
@@ -15017,7 +15017,7 @@
       "label": "S5 \u2014 Intersections",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L445",
+      "source_location": "L471",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
       "community": 17,
@@ -15027,7 +15027,7 @@
       "label": "What the literature adds",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L467",
+      "source_location": "L493",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
       "community": 17,
@@ -15037,7 +15037,7 @@
       "label": "The invariant that was violated: **every corner is an arc, always**",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L491",
+      "source_location": "L517",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
       "community": 17,
@@ -15047,7 +15047,7 @@
       "label": "Two rules the design left open, decided 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L519",
+      "source_location": "L545",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
       "community": 17,
@@ -15057,7 +15057,7 @@
       "label": "Three constructions adopted from the civil sweep \u2014 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L558",
+      "source_location": "L584",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
       "community": 17,
@@ -15067,7 +15067,7 @@
       "label": "Higher-degree junctions \u2014 untested, and structurally unreachable from the field",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L593",
+      "source_location": "L619",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
       "community": 17,
@@ -15077,7 +15077,7 @@
       "label": "Plazas and roundabouts at degenerate points",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L610",
+      "source_location": "L636",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
       "community": 17,
@@ -15087,7 +15087,7 @@
       "label": "S5b \u2014 Bridges, tunnels, ramps",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L633",
+      "source_location": "L659",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5b_bridges_tunnels_ramps",
       "community": 17,
@@ -15097,7 +15097,7 @@
       "label": "Where bridges go \u2014 cost-driven routing (Hannes' technique, adopted)",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L642",
+      "source_location": "L668",
       "_origin": "ast",
       "id": "ideas_citygen_streets_where_bridges_go_cost_driven_routing_hannes_technique_adopted",
       "community": 17,
@@ -15107,7 +15107,7 @@
       "label": "S6 \u2014 Cross-section \u2192 road geometry",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L677",
+      "source_location": "L703",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s6_cross_section_road_geometry",
       "community": 17,
@@ -15117,7 +15117,7 @@
       "label": "S7 \u2014 Blocks",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L715",
+      "source_location": "L741",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s7_blocks",
       "community": 17,
@@ -15127,7 +15127,7 @@
       "label": "S8 \u2014 Lots",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L736",
+      "source_location": "L762",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s8_lots",
       "community": 17,
@@ -15137,7 +15137,7 @@
       "label": "\u26a0\ufe0f Voronoi is wrong for lots. Rewritten 2026-08-09.",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L742",
+      "source_location": "L768",
       "_origin": "ast",
       "id": "ideas_citygen_streets_voronoi_is_wrong_for_lots_rewritten_2026_08_09",
       "community": 17,
@@ -15147,7 +15147,7 @@
       "label": "The three subdivision modes \u2014 both of the first two are required",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L764",
+      "source_location": "L790",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_three_subdivision_modes_both_of_the_first_two_are_required",
       "community": 17,
@@ -15157,7 +15157,7 @@
       "label": "4c. Implementation status \u2014 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L799",
+      "source_location": "L825",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4c_implementation_status_2026_08_09",
       "community": 17,
@@ -15167,7 +15167,7 @@
       "label": "4f. Civil-engineering sweep \u2014 2026-08-09. What it changes",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L828",
+      "source_location": "L854",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4f_civil_engineering_sweep_2026_08_09_what_it_changes",
       "community": 17,
@@ -15177,7 +15177,7 @@
       "label": "4e. Independent audit findings \u2014 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L885",
+      "source_location": "L911",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4e_independent_audit_findings_2026_08_09",
       "community": 17,
@@ -15187,7 +15187,7 @@
       "label": "4g. Second audit \u2014 the dead-end build, 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L966",
+      "source_location": "L992",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4g_second_audit_the_dead_end_build_2026_08_09",
       "community": 17,
@@ -15197,7 +15197,7 @@
       "label": "The junction-spacing ceiling \u2014 measured 2026-08-09, and re-read after the audit",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L998",
+      "source_location": "L1024",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_junction_spacing_ceiling_measured_2026_08_09_and_re_read_after_the_audit",
       "community": 17,
@@ -15207,7 +15207,7 @@
       "label": "4h. Third pass \u2014 the seam, the radius rule, the two dead-end mechanisms. 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1039",
+      "source_location": "L1065",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4h_third_pass_the_seam_the_radius_rule_the_two_dead_end_mechanisms_2026_08_09",
       "community": 17,
@@ -15217,7 +15217,7 @@
       "label": "4i. Fourth pass \u2014 the dead-end holes, the rail ceiling, the collinear average. 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1164",
+      "source_location": "L1190",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4i_fourth_pass_the_dead_end_holes_the_rail_ceiling_the_collinear_average_2026_08_09",
       "community": 17,
@@ -15227,7 +15227,7 @@
       "label": "4d. Measured state of the shipped build \u2014 2026-08-09 (pre-fix)",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1266",
+      "source_location": "L1292",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4d_measured_state_of_the_shipped_build_2026_08_09_pre_fix",
       "community": 17,
@@ -15237,7 +15237,7 @@
       "label": "5. Scale strategy",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1306",
+      "source_location": "L1332",
       "_origin": "ast",
       "id": "ideas_citygen_streets_5_scale_strategy",
       "community": 17,
@@ -15247,7 +15247,7 @@
       "label": "6. Attribute schema",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1322",
+      "source_location": "L1348",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6_attribute_schema",
       "community": 17,
@@ -15257,7 +15257,7 @@
       "label": "6b. Shipped V1 assets",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1370",
+      "source_location": "L1396",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6b_shipped_v1_assets",
       "community": 17,
@@ -15267,7 +15267,7 @@
       "label": "7. Where the code goes",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1399",
+      "source_location": "L1425",
       "_origin": "ast",
       "id": "ideas_citygen_streets_7_where_the_code_goes",
       "community": 17,
@@ -15277,7 +15277,7 @@
       "label": "8. Build order",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1413",
+      "source_location": "L1439",
       "_origin": "ast",
       "id": "ideas_citygen_streets_8_build_order",
       "community": 17,
@@ -15287,7 +15287,7 @@
       "label": "9. Open decisions",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1431",
+      "source_location": "L1457",
       "_origin": "ast",
       "id": "ideas_citygen_streets_9_open_decisions",
       "community": 17,
@@ -15297,7 +15297,7 @@
       "label": "10. Explicit non-goals for v1",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1463",
+      "source_location": "L1489",
       "_origin": "ast",
       "id": "ideas_citygen_streets_10_explicit_non_goals_for_v1",
       "community": 17,
@@ -36927,9 +36927,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L688",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_688",
-      "target": "citygen_checks_every_mouth_has_a_road",
-      "confidence_score": 1.0
+      "target": "citygen_checks_every_mouth_has_a_road"
     },
     {
       "relation": "rationale_for",
@@ -36937,9 +36937,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L735",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_735",
-      "target": "citygen_checks_dead_ends",
-      "confidence_score": 1.0
+      "target": "citygen_checks_dead_ends"
     },
     {
       "relation": "rationale_for",
@@ -36947,9 +36947,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L769",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_769",
-      "target": "citygen_checks_no_sweep_fold_after_trim",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_sweep_fold_after_trim"
     },
     {
       "relation": "rationale_for",
@@ -36957,9 +36957,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L819",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_819",
-      "target": "citygen_checks_plaza_disc_is_clear",
-      "confidence_score": 1.0
+      "target": "citygen_checks_plaza_disc_is_clear"
     },
     {
       "relation": "rationale_for",
@@ -36967,9 +36967,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L908",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_908",
-      "target": "citygen_checks_lots_tile_blocks",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lots_tile_blocks"
     },
     {
       "relation": "rationale_for",
@@ -36977,9 +36977,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L919",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_919",
-      "target": "citygen_checks_no_duplicate_lot_footprints",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_duplicate_lot_footprints"
     },
     {
       "relation": "rationale_for",
@@ -36987,9 +36987,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L934",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_934",
-      "target": "citygen_checks_lot_aspect_ratio",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lot_aspect_ratio"
     },
     {
       "relation": "rationale_for",
@@ -36997,9 +36997,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L980",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_980",
-      "target": "citygen_checks_lots_are_simple_polygons",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lots_are_simple_polygons"
     },
     {
       "relation": "rationale_for",
@@ -37007,9 +37007,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1041",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1041",
-      "target": "citygen_checks_no_scratch_attribs",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_scratch_attribs"
     },
     {
       "relation": "rationale_for",
@@ -37017,9 +37017,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1082",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1082",
-      "target": "citygen_checks_attribute_schema",
-      "confidence_score": 1.0
+      "target": "citygen_checks_attribute_schema"
     },
     {
       "relation": "calls",
@@ -37038,9 +37038,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1100",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1100",
-      "target": "citygen_checks_self_intersections",
-      "confidence_score": 1.0
+      "target": "citygen_checks_self_intersections"
     },
     {
       "relation": "rationale_for",
@@ -37048,9 +37048,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1138",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1138",
-      "target": "citygen_checks_merged_city_self_intersections",
-      "confidence_score": 1.0
+      "target": "citygen_checks_merged_city_self_intersections"
     },
     {
       "relation": "calls",
@@ -37080,9 +37080,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1172",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1172",
-      "target": "citygen_checks_rasterise",
-      "confidence_score": 1.0
+      "target": "citygen_checks_rasterise"
     },
     {
       "relation": "calls",
@@ -37101,9 +37101,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1204",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1204",
-      "target": "citygen_checks_blobs",
-      "confidence_score": 1.0
+      "target": "citygen_checks_blobs"
     },
     {
       "relation": "rationale_for",
@@ -37111,9 +37111,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1257",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1257",
-      "target": "citygen_checks_city_is_fully_paved",
-      "confidence_score": 1.0
+      "target": "citygen_checks_city_is_fully_paved"
     },
     {
       "relation": "contains",
@@ -41564,5 +41564,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b1e63cead41ed1dd69f2278a734d81f15cf5532c"
+  "built_at_commit": "b07d554da3ad346700ffd44a2c6698bbde600df1"
 }

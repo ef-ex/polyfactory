@@ -411,19 +411,45 @@ Operations, in order:
    Extension respects `max_curvature` and the hard masks — it may not tunnel through water to make
    a connection. **This step, not stub-pruning, is what removes dead ends.** Deleting a dangling
    street removes the symptom and the street; extending it removes the symptom and gains a block.
-3. **Intersect** every pair of **same-layer** edges; insert a node at each crossing and
+   ⚠️ **A connection is never refused. Ruled 2026-08-09 by Hannes, and it overrides the
+   rails.** There are exactly two things that can go wrong when a new junction is created,
+   and neither is a reason to leave a street dangling:
+
+   | failure | the answer — NOT refusal |
+   |---|---|
+   | the new junction is too close to an existing one | **merge the two into one junction**, or **relax the nodes apart** until they fit. Two junctions 8 m apart *are* one junction |
+   | two incident arms meet at a very shallow angle | **merge the near-parallel arms into one direction** before solving — §S5, adopted and not yet built |
+
+   Everything currently refusing connections is a **missing capability wearing a rule's
+   clothing**: `min_node_dist` stands in for node merge/relax, the degree-≥3 test stands in
+   for corner geometry at a bend, and the angle rails stand in for arm merging. Measured,
+   they are also mostly inert — `min_node_dist` 50 → 40 produced *bit-identical* output and
+   `min_join_angle` has never fired on any case. Build the three capabilities and the rails
+   go to zero.
+
+   ⚠️ **Correction to an earlier conclusion in this document.** §4h read the spacing ceiling
+   as evidence that dead ends need the majors-enclose-minors restructure (§3b row 3). That
+   is wrong. Row 3 is worth building for the *hierarchy*, which is visibly absent, but it is
+   not the dead-end fix — the dead-end fix is the three capabilities above.
+
+3. **Merge or relax colliding junctions.** After extension, any two nodes closer than the
+   space their junction surfaces need are **fused into one node** (all arms re-sorted around
+   the merged centre) or **pushed apart** along their connecting edge until they fit,
+   whichever preserves the street pattern better. `min_node_dist` becomes the *trigger* for
+   this step rather than a veto on connecting.
+4. **Intersect** every pair of **same-layer** edges; insert a node at each crossing and
    **split both edges**. This is the step whose absence broke everything before.
    Cross-layer crossings are instead recorded and **clearance-checked**.
-4. **Cleanup**, and this is where "satisfying" is won or lost:
+5. **Cleanup**, and this is where "satisfying" is won or lost:
    - fuse nodes closer than `min_node_dist`
    - delete stubs shorter than `min_edge_len`
    - collapse pairs of edges that are near-parallel and closer than `min_street_sep`
    - enforce `min_angle` between edges at a node (merge or nudge below it)
    - prune the dead ends that extension could not rescue, iteratively, down to `dead_end_ratio`
-5. **Validate:** every edge has exactly two node endpoints; no duplicate edges between the same
+6. **Validate:** every edge has exactly two node endpoints; no duplicate edges between the same
    node pair; no zero-length edges; **each layer is planar**; **all cross-layer crossings meet
    `min_clearance`**; every ramp connects exactly two distinct layers.
-6. **Extract faces per layer** → these are the blocks (consumed by S7). Only ground-layer faces
+7. **Extract faces per layer** → these are the blocks (consumed by S7). Only ground-layer faces
    normally become buildable blocks; elevated layers produce blocks only in the sci-fi case.
 
 ⚠️ **Needs prototyping before committing:** vanilla Houdini has no single planarize-polylines SOP.
