@@ -7,7 +7,10 @@ import os
 import sys
 import unittest
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# tests/unit -> repo root -> the polyfactory python package
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(REPO, "polyfactory", "scripts",
+                                "python", "polyfactory"))
 
 from citygen import graph  # noqa: E402
 

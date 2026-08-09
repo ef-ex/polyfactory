@@ -1,0 +1,443 @@
+{
+  "A_drawn": [
+    {
+      "detail": "degenerate prims must be dropped after the sweep",
+      "name": "no_zero_area_prims",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "points with no primitive",
+      "name": "no_loose_points",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "segment crossings with no shared node (per layer)",
+      "name": "graph_is_planar",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "1 components total",
+      "name": "no_orphan_components",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "edge.land_use",
+      "name": "attribute_schema",
+      "ok": false,
+      "skipped": false,
+      "value": 1
+    },
+    {
+      "detail": "collapsed fillet arcs",
+      "name": "no_degenerate_corner_segments",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "bands vs live corner segments",
+      "name": "sidewalk_bands_match_corners",
+      "ok": true,
+      "skipped": false,
+      "value": "66/66"
+    },
+    {
+      "detail": "",
+      "name": "junction_boundary_is_simple",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_junction_surface",
+      "ok": false,
+      "skipped": false,
+      "value": 4
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_roads",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "y spread; flatten after PolyExpand2D",
+      "name": "lots_planar",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "relative area error (lots 33840.6 vs blocks 33840.6)",
+      "name": "lots_tile_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 1.01e-07
+    },
+    {
+      "detail": "61 prims, 61 distinct footprints",
+      "name": "no_duplicate_lot_footprints",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "informational",
+      "name": "counts",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 2,
+        "city": 4163,
+        "edges": 15,
+        "lots": 61
+      }
+    }
+  ],
+  "B_grid": [
+    {
+      "detail": "degenerate prims must be dropped after the sweep",
+      "name": "no_zero_area_prims",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "points with no primitive",
+      "name": "no_loose_points",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "segment crossings with no shared node (per layer)",
+      "name": "graph_is_planar",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "1 components total",
+      "name": "no_orphan_components",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "edge.land_use",
+      "name": "attribute_schema",
+      "ok": false,
+      "skipped": false,
+      "value": 1
+    },
+    {
+      "detail": "collapsed fillet arcs",
+      "name": "no_degenerate_corner_segments",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "bands vs live corner segments",
+      "name": "sidewalk_bands_match_corners",
+      "ok": true,
+      "skipped": false,
+      "value": "295/295"
+    },
+    {
+      "detail": "",
+      "name": "junction_boundary_is_simple",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_junction_surface",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_roads",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "y spread; flatten after PolyExpand2D",
+      "name": "lots_planar",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "relative area error (lots 227198.9 vs blocks 227198.9)",
+      "name": "lots_tile_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 8e-09
+    },
+    {
+      "detail": "419 prims, 419 distinct footprints",
+      "name": "no_duplicate_lot_footprints",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "informational",
+      "name": "counts",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 9,
+        "city": 23072,
+        "edges": 66,
+        "lots": 419
+      }
+    }
+  ],
+  "C_radial": [
+    {
+      "detail": "degenerate prims must be dropped after the sweep",
+      "name": "no_zero_area_prims",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "points with no primitive",
+      "name": "no_loose_points",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "first few: [1023, 1024, 1026, 1287, 1289]",
+      "name": "no_downward_faces",
+      "ok": false,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "segment crossings with no shared node (per layer)",
+      "name": "graph_is_planar",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "1 components total",
+      "name": "no_orphan_components",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "edge.land_use",
+      "name": "attribute_schema",
+      "ok": false,
+      "skipped": false,
+      "value": 1
+    },
+    {
+      "detail": "collapsed fillet arcs",
+      "name": "no_degenerate_corner_segments",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "bands vs live corner segments",
+      "name": "sidewalk_bands_match_corners",
+      "ok": true,
+      "skipped": false,
+      "value": "336/336"
+    },
+    {
+      "detail": "",
+      "name": "junction_boundary_is_simple",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_junction_surface",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_roads",
+      "ok": false,
+      "skipped": false,
+      "value": 46
+    },
+    {
+      "detail": "y spread; flatten after PolyExpand2D",
+      "name": "lots_planar",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "relative area error (lots 352809.1 vs blocks 352809.0)",
+      "name": "lots_tile_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 2.4e-07
+    },
+    {
+      "detail": "632 prims, 632 distinct footprints",
+      "name": "no_duplicate_lot_footprints",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "informational",
+      "name": "counts",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 12,
+        "city": 23775,
+        "edges": 78,
+        "lots": 632
+      }
+    }
+  ]
+}
