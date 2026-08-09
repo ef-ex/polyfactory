@@ -117,6 +117,56 @@ vector pfsg_tangent_at_length(const int geo, prim; const float d) {
 }
 
 
+// Push a trim distance forward until the road's TERMINAL segment is at least
+// `minseg` long.
+//
+// s5j_trim inserts the cut inside a resample segment and the road's last
+// segment then runs from the cut to that segment's far vertex - so a cut
+// landing just short of the vertex leaves a sliver. Measured on C: 0.028 m
+// against a 13.4 m half-width, and a ribbon swept along a segment that short
+// folds. That is 4e-7, and it is what `no_sweep_fold_after_trim` reports; the
+// two folds turn 0.3 and 4.0 degrees, so they are not sharp turns at all.
+//
+// It has to be fixed by moving the CUT, not the points. The junction mouth is
+// square to the tangent of the segment CONTAINING the cut, so anything that
+// ends the road on a different segment - deleting the sliver's far vertex, or
+// snapping the cut onto it - rotates the road's terminal cross-section away
+// from the mouth and re-opens the 4h-1 seam. Both were tried: C went from 0.003
+// to 0.48 m, 53 of 135 ends out of tolerance. Keeping the cut inside one
+// segment is the invariant the whole seam rests on.
+//
+// Trimming MORE is always safe: the fillet tangents stay inside the cut and the
+// mouth moves out with it. `d` is measured from the polyline's start when
+// `atstart`, from its end otherwise, and the result is never less than `d`.
+float pfsg_clear_of_vertex(const int geo, prim, atstart; const float d, minseg) {
+    int pts[] = primpoints(geo, prim);
+    int n = len(pts);
+    if (n < 2 || minseg <= 0.0) return d;
+    float acc[];
+    resize(acc, n);
+    acc[0] = 0.0;
+    for (int i = 1; i < n; i++) {
+        vector a = point(geo, "P", pts[i - 1]);
+        vector b = point(geo, "P", pts[i]);
+        acc[i] = acc[i - 1] + distance(a, b);
+    }
+    float L = acc[n - 1];
+    if (L <= 0.0) return d;
+
+    float s = atstart ? d : L - d;                  // the cut, from the start
+    for (int i = 1; i < n; i++) {
+        if (acc[i] <= s) continue;                  // the segment holding the cut
+        if (atstart) {
+            if (acc[i] - s < minseg) s = min(acc[i] + minseg, L);
+        } else {
+            if (s - acc[i - 1] < minseg) s = max(acc[i - 1] - minseg, 0.0);
+        }
+        break;
+    }
+    return max(atstart ? s : L - s, d);
+}
+
+
 // Average of a primitive's points.  Exact for a rectangle, and inside the
 // loop for any convex block; an L-shaped block could in principle place it
 // outside, which would misclassify that block. Acceptable for v1.

@@ -1252,6 +1252,59 @@ def _blobs(np, mask, grid, min_area):
     return out
 
 
+def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02):
+    """No centreline may bend tighter than its class minimum curve radius.
+
+    S3b. A node where two streets meet is a BEND, not a junction, and it is
+    solved on the centreline — replace the sharp vertex with a tangent arc and
+    the sweep follows, so the outer kerb comes out at R + halfwidth and the
+    inner at R - halfwidth on their own. Built as 4f-4's curvature clamp,
+    because a sharp turn is only curvature far over the clamp.
+
+    ⚠️ Do NOT re-express this as a search for degree-2 nodes. `graph_polypath`
+    merges the two edges into one polyline, so the corner is an interior shape
+    vertex and an audit found zero degree-2 nodes in every case.
+
+    R_min defaults to 2 x the street half-width (S3b's legible floor, ~27 m on a
+    26.8 m arterial). Below 1 x half-width the inner kerb radius inverts and the
+    ribbon folds, which is what `no_sweep_fold_after_trim` catches downstream.
+
+    Measured on the polyline as it ships, so it is meaningless without the
+    uniform resample ahead of the clamp: C's kink at (-80.56, -269.77) turns
+    20.2 degrees between a 73.4 m segment and a 6 m one, and averaged over that
+    arc length it reads as a gentle R = 113 m. Sampled at 4 m the same kink is
+    R = 11 m.
+    """
+    name = "centreline_curvature_within_class"
+    scale = scale_parm.eval() if scale_parm is not None else 2.0
+    worst, over, at = 0.0, 0, None
+    for pr in graph_geo.prims():
+        pts = [v.point().position() for v in pr.vertices()]
+        try:
+            rmin = 0.5 * pr.attribValue("streetWidth") * scale
+        except Exception:
+            continue
+        if rmin <= 1e-4:
+            continue
+        for i in range(1, len(pts) - 1):
+            e1, e2 = pts[i] - pts[i - 1], pts[i + 1] - pts[i]
+            l1, l2 = e1.length(), e2.length()
+            if l1 < 1e-9 or l2 < 1e-9:
+                continue
+            d = max(-1.0, min(1.0, (e1 / l1).dot(e2 / l2)))
+            # discrete curvature x R_min: 1.0 IS the clamp
+            ratio = math.acos(d) / (0.5 * (l1 + l2)) * rmin
+            if ratio > worst:
+                worst, at = ratio, [round(pts[i][0], 2), round(pts[i][2], 2)]
+            if ratio > slack:
+                over += 1
+    return Result(name, over == 0,
+                  {"max_kappa_over_clamp": round(worst, 3), "over": over,
+                   "worst_at": at},
+                  "discrete curvature x R_min(class); > %.2f means the "
+                  "centreline bends tighter than S3b allows" % slack)
+
+
 def lots_clear_of_junctions(lot_geo, patch_node, cell=0.5, tol_per_junction=0.5):
     """No lot may lie inside a junction. The other half of city_is_fully_paved.
 

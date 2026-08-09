@@ -84,6 +84,8 @@ def run_case(name, city, field=None):
     out.append(C.no_orphan_components(g_graph))
     out.append(C.dead_ends(g_graph))
     out.append(C.attribute_schema(g_graph, g_city))
+    out.append(C.centreline_curvature_within_class(
+        g_graph, city.parm("graph_params_turn_radius_scale")))
 
     patches = inner(cases.INTERNAL["patches"])
     surface = inner(cases.INTERNAL["surface"])
