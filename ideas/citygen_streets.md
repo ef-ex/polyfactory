@@ -1059,6 +1059,16 @@ so the value and its rationale cannot drift apart again: the chord may sit half 
 the arc it replaces, and a seam narrower than one full width is the two ends of the same road
 overlapping, welded regardless of chord sign.
 
+**Followed to the output, not stopped at the tracer.** A weld at the tracer is worth nothing
+if the ring still ships with two loose ends, so each of the seven was walked in `OUT_graph2`
+as well. Before: six of the seven shipped **two degree-1 nodes** — a dead-end pair — and the
+ring walk broke after 3 to 123 of ~160 nodes. After: **all seven walk the complete cycle,
+zero degree-1 nodes**, 159–163 nodes / the same number of edges each.
+⚠️ One correction to my own claim while doing it: *"nothing downstream rescues it"* is true of
+six of the seven, not all. The 0.193 m seam at sep 65 / step 3 is inside `graph_fuse`'s 0.5 m
+tol3d and was already being welded there. The other six sit in 1.17–7.52 m, above both `fuse`
+0.5 and `stitch` 0.75, and those are the ones that shipped broken.
+
 Measured after, over the same sweep: welds 323 → **325** (+7 recovered, −5 refused by the
 re-derived deviation bound), **0 retrograde welds with seam ≥ 8 m**, 0 multi-lap, **0 m** of
 already-traced road under any closing chord, **0** chord self-intersections. Defaults

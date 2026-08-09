@@ -7600,7 +7600,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -7630,7 +7630,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -7730,7 +7730,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "viewer_utils_raycasting",
-      "community": 22,
+      "community": 85,
       "norm_label": "raycasting.py"
     },
     {
@@ -7750,7 +7750,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_raycast_to_ground_plane",
-      "community": 22,
+      "community": 60,
       "norm_label": "raycast_to_ground_plane()"
     },
     {
@@ -7770,7 +7770,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_align_transform_to_normal",
-      "community": 22,
+      "community": 85,
       "norm_label": "align_transform_to_normal()"
     },
     {
@@ -7780,7 +7780,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "matrix4",
-      "community": 22,
+      "community": 85,
       "norm_label": "matrix4"
     },
     {
@@ -7790,7 +7790,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_extract_rotation_from_matrix",
-      "community": 22,
+      "community": 85,
       "norm_label": "extract_rotation_from_matrix()"
     },
     {
@@ -7800,7 +7800,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_rationale_1",
-      "community": 22,
+      "community": 85,
       "norm_label": "raycasting utilities for viewer states pure functions for ray-geometry intersec"
     },
     {
@@ -7820,7 +7820,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_rationale_82",
-      "community": 22,
+      "community": 60,
       "norm_label": "raycast to horizontal plane (xz plane at given height).          args:"
     },
     {
@@ -7840,7 +7840,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_rationale_138",
-      "community": 22,
+      "community": 85,
       "norm_label": "create transformation matrix to align object to surface normal.          args:"
     },
     {
@@ -7850,7 +7850,7 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_rationale_182",
-      "community": 22,
+      "community": 85,
       "norm_label": "extract euler rotation angles (xyz order) from transformation matrix."
     },
     {
@@ -15337,7 +15337,7 @@
       "label": "4f. Civil-engineering sweep \u2014 2026-08-09. What it changes",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1111",
+      "source_location": "L1121",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4f_civil_engineering_sweep_2026_08_09_what_it_changes",
       "community": 18,
@@ -15347,7 +15347,7 @@
       "label": "4e. Independent audit findings \u2014 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1168",
+      "source_location": "L1178",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4e_independent_audit_findings_2026_08_09",
       "community": 18,
@@ -15357,7 +15357,7 @@
       "label": "4g. Second audit \u2014 the dead-end build, 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1249",
+      "source_location": "L1259",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4g_second_audit_the_dead_end_build_2026_08_09",
       "community": 98,
@@ -15367,7 +15367,7 @@
       "label": "The junction-spacing ceiling \u2014 measured 2026-08-09, and re-read after the audit",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1281",
+      "source_location": "L1291",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_junction_spacing_ceiling_measured_2026_08_09_and_re_read_after_the_audit",
       "community": 98,
@@ -15377,7 +15377,7 @@
       "label": "4h. Third pass \u2014 the seam, the radius rule, the two dead-end mechanisms. 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1322",
+      "source_location": "L1332",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4h_third_pass_the_seam_the_radius_rule_the_two_dead_end_mechanisms_2026_08_09",
       "community": 18,
@@ -15387,7 +15387,7 @@
       "label": "4i. Fourth pass \u2014 the dead-end holes, the rail ceiling, the collinear average. 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1447",
+      "source_location": "L1457",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4i_fourth_pass_the_dead_end_holes_the_rail_ceiling_the_collinear_average_2026_08_09",
       "community": 18,
@@ -15397,7 +15397,7 @@
       "label": "4d. Measured state of the shipped build \u2014 2026-08-09 (pre-fix)",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1571",
+      "source_location": "L1581",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4d_measured_state_of_the_shipped_build_2026_08_09_pre_fix",
       "community": 18,
@@ -15407,7 +15407,7 @@
       "label": "5. Scale strategy",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1611",
+      "source_location": "L1621",
       "_origin": "ast",
       "id": "ideas_citygen_streets_5_scale_strategy",
       "community": 18,
@@ -15417,7 +15417,7 @@
       "label": "6. Attribute schema",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1627",
+      "source_location": "L1637",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6_attribute_schema",
       "community": 18,
@@ -15427,7 +15427,7 @@
       "label": "6b. Shipped V1 assets",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1678",
+      "source_location": "L1688",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6b_shipped_v1_assets",
       "community": 18,
@@ -15437,7 +15437,7 @@
       "label": "7. Where the code goes",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1707",
+      "source_location": "L1717",
       "_origin": "ast",
       "id": "ideas_citygen_streets_7_where_the_code_goes",
       "community": 18,
@@ -15447,7 +15447,7 @@
       "label": "8. Build order",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1721",
+      "source_location": "L1731",
       "_origin": "ast",
       "id": "ideas_citygen_streets_8_build_order",
       "community": 18,
@@ -15457,7 +15457,7 @@
       "label": "9. Open decisions",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1739",
+      "source_location": "L1749",
       "_origin": "ast",
       "id": "ideas_citygen_streets_9_open_decisions",
       "community": 18,
@@ -15467,7 +15467,7 @@
       "label": "10. Explicit non-goals for v1",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1771",
+      "source_location": "L1781",
       "_origin": "ast",
       "id": "ideas_citygen_streets_10_explicit_non_goals_for_v1",
       "community": 18,
@@ -41487,9 +41487,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L1031",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_overnight_run_2026_08_09_10",
-      "target": "ideas_citygen_streets_the_loop_closure_gate_per_gate_measured_and_two_entries_in_80dc19c_were_wrong",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_loop_closure_gate_per_gate_measured_and_two_entries_in_80dc19c_were_wrong"
     },
     {
       "relation": "contains",
@@ -42056,5 +42056,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "79226a8b71b3cad076e2627daf4a5031d6d16d9f"
+  "built_at_commit": "f0edcc6304bca8df32ff080b01f2071434bbbbd5"
 }
