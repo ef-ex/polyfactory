@@ -430,7 +430,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_init",
-      "community": 3,
+      "community": 98,
       "norm_label": "__init__.py"
     },
     {
@@ -440,7 +440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_init_rationale_1",
-      "community": 3,
+      "community": 98,
       "norm_label": "asset library module for polyfactory handles kitbash asset management, export,"
     },
     {
@@ -450,7 +450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets",
-      "community": 32,
+      "community": 0,
       "norm_label": "asset_browser_widgets.py"
     },
     {
@@ -480,7 +480,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider",
-      "community": 32,
+      "community": 0,
       "norm_label": "hoverslider"
     },
     {
@@ -490,7 +490,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "hoveroutlinemixin",
-      "community": 32,
+      "community": 0,
       "norm_label": "hoveroutlinemixin"
     },
     {
@@ -500,7 +500,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_init",
-      "community": 32,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -510,7 +510,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_paintevent",
-      "community": 32,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -520,7 +520,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox",
-      "community": 32,
+      "community": 0,
       "norm_label": "hovercombobox"
     },
     {
@@ -530,7 +530,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_init",
-      "community": 32,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -540,7 +540,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_paintevent",
-      "community": 32,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -700,7 +700,7 @@
       "source_location": "L417",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget",
-      "community": 32,
+      "community": 78,
       "norm_label": "assetthumbnailwidget"
     },
     {
@@ -710,7 +710,7 @@
       "source_location": "L425",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_init",
-      "community": 32,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -740,7 +740,7 @@
       "source_location": "L486",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_set_selected",
-      "community": 32,
+      "community": 78,
       "norm_label": ".set_selected()"
     },
     {
@@ -750,7 +750,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_paintevent",
-      "community": 32,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -770,7 +770,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousepressevent",
-      "community": 32,
+      "community": 78,
       "norm_label": ".mousepressevent()"
     },
     {
@@ -780,7 +780,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousemoveevent",
-      "community": 32,
+      "community": 78,
       "norm_label": ".mousemoveevent()"
     },
     {
@@ -790,7 +790,7 @@
       "source_location": "L570",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousedoubleclickevent",
-      "community": 32,
+      "community": 78,
       "norm_label": ".mousedoubleclickevent()"
     },
     {
@@ -800,7 +800,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_1",
-      "community": 32,
+      "community": 0,
       "norm_label": "asset browser widgets - low-level widget classes extracted from browser_ui.py."
     },
     {
@@ -820,7 +820,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_49",
-      "community": 32,
+      "community": 0,
       "norm_label": "qslider with animated hover outline"
     },
     {
@@ -830,7 +830,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_62",
-      "community": 32,
+      "community": 0,
       "norm_label": "qcombobox with animated hover outline"
     },
     {
@@ -960,7 +960,7 @@
       "source_location": "L418",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_418",
-      "community": 32,
+      "community": 78,
       "norm_label": "individual asset thumbnail with animated hover outline"
     },
     {
@@ -990,7 +990,7 @@
       "source_location": "L487",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_487",
-      "community": 32,
+      "community": 78,
       "norm_label": "toggle selection highlight on this thumbnail."
     },
     {
@@ -1000,7 +1000,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_492",
-      "community": 32,
+      "community": 78,
       "norm_label": "draw widget with selection highlight and animated hover outline."
     },
     {
@@ -1020,7 +1020,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_533",
-      "community": 32,
+      "community": 78,
       "norm_label": "handle single-click \u2014 also record drag start position."
     },
     {
@@ -1030,7 +1030,7 @@
       "source_location": "L541",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_541",
-      "community": 32,
+      "community": 78,
       "norm_label": "start a drag if the mouse has moved far enough from the press point."
     },
     {
@@ -1530,7 +1530,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_importer",
-      "community": 3,
+      "community": 85,
       "norm_label": "batch_importer.py"
     },
     {
@@ -1540,7 +1540,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "asset_library_batch_importer_detect_asset_groups",
-      "community": 3,
+      "community": 85,
       "norm_label": "detect_asset_groups()"
     },
     {
@@ -1550,7 +1550,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "asset_library_batch_importer_next_free_filename",
-      "community": 3,
+      "community": 85,
       "norm_label": "next_free_filename()"
     },
     {
@@ -1560,7 +1560,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "asset_library_batch_importer_export_batch_group",
-      "community": 3,
+      "community": 104,
       "norm_label": "export_batch_group()"
     },
     {
@@ -1570,7 +1570,7 @@
       "source_location": "L269",
       "_origin": "ast",
       "id": "asset_library_batch_importer_aabbs_overlap",
-      "community": 3,
+      "community": 85,
       "norm_label": "_aabbs_overlap()"
     },
     {
@@ -1590,7 +1590,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "geometry",
-      "community": 85,
+      "community": 26,
       "norm_label": "geometry"
     },
     {
@@ -1610,7 +1610,7 @@
       "source_location": "L293",
       "_origin": "ast",
       "id": "asset_library_batch_importer_sanitize",
-      "community": 3,
+      "community": 85,
       "norm_label": "_sanitize()"
     },
     {
@@ -1620,7 +1620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_1",
-      "community": 3,
+      "community": 85,
       "norm_label": "batch kitbash importer - aabb-based asset detection and batch export backend"
     },
     {
@@ -1630,7 +1630,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_26",
-      "community": 3,
+      "community": 85,
       "norm_label": "detect asset groups in a sop node using connectivity + aabb overlap.      each"
     },
     {
@@ -1640,7 +1640,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_159",
-      "community": 3,
+      "community": 85,
       "norm_label": "find the next available numbered filename (no extension).      scans both the"
     },
     {
@@ -1650,7 +1650,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_221",
-      "community": 3,
+      "community": 104,
       "norm_label": "export a single asset group detected by detect_asset_groups.      converts pri"
     },
     {
@@ -1660,7 +1660,7 @@
       "source_location": "L273",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_273",
-      "community": 3,
+      "community": 85,
       "norm_label": "return true if two aabbs (min_x,min_y,min_z,max_x,max_y,max_z) overlap."
     },
     {
@@ -1680,7 +1680,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_294",
-      "community": 3,
+      "community": 85,
       "norm_label": "sanitize a name for use as a filesystem component."
     },
     {
@@ -1840,7 +1840,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_browser_ui",
-      "community": 24,
+      "community": 8,
       "norm_label": "browser_ui.py"
     },
     {
@@ -1870,7 +1870,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_setup_ui",
-      "community": 32,
+      "community": 0,
       "norm_label": "._setup_ui()"
     },
     {
@@ -2050,7 +2050,7 @@
       "source_location": "L688",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog",
-      "community": 32,
+      "community": 8,
       "norm_label": "assetbrowserdialog"
     },
     {
@@ -2060,7 +2060,7 @@
       "source_location": "L691",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog_init",
-      "community": 0,
+      "community": 8,
       "norm_label": ".__init__()"
     },
     {
@@ -2080,7 +2080,7 @@
       "source_location": "L739",
       "_origin": "ast",
       "id": "asset_library_browser_ui_show_asset_browser",
-      "community": 24,
+      "community": 8,
       "norm_label": "show_asset_browser()"
     },
     {
@@ -2090,7 +2090,7 @@
       "source_location": "L751",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler",
-      "community": 24,
+      "community": 8,
       "norm_label": "assetdrophandler"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L764",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_init",
-      "community": 0,
+      "community": 8,
       "norm_label": ".__init__()"
     },
     {
@@ -2110,7 +2110,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qobject",
-      "community": 34,
+      "community": 110,
       "norm_label": "qobject"
     },
     {
@@ -2120,7 +2120,7 @@
       "source_location": "L769",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_install",
-      "community": 24,
+      "community": 8,
       "norm_label": ".install()"
     },
     {
@@ -2130,7 +2130,7 @@
       "source_location": "L772",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_uninstall",
-      "community": 24,
+      "community": 8,
       "norm_label": ".uninstall()"
     },
     {
@@ -2160,7 +2160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_1",
-      "community": 24,
+      "community": 8,
       "norm_label": "asset browser ui - grid view of assets with search and filtering"
     },
     {
@@ -2340,7 +2340,7 @@
       "source_location": "L689",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_689",
-      "community": 32,
+      "community": 8,
       "norm_label": "standalone asset browser dialog"
     },
     {
@@ -2360,7 +2360,7 @@
       "source_location": "L740",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_740",
-      "community": 24,
+      "community": 8,
       "norm_label": "show the asset browser dialog"
     },
     {
@@ -2370,7 +2370,7 @@
       "source_location": "L752",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_752",
-      "community": 24,
+      "community": 8,
       "norm_label": "handles drops from the asset browser onto houdini's viewport or network     edi"
     },
     {
@@ -2380,7 +2380,7 @@
       "source_location": "L770",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_770",
-      "community": 24,
+      "community": 8,
       "norm_label": "no-op \u2014 wiring is done via signal connections."
     },
     {
@@ -2410,7 +2410,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_database",
-      "community": 3,
+      "community": 98,
       "norm_label": "database.py"
     },
     {
@@ -2620,7 +2620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_database_rationale_1",
-      "community": 3,
+      "community": 98,
       "norm_label": "sqlite database management for asset library"
     },
     {
@@ -2810,7 +2810,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_export_ui",
-      "community": 47,
+      "community": 80,
       "norm_label": "export_ui.py"
     },
     {
@@ -2870,7 +2870,7 @@
       "source_location": "L451",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_batch_detect",
-      "community": 3,
+      "community": 85,
       "norm_label": "._batch_detect()"
     },
     {
@@ -2880,7 +2880,7 @@
       "source_location": "L510",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_batch_populate_rows",
-      "community": 3,
+      "community": 47,
       "norm_label": "._batch_populate_rows()"
     },
     {
@@ -2890,7 +2890,7 @@
       "source_location": "L529",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_update_batch_row_placeholders",
-      "community": 3,
+      "community": 47,
       "norm_label": "._update_batch_row_placeholders()"
     },
     {
@@ -2910,7 +2910,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_run_batch_export",
-      "community": 3,
+      "community": 104,
       "norm_label": "._run_batch_export()"
     },
     {
@@ -2950,7 +2950,7 @@
       "source_location": "L732",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_validate_inputs",
-      "community": 3,
+      "community": 104,
       "norm_label": "._validate_inputs()"
     },
     {
@@ -2960,7 +2960,7 @@
       "source_location": "L756",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_on_export",
-      "community": 3,
+      "community": 104,
       "norm_label": "._on_export()"
     },
     {
@@ -2980,7 +2980,7 @@
       "source_location": "L805",
       "_origin": "ast",
       "id": "asset_library_export_ui_show_export_dialog",
-      "community": 47,
+      "community": 80,
       "norm_label": "show_export_dialog()"
     },
     {
@@ -2990,7 +2990,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_export_ui_rationale_1",
-      "community": 47,
+      "community": 80,
       "norm_label": "export ui panel for asset library"
     },
     {
@@ -3010,7 +3010,7 @@
       "source_location": "L530",
       "_origin": "ast",
       "id": "asset_library_export_ui_rationale_530",
-      "community": 3,
+      "community": 47,
       "norm_label": "keep blank row name fields showing the effective base name they will use."
     },
     {
@@ -3050,7 +3050,7 @@
       "source_location": "L757",
       "_origin": "ast",
       "id": "asset_library_export_ui_rationale_757",
-      "community": 3,
+      "community": 104,
       "norm_label": "handle export button click"
     },
     {
@@ -3070,7 +3070,7 @@
       "source_location": "L806",
       "_origin": "ast",
       "id": "asset_library_export_ui_rationale_806",
-      "community": 47,
+      "community": 80,
       "norm_label": "show the export dialog with current selection          args:         parent:"
     },
     {
@@ -3310,7 +3310,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "object",
-      "community": 76,
+      "community": 72,
       "norm_label": "object"
     },
     {
@@ -3650,7 +3650,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_hoverlistwidget",
-      "community": 90,
+      "community": 32,
       "norm_label": "hoverlistwidget"
     },
     {
@@ -3660,7 +3660,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_hoverlistwidget_init",
-      "community": 90,
+      "community": 32,
       "norm_label": ".__init__()"
     },
     {
@@ -3670,7 +3670,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_hoverlistwidget_paintevent",
-      "community": 90,
+      "community": 32,
       "norm_label": ".paintevent()"
     },
     {
@@ -3680,7 +3680,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_assetinstancewidget",
-      "community": 90,
+      "community": 97,
       "norm_label": "assetinstancewidget"
     },
     {
@@ -3700,7 +3700,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_assetinstancewidget_setup_ui",
-      "community": 90,
+      "community": 97,
       "norm_label": "._setup_ui()"
     },
     {
@@ -3710,7 +3710,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_assetinstancewidget_create_label",
-      "community": 90,
+      "community": 97,
       "norm_label": "._create_label()"
     },
     {
@@ -3720,7 +3720,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_assetinstancewidget_create_spinbox",
-      "community": 90,
+      "community": 97,
       "norm_label": "._create_spinbox()"
     },
     {
@@ -3740,7 +3740,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_assetinstancewidget_on_value_changed",
-      "community": 90,
+      "community": 97,
       "norm_label": "._on_value_changed()"
     },
     {
@@ -3770,7 +3770,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_placedassetslistwidget_setup_ui",
-      "community": 90,
+      "community": 97,
       "norm_label": "._setup_ui()"
     },
     {
@@ -3910,7 +3910,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_24",
-      "community": 90,
+      "community": 32,
       "norm_label": "qlistwidget with animated hover outline"
     },
     {
@@ -3920,7 +3920,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_37",
-      "community": 90,
+      "community": 97,
       "norm_label": "widget representing a single placed asset instance"
     },
     {
@@ -3930,7 +3930,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_65",
-      "community": 90,
+      "community": 97,
       "norm_label": "create ui for single asset instance"
     },
     {
@@ -3940,7 +3940,7 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_146",
-      "community": 90,
+      "community": 97,
       "norm_label": "create styled spinbox"
     },
     {
@@ -3960,7 +3960,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_202",
-      "community": 90,
+      "community": 97,
       "norm_label": "handle spinbox value change"
     },
     {
@@ -4220,7 +4220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_render",
-      "community": 3,
+      "community": 98,
       "norm_label": "render.py"
     },
     {
@@ -4230,7 +4230,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "asset_library_render_acquire_shared_panel",
-      "community": 3,
+      "community": 104,
       "norm_label": "acquire_shared_panel()"
     },
     {
@@ -4240,7 +4240,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "asset_library_render_release_shared_panel",
-      "community": 3,
+      "community": 104,
       "norm_label": "release_shared_panel()"
     },
     {
@@ -4250,7 +4250,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "asset_library_render_render_turntable",
-      "community": 3,
+      "community": 98,
       "norm_label": "render_turntable()"
     },
     {
@@ -4260,7 +4260,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "asset_library_render_create_render_scene",
-      "community": 3,
+      "community": 98,
       "norm_label": "_create_render_scene()"
     },
     {
@@ -4270,7 +4270,7 @@
       "source_location": "L231",
       "_origin": "ast",
       "id": "asset_library_render_render_frames",
-      "community": 3,
+      "community": 98,
       "norm_label": "_render_frames()"
     },
     {
@@ -4280,7 +4280,7 @@
       "source_location": "L307",
       "_origin": "ast",
       "id": "asset_library_render_cleanup",
-      "community": 3,
+      "community": 98,
       "norm_label": "_cleanup()"
     },
     {
@@ -4290,7 +4290,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_render_rationale_1",
-      "community": 3,
+      "community": 98,
       "norm_label": "turntable renderer - creates rotating preview animations for assets"
     },
     {
@@ -4300,7 +4300,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "asset_library_render_rationale_19",
-      "community": 3,
+      "community": 104,
       "norm_label": "create a shared floating panel for batch renders.      call once before starti"
     },
     {
@@ -4310,7 +4310,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "asset_library_render_rationale_34",
-      "community": 3,
+      "community": 104,
       "norm_label": "close the shared panel acquired by acquire_shared_panel().      call once afte"
     },
     {
@@ -4320,7 +4320,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "asset_library_render_rationale_49",
-      "community": 3,
+      "community": 98,
       "norm_label": "render a turntable animation of the geometry          args:         geo_node:"
     },
     {
@@ -4330,7 +4330,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "asset_library_render_rationale_90",
-      "community": 3,
+      "community": 98,
       "norm_label": "create a temporary usd render scene with geometry, camera, and lights"
     },
     {
@@ -4340,7 +4340,7 @@
       "source_location": "L232",
       "_origin": "ast",
       "id": "asset_library_render_rationale_232",
-      "community": 3,
+      "community": 98,
       "norm_label": "render frames using viewport flipbook          args:         lop_net: lop net"
     },
     {
@@ -4350,7 +4350,7 @@
       "source_location": "L308",
       "_origin": "ast",
       "id": "asset_library_render_rationale_308",
-      "community": 3,
+      "community": 98,
       "norm_label": "remove temporary nodes and panes          args:         temp_nodes: list of n"
     },
     {
@@ -5000,7 +5000,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init",
-      "community": 101,
+      "community": 22,
       "norm_label": "__init__.py"
     },
     {
@@ -5010,7 +5010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init_rationale_1",
-      "community": 101,
+      "community": 22,
       "norm_label": "polyfactory ui framework =========================  modern qt widget library"
     },
     {
@@ -5020,7 +5020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_functions",
-      "community": 12,
+      "community": 22,
       "norm_label": "functions.py"
     },
     {
@@ -5070,7 +5070,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_json_settings",
-      "community": 76,
+      "community": 22,
       "norm_label": "json_settings.py"
     },
     {
@@ -5220,7 +5220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "columns_ui_right_column",
-      "community": 12,
+      "community": 72,
       "norm_label": "ui_right_column.py"
     },
     {
@@ -5230,7 +5230,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn",
-      "community": 12,
+      "community": 72,
       "norm_label": "ui_rightcolumn"
     },
     {
@@ -5240,7 +5240,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_setupui",
-      "community": 12,
+      "community": 72,
       "norm_label": ".setupui()"
     },
     {
@@ -5250,7 +5250,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_retranslateui",
-      "community": 12,
+      "community": 72,
       "norm_label": ".retranslateui()"
     },
     {
@@ -5260,7 +5260,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pages_ui_main_pages",
-      "community": 79,
+      "community": 72,
       "norm_label": "ui_main_pages.py"
     },
     {
@@ -5270,7 +5270,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages",
-      "community": 79,
+      "community": 72,
       "norm_label": "ui_mainpages"
     },
     {
@@ -5280,7 +5280,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_setupui",
-      "community": 79,
+      "community": 72,
       "norm_label": ".setupui()"
     },
     {
@@ -5290,7 +5290,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_retranslateui",
-      "community": 79,
+      "community": 72,
       "norm_label": ".retranslateui()"
     },
     {
@@ -5320,7 +5320,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions",
-      "community": 72,
+      "community": 101,
       "norm_label": "mainfunctions"
     },
     {
@@ -5330,7 +5330,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_init",
-      "community": 72,
+      "community": 101,
       "norm_label": ".__init__()"
     },
     {
@@ -5340,7 +5340,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_set_page",
-      "community": 72,
+      "community": 101,
       "norm_label": ".set_page()"
     },
     {
@@ -5350,7 +5350,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_set_left_column_menu",
-      "community": 72,
+      "community": 101,
       "norm_label": ".set_left_column_menu()"
     },
     {
@@ -5360,7 +5360,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_left_column_is_visible",
-      "community": 72,
+      "community": 101,
       "norm_label": ".left_column_is_visible()"
     },
     {
@@ -5370,7 +5370,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_right_column_is_visible",
-      "community": 72,
+      "community": 101,
       "norm_label": ".right_column_is_visible()"
     },
     {
@@ -5380,7 +5380,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_set_right_column_menu",
-      "community": 72,
+      "community": 101,
       "norm_label": ".set_right_column_menu()"
     },
     {
@@ -5390,7 +5390,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_get_title_bar_btn",
-      "community": 72,
+      "community": 101,
       "norm_label": ".get_title_bar_btn()"
     },
     {
@@ -5400,7 +5400,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_get_left_menu_btn",
-      "community": 72,
+      "community": 101,
       "norm_label": ".get_left_menu_btn()"
     },
     {
@@ -5410,7 +5410,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_toggle_left_column",
-      "community": 72,
+      "community": 101,
       "norm_label": ".toggle_left_column()"
     },
     {
@@ -5420,7 +5420,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_toggle_right_column",
-      "community": 72,
+      "community": 101,
       "norm_label": ".toggle_right_column()"
     },
     {
@@ -5430,7 +5430,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_start_box_animation",
-      "community": 72,
+      "community": 101,
       "norm_label": ".start_box_animation()"
     },
     {
@@ -5480,7 +5480,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "main_window_setup_main_window_setupmainwindow_setup_gui",
-      "community": 72,
+      "community": 101,
       "norm_label": ".setup_gui()"
     },
     {
@@ -5520,7 +5520,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "main_window_ui_main_ui_mainwindow_setup_ui",
-      "community": 12,
+      "community": 72,
       "norm_label": ".setup_ui()"
     },
     {
@@ -5530,7 +5530,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_init_py_widgets_init",
-      "community": 91,
+      "community": 76,
       "norm_label": "__init__.py"
     },
     {
@@ -5850,7 +5850,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button_pyiconbutton_init",
-      "community": 73,
+      "community": 64,
       "norm_label": ".__init__()"
     },
     {
@@ -5970,7 +5970,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button_tooltip",
-      "community": 73,
+      "community": 64,
       "norm_label": "_tooltip"
     },
     {
@@ -5990,7 +5990,7 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button_tooltip_init",
-      "community": 73,
+      "community": 64,
       "norm_label": ".__init__()"
     },
     {
@@ -6060,7 +6060,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_left_button",
-      "community": 73,
+      "community": 38,
       "norm_label": "py_left_button.py"
     },
     {
@@ -6080,7 +6080,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_init",
-      "community": 73,
+      "community": 38,
       "norm_label": ".__init__()"
     },
     {
@@ -6200,7 +6200,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip",
-      "community": 73,
+      "community": 38,
       "norm_label": "_tooltip"
     },
     {
@@ -6210,7 +6210,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip_init",
-      "community": 73,
+      "community": 38,
       "norm_label": ".__init__()"
     },
     {
@@ -6290,7 +6290,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_menu_py_div",
-      "community": 83,
+      "community": 22,
       "norm_label": "py_div.py"
     },
     {
@@ -6300,7 +6300,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_left_menu_py_div_pydiv",
-      "community": 83,
+      "community": 22,
       "norm_label": "pydiv"
     },
     {
@@ -6310,7 +6310,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_menu_py_div_pydiv_init",
-      "community": 83,
+      "community": 22,
       "norm_label": ".__init__()"
     },
     {
@@ -6320,7 +6320,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu",
-      "community": 83,
+      "community": 22,
       "norm_label": "py_left_menu.py"
     },
     {
@@ -6340,7 +6340,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_pyleftmenu_init",
-      "community": 83,
+      "community": 12,
       "norm_label": ".__init__()"
     },
     {
@@ -6430,7 +6430,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_pyleftmenu_setup_ui",
-      "community": 83,
+      "community": 12,
       "norm_label": ".setup_ui()"
     },
     {
@@ -6440,7 +6440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button",
-      "community": 12,
+      "community": 22,
       "norm_label": "py_left_menu_button.py"
     },
     {
@@ -6460,7 +6460,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_pyleftmenubutton_init",
-      "community": 12,
+      "community": 73,
       "norm_label": ".__init__()"
     },
     {
@@ -6620,7 +6620,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_tooltip",
-      "community": 12,
+      "community": 73,
       "norm_label": "_tooltip"
     },
     {
@@ -6630,7 +6630,7 @@
       "source_location": "L349",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_tooltip_init",
-      "community": 12,
+      "community": 73,
       "norm_label": ".__init__()"
     },
     {
@@ -6730,7 +6730,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_init",
-      "community": 91,
+      "community": 97,
       "norm_label": "__init__.py"
     },
     {
@@ -6740,7 +6740,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_py_push_button",
-      "community": 91,
+      "community": 97,
       "norm_label": "py_push_button.py"
     },
     {
@@ -6750,7 +6750,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "py_push_button_py_push_button_pypushbutton",
-      "community": 90,
+      "community": 97,
       "norm_label": "pypushbutton"
     },
     {
@@ -6760,7 +6760,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "py_push_button_py_push_button_pypushbutton_init",
-      "community": 90,
+      "community": 97,
       "norm_label": ".__init__()"
     },
     {
@@ -6770,7 +6770,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_slider_init",
-      "community": 91,
+      "community": 76,
       "norm_label": "__init__.py"
     },
     {
@@ -6780,7 +6780,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_slider_py_slider",
-      "community": 91,
+      "community": 76,
       "norm_label": "py_slider.py"
     },
     {
@@ -6790,7 +6790,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "py_slider_py_slider_pyslider",
-      "community": 91,
+      "community": 76,
       "norm_label": "pyslider"
     },
     {
@@ -6800,7 +6800,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qslider",
-      "community": 91,
+      "community": 76,
       "norm_label": "qslider"
     },
     {
@@ -6810,7 +6810,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_slider_py_slider_pyslider_init",
-      "community": 91,
+      "community": 76,
       "norm_label": ".__init__()"
     },
     {
@@ -6940,7 +6940,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar",
-      "community": 22,
+      "community": 12,
       "norm_label": "pytitlebar"
     },
     {
@@ -6950,7 +6950,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_init",
-      "community": 22,
+      "community": 12,
       "norm_label": ".__init__()"
     },
     {
@@ -6970,7 +6970,7 @@
       "source_location": "L206",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_btn_clicked",
-      "community": 22,
+      "community": 12,
       "norm_label": ".btn_clicked()"
     },
     {
@@ -6980,7 +6980,7 @@
       "source_location": "L209",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_btn_released",
-      "community": 22,
+      "community": 12,
       "norm_label": ".btn_released()"
     },
     {
@@ -6990,7 +6990,7 @@
       "source_location": "L214",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_set_title",
-      "community": 22,
+      "community": 12,
       "norm_label": ".set_title()"
     },
     {
@@ -7000,7 +7000,7 @@
       "source_location": "L220",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_maximize_restore",
-      "community": 22,
+      "community": 12,
       "norm_label": ".maximize_restore()"
     },
     {
@@ -7010,7 +7010,7 @@
       "source_location": "L252",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_setup_ui",
-      "community": 22,
+      "community": 12,
       "norm_label": ".setup_ui()"
     },
     {
@@ -7020,7 +7020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button",
-      "community": 22,
+      "community": 73,
       "norm_label": "py_title_button.py"
     },
     {
@@ -7040,7 +7040,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_pytitlebutton_init",
-      "community": 65,
+      "community": 73,
       "norm_label": ".__init__()"
     },
     {
@@ -7160,7 +7160,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_tooltip",
-      "community": 65,
+      "community": 73,
       "norm_label": "_tooltip"
     },
     {
@@ -7170,7 +7170,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_tooltip_init",
-      "community": 65,
+      "community": 73,
       "norm_label": ".__init__()"
     },
     {
@@ -7180,7 +7180,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_toggle_init",
-      "community": 8,
+      "community": 105,
       "norm_label": "__init__.py"
     },
     {
@@ -7190,7 +7190,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_toggle_py_toggle",
-      "community": 8,
+      "community": 105,
       "norm_label": "py_toggle.py"
     },
     {
@@ -7200,7 +7200,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle",
-      "community": 8,
+      "community": 105,
       "norm_label": "pytoggle"
     },
     {
@@ -7210,7 +7210,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qcheckbox",
-      "community": 8,
+      "community": 105,
       "norm_label": "qcheckbox"
     },
     {
@@ -7220,7 +7220,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_init",
-      "community": 8,
+      "community": 105,
       "norm_label": ".__init__()"
     },
     {
@@ -7230,7 +7230,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_position",
-      "community": 8,
+      "community": 105,
       "norm_label": ".position()"
     },
     {
@@ -7240,7 +7240,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_setup_animation",
-      "community": 8,
+      "community": 105,
       "norm_label": ".setup_animation()"
     },
     {
@@ -7260,7 +7260,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_paintevent",
-      "community": 8,
+      "community": 105,
       "norm_label": ".paintevent()"
     },
     {
@@ -7380,7 +7380,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "polyfactory_ui_utils_get_font_stylesheet",
-      "community": 90,
+      "community": 97,
       "norm_label": "get_font_stylesheet()"
     },
     {
@@ -7430,7 +7430,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "polyfactory_ui_utils_rationale_34",
-      "community": 90,
+      "community": 97,
       "norm_label": "generate font stylesheet matching houdini's scaling.          args:         s"
     },
     {
@@ -7740,7 +7740,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_raycast_to_geometry",
-      "community": 85,
+      "community": 26,
       "norm_label": "raycast_to_geometry()"
     },
     {
@@ -7760,7 +7760,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_get_geometry_under_cursor",
-      "community": 85,
+      "community": 26,
       "norm_label": "get_geometry_under_cursor()"
     },
     {
@@ -7810,7 +7810,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_rationale_12",
-      "community": 85,
+      "community": 26,
       "norm_label": "raycast against geometry and return hit information.          args:         o"
     },
     {
@@ -7830,7 +7830,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_rationale_108",
-      "community": 85,
+      "community": 26,
       "norm_label": "get geometry under cursor using ray intersection.          args:         ui_e"
     },
     {
@@ -9680,7 +9680,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_tag_input_flowlayout_count",
-      "community": 34,
+      "community": 103,
       "norm_label": ".count()"
     },
     {
@@ -9690,7 +9690,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "widgets_tag_input_flowlayout_itemat",
-      "community": 34,
+      "community": 103,
       "norm_label": ".itemat()"
     },
     {
@@ -9790,7 +9790,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_init",
-      "community": 32,
+      "community": 34,
       "norm_label": ".__init__()"
     },
     {
@@ -9820,7 +9820,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget",
-      "community": 32,
+      "community": 102,
       "norm_label": "taginputwidget"
     },
     {
@@ -9850,7 +9850,7 @@
       "source_location": "L235",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_setavailabletags",
-      "community": 32,
+      "community": 102,
       "norm_label": ".setavailabletags()"
     },
     {
@@ -9860,7 +9860,7 @@
       "source_location": "L245",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_gettags",
-      "community": 32,
+      "community": 102,
       "norm_label": ".gettags()"
     },
     {
@@ -9870,7 +9870,7 @@
       "source_location": "L253",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_settags",
-      "community": 34,
+      "community": 102,
       "norm_label": ".settags()"
     },
     {
@@ -9880,7 +9880,7 @@
       "source_location": "L267",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_cleartags",
-      "community": 34,
+      "community": 102,
       "norm_label": ".cleartags()"
     },
     {
@@ -9890,7 +9890,7 @@
       "source_location": "L271",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_show_tag_menu",
-      "community": 34,
+      "community": 103,
       "norm_label": "._show_tag_menu()"
     },
     {
@@ -9900,7 +9900,7 @@
       "source_location": "L290",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_add_chip",
-      "community": 34,
+      "community": 103,
       "norm_label": "._add_chip()"
     },
     {
@@ -9910,7 +9910,7 @@
       "source_location": "L332",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_remove_chip",
-      "community": 34,
+      "community": 103,
       "norm_label": "._remove_chip()"
     },
     {
@@ -9920,7 +9920,7 @@
       "source_location": "L355",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_clear_chips",
-      "community": 34,
+      "community": 102,
       "norm_label": "._clear_chips()"
     },
     {
@@ -9930,7 +9930,7 @@
       "source_location": "L366",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_on_return_pressed",
-      "community": 34,
+      "community": 110,
       "norm_label": "._on_return_pressed()"
     },
     {
@@ -9940,7 +9940,7 @@
       "source_location": "L373",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_on_completion_selected",
-      "community": 34,
+      "community": 113,
       "norm_label": "._on_completion_selected()"
     },
     {
@@ -9950,7 +9950,7 @@
       "source_location": "L378",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_deferred_add_chip",
-      "community": 34,
+      "community": 113,
       "norm_label": "._deferred_add_chip()"
     },
     {
@@ -9960,7 +9960,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_on_text_changed",
-      "community": 34,
+      "community": 103,
       "norm_label": "._on_text_changed()"
     },
     {
@@ -9970,7 +9970,7 @@
       "source_location": "L395",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_eventfilter",
-      "community": 34,
+      "community": 110,
       "norm_label": ".eventfilter()"
     },
     {
@@ -9980,7 +9980,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qevent",
-      "community": 34,
+      "community": 110,
       "norm_label": "qevent"
     },
     {
@@ -9990,7 +9990,7 @@
       "source_location": "L403",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_on_chip_removed",
-      "community": 34,
+      "community": 103,
       "norm_label": "._on_chip_removed()"
     },
     {
@@ -10000,7 +10000,7 @@
       "source_location": "L407",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_paintevent",
-      "community": 32,
+      "community": 102,
       "norm_label": ".paintevent()"
     },
     {
@@ -10060,7 +10060,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_154",
-      "community": 32,
+      "community": 102,
       "norm_label": "tag input widget with autocomplete and chip display"
     },
     {
@@ -10070,7 +10070,7 @@
       "source_location": "L236",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_236",
-      "community": 32,
+      "community": 102,
       "norm_label": "set the list of available tags for autocomplete                  args:"
     },
     {
@@ -10080,7 +10080,7 @@
       "source_location": "L246",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_246",
-      "community": 32,
+      "community": 102,
       "norm_label": "get current list of tags                  returns:             list of tag st"
     },
     {
@@ -10090,7 +10090,7 @@
       "source_location": "L254",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_254",
-      "community": 34,
+      "community": 102,
       "norm_label": "set the current tags                  args:             tags: list of tag str"
     },
     {
@@ -10100,7 +10100,7 @@
       "source_location": "L272",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_272",
-      "community": 34,
+      "community": 103,
       "norm_label": "show dropdown menu with all available tags"
     },
     {
@@ -10110,7 +10110,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_291",
-      "community": 34,
+      "community": 103,
       "norm_label": "add a tag chip                  args:             tag_text: tag string to add"
     },
     {
@@ -10120,7 +10120,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_333",
-      "community": 34,
+      "community": 103,
       "norm_label": "remove a tag chip                  args:             tag_text: tag string to"
     },
     {
@@ -10130,7 +10130,7 @@
       "source_location": "L356",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_356",
-      "community": 34,
+      "community": 102,
       "norm_label": "remove all chip widgets"
     },
     {
@@ -10140,7 +10140,7 @@
       "source_location": "L367",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_367",
-      "community": 34,
+      "community": 110,
       "norm_label": "handle return key in line edit"
     },
     {
@@ -10150,7 +10150,7 @@
       "source_location": "L374",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_374",
-      "community": 34,
+      "community": 113,
       "norm_label": "handle autocomplete selection"
     },
     {
@@ -10160,7 +10160,7 @@
       "source_location": "L379",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_379",
-      "community": 34,
+      "community": 113,
       "norm_label": "add a tag chip after clearing line edit (deferred to avoid completer conflicts)"
     },
     {
@@ -10170,7 +10170,7 @@
       "source_location": "L384",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_384",
-      "community": 34,
+      "community": 103,
       "norm_label": "handle text change in line edit"
     },
     {
@@ -10180,7 +10180,7 @@
       "source_location": "L396",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_396",
-      "community": 34,
+      "community": 110,
       "norm_label": "intercept enter/return on the line edit to prevent qdialog default button activa"
     },
     {
@@ -10190,7 +10190,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_408",
-      "community": 32,
+      "community": 102,
       "norm_label": "paint widget with animated hover outline"
     },
     {
@@ -11562,6 +11562,456 @@
       "id": "citygen_checks_rationale_1788",
       "community": 71,
       "norm_label": "nothing inside the street corridor may be left unpaved.      the check that woul"
+    },
+    {
+      "label": "closure_gate.py",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "citygen_closure_gate",
+      "community": 79,
+      "norm_label": "closure_gate.py"
+    },
+    {
+      "label": "instrument()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L70",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_instrument",
+      "community": 79,
+      "norm_label": "instrument()"
+    },
+    {
+      "label": "build_trace()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L78",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_build_trace",
+      "community": 79,
+      "norm_label": "build_trace()"
+    },
+    {
+      "label": "gates()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L107",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_gates",
+      "community": 79,
+      "norm_label": "gates()"
+    },
+    {
+      "label": "gates_sagitta()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L123",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_gates_sagitta",
+      "community": 79,
+      "norm_label": "gates_sagitta()"
+    },
+    {
+      "label": "accepted()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L131",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_accepted",
+      "community": 79,
+      "norm_label": "accepted()"
+    },
+    {
+      "label": "sole_rejector()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L135",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_sole_rejector",
+      "community": 79,
+      "norm_label": "sole_rejector()"
+    },
+    {
+      "label": "read_streets()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L142",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_read_streets",
+      "community": 79,
+      "norm_label": "read_streets()"
+    },
+    {
+      "label": "_cross()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L171",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_cross",
+      "community": 79,
+      "norm_label": "_cross()"
+    },
+    {
+      "label": "seg_cross()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L175",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_seg_cross",
+      "community": 79,
+      "norm_label": "seg_cross()"
+    },
+    {
+      "label": "shoelace()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L188",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_shoelace",
+      "community": 79,
+      "norm_label": "shoelace()"
+    },
+    {
+      "label": "lobes()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L198",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_lobes",
+      "community": 79,
+      "norm_label": "lobes()"
+    },
+    {
+      "label": "pavement_deficit()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L226",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_pavement_deficit",
+      "community": 79,
+      "norm_label": "pavement_deficit()"
+    },
+    {
+      "label": "predicted_doubling()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L273",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_predicted_doubling",
+      "community": 79,
+      "norm_label": "predicted_doubling()"
+    },
+    {
+      "label": "configs()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L333",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_configs",
+      "community": 79,
+      "norm_label": "configs()"
+    },
+    {
+      "label": "sweep()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L346",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_sweep",
+      "community": 79,
+      "norm_label": "sweep()"
+    },
+    {
+      "label": "R",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L381",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_r",
+      "community": 79,
+      "norm_label": "r"
+    },
+    {
+      "label": ".__init__()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L382",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_r_init",
+      "community": 79,
+      "norm_label": ".__init__()"
+    },
+    {
+      "label": ".__repr__()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L385",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_r_repr",
+      "community": 79,
+      "norm_label": ".__repr__()"
+    },
+    {
+      "label": ".as_dict()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L389",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_r_as_dict",
+      "community": 79,
+      "norm_label": ".as_dict()"
+    },
+    {
+      "label": "gate_matches_vex()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L393",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_gate_matches_vex",
+      "community": 79,
+      "norm_label": "gate_matches_vex()"
+    },
+    {
+      "label": "no_multi_lap_weld()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L405",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_no_multi_lap_weld",
+      "community": 79,
+      "norm_label": "no_multi_lap_weld()"
+    },
+    {
+      "label": "retrograde_welds_bounded()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L414",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_retrograde_welds_bounded",
+      "community": 79,
+      "norm_label": "retrograde_welds_bounded()"
+    },
+    {
+      "label": "weld_pavement_deficit()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L431",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_weld_pavement_deficit",
+      "community": 79,
+      "norm_label": "weld_pavement_deficit()"
+    },
+    {
+      "label": "weld_loop_is_simple()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L456",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_weld_loop_is_simple",
+      "community": 79,
+      "norm_label": "weld_loop_is_simple()"
+    },
+    {
+      "label": "ground_truth_welds()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L477",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_ground_truth_welds",
+      "community": 79,
+      "norm_label": "ground_truth_welds()"
+    },
+    {
+      "label": "accepted_seam_distribution()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L491",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_accepted_seam_distribution",
+      "community": 79,
+      "norm_label": "accepted_seam_distribution()"
+    },
+    {
+      "label": "sole_rejector_table()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L510",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_sole_rejector_table",
+      "community": 79,
+      "norm_label": "sole_rejector_table()"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L524",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_main",
+      "community": 79,
+      "norm_label": "main()"
+    },
+    {
+      "label": "The loop-closure gate: sweep harness and the metrics that judge a weld.      hyt",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_1",
+      "community": 79,
+      "norm_label": "the loop-closure gate: sweep harness and the metrics that judge a weld.      hyt"
+    },
+    {
+      "label": "field -> trace, with the trace wrangle instrumented.      Only the INSTANCE is u",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L79",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_79",
+      "community": 79,
+      "norm_label": "field -> trace, with the trace wrangle instrumented.      only the instance is u"
+    },
+    {
+      "label": "Transcribed from the trace wrangle. Keep in step with it \u2014 the     `gate_matches",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L109",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_109",
+      "community": 79,
+      "norm_label": "transcribed from the trace wrangle. keep in step with it \u2014 the     `gate_matches"
+    },
+    {
+      "label": "The f0edcc6 build, for the before/after column only: the last gate was     `sagi",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L124",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_124",
+      "community": 79,
+      "norm_label": "the f0edcc6 build, for the before/after column only: the last gate was     `sagi"
+    },
+    {
+      "label": "Split the CLOSED loop at its first proper self-intersection.      Returns (big,",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L199",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_199",
+      "community": 79,
+      "norm_label": "split the closed loop at its first proper self-intersection.      returns (big,"
+    },
+    {
+      "label": "DOUBLED PAVEMENT = w*L - area(Minkowski(closed loop, w/2)).      THE METRIC THAT",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L227",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_227",
+      "community": 79,
+      "norm_label": "doubled pavement = w*l - area(minkowski(closed loop, w/2)).      the metric that"
+    },
+    {
+      "label": "The closed form for a RETROGRADE weld, which needs no sweep at all.      The two",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L274",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_274",
+      "community": 79,
+      "norm_label": "the closed form for a retrograde weld, which needs no sweep at all.      the two"
+    },
+    {
+      "label": "Cook every config once and return the flat list of traced streets.",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L347",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_347",
+      "community": 79,
+      "norm_label": "cook every config once and return the flat list of traced streets."
+    },
+    {
+      "label": "The Python gate above must reproduce the wrangle's own verdict.      Nothing els",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L394",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_394",
+      "community": 79,
+      "norm_label": "the python gate above must reproduce the wrangle's own verdict.      nothing els"
+    },
+    {
+      "label": "A closure closes ONE loop. At sep 260 a 15.03-lap, 9,360 m spiral once     welde",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L406",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_406",
+      "community": 79,
+      "norm_label": "a closure closes one loop. at sep 260 a 15.03-lap, 9,360 m spiral once     welde"
+    },
+    {
+      "label": "Every weld the magnitude floor admits against a backwards chord, and     the clo",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L415",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_415",
+      "community": 79,
+      "norm_label": "every weld the magnitude floor admits against a backwards chord, and     the clo"
+    },
+    {
+      "label": "Rasterised doubled pavement over every accepted weld \u2014 the metric with     no ex",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L432",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_432",
+      "community": 79,
+      "norm_label": "rasterised doubled pavement over every accepted weld \u2014 the metric with     no ex"
+    },
+    {
+      "label": "A welded loop must not cross itself: the small lobe is a sliver face the     blo",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L457",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_457",
+      "community": 79,
+      "norm_label": "a welded loop must not cross itself: the small lobe is a sliver face the     blo"
+    },
+    {
+      "label": "The three seams the design has committed to closing.",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L478",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_478",
+      "community": 79,
+      "norm_label": "the three seams the design has committed to closing."
+    },
+    {
+      "label": "Informational, and the reason the invented-road bound sits where it     does: th",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L492",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_492",
+      "community": 79,
+      "norm_label": "informational, and the reason the invented-road bound sits where it     does: th"
+    },
+    {
+      "label": "A gate is PROVEN when it is the sole rejector of at least one street \u2014     the s",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L511",
+      "_origin": "ast",
+      "id": "citygen_closure_gate_rationale_511",
+      "community": 79,
+      "norm_label": "a gate is proven when it is the sole rejector of at least one street \u2014     the s"
     },
     {
       "label": "run_scene_checks.py",
@@ -12950,7 +13400,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices",
-      "community": 2,
+      "community": 31,
       "norm_label": "dcc_mcp_best_practices.md"
     },
     {
@@ -12960,7 +13410,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_best_practices_for_a_dcc_mcp_making_an_llm_actually_operate_houdini",
-      "community": 2,
+      "community": 100,
       "norm_label": "best practices for a dcc mcp \u2014 making an llm actually operate houdini"
     },
     {
@@ -12970,7 +13420,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_tl_dr_the_9_things_that_make_a_dcc_mcp_work",
-      "community": 2,
+      "community": 100,
       "norm_label": "tl;dr \u2014 the 9 things that make a dcc-mcp work"
     },
     {
@@ -12980,7 +13430,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_1_architecture_transport",
-      "community": 2,
+      "community": 100,
       "norm_label": "1. architecture & transport"
     },
     {
@@ -12990,7 +13440,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_the_proven_shape_all_three_ecosystems_converge_here",
-      "community": 2,
+      "community": 100,
       "norm_label": "the proven shape (all three ecosystems converge here)"
     },
     {
@@ -13000,7 +13450,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_transport_lessons",
-      "community": 2,
+      "community": 100,
       "norm_label": "transport lessons"
     },
     {
@@ -13010,7 +13460,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_2_tool_surface_structured_tools_and_a_code_hatch",
-      "community": 2,
+      "community": 100,
       "norm_label": "2. tool surface \u2014 structured tools **and** a code hatch"
     },
     {
@@ -13020,7 +13470,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_two_design_axes_worth_copying",
-      "community": 2,
+      "community": 100,
       "norm_label": "two design axes worth copying"
     },
     {
@@ -13030,7 +13480,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_don_t_fight_the_api_surface_with_tool_sprawl",
-      "community": 2,
+      "community": 100,
       "norm_label": "don't fight the api surface with tool sprawl"
     },
     {
@@ -13040,7 +13490,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_the_core_problem_making_the_llm_understand_the_dcc",
-      "community": 2,
+      "community": 106,
       "norm_label": "3. the core problem: making the llm **understand** the dcc"
     },
     {
@@ -13050,7 +13500,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_1_reflection_api_doc_lookup_before_acting_the_highest_value_lever",
-      "community": 2,
+      "community": 106,
       "norm_label": "3.1 reflection / api doc-lookup before acting \u2014 **the highest-value lever**"
     },
     {
@@ -13060,7 +13510,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_2_live_scene_state_introspection_ground_the_model_in_reality",
-      "community": 2,
+      "community": 106,
       "norm_label": "3.2 live scene/state introspection \u2014 ground the model in reality"
     },
     {
@@ -13070,7 +13520,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_3_visual_feedback_loop_the_primary_self_correction_mechanism",
-      "community": 2,
+      "community": 106,
       "norm_label": "3.3 visual feedback loop \u2014 the primary self-correction mechanism"
     },
     {
@@ -13080,7 +13530,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_4_error_feedback_self_correction",
-      "community": 2,
+      "community": 106,
       "norm_label": "3.4 error feedback & self-correction"
     },
     {
@@ -13090,7 +13540,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_5_connection_time_engine_grounding_but_enforce_danger_in_code",
-      "community": 2,
+      "community": 106,
       "norm_label": "3.5 connection-time engine grounding \u2014 but enforce danger in code"
     },
     {
@@ -13100,7 +13550,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_6_recipe_guides_as_mcp_resources",
-      "community": 2,
+      "community": 106,
       "norm_label": "3.6 recipe guides as mcp resources"
     },
     {
@@ -13110,7 +13560,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_7_capability_gating_tool_annotations_cheap_safety_wins",
-      "community": 2,
+      "community": 106,
       "norm_label": "3.7 capability gating & tool annotations (cheap safety wins)"
     },
     {
@@ -13120,7 +13570,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_4_the_skills_layer_tools_vs_recipes_vs_hdas_proven_by_the_copernicus_guide",
-      "community": 2,
+      "community": 100,
       "norm_label": "4. the skills layer \u2014 tools vs recipes vs hdas (proven by the copernicus guide)"
     },
     {
@@ -13130,7 +13580,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_worked_proof_documentation_copernicus_opencl_hda_guide_md",
-      "community": 2,
+      "community": 100,
       "norm_label": "worked proof: `documentation/copernicus_opencl_hda_guide.md`"
     },
     {
@@ -13140,7 +13590,7 @@
       "source_location": "L184",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_5_the_natural_language_real_world_accurate_setup_capability",
-      "community": 2,
+      "community": 100,
       "norm_label": "5. the \"natural-language \u2192 real-world-accurate setup\" capability"
     },
     {
@@ -13150,7 +13600,7 @@
       "source_location": "L204",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_6_concrete_recommendations_for_the_polyfactory_houdini_bridge",
-      "community": 2,
+      "community": 100,
       "norm_label": "6. concrete recommendations for the polyfactory houdini bridge"
     },
     {
@@ -13160,7 +13610,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_7_anti_patterns_to_avoid",
-      "community": 2,
+      "community": 100,
       "norm_label": "7. anti-patterns to avoid"
     },
     {
@@ -13170,7 +13620,7 @@
       "source_location": "L233",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_sources",
-      "community": 2,
+      "community": 100,
       "norm_label": "sources"
     },
     {
@@ -13180,7 +13630,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "documentation_copernicus_opencl_hda_guide",
-      "community": 2,
+      "community": 31,
       "norm_label": "copernicus_opencl_hda_guide.md"
     },
     {
@@ -14970,7 +15420,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "ideas_citygen_streets_1_hard_constraints",
-      "community": 18,
+      "community": 115,
       "norm_label": "1. hard constraints"
     },
     {
@@ -14980,7 +15430,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "ideas_citygen_streets_confirmed_parameters",
-      "community": 18,
+      "community": 115,
       "norm_label": "confirmed parameters"
     },
     {
@@ -15280,7 +15730,7 @@
       "source_location": "L947",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s8_lots",
-      "community": 17,
+      "community": 114,
       "norm_label": "s8 \u2014 lots"
     },
     {
@@ -15290,7 +15740,7 @@
       "source_location": "L953",
       "_origin": "ast",
       "id": "ideas_citygen_streets_voronoi_is_wrong_for_lots_rewritten_2026_08_09",
-      "community": 17,
+      "community": 114,
       "norm_label": "\u26a0\ufe0f voronoi is wrong for lots. rewritten 2026-08-09."
     },
     {
@@ -15300,7 +15750,7 @@
       "source_location": "L975",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_three_subdivision_modes_both_of_the_first_two_are_required",
-      "community": 17,
+      "community": 114,
       "norm_label": "the three subdivision modes \u2014 both of the first two are required"
     },
     {
@@ -15327,17 +15777,47 @@
       "label": "The loop-closure gate, per-gate \u2014 measured, and two entries in `80dc19c` were wrong",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1053",
+      "source_location": "L1058",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_loop_closure_gate_per_gate_measured_and_two_entries_in_80dc19c_were_wrong",
       "community": 96,
       "norm_label": "the loop-closure gate, per-gate \u2014 measured, and two entries in `80dc19c` were wrong"
     },
     {
+      "label": "The sagitta gate is gone. The seam is bounded instead \u2014 2026-08-10",
+      "file_type": "document",
+      "source_file": "ideas/citygen_streets.md",
+      "source_location": "L1140",
+      "_origin": "ast",
+      "id": "ideas_citygen_streets_the_sagitta_gate_is_gone_the_seam_is_bounded_instead_2026_08_10",
+      "community": 96,
+      "norm_label": "the sagitta gate is gone. the seam is bounded instead \u2014 2026-08-10"
+    },
+    {
+      "label": "Before and after, per criterion",
+      "file_type": "document",
+      "source_file": "ideas/citygen_streets.md",
+      "source_location": "L1198",
+      "_origin": "ast",
+      "id": "ideas_citygen_streets_before_and_after_per_criterion",
+      "community": 96,
+      "norm_label": "before and after, per criterion"
+    },
+    {
+      "label": "\u26a0\ufe0f The road-under-chord metric was ill-posed. Use the pavement deficit",
+      "file_type": "document",
+      "source_file": "ideas/citygen_streets.md",
+      "source_location": "L1227",
+      "_origin": "ast",
+      "id": "ideas_citygen_streets_the_road_under_chord_metric_was_ill_posed_use_the_pavement_deficit",
+      "community": 96,
+      "norm_label": "\u26a0\ufe0f the road-under-chord metric was ill-posed. use the pavement deficit"
+    },
+    {
       "label": "4f. Civil-engineering sweep \u2014 2026-08-09. What it changes",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1143",
+      "source_location": "L1272",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4f_civil_engineering_sweep_2026_08_09_what_it_changes",
       "community": 18,
@@ -15347,7 +15827,7 @@
       "label": "4e. Independent audit findings \u2014 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1200",
+      "source_location": "L1329",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4e_independent_audit_findings_2026_08_09",
       "community": 18,
@@ -15357,27 +15837,27 @@
       "label": "4g. Second audit \u2014 the dead-end build, 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1281",
+      "source_location": "L1410",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4g_second_audit_the_dead_end_build_2026_08_09",
-      "community": 98,
+      "community": 18,
       "norm_label": "4g. second audit \u2014 the dead-end build, 2026-08-09"
     },
     {
       "label": "The junction-spacing ceiling \u2014 measured 2026-08-09, and re-read after the audit",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1313",
+      "source_location": "L1442",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_junction_spacing_ceiling_measured_2026_08_09_and_re_read_after_the_audit",
-      "community": 98,
+      "community": 18,
       "norm_label": "the junction-spacing ceiling \u2014 measured 2026-08-09, and re-read after the audit"
     },
     {
       "label": "4h. Third pass \u2014 the seam, the radius rule, the two dead-end mechanisms. 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1354",
+      "source_location": "L1483",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4h_third_pass_the_seam_the_radius_rule_the_two_dead_end_mechanisms_2026_08_09",
       "community": 18,
@@ -15387,7 +15867,7 @@
       "label": "4i. Fourth pass \u2014 the dead-end holes, the rail ceiling, the collinear average. 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1479",
+      "source_location": "L1608",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4i_fourth_pass_the_dead_end_holes_the_rail_ceiling_the_collinear_average_2026_08_09",
       "community": 18,
@@ -15397,7 +15877,7 @@
       "label": "4d. Measured state of the shipped build \u2014 2026-08-09 (pre-fix)",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1603",
+      "source_location": "L1732",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4d_measured_state_of_the_shipped_build_2026_08_09_pre_fix",
       "community": 18,
@@ -15407,7 +15887,7 @@
       "label": "5. Scale strategy",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1643",
+      "source_location": "L1772",
       "_origin": "ast",
       "id": "ideas_citygen_streets_5_scale_strategy",
       "community": 18,
@@ -15417,7 +15897,7 @@
       "label": "6. Attribute schema",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1659",
+      "source_location": "L1788",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6_attribute_schema",
       "community": 18,
@@ -15427,7 +15907,7 @@
       "label": "6b. Shipped V1 assets",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1710",
+      "source_location": "L1839",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6b_shipped_v1_assets",
       "community": 18,
@@ -15437,7 +15917,7 @@
       "label": "7. Where the code goes",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1739",
+      "source_location": "L1868",
       "_origin": "ast",
       "id": "ideas_citygen_streets_7_where_the_code_goes",
       "community": 18,
@@ -15447,7 +15927,7 @@
       "label": "8. Build order",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1753",
+      "source_location": "L1882",
       "_origin": "ast",
       "id": "ideas_citygen_streets_8_build_order",
       "community": 18,
@@ -15457,7 +15937,7 @@
       "label": "9. Open decisions",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1771",
+      "source_location": "L1900",
       "_origin": "ast",
       "id": "ideas_citygen_streets_9_open_decisions",
       "community": 18,
@@ -15467,7 +15947,7 @@
       "label": "10. Explicit non-goals for v1",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1803",
+      "source_location": "L1932",
       "_origin": "ast",
       "id": "ideas_citygen_streets_10_explicit_non_goals_for_v1",
       "community": 18,
@@ -15480,7 +15960,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent",
-      "community": 2,
+      "community": 31,
       "norm_label": "native_houdini_ai_agent.md"
     },
     {
@@ -15520,7 +16000,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_core_components",
-      "community": 31,
+      "community": 108,
       "norm_label": "core components"
     },
     {
@@ -15530,7 +16010,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_1_houdini_python_panel_pyside6_ui",
-      "community": 31,
+      "community": 108,
       "norm_label": "1. houdini python panel (pyside6 ui)"
     },
     {
@@ -15540,7 +16020,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_2_llm_integration_layer",
-      "community": 31,
+      "community": 108,
       "norm_label": "2. llm integration layer"
     },
     {
@@ -15550,7 +16030,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_3_scene_context_extractor",
-      "community": 31,
+      "community": 108,
       "norm_label": "3. scene context extractor"
     },
     {
@@ -15560,7 +16040,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_4_code_executor",
-      "community": 31,
+      "community": 108,
       "norm_label": "4. code executor"
     },
     {
@@ -15570,7 +16050,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_5_feedback_analyzer",
-      "community": 31,
+      "community": 108,
       "norm_label": "5. feedback analyzer"
     },
     {
@@ -15580,7 +16060,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_implementation_phases",
-      "community": 31,
+      "community": 109,
       "norm_label": "implementation phases"
     },
     {
@@ -15590,7 +16070,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_phase_1_basic_integration_1_2_weeks",
-      "community": 31,
+      "community": 109,
       "norm_label": "phase 1: basic integration (1-2 weeks)"
     },
     {
@@ -15600,7 +16080,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_phase_2_scene_awareness_1_week",
-      "community": 31,
+      "community": 109,
       "norm_label": "phase 2: scene awareness (1 week)"
     },
     {
@@ -15610,7 +16090,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_phase_3_feedback_loop_2_3_weeks",
-      "community": 31,
+      "community": 109,
       "norm_label": "phase 3: feedback loop (2-3 weeks)"
     },
     {
@@ -15620,7 +16100,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_phase_4_visual_understanding_2_4_weeks_optional",
-      "community": 31,
+      "community": 109,
       "norm_label": "phase 4: visual understanding (2-4 weeks, optional)"
     },
     {
@@ -15630,7 +16110,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_phase_5_learning_memory_1_2_weeks",
-      "community": 31,
+      "community": 109,
       "norm_label": "phase 5: learning/memory (1-2 weeks)"
     },
     {
@@ -15640,7 +16120,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_key_technical_challenges",
-      "community": 31,
+      "community": 107,
       "norm_label": "key technical challenges"
     },
     {
@@ -15650,7 +16130,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_1_context_window_management",
-      "community": 31,
+      "community": 107,
       "norm_label": "1. context window management"
     },
     {
@@ -15660,7 +16140,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_2_error_recovery",
-      "community": 31,
+      "community": 107,
       "norm_label": "2. error recovery"
     },
     {
@@ -15670,7 +16150,7 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_3_undo_redo_integration",
-      "community": 31,
+      "community": 107,
       "norm_label": "3. undo/redo integration"
     },
     {
@@ -15680,7 +16160,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_4_cost_control",
-      "community": 31,
+      "community": 107,
       "norm_label": "4. cost control"
     },
     {
@@ -15690,7 +16170,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_5_latency",
-      "community": 31,
+      "community": 107,
       "norm_label": "5. latency"
     },
     {
@@ -15740,7 +16220,7 @@
       "source_location": "L346",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_cost_analysis",
-      "community": 31,
+      "community": 112,
       "norm_label": "cost analysis"
     },
     {
@@ -15750,7 +16230,7 @@
       "source_location": "L348",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_development_costs",
-      "community": 31,
+      "community": 112,
       "norm_label": "development costs"
     },
     {
@@ -15760,7 +16240,7 @@
       "source_location": "L353",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_operational_costs",
-      "community": 31,
+      "community": 112,
       "norm_label": "operational costs"
     },
     {
@@ -15770,7 +16250,7 @@
       "source_location": "L358",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_cost_optimization",
-      "community": 31,
+      "community": 112,
       "norm_label": "cost optimization"
     },
     {
@@ -15810,7 +16290,7 @@
       "source_location": "L414",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_resources_references",
-      "community": 31,
+      "community": 111,
       "norm_label": "resources & references"
     },
     {
@@ -15820,7 +16300,7 @@
       "source_location": "L416",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_apis",
-      "community": 31,
+      "community": 111,
       "norm_label": "apis"
     },
     {
@@ -15830,7 +16310,7 @@
       "source_location": "L421",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_houdini_apis",
-      "community": 31,
+      "community": 111,
       "norm_label": "houdini apis"
     },
     {
@@ -15840,7 +16320,7 @@
       "source_location": "L427",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_similar_projects",
-      "community": 31,
+      "community": 111,
       "norm_label": "similar projects"
     },
     {
@@ -15957,7 +16437,7 @@
       "label": "Why this exists",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L15",
+      "source_location": "L19",
       "_origin": "ast",
       "id": "tests_readme_why_this_exists",
       "community": 62,
@@ -15967,7 +16447,7 @@
       "label": "Numbers first, renders second",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L27",
+      "source_location": "L31",
       "_origin": "ast",
       "id": "tests_readme_numbers_first_renders_second",
       "community": 62,
@@ -15977,7 +16457,7 @@
       "label": "The baseline",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L42",
+      "source_location": "L46",
       "_origin": "ast",
       "id": "tests_readme_the_baseline",
       "community": 62,
@@ -15987,17 +16467,27 @@
       "label": "Layout",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L51",
+      "source_location": "L55",
       "_origin": "ast",
       "id": "tests_readme_layout",
       "community": 62,
       "norm_label": "layout"
     },
     {
-      "label": "Test the union, and every branch",
+      "label": "The closure sweep, and why it is a file rather than a habit",
       "file_type": "document",
       "source_file": "tests/README.md",
       "source_location": "L70",
+      "_origin": "ast",
+      "id": "tests_readme_the_closure_sweep_and_why_it_is_a_file_rather_than_a_habit",
+      "community": 62,
+      "norm_label": "the closure sweep, and why it is a file rather than a habit"
+    },
+    {
+      "label": "Test the union, and every branch",
+      "file_type": "document",
+      "source_file": "tests/README.md",
+      "source_location": "L100",
       "_origin": "ast",
       "id": "tests_readme_test_the_union_and_every_branch",
       "community": 62,
@@ -16007,7 +16497,7 @@
       "label": "The four cases",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L87",
+      "source_location": "L117",
       "_origin": "ast",
       "id": "tests_readme_the_four_cases",
       "community": 62,
@@ -16017,7 +16507,7 @@
       "label": "Known-failing at time of writing",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L100",
+      "source_location": "L130",
       "_origin": "ast",
       "id": "tests_readme_known_failing_at_time_of_writing",
       "community": 62,
@@ -16046,7 +16536,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/asset_library/__init__.py",
       "source_location": "L1",
-      "community": 3,
+      "community": 98,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_asset_library_init_py"
     },
@@ -16055,7 +16545,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/__init__.py",
       "source_location": "L1",
-      "community": 101,
+      "community": 22,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_init_py"
     },
@@ -16127,7 +16617,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_left_menu/py_div.py",
       "source_location": "L1",
-      "community": 83,
+      "community": 22,
       "norm_label": "py_div.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_left_menu_py_div_py"
     },
@@ -16136,7 +16626,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_left_menu/__init__.py",
       "source_location": "L1",
-      "community": 83,
+      "community": 22,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_left_menu_init_py"
     },
@@ -16154,7 +16644,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_push_button/__init__.py",
       "source_location": "L1",
-      "community": 91,
+      "community": 97,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_push_button_init_py"
     },
@@ -16163,7 +16653,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_slider/__init__.py",
       "source_location": "L1",
-      "community": 91,
+      "community": 76,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_slider_init_py"
     },
@@ -16199,7 +16689,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_toggle/py_toggle.py",
       "source_location": "L46",
-      "community": 8,
+      "community": 105,
       "norm_label": "position()",
       "id": "py_toggle_py_toggle_position"
     },
@@ -16208,7 +16698,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_toggle/__init__.py",
       "source_location": "L1",
-      "community": 8,
+      "community": 105,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_toggle_init_py"
     },
@@ -22690,6 +23180,16 @@
       "confidence_score": 1.0,
       "source": "citygen_checks_result",
       "target": "object"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L381",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_r",
+      "target": "object",
+      "confidence_score": 1.0
     },
     {
       "relation": "inherits",
@@ -37357,9 +37857,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1088",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1088",
-      "target": "citygen_checks_attribute_schema",
-      "confidence_score": 1.0
+      "target": "citygen_checks_attribute_schema"
     },
     {
       "relation": "calls",
@@ -37378,9 +37878,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1106",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1106",
-      "target": "citygen_checks_self_intersections",
-      "confidence_score": 1.0
+      "target": "citygen_checks_self_intersections"
     },
     {
       "relation": "rationale_for",
@@ -37388,9 +37888,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1144",
-      "target": "citygen_checks_merged_city_self_intersections",
-      "confidence_score": 1.0
+      "target": "citygen_checks_merged_city_self_intersections"
     },
     {
       "relation": "calls",
@@ -37442,9 +37942,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1178",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1178",
-      "target": "citygen_checks_rasterise",
-      "confidence_score": 1.0
+      "target": "citygen_checks_rasterise"
     },
     {
       "relation": "calls",
@@ -37463,9 +37963,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1210",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1210",
-      "target": "citygen_checks_blobs",
-      "confidence_score": 1.0
+      "target": "citygen_checks_blobs"
     },
     {
       "relation": "rationale_for",
@@ -37473,9 +37973,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1262",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1262",
-      "target": "citygen_checks_block_boundary_closes",
-      "confidence_score": 1.0
+      "target": "citygen_checks_block_boundary_closes"
     },
     {
       "relation": "rationale_for",
@@ -37483,9 +37983,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1312",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1312",
-      "target": "citygen_checks_centreline_curvature_within_class",
-      "confidence_score": 1.0
+      "target": "citygen_checks_centreline_curvature_within_class"
     },
     {
       "relation": "rationale_for",
@@ -37493,9 +37993,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1397",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1397",
-      "target": "citygen_checks_no_short_graph_segments",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_short_graph_segments"
     },
     {
       "relation": "rationale_for",
@@ -37503,9 +38003,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1436",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1436",
-      "target": "citygen_checks_trim_leaves_road_standing",
-      "confidence_score": 1.0
+      "target": "citygen_checks_trim_leaves_road_standing"
     },
     {
       "relation": "rationale_for",
@@ -37513,9 +38013,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1483",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1483",
-      "target": "citygen_checks_turn_clamp_control_rig",
-      "confidence_score": 1.0
+      "target": "citygen_checks_turn_clamp_control_rig"
     },
     {
       "relation": "rationale_for",
@@ -37523,9 +38023,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1750",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1750",
-      "target": "citygen_checks_lots_clear_of_junctions",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lots_clear_of_junctions"
     },
     {
       "relation": "rationale_for",
@@ -37533,8 +38033,943 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1788",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1788",
-      "target": "citygen_checks_city_is_fully_paved",
+      "target": "citygen_checks_city_is_fully_paved"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L131",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L491",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_accepted_seam_distribution",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L78",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_build_trace",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L333",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_configs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L171",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_cross",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L393",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_gate_matches_vex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L107",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_gates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L123",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_gates_sagitta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L477",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_ground_truth_welds",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_instrument",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L198",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_lobes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L524",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L405",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_no_multi_lap_weld",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L226",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_pavement_deficit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L273",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_predicted_doubling",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L381",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_r",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L142",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_read_streets",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L414",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_retrograde_welds_bounded",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L175",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_seg_cross",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L188",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_shoelace",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L135",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_sole_rejector",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L510",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_sole_rejector_table",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L346",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_sweep",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L456",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_weld_loop_is_simple",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L431",
+      "weight": 1.0,
+      "source": "citygen_closure_gate",
+      "target": "citygen_closure_gate_weld_pavement_deficit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_1",
+      "target": "citygen_closure_gate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L98",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_build_trace",
+      "target": "citygen_closure_gate_instrument",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_79",
+      "target": "citygen_closure_gate_build_trace",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L353",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_sweep",
+      "target": "citygen_closure_gate_build_trace",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L495",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_accepted_seam_distribution",
+      "target": "citygen_closure_gate_gates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L400",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_gate_matches_vex",
+      "target": "citygen_closure_gate_gates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L126",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_gates_sagitta",
+      "target": "citygen_closure_gate_gates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L483",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_ground_truth_welds",
+      "target": "citygen_closure_gate_gates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L534",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_main",
+      "target": "citygen_closure_gate_gates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L408",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_no_multi_lap_weld",
+      "target": "citygen_closure_gate_gates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L109",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_109",
+      "target": "citygen_closure_gate_gates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L418",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_retrograde_welds_bounded",
+      "target": "citygen_closure_gate_gates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L461",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_weld_loop_is_simple",
+      "target": "citygen_closure_gate_gates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L438",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_weld_pavement_deficit",
+      "target": "citygen_closure_gate_gates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L124",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_124",
+      "target": "citygen_closure_gate_gates_sagitta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L495",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_accepted_seam_distribution",
+      "target": "citygen_closure_gate_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L400",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_gate_matches_vex",
+      "target": "citygen_closure_gate_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L483",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_ground_truth_welds",
+      "target": "citygen_closure_gate_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L534",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_main",
+      "target": "citygen_closure_gate_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L408",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_no_multi_lap_weld",
+      "target": "citygen_closure_gate_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L418",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_retrograde_welds_bounded",
+      "target": "citygen_closure_gate_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L461",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_weld_loop_is_simple",
+      "target": "citygen_closure_gate_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L438",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_weld_pavement_deficit",
+      "target": "citygen_closure_gate_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L516",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_sole_rejector_table",
+      "target": "citygen_closure_gate_sole_rejector",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L368",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_sweep",
+      "target": "citygen_closure_gate_read_streets",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L178",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_seg_cross",
+      "target": "citygen_closure_gate_cross",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L212",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_lobes",
+      "target": "citygen_closure_gate_seg_cross",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L221",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_lobes",
+      "target": "citygen_closure_gate_shoelace",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L199",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_199",
+      "target": "citygen_closure_gate_lobes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L463",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_weld_loop_is_simple",
+      "target": "citygen_closure_gate_lobes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L227",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_227",
+      "target": "citygen_closure_gate_pavement_deficit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L443",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_weld_pavement_deficit",
+      "target": "citygen_closure_gate_pavement_deficit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L274",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_274",
+      "target": "citygen_closure_gate_predicted_doubling",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L420",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_retrograde_welds_bounded",
+      "target": "citygen_closure_gate_predicted_doubling",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L354",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_sweep",
+      "target": "citygen_closure_gate_configs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L526",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_main",
+      "target": "citygen_closure_gate_sweep",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L347",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_347",
+      "target": "citygen_closure_gate_sweep",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L497",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_accepted_seam_distribution",
+      "target": "citygen_closure_gate_r",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L401",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_gate_matches_vex",
+      "target": "citygen_closure_gate_r",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L486",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_ground_truth_welds",
+      "target": "citygen_closure_gate_r",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L410",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_no_multi_lap_weld",
+      "target": "citygen_closure_gate_r",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L389",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_r",
+      "target": "citygen_closure_gate_r_as_dict",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L382",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_r",
+      "target": "citygen_closure_gate_r_init",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L385",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_r",
+      "target": "citygen_closure_gate_r_repr",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L424",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_retrograde_welds_bounded",
+      "target": "citygen_closure_gate_r",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L472",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_weld_loop_is_simple",
+      "target": "citygen_closure_gate_r",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L445",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_weld_pavement_deficit",
+      "target": "citygen_closure_gate_r",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L551",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_main",
+      "target": "citygen_closure_gate_r_as_dict",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L527",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_main",
+      "target": "citygen_closure_gate_gate_matches_vex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L394",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_394",
+      "target": "citygen_closure_gate_gate_matches_vex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L529",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_main",
+      "target": "citygen_closure_gate_no_multi_lap_weld",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L406",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_406",
+      "target": "citygen_closure_gate_no_multi_lap_weld",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L530",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_main",
+      "target": "citygen_closure_gate_retrograde_welds_bounded",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L415",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_415",
+      "target": "citygen_closure_gate_retrograde_welds_bounded",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L532",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_main",
+      "target": "citygen_closure_gate_weld_pavement_deficit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L432",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_432",
+      "target": "citygen_closure_gate_weld_pavement_deficit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L531",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_main",
+      "target": "citygen_closure_gate_weld_loop_is_simple",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L457",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_457",
+      "target": "citygen_closure_gate_weld_loop_is_simple",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L528",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_main",
+      "target": "citygen_closure_gate_ground_truth_welds",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L478",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_478",
+      "target": "citygen_closure_gate_ground_truth_welds",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L533",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_main",
+      "target": "citygen_closure_gate_accepted_seam_distribution",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L492",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_492",
+      "target": "citygen_closure_gate_accepted_seam_distribution",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L541",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_main",
+      "target": "citygen_closure_gate_sole_rejector_table",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/closure_gate.py",
+      "source_location": "L511",
+      "weight": 1.0,
+      "source": "citygen_closure_gate_rationale_511",
+      "target": "citygen_closure_gate_sole_rejector_table",
       "confidence_score": 1.0
     },
     {
@@ -41475,6 +42910,36 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "ideas/citygen_streets.md",
+      "source_location": "L1227",
+      "weight": 1.0,
+      "source": "ideas_citygen_streets_overnight_run_2026_08_09_10",
+      "target": "ideas_citygen_streets_the_road_under_chord_metric_was_ill_posed_use_the_pavement_deficit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ideas/citygen_streets.md",
+      "source_location": "L1140",
+      "weight": 1.0,
+      "source": "ideas_citygen_streets_overnight_run_2026_08_09_10",
+      "target": "ideas_citygen_streets_the_sagitta_gate_is_gone_the_seam_is_bounded_instead_2026_08_10",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ideas/citygen_streets.md",
+      "source_location": "L1198",
+      "weight": 1.0,
+      "source": "ideas_citygen_streets_the_sagitta_gate_is_gone_the_seam_is_bounded_instead_2026_08_10",
+      "target": "ideas_citygen_streets_before_and_after_per_criterion",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ideas/citygen_streets.md",
       "source_location": "L991",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -41985,6 +43450,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/README.md",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "tests_readme_polyfactory_tests",
+      "target": "tests_readme_the_closure_sweep_and_why_it_is_a_file_rather_than_a_habit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/README.md",
       "source_location": "L87",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -42036,5 +43511,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "bfc55777f1d85ff68c53f2cdaa05d04c85f190db"
+  "built_at_commit": "6dc1ad55a8bfd809d6b4652d022c857b4efac2ac"
 }

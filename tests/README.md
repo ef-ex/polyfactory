@@ -10,6 +10,10 @@ python tests/unit/test_graph.py
 # geometry — throwaway Houdini session, never saves a .hip
 hython tests/citygen/run_scene_checks.py
 hython tests/citygen/run_scene_checks.py --update-baseline
+
+# the loop-closure gate, swept over a sep/step ladder — ~1 min / ~20 min
+hython tests/citygen/closure_gate.py
+hython tests/citygen/closure_gate.py --full --table
 ```
 
 ## Why this exists
@@ -60,7 +64,33 @@ tests/
     cases.py             scene construction + headless env setup
     run_scene_checks.py  the runner
     baseline.json        recorded values
+    closure_gate.py      the loop-closure sweep — harness AND its own checks
 ```
+
+## The closure sweep, and why it is a file rather than a habit
+
+`closure_gate.py` is the third rule applied to a review that kept repeating itself. The
+loop-closure gate has now been swept from scratch and thrown away **three times** — the same
+questions each round (how many welds close backwards, how much road a closure lays down twice,
+whether the accepted seams leave room for a threshold), at four figures of tokens a round. It
+is committed so round four starts where round three finished.
+
+It does not cook an A/B. In the trace wrangle `closeloop` is used in exactly one place —
+`if (closeloop) addvertex(0, prim, firstpt)` — so the traced geometry is identical for every
+build of the gate, and any candidate gate can be evaluated by exporting the raw inputs once
+and recomputing the booleans in Python. That also keeps `hou.HDADefinition.updateFromNode()`
+out of the loop entirely: it writes the definition back to its own library file, and it has
+already silently overwritten one agent's "pristine baseline" copy mid-comparison.
+
+The transcription is only worth something if it still matches the VEX, so **`gate_matches_vex`
+asserts exactly that**, on every street in the sweep, against the wrangle's own `closeloop`
+flag. Edit the gate in the HDA and not here and that check fails first and loudest.
+
+Two configs are pinned as `ADVERSARIAL` and always swept. Both need `step ≳ min_street_sep`
+so nobody would ship them — and both refute a claim this project had recorded as measured
+(`radial 22/30`: a retrograde weld at seam 8.412 against a recorded "0 with seam ≥ 8 m";
+`radial 23/20`: a welded loop that crosses itself, against a recorded "0 chord
+self-intersections"). A grid that happens to miss its own counterexamples is not a sweep.
 
 `cases.py` sets `POLYFACTORY`, `HOUDINI_VEX_PATH` and `sys.path` itself, because
 hython does not load the polyfactory package: without it `#include

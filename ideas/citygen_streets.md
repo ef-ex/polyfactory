@@ -1027,6 +1027,7 @@ had never worked; two of those were never audited and one was audited too late.
 | **S3b — turns, built as the curvature clamp** (`50e51f3`, rebuilt `492fe7c`+) | **done** — rebuilt after audit, and the rebuild audited in turn. See §S3b "the clamp must be a SOLVE" | The 1.000 below was real but meaningless: no case asked the clamp for more than a few degrees. On a plain 90° arterial bend it delivered a **12.4 m radius against a 13.4 m half-width**, and on a fold-back it diverged to a **1.0e-6 m segment**. Now a seeded residual solve: F_bend 2.170/9-over → **1.004/0**, delivered R 12.4 → 26.7 m, and **every shipped prim solves in 1 sweep**. Infeasible inputs are *reported*, not shipped. A second audit found the seed's tangent points a segment out and its arc polygonised too coarsely; both fixed, both now covered by `turn_clamp_control_rig` |
 | **S3b — the folds it did fix** (`50e51f3`) | **implementer-verified** | `no_sweep_fold_after_trim` **0 folds on all five** (C had 2) — that part was `pfsg_clear_of_vertex`, not the clamp, and §4c already records it |
 | **Ring closure gate re-derived from cell size** (`011fdcb`) | **implementer-verified** | Defaults proven byte-identical by hashing every vertex. Audit running |
+| **Sagitta gate replaced by a ceiling on the seam; the floor's closed-form bound** (2026-08-10) | **implemented, unverified** | Acting on an independent audit of `f0edcc6`. Max accepted chord 145.90 → **65.85 m**, chords > 100 m 12 → **0**, sole rejector 5 → **25**; defaults byte-identical over 26 digests; suite 17 failing with no baseline movement. The sweep that measured it is committed as `tests/citygen/closure_gate.py` — see "The sagitta gate is gone" below |
 | Node merge/relax, shallow-arm merge, dead ends, majors-enclose-minors | not started | — |
 
 **Suite 23 → 15 failing.** Verified on a clean tree, and A rendered whole-city: continuous
@@ -1044,6 +1045,10 @@ with the threshold mid-window. Cell adjacency, seam/cell ratio and gap angle wer
 as alternative discriminators and none separates. A relative (radius-scaled) limit may be
 the right answer. Two of the five gates rejected nothing across 12,417 streets and are
 unproven.
+**SUPERSEDED 2026-08-10 — see "The sagitta gate is gone" below.** The sagitta family was tried
+and is worse, not better: as a discriminator its window is 2.7%, not 11%, and radius-scaling
+is precisely what stops it being a bound (`seam²/8r` permits a chord growing as `√r`). The
+deviation slot now holds a flat ceiling on the seam.
 
 ⚠️ **Known follow-up from the ring fix:** the two halves are radially offset ~1.6 m where
 they meet, so the closing segment introduces a 21.3°/14.8° pair of turns against a 3.28°
@@ -1060,26 +1065,62 @@ two blocks overlapped and double-counted 40 of its 584), **12,792 traced streets
 *proven* when it is the **sole** rejector of at least one street, which is the same thing as
 "deleting it would let a weld through".
 
-| Gate | Sole rejector, before | after | Status |
-|---|---|---|---|
-| `chord_forward \|\| seam ≤ close_road_width` | 7 | **0** | **unproven.** The 7 it rejected alone are exactly the 7 the magnitude floor recovers; the retrograde welds that carry the damage all fail a structural gate as well. Kept because it is a real failure mode, not because this field family reaches it |
-| `\|net turn\| ≤ 2π` (one lap) | 2 | 1 | proven |
-| neither half ended on a junction | 19 | 4 | proven |
-| `close_seam_cells = 1.42` | 12 | 9 | proven; worst accepted weld sits at seam/cell **1.405** |
-| `tracelen > 10 × seam` | 8 | 9 | **proven — `80dc19c` recorded it as never firing alone and that is refuted.** Worst accepted weld sits at 10.85 |
-| `close_max_end_angle = 60` | **0** | **0** | **unproven — `80dc19c` recorded it as "proven reachable" and that is refuted.** At the config it cited (radial, plaza_radius 0, domain 120, res 250, step 8, `min_street_sep` 25.6, `seed_spacing` 50) `trace_1_1_1` failed **two** gates, the chord test and the end angle, read off the wrangle's own flags. `chord_forward` subsumes it: a >60° end mismatch nearly always implies a backwards chord. It does become the sole rejector at that one config *after* the floor goes in, but across 12,792 streets it still rejects nothing alone |
-| `close_min_pts = 8` | 0 | 0 | unproven, kept |
-| `sagitta ≤ close_road_width/2` | 0 | **5** | **proven by re-deriving it.** Was `close_max_dev = 13.4`, one *arterial* half-width — and no arterial produces a weld: every weld is a pass-1 minor trace and the graph edge carrying the worst chord is `street_class = local`, `streetWidth = 14.4`. By its own stated rationale the number is **7.2**, so it was 1.86× too loose. At 7.2 it is the sole rejector for the five welds that lay a **151–201 m** straight chord across a 384 m ring |
+Three columns, all on the same 518 configs: **pre-floor** is `80dc19c`, **`f0edcc6`** is the
+magnitude-floor-plus-sagitta build, **now** is this pass. The whole table is reproduced by
+`hython tests/citygen/closure_gate.py --full --table`, so it does not have to be re-derived
+by hand a fourth time.
+
+| Gate | pre-floor | `f0edcc6` | now | Status |
+|---|---|---|---|---|
+| `chord_forward \|\| seam ≤ close_road_width` | 7 | **0** | **0** | **unproven.** The 7 it rejected alone are exactly the 7 the magnitude floor recovers; the retrograde welds that carry the damage all fail a structural gate as well. Kept because it is a real failure mode, not because this field family reaches it |
+| `\|net turn\| ≤ 2π` (one lap) | 2 | 1 | 1 | proven |
+| neither half ended on a junction | 19 | 4 | 4 | proven |
+| `close_seam_cells = 1.42` | 12 | 9 | **2** | proven, but **largely subsumed** — the invented-road ceiling below now refuses most of what it used to catch alone. Worst accepted weld sits at seam/cell **1.405** |
+| `tracelen > 10 × seam` | 8 | 9 | 9 | **proven — `80dc19c` recorded it as never firing alone and that is refuted.** Worst accepted weld sits at 10.85 |
+| `close_max_end_angle = 60` | **0** | **0** | **0** | **unproven — `80dc19c` recorded it as "proven reachable" and that is refuted.** At the config it cited (radial, plaza_radius 0, domain 120, res 250, step 8, `min_street_sep` 25.6, `seed_spacing` 50) `trace_1_1_1` failed **two** gates, the chord test and the end angle, read off the wrangle's own flags. `chord_forward` subsumes it: a >60° end mismatch nearly always implies a backwards chord. It does become the sole rejector at that one config *after* the floor goes in, but across 12,792 streets it still rejects nothing alone |
+| `close_min_pts = 8` | 0 | 0 | 0 | unproven, kept |
+| ~~`sagitta ≤ close_road_width/2`~~ → `seam ≤ 5 × close_road_width` | 0 | 5 | **25** | **proven, and the sagitta form it replaces was not what its own row claimed.** See below — `f0edcc6` recorded it as "proven by re-deriving it", and re-deriving a threshold is not proving it |
 
 The magnitude floor under the chord test is the other half of this pass. `chord_forward` is a
 sign test with nothing under it, so it refused the case it was written for: seven closures —
 all radial, r ≈ 100, 0.987–1.000 of a lap — with seams of **0.19 / 1.17 / 1.17 / 1.94 / 1.94 /
 7.08 / 7.52 m**. `graph_fuse` (tol3d 0.5) and `graph_stitch` (proxtol 0.75) are both below
 that, so what shipped was **two dead ends 1–2 m apart**, the defect class §S2 and §4d rank as
-the worst this project has. Both bounds now come off one number, `close_road_width` = 14.4 m,
-so the value and its rationale cannot drift apart again: the chord may sit half a width off
-the arc it replaces, and a seam narrower than one full width is the two ends of the same road
-overlapping, welded regardless of chord sign.
+the worst this project has. Both bounds still come off one number, `close_road_width` = 14.4 m,
+so the value and its rationale cannot drift apart: a seam narrower than one full width is the
+two ends of the same road overlapping, welded regardless of chord sign, and past five widths
+the closure is a street in its own right (below).
+
+⚠️ **Two things this paragraph used to say about the floor were wrong, and the floor survives
+both.** Corrected 2026-08-10 after an independent audit.
+
+1. **"A backwards chord can double no more road than its own seam" is false.** Measured: at
+   seam 7.516 the doubling is **191.5 m² = 13.3 m of road, 1.77× the seam**; at 8.412 it is
+   212.6 m². The bound is **2× the seam**, not 1×.
+2. **"Seven closures, all radial, r ≈ 100" is an artefact of the 518-config grid.** Swept at
+   1 m step resolution it is **61 floor-admitted welds on 8 distinct rings, r 76–385**, and
+   the largest retrograde seam is **8.412 m** (radial, `min_street_sep` 22, `step` 30,
+   `trace_1_2_1`, r 285). Both of those are now pinned as adversarial configs in
+   `tests/citygen/closure_gate.py` so a coarse grid cannot hide them again.
+
+**The floor's real justification is a closed form, and it needs no sweep at all.** Project the
+end-to-start vector onto the start tangent: it splits into an `overshoot` along the road and a
+`lateral` across it, with `overshoot² + lateral² = seam²`, and the chord runs back over the
+overshoot before the seam closes it. So
+
+```
+doubled pavement = (overshoot + seam) * (w - lateral),   overshoot² + lateral² = seam²
+```
+
+Predicted against rasterised on the four worst welds: **213.5/212.6, 203.2/208.9, 191.8/191.5,
+58.8/48.0 m²**. Maximising under the floor's own `seam ≤ w` puts the worst case at
+`lateral = 0`, `overshoot = seam = w`:
+
+> **worst case = 2·w·w = 414.7 m² at w = 14.4 = 28.8 m of doubled road** — and it is always
+> one 14.4 × 28.8 m patch at the seam, never a run along the ring.
+
+Worst actually observed over 520 configs: **213.5 m² predicted, 213.6 m² rasterised**, at the
+sep 22 / step 30 adversarial config. Half the bound.
 
 **Followed to the output, not stopped at the tracer.** A weld at the tracer is worth nothing
 if the ring still ships with two loose ends, so each of the seven was walked in `OUT_graph2`
@@ -1091,31 +1132,119 @@ six of the seven, not all. The 0.193 m seam at sep 65 / step 3 is inside `graph_
 tol3d and was already being welded there. The other six sit in 1.17–7.52 m, above both `fuse`
 0.5 and `stitch` 0.75, and those are the ones that shipped broken.
 
-Measured after, over the same sweep: welds 323 → **325** (+7 recovered, −5 refused by the
-re-derived deviation bound), **0 retrograde welds with seam ≥ 8 m**, 0 multi-lap, **0 m** of
-already-traced road under any closing chord, **0** chord self-intersections. Defaults
-byte-identical (B 1294/19/1294, C 1441/28/1443, nine independent digests unchanged), all three
-ground-truth welds unchanged (seam 31.25 / 52.24 / 62.32), and C's r ≈ 100 ring still closes —
-walked in `OUT_graph2` as 158 nodes / 158 edges, every node degree 2, one walk consumes all of
-them and returns to its start, no degree-1 node on the ring. Suite unchanged at 17 failing with
-no movement against `baseline.json`.
+⚠️ **"Exactly 7 recovered / 5 removed" counted parameter settings, not geometries.** Those 7
+are **2 rings** seen at 7 sep/step combinations; the 5 are one ring at five more. Read as
+independent evidence they are n = 12; they are n = 2. Every count in this section is a count
+of *(field, sep, step, street)* rows unless it says otherwise.
 
-⚠️ **The five refusals are a trade, not a free win, and the real cure is elsewhere.** Those
-welds rasterise as a *chamfer* — a complete ring with one flat spot — not as a doubling, so
-refusing them replaces a flattened ring with **two dead ends 151–201 m apart**. Taken on the
-gate's own terms: at 13.18 m off a 14.4 m road the chord is 1.8× outside the paint of the road
-it claims to stand in for, so it is not standing in for it, it is inventing a secant. A gap
-that size is a street that genuinely ended and belongs to **§S3 extend-to-connect** and the
-**§S5 cul-de-sac bulb**, not to a loop-closure gate papering over it. Neither state is good;
-this one at least does not lie about what it is.
+#### The sagitta gate is gone. The seam is bounded instead — 2026-08-10
 
-⚠️ **The road-under-chord metric is not scale-free unless you make it so.** A fixed 8 m band
-below seam ≈ 16 m only ever sees the chord's own end segments, which is why the earlier sweep
-counted 71 welds instead of the defensible 49. The band used here is one road width (14.4 m,
-the centreline separation at which two 14.4 m ribbons stop overlapping) with a ball of the
-*same* radius around each chord endpoint excluded — nothing in it scales with the seam. It
-follows that the metric cannot register the ≤ 14.4 m of overlap the new floor deliberately
-admits; that overlap is bounded by the floor itself and is the trade being made.
+`f0edcc6` replaced `close_max_dev = 13.4` with `sagitta ≤ 0.5 × close_road_width` (7.2) and
+this doc recorded it as **"proven by re-deriving it"**. Re-deriving a threshold is not proving
+it, and an independent audit took the gate apart on its own terms:
+
+- **Its decision boundary is 147.68 m accepted against 151.62 m refused — a 2.7% window**,
+  *narrower* than the 11% window recorded two paragraphs above as a known weakness. It went
+  the wrong way.
+- **It is not monotone.** The same r ≈ 385 ring flips between closed and **two dead ends 155 m
+  apart** as `step` walks 12 → 14, then back to closed at 18.
+- **Its rationale was vacuous.** "The offset at which the chord stops overlapping the road it
+  stands in for" — but neither the 147.68 m secant it accepts nor the 151.62 m one it refuses
+  doubles any pavement (0.8–51.9 m² *on both sides of the line*), because there is no road on
+  that arc to double. That road was never traced. The closure invents 142–162 m of straight
+  road either way.
+- **And a sagitta is not a bound at all.** `seam²/8r` grows the permitted chord as `√r`: at
+  r = 2000 it would allow 339 m. It still shipped 12 welds with chords > 100 m and a maximum
+  accepted seam of 145.90 m.
+
+**The hole it was covering is `seam ≤ 1.42 × min_street_sep`, which at sep 180 permits 255.6 m
+of invented road.** A radius-scaled limit cannot patch that — see the bullet above; the
+suggestion two paragraphs up that "a relative (radius-scaled) limit may be the right answer"
+is refuted.
+
+**So bound the seam, which is the quantity that measures invented road:** a closure lays down
+exactly `seam` metres the field never traced. The gate is now
+
+```
+seam <= 5.0 * close_road_width          // 72.0 m
+```
+
+Five widths because that is the tightest round multiple the committed ground truths allow and
+it lands in measured empty space:
+
+| | |
+|---|---|
+| largest must-weld ground truth | 62.32 m = **4.33 widths** |
+| gap in the accepted-seam distribution | **(65.85, 77.52)** — a **17.7%** window |
+| 5 × 14.4 | **72.0 m**, 9.3% above the gap's floor, 7.7% below its ceiling |
+| the window the sagitta test lived in | 2.7% — this one is **6.6× wider** |
+| next gap up | (112.42, 142.54), 26.8% — wider still, but 112 m is 7.8 widths, a street |
+
+It is flat in `r` and flat in `min_street_sep`, which is exactly what the sagitta form was not,
+and it is the **sole rejector for 25 streets of 12,792** against the sagitta bound's 5.
+
+⚠️ **Unproven inside the gap.** The data fixes the gap's *edges*; nothing in it distinguishes
+4.6 widths from 5.4. If a future field family puts a must-weld ring at 70 m the number moves,
+and the honest record is that only `> 62.32` and `< 77.52` are measured.
+
+⚠️ **The 20 refusals are a trade, not a free win, and the real cure is elsewhere.** Those welds
+rasterise as a *chamfer* — a complete ring with one flat spot — not as a doubling, so refusing
+them replaces a flattened ring with **two dead ends 77–146 m apart**. All 20 are `trace_1_2_0`
+or `trace_1_2_1`, the r 283–389 outer rings, at 0.92–0.96 of a lap. A gap that size is a street
+that genuinely ended and belongs to **§S3 extend-to-connect** and the **§S5 cul-de-sac bulb**,
+not to a loop-closure gate papering over it. Neither state is good; this one at least does not
+lie about what it is.
+
+##### Before and after, per criterion
+
+Same 518-config grid, 12,792 traced streets, plus 2 pinned adversarial configs (+89 streets).
+
+| | `f0edcc6` (sagitta) | now (invented-road) |
+|---|---|---|
+| accepted welds | 325 | **305** |
+| median accepted seam | 11.81 m | 11.56 m |
+| **max accepted seam** | **145.90 m** | **65.85 m** |
+| welds with chord > 100 m | 12 | **0** |
+| welds with chord > 50 m | 27 | **7** |
+| welds with chord > one road width | 127 | 107 |
+| invented road permitted at sep 180 | 255.6 m | **72.0 m** |
+| invented road permitted at r = 2000 | 339 m | **72.0 m** |
+| retrograde welds admitted by the floor | 9 over 520 configs, **max seam 8.412 m** | unchanged — the floor is untouched |
+| worst doubled pavement | 213.5 m² predicted / 213.6 m² rasterised, against a closed-form bound of 414.7 m² | unchanged |
+| multi-lap welds | 0 | 0 |
+| welded loops that self-intersect | 1 (sep 23 / step 20, 0.50 m² lobe) | 1 — same one, tracked, 0 new |
+| ground truths 31.25 / 52.24 / 62.32 | weld | **weld** |
+| defaults | B 1294/19/1294, C 1441/28/1443 | **byte-identical, 26 digests** |
+| suite | 17 failing | **17 failing**, no baseline movement |
+
+C's r ≈ 100 ring still closes at defaults, walked in `OUT_graph2`: **158 nodes / 158 edges,
+every node degree 2, one walk consumes all 158 and returns to its start, 0 degree-1 nodes.**
+⚠️ `OUT_graph2` carries **no closed prim** even when the ring is closed, and since `6dc1ad5`
+the whole graph is one connected component — so neither `isClosed()` nor a component count
+proves anything here. The ring has to be selected by proximity to the traced ring (a radius
+band also catches every radial spoke crossing it) and then walked.
+
+#### ⚠️ The road-under-chord metric was ill-posed. Use the pavement deficit
+
+The `under` metric — count already-traced road within one road width of the closing chord,
+excluding a **Euclidean ball** of the same radius around each chord end — reported **0 m under
+any chord**. The same idea with an **arc-length** exclusion of the same 14.4 m reports **265 of
+325 welds with road under the chord and a minimum distance of 1.00 m**. Opposite answers, same
+geometry: the number was an artefact of the exclusion's *shape*, so the metric was not merely
+loose, it was ill-posed. The earlier note in this section about picking the band scale
+carefully was solving the wrong problem.
+
+Use instead, for any simple closed centreline:
+
+```
+doubled pavement = w * L - area(Minkowski(closed loop, w/2))
+```
+
+The `w`-neighbourhood of a closed curve has area exactly `w·L` — the two offset curves' area
+terms cancel on a closed loop — so any shortfall is pavement laid down twice. **No exclusion
+parameter and no blind scale**: it sees a 0.5 m² sliver and a 414 m² doubling alike, and it
+agrees with the closed form above to 0.1 m² on the worst weld in the sweep. Reference
+implementation: `pavement_deficit` in `tests/citygen/closure_gate.py`, committed as a check.
 
 | Item | State |
 |---|---|
