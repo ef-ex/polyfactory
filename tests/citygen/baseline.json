@@ -43,39 +43,39 @@
       "value": 0
     },
     {
-      "detail": "dt.orphan_edges_dropped, pr.Cd, pr.area, pr.centre, pr.class, pr.connectionEnd, pr.connectionStart, pr.edge_id, pr.edge_len, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.keep_component, pr.laneWidth, pr.lot_reject, pr.perimeter, pr.restlength, pr.sidewalkWidthLeft, pr.sidewalkWidthRight, pr.streetWidth, pr.street_class, pr.street_template, pt.is_node, pt.node_class, pt.node_degree, pt.offsetscale",
+      "detail": "pr.Cd, pr.area, pr.centre, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.lot_reject, pr.perimeter",
       "name": "no_scratch_attribs_lots",
       "ok": false,
       "skipped": false,
-      "value": 27
+      "value": 9
     },
     {
       "detail": "intersection points",
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 22
+      "value": 8
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
       "name": "city_is_fully_paved",
-      "ok": false,
+      "ok": true,
       "skipped": false,
       "value": {
-        "regions": 2,
-        "unpaved_m2": 757.0,
-        "worst": [
-          [
-            492.0,
-            149.1,
-            -111.68
-          ],
-          [
-            265.0,
-            -169.76,
-            -119.44
-          ]
-        ]
+        "regions": 0,
+        "unpaved_m2": 0.0,
+        "worst": []
+      }
+    },
+    {
+      "detail": "lot area lying inside a junction patch; the block boundary must BE S5's kerb, so this is 0 by construction",
+      "name": "lots_clear_of_junctions",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "junctions": 6,
+        "m2": 0.0,
+        "per_junction": 0.0
       }
     },
     {
@@ -201,14 +201,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 33840.6 vs blocks 33840.6)",
+      "detail": "relative area error (lots 33771.4 vs blocks 33771.4)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 9.8e-08
+      "value": 8.3e-08
     },
     {
-      "detail": "88 prims, 88 distinct footprints",
+      "detail": "82 prims, 82 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -220,11 +220,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 65,
-        "max": 10.56,
-        "median": 3.98,
-        "over": 25,
-        "p90": 7.09
+        "lots": 62,
+        "max": 9.57,
+        "median": 3.88,
+        "over": 16,
+        "p90": 7.25
       }
     },
     {
@@ -265,9 +265,9 @@
       "skipped": false,
       "value": {
         "blocks": 2,
-        "city": 4390,
+        "city": 4384,
         "edges": 15,
-        "lots": 88
+        "lots": 82
       }
     }
   ],
@@ -315,18 +315,18 @@
       "value": 0
     },
     {
-      "detail": "dt.orphan_edges_dropped, pr.Cd, pr.area, pr.centre, pr.class, pr.connectionEnd, pr.connectionStart, pr.edge_id, pr.edge_len, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.keep_component, pr.laneWidth, pr.lot_reject, pr.perimeter, pr.restlength, pr.sidewalkWidthLeft, pr.sidewalkWidthRight, pr.src_id, pr.streetWidth, pr.street_class, pr.street_template, pt.is_node, pt.node_class, pt.node_degree, pt.offsetscale",
+      "detail": "pr.Cd, pr.area, pr.centre, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.lot_reject, pr.perimeter",
       "name": "no_scratch_attribs_lots",
       "ok": false,
       "skipped": false,
-      "value": 28
+      "value": 9
     },
     {
       "detail": "intersection points",
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 95
+      "value": 96
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -337,6 +337,17 @@
         "regions": 0,
         "unpaved_m2": 0.0,
         "worst": []
+      }
+    },
+    {
+      "detail": "lot area lying inside a junction patch; the block boundary must BE S5's kerb, so this is 0 by construction",
+      "name": "lots_clear_of_junctions",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "junctions": 30,
+        "m2": 0.0,
+        "per_junction": 0.0
       }
     },
     {
@@ -462,14 +473,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 225516.5 vs blocks 225516.5)",
+      "detail": "relative area error (lots 225285.2 vs blocks 225285.2)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 6.3e-08
+      "value": 1.67e-07
     },
     {
-      "detail": "569 prims, 569 distinct footprints",
+      "detail": "563 prims, 563 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -481,11 +492,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 456,
-        "max": 12.47,
-        "median": 3.61,
-        "over": 166,
-        "p90": 8.83
+        "lots": 433,
+        "max": 12.78,
+        "median": 3.09,
+        "over": 152,
+        "p90": 8.13
       }
     },
     {
@@ -526,9 +537,9 @@
       "skipped": false,
       "value": {
         "blocks": 15,
-        "city": 18885,
+        "city": 18879,
         "edges": 65,
-        "lots": 569
+        "lots": 563
       }
     }
   ],
@@ -548,11 +559,11 @@
       "value": 0
     },
     {
-      "detail": "first few: [10931, 12850, 12852]",
+      "detail": "first few: [10944]",
       "name": "no_downward_faces",
       "ok": false,
       "skipped": false,
-      "value": 3
+      "value": 1
     },
     {
       "detail": "",
@@ -576,18 +587,18 @@
       "value": 0
     },
     {
-      "detail": "dt.orphan_edges_dropped, pr.Cd, pr.area, pr.centre, pr.class, pr.connectionEnd, pr.connectionStart, pr.edge_id, pr.edge_len, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.keep_component, pr.laneWidth, pr.lot_reject, pr.perimeter, pr.restlength, pr.sidewalkWidthLeft, pr.sidewalkWidthRight, pr.src_id, pr.streetWidth, pr.street_class, pr.street_template, pt.is_node, pt.node_class, pt.node_degree, pt.offsetscale",
+      "detail": "pr.Cd, pr.area, pr.centre, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.lot_reject, pr.perimeter",
       "name": "no_scratch_attribs_lots",
       "ok": false,
       "skipped": false,
-      "value": 28
+      "value": 9
     },
     {
       "detail": "intersection points",
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 225
+      "value": 254
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -595,20 +606,20 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "regions": 2,
-        "unpaved_m2": 18.0,
-        "worst": [
-          [
-            12.0,
-            30.9,
-            -89.1
-          ],
-          [
-            6.0,
-            2.31,
-            -107.93
-          ]
-        ]
+        "regions": 0,
+        "unpaved_m2": 0.0,
+        "worst": []
+      }
+    },
+    {
+      "detail": "lot area lying inside a junction patch; the block boundary must BE S5's kerb, so this is 0 by construction",
+      "name": "lots_clear_of_junctions",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "junctions": 36,
+        "m2": 0.0,
+        "per_junction": 0.0
       }
     },
     {
@@ -631,8 +642,8 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "interior": 20,
-        "total": 35
+        "interior": 18,
+        "total": 33
       }
     },
     {
@@ -690,7 +701,7 @@
       "name": "selfx_roads",
       "ok": false,
       "skipped": false,
-      "value": 13
+      "value": 11
     },
     {
       "detail": "road terminal cross-section vs mouth cap corners; both endpoints must land within 0.05 m",
@@ -699,12 +710,12 @@
       "skipped": false,
       "value": {
         "ends": 135,
-        "max": 0.0353,
-        "mean": 0.0004,
+        "max": 0.0034,
+        "mean": 0.0001,
         "over_0.05m": 0,
         "worst_at": [
-          58.58,
-          -247.33
+          -216.05,
+          301.83
         ]
       }
     },
@@ -721,8 +732,8 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "folds": 3,
-        "max_ratio": 2.147,
+        "folds": 2,
+        "max_ratio": 1.384,
         "min_seg": 0.0181
       }
     },
@@ -734,14 +745,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 312365.7 vs blocks 312365.7)",
+      "detail": "relative area error (lots 311971.3 vs blocks 311971.3)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 2e-09
+      "value": 4e-08
     },
     {
-      "detail": "793 prims, 793 distinct footprints",
+      "detail": "784 prims, 784 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -753,21 +764,21 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 612,
-        "max": 25.62,
-        "median": 3.26,
-        "over": 199,
-        "p90": 8.07
+        "lots": 585,
+        "max": 16.45,
+        "median": 3.08,
+        "over": 185,
+        "p90": 8.41
       }
     },
     {
-      "detail": "self-touching parcels within 0.001 m (30 of them ship as buildable)",
+      "detail": "self-touching parcels within 0.001 m (36 of them ship as buildable)",
       "name": "lots_are_simple_polygons",
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 33,
-        "viable": 30
+        "lots": 37,
+        "viable": 36
       }
     },
     {
@@ -802,9 +813,9 @@
       "skipped": false,
       "value": {
         "blocks": 16,
-        "city": 21451,
-        "edges": 85,
-        "lots": 793
+        "city": 21463,
+        "edges": 84,
+        "lots": 784
       }
     }
   ],
@@ -852,44 +863,39 @@
       "value": 0
     },
     {
-      "detail": "dt.orphan_edges_dropped, pr.Cd, pr.area, pr.centre, pr.class, pr.connectionEnd, pr.connectionStart, pr.edge_id, pr.edge_len, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.keep_component, pr.laneWidth, pr.lot_reject, pr.perimeter, pr.restlength, pr.sidewalkWidthLeft, pr.sidewalkWidthRight, pr.streetWidth, pr.street_class, pr.street_template, pt.is_node, pt.node_class, pt.node_degree, pt.offsetscale",
+      "detail": "pr.Cd, pr.area, pr.centre, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.lot_reject, pr.perimeter",
       "name": "no_scratch_attribs_lots",
       "ok": false,
       "skipped": false,
-      "value": 27
+      "value": 9
     },
     {
       "detail": "intersection points",
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 12
+      "value": 8
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
       "name": "city_is_fully_paved",
-      "ok": false,
+      "ok": true,
       "skipped": false,
       "value": {
-        "regions": 9,
-        "unpaved_m2": 919.0,
-        "worst": [
-          [
-            492.0,
-            149.1,
-            -111.68
-          ],
-          [
-            265.0,
-            -169.76,
-            -119.44
-          ],
-          [
-            36.0,
-            50.59,
-            -96.86
-          ]
-        ]
+        "regions": 0,
+        "unpaved_m2": 0.0,
+        "worst": []
+      }
+    },
+    {
+      "detail": "lot area lying inside a junction patch; the block boundary must BE S5's kerb, so this is 0 by construction",
+      "name": "lots_clear_of_junctions",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "junctions": 6,
+        "m2": 0.0,
+        "per_junction": 0.0
       }
     },
     {
@@ -1015,14 +1021,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 33634.0 vs blocks 33840.6)",
+      "detail": "relative area error (lots 33771.4 vs blocks 33771.4)",
       "name": "lots_tile_blocks",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 0.006106205
+      "value": 1.17e-07
     },
     {
-      "detail": "62 prims, 62 distinct footprints",
+      "detail": "61 prims, 61 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -1034,20 +1040,20 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "lots": 52,
-        "max": 2.01,
+        "lots": 59,
+        "max": 1.78,
         "median": 1.01,
         "over": 0,
-        "p90": 1.02
+        "p90": 1.69
       }
     },
     {
       "detail": "self-touching parcels within 0.001 m (0 of them ship as buildable)",
       "name": "lots_are_simple_polygons",
-      "ok": false,
+      "ok": true,
       "skipped": false,
       "value": {
-        "lots": 1,
+        "lots": 0,
         "viable": 0
       }
     },
@@ -1079,9 +1085,9 @@
       "skipped": false,
       "value": {
         "blocks": 2,
-        "city": 4364,
+        "city": 4363,
         "edges": 15,
-        "lots": 62
+        "lots": 61
       }
     }
   ],
@@ -1129,18 +1135,18 @@
       "value": 0
     },
     {
-      "detail": "dt.orphan_edges_dropped, pr.Cd, pr.area, pr.centre, pr.class, pr.connectionEnd, pr.connectionStart, pr.edge_id, pr.edge_len, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.keep_component, pr.laneWidth, pr.lot_reject, pr.perimeter, pr.restlength, pr.sidewalkWidthLeft, pr.sidewalkWidthRight, pr.streetWidth, pr.street_class, pr.street_template, pt.is_node, pt.node_class, pt.node_degree, pt.offsetscale",
+      "detail": "pr.Cd, pr.frontage, pr.frontage_ratio, pr.lot_reject, pr.perimeter",
       "name": "no_scratch_attribs_lots",
       "ok": false,
       "skipped": false,
-      "value": 27
+      "value": 5
     },
     {
       "detail": "intersection points",
       "name": "selfx_city_merged",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 161
+      "value": 0
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -1151,6 +1157,17 @@
         "regions": 0,
         "unpaved_m2": 0.0,
         "worst": []
+      }
+    },
+    {
+      "detail": "lot area lying inside a junction patch; the block boundary must BE S5's kerb, so this is 0 by construction",
+      "name": "lots_clear_of_junctions",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "junctions": 1,
+        "m2": 0.0,
+        "per_junction": 0.0
       }
     },
     {
@@ -1269,38 +1286,32 @@
       }
     },
     {
-      "detail": "y spread; flatten after PolyExpand2D",
+      "detail": "no points",
       "name": "lots_planar",
       "ok": true,
-      "skipped": false,
-      "value": 0.0
+      "skipped": true,
+      "value": null
     },
     {
-      "detail": "relative area error (lots 1912.3 vs blocks 1912.3)",
+      "detail": "no block area",
       "name": "lots_tile_blocks",
       "ok": true,
-      "skipped": false,
-      "value": 4.23e-07
+      "skipped": true,
+      "value": null
     },
     {
-      "detail": "5 prims, 5 distinct footprints",
+      "detail": "0 prims, 0 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
       "value": 0
     },
     {
-      "detail": "OBB long/short on viable lots; S8 viability caps it at 5.0:1",
+      "detail": "no lots with an OBB",
       "name": "lot_aspect_ratio",
       "ok": true,
-      "skipped": false,
-      "value": {
-        "lots": 5,
-        "max": 2.11,
-        "median": 1.42,
-        "over": 0,
-        "p90": 2.11
-      }
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "self-touching parcels within 0.001 m (0 of them ship as buildable)",
@@ -1339,10 +1350,10 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "blocks": 1,
-        "city": 236,
+        "blocks": 0,
+        "city": 231,
         "edges": 3,
-        "lots": 5
+        "lots": 0
       }
     }
   ]

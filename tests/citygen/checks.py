@@ -1252,6 +1252,43 @@ def _blobs(np, mask, grid, min_area):
     return out
 
 
+def lots_clear_of_junctions(lot_geo, patch_node, cell=0.5, tol_per_junction=0.5):
+    """No lot may lie inside a junction. The other half of city_is_fully_paved.
+
+    `city_is_fully_paved` catches the corridor being UNDER-covered; this catches
+    it being over-covered at the one place that has always been wrong. S7
+    specifies that at a node the block boundary follows S5's fillet arc, because
+    that arc IS the kerb there. The shipped build offset the centreline graph
+    with PolyExpand2D instead, whose straight skeleton mitres the corner, so
+    every lot cut the corner and sat on the junction surface — 11.7 (A) / 7.5
+    (B) / 9.7 (C) / 3.1 (D) m2 per junction, and 558 in E where the corridor's
+    own outer ring was being subdivided into lots.
+
+    Rasterised rather than clipped: a junction patch is non-convex once the
+    fillets are in, so Sutherland-Hodgman would lie about it — which is exactly
+    the defect 4e-5 records in the lot subdivider.
+    """
+    try:
+        import numpy as np
+    except ImportError:
+        return _skip("lots_clear_of_junctions", "numpy unavailable")
+    if patch_node is None or patch_node.errors():
+        return _skip("lots_clear_of_junctions", "junction patch node missing")
+    g_p = patch_node.geometry()
+    njunc = len(g_p.prims())
+    if njunc == 0:
+        return _skip("lots_clear_of_junctions", "no junctions in this case")
+    grid = _raster_grid([g_p], cell)
+    over = _rasterise(np, lot_geo, grid) & _rasterise(np, g_p, grid)
+    area = float(over.sum()) * cell * cell
+    per = area / njunc
+    return Result("lots_clear_of_junctions", per <= tol_per_junction,
+                  {"m2": round(area, 1), "junctions": njunc,
+                   "per_junction": round(per, 2)},
+                  "lot area lying inside a junction patch; the block boundary "
+                  "must BE S5's kerb, so this is 0 by construction")
+
+
 def city_is_fully_paved(city_node, outer_node, cell=1.0, min_area=4.0,
                         tol_area=40.0):
     """Nothing inside the street corridor may be left unpaved.
