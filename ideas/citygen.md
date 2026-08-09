@@ -270,7 +270,7 @@ Bridges break global planarity: two edges crossing at an overpass must **not** s
 - Every edge carries an integer **`layer`** — negative underground, 0 ground, positive elevated.
   **Planarisation is per layer.** Cross-layer crossings produce no node.
 - **This is how OpenStreetMap models the real world** (`layer` + `bridge`/`tunnel`) — a schema
-  proven planet-wide, borrowed as convention only.
+  proven planet-wide, and an open convention.
 - Every edge carries **`network_type`**: `road · rail · pedestrian · sky_lane · canal`.
   **v1 implements `road` only**; the attribute exists so rail and sky lanes are configuration
   later, not a refactor.

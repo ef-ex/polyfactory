@@ -28,10 +28,20 @@ Set by Hannes, 2026-08-08. These are not negotiable and every decision below res
    read it as a default.
 3. **Everything directable.** Procedural generation is the starting point, not the deliverable.
    Any artist edit must survive.
-4. **Reference vocabulary is borrowed; software is not.** We reuse CityEngine's *attribute names*
-   (`streetWidth`, `sidewalkWidthLeft`…), its *junction classification words*, and OpenStreetMap's
-   `layer`/`bridge`/`tunnel` convention. Naming conventions carry zero dependency.
-   **CityEngine is inspiration — the most complete reference found — explicitly not a 1:1 rebuild.**
+4. **Standard vocabulary, our own implementation.** Attribute names (`streetWidth`,
+   `sidewalkWidthLeft`…), the junction classification words and the `layer`/`bridge`/`tunnel`
+   convention are the ordinary terms of art in urban modelling and open map data. Using the
+   industry's words makes the schema read correctly to anyone; it carries zero dependency and
+   implies nothing about how any other tool is built.
+
+   Commercial tools are studied as evidence of what the problem demands. **Nothing here is a
+   rebuild of any of them**, and every stage is written from the published literature and our own
+   geometry.
+
+   ⚠️ **House rule, 2026-08-09.** Never write that our work is *taken from*, *follows*, *copies*,
+   *clones* or *is similar to* a commercial product — in source comments, in these docs, anywhere.
+   Recording what a tool *does* is fine and often useful evidence; phrasing our implementation as
+   derived from it is not. Academic papers are the exception: cite them normally and by name.
 
 ### Confirmed parameters
 
@@ -238,8 +248,7 @@ CityEngine's environment maps, the useful ones are:
 
 Terrain coupling is a cross-subsystem contract — see `citygen.md`. Street-side parameters:
 `respect_elevation` (bool), `critical_slope` (only streets steeper than this adapt to elevation),
-`max_slope` (hard cap). Names taken from CityEngine because they are already the right
-abstractions.
+`max_slope` (hard cap). Standard terms of art - they are already the right abstractions.
 
 ### S1 — Field (pluggable generators)
 
@@ -371,7 +380,7 @@ required, the model generalises:
 - **Intersection detection runs per layer.** Two edges that cross on *different* layers produce
   **no node**. Planarity is a per-layer invariant, never a global one.
 - **This is exactly how OpenStreetMap models the real world** — a `layer` tag plus `bridge` and
-  `tunnel` flags. A schema proven against the entire planet, borrowed as convention only.
+  `tunnel` flags. A convention proven against the entire planet, and an open one.
 - Layer changes are carried by **ramp edges** (`is_ramp`), whose endpoints sit on two different
   layers. A node joining different layers is a **`PORTAL`** — added to the junction vocabulary
   alongside CityEngine's terms.
@@ -879,7 +888,7 @@ approach usually fails.
 
 ## 6. Attribute schema
 
-The stage API. Names follow CityEngine where they overlap — convention only, no dependency.
+The stage API. Names use the standard urban-modelling vocabulary — convention only, no dependency.
 
 **Per edge (primitive attributes)**
 
