@@ -493,6 +493,29 @@ not eat more than `max_fillet_fraction` of a street), and the clamp changes the 
 Below the miter limit the corner becomes a **bevel** — a deliberate, straight, documented case, and
 the only one.
 
+#### Two rules the design left open, decided 2026-08-09
+
+Both were unspecified, and the audit showed the code was silently inventing an answer.
+
+1. **`max_fillet_fraction` = 0.4** (a default, artist-overridable). It was named here and never
+   implemented: `pfsj_fillet` says *"the radius is CLAMPED to what the junction can actually hold"*
+   and line 83 is `radius_used = radius;`. Unclamped, cuts reached 26 m, **three streets were
+   consumed entirely** while their junction kept a mouth for them — a paved stub opening onto
+   nothing — and thirteen more lost over half their length. Note the threshold mismatch this
+   exposes: `graph_prune` deletes stubs under 8 m, but a junction needs ~22 m of clearance, so a
+   street can survive pruning and still be eaten by its own corners.
+2. **At a mixed-class corner, the wider street sets the radius.** Measured: **98% of B's corners and
+   100% of C's join two different street classes**, and the radius was taken from whichever street
+   happened to sort first by `atan2` — so the same node got a 9 m fillet on one side and 4 m on the
+   other, arbitrarily. A junction's turning radius is set by the largest vehicle using it, which is
+   the wider road. Per-side radii are the richer answer and are deliberately deferred; this rule is
+   deterministic, which the old behaviour was not.
+
+⚠️ `every_corner_is_an_arc` currently asserts the *old* rule (the first-sorted street's class), so it
+must be re-pointed at these two before it can verify them. Same for
+`trim_metric_is_consistent`: once both nodes measure axially it should assert the geometric seam —
+**the trimmed road end lies on the mouth's cap segment** — not the difference between two metrics.
+
 #### Higher-degree junctions — untested, and structurally unreachable from the field
 
 **Degree-5+ has never been generated once, and degree-3 exists only in the hand-drawn case** (§4d).
