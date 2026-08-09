@@ -668,7 +668,9 @@ def trim_metric_is_consistent(solve_geo, trimmed_geo, tol=0.05):
                       min((p2 - c1).length(), (p2 - c2).length()))
             errs.append(err)
             if worst is None or err > worst[0]:
-                worst = (err, (round(end[0], 2), round(end[2], 2)))
+                # a LIST, not a tuple: this lands in baseline.json and comes
+                # back as a list, so a tuple reports as "moved" on every run
+                worst = (err, [round(end[0], 2), round(end[2], 2)])
     if not errs:
         return _skip(name, "no trimmed ends")
     mx = max(errs)
@@ -1241,9 +1243,11 @@ def _blobs(np, mask, grid, min_area):
     for n, sx, sz in comp.values():
         a = float(n) * cell * cell
         if a >= min_area:
-            # plain floats, not numpy scalars: these land in baseline.json
-            out.append((round(a, 1), round(float(x0 + (sx / n + 0.5) * cell), 2),
-                        round(float(z0 + (sz / n + 0.5) * cell), 2)))
+            # plain floats in a LIST, not numpy scalars in a tuple: this lands
+            # in baseline.json, and a tuple comes back as a list, so the runner
+            # would report the value as "moved" on every single run
+            out.append([round(a, 1), round(float(x0 + (sx / n + 0.5) * cell), 2),
+                        round(float(z0 + (sz / n + 0.5) * cell), 2)])
     out.sort(reverse=True)
     return out
 
