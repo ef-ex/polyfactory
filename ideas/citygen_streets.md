@@ -677,7 +677,29 @@ and `offset` are specified well enough by Parish + CityEngine to build now.
 
 ---
 
-## 4d. Measured state of the shipped build — 2026-08-09
+## 4c. Implementation status — 2026-08-09
+
+| Item | State |
+|---|---|
+| S5 fillet-always (§S5 "every corner is an arc") | **done** — 20/2 · 100/0 · 112/0, the 2 are 180° pass-throughs |
+| S5 winding-based inward offset | **done** — A `selfx_junction_surface` 4 → 0 |
+| S1 degenerate points + plaza ring (§S1, §S5 plazas) | **done** — C `no_downward_faces` 10 → 4, `selfx_roads` 46 → 12 |
+| S8 `recursive_obb` + `offset` lots (§S8) | **done** — Voronoi removed; force-street-access included |
+| `land_use` written (§4d) | **done** |
+| S7 block boundary from the fillet (§S7) | not started |
+| S3 extend-to-connect (§S3 step 2) | not started |
+| S2 `d_lookahead` + priority seeding + density `d_sep` (§S2) | not started |
+| Row 3 majors-enclose-minors (§3b) | not started |
+| Rows 5/6 mask + density inputs (§3b) | not started |
+| Row 8 bridge flag rule (§3b) | not started |
+| Degree-5+ test case (§S5) | not started |
+
+Suite: **6 failing → 2**, both in the radial case (`no_downward_faces` 4,
+`selfx_roads` 12) and both residue of the same centre region. A and B are clean.
+
+---
+
+## 4d. Measured state of the shipped build — 2026-08-09 (pre-fix)
 
 Recorded so the next pass starts from numbers instead of re-deriving them. Cases are the three in
 `tests/citygen/cases.py`: **A** hand-drawn streets, **B** grid field, **C** radial field.
