@@ -57,11 +57,11 @@
       "value": 0
     },
     {
-      "detail": "edge.land_use",
+      "detail": "",
       "name": "attribute_schema",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 1
+      "value": 0
     },
     {
       "detail": "collapsed fillet arcs",
@@ -211,11 +211,11 @@
       "value": 0
     },
     {
-      "detail": "edge.land_use",
+      "detail": "",
       "name": "attribute_schema",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 1
+      "value": 0
     },
     {
       "detail": "collapsed fillet arcs",
@@ -323,11 +323,11 @@
       "value": 0
     },
     {
-      "detail": "first few: [1023, 1024, 1026, 1287, 1289]",
+      "detail": "first few: [16874, 16876, 18239, 18241]",
       "name": "no_downward_faces",
       "ok": false,
       "skipped": false,
-      "value": 10
+      "value": 4
     },
     {
       "detail": "",
@@ -365,11 +365,11 @@
       "value": 0
     },
     {
-      "detail": "edge.land_use",
+      "detail": "",
       "name": "attribute_schema",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 1
+      "value": 0
     },
     {
       "detail": "collapsed fillet arcs",
@@ -379,7 +379,7 @@
       "value": 0
     },
     {
-      "detail": "straight chords out of 112 corners (through-streets excluded)",
+      "detail": "straight chords out of 120 corners (through-streets excluded)",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
@@ -390,7 +390,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "672/672"
+      "value": "720/720"
     },
     {
       "detail": "",
@@ -411,7 +411,7 @@
       "name": "selfx_roads",
       "ok": false,
       "skipped": false,
-      "value": 46
+      "value": 12
     },
     {
       "detail": "y spread; flatten after PolyExpand2D",
@@ -421,14 +421,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 352809.1 vs blocks 352809.0)",
+      "detail": "relative area error (lots 367004.9 vs blocks 367004.9)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 2.4e-07
+      "value": 7.8e-08
     },
     {
-      "detail": "632 prims, 632 distinct footprints",
+      "detail": "664 prims, 664 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -454,10 +454,10 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "blocks": 12,
-        "city": 24447,
-        "edges": 78,
-        "lots": 632
+        "blocks": 13,
+        "city": 24280,
+        "edges": 82,
+        "lots": 664
       }
     }
   ]
