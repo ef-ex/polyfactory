@@ -57,6 +57,28 @@
       "value": 22
     },
     {
+      "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
+      "name": "city_is_fully_paved",
+      "ok": false,
+      "skipped": false,
+      "value": {
+        "regions": 2,
+        "unpaved_m2": 757.0,
+        "worst": [
+          [
+            492.0,
+            149.1,
+            -111.68
+          ],
+          [
+            265.0,
+            -169.76,
+            -119.44
+          ]
+        ]
+      }
+    },
+    {
       "detail": "segment crossings with no shared node (per layer)",
       "name": "graph_is_planar",
       "ok": true,
@@ -304,7 +326,18 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 89
+      "value": 95
+    },
+    {
+      "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
+      "name": "city_is_fully_paved",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "regions": 0,
+        "unpaved_m2": 0.0,
+        "worst": []
+      }
     },
     {
       "detail": "segment crossings with no shared node (per layer)",
@@ -429,11 +462,11 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 225053.7 vs blocks 225053.7)",
+      "detail": "relative area error (lots 225516.5 vs blocks 225516.5)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 1.33e-07
+      "value": 6.3e-08
     },
     {
       "detail": "569 prims, 569 distinct footprints",
@@ -448,11 +481,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 451,
-        "max": 12.99,
-        "median": 3.51,
-        "over": 164,
-        "p90": 8.65
+        "lots": 456,
+        "max": 12.47,
+        "median": 3.61,
+        "over": 166,
+        "p90": 8.83
       }
     },
     {
@@ -554,7 +587,29 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 187
+      "value": 225
+    },
+    {
+      "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
+      "name": "city_is_fully_paved",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "regions": 2,
+        "unpaved_m2": 18.0,
+        "worst": [
+          [
+            12.0,
+            30.9,
+            -89.1
+          ],
+          [
+            6.0,
+            2.31,
+            -107.93
+          ]
+        ]
+      }
     },
     {
       "detail": "segment crossings with no shared node (per layer)",
@@ -679,14 +734,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 308429.7 vs blocks 308429.7)",
+      "detail": "relative area error (lots 312365.7 vs blocks 312365.7)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
       "value": 2e-09
     },
     {
-      "detail": "791 prims, 791 distinct footprints",
+      "detail": "793 prims, 793 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -698,21 +753,21 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 632,
+        "lots": 612,
         "max": 25.62,
-        "median": 3.34,
-        "over": 206,
-        "p90": 8.35
+        "median": 3.26,
+        "over": 199,
+        "p90": 8.07
       }
     },
     {
-      "detail": "self-touching parcels within 0.001 m (25 of them ship as buildable)",
+      "detail": "self-touching parcels within 0.001 m (30 of them ship as buildable)",
       "name": "lots_are_simple_polygons",
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 27,
-        "viable": 25
+        "lots": 33,
+        "viable": 30
       }
     },
     {
@@ -721,7 +776,7 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "built": 10362.9,
+        "built": 11310.8,
         "disc": 11309.7,
         "gap": 2.45
       }
@@ -746,10 +801,10 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "blocks": 18,
-        "city": 21449,
+        "blocks": 16,
+        "city": 21451,
         "edges": 85,
-        "lots": 791
+        "lots": 793
       }
     }
   ],
@@ -809,6 +864,33 @@
       "ok": false,
       "skipped": false,
       "value": 12
+    },
+    {
+      "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
+      "name": "city_is_fully_paved",
+      "ok": false,
+      "skipped": false,
+      "value": {
+        "regions": 9,
+        "unpaved_m2": 919.0,
+        "worst": [
+          [
+            492.0,
+            149.1,
+            -111.68
+          ],
+          [
+            265.0,
+            -169.76,
+            -119.44
+          ],
+          [
+            36.0,
+            50.59,
+            -96.86
+          ]
+        ]
+      }
     },
     {
       "detail": "segment crossings with no shared node (per layer)",
@@ -1058,7 +1140,18 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 171
+      "value": 161
+    },
+    {
+      "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
+      "name": "city_is_fully_paved",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "regions": 0,
+        "unpaved_m2": 0.0,
+        "worst": []
+      }
     },
     {
       "detail": "segment crossings with no shared node (per layer)",
@@ -1183,14 +1276,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 2223.4 vs blocks 2223.4)",
+      "detail": "relative area error (lots 1912.3 vs blocks 1912.3)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 4.19e-07
+      "value": 4.23e-07
     },
     {
-      "detail": "6 prims, 6 distinct footprints",
+      "detail": "5 prims, 5 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -1202,11 +1295,11 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "lots": 6,
-        "max": 2.14,
-        "median": 1.87,
+        "lots": 5,
+        "max": 2.11,
+        "median": 1.42,
         "over": 0,
-        "p90": 2.14
+        "p90": 2.11
       }
     },
     {
@@ -1247,9 +1340,9 @@
       "skipped": false,
       "value": {
         "blocks": 1,
-        "city": 237,
+        "city": 236,
         "edges": 3,
-        "lots": 6
+        "lots": 5
       }
     }
   ]

@@ -1148,3 +1148,162 @@ def merged_city_self_intersections(city_node, expect=0):
     surfaces), which is why its count is higher than roads+patches alone.
     """
     return self_intersections(city_node, "selfx_city_merged", expect, output=0)
+
+
+# ---------------------------------------------------------------------------
+# coverage: is there any part of the city that nothing paves?
+# ---------------------------------------------------------------------------
+
+def _raster_grid(geos, cell, pad=4.0):
+    xs, zs = [], []
+    for g in geos:
+        b = g.boundingBox()
+        xs += [b.minvec()[0], b.maxvec()[0]]
+        zs += [b.minvec()[2], b.maxvec()[2]]
+    x0, z0 = min(xs) - pad, min(zs) - pad
+    nx = int(math.ceil((max(xs) + pad - x0) / cell)) + 1
+    nz = int(math.ceil((max(zs) + pad - z0) / cell)) + 1
+    return x0, z0, nx, nz, cell
+
+
+def _rasterise(np, geo, grid, prim_filter=None):
+    """Even-odd fill of every polygon in `geo` onto a boolean XZ grid."""
+    x0, z0, nx, nz, cell = grid
+    cov = np.zeros((nz, nx), dtype=bool)
+    for pr in geo.prims():
+        if prim_filter is not None and not prim_filter(pr):
+            continue
+        vs = pr.vertices()
+        if len(vs) < 3:
+            continue
+        P = np.array([(v.point().position()[0], v.point().position()[2])
+                      for v in vs], dtype=np.float64)
+        i0 = max(0, int(math.floor((P[:, 0].min() - x0) / cell)))
+        i1 = min(nx - 1, int(math.ceil((P[:, 0].max() - x0) / cell)))
+        j0 = max(0, int(math.floor((P[:, 1].min() - z0) / cell)))
+        j1 = min(nz - 1, int(math.ceil((P[:, 1].max() - z0) / cell)))
+        if i1 < i0 or j1 < j0:
+            continue
+        X, Z = np.meshgrid(x0 + (np.arange(i0, i1 + 1) + 0.5) * cell,
+                           z0 + (np.arange(j0, j1 + 1) + 0.5) * cell)
+        inside = np.zeros(X.shape, dtype=bool)
+        n = len(P)
+        for k in range(n):
+            ax, az = P[k]
+            bx, bz = P[(k + 1) % n]
+            if az == bz:
+                continue
+            inside ^= ((az > Z) != (bz > Z)) & (X < (bx - ax) * (Z - az) / (bz - az) + ax)
+        cov[j0:j1 + 1, i0:i1 + 1] |= inside
+    return cov
+
+
+def _blobs(np, mask, grid, min_area):
+    """Connected components of a boolean mask as (area, cx, cz), largest first.
+
+    Run-length union-find rather than an iterative dilation: a 900 x 900 grid
+    needs ~1000 dilation passes to propagate across the city and one pass over
+    the runs to label it."""
+    x0, z0, nx, nz, cell = grid
+    parent = {}
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    rows, rid = [], 0
+    for j in range(nz):
+        d = np.diff(np.concatenate(([0], mask[j].view(np.int8), [0])))
+        rr = []
+        for s, e in zip(np.flatnonzero(d == 1), np.flatnonzero(d == -1)):
+            parent[rid] = rid
+            rr.append((s, e, rid))
+            rid += 1
+        if j:
+            for s, e, i in rr:
+                for ps, pe, pi in rows[j - 1]:
+                    if ps < e and s < pe:
+                        ra, rb = find(i), find(pi)
+                        if ra != rb:
+                            parent[rb] = ra
+        rows.append(rr)
+    comp = {}
+    for j, rr in enumerate(rows):
+        for s, e, i in rr:
+            c = comp.setdefault(find(i), [0, 0.0, 0.0])
+            n = e - s
+            c[0] += n
+            c[1] += (s + e - 1) * 0.5 * n
+            c[2] += j * n
+    out = []
+    for n, sx, sz in comp.values():
+        a = float(n) * cell * cell
+        if a >= min_area:
+            # plain floats, not numpy scalars: these land in baseline.json
+            out.append((round(a, 1), round(float(x0 + (sx / n + 0.5) * cell), 2),
+                        round(float(z0 + (sz / n + 0.5) * cell), 2)))
+    out.sort(reverse=True)
+    return out
+
+
+def city_is_fully_paved(city_node, outer_node, cell=1.0, min_area=4.0,
+                        tol_area=40.0):
+    """Nothing inside the street corridor may be left unpaved.
+
+    THE check that would have caught the dead-end holes, and the suite had
+    nothing of its shape. `lots_tile_blocks` cannot see them: the lots DO tile
+    their blocks exactly. The broken seam is between the blocks and the roads,
+    and no per-component check looks across it.
+
+    PolyExpand2D caps a dangling polyline end by the same local scale it uses
+    sideways, so at every degree-1 node the block boundary was pushed
+    streetWidth/2 PAST the node while the road sweep stopped AT it. That left a
+    streetWidth x streetWidth/2 rectangle paved by nothing — 359 m2 per arterial
+    dead end, 9,143 m2 across C_radial, and invisible to all 30 other checks.
+
+    Method: rasterise the shipped city (roads + junction surface + lots +
+    piers) onto a 1 m XZ grid, and rasterise the corridor's outer boundary
+    curve as the region that MUST be covered. Anything inside the region that
+    nothing covers is reported, largest first. The region is eroded by one cell
+    so the half-covered fringe along its own boundary does not read as a defect.
+
+    A whole-city measure on purpose. A 360 m2 hole is invisible in a 40 m crop
+    and obvious in a top-down of the city, and this build has been reported
+    "fixed" three times off a crop of the thing just changed.
+    """
+    try:
+        import numpy as np
+    except ImportError:
+        return _skip("city_is_fully_paved", "numpy unavailable")
+    if outer_node is None or outer_node.errors():
+        return _skip("city_is_fully_paved", "corridor boundary node missing")
+    try:
+        g_city = city_node.geometry(0)
+        g_outer = outer_node.geometry()
+    except Exception as exc:
+        return _skip("city_is_fully_paved", "no geometry: %s" % str(exc)[:60])
+    if g_outer.findPrimAttrib("is_outer") is None:
+        return _skip("city_is_fully_paved", "no is_outer attribute")
+
+    grid = _raster_grid([g_city, g_outer], cell)
+    region = _rasterise(np, g_outer, grid, lambda pr: pr.attribValue("is_outer"))
+    # erode by one cell: the region boundary IS the geometry boundary, so cells
+    # straddling it are half-covered by construction and are not holes
+    e = region.copy()
+    e[1:, :] &= region[:-1, :]
+    e[:-1, :] &= region[1:, :]
+    e[:, 1:] &= region[:, :-1]
+    e[:, :-1] &= region[:, 1:]
+    e[0, :] = e[-1, :] = False
+    e[:, 0] = e[:, -1] = False
+
+    gaps = _blobs(np, e & ~_rasterise(np, g_city, grid), grid, min_area)
+    total = round(float(sum(g[0] for g in gaps)), 1)
+    return Result("city_is_fully_paved", bool(total <= tol_area),
+                  {"unpaved_m2": total, "regions": len(gaps),
+                   "worst": gaps[:3]},
+                  "area inside the corridor that no road, junction or lot "
+                  "covers (>= %g m2 each, %g m2 allowed in total)"
+                  % (min_area, tol_area))

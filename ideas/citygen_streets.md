@@ -809,7 +809,9 @@ and were not.** The suite passing is not the same as the feature working — eve
 | S1 degenerate points + plaza ring (§S1, §S5 plazas) | ⚠️ **NOT done.** The exclusion works; **the ring is deleted before it ships** (§4e-2). The C gains came from the seed/trace exclusion alone |
 | S8 `recursive_obb` + `offset` lots (§S8) | ⚠️ **partial.** Voronoi is gone and the structure is right, but parcels are ribbons up to 31:1, non-convex blocks produce bowties, and `offset` fails `lots_tile_blocks` (§4e-4,5,6) |
 | `land_use` written (§4d) | **done** |
-| S7 block boundary from the fillet (§S7) | not started |
+| S7 dead-end cap at the node, not past it (§S7, §S5-3) | **done §4i-1** — `blocks_capback`; unpaved area B 4,265 → 0 m², C 9,143 → 18 |
+| S7 block boundary from the fillet (§S7) | not started — and now blocking **two** defects, not one: the fillet overrun (~10 m² a corner) and the collinear-average strip (§4i-3, 757 m² in A) |
+| S5 cul-de-sac bulb (§S5 plazas) | not started — the deliberate terminus for the dead ends the rails cannot rescue (§4i-2) |
 | S3 extend-to-connect (§S3 step 2) | ⚠️ **case (a) only. Case (b), the branch that creates junctions, is DEAD CODE and has never executed once** — §4g-1 |
 | S2 `d_lookahead` (§S2) | **works**, and is the sole source of every new degree-3 junction — but leaves a 0.53 m hook, §4g-3 |
 | S2 `d_lookahead` (§S2) | **done** — soft stops 4 and 5 in the `trace` wrangle. Priority seeding and density `d_sep` still not started |
@@ -1156,6 +1158,108 @@ the roads — conservative, so nothing is hidden, but half the skip is inert. An
 junction the **lot plate runs over the junction's far sidewalk band**, because the block
 boundary still comes from the street corridor rather than the fillet — §S7, designed and not
 yet built, and in a close-up it is the most visible remaining wrongness in the build.
+
+---
+
+## 4i. Fourth pass — the dead-end holes, the rail ceiling, the collinear average. 2026-08-09
+
+**1. The holes at every dead end. FIXED.** `blocks_expand` is a `polyexpand2d` whose local
+inside/outside scale is the point attribute `offsetscale`. PolyExpand2D caps a **dangling**
+polyline end by that same local scale, so at every degree-1 node it pushed the block boundary
+`streetWidth/2` **past** the node while the road sweep stops **at** it (`s5j_solve` skips
+degree < 3, so trims stay 0). The result is a `streetWidth × streetWidth/2` rectangle that
+nothing paves: **359 m² per arterial dead end, 104 per local street**, every centroid
+`streetWidth/4` beyond its node.
+
+Fixed by a new prim wrangle, **`blocks_capback`**, between `blocks_offsetscale` and
+`blocks_expand`: pull each dangling end of the block-side polyline back along itself by exactly
+its own `offsetscale`, so the cap PolyExpand2D then adds lands on the road's own end cap.
+
+Two details that are not optional, both measured:
+
+- **Trim by arc length, consuming the points passed.** `blocks_resample` has already split the
+  street into ~3 m segments, so a 13.4 m pull-back crosses four of them; moving the terminal
+  point alone doubles the polyline back on itself.
+- **Snap the last surviving interior point onto the end tangent.** PolyExpand2D's square cap is
+  perpendicular to the *final segment*, so without this the cap is rotated by the street's turn
+  over the pull-back and the lot plate pokes into the carriageway. C_radial: **156 m² of
+  residual gap without the snap, 18 m² with it.**
+
+Whole-city unpaved area inside the corridor: **A 1,503 → 757 m² · B 4,265 → 0 · C 9,143 → 18 ·
+D 1,651 → 919 · E 0 → 0.** A's and D's residue is item 3 below, not a dead end.
+
+⚠️ **`omitendcaps` is not the knob** — control-tested; it splits the output into two prims and
+leaves the overshoot.
+
+**The check that would have caught it is now committed: `city_is_fully_paved`.** It rasterises
+the shipped city onto a 1 m grid and asserts nothing inside the corridor's outer boundary is
+left unpaved. `lots_tile_blocks` never could see this — the lots *do* tile their blocks exactly;
+the broken seam was between the blocks and the roads, and no per-component check looks across it.
+
+⚠️ **Closing the seam RAISES `selfx_city_merged`, and that is the §4h-5 phenomenon again, not a
+new defect.** B 89 → 95, C 187 → 225, entirely at dead ends (C: 35 → 88 points within 20 m of a
+degree-1 node, "other" 152 → 137). Two measurements settle what it is: lot-over-road plan
+overlap near dead ends is **unchanged to 0.01 m² (B 3.38 → 3.38, C 19.80 → 19.79)**, so the
+pull-back adds no interpenetration; and removing the lots from the merge drops the count to
+**0 on every case**, so the metric is entirely a lot↔road contact measure. Intersection Analysis
+registers touching coincident edges and is blind to coplanar overlap, so it **penalises exact
+abutment and rewards a small overlap** — a deliberate 5 cm overshoot scores C 162, better than
+the 187 it scored with a 13.4 m hole. Exact abutment is what §S5 and §S7 specify; the number is
+the wrong instrument for this seam.
+
+**2. The dead-end rails are at their useful limit, and the binding constraint is NOT junction
+spacing.** Swept on B and C, all guardrails measured (`selfx_junction_surface`, the seam,
+`selfx_roads`, sweep folds, unpaved area):
+
+| change | result |
+|---|---|
+| `graph_params_min_node_dist` 40 → 30 / 25 / 20 / 15 | `selfx_junction_surface` **stays 0** at every value — the §4g hypothesis was right about that — but the **seam** blows from 0.035 m to **0.383 m**, 7.7× tolerance, at every value below ~32. 38 and 35 give C 33 / 32 dead ends at a seam of 0.0602, still over. |
+| trace `min_node_dist` 50 → 40 | **bit-identical output.** Inert. |
+| trace `min_node_dist` 50 → 30 / 20 | `selfx_junction_surface` 0 → 41, `selfx_roads` 13 → 168 |
+| `graph_params_min_join_angle` 45 → 30 → 20 | **bit-identical output on every case.** A rail that has never fired. |
+| `graph_prune_min_edge_len` 13 → 8 | B dead ends 21 → 23, 57 m² unpaved. Worse. |
+| `graph_params_d_extend` 90 → 120 | B dead ends 21 → 22. Worse. |
+| `graph_params_max_curvature` 25 → 35 | the only relaxation that pays: **B 21 → 19, C 35 → 33**, seam and `selfx_roads` unchanged. **Not shipped**: it flips `every_corner_is_an_arc` on C (`radius_fit` 0.42 → 1.02 on a near-straight corner whose *applied* radius is still exact to 2e-7) and costs C 22 merged-city points. Four dead ends is not worth a check. |
+
+**Why the short links are refused, root-caused.** Instrumenting `graph_extend`: of C's 46 and
+B's 34 unlinked ends, **25 (C) and 12 (B) have their nearest joinable edge INSIDE
+`min_node_dist`** and are refused for being too *close* — 13 (C) / 10 (B) by `max_curvature`,
+7 / 9 genuinely beyond `d_extend`. But the refusal is doubled, and the second one is structural:
+`clear_b = max(mnd, minlen)` gates the connector's own length, **and** the validator applies
+`min_node_dist` to the extending prim itself — and the dead end is `dist` from the landing point
+by construction, so **a connector shorter than `min_node_dist` refuses itself.** Separating the
+connector-length floor from the clearance alone therefore changes *nothing* (measured:
+bit-identical). Restating the rail as a rule about **nodes** (the landing point must clear every
+existing node, the dead end's own node exempt because it becomes degree-2) does let the short
+links through — and C goes to **106 junction self-intersections, seam 0.816 m, 111 m² unpaved**
+for a gain of one dead end. **The rail is load-bearing**; §4h-3 was right. The ceiling is S5's
+inability to build junctions closer than ~40 m, and the structural answer is §3b row 3, not a
+parameter.
+
+**3. A_drawn's "gap at a junction" is NOT §S7's fillet.** Root-caused: **PolyExpand2D applies a
+single offset to a whole COLLINEAR RUN — the point-count-weighted mean of `offsetscale` over
+it.** Control test, a T of three arms with local scales 13.4 / 7.55 / 7.55: the bent arm keeps
+its own 13.4, but two *collinear* arms both come out at **10.8 = (51 × 13.4 + 41 × 7.55) / 92**,
+exact. Fusing the node point or setting it to the max changes it by 6 cm; a 20° bend removes the
+effect entirely.
+
+In A, the artist's drawn bottom street is classified **arterial** (26.8 m) in the middle and
+**collector** (15.1 m) at both ends, and the three are collinear. The block boundary along all of
+them therefore sits at 10.17 m from the centreline instead of 13.4 and 7.55: a **2.6 m strip of
+no-man's-land down each side of both collector stretches (492 + 265 m², beginning exactly at the
+T junctions — this is what the artist sees)**, and the lot plate 3.2 m inside the arterial's kerb.
+Measured at x = 100 on the collector: road 15.10 m wide, corridor 20.34 m.
+
+**There is no in-place cure**: a collinear run can hold only one offset, so no assignment of
+`offsetscale` gives both arms their own width, and `min`/`max` instead of the mean makes one side
+strictly worse (5.85 m of strip, or 5.85 m of lots over the arterial). The real fix is §S7's
+kerb-derived block boundary, which replaces PolyExpand2D for this purpose — so §S7 *is* the cure,
+but for a different reason than the fillet, and this is now a second independent argument for
+building it. Separately, `blocks_offsetscale`'s `max(streetWidth)` over `pointprims` is **dead
+code**: `blocks_resample` unshares points, so it only ever sees the point's own street.
+
+A's other 68 m² — eight ~10 m² patches at the degree-3 and degree-4 nodes — **is** §S7's fillet
+defect, one order of magnitude smaller than the strips.
 
 ---
 

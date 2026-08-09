@@ -166,5 +166,8 @@ INTERNAL = {
     "roads": "OUT_roads",
     "graph": "OUT_graph2",
     "blocks": "OUT_BLOCKS_PLACEHOLDER",
+    # the corridor's outer boundary curve, carrying is_outer. city_is_fully_paved
+    # uses it as the region that must be paved.
+    "corridor": "blocks_mark_outer",
 }
 OUTPUT_INDEX = {"city": 0, "blocks": 1, "lots": 2, "graph": 3}

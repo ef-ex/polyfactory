@@ -74,6 +74,9 @@ def run_case(name, city, field=None):
 
     # the union, not the parts — see merged_city_self_intersections
     out.append(C.merged_city_self_intersections(city))
+    # and the other half of the union: not "do the parts overlap" but "do the
+    # parts between them leave anything unpaved"
+    out.append(C.city_is_fully_paved(city, inner(cases.INTERNAL["corridor"])))
 
     out.append(C.graph_is_planar(g_graph))
     out.append(C.no_orphan_components(g_graph))
