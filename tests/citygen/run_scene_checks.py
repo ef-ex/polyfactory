@@ -89,6 +89,13 @@ def run_case(name, city, field=None):
     out.append(C.attribute_schema(g_graph, g_city))
     out.append(C.centreline_curvature_within_class(
         g_graph, city.parm("graph_params_turn_radius_scale")))
+    # the floor the S3b clamp and s5j_trim must both respect, asserted on the
+    # graph as published rather than on either mechanism's own output
+    out.append(C.no_short_graph_segments(
+        g_graph, city.parm("s5j_params_min_end_segment").eval()))
+    # ...and the clamp run at its design amplitude, which no case can reach on
+    # the infeasible side. See turn_clamp_control_rig().
+    out.append(C.turn_clamp_control_rig(city))
 
     patches = inner(cases.INTERNAL["patches"])
     surface = inner(cases.INTERNAL["surface"])
@@ -117,6 +124,10 @@ def run_case(name, city, field=None):
         out.append(C.self_intersections(roads, "selfx_roads"))
 
     # the S5 seam: the road and the patch must agree where the junction ends
+    streets = inner(cases.INTERNAL["streets"])
+    if streets:
+        out.append(C.trim_leaves_road_standing(
+            streets.geometry(), city.parm("s5j_params_min_end_segment").eval()))
     trimmed = inner(cases.INTERNAL["trim"])
     if solve and trimmed:
         out.append(C.trim_metric_is_consistent(solve.geometry(), trimmed.geometry()))

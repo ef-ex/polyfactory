@@ -487,6 +487,72 @@ curvature → smooth → clamp to `1/R_min(class)` → re-integrate. A sharp tur
 curvature far over the clamp, so one mechanism fixes both the polyline wobble that reads as
 CG and the folding corner. Build it once.
 
+#### ⚠️ The clamp must be a SOLVE, not a fixed sweep count — measured 2026-08-09
+
+The first build (`50e51f3`) was an explicit Jacobi diffusion at ω = 0.5 with `iters = 200`
+hardcoded, whose only early exit was "nothing is over the clamp any more". **That cannot tell a
+converged answer from a stalled one, so a non-converged centreline shipped silently**, and an
+audit found two separate failures behind it. Both are now fixed; the numbers are kept here
+because they are the reason the design says *solve*.
+
+**It did not converge on the example this section was written for.** Control: the plain 90°
+arterial bend, 80 m + 80 m, W = 26.8, resampled 4 m. κ × R_min after 10 / 50 / **200** / 1000 /
+5000 sweeps was 4.366 / 3.383 / **2.169** / 1.031 / 1.000. At the shipped 200 the delivered
+radius was 26.8 / 2.169 = **12.4 m against a 13.4 m half-width** — inside this section's own
+inversion floor, where the inner kerb turns itself inside out. Cause: only vertices *already*
+over the clamp moved, so the corrected region grew about one vertex per sweep and equilibrated
+in O(k²); spreading 90° over the ≥ 11 vertices a 26.8 m R_min needs at 4 m spacing takes
+thousands.
+
+**On a fold-back it diverged and collapsed segments to zero.** Same rig, a 30 m square returning
+to within 4 m of its own start: 4.37 → 5.22 (50) → **22.7 (200)** → 5320 (5000), ending with a
+**1.0e-6 m segment in `OUT_graph2`** — which is §4e-7's defect arriving from the other
+direction. Cause: `phimax = (l1+l2) / (2·rmin)` is proportional to the local segment lengths and
+the correction pulls the vertex toward the chord, which **shortens those very segments**. Smaller
+`phimax`, larger correction, shorter still, with no lower bound and no re-parametrisation.
+
+**What replaced it**, in `pfsg_turn_clamp_solve` (`pf_streetgraph.vfl`) — the wrangle now only
+reads geometry and writes the verdict back:
+
+- **Seed with the arc this section already specifies.** Each over-curved run is replaced by the
+  circular arc of radius `R_min` tangent to the polyline on both sides, then the prim is
+  resampled back onto its own point count. That is *exact in one pass* for an isolated corner,
+  and it is what removes the O(k²) — the 90° bend now converges in **20 sweeps**, a 135° bend in
+  ~68, and every case in the shipped suite in **≤ 8**.
+- **Spread each correction over the span it needs.** The excess turn needs `(φ − φmax)·R_min` of
+  extra arc length, so the displacement is applied to that many vertices with a hat weight rather
+  than to the single vertex.
+- **Re-parametrise to uniform spacing every sweep.** This is the collapse guard: afterwards every
+  segment is exactly `L/(n−1)`, so one scalar test on the total length bounds all of them. The
+  floor is `1.0 m`, the same constant as `s5j_params_min_end_segment`, and
+  `no_short_graph_segments` asserts it on the graph as published.
+- **Keep the best iterate, not the last**, so a diverging sequence cannot ship its worst state.
+  Stop on the residual (1.01, tighter than the check's 1.02 slack), on a 50-sweep stall, or at a
+  200-sweep cap.
+- **Report the verdict.** `turn_clamp_converged`, `turn_clamp_ratio` and `turn_clamp_sweeps` ship
+  on every graph prim, and `centreline_curvature_within_class` fails on a non-converged prim even
+  when the geometry it kept happens to read low.
+
+**The fold-back is an infeasible input, not a solver failure, and saying so is the deliverable.**
+R = 26.8 m needs 26.8 m of tangent run either side of a right angle and the sides are 30 m, so no
+polyline through those pinned endpoints satisfies the clamp and is still a street. It now comes
+out **bounded at its input value with a 2.83 m minimum segment and `turn_clamp_converged = 0`**,
+at any budget up to 5000.
+
+**Closed prims are solved, not skipped.** The first build skipped them (`primintrinsic("closed")`)
+while the check measured them, so the day the ring closure (`011fdcb`) puts one back in the graph
+the check would have fired with nothing able to clear it. The relaxation wraps instead; a ring
+already inside the clamp is returned bit-identical (control-tested: R = 120 m ring, 0 sweeps, 0
+points moved), and a 300 m square ring goes 10.524 → 1.008 in 41 sweeps. **No case in the suite
+produces a closed prim, so this path is exercised only by that control test.**
+
+⚠️ **This was the third mechanism in this project to ship green and unexercised at its design
+amplitude**, after `offset` lot mode (§4e-6) and `max_fillet_fraction` (§4h-2). All five cases
+only ever asked the clamp for a few degrees, so it read exactly 1.000 on all of them. The cure is
+the same one every time: **case `F_bend`** in `tests/citygen/cases.py` puts a real 90° corner on a
+real arterial through the real pipeline, and `turn_clamp_control_rig` runs the shipped wrangle on
+the infeasible fold-back, which cannot be a passing case.
+
 ### S4 — Classify
 
 - **Hierarchy:** `highway · arterial · collector · local · alley`. Derived from the S2 major/minor
@@ -868,7 +934,8 @@ had never worked; two of those were never audited and one was audited too late.
 |---|---|---|
 | **Ring closure in the radial city** (`8a83baa`) | **implementer-verified** | The two bidirectional halves each soft-stop on the *other half's* occupancy claim, so the seam always lands on an occupancy cell boundary — proved by sweeping `min_street_sep`: 130 → gap at x −7.90, 110 → −71.46, 90 → −39.65, each the boundary that setting creates. Gap was 4.877 m at (−7.90, −99.65), far past the 0.5 m fuse tolerance. Closed on a shared point behind two gates (seam ≤ 2.5 steps **and** traced length > 10× seam; the first rejects a genuinely-ended street, the second stops a stub welding into a triangle). Verified by connectivity walk, not by eye: 5 ring edges, every ring node degree 2, one walk consumes all 5 and returns to start. Suite 23 → 18 failing. **Its audit never reported.** |
 | **S7 — block boundary IS the kerb; PolyExpand2D deleted** (`4c53af5`, `0156c30`) | **done** — audited | `city_is_fully_paved` **0 m² on all five** (was A 757, D 919, C 7). `lots_clear_of_junctions` **0 on all five** (was up to 558 m²/junction on E). `lots_tile_blocks` passes everywhere. Seam 0.0071 → **0.0001 m**. `blocks_capback` and `blocks_expand` gone |
-| **S3b — turns, built as the curvature clamp** (`50e51f3`) | **implementer-verified** | `no_sweep_fold_after_trim` **0 folds on all five** (C had 2). Curvature ÷ clamp **1.000, 0 over**, all five. Audit still running |
+| **S3b — turns, built as the curvature clamp** (`50e51f3`) | ⚠️ **the mechanism did not work at its design amplitude.** Audited, root-caused, rebuilt — see §S3b "the clamp must be a SOLVE" | The 1.000 below was real but meaningless: no case asked the clamp for more than a few degrees. On a plain 90° arterial bend it delivered a **12.4 m radius against a 13.4 m half-width**, and on a fold-back it diverged to a **1.0e-6 m segment**. Rebuilt as a seeded residual solve; the bend now converges to 1.010 in 20 sweeps and the fold-back is *reported* rather than shipped. New case `F_bend` and check `turn_clamp_control_rig` |
+| **S3b — the folds it did fix** (`50e51f3`) | **implementer-verified** | `no_sweep_fold_after_trim` **0 folds on all five** (C had 2) — that part was `pfsg_clear_of_vertex`, not the clamp, and §4c already records it |
 | **Ring closure gate re-derived from cell size** (`011fdcb`) | **implementer-verified** | Defaults proven byte-identical by hashing every vertex. Audit running |
 | Node merge/relax, shallow-arm merge, dead ends, majors-enclose-minors | not started | — |
 
@@ -1289,14 +1356,36 @@ the broken seam was between the blocks and the roads, and no per-component check
 
 ⚠️ **Closing the seam RAISES `selfx_city_merged`, and that is the §4h-5 phenomenon again, not a
 new defect.** B 89 → 95, C 187 → 225, entirely at dead ends (C: 35 → 88 points within 20 m of a
-degree-1 node, "other" 152 → 137). Two measurements settle what it is: lot-over-road plan
-overlap near dead ends is **unchanged to 0.01 m² (B 3.38 → 3.38, C 19.80 → 19.79)**, so the
-pull-back adds no interpenetration; and removing the lots from the merge drops the count to
-**0 on every case**, so the metric is entirely a lot↔road contact measure. Intersection Analysis
-registers touching coincident edges and is blind to coplanar overlap, so it **penalises exact
-abutment and rewards a small overlap** — a deliberate 5 cm overshoot scores C 162, better than
-the 187 it scored with a 13.4 m hole. Exact abutment is what §S5 and §S7 specify; the number is
-the wrong instrument for this seam.
+degree-1 node, "other" 152 → 137). Lot-over-road plan overlap near dead ends is **unchanged to
+0.01 m² (B 3.38 → 3.38, C 19.80 → 19.79)**, so the pull-back adds no interpenetration.
+Intersection Analysis registers touching coincident edges and is blind to coplanar overlap, so
+it **penalises exact abutment and rewards a small overlap** — a deliberate 5 cm overshoot scores
+C 162, better than the 187 it scored with a 13.4 m hole. Exact abutment is what §S5 and §S7
+specify, so the number is the wrong instrument *for the lot seam*.
+
+> ⚠️ **CORRECTION, 2026-08-09.** This paragraph used to end "removing the lots from the merge
+> drops the count to **0 on every case**, so the metric is entirely a lot↔road contact measure."
+> **That is false, and it was being used to wave away C's largest regression.** Re-measured at
+> the real output 0 (`out_city ← out_groupclean ← city_weld ← city_merge2`; note that §4h-5's
+> "output 0 is `city_merge2`" is also wrong — the weld and the group clean sit between them, and
+> reading it at `city_merge2` inflates A 6 → 63, B 93 → 381, C 326 → 727):
+>
+> | case | shipped | with the lots removed |
+> |---|---|---|
+> | A_drawn | 6 | **6** |
+> | B_grid | 93 | **86** |
+> | C_radial | 326 | **112** |
+> | D_offset | 6 | **6** |
+> | E_short_t | 0 | **0** |
+> | F_bend | 2 | **2** |
+>
+> So **112 of C's 326 points are road↔junction and have nothing to do with lot abutment**, and
+> A, D and F do not move at all. F_bend is the cleanest statement of it: that case ships **zero
+> lots** and still scores 2. The lot-abutment reading explains at most the *difference* between
+> the two columns (B 7, C 214) — it does not explain the residue, and it explains none of A, D
+> or F. The residue is the §4e-1 road↔junction seam, which is a real defect class and is still
+> open. Do not use §4h-5 to dismiss a movement in this number without splitting it this way
+> first; the split takes one cook.
 
 **2. The dead-end rails are at their useful limit, and the binding constraint is NOT junction
 spacing.** Swept on B and C, all guardrails measured (`selfx_junction_surface`, the seam,
@@ -1435,6 +1524,9 @@ The stage API. Names use the standard urban-modelling vocabulary — convention 
 | `region_id` | string | owning region — unit of caching, locking and copy/paste |
 | `land_use` | string | zoning category, drives template and hierarchy defaults |
 | `source_node` | string | **which node generated this element.** Required from v1 — it is what lets a downstream edit be committed back to the right upstream owner (`citygen.md` Contract 2) |
+| `turn_clamp_converged` | int | 1 = the S3b curvature clamp reached its residual on this edge, 0 = it did not. **A solver that cannot say whether it converged ships a broken answer silently, which is exactly what happened** (§S3b). Read by `centreline_curvature_within_class` |
+| `turn_clamp_ratio` | float | the residual it settled at, as κ × R_min — 1.0 *is* the clamp |
+| `turn_clamp_sweeps` | int | sweeps used, against a 200 cap. Every shipped case uses ≤ 8; a 90° arterial bend uses 20 |
 
 `elem_id` and `source_node` must **survive all the way to the final geometry**, not merely exist at
 generation time. Everything in the edit-and-override design depends on it.

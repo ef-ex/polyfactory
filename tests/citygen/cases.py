@@ -59,6 +59,13 @@ SHORT_T_STREETS = [
     [(0, 0, 0), (0, 0, 20)],                     # the 20 m arm that binds
 ]
 
+# Case F's input: a 90 degree bend on an ARTERIAL — S3b at its design amplitude.
+# See build_all() for why it exists and how the numbers were chosen.
+BEND_STREETS = [
+    [(-200, 0, -140), (140, 0, -140), (140, 0, 200)],   # the L, 340 + 340 m
+    [(-40, 0, -280), (-40, 0, -140)],                   # a 140 m collector T
+]
+
 _DRAW_SNIPPET = """
 import hou
 g = hou.pwd().geometry(); g.clear()
@@ -150,6 +157,35 @@ def build_all(parent=None):
     e.setInput(0, edraw)
     e.parm("s5j_params_corner_radius_scale").set(2.5)
     cases["E_short_t"] = {"city": e, "input": edraw}
+
+    # F — the 90 DEGREE BEND ON AN ARTERIAL. S3b's own worked example, and the
+    # one amplitude at which the curvature clamp is actually a solver rather
+    # than a nudge.
+    #
+    # It exists because an audit ran the shipped clamp on exactly this and found
+    # it does not converge: kappa x R_min after 10 / 50 / 200 / 1000 / 5000
+    # Jacobi sweeps is 4.366 / 3.383 / 2.169 / 1.031 / 1.000, so at the shipped
+    # 200 it delivered R = 26.8 / 2.169 = 12.4 m against a 13.4 m half-width —
+    # inside S3b's own inversion floor, where the inner kerb turns inside out.
+    # Every case A-E only ever asks the clamp for a few degrees, so all five
+    # sat at exactly 1.000 and the suite was green. Third mechanism in this
+    # project to ship green and unexercised at its design amplitude, after
+    # `offset` lot mode (4e-6) and `max_fillet_fraction` (4h-2); the cure is the
+    # same one every time, which is a case that reaches the amplitude.
+    #
+    # Sized so the bend really is on an arterial and really is 90 degrees. The
+    # T at (-40, -140) splits the L into a 160 m collector and a 520 m arm; the
+    # 520 m arm carries the corner and clears `street_params_arterial_len`
+    # (180 m), so it is 26.8 m wide and R_min = 26.8 m. The fillet needs
+    # R x tan(45) = 26.8 m of tangent run on each leg and the legs are 340 and
+    # 340, so the turn is feasible with room to spare — a failure here is the
+    # solver, not the input.
+    fdraw = parent.createNode("python", "F_drawn_streets")
+    fdraw.parm("python").set(_DRAW_SNIPPET.replace(
+        repr(DRAWN_STREETS), repr(BEND_STREETS)))
+    f = parent.createNode("pf_citygen_streets", "F_arterial_bend")
+    f.setInput(0, fdraw)
+    cases["F_bend"] = {"city": f, "input": fdraw}
 
     parent.layoutChildren()
     return parent, cases

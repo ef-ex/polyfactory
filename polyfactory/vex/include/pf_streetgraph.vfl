@@ -138,6 +138,20 @@ vector pfsg_tangent_at_length(const int geo, prim; const float d) {
 // Trimming MORE is always safe: the fillet tangents stay inside the cut and the
 // mouth moves out with it. `d` is measured from the polyline's start when
 // `atstart`, from its end otherwise, and the result is never less than `d`.
+//
+// ⚠️ TRIMMING MORE IS SAFE ONLY UP TO THE LENGTH OF THE STREET, and the first
+// version of this did not bound it. When the cut landed within `minseg` of the
+// FAR end of the polyline, `min(acc[i] + minseg, L)` returned `L` and the mirror
+// branch returned `0.0` - either way the whole street was consumed, `s5j_trim`
+// deleted it at `ts + te >= 0.98 L`, and the junction kept a mouth opening onto
+// nothing. That is 4e-3 reconstructed by a different route. It was never
+// triggered but the margin was one push wide: B prim 29 is a 19.6 m local with
+// 17.40 m trimmed - 2.18 m standing, 1.18 m from the cliff - and E's binding
+// 20 m arm had already dropped from 4.80 to 3.00 m of road. So the push is now
+// capped at `L - minseg`, and when there is no room to advance the cut STAYS
+// where it was: a sliver of a terminal segment is a fold, but a deleted street
+// under a live mouth is a hole in the city, and the fold is the lesser one.
+// `trim_leaves_road_standing` asserts the margin instead of assuming it.
 float pfsg_clear_of_vertex(const int geo, prim, atstart; const float d, minseg) {
     int pts[] = primpoints(geo, prim);
     int n = len(pts);
@@ -156,14 +170,354 @@ float pfsg_clear_of_vertex(const int geo, prim, atstart; const float d, minseg) 
     float s = atstart ? d : L - d;                  // the cut, from the start
     for (int i = 1; i < n; i++) {
         if (acc[i] <= s) continue;                  // the segment holding the cut
+        // the push must leave `minseg` of road standing, and if it cannot then
+        // it does not happen at all - see the warning above
         if (atstart) {
-            if (acc[i] - s < minseg) s = min(acc[i] + minseg, L);
+            float push = acc[i] + minseg;
+            if (acc[i] - s < minseg && push <= L - minseg) s = push;
         } else {
-            if (s - acc[i - 1] < minseg) s = max(acc[i - 1] - minseg, 0.0);
+            float push = acc[i - 1] - minseg;
+            if (s - acc[i - 1] < minseg && push >= minseg) s = push;
         }
         break;
     }
-    return max(atstart ? s : L - s, d);
+    // never consume road the caller did not already ask for
+    return min(max(atstart ? s : L - s, d), max(d, L - minseg));
+}
+
+
+// ---------------------------------------------------------------------------
+// S3b - the centreline curvature clamp.
+//
+// A node where exactly two streets meet is not a junction, it is a street
+// turning a corner, and S3b solves it on the CENTRELINE so the sweep just
+// follows: the outer kerb comes out at R + halfwidth and the inner at
+// R - halfwidth on their own. Built as 4f-4's curvature clamp, because a sharp
+// turn is only curvature far over the clamp - one mechanism for both.
+//
+// ⚠️ THE FIRST VERSION OF THIS DID NOT SOLVE ANYTHING. It was an explicit
+// Jacobi diffusion, `iters = 200` hardcoded, whose only exit was "nothing is
+// over the clamp any more" - it could not tell a converged answer from a
+// stalled one, so a non-converged centreline shipped silently. An audit ran it
+// on the plain 90 degree arterial bend S3b was written for (80 + 80 m,
+// W = 26.8, resampled 4 m) and measured kappa x R_min after
+// 10 / 50 / 200 / 1000 / 5000 sweeps: 4.366 / 3.383 / 2.169 / 1.031 / 1.000.
+// At the shipped 200 that is a delivered radius of 26.8 / 2.169 = 12.4 m
+// against a 13.4 m half-width - INSIDE S3b's own inversion floor, where the
+// inner kerb turns itself inside out. Every case in the suite only ever asked
+// it for a few degrees, so all five sat at exactly 1.000 and it looked solved.
+//
+// Two independent defects, and both are fixed here:
+//
+//  1. O(k^2). Only vertices ALREADY over the clamp moved, so the corrected
+//     region grew by about one vertex per sweep. Spreading 90 degrees over the
+//     >= 11 vertices a 26.8 m R_min needs at 4 m spacing therefore took
+//     thousands of sweeps. Cured twice over: the run is SEEDED with the
+//     tangent arc S3b actually specifies (exact in one pass for an isolated
+//     corner), and what relaxation is left spreads each correction over the
+//     whole span the excess turn needs instead of one vertex.
+//
+//  2. Divergence, and segments collapsing to zero. `phimax` is proportional to
+//     the local segment lengths and the correction pulls the vertex toward the
+//     chord, which SHORTENS those very segments - smaller phimax, larger
+//     correction, shorter still, with no lower bound. On a fold-back (a 30 m
+//     square returning to within 4 m of its own start) the shipped loop went
+//     4.37 -> 22.7 (200) -> 5320 (5000) and left a 1.0e-6 m segment in the
+//     shipped graph, which is 4e-7's defect arriving from the other direction.
+//     Cured by re-parametrising to uniform spacing every sweep, which makes
+//     every segment L/(n-1) so one scalar test bounds them all, and by keeping
+//     the BEST iterate rather than the last so a diverging sequence cannot
+//     ship its worst state.
+//
+// The fold-back is not a solver failure, it is an infeasible input: R = 26.8 m
+// needs 26.8 m of tangent run either side of a right angle and the sides are
+// 30 m long, so no polyline through those pinned endpoints satisfies the clamp
+// while remaining a street. The honest answer is to report it, which is what
+// `converged` is for - `centreline_curvature_within_class` then sees a flagged
+// non-convergence instead of a silently mangled centreline.
+//
+// RE-INTEGRATION IS STILL A RELAXATION and still has to be. Both ends of a
+// street are NODES and may not move; integrating a clamped curvature from one
+// end lands the far end elsewhere, and the closure correction that puts it back
+// is a similarity whose scale multiplies the curvature straight back through
+// the clamp. Everything below leaves both endpoints exactly where the graph
+// put them.
+
+// Signed turn at b, positive counter-clockwise in XZ, with the two edge
+// lengths. Returns 0 when either edge is degenerate.
+float pfsg_turn_at(const vector a, b, c; export float l1, l2) {
+    vector e1 = b - a, e2 = c - b;
+    l1 = length(e1);
+    l2 = length(e2);
+    if (l1 < 1e-9 || l2 < 1e-9) return 0.0;
+    vector u = e1 / l1, v = e2 / l2;
+    return atan2(cross(u, v).y, dot(u, v));
+}
+
+
+// Worst discrete curvature x R_min over a polyline. 1.0 IS the clamp, and this
+// is deliberately the same expression `centreline_curvature_within_class`
+// measures - a solver that converges to a different metric than the check is
+// not a solver.
+float pfsg_turn_residual(const vector P[]; const float rmin; const int closed) {
+    int n = len(P);
+    if (n < 3) return 0.0;
+    float worst = 0.0;
+    int lo = closed ? 0 : 1, hi = closed ? n : n - 1;
+    for (int i = lo; i < hi; i++) {
+        float l1, l2;
+        float phi = abs(pfsg_turn_at(P[(i - 1 + n) % n], P[i], P[(i + 1) % n], l1, l2));
+        if (l1 < 1e-9 || l2 < 1e-9) continue;
+        float r = phi / (0.5 * (l1 + l2)) * rmin;
+        if (r > worst) worst = r;
+    }
+    return worst;
+}
+
+
+float pfsg_poly_length(const vector P[]; const int closed) {
+    int n = len(P);
+    float L = 0.0;
+    for (int i = 1; i < n; i++) L += distance(P[i - 1], P[i]);
+    if (closed && n > 1) L += distance(P[n - 1], P[0]);
+    return L;
+}
+
+
+// Position at arc length `s` along a point array whose cumulative lengths are
+// `acc`. The array form of pfsg_pos_at_length - the solver works on a local
+// copy, not on geometry, because a wrangle reads INPUT points and would
+// otherwise never see its own corrections.
+vector pfsg_poly_sample(const vector P[]; const float acc[]; const float s) {
+    int m = len(acc), n = len(P);
+    if (m < 2) return P[0];
+    float t = clamp(s, 0.0, acc[m - 1]);
+    int j = 1;
+    while (j < m - 1 && acc[j] < t) j++;
+    float d = acc[j] - acc[j - 1];
+    float u = (d <= 1e-12) ? 0.0 : (t - acc[j - 1]) / d;
+    return lerp(P[(j - 1) % n], P[j % n], u);
+}
+
+
+// Resample `src` onto exactly `n` points, uniform by arc length, ends pinned.
+vector[] pfsg_poly_resample(const vector src[]; const int n) {
+    int m = len(src);
+    if (m < 2 || n < 2) return src;
+    float acc[];
+    resize(acc, m);
+    acc[0] = 0.0;
+    for (int i = 1; i < m; i++) acc[i] = acc[i - 1] + distance(src[i - 1], src[i]);
+    float L = acc[m - 1];
+    vector out[];
+    resize(out, n);
+    out[0] = src[0];
+    out[n - 1] = src[m - 1];
+    for (int k = 1; k < n - 1; k++)
+        out[k] = pfsg_poly_sample(src, acc, L * float(k) / float(n - 1));
+    return out;
+}
+
+
+// Re-parametrise in place to uniform spacing, keeping the point count. This is
+// the collapse guard: after it every segment is exactly L/(n-1), so bounding
+// the total length bounds every segment at once.
+void pfsg_turn_reparam(export vector P[]; const int closed) {
+    int n = len(P);
+    if (n < 3) return;
+    if (!closed) {
+        P = pfsg_poly_resample(P, n);
+        return;
+    }
+    vector src[] = P;
+    append(src, P[0]);
+    vector r[] = pfsg_poly_resample(src, n + 1);
+    resize(r, n);
+    P = r;
+}
+
+
+// SEED. Replace every over-curved run with the circular arc of radius `rmin`
+// tangent to the polyline on both sides - which is what S3b specifies in the
+// first place - then resample back onto the original point count. Exact in one
+// pass for an isolated corner, which is the case that matters: it is what turns
+// an O(k^2) diffusion into a couple of dozen sweeps of cleanup.
+//
+// Returns 0 when some corner could not reach `rmin` because there is not enough
+// straight either side of it. The caller does not treat that as failure - the
+// partial arc is still a better starting point than the corner - it just means
+// the relaxation has real work left and may not converge.
+int pfsg_turn_fillet_seed(export vector P[]; const float rmin) {
+    int n = len(P);
+    if (n < 4 || rmin <= 1e-6) return 0;
+    float acc[];
+    resize(acc, n);
+    acc[0] = 0.0;
+    for (int i = 1; i < n; i++) acc[i] = acc[i - 1] + distance(P[i - 1], P[i]);
+    float L = acc[n - 1];
+    if (L <= 1e-9) return 0;
+
+    int ra[], rb[];
+    for (int i = 1; i < n - 1; ) {
+        float l1, l2;
+        float phi = abs(pfsg_turn_at(P[i - 1], P[i], P[i + 1], l1, l2));
+        if (l1 < 1e-9 || l2 < 1e-9 || phi <= 0.5 * (l1 + l2) / rmin + 1e-9) {
+            i++;
+            continue;
+        }
+        int j = i;
+        while (j + 1 < n - 1) {
+            float m1, m2;
+            float q = abs(pfsg_turn_at(P[j], P[j + 1], P[j + 2], m1, m2));
+            if (m1 < 1e-9 || m2 < 1e-9 || q <= 0.5 * (m1 + m2) / rmin + 1e-9) break;
+            j++;
+        }
+        append(ra, i);
+        append(rb, j);
+        i = j + 1;
+    }
+    int nr = len(ra);
+    if (nr == 0) return 1;
+
+    float step = L / float(n - 1);
+    vector ideal[];
+    append(ideal, P[0]);
+    float cursor = -1.0, prev_end = 0.0;
+    int exact = 1;
+    for (int k = 0; k < nr; k++) {
+        int a = ra[k], b = rb[k];
+        vector d0 = P[a] - P[a - 1], d1 = P[b + 1] - P[b];
+        float n0 = length(d0), n1 = length(d1);
+        if (n0 < 1e-9 || n1 < 1e-9) { exact = 0; continue; }
+        d0 /= n0;
+        d1 /= n1;
+        float phi = atan2(cross(d0, d1).y, dot(d0, d1));
+        float ap = abs(phi);
+        if (ap < 1e-6 || ap > 3.14159265 - 1e-3) { exact = 0; continue; }
+        float tanh2 = abs(tan(phi * 0.5));
+        // the tangent run has to fit between this corner's neighbours: the end
+        // of the previous fillet on one side, the start of the next run on the
+        // other, and the polyline's own ends beyond those
+        float nxt = (k + 1 < nr) ? acc[ra[k + 1] - 1] : L;
+        float avail = min(acc[a - 1] - prev_end, nxt - acc[b + 1]);
+        float ru = rmin, T = rmin * tanh2;
+        if (T > avail) { T = avail; ru = avail / max(tanh2, 1e-9); exact = 0; }
+        if (ru <= 1e-6 || T <= 1e-9) continue;
+
+        float sA = acc[a - 1] - T, sB = acc[b + 1] + T;
+        vector A = pfsg_poly_sample(P, acc, sA);
+        vector B = pfsg_poly_sample(P, acc, sB);
+        for (int q = 1; q < n; q++)
+            if (acc[q] > cursor && acc[q] < sA) append(ideal, P[q]);
+        append(ideal, A);
+        // the centre is perpendicular to d0 at distance ru on the side we turn
+        // toward. Pick the candidate by measurement rather than by reasoning
+        // about the handedness of XZ - the wrong sign here is a silent mirror.
+        vector p1 = set(-d0.z, 0.0, d0.x), c1 = A + p1 * ru, c2 = A - p1 * ru;
+        vector C = (abs(distance(c1, B) - ru) <= abs(distance(c2, B) - ru)) ? c1 : c2;
+        float a0 = atan2(A.z - C.z, A.x - C.x);
+        float a1 = atan2(B.z - C.z, B.x - C.x);
+        float sweep = a1 - a0;
+        while (sweep >  3.14159265) sweep -= 6.28318531;
+        while (sweep < -3.14159265) sweep += 6.28318531;
+        int steps = max(2, int(abs(sweep) * ru / max(step, 1e-6)));
+        for (int q = 1; q < steps; q++) {
+            float t = float(q) / float(steps), ang = a0 + sweep * t;
+            append(ideal, set(C.x + ru * cos(ang), lerp(A.y, B.y, t),
+                              C.z + ru * sin(ang)));
+        }
+        append(ideal, B);
+        cursor = sB;
+        prev_end = sB;
+    }
+    for (int q = 1; q < n - 1; q++)
+        if (acc[q] > cursor) append(ideal, P[q]);
+    append(ideal, P[n - 1]);
+    if (len(ideal) < 2) return 0;
+    P = pfsg_poly_resample(ideal, n);
+    return exact;
+}
+
+
+// One Jacobi sweep. Each over-curved vertex is pulled toward the chord of its
+// neighbours exactly as before - that part was right, and it is 4f-4's "smooth
+// kappa" step - but the displacement is now SPREAD over the span the excess
+// turn actually needs (its arc length is (phi - phimax) * rmin) instead of
+// being applied to the one vertex. That single change is what removes the
+// O(k^2): the corrected region no longer grows one vertex per sweep.
+int pfsg_turn_sweep(export vector P[]; const float rmin, relax; const int closed) {
+    int n = len(P);
+    if (n < 3) return 0;
+    vector D[];
+    resize(D, n);
+    int moved = 0;
+    int lo = closed ? 0 : 1, hi = closed ? n : n - 1;
+    for (int i = lo; i < hi; i++) {
+        vector a = P[(i - 1 + n) % n], b = P[i], c = P[(i + 1) % n];
+        float l1, l2;
+        float phi = abs(pfsg_turn_at(a, b, c, l1, l2));
+        if (l1 < 1e-9 || l2 < 1e-9) continue;
+        float phimax = 0.5 * (l1 + l2) / rmin;
+        if (phi < 1e-6 || phi <= phimax) continue;
+        vector ac = c - a;
+        float L2 = dot(ac, ac);
+        if (L2 < 1e-12) continue;
+        vector foot = a + ac * (dot(b - a, ac) / L2);
+        vector dx = (foot + (b - foot) * (phimax / phi) - b) * relax;
+        int m = int((phi - phimax) * rmin / max(0.5 * (l1 + l2), 1e-6));
+        if (m < 1) m = 1;
+        for (int j = -m; j <= m; j++) {
+            int q = i + j;
+            if (closed) q = (q % n + n) % n;
+            else if (q < 1 || q > n - 2) continue;
+            D[q] += dx * (1.0 - float(abs(j)) / float(m + 1));
+        }
+        moved = 1;
+    }
+    if (!moved) return 0;
+    for (int i = 0; i < n; i++) P[i] += D[i];
+    return 1;
+}
+
+
+// The solve. Iterates to a RESIDUAL with a budget, not to a fixed count, keeps
+// the best iterate so a diverging sequence cannot ship its worst state, refuses
+// any step that would take a segment below `minseg`, and reports whether it got
+// there. Returns 1 when converged; `resid` and `sweeps` come back either way.
+int pfsg_turn_clamp_solve(export vector P[]; const float rmin, tol, minseg;
+                          const int closed, budget;
+                          export float resid; export int sweeps) {
+    int n = len(P);
+    sweeps = 0;
+    resid = pfsg_turn_residual(P, rmin, closed);
+    if (n < 4 || resid <= tol) return resid <= tol;
+
+    vector best[] = P;
+    float bestr = resid;
+    int nseg = closed ? n : n - 1, stall = 0;
+
+    if (!closed) {                      // the arc construction pins two ends
+        vector S[] = P;
+        pfsg_turn_fillet_seed(S, rmin);
+        sweeps = 1;
+        if (pfsg_poly_length(S, closed) >= minseg * float(nseg)) {
+            float r = pfsg_turn_residual(S, rmin, closed);
+            P = S;
+            if (r < bestr) { bestr = r; best = S; }
+        }
+    }
+    while (sweeps < budget && bestr > tol) {
+        if (!pfsg_turn_sweep(P, rmin, 0.5, closed)) break;
+        sweeps += 1;
+        if (pfsg_poly_length(P, closed) < minseg * float(nseg)) break;
+        pfsg_turn_reparam(P, closed);
+        float r = pfsg_turn_residual(P, rmin, closed);
+        if (r < bestr - 1e-6) { bestr = r; best = P; stall = 0; }
+        else if (++stall >= 50) break;  // not converging; stop burning cook time
+    }
+    P = best;
+    resid = bestr;
+    return bestr <= tol;
 }
 
 

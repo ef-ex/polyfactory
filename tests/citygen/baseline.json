@@ -54,7 +54,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 8
+      "value": 6
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -122,17 +122,56 @@
       "value": 0
     },
     {
-      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows",
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, and not_converged means the solver said so itself",
       "name": "centreline_curvature_within_class",
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 1.0,
+        "max_kappa_over_clamp": 0.947,
+        "not_converged": 0,
         "over": 0,
         "worst_at": [
-          -59.61,
-          9.86
+          -51.78,
+          8.83
         ]
+      }
+    },
+    {
+      "detail": "shortest centreline segment in the published graph; the floor is 1.00 m",
+      "name": "no_short_graph_segments",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_segment_m": 3.8144,
+        "under": 0,
+        "worst_at": [
+          -158.05,
+          -119.0
+        ]
+      }
+    },
+    {
+      "detail": "the 90 deg arterial bend must converge inside the clamp with R above the half-width; the fold-back is infeasible and must be flagged, not diverged",
+      "name": "turn_clamp_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bend90": {
+          "R_delivered": 26.54,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0097,
+          "min_seg": 3.6247,
+          "sweeps": 20
+        },
+        "foldback": {
+          "R_delivered": 2.55,
+          "converged": 0,
+          "half_width": 13.4,
+          "kappa": 10.5243,
+          "min_seg": 2.8284,
+          "sweeps": 46
+        }
       }
     },
     {
@@ -186,6 +225,20 @@
       "value": 0
     },
     {
+      "detail": "street length left after both junction trims; below 1.00 m s5j_trim is about to delete it under a live mouth",
+      "name": "trim_leaves_road_standing",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_standing_m": 67.411,
+        "under": 0,
+        "worst_at": [
+          -119.92,
+          -118.09
+        ]
+      }
+    },
+    {
       "detail": "road terminal cross-section vs mouth cap corners; both endpoints must land within 0.05 m",
       "name": "trim_metric_is_consistent",
       "ok": true,
@@ -227,14 +280,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 33771.8 vs blocks 33771.8)",
+      "detail": "relative area error (lots 33773.1 vs blocks 33773.1)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 3.74e-07
+      "value": 9e-09
     },
     {
-      "detail": "83 prims, 83 distinct footprints",
+      "detail": "81 prims, 81 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -246,11 +299,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 65,
-        "max": 9.51,
-        "median": 3.77,
-        "over": 15,
-        "p90": 7.32
+        "lots": 64,
+        "max": 9.49,
+        "median": 3.62,
+        "over": 12,
+        "p90": 7.15
       }
     },
     {
@@ -291,9 +344,9 @@
       "skipped": false,
       "value": {
         "blocks": 2,
-        "city": 4323,
+        "city": 4321,
         "edges": 15,
-        "lots": 83
+        "lots": 81
       }
     }
   ],
@@ -352,7 +405,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 92
+      "value": 93
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -420,17 +473,56 @@
       "value": 0
     },
     {
-      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows",
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, and not_converged means the solver said so itself",
       "name": "centreline_curvature_within_class",
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 1.0,
+        "max_kappa_over_clamp": 1.008,
+        "not_converged": 0,
         "over": 0,
         "worst_at": [
-          224.58,
-          -235.54
+          217.27,
+          -237.92
         ]
+      }
+    },
+    {
+      "detail": "shortest centreline segment in the published graph; the floor is 1.00 m",
+      "name": "no_short_graph_segments",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_segment_m": 3.6742,
+        "under": 0,
+        "worst_at": [
+          390.74,
+          -55.64
+        ]
+      }
+    },
+    {
+      "detail": "the 90 deg arterial bend must converge inside the clamp with R above the half-width; the fold-back is infeasible and must be flagged, not diverged",
+      "name": "turn_clamp_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bend90": {
+          "R_delivered": 26.54,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0097,
+          "min_seg": 3.6247,
+          "sweeps": 20
+        },
+        "foldback": {
+          "R_delivered": 2.55,
+          "converged": 0,
+          "half_width": 13.4,
+          "kappa": 10.5243,
+          "min_seg": 2.8284,
+          "sweeps": 46
+        }
       }
     },
     {
@@ -451,7 +543,7 @@
         "radius": 2e-07,
         "radius_fit": 0.018,
         "straight": 0,
-        "tangent": 3.46e-05,
+        "tangent": 3.4e-05,
         "unfitted": 0
       }
     },
@@ -460,7 +552,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "600/600"
+      "value": "602/602"
     },
     {
       "detail": "",
@@ -482,6 +574,20 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "street length left after both junction trims; below 1.00 m s5j_trim is about to delete it under a live mouth",
+      "name": "trim_leaves_road_standing",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_standing_m": 2.183,
+        "under": 0,
+        "worst_at": [
+          386.2,
+          -41.67
+        ]
+      }
     },
     {
       "detail": "road terminal cross-section vs mouth cap corners; both endpoints must land within 0.05 m",
@@ -529,10 +635,10 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 5.4e-08
+      "value": 7e-09
     },
     {
-      "detail": "573 prims, 573 distinct footprints",
+      "detail": "569 prims, 569 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -544,10 +650,10 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 436,
+        "lots": 433,
         "max": 13.46,
         "median": 3.06,
-        "over": 154,
+        "over": 150,
         "p90": 8.22
       }
     },
@@ -591,7 +697,7 @@
         "blocks": 15,
         "city": 18381,
         "edges": 65,
-        "lots": 573
+        "lots": 569
       }
     }
   ],
@@ -650,7 +756,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 325
+      "value": 326
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -718,17 +824,56 @@
       "value": 0
     },
     {
-      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows",
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, and not_converged means the solver said so itself",
       "name": "centreline_curvature_within_class",
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 1.0,
+        "max_kappa_over_clamp": 0.703,
+        "not_converged": 0,
         "over": 0,
         "worst_at": [
-          -80.94,
-          -269.56
+          33.9,
+          -143.72
         ]
+      }
+    },
+    {
+      "detail": "shortest centreline segment in the published graph; the floor is 1.00 m",
+      "name": "no_short_graph_segments",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_segment_m": 3.4284,
+        "under": 0,
+        "worst_at": [
+          -280.69,
+          237.72
+        ]
+      }
+    },
+    {
+      "detail": "the 90 deg arterial bend must converge inside the clamp with R above the half-width; the fold-back is infeasible and must be flagged, not diverged",
+      "name": "turn_clamp_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bend90": {
+          "R_delivered": 26.54,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0097,
+          "min_seg": 3.6247,
+          "sweeps": 20
+        },
+        "foldback": {
+          "R_delivered": 2.55,
+          "converged": 0,
+          "half_width": 13.4,
+          "kappa": 10.5243,
+          "min_seg": 2.8284,
+          "sweeps": 46
+        }
       }
     },
     {
@@ -782,6 +927,20 @@
       "value": 9
     },
     {
+      "detail": "street length left after both junction trims; below 1.00 m s5j_trim is about to delete it under a live mouth",
+      "name": "trim_leaves_road_standing",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_standing_m": 6.2,
+        "under": 0,
+        "worst_at": [
+          55.98,
+          379.6
+        ]
+      }
+    },
+    {
       "detail": "road terminal cross-section vs mouth cap corners; both endpoints must land within 0.05 m",
       "name": "trim_metric_is_consistent",
       "ok": true,
@@ -811,7 +970,7 @@
       "skipped": false,
       "value": {
         "folds": 0,
-        "max_ratio": 0.251,
+        "max_ratio": 0.176,
         "min_seg": 1.0006
       }
     },
@@ -823,14 +982,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 311966.0 vs blocks 311966.0)",
+      "detail": "relative area error (lots 311970.6 vs blocks 311970.7)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 6e-09
+      "value": 8.3e-08
     },
     {
-      "detail": "789 prims, 789 distinct footprints",
+      "detail": "795 prims, 795 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -842,21 +1001,21 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 575,
-        "max": 18.38,
-        "median": 3.13,
-        "over": 197,
-        "p90": 8.63
+        "lots": 571,
+        "max": 16.5,
+        "median": 3.02,
+        "over": 192,
+        "p90": 8.44
       }
     },
     {
-      "detail": "self-touching parcels within 0.001 m (47 of them ship as buildable)",
+      "detail": "self-touching parcels within 0.001 m (46 of them ship as buildable)",
       "name": "lots_are_simple_polygons",
       "ok": false,
       "skipped": false,
       "value": {
         "lots": 49,
-        "viable": 47
+        "viable": 46
       }
     },
     {
@@ -891,9 +1050,9 @@
       "skipped": false,
       "value": {
         "blocks": 16,
-        "city": 21136,
+        "city": 21142,
         "edges": 84,
-        "lots": 789
+        "lots": 795
       }
     }
   ],
@@ -952,7 +1111,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 8
+      "value": 6
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -1020,17 +1179,56 @@
       "value": 0
     },
     {
-      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows",
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, and not_converged means the solver said so itself",
       "name": "centreline_curvature_within_class",
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 1.0,
+        "max_kappa_over_clamp": 0.947,
+        "not_converged": 0,
         "over": 0,
         "worst_at": [
-          -59.61,
-          9.86
+          -51.78,
+          8.83
         ]
+      }
+    },
+    {
+      "detail": "shortest centreline segment in the published graph; the floor is 1.00 m",
+      "name": "no_short_graph_segments",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_segment_m": 3.8144,
+        "under": 0,
+        "worst_at": [
+          -158.05,
+          -119.0
+        ]
+      }
+    },
+    {
+      "detail": "the 90 deg arterial bend must converge inside the clamp with R above the half-width; the fold-back is infeasible and must be flagged, not diverged",
+      "name": "turn_clamp_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bend90": {
+          "R_delivered": 26.54,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0097,
+          "min_seg": 3.6247,
+          "sweeps": 20
+        },
+        "foldback": {
+          "R_delivered": 2.55,
+          "converged": 0,
+          "half_width": 13.4,
+          "kappa": 10.5243,
+          "min_seg": 2.8284,
+          "sweeps": 46
+        }
       }
     },
     {
@@ -1084,6 +1282,20 @@
       "value": 0
     },
     {
+      "detail": "street length left after both junction trims; below 1.00 m s5j_trim is about to delete it under a live mouth",
+      "name": "trim_leaves_road_standing",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_standing_m": 67.411,
+        "under": 0,
+        "worst_at": [
+          -119.92,
+          -118.09
+        ]
+      }
+    },
+    {
       "detail": "road terminal cross-section vs mouth cap corners; both endpoints must land within 0.05 m",
       "name": "trim_metric_is_consistent",
       "ok": true,
@@ -1125,11 +1337,11 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 33771.8 vs blocks 33771.8)",
+      "detail": "relative area error (lots 33773.1 vs blocks 33773.1)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 3.65e-07
+      "value": 1.2e-08
     },
     {
       "detail": "61 prims, 61 distinct footprints",
@@ -1318,14 +1530,53 @@
       "value": 0
     },
     {
-      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows",
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, and not_converged means the solver said so itself",
       "name": "centreline_curvature_within_class",
       "ok": true,
       "skipped": false,
       "value": {
         "max_kappa_over_clamp": 0.0,
+        "not_converged": 0,
         "over": 0,
         "worst_at": null
+      }
+    },
+    {
+      "detail": "shortest centreline segment in the published graph; the floor is 1.00 m",
+      "name": "no_short_graph_segments",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_segment_m": 4.0,
+        "under": 0,
+        "worst_at": [
+          -4.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "detail": "the 90 deg arterial bend must converge inside the clamp with R above the half-width; the fold-back is infeasible and must be flagged, not diverged",
+      "name": "turn_clamp_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bend90": {
+          "R_delivered": 26.54,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0097,
+          "min_seg": 3.6247,
+          "sweeps": 20
+        },
+        "foldback": {
+          "R_delivered": 2.55,
+          "converged": 0,
+          "half_width": 13.4,
+          "kappa": 10.5243,
+          "min_seg": 2.8284,
+          "sweeps": 46
+        }
       }
     },
     {
@@ -1377,6 +1628,20 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "street length left after both junction trims; below 1.00 m s5j_trim is about to delete it under a live mouth",
+      "name": "trim_leaves_road_standing",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_standing_m": 3.0,
+        "under": 0,
+        "worst_at": [
+          0.0,
+          0.0
+        ]
+      }
     },
     {
       "detail": "road terminal cross-section vs mouth cap corners; both endpoints must land within 0.05 m",
@@ -1479,6 +1744,351 @@
       "value": {
         "blocks": 0,
         "city": 215,
+        "edges": 3,
+        "lots": 0
+      }
+    }
+  ],
+  "F_bend": [
+    {
+      "detail": "degenerate prims must be dropped after the sweep",
+      "name": "no_zero_area_prims",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "points with no primitive",
+      "name": "no_loose_points",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "pr.Cd, pr.frontage, pr.frontage_ratio, pr.lot_reject, pr.perimeter",
+      "name": "no_scratch_attribs_lots",
+      "ok": false,
+      "skipped": false,
+      "value": 5
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_city_merged",
+      "ok": false,
+      "skipped": false,
+      "value": 2
+    },
+    {
+      "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
+      "name": "city_is_fully_paved",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "regions": 0,
+        "unpaved_m2": 0.0,
+        "worst": []
+      }
+    },
+    {
+      "detail": "lot area lying inside a junction patch; the block boundary must BE S5's kerb, so this is 0 by construction",
+      "name": "lots_clear_of_junctions",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "junctions": 1,
+        "m2": 0.0,
+        "per_junction": 0.0
+      }
+    },
+    {
+      "detail": "every kerb run end must meet exactly one other and every loop must close; an open chain still ships as a block",
+      "name": "block_boundary_closes",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "loops": 1,
+        "multiplicity": {},
+        "open_loops": 0,
+        "unpaired_ends": 0
+      }
+    },
+    {
+      "detail": "segment crossings with no shared node (per layer)",
+      "name": "graph_is_planar",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "1 components total",
+      "name": "no_orphan_components",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "informational; interior ones are the ones S2/S3 must remove",
+      "name": "dead_ends",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "interior": 0,
+        "total": 3
+      }
+    },
+    {
+      "detail": "",
+      "name": "attribute_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, and not_converged means the solver said so itself",
+      "name": "centreline_curvature_within_class",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "max_kappa_over_clamp": 1.01,
+        "not_converged": 0,
+        "over": 0,
+        "worst_at": [
+          128.58,
+          -131.48
+        ]
+      }
+    },
+    {
+      "detail": "shortest centreline segment in the published graph; the floor is 1.00 m",
+      "name": "no_short_graph_segments",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_segment_m": 3.8844,
+        "under": 0,
+        "worst_at": [
+          140.0,
+          87.35
+        ]
+      }
+    },
+    {
+      "detail": "the 90 deg arterial bend must converge inside the clamp with R above the half-width; the fold-back is infeasible and must be flagged, not diverged",
+      "name": "turn_clamp_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bend90": {
+          "R_delivered": 26.54,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0097,
+          "min_seg": 3.6247,
+          "sweeps": 20
+        },
+        "foldback": {
+          "R_delivered": 2.55,
+          "converged": 0,
+          "half_width": 13.4,
+          "kappa": 10.5243,
+          "min_seg": 2.8284,
+          "sweeps": 46
+        }
+      }
+    },
+    {
+      "detail": "collapsed fillet arcs",
+      "name": "no_degenerate_corner_segments",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "3 corners, 2 arcs fitted; 3 join two street classes, where the lesser one sets the radius (S5)",
+      "name": "every_corner_is_an_arc",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fit": 6.7e-06,
+        "mixed_class": 3,
+        "radius": 0.0,
+        "radius_fit": 0.002,
+        "straight": 0,
+        "tangent": 5.9e-06,
+        "unfitted": 0
+      }
+    },
+    {
+      "detail": "bands vs live corner segments",
+      "name": "sidewalk_bands_match_corners",
+      "ok": true,
+      "skipped": false,
+      "value": "13/13"
+    },
+    {
+      "detail": "",
+      "name": "junction_boundary_is_simple",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_junction_surface",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_roads",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "street length left after both junction trims; below 1.00 m s5j_trim is about to delete it under a live mouth",
+      "name": "trim_leaves_road_standing",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_standing_m": 119.0,
+        "under": 0,
+        "worst_at": [
+          -40.0,
+          -140.0
+        ]
+      }
+    },
+    {
+      "detail": "road terminal cross-section vs mouth cap corners; both endpoints must land within 0.05 m",
+      "name": "trim_metric_is_consistent",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "ends": 3,
+        "max": 0.0,
+        "mean": 0.0,
+        "over_0.05m": 0,
+        "worst_at": [
+          -26.45,
+          -140.0
+        ]
+      }
+    },
+    {
+      "detail": "mouths whose street s5j_trim deleted, out of 3",
+      "name": "every_mouth_has_a_road",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "h*tan(turn/2) / segment; > 1 means the swept ribbon crosses itself",
+      "name": "no_sweep_fold_after_trim",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "folds": 0,
+        "max_ratio": 0.254,
+        "min_seg": 2.3547
+      }
+    },
+    {
+      "detail": "no points",
+      "name": "lots_planar",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no block area",
+      "name": "lots_tile_blocks",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 prims, 0 distinct footprints",
+      "name": "no_duplicate_lot_footprints",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no lots with an OBB",
+      "name": "lot_aspect_ratio",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "self-touching parcels within 0.001 m (0 of them ship as buildable)",
+      "name": "lots_are_simple_polygons",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "lots": 0,
+        "viable": 0
+      }
+    },
+    {
+      "detail": "no plaza declared by this case",
+      "name": "plaza_disc_is_clear",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "no_downward_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "informational",
+      "name": "counts",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 0,
+        "city": 2175,
         "edges": 3,
         "lots": 0
       }

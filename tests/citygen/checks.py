@@ -1324,10 +1324,24 @@ def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02):
     20.2 degrees between a 73.4 m segment and a 6 m one, and averaged over that
     arc length it reads as a gentle R = 113 m. Sampled at 4 m the same kink is
     R = 11 m.
+
+    ⚠️ A LOW NUMBER HERE IS NOT THE SAME AS A SOLVED CENTRELINE, which is why
+    `not_converged` is reported alongside it. The first clamp was a fixed
+    200-sweep diffusion with no residual test, so it shipped whatever it had
+    reached; on the 90 degree arterial bend that was kappa x R_min = 2.17, a
+    12.4 m radius on a 13.4 m half-width. Every case in the suite only asked it
+    for a few degrees, so this check read 1.000 on all five and the mechanism
+    looked solved for as long as nobody drew a corner. Case F_bend does.
+
+    Closed prims are measured all the way round, wrapping, because the clamp now
+    solves them the same way — the two used to disagree, so the day the ring
+    closure (011fdcb) put a closed prim back in the graph this would have fired
+    with no mechanism able to clear it.
     """
     name = "centreline_curvature_within_class"
     scale = scale_parm.eval() if scale_parm is not None else 2.0
     worst, over, at = 0.0, 0, None
+    unconverged = []
     for pr in graph_geo.prims():
         pts = [v.point().position() for v in pr.vertices()]
         try:
@@ -1336,8 +1350,17 @@ def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02):
             continue
         if rmin <= 1e-4:
             continue
-        for i in range(1, len(pts) - 1):
-            e1, e2 = pts[i] - pts[i - 1], pts[i + 1] - pts[i]
+        try:
+            if pr.attribValue("turn_clamp_converged") == 0:
+                unconverged.append(pr.number())
+        except Exception:
+            pass
+        closed = bool(pr.intrinsicValue("closed"))
+        n = len(pts)
+        rng = range(n) if closed else range(1, n - 1)
+        for i in rng:
+            e1 = pts[i] - pts[(i - 1) % n]
+            e2 = pts[(i + 1) % n] - pts[i]
             l1, l2 = e1.length(), e2.length()
             if l1 < 1e-9 or l2 < 1e-9:
                 continue
@@ -1348,11 +1371,231 @@ def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02):
                 worst, at = ratio, [round(pts[i][0], 2), round(pts[i][2], 2)]
             if ratio > slack:
                 over += 1
-    return Result(name, over == 0,
+    return Result(name, over == 0 and not unconverged,
                   {"max_kappa_over_clamp": round(worst, 3), "over": over,
-                   "worst_at": at},
+                   "worst_at": at, "not_converged": len(unconverged)},
                   "discrete curvature x R_min(class); > %.2f means the "
-                  "centreline bends tighter than S3b allows" % slack)
+                  "centreline bends tighter than S3b allows, and "
+                  "not_converged means the solver said so itself" % slack)
+
+
+def no_short_graph_segments(graph_geo, floor=1.0):
+    """No segment of a shipped centreline may be shorter than `floor` metres.
+
+    THE STATED FLOOR, and it is stated in three places that must agree: this
+    check, `s5j_params_min_end_segment`, and `minseg` inside the S3b clamp.
+
+    Two independent mechanisms have driven a centreline segment to nothing.
+    4e-7: `s5j_trim`'s cut landing just short of a resample vertex left C a
+    0.028 m and a 0.22 m terminal segment against a 7.2 m half-width, and the
+    swept ribbon folded on both. And the first S3b clamp: `phimax` is
+    proportional to (l1 + l2) and the correction shortens those very segments,
+    so on a fold-back it drove one to 1.0e-6 m — a degenerate shipped output,
+    reached by positive feedback with no lower bound.
+
+    `no_sweep_fold_after_trim` only sees the second of those, and only after the
+    trim. This looks at the graph as published, which is where the block
+    boundary, the sweep and every downstream stage read it from.
+    """
+    name = "no_short_graph_segments"
+    worst, count, at = None, 0, None
+    for pr in graph_geo.prims():
+        pts = [v.point().position() for v in pr.vertices()]
+        n = len(pts)
+        if n < 2:
+            continue
+        rng = range(n) if pr.intrinsicValue("closed") else range(1, n)
+        for i in rng:
+            d = (pts[i % n] - pts[i - 1]).length()
+            if worst is None or d < worst:
+                worst, at = d, [round(pts[i % n][0], 2), round(pts[i % n][2], 2)]
+            if d < floor:
+                count += 1
+    return Result(name, count == 0,
+                  {"min_segment_m": None if worst is None else round(worst, 4),
+                   "under": count, "worst_at": at},
+                  "shortest centreline segment in the published graph; the "
+                  "floor is %.2f m" % floor)
+
+
+def trim_leaves_road_standing(streets_geo, floor=1.0):
+    """A junction may never trim away the whole street it opens onto.
+
+    `s5j_trim` deletes a street outright once `trim_start + trim_end >= 0.98 L`,
+    and the junction patch keeps the mouth it already built — a carriageway
+    opening onto grass, 4e-3. `every_mouth_has_a_road` catches that after the
+    fact; this is the leading indicator, because the margin turned out to be
+    thin and nothing was watching it.
+
+    It was added when `pfsg_clear_of_vertex` was found able to consume a street
+    on its own: when the cut landed within `min_end_segment` of the FAR end of
+    the polyline the push evaluated to the street's whole length. Not triggered
+    on any case, but B prim 29 is a 19.6 m local with 17.40 m trimmed — 2.18 m
+    standing, 1.18 m from the cliff — and E_short_t's binding 20 m arm had
+    already dropped from 4.80 m to 3.00 m. E exists to exercise
+    `max_fillet_fraction`; it was 3 m from deleting its own reason to exist.
+    """
+    name = "trim_leaves_road_standing"
+    # ⚠️ `trim_end` does not always EXIST. s5j_solve creates each of the two
+    # attributes the first time it writes one, so a city whose every trim
+    # happens to fall at a street's start ships with `trim_start` and no
+    # `trim_end` at all — true of E_short_t and F_bend. Reading it as absent
+    # rather than as zero silently skipped every prim in both cases, which
+    # meant this check reported None for the two cases with the least road to
+    # spare. Default the missing one; do not skip on it.
+    have = [a for a in ("trim_start", "trim_end")
+            if streets_geo.findPrimAttrib(a) is not None]
+    if not have:
+        return _skip(name, "no trim_start / trim_end attrib")
+    worst, count, at = None, 0, None
+    for pr in streets_geo.prims():
+        pts = [v.point().position() for v in pr.vertices()]
+        if len(pts) < 2:
+            continue
+        L = sum((pts[i] - pts[i - 1]).length() for i in range(1, len(pts)))
+        standing = L - sum(pr.attribValue(a) for a in have)
+        if worst is None or standing < worst:
+            worst, at = standing, [round(pts[0][0], 2), round(pts[0][2], 2)]
+        if standing < floor:
+            count += 1
+    return Result(name, count == 0,
+                  {"min_standing_m": None if worst is None else round(worst, 3),
+                   "under": count, "worst_at": at},
+                  "street length left after both junction trims; below %.2f m "
+                  "s5j_trim is about to delete it under a live mouth" % floor)
+
+
+def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
+    """Run the SHIPPED S3b clamp on the two inputs that broke the first one.
+
+    This is the only check in the suite that supplies its own geometry, and it
+    exists because of a pattern this project has now repeated three times: a
+    mechanism ships green because no case reaches its design amplitude. `offset`
+    lot mode (4e-6) and `max_fillet_fraction` (4h-2) were the first two; the
+    curvature clamp was the third, and it was delivering a 12.4 m radius on a
+    13.4 m half-width while this suite reported 1.000 on all five cases.
+
+    F_bend covers the feasible half of that through the real pipeline. What it
+    cannot cover is the INFEASIBLE half, because an infeasible input cannot be a
+    passing case: a 30 m square returning to within 4 m of its own start has no
+    polyline through its pinned endpoints that satisfies R = 26.8 m and is still
+    a street. The old solver's answer was to diverge — kappa x R_min 4.37 -> 22.7
+    (200 sweeps) -> 5320 (5000), ending with a 1.0e-6 m segment in the shipped
+    graph. What is asserted here is that it now says so: bounded, no collapsed
+    segment, and `turn_clamp_converged` = 0 rather than a silent ship.
+
+    It copies the real `graph_turn_clamp` node so it cannot drift from what
+    ships, and destroys everything it made — an audit that leaves scratch nodes
+    or display flags behind makes the next pass diagnose a scene it did not
+    build.
+    """
+    name = "turn_clamp_control_rig"
+    import hou
+    clamp = city_node.node("graph_turn_clamp")
+    if clamp is None:
+        return _skip(name, "graph_turn_clamp not found")
+    shown = next((c for c in city_node.children() if c.isDisplayFlagSet()), None)
+    made = []
+    try:
+        src = city_node.createNode("python", "__chk_rig_src")
+        made.append(src)
+        src.parm("python").set(_RIG_SNIPPET)
+        w = clamp.copyTo(city_node)
+        made.append(w)
+        w.setInput(0, src)
+        w.cook(force=True)
+        geo = w.geometry()
+        got = {}
+        for pr in geo.prims():
+            pts = [v.point().position() for v in pr.vertices()]
+            rmin = 0.5 * pr.attribValue("streetWidth") * \
+                city_node.parm("graph_params_turn_radius_scale").eval()
+            worst = 0.0
+            for i in range(1, len(pts) - 1):
+                e1, e2 = pts[i] - pts[i - 1], pts[i + 1] - pts[i]
+                l1, l2 = e1.length(), e2.length()
+                if l1 < 1e-9 or l2 < 1e-9:
+                    continue
+                d = max(-1.0, min(1.0, (e1 / l1).dot(e2 / l2)))
+                worst = max(worst, math.acos(d) / (0.5 * (l1 + l2)) * rmin)
+            got[pr.attribValue("rig")] = {
+                "kappa": round(worst, 4),
+                "R_delivered": round(rmin / max(worst, 1e-9), 2),
+                "half_width": round(0.5 * pr.attribValue("streetWidth"), 2),
+                "min_seg": round(min((pts[i] - pts[i - 1]).length()
+                                     for i in range(1, len(pts))), 4),
+                "converged": int(pr.attribValue("turn_clamp_converged")),
+                "sweeps": int(pr.attribValue("turn_clamp_sweeps"))}
+    except Exception as exc:
+        return _skip(name, "could not run: %s" % str(exc)[:120])
+    finally:
+        for nd in reversed(made):
+            try:
+                nd.destroy()
+            except Exception:
+                pass
+        if shown is not None:
+            try:
+                shown.setDisplayFlag(True)
+            except Exception:
+                pass
+    b, f = got.get("bend90"), got.get("foldback")
+    if not b or not f:
+        return _skip(name, "rig geometry missing")
+    ok = (b["converged"] == 1 and b["kappa"] <= slack
+          and b["R_delivered"] > b["half_width"] and b["min_seg"] >= floor
+          # the infeasible one: bounded, intact, and REPORTED
+          and f["converged"] == 0 and f["min_seg"] >= floor
+          and f["kappa"] <= _FOLDBACK_INPUT_KAPPA + 1e-3)
+    return Result(name, ok, got,
+                  "the 90 deg arterial bend must converge inside the clamp with "
+                  "R above the half-width; the fold-back is infeasible and must "
+                  "be flagged, not diverged")
+
+
+# kappa x R_min of the fold-back rig as authored — the solver may never ship a
+# state WORSE than the input it was handed, which is what divergence looks like.
+_FOLDBACK_INPUT_KAPPA = 10.5243
+
+_RIG_SNIPPET = '''
+"""The two S3b control rigs, as geometry. See turn_clamp_control_rig()."""
+import hou, math
+g = hou.pwd().geometry()
+g.clear()
+g.addAttrib(hou.attribType.Prim, "streetWidth", 0.0)
+g.addAttrib(hou.attribType.Prim, "edge_len", 0.0)
+g.addAttrib(hou.attribType.Prim, "rig", "")
+
+
+def poly(name, ctrl, step=4.0):
+    """Uniform 4 m resample of a control polygon, matching graph_turn_resample."""
+    acc = [0.0]
+    for i in range(1, len(ctrl)):
+        acc.append(acc[-1] + math.dist(ctrl[i - 1], ctrl[i]))
+    L = acc[-1]
+    n = max(1, int(L / step + 0.5))
+    pr = g.createPolygon(is_closed=False)
+    for k in range(n + 1):
+        s = L * k / n
+        j = 1
+        while j < len(acc) - 1 and acc[j] < s:
+            j += 1
+        t = 0.0 if acc[j] == acc[j - 1] else (s - acc[j - 1]) / (acc[j] - acc[j - 1])
+        pr.addVertex(g.createPoint()).point().setPosition(
+            (ctrl[j - 1][0] + t * (ctrl[j][0] - ctrl[j - 1][0]), 0.0,
+             ctrl[j - 1][1] + t * (ctrl[j][1] - ctrl[j - 1][1])))
+    pr.setAttribValue("streetWidth", 26.8)      # arterial_median, half-width 13.4
+    pr.setAttribValue("rig", name)
+
+
+# S3b's own worked example: a plain 90 degree bend on an arterial.
+poly("bend90", [(-80, 0), (0, 0), (0, 80)])
+# and the one that made the first solver diverge: a 30 m square returning to
+# within 4 m of its own start. R_min = 26.8 m needs 26.8 m of tangent run each
+# side of a right angle and the sides are 30 m, so this is INFEASIBLE by
+# construction and the only correct answer is to say so.
+poly("foldback", [(0, 0), (30, 0), (30, 30), (0, 30), (0, 4)])
+'''
 
 
 def lots_clear_of_junctions(lot_geo, patch_node, cell=0.5, tol_per_junction=0.5):
