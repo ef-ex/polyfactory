@@ -405,46 +405,86 @@ int pfsg_turn_fillet_seed(export vector P[]; const float rmin) {
         if (ap < 1e-6 || ap > 3.14159265 - 1e-3) { exact = 0; continue; }
         float tanh2 = abs(tan(phi * 0.5));
 
-        // THE VIRTUAL CORNER. `T` is the tangent run measured back from where
-        // the two legs MEET, so the corner has to be located before it can be
-        // used. For a single-vertex run that point is P[a] itself; for a longer
-        // one it is the intersection of the two leg lines.
+        // THE CORNER AND THE TWO LEGS. `T` is the tangent run measured back from
+        // where the legs MEET, so both the legs and the corner have to be found
+        // before it can be used. Two audits have gone through this construction
+        // and each found the frame wrong in a different way:
         //
-        // ⚠️ The first version measured T back from `acc[a-1]` and forward from
-        // `acc[b+1]` — the vertices OUTSIDE the run — which puts both tangent
-        // points a whole segment too far out. The circle is then tangent to
-        // neither leg, the arc overshoots the turn and the construction closes
-        // with a jump: an audit measured the seeded 90 degree bend at a clean
-        // 7.67 deg/vertex arc followed by 28.85 / 19.66 / 20.92 deg back the
-        // other way, kappa x R_min 10.524 -> 3.748 instead of -> 1. The doc's
-        // "exact in one pass for an isolated corner" was false of every input.
-        vector w = P[b + 1] - P[a - 1];
-        float den = d0.x * d1.z - d0.z * d1.x;          // = sin(phi), d unit
-        if (abs(den) < 1e-9) { exact = 0; continue; }
-        // arc position of the corner, reached along each leg in turn
-        float sV0 = acc[a - 1] + (w.x * d1.z - w.z * d1.x) / den;
-        float sV1 = acc[b + 1] + (w.x * d0.z - w.z * d0.x) / den;
-
-        // the tangent run has to fit between this corner's neighbours: the end
-        // of the previous fillet on one side, the start of the next run on the
-        // other, and the polyline's own ends beyond those
+        //  * Measuring T from `acc[a-1]` / `acc[b+1]` — the vertices OUTSIDE the
+        //    run — puts both tangent points a whole segment too far out, so the
+        //    circle is tangent to neither leg. On the 90 degree bend that gave a
+        //    clean 7.67 deg/vertex arc and then 28.85 / 19.66 / 20.92 deg back
+        //    the other way, kappa x R_min 10.524 -> 3.748 instead of -> 1.
+        //  * Taking each leg's direction from the ONE segment either side of the
+        //    run is only right when the run is a single hard vertex. When the
+        //    corner is drawn as an arc the run covers that arc, and those two
+        //    segments are the arc's own first and last - tilted by a whole
+        //    vertex-turn off the straight leg. Because the circle is built AT A
+        //    it stays tangent there whatever d0 is, so the entry side can never
+        //    show the error and all of it lands at B: measured over 8105 runs,
+        //    median 0.15 m out at B, p99 18.9 m, worst 89.8 m. A legal 135
+        //    degree arterial corner drawn at an 18 m radius did not converge.
+        //
+        // So the legs are re-read from the CHORD of the polyline just outside
+        // where each tangent point lands, and the whole frame is re-solved from
+        // them. The estimate and the tangent point converge in two rounds; a
+        // third is cheap insurance.
         float nxt = (k + 1 < nr) ? acc[ra[k + 1] - 1] : L;
-        float avail = min(sV0 - prev_end, nxt - sV1);
-        float ru = rmin, T = rmin * tanh2;
-        if (T > avail) { T = avail; ru = avail / max(tanh2, 1e-9); exact = 0; }
-        if (ru <= 1e-6 || T <= 1e-9) continue;
+        float sV0 = 0.0, sV1 = 0.0, sA = 0.0, sB = L, T = 0.0, ru = rmin;
+        int okrun = 1;
+        for (int it = 0; it < 3; it++) {
+            float den = d0.x * d1.z - d0.z * d1.x;      // = sin(phi), d unit
+            if (abs(den) < 1e-9) { okrun = 0; break; }
+            vector wv = P[b + 1] - P[a - 1];
+            // arc position of the corner, reached along each leg in turn
+            sV0 = acc[a - 1] + (wv.x * d1.z - wv.z * d1.x) / den;
+            sV1 = acc[b + 1] + (wv.x * d0.z - wv.z * d0.x) / den;
+            // the tangent run has to fit between this corner's neighbours: the
+            // end of the previous fillet on one side, the start of the next run
+            // on the other, and the polyline's own ends beyond those
+            float avail = min(sV0 - prev_end, nxt - sV1);
+            ru = rmin;
+            T = rmin * tanh2;
+            if (T > avail) { T = avail; ru = avail / max(tanh2, 1e-9); exact = 0; }
+            if (ru <= 1e-6 || T <= 1e-9) { okrun = 0; break; }
+            sA = max(sV0 - T, 0.0);
+            sB = min(sV1 + T, L);
+            if (it == 2) break;
+            float w0 = min(T, sA - prev_end), w1 = min(T, nxt - sB);
+            if (w0 > 1e-3) {
+                vector e = pfsg_poly_sample(P, acc, sA)
+                         - pfsg_poly_sample(P, acc, sA - w0);
+                if (length(e) > 1e-9) d0 = normalize(e);
+            }
+            if (w1 > 1e-3) {
+                vector e = pfsg_poly_sample(P, acc, sB + w1)
+                         - pfsg_poly_sample(P, acc, sB);
+                if (length(e) > 1e-9) d1 = normalize(e);
+            }
+            phi = atan2(cross(d0, d1).y, dot(d0, d1));
+            ap = abs(phi);
+            if (ap < 1e-6 || ap > 3.14159265 - 1e-3) { okrun = 0; break; }
+            tanh2 = abs(tan(phi * 0.5));
+        }
+        if (!okrun) { exact = 0; continue; }
 
-        float sA = max(sV0 - T, 0.0), sB = min(sV1 + T, L);
-        vector A = pfsg_poly_sample(P, acc, sA);
-        vector B = pfsg_poly_sample(P, acc, sB);
+        // Build the corner, both tangent points and the centre from the ONE
+        // frame, so the circle is tangent to both legs by construction.
+        vector V = P[a - 1] + d0 * (sV0 - acc[a - 1]);
+        vector A = V - d0 * T, B = V + d1 * T;
+        // THE CENTRE IS ON THE BISECTOR. (d1 - d0) points from the corner
+        // straight at it, and |VC| = ru / cos(phi/2). No candidates to test and
+        // no way to pick the mirror - the test this replaces scored candidates
+        // by their distance to B, which assumes B is already on the circle,
+        // i.e. assumes the thing being constructed. An audit found it taking
+        // the mirrored arc on 99 of 8105 runs.
+        vector bis = d1 - d0;
+        if (length(bis) < 1e-9) { exact = 0; continue; }
+        vector C = V + normalize(bis) * (ru / max(cos(ap * 0.5), 1e-6));
+
         for (int q = 1; q < n; q++)
             if (acc[q] > cursor && acc[q] < sA) append(ideal, P[q]);
         append(ideal, A);
-        // the centre is perpendicular to d0 at distance ru on the side we turn
-        // toward. Pick the candidate by measurement rather than by reasoning
-        // about the handedness of XZ - the wrong sign here is a silent mirror.
-        vector p1 = set(-d0.z, 0.0, d0.x), c1 = A + p1 * ru, c2 = A - p1 * ru;
-        vector C = (abs(distance(c1, B) - ru) <= abs(distance(c2, B) - ru)) ? c1 : c2;
         float a0 = atan2(A.z - C.z, A.x - C.x);
         float a1 = atan2(B.z - C.z, B.x - C.x);
         float sweep = a1 - a0;

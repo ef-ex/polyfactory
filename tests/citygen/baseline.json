@@ -54,7 +54,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 7
+      "value": 6
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -127,12 +127,12 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 0.862,
+        "max_kappa_over_clamp": 0.889,
         "not_converged": 0,
         "over": 0,
         "worst_at": [
           -59.6,
-          9.81
+          9.82
         ]
       }
     },
@@ -151,19 +151,28 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
       "value": {
         "bend135": {
-          "R_delivered": 26.54,
+          "R_delivered": 26.55,
           "converged": 1,
           "half_width": 13.4,
-          "kappa": 1.0099,
-          "min_seg": 2.3516,
-          "moved": 43.016778,
-          "sweeps": 63
+          "kappa": 1.0093,
+          "min_seg": 2.3439,
+          "moved": 43.217969,
+          "sweeps": 5
+        },
+        "bend135_r18": {
+          "R_delivered": 26.6,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0077,
+          "min_seg": 3.7487,
+          "moved": 14.128267,
+          "sweeps": 2
         },
         "bend90": {
           "R_delivered": 26.55,
@@ -171,8 +180,17 @@
           "half_width": 13.4,
           "kappa": 1.0095,
           "min_seg": 3.7114,
-          "moved": 11.104603,
+          "moved": 11.104608,
           "sweeps": 3
+        },
+        "bend90_r10": {
+          "R_delivered": 26.71,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0032,
+          "min_seg": 3.9203,
+          "moved": 6.772969,
+          "sweeps": 1
         },
         "foldback": {
           "R_delivered": 4.87,
@@ -180,7 +198,7 @@
           "half_width": 13.4,
           "kappa": 5.5002,
           "min_seg": 2.1001,
-          "moved": 16.793227,
+          "moved": 16.793224,
           "sweeps": 68
         },
         "ring_legal": {
@@ -322,7 +340,7 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 6.1e-08
+      "value": 1.45e-07
     },
     {
       "detail": "84 prims, 84 distinct footprints",
@@ -339,9 +357,9 @@
       "value": {
         "lots": 66,
         "max": 9.49,
-        "median": 3.81,
-        "over": 18,
-        "p90": 7.32
+        "median": 3.74,
+        "over": 16,
+        "p90": 7.09
       }
     },
     {
@@ -540,19 +558,28 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
       "value": {
         "bend135": {
-          "R_delivered": 26.54,
+          "R_delivered": 26.55,
           "converged": 1,
           "half_width": 13.4,
-          "kappa": 1.0099,
-          "min_seg": 2.3516,
-          "moved": 43.016778,
-          "sweeps": 63
+          "kappa": 1.0093,
+          "min_seg": 2.3439,
+          "moved": 43.217969,
+          "sweeps": 5
+        },
+        "bend135_r18": {
+          "R_delivered": 26.6,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0077,
+          "min_seg": 3.7487,
+          "moved": 14.128267,
+          "sweeps": 2
         },
         "bend90": {
           "R_delivered": 26.55,
@@ -560,8 +587,17 @@
           "half_width": 13.4,
           "kappa": 1.0095,
           "min_seg": 3.7114,
-          "moved": 11.104603,
+          "moved": 11.104608,
           "sweeps": 3
+        },
+        "bend90_r10": {
+          "R_delivered": 26.71,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0032,
+          "min_seg": 3.9203,
+          "moved": 6.772969,
+          "sweeps": 1
         },
         "foldback": {
           "R_delivered": 4.87,
@@ -569,7 +605,7 @@
           "half_width": 13.4,
           "kappa": 5.5002,
           "min_seg": 2.1001,
-          "moved": 16.793227,
+          "moved": 16.793224,
           "sweeps": 68
         },
         "ring_legal": {
@@ -711,7 +747,7 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 1.8e-08
+      "value": 7e-09
     },
     {
       "detail": "568 prims, 568 distinct footprints",
@@ -726,10 +762,10 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 425,
+        "lots": 427,
         "max": 13.46,
         "median": 2.87,
-        "over": 143,
+        "over": 142,
         "p90": 8.42
       }
     },
@@ -832,7 +868,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 322
+      "value": 336
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -905,7 +941,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 0.842,
+        "max_kappa_over_clamp": 0.852,
         "not_converged": 0,
         "over": 0,
         "worst_at": [
@@ -929,19 +965,28 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
       "value": {
         "bend135": {
-          "R_delivered": 26.54,
+          "R_delivered": 26.55,
           "converged": 1,
           "half_width": 13.4,
-          "kappa": 1.0099,
-          "min_seg": 2.3516,
-          "moved": 43.016778,
-          "sweeps": 63
+          "kappa": 1.0093,
+          "min_seg": 2.3439,
+          "moved": 43.217969,
+          "sweeps": 5
+        },
+        "bend135_r18": {
+          "R_delivered": 26.6,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0077,
+          "min_seg": 3.7487,
+          "moved": 14.128267,
+          "sweeps": 2
         },
         "bend90": {
           "R_delivered": 26.55,
@@ -949,8 +994,17 @@
           "half_width": 13.4,
           "kappa": 1.0095,
           "min_seg": 3.7114,
-          "moved": 11.104603,
+          "moved": 11.104608,
           "sweeps": 3
+        },
+        "bend90_r10": {
+          "R_delivered": 26.71,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0032,
+          "min_seg": 3.9203,
+          "moved": 6.772969,
+          "sweeps": 1
         },
         "foldback": {
           "R_delivered": 4.87,
@@ -958,7 +1012,7 @@
           "half_width": 13.4,
           "kappa": 5.5002,
           "min_seg": 2.1001,
-          "moved": 16.793227,
+          "moved": 16.793224,
           "sweeps": 68
         },
         "ring_legal": {
@@ -1084,7 +1138,7 @@
       "skipped": false,
       "value": {
         "folds": 0,
-        "max_ratio": 0.211,
+        "max_ratio": 0.214,
         "min_seg": 1.0006
       }
     },
@@ -1096,14 +1150,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 311966.7 vs blocks 311966.7)",
+      "detail": "relative area error (lots 311966.6 vs blocks 311966.6)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 4e-08
+      "value": 5.6e-08
     },
     {
-      "detail": "784 prims, 784 distinct footprints",
+      "detail": "791 prims, 791 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -1115,21 +1169,21 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 573,
-        "max": 16.18,
-        "median": 2.99,
-        "over": 191,
-        "p90": 8.62
+        "lots": 576,
+        "max": 16.25,
+        "median": 3.21,
+        "over": 201,
+        "p90": 8.89
       }
     },
     {
-      "detail": "self-touching parcels within 0.001 m (47 of them ship as buildable)",
+      "detail": "self-touching parcels within 0.001 m (49 of them ship as buildable)",
       "name": "lots_are_simple_polygons",
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 49,
-        "viable": 47
+        "lots": 52,
+        "viable": 49
       }
     },
     {
@@ -1164,9 +1218,9 @@
       "skipped": false,
       "value": {
         "blocks": 16,
-        "city": 21131,
+        "city": 21138,
         "edges": 84,
-        "lots": 784
+        "lots": 791
       }
     }
   ],
@@ -1225,7 +1279,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 7
+      "value": 6
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -1298,12 +1352,12 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 0.862,
+        "max_kappa_over_clamp": 0.889,
         "not_converged": 0,
         "over": 0,
         "worst_at": [
           -59.6,
-          9.81
+          9.82
         ]
       }
     },
@@ -1322,19 +1376,28 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
       "value": {
         "bend135": {
-          "R_delivered": 26.54,
+          "R_delivered": 26.55,
           "converged": 1,
           "half_width": 13.4,
-          "kappa": 1.0099,
-          "min_seg": 2.3516,
-          "moved": 43.016778,
-          "sweeps": 63
+          "kappa": 1.0093,
+          "min_seg": 2.3439,
+          "moved": 43.217969,
+          "sweeps": 5
+        },
+        "bend135_r18": {
+          "R_delivered": 26.6,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0077,
+          "min_seg": 3.7487,
+          "moved": 14.128267,
+          "sweeps": 2
         },
         "bend90": {
           "R_delivered": 26.55,
@@ -1342,8 +1405,17 @@
           "half_width": 13.4,
           "kappa": 1.0095,
           "min_seg": 3.7114,
-          "moved": 11.104603,
+          "moved": 11.104608,
           "sweeps": 3
+        },
+        "bend90_r10": {
+          "R_delivered": 26.71,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0032,
+          "min_seg": 3.9203,
+          "moved": 6.772969,
+          "sweeps": 1
         },
         "foldback": {
           "R_delivered": 4.87,
@@ -1351,7 +1423,7 @@
           "half_width": 13.4,
           "kappa": 5.5002,
           "min_seg": 2.1001,
-          "moved": 16.793227,
+          "moved": 16.793224,
           "sweeps": 68
         },
         "ring_legal": {
@@ -1493,7 +1565,7 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 7.2e-08
+      "value": 1.58e-07
     },
     {
       "detail": "61 prims, 61 distinct footprints",
@@ -1708,19 +1780,28 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
       "value": {
         "bend135": {
-          "R_delivered": 26.54,
+          "R_delivered": 26.55,
           "converged": 1,
           "half_width": 13.4,
-          "kappa": 1.0099,
-          "min_seg": 2.3516,
-          "moved": 43.016778,
-          "sweeps": 63
+          "kappa": 1.0093,
+          "min_seg": 2.3439,
+          "moved": 43.217969,
+          "sweeps": 5
+        },
+        "bend135_r18": {
+          "R_delivered": 26.6,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0077,
+          "min_seg": 3.7487,
+          "moved": 14.128267,
+          "sweeps": 2
         },
         "bend90": {
           "R_delivered": 26.55,
@@ -1728,8 +1809,17 @@
           "half_width": 13.4,
           "kappa": 1.0095,
           "min_seg": 3.7114,
-          "moved": 11.104603,
+          "moved": 11.104608,
           "sweeps": 3
+        },
+        "bend90_r10": {
+          "R_delivered": 26.71,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0032,
+          "min_seg": 3.9203,
+          "moved": 6.772969,
+          "sweeps": 1
         },
         "foldback": {
           "R_delivered": 4.87,
@@ -1737,7 +1827,7 @@
           "half_width": 13.4,
           "kappa": 5.5002,
           "min_seg": 2.1001,
-          "moved": 16.793227,
+          "moved": 16.793224,
           "sweeps": 68
         },
         "ring_legal": {
@@ -2091,19 +2181,28 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
       "value": {
         "bend135": {
-          "R_delivered": 26.54,
+          "R_delivered": 26.55,
           "converged": 1,
           "half_width": 13.4,
-          "kappa": 1.0099,
-          "min_seg": 2.3516,
-          "moved": 43.016778,
-          "sweeps": 63
+          "kappa": 1.0093,
+          "min_seg": 2.3439,
+          "moved": 43.217969,
+          "sweeps": 5
+        },
+        "bend135_r18": {
+          "R_delivered": 26.6,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0077,
+          "min_seg": 3.7487,
+          "moved": 14.128267,
+          "sweeps": 2
         },
         "bend90": {
           "R_delivered": 26.55,
@@ -2111,8 +2210,17 @@
           "half_width": 13.4,
           "kappa": 1.0095,
           "min_seg": 3.7114,
-          "moved": 11.104603,
+          "moved": 11.104608,
           "sweeps": 3
+        },
+        "bend90_r10": {
+          "R_delivered": 26.71,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0032,
+          "min_seg": 3.9203,
+          "moved": 6.772969,
+          "sweeps": 1
         },
         "foldback": {
           "R_delivered": 4.87,
@@ -2120,7 +2228,7 @@
           "half_width": 13.4,
           "kappa": 5.5002,
           "min_seg": 2.1001,
-          "moved": 16.793227,
+          "moved": 16.793224,
           "sweeps": 68
         },
         "ring_legal": {

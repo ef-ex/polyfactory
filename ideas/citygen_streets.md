@@ -534,20 +534,37 @@ reads geometry and writes the verdict back:
   shipped case is solved by the seed alone, in one sweep**, and the control rigs need 3 (90°),
   63 (135°, the worst turn 80 m legs can absorb) and 41 (a 300 m square ring).
 
-  ⚠️ **Two details in that construction are load-bearing, and the first version got both wrong.**
-  An audit measured the seeded 90° bend at a clean 7.67°/vertex arc followed by 28.85 / 19.66 /
-  20.92° back the other way — κ × R_min 10.524 → 3.748 instead of → 1, so "exact in one pass"
-  was false of every input and the hat-spread relaxation was silently doing all the work.
-  - The tangent run `T = R_min·tan(φ/2)` is measured back from where the two legs **meet**, not
-    from the vertices either side of the run. Using `acc[a-1]` and `acc[b+1]` puts both tangent
-    points a whole segment too far out and the circle is tangent to neither leg. The corner has
-    to be located first — trivially `P[a]` for a single-vertex run, the intersection of the two
-    leg lines for a longer one.
+  ⚠️ **Four details in that construction are load-bearing and the first version got all four
+  wrong.** Two audits went through it and each found the frame broken a different way, both with
+  the same signature — a clean arc that then jumps back the other way at one end.
+  - **`T` is measured back from where the legs MEET**, not from the vertices either side of the
+    run. Using `acc[a-1]` / `acc[b+1]` puts both tangent points a whole segment too far out and
+    the circle is tangent to neither leg: the seeded 90° bend came out as a 7.67°/vertex arc and
+    then 28.85 / 19.66 / 20.92° back the other way, κ × R_min 10.524 → 3.748 instead of → 1.
+  - **The leg DIRECTIONS cannot come from the one segment either side of the run.** That is only
+    right when the run is a single hard vertex — which every run in every shipped case happens
+    to be. When the corner is *drawn* as an arc the run covers that arc, and those two segments
+    are the arc's own first and last, tilted a whole vertex-turn off the straight leg. And
+    because the circle was built *at* A it stayed tangent there whatever `d0` was, so the entry
+    side could never show the error and all of it landed at B: **median 0.15 m out at B over
+    8105 runs, p99 18.9 m, worst 89.8 m**, and a legal 135° arterial corner drawn at an 18 m
+    radius that never converged. Each leg is now re-read from the *chord* of the polyline just
+    outside where its tangent point lands, and the frame re-solved from it — the estimate and
+    the tangent point converge in two rounds.
+  - **The centre is on the bisector**, at `R_min / cos(φ/2)` from the corner along `d1 − d0`.
+    It used to be chosen by scoring two perpendicular candidates on their distance to B, which
+    assumes B is already on the circle — i.e. assumes the answer. That took the **mirrored arc
+    on 99 of 8105 runs**, contained only because the solve keeps its best iterate.
   - **The arc must be polygonised finer than the spacing the prim ends up with**, because the
     whole ideal curve is resampled onto *n* points afterwards and that resample chords whatever
-    polygon it is given. Sampling the arc at the final spacing concentrates the entire turn on
-    the arc's own vertices and the resample never sees a circle: at 1× a 135° bend settled at
-    1.0167 and **never converged**; at 4× it reaches 1.0008 in a single pass.
+    polygon it is given. Sampling at the final spacing concentrates the entire turn on the arc's
+    own vertices and the resample never sees a circle: at 1× a 135° bend settled at 1.0167 and
+    **never converged**; at 4× it reaches 1.0008 in a single pass.
+
+  Against the exact fillet (R = 26.8 tangent to both legs) F_bend's solved arterial is **0.0047 m
+  max deviation over 520 m**, with the straight legs still straight to 0.0000 m — verified
+  independently. The 1.004 residual is the chord artefact of 3.9 m sampling on R = 26.8, nothing
+  else.
 - **Spread each correction over the span it needs.** The excess turn needs `(φ − φmax)·R_min` of
   extra arc length, so the displacement is applied to that many vertices with a hat weight rather
   than to the single vertex.
@@ -612,6 +629,11 @@ the five inputs no case can reach — 135°, the infeasible fold-back, and all t
   to push when that would land within `minseg` of the *next* vertex, so it can no longer create a
   worse sliver than the one it is fixing — but it does not re-solve, it just declines. Reachable
   only through a sub-4 m resample segment, i.e. through the bullet above.
+- **Adjacent over-curved runs starve each other.** `avail` is allocated first-come-first-served
+  along the prim, so of two 90° corners 20 m apart the first takes `R = 16 m` and the second gets
+  `R = 4 m` — an inner kerb radius of −9.4 m *in the seeded state*. The relaxation clears it and
+  no case has more than one run per prim (every shipped run is a single vertex), but the seed on
+  its own is not safe for closely-spaced corners.
 - **A latent boundary inconsistency in the same function.** With the cut landing exactly on a
   vertex, the `atstart` branch selects the segment *after* it (deliberate — see the comment on
   `pfsg_tangent_at_length`) while the mirror branch selects the one *before*, so at `d = 4.00` on

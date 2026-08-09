@@ -1074,7 +1074,13 @@ def no_scratch_attribs(geo, prim_allowed=(), point_allowed=("P",),
 EDGE_ATTRS = ("edge_id", "street_class", "street_template", "streetWidth",
               "sidewalkWidthLeft", "sidewalkWidthRight", "laneWidth",
               "connectionStart", "connectionEnd", "layer", "region_id",
-              "land_use", "source_node")
+              "land_use", "source_node",
+              # the S3b solver's own verdict. In the schema table (section 6)
+              # because a downstream `attribdelete` was shown to make
+              # `centreline_curvature_within_class` report not_converged: 0 and
+              # PASS — the check reads it defensively, so nothing else noticed
+              # the attribute had stopped shipping.
+              "turn_clamp_converged")
 ROAD_POINT_ATTRS = ("elem_type", "elem_index", "u_cross", "drivable", "walkable")
 
 
@@ -1339,6 +1345,14 @@ def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02):
     with no mechanism able to clear it.
     """
     name = "centreline_curvature_within_class"
+    # ⚠️ ABSENT IS NOT CONVERGED. Reading this per-prim inside a try/except made
+    # the whole non-convergence half vanish silently the moment the attribute
+    # stopped shipping — an audit proved it by putting an `attribdelete` between
+    # the clamp and the output, and this reported not_converged: 0 and PASSED.
+    if graph_geo.findPrimAttrib("turn_clamp_converged") is None:
+        return Result(name, False, {"not_converged": None},
+                      "the graph carries no turn_clamp_converged: the S3b "
+                      "solver's verdict is not reaching the output")
     scale = scale_parm.eval() if scale_parm is not None else 2.0
     worst, over, at = 0.0, 0, None
     unconverged = []
@@ -1569,8 +1583,8 @@ def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
                 shown.setDisplayFlag(True)
             except Exception:
                 pass
-    want = ("bend90", "bend135", "foldback", "ring_legal", "ring_square",
-            "ring_tight")
+    want = ("bend90", "bend135", "bend135_r18", "bend90_r10", "foldback",
+            "ring_legal", "ring_square", "ring_tight")
     if any(k not in got for k in want):
         return Result(name, False, got, "rig geometry missing: %s"
                       % ", ".join(k for k in want if k not in got))
@@ -1586,6 +1600,7 @@ def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
                     "foldback" if r is got["foldback"] else "ring_tight"] + 1e-3)
 
     ok = (solved(got["bend90"]) and solved(got["bend135"])
+          and solved(got["bend135_r18"]) and solved(got["bend90_r10"])
           and solved(got["ring_square"])
           and flagged(got["foldback"]) and flagged(got["ring_tight"])
           # a ring already inside the clamp must come back BIT-IDENTICAL: the
@@ -1594,10 +1609,10 @@ def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
           and got["ring_legal"]["sweeps"] == 0
           and got["ring_legal"]["moved"] == 0.0)
     return Result(name, ok, got,
-                  "feasible turns (90, 135, square ring) must converge inside "
-                  "the clamp with R above the half-width; infeasible ones "
-                  "(fold-back, tight ring) must be flagged, not diverged; a "
-                  "legal ring must be untouched")
+                  "feasible turns (90, 135, both drawn as arcs, square ring) "
+                  "must converge inside the clamp with R above the half-width; "
+                  "infeasible ones (fold-back, tight ring) must be flagged, not "
+                  "diverged; a legal ring must be untouched")
 
 
 # kappa x R_min of the two infeasible rigs as authored. The solver may never
@@ -1636,6 +1651,35 @@ def poly(name, ctrl, step=4.0):
     pr.setAttribValue("rig", name)
 
 
+def _rounded(ctrl, radius, seg=2.0):
+    """Replace each interior corner of `ctrl` with a tangent arc of `radius`,
+    so the turn arrives as a RUN of vertices rather than one hard one."""
+    out = [ctrl[0]]
+    for i in range(1, len(ctrl) - 1):
+        p, c, q = ctrl[i - 1], ctrl[i], ctrl[i + 1]
+        d0 = (c[0] - p[0], c[1] - p[1])
+        d1 = (q[0] - c[0], q[1] - c[1])
+        n0, n1 = math.hypot(*d0), math.hypot(*d1)
+        d0 = (d0[0] / n0, d0[1] / n0)
+        d1 = (d1[0] / n1, d1[1] / n1)
+        phi = math.atan2(d0[0] * d1[1] - d0[1] * d1[0], d0[0] * d1[0] + d0[1] * d1[1])
+        t = radius * abs(math.tan(phi / 2.0))
+        a = (c[0] - d0[0] * t, c[1] - d0[1] * t)
+        bis = (d1[0] - d0[0], d1[1] - d0[1])
+        nb = math.hypot(*bis)
+        cen = (c[0] + bis[0] / nb * (radius / math.cos(abs(phi) / 2.0)),
+               c[1] + bis[1] / nb * (radius / math.cos(abs(phi) / 2.0)))
+        a0 = math.atan2(a[1] - cen[1], a[0] - cen[0])
+        steps = max(2, int(abs(phi) * radius / seg))
+        out.append(a)
+        for k in range(1, steps + 1):
+            ang = a0 + phi * k / float(steps)
+            out.append((cen[0] + radius * math.cos(ang),
+                        cen[1] + radius * math.sin(ang)))
+    out.append(ctrl[-1])
+    return out
+
+
 def ring(name, ctrl, step=4.0):
     """`ctrl` is a closed control polygon, resampled at `step` like the poly()
     above; the first point is not repeated."""
@@ -1670,6 +1714,17 @@ poly("bend90", [(-80, 0), (0, 0), (0, 80)])
 # R x tan(67.5) = 64.7 m of tangent run and the legs are 80 m, so it only just
 # fits and the solved arc sits hard on the clamp the whole way round.
 poly("bend135", [(-80, 0), (0, 0), (-56.6, 56.6)])
+# ⚠️ MULTI-VERTEX RUNS. Every over-curved run in every shipped case is a single
+# hard vertex, where locating the corner is trivial (it IS that vertex) and the
+# leg directions are exactly the segments either side. An audit found that the
+# whole rest of the corner construction — the leg intersection, the refined leg
+# frame — was therefore executed by no test at all, and was wrong: a 135 degree
+# corner DRAWN as an 18 m arc spreads over ten over-curved vertices, whose first
+# and last segments are the arc's own, tilted a full vertex-turn off the
+# straight legs. That case did not converge. These two draw the corner rather
+# than break it, which is the only way to reach that branch.
+poly("bend135_r18", _rounded([(-200, 0), (0, 0), (-141.4, 141.4)], 18.0))
+poly("bend90_r10", _rounded([(-200, 0), (0, 0), (0, 200)], 10.0))
 # the one that made the first solver diverge: a 30 m square returning to within
 # 4 m of its own start. R_min = 26.8 m needs 26.8 m of tangent run each side of
 # a right angle and the sides are 30 m, so this is INFEASIBLE by construction
