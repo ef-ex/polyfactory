@@ -458,6 +458,35 @@ still have to be written. Expect this in VEX or Python with a spatial grid for t
 **This is the highest-risk stage and the one to build first** — everything downstream is
 straightforward once the graph is trustworthy.
 
+### S3b — Turns: a bend is not a junction, and gets its own solver
+
+Added 2026-08-09 (Hannes). A node where exactly **two** streets meet is not a junction — it
+is a street turning a corner. Ours are created by extend-to-connect welding two dead ends
+together, and by the `d_lookahead` hook; measured, four exist, one of them a full 90° with
+a 13.4 m half-width.
+
+⚠️ **Do not look for these as degree-2 nodes.** `graph_polypath` merges the two edges into a
+single polyline, so the corner stops being a node and becomes an interior shape vertex. A
+pass keyed on node degree finds nothing — the audit confirmed **zero** degree-2 nodes in all
+four cases. Detect them as **sharp interior turns** instead.
+
+**Solve it on the CENTRELINE, not the kerbs, and keep it out of S5.** A turn needs no
+junction patch: the road sweeps straight through. Replace the sharp vertex with a circular
+arc tangent to both segments, resample, and the sweep follows it — the outer kerb comes out
+at `R + halfwidth` and the inner at `R - halfwidth` automatically, which is what a real road
+does. S5 stays at degree ≥ 3, where the patch construction is actually needed.
+
+**Radius.** Hard floor: `R > halfwidth`, or the inner kerb radius goes negative and the
+ribbon inverts — that *is* the fold `no_sweep_fold_after_trim` catches
+(`halfwidth × tan(turn/2) > segment length`). Legible floor is about `2 × halfwidth`
+(≈27 m on a 26.8 m arterial). Above that, default to the **class minimum curve radius** from
+design speed, artist-overridable like everything else.
+
+**This is the same operation as the curvature clamp** in §4f-4: resample → discrete
+curvature → smooth → clamp to `1/R_min(class)` → re-integrate. A sharp turn is just
+curvature far over the clamp, so one mechanism fixes both the polyline wobble that reads as
+CG and the folding corner. Build it once.
+
 ### S4 — Classify
 
 - **Hierarchy:** `highway · arterial · collector · local · alley`. Derived from the S2 major/minor
