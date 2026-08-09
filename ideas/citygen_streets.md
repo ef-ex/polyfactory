@@ -867,8 +867,26 @@ had never worked; two of those were never audited and one was audited too late.
 | Item | State | Evidence |
 |---|---|---|
 | **Ring closure in the radial city** (`8a83baa`) | **implementer-verified** | The two bidirectional halves each soft-stop on the *other half's* occupancy claim, so the seam always lands on an occupancy cell boundary — proved by sweeping `min_street_sep`: 130 → gap at x −7.90, 110 → −71.46, 90 → −39.65, each the boundary that setting creates. Gap was 4.877 m at (−7.90, −99.65), far past the 0.5 m fuse tolerance. Closed on a shared point behind two gates (seam ≤ 2.5 steps **and** traced length > 10× seam; the first rejects a genuinely-ended street, the second stops a stub welding into a triangle). Verified by connectivity walk, not by eye: 5 ring edges, every ring node degree 2, one walk consumes all 5 and returns to start. Suite 23 → 18 failing. **Its audit never reported.** |
-| **S7 kerb-derived blocks, S3b turns** | in progress | — |
-| Node merge/relax, shallow-arm merge, dead ends, majors-enclose-minors | not started | queued behind S7/S3b, which share the same asset |
+| **S7 — block boundary IS the kerb; PolyExpand2D deleted** (`4c53af5`, `0156c30`) | **done** — audited | `city_is_fully_paved` **0 m² on all five** (was A 757, D 919, C 7). `lots_clear_of_junctions` **0 on all five** (was up to 558 m²/junction on E). `lots_tile_blocks` passes everywhere. Seam 0.0071 → **0.0001 m**. `blocks_capback` and `blocks_expand` gone |
+| **S3b — turns, built as the curvature clamp** (`50e51f3`) | **implementer-verified** | `no_sweep_fold_after_trim` **0 folds on all five** (C had 2). Curvature ÷ clamp **1.000, 0 over**, all five. Audit still running |
+| **Ring closure gate re-derived from cell size** (`011fdcb`) | **implementer-verified** | Defaults proven byte-identical by hashing every vertex. Audit running |
+| Node merge/relax, shallow-arm merge, dead ends, majors-enclose-minors | not started | — |
+
+**Suite 23 → 15 failing.** Verified on a clean tree, and A rendered whole-city: continuous
+paving, no strip along the drawn street, lots meeting the road at every junction.
+
+⚠️ **A brief of mine was wrong and the implementer caught it.** I attributed C's sweep folds
+to sharp turns. They turn **0.3° and 4.0°** — they were §4e-7's 0.028 m and 0.22 m terminal
+segments, left where `s5j_trim`'s cut lands just short of a resample vertex. Fixing that by
+moving *points* re-opened the S5 seam to 0.48 m; it had to be fixed by moving the *cut*.
+S3b was still worth building, but it was not what fixed the folds.
+
+⚠️ **Known weakness in the ring gate, recorded rather than buried.** The ground truth needs
+a 52 m chord welded at sagitta 3.44 while a 108 m chord is refused at 3.83 — an **11% window**
+with the threshold mid-window. Cell adjacency, seam/cell ratio and gap angle were all tested
+as alternative discriminators and none separates. A relative (radius-scaled) limit may be
+the right answer. Two of the five gates rejected nothing across 12,417 streets and are
+unproven.
 
 ⚠️ **Known follow-up from the ring fix:** the two halves are radially offset ~1.6 m where
 they meet, so the closing segment introduces a 21.3°/14.8° pair of turns against a 3.28°

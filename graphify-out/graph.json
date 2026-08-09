@@ -2470,7 +2470,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_asset",
-      "community": 92,
+      "community": 0,
       "norm_label": ".add_asset()"
     },
     {
@@ -2480,7 +2480,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_tags_to_asset",
-      "community": 92,
+      "community": 0,
       "norm_label": "._add_tags_to_asset()"
     },
     {
@@ -2490,7 +2490,7 @@
       "source_location": "L204",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_asset",
-      "community": 0,
+      "community": 92,
       "norm_label": ".get_asset()"
     },
     {
@@ -2500,7 +2500,7 @@
       "source_location": "L225",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_asset_tags",
-      "community": 0,
+      "community": 92,
       "norm_label": ".get_asset_tags()"
     },
     {
@@ -2510,7 +2510,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_search_assets",
-      "community": 0,
+      "community": 92,
       "norm_label": ".search_assets()"
     },
     {
@@ -2570,7 +2570,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_tags_to_assets",
-      "community": 92,
+      "community": 0,
       "norm_label": ".add_tags_to_assets()"
     },
     {
@@ -2680,7 +2680,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "asset_library_database_rationale_139",
-      "community": 92,
+      "community": 0,
       "norm_label": "add a new asset to the database                  args:             name: asse"
     },
     {
@@ -2690,7 +2690,7 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "asset_library_database_rationale_182",
-      "community": 92,
+      "community": 0,
       "norm_label": "associate tags with an asset"
     },
     {
@@ -2700,7 +2700,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "asset_library_database_rationale_205",
-      "community": 0,
+      "community": 92,
       "norm_label": "get asset by id                  args:             asset_id: asset id"
     },
     {
@@ -2710,7 +2710,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "asset_library_database_rationale_226",
-      "community": 0,
+      "community": 92,
       "norm_label": "get all tags for an asset                  args:             asset_id: asset"
     },
     {
@@ -2720,7 +2720,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "asset_library_database_rationale_244",
-      "community": 0,
+      "community": 92,
       "norm_label": "search assets with various filters                  args:             search_"
     },
     {
@@ -2780,7 +2780,7 @@
       "source_location": "L377",
       "_origin": "ast",
       "id": "asset_library_database_rationale_377",
-      "community": 92,
+      "community": 0,
       "norm_label": "add tags to multiple assets.  existing tag associations are left intact."
     },
     {
@@ -5220,7 +5220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "columns_ui_right_column",
-      "community": 12,
+      "community": 99,
       "norm_label": "ui_right_column.py"
     },
     {
@@ -5230,7 +5230,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn",
-      "community": 12,
+      "community": 99,
       "norm_label": "ui_rightcolumn"
     },
     {
@@ -5240,7 +5240,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_setupui",
-      "community": 12,
+      "community": 99,
       "norm_label": ".setupui()"
     },
     {
@@ -5250,7 +5250,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_retranslateui",
-      "community": 12,
+      "community": 99,
       "norm_label": ".retranslateui()"
     },
     {
@@ -7600,7 +7600,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -7610,7 +7610,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_normal_indicator",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw_normal_indicator()"
     },
     {
@@ -7630,7 +7630,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -7640,7 +7640,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_50",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw line indicating surface normal.          args:         drawable: houdini"
     },
     {
@@ -9370,7 +9370,7 @@
       "source_location": "L157",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmfloat_reset_to_default",
-      "community": 35,
+      "community": 100,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -9380,7 +9380,7 @@
       "source_location": "L163",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmfloat_toggle_slider",
-      "community": 35,
+      "community": 102,
       "norm_label": "._toggle_slider()"
     },
     {
@@ -9550,7 +9550,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_158",
-      "community": 35,
+      "community": 100,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -9560,7 +9560,7 @@
       "source_location": "L164",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_164",
-      "community": 35,
+      "community": 102,
       "norm_label": "toggle slider visibility (lmb on label)."
     },
     {
@@ -9830,7 +9830,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_init",
-      "community": 24,
+      "community": 34,
       "norm_label": ".__init__()"
     },
     {
@@ -9840,7 +9840,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "widgets_tag_input_taginputwidget_setup_ui",
-      "community": 24,
+      "community": 34,
       "norm_label": "._setup_ui()"
     },
     {
@@ -10230,7 +10230,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 99,
+      "community": 35,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -10310,7 +10310,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_expression_style",
-      "community": 100,
+      "community": 35,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -10530,7 +10530,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 99,
+      "community": 35,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -10550,7 +10550,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_179",
-      "community": 100,
+      "community": 35,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -15247,7 +15247,7 @@
       "label": "4f. Civil-engineering sweep \u2014 2026-08-09. What it changes",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L901",
+      "source_location": "L919",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4f_civil_engineering_sweep_2026_08_09_what_it_changes",
       "community": 17,
@@ -15257,7 +15257,7 @@
       "label": "4e. Independent audit findings \u2014 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L958",
+      "source_location": "L976",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4e_independent_audit_findings_2026_08_09",
       "community": 17,
@@ -15267,7 +15267,7 @@
       "label": "4g. Second audit \u2014 the dead-end build, 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1039",
+      "source_location": "L1057",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4g_second_audit_the_dead_end_build_2026_08_09",
       "community": 17,
@@ -15277,7 +15277,7 @@
       "label": "The junction-spacing ceiling \u2014 measured 2026-08-09, and re-read after the audit",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1071",
+      "source_location": "L1089",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_junction_spacing_ceiling_measured_2026_08_09_and_re_read_after_the_audit",
       "community": 17,
@@ -15287,7 +15287,7 @@
       "label": "4h. Third pass \u2014 the seam, the radius rule, the two dead-end mechanisms. 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1112",
+      "source_location": "L1130",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4h_third_pass_the_seam_the_radius_rule_the_two_dead_end_mechanisms_2026_08_09",
       "community": 17,
@@ -15297,7 +15297,7 @@
       "label": "4i. Fourth pass \u2014 the dead-end holes, the rail ceiling, the collinear average. 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1237",
+      "source_location": "L1255",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4i_fourth_pass_the_dead_end_holes_the_rail_ceiling_the_collinear_average_2026_08_09",
       "community": 17,
@@ -15307,7 +15307,7 @@
       "label": "4d. Measured state of the shipped build \u2014 2026-08-09 (pre-fix)",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1339",
+      "source_location": "L1357",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4d_measured_state_of_the_shipped_build_2026_08_09_pre_fix",
       "community": 17,
@@ -15317,7 +15317,7 @@
       "label": "5. Scale strategy",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1379",
+      "source_location": "L1397",
       "_origin": "ast",
       "id": "ideas_citygen_streets_5_scale_strategy",
       "community": 17,
@@ -15327,7 +15327,7 @@
       "label": "6. Attribute schema",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1395",
+      "source_location": "L1413",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6_attribute_schema",
       "community": 17,
@@ -15337,7 +15337,7 @@
       "label": "6b. Shipped V1 assets",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1443",
+      "source_location": "L1461",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6b_shipped_v1_assets",
       "community": 17,
@@ -15347,7 +15347,7 @@
       "label": "7. Where the code goes",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1472",
+      "source_location": "L1490",
       "_origin": "ast",
       "id": "ideas_citygen_streets_7_where_the_code_goes",
       "community": 17,
@@ -15357,7 +15357,7 @@
       "label": "8. Build order",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1486",
+      "source_location": "L1504",
       "_origin": "ast",
       "id": "ideas_citygen_streets_8_build_order",
       "community": 17,
@@ -15367,7 +15367,7 @@
       "label": "9. Open decisions",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1504",
+      "source_location": "L1522",
       "_origin": "ast",
       "id": "ideas_citygen_streets_9_open_decisions",
       "community": 17,
@@ -15377,7 +15377,7 @@
       "label": "10. Explicit non-goals for v1",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1536",
+      "source_location": "L1554",
       "_origin": "ast",
       "id": "ideas_citygen_streets_10_explicit_non_goals_for_v1",
       "community": 17,
@@ -36024,9 +36024,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1255",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_block_boundary_closes",
-      "confidence_score": 1.0
+      "target": "citygen_checks_block_boundary_closes"
     },
     {
       "relation": "contains",
@@ -36396,9 +36396,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1300",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_block_boundary_closes",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -36723,9 +36723,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1286",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_block_boundary_closes",
-      "target": "citygen_checks_skip",
-      "confidence_score": 1.0
+      "target": "citygen_checks_skip"
     },
     {
       "relation": "calls",
@@ -37298,9 +37298,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1256",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1256",
-      "target": "citygen_checks_block_boundary_closes",
-      "confidence_score": 1.0
+      "target": "citygen_checks_block_boundary_closes"
     },
     {
       "relation": "rationale_for",
@@ -37318,9 +37318,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1306",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1306",
-      "target": "citygen_checks_centreline_curvature_within_class",
-      "confidence_score": 1.0
+      "target": "citygen_checks_centreline_curvature_within_class"
     },
     {
       "relation": "rationale_for",
@@ -37338,9 +37338,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1359",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1359",
-      "target": "citygen_checks_lots_clear_of_junctions",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lots_clear_of_junctions"
     },
     {
       "relation": "rationale_for",
@@ -37348,9 +37348,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1397",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1397",
-      "target": "citygen_checks_city_is_fully_paved",
-      "confidence_score": 1.0
+      "target": "citygen_checks_city_is_fully_paved"
     },
     {
       "relation": "contains",
@@ -41821,5 +41821,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "50e51f3dd4a699bea37340207b1b8e2db5855034"
+  "built_at_commit": "0156c308a3d4f10f3a168cb01ae76b836386e00a"
 }
