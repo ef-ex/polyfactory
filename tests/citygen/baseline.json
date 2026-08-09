@@ -71,11 +71,18 @@
       "value": 0
     },
     {
+      "detail": "straight chords out of 22 corners (through-streets excluded)",
+      "name": "every_corner_is_an_arc",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
       "detail": "bands vs live corner segments",
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "66/66"
+      "value": "120/120"
     },
     {
       "detail": "",
@@ -87,9 +94,9 @@
     {
       "detail": "intersection points",
       "name": "selfx_junction_surface",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 4
+      "value": 0
     },
     {
       "detail": "intersection points",
@@ -140,7 +147,7 @@
       "skipped": false,
       "value": {
         "blocks": 2,
-        "city": 4163,
+        "city": 4271,
         "edges": 15,
         "lots": 61
       }
@@ -218,11 +225,18 @@
       "value": 0
     },
     {
+      "detail": "straight chords out of 99 corners (through-streets excluded)",
+      "name": "every_corner_is_an_arc",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
       "detail": "bands vs live corner segments",
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "295/295"
+      "value": "588/588"
     },
     {
       "detail": "",
@@ -287,7 +301,7 @@
       "skipped": false,
       "value": {
         "blocks": 9,
-        "city": 23072,
+        "city": 23658,
         "edges": 66,
         "lots": 419
       }
@@ -365,11 +379,18 @@
       "value": 0
     },
     {
+      "detail": "straight chords out of 112 corners (through-streets excluded)",
+      "name": "every_corner_is_an_arc",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
       "detail": "bands vs live corner segments",
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "336/336"
+      "value": "672/672"
     },
     {
       "detail": "",
@@ -434,7 +455,7 @@
       "skipped": false,
       "value": {
         "blocks": 12,
-        "city": 23775,
+        "city": 24447,
         "edges": 78,
         "lots": 632
       }

@@ -54,20 +54,6 @@ float pfsj_miter_ratio(const vector centre, corner; const float wA, wB) {
 }
 
 
-// The two bevel points, used when the miter is over the limit: the kerb
-// offsets of each street taken at the junction centre.
-void pfsj_bevel(const vector centre, dirA, dirB; const float wA, wB;
-                export vector bA, bB) {
-    vector up = {0, 1, 0};
-    vector nA = normalize(cross(dirA, up));
-    vector nB = normalize(cross(dirB, up));
-    if (dot(nA, dirB) < 0) nA = -nA;      // face the neighbour
-    if (dot(nB, dirA) < 0) nB = -nB;
-    bA = centre + nA * (wA * 0.5);
-    bB = centre + nB * (wB * 0.5);
-}
-
-
 // Fillet inscribed in the corner: centre sits r/sin(theta/2) from the corner
 // along the inner bisector, tangents sit r/tan(theta/2) back along each kerb.
 // The radius is CLAMPED to what the junction can actually hold. The tangent
@@ -116,24 +102,17 @@ float pfsj_corner_radius(const string street_class) {
 }
 
 
-// Arc centre for a circle of radius `radius` passing through BOTH p and q,
-// bulging away from `inside`.
-//
-// The junction polygon must use the streets' actual perpendicular cap corners,
-// but the fillet was solved from the kerb tangents, which sit at a different
-// axial distance. Re-fitting the arc through the cap corners makes the patch
-// meet each road exactly instead of overlapping it.
-vector pfsj_arc_centre_through(const vector p, q, inside; const float radius) {
-    vector mid = (p + q) * 0.5;
-    vector chord = q - p;
-    float halfc = length(chord) * 0.5;
-    if (halfc < PFSJ_EPS) return mid;
-    float r = max(radius, halfc);                 // a smaller circle cannot reach both
-    float h = sqrt(max(r * r - halfc * halfc, 0.0));
-    vector up = {0, 1, 0};
-    vector perp = normalize(cross(normalize(chord), up));
-    if (dot(perp, mid - inside) < 0) perp = -perp;   // bulge away from the node
-    return mid + perp * h;
+// Signed area of a closed XZ boundary, read as (x, z) in the usual 2D sense.
+// Positive means the interior lies to the LEFT of the traversal direction, and
+// cross(edge, up) is exactly that left normal.
+float pfsj_signed_area(const vector pts[]) {
+    float a = 0;
+    int n = len(pts);
+    for (int i = 0; i < n; i++) {
+        vector p0 = pts[i], p1 = pts[(i + 1) % n];
+        a += p0.x * p1.z - p1.x * p0.z;
+    }
+    return a;
 }
 
 
@@ -146,9 +125,14 @@ vector pfsj_arc_centre_through(const vector p, q, inside; const float radius) {
 // the kerb lines up with the road's kerb exactly (citygen_streets.md S5:
 // "matching cross-section element boundaries ... sidewalk meets sidewalk").
 //
-// A plain per-edge offset would leave gaps at corners, so the vertex is moved
-// along the bisector with the usual 1/cos correction.
-vector pfsj_inward_offset(const vector prev, cur, next, inside; const float dist) {
+// `orient` is +1 or -1 from pfsj_signed_area. An earlier version took an
+// `inside` POINT and flipped each normal to face it, which is only valid on a
+// convex boundary: once the corner fillets make the junction non-convex the
+// centroid falls on the wrong side of an edge, one normal inverts, the bisector
+// collapses and the miter clamp fires at its 4x limit - throwing the inner ring
+// ~10m across the junction and folding the carriageway. Winding is orientation
+// truth for any simple polygon, convex or not.
+vector pfsj_inward_offset(const vector prev, cur, next; const float orient, dist) {
     vector up = {0, 1, 0};
     vector e1 = cur - prev, e2 = next - cur;
     e1.y = 0; e2.y = 0;
@@ -157,15 +141,13 @@ vector pfsj_inward_offset(const vector prev, cur, next, inside; const float dist
     if (length(e1) < PFSJ_EPS) return cur;
     e1 = normalize(e1); e2 = normalize(e2);
 
-    vector n1 = normalize(cross(e1, up));
-    vector n2 = normalize(cross(e2, up));
-    if (dot(n1, inside - cur) < 0) n1 = -n1;      // face the interior
-    if (dot(n2, inside - cur) < 0) n2 = -n2;
+    vector n1 = normalize(cross(e1, up)) * orient;
+    vector n2 = normalize(cross(e2, up)) * orient;
 
     vector bis = n1 + n2;
     if (length(bis) < PFSJ_EPS) return cur + n1 * dist;
     bis = normalize(bis);
-    float c = max(dot(bis, n1), 0.25);            // clamp the miter blow-up
+    float c = max(dot(bis, n1), 0.5);             // <=2x; a real spike is a bug
     return cur + bis * (dist / c);
 }
 

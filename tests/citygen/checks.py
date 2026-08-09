@@ -198,6 +198,62 @@ def no_degenerate_corner_segments(patch_geo, tol=1e-3):
                   "collapsed fillet arcs")
 
 
+def every_corner_is_an_arc(patch_geo, dot_tol=-0.985):
+    """A junction corner that is a straight chord instead of an arc.
+
+    Measured 50/50 on the grid case and 56/56 on the radial one: half of every
+    junction's corners were straight. The cause was ours — the arc was refitted
+    through the street cap corners rather than the caps being placed at the
+    fillet's tangent points, so whenever the class radius could not span the
+    chord it silently fell back to a straight line.
+
+    A fillet tangent to both kerb lines exists for ANY non-collinear corner, so
+    the only legitimate straight corner is a street running straight through the
+    junction (the two mouths anti-parallel), which is what a real kerb does.
+    Anything else is the bug coming back.
+    """
+    if patch_geo.findPointAttrib("is_cap") is None:
+        return _skip("every_corner_is_an_arc", "no is_cap attribute")
+    up = (0.0, 1.0, 0.0)
+
+    def _street_dir(cin, cout, capc, centre):
+        v = (cout[0] - cin[0], 0.0, cout[2] - cin[2])          # across the mouth
+        d = (v[2] * up[1], 0.0, -v[0] * up[1])                 # cross(v, up)
+        m = math.hypot(d[0], d[2]) or 1.0
+        d = (d[0] / m, 0.0, d[2] / m)
+        out = (capc[0] - centre[0], 0.0, capc[2] - centre[2])  # point away from the node
+        return d if (d[0] * out[0] + d[2] * out[2]) >= 0 else (-d[0], 0.0, -d[2])
+
+    bad = 0
+    total = 0
+    for prim in patch_geo.prims():
+        pts = [v.point() for v in prim.vertices()]
+        n = len(pts)
+        if n < 3:
+            continue
+        cap = [p.attribValue("is_cap") for p in pts]
+        aft = [p.attribValue("after_corner") for p in pts]
+        pos = [p.position() for p in pts]
+        centre = [sum(p[i] for p in pos) / n for i in range(3)]
+        for i in range(n):
+            if not (cap[i] == 1 and aft[i] == 1):
+                continue                                       # not a corner start
+            total += 1
+            k, run = (i + 1) % n, 0
+            while cap[k] == 0 and run < n:
+                run += 1
+                k = (k + 1) % n
+            if run:
+                continue                                       # has arc points: fine
+            # straight: legitimate only if the two streets are anti-parallel
+            a = _street_dir(pos[i - 1], pos[i], pts[i].attribValue("capc"), centre)
+            b = _street_dir(pos[k], pos[(k + 1) % n], pts[k].attribValue("capc"), centre)
+            if a[0] * b[0] + a[2] * b[2] > dot_tol:
+                bad += 1
+    return Result("every_corner_is_an_arc", bad == 0, bad,
+                  "straight chords out of %d corners (through-streets excluded)" % total)
+
+
 def sidewalk_bands_match_corners(patch_geo, surface_geo, tol=1e-3):
     """Every live corner segment must produce exactly one sidewalk band.
 

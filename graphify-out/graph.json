@@ -1920,7 +1920,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_thumbnail_dropped_at",
-      "community": 79,
+      "community": 67,
       "norm_label": "._on_thumbnail_dropped_at()"
     },
     {
@@ -1930,7 +1930,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qpoint",
-      "community": 79,
+      "community": 67,
       "norm_label": "qpoint"
     },
     {
@@ -2070,7 +2070,7 @@
       "source_location": "L733",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog_on_asset_selected",
-      "community": 79,
+      "community": 67,
       "norm_label": "._on_asset_selected()"
     },
     {
@@ -2140,7 +2140,7 @@
       "source_location": "L775",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_handle_dropped_at",
-      "community": 79,
+      "community": 67,
       "norm_label": ".handle_dropped_at()"
     },
     {
@@ -2150,7 +2150,7 @@
       "source_location": "L799",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_handle_drop",
-      "community": 79,
+      "community": 67,
       "norm_label": "._handle_drop()"
     },
     {
@@ -2220,7 +2220,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_383",
-      "community": 79,
+      "community": 67,
       "norm_label": "forward thumbnail drop to the browser-level signal."
     },
     {
@@ -2350,7 +2350,7 @@
       "source_location": "L734",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_734",
-      "community": 79,
+      "community": 67,
       "norm_label": "double-click in the floating browser: create and connect the         asset plac"
     },
     {
@@ -2390,7 +2390,7 @@
       "source_location": "L776",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_776",
-      "community": 79,
+      "community": 67,
       "norm_label": "called after a drag completes. if the cursor is outside our own         window,"
     },
     {
@@ -2400,7 +2400,7 @@
       "source_location": "L800",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_800",
-      "community": 79,
+      "community": 67,
       "norm_label": "create a pf_asset_place node in the current network, wire it to the         cur"
     },
     {
@@ -3310,7 +3310,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "object",
-      "community": 91,
+      "community": 76,
       "norm_label": "object"
     },
     {
@@ -5020,7 +5020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_functions",
-      "community": 8,
+      "community": 26,
       "norm_label": "functions.py"
     },
     {
@@ -5070,7 +5070,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_json_settings",
-      "community": 58,
+      "community": 76,
       "norm_label": "json_settings.py"
     },
     {
@@ -5080,7 +5080,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "core_json_settings_settings",
-      "community": 58,
+      "community": 76,
       "norm_label": "settings"
     },
     {
@@ -5090,7 +5090,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "core_json_settings_settings_init",
-      "community": 58,
+      "community": 76,
       "norm_label": ".__init__()"
     },
     {
@@ -5100,7 +5100,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "core_json_settings_settings_serialize",
-      "community": 58,
+      "community": 76,
       "norm_label": ".serialize()"
     },
     {
@@ -5110,7 +5110,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "core_json_settings_settings_deserialize",
-      "community": 58,
+      "community": 76,
       "norm_label": ".deserialize()"
     },
     {
@@ -5120,7 +5120,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_json_themes",
-      "community": 2,
+      "community": 90,
       "norm_label": "json_themes.py"
     },
     {
@@ -5130,7 +5130,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "core_json_themes_themes",
-      "community": 2,
+      "community": 90,
       "norm_label": "themes"
     },
     {
@@ -5140,7 +5140,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "core_json_themes_themes_init",
-      "community": 2,
+      "community": 90,
       "norm_label": ".__init__()"
     },
     {
@@ -5150,7 +5150,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "core_json_themes_themes_serialize",
-      "community": 2,
+      "community": 90,
       "norm_label": ".serialize()"
     },
     {
@@ -5160,7 +5160,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "core_json_themes_themes_deserialize",
-      "community": 2,
+      "community": 90,
       "norm_label": ".deserialize()"
     },
     {
@@ -5190,7 +5190,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "columns_ui_left_column_ui_leftcolumn",
-      "community": 91,
+      "community": 8,
       "norm_label": "ui_leftcolumn"
     },
     {
@@ -5200,7 +5200,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "columns_ui_left_column_ui_leftcolumn_setupui",
-      "community": 91,
+      "community": 8,
       "norm_label": ".setupui()"
     },
     {
@@ -5210,7 +5210,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "columns_ui_left_column_ui_leftcolumn_retranslateui",
-      "community": 91,
+      "community": 8,
       "norm_label": ".retranslateui()"
     },
     {
@@ -5260,7 +5260,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pages_ui_main_pages",
-      "community": 91,
+      "community": 97,
       "norm_label": "ui_main_pages.py"
     },
     {
@@ -5270,7 +5270,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages",
-      "community": 91,
+      "community": 97,
       "norm_label": "ui_mainpages"
     },
     {
@@ -5280,7 +5280,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_setupui",
-      "community": 91,
+      "community": 97,
       "norm_label": ".setupui()"
     },
     {
@@ -5290,7 +5290,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_retranslateui",
-      "community": 91,
+      "community": 97,
       "norm_label": ".retranslateui()"
     },
     {
@@ -5660,7 +5660,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_grips_init",
-      "community": 53,
+      "community": 43,
       "norm_label": "__init__.py"
     },
     {
@@ -5670,7 +5670,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_grips_py_grips",
-      "community": 53,
+      "community": 43,
       "norm_label": "py_grips.py"
     },
     {
@@ -5680,7 +5680,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "py_grips_py_grips_pygrips",
-      "community": 53,
+      "community": 43,
       "norm_label": "pygrips"
     },
     {
@@ -5700,7 +5700,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "py_grips_py_grips_pygrips_mousereleaseevent",
-      "community": 53,
+      "community": 43,
       "norm_label": ".mousereleaseevent()"
     },
     {
@@ -5710,7 +5710,7 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "py_grips_py_grips_pygrips_resizeevent",
-      "community": 53,
+      "community": 43,
       "norm_label": ".resizeevent()"
     },
     {
@@ -5840,7 +5840,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qpushbutton",
-      "community": 65,
+      "community": 6,
       "norm_label": "qpushbutton"
     },
     {
@@ -5850,7 +5850,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button_pyiconbutton_init",
-      "community": 6,
+      "community": 74,
       "norm_label": ".__init__()"
     },
     {
@@ -5970,7 +5970,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button_tooltip",
-      "community": 6,
+      "community": 74,
       "norm_label": "_tooltip"
     },
     {
@@ -5980,7 +5980,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qlabel",
-      "community": 78,
+      "community": 74,
       "norm_label": "qlabel"
     },
     {
@@ -5990,7 +5990,7 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button_tooltip_init",
-      "community": 6,
+      "community": 74,
       "norm_label": ".__init__()"
     },
     {
@@ -6020,7 +6020,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon",
-      "community": 76,
+      "community": 54,
       "norm_label": "pyicon"
     },
     {
@@ -6030,7 +6030,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_init",
-      "community": 76,
+      "community": 54,
       "norm_label": ".__init__()"
     },
     {
@@ -6040,7 +6040,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_setup_ui",
-      "community": 76,
+      "community": 54,
       "norm_label": ".setup_ui()"
     },
     {
@@ -6050,7 +6050,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_set_icon",
-      "community": 76,
+      "community": 54,
       "norm_label": ".set_icon()"
     },
     {
@@ -6060,7 +6060,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_left_button",
-      "community": 78,
+      "community": 8,
       "norm_label": "py_left_button.py"
     },
     {
@@ -6080,7 +6080,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_init",
-      "community": 78,
+      "community": 74,
       "norm_label": ".__init__()"
     },
     {
@@ -6200,7 +6200,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip",
-      "community": 78,
+      "community": 74,
       "norm_label": "_tooltip"
     },
     {
@@ -6210,7 +6210,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip_init",
-      "community": 78,
+      "community": 74,
       "norm_label": ".__init__()"
     },
     {
@@ -6290,7 +6290,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_menu_py_div",
-      "community": 8,
+      "community": 26,
       "norm_label": "py_div.py"
     },
     {
@@ -6300,7 +6300,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_left_menu_py_div_pydiv",
-      "community": 8,
+      "community": 26,
       "norm_label": "pydiv"
     },
     {
@@ -6310,7 +6310,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_menu_py_div_pydiv_init",
-      "community": 8,
+      "community": 26,
       "norm_label": ".__init__()"
     },
     {
@@ -6320,7 +6320,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu",
-      "community": 8,
+      "community": 26,
       "norm_label": "py_left_menu.py"
     },
     {
@@ -6440,7 +6440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button",
-      "community": 8,
+      "community": 26,
       "norm_label": "py_left_menu_button.py"
     },
     {
@@ -6460,7 +6460,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_pyleftmenubutton_init",
-      "community": 78,
+      "community": 74,
       "norm_label": ".__init__()"
     },
     {
@@ -6620,7 +6620,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_tooltip",
-      "community": 78,
+      "community": 74,
       "norm_label": "_tooltip"
     },
     {
@@ -6630,7 +6630,7 @@
       "source_location": "L349",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_tooltip_init",
-      "community": 78,
+      "community": 74,
       "norm_label": ".__init__()"
     },
     {
@@ -6890,7 +6890,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_init",
-      "community": 8,
+      "community": 58,
       "norm_label": "__init__.py"
     },
     {
@@ -6900,7 +6900,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_div",
-      "community": 8,
+      "community": 58,
       "norm_label": "py_div.py"
     },
     {
@@ -6910,7 +6910,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_title_bar_py_div_pydiv",
-      "community": 8,
+      "community": 58,
       "norm_label": "pydiv"
     },
     {
@@ -6920,7 +6920,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_title_bar_py_div_pydiv_init",
-      "community": 8,
+      "community": 58,
       "norm_label": ".__init__()"
     },
     {
@@ -6930,7 +6930,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar",
-      "community": 8,
+      "community": 58,
       "norm_label": "py_title_bar.py"
     },
     {
@@ -7020,7 +7020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button",
-      "community": 8,
+      "community": 71,
       "norm_label": "py_title_button.py"
     },
     {
@@ -7040,7 +7040,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_pytitlebutton_init",
-      "community": 78,
+      "community": 71,
       "norm_label": ".__init__()"
     },
     {
@@ -7160,7 +7160,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_tooltip",
-      "community": 78,
+      "community": 71,
       "norm_label": "_tooltip"
     },
     {
@@ -7170,7 +7170,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button_tooltip_init",
-      "community": 78,
+      "community": 71,
       "norm_label": ".__init__()"
     },
     {
@@ -7250,7 +7250,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_hitbutton",
-      "community": 79,
+      "community": 67,
       "norm_label": ".hitbutton()"
     },
     {
@@ -7270,7 +7270,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_window_init",
-      "community": 58,
+      "community": 76,
       "norm_label": "__init__.py"
     },
     {
@@ -7280,7 +7280,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_window_py_window",
-      "community": 58,
+      "community": 76,
       "norm_label": "py_window.py"
     },
     {
@@ -7290,7 +7290,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "py_window_py_window_pywindow",
-      "community": 58,
+      "community": 76,
       "norm_label": "pywindow"
     },
     {
@@ -7310,7 +7310,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "py_window_py_window_pywindow_init",
-      "community": 58,
+      "community": 76,
       "norm_label": ".__init__()"
     },
     {
@@ -7320,7 +7320,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "py_window_py_window_pywindow_set_stylesheet",
-      "community": 58,
+      "community": 76,
       "norm_label": ".set_stylesheet()"
     },
     {
@@ -7330,7 +7330,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_window_styles",
-      "community": 58,
+      "community": 76,
       "norm_label": "styles.py"
     },
     {
@@ -7340,7 +7340,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "py_window_styles_styles",
-      "community": 58,
+      "community": 76,
       "norm_label": "styles"
     },
     {
@@ -7600,7 +7600,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -7610,7 +7610,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_normal_indicator",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw_normal_indicator()"
     },
     {
@@ -7630,7 +7630,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -7640,7 +7640,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_50",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw line indicating surface normal.          args:         drawable: houdini"
     },
     {
@@ -7890,7 +7890,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager",
-      "community": 15,
+      "community": 42,
       "norm_label": "bindingmanager"
     },
     {
@@ -7990,7 +7990,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_poll_parm_changes",
-      "community": 15,
+      "community": 42,
       "norm_label": "._poll_parm_changes()"
     },
     {
@@ -8010,7 +8010,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_cleanup",
-      "community": 15,
+      "community": 42,
       "norm_label": ".cleanup()"
     },
     {
@@ -8030,7 +8030,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_14",
-      "community": 15,
+      "community": 42,
       "norm_label": "manages parameter bindings for an hda python panel ui.          coordinates up"
     },
     {
@@ -8130,7 +8130,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_160",
-      "community": 15,
+      "community": 42,
       "norm_label": "poll for external parameter changes (from ui, expressions, etc)."
     },
     {
@@ -8150,7 +8150,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_192",
-      "community": 15,
+      "community": 42,
       "norm_label": "stop polling and clean up resources."
     },
     {
@@ -8160,7 +8160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_hover_outline",
-      "community": 15,
+      "community": 98,
       "norm_label": "hover_outline.py"
     },
     {
@@ -8240,7 +8240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_hover_outline_rationale_1",
-      "community": 15,
+      "community": 98,
       "norm_label": "hover outline mixin - animated blue outline on hover for any widget"
     },
     {
@@ -8740,7 +8740,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedlabel_init",
-      "community": 35,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -8800,7 +8800,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_enhancedinputfield_init",
-      "community": 35,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -9010,7 +9010,7 @@
       "source_location": "L402",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_expressiondialog",
-      "community": 35,
+      "community": 1,
       "norm_label": "expressiondialog"
     },
     {
@@ -9020,7 +9020,7 @@
       "source_location": "L405",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_expressiondialog_init",
-      "community": 35,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -9260,7 +9260,7 @@
       "source_location": "L403",
       "_origin": "ast",
       "id": "widgets_parm_widgets_base_rationale_403",
-      "community": 35,
+      "community": 1,
       "norm_label": "dialog for editing parameter expressions."
     },
     {
@@ -9630,7 +9630,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input",
-      "community": 37,
+      "community": 98,
       "norm_label": "tag_input.py"
     },
     {
@@ -9780,7 +9780,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip",
-      "community": 37,
+      "community": 34,
       "norm_label": "tagchip"
     },
     {
@@ -9800,7 +9800,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_paintevent",
-      "community": 37,
+      "community": 34,
       "norm_label": ".paintevent()"
     },
     {
@@ -9810,7 +9810,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_on_remove",
-      "community": 37,
+      "community": 34,
       "norm_label": "._on_remove()"
     },
     {
@@ -10010,7 +10010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_1",
-      "community": 37,
+      "community": 98,
       "norm_label": "tag input widget - autocompleting tag input with removable chips similar to sho"
     },
     {
@@ -10030,7 +10030,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_90",
-      "community": 37,
+      "community": 34,
       "norm_label": "individual tag chip with remove button"
     },
     {
@@ -10040,7 +10040,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_133",
-      "community": 37,
+      "community": 34,
       "norm_label": "custom paint to draw rounded background with darker blue + animated hover outlin"
     },
     {
@@ -10050,7 +10050,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_149",
-      "community": 37,
+      "community": 34,
       "norm_label": "handle remove button click"
     },
     {
@@ -10490,7 +10490,7 @@
       "source_location": "L501",
       "_origin": "ast",
       "id": "widgets_widgets_parmbutton",
-      "community": 35,
+      "community": 15,
       "norm_label": "parmbutton"
     },
     {
@@ -10670,7 +10670,7 @@
       "source_location": "L502",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_502",
-      "community": 35,
+      "community": 15,
       "norm_label": "button widget (not parameter-bound)."
     },
     {
@@ -10884,10 +10884,20 @@
       "norm_label": "no_degenerate_corner_segments()"
     },
     {
-      "label": "sidewalk_bands_match_corners()",
+      "label": "every_corner_is_an_arc()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
       "source_location": "L201",
+      "_origin": "ast",
+      "id": "citygen_checks_every_corner_is_an_arc",
+      "community": 7,
+      "norm_label": "every_corner_is_an_arc()"
+    },
+    {
+      "label": "sidewalk_bands_match_corners()",
+      "file_type": "code",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L257",
       "_origin": "ast",
       "id": "citygen_checks_sidewalk_bands_match_corners",
       "community": 7,
@@ -10897,7 +10907,7 @@
       "label": "junction_boundary_is_simple()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L226",
+      "source_location": "L282",
       "_origin": "ast",
       "id": "citygen_checks_junction_boundary_is_simple",
       "community": 7,
@@ -10907,7 +10917,7 @@
       "label": "lots_tile_blocks()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L257",
+      "source_location": "L313",
       "_origin": "ast",
       "id": "citygen_checks_lots_tile_blocks",
       "community": 7,
@@ -10917,7 +10927,7 @@
       "label": "no_duplicate_lot_footprints()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L268",
+      "source_location": "L324",
       "_origin": "ast",
       "id": "citygen_checks_no_duplicate_lot_footprints",
       "community": 7,
@@ -10927,7 +10937,7 @@
       "label": "attribute_schema()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L294",
+      "source_location": "L350",
       "_origin": "ast",
       "id": "citygen_checks_attribute_schema",
       "community": 7,
@@ -10937,7 +10947,7 @@
       "label": "self_intersections()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L312",
+      "source_location": "L368",
       "_origin": "ast",
       "id": "citygen_checks_self_intersections",
       "community": 7,
@@ -11034,12 +11044,22 @@
       "norm_label": "zero-length boundary segments mean the fillet arc collapsed.      pfsj_arc_centr"
     },
     {
-      "label": "Every live corner segment must produce exactly one sidewalk band.      A shortfa",
+      "label": "A junction corner that is a straight chord instead of an arc.      Measured 50/5",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
       "source_location": "L202",
       "_origin": "ast",
       "id": "citygen_checks_rationale_202",
+      "community": 7,
+      "norm_label": "a junction corner that is a straight chord instead of an arc.      measured 50/5"
+    },
+    {
+      "label": "Every live corner segment must produce exactly one sidewalk band.      A shortfa",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L258",
+      "_origin": "ast",
+      "id": "citygen_checks_rationale_258",
       "community": 7,
       "norm_label": "every live corner segment must produce exactly one sidewalk band.      a shortfa"
     },
@@ -11047,9 +11067,9 @@
       "label": "The boundary must not self-cross. capIn/capOut assigned by distance to     the p",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L227",
+      "source_location": "L283",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_227",
+      "id": "citygen_checks_rationale_283",
       "community": 7,
       "norm_label": "the boundary must not self-cross. capin/capout assigned by distance to     the p"
     },
@@ -11057,9 +11077,9 @@
       "label": "Lot area must equal block area. A subdivision partitions its block.",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L258",
+      "source_location": "L314",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_258",
+      "id": "citygen_checks_rationale_314",
       "community": 7,
       "norm_label": "lot area must equal block area. a subdivision partitions its block."
     },
@@ -11067,9 +11087,9 @@
       "label": "VoronoiFracture 2.0 emits BOTH its `inside` and `outside` groups, so     every d",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L269",
+      "source_location": "L325",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_269",
+      "id": "citygen_checks_rationale_325",
       "community": 7,
       "norm_label": "voronoifracture 2.0 emits both its `inside` and `outside` groups, so     every d"
     },
@@ -11077,9 +11097,9 @@
       "label": "Conformance with the schema table. Identity must survive to the final     geomet",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L295",
+      "source_location": "L351",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_295",
+      "id": "citygen_checks_rationale_351",
       "community": 7,
       "norm_label": "conformance with the schema table. identity must survive to the final     geomet"
     },
@@ -11087,9 +11107,9 @@
       "label": "Intersection Analysis reports 0 for a valid box, grid and kerb step \u2014     verifi",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L313",
+      "source_location": "L369",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_313",
+      "id": "citygen_checks_rationale_369",
       "community": 7,
       "norm_label": "intersection analysis reports 0 for a valid box, grid and kerb step \u2014     verifi"
     },
@@ -11117,7 +11137,7 @@
       "label": "main()",
       "file_type": "code",
       "source_file": "tests/citygen/run_scene_checks.py",
-      "source_location": "L110",
+      "source_location": "L112",
       "_origin": "ast",
       "id": "citygen_run_scene_checks_main",
       "community": 63,
@@ -12480,7 +12500,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices",
-      "community": 17,
+      "community": 31,
       "norm_label": "dcc_mcp_best_practices.md"
     },
     {
@@ -12490,7 +12510,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_best_practices_for_a_dcc_mcp_making_an_llm_actually_operate_houdini",
-      "community": 17,
+      "community": 78,
       "norm_label": "best practices for a dcc mcp \u2014 making an llm actually operate houdini"
     },
     {
@@ -12500,7 +12520,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_tl_dr_the_9_things_that_make_a_dcc_mcp_work",
-      "community": 17,
+      "community": 78,
       "norm_label": "tl;dr \u2014 the 9 things that make a dcc-mcp work"
     },
     {
@@ -12510,7 +12530,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_1_architecture_transport",
-      "community": 17,
+      "community": 78,
       "norm_label": "1. architecture & transport"
     },
     {
@@ -12520,7 +12540,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_the_proven_shape_all_three_ecosystems_converge_here",
-      "community": 17,
+      "community": 78,
       "norm_label": "the proven shape (all three ecosystems converge here)"
     },
     {
@@ -12530,7 +12550,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_transport_lessons",
-      "community": 17,
+      "community": 78,
       "norm_label": "transport lessons"
     },
     {
@@ -12540,7 +12560,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_2_tool_surface_structured_tools_and_a_code_hatch",
-      "community": 17,
+      "community": 78,
       "norm_label": "2. tool surface \u2014 structured tools **and** a code hatch"
     },
     {
@@ -12550,7 +12570,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_two_design_axes_worth_copying",
-      "community": 17,
+      "community": 78,
       "norm_label": "two design axes worth copying"
     },
     {
@@ -12560,7 +12580,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_don_t_fight_the_api_surface_with_tool_sprawl",
-      "community": 17,
+      "community": 78,
       "norm_label": "don't fight the api surface with tool sprawl"
     },
     {
@@ -12570,7 +12590,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_the_core_problem_making_the_llm_understand_the_dcc",
-      "community": 17,
+      "community": 83,
       "norm_label": "3. the core problem: making the llm **understand** the dcc"
     },
     {
@@ -12580,7 +12600,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_1_reflection_api_doc_lookup_before_acting_the_highest_value_lever",
-      "community": 17,
+      "community": 83,
       "norm_label": "3.1 reflection / api doc-lookup before acting \u2014 **the highest-value lever**"
     },
     {
@@ -12590,7 +12610,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_2_live_scene_state_introspection_ground_the_model_in_reality",
-      "community": 17,
+      "community": 83,
       "norm_label": "3.2 live scene/state introspection \u2014 ground the model in reality"
     },
     {
@@ -12600,7 +12620,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_3_visual_feedback_loop_the_primary_self_correction_mechanism",
-      "community": 17,
+      "community": 83,
       "norm_label": "3.3 visual feedback loop \u2014 the primary self-correction mechanism"
     },
     {
@@ -12610,7 +12630,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_4_error_feedback_self_correction",
-      "community": 17,
+      "community": 83,
       "norm_label": "3.4 error feedback & self-correction"
     },
     {
@@ -12620,7 +12640,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_5_connection_time_engine_grounding_but_enforce_danger_in_code",
-      "community": 17,
+      "community": 83,
       "norm_label": "3.5 connection-time engine grounding \u2014 but enforce danger in code"
     },
     {
@@ -12630,7 +12650,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_6_recipe_guides_as_mcp_resources",
-      "community": 17,
+      "community": 83,
       "norm_label": "3.6 recipe guides as mcp resources"
     },
     {
@@ -12640,7 +12660,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_3_7_capability_gating_tool_annotations_cheap_safety_wins",
-      "community": 17,
+      "community": 83,
       "norm_label": "3.7 capability gating & tool annotations (cheap safety wins)"
     },
     {
@@ -12650,7 +12670,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_4_the_skills_layer_tools_vs_recipes_vs_hdas_proven_by_the_copernicus_guide",
-      "community": 17,
+      "community": 78,
       "norm_label": "4. the skills layer \u2014 tools vs recipes vs hdas (proven by the copernicus guide)"
     },
     {
@@ -12660,7 +12680,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_worked_proof_documentation_copernicus_opencl_hda_guide_md",
-      "community": 17,
+      "community": 78,
       "norm_label": "worked proof: `documentation/copernicus_opencl_hda_guide.md`"
     },
     {
@@ -12670,7 +12690,7 @@
       "source_location": "L184",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_5_the_natural_language_real_world_accurate_setup_capability",
-      "community": 17,
+      "community": 78,
       "norm_label": "5. the \"natural-language \u2192 real-world-accurate setup\" capability"
     },
     {
@@ -12680,7 +12700,7 @@
       "source_location": "L204",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_6_concrete_recommendations_for_the_polyfactory_houdini_bridge",
-      "community": 17,
+      "community": 78,
       "norm_label": "6. concrete recommendations for the polyfactory houdini bridge"
     },
     {
@@ -12690,7 +12710,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_7_anti_patterns_to_avoid",
-      "community": 17,
+      "community": 78,
       "norm_label": "7. anti-patterns to avoid"
     },
     {
@@ -12700,7 +12720,7 @@
       "source_location": "L233",
       "_origin": "ast",
       "id": "documentation_dcc_mcp_best_practices_sources",
-      "community": 17,
+      "community": 78,
       "norm_label": "sources"
     },
     {
@@ -12710,7 +12730,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "documentation_copernicus_opencl_hda_guide",
-      "community": 17,
+      "community": 31,
       "norm_label": "copernicus_opencl_hda_guide.md"
     },
     {
@@ -14870,7 +14890,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent",
-      "community": 17,
+      "community": 31,
       "norm_label": "native_houdini_ai_agent.md"
     },
     {
@@ -14910,7 +14930,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_core_components",
-      "community": 31,
+      "community": 86,
       "norm_label": "core components"
     },
     {
@@ -14920,7 +14940,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_1_houdini_python_panel_pyside6_ui",
-      "community": 31,
+      "community": 86,
       "norm_label": "1. houdini python panel (pyside6 ui)"
     },
     {
@@ -14930,7 +14950,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_2_llm_integration_layer",
-      "community": 31,
+      "community": 86,
       "norm_label": "2. llm integration layer"
     },
     {
@@ -14940,7 +14960,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_3_scene_context_extractor",
-      "community": 31,
+      "community": 86,
       "norm_label": "3. scene context extractor"
     },
     {
@@ -14950,7 +14970,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_4_code_executor",
-      "community": 31,
+      "community": 86,
       "norm_label": "4. code executor"
     },
     {
@@ -14960,7 +14980,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_5_feedback_analyzer",
-      "community": 31,
+      "community": 86,
       "norm_label": "5. feedback analyzer"
     },
     {
@@ -14970,7 +14990,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_implementation_phases",
-      "community": 31,
+      "community": 88,
       "norm_label": "implementation phases"
     },
     {
@@ -14980,7 +15000,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_phase_1_basic_integration_1_2_weeks",
-      "community": 31,
+      "community": 88,
       "norm_label": "phase 1: basic integration (1-2 weeks)"
     },
     {
@@ -14990,7 +15010,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_phase_2_scene_awareness_1_week",
-      "community": 31,
+      "community": 88,
       "norm_label": "phase 2: scene awareness (1 week)"
     },
     {
@@ -15000,7 +15020,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_phase_3_feedback_loop_2_3_weeks",
-      "community": 31,
+      "community": 88,
       "norm_label": "phase 3: feedback loop (2-3 weeks)"
     },
     {
@@ -15010,7 +15030,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_phase_4_visual_understanding_2_4_weeks_optional",
-      "community": 31,
+      "community": 88,
       "norm_label": "phase 4: visual understanding (2-4 weeks, optional)"
     },
     {
@@ -15020,7 +15040,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_phase_5_learning_memory_1_2_weeks",
-      "community": 31,
+      "community": 88,
       "norm_label": "phase 5: learning/memory (1-2 weeks)"
     },
     {
@@ -15030,7 +15050,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_key_technical_challenges",
-      "community": 31,
+      "community": 85,
       "norm_label": "key technical challenges"
     },
     {
@@ -15040,7 +15060,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_1_context_window_management",
-      "community": 31,
+      "community": 85,
       "norm_label": "1. context window management"
     },
     {
@@ -15050,7 +15070,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_2_error_recovery",
-      "community": 31,
+      "community": 85,
       "norm_label": "2. error recovery"
     },
     {
@@ -15060,7 +15080,7 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_3_undo_redo_integration",
-      "community": 31,
+      "community": 85,
       "norm_label": "3. undo/redo integration"
     },
     {
@@ -15070,7 +15090,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_4_cost_control",
-      "community": 31,
+      "community": 85,
       "norm_label": "4. cost control"
     },
     {
@@ -15080,7 +15100,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_5_latency",
-      "community": 31,
+      "community": 85,
       "norm_label": "5. latency"
     },
     {
@@ -15130,7 +15150,7 @@
       "source_location": "L346",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_cost_analysis",
-      "community": 31,
+      "community": 96,
       "norm_label": "cost analysis"
     },
     {
@@ -15140,7 +15160,7 @@
       "source_location": "L348",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_development_costs",
-      "community": 31,
+      "community": 96,
       "norm_label": "development costs"
     },
     {
@@ -15150,7 +15170,7 @@
       "source_location": "L353",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_operational_costs",
-      "community": 31,
+      "community": 96,
       "norm_label": "operational costs"
     },
     {
@@ -15160,7 +15180,7 @@
       "source_location": "L358",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_cost_optimization",
-      "community": 31,
+      "community": 96,
       "norm_label": "cost optimization"
     },
     {
@@ -15200,7 +15220,7 @@
       "source_location": "L414",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_resources_references",
-      "community": 31,
+      "community": 92,
       "norm_label": "resources & references"
     },
     {
@@ -15210,7 +15230,7 @@
       "source_location": "L416",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_apis",
-      "community": 31,
+      "community": 92,
       "norm_label": "apis"
     },
     {
@@ -15220,7 +15240,7 @@
       "source_location": "L421",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_houdini_apis",
-      "community": 31,
+      "community": 92,
       "norm_label": "houdini apis"
     },
     {
@@ -15230,7 +15250,7 @@
       "source_location": "L427",
       "_origin": "ast",
       "id": "ideas_native_houdini_ai_agent_similar_projects",
-      "community": 31,
+      "community": 92,
       "norm_label": "similar projects"
     },
     {
@@ -15407,7 +15427,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/asset_library/browser_ui.py",
       "source_location": "L799",
-      "community": 79,
+      "community": 67,
       "norm_label": "_handle_drop()",
       "id": "asset_library_browser_ui_handle_drop"
     },
@@ -15470,7 +15490,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_grips/__init__.py",
       "source_location": "L1",
-      "community": 53,
+      "community": 43,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_grips_init_py"
     },
@@ -15497,7 +15517,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_left_menu/py_div.py",
       "source_location": "L1",
-      "community": 8,
+      "community": 26,
       "norm_label": "py_div.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_left_menu_py_div_py"
     },
@@ -15506,7 +15526,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_left_menu/__init__.py",
       "source_location": "L1",
-      "community": 8,
+      "community": 26,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_left_menu_init_py"
     },
@@ -15551,7 +15571,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_title_bar/py_div.py",
       "source_location": "L1",
-      "community": 8,
+      "community": 58,
       "norm_label": "py_div.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_title_bar_py_div_py"
     },
@@ -15560,7 +15580,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_title_bar/__init__.py",
       "source_location": "L1",
-      "community": 8,
+      "community": 58,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_title_bar_init_py"
     },
@@ -15587,7 +15607,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_window/__init__.py",
       "source_location": "L1",
-      "community": 58,
+      "community": 76,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_window_init_py"
     },
@@ -15614,7 +15634,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/widgets/__init__.py",
       "source_location": "L1",
-      "community": 15,
+      "community": 35,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_widgets_init_py"
     }
@@ -22057,9 +22077,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_result",
-      "target": "object",
-      "confidence_score": 1.0
+      "target": "object"
     },
     {
       "relation": "inherits",
@@ -23637,9 +23657,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/assetutils.py",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polyfactory_assetutils",
-      "target": "polyfactory_assetutils_assetgallery",
-      "confidence_score": 1.0
+      "target": "polyfactory_assetutils_assetgallery"
     },
     {
       "relation": "method",
@@ -23647,9 +23667,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/assetutils.py",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polyfactory_assetutils_assetgallery",
-      "target": "polyfactory_assetutils_assetgallery_addtags",
-      "confidence_score": 1.0
+      "target": "polyfactory_assetutils_assetgallery_addtags"
     },
     {
       "relation": "contains",
@@ -23657,9 +23677,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L168",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init",
-      "target": "citygen_init_build_profile_points",
-      "confidence_score": 1.0
+      "target": "citygen_init_build_profile_points"
     },
     {
       "relation": "contains",
@@ -23667,9 +23687,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init",
-      "target": "citygen_init_e",
-      "confidence_score": 1.0
+      "target": "citygen_init_e"
     },
     {
       "relation": "contains",
@@ -23677,9 +23697,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L225",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init",
-      "target": "citygen_init_ensure_point_attribs",
-      "confidence_score": 1.0
+      "target": "citygen_init_ensure_point_attribs"
     },
     {
       "relation": "contains",
@@ -23687,9 +23707,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L257",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init",
-      "target": "citygen_init_geo_to_elements",
-      "confidence_score": 1.0
+      "target": "citygen_init_geo_to_elements"
     },
     {
       "relation": "contains",
@@ -23697,9 +23717,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L201",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init",
-      "target": "citygen_init_get_template",
-      "confidence_score": 1.0
+      "target": "citygen_init_get_template"
     },
     {
       "relation": "contains",
@@ -23707,9 +23727,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L278",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init",
-      "target": "citygen_init_profile_to_geo",
-      "confidence_score": 1.0
+      "target": "citygen_init_profile_to_geo"
     },
     {
       "relation": "contains",
@@ -23717,9 +23737,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L116",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init",
-      "target": "citygen_init_resolve_elements",
-      "confidence_score": 1.0
+      "target": "citygen_init_resolve_elements"
     },
     {
       "relation": "contains",
@@ -23727,9 +23747,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L138",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init",
-      "target": "citygen_init_street_summary",
-      "confidence_score": 1.0
+      "target": "citygen_init_street_summary"
     },
     {
       "relation": "contains",
@@ -23737,9 +23757,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L234",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init",
-      "target": "citygen_init_template_to_geo",
-      "confidence_score": 1.0
+      "target": "citygen_init_template_to_geo"
     },
     {
       "relation": "contains",
@@ -23747,9 +23767,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L134",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init",
-      "target": "citygen_init_total_width",
-      "confidence_score": 1.0
+      "target": "citygen_init_total_width"
     },
     {
       "relation": "rationale_for",
@@ -23757,9 +23777,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_rationale_1",
-      "target": "citygen_init",
-      "confidence_score": 1.0
+      "target": "citygen_init"
     },
     {
       "relation": "calls",
@@ -23768,9 +23788,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L177",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_build_profile_points",
-      "target": "citygen_init_resolve_elements",
-      "confidence_score": 1.0
+      "target": "citygen_init_resolve_elements"
     },
     {
       "relation": "rationale_for",
@@ -23778,9 +23798,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_rationale_117",
-      "target": "citygen_init_resolve_elements",
-      "confidence_score": 1.0
+      "target": "citygen_init_resolve_elements"
     },
     {
       "relation": "calls",
@@ -23789,9 +23809,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L146",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_street_summary",
-      "target": "citygen_init_resolve_elements",
-      "confidence_score": 1.0
+      "target": "citygen_init_resolve_elements"
     },
     {
       "relation": "calls",
@@ -23800,9 +23820,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L240",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_template_to_geo",
-      "target": "citygen_init_resolve_elements",
-      "confidence_score": 1.0
+      "target": "citygen_init_resolve_elements"
     },
     {
       "relation": "calls",
@@ -23866,9 +23886,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L178",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_build_profile_points",
-      "target": "citygen_init_total_width",
-      "confidence_score": 1.0
+      "target": "citygen_init_total_width"
     },
     {
       "relation": "calls",
@@ -23877,9 +23897,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L161",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_street_summary",
-      "target": "citygen_init_total_width",
-      "confidence_score": 1.0
+      "target": "citygen_init_total_width"
     },
     {
       "relation": "calls",
@@ -23920,9 +23940,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L139",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_rationale_139",
-      "target": "citygen_init_street_summary",
-      "confidence_score": 1.0
+      "target": "citygen_init_street_summary"
     },
     {
       "relation": "calls",
@@ -23986,9 +24006,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L285",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_profile_to_geo",
-      "target": "citygen_init_build_profile_points",
-      "confidence_score": 1.0
+      "target": "citygen_init_build_profile_points"
     },
     {
       "relation": "rationale_for",
@@ -23996,9 +24016,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L169",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_rationale_169",
-      "target": "citygen_init_build_profile_points",
-      "confidence_score": 1.0
+      "target": "citygen_init_build_profile_points"
     },
     {
       "relation": "calls",
@@ -24127,9 +24147,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L202",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_rationale_202",
-      "target": "citygen_init_get_template",
-      "confidence_score": 1.0
+      "target": "citygen_init_get_template"
     },
     {
       "relation": "calls",
@@ -24160,9 +24180,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L284",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_profile_to_geo",
-      "target": "citygen_init_ensure_point_attribs",
-      "confidence_score": 1.0
+      "target": "citygen_init_ensure_point_attribs"
     },
     {
       "relation": "calls",
@@ -24171,9 +24191,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L239",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_template_to_geo",
-      "target": "citygen_init_ensure_point_attribs",
-      "confidence_score": 1.0
+      "target": "citygen_init_ensure_point_attribs"
     },
     {
       "relation": "rationale_for",
@@ -24181,9 +24201,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L235",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_rationale_235",
-      "target": "citygen_init_template_to_geo",
-      "confidence_score": 1.0
+      "target": "citygen_init_template_to_geo"
     },
     {
       "relation": "rationale_for",
@@ -24191,9 +24211,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L258",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_rationale_258",
-      "target": "citygen_init_geo_to_elements",
-      "confidence_score": 1.0
+      "target": "citygen_init_geo_to_elements"
     },
     {
       "relation": "rationale_for",
@@ -24201,9 +24221,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/__init__.py",
       "source_location": "L279",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_init_rationale_279",
-      "target": "citygen_init_profile_to_geo",
-      "confidence_score": 1.0
+      "target": "citygen_init_profile_to_geo"
     },
     {
       "relation": "contains",
@@ -24211,9 +24231,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L259",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_build",
-      "confidence_score": 1.0
+      "target": "citygen_graph_build"
     },
     {
       "relation": "contains",
@@ -24221,9 +24241,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L183",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_dedupe_edges",
-      "confidence_score": 1.0
+      "target": "citygen_graph_dedupe_edges"
     },
     {
       "relation": "contains",
@@ -24231,9 +24251,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_dist",
-      "confidence_score": 1.0
+      "target": "citygen_graph_dist"
     },
     {
       "relation": "contains",
@@ -24241,9 +24261,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_dist2",
-      "confidence_score": 1.0
+      "target": "citygen_graph_dist2"
     },
     {
       "relation": "contains",
@@ -24251,9 +24271,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_edge_length",
-      "confidence_score": 1.0
+      "target": "citygen_graph_edge_length"
     },
     {
       "relation": "contains",
@@ -24261,9 +24281,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L142",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_endpoint_degree",
-      "confidence_score": 1.0
+      "target": "citygen_graph_endpoint_degree"
     },
     {
       "relation": "contains",
@@ -24271,9 +24291,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L151",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_junctions",
-      "confidence_score": 1.0
+      "target": "citygen_graph_junctions"
     },
     {
       "relation": "contains",
@@ -24281,9 +24301,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L166",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_prune_stubs",
-      "confidence_score": 1.0
+      "target": "citygen_graph_prune_stubs"
     },
     {
       "relation": "contains",
@@ -24291,9 +24311,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L194",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_remove_isolated_nodes",
-      "confidence_score": 1.0
+      "target": "citygen_graph_remove_isolated_nodes"
     },
     {
       "relation": "contains",
@@ -24301,9 +24321,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_segment_degree",
-      "confidence_score": 1.0
+      "target": "citygen_graph_segment_degree"
     },
     {
       "relation": "contains",
@@ -24311,9 +24331,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L124",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_split_at_junctions",
-      "confidence_score": 1.0
+      "target": "citygen_graph_split_at_junctions"
     },
     {
       "relation": "contains",
@@ -24321,9 +24341,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L248",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_summarise",
-      "confidence_score": 1.0
+      "target": "citygen_graph_summarise"
     },
     {
       "relation": "contains",
@@ -24331,9 +24351,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L207",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_validate",
-      "confidence_score": 1.0
+      "target": "citygen_graph_validate"
     },
     {
       "relation": "contains",
@@ -24341,9 +24361,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph",
-      "target": "citygen_graph_weld",
-      "confidence_score": 1.0
+      "target": "citygen_graph_weld"
     },
     {
       "relation": "rationale_for",
@@ -24351,9 +24371,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_rationale_1",
-      "target": "citygen_graph",
-      "confidence_score": 1.0
+      "target": "citygen_graph"
     },
     {
       "relation": "calls",
@@ -24362,9 +24382,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_dist",
-      "target": "citygen_graph_dist2",
-      "confidence_score": 1.0
+      "target": "citygen_graph_dist2"
     },
     {
       "relation": "calls",
@@ -24373,9 +24393,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L59",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_edge_length",
-      "target": "citygen_graph_dist",
-      "confidence_score": 1.0
+      "target": "citygen_graph_dist"
     },
     {
       "relation": "calls",
@@ -24384,9 +24404,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L188",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_dedupe_edges",
-      "target": "citygen_graph_edge_length",
-      "confidence_score": 1.0
+      "target": "citygen_graph_edge_length"
     },
     {
       "relation": "calls",
@@ -24395,9 +24415,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L177",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_prune_stubs",
-      "target": "citygen_graph_edge_length",
-      "confidence_score": 1.0
+      "target": "citygen_graph_edge_length"
     },
     {
       "relation": "calls",
@@ -24406,9 +24426,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L222",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_validate",
-      "target": "citygen_graph_edge_length",
-      "confidence_score": 1.0
+      "target": "citygen_graph_edge_length"
     },
     {
       "relation": "calls",
@@ -24417,9 +24437,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L267",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_build",
-      "target": "citygen_graph_weld",
-      "confidence_score": 1.0
+      "target": "citygen_graph_weld"
     },
     {
       "relation": "rationale_for",
@@ -24427,9 +24447,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L67",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_rationale_67",
-      "target": "citygen_graph_weld",
-      "confidence_score": 1.0
+      "target": "citygen_graph_weld"
     },
     {
       "relation": "calls",
@@ -24438,9 +24458,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L268",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_build",
-      "target": "citygen_graph_segment_degree",
-      "confidence_score": 1.0
+      "target": "citygen_graph_segment_degree"
     },
     {
       "relation": "calls",
@@ -24449,9 +24469,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L158",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_junctions",
-      "target": "citygen_graph_segment_degree",
-      "confidence_score": 1.0
+      "target": "citygen_graph_segment_degree"
     },
     {
       "relation": "rationale_for",
@@ -24459,9 +24479,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L115",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_rationale_115",
-      "target": "citygen_graph_segment_degree",
-      "confidence_score": 1.0
+      "target": "citygen_graph_segment_degree"
     },
     {
       "relation": "calls",
@@ -24470,9 +24490,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L270",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_build",
-      "target": "citygen_graph_split_at_junctions",
-      "confidence_score": 1.0
+      "target": "citygen_graph_split_at_junctions"
     },
     {
       "relation": "rationale_for",
@@ -24480,9 +24500,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L125",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_rationale_125",
-      "target": "citygen_graph_split_at_junctions",
-      "confidence_score": 1.0
+      "target": "citygen_graph_split_at_junctions"
     },
     {
       "relation": "calls",
@@ -24491,9 +24511,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L294",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_build",
-      "target": "citygen_graph_endpoint_degree",
-      "confidence_score": 1.0
+      "target": "citygen_graph_endpoint_degree"
     },
     {
       "relation": "calls",
@@ -24502,9 +24522,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L174",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_prune_stubs",
-      "target": "citygen_graph_endpoint_degree",
-      "confidence_score": 1.0
+      "target": "citygen_graph_endpoint_degree"
     },
     {
       "relation": "rationale_for",
@@ -24512,9 +24532,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L143",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_rationale_143",
-      "target": "citygen_graph_endpoint_degree",
-      "confidence_score": 1.0
+      "target": "citygen_graph_endpoint_degree"
     },
     {
       "relation": "calls",
@@ -24523,9 +24543,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L240",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_validate",
-      "target": "citygen_graph_endpoint_degree",
-      "confidence_score": 1.0
+      "target": "citygen_graph_endpoint_degree"
     },
     {
       "relation": "rationale_for",
@@ -24533,9 +24553,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L152",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_rationale_152",
-      "target": "citygen_graph_junctions",
-      "confidence_score": 1.0
+      "target": "citygen_graph_junctions"
     },
     {
       "relation": "calls",
@@ -24544,9 +24564,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L278",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_build",
-      "target": "citygen_graph_prune_stubs",
-      "confidence_score": 1.0
+      "target": "citygen_graph_prune_stubs"
     },
     {
       "relation": "rationale_for",
@@ -24554,9 +24574,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L167",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_rationale_167",
-      "target": "citygen_graph_prune_stubs",
-      "confidence_score": 1.0
+      "target": "citygen_graph_prune_stubs"
     },
     {
       "relation": "calls",
@@ -24565,9 +24585,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L274",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_build",
-      "target": "citygen_graph_dedupe_edges",
-      "confidence_score": 1.0
+      "target": "citygen_graph_dedupe_edges"
     },
     {
       "relation": "rationale_for",
@@ -24575,9 +24595,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L184",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_rationale_184",
-      "target": "citygen_graph_dedupe_edges",
-      "confidence_score": 1.0
+      "target": "citygen_graph_dedupe_edges"
     },
     {
       "relation": "calls",
@@ -24586,9 +24606,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L281",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_build",
-      "target": "citygen_graph_remove_isolated_nodes",
-      "confidence_score": 1.0
+      "target": "citygen_graph_remove_isolated_nodes"
     },
     {
       "relation": "rationale_for",
@@ -24596,9 +24616,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L195",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_rationale_195",
-      "target": "citygen_graph_remove_isolated_nodes",
-      "confidence_score": 1.0
+      "target": "citygen_graph_remove_isolated_nodes"
     },
     {
       "relation": "calls",
@@ -24607,9 +24627,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L282",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_build",
-      "target": "citygen_graph_validate",
-      "confidence_score": 1.0
+      "target": "citygen_graph_validate"
     },
     {
       "relation": "rationale_for",
@@ -24617,9 +24637,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L208",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_rationale_208",
-      "target": "citygen_graph_validate",
-      "confidence_score": 1.0
+      "target": "citygen_graph_validate"
     },
     {
       "relation": "calls",
@@ -24628,9 +24648,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L304",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_build",
-      "target": "citygen_graph_summarise",
-      "confidence_score": 1.0
+      "target": "citygen_graph_summarise"
     },
     {
       "relation": "rationale_for",
@@ -24638,9 +24658,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L249",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_rationale_249",
-      "target": "citygen_graph_summarise",
-      "confidence_score": 1.0
+      "target": "citygen_graph_summarise"
     },
     {
       "relation": "rationale_for",
@@ -24648,9 +24668,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
       "source_location": "L261",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_graph_rationale_261",
-      "target": "citygen_graph_build",
-      "confidence_score": 1.0
+      "target": "citygen_graph_build"
     },
     {
       "relation": "contains",
@@ -24658,9 +24678,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/fpipe.py",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polyfactory_fpipe",
-      "target": "polyfactory_fpipe_done",
-      "confidence_score": 1.0
+      "target": "polyfactory_fpipe_done"
     },
     {
       "relation": "contains",
@@ -24668,9 +24688,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/fpipe.py",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polyfactory_fpipe",
-      "target": "polyfactory_fpipe_get_assets",
-      "confidence_score": 1.0
+      "target": "polyfactory_fpipe_get_assets"
     },
     {
       "relation": "contains",
@@ -24678,9 +24698,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/fpipe.py",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polyfactory_fpipe",
-      "target": "polyfactory_fpipe_process_assets",
-      "confidence_score": 1.0
+      "target": "polyfactory_fpipe_process_assets"
     },
     {
       "relation": "contains",
@@ -35383,9 +35403,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases",
-      "target": "citygen_cases_build_all",
-      "confidence_score": 1.0
+      "target": "citygen_cases_build_all"
     },
     {
       "relation": "contains",
@@ -35393,9 +35413,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases",
-      "target": "citygen_cases_install_hdas",
-      "confidence_score": 1.0
+      "target": "citygen_cases_install_hdas"
     },
     {
       "relation": "contains",
@@ -35403,9 +35423,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases",
-      "target": "citygen_cases_setup_env",
-      "confidence_score": 1.0
+      "target": "citygen_cases_setup_env"
     },
     {
       "relation": "rationale_for",
@@ -35413,9 +35433,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases_rationale_1",
-      "target": "citygen_cases",
-      "confidence_score": 1.0
+      "target": "citygen_cases"
     },
     {
       "relation": "calls",
@@ -35424,9 +35444,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases_install_hdas",
-      "target": "citygen_cases_setup_env",
-      "confidence_score": 1.0
+      "target": "citygen_cases_setup_env"
     },
     {
       "relation": "rationale_for",
@@ -35434,9 +35454,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases_rationale_19",
-      "target": "citygen_cases_setup_env",
-      "confidence_score": 1.0
+      "target": "citygen_cases_setup_env"
     },
     {
       "relation": "rationale_for",
@@ -35444,9 +35464,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases_rationale_69",
-      "target": "citygen_cases_build_all",
-      "confidence_score": 1.0
+      "target": "citygen_cases_build_all"
     },
     {
       "relation": "contains",
@@ -35454,139 +35474,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L294",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_attribute_schema",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L109",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_graph_is_planar",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L226",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_junction_boundary_is_simple",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L257",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_lots_tile_blocks",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L177",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_no_degenerate_corner_segments",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L65",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_no_downward_faces",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L268",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_no_duplicate_lot_footprints",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L58",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_no_loose_points",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L93",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_no_nonplanar_y",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L145",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_no_orphan_components",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L85",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_no_scratch_groups",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L46",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_no_zero_area_prims",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L312",
-      "weight": 1.0,
-      "source": "citygen_checks",
-      "target": "citygen_checks_self_intersections",
-      "confidence_score": 1.0
+      "target": "citygen_checks_attribute_schema"
     },
     {
       "relation": "contains",
@@ -35595,8 +35485,148 @@
       "source_location": "L201",
       "weight": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_sidewalk_bands_match_corners",
+      "target": "citygen_checks_every_corner_is_an_arc",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L109",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_graph_is_planar"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L226",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_junction_boundary_is_simple"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L257",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_lots_tile_blocks"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L177",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_no_degenerate_corner_segments"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L65",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_no_downward_faces"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L268",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_no_duplicate_lot_footprints"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L58",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_no_loose_points"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L93",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_no_nonplanar_y"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L145",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_no_orphan_components"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L85",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_no_scratch_groups"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L46",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_no_zero_area_prims"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_result"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L312",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_self_intersections"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L201",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks",
+      "target": "citygen_checks_sidewalk_bands_match_corners"
     },
     {
       "relation": "contains",
@@ -35604,9 +35634,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_skip",
-      "confidence_score": 1.0
+      "target": "citygen_checks_skip"
     },
     {
       "relation": "rationale_for",
@@ -35614,9 +35644,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1",
-      "target": "citygen_checks",
-      "confidence_score": 1.0
+      "target": "citygen_checks"
     },
     {
       "relation": "calls",
@@ -35625,7 +35655,18 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L304",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_attribute_schema",
+      "target": "citygen_checks_result"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L253",
+      "weight": 1.0,
+      "source": "citygen_checks_every_corner_is_an_arc",
       "target": "citygen_checks_result",
       "confidence_score": 1.0
     },
@@ -35636,9 +35677,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L141",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_graph_is_planar",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -35647,9 +35688,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L249",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_junction_boundary_is_simple",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -35658,9 +35699,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L264",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_lots_tile_blocks",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -35669,9 +35710,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L197",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_no_degenerate_corner_segments",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -35680,9 +35721,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_no_downward_faces",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -35691,9 +35732,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L279",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_no_duplicate_lot_footprints",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -35702,9 +35743,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_no_loose_points",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -35713,9 +35754,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L101",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_no_nonplanar_y",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -35724,9 +35765,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L169",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_no_orphan_components",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -35735,9 +35776,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_no_scratch_groups",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -35746,9 +35787,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_no_zero_area_prims",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "method",
@@ -35756,9 +35797,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_result",
-      "target": "citygen_checks_result_as_dict",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result_as_dict"
     },
     {
       "relation": "method",
@@ -35766,9 +35807,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_result",
-      "target": "citygen_checks_result_init",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result_init"
     },
     {
       "relation": "method",
@@ -35776,9 +35817,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L33",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_result",
-      "target": "citygen_checks_result_repr",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result_repr"
     },
     {
       "relation": "calls",
@@ -35787,9 +35828,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L327",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_self_intersections",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -35798,9 +35839,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L222",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_sidewalk_bands_match_corners",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -35809,8 +35850,19 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L39",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_skip",
-      "target": "citygen_checks_result",
+      "target": "citygen_checks_result"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L216",
+      "weight": 1.0,
+      "source": "citygen_checks_every_corner_is_an_arc",
+      "target": "citygen_checks_skip",
       "confidence_score": 1.0
     },
     {
@@ -35820,9 +35872,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L262",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_lots_tile_blocks",
-      "target": "citygen_checks_skip",
-      "confidence_score": 1.0
+      "target": "citygen_checks_skip"
     },
     {
       "relation": "calls",
@@ -35831,9 +35883,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L185",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_no_degenerate_corner_segments",
-      "target": "citygen_checks_skip",
-      "confidence_score": 1.0
+      "target": "citygen_checks_skip"
     },
     {
       "relation": "calls",
@@ -35842,9 +35894,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L99",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_no_nonplanar_y",
-      "target": "citygen_checks_skip",
-      "confidence_score": 1.0
+      "target": "citygen_checks_skip"
     },
     {
       "relation": "calls",
@@ -35853,9 +35905,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L325",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_self_intersections",
-      "target": "citygen_checks_skip",
-      "confidence_score": 1.0
+      "target": "citygen_checks_skip"
     },
     {
       "relation": "calls",
@@ -35864,9 +35916,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L208",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_sidewalk_bands_match_corners",
-      "target": "citygen_checks_skip",
-      "confidence_score": 1.0
+      "target": "citygen_checks_skip"
     },
     {
       "relation": "rationale_for",
@@ -35874,9 +35926,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_47",
-      "target": "citygen_checks_no_zero_area_prims",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_zero_area_prims"
     },
     {
       "relation": "rationale_for",
@@ -35884,9 +35936,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L59",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_59",
-      "target": "citygen_checks_no_loose_points",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_loose_points"
     },
     {
       "relation": "rationale_for",
@@ -35894,9 +35946,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_66",
-      "target": "citygen_checks_no_downward_faces",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_downward_faces"
     },
     {
       "relation": "rationale_for",
@@ -35904,9 +35956,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L86",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_86",
-      "target": "citygen_checks_no_scratch_groups",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_scratch_groups"
     },
     {
       "relation": "rationale_for",
@@ -35914,9 +35966,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_94",
-      "target": "citygen_checks_no_nonplanar_y",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_nonplanar_y"
     },
     {
       "relation": "rationale_for",
@@ -35924,9 +35976,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L110",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_110",
-      "target": "citygen_checks_graph_is_planar",
-      "confidence_score": 1.0
+      "target": "citygen_checks_graph_is_planar"
     },
     {
       "relation": "rationale_for",
@@ -35934,9 +35986,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L146",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_146",
-      "target": "citygen_checks_no_orphan_components",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_orphan_components"
     },
     {
       "relation": "rationale_for",
@@ -35944,9 +35996,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L178",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_178",
-      "target": "citygen_checks_no_degenerate_corner_segments",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_degenerate_corner_segments"
     },
     {
       "relation": "rationale_for",
@@ -35955,6 +36007,26 @@
       "source_location": "L202",
       "weight": 1.0,
       "source": "citygen_checks_rationale_202",
+      "target": "citygen_checks_every_corner_is_an_arc",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L202",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "citygen_checks_rationale_202",
+      "target": "citygen_checks_sidewalk_bands_match_corners"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L258",
+      "weight": 1.0,
+      "source": "citygen_checks_rationale_258",
       "target": "citygen_checks_sidewalk_bands_match_corners",
       "confidence_score": 1.0
     },
@@ -35962,9 +36034,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L227",
+      "source_location": "L283",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_227",
+      "source": "citygen_checks_rationale_283",
       "target": "citygen_checks_junction_boundary_is_simple",
       "confidence_score": 1.0
     },
@@ -35974,7 +36046,17 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L258",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_258",
+      "target": "citygen_checks_lots_tile_blocks"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L314",
+      "weight": 1.0,
+      "source": "citygen_checks_rationale_314",
       "target": "citygen_checks_lots_tile_blocks",
       "confidence_score": 1.0
     },
@@ -35982,9 +36064,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L269",
+      "source_location": "L325",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_269",
+      "source": "citygen_checks_rationale_325",
       "target": "citygen_checks_no_duplicate_lot_footprints",
       "confidence_score": 1.0
     },
@@ -35992,9 +36074,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L295",
+      "source_location": "L351",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_295",
+      "source": "citygen_checks_rationale_351",
       "target": "citygen_checks_attribute_schema",
       "confidence_score": 1.0
     },
@@ -36002,9 +36084,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L313",
+      "source_location": "L369",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_313",
+      "source": "citygen_checks_rationale_369",
       "target": "citygen_checks_self_intersections",
       "confidence_score": 1.0
     },
@@ -36014,9 +36096,9 @@
       "source_file": "tests/citygen/run_scene_checks.py",
       "source_location": "L110",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_scene_checks",
-      "target": "citygen_run_scene_checks_main",
-      "confidence_score": 1.0
+      "target": "citygen_run_scene_checks_main"
     },
     {
       "relation": "contains",
@@ -36024,9 +36106,9 @@
       "source_file": "tests/citygen/run_scene_checks.py",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_scene_checks",
-      "target": "citygen_run_scene_checks_run_case",
-      "confidence_score": 1.0
+      "target": "citygen_run_scene_checks_run_case"
     },
     {
       "relation": "rationale_for",
@@ -36034,9 +36116,9 @@
       "source_file": "tests/citygen/run_scene_checks.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_scene_checks_rationale_1",
-      "target": "citygen_run_scene_checks",
-      "confidence_score": 1.0
+      "target": "citygen_run_scene_checks"
     },
     {
       "relation": "calls",
@@ -36045,9 +36127,9 @@
       "source_file": "tests/citygen/run_scene_checks.py",
       "source_location": "L122",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_scene_checks_main",
-      "target": "citygen_run_scene_checks_run_case",
-      "confidence_score": 1.0
+      "target": "citygen_run_scene_checks_run_case"
     },
     {
       "relation": "rationale_for",
@@ -36055,9 +36137,9 @@
       "source_file": "tests/citygen/run_scene_checks.py",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_scene_checks_rationale_35",
-      "target": "citygen_run_scene_checks_run_case",
-      "confidence_score": 1.0
+      "target": "citygen_run_scene_checks_run_case"
     },
     {
       "relation": "contains",
@@ -36065,9 +36147,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen",
-      "target": "unit_test_citygen_testprofile",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testprofile"
     },
     {
       "relation": "contains",
@@ -36075,9 +36157,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen",
-      "target": "unit_test_citygen_testresolve",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testresolve"
     },
     {
       "relation": "contains",
@@ -36085,9 +36167,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L121",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen",
-      "target": "unit_test_citygen_teststreetsummary",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_teststreetsummary"
     },
     {
       "relation": "contains",
@@ -36095,9 +36177,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L149",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen",
-      "target": "unit_test_citygen_testtemplates",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testtemplates"
     },
     {
       "relation": "rationale_for",
@@ -36105,9 +36187,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_rationale_1",
-      "target": "unit_test_citygen",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen"
     },
     {
       "relation": "method",
@@ -36115,9 +36197,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testresolve",
-      "target": "unit_test_citygen_testresolve_test_authored_value_beats_default",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testresolve_test_authored_value_beats_default"
     },
     {
       "relation": "method",
@@ -36125,9 +36207,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testresolve",
-      "target": "unit_test_citygen_testresolve_test_defaults_filled_from_type",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testresolve_test_defaults_filled_from_type"
     },
     {
       "relation": "method",
@@ -36135,9 +36217,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testresolve",
-      "target": "unit_test_citygen_testresolve_test_index_is_position_in_list",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testresolve_test_index_is_position_in_list"
     },
     {
       "relation": "method",
@@ -36145,9 +36227,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testresolve",
-      "target": "unit_test_citygen_testresolve_test_unknown_type_does_not_raise",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testresolve_test_unknown_type_does_not_raise"
     },
     {
       "relation": "rationale_for",
@@ -36155,9 +36237,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L37",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_rationale_37",
-      "target": "unit_test_citygen_testresolve_test_authored_value_beats_default",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testresolve_test_authored_value_beats_default"
     },
     {
       "relation": "method",
@@ -36165,9 +36247,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L105",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testprofile",
-      "target": "unit_test_citygen_testprofile_test_element_widths_are_preserved_in_profile",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testprofile_test_element_widths_are_preserved_in_profile"
     },
     {
       "relation": "method",
@@ -36175,9 +36257,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testprofile",
-      "target": "unit_test_citygen_testprofile_test_empty_template_yields_no_points",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testprofile_test_empty_template_yields_no_points"
     },
     {
       "relation": "method",
@@ -36185,9 +36267,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L86",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testprofile",
-      "target": "unit_test_citygen_testprofile_test_kerb_riser_is_generated_where_heights_differ",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testprofile_test_kerb_riser_is_generated_where_heights_differ"
     },
     {
       "relation": "method",
@@ -36195,9 +36277,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L98",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testprofile",
-      "target": "unit_test_citygen_testprofile_test_no_riser_between_equal_height_elements",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testprofile_test_no_riser_between_equal_height_elements"
     },
     {
       "relation": "method",
@@ -36205,9 +36287,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L64",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testprofile",
-      "target": "unit_test_citygen_testprofile_test_offset_shifts_whole_profile",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testprofile_test_offset_shifts_whole_profile"
     },
     {
       "relation": "method",
@@ -36215,9 +36297,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testprofile",
-      "target": "unit_test_citygen_testprofile_test_profile_is_centred_and_spans_total_width",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testprofile_test_profile_is_centred_and_spans_total_width"
     },
     {
       "relation": "method",
@@ -36225,9 +36307,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testprofile",
-      "target": "unit_test_citygen_testprofile_test_two_points_per_element",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testprofile_test_two_points_per_element"
     },
     {
       "relation": "method",
@@ -36235,9 +36317,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L77",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testprofile",
-      "target": "unit_test_citygen_testprofile_test_u_cross_spans_zero_to_one",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testprofile_test_u_cross_spans_zero_to_one"
     },
     {
       "relation": "method",
@@ -36245,9 +36327,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testprofile",
-      "target": "unit_test_citygen_testprofile_test_x_never_goes_backwards",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testprofile_test_x_never_goes_backwards"
     },
     {
       "relation": "method",
@@ -36255,9 +36337,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testprofile",
-      "target": "unit_test_citygen_testprofile_test_zero_width_template_does_not_divide_by_zero",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testprofile_test_zero_width_template_does_not_divide_by_zero"
     },
     {
       "relation": "rationale_for",
@@ -36265,9 +36347,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_rationale_87",
-      "target": "unit_test_citygen_testprofile_test_kerb_riser_is_generated_where_heights_differ",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testprofile_test_kerb_riser_is_generated_where_heights_differ"
     },
     {
       "relation": "method",
@@ -36275,9 +36357,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L145",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_teststreetsummary",
-      "target": "unit_test_citygen_teststreetsummary_test_empty_is_all_zero",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_teststreetsummary_test_empty_is_all_zero"
     },
     {
       "relation": "method",
@@ -36285,9 +36367,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L135",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_teststreetsummary",
-      "target": "unit_test_citygen_teststreetsummary_test_lane_width_is_mean_of_lanes_only",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_teststreetsummary_test_lane_width_is_mean_of_lanes_only"
     },
     {
       "relation": "method",
@@ -36295,9 +36377,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L141",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_teststreetsummary",
-      "target": "unit_test_citygen_teststreetsummary_test_no_lanes_does_not_divide_by_zero",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_teststreetsummary_test_no_lanes_does_not_divide_by_zero"
     },
     {
       "relation": "method",
@@ -36305,9 +36387,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L128",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_teststreetsummary",
-      "target": "unit_test_citygen_teststreetsummary_test_sidewalk_widths_are_per_side",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_teststreetsummary_test_sidewalk_widths_are_per_side"
     },
     {
       "relation": "method",
@@ -36315,9 +36397,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_teststreetsummary",
-      "target": "unit_test_citygen_teststreetsummary_test_street_width_matches_sum_of_elements",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_teststreetsummary_test_street_width_matches_sum_of_elements"
     },
     {
       "relation": "method",
@@ -36325,9 +36407,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L151",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testtemplates",
-      "target": "unit_test_citygen_testtemplates_test_every_starter_template_is_usable",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testtemplates_test_every_starter_template_is_usable"
     },
     {
       "relation": "method",
@@ -36335,9 +36417,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L161",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testtemplates",
-      "target": "unit_test_citygen_testtemplates_test_known_template_round_trips",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testtemplates_test_known_template_round_trips"
     },
     {
       "relation": "method",
@@ -36345,9 +36427,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L156",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_testtemplates",
-      "target": "unit_test_citygen_testtemplates_test_unknown_template_lists_the_valid_names",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_testtemplates_test_unknown_template_lists_the_valid_names"
     },
     {
       "relation": "contains",
@@ -36355,9 +36437,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph",
-      "target": "unit_test_graph_line",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_line"
     },
     {
       "relation": "contains",
@@ -36365,9 +36447,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L169",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph",
-      "target": "unit_test_graph_testbuildendtoend",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testbuildendtoend"
     },
     {
       "relation": "contains",
@@ -36375,9 +36457,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L93",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph",
-      "target": "unit_test_graph_testprune",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testprune"
     },
     {
       "relation": "contains",
@@ -36385,9 +36467,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L59",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph",
-      "target": "unit_test_graph_testsplit",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testsplit"
     },
     {
       "relation": "contains",
@@ -36395,9 +36477,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L142",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph",
-      "target": "unit_test_graph_testvalidate",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testvalidate"
     },
     {
       "relation": "contains",
@@ -36405,9 +36487,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph",
-      "target": "unit_test_graph_testweld",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testweld"
     },
     {
       "relation": "rationale_for",
@@ -36415,9 +36497,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_rationale_1",
-      "target": "unit_test_graph",
-      "confidence_score": 1.0
+      "target": "unit_test_graph"
     },
     {
       "relation": "rationale_for",
@@ -36425,9 +36507,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_rationale_19",
-      "target": "unit_test_graph_line",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_line"
     },
     {
       "relation": "calls",
@@ -36436,9 +36518,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L215",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testbuildendtoend_test_isolated_nodes_are_dropped_and_reindexed",
-      "target": "unit_test_graph_line",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_line"
     },
     {
       "relation": "calls",
@@ -36447,9 +36529,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L113",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testprune_test_long_dead_end_is_kept",
-      "target": "unit_test_graph_line",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_line"
     },
     {
       "relation": "calls",
@@ -36458,9 +36540,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testprune_test_pruning_cascades",
-      "target": "unit_test_graph_line",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_line"
     },
     {
       "relation": "calls",
@@ -36469,9 +36551,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L102",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testprune_test_short_dead_end_stub_is_removed",
-      "target": "unit_test_graph_line",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_line"
     },
     {
       "relation": "calls",
@@ -36480,9 +36562,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testsplit_test_plain_polyline_is_not_split",
-      "target": "unit_test_graph_line",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_line"
     },
     {
       "relation": "calls",
@@ -36491,9 +36573,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L145",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testvalidate_test_clean_graph_reports_no_blocking_issues",
-      "target": "unit_test_graph_line",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_line"
     },
     {
       "relation": "calls",
@@ -36502,9 +36584,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testweld_test_coincident_endpoints_become_one_node",
-      "target": "unit_test_graph_line",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_line"
     },
     {
       "relation": "calls",
@@ -36513,9 +36595,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L33",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testweld_test_near_coincident_within_tolerance_welds",
-      "target": "unit_test_graph_line",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_line"
     },
     {
       "relation": "calls",
@@ -36524,9 +36606,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testweld_test_outside_tolerance_does_not_weld",
-      "target": "unit_test_graph_line",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_line"
     },
     {
       "relation": "calls",
@@ -36535,9 +36617,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L52",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testweld_test_zero_tolerance_is_rejected",
-      "target": "unit_test_graph_line",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_line"
     },
     {
       "relation": "method",
@@ -36545,9 +36627,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testweld",
-      "target": "unit_test_graph_testweld_test_coincident_endpoints_become_one_node",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testweld_test_coincident_endpoints_become_one_node"
     },
     {
       "relation": "method",
@@ -36555,9 +36637,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testweld",
-      "target": "unit_test_graph_testweld_test_near_coincident_within_tolerance_welds",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testweld_test_near_coincident_within_tolerance_welds"
     },
     {
       "relation": "method",
@@ -36565,9 +36647,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L37",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testweld",
-      "target": "unit_test_graph_testweld_test_outside_tolerance_does_not_weld",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testweld_test_outside_tolerance_does_not_weld"
     },
     {
       "relation": "method",
@@ -36575,9 +36657,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L42",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testweld",
-      "target": "unit_test_graph_testweld_test_points_straddling_a_bucket_boundary_still_weld",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testweld_test_points_straddling_a_bucket_boundary_still_weld"
     },
     {
       "relation": "method",
@@ -36585,9 +36667,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testweld",
-      "target": "unit_test_graph_testweld_test_repeated_points_are_collapsed",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testweld_test_repeated_points_are_collapsed"
     },
     {
       "relation": "method",
@@ -36595,9 +36677,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testweld",
-      "target": "unit_test_graph_testweld_test_zero_tolerance_is_rejected",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testweld_test_zero_tolerance_is_rejected"
     },
     {
       "relation": "rationale_for",
@@ -36605,9 +36687,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_rationale_43",
-      "target": "unit_test_graph_testweld_test_points_straddling_a_bucket_boundary_still_weld",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testweld_test_points_straddling_a_bucket_boundary_still_weld"
     },
     {
       "relation": "method",
@@ -36615,9 +36697,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testsplit",
-      "target": "unit_test_graph_testsplit_cross",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testsplit_cross"
     },
     {
       "relation": "method",
@@ -36625,9 +36707,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testsplit",
-      "target": "unit_test_graph_testsplit_test_crossing_node_has_degree_four",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testsplit_test_crossing_node_has_degree_four"
     },
     {
       "relation": "method",
@@ -36635,9 +36717,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testsplit",
-      "target": "unit_test_graph_testsplit_test_edge_interiors_contain_no_junctions",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testsplit_test_edge_interiors_contain_no_junctions"
     },
     {
       "relation": "method",
@@ -36645,9 +36727,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testsplit",
-      "target": "unit_test_graph_testsplit_test_plain_polyline_is_not_split",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testsplit_test_plain_polyline_is_not_split"
     },
     {
       "relation": "method",
@@ -36655,9 +36737,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testsplit",
-      "target": "unit_test_graph_testsplit_test_two_crossing_streets_become_four_edges",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testsplit_test_two_crossing_streets_become_four_edges"
     },
     {
       "relation": "calls",
@@ -36666,9 +36748,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testsplit_test_crossing_node_has_degree_four",
-      "target": "unit_test_graph_testsplit_cross",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testsplit_cross"
     },
     {
       "relation": "calls",
@@ -36677,9 +36759,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L80",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testsplit_test_edge_interiors_contain_no_junctions",
-      "target": "unit_test_graph_testsplit_cross",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testsplit_cross"
     },
     {
       "relation": "calls",
@@ -36688,9 +36770,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testsplit_test_two_crossing_streets_become_four_edges",
-      "target": "unit_test_graph_testsplit_cross",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testsplit_cross"
     },
     {
       "relation": "method",
@@ -36698,9 +36780,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L132",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testprune",
-      "target": "unit_test_graph_testprune_test_dedupe_keeps_the_shorter_of_two_parallel_edges",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testprune_test_dedupe_keeps_the_shorter_of_two_parallel_edges"
     },
     {
       "relation": "method",
@@ -36708,9 +36790,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L110",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testprune",
-      "target": "unit_test_graph_testprune_test_long_dead_end_is_kept",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testprune_test_long_dead_end_is_kept"
     },
     {
       "relation": "method",
@@ -36718,9 +36800,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testprune",
-      "target": "unit_test_graph_testprune_test_pruning_cascades",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testprune_test_pruning_cascades"
     },
     {
       "relation": "method",
@@ -36728,9 +36810,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L95",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testprune",
-      "target": "unit_test_graph_testprune_test_short_dead_end_stub_is_removed",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testprune_test_short_dead_end_stub_is_removed"
     },
     {
       "relation": "rationale_for",
@@ -36738,9 +36820,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L96",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_rationale_96",
-      "target": "unit_test_graph_testprune_test_short_dead_end_stub_is_removed",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testprune_test_short_dead_end_stub_is_removed"
     },
     {
       "relation": "rationale_for",
@@ -36748,9 +36830,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L111",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_rationale_111",
-      "target": "unit_test_graph_testprune_test_long_dead_end_is_kept",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testprune_test_long_dead_end_is_kept"
     },
     {
       "relation": "rationale_for",
@@ -36758,9 +36840,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L121",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_rationale_121",
-      "target": "unit_test_graph_testprune_test_pruning_cascades",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testprune_test_pruning_cascades"
     },
     {
       "relation": "method",
@@ -36768,9 +36850,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testvalidate",
-      "target": "unit_test_graph_testvalidate_test_clean_graph_reports_no_blocking_issues",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testvalidate_test_clean_graph_reports_no_blocking_issues"
     },
     {
       "relation": "method",
@@ -36778,9 +36860,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L149",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testvalidate",
-      "target": "unit_test_graph_testvalidate_test_duplicate_edges_are_reported_when_dedupe_is_off",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testvalidate_test_duplicate_edges_are_reported_when_dedupe_is_off"
     },
     {
       "relation": "method",
@@ -36788,9 +36870,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L159",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testvalidate",
-      "target": "unit_test_graph_testvalidate_test_isolated_nodes_are_reported",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testvalidate_test_isolated_nodes_are_reported"
     },
     {
       "relation": "method",
@@ -36798,9 +36880,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L164",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testvalidate",
-      "target": "unit_test_graph_testvalidate_test_validate_never_raises",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testvalidate_test_validate_never_raises"
     },
     {
       "relation": "method",
@@ -36808,9 +36890,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L154",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testvalidate",
-      "target": "unit_test_graph_testvalidate_test_zero_length_edge_is_blocking",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testvalidate_test_zero_length_edge_is_blocking"
     },
     {
       "relation": "method",
@@ -36818,9 +36900,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L229",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testbuildendtoend",
-      "target": "unit_test_graph_testbuildendtoend_test_empty_input_is_survivable",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testbuildendtoend_test_empty_input_is_survivable"
     },
     {
       "relation": "method",
@@ -36828,9 +36910,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L171",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testbuildendtoend",
-      "target": "unit_test_graph_testbuildendtoend_test_grid_of_streets_closes_faces",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testbuildendtoend_test_grid_of_streets_closes_faces"
     },
     {
       "relation": "method",
@@ -36838,9 +36920,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L214",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testbuildendtoend",
-      "target": "unit_test_graph_testbuildendtoend_test_isolated_nodes_are_dropped_and_reindexed",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testbuildendtoend_test_isolated_nodes_are_dropped_and_reindexed"
     },
     {
       "relation": "method",
@@ -36848,9 +36930,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L208",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testbuildendtoend",
-      "target": "unit_test_graph_testbuildendtoend_test_junction_flags_match_edge_endpoints",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testbuildendtoend_test_junction_flags_match_edge_endpoints"
     },
     {
       "relation": "method",
@@ -36858,9 +36940,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L221",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testbuildendtoend",
-      "target": "unit_test_graph_testbuildendtoend_test_stats_are_self_consistent",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testbuildendtoend_test_stats_are_self_consistent"
     },
     {
       "relation": "method",
@@ -36868,9 +36950,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L199",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_testbuildendtoend",
-      "target": "unit_test_graph_testbuildendtoend_test_weld_does_not_invent_intersections",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testbuildendtoend_test_weld_does_not_invent_intersections"
     },
     {
       "relation": "rationale_for",
@@ -36878,9 +36960,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L172",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_rationale_172",
-      "target": "unit_test_graph_testbuildendtoend_test_grid_of_streets_closes_faces",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testbuildendtoend_test_grid_of_streets_closes_faces"
     },
     {
       "relation": "rationale_for",
@@ -36888,9 +36970,9 @@
       "source_file": "tests/unit/test_graph.py",
       "source_location": "L200",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_graph_rationale_200",
-      "target": "unit_test_graph_testbuildendtoend_test_weld_does_not_invent_intersections",
-      "confidence_score": 1.0
+      "target": "unit_test_graph_testbuildendtoend_test_weld_does_not_invent_intersections"
     },
     {
       "relation": "contains",
@@ -39158,9 +39240,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen",
-      "target": "ideas_citygen_citygen_system_architecture",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_citygen_system_architecture"
     },
     {
       "relation": "references",
@@ -39168,9 +39250,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen",
-      "target": "ideas_citygen_streets",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets"
     },
     {
       "relation": "contains",
@@ -39178,9 +39260,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_citygen_system_architecture",
-      "target": "ideas_citygen_1_the_vision_hannes_2026_08_08",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_1_the_vision_hannes_2026_08_08"
     },
     {
       "relation": "contains",
@@ -39188,9 +39270,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_citygen_system_architecture",
-      "target": "ideas_citygen_2_art_direction_is_the_first_principle",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_2_art_direction_is_the_first_principle"
     },
     {
       "relation": "contains",
@@ -39198,9 +39280,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_citygen_system_architecture",
-      "target": "ideas_citygen_3_terminology_biome_was_overloaded_split_it",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_3_terminology_biome_was_overloaded_split_it"
     },
     {
       "relation": "contains",
@@ -39208,9 +39290,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L137",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_citygen_system_architecture",
-      "target": "ideas_citygen_4_cross_subsystem_contracts",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_4_cross_subsystem_contracts"
     },
     {
       "relation": "contains",
@@ -39218,9 +39300,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L392",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_citygen_system_architecture",
-      "target": "ideas_citygen_4b_apex_assessed_2026_08_08_real_fit_but_not_yet",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_4b_apex_assessed_2026_08_08_real_fit_but_not_yet"
     },
     {
       "relation": "contains",
@@ -39228,9 +39310,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L435",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_citygen_system_architecture",
-      "target": "ideas_citygen_5_sidefx_labs_policy_revised_2026_08_08",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_5_sidefx_labs_policy_revised_2026_08_08"
     },
     {
       "relation": "contains",
@@ -39238,9 +39320,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L465",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_citygen_system_architecture",
-      "target": "ideas_citygen_6_roadmap",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_6_roadmap"
     },
     {
       "relation": "contains",
@@ -39248,9 +39330,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L480",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_citygen_system_architecture",
-      "target": "ideas_citygen_7_open_system_level",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_7_open_system_level"
     },
     {
       "relation": "contains",
@@ -39258,9 +39340,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_1_the_vision_hannes_2026_08_08",
-      "target": "ideas_citygen_confirmed_parameters",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_confirmed_parameters"
     },
     {
       "relation": "contains",
@@ -39268,9 +39350,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_2_art_direction_is_the_first_principle",
-      "target": "ideas_citygen_2_1_no_constants_the_override_cascade",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_2_1_no_constants_the_override_cascade"
     },
     {
       "relation": "contains",
@@ -39278,9 +39360,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_2_art_direction_is_the_first_principle",
-      "target": "ideas_citygen_2_2_validation_is_advisory_never_a_wall",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_2_2_validation_is_advisory_never_a_wall"
     },
     {
       "relation": "contains",
@@ -39288,9 +39370,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_2_art_direction_is_the_first_principle",
-      "target": "ideas_citygen_2_3_intervene_at_any_stage_the_authoring_model",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_2_3_intervene_at_any_stage_the_authoring_model"
     },
     {
       "relation": "contains",
@@ -39298,9 +39380,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L141",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_4_cross_subsystem_contracts",
-      "target": "ideas_citygen_contract_1_the_region_is_the_unit_of_identity_caching_locking_and_transfer",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_contract_1_the_region_is_the_unit_of_identity_caching_locking_and_transfer"
     },
     {
       "relation": "contains",
@@ -39308,9 +39390,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L173",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_4_cross_subsystem_contracts",
-      "target": "ideas_citygen_contract_2_the_override_layer_an_upstream_node_committed_to_by_a_downstream_write",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_contract_2_the_override_layer_an_upstream_node_committed_to_by_a_downstream_write"
     },
     {
       "relation": "contains",
@@ -39318,9 +39400,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L228",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_4_cross_subsystem_contracts",
-      "target": "ideas_citygen_contract_3_terrain_city_two_terrain_nodes_no_loop",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_contract_3_terrain_city_two_terrain_nodes_no_loop"
     },
     {
       "relation": "contains",
@@ -39328,9 +39410,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L245",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_4_cross_subsystem_contracts",
-      "target": "ideas_citygen_contract_4_city_vegetation_masks",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_contract_4_city_vegetation_masks"
     },
     {
       "relation": "contains",
@@ -39338,9 +39420,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L250",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_4_cross_subsystem_contracts",
-      "target": "ideas_citygen_contract_5_chunking_is_spatial_shots_do_not_drive_generation",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_contract_5_chunking_is_spatial_shots_do_not_drive_generation"
     },
     {
       "relation": "contains",
@@ -39348,9 +39430,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L266",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_4_cross_subsystem_contracts",
-      "target": "ideas_citygen_contract_6_networks_are_layered_and_typed",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_contract_6_networks_are_layered_and_typed"
     },
     {
       "relation": "contains",
@@ -39358,9 +39440,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L280",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_4_cross_subsystem_contracts",
-      "target": "ideas_citygen_contract_7_a_reusable_python_state_library_new",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_contract_7_a_reusable_python_state_library_new"
     },
     {
       "relation": "contains",
@@ -39368,9 +39450,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L327",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_4_cross_subsystem_contracts",
-      "target": "ideas_citygen_contract_8_two_wired_streams_houdini_attributes_are_the_data_format",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_contract_8_two_wired_streams_houdini_attributes_are_the_data_format"
     },
     {
       "relation": "contains",
@@ -39378,9 +39460,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L384",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_4_cross_subsystem_contracts",
-      "target": "ideas_citygen_deliberately_not_designed_yet",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_deliberately_not_designed_yet"
     },
     {
       "relation": "contains",
@@ -39388,9 +39470,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L181",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_contract_2_the_override_layer_an_upstream_node_committed_to_by_a_downstream_write",
-      "target": "ideas_citygen_the_edit_node_design_hannes_concept_adopted",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_the_edit_node_design_hannes_concept_adopted"
     },
     {
       "relation": "contains",
@@ -39398,9 +39480,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L353",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_contract_8_two_wired_streams_houdini_attributes_are_the_data_format",
-      "target": "ideas_citygen_overrides_ride_inside_the_data_stream",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_overrides_ride_inside_the_data_stream"
     },
     {
       "relation": "contains",
@@ -39408,9 +39490,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L426",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_4b_apex_assessed_2026_08_08_real_fit_but_not_yet",
-      "target": "ideas_citygen_verdict",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_verdict"
     },
     {
       "relation": "contains",
@@ -39418,9 +39500,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L405",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_4b_apex_assessed_2026_08_08_real_fit_but_not_yet",
-      "target": "ideas_citygen_where_it_genuinely_fits",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_where_it_genuinely_fits"
     },
     {
       "relation": "contains",
@@ -39428,9 +39510,9 @@
       "source_file": "ideas/citygen.md",
       "source_location": "L420",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_4b_apex_assessed_2026_08_08_real_fit_but_not_yet",
-      "target": "ideas_citygen_where_it_is_the_wrong_tool",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_where_it_is_the_wrong_tool"
     },
     {
       "relation": "contains",
@@ -39438,9 +39520,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets",
-      "target": "ideas_citygen_streets_citygen_street_generation_design",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_citygen_street_generation_design"
     },
     {
       "relation": "contains",
@@ -39448,9 +39530,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L877",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_10_explicit_non_goals_for_v1",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_10_explicit_non_goals_for_v1"
     },
     {
       "relation": "contains",
@@ -39458,9 +39540,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_1_hard_constraints",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_1_hard_constraints"
     },
     {
       "relation": "contains",
@@ -39468,9 +39550,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_2_diagnosis_why_the_previous_attempts_produced_unsatisfying_output",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_2_diagnosis_why_the_previous_attempts_produced_unsatisfying_output"
     },
     {
       "relation": "contains",
@@ -39478,9 +39560,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_3_architecture_staged_pipeline_with_schema_contracts",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_3_architecture_staged_pipeline_with_schema_contracts"
     },
     {
       "relation": "contains",
@@ -39488,9 +39570,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L119",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_3b_the_unanimous_baseline_where_all_four_sources_agree",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_3b_the_unanimous_baseline_where_all_four_sources_agree"
     },
     {
       "relation": "contains",
@@ -39498,9 +39580,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L201",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_4_stage_design",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_4_stage_design"
     },
     {
       "relation": "contains",
@@ -39508,9 +39590,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L680",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_4d_measured_state_of_the_shipped_build_2026_08_09",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_4d_measured_state_of_the_shipped_build_2026_08_09"
     },
     {
       "relation": "contains",
@@ -39518,9 +39600,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L720",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_5_scale_strategy",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_5_scale_strategy"
     },
     {
       "relation": "contains",
@@ -39528,9 +39610,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L736",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_6_attribute_schema",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_6_attribute_schema"
     },
     {
       "relation": "contains",
@@ -39538,9 +39620,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L784",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_6b_shipped_v1_assets",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_6b_shipped_v1_assets"
     },
     {
       "relation": "contains",
@@ -39548,9 +39630,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L813",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_7_where_the_code_goes",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_7_where_the_code_goes"
     },
     {
       "relation": "contains",
@@ -39558,9 +39640,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L827",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_8_build_order",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_8_build_order"
     },
     {
       "relation": "contains",
@@ -39568,9 +39650,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L845",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_citygen_street_generation_design",
-      "target": "ideas_citygen_streets_9_open_decisions",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_9_open_decisions"
     },
     {
       "relation": "contains",
@@ -39578,9 +39660,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_1_hard_constraints",
-      "target": "ideas_citygen_streets_confirmed_parameters",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_confirmed_parameters"
     },
     {
       "relation": "contains",
@@ -39588,9 +39670,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L186",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_3b_the_unanimous_baseline_where_all_four_sources_agree",
-      "target": "ideas_citygen_streets_decision_2026_08_09",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_decision_2026_08_09"
     },
     {
       "relation": "contains",
@@ -39598,9 +39680,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_3b_the_unanimous_baseline_where_all_four_sources_agree",
-      "target": "ideas_citygen_streets_what_this_changes",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_what_this_changes"
     },
     {
       "relation": "contains",
@@ -39608,9 +39690,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L203",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_4_stage_design",
-      "target": "ideas_citygen_streets_s0_domain",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_s0_domain"
     },
     {
       "relation": "contains",
@@ -39618,9 +39700,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L219",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_4_stage_design",
-      "target": "ideas_citygen_streets_s1_field_pluggable_generators",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_s1_field_pluggable_generators"
     },
     {
       "relation": "contains",
@@ -39628,9 +39710,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L267",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_4_stage_design",
-      "target": "ideas_citygen_streets_s2_trace",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_s2_trace"
     },
     {
       "relation": "contains",
@@ -39638,9 +39720,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L326",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_4_stage_design",
-      "target": "ideas_citygen_streets_s3_graph_the_contract_and_the_missing_80",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_s3_graph_the_contract_and_the_missing_80"
     },
     {
       "relation": "contains",
@@ -39648,9 +39730,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L401",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_4_stage_design",
-      "target": "ideas_citygen_streets_s4_classify",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_s4_classify"
     },
     {
       "relation": "contains",
@@ -39658,9 +39740,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L411",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_4_stage_design",
-      "target": "ideas_citygen_streets_s5_intersections",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_s5_intersections"
     },
     {
       "relation": "contains",
@@ -39668,9 +39750,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L514",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_4_stage_design",
-      "target": "ideas_citygen_streets_s5b_bridges_tunnels_ramps",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_s5b_bridges_tunnels_ramps"
     },
     {
       "relation": "contains",
@@ -39678,9 +39760,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L558",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_4_stage_design",
-      "target": "ideas_citygen_streets_s6_cross_section_road_geometry",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_s6_cross_section_road_geometry"
     },
     {
       "relation": "contains",
@@ -39688,9 +39770,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L596",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_4_stage_design",
-      "target": "ideas_citygen_streets_s7_blocks",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_s7_blocks"
     },
     {
       "relation": "contains",
@@ -39698,9 +39780,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L617",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_4_stage_design",
-      "target": "ideas_citygen_streets_s8_lots",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_s8_lots"
     },
     {
       "relation": "contains",
@@ -39708,9 +39790,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L249",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s1_field_pluggable_generators",
-      "target": "ideas_citygen_streets_chaotic_organic_patterns_clarified_not_scrapped",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_chaotic_organic_patterns_clarified_not_scrapped"
     },
     {
       "relation": "contains",
@@ -39718,9 +39800,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L285",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s2_trace",
-      "target": "ideas_citygen_streets_dead_ends_are_the_exception_not_the_norm_and_the_fix_is_in_the_papers",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_dead_ends_are_the_exception_not_the_norm_and_the_fix_is_in_the_papers"
     },
     {
       "relation": "contains",
@@ -39728,9 +39810,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L339",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s3_graph_the_contract_and_the_missing_80",
-      "target": "ideas_citygen_streets_layers_the_change_bridges_force",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_layers_the_change_bridges_force"
     },
     {
       "relation": "contains",
@@ -39738,9 +39820,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L362",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s3_graph_the_contract_and_the_missing_80",
-      "target": "ideas_citygen_streets_networks_are_typed",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_networks_are_typed"
     },
     {
       "relation": "contains",
@@ -39748,9 +39830,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L485",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5_intersections",
-      "target": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field"
     },
     {
       "relation": "contains",
@@ -39758,9 +39840,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L502",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5_intersections",
-      "target": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points"
     },
     {
       "relation": "contains",
@@ -39768,9 +39850,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L457",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5_intersections",
-      "target": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always"
     },
     {
       "relation": "contains",
@@ -39778,9 +39860,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L433",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5_intersections",
-      "target": "ideas_citygen_streets_what_the_literature_adds",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_what_the_literature_adds"
     },
     {
       "relation": "contains",
@@ -39788,9 +39870,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L523",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5b_bridges_tunnels_ramps",
-      "target": "ideas_citygen_streets_where_bridges_go_cost_driven_routing_hannes_technique_adopted",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_where_bridges_go_cost_driven_routing_hannes_technique_adopted"
     },
     {
       "relation": "contains",
@@ -39798,9 +39880,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L645",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_the_three_subdivision_modes_both_of_the_first_two_are_required",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_three_subdivision_modes_both_of_the_first_two_are_required"
     },
     {
       "relation": "contains",
@@ -39808,9 +39890,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L623",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_voronoi_is_wrong_for_lots_rewritten_2026_08_09",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_voronoi_is_wrong_for_lots_rewritten_2026_08_09"
     },
     {
       "relation": "contains",
@@ -40258,9 +40340,9 @@
       "source_file": "tests/README.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_readme",
-      "target": "tests_readme_polyfactory_tests",
-      "confidence_score": 1.0
+      "target": "tests_readme_polyfactory_tests"
     },
     {
       "relation": "contains",
@@ -40268,9 +40350,9 @@
       "source_file": "tests/README.md",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_readme_polyfactory_tests",
-      "target": "tests_readme_known_failing_at_time_of_writing",
-      "confidence_score": 1.0
+      "target": "tests_readme_known_failing_at_time_of_writing"
     },
     {
       "relation": "contains",
@@ -40278,9 +40360,9 @@
       "source_file": "tests/README.md",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_readme_polyfactory_tests",
-      "target": "tests_readme_layout",
-      "confidence_score": 1.0
+      "target": "tests_readme_layout"
     },
     {
       "relation": "contains",
@@ -40288,9 +40370,9 @@
       "source_file": "tests/README.md",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_readme_polyfactory_tests",
-      "target": "tests_readme_numbers_first_renders_second",
-      "confidence_score": 1.0
+      "target": "tests_readme_numbers_first_renders_second"
     },
     {
       "relation": "contains",
@@ -40298,9 +40380,9 @@
       "source_file": "tests/README.md",
       "source_location": "L42",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_readme_polyfactory_tests",
-      "target": "tests_readme_the_baseline",
-      "confidence_score": 1.0
+      "target": "tests_readme_the_baseline"
     },
     {
       "relation": "contains",
@@ -40308,9 +40390,9 @@
       "source_file": "tests/README.md",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_readme_polyfactory_tests",
-      "target": "tests_readme_why_this_exists",
-      "confidence_score": 1.0
+      "target": "tests_readme_why_this_exists"
     },
     {
       "relation": "imports_from",
@@ -40347,5 +40429,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "6c87d457f50d9c42b4cfa5e0413e0217473c1a9d"
+  "built_at_commit": "7ee9f94cbba4509fcf78c31780c40deeacdeb6d5"
 }

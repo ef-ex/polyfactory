@@ -78,12 +78,14 @@ def run_case(name, city):
     surface = inner(cases.INTERNAL["surface"])
     if patches and surface:
         out.append(C.no_degenerate_corner_segments(patches.geometry()))
+        out.append(C.every_corner_is_an_arc(patches.geometry()))
         out.append(C.sidewalk_bands_match_corners(patches.geometry(),
                                                   surface.geometry()))
         out.append(C.junction_boundary_is_simple(patches.geometry()))
         out.append(C.self_intersections(surface, "selfx_junction_surface"))
     else:
-        for nm in ("no_degenerate_corner_segments", "sidewalk_bands_match_corners",
+        for nm in ("no_degenerate_corner_segments", "every_corner_is_an_arc",
+                   "sidewalk_bands_match_corners",
                    "junction_boundary_is_simple", "selfx_junction_surface"):
             out.append(C.Result(nm, True, None, "internal node missing", skipped=True))
 
