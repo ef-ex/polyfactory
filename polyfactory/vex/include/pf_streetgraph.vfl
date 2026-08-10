@@ -302,12 +302,15 @@ float pfsg_turn_residual(const vector P[]; const float rmin; const int closed) {
 // within +/-PFSG_SMOOTH_W of it, OR the MEDIAN turn of that same window with the
 // vertex itself included, whichever is larger. Four properties make this safe
 // rather than a general smoother:
-//   * UNIFORM CURVATURE IS A FIXED POINT, AT EVERY gain > 0. The median term is
-//     what buys that, and it is not decoration -- see the audit note below.
-//   * A VERTEX IS NEVER ASKED TO TURN LESS THAN ITS OWN NEIGHBOURHOOD'S MEDIAN,
-//     so the bound can only ever bind on a vertex in the upper half of its own
-//     window. That is the definition of a spike, and it is why this cannot
-//     flatten a curve that is simply curved.
+//   * UNIFORM CURVATURE IS A FIXED POINT, AT EVERY gain > 0 -- a polyline whose
+//     every interior vertex turns the same comes back untouched. The median
+//     term is what buys that, and it is not decoration -- see the audit note
+//     below. Independently re-measured 2026-08-10 on uniform arcs at
+//     kappa x R_min 0.20 .. 0.95, open and closed: 0.000 m moved in 0 sweeps at
+//     every gain from 0 to 8, with real spikes still caught.
+//   * A VERTEX IS NEVER ASKED TO TURN LESS THAN ITS OWN NEIGHBOURHOOD'S LOWER
+//     MEDIAN, so the bound can only ever bind on a vertex in the upper half of
+//     its own window.
 //   * IT NEVER LOOSENS THE CLASS CLAMP -- it is a `min` with it.
 //   * IT HAS A FLOOR of `PFSG_SMOOTH_FLOOR` x the class allowance, so an
 //     isolated corner in a dead-straight run (a 90 deg bend before the arc seed
@@ -315,6 +318,37 @@ float pfsg_turn_residual(const vector P[]; const float rmin; const int closed) {
 //     than an infinite one.
 // `gain <= 0` disables the noise half entirely and restores the class-only
 // behaviour exactly, which is how the A/B for this change was measured.
+//
+// ⚠️ AND HERE IS WHAT THOSE FOUR PROPERTIES DO NOT SAY. This comment used to
+// add "...and it is why this cannot flatten a curve that is simply curved",
+// and an independent audit of `812d55f` measured that false. "In the upper half
+// of its own window" is NOT the same as "is a spike". Two cases, both measured:
+//
+//   * A SHORT CURVE IS TREATED AS A KINK, BY CONSTRUCTION. For a run of k
+//     equally turning vertices between straight legs the ratio is
+//     `6 / (gain x (k - 1))`, capped by the floor at
+//     `kappa x R_min / PFSG_SMOOTH_FLOOR`. At the shipped gain of 2 that bites
+//     for k <= 3, i.e. any curve shorter than ~12 m at the 4 m graph spacing:
+//     a 14.5 deg turn drawn over 3 vertices -- R = 47.3 m against a 26.8 m
+//     R_min, kappa x R_min = 0.566, legal by radius with room to spare -- is
+//     bound at ratio 1.50 and flattened. k >= 4 puts the vertex's own turn AT
+//     the lower-median slot of the 7-wide window, so its ceiling equals its own
+//     turn exactly and the bound never binds at ANY gain. The threshold of 4 is
+//     the +/-PFSG_SMOOTH_W window width, not the choice of median.
+//
+//   * A MONOTONICALLY TIGHTENING SPIRAL BINDS AT ITS TRAILING END, at gain <= 1.
+//     `pfsg_median_lower` takes index (m-1)/2, and in a TRUNCATED end window
+//     every other member is smaller than this vertex's own turn, so the lower
+//     median lands two positions below it. Measured on a 24-vertex spiral
+//     turning 1 -> 7 deg per vertex at 4 m spacing, R_min 26.8 m: the last three
+//     interior vertices bind at 1.044 / 1.042 / 1.084 at every gain in
+//     0.25 .. 1.0, mirror-symmetrically at the LEADING end when it tightens the
+//     other way, and nowhere at all from gain 1.25 up. The consequence is mild
+//     and self-healing -- the audit measured 9 cm of movement, converging to
+//     1.010 -- and the trade is deliberate: taking the LOWER median is what
+//     makes a truncated window err toward smoothing rather than toward letting a
+//     spike through, and that is precisely what makes the spiral bind. Both
+//     cannot be true at once. The lower median stays; the claim goes.
 //
 // ⚠️ THE MEDIAN TERM IS A BUG FIX, NOT A REFINEMENT, and the bug shipped. The
 // first build bounded the vertex by `gain x mean(neighbours)` with the vertex
@@ -366,6 +400,11 @@ float pfsg_turn_residual(const vector P[]; const float rmin; const int closed) {
 // Lower median of a small unsorted array. Lower rather than mid-point so an
 // even-sized window (the truncated one at a prim end) errs toward the tighter
 // ceiling, i.e. toward smoothing, never toward letting a spike through.
+// ⚠️ THAT IS ALSO WHY A TIGHTENING SPIRAL BINDS at its trailing end below
+// gain 1 -- index (m-1)/2 of a truncated window whose every other member is
+// smaller lands two positions below this vertex's own turn. The two are the
+// same sentence read from opposite ends; see pfsg_turn_ceilings' header for the
+// measurement and for why this side of the trade was kept.
 float pfsg_median_lower(const float v[]) {
     int m = len(v);
     if (m < 1) return 0.0;
@@ -412,11 +451,16 @@ void pfsg_turn_ceilings(const vector P[]; const float rmin, gain;
         }
         float noise = (c > 0) ? gain * s / float(c) : cls[i];
         // The neighbourhood LEVEL. On any window where this vertex is not in
-        // the strict upper half -- a uniform arc, the end of a curved run, a
-        // monotonically tightening spiral -- the median IS this vertex's own
-        // turn, so the ceiling cannot fall below it and the bound cannot bind.
-        // A spike is a minority of one in a window of seven, so the median is
-        // blind to it and the `gain x mean` term still governs there.
+        // the strict upper half -- anywhere inside a run of PFSG_SMOOTH_W + 1
+        // or more equally turning vertices, a uniform arc and the ends of such a
+        // run included -- the lower median IS this vertex's own turn, so the
+        // ceiling cannot fall below it and the bound cannot bind. A spike is a
+        // minority of one in a window of seven, so the median is blind to it and
+        // the `gain x mean` term still governs there.
+        // ⚠️ This does NOT extend to a TRUNCATED window at a prim end, where
+        // every other member can be smaller than this vertex's own turn: a
+        // monotonically tightening spiral binds at its last three interior
+        // vertices at gain <= 1. Measured; see the header.
         float level = pfsg_median_lower(w);
         phimax[i] = min(cls[i], max(max(noise, level), PFSG_SMOOTH_FLOOR * cls[i]));
     }

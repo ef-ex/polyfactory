@@ -89,6 +89,14 @@ def run_case(name, city, field=None):
                                        inner(cases.INTERNAL["loops"])))
 
     out.append(C.graph_is_planar(g_graph))
+    # ...and the OTHER meaning of planar, which nothing asserted. The S3b clamp
+    # measures its turn XZ-projected (`pfsg_turn_at`); `_turn_at` mirrors that,
+    # and `every_corner_is_an_arc` and the fold test are 2D throughout. All of
+    # it is correct exactly while the graph is flat in Y, and §S5b's terrain is
+    # the change that ends that. Assert the precondition instead of inheriting
+    # it. Today's spread is 0.
+    out.append(C.no_nonplanar_y(g_graph))
+    out[-1].name = "graph_planar_y"
     out.append(C.no_orphan_components(g_graph))
     out.append(C.dead_ends(g_graph))
     out.append(C.attribute_schema(g_graph, g_city))

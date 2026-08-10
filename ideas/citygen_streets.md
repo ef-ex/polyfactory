@@ -721,10 +721,13 @@ an infinite one. Four properties make it safe:
 
 - **uniform curvature is a fixed point, at every gain > 0** — and **the median term is the only
   reason that is true.** See the correction below: without it the property holds only for
-  `gain ≥ 1`, and this parameter ships on a `{0 8}` slider;
-- **a vertex is never asked to turn less than its own neighbourhood's median**, so the bound
-  can only bind on a vertex in the strict upper half of its own window. That is what a spike
-  *is*, and it is why this cannot flatten a curve for being curved;
+  `gain ≥ 1`, and this parameter ships on a `{0 8}` slider. Independently re-measured on
+  `812d55f`: uniform arcs at κ × R_min 0.20–0.95, open and closed, move **0.000 m in 0 sweeps
+  at every gain 0–8**, with real spikes still caught;
+- **a vertex is never asked to turn less than its own neighbourhood's lower median**, so the
+  bound can only bind on a vertex in the strict upper half of its own window. ⚠️ **That is
+  not the same as "only on a spike", and this bullet used to claim it was** — see "Two safety
+  claims were false" below;
 - it is a `min` with the class clamp, so it can never *loosen* it;
 - `turn_smooth_gain = 0` restores the previous behaviour exactly, and that is how the A/B was
   measured. The sweep's spread `m` was rewritten as `(φ/φmax − 1)`, which is algebraically the
@@ -800,10 +803,11 @@ mechanism is not an assertion.
 
 **The cure is a `max` with the local median.** A spike is a minority of one in a window of
 seven, so the median is blind to it and the `gain × mean` term still governs there; a uniform
-arc, the end of a curved run and a monotonically tightening spiral all have the vertex's own
-turn *as* the median, so the ceiling cannot fall below it. The **lower** median is taken, so a
-truncated window at a prim end errs toward smoothing rather than toward letting a spike
-through. **At the shipped default of 2 this changes nothing** — the median can only ever raise
+arc, and the interior *and ends* of a run of **four or more** equally turning vertices, all
+have the vertex's own turn *as* the lower median, so the ceiling cannot fall below it. The
+**lower** median is taken, so a truncated window at a prim end errs toward smoothing rather
+than toward letting a spike through — and that, exactly, is why a tightening spiral binds
+there; see below. **At the shipped default of 2 this changes nothing** — the median can only ever raise
 a ceiling, and at a real spike `2 × mean` is already above it — which the A/B confirms number
 for number, C's 41 bowtie lots and 270 merged-city crossings included.
 
@@ -833,6 +837,160 @@ two disagreeing is visible rather than silent. On the current build they agree t
 on every case, which is itself the finding: nothing between the clamp and `OUT_graph2` moves the
 centreline. At `gain = 0` the recomputed spike degenerates to exactly `max_kappa_over_clamp` —
 now by construction rather than by coincidence, since the ceiling *is* the class allowance there.
+
+##### ⚠️ Two safety claims were false, and both shipped — 2026-08-10
+
+Acting on an independent audit of `812d55f`. **Shipping a false documented safety property on
+this parameter is the exact defect the commit existed to remove**, so this pass deletes the
+claims and states the measured rule instead. What the audit *confirmed* and this pass did not
+disturb: the fixed point is real (uniform arcs at κ × R_min 0.20–0.95, open and closed, move
+0.000 m in 0 sweeps at every gain 0–8, real spikes still caught); the default is byte-identical
+and provably so, because `lower_median(window incl. self) ≤ 2 × mean(neighbours)` for *every*
+window with supremum exactly 2.0, making the median term **a mathematical no-op for gain ≥ 2 on
+any input**; and the recomputed `max_turn_spike` is ~5× more sensitive than the class residual.
+
+**(a) The spiral claim was false.** `pf_streetgraph.vfl` and the bullet above said a
+monotonically tightening spiral "has the vertex's own turn *as* the median, so the ceiling
+cannot fall below it and the bound cannot bind." It binds. `pfsg_median_lower` takes index
+`(m−1)/2`, and in a **truncated** end window every other member is smaller than φ_i, so the
+lower median lands two positions below it. Re-measured on a 24-vertex spiral turning 1° → 7°
+per vertex at 4 m, R_min 26.8 m (every turn inside the 8.55°/vertex class allowance, so this
+is the noise bound and not the radius floor):
+
+| gain | binds at | ratio |
+|---|---|---|
+| 0.25 / 0.5 / 0.75 | interior vertices 21, 22, 23 of 1..23 | 1.044 / 1.042 / **1.084** |
+| 1.0 | same three | 1.026 / 1.042 / 1.084 |
+| ≥ 1.25 | nowhere | — |
+
+Mirror-symmetric at the **leading** end when it tightens the other way. **The comment's own
+justification was the cause**: "lower … so a truncated window at a prim end errs toward
+smoothing" is precisely what makes the spiral bind, and both sentences cannot be true.
+**The lower median stays; the claim goes.** The consequence is mild and self-healing — the
+audit measured 9 cm moved, converging to 1.010.
+
+**(b) The help text on `graph_params_turn_smooth_gain` was false.** It said "…while a vertex
+that is merely part of a curve is never touched". At the shipped default a short curve is
+treated as a kink **by construction**. For a run of `k` equally-turning vertices between
+straight legs the ratio is `6 / (gain × (k − 1))`, capped by the floor at `κ × R_min / 0.25`:
+
+| | k=2 | k=3 | k=4 | k≥5 |
+|---|---|---|---|---|
+| gain 2 | 2.26 (floor-capped) | **1.50** | 1.000 | 1.000 |
+| bites at gain 0.5 / 1 / 2 / 4 / 8 | k ∈ {2,3} | {2,3} | {2,3} | {2} · {} |
+
+Measured instance: a **14.5° turn drawn over 3 vertices at 4 m spacing — R = 47.3 m against a
+26.8 m R_min, κ × R_min = 0.566, legal by radius with room to spare — is bound at ratio 1.50**
+and flattened. A run of **k ≥ 4** fills the lower-median slot of the 7-wide window, so its
+ceiling equals its own turn *exactly* (ratio 1.000) and the bound never binds at any gain;
+that threshold is the ±3 window width, not the median. The *code comment*'s wording ("strict
+upper half of its own window") was correct — the help had generalised it into a promise the
+mechanism does not keep. Rewritten to state the rule above.
+
+##### The control rig was calibrated to one slider position, and now is not
+
+`_RIG_INPUT_KAPPA = {"foldback": 10.5243, "ring_tight": 1.3423}` was a pair of constants
+measured at `turn_radius_scale = 2`, while κ × R_min is **linear in the scale** and the check
+reads the live parm; and the authored bend legs were sized for R_min = 26.8 m, so `bend90`'s
+80 m legs cannot host a 90° turn of R = 107 m at scale 8. Full suite at scale 1/2/3/4/6/8 was
+**24 / 17 / 24 / 23 / 25 / 24** failing, with the rig itself contributing six of the ~7 extra
+at every non-default scale. Two cures, both landed:
+
+- **every authored rig coordinate is scaled by `R_min / 26.8`**, so a rig authored feasible
+  stays feasible and one authored infeasible stays infeasible at every scale (the resample
+  step stays at the pipeline's real 4 m, and `circle()` derives its vertex count from the
+  scaled radius so `ring_legal` stays a circle instead of becoming a 188-gon with a kink);
+- **the infeasible pair's bound is measured off the input geometry** (`kappa_in`) instead of
+  hard-coded.
+
+**Result: `bend90`, `bend135`, `bend135_r18`, `bend90_r10`, `foldback`, `ring_legal` and
+`ring_tight` are now correct at all 6 scales × 6 gains** — the worst open-bend delivery over
+all 36 combinations is **1.0022 × R_min**, against a 1.25 allowance. ⚠️ **The suite counts did
+not move** (24 / 17 / 24 / 23 / 25 / 24), because the rig is one boolean per case and
+`ring_square` still trips it — but its failures are now *attributable*, and they are real:
+
+**⚠️ THE NOISE BOUND BLOCKS THE CLOSED-RING SOLVE ENTIRELY AT R_min ≥ 40 m.** Measured with the
+rig's **original, unscaled** 300 m ring, so it is not an artifact of the sizing above:
+
+| `turn_radius_scale` | gain 0 (class only) | gain 2 |
+|---|---|---|
+| 3 | κ 15.787 → **1.008**, converged, 55 sweeps | κ **15.787 → 15.787**, moved 0, 50 sweeps (stall cap) |
+| 4 | 21.049 → **1.008**, converged, 70 sweeps | **21.049 → 21.049**, moved 0 |
+| 8 | 42.097 → 1.216, not converged, 200 | **42.097 → 42.097**, moved 0 |
+
+The solver **does not move the ring at all** with the bound on. The seeded fillet is
+open-prim-only, so a closed prim starts at a bound ratio of ~4 × κ × R_min (corner φ against a
+`0.25 × cls` floor with zero neighbours), no sweep improves the combined score, and it stalls
+out and returns the input. This is the same failure *shape* as the bug this section records —
+the noise bound stopping the class clamp from being satisfied — resurfacing at a different
+parameter value, and it is the same root cause as C's `not_converged` at scale 6/8 below.
+Recorded, **not fixed**: it wants the seed extended to closed prims, which is its own pass.
+Sizing the rig from R_min improves it (scale 3 reaches κ 1.013 rather than staying at 15.787).
+
+##### The gain sweep asserted a verdict and recorded no numbers, and could not see over-smoothing
+
+`value["gain_sweep"]` was the string `"all 6 gains clean"` or a dict of names, so **the five
+non-default cooks were discarded** and the baseline diff could never see a non-default gain
+regress — the exact failure the rig exists to prevent, one level up. It now records the full
+per-gain, per-rig measurement.
+
+And `solved()` bounded R only from **below** (`R_delivered > half_width`), so **over-smoothing
+was not asserted at all**. It is now bounded on both sides. The old lower bound is gone rather
+than kept: R_min is `half_width × turn_radius_scale`, so `κ ≤ slack` already implies
+`R_delivered > half_width` for every scale above 1.02, and at the slider's minimum of 1
+R_min *equals* half_width and the old form was unsatisfiable by construction — it asserted
+nothing anywhere it could hold.
+
+**Proved on a deliberately over-flattened build.** The median term was reverted to `level = 0`
+in a scratch copy of the include, placed ahead of the repo on `HOUDINI_VEX_PATH` (the shipped
+file was never touched), and the rig run at gain 0.5:
+
+| rig | R delivered | R / R_min | old verdict | new verdict |
+|---|---|---|---|---|
+| `bend90` | **57.79 m** (26.55 shipped) | 2.156 | pass | **fail** |
+| `bend90_r10` | **63.37 m** | 2.365 | pass | **fail** |
+| `ring_square` | **82.65 m** (26.80 shipped) | 3.084 | pass | **fail** |
+| `bend135` / `bend135_r18` | 23.7 m, not converged | 0.88 | fail | fail |
+
+The old form caught **2 of 5**, and only through `bend135`'s collateral `converged == 0`; the
+new form catches **5 of 5**. At gain 2 the reverted build is identical to the shipped one
+number for number, which is an independent empirical confirmation that the median term is a
+no-op at the default.
+
+The two caps are 1.25 × R_min for the four open bends and 2.0 × for the closed square, and the
+difference is measured, not convenience: between two pinned endpoints there is one right answer
+and the bends land on it (≤ 1.0022 everywhere); a closed ring's constraint set admits a family
+from "four arcs at R_min" to "a circle", and a tighter noise bound walks toward the round end.
+**Newly exposed on the shipped build and recorded:** `ring_square` delivers **1.49 × R_min at
+gain 0.5** and 1.12 × at gain 1 at the default scale (3.22 × and 2.07 × at scale 1), burning
+all 200 sweeps, because a nearly-uniform run's *lower* median sits a hair under the vertex's
+own turn and the noise residual never quite clears `tol`. At gain ≥ 2 it is exactly 1.00 ×.
+
+##### Two metrics that agreed by luck, and one assertion that is absent
+
+- **`_turn_ceilings` measured the turn with `acos(dot)` — a true 3D angle — while the VEX uses
+  `abs(atan2(cross(u,v).y, dot(u,v)))`, XZ-projected.** Identical while the graph is planar
+  (2.6e-8 rad over 497 vertices) and silently divergent the day a centreline acquires Y, which
+  §S5b's terrain will bring. Both are now `_turn_at`, a direct mirror of `pfsg_turn_at`; the
+  whole default suite is byte-identical across the change. **And nothing asserted the graph was
+  planar** — `graph_is_planar` tests segment crossings, not Y. `graph_planar_y` is now a
+  standing check: y spread **0.0** on all six cases.
+- **At `gain = 0` the spike bound collapses to the class allowance, so the smoothness assertion
+  is simply absent.** "gain 0 → 16 failing, gain 2 → 17" compares two runs with *different
+  assertions in force*, and the missing failure at 0 is this check no longer testing anything
+  `max_kappa_over_clamp` does not already test. Recorded in `_turn_ceilings`, not fixed:
+  pinning the check to a fixed gain would make it stop measuring the build's actual parameter.
+
+##### Real at non-default scale — recorded, not fixed
+
+Not rig artifacts; each reproduces the audit's finding on the current build.
+
+| | scale | reading |
+|---|---|---|
+| C `centreline_curvature_within_class` | 6 | 1.026, over 6, **not_converged 1** |
+| C `centreline_curvature_within_class` | 8 | 1.093, over 20, **not_converged 2** |
+| C `every_corner_is_an_arc` | 3 | `radius_fit` 1.407, mixed_class 135 |
+| `lots_are_simple_polygons` newly on **A** | 1 / 3 / 4 / 6 | 1 self-touching parcel each |
 
 #### Still unguarded after this pass — recorded, not fixed
 
@@ -1291,7 +1449,8 @@ had never worked; two of those were never audited and one was audited too late.
 | **Ring closure gate re-derived from cell size** (`011fdcb`) | **implementer-verified** | Defaults proven byte-identical by hashing every vertex. Audit running |
 | **Sagitta gate replaced by a ceiling on the seam; the floor's closed-form bound** (2026-08-10) | **implemented, unverified** | Acting on an independent audit of `f0edcc6`. Max accepted chord 145.90 → **65.85 m**, chords > 100 m 12 → **0**, sole rejector 5 → **25**; defaults byte-identical over 26 digests; suite 17 failing with no baseline movement. The sweep that measured it is committed as `tests/citygen/closure_gate.py` — see "The sagitta gate is gone" below |
 | Node merge/relax, shallow-arm merge, dead ends, majors-enclose-minors | not started | — |
-| **`turn_smooth_gain` fixed point below gain 1** (2026-08-10) | **implemented, unverified** | Acting on an independent audit of `2aba0a9`/`68f6a21`/`2fe1725`. The bound is now `max(gain × mean(neighbours), median(window incl. self))`; the whole shipped `{0 8}` range sweeps to the same 17 failing and the same failing *set*, default bit-identical. `turn_clamp_control_rig` sweeps the gain. See §S3b "The fixed-point claim was false below gain 1" |
+| **`turn_smooth_gain` fixed point below gain 1** (2026-08-10) | **audited** — the fixed point is real, re-measured independently on `812d55f` at κ × R_min 0.20–0.95, open and closed, 0.000 m in 0 sweeps at every gain 0–8 | Acting on an independent audit of `2aba0a9`/`68f6a21`/`2fe1725`. The bound is `max(gain × mean(neighbours), lower_median(window incl. self))`; the whole shipped `{0 8}` range sweeps to the same 17 failing and the same failing *set*, default bit-identical. See §S3b "The fixed-point claim was false below gain 1" |
+| **Two false safety claims on the same parameter** (2026-08-10) | **implemented, unverified** | Acting on an independent audit of `812d55f`. The spiral claim and the "merely part of a curve is never touched" help text were both **measured false** and are deleted; the real rule (`6/(gain × (k−1))`, invisible for k ≥ 4) is stated instead. `turn_clamp_control_rig` is sized from the live `turn_radius_scale` and records the gain sweep's numbers; over-smoothing is now an assertion, proved to fail on a reverted build (`bend90` 57.79 m). Default byte-identical, suite 17. See §S3b "Two safety claims were false" |
 
 #### ⚠️ `2aba0a9` raised six numbers and recorded one — 2026-08-10
 

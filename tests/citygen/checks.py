@@ -1322,26 +1322,50 @@ _SMOOTH_W = 3
 _SMOOTH_FLOOR = 0.25
 
 
+def _turn_at(a, b, c):
+    """Mirror of `pfsg_turn_at`: |turn| at b and the two edge lengths.
+
+    ⚠️ THE ANGLE IS PROJECTED INTO XZ AND THE LENGTHS ARE NOT, exactly as the
+    VEX does it. This used to be `acos(dot)` — a true 3D angle — against the
+    VEX's `atan2(cross(u, v).y, dot(u, v))`. The two agree to 2.6e-8 rad over
+    497 vertices *while the graph is planar*, and would diverge silently the day
+    a centreline acquires Y, which §S5b's terrain will bring. A check that
+    mirrors the solver must mirror the metric, not a metric that happens to
+    agree today. `graph_planar_y` is the standing assertion that they still do.
+    """
+    e1, e2 = b - a, c - b
+    l1, l2 = e1.length(), e2.length()
+    if l1 < 1e-9 or l2 < 1e-9:
+        return 0.0, l1, l2
+    u, v = e1 / l1, e2 / l2
+    return (abs(math.atan2(u[2] * v[0] - u[0] * v[2],
+                           u[0] * v[0] + u[2] * v[2])), l1, l2)
+
+
 def _turn_ceilings(pts, rmin, gain, closed):
     """Per-vertex turn (radians) and its ceiling, from geometry alone.
 
     Returns (phi, ceiling); either list holds None where the vertex has no turn
-    to bound. `gain <= 0` gives ceiling == the class allowance, so the spike
-    residual degenerates to `max_kappa_over_clamp` exactly -- by construction,
-    not by coincidence.
+    to bound.
+
+    ⚠️ `gain <= 0` gives ceiling == the class allowance, so the spike residual
+    degenerates to `max_kappa_over_clamp` exactly -- by construction, not by
+    coincidence. WHICH MEANS THE SMOOTHNESS ASSERTION IS SIMPLY ABSENT AT
+    gain 0: "gain 0 -> 16 failing, gain 2 -> 17" in the sweep table below
+    compares two runs with different assertions in force, and the missing
+    failure at 0 is this check no longer testing anything the class clamp does
+    not already test. Recorded, not fixed: pinning the check to a fixed gain
+    would make it stop measuring the parameter the build actually ships with.
     """
     n = len(pts)
     phi = [0.0] * n
     cls = [None] * n
     rng = list(range(n)) if closed else list(range(1, n - 1))
     for i in rng:
-        e1 = pts[i] - pts[(i - 1) % n]
-        e2 = pts[(i + 1) % n] - pts[i]
-        l1, l2 = e1.length(), e2.length()
+        t, l1, l2 = _turn_at(pts[(i - 1) % n], pts[i], pts[(i + 1) % n])
         if l1 < 1e-9 or l2 < 1e-9:
             continue
-        d = max(-1.0, min(1.0, (e1 / l1).dot(e2 / l2)))
-        phi[i] = math.acos(d)
+        phi[i] = t
         cls[i] = 0.5 * (l1 + l2) / rmin
     ceil = [None] * n
     for i in rng:
@@ -1444,14 +1468,11 @@ def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02,
         rng = range(n) if closed else range(1, n - 1)
         phi, ceil = _turn_ceilings(pts, rmin, gain, closed)
         for i in rng:
-            e1 = pts[i] - pts[(i - 1) % n]
-            e2 = pts[(i + 1) % n] - pts[i]
-            l1, l2 = e1.length(), e2.length()
+            t, l1, l2 = _turn_at(pts[(i - 1) % n], pts[i], pts[(i + 1) % n])
             if l1 < 1e-9 or l2 < 1e-9:
                 continue
-            d = max(-1.0, min(1.0, (e1 / l1).dot(e2 / l2)))
             # discrete curvature x R_min: 1.0 IS the clamp
-            ratio = math.acos(d) / (0.5 * (l1 + l2)) * rmin
+            ratio = t / (0.5 * (l1 + l2)) * rmin
             if ratio > worst:
                 worst, at = ratio, [round(pts[i][0], 2), round(pts[i][2], 2)]
             if ratio > slack:
@@ -1579,7 +1600,8 @@ def trim_leaves_road_standing(streets_geo, floor=1.0):
                   "s5j_trim is about to delete it under a live mouth" % floor)
 
 
-def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
+def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0, flat=1.25,
+                           flat_ring=2.0):
     """Run the SHIPPED S3b clamp on the inputs that broke the first one.
 
     This is the only check in the suite that supplies its own geometry, and it
@@ -1628,6 +1650,20 @@ def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
     parameter is the only thing that would have caught it, so the sweep is the
     check. Adding a parameter means adding a case.
 
+    **AND IT IS SIZED FROM THE LIVE `turn_radius_scale`**, because the same
+    pattern caught it a fifth time. The rig legs were authored at
+    R_min = 26.8 m — `turn_radius_scale` = 2 — and `_RIG_INPUT_KAPPA` was a pair
+    of constants measured at that one value. κ × R_min is linear in the scale
+    and the check reads the live parm, so at scale 1/3/4/6/8 the whole suite
+    went 17 → 24/23/25/24 failing and **six of the ~7 extra at every scale were
+    this rig, on all six cases**: `bend90`'s 80 m legs cannot host a 90° turn of
+    R = 107 m at scale 8, and the infeasible pair was being compared against a
+    scale-2 number. Two cures, both here: every authored coordinate is scaled by
+    `R_min / 26.8` so a rig authored feasible stays feasible and one authored
+    infeasible stays infeasible at every scale, and the bound on the infeasible
+    pair is **measured off the input geometry** rather than hard-coded. The
+    slider ships {1 8}; a rig that only works at 2 is calibration, not a check.
+
     It copies the real `graph_turn_clamp` node so it cannot drift from what
     ships, and destroys everything it made — an audit that leaves scratch nodes
     or display flags behind makes the next pass diagnose a scene it did not
@@ -1640,12 +1676,14 @@ def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
     shown = next((c for c in city_node.children() if c.isDisplayFlagSet()), None)
     made = []
     shipped_gain = city_node.parm("graph_params_turn_smooth_gain").eval()
+    # the rig is authored at R_min = 26.8 m, i.e. turn_radius_scale = 2
+    rig_f = city_node.parm("graph_params_turn_radius_scale").eval() / 2.0
     # every value in the shipped {0 8} range that a slider makes easy to land on
     gains = (0.0, 0.5, 1.0, 2.0, 4.0, 8.0)
     try:
         src = city_node.createNode("python", "__chk_rig_src")
         made.append(src)
-        src.parm("python").set(_RIG_SNIPPET)
+        src.parm("python").set("F = %.9f\n" % rig_f + _RIG_SNIPPET)
         w = clamp.copyTo(city_node)
         made.append(w)
         w.setInput(0, src)
@@ -1690,17 +1728,41 @@ def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
 
     bad = {}
     for gain in gains:
-        why = _rig_verdict(sweep[gain], slack, floor)
+        why = _rig_verdict(sweep[gain], slack, floor, flat, flat_ring)
         if why:
             bad["%g" % gain] = why
     value = dict(got)
-    value["gain_sweep"] = "all %d gains clean" % len(gains) if not bad else bad
-    return Result(name, not bad and not _rig_verdict(got, slack, floor), value,
+    # ⚠️ RECORD THE NUMBERS, not a verdict. This used to be the string "all 6
+    # gains clean" or a dict of names, so the five non-default cooks were
+    # discarded and the baseline diff could never see a NON-DEFAULT gain
+    # regress — the exact failure this rig was added to prevent, one level up.
+    value["gain_sweep"] = {"%g" % g: sweep[g] for g in gains}
+    if bad:
+        value["gain_sweep_failed"] = bad
+    return Result(name,
+                  not bad and not _rig_verdict(got, slack, floor, flat,
+                                               flat_ring),
+                  value,
                   "feasible turns (90, 135, both drawn as arcs, square ring) "
-                  "must converge inside the clamp with R above the half-width; "
-                  "infeasible ones (fold-back, tight ring) must be flagged, not "
-                  "diverged; a legal ring must be untouched — and all of that "
-                  "at every turn_smooth_gain in the shipped range")
+                  "must converge inside the clamp and NOT be flattened past "
+                  "%.2f x R_min (%.2f for the closed square); infeasible ones "
+                  "(fold-back, tight ring) must be flagged, not diverged, and "
+                  "no worse than the input they were handed; a legal ring must "
+                  "be untouched — and all of that at every turn_smooth_gain in "
+                  "the shipped range, sized from the live turn_radius_scale"
+                  % (flat, flat_ring))
+
+
+def _rig_kappa(pts, rmin, closed):
+    """Worst discrete curvature x R_min over one rig polyline."""
+    n = len(pts)
+    worst = 0.0
+    for i in (range(n) if closed else range(1, n - 1)):
+        t, l1, l2 = _turn_at(pts[(i - 1) % n], pts[i], pts[(i + 1) % n])
+        if l1 < 1e-9 or l2 < 1e-9:
+            continue
+        worst = max(worst, t / (0.5 * (l1 + l2)) * rmin)
+    return worst
 
 
 def _rig_measure(geo, src_geo, city_node):
@@ -1712,20 +1774,19 @@ def _rig_measure(geo, src_geo, city_node):
         closed = bool(pr.intrinsicValue("closed"))
         rmin = 0.5 * pr.attribValue("streetWidth") * \
             city_node.parm("graph_params_turn_radius_scale").eval()
-        worst = 0.0
-        for i in (range(n) if closed else range(1, n - 1)):
-            e1 = pts[i] - pts[(i - 1) % n]
-            e2 = pts[(i + 1) % n] - pts[i]
-            l1, l2 = e1.length(), e2.length()
-            if l1 < 1e-9 or l2 < 1e-9:
-                continue
-            d = max(-1.0, min(1.0, (e1 / l1).dot(e2 / l2)))
-            worst = max(worst, math.acos(d) / (0.5 * (l1 + l2)) * rmin)
+        worst = _rig_kappa(pts, rmin, closed)
         was = [v.point().position() for v in src_geo.prims()[pr.number()].vertices()]
         moved = max((pts[i] - was[i]).length() for i in range(n))
         got[pr.attribValue("rig")] = {
             "kappa": round(worst, 4),
+            # ⚠️ MEASURED off the input this cook was handed, not a constant.
+            # It used to be `_RIG_INPUT_KAPPA`, a pair of numbers taken at
+            # turn_radius_scale = 2; kappa x R_min is linear in the scale, so
+            # the two infeasible rigs failed their own bound at every other
+            # value of a slider that ships {1 8}.
+            "kappa_in": round(_rig_kappa(was, rmin, closed), 4),
             "R_delivered": round(rmin / max(worst, 1e-9), 2),
+            "R_min": round(rmin, 2),
             "half_width": round(0.5 * pr.attribValue("streetWidth"), 2),
             "min_seg": round(min((pts[i] - pts[(i - 1) % n]).length()
                                  for i in (range(n) if closed
@@ -1736,7 +1797,7 @@ def _rig_measure(geo, src_geo, city_node):
     return got
 
 
-def _rig_verdict(got, slack, floor):
+def _rig_verdict(got, slack, floor, flat, flat_ring):
     """[] when every rig behaved; otherwise the rigs that did not, named."""
     want = ("bend90", "bend135", "bend135_r18", "bend90_r10", "foldback",
             "ring_legal", "ring_square", "ring_tight")
@@ -1744,19 +1805,48 @@ def _rig_verdict(got, slack, floor):
     if missing:
         return ["missing:" + ",".join(missing)]
 
-    def solved(r):
-        return (r["converged"] == 1 and r["kappa"] <= slack
-                and r["R_delivered"] > r["half_width"] and r["min_seg"] >= floor)
+    def solved(r, cap):
+        # ⚠️ BOUNDED ON BOTH SIDES. This used to bound R only from BELOW
+        # (`R_delivered > half_width`), so OVER-smoothing was not asserted at
+        # all — and over-smoothing is the literal symptom of the gain bug this
+        # rig exists to catch. On the pre-median build at gain 0.5 `bend90`
+        # delivered R = 57.79 m instead of 26.55 and `ring_square` 82.65 m
+        # instead of 26.80, and the rig flagged neither; it caught the revert
+        # only through `bend135`'s collateral `converged == 0`.
+        #
+        # The old lower bound is gone rather than kept alongside: R_min is
+        # `half_width x turn_radius_scale`, so `kappa <= slack` already implies
+        # `R_delivered > half_width` for every scale above 1.02, and at the
+        # slider's minimum of 1 R_min EQUALS half_width and the old form was
+        # unsatisfiable by construction. It asserted nothing anywhere it could
+        # hold. `half_width` is still reported.
+        return (r["converged"] == 1
+                and r["kappa"] <= slack
+                and r["R_delivered"] <= r["R_min"] * cap
+                and r["min_seg"] >= floor)
 
-    def flagged(r, which):
+    def flagged(r):
         # infeasible: bounded no worse than the input, intact, and REPORTED
         return (r["converged"] == 0 and r["min_seg"] >= floor
-                and r["kappa"] <= _RIG_INPUT_KAPPA[which] + 1e-3)
+                and r["kappa"] <= r["kappa_in"] + 1e-3)
 
-    bad = [k for k in ("bend90", "bend135", "bend135_r18", "bend90_r10",
-                       "ring_square") if not solved(got[k])]
-    bad += [k for k in ("foldback", "ring_tight")
-            if not flagged(got[k], k)]
+    # ⚠️ TWO CAPS, AND THE SECOND IS LOOSER BECAUSE IT IS MEASURED THAT WAY, not
+    # because the tight one was inconvenient. On the current build over all six
+    # gains the four open bends never leave 0.99–1.01 x R_min: between two
+    # pinned endpoints there is one right answer and the solver lands on it. A
+    # CLOSED ring has a family of them — "four arcs at R_min joined by straights"
+    # and "a circle" both satisfy every constraint — and a tighter noise bound
+    # walks toward the round end: ring_square delivers 1.00 x R_min at gain >= 2,
+    # 1.12 at gain 1 and 1.49 at gain 0.5, where it burns all 200 sweeps because
+    # a nearly-uniform run's LOWER median sits a hair under the vertex's own
+    # turn and the noise residual never quite clears tol. That 1.49 is real and
+    # is recorded in §S3b; it is not what this bound exists to catch. On the
+    # pre-median build at the same gain the two read 2.16 and 3.08.
+    bends = ("bend90", "bend135", "bend135_r18", "bend90_r10")
+    bad = [k for k in bends if not solved(got[k], flat)]
+    if not solved(got["ring_square"], flat_ring):
+        bad.append("ring_square")
+    bad += [k for k in ("foldback", "ring_tight") if not flagged(got[k])]
     # a ring already inside the clamp must come back BIT-IDENTICAL: the solver
     # may not touch geometry it has nothing to fix
     if not (got["ring_legal"]["converged"] == 1
@@ -1765,14 +1855,17 @@ def _rig_verdict(got, slack, floor):
         bad.append("ring_legal")
     return bad
 
-
-# kappa x R_min of the two infeasible rigs as authored. The solver may never
-# ship a state WORSE than the input it was handed — that is what divergence
-# looks like, and the first one went to 5320 on the fold-back.
-_RIG_INPUT_KAPPA = {"foldback": 10.5243, "ring_tight": 1.3423}
-
 _RIG_SNIPPET = '''
-"""The two S3b control rigs, as geometry. See turn_clamp_control_rig()."""
+"""The S3b control rigs, as geometry. See turn_clamp_control_rig().
+
+⚠️ EVERY AUTHORED COORDINATE IS SCALED BY `F`, prepended by the caller as
+`R_min / 26.8` — the ratio of the live turn_radius_scale to the 2 these numbers
+were authored at. Without it the rig is calibrated to one slider position: at
+scale 8 R_min is 107 m and bend90's 80 m legs cannot host the turn at all, so a
+rig authored FEASIBLE fails its own "must converge" assertion for a reason that
+is the rig's, not the solver's. The resample step stays at the pipeline's real
+4 m, so a bigger R_min genuinely gets more vertices per arc.
+"""
 import hou, math
 g = hou.pwd().geometry()
 g.clear()
@@ -1783,6 +1876,7 @@ g.addAttrib(hou.attribType.Prim, "rig", "")
 
 def poly(name, ctrl, step=4.0):
     """Uniform 4 m resample of a control polygon, matching graph_turn_resample."""
+    ctrl = [(F * p[0], F * p[1]) for p in ctrl]
     acc = [0.0]
     for i in range(1, len(ctrl)):
         acc.append(acc[-1] + math.dist(ctrl[i - 1], ctrl[i]))
@@ -1834,6 +1928,7 @@ def _rounded(ctrl, radius, seg=2.0):
 def ring(name, ctrl, step=4.0):
     """`ctrl` is a closed control polygon, resampled at `step` like the poly()
     above; the first point is not repeated."""
+    ctrl = [(F * p[0], F * p[1]) for p in ctrl]
     loop = list(ctrl) + [ctrl[0]]
     acc = [0.0]
     for i in range(1, len(loop)):
@@ -1854,7 +1949,14 @@ def ring(name, ctrl, step=4.0):
     pr.setAttribValue("rig", name)
 
 
-def circle(r, n):
+def circle(r, step=4.0):
+    """A control polygon whose chord IS the resample step, so the ring survives
+    ring()'s resample as a circle rather than as a coarse n-gon with a spike at
+    every original corner. n was a literal (188 for r=120, 31 for r=20); at
+    R_min x 4 that literal would have left ring_legal a 188-gon sampled at 4 m,
+    i.e. three straight vertices and a 0.033 rad kink, four times over.
+    `r` is pre-scale — ring() applies F — so n is derived from r * F."""
+    n = max(3, int(2.0 * math.pi * r * F / step + 0.5))
     return [(r * math.cos(k * 2 * math.pi / n), r * math.sin(k * 2 * math.pi / n))
             for k in range(n)]
 
@@ -1874,8 +1976,10 @@ poly("bend135", [(-80, 0), (0, 0), (-56.6, 56.6)])
 # and last segments are the arc's own, tilted a full vertex-turn off the
 # straight legs. That case did not converge. These two draw the corner rather
 # than break it, which is the only way to reach that branch.
-poly("bend135_r18", _rounded([(-200, 0), (0, 0), (-141.4, 141.4)], 18.0))
-poly("bend90_r10", _rounded([(-200, 0), (0, 0), (0, 200)], 10.0))
+# seg is divided by F because poly() multiplies it back: the drawn arc must stay
+# polygonised finer than the 4 m resample at every scale.
+poly("bend135_r18", _rounded([(-200, 0), (0, 0), (-141.4, 141.4)], 18.0, 2.0 / F))
+poly("bend90_r10", _rounded([(-200, 0), (0, 0), (0, 200)], 10.0, 2.0 / F))
 # the one that made the first solver diverge: a 30 m square returning to within
 # 4 m of its own start. R_min = 26.8 m needs 26.8 m of tangent run each side of
 # a right angle and the sides are 30 m, so this is INFEASIBLE by construction
@@ -1884,7 +1988,7 @@ poly("foldback", [(0, 0), (30, 0), (30, 30), (0, 30), (0, 4)])
 
 # --- closed prims. See turn_clamp_control_rig() for why all three are here. ---
 # legal: R = 120 m is well inside the clamp, so it must come back untouched.
-ring("ring_legal", circle(120.0, 188))
+ring("ring_legal", circle(120.0))
 # solvable: a 300 m square ring is four concentrated corners, and rounding them
 # redistributes the turning without needing the ring to grow.
 ring("ring_square", [(0, 0), (300, 0), (300, 300), (0, 300)])
@@ -1893,7 +1997,7 @@ ring("ring_square", [(0, 0), (300, 0), (300, 300), (0, 300)])
 # closed curve is to make it LONGER. Every correction here pulls toward a chord,
 # which shortens. Its nodes are pinned by the graph, so nothing can fix it and
 # the honest output is a flag, exactly as for the fold-back.
-ring("ring_tight", circle(20.0, 31))
+ring("ring_tight", circle(20.0))
 '''
 
 

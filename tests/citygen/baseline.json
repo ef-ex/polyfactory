@@ -109,6 +109,13 @@
       "value": 0
     },
     {
+      "detail": "y spread; flatten after PolyExpand2D",
+      "name": "graph_planar_y",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "1 components total",
       "name": "no_orphan_components",
       "ok": true,
@@ -168,80 +175,637 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp and NOT be flattened past 1.25 x R_min (2.00 for the closed square); infeasible ones (fold-back, tight ring) must be flagged, not diverged, and no worse than the input they were handed; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range, sized from the live turn_radius_scale",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
       "value": {
         "bend135": {
           "R_delivered": 26.55,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0093,
+          "kappa_in": 15.8306,
           "min_seg": 2.3439,
           "moved": 43.217969,
           "sweeps": 5
         },
         "bend135_r18": {
           "R_delivered": 26.6,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0077,
+          "kappa_in": 1.4941,
           "min_seg": 3.7487,
           "moved": 14.128267,
           "sweeps": 2
         },
         "bend90": {
           "R_delivered": 26.55,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0095,
+          "kappa_in": 10.5243,
           "min_seg": 3.7114,
           "moved": 11.104608,
           "sweeps": 3
         },
         "bend90_r10": {
           "R_delivered": 26.71,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0032,
+          "kappa_in": 2.6735,
           "min_seg": 3.9203,
           "moved": 6.772969,
           "sweeps": 1
         },
         "foldback": {
           "R_delivered": 4.87,
+          "R_min": 26.8,
           "converged": 0,
           "half_width": 13.4,
           "kappa": 5.5002,
+          "kappa_in": 10.5243,
           "min_seg": 2.1001,
           "moved": 16.793224,
           "sweeps": 68
         },
-        "gain_sweep": "all 6 gains clean",
+        "gain_sweep": {
+          "0": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7455,
+              "moved": 18.562005,
+              "sweeps": 41
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "0.5": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128518,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.59,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0081,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.105361,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 39.9,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.6717,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0567,
+              "moved": 77.495379,
+              "sweeps": 200
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "1": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.12834,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.56,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0092,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104763,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 29.89,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.8966,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0695,
+              "moved": 77.495061,
+              "sweeps": 137
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "2": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.9999,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1057,
+              "moved": 77.509212,
+              "sweeps": 136
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "4": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1405,
+              "moved": 77.414652,
+              "sweeps": 126
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "8": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1693,
+              "moved": 77.331642,
+              "sweeps": 121
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          }
+        },
         "ring_legal": {
           "R_delivered": 119.99,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 0.2234,
+          "kappa_in": 0.2234,
           "min_seg": 4.0104,
           "moved": 0.0,
           "sweeps": 0
         },
         "ring_square": {
           "R_delivered": 26.8,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 0.9999,
+          "kappa_in": 10.5243,
           "min_seg": 3.1057,
           "moved": 77.509212,
           "sweeps": 136
         },
         "ring_tight": {
           "R_delivered": 19.97,
+          "R_min": 26.8,
           "converged": 0,
           "half_width": 13.4,
           "kappa": 1.3423,
+          "kappa_in": 1.3423,
           "min_seg": 4.0467,
           "moved": 0.0,
           "sweeps": 50
@@ -534,6 +1098,13 @@
       "value": 0
     },
     {
+      "detail": "y spread; flatten after PolyExpand2D",
+      "name": "graph_planar_y",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "1 components total",
       "name": "no_orphan_components",
       "ok": true,
@@ -593,80 +1164,637 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp and NOT be flattened past 1.25 x R_min (2.00 for the closed square); infeasible ones (fold-back, tight ring) must be flagged, not diverged, and no worse than the input they were handed; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range, sized from the live turn_radius_scale",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
       "value": {
         "bend135": {
           "R_delivered": 26.55,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0093,
+          "kappa_in": 15.8306,
           "min_seg": 2.3439,
           "moved": 43.217969,
           "sweeps": 5
         },
         "bend135_r18": {
           "R_delivered": 26.6,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0077,
+          "kappa_in": 1.4941,
           "min_seg": 3.7487,
           "moved": 14.128267,
           "sweeps": 2
         },
         "bend90": {
           "R_delivered": 26.55,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0095,
+          "kappa_in": 10.5243,
           "min_seg": 3.7114,
           "moved": 11.104608,
           "sweeps": 3
         },
         "bend90_r10": {
           "R_delivered": 26.71,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0032,
+          "kappa_in": 2.6735,
           "min_seg": 3.9203,
           "moved": 6.772969,
           "sweeps": 1
         },
         "foldback": {
           "R_delivered": 4.87,
+          "R_min": 26.8,
           "converged": 0,
           "half_width": 13.4,
           "kappa": 5.5002,
+          "kappa_in": 10.5243,
           "min_seg": 2.1001,
           "moved": 16.793224,
           "sweeps": 68
         },
-        "gain_sweep": "all 6 gains clean",
+        "gain_sweep": {
+          "0": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7455,
+              "moved": 18.562005,
+              "sweeps": 41
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "0.5": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128518,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.59,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0081,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.105361,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 39.9,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.6717,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0567,
+              "moved": 77.495379,
+              "sweeps": 200
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "1": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.12834,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.56,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0092,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104763,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 29.89,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.8966,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0695,
+              "moved": 77.495061,
+              "sweeps": 137
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "2": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.9999,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1057,
+              "moved": 77.509212,
+              "sweeps": 136
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "4": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1405,
+              "moved": 77.414652,
+              "sweeps": 126
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "8": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1693,
+              "moved": 77.331642,
+              "sweeps": 121
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          }
+        },
         "ring_legal": {
           "R_delivered": 119.99,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 0.2234,
+          "kappa_in": 0.2234,
           "min_seg": 4.0104,
           "moved": 0.0,
           "sweeps": 0
         },
         "ring_square": {
           "R_delivered": 26.8,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 0.9999,
+          "kappa_in": 10.5243,
           "min_seg": 3.1057,
           "moved": 77.509212,
           "sweeps": 136
         },
         "ring_tight": {
           "R_delivered": 19.97,
+          "R_min": 26.8,
           "converged": 0,
           "half_width": 13.4,
           "kappa": 1.3423,
+          "kappa_in": 1.3423,
           "min_seg": 4.0467,
           "moved": 0.0,
           "sweeps": 50
@@ -959,6 +2087,13 @@
       "value": 0
     },
     {
+      "detail": "y spread; flatten after PolyExpand2D",
+      "name": "graph_planar_y",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "1 components total",
       "name": "no_orphan_components",
       "ok": true,
@@ -1018,80 +2153,637 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp and NOT be flattened past 1.25 x R_min (2.00 for the closed square); infeasible ones (fold-back, tight ring) must be flagged, not diverged, and no worse than the input they were handed; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range, sized from the live turn_radius_scale",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
       "value": {
         "bend135": {
           "R_delivered": 26.55,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0093,
+          "kappa_in": 15.8306,
           "min_seg": 2.3439,
           "moved": 43.217969,
           "sweeps": 5
         },
         "bend135_r18": {
           "R_delivered": 26.6,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0077,
+          "kappa_in": 1.4941,
           "min_seg": 3.7487,
           "moved": 14.128267,
           "sweeps": 2
         },
         "bend90": {
           "R_delivered": 26.55,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0095,
+          "kappa_in": 10.5243,
           "min_seg": 3.7114,
           "moved": 11.104608,
           "sweeps": 3
         },
         "bend90_r10": {
           "R_delivered": 26.71,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0032,
+          "kappa_in": 2.6735,
           "min_seg": 3.9203,
           "moved": 6.772969,
           "sweeps": 1
         },
         "foldback": {
           "R_delivered": 4.87,
+          "R_min": 26.8,
           "converged": 0,
           "half_width": 13.4,
           "kappa": 5.5002,
+          "kappa_in": 10.5243,
           "min_seg": 2.1001,
           "moved": 16.793224,
           "sweeps": 68
         },
-        "gain_sweep": "all 6 gains clean",
+        "gain_sweep": {
+          "0": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7455,
+              "moved": 18.562005,
+              "sweeps": 41
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "0.5": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128518,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.59,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0081,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.105361,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 39.9,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.6717,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0567,
+              "moved": 77.495379,
+              "sweeps": 200
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "1": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.12834,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.56,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0092,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104763,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 29.89,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.8966,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0695,
+              "moved": 77.495061,
+              "sweeps": 137
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "2": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.9999,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1057,
+              "moved": 77.509212,
+              "sweeps": 136
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "4": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1405,
+              "moved": 77.414652,
+              "sweeps": 126
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "8": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1693,
+              "moved": 77.331642,
+              "sweeps": 121
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          }
+        },
         "ring_legal": {
           "R_delivered": 119.99,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 0.2234,
+          "kappa_in": 0.2234,
           "min_seg": 4.0104,
           "moved": 0.0,
           "sweeps": 0
         },
         "ring_square": {
           "R_delivered": 26.8,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 0.9999,
+          "kappa_in": 10.5243,
           "min_seg": 3.1057,
           "moved": 77.509212,
           "sweeps": 136
         },
         "ring_tight": {
           "R_delivered": 19.97,
+          "R_min": 26.8,
           "converged": 0,
           "half_width": 13.4,
           "kappa": 1.3423,
+          "kappa_in": 1.3423,
           "min_seg": 4.0467,
           "moved": 0.0,
           "sweeps": 50
@@ -1388,6 +3080,13 @@
       "value": 0
     },
     {
+      "detail": "y spread; flatten after PolyExpand2D",
+      "name": "graph_planar_y",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "1 components total",
       "name": "no_orphan_components",
       "ok": true,
@@ -1447,80 +3146,637 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp and NOT be flattened past 1.25 x R_min (2.00 for the closed square); infeasible ones (fold-back, tight ring) must be flagged, not diverged, and no worse than the input they were handed; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range, sized from the live turn_radius_scale",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
       "value": {
         "bend135": {
           "R_delivered": 26.55,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0093,
+          "kappa_in": 15.8306,
           "min_seg": 2.3439,
           "moved": 43.217969,
           "sweeps": 5
         },
         "bend135_r18": {
           "R_delivered": 26.6,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0077,
+          "kappa_in": 1.4941,
           "min_seg": 3.7487,
           "moved": 14.128267,
           "sweeps": 2
         },
         "bend90": {
           "R_delivered": 26.55,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0095,
+          "kappa_in": 10.5243,
           "min_seg": 3.7114,
           "moved": 11.104608,
           "sweeps": 3
         },
         "bend90_r10": {
           "R_delivered": 26.71,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0032,
+          "kappa_in": 2.6735,
           "min_seg": 3.9203,
           "moved": 6.772969,
           "sweeps": 1
         },
         "foldback": {
           "R_delivered": 4.87,
+          "R_min": 26.8,
           "converged": 0,
           "half_width": 13.4,
           "kappa": 5.5002,
+          "kappa_in": 10.5243,
           "min_seg": 2.1001,
           "moved": 16.793224,
           "sweeps": 68
         },
-        "gain_sweep": "all 6 gains clean",
+        "gain_sweep": {
+          "0": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7455,
+              "moved": 18.562005,
+              "sweeps": 41
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "0.5": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128518,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.59,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0081,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.105361,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 39.9,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.6717,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0567,
+              "moved": 77.495379,
+              "sweeps": 200
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "1": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.12834,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.56,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0092,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104763,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 29.89,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.8966,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0695,
+              "moved": 77.495061,
+              "sweeps": 137
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "2": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.9999,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1057,
+              "moved": 77.509212,
+              "sweeps": 136
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "4": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1405,
+              "moved": 77.414652,
+              "sweeps": 126
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "8": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1693,
+              "moved": 77.331642,
+              "sweeps": 121
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          }
+        },
         "ring_legal": {
           "R_delivered": 119.99,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 0.2234,
+          "kappa_in": 0.2234,
           "min_seg": 4.0104,
           "moved": 0.0,
           "sweeps": 0
         },
         "ring_square": {
           "R_delivered": 26.8,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 0.9999,
+          "kappa_in": 10.5243,
           "min_seg": 3.1057,
           "moved": 77.509212,
           "sweeps": 136
         },
         "ring_tight": {
           "R_delivered": 19.97,
+          "R_min": 26.8,
           "converged": 0,
           "half_width": 13.4,
           "kappa": 1.3423,
+          "kappa_in": 1.3423,
           "min_seg": 4.0467,
           "moved": 0.0,
           "sweeps": 50
@@ -1809,6 +4065,13 @@
       "value": 0
     },
     {
+      "detail": "y spread; flatten after PolyExpand2D",
+      "name": "graph_planar_y",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "1 components total",
       "name": "no_orphan_components",
       "ok": true,
@@ -1862,80 +4125,637 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp and NOT be flattened past 1.25 x R_min (2.00 for the closed square); infeasible ones (fold-back, tight ring) must be flagged, not diverged, and no worse than the input they were handed; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range, sized from the live turn_radius_scale",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
       "value": {
         "bend135": {
           "R_delivered": 26.55,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0093,
+          "kappa_in": 15.8306,
           "min_seg": 2.3439,
           "moved": 43.217969,
           "sweeps": 5
         },
         "bend135_r18": {
           "R_delivered": 26.6,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0077,
+          "kappa_in": 1.4941,
           "min_seg": 3.7487,
           "moved": 14.128267,
           "sweeps": 2
         },
         "bend90": {
           "R_delivered": 26.55,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0095,
+          "kappa_in": 10.5243,
           "min_seg": 3.7114,
           "moved": 11.104608,
           "sweeps": 3
         },
         "bend90_r10": {
           "R_delivered": 26.71,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0032,
+          "kappa_in": 2.6735,
           "min_seg": 3.9203,
           "moved": 6.772969,
           "sweeps": 1
         },
         "foldback": {
           "R_delivered": 4.87,
+          "R_min": 26.8,
           "converged": 0,
           "half_width": 13.4,
           "kappa": 5.5002,
+          "kappa_in": 10.5243,
           "min_seg": 2.1001,
           "moved": 16.793224,
           "sweeps": 68
         },
-        "gain_sweep": "all 6 gains clean",
+        "gain_sweep": {
+          "0": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7455,
+              "moved": 18.562005,
+              "sweeps": 41
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "0.5": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128518,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.59,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0081,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.105361,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 39.9,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.6717,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0567,
+              "moved": 77.495379,
+              "sweeps": 200
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "1": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.12834,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.56,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0092,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104763,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 29.89,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.8966,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0695,
+              "moved": 77.495061,
+              "sweeps": 137
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "2": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.9999,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1057,
+              "moved": 77.509212,
+              "sweeps": 136
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "4": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1405,
+              "moved": 77.414652,
+              "sweeps": 126
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "8": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1693,
+              "moved": 77.331642,
+              "sweeps": 121
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          }
+        },
         "ring_legal": {
           "R_delivered": 119.99,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 0.2234,
+          "kappa_in": 0.2234,
           "min_seg": 4.0104,
           "moved": 0.0,
           "sweeps": 0
         },
         "ring_square": {
           "R_delivered": 26.8,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 0.9999,
+          "kappa_in": 10.5243,
           "min_seg": 3.1057,
           "moved": 77.509212,
           "sweeps": 136
         },
         "ring_tight": {
           "R_delivered": 19.97,
+          "R_min": 26.8,
           "converged": 0,
           "half_width": 13.4,
           "kappa": 1.3423,
+          "kappa_in": 1.3423,
           "min_seg": 4.0467,
           "moved": 0.0,
           "sweeps": 50
@@ -2218,6 +5038,13 @@
       "value": 0
     },
     {
+      "detail": "y spread; flatten after PolyExpand2D",
+      "name": "graph_planar_y",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "1 components total",
       "name": "no_orphan_components",
       "ok": true,
@@ -2277,80 +5104,637 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp and NOT be flattened past 1.25 x R_min (2.00 for the closed square); infeasible ones (fold-back, tight ring) must be flagged, not diverged, and no worse than the input they were handed; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range, sized from the live turn_radius_scale",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
       "value": {
         "bend135": {
           "R_delivered": 26.55,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0093,
+          "kappa_in": 15.8306,
           "min_seg": 2.3439,
           "moved": 43.217969,
           "sweeps": 5
         },
         "bend135_r18": {
           "R_delivered": 26.6,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0077,
+          "kappa_in": 1.4941,
           "min_seg": 3.7487,
           "moved": 14.128267,
           "sweeps": 2
         },
         "bend90": {
           "R_delivered": 26.55,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0095,
+          "kappa_in": 10.5243,
           "min_seg": 3.7114,
           "moved": 11.104608,
           "sweeps": 3
         },
         "bend90_r10": {
           "R_delivered": 26.71,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 1.0032,
+          "kappa_in": 2.6735,
           "min_seg": 3.9203,
           "moved": 6.772969,
           "sweeps": 1
         },
         "foldback": {
           "R_delivered": 4.87,
+          "R_min": 26.8,
           "converged": 0,
           "half_width": 13.4,
           "kappa": 5.5002,
+          "kappa_in": 10.5243,
           "min_seg": 2.1001,
           "moved": 16.793224,
           "sweeps": 68
         },
-        "gain_sweep": "all 6 gains clean",
+        "gain_sweep": {
+          "0": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7455,
+              "moved": 18.562005,
+              "sweeps": 41
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "0.5": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128518,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.59,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0081,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.105361,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 39.9,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.6717,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0567,
+              "moved": 77.495379,
+              "sweeps": 200
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "1": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.12834,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.56,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0092,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104763,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 29.89,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.8966,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0695,
+              "moved": 77.495061,
+              "sweeps": 137
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "2": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.9999,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1057,
+              "moved": 77.509212,
+              "sweeps": 136
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "4": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1405,
+              "moved": 77.414652,
+              "sweeps": 126
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "8": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1693,
+              "moved": 77.331642,
+              "sweeps": 121
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          }
+        },
         "ring_legal": {
           "R_delivered": 119.99,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 0.2234,
+          "kappa_in": 0.2234,
           "min_seg": 4.0104,
           "moved": 0.0,
           "sweeps": 0
         },
         "ring_square": {
           "R_delivered": 26.8,
+          "R_min": 26.8,
           "converged": 1,
           "half_width": 13.4,
           "kappa": 0.9999,
+          "kappa_in": 10.5243,
           "min_seg": 3.1057,
           "moved": 77.509212,
           "sweeps": 136
         },
         "ring_tight": {
           "R_delivered": 19.97,
+          "R_min": 26.8,
           "converged": 0,
           "half_width": 13.4,
           "kappa": 1.3423,
+          "kappa_in": 1.3423,
           "min_seg": 4.0467,
           "moved": 0.0,
           "sweeps": 50
