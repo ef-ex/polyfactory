@@ -1806,6 +1806,56 @@ def lots_clear_of_junctions(lot_geo, patch_node, cell=0.5, tol_per_junction=0.5)
                   "must BE S5's kerb, so this is 0 by construction")
 
 
+def lots_clear_of_roads(lot_geo, roads_node, surface_node, cell=0.5,
+                        min_area=1.0, tol_area=2.0):
+    """No lot may lie on the road, ANYWHERE — not just inside a junction patch.
+
+    THE GAP `lots_clear_of_junctions` leaves, and the fourth time in this
+    project that a check has missed by measuring the wrong seam. It measures
+    lots against the JUNCTION PATCH, and a degree-1 node has no patch, so every
+    dead end in the city is unmeasured by it. `city_is_fully_paved` is the other
+    half and looks for the corridor being UNDER-covered; nothing looked for a
+    lot sitting ON the pavement away from a junction. Both read 0 on all five
+    cases while C_radial shipped 48.3 m2 of lots on an arterial.
+
+    MEASURED root cause of that 48.3 m2, so this check is aimed at something
+    real rather than at a category: two dangling ends 6.68 m apart at
+    (251.4, -87.1) and (249.4, -93.5), each one INSIDE the other street's
+    pavement (6.68 m against a 13.40 m half-width), neither connected. S7's
+    collect-and-close chains frontage runs, junction corner runs and dead-end
+    caps into loops with no test that a run lies outside the pavement, so the
+    wedge between two unmerged stubs closes into a block, and S8 subdivides it
+    into parcels that sit on the arterial.
+
+    Rasterised, like its two neighbours, because a junction patch and a block
+    are both non-convex and a clip would lie about them. A lot edge lying
+    exactly along a kerb costs nothing: `_rasterise` tests cell CENTRES, so an
+    abutting pair claims disjoint cells. Measured — B_grid reads exactly 0.0.
+    """
+    try:
+        import numpy as np
+    except ImportError:
+        return _skip("lots_clear_of_roads", "numpy unavailable")
+    geos = [n.geometry() for n in (roads_node, surface_node)
+            if n is not None and not n.errors()]
+    if not geos:
+        return _skip("lots_clear_of_roads", "no road geometry")
+    if len(lot_geo.prims()) == 0:
+        return _skip("lots_clear_of_roads", "no lots in this case")
+    grid = _raster_grid(geos + [lot_geo], cell)
+    road = np.zeros((grid[3], grid[2]), dtype=bool)
+    for g in geos:
+        road |= _rasterise(np, g, grid)
+    over = road & _rasterise(np, lot_geo, grid)
+    blobs = _blobs(np, over, grid, min_area)
+    total = round(float(over.sum()) * cell * cell, 1)
+    return Result("lots_clear_of_roads", bool(total <= tol_area),
+                  {"m2": total, "patches": len(blobs), "worst": blobs[:3]},
+                  "lot area lying on the road surface anywhere, junction or "
+                  "not; the block boundary IS the kerb, so this is 0 by "
+                  "construction (%g m2 allowed)" % tol_area)
+
+
 def city_is_fully_paved(city_node, outer_node, cell=1.0, min_area=4.0,
                         tol_area=40.0):
     """Nothing inside the street corridor may be left unpaved.

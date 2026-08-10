@@ -1016,6 +1016,50 @@ the shipped build both come from treating the inset as a straight per-edge offse
 Also: the inset scale must be resolved **per incident edge at each node**, not `max(streetWidth)`
 over the block. Using the max opened a 5.9 m gap between roads and lots where widths differed.
 
+#### The other end of the same seam: lots ON the road at a dead end — 2026-08-10
+
+The artist marked lot geometry overlapping the road at four dead-end stubs in C. **Nothing in
+the suite could see it, and the reason is the fourth instance of a check missing by measuring
+the wrong seam.** `city_is_fully_paved` looks for the corridor being *under*-covered.
+`lots_clear_of_junctions` looks for over-coverage **inside a junction patch** — and a degree-1
+node has no patch, so every dead end in the city was unmeasured. Both read **0 on all five
+cases** while C shipped **48.3 m² of lots on a 26.8 m arterial**.
+
+**Root cause, measured, and it is not in S7.** The two nodes at **(251.39, −87.10)** and
+**(249.37, −93.47)** are **6.68 m apart** and each is *inside the other street's pavement*
+(6.68 m against a 13.40 m half-width). Neither is connected. `graph_extend` found the pair —
+`d_extend` is 90 m, and at 6.68 m it is inside the snap range where the code's own comment says
+*"extending means snapping"* — and **refused it on `max_curvature`**: the total turn is
+**88.4°** against a 25° limit. S7 then does what it is told: collect-and-close chains frontage
+runs, junction corner runs and dead-end caps into loops with no test that a run lies outside
+the pavement, so the wedge between two unmerged stubs closes into a block and S8 subdivides it
+into parcels sitting on the arterial.
+
+**`max_curvature` at snap range is a missing capability wearing a rule's clothing.** It bounds
+*a connector being bent*, and below `min_edge_len` no connector is built at all — the two ends
+are moved onto one point. What comes out is a street turning a corner, and S3b solves corners:
+its control rig converges 90° and 135° onto a tangent arc. So at snap range the rail that binds
+is **`min_join_angle` on the two legs** — the rail this parameter was written for (*"every pair
+of legs at the new node must clear it"*) and which §4c's ledger records as **never having
+fired**. A fold-back, where the two streets double back alongside each other, has a small leg
+angle and is still refused; this pair reads 91.6° against a 45° floor and merges.
+
+| | before | after |
+|---|---|---|
+| `lots_clear_of_roads` C | **48.2 m² in 1 patch** at (251.5, −97.8) | **0.0 m²** |
+| `lots_clear_of_roads` A / B / D | 0.0 / 0.0 / 0.0 | unchanged |
+| C dead ends (total / interior) | 33 / 18 | **31 / 16** |
+| C `lots_are_simple_polygons` | 52 lots | **44** |
+| C `selfx_city_merged` | 336 | **302** |
+| C `centreline_curvature_within_class` | 0.463 | 1.009 — the new 90° corner, on the clamp and inside the 1.02 slack |
+| `city_is_fully_paved` · `lots_clear_of_junctions` · `selfx_junction_surface` · folds · seam | 0 · 0 · 0 · 0 · 0.0001 m | **unchanged** |
+| suite | 18 failing | **17 failing**, and that now includes the new check |
+
+**The new check is `lots_clear_of_roads`** — lot area against the road surface *anywhere*,
+junction or not, rasterised like its two neighbours because a block and a patch are both
+non-convex. It fails on the pre-fix build (C 48.2 m²) and passes after. Committed with the fix
+and wired into the runner beside `lots_clear_of_junctions`, which it exists to complete.
+
 ### S8 — Lots
 
 Subdivide blocks into buildable parcels, with artist control, plus **viability checks**: minimum
