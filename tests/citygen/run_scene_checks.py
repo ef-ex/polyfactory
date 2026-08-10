@@ -127,10 +127,16 @@ def run_case(name, city, field=None):
                                                   surface.geometry()))
         out.append(C.junction_boundary_is_simple(patches.geometry()))
         out.append(C.self_intersections(surface, "selfx_junction_surface"))
+        # ...and the one patch every_corner_is_an_arc cannot measure
+        out.append(C.culdesac_bulbs_are_circles(
+            patches.geometry(),
+            inner(cases.INTERNAL["streets"]),
+            city.parm("s5j_params_culdesac_radius").eval()))
     else:
         for nm in ("no_degenerate_corner_segments", "every_corner_is_an_arc",
                    "sidewalk_bands_match_corners",
-                   "junction_boundary_is_simple", "selfx_junction_surface"):
+                   "junction_boundary_is_simple", "selfx_junction_surface",
+                   "culdesac_bulbs_are_circles"):
             out.append(C.Result(nm, True, None, "internal node missing", skipped=True))
 
     roads = inner(cases.INTERNAL["roads"])

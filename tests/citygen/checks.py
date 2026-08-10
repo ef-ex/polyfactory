@@ -420,7 +420,20 @@ def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
     mixed = 0
     max_fit = max_rad = max_tan = max_radfit = 0.0
     fitted = unfitted = 0
+    bulbs = 0
     for prim in patch_geo.prims():
+        # A CUL-DE-SAC BULB IS NOT A FILLET. Everything below sizes a corner
+        # from the two street classes that meet at it; a bulb is a turning
+        # circle sized from S5's own radius table and it has only one incident
+        # street, so `radius` here would report 18.09 against an expected 9.0
+        # on every dead end in the city. `culdesac_bulbs_are_circles` asserts
+        # the bulb instead, in the terms a bulb actually has.
+        try:
+            if prim.attribValue("is_culdesac") == 1:
+                bulbs += 1
+                continue
+        except Exception:
+            pass
         pts = [v.point() for v in prim.vertices()]
         n = len(pts)
         if n < 3:
@@ -509,13 +522,86 @@ def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
              "radius_fit": round(max_radfit, 3) if node_edges else None,
              "tangent": round(max_tan, 7),
              "unfitted": unfitted,
-             "mixed_class": mixed}
+             "mixed_class": mixed,
+             "culdesac_skipped": bulbs}
     ok = (bad == 0 and max_fit <= fit_tol and max_tan <= tangent_tol
           and (not node_edges or (max_rad <= radius_tol and max_radfit <= 1.0)))
     return Result(name, ok, value,
                   "%d corners, %d arcs fitted; %d join two street classes, "
-                  "where the lesser one sets the radius (S5)"
-                  % (total, fitted, mixed))
+                  "where the lesser one sets the radius (S5); %d cul-de-sac "
+                  "bulbs skipped, see culdesac_bulbs_are_circles"
+                  % (total, fitted, mixed, bulbs))
+
+
+def culdesac_bulbs_are_circles(patch_geo, streets_geo, radius, fit_tol=1e-3,
+                               floor=1.35):
+    """The cul-de-sac bulb, asserted in the terms a bulb has.
+
+    citygen_streets.md S5 "plazas and roundabouts at degenerate points": the
+    plaza, the roundabout and the bulb are one construction with three radius
+    defaults, and the bulb is the one that "terminates a dead end deliberately,
+    instead of leaving a stub". `every_corner_is_an_arc` cannot check it — it
+    sizes a corner from the two street classes meeting at it, and a bulb has one
+    incident street and a radius from S5's own table — so it skips them and this
+    picks them up. A construction that no check covers is the pattern this
+    project has repeated four times.
+
+    Four assertions:
+
+    * **it is a circle** — every non-cap point fits one, to `fit_tol`;
+    * **of the declared radius**, floored at `floor` x the road's half-width. A
+      bulb narrower than the road it ends is not a turning circle, and at
+      R <= h the mouth corners fall OUTSIDE the circle and the boundary
+      inverts;
+    * **the mouth corners lie on it** — this is the whole construction
+      (R² = dcut² + h²) and it is what makes the block boundary meet the bulb
+      instead of chording across it;
+    * **the bulb is not the whole street** — every street carrying a bulb still
+      has road standing between its junction mouth and its terminus.
+
+    ⚠️ The count is recorded, not asserted, and deliberately: how many dead ends
+    remain is S2/S3's business, and a build that connects them all should not
+    fail a check about bulbs.
+    """
+    name = "culdesac_bulbs_are_circles"
+    if patch_geo.findPrimAttrib("is_culdesac") is None:
+        return Result(name, True, {"bulbs": 0}, "no cul-de-sac bulbs in this case")
+    worst_fit = worst_rad = worst_cap = 0.0
+    bulbs = bad = 0
+    for pr in patch_geo.prims():
+        if pr.attribValue("is_culdesac") != 1:
+            continue
+        bulbs += 1
+        pts = [v.point() for v in pr.vertices()]
+        arc = [p.position() for p in pts if p.attribValue("is_cap") != 1]
+        caps = [p.position() for p in pts if p.attribValue("is_cap") == 1]
+        if len(arc) < 3 or len(caps) != 2:
+            bad += 1
+            continue
+        fit = _fit_circle(arc)
+        if fit is None:
+            bad += 1
+            continue
+        cx, cz, r, resid = fit
+        worst_fit = max(worst_fit, resid)
+        h = 0.5 * (caps[0] - caps[1]).length()
+        want = max(radius, h * floor)
+        # the cut is pushed outward by pfsg_clear_of_vertex when it lands too
+        # close to a resample vertex, and the radius grows with it — so the
+        # delivered radius is >= the wanted one, never below it
+        worst_rad = max(worst_rad, max(want - r, 0.0))
+        for q in caps:
+            worst_cap = max(worst_cap, abs(math.hypot(q[0] - cx, q[2] - cz) - r))
+    ok = (bad == 0 and worst_fit <= fit_tol and worst_rad <= 1e-2
+          and worst_cap <= 1e-2)
+    return Result(name, ok,
+                  {"bulbs": bulbs, "malformed": bad,
+                   "circle_fit": round(worst_fit, 7),
+                   "under_radius": round(worst_rad, 5),
+                   "mouth_off_circle": round(worst_cap, 5)},
+                  "each bulb is a circle of at least max(%.2f m, %.2f x the "
+                  "road half-width) with both mouth corners ON it"
+                  % (radius, floor))
 
 
 def sidewalk_bands_match_corners(patch_geo, surface_geo, tol=1e-3):
@@ -1827,6 +1913,17 @@ def trim_leaves_road_standing(streets_geo, floor=1.0, width_floor=0.0):
             w = 0.0
         if w <= 0.0:
             continue
+        # ⚠️ A CUL-DE-SAC BULB IS NOT A JUNCTION EATING THE STREET, it is the
+        # street's own terminus, so it is added back before the ratio. Without
+        # this every bulbed dead end reads as the tongue defect it has nothing
+        # to do with — C_radial went to under_ratio = 1 on a street whose
+        # junction end had not moved at all. The absolute floor above still
+        # counts it, because a street with nothing left is still a hole in the
+        # city however it got that way.
+        try:
+            standing += pr.attribValue("culdesac_trim")
+        except Exception:
+            pass
         ratio = standing / w
         if wratio is None or ratio < wratio:
             wratio, rat_at = ratio, [round(pts[0][0], 2), round(pts[0][2], 2)]

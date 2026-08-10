@@ -1367,6 +1367,57 @@ a disc with the incident kerbs filleted into it:
 Reset it against the table above. The cul-de-sac bulb also gives §S2/§S3 somewhere to put the dead
 ends that extend-to-connect legitimately cannot rescue: a designed terminus rather than a stub.
 
+✅ **THE BULB IS BUILT — `s5j_bulb`, `s5j_params_culdesac_radius`, default 14.0 m, 2026-08-10.**
+Every dead end that survives S2/S3 now terminates in a turning circle instead of stopping flat.
+It is the single most visible change of the three fixes in this round, and it is the reason
+`dead_ends` is *recorded* rather than asserted: a dead end that ends in a bulb is a cul-de-sac,
+which §S3 says is the exception and not a defect.
+
+**It is emitted as an ordinary `is_junction_patch`**, through the same
+`is_cap` / `after_corner` / `capc` / `sw` vocabulary every other patch uses, so `s5j_surface`
+raises its sidewalk band and kerb riser and `blocks_kerb` chains its boundary into the block
+loops with **no special case at either end** — the run `blocks_kerb` collects from a cap-out to
+the next cap simply *is* the bulb. The only thing that knows it is a bulb is `is_culdesac`.
+
+**Geometry.** The centre sits on the street's own axis `dcut` behind the mouth, so the two cap
+corners at ±h land exactly on the circle: `R² = dcut² + h²`. Solved in the street's frame **at
+the cut**, like every other mouth here — the node frame is up to 30.9° out of square on a curved
+arm (4h-1). `R` is floored at **1.35 × the road's half-width**, because a bulb narrower than the
+road it ends is not a turning circle and at `R ≤ h` the mouth corners fall *outside* the circle
+and the boundary inverts.
+
+**Three things it refuses to do, each one measured rather than anticipated:**
+
+1. ⚠️ **It cannot live inside the junction loop.** Whether a dead end has room depends on what
+   its *other* end already gave up to a junction mouth, and **a VEX wrangle does not see its own
+   attribute writes** — `prim(0, "trim_start", …)` read back in a later pass of the same wrangle
+   returns the input value. So it is a separate node downstream of `s5j_solve`. Built inside it,
+   E_short_t's 20 m arm — which has 3.0 m standing after its junction — had 12 m taken off it
+   and shipped `min_standing_m` **−9.0 m**, `every_mouth_has_a_road` **2** and **25** junction
+   self-intersections.
+2. **A bulb is a road, and a road may not be laid on another one.** It reaches `R − dcut` past
+   the node into whatever is there. Without a clearance test against every other centreline (and
+   against the bulbs the same pass has already accepted, which no geometry read can see) the
+   bulbs put **294 m² of lots on the road and 174 m² inside junction patches** in the one corner
+   of C_radial where two streets already drive through each other.
+3. **A bulb is not a junction eating the street.** It writes `culdesac_trim` alongside the trim,
+   and `trim_leaves_road_standing` adds it back before the width ratio — otherwise every bulbed
+   dead end reads as the §S5 tongue defect it has nothing to do with (C went to `under_ratio` 1
+   on a street whose junction end had not moved at all).
+
+**Measured:** bulbs **A 8 · B 17 · C 13 · D 8 · E 2 · F 3 · G 3**. `culdesac_bulbs_are_circles`
+is committed with it — circle fit ≤ 3.0e-5 m, radius never under the floor, both mouth corners on
+the circle to 3e-5 m, and it fails rather than skips if the rig cannot run. `every_corner_is_an_arc`
+skips `is_culdesac` patches and *reports how many it skipped*, because it sizes a corner from the
+two street classes meeting at it and a turning circle has one incident street: unexempted it read
+a radius error of **18.09 m** on every dead end in the city.
+
+**Cost:** `selfx_city_merged` B 89 → 103, C 116 → 128 — that is 4e-1, road-and-patch
+interpenetration *per junction*, and a bulb is a junction patch; it tracks the count. Everything
+in the no-regression set held: `city_is_fully_paved` · `lots_clear_of_junctions` ·
+`selfx_junction_surface` · folds · `every_mouth_has_a_road` · `graph_planar_y` · `selfx_roads` ·
+`block_boundary_closes` all **0**, seam still 0.0001 m, suite still **18 failing**.
+
 Known-hard cases still to prototype: degree ≥ 5, junctions between very different widths, junctions
 on a grade, and dual-carriageway short-road clusters (A/B Street collapses these into a single
 intersection).

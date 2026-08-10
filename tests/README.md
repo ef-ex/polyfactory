@@ -126,6 +126,10 @@ a case.
 | **F** `F_bend` | a 90° arterial bend | S3b's curvature clamp at its design amplitude |
 | **G** `G_tongue` | a 24 m arm off a four-way | `s5j_params_min_standing_widths` — the tongue |
 
+Three of the seven exist because a mechanism shipped green and unexercised at its
+design amplitude — `max_fillet_fraction` (E), the S3b clamp (F), the tongue drop
+(G). Adding a parameter means adding a case.
+
 D reuses A's input rather than sweeping the mode over all three: the mode only
 changes S8, so a sweep would re-run every street and junction check for no new
 information. Whole suite: ~17 s.

@@ -73,7 +73,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "junctions": 6,
+        "junctions": 14,
         "m2": 0.0,
         "per_junction": 0.0
       }
@@ -822,11 +822,12 @@
       "value": 0
     },
     {
-      "detail": "22 corners, 20 arcs fitted; 22 join two street classes, where the lesser one sets the radius (S5)",
+      "detail": "22 corners, 20 arcs fitted; 22 join two street classes, where the lesser one sets the radius (S5); 8 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
       "value": {
+        "culdesac_skipped": 8,
         "fit": 6.6e-06,
         "mixed_class": 22,
         "radius": 5e-07,
@@ -841,7 +842,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "127/127"
+      "value": "287/287"
     },
     {
       "detail": "",
@@ -858,6 +859,19 @@
       "value": 0
     },
     {
+      "detail": "each bulb is a circle of at least max(14.00 m, 1.35 x the road half-width) with both mouth corners ON it",
+      "name": "culdesac_bulbs_are_circles",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bulbs": 8,
+        "circle_fit": 1.79e-05,
+        "malformed": 0,
+        "mouth_off_circle": 2e-05,
+        "under_radius": 0.0
+      }
+    },
+    {
       "detail": "intersection points",
       "name": "selfx_roads",
       "ok": true,
@@ -871,7 +885,7 @@
       "skipped": false,
       "value": {
         "min_ratio": 4.464,
-        "min_standing_m": 67.411,
+        "min_standing_m": 55.621,
         "under": 0,
         "under_ratio": 0,
         "under_ratio_all": 0,
@@ -1014,7 +1028,7 @@
       "skipped": false,
       "value": {
         "blocks": 2,
-        "city": 4322,
+        "city": 4458,
         "edges": 15,
         "lots": 82
       }
@@ -1075,7 +1089,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 93
+      "value": 103
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -1094,7 +1108,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "junctions": 31,
+        "junctions": 48,
         "m2": 0.0,
         "per_junction": 0.0
       }
@@ -1843,11 +1857,12 @@
       "value": 0
     },
     {
-      "detail": "111 corners, 99 arcs fitted; 111 join two street classes, where the lesser one sets the radius (S5)",
+      "detail": "111 corners, 99 arcs fitted; 111 join two street classes, where the lesser one sets the radius (S5); 17 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
       "value": {
+        "culdesac_skipped": 17,
         "fit": 1.48e-05,
         "mixed_class": 111,
         "radius": 2e-07,
@@ -1862,7 +1877,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "612/612"
+      "value": "952/952"
     },
     {
       "detail": "",
@@ -1879,6 +1894,19 @@
       "value": 0
     },
     {
+      "detail": "each bulb is a circle of at least max(14.00 m, 1.35 x the road half-width) with both mouth corners ON it",
+      "name": "culdesac_bulbs_are_circles",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bulbs": 17,
+        "circle_fit": 2.98e-05,
+        "malformed": 0,
+        "mouth_off_circle": 3e-05,
+        "under_radius": 2e-05
+      }
+    },
+    {
       "detail": "intersection points",
       "name": "selfx_roads",
       "ok": true,
@@ -1892,7 +1920,7 @@
       "skipped": false,
       "value": {
         "min_ratio": 1.049,
-        "min_standing_m": 21.046,
+        "min_standing_m": 9.039,
         "under": 0,
         "under_ratio": 0,
         "under_ratio_all": 0,
@@ -1948,14 +1976,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 244873.8 vs blocks 244873.8)",
+      "detail": "relative area error (lots 244456.0 vs blocks 244456.0)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 2e-09
+      "value": 4e-09
     },
     {
-      "detail": "616 prims, 616 distinct footprints",
+      "detail": "623 prims, 623 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -1967,11 +1995,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 468,
-        "max": 14.06,
-        "median": 3.06,
-        "over": 165,
-        "p90": 7.95
+        "lots": 470,
+        "max": 14.52,
+        "median": 3.01,
+        "over": 161,
+        "p90": 7.87
       }
     },
     {
@@ -2035,9 +2063,9 @@
       "skipped": false,
       "value": {
         "blocks": 17,
-        "city": 18445,
+        "city": 18591,
         "edges": 64,
-        "lots": 616
+        "lots": 623
       }
     }
   ],
@@ -2096,7 +2124,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 116
+      "value": 128
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -2115,7 +2143,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "junctions": 45,
+        "junctions": 58,
         "m2": 0.0,
         "per_junction": 0.0
       }
@@ -2127,10 +2155,10 @@
       "skipped": false,
       "value": {
         "edge_at": [
-          -107.9,
-          -268.0
+          -106.95,
+          -268.35
         ],
-        "edge_m": 12.7,
+        "edge_m": 15.8,
         "m2": 0.0,
         "patches": 0,
         "worst": []
@@ -2867,11 +2895,12 @@
       "value": 0
     },
     {
-      "detail": "154 corners, 146 arcs fitted; 142 join two street classes, where the lesser one sets the radius (S5)",
+      "detail": "154 corners, 146 arcs fitted; 142 join two street classes, where the lesser one sets the radius (S5); 13 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
       "value": {
+        "culdesac_skipped": 13,
         "fit": 2.24e-05,
         "mixed_class": 142,
         "radius": 5e-07,
@@ -2886,7 +2915,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "931/931"
+      "value": "1191/1191"
     },
     {
       "detail": "",
@@ -2901,6 +2930,19 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "each bulb is a circle of at least max(14.00 m, 1.35 x the road half-width) with both mouth corners ON it",
+      "name": "culdesac_bulbs_are_circles",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bulbs": 13,
+        "circle_fit": 2.69e-05,
+        "malformed": 0,
+        "mouth_off_circle": 3e-05,
+        "under_radius": 2e-05
+      }
     },
     {
       "detail": "intersection points",
@@ -2972,14 +3014,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 302915.1 vs blocks 302915.2)",
+      "detail": "relative area error (lots 301911.9 vs blocks 301911.9)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 8.7e-08
+      "value": 5.3e-08
     },
     {
-      "detail": "762 prims, 762 distinct footprints",
+      "detail": "759 prims, 759 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -2991,11 +3033,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 614,
-        "max": 16.22,
-        "median": 3.08,
-        "over": 166,
-        "p90": 7.79
+        "lots": 627,
+        "max": 14.84,
+        "median": 3.02,
+        "over": 167,
+        "p90": 7.29
       }
     },
     {
@@ -3063,9 +3105,9 @@
       "skipped": false,
       "value": {
         "blocks": 26,
-        "city": 21171,
+        "city": 21224,
         "edges": 84,
-        "lots": 762
+        "lots": 759
       }
     }
   ],
@@ -3143,7 +3185,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "junctions": 6,
+        "junctions": 14,
         "m2": 0.0,
         "per_junction": 0.0
       }
@@ -3892,11 +3934,12 @@
       "value": 0
     },
     {
-      "detail": "22 corners, 20 arcs fitted; 22 join two street classes, where the lesser one sets the radius (S5)",
+      "detail": "22 corners, 20 arcs fitted; 22 join two street classes, where the lesser one sets the radius (S5); 8 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
       "value": {
+        "culdesac_skipped": 8,
         "fit": 6.6e-06,
         "mixed_class": 22,
         "radius": 5e-07,
@@ -3911,7 +3954,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "127/127"
+      "value": "287/287"
     },
     {
       "detail": "",
@@ -3928,6 +3971,19 @@
       "value": 0
     },
     {
+      "detail": "each bulb is a circle of at least max(14.00 m, 1.35 x the road half-width) with both mouth corners ON it",
+      "name": "culdesac_bulbs_are_circles",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bulbs": 8,
+        "circle_fit": 1.79e-05,
+        "malformed": 0,
+        "mouth_off_circle": 2e-05,
+        "under_radius": 0.0
+      }
+    },
+    {
       "detail": "intersection points",
       "name": "selfx_roads",
       "ok": true,
@@ -3941,7 +3997,7 @@
       "skipped": false,
       "value": {
         "min_ratio": 4.464,
-        "min_standing_m": 67.411,
+        "min_standing_m": 55.621,
         "under": 0,
         "under_ratio": 0,
         "under_ratio_all": 0,
@@ -4084,7 +4140,7 @@
       "skipped": false,
       "value": {
         "blocks": 2,
-        "city": 4301,
+        "city": 4437,
         "edges": 15,
         "lots": 61
       }
@@ -4164,7 +4220,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "junctions": 1,
+        "junctions": 3,
         "m2": 0.0,
         "per_junction": 0.0
       }
@@ -4901,11 +4957,12 @@
       "value": 0
     },
     {
-      "detail": "3 corners, 2 arcs fitted; 0 join two street classes, where the lesser one sets the radius (S5)",
+      "detail": "3 corners, 2 arcs fitted; 0 join two street classes, where the lesser one sets the radius (S5); 2 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
       "value": {
+        "culdesac_skipped": 2,
         "fit": 4e-07,
         "mixed_class": 0,
         "radius": 0.0,
@@ -4920,7 +4977,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "15/15"
+      "value": "55/55"
     },
     {
       "detail": "",
@@ -4935,6 +4992,19 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "each bulb is a circle of at least max(14.00 m, 1.35 x the road half-width) with both mouth corners ON it",
+      "name": "culdesac_bulbs_are_circles",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bulbs": 2,
+        "circle_fit": 2.5e-06,
+        "malformed": 0,
+        "mouth_off_circle": 0.0,
+        "under_radius": 0.0
+      }
     },
     {
       "detail": "intersection points",
@@ -5087,7 +5157,7 @@
       "skipped": false,
       "value": {
         "blocks": 0,
-        "city": 215,
+        "city": 249,
         "edges": 3,
         "lots": 0
       }
@@ -5167,7 +5237,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "junctions": 1,
+        "junctions": 4,
         "m2": 0.0,
         "per_junction": 0.0
       }
@@ -5910,11 +5980,12 @@
       "value": 0
     },
     {
-      "detail": "3 corners, 2 arcs fitted; 3 join two street classes, where the lesser one sets the radius (S5)",
+      "detail": "3 corners, 2 arcs fitted; 3 join two street classes, where the lesser one sets the radius (S5); 3 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
       "value": {
+        "culdesac_skipped": 3,
         "fit": 6.7e-06,
         "mixed_class": 3,
         "radius": 0.0,
@@ -5929,7 +6000,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "13/13"
+      "value": "73/73"
     },
     {
       "detail": "",
@@ -5946,6 +6017,19 @@
       "value": 0
     },
     {
+      "detail": "each bulb is a circle of at least max(14.00 m, 1.35 x the road half-width) with both mouth corners ON it",
+      "name": "culdesac_bulbs_are_circles",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bulbs": 3,
+        "circle_fit": 9.2e-06,
+        "malformed": 0,
+        "mouth_off_circle": 1e-05,
+        "under_radius": 0.0
+      }
+    },
+    {
       "detail": "intersection points",
       "name": "selfx_roads",
       "ok": true,
@@ -5959,7 +6043,7 @@
       "skipped": false,
       "value": {
         "min_ratio": 7.881,
-        "min_standing_m": 119.0,
+        "min_standing_m": 106.0,
         "under": 0,
         "under_ratio": 0,
         "under_ratio_all": 0,
@@ -6096,7 +6180,7 @@
       "skipped": false,
       "value": {
         "blocks": 0,
-        "city": 2188,
+        "city": 2224,
         "edges": 3,
         "lots": 0
       }
@@ -6176,7 +6260,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "junctions": 1,
+        "junctions": 4,
         "m2": 0.0,
         "per_junction": 0.0
       }
@@ -6913,11 +6997,12 @@
       "value": 0
     },
     {
-      "detail": "3 corners, 2 arcs fitted; 0 join two street classes, where the lesser one sets the radius (S5)",
+      "detail": "3 corners, 2 arcs fitted; 0 join two street classes, where the lesser one sets the radius (S5); 3 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
       "value": {
+        "culdesac_skipped": 3,
         "fit": 3e-07,
         "mixed_class": 0,
         "radius": 0.0,
@@ -6932,7 +7017,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "11/11"
+      "value": "71/71"
     },
     {
       "detail": "",
@@ -6949,6 +7034,19 @@
       "value": 0
     },
     {
+      "detail": "each bulb is a circle of at least max(14.00 m, 1.35 x the road half-width) with both mouth corners ON it",
+      "name": "culdesac_bulbs_are_circles",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bulbs": 3,
+        "circle_fit": 1.02e-05,
+        "malformed": 0,
+        "mouth_off_circle": 0.0,
+        "under_radius": 0.0
+      }
+    },
+    {
       "detail": "intersection points",
       "name": "selfx_roads",
       "ok": true,
@@ -6962,7 +7060,7 @@
       "skipped": false,
       "value": {
         "min_ratio": 8.493,
-        "min_standing_m": 227.6,
+        "min_standing_m": 215.447,
         "under": 0,
         "under_ratio": 0,
         "under_ratio_all": 0,
@@ -7099,7 +7197,7 @@
       "skipped": false,
       "value": {
         "blocks": 0,
-        "city": 2285,
+        "city": 2291,
         "edges": 3,
         "lots": 0
       }
