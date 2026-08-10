@@ -634,6 +634,20 @@ these detail attributes onto the graph it ships:
   `Repair Tolerance` (default 1 mm). **The verdict is a number, not only a flag.**
 - **`repair_reversed`** — how many edges the last pass turned round.
 - **`repair_noop`** — whether *this* pass changed nothing, which is what the streak is counted on.
+  ⚠️ **It is deleted the instant the loop ends** (`repair_scratch`, between `repair_end` and
+  `OUT_graph2`) and ships on nothing. The streak is counted on it *inside* the loop; outside it
+  there is no consumer and no meaning.
+
+⚠️ **The first four are facts about the GRAPH, and that is the only place they ship.** They ride
+`pf_citygen_trace` output 0, `pf_citygen_junction`'s stream and `pf_citygen_mesh` **output 3**,
+which republishes the graph. They came off the **city mesh** (output 0) on 2026-08-10, with
+`orphan_edges_dropped` (`out_detailclean`, between `out_groupclean` and `out_city`): a mesh of
+roads, junction surface, piers and parcels is not where a street-graph solver's verdict belongs.
+Found by an independent audit of `4fd44b6`, and the reason nothing had seen it is that `no_scratch_attribs` is the only check in the suite that reads detail
+attributes at all and it was only ever called on the lots — `attribute_schema` checks graph *prim*
+and road *point* attributes. It is now called on the city output too (detail attributes only; the
+city's ~50 prim and ~18 point attributes have no agreed schema yet and freezing them would bless
+on the city the same names this check fails on for the lots).
 
 ⚠️ **Non-convergence is surfaced, not shipped.** Hitting the cap ships `repair_converged = 0` and
 `graph_reaches_a_fixed_point` fails. That failure mode has now cost this project four separate
@@ -688,8 +702,11 @@ reporting "converged".
 
 - a **symmetric Hausdorff** over the two point sets — a real **max**, not another sum — measured
   through `nearpoint()` so renumbering cannot move it, against the artist-facing
-  **`Repair Tolerance`** (default **1 mm**, about 11× the float32 settling noise, whose worst
-  case across all seven cases is 9.2e-5 m on `F_bend`);
+  **`Repair Tolerance`** (default **1 mm**, about **16×** the float32 settling noise, whose worst
+  case across all seven cases is **6.10e-5 m** on `F_bend` — this paragraph said 9.2e-5 m and
+  "about 11×" until 2026-08-10; that number is not reproducible on this build and the shipped
+  `repair_residual_m` reads A 1.5e-5 · B 3.4e-5 · C 4.3e-5 · D 1.5e-5 · E 0 · F 6.10e-5 · G 7.6e-6.
+  The conclusion is unaffected — the margin is larger, not smaller);
 - a **per-edge direction match**: each edge is matched to the previous pass's edge that shares
   its endpoints — through the nodes, not through the numbering — and the loop will not stop while
   any of them comes back the other way round.
@@ -713,12 +730,22 @@ A 8 · B 17 · C 12 · D 8 · E 3 · F 3 · G 3. `selfx_city_merged` on C **131 
 ⚠️ **One acceptance item did NOT land, and the reason is not the verdict.** "Lot counts stable
 across an extra forced pass" is now true of A, B, D, E, F and G — A was 82 → 83 and B 622 → 617
 before this change, and both are stable now — but **C still moves 774 → 770**. The pass that does
-it moves no point further than **4.5e-5 m** and reverses no edge: that is the *last ulp* of
+it moves no point further than **4.6e-5 m** and reverses no edge: that is the *last ulp* of
 float32 at these coordinates, and the repair pass cannot be made bit-exact idempotent because
 `resample`, `graph_polypath` and the clamp all re-accumulate arc length in float32 every pass.
 Measured on `A_drawn`, a **1.5e-5 m** jitter alone flips a parcel. **So the residual instability
 is S8's determinism, not S3's convergence**, and closing it means making the recursive-OBB split
 insensitive to a 45-micron input change — a separate task, in S8.
+
+⚠️ **A/B/D/E/F/G being stable across THAT pass is a property of that pass, NOT a durability
+guarantee, and the paragraph above used to read as though it were.** Corrected 2026-08-10 after an
+independent audit of `4fd44b6`. Under a comparable but independent **±4.5e-5 m** jitter — the same
+amplitude, a different perturbation — the lot count moves on **every case measured**:
+**C 774 → {770, 773, 770, 768, 764}**, **A 83 → {82, 83, 82, 85, 82}**,
+**B 619 → {621, 623, 625, 626, 624}** — while the **block** count never moves on any of them.
+The honest statement is therefore **"S8 is chaotic at the float32 noise floor on every case; the
+graph is not"**, and C_radial is merely the case whose chaos the shipped forced pass happens to
+land on. It does not mean the other six are settled and C is not.
 
 **What the second pass actually does, on C_radial:**
 
@@ -774,6 +801,68 @@ verdict stopped at and asking what the replay says:
 
 At the shipped defaults all seven cases replay to **0.0 m moved and 0 edges reversed** — the
 replay is bit-exact, not merely within tolerance.
+
+#### ⚠️ AND THE EXPERIMENT THAT CAUGHT THE VERDICT WAS ASSERTING THE VERDICT'S OWN BLIND SPOT
+
+Corrected 2026-08-10 after an independent audit of `4fd44b6`. `forced_extra_repair_pass` is the
+one check that can tell *"the loop stopped"* from *"the loop converged"*, and its `ok` flag tested
+`edges` / `points` / `blocks` — **exactly the global aggregates the commit that added it had just
+demonstrated cannot see a redistribution.** It would have passed on the defect it was written to
+catch. On HEAD it passed while its own value dict recorded `'moved': {'lots': [774, 770]}` on
+C_radial — a four-primitive change in the shipped city that its `state()` does not even sample.
+
+The fix costs nothing, because the forced pass already writes the two *local* terms: it now
+asserts **`repair_residual_m` ≤ `Repair Tolerance`** and **`repair_reversed` == 0** on the pass it
+forced. Measured across all seven forced passes: worst **6.10e-5 m** (`F_bend`) against 1e-3 m — a
+**16×** margin — and **0** reversals; `C_radial`'s is 4.55e-5 m, the pass that moves its four lots.
+A *missing* attribute fails rather than being skipped: reading a verdict defensively is how
+`turn_clamp_converged` once stopped shipping with nothing noticing (§6).
+
+Two smaller repairs in the same check: the `stopattrib` round-trip went through `.eval()`, which
+would have flattened an expression to a literal on the way back in, and now goes through
+`rawValue()`; and the `allowEditingOfContents()` it never undoes is deliberate rather than
+forgotten — the runner unlocks the tracer for the whole case, so re-locking would take the network
+away from the checks that run after it. It is commented as such.
+
+#### Recorded, not fixed — three latent holes in the replay's geometry compare
+
+All three measured **inactive on this build** (C/B/A: 0 unmatched edges, 0.0 worst match residual),
+which is why they are recorded rather than repaired. They are in `_graph_geometry_delta`:
+
+1. **The per-edge match residual is computed and discarded.** `best` — how far the matched partner
+   actually is — is used only to pick the orientation, so an edge matched to a partner **141 m
+   away** contributes a direction verdict and is not itself an error.
+2. **No "unmatched" counter.** If the nearest B point is an interior vertex of every B primitive
+   there is no candidate at all, and that edge silently contributes **0 reversals** — the same
+   value as a perfect match.
+3. **The Hausdorff is over point *sets*.** A pure permutation of positions among the points is
+   invisible to it.
+
+⚠️ **And the acceptance threshold is a live artist parameter.** Both this check and the forced pass
+read `graph_params_repair_tolerance` as their own tolerance, which is right in that the solver and
+its auditor should agree — and means **an artist who sets 2 mm silences the replay tooth**: today's
+margins are **1.18×** on `C_radial` and **1.65×** on `F_bend` (the numbers in the table above).
+
+#### `pf_citygen_mesh` input 0 is NOT dead — it is under-observed
+
+The same audit measured a 2.5 m jitter on `pf_citygen_mesh` input 0, saw `4459 / 2 / 83` city,
+block and lot primitives come back identical, and recommended deleting the input. **The finding is
+real as measured and the conclusion is wrong**: those three counts are the three things input 0
+does not move. Re-measured with the same jitter:
+
+- **output 3 is a pass-through of input 0** — `out_graph` reads `IN_graph` directly — so the
+  published graph moves by the full jitter on every case;
+- `blocks_id` reads the graph on its **second** input to stamp identity: on `C_radial` the jitter
+  moves `block_id` on **1 of 28 blocks and 18 of 774 lots**, and `region_id` with it;
+- `s5b_mark` → `s5b_ground` → `s5b_piers` builds the bridge piers from it, and **no case in the
+  suite has a bridge**, which is why the merged primitive count never moves.
+
+So input 0 stays and `cases.py` is unchanged. `input0_reaches_an_output` is committed as the
+standing proof — output 3 must be input 0 point for point — so that deleting the input, or quietly
+re-sourcing the graph output, fails a check instead of passing a primitive-count comparison.
+**A bridge case is the gap that remains**: the pier branch is a live consumer of input 0 that the
+suite has never executed, which is the same "a mechanism the suite never runs is untested" pattern
+as `offset` lot mode (4e-6), `max_fillet_fraction` (4h-2) and the clamp at amplitude (F_bend).
 
 **What this does NOT do.** The loop re-runs the repair; it does not add a repair. §S3 step 3's
 node merge and §S5's shallow-arm merge (`merge_angle`) are still unbuilt, so a connection that

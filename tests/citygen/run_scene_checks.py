@@ -77,6 +77,12 @@ def run_case(name, built, field=None):
     out[-1].name = "no_scratch_groups_lots"
     out.append(C.no_scratch_attribs(g_lots, C.LOT_PRIM_ATTRS, C.LOT_POINT_ATTRS,
                                     name="no_scratch_attribs_lots"))
+    # ...and the class of leak nothing was looking at: DETAIL attributes on the
+    # city mesh. no_scratch_attribs is the only check that reads them and it was
+    # only ever called on the lots, so five repair_* details and
+    # orphan_edges_dropped shipped on the city on all seven cases.
+    out.append(C.no_scratch_attribs(g_city, None, None,
+                                    name="no_scratch_attribs_city"))
 
     # the union, not the parts — see merged_city_self_intersections
     out.append(C.merged_city_self_intersections(city))
@@ -109,6 +115,10 @@ def run_case(name, built, field=None):
     # pass must have run itself out, not merely run once
     out.append(C.graph_reaches_a_fixed_point(trace))
     out.append(C.attribute_schema(g_graph, g_city))
+    # ...and that the mesh's input 0 is load-bearing at all. An audit measured
+    # a 2.5 m jitter on it against three prim counts, saw nothing move and
+    # called the input dead; output 3 is a pass-through of it. See the check.
+    out.append(C.input0_reaches_an_output(trace.geometry(0), g_graph))
     out.append(C.centreline_curvature_within_class(
         g_graph, parm("graph_params_turn_radius_scale"),
         gain_parm=parm("graph_params_turn_smooth_gain")))

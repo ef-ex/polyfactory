@@ -50,6 +50,13 @@
       "value": 9
     },
     {
+      "detail": "",
+      "name": "no_scratch_attribs_city",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
       "detail": "intersection points",
       "name": "selfx_city_merged",
       "ok": false,
@@ -154,6 +161,16 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "name": "input0_reaches_an_output",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "max_move_m": 0.0,
+        "prims": 15
+      }
     },
     {
       "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
@@ -1061,7 +1078,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -1072,7 +1089,10 @@
           83
         ],
         "moved": null,
-        "passes": 3
+        "passes": 3,
+        "residual_m": 1.53e-05,
+        "reversed": 0,
+        "tol_m": 0.001
       }
     }
   ],
@@ -1125,6 +1145,13 @@
       "ok": false,
       "skipped": false,
       "value": 9
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_attribs_city",
+      "ok": true,
+      "skipped": false,
+      "value": 0
     },
     {
       "detail": "intersection points",
@@ -1231,6 +1258,16 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "name": "input0_reaches_an_output",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "max_move_m": 0.0,
+        "prims": 64
+      }
     },
     {
       "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
@@ -2138,7 +2175,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -2149,7 +2186,10 @@
           619
         ],
         "moved": null,
-        "passes": 9
+        "passes": 9,
+        "residual_m": 3.41e-05,
+        "reversed": 0,
+        "tol_m": 0.001
       }
     }
   ],
@@ -2202,6 +2242,13 @@
       "ok": false,
       "skipped": false,
       "value": 9
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_attribs_city",
+      "ok": true,
+      "skipped": false,
+      "value": 0
     },
     {
       "detail": "intersection points",
@@ -2308,6 +2355,16 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "name": "input0_reaches_an_output",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "max_move_m": 0.0,
+        "prims": 86
+      }
     },
     {
       "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
@@ -3219,7 +3276,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -3235,7 +3292,10 @@
             770
           ]
         },
-        "passes": 8
+        "passes": 8,
+        "residual_m": 4.55e-05,
+        "reversed": 0,
+        "tol_m": 0.001
       }
     }
   ],
@@ -3288,6 +3348,13 @@
       "ok": false,
       "skipped": false,
       "value": 9
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_attribs_city",
+      "ok": true,
+      "skipped": false,
+      "value": 0
     },
     {
       "detail": "intersection points",
@@ -3394,6 +3461,16 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "name": "input0_reaches_an_output",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "max_move_m": 0.0,
+        "prims": 15
+      }
     },
     {
       "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
@@ -4301,7 +4378,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -4312,7 +4389,10 @@
           61
         ],
         "moved": null,
-        "passes": 3
+        "passes": 3,
+        "residual_m": 1.53e-05,
+        "reversed": 0,
+        "tol_m": 0.001
       }
     }
   ],
@@ -4365,6 +4445,13 @@
       "ok": false,
       "skipped": false,
       "value": 5
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_attribs_city",
+      "ok": true,
+      "skipped": false,
+      "value": 0
     },
     {
       "detail": "intersection points",
@@ -4465,6 +4552,16 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "name": "input0_reaches_an_output",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "max_move_m": 0.0,
+        "prims": 3
+      }
     },
     {
       "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
@@ -5359,7 +5456,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -5370,7 +5467,10 @@
           0
         ],
         "moved": null,
-        "passes": 3
+        "passes": 3,
+        "residual_m": 0.0,
+        "reversed": 0,
+        "tol_m": 0.001
       }
     }
   ],
@@ -5423,6 +5523,13 @@
       "ok": false,
       "skipped": false,
       "value": 5
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_attribs_city",
+      "ok": true,
+      "skipped": false,
+      "value": 0
     },
     {
       "detail": "intersection points",
@@ -5523,6 +5630,16 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "name": "input0_reaches_an_output",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "max_move_m": 0.0,
+        "prims": 3
+      }
     },
     {
       "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
@@ -6423,7 +6540,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -6434,7 +6551,10 @@
           0
         ],
         "moved": null,
-        "passes": 6
+        "passes": 6,
+        "residual_m": 6.1e-05,
+        "reversed": 0,
+        "tol_m": 0.001
       }
     }
   ],
@@ -6487,6 +6607,13 @@
       "ok": false,
       "skipped": false,
       "value": 5
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_attribs_city",
+      "ok": true,
+      "skipped": false,
+      "value": 0
     },
     {
       "detail": "intersection points",
@@ -6587,6 +6714,16 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "name": "input0_reaches_an_output",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "max_move_m": 0.0,
+        "prims": 3
+      }
     },
     {
       "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
@@ -7481,7 +7618,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -7492,7 +7629,10 @@
           0
         ],
         "moved": null,
-        "passes": 3
+        "passes": 3,
+        "residual_m": 0.0,
+        "reversed": 0,
+        "tol_m": 0.001
       }
     }
   ]

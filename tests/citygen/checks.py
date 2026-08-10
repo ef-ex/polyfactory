@@ -1220,25 +1220,47 @@ def forced_extra_repair_pass(trace_node, city_node):
     pipeline instead. On the four-aggregate verdict it moved **A 82 → 83 lots
     and B 622 → 617** on a pass the solver had certified as a no-op.
 
+    ⚠️ **AND ITS OWN `ok` FLAG USED TO TEST THE AGGREGATES ITS OWN COMMIT HAD
+    JUST PROVED BLIND.** Corrected 2026-08-10 after an independent audit of
+    `4fd44b6`. The flag was `not structural`, over `edges` / `points` /
+    `blocks` — three global aggregates, which is the exact set the commit that
+    added this check demonstrated cannot see a redistribution. **It would have
+    passed on the defect it was written to catch**, and it passed on HEAD while
+    recording `'moved': {'lots': [774, 770]}` on C_radial: a four-prim change
+    in the shipped city that its own `state()` does not even sample.
+
+    So it now asserts what the forced pass itself measures. `repair_verdict`
+    writes `repair_residual_m` (the largest distance any point moved on that
+    pass, matched through position so renumbering cannot inflate it) and
+    `repair_reversed` (edges that came back the other way round) — both are
+    local and both are the terms the aggregates are blind to. Measured across
+    all seven forced passes: worst residual **6.10e-5 m on F_bend** against a
+    1e-3 m `Repair Tolerance`, a **16×** margin, and **0** reversals. It costs
+    no extra cook: the numbers are already on the geometry the pass produced.
+    A missing attribute FAILS rather than being read defensively — that is how
+    `turn_clamp_converged` once stopped shipping without anything noticing.
+
     ⚠️ **LOT COUNT IS RECORDED, NOT ASSERTED, and the reason is S8 rather than
     S3.** With the displacement and direction terms in, A, B, D, E, F and G are
     stable across the forced pass and **C_radial still moves 774 → 770**. The
-    pass that does it moves no point further than **4.5e-5 m** — the last ulp
+    pass that does it moves no point further than **4.6e-5 m** — the last ulp
     of float32 at these coordinates — and reverses no edge. The repair pass
     cannot be made bit-exact idempotent, because `resample`, `graph_polypath`
     and the S3b clamp all re-accumulate arc length in float32 every pass; and
     S8's recursive-OBB split is chaotic at that scale — measured on `A_drawn`,
     a **1.5e-5 m** jitter alone flips a parcel. Asserting the lot count here
     would therefore assert S8's determinism, which is a separate task, in S8.
-    So: the STRUCTURE is asserted (edges, points, blocks) and the lot count is
-    recorded, which is what makes a future improvement visible in the baseline
-    diff instead of invisible.
+    ⚠️ And stability across *this* pass is a property of *this* pass, not a
+    durability guarantee: under an independent ±4.5e-5 m jitter every case's
+    lot count moves. See citygen_streets.md §S3.
     """
     name = "forced_extra_repair_pass"
     geo = trace_node.geometry(0)
     if geo.findGlobalAttrib("repair_iterations") is None:
         return _skip(name, "no repair loop on this tracer")
     iters = geo.attribValue("repair_iterations")
+    tolp = trace_node.parm("graph_params_repair_tolerance")
+    tol = tolp.eval() if tolp is not None else 0.001
 
     def state():
         g = trace_node.geometry(0)
@@ -1247,33 +1269,93 @@ def forced_extra_repair_pass(trace_node, city_node):
                 "lots": len(city_node.geometry(2).prims())}
 
     was = state()
+    # left unlocked on purpose: run_scene_checks unlocks the tracer for the
+    # whole case (turn_clamp_control_rig builds inside it), so re-locking here
+    # would take the network away from the checks that run after this one.
     trace_node.allowEditingOfContents()
     end = trace_node.node("repair_end")
     cap = trace_node.parm("graph_params_repair_passes")
     if end is None or cap is None:
         return _skip(name, "repair_end / cap parm missing")
-    old_stop, old_cap = end.parm("stopattrib").eval(), cap.eval()
+    stop = end.parm("stopattrib")
+    # rawValue, not eval: eval would flatten an expression to a literal on the
+    # way back in, and the restore is what leaves the asset as it was found.
+    old_stop, old_cap = stop.rawValue(), cap.eval()
+    resid = rev = None
     try:
-        end.parm("stopattrib").set("")          # no early out
+        stop.set("")                            # no early out
         cap.set(iters + 1)
         city_node.cook(force=True)
         if trace_node.errors():
             return Result(name, False, None,
                           "forced pass errored: %s" % trace_node.errors()[0][:160])
+        forced_geo = trace_node.geometry(0)
+        for a in ("repair_residual_m", "repair_reversed"):
+            if forced_geo.findGlobalAttrib(a) is None:
+                return Result(name, False, None,
+                              "the forced pass shipped no %s — the verdict "
+                              "stopped being written" % a)
+        resid = forced_geo.attribValue("repair_residual_m")
+        rev = forced_geo.attribValue("repair_reversed")
         now = state()
     finally:
-        end.parm("stopattrib").set(old_stop)
+        stop.set(old_stop)
         cap.set(old_cap)
         city_node.cook(force=True)             # leave the city as it shipped
     moved = {k: [was[k], now[k]] for k in was if was[k] != now[k]}
     structural = {k: v for k, v in moved.items() if k != "lots"}
-    return Result(name, not structural,
+    return Result(name, not structural and resid <= tol and rev == 0,
                   {"passes": iters, "forced": iters + 1,
+                   "residual_m": round(resid, 7), "reversed": rev,
+                   "tol_m": tol,
                    "lots": [was["lots"], now["lots"]],
                    "moved": moved or None},
                   "one pass past the loop's own verdict, with the Stop "
-                  "Attribute disabled: structure must not move, lot count is "
-                  "recorded (S8 is chaotic at the float32 noise floor)")
+                  "Attribute disabled: the pass must move no point further "
+                  "than Repair Tolerance (%.4g m) and reverse no edge, and the "
+                  "structure must not move; lot count is recorded (S8 is "
+                  "chaotic at the float32 noise floor)" % tol)
+
+
+def input0_reaches_an_output(graph_geo, mesh_graph_geo):
+    """`pf_citygen_mesh` input 0 must actually reach something published.
+
+    Written 2026-08-10 after an independent audit reported input 0 **DEAD** —
+    "a 2.5 m jitter on input 0 changes the shipped city by nothing
+    (4459/2/83 identical); the same jitter on input 1 changes everything" — and
+    recommended deleting it. The finding was real as far as it was measured and
+    the conclusion was wrong, because the three numbers it sampled are the
+    three input 0 does not move. Re-measured with the same 2.5 m jitter:
+
+    * **output 3, the graph, is a pass-through of input 0** (`out_graph` reads
+      `IN_graph` directly), so it moves by the full jitter on every case;
+    * `blocks_id` reads the graph on its **second** input to stamp identity, so
+      C_radial moves `block_id` on **1 of 28 blocks and 18 of 774 lots**, and
+      `region_id` with it;
+    * `s5b_mark` → `s5b_piers` builds the bridge piers off it, and **no case in
+      the suite has a bridge**, which is why the merged prim count never moves.
+
+    So input 0 stays, and this is the standing proof: the mesh's graph output
+    must be its input 0, point for point. Deleting the input, or quietly
+    re-sourcing output 3 from somewhere else, fails here instead of passing a
+    prim-count comparison.
+    """
+    name = "input0_reaches_an_output"
+    if len(graph_geo.prims()) != len(mesh_graph_geo.prims()) or \
+            len(graph_geo.points()) != len(mesh_graph_geo.points()):
+        return Result(name, False,
+                      {"in_prims": len(graph_geo.prims()),
+                       "out_prims": len(mesh_graph_geo.prims()),
+                       "in_points": len(graph_geo.points()),
+                       "out_points": len(mesh_graph_geo.points())},
+                      "the mesh's graph output is not its input 0")
+    worst = 0.0
+    for a, b in zip(graph_geo.points(), mesh_graph_geo.points()):
+        worst = max(worst, (a.position() - b.position()).length())
+    return Result(name, worst == 0.0,
+                  {"prims": len(graph_geo.prims()), "max_move_m": worst},
+                  "output 3 must be input 0 point for point — the mesh "
+                  "republishes the graph it was given")
 
 
 def every_block_is_subdivided(lot_geo, block_geo, floor=0):
@@ -1676,17 +1758,31 @@ def no_scratch_attribs(geo, prim_allowed=(), point_allowed=("P",),
     `lot_reject` is listed as leakage per the audit even though the wrangle that
     writes it treats it as an advisory explanation — the allow-list above is one
     line to change if that call goes the other way.
+
+    ⚠️ **`None` means "do not police this class", and the city output is why it
+    exists.** This is the only thing in the suite that looks at DETAIL
+    attributes at all, and until 2026-08-10 it was only ever called on the lots
+    — so all five `repair_*` details plus `orphan_edges_dropped` rode out on the
+    city mesh with nothing to see them (`attribute_schema` checks graph prim and
+    road point attributes only). The city's ~50 prim and ~18 point attributes
+    are a separate, larger question that has no agreed schema yet; freezing them
+    here as "allowed" would bless on the city exactly the names this check FAILS
+    on for the lots. So the city call passes `None` for both and polices the
+    detail attributes, which do have an agreed answer.
     """
     leaked = []
-    for a in geo.primAttribs():
-        if a.name() not in prim_allowed:
-            leaked.append("pr." + a.name())
-    for a in geo.pointAttribs():
-        if a.name() not in point_allowed:
-            leaked.append("pt." + a.name())
-    for a in geo.globalAttribs():
-        if a.name() not in detail_allowed:
-            leaked.append("dt." + a.name())
+    if prim_allowed is not None:
+        for a in geo.primAttribs():
+            if a.name() not in prim_allowed:
+                leaked.append("pr." + a.name())
+    if point_allowed is not None:
+        for a in geo.pointAttribs():
+            if a.name() not in point_allowed:
+                leaked.append("pt." + a.name())
+    if detail_allowed is not None:
+        for a in geo.globalAttribs():
+            if a.name() not in detail_allowed:
+                leaked.append("dt." + a.name())
     return Result(name, not leaked, len(leaked), ", ".join(sorted(leaked)))
 
 
