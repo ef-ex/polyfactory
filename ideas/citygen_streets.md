@@ -1150,10 +1150,60 @@ Both were unspecified, and the audit showed the code was silently inventing an a
 
    `trim_leaves_road_standing` passes on all of these because `s5j_params_min_end_segment` is
    1.0 m and 6.24 > 1.0. **The floor is the wrong quantity**: what makes a leg legible is its
-   length against its own *width*, not against a fixed metre. The two candidate fixes are
-   S3's node merge/relax (§S3 step 3) and sizing `graph_prune_min_edge_len` by the junction
-   clearance the arm's class needs instead of by a constant — **both are S3/S5 work that the
-   S3–S5-into-the-trace-node refactor will move, so neither was attempted here.**
+   length against its own *width*, not against a fixed metre.
+
+   ✅ **FIXED 2026-08-10 — `s5j_params_min_standing_widths`, default 1.0.** The floor is now a
+   ratio: a street must be left standing at least this many times its own **width**. It is
+   enforced where the quantity exists, which is *after the trims are known*, so the junction
+   solve **runs twice** — `s5j_pre_resample` → `s5j_pre_fuse` → `s5j_pre_solve` measure it,
+   `s5j_tongue_mark` picks out the arms that fail, `graph_drop_tongue` removes them from the
+   graph, and the shipped `s5j_solve` then runs on what is left. The premeasure nodes are
+   **copies of the shipped ones**, not reimplementations, so the measurement cannot drift from
+   what ships; the cost is one extra junction solve per cook.
+
+   ⚠️ **It is upstream of `graph_degree_final` and OUT_graph2 on purpose.** Dropping the arm
+   after the solve would ship a *graph* containing a street the *city* does not have. The key
+   between the two streams is `edge_id`, because `s5_resample` and `s5_fuse` sit between them
+   and prim numbering is not a contract.
+
+   **Two rails, and both are load-bearing:**
+   * **Only a dead-end arm goes.** A street between two junctions carries the graph and
+     deleting it disconnects the city — the answer *there* is §S3's node merge.
+   * **The junction keeps three arms.** At most `degree − 3` may go from any one node, worst
+     ratio first, `primnum` as the tie-break. Taking a node to degree 2 leaves two streets
+     meeting at a corner that the S3b clamp has already run past — it pins prim endpoints, so
+     nothing downstream can relax the kink. That is the same blocker §S3's node merge hits.
+
+   **Measured:** 11 arms dropped in C, 2 in B, 0 in A/D/E/F. Worst ratio before → after:
+   C **0.231 → 0.819**, B **0.377 → 1.049**. Both named defects are the top two entries of the
+   drop list — prim 73 at (58.6, 397.4) ratio 0.231 and prim 60 at (−273.9, 245.4) ratio 0.434.
+   Dead ends fell with them: **C 28 → 17 total, 13 → 8 interior; B 19 → 17, 4 → 3.**
+   `every_mouth_has_a_road` stayed **0** on all cases — the junctions re-solve at the lower
+   degree rather than keeping a mouth for a street that no longer exists.
+
+   `trim_leaves_road_standing` now **asserts the ratio**, scoped to what the mechanism can
+   actually remove (dead-end arms off degree ≥ 4), and *records* `under_ratio_all` so the rest
+   stays visible: **3 on C_radial** (streets between two junctions, 0.819–0.849, all arterials)
+   and **1 on E_short_t**, whose 20 m arm hangs off a degree-3 T at ratio 0.208 and is the whole
+   reason that case exists. Widening the rails is node-merge work, not a threshold to turn up.
+
+   **`G_tongue` is committed with it** and reproduces prim 60 exactly: a 24 m `local` arm off a
+   four-way of 26.8 m arterials. Proven to have teeth by sweeping the parm — at
+   `min_standing_widths` = 0 the arm ships with **6.60 m standing at 14.4 m width, ratio 0.458**
+   (the real prim 60 is 6.24 m at 0.434); at the default 1.0 it is gone and the node re-solves
+   as a clean T. Adding a parameter means adding a case.
+
+   ⚠️ **One number moved the wrong way and it is recorded, not swept up.**
+   `plaza_disc_is_clear.gap` on C went **2.45 → 37.86 m**. Two of the dropped arms
+   ((95.0, 28.5) and (−94.2, 26.5), both arterials at ratio ~0.78) were the ones pointing *at*
+   the plaza and stopping 62–66 m from its centre — they are stubs precisely **because** 4e-2
+   deletes the plaza ring they should have joined. The check was already failing on `built`
+   (100% of the disc built over); when the ring ships, those arms become degree-2 or -3 and the
+   leaf rail exempts them automatically. Nothing was special-cased to keep the number down.
+
+   The other candidate fix — sizing `graph_prune_min_edge_len` by the junction clearance the
+   arm's class needs — is **not** the one taken: pruning runs before widths and classes exist,
+   and the clearance depends on the *other* arms at the node, which pruning cannot see.
 2. **At a mixed-class corner, the LESSER street sets the radius.**
    ⚠️ **Reversed 2026-08-09, same day, after the civil-engineering sweep (§4f).** I first decided
    "the wider street wins", reasoning that the turning radius follows the largest vehicle. That is

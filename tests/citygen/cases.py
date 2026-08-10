@@ -66,6 +66,14 @@ BEND_STREETS = [
     [(-40, 0, -280), (-40, 0, -140)],                   # a 140 m collector T
 ]
 
+# Case G's input: THE TONGUE. A four-way of arterials with one short arm on it.
+# See build_all() for why it exists and how the numbers were chosen.
+TONGUE_STREETS = [
+    [(-250, 0, 0), (250, 0, 0)],       # splits at the origin into two arterials
+    [(0, 0, 0), (0, 0, 250)],          # a third arterial arm
+    [(0, 0, 0), (0, 0, -24)],          # the 24 m local arm the mouth eats
+]
+
 _DRAW_SNIPPET = """
 import hou
 g = hou.pwd().geometry(); g.clear()
@@ -186,6 +194,36 @@ def build_all(parent=None):
     f = parent.createNode("pf_citygen_streets", "F_arterial_bend")
     f.setInput(0, fdraw)
     cases["F_bend"] = {"city": f, "input": fdraw}
+
+    # G - THE TONGUE, drawn deliberately. `s5j_params_min_standing_widths` is
+    # the parameter it exercises, and adding a parameter means adding a case.
+    #
+    # It reproduces C_radial's prim 60, which the artist circled four times: a
+    # 24.00 m `local` arm off a FOUR-WAY junction whose mouth eats 17.75 m,
+    # shipping 6.24 m of pavement at 14.4 m width - wider than it is long,
+    # sticking out of the patch and stopping flat. Every check passed on it,
+    # because `min_end_segment` is 1.0 m and 6.24 > 1.0.
+    #
+    # Sized from the trim, not from taste. The two 250 m arms and the 500 m
+    # crossbar all clear `street_params_arterial_len` (180 m) so they are 26.8 m
+    # arterials; the 24 m arm is a 14.4 m `local`, and it clears
+    # `graph_prune_min_edge_len` (13 m) so pruning keeps it - which is the whole
+    # point, the old thresholds all pass this. At the perpendicular corner the
+    # kerb lines meet 13.4 m out (the arterial's half-width) and the fillet adds
+    # r/tan(45) = 4 m, so ~17.4 m of the 24 m arm is eaten and ~6.6 m stands,
+    # ratio 0.46 against a floor of 1.0.
+    #
+    # What it asserts, through the standard suite: the arm is gone from the
+    # published graph (`counts.edges` 3, `dead_ends.total` 3), the junction
+    # re-solves as a clean T rather than keeping a mouth for a street that no
+    # longer exists (`every_mouth_has_a_road` 0), and nothing is left under the
+    # ratio (`trim_leaves_road_standing.under_ratio` 0).
+    gdraw = parent.createNode("python", "G_drawn_streets")
+    gdraw.parm("python").set(_DRAW_SNIPPET.replace(
+        repr(DRAWN_STREETS), repr(TONGUE_STREETS)))
+    g = parent.createNode("pf_citygen_streets", "G_tongue")
+    g.setInput(0, gdraw)
+    cases["G_tongue"] = {"city": g, "input": gdraw}
 
     parent.layoutChildren()
     return parent, cases

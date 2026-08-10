@@ -141,7 +141,8 @@ def run_case(name, city, field=None):
     streets = inner(cases.INTERNAL["streets"])
     if streets:
         out.append(C.trim_leaves_road_standing(
-            streets.geometry(), city.parm("s5j_params_min_end_segment").eval()))
+            streets.geometry(), city.parm("s5j_params_min_end_segment").eval(),
+            city.parm("s5j_params_min_standing_widths").eval()))
     trimmed = inner(cases.INTERNAL["trim"])
     if solve and trimmed:
         out.append(C.trim_metric_is_consistent(solve.geometry(), trimmed.geometry()))

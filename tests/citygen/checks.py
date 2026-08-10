@@ -1741,8 +1741,9 @@ def no_short_graph_segments(graph_geo, floor=1.0):
                   "floor is %.2f m" % floor)
 
 
-def trim_leaves_road_standing(streets_geo, floor=1.0):
-    """A junction may never trim away the whole street it opens onto.
+def trim_leaves_road_standing(streets_geo, floor=1.0, width_floor=0.0):
+    """A junction may never trim away the whole street it opens onto — and what
+    it leaves must be longer than the street is WIDE.
 
     `s5j_trim` deletes a street outright once `trim_start + trim_end >= 0.98 L`,
     and the junction patch keeps the mouth it already built — a carriageway
@@ -1757,6 +1758,32 @@ def trim_leaves_road_standing(streets_geo, floor=1.0):
     standing, 1.18 m from the cliff — and E_short_t's binding 20 m arm had
     already dropped from 4.80 m to 3.00 m. E exists to exercise
     `max_fillet_fraction`; it was 3 m from deleting its own reason to exist.
+
+    ⚠️ **A FIXED METRE IS THE WRONG QUANTITY, and 1.0 m passed the defect the
+    artist circled four times.** C_radial's prim 60 was a 24.00 m `local` arm
+    whose four-way mouth ate 17.75 m, shipping **6.24 m of pavement at 14.4 m
+    width** — wider than it is long, sticking out of the patch and stopping
+    flat. 6.24 > 1.0, so this check passed, and so did every other one.
+    City-wide worst was prim 73 at (58.57, 397.41), **ratio 0.23**. What makes a
+    leg legible is its length against its own WIDTH.
+
+    So the second number is `min_ratio` = standing / streetWidth, and
+    `s5j_params_min_standing_widths` is the floor under it. `s5j_tongue_mark`
+    enforces it by dropping the arm before the junction is solved for real.
+
+    ⚠️ **THE ASSERTION IS SCOPED TO WHAT THE MECHANISM CAN ACTUALLY REMOVE,
+    and the two other numbers are recorded so the scope stays visible.** Only a
+    DEAD-END arm off a junction of degree >= 4 may be dropped: a street between
+    two junctions carries the graph and deleting it disconnects the city (the
+    answer there is §S3's node merge), and taking a node below degree 3 leaves
+    two streets meeting at a corner the S3b clamp has already run past. So
+    `under_ratio` — droppable arms still under the floor — is what fails, and
+    `under_ratio_all` counts every street under it, droppable or not. Measured
+    after the fix: `under_ratio` 0 everywhere; `under_ratio_all` is 3 on
+    C_radial (two-junction streets at 0.82–0.85, all arterials) and 1 on
+    E_short_t, whose 20 m arm hangs off a degree-3 T at ratio 0.21 and is the
+    whole reason that case exists. Widening the rails is §S3 node-merge work,
+    not a threshold to turn up.
     """
     name = "trim_leaves_road_standing"
     # ⚠️ `trim_end` does not always EXIST. s5j_solve creates each of the two
@@ -1770,9 +1797,22 @@ def trim_leaves_road_standing(streets_geo, floor=1.0):
             if streets_geo.findPrimAttrib(a) is not None]
     if not have:
         return _skip(name, "no trim_start / trim_end attrib")
-    worst, count, at = None, 0, None
+    # endpoint degree, counted over the street prims only — the patches are
+    # already blasted out of this stream, so point.prims() IS the arm count
+    deg = {}
     for pr in streets_geo.prims():
-        pts = [v.point().position() for v in pr.vertices()]
+        vs = list(pr.vertices())
+        if len(vs) < 2:
+            continue
+        for v in (vs[0], vs[-1]):
+            n = v.point().number()
+            deg[n] = deg.get(n, 0) + 1
+
+    worst, count, at = None, 0, None
+    wratio, rat_at, under_ratio, under_ratio_all = None, None, 0, 0
+    for pr in streets_geo.prims():
+        vs = list(pr.vertices())
+        pts = [v.point().position() for v in vs]
         if len(pts) < 2:
             continue
         L = sum((pts[i] - pts[i - 1]).length() for i in range(1, len(pts)))
@@ -1781,11 +1821,36 @@ def trim_leaves_road_standing(streets_geo, floor=1.0):
             worst, at = standing, [round(pts[0][0], 2), round(pts[0][2], 2)]
         if standing < floor:
             count += 1
-    return Result(name, count == 0,
+        try:
+            w = pr.attribValue("streetWidth")
+        except Exception:
+            w = 0.0
+        if w <= 0.0:
+            continue
+        ratio = standing / w
+        if wratio is None or ratio < wratio:
+            wratio, rat_at = ratio, [round(pts[0][0], 2), round(pts[0][2], 2)]
+        if width_floor > 0.0 and ratio < width_floor:
+            under_ratio_all += 1
+            d0 = deg.get(vs[0].point().number(), 0)
+            d1 = deg.get(vs[-1].point().number(), 0)
+            leaf = (d0 == 1) != (d1 == 1)
+            junc = d1 if d0 == 1 else d0
+            if leaf and junc >= 4:
+                under_ratio += 1
+    return Result(name, count == 0 and under_ratio == 0,
                   {"min_standing_m": None if worst is None else round(worst, 3),
-                   "under": count, "worst_at": at},
+                   "under": count, "worst_at": at,
+                   "min_ratio": None if wratio is None else round(wratio, 3),
+                   "worst_ratio_at": rat_at,
+                   "under_ratio": under_ratio,
+                   "under_ratio_all": under_ratio_all},
                   "street length left after both junction trims; below %.2f m "
-                  "s5j_trim is about to delete it under a live mouth" % floor)
+                  "s5j_trim is about to delete it under a live mouth, and "
+                  "below %.2f x its own WIDTH it ships as a tongue of pavement "
+                  "instead of a street (asserted on the dead-end arms off "
+                  "degree >= 4 nodes, which is what s5j_tongue_mark can remove)"
+                  % (floor, width_floor))
 
 
 def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0, flat=1.25,

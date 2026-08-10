@@ -114,7 +114,7 @@ ever ran mode 0. Mode 1 failed a *committed* check the first time anybody
 executed it. Case **D** exists solely to run it. Adding a parameter means adding
 a case.
 
-## The four cases
+## The cases
 
 | | Input | Why it exists |
 |---|---|---|
@@ -122,6 +122,9 @@ a case.
 | **B** `B_grid` | grid tensor field | straight streets, 9 blocks |
 | **C** `C_radial` | radial tensor field | curved streets — where the seam defects show |
 | **D** `D_offset` | A's curves, `subdiv_mode = 1` | the European perimeter block (S8 `offset`) |
+| **E** `E_short_t` | a 20 m perpendicular T | the only case that reaches `max_fillet_fraction` |
+| **F** `F_bend` | a 90° arterial bend | S3b's curvature clamp at its design amplitude |
+| **G** `G_tongue` | a 24 m arm off a four-way | `s5j_params_min_standing_widths` — the tongue |
 
 D reuses A's input rather than sweeping the mode over all three: the mode only
 changes S8, so a sweep would re-run every street and junction check for no new

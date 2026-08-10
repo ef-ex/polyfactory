@@ -93,7 +93,12 @@ int pfsl_point_in_poly_xz(const vector p[]; const vector q) {
 // which makes the pieces come back wound the way the block went in. For a
 // CONVEX subject the first chain starts on the same vertex S-H started on and
 // visits the same points in the same order, so this is a drop-in.
-#define PFSL_CLIP_EPS 1e-4      // on-the-line, and the endpoint weld
+// On-the-line, the endpoint weld, and the shortest edge worth emitting - all
+// one number, and it is 1 mm because that is what `lots_are_simple_polygons`
+// already calls "the same point". At 1e-4 the clipper emitted a 0.497 mm edge
+// in C_radial that the check then reported as a self-touching parcel: a clipper
+// whose idea of degenerate is finer than the checker's manufactures failures.
+#define PFSL_CLIP_EPS 1e-3
 void pfsl_clip_multi(const vector p[]; const vector p0, nrm;
                      export vector out[]; export int cnt[]) {
     resize(out, 0);
