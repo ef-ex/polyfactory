@@ -12,7 +12,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 OTLS = os.path.join(REPO, "polyfactory", "otls")
 
 HDAS = ("pf_citygen_field_grid.hda", "pf_citygen_field_radial.hda",
-        "pf_citygen_trace.hda", "pf_citygen_streets.hda")
+        "pf_citygen_junction.hda", "pf_citygen_trace.hda", "pf_citygen_mesh.hda")
 
 
 def setup_env():
@@ -87,6 +87,24 @@ for pts in STREETS:
 """ % (DRAWN_STREETS,)
 
 
+def _chain(parent, name, upstream, drawn):
+    """The pipeline as it now splits: SPLINES then GEOMETRY.
+
+    `pf_citygen_trace` owns S1 field, S2 trace, S3 graph, S4 classify and S5
+    junctions and emits two streams — out0 the editable centreline splines,
+    out1 the junction solution.  `pf_citygen_mesh` owns S6 sweep, S7 blocks and
+    S8 lots and consumes both.  Hand-drawn splines are not a special case: they
+    enter the SAME tracer on input 1, which is what `citygen_streets.md` §3 has
+    said since it was written.
+    """
+    t = parent.createNode("pf_citygen_trace", name + "_trace")
+    t.setInput(1 if drawn else 0, upstream)
+    m = parent.createNode("pf_citygen_mesh", name)
+    m.setInput(0, t, 0)
+    m.setInput(1, t, 1)
+    return t, m
+
+
 def build_all(parent=None):
     """Build every case. Returns {case_name: {role: node}}."""
     import hou
@@ -99,32 +117,25 @@ def build_all(parent=None):
     # A — artist draws streets, gets roads, junctions, blocks and lots
     draw = parent.createNode("python", "A_drawn_streets")
     draw.parm("python").set(_DRAW_SNIPPET)
-    a = parent.createNode("pf_citygen_streets", "A_city")
-    a.setInput(0, draw)
-    cases["A_drawn"] = {"city": a, "input": draw}
+    at, a = _chain(parent, "A_city", draw, True)
+    cases["A_drawn"] = {"city": a, "trace": at, "input": draw}
 
     # B — straight/grid tensor field
     bf = parent.createNode("pf_citygen_field_grid", "B_field_grid")
     bf.parm("angle").set(18.0)
     bf.parm("weight").set(1.0)
     bf.parm("falloff").set(3000.0)
-    bt = parent.createNode("pf_citygen_trace", "B_trace")
-    bt.setInput(0, bf)
+    bt, b = _chain(parent, "B_city", bf, False)
     bt.parm("domain").set(800.0)
-    b = parent.createNode("pf_citygen_streets", "B_city")
-    b.setInput(0, bt)
-    cases["B_grid"] = {"city": b, "input": bt, "field": bf}
+    cases["B_grid"] = {"city": b, "trace": bt, "input": bf, "field": bf}
 
     # C — radial tensor field
     cf = parent.createNode("pf_citygen_field_radial", "C_field_radial")
     cf.parm("weight").set(2.5)
     cf.parm("falloff").set(2000.0)
-    ct = parent.createNode("pf_citygen_trace", "C_trace")
-    ct.setInput(0, cf)
+    ct, c = _chain(parent, "C_city", cf, False)
     ct.parm("domain").set(800.0)
-    c = parent.createNode("pf_citygen_streets", "C_city")
-    c.setInput(0, ct)
-    cases["C_radial"] = {"city": c, "input": ct, "field": cf}
+    cases["C_radial"] = {"city": c, "trace": ct, "input": cf, "field": cf}
 
     # D — the OFFSET lot mode (European perimeter block). A fourth case rather
     # than a parameter sweep over A/B/C: the mode only changes S8, so running
@@ -137,10 +148,9 @@ def build_all(parent=None):
     # suite. It failed a committed check — lots_tile_blocks — the first time
     # anyone ran it, and the person who ran it was the auditor, not the author.
     # Adding a mode means adding a case.
-    d = parent.createNode("pf_citygen_streets", "D_city")
-    d.setInput(0, draw)
+    dt, d = _chain(parent, "D_city", draw, True)
     d.parm("lots_params_subdiv_mode").set(1)          # 0 recursive_obb, 1 offset
-    cases["D_offset"] = {"city": d, "input": draw}
+    cases["D_offset"] = {"city": d, "trace": dt, "input": draw}
 
     # E — the SHORT T, the one case that reaches `max_fillet_fraction`.
     #
@@ -161,10 +171,9 @@ def build_all(parent=None):
     edraw = parent.createNode("python", "E_drawn_streets")
     edraw.parm("python").set(_DRAW_SNIPPET.replace(
         repr(DRAWN_STREETS), repr(SHORT_T_STREETS)))
-    e = parent.createNode("pf_citygen_streets", "E_short_t")
-    e.setInput(0, edraw)
-    e.parm("s5j_params_corner_radius_scale").set(2.5)
-    cases["E_short_t"] = {"city": e, "input": edraw}
+    et, e = _chain(parent, "E_short_t", edraw, True)
+    et.parm("s5j_params_corner_radius_scale").set(2.5)
+    cases["E_short_t"] = {"city": e, "trace": et, "input": edraw}
 
     # F — the 90 DEGREE BEND ON AN ARTERIAL. S3b's own worked example, and the
     # one amplitude at which the curvature clamp is actually a solver rather
@@ -191,9 +200,8 @@ def build_all(parent=None):
     fdraw = parent.createNode("python", "F_drawn_streets")
     fdraw.parm("python").set(_DRAW_SNIPPET.replace(
         repr(DRAWN_STREETS), repr(BEND_STREETS)))
-    f = parent.createNode("pf_citygen_streets", "F_arterial_bend")
-    f.setInput(0, fdraw)
-    cases["F_bend"] = {"city": f, "input": fdraw}
+    ft, f = _chain(parent, "F_arterial_bend", fdraw, True)
+    cases["F_bend"] = {"city": f, "trace": ft, "input": fdraw}
 
     # G - THE TONGUE, drawn deliberately. `s5j_params_min_standing_widths` is
     # the parameter it exercises, and adding a parameter means adding a case.
@@ -221,31 +229,69 @@ def build_all(parent=None):
     gdraw = parent.createNode("python", "G_drawn_streets")
     gdraw.parm("python").set(_DRAW_SNIPPET.replace(
         repr(DRAWN_STREETS), repr(TONGUE_STREETS)))
-    g = parent.createNode("pf_citygen_streets", "G_tongue")
-    g.setInput(0, gdraw)
-    cases["G_tongue"] = {"city": g, "input": gdraw}
+    gt, g = _chain(parent, "G_tongue", gdraw, True)
+    cases["G_tongue"] = {"city": g, "trace": gt, "input": gdraw}
 
     parent.layoutChildren()
     return parent, cases
 
 
-# Internal nodes the checks reach into. Named here so a rename breaks one line
-# rather than every check.
+# Internal nodes the checks reach into, as (owning role, path below it). Named
+# here so a rename breaks one line rather than every check. The owner matters
+# now that the pipeline is two nodes: everything about CENTRELINES is on the
+# tracer, everything about GEOMETRY is on the mesh node.
 INTERNAL = {
-    "patches": "s5j_patches",
-    "surface": "s5j_surface",
-    "solve": "s5j_solve",       # patches AND street polylines, before the trim
-    "streets": "s5j_streets",   # streets carrying trim_start / trim_end
-    "trim": "s5j_trim",         # the same streets after the cut
-    "roads": "OUT_roads",
-    "graph": "OUT_graph2",
-    "blocks": "OUT_BLOCKS_PLACEHOLDER",
+    "patches": ("city", "s5j_patches"),
+    "surface": ("city", "s5j_surface"),
+    # patches AND street polylines, before the trim — and before the bulbs, so
+    # it stays the pre-cul-de-sac solve it has always been.
+    "solve": ("trace", "junction_solve/s5j_solve"),
+    "streets": ("city", "s5j_streets"),   # streets carrying trim_start / trim_end
+    "trim": ("city", "s5j_trim"),         # the same streets after the cut
+    "roads": ("city", "OUT_roads"),
+    "graph": ("trace", "OUT_graph2"),
+    "clamp": ("trace", "graph_turn_clamp"),
     # the corridor's outer boundary curve, carrying is_outer. city_is_fully_paved
     # uses it as the region that must be paved.
-    "corridor": "blocks_mark_outer",
+    "corridor": ("city", "blocks_mark_outer"),
     # S7's collect-and-close: the open kerb runs, and the loops they close into.
     # block_boundary_closes asserts the invariant the construction rests on.
-    "kerb": "blocks_kerb_fuse",
-    "loops": "blocks_loops",
+    "kerb": ("city", "blocks_kerb_fuse"),
+    "loops": ("city", "blocks_loops"),
 }
 OUTPUT_INDEX = {"city": 0, "blocks": 1, "lots": 2, "graph": 3}
+
+# The floor under `every_block_is_subdivided`, ~90% of the shipped count on
+# 2026-08-10 (A 82 - B 623 - C 759 - D 61). Every lot-quality check in the suite
+# improves when parcels vanish, so without a floor "fewer lots" reads as "better
+# lots" — which is exactly what was suspected of the new half-plane clipper and
+# had to be disproved by hand. E/F/G close no block and legitimately ship none.
+LOT_FLOOR = {"A_drawn": 74, "B_grid": 560, "C_radial": 683, "D_offset": 55,
+             "E_short_t": 0, "F_bend": 0, "G_tongue": 0}
+
+
+def inner(case, role):
+    """The internal node for `role`, or None if it is missing or in error.
+
+    Unlocks every HDA on the way down — `junction_solve/s5j_solve` is two
+    assets deep now that the junction solver is its own reusable HDA.
+    """
+    owner, path = INTERNAL[role]
+    n = case.get(owner)
+    for part in path.split("/"):
+        if n is None:
+            return None
+        n.allowEditingOfContents()
+        n = n.node(part)
+    return None if (n is None or n.errors()) else n
+
+
+def parm(case, name):
+    """A promoted parameter, wherever it now lives. The S3/S4/S5 controls moved
+    to the tracer with the stages they steer; S6/S7/S8 stayed on the mesh."""
+    for role in ("city", "trace"):
+        n = case.get(role)
+        p = None if n is None else n.parm(name)
+        if p is not None:
+            return p
+    return None

@@ -948,6 +948,19 @@
       "value": 2.29e-07
     },
     {
+      "detail": "blocks holding no parcel at all, and the per-case lot floor",
+      "name": "every_block_is_subdivided",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 2,
+        "empty": 0,
+        "empty_at": null,
+        "floor": 74,
+        "lots": 82
+      }
+    },
+    {
       "detail": "82 prims, 82 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
@@ -1981,6 +1994,19 @@
       "ok": true,
       "skipped": false,
       "value": 4e-09
+    },
+    {
+      "detail": "blocks holding no parcel at all, and the per-case lot floor",
+      "name": "every_block_is_subdivided",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 17,
+        "empty": 0,
+        "empty_at": null,
+        "floor": 560,
+        "lots": 623
+      }
     },
     {
       "detail": "623 prims, 623 distinct footprints",
@@ -3019,6 +3045,19 @@
       "ok": true,
       "skipped": false,
       "value": 5.3e-08
+    },
+    {
+      "detail": "blocks holding no parcel at all, and the per-case lot floor",
+      "name": "every_block_is_subdivided",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 26,
+        "empty": 0,
+        "empty_at": null,
+        "floor": 683,
+        "lots": 759
+      }
     },
     {
       "detail": "759 prims, 759 distinct footprints",
@@ -4060,6 +4099,19 @@
       "value": 2.28e-07
     },
     {
+      "detail": "blocks holding no parcel at all, and the per-case lot floor",
+      "name": "every_block_is_subdivided",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 2,
+        "empty": 0,
+        "empty_at": null,
+        "floor": 55,
+        "lots": 61
+      }
+    },
+    {
       "detail": "61 prims, 61 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
@@ -5081,6 +5133,18 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no blocks in this case; only the floor applies",
+      "name": "every_block_is_subdivided",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 0,
+        "empty": 0,
+        "floor": 0,
+        "lots": 0
+      }
     },
     {
       "detail": "0 prims, 0 distinct footprints",
@@ -6106,6 +6170,18 @@
       "value": null
     },
     {
+      "detail": "no blocks in this case; only the floor applies",
+      "name": "every_block_is_subdivided",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 0,
+        "empty": 0,
+        "floor": 0,
+        "lots": 0
+      }
+    },
+    {
       "detail": "0 prims, 0 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
@@ -7121,6 +7197,18 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no blocks in this case; only the floor applies",
+      "name": "every_block_is_subdivided",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 0,
+        "empty": 0,
+        "floor": 0,
+        "lots": 0
+      }
     },
     {
       "detail": "0 prims, 0 distinct footprints",

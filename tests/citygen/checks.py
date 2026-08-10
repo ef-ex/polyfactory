@@ -1001,6 +1001,80 @@ def lots_tile_blocks(lot_geo, block_geo, rel_tol=1e-4):
                   "relative area error (lots %.1f vs blocks %.1f)" % (la, ba))
 
 
+def every_block_is_subdivided(lot_geo, block_geo, floor=0):
+    """A block with no parcels in it is a bare grey sector, and NOTHING here
+    could see one.
+
+    Written 2026-08-10 after the artist looked at a whole-city render of
+    C_radial and reported that the lots had stopped existing. They had not —
+    759 parcels ship, every block carries between 4 and 112 of them — but the
+    only reason anyone could say so was an ad-hoc point-in-polygon count run by
+    hand, and the suite genuinely had no way to tell the two apart:
+
+    * `lots_tile_blocks` compares TOTAL lot area against TOTAL block area, so
+      it is blind to which block the area came from,
+    * `counts.lots` is informational and moves freely,
+    * and every quality check here — simplicity, aspect, clear-of-roads — gets
+      BETTER when parcels disappear, because a parcel that does not exist
+      cannot be a bad one. `lots_are_simple_polygons` went 41 -> 0 and
+      `lots_clear_of_roads.edge_m` 1290 -> 15.8 in one commit, and the honest
+      question "is that a fix or a deletion?" had no assertion behind it.
+
+    So: two teeth. Every block must hold at least one parcel, and the case must
+    ship at least `floor` of them. The floor is per case in `cases.LOT_FLOOR`,
+    set at ~90% of the shipped count — loose enough that a real improvement
+    does not trip it, tight enough that a subdivision quietly failing does.
+
+    Membership is measured by centroid-in-block, not by reading `block_id`, so
+    a broken parcel->block linkage fails here instead of hiding here.
+    """
+    name = "every_block_is_subdivided"
+    blocks = [pr for pr in block_geo.prims() if len(pr.vertices()) >= 3]
+    if not blocks:
+        return Result(name, len(lot_geo.prims()) >= floor,
+                      {"lots": len(lot_geo.prims()), "blocks": 0, "empty": 0,
+                       "floor": floor},
+                      "no blocks in this case; only the floor applies")
+    cents = []
+    for pr in lot_geo.prims():
+        vs = pr.vertices()
+        n = float(len(vs))
+        cents.append((sum(v.point().position()[0] for v in vs) / n,
+                      sum(v.point().position()[2] for v in vs) / n))
+    empty, worst = 0, None
+    for pr in blocks:
+        poly = [(v.point().position()[0], v.point().position()[2])
+                for v in pr.vertices()]
+        xs = [p[0] for p in poly]
+        zs = [p[1] for p in poly]
+        lo = (min(xs), min(zs))
+        hi = (max(xs), max(zs))
+        hit = 0
+        for cx, cz in cents:
+            if not (lo[0] <= cx <= hi[0] and lo[1] <= cz <= hi[1]):
+                continue
+            inside, j = False, len(poly) - 1
+            for i in range(len(poly)):
+                xi, zi = poly[i]
+                xj, zj = poly[j]
+                if (zi > cz) != (zj > cz) and \
+                        cx < (xj - xi) * (cz - zi) / (zj - zi) + xi:
+                    inside = not inside
+                j = i
+            if inside:
+                hit += 1
+                break
+        if not hit:
+            empty += 1
+            if worst is None:
+                worst = [round(sum(xs) / len(xs), 2), round(sum(zs) / len(zs), 2)]
+    nlots = len(lot_geo.prims())
+    return Result(name, empty == 0 and nlots >= floor,
+                  {"lots": nlots, "blocks": len(blocks), "empty": empty,
+                   "floor": floor, "empty_at": worst},
+                  "blocks holding no parcel at all, and the per-case lot floor")
+
+
 def no_duplicate_lot_footprints(lot_geo, tol=2):
     """VoronoiFracture 2.0 emits BOTH its `inside` and `outside` groups, so
     every duplicated parcel shipped twice with an identical footprint. That was

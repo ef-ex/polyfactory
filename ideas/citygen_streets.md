@@ -2754,21 +2754,52 @@ generation time. Everything in the edit-and-override design depends on it.
 
 ## 6b. Shipped V1 assets
 
-Four HDAs in `polyfactory/otls/`, versioned. Examples live in `/obj/citygen_examples`.
+Five HDAs in `polyfactory/otls/`, versioned. Build examples from `tests/citygen/cases.py`.
 
 | Asset | In → Out |
 |---|---|
 | `pf_citygen_field_grid` | — → a field **source descriptor** (one point: type, centre, weight, falloff, bearing). Chainable via its input |
 | `pf_citygen_field_radial` | same, radial |
-| `pf_citygen_trace` | field sources → street centrelines (tensor sum, RK2, occupancy spacing) |
-| `pf_citygen_streets` | **any curves** → out0 city geometry · out1 blocks · out2 lots · **out3 street graph** (the data stream, Contract 8) |
+| `pf_citygen_junction` | graph splines → the S5 solution (junction patches + streets carrying `trim_start`/`trim_end`). A helper asset, used twice inside the tracer and testable on its own |
+| `pf_citygen_trace` | in0 field sources **or** in1 **any curves** → out0 **editable centreline splines** (§6 schema) · out1 the junction solution. S1·S2·S3·S4·S5 |
+| `pf_citygen_mesh` | in0 splines · in1 junction solution → out0 city geometry · out1 blocks · out2 lots · **out3 the graph, passed through** (the data stream, Contract 8). S6·S7·S8 |
 
 Field sources are descriptors rather than baked grids, so any number merge and blend for free.
-`pf_citygen_streets` accepts a hand-drawn Draw Curve and a traced field identically — that is the
-whole point of S3 being the contract.
 
-Verified end to end: drawn curves 15 streets → 2 blocks → 59 lots · grid field 64 → 9 → 520 ·
-radial field 78 → 12 → 835.
+### ⚠️ The boundary moved — 2026-08-10. It is now between DATA and GEOMETRY
+
+The first build shipped S3–S8 inside one geometry HDA, which put the junction solve behind the
+meshing wall: the artist's parameter panel carried Miter Limit, Corner Radius Scale, Fillet Arc
+Steps and Max Fillet Fraction on the node that draws polygons. Those are decisions about
+centrelines.
+
+**Everything up to and including the junction is data about centrelines; everything after is
+derived geometry. The assets split exactly there.** So `pf_citygen_trace` now owns S1 field,
+S2 trace, S3 graph, S4 classify and S5 junctions and emits splines; `pf_citygen_mesh` owns
+S6 sweep, S7 blocks and S8 lots and consumes them. The 20 S3/S4/S5 controls moved with the
+stages they steer, into three folders (Graph · Streets · Junctions); the 12 S6/S7/S8 controls
+stayed.
+
+**A hand-drawn spline is not a special case — it is input 1 of the tracer**, which is §3's
+*"an artist can inject hand-drawn splines directly at S3 […] entering the pipeline one stage
+later"* made literal. Case A goes `draw → trace(in1) → mesh` and cases B/C go
+`field → trace(in0) → mesh`; the only difference is which input is wired.
+
+**The junction solver is its own asset because it was already being used twice.** §S5's
+`min_standing_widths` requires the solve to run once as a pre-measure (to learn each arm's trim)
+and once for real, and the pre-measure nodes were *copies* of the shipped ones. They are now the
+same HDA instanced twice, with `do_culdesac` off on the pre-measure — the copy cannot drift from
+what ships, because there is no copy.
+
+⚠️ **`pf_citygen_streets` is gone.** It was renamed and gutted; the mesh node is the direct
+descendant. Any scene wiring `pf_citygen_trace → pf_citygen_streets` must be rebuilt, and note
+that the tracer's **out0 changed meaning** — it was raw centrelines, it is now the solved graph.
+
+**The relocation was proven behaviour-preserving before anything else changed.** Both halves of
+`digest()` — geometry (counts + P + vertex→point topology) and attributes — on all four outputs
+of all seven cases, `4ce13a8` against the split: **28 of 28 identical**, and the check suite moved
+**zero** values. `source_node` is excluded from the hash and is the one thing that legitimately
+moved, because it records which node generated an element and the answer is now `…/trace/…`.
 
 ⚠️ **Traps hit while building these, worth not rediscovering:**
 - `createDigitalAsset` does **not** carry a subnet's parameter interface. Set it on the

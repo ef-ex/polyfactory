@@ -31,20 +31,26 @@ import cases                # noqa: E402
 BASELINE = os.path.join(HERE, "baseline.json")
 
 
-def run_case(name, city, field=None):
+def run_case(name, built, field=None):
     """All checks for one city. Returns [Result]."""
     out = []
+    city = built["city"]
+    trace = built["trace"]
     city.allowEditingOfContents()
+    trace.allowEditingOfContents()   # turn_clamp_control_rig builds inside it
     try:
         city.cook(force=True)
     except Exception as exc:
         return [C.Result("cook", False, None, "cook failed: %s" % str(exc)[:200])]
-    if city.errors():
-        return [C.Result("cook", False, None, city.errors()[0][:300])]
+    for n in (trace, city):
+        if n.errors():
+            return [C.Result("cook", False, None, n.errors()[0][:300])]
 
-    def inner(nm):
-        n = city.node(nm)
-        return None if (n is None or n.errors()) else n
+    def inner(role):
+        return cases.inner(built, role)
+
+    def parm(nm):
+        return cases.parm(built, nm)
 
     def out_geo(role):
         g = city.geometry(cases.OUTPUT_INDEX[role])
@@ -76,17 +82,17 @@ def run_case(name, city, field=None):
     out.append(C.merged_city_self_intersections(city))
     # and the other half of the union: not "do the parts overlap" but "do the
     # parts between them leave anything unpaved"
-    out.append(C.city_is_fully_paved(city, inner(cases.INTERNAL["corridor"])))
+    out.append(C.city_is_fully_paved(city, inner("corridor")))
     # ...and the over-covered half of the same seam, twice: inside a junction
     # patch, and ANYWHERE on the road. A degree-1 node has no patch, so the
     # first of the two cannot see a dead end at all — which is how C_radial
     # shipped 48.3 m2 of lots on an arterial with both of them reading 0.
-    out.append(C.lots_clear_of_junctions(g_lots, inner(cases.INTERNAL["patches"])))
-    out.append(C.lots_clear_of_roads(g_lots, inner(cases.INTERNAL["roads"]),
-                                     inner(cases.INTERNAL["surface"])))
+    out.append(C.lots_clear_of_junctions(g_lots, inner("patches")))
+    out.append(C.lots_clear_of_roads(g_lots, inner("roads"),
+                                     inner("surface")))
     # ...and the precondition both of those rest on
-    out.append(C.block_boundary_closes(inner(cases.INTERNAL["kerb"]),
-                                       inner(cases.INTERNAL["loops"])))
+    out.append(C.block_boundary_closes(inner("kerb"),
+                                       inner("loops")))
 
     out.append(C.graph_is_planar(g_graph))
     # ...and the OTHER meaning of planar, which nothing asserted. The S3b clamp
@@ -101,21 +107,21 @@ def run_case(name, city, field=None):
     out.append(C.dead_ends(g_graph))
     out.append(C.attribute_schema(g_graph, g_city))
     out.append(C.centreline_curvature_within_class(
-        g_graph, city.parm("graph_params_turn_radius_scale"),
-        gain_parm=city.parm("graph_params_turn_smooth_gain")))
+        g_graph, parm("graph_params_turn_radius_scale"),
+        gain_parm=parm("graph_params_turn_smooth_gain")))
     # the floor the S3b clamp and s5j_trim must both respect, asserted on the
     # graph as published rather than on either mechanism's own output
     out.append(C.no_short_graph_segments(
-        g_graph, city.parm("s5j_params_min_end_segment").eval()))
+        g_graph, parm("s5j_params_min_end_segment").eval()))
     # ...and the clamp run at its design amplitude, which no case can reach on
     # the infeasible side. See turn_clamp_control_rig().
-    out.append(C.turn_clamp_control_rig(city))
+    out.append(C.turn_clamp_control_rig(trace))
 
-    patches = inner(cases.INTERNAL["patches"])
-    surface = inner(cases.INTERNAL["surface"])
-    solve = inner(cases.INTERNAL["solve"])
-    rscale = city.parm("s5j_params_corner_radius_scale")
-    maxfrac = city.parm("s5j_params_max_fillet_fraction")
+    patches = inner("patches")
+    surface = inner("surface")
+    solve = inner("solve")
+    rscale = parm("s5j_params_corner_radius_scale")
+    maxfrac = parm("s5j_params_max_fillet_fraction")
     if patches and surface:
         out.append(C.no_degenerate_corner_segments(patches.geometry()))
         out.append(C.every_corner_is_an_arc(
@@ -130,8 +136,8 @@ def run_case(name, city, field=None):
         # ...and the one patch every_corner_is_an_arc cannot measure
         out.append(C.culdesac_bulbs_are_circles(
             patches.geometry(),
-            inner(cases.INTERNAL["streets"]),
-            city.parm("s5j_params_culdesac_radius").eval()))
+            inner("streets"),
+            parm("s5j_params_culdesac_radius").eval()))
     else:
         for nm in ("no_degenerate_corner_segments", "every_corner_is_an_arc",
                    "sidewalk_bands_match_corners",
@@ -139,17 +145,17 @@ def run_case(name, city, field=None):
                    "culdesac_bulbs_are_circles"):
             out.append(C.Result(nm, True, None, "internal node missing", skipped=True))
 
-    roads = inner(cases.INTERNAL["roads"])
+    roads = inner("roads")
     if roads:
         out.append(C.self_intersections(roads, "selfx_roads"))
 
     # the S5 seam: the road and the patch must agree where the junction ends
-    streets = inner(cases.INTERNAL["streets"])
+    streets = inner("streets")
     if streets:
         out.append(C.trim_leaves_road_standing(
-            streets.geometry(), city.parm("s5j_params_min_end_segment").eval(),
-            city.parm("s5j_params_min_standing_widths").eval()))
-    trimmed = inner(cases.INTERNAL["trim"])
+            streets.geometry(), parm("s5j_params_min_end_segment").eval(),
+            parm("s5j_params_min_standing_widths").eval()))
+    trimmed = inner("trim")
     if solve and trimmed:
         out.append(C.trim_metric_is_consistent(solve.geometry(), trimmed.geometry()))
         out.append(C.every_mouth_has_a_road(solve.geometry(), trimmed.geometry()))
@@ -159,6 +165,9 @@ def run_case(name, city, field=None):
     out.append(C.no_nonplanar_y(g_lots))
     out[-1].name = "lots_planar"
     out.append(C.lots_tile_blocks(g_lots, g_blocks))
+    # ...and the half lots_tile_blocks cannot see, because it compares totals
+    out.append(C.every_block_is_subdivided(g_lots, g_blocks,
+                                           cases.LOT_FLOOR.get(name, 0)))
     out.append(C.no_duplicate_lot_footprints(g_lots))
     out.append(C.lot_aspect_ratio(g_lots))
     out.append(C.lots_are_simple_polygons(g_lots))
@@ -201,7 +210,7 @@ def main():
 
     results, failures = {}, 0
     for name in sorted(built):
-        res = run_case(name, built[name]["city"], built[name].get("field"))
+        res = run_case(name, built[name], built[name].get("field"))
         results[name] = [r.as_dict() for r in res]
         print("\n=== %s ===" % name)
         for r in res:

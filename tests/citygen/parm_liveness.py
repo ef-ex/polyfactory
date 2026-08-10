@@ -87,36 +87,36 @@ PERTURB = {
     ("trace", "close_max_end_angle"): [15.0, 0.0],
     ("trace", "close_min_pts"): [40, 64, 3],
 
-    ("streets", "graph_prune_min_edge_len"): [30.0],
-    ("streets", "graph_params_min_node_dist"): [20.0],
-    ("streets", "graph_params_min_join_angle"): [5.0, 90.0],
-    ("streets", "graph_params_d_extend"): [30.0],
-    ("streets", "graph_params_max_curvature"): [20.0],
-    ("streets", "graph_params_turn_radius_scale"): [4.0],
-    ("streets", "graph_params_turn_smooth_gain"): [0.0],
-    ("streets", "street_params_arterial_len"): [400.0],
-    ("streets", "street_params_collector_len"): [140.0],
-    ("streets", "street_params_min_junction_angle"): [60.0],
-    ("streets", "street_params_region_size"): [600.0],
-    ("streets", "street_params_zone_inner"): [0.35],
-    ("streets", "street_params_zone_core"): [0.10],
-    ("streets", "s5j_params_miter_limit"): [1.5],
-    ("streets", "s5j_params_corner_radius_scale"): [2.5],
-    ("streets", "s5j_params_arc_steps"): [12],
-    ("streets", "s5j_params_max_fillet_fraction"): [0.15],
-    ("streets", "s5j_params_min_end_segment"): [3.0],
-    ("streets", "lots_params_lot_frontage"): [40.0],
-    ("streets", "lots_params_subdiv_mode"): ["flip"],
-    ("streets", "lots_params_target_lot_area"): [1800.0],
-    ("streets", "lots_params_lot_area_variance"): [0.9],
-    ("streets", "lots_params_split_jitter"): [0.45],
-    ("streets", "lots_params_lot_depth"): [45.0],
-    ("streets", "lots_params_min_lot_area"): [900.0],
-    ("streets", "lots_params_min_frontage"): [30.0],
-    ("streets", "s5b_params_pier_spacing"): [80.0, 4.0, 300.0],
-    ("streets", "s5b_params_max_span"): [20.0, 600.0],
-    ("streets", "s5b_params_pier_clearance"): [40.0, 0.0, 120.0],
-    ("streets", "include_lots"): ["flip"],
+    ("trace", "graph_prune_min_edge_len"): [30.0],
+    ("trace", "graph_params_min_node_dist"): [20.0],
+    ("trace", "graph_params_min_join_angle"): [5.0, 90.0],
+    ("trace", "graph_params_d_extend"): [30.0],
+    ("trace", "graph_params_max_curvature"): [20.0],
+    ("trace", "graph_params_turn_radius_scale"): [4.0],
+    ("trace", "graph_params_turn_smooth_gain"): [0.0],
+    ("trace", "street_params_arterial_len"): [400.0],
+    ("trace", "street_params_collector_len"): [140.0],
+    ("trace", "street_params_min_junction_angle"): [60.0],
+    ("trace", "street_params_region_size"): [600.0],
+    ("trace", "street_params_zone_inner"): [0.35],
+    ("trace", "street_params_zone_core"): [0.10],
+    ("trace", "s5j_params_miter_limit"): [1.5],
+    ("trace", "s5j_params_corner_radius_scale"): [2.5],
+    ("trace", "s5j_params_arc_steps"): [12],
+    ("trace", "s5j_params_max_fillet_fraction"): [0.15],
+    ("trace", "s5j_params_min_end_segment"): [3.0],
+    ("mesh", "lots_params_lot_frontage"): [40.0],
+    ("mesh", "lots_params_subdiv_mode"): ["flip"],
+    ("mesh", "lots_params_target_lot_area"): [1800.0],
+    ("mesh", "lots_params_lot_area_variance"): [0.9],
+    ("mesh", "lots_params_split_jitter"): [0.45],
+    ("mesh", "lots_params_lot_depth"): [45.0],
+    ("mesh", "lots_params_min_lot_area"): [900.0],
+    ("mesh", "lots_params_min_frontage"): [30.0],
+    ("mesh", "s5b_params_pier_spacing"): [80.0, 4.0, 300.0],
+    ("mesh", "s5b_params_max_span"): [20.0, 600.0],
+    ("mesh", "s5b_params_pier_clearance"): [40.0, 0.0, 120.0],
+    ("mesh", "include_lots"): ["flip"],
 }
 
 # Known dead as of 2026-08-10, with the cause.  The run FAILS when this set and
@@ -126,22 +126,22 @@ KNOWN_DEAD = {
     ("trace", "organic_amp"): "no `organic` field generator ships (S1)",
     ("trace", "organic_scale"): "no `organic` field generator ships (S1)",
     ("trace", "close_min_pts"): "wired, never the binding gate in range",
-    ("streets", "s5b_params_pier_spacing"): "no case has layer > 0, so no bridge",
-    ("streets", "s5b_params_max_span"): "no case has layer > 0, so no bridge",
-    ("streets", "s5b_params_pier_clearance"): "no case has layer > 0, so no bridge",
+    ("mesh", "s5b_params_pier_spacing"): "no case has layer > 0, so no bridge",
+    ("mesh", "s5b_params_max_span"): "no case has layer > 0, so no bridge",
+    ("mesh", "s5b_params_pier_clearance"): "no case has layer > 0, so no bridge",
 }
 
 # Moves attributes and no geometry, at the value swept.  Same contract as
 # KNOWN_DEAD: a disagreement either way fails the run.
 KNOWN_ATTR_ONLY = {
-    ("streets", "street_params_region_size"): "region_id / block_id / lot_id only",
-    ("streets", "street_params_zone_inner"): "land_use string only",
-    ("streets", "street_params_zone_core"): "land_use string only",
+    ("trace", "street_params_region_size"): "region_id / block_id / lot_id only",
+    ("trace", "street_params_zone_inner"): "land_use string only",
+    ("trace", "street_params_zone_core"): "land_use string only",
     # NOT lots_params_lot_depth: it is only a frontage tolerance in
     # recursive_obb, so it reads attribute-only on C_radial -- but it is the
     # ring inset in `offset` mode and moves geometry on D_offset. Escalating to
     # the next case is what tells those apart; one case is not a measurement.
-    ("streets", "lots_params_min_lot_area"): (
+    ("mesh", "lots_params_min_lot_area"): (
         "S8 viability is ADVISORY by design (citygen.md 2.2) -- it writes "
         "lot_reject / lot_viable / Cd and deletes nothing. 50 -> 20000 m2 "
         "leaves C_radial's 773 lot prims untouched"),
@@ -152,6 +152,24 @@ KNOWN_ATTR_ONLY = {
 FIELD_CASE = {"field_grid": "B_grid", "field_radial": "C_radial"}
 TRACE_CASES = ["C_radial", "B_grid"]
 STREET_CASES = ["C_radial", "A_drawn", "B_grid", "D_offset", "E_short_t", "F_bend"]
+
+# S3/S4/S5 moved onto the tracer with the stages they steer, so `pf_citygen_trace`
+# now carries two populations of parameter: the field/trace ones, which only the
+# two generated cases can reach, and these, which every case reaches because a
+# hand-drawn spline enters the same node.  They share a definition and need
+# different case lists, so the split is by name.
+GRAPH_PARMS = {
+    "graph_prune_min_edge_len", "graph_params_min_node_dist",
+    "graph_params_min_join_angle", "graph_params_d_extend",
+    "graph_params_max_curvature", "graph_params_turn_radius_scale",
+    "graph_params_turn_smooth_gain", "street_params_arterial_len",
+    "street_params_collector_len", "street_params_min_junction_angle",
+    "street_params_region_size", "street_params_zone_inner",
+    "street_params_zone_core", "s5j_params_miter_limit",
+    "s5j_params_corner_radius_scale", "s5j_params_arc_steps",
+    "s5j_params_max_fillet_fraction", "s5j_params_min_end_segment",
+    "s5j_params_min_standing_widths", "s5j_params_culdesac_radius",
+}
 
 
 def digest(geo):
@@ -230,7 +248,7 @@ def main():
     city = {k: v["city"] for k, v in built.items()}
     field = {"field_grid": built["B_grid"]["field"],
              "field_radial": built["C_radial"]["field"]}
-    trace = {"B_grid": built["B_grid"]["input"], "C_radial": built["C_radial"]["input"]}
+    trace = {k: v["trace"] for k, v in built.items()}
 
     def dig(ck):
         city[ck].cook(force=True)
@@ -251,13 +269,14 @@ def main():
     for hda, ck_list in (("field_grid", [FIELD_CASE["field_grid"]]),
                          ("field_radial", [FIELD_CASE["field_radial"]]),
                          ("trace", TRACE_CASES),
-                         ("streets", STREET_CASES)):
+                         ("mesh", STREET_CASES)):
         node = owner(hda, ck_list[0])
         for pt in node.type().definition().parmTemplateGroup().entriesWithoutFolders():
             if pt.type() in (hou.parmTemplateType.Separator,
                              hou.parmTemplateType.Label):
                 continue
-            plan.append((hda, pt.name(), ck_list))
+            plan.append((hda, pt.name(),
+                         STREET_CASES if pt.name() in GRAPH_PARMS else ck_list))
 
     rows, dead, attr_only = [], [], []
     for hda, pname, ck_list in plan:
