@@ -1036,6 +1036,194 @@ LOT_PRIM_ATTRS = ("block_id", "lot_id", "lot_type", "lot_area", "lot_frontage",
 LOT_POINT_ATTRS = ("P",)
 
 
+# The U-shaped block from `pf_streetlots.vfl`'s comment block, run through the
+# SHIPPED clipper. Authored in metres, read as (x, z).
+#
+#   U    = (0,0)(100,0)(100,60)(60,60)(60,20)(40,20)(40,60)(0,60)
+#   notch = x in [40, 60], z in [20, 60]  -- the dead-end stub's ROAD
+#
+# It is the shape of every block that wraps a dead-end stub, and it is the
+# worst case rather than a typical one: two of its vertices lie EXACTLY on the
+# clip line, so pairing crossings in sorted order sees no crossing at the notch
+# mouth at all and hands back the bridged ring again.
+_CLIP_RIG_SNIPPET = """
+#include <pf_streetlots.vfl>
+vector U[] = {
+    {0,0,0}, {100,0,0}, {100,0,60}, {60,0,60},
+    {60,0,20}, {40,0,20}, {40,0,60}, {0,0,60}
+};
+vector R[] = { {0,0,0}, {100,0,0}, {100,0,60}, {0,0,60} };
+
+void emit(const int geo; const vector pts[]; const int cnt[]; const string tag) {
+    int off = 0;
+    for (int i = 0; i < len(cnt); i++) {
+        int pr = addprim(geo, "poly");
+        setprimattrib(geo, "rig", pr, tag);
+        for (int k = 0; k < cnt[i]; k++) {
+            vector q = pts[off + k];
+            addvertex(geo, pr, addpoint(geo, q));
+        }
+        off += cnt[i];
+    }
+}
+
+vector o[];  int c[];
+pfsl_clip_multi(U, set(0,0,20), set(0,0,-1), o, c);   // keep z >= 20
+emit(0, o, c, "u_keep_top");
+pfsl_clip_multi(U, set(0,0,20), set(0,0,1), o, c);    // keep z <= 20
+emit(0, o, c, "u_keep_bottom");
+pfsl_clip_multi(U, set(0,0,40), set(0,0,-1), o, c);   // keep z >= 40, MID-notch
+emit(0, o, c, "u_mid");
+pfsl_clip_multi(R, set(0,0,20), set(0,0,-1), o, c);   // convex control
+emit(0, o, c, "convex");
+"""
+
+# What Sutherland-Hodgman returns for the convex control, in ITS order. The
+# replacement has to be a drop-in on a convex subject or every lot in the city
+# is re-cut for no reason, so the ORDER is asserted, not just the area.
+_CLIP_RIG_CONVEX = [(100.0, 20.0), (100.0, 60.0), (0.0, 60.0), (0.0, 20.0)]
+
+
+def lot_clip_control_rig(city_node, tol=1e-3):
+    """Run the SHIPPED half-plane clipper on the concave case no block reaches.
+
+    citygen_streets.md S8. `pfsl_clip` was Sutherland–Hodgman, which is only
+    safe on a CONVEX subject; every block in this project is non-convex (2/2,
+    9/9, 13/13, up to 291 reflex vertices). S-H on a concave subject returns ONE
+    ring joining the disjoint pieces with a ZERO-WIDTH BRIDGE, and around a
+    dead-end stub that bridge runs down the middle of the stub's pavement.
+    Measured on C_radial: **39 lots, 1290.6 m of boundary inside the road
+    surface**, with `lots_clear_of_roads.m2` reading 0.0 at cell sizes down to
+    0.01 m because the bridge encloses no area.
+
+    So this is the fourth control rig in the suite, and it is here for the
+    reason all four are: **the case that breaks the mechanism is one the shipped
+    cases only reach by luck.** C_radial happens to produce U-shaped blocks;
+    A_drawn and D_offset do not, and both read a clean 0.0 m throughout. A fix
+    verified only against C is verified against whichever concavities C happens
+    to have this week.
+
+    Three assertions, and the third is the one with teeth:
+
+    * **areas** — the two prongs are 1600 m² each and the bar is 2000 m². S-H
+      got these right too; area was never the failing quantity.
+    * **simplicity** — same predicate as `lots_are_simple_polygons`, so a piece
+      that self-touches fails here first and in the same units.
+    * **nothing in the notch** — no emitted edge may pass through the OPEN
+      rectangle x ∈ (40, 60), z ∈ (20, 60), which IS the stub's road.
+
+    ⚠️ The doc's own control cut lands EXACTLY on the notch mouth, and there
+    S-H's bridge lies along z = 20 — on the notch's boundary, not through its
+    interior — so the notch test has no teeth on it and the piece count carries
+    it instead (S-H: one 3200 m² ring; correct: two of 1600). `u_mid` is the
+    same U cut at z = 40, which is where every real cut lands, and there the
+    bridge runs from (0,40) to (100,40) straight across the open notch. Without
+    that case the third assertion is decoration. Both are kept: the first is the
+    degenerate one (two vertices exactly on the clip line, so there is no
+    crossing at the mouth to pair), the second is the common one.
+
+    Plus a drop-in assertion on the convex control: same ring, same vertex
+    ORDER, so switching clippers cannot silently re-cut every convex block in
+    the city through a different rand() sequence.
+    """
+    name = "lot_clip_control_rig"
+    shown = next((c for c in city_node.children() if c.isDisplayFlagSet()), None)
+    made = []
+    try:
+        city_node.allowEditingOfContents()
+        w = city_node.createNode("attribwrangle", "__chk_clip_rig")
+        made.append(w)
+        w.parm("class").set(0)                       # detail: it builds its own
+        w.parm("snippet").set(_CLIP_RIG_SNIPPET)
+        w.setInput(0, None)
+        geo = w.geometry()
+        pieces = {}
+        for pr in geo.prims():
+            pts = [(round(v.point().position()[0], 6),
+                    round(v.point().position()[2], 6)) for v in pr.vertices()]
+            pieces.setdefault(pr.attribValue("rig"), []).append(pts)
+    except Exception as exc:
+        # FAIL, never skip — see turn_clamp_control_rig. A rig that cannot run
+        # is a failure of the thing it tests.
+        return Result(name, False, {"error": str(exc)[:200]},
+                      "the clip control rig could not be run at all")
+    finally:
+        for nd in reversed(made):
+            try:
+                nd.destroy()
+            except Exception:
+                pass
+        if shown is not None:
+            try:
+                shown.setDisplayFlag(True)
+            except Exception:
+                pass
+
+    def area(p):
+        return abs(sum(p[i][0] * p[(i + 1) % len(p)][1]
+                       - p[(i + 1) % len(p)][0] * p[i][1]
+                       for i in range(len(p)))) * 0.5
+
+    top = sorted(round(area(p), 3) for p in pieces.get("u_keep_top", []))
+    bot = sorted(round(area(p), 3) for p in pieces.get("u_keep_bottom", []))
+    mid = sorted(round(area(p), 3) for p in pieces.get("u_mid", []))
+    conv = pieces.get("convex", [])
+
+    # the notch IS the stub's road; sample every edge of every piece
+    in_notch = 0
+    for ps in pieces.values():
+        for p in ps:
+            for i in range(len(p)):
+                a, b = p[i], p[(i + 1) % len(p)]
+                for k in range(1, 8):
+                    t = k / 8.0
+                    x = a[0] + (b[0] - a[0]) * t
+                    z = a[1] + (b[1] - a[1]) * t
+                    if 40.0 + tol < x < 60.0 - tol and 20.0 + tol < z < 60.0 - tol:
+                        in_notch += 1
+                        break
+
+    nonsimple = 0
+    for ps in pieces.values():
+        for p in ps:
+            n = len(p)
+            if n < 4:
+                continue
+            P = [hou_vec3(x, z) for (x, z) in p]
+            for i in range(n):
+                a, b = P[i], P[(i + 1) % n]
+                if any(_seg_point_dist(a, b, P[j]) < tol
+                       for j in range(n)
+                       if j != i and j != (i + 1) % n and (j + 1) % n != i):
+                    nonsimple += 1
+                    break
+
+    value = {"u_keep_top": top, "u_keep_bottom": bot, "u_mid": mid,
+             "convex_pieces": len(conv),
+             "convex_order_matches_SH":
+                 bool(len(conv) == 1
+                      and [(round(x, 3), round(z, 3)) for (x, z) in conv[0]]
+                      == _CLIP_RIG_CONVEX),
+             "edges_in_notch": in_notch, "nonsimple": nonsimple}
+    ok = (top == [1600.0, 1600.0] and bot == [2000.0]
+          and mid == [800.0, 800.0]
+          and value["convex_order_matches_SH"]
+          and in_notch == 0 and nonsimple == 0)
+    return Result(name, ok, value,
+                  "the shipped clipper on a U-shaped block split across the "
+                  "notch mouth: two 1600 m2 prongs and a 2000 m2 bar, no piece "
+                  "self-touching, and NO edge crossing the notch - the notch is "
+                  "the dead-end stub's road, and a Sutherland-Hodgman bridge "
+                  "runs straight down it")
+
+
+def hou_vec3(x, z):
+    """A 3-vector in the XZ plane, for reusing the geometric helpers above on
+    plain coordinate pairs."""
+    import hou
+    return hou.Vector3(x, 0.0, z)
+
+
 def no_scratch_attribs(geo, prim_allowed=(), point_allowed=("P",),
                        detail_allowed=(), name="no_scratch_attribs"):
     """Working ATTRIBUTES leak out of the asset; `no_scratch_groups` only ever

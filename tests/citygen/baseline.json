@@ -924,10 +924,10 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 2.2e-07
+      "value": 2.29e-07
     },
     {
-      "detail": "83 prims, 83 distinct footprints",
+      "detail": "82 prims, 82 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -939,11 +939,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 64,
+        "lots": 69,
         "max": 9.54,
-        "median": 4.11,
-        "over": 19,
-        "p90": 7.73
+        "median": 4.13,
+        "over": 23,
+        "p90": 7.46
       }
     },
     {
@@ -954,6 +954,29 @@
       "value": {
         "lots": 0,
         "viable": 0
+      }
+    },
+    {
+      "detail": "the shipped clipper on a U-shaped block split across the notch mouth: two 1600 m2 prongs and a 2000 m2 bar, no piece self-touching, and NO edge crossing the notch - the notch is the dead-end stub's road, and a Sutherland-Hodgman bridge runs straight down it",
+      "name": "lot_clip_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "convex_order_matches_SH": true,
+        "convex_pieces": 1,
+        "edges_in_notch": 0,
+        "nonsimple": 0,
+        "u_keep_bottom": [
+          2000.0
+        ],
+        "u_keep_top": [
+          1600.0,
+          1600.0
+        ],
+        "u_mid": [
+          800.0,
+          800.0
+        ]
       }
     },
     {
@@ -984,9 +1007,9 @@
       "skipped": false,
       "value": {
         "blocks": 2,
-        "city": 4323,
+        "city": 4322,
         "edges": 15,
-        "lots": 83
+        "lots": 82
       }
     }
   ],
@@ -1045,7 +1068,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 95
+      "value": 94
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -1072,14 +1095,11 @@
     {
       "detail": "lot area AND lot boundary lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so both are 0 by construction (2 m2 / 1 m allowed). `edge_m` exists because a Sutherland-Hodgman zero-width bridge across the pavement has no area at all",
       "name": "lots_clear_of_roads",
-      "ok": false,
+      "ok": true,
       "skipped": false,
       "value": {
-        "edge_at": [
-          33.0,
-          18.16
-        ],
-        "edge_m": 26.1,
+        "edge_at": null,
+        "edge_m": 0.0,
         "m2": 0.0,
         "patches": 0,
         "worst": []
@@ -1918,10 +1938,10 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 1.6e-08
+      "value": 0.0
     },
     {
-      "detail": "618 prims, 618 distinct footprints",
+      "detail": "619 prims, 619 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -1933,21 +1953,44 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 461,
+        "lots": 457,
         "max": 13.46,
-        "median": 3.08,
-        "over": 159,
-        "p90": 7.91
+        "median": 3.03,
+        "over": 154,
+        "p90": 7.94
       }
     },
     {
-      "detail": "self-touching parcels within 0.001 m (3 of them ship as buildable)",
+      "detail": "self-touching parcels within 0.001 m (0 of them ship as buildable)",
       "name": "lots_are_simple_polygons",
-      "ok": false,
+      "ok": true,
       "skipped": false,
       "value": {
-        "lots": 3,
-        "viable": 3
+        "lots": 0,
+        "viable": 0
+      }
+    },
+    {
+      "detail": "the shipped clipper on a U-shaped block split across the notch mouth: two 1600 m2 prongs and a 2000 m2 bar, no piece self-touching, and NO edge crossing the notch - the notch is the dead-end stub's road, and a Sutherland-Hodgman bridge runs straight down it",
+      "name": "lot_clip_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "convex_order_matches_SH": true,
+        "convex_pieces": 1,
+        "edges_in_notch": 0,
+        "nonsimple": 0,
+        "u_keep_bottom": [
+          2000.0
+        ],
+        "u_keep_top": [
+          1600.0,
+          1600.0
+        ],
+        "u_mid": [
+          800.0,
+          800.0
+        ]
       }
     },
     {
@@ -1978,9 +2021,9 @@
       "skipped": false,
       "value": {
         "blocks": 16,
-        "city": 18486,
+        "city": 18487,
         "edges": 64,
-        "lots": 618
+        "lots": 619
       }
     }
   ],
@@ -2039,7 +2082,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 270
+      "value": 139
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -2070,10 +2113,10 @@
       "skipped": false,
       "value": {
         "edge_at": [
-          -107.89,
-          -268.01
+          -107.91,
+          -268.0
         ],
-        "edge_m": 1290.6,
+        "edge_m": 15.9,
         "m2": 0.0,
         "patches": 0,
         "worst": []
@@ -2912,10 +2955,10 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 1.09e-07
+      "value": 9.7e-08
     },
     {
-      "detail": "773 prims, 773 distinct footprints",
+      "detail": "782 prims, 782 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -2927,21 +2970,44 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 594,
-        "max": 19.53,
+        "lots": 612,
+        "max": 17.17,
         "median": 3.21,
-        "over": 197,
-        "p90": 8.7
+        "over": 203,
+        "p90": 8.04
       }
     },
     {
-      "detail": "self-touching parcels within 0.001 m (40 of them ship as buildable)",
+      "detail": "self-touching parcels within 0.001 m (0 of them ship as buildable)",
       "name": "lots_are_simple_polygons",
-      "ok": false,
+      "ok": true,
       "skipped": false,
       "value": {
-        "lots": 41,
-        "viable": 40
+        "lots": 0,
+        "viable": 0
+      }
+    },
+    {
+      "detail": "the shipped clipper on a U-shaped block split across the notch mouth: two 1600 m2 prongs and a 2000 m2 bar, no piece self-touching, and NO edge crossing the notch - the notch is the dead-end stub's road, and a Sutherland-Hodgman bridge runs straight down it",
+      "name": "lot_clip_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "convex_order_matches_SH": true,
+        "convex_pieces": 1,
+        "edges_in_notch": 0,
+        "nonsimple": 0,
+        "u_keep_bottom": [
+          2000.0
+        ],
+        "u_keep_top": [
+          1600.0,
+          1600.0
+        ],
+        "u_mid": [
+          800.0,
+          800.0
+        ]
       }
     },
     {
@@ -2976,9 +3042,9 @@
       "skipped": false,
       "value": {
         "blocks": 20,
-        "city": 21026,
+        "city": 21035,
         "edges": 86,
-        "lots": 773
+        "lots": 782
       }
     }
   ],
@@ -3937,6 +4003,29 @@
       "value": {
         "lots": 0,
         "viable": 0
+      }
+    },
+    {
+      "detail": "the shipped clipper on a U-shaped block split across the notch mouth: two 1600 m2 prongs and a 2000 m2 bar, no piece self-touching, and NO edge crossing the notch - the notch is the dead-end stub's road, and a Sutherland-Hodgman bridge runs straight down it",
+      "name": "lot_clip_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "convex_order_matches_SH": true,
+        "convex_pieces": 1,
+        "edges_in_notch": 0,
+        "nonsimple": 0,
+        "u_keep_bottom": [
+          2000.0
+        ],
+        "u_keep_top": [
+          1600.0,
+          1600.0
+        ],
+        "u_mid": [
+          800.0,
+          800.0
+        ]
       }
     },
     {
@@ -4910,6 +4999,29 @@
       "value": {
         "lots": 0,
         "viable": 0
+      }
+    },
+    {
+      "detail": "the shipped clipper on a U-shaped block split across the notch mouth: two 1600 m2 prongs and a 2000 m2 bar, no piece self-touching, and NO edge crossing the notch - the notch is the dead-end stub's road, and a Sutherland-Hodgman bridge runs straight down it",
+      "name": "lot_clip_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "convex_order_matches_SH": true,
+        "convex_pieces": 1,
+        "edges_in_notch": 0,
+        "nonsimple": 0,
+        "u_keep_bottom": [
+          2000.0
+        ],
+        "u_keep_top": [
+          1600.0,
+          1600.0
+        ],
+        "u_mid": [
+          800.0,
+          800.0
+        ]
       }
     },
     {
@@ -5889,6 +6001,29 @@
       "value": {
         "lots": 0,
         "viable": 0
+      }
+    },
+    {
+      "detail": "the shipped clipper on a U-shaped block split across the notch mouth: two 1600 m2 prongs and a 2000 m2 bar, no piece self-touching, and NO edge crossing the notch - the notch is the dead-end stub's road, and a Sutherland-Hodgman bridge runs straight down it",
+      "name": "lot_clip_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "convex_order_matches_SH": true,
+        "convex_pieces": 1,
+        "edges_in_notch": 0,
+        "nonsimple": 0,
+        "u_keep_bottom": [
+          2000.0
+        ],
+        "u_keep_top": [
+          1600.0,
+          1600.0
+        ],
+        "u_mid": [
+          800.0,
+          800.0
+        ]
       }
     },
     {

@@ -36,49 +36,154 @@ float pfsl_signed_area(const vector p[]) {
 float pfsl_area(const vector p[]) { return abs(pfsl_signed_area(p)); }
 
 
-// Sutherland-Hodgman half-plane clip: keep the side the normal points AWAY
-// from, i.e. dot(q - p0, nrm) <= 0. Exact while the SUBJECT is convex.
+// Ray-crossing point-in-polygon in XZ, on a point ARRAY.  The array form is
+// needed because the clipper below works on candidate pieces that are not
+// geometry yet - pfsg_point_in_loop_xz reads a primitive and cannot see them.
+int pfsl_point_in_poly_xz(const vector p[]; const vector q) {
+    int n = len(p), inside = 0;
+    for (int i = 0, j = n - 1; i < n; j = i++) {
+        vector a = p[i], b = p[j];
+        if (((a.z > q.z) != (b.z > q.z)) &&
+            (q.x < (b.x - a.x) * (q.z - a.z) / (b.z - a.z) + a.x))
+            inside = !inside;
+    }
+    return inside;
+}
+
+
+// Half-plane clip: keep the side the normal points AWAY from, i.e.
+// dot(q - p0, nrm) <= 0.  Returns EVERY connected piece - `out` is the pieces'
+// vertices end to end and `cnt` is how many belong to each.
 //
-// !! IT IS NOT SAFE ON A CONCAVE SUBJECT, and the sentence that used to stand
-// here - "a mildly concave block degrades to a convex lot rather than to a
-// self-touching one" - was measured false on 2026-08-10 and is deleted.
-// S-H on a concave subject returns ONE ring joining the disjoint pieces with a
-// ZERO-WIDTH BRIDGE: two coincident edges traversed in opposite directions
-// along the clip line. Control case, a U-shaped block (the shape of every
-// block that wraps a dead-end stub, where the notch IS the stub's road) split
-// across the notch mouth:
+// !! IT REPLACES A SUTHERLAND-HODGMAN CLIP, WHICH IS NOT SAFE ON A CONCAVE
+// SUBJECT. S-H returns ONE ring joining the disjoint pieces with a ZERO-WIDTH
+// BRIDGE: two coincident edges traversed in opposite directions along the clip
+// line. Control case, a U-shaped block (the shape of every block that wraps a
+// dead-end stub, where the notch IS the stub's road) split across the notch
+// mouth - it is the worst case because two of its vertices lie exactly ON the
+// clip line, so there are no crossings there to pair:
 //
 //   U    = (0,0)(100,0)(100,60)(60,60)(60,20)(40,20)(40,60)(0,60)
 //   clip = keep z >= 20
-//   ring = (100,20)(100,60)(60,60)(60,20)(40,20)(40,60)(0,60)(0,20)
+//   S-H  = (100,20)(100,60)(60,60)(60,20)(40,20)(40,60)(0,60)(0,20)   ONE ring
+//   here = (100,20)(100,60)(60,60)(60,20) + (40,20)(40,60)(0,60)(0,20)  TWO
 //
-// The two prongs are right and pfsl_area returns exactly 3200 = their true
-// area, because the bridge encloses nothing. But the ring's boundary crosses
-// the notch TWICE - once on (60,20)->(40,20) and once on the closing
-// (0,20)->(100,20) - so the parcel that ships has two edges lying down the
-// middle of the stub's pavement while every area measurement in the project
-// reads zero. Measured on C_radial: 39 lots, 1290 m of boundary inside the
-// road surface, `lots_clear_of_roads` m2 = 0.0 at cell sizes down to 0.01 m.
-// `lots_clear_of_roads.edge_m` and `lots_are_simple_polygons` are what see it.
+// The two prongs were always right and pfsl_area always returned exactly
+// 3200 = their true area, because the bridge encloses nothing. But the S-H
+// ring's boundary crossed the notch TWICE - once on (60,20)->(40,20) and once
+// on the closing (0,20)->(100,20) - so the parcel that shipped had two edges
+// lying down the middle of the stub's pavement while every area measurement in
+// the project read zero. Measured on C_radial before this: 39 lots, 1290 m of
+// boundary inside the road surface, `lots_clear_of_roads` m2 = 0.0 at cell
+// sizes down to 0.01 m. `lots_clear_of_roads.edge_m` and
+// `lots_are_simple_polygons` are what see it, and `lot_clip_control_rig` runs
+// exactly the case above so the fix cannot rot.
 //
-// The fix is a clipper that returns MULTIPLE polygons - pair the crossings
-// along the clip line in sorted order, or use Greiner-Hormann - and a
-// recursion in `lots_subdiv` that can accept more than one piece per cut.
-// Not done; see citygen_streets.md S8.
-vector[] pfsl_clip(const vector p[]; const vector p0, nrm) {
-    vector out[];
+// CONSTRUCTION, and it is a boolean rather than a walk. The kept region's
+// boundary is (i) the polygon boundary that survives, cut at the crossings,
+// plus (ii) the stretches of the CLIP LINE that the kept region actually
+// borders. Pairing crossings in sorted order gets (ii) right only while no
+// vertex lies on the line; the U has two that do, and there the notch mouth is
+// a boundary edge with the region on its FAR side. So (ii) is decided by
+// testing, on each span between consecutive boundary hits, whether the polygon
+// interior is immediately on the keep side. Then the directed edges are
+// chained by their endpoints, and each closed chain is one piece.
+//
+// Directed so the kept side is on the same hand as the input's own interior,
+// which makes the pieces come back wound the way the block went in. For a
+// CONVEX subject the first chain starts on the same vertex S-H started on and
+// visits the same points in the same order, so this is a drop-in.
+#define PFSL_CLIP_EPS 1e-4      // on-the-line, and the endpoint weld
+void pfsl_clip_multi(const vector p[]; const vector p0, nrm;
+                     export vector out[]; export int cnt[]) {
+    resize(out, 0);
+    resize(cnt, 0);
     int n = len(p);
-    if (n < 3) return out;
+    if (n < 3) return;
+    vector nl = set(nrm.x, 0, nrm.z);
+    float nlen = length(nl);
+    if (nlen < 1e-12) return;
+    nl /= nlen;
+    // +tg keeps the KEPT side to the LEFT; a clockwise subject wants it right
+    vector tg = set(-nl.z, 0, nl.x) * ((pfsl_signed_area(p) < 0) ? -1.0 : 1.0);
+    float eps = PFSL_CLIP_EPS;
+
+    float d[];
+    resize(d, n);
+    for (int i = 0; i < n; i++) d[i] = dot(p[i] - p0, nl);
+
+    // (i) the surviving boundary, and every place the boundary meets the line
+    vector ea[], eb[];
+    float tcrit[];
     for (int i = 0; i < n; i++) {
-        vector a = p[i], b = p[(i + 1) % n];
-        float da = dot(a - p0, nrm), db = dot(b - p0, nrm);
-        if (da <= 0) append(out, a);
-        if ((da < 0 && db > 0) || (da > 0 && db < 0)) {
-            float t = da / (da - db);
-            append(out, a + (b - a) * t);
+        int i2 = (i + 1) % n;
+        float da = d[i], db = d[i2];
+        vector a0 = p[i], b0 = p[i2], a = a0, b = b0;
+        int oa = (da > eps), ob = (db > eps);
+        int za = (abs(da) <= eps), zb = (abs(db) <= eps);
+        if (za && zb) {           // the edge LIES on the line: (ii) re-derives it
+            append(tcrit, dot(a0 - p0, tg));
+            append(tcrit, dot(b0 - p0, tg));
+            continue;
+        }
+        if (oa && ob) continue;                        // wholly on the far side
+        float t = da / (da - db);
+        if (oa)      { a = a0 + (b0 - a0) * t; append(tcrit, dot(a - p0, tg)); }
+        else if (za) { append(tcrit, dot(a0 - p0, tg)); }
+        if (ob)      { b = a0 + (b0 - a0) * t; append(tcrit, dot(b - p0, tg)); }
+        else if (zb) { append(tcrit, dot(b0 - p0, tg)); }
+        if (distance(a, b) > eps) { append(ea, a); append(eb, b); }
+    }
+
+    // (ii) the stretches of the clip line the kept region borders
+    int m = len(tcrit);
+    if (m > 1) {
+        float ts[] = sort(tcrit);
+        for (int i = 1; i < m; i++) {
+            float t0 = ts[i - 1], t1 = ts[i];
+            if (t1 - t0 <= eps) continue;
+            // probe just inside the keep side. Anything thinner than this is
+            // orders of magnitude below min_lot_area and is not a parcel.
+            float probe = clamp((t1 - t0) * 0.01, 1e-4, 1e-3);
+            vector mid = p0 + tg * ((t0 + t1) * 0.5) - nl * probe;
+            if (!pfsl_point_in_poly_xz(p, mid)) continue;
+            append(ea, p0 + tg * t0);
+            append(eb, p0 + tg * t1);
         }
     }
-    return out;
+
+    // chain the directed edges: each closed chain is one piece
+    int ne = len(ea);
+    if (ne < 3) return;
+    int used[];
+    resize(used, ne);
+    for (int i = 0; i < ne; i++) used[i] = 0;
+    for (int s = 0; s < ne; s++) {
+        if (used[s]) continue;
+        vector ring[];
+        vector start = ea[s];
+        int cur = s, guard = 0;
+        while (cur >= 0 && guard <= ne) {
+            guard++;
+            used[cur] = 1;
+            append(ring, ea[cur]);
+            vector tail = eb[cur];
+            if (distance(tail, start) <= eps) break;
+            int nxt = -1;
+            float bestd = eps;
+            for (int k = 0; k < ne; k++) {
+                if (used[k]) continue;
+                float dd = distance(ea[k], tail);
+                if (dd <= bestd) { bestd = dd; nxt = k; }
+            }
+            if (nxt < 0) { append(ring, tail); break; }   // open: keep the area
+            cur = nxt;
+        }
+        if (len(ring) < 3) continue;
+        if (pfsl_area(ring) < PFSL_EPS) continue;
+        append(cnt, len(ring));
+        foreach (vector v; ring) append(out, v);
+    }
 }
 
 
@@ -140,6 +245,27 @@ float pfsl_frontage(const vector block[], lot[]; const float tol) {
         if (d <= tol) total += distance(a, b);
     }
     return total;
+}
+
+
+// Smallest street frontage among the pieces one side of a cut produced.
+// `pfsl_clip_multi` returns several pieces, and "this side of the cut still
+// reaches a street" is only true when EVERY piece of it does - the whole point
+// of the concave fix is that half a cut can be two disjoint parcels, and one of
+// them can be landlocked while the other fronts the street.
+float pfsl_min_frontage(const vector block[], pts[]; const int cnt[];
+                        const float tol) {
+    int np = len(cnt);
+    if (np < 1) return 0.0;
+    float worst = 1e30;
+    int off = 0;
+    for (int i = 0; i < np; i++) {
+        vector piece[];
+        for (int k = 0; k < cnt[i]; k++) append(piece, pts[off + k]);
+        off += cnt[i];
+        worst = min(worst, pfsl_frontage(block, piece, tol));
+    }
+    return worst;
 }
 
 

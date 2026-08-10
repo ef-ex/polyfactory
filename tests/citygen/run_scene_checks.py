@@ -155,6 +155,9 @@ def run_case(name, city, field=None):
     out.append(C.no_duplicate_lot_footprints(g_lots))
     out.append(C.lot_aspect_ratio(g_lots))
     out.append(C.lots_are_simple_polygons(g_lots))
+    # ...and the clipper those two rest on, run on the concave case the shipped
+    # blocks only reach by luck. See lot_clip_control_rig.
+    out.append(C.lot_clip_control_rig(city))
 
     # only the radial field declares a plaza; the others report a skip rather
     # than nothing, so a check that stops running is visible instead of silent

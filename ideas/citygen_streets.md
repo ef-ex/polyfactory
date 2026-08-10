@@ -1458,12 +1458,49 @@ the kerb — where every legitimate lot edge lies — cannot count. A 0.5 m grid
 Values: **A 0.0 · B 26.1 · C 1290.6 · D 0.0 · E/F skip (no lots)**. Suite **17 → 19 failing**;
 no other value moved, and baseline.json is rebaselined with this commit.
 
-**Not fixed, and the fix is not blocked by the S3–S5 refactor.** It needs a clipper that returns
-**multiple** polygons — pair the crossings along the clip line in sorted order, or Greiner–Hormann
-— and a recursion in `lots_subdiv` that accepts more than one piece per cut. That is an S8 job,
-independent of moving the graph stages into the trace node, and it is the same defect §4e already
+✅ **FIXED 2026-08-10 — `pfsl_clip_multi`.** A clipper that returns **every** piece, plus a
+`lots_subdiv` recursion that pushes all of them onto its queue. It is the same defect §4e already
 records as *"non-convex blocks produce bowties that pass the area check because the pinch has zero
-area"* — now with a named mechanism and a control case instead of a category.
+area"* — now with a named mechanism, a control case and a committed rig instead of a category.
+
+⚠️ **Pairing crossings in sorted order is NOT sufficient, and the control case above is exactly
+why.** Two of the U's vertices lie *on* the clip line, so the notch mouth produces **no crossings
+to pair** and the naive pairing hands back the bridged ring unchanged. What is built instead is a
+boolean: the kept region's boundary is (i) the polygon boundary that survives, cut at the
+crossings, plus (ii) the stretches of the **clip line** the kept region actually borders — decided
+by testing, on each span between consecutive boundary hits, whether the interior is immediately on
+the keep side. Edges lying *along* the line are dropped from (i) and re-derived by (ii), which is
+what separates the notch mouth (region on the far side, dropped) from the bar's own top edge
+(region on the near side, kept). The directed edges are then chained by endpoint; each closed
+chain is one piece. On a **convex** subject the first chain starts on the vertex S–H started on
+and visits the same points in the same order, so it is a drop-in — asserted, because otherwise
+every convex block in the city gets re-cut through a different `rand()` sequence for nothing.
+
+**Measured, whole suite:**
+
+| | before | after |
+|---|---|---|
+| `lots_are_simple_polygons` | B **3** · C **41** (40 shipping as buildable) | **0 · 0**, all six cases |
+| `lots_clear_of_roads.edge_m` | A 0.0 · B **26.1** · C **1290.6** | A 0.0 · B **0.0** · C **15.9** |
+| `selfx_city_merged` | A 9 · B 95 · C **270** · D 9 · F 2 | A 9 · B 94 · C **139** · D 9 · F 2 |
+| lots | A 83 · B 618 · C 773 | A 82 · B 619 · C 782 |
+| `city_is_fully_paved` · `lots_clear_of_junctions` · `selfx_junction_surface` · folds · seam · `every_mouth_has_a_road` · `graph_planar_y` | 0 · 0 · 0 · 0 · 0.0001 · 0 · 0 | **unchanged** |
+| suite | 19 failing | **16 failing** |
+
+⚠️ **C's residual 15.9 m is a different defect and is NOT this one.** It is a single 56 m²
+`unbuildable` sliver at (−107.9, −268.0) whose long straight cut runs 0.06–0.4 m from a curved
+kerb on a `local` street — the block boundary and the pavement effectively coincide there, so a
+straight cut inside the block still lands inside the eroded road mask. The parcel is simple, and
+`lots_are_simple_polygons` is 0. It belongs with `selfx_roads` / the S7 kerb seam, not with S–H.
+
+**`lot_clip_control_rig` is committed with it** (`tests/citygen/checks.py`), and it runs the
+shipped clipper on three cases: the U above (the degenerate one — the cut lands *on* the mouth),
+the same U cut at z = 40 (the common one — the cut lands *through* the notch), and a convex
+control for the drop-in assertion. Proven to have teeth by re-injecting the old S–H clipper:
+`u_keep_top` comes back as **one 3200 m² ring** instead of two of 1600, and `u_mid` ships **2
+edges through the open notch**. The notch test alone has no teeth on the doc's own control case —
+S–H's bridge there lies *along* z = 20, on the notch boundary rather than through it — which is
+precisely why `u_mid` is in the rig. A rig that only runs the degenerate case is decoration.
 
 ### S8 — Lots
 
