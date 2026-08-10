@@ -1080,7 +1080,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (4 passes, not 3), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -1091,6 +1091,7 @@
           83
         ],
         "lots_moved": 78,
+        "lots_worst_m2": 40.6161,
         "moved": {
           "city_points": [
             5568,
@@ -2185,7 +2186,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (10 passes, not 9), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -2196,6 +2197,7 @@
           619
         ],
         "lots_moved": 443,
+        "lots_worst_m2": 23.5977,
         "moved": null,
         "passes": 9,
         "residual_m": 3.41e-05,
@@ -3289,7 +3291,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (9 passes, not 8), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -3299,7 +3301,8 @@
           774,
           770
         ],
-        "lots_moved": null,
+        "lots_moved": 42,
+        "lots_worst_m2": 8.2127,
         "moved": {
           "city_points": [
             28835,
@@ -4402,7 +4405,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (4 passes, not 3), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -4413,6 +4416,7 @@
           61
         ],
         "lots_moved": 0,
+        "lots_worst_m2": 0.0039,
         "moved": null,
         "passes": 3,
         "residual_m": 1.53e-05,
@@ -5483,7 +5487,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (4 passes, not 3), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -5493,7 +5497,8 @@
           0,
           0
         ],
-        "lots_moved": 0,
+        "lots_moved": null,
+        "lots_worst_m2": null,
         "moved": null,
         "passes": 3,
         "residual_m": 0.0,
@@ -6570,7 +6575,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (7 passes, not 6), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -6580,7 +6585,8 @@
           0,
           0
         ],
-        "lots_moved": 0,
+        "lots_moved": null,
+        "lots_worst_m2": null,
         "moved": null,
         "passes": 6,
         "residual_m": 6.1e-05,
@@ -7651,7 +7657,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (4 passes, not 3), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -7661,7 +7667,8 @@
           0,
           0
         ],
-        "lots_moved": 0,
+        "lots_moved": null,
+        "lots_worst_m2": null,
         "moved": null,
         "passes": 3,
         "residual_m": 0.0,

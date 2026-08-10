@@ -1214,6 +1214,45 @@ def graph_reaches_a_fixed_point(trace_node):
                   % tol)
 
 
+def _lot_area_delta(was, now, quantiles=64):
+    """(parcels over 1 m2, worst m2) between two rank-sorted parcel-area lists.
+
+    ⚠️ **The COUNT alone was latent hole 1 — "computed and discarded" — one
+    stage further down.** `lots_moved` recorded how many parcels moved and
+    threw away how far: A's worst is **40.6 m2** and B's **23.6 m2**, and
+    619 parcels moving 0.9 m2 each would have read as a flat 0. So the
+    magnitude is returned with the count.
+
+    ⚠️ **And a lot-count change is the one case that MOVES, so it may not go
+    blind.** An index-wise pair does not exist when C_radial ships 774 parcels
+    before the forced pass and 770 after, and this used to answer `None` there
+    — for the only case in the suite whose parcels actually move. Both lists
+    are sampled at 64 fixed quantiles instead: C's worst is **8.21 m2** over
+    **42** of the 64 quantiles, 151 m2 in total. `None` is reserved for the
+    case where the question is meaningless — E/F/G close no block and ship no
+    parcels at all, where a count of 0 read identically to "stable".
+
+    What this still cannot see is measured and stated: area is ONE SCALAR, so
+    a parcel changing SHAPE at constant area is invisible here, and so is a
+    pure permutation of areas among the parcels. Neither bites on this build —
+    D_offset reads 0, and the audit of `aa797db` corroborated that with an
+    identity-matched compare at 0 area, 0 perimeter and 0 centroid movement —
+    but on A that same identity-matched view shows **75 of 83 centroids moving
+    more than 5 cm, worst 13.58 m**, which is the shape term this does not
+    carry. (The area figures above are re-measured here; the centroid ones are
+    the audit's, and nothing in the suite computes them yet.)
+    """
+    if not was or not now:
+        return None, None
+    if len(was) == len(now):
+        d = [abs(x - y) for x, y in zip(was, now)]
+    else:
+        def at(lst, q):
+            return lst[int(round(q * (len(lst) - 1) / float(quantiles - 1)))]
+        d = [abs(at(was, q) - at(now, q)) for q in range(quantiles)]
+    return sum(1 for x in d if x > 1.0), round(max(d), 4)
+
+
 def forced_extra_repair_pass(trace_node, city_node):
     """Turn OFF the loop's early exit, run one pass MORE than it asked for, and
     see what the shipped city does. **Run this last: it re-cooks the city.**
@@ -1256,6 +1295,26 @@ def forced_extra_repair_pass(trace_node, city_node):
     `repair_iterations` guard above — `graph_reaches_a_fixed_point` is what
     fails hard in that case, and it is the reason the suite is still covered.
 
+    ⚠️ **THREE of this experiment's numbers are the solver's own, including
+    its CONTROL VARIABLE, and that is worth naming.** Added 2026-08-10 after
+    an independent audit of `aa797db`:
+
+    * **`iters`** — the pass count the experiment is defined against
+      (`cap = iters + 1`) is `repair_iterations`, the loop's own counter. That
+      is what made "the forced pass never ran" expressible at all, and it is
+      now asserted on the forced geometry rather than assumed. The failure
+      direction is safe: a counter that under-reports forces MORE passes, and
+      one that over-reports trips the assert.
+    * **`tol`** — the acceptance threshold is `graph_params_repair_tolerance`,
+      which is the solver's OWN stop threshold, so `resid <= tol` here is the
+      loop's stop condition re-applied one pass later. Its unique coverage is
+      therefore the **f³ window only**: the loop already requires two
+      consecutive no-op passes (§S3 — `f(x) == x` says nothing about
+      `f(f(x))`, and B_grid proves it), so this is the third iterate. Every
+      constructible regression outside that window fails `repair_converged`
+      == 0 first, in `graph_reaches_a_fixed_point`.
+    * **`resid` / `rev`** — as above, the verdict's own two numbers.
+
     ⚠️ **LOT COUNT IS RECORDED, NOT ASSERTED, and the reason is S8 rather than
     S3.** With the displacement and direction terms in, A, B, D, E, F and G are
     stable across the forced pass and **C_radial still moves 774 → 770**. The
@@ -1274,7 +1333,16 @@ def forced_extra_repair_pass(trace_node, city_node):
     `moved: None`. `lots_moved` is that term, and `city_prims` / `city_points`
     close the other gap: A's shipped city gains a point across the pass and
     nothing sampled it. All of them are RECORDED, not asserted, for the same
-    reason the lot count is — see citygen_streets.md §S3.
+    reason the lot count is — see citygen_streets.md §S3. `lots_worst_m2`
+    carries the magnitude `lots_moved` used to discard, and both come from
+    `_lot_area_delta`, which also stops answering `None` on the one case that
+    moves; read its docstring for what the area term still cannot see.
+
+    ⚠️ **`blocks` is asserted and `blocks` is S7, not S3** — the detail string
+    called the asserted set "the GRAPH structure" and it is the graph plus the
+    block count. Asserting it is right and it is measured: 2 / 17 / 2 / 28
+    blocks held across every forced pass on every case, so the block layer is
+    the one thing downstream of the graph that S8's chaos does not move.
     """
     name = "forced_extra_repair_pass"
     geo = trace_node.geometry(0)
@@ -1319,11 +1387,25 @@ def forced_extra_repair_pass(trace_node, city_node):
             return Result(name, False, None,
                           "forced pass errored: %s" % trace_node.errors()[0][:160])
         forced_geo = trace_node.geometry(0)
-        for a in ("repair_residual_m", "repair_reversed"):
+        for a in ("repair_residual_m", "repair_reversed", "repair_iterations"):
             if forced_geo.findGlobalAttrib(a) is None:
                 return Result(name, False, None,
                               "the forced pass shipped no %s — the verdict "
                               "stopped being written" % a)
+        # ...and that the experiment RAN. Everything below is measured on the
+        # forced geometry, so if the extra pass never happened this check
+        # reports "nothing moved" about the pass it did not run: simulated by
+        # leaving the cap at `iters`, the structure is unchanged, the residual
+        # is 1.53e-5 and the reversal count 0, and it PASSED. It only runs at
+        # all because `Max Repair Passes` has maxIsStrict=False — luck, not
+        # design — so the pass count is asserted instead of assumed.
+        ran = forced_geo.attribValue("repair_iterations")
+        if ran != iters + 1:
+            return Result(name, False, {"passes": iters, "forced": iters + 1,
+                                        "ran": ran},
+                          "the forced pass did not run: the loop reports %d "
+                          "passes where %d were forced, so nothing below is "
+                          "about the extra pass" % (ran, iters + 1))
         resid = forced_geo.attribValue("repair_residual_m")
         rev = forced_geo.attribValue("repair_reversed")
         now, now_areas = state()
@@ -1337,23 +1419,44 @@ def forced_extra_repair_pass(trace_node, city_node):
     # with the recursive-OBB split, which is a separate task in S8.
     structural = {k: v for k, v in moved.items()
                   if k in ("edges", "points", "blocks")}
-    lots_moved = (sum(1 for x, y in zip(was_areas, now_areas)
-                      if abs(x - y) > 1.0)
-                  if len(was_areas) == len(now_areas) else None)
+    lots_moved, lots_worst = _lot_area_delta(was_areas, now_areas)
     return Result(name, not structural and resid <= tol and rev == 0,
                   {"passes": iters, "forced": iters + 1,
                    "residual_m": round(resid, 7), "reversed": rev,
                    "tol_m": tol,
                    "lots": [was["lots"], now["lots"]],
                    "lots_moved": lots_moved,
+                   "lots_worst_m2": lots_worst,
                    "moved": moved or None},
                   "one pass past the loop's own verdict, with the Stop "
-                  "Attribute disabled: the pass must move no point further "
-                  "than Repair Tolerance (%.4g m) and reverse no edge, and the "
-                  "GRAPH structure must not move; every S8 term — lot count, "
-                  "parcels whose area moves > 1 m2, city prims and points — is "
-                  "recorded, because S8 is chaotic at the float32 noise floor"
-                  % tol)
+                  "Attribute disabled: the pass must run (%d passes, not %d), "
+                  "must move no point further than Repair Tolerance (%.4g m) "
+                  "and reverse no edge, and the graph structure and the BLOCK "
+                  "COUNT must not move; every S8 term — lot count, parcels "
+                  "whose area moves > 1 m2 and the worst of those areas, city "
+                  "prims and points — is recorded, because S8 is chaotic at "
+                  "the float32 noise floor"
+                  % (iters + 1, iters, tol))
+
+
+def _attrib_values(geo, name, prim):
+    """Every value of one attribute, in element order.
+
+    Bulk-read where the type allows it: the graph carries thousands of points
+    and `input0_reaches_an_output` reads every attribute on both sides of the
+    pass-through, once per case. The attribute is looked up on the geometry
+    being read rather than passed in, so the two sides changing TYPE under the
+    same name reads as a value difference instead of raising.
+    """
+    import hou
+    elems = geo.prims() if prim else geo.points()
+    at = (geo.findPrimAttrib if prim else geo.findPointAttrib)(name)
+    word = {hou.attribData.String: "String", hou.attribData.Int: "Int",
+            hou.attribData.Float: "Float"}.get(at.dataType())
+    if word is None or at.isArrayType():
+        return [e.attribValue(name) for e in elems]
+    return list(getattr(geo, ("prim" if prim else "point") + word
+                        + "AttribValues")(name))
 
 
 def input0_reaches_an_output(graph_geo, mesh_graph_geo):
@@ -1385,6 +1488,31 @@ def input0_reaches_an_output(graph_geo, mesh_graph_geo):
     compared for that reason — a pass-through that adds a column is not a
     pass-through.
 
+    ⚠️ **AND THE NAME SETS WERE NOT ENOUGH EITHER — "attribute for attribute"
+    was comparing NAMES.** Corrected 2026-08-10 after an independent audit of
+    `aa797db`. Publishing output 3 through a wrangle that sets
+    `street_class = "alley"`, `region_id = "region_99"` and
+    `streetWidth = 1.0` on every edge adds no name and moves no point: this
+    check PASSED, `attribute_schema` passed, **nothing in the suite failed**,
+    and the shipped graph said every street in the city was a 1 m alley. Same
+    shape of hole as the one above, one level in: a pass-through that rewrites
+    a column is not a pass-through either. The VALUES of every shared
+    attribute are compared now, elementwise and exactly — a pass-through is
+    bit-identical or it is not a pass-through — and a rewritten attribute
+    reports as `!pr.name` beside the `+`/`-` of a name that came or went.
+    Both classes are proved to bite: `!pr.street_class` / `!pr.region_id` /
+    `!pr.streetWidth` on the prim attack above, and `!pt.is_node` on the same
+    attack aimed at a point.
+
+    ⚠️ **DETAIL attributes are still not compared — recorded, not closed.**
+    Measured by accident while writing the attack above: with the wrangle's
+    class left at Detail, `is_node = -12345` shipped as a **detail** attribute
+    on output 3 and this check **passed**. Prim and point are the two classes
+    that carry the street contract (§6), and the graph legitimately ships
+    detail attributes the checks themselves read (`repair_converged`,
+    `repair_iterations`), so closing this means deciding which of those the
+    mesh is allowed to restate — a separate question from the pass-through.
+
     ⚠️ **Known gap, not covered here.** Cutting `blocks_id`'s second input —
     the identity consumer this check cites as a reason to keep input 0 —
     collapses every block's `region_id` to `region_00` and loses `land_use`,
@@ -1400,12 +1528,19 @@ def input0_reaches_an_output(graph_geo, mesh_graph_geo):
                        "out_points": len(mesh_graph_geo.points())},
                       "the mesh's graph output is not its input 0")
     drift = []
-    for kind, a, b in (("pr", graph_geo.primAttribs(), mesh_graph_geo.primAttribs()),
-                       ("pt", graph_geo.pointAttribs(), mesh_graph_geo.pointAttribs())):
+    for kind, prim, a, b in (
+            ("pr", True, graph_geo.primAttribs(), mesh_graph_geo.primAttribs()),
+            ("pt", False, graph_geo.pointAttribs(), mesh_graph_geo.pointAttribs())):
         sa = set(x.name() for x in a)
         sb = set(x.name() for x in b)
         drift += ["+%s.%s" % (kind, n) for n in sorted(sb - sa)]
         drift += ["-%s.%s" % (kind, n) for n in sorted(sa - sb)]
+        # ...and the VALUES, which is what "attribute for attribute" means. The
+        # name sets alone passed a wrangle that rewrote street_class, region_id
+        # and streetWidth on every edge — see the docstring.
+        drift += ["!%s.%s" % (kind, n) for n in sorted(sa & sb)
+                  if _attrib_values(graph_geo, n, prim)
+                  != _attrib_values(mesh_graph_geo, n, prim)]
     worst = 0.0
     for a, b in zip(graph_geo.points(), mesh_graph_geo.points()):
         worst = max(worst, (a.position() - b.position()).length())

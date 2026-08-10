@@ -873,6 +873,26 @@ they are S8's determinism, not S3's convergence. What changes is that the redist
 visible in the baseline diff instead of invisible. This is also the direct evidence for the
 "S8 is chaotic on every case" correction above — it needs no injected jitter.
 
+##### ⚠️ …AND `lots_moved` WAS LATENT HOLE 1 AGAIN — the count kept, the magnitude discarded
+
+Corrected 2026-08-10 after an independent audit of `aa797db`, and it is the same shape as
+"the per-edge match residual is computed and discarded" below, reproduced in the term that was
+added to close the hole above. `lots_moved` counted the parcels and threw away **how far**:
+A's worst is **40.6 m²** (sum 1230 m²), B's **23.6 m²** (sum 1348 m²), D's 0.0039 m². Three
+attacks it cannot see, all measured: **619 parcels moving 0.9 m² each reads 0**; an equal-area
+permutation reads 0; and area is **one scalar**, so a parcel changing SHAPE at constant area is
+invisible. None of the three bites on this build — D's 0 is corroborated by an identity-matched
+compare at 0 area, 0 perimeter and 0 centroid — but on A that identity-matched view shows
+**75 of 83 centroids moving more than 5 cm, worst 13.58 m**, which is the shape term the area
+scalar does not carry. `lots_worst_m2` is the magnitude, recorded beside the count.
+
+⚠️ **And `C_radial` — the one case that actually moves — was the one reporting `None`.** An
+index-wise pair does not exist when the lot count itself moves 774 → 770, so the term went blind
+on exactly the case it was written for. Both lists are sampled at **64 fixed quantiles** when the
+counts differ: C's worst is **8.21 m²**, sum 151 m², **42 of 64** quantiles over 1 m². `None` now
+means only *"the question is meaningless here"* — E/F/G close no block and ship no parcels, where
+a count of `0` read identically to "stable".
+
 #### Recorded, not fixed — three latent holes in the geometry compare
 
 All three measured **inactive on this build** (C/B/A: 0 unmatched edges, 0.0 worst match residual),
@@ -904,6 +924,40 @@ the pass count all come back identical — a **10× loosening of the tooth with 
 fires first. `graph_reaches_a_fixed_point` fails hard in that case and is why the suite is still
 covered — but "a missing attribute FAILS" is true of the replay, not of the forced pass.
 
+#### ⚠️ AND THE EXPERIMENT NEVER VERIFIED THAT IT RAN
+
+Corrected 2026-08-10 from the same audit of `aa797db`. `forced_extra_repair_pass` sets
+`cap = iters + 1` and then measured everything on the resulting geometry **without ever confirming
+that `iters + 1` passes had happened** — even though the forced geometry carries its own
+`repair_iterations` and the check was already reading that attribute. Simulated by leaving the cap
+at `iters`: the structure is unchanged, the residual is **1.53e-5 m ≤ tol**, the reversal count is
+**0**, and the check **PASSES with the experiment not having been performed**. It only runs today
+because `Max Repair Passes` has **`maxIsStrict=False`** — its UI max is 12 and 13, 20 and 99 all
+take — which is luck, not design: a strict max would have silently clamped the cap and the check
+would have gone on reporting "nothing moved" about a pass it never ran. The forced geometry's
+`repair_iterations` is now asserted to equal `iters + 1`, and the simulation above fails.
+
+**Three of this experiment's numbers are the solver's own, including its control variable**, which
+the audit asked to be named rather than fixed:
+
+- **`iters`** — the pass count the whole experiment is defined against is `repair_iterations`, the
+  loop's own counter. That is precisely what made "the forced pass never ran" possible. The failure
+  direction is safe: a counter that under-reports forces *more* passes, one that over-reports trips
+  the new assert.
+- **`tol`** — the acceptance threshold is `graph_params_repair_tolerance`, the solver's **own stop
+  threshold**, so `resid <= tol` here is the loop's stop condition re-applied one pass later. Its
+  **unique** coverage is therefore the **f³ window only**: the loop already requires two consecutive
+  no-op passes (above — `f(x) == x` says nothing about `f(f(x))`, and `B_grid` proves it), so this
+  is the third iterate. Every constructible regression outside that window fails
+  `repair_converged == 0` first, in `graph_reaches_a_fixed_point`.
+- **`resid` / `rev`** — the verdict's own two numbers, already recorded above.
+
+⚠️ **And the detail string named the asserted set wrongly.** It called it "the GRAPH structure"
+while `blocks` is in it, and blocks are **S7**. Asserting `blocks` is correct and is measured —
+**2 / 17 / 2 / 28 blocks held across every forced pass on every case**, so the block layer is the
+one thing downstream of the graph that S8's chaos does not move — the string says "the graph
+structure and the block count" now.
+
 #### `pf_citygen_mesh` input 0 is NOT dead — it is under-observed
 
 The same audit measured a 2.5 m jitter on `pf_citygen_mesh` input 0, saw `4459 / 2 / 83` city,
@@ -929,6 +983,25 @@ failed — while the published graph had silently gained `is_bridge`, `is_tunnel
 sets are compared too. (Unwiring input 0 outright was already caught before this commit, by
 `attribute_schema` and `centreline_curvature_within_class`; what this check adds there is the
 diagnosis, not the coverage.)
+
+⚠️ **AND "ATTRIBUTE FOR ATTRIBUTE" WAS COMPARING NAMES. Corrected 2026-08-10** after an
+independent audit of `aa797db`, and this paragraph and the check's docstring both claimed the
+coverage they did not have. Publishing output 3 through a wrangle that sets
+`street_class = "alley"`, `region_id = "region_99"` and `streetWidth = 1.0` on **every edge** adds
+no attribute name and moves no point: `input0_reaches_an_output` **passed**, `attribute_schema`
+passed, **nothing in the suite failed**, and the shipped graph said every street in the city was a
+1 m alley. A pass-through that *rewrites* a column is not a pass-through either. The **values** of
+every shared attribute are compared now — elementwise and exactly, because a pass-through is
+bit-identical or it is not one — and a rewritten attribute reports as `!pr.street_class` beside
+the `+`/`-` of a name that came or went. The attack above now fails the suite, and so does the
+same attack aimed at a **point** attribute (`!pt.is_node`), which is the other half of the branch.
+
+⚠️ **DETAIL attributes are still not compared — recorded, not closed.** Measured by accident while
+writing that attack: with the wrangle's class left at *Detail*, `is_node = -12345` shipped as a
+detail attribute on output 3 and the check **passed**. Prim and point are the two classes that
+carry §6's street contract, and the graph legitimately ships detail attributes the suite itself
+reads (`repair_converged`, `repair_iterations`), so closing this means first deciding which of
+those the mesh may restate — a different question from the pass-through.
 
 ⚠️ **Two gaps remain, recorded rather than closed.**
 - **Block identity is unguarded.** Cutting `blocks_id`'s second input — the very consumer that
