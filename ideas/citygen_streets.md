@@ -604,6 +604,89 @@ still have to be written. Expect this in VEX or Python with a spatial grid for t
 **This is the highest-risk stage and the one to build first** — everything downstream is
 straightforward once the graph is trustworthy.
 
+#### ⚠️ THE NETWORK WAS SOLVED ONCE, AND THAT IS A BUG. Fixed 2026-08-10
+
+The artist: *"the street did not solve the junction or turn. It did detect it now as a dead end
+and merged it to the closest street. That is fine, but the other street which should form a
+junction with it did not — I think we only go over the street network once and do not check if
+there are errors left after solving on the new network."*
+
+**He is right, and it is structural rather than a threshold.** Every repair in this section
+*mutates* the graph, and the consequence lands on a stage that has already run:
+
+| repair | what it leaves behind |
+|---|---|
+| extend-to-connect, case (b) | a **new junction on the target street** — after S4 classified it and after S5 sized its mouths |
+| the snap-and-merge at `clear_b` (§S3 above) | the same, one stage earlier |
+| `min_standing_widths`'s tongue drop | the node it hung off **reopens** at a lower degree, and the arm's other end becomes a fresh dead end nothing tries to connect |
+| the cul-de-sac bulb | a turning circle laid down after the graph is closed |
+
+**Repair, planarise, reclassify and solve now iterate to a fixed point.** The whole S3→S5 chain
+sits inside a feedback loop in `pf_citygen_trace` (`repair_begin` … `repair_verdict` …
+`repair_end`), and `repair_verdict` compares the pass's output against its own input and writes
+two detail attributes that ship on the graph:
+
+- **`repair_converged`** — 1 only if the last pass changed nothing. It is the block-end's **Stop
+  Attribute**, so the loop ends by *proving* the fixed point rather than by running out of budget.
+- **`repair_iterations`** — passes used, against `Max Repair Passes` (default 8).
+
+⚠️ **Non-convergence is surfaced, not shipped.** Hitting the cap ships `repair_converged = 0` and
+`graph_reaches_a_fixed_point` fails. That failure mode has now cost this project four separate
+defects — §S3b's `iters = 200`, the trace stall, the clamp budget, and this — and a solver that
+cannot say whether it converged ships a broken answer silently every time.
+
+**Measured, passes to convergence: A 2 · B 5 · C 3 · D 2 · E 2 · F 3 · G 2**, and the cook time
+is unchanged (C_radial's tracer, 0.3 s) because the loop stops as soon as a pass is a no-op.
+**`Max Repair Passes` = 1 reproduces the old single-pass build exactly**, which is both the
+A/B and the escape hatch.
+
+⚠️ **COMPARE THE GRAPH, NOT THE POINT NUMBERING.** The first verdict compared `P` index-wise
+and read `graph_fuse` / `polypath` / the blasts renumbering as **777 m of movement**: C_radial's
+geometry is settled by pass 3 (order-independent max move 3.8e-5 m) and the loop still ran to
+its cap at 8. Every term is now a count or a sum — edges, points, nodes, total centreline
+length (1 cm), bounding box (1 mm) — which is exactly the set of things a *repair* changes.
+
+**What the second pass actually does, on C_radial:**
+
+| | one pass | fixed point |
+|---|---|---|
+| edges | 84 | **86** |
+| centreline | 9206.4 m | **9300.1 m** |
+| blocks | 26 | **28** |
+| lots | 759 | **766** |
+| dead ends (total / interior) | 14 / 5 | **12 / 3** |
+| `lots_clear_of_roads` | 15.8 m of lot boundary in the road | **0.0** |
+
+The two new junctions are at **(−94.6, −265.2)** and **(257.7, −91.2)**, and both are a dangling
+end that pass 1 extended, whose *target* was never re-split. The second is the exact defect §S7
+recorded the root cause of — *"two dangling ends 6.68 m apart at (251.4, −87.1) and (249.4, −93.5),
+each one INSIDE the other street's pavement […] neither connected"* — so closing it takes
+`lots_clear_of_roads` to zero on C for the first time.
+
+⚠️ **One latent bug had to be fixed before the loop was safe, and it was invisible while the
+pipeline ran once.** `graph_extend`'s connector prim copied `layer`, `street_class` and `src_id`
+from the street it extends and **not the cross-section**, which was harmless while `streetWidth`
+did not exist yet at that point in the graph. From the second pass it does, the connector carries
+0, and **`graph_polypath` LENGTH-WEIGHT-AVERAGES prim attributes when it merges the connector back
+in**: a 7.8 m connector diluted a 163.6 m local from 14.4 m to **13.71 m** — exactly 0.952×, with
+`sidewalkWidth*` and `laneWidth` scaled with it. `graph_width` then left it alone, because its
+"an authored value wins" guard is `streetWidth <= 0`. The road swept 0.7 m narrower than the kerb
+its block was built from and **95.8 m² of lots came out on it, in a strip down both sides of that
+one street.** The connector now inherits the cross-section too. *An extension is the street it
+extends.*
+
+**`graph_reaches_a_fixed_point` is committed with this**, and it has both teeth: the solver's own
+`repair_converged`, and an independent replay — a second `pf_citygen_trace` with the same
+parameters, fed the shipped splines on its drawn-spline input. At `Max Repair Passes` = 1 the
+replay reports C_radial moving **84 → 86 edges, 45 → 47 nodes, +93.7 m**, which is the artist's
+report reproduced as a number.
+
+**What this does NOT do.** The loop re-runs the repair; it does not add a repair. §S3 step 3's
+node merge and §S5's shallow-arm merge (`merge_angle`) are still unbuilt, so a connection that
+those two would rescue is still refused on every pass — the loop just stops refusing it *twice*
+for a reason that no longer applies. `selfx_city_merged` on C moved **128 → 131**, which is 4e-1
+tracking the junction count (58 → 59) as it always has.
+
 ### S3b — Turns: a bend is not a junction, and gets its own solver
 
 Added 2026-08-09 (Hannes). A node where exactly **two** streets meet is not a junction — it

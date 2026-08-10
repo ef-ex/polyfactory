@@ -105,6 +105,9 @@ def run_case(name, built, field=None):
     out[-1].name = "graph_planar_y"
     out.append(C.no_orphan_components(g_graph))
     out.append(C.dead_ends(g_graph))
+    # ...and the reason dead_ends is allowed to be informational: the repair
+    # pass must have run itself out, not merely run once
+    out.append(C.graph_reaches_a_fixed_point(trace))
     out.append(C.attribute_schema(g_graph, g_city))
     out.append(C.centreline_curvature_within_class(
         g_graph, parm("graph_params_turn_radius_scale"),

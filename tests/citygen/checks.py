@@ -1001,6 +1001,78 @@ def lots_tile_blocks(lot_geo, block_geo, rel_tol=1e-4):
                   "relative area error (lots %.1f vs blocks %.1f)" % (la, ba))
 
 
+def _graph_invariants(geo):
+    """What a REPAIR changes, and nothing else. Counts and sums only, so point
+    renumbering — which graph_fuse, polypath and the blasts do freely — cannot
+    move any of it. Mirrors `repair_verdict` inside pf_citygen_trace; if that
+    wrangle changes, this must follow."""
+    nodes = sum(1 for pt in geo.points() if len(pt.prims()) != 1)
+    length = sum(pr.intrinsicValue("measuredperimeter") for pr in geo.prims())
+    return {"edges": len(geo.prims()), "points": len(geo.points()),
+            "nodes": nodes, "length_m": round(length, 2)}
+
+
+def graph_reaches_a_fixed_point(trace_node):
+    """The repair pass, re-run on the graph it shipped, must change nothing.
+
+    citygen_streets.md S3. Every repair MUTATES the graph and the consequence
+    lands on a stage that has already run: extend-to-connect welds a dead end
+    onto a target street, which creates a NEW JUNCTION on that target, and S5
+    has been and gone. The tongue drop and the cul-de-sac bulb do the same
+    thing one stage further on. The artist's report was the visible half of it
+    — "it did detect it now as a dead end and merged it to the closest street.
+    That is fine, but the other street which should form a junction with it did
+    not" — and re-feeding the shipped graph into the pipeline reproduced it
+    exactly: C_radial came back with 86 edges instead of 84 and 94 m more
+    street, two T-junctions the single pass had refused.
+
+    Two teeth, because the solver's own verdict and an independent replay fail
+    differently:
+
+    * **The solver must say it converged.** `repair_converged` is the stop
+      attribute on the loop, so a run that hits the cap ships 0 and this fails
+      rather than shipping a half-repaired graph quietly. That failure mode has
+      now bitten this project four times (S3b `iters = 200`, the trace stall,
+      the clamp budget, and this).
+    * **And an independent pass must agree.** A second `pf_citygen_trace`, same
+      parameters, fed the shipped splines on its drawn-spline input. If the
+      first node's idea of "converged" is wrong, this is what catches it.
+    """
+    name = "graph_reaches_a_fixed_point"
+    geo = trace_node.geometry(0)
+    if geo.findGlobalAttrib("repair_converged") is None:
+        return Result(name, False, None, "no repair loop on this tracer")
+    conv = geo.attribValue("repair_converged")
+    iters = geo.attribValue("repair_iterations")
+    parent = trace_node.parent()
+    probe = parent.node("__chk_fixed_point")
+    if probe is not None:
+        probe.destroy()
+    probe = parent.createNode(trace_node.type().name(), "__chk_fixed_point")
+    try:
+        for p in trace_node.parms():
+            q = probe.parm(p.name())
+            if q is not None:
+                try:
+                    q.set(p.eval())
+                except Exception:
+                    pass
+        probe.setInput(1, trace_node, 0)
+        probe.cook(force=True)
+        if probe.errors():
+            return Result(name, False, {"converged": conv, "passes": iters},
+                          "replay errored: %s" % probe.errors()[0][:160])
+        was = _graph_invariants(geo)
+        now = _graph_invariants(probe.geometry(0))
+    finally:
+        probe.destroy()
+    moved = {k: [was[k], now[k]] for k in was
+             if (abs(was[k] - now[k]) > 0.01 if k == "length_m" else was[k] != now[k])}
+    return Result(name, conv == 1 and not moved,
+                  {"converged": conv, "passes": iters, "replay_moved": moved or None},
+                  "the repair pass re-run on the graph it shipped must be a no-op")
+
+
 def every_block_is_subdivided(lot_geo, block_geo, floor=0):
     """A block with no parcels in it is a bare grey sector, and NOTHING here
     could see one.
