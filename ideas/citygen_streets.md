@@ -704,9 +704,12 @@ reporting "converged".
   through `nearpoint()` so renumbering cannot move it, against the artist-facing
   **`Repair Tolerance`** (default **1 mm**, about **16×** the float32 settling noise, whose worst
   case across all seven cases is **6.10e-5 m** on `F_bend` — this paragraph said 9.2e-5 m and
-  "about 11×" until 2026-08-10; that number is not reproducible on this build and the shipped
-  `repair_residual_m` reads A 1.5e-5 · B 3.4e-5 · C 4.3e-5 · D 1.5e-5 · E 0 · F 6.10e-5 · G 7.6e-6.
-  The conclusion is unaffected — the margin is larger, not smaller);
+  "about 11×" until 2026-08-10. At the shipped defaults `repair_residual_m` reads
+  A 1.5e-5 · B 3.4e-5 · C 4.3e-5 · D 1.5e-5 · E 0 · F **6.10e-5** · G 7.6e-6. The 9.2e-5 m figure
+  reproduces only with the tolerance driven *below* the settling floor — measured **9.16e-5 m** on
+  `F_bend` at a 1e-6 m tolerance, where the loop no longer converges and runs to its 12-pass cap —
+  so it is the noise of a non-converging run, not of the shipped one. The conclusion is unaffected;
+  the margin is larger, not smaller);
 - a **per-edge direction match**: each edge is matched to the previous pass's edge that shares
   its endpoints — through the nodes, not through the numbering — and the loop will not stop while
   any of them comes back the other way round.
@@ -817,6 +820,13 @@ forced. Measured across all seven forced passes: worst **6.10e-5 m** (`F_bend`) 
 **16×** margin — and **0** reversals; `C_radial`'s is 4.55e-5 m, the pass that moves its four lots.
 A *missing* attribute fails rather than being skipped: reading a verdict defensively is how
 `turn_clamp_converged` once stopped shipping with nothing noticing (§6).
+
+**And the tooth was proved to bite rather than assumed to**, which is the question the old flag
+would have failed: driving `Repair Tolerance` to 1e-6 m makes `F_bend` **FAIL** at
+`residual_m` 9.16e-5 against `tol_m` 1e-6. The other two new checks were broken on purpose the
+same way — `no_scratch_attribs_city` fails the moment a detail attribute is put back on the city,
+and `input0_reaches_an_output` fails both on a 0.5 m perturbation of input 0 and on the input
+being **unwired altogether**, which is the change the audit recommended.
 
 Two smaller repairs in the same check: the `stopattrib` round-trip went through `.eval()`, which
 would have flattened an expression to a literal on the way back in, and now goes through
