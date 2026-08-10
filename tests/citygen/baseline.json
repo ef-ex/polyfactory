@@ -1075,7 +1075,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 89
+      "value": 93
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -1094,7 +1094,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "junctions": 30,
+        "junctions": 31,
         "m2": 0.0,
         "per_junction": 0.0
       }
@@ -1118,7 +1118,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "loops": 17,
+        "loops": 18,
         "multiplicity": {},
         "open_loops": 0,
         "unpaired_ends": 0
@@ -1843,13 +1843,13 @@
       "value": 0
     },
     {
-      "detail": "107 corners, 95 arcs fitted; 107 join two street classes, where the lesser one sets the radius (S5)",
+      "detail": "111 corners, 99 arcs fitted; 111 join two street classes, where the lesser one sets the radius (S5)",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
       "value": {
         "fit": 1.48e-05,
-        "mixed_class": 107,
+        "mixed_class": 111,
         "radius": 2e-07,
         "radius_fit": 0.102,
         "straight": 0,
@@ -1862,7 +1862,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "590/590"
+      "value": "612/612"
     },
     {
       "detail": "",
@@ -1912,7 +1912,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "ends": 107,
+        "ends": 111,
         "max": 0.0001,
         "mean": 0.0,
         "over_0.05m": 0,
@@ -1923,7 +1923,7 @@
       }
     },
     {
-      "detail": "mouths whose street s5j_trim deleted, out of 107",
+      "detail": "mouths whose street s5j_trim deleted, out of 111",
       "name": "every_mouth_has_a_road",
       "ok": true,
       "skipped": false,
@@ -1948,14 +1948,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 245986.9 vs blocks 245986.9)",
+      "detail": "relative area error (lots 244873.8 vs blocks 244873.8)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 6e-08
+      "value": 2e-09
     },
     {
-      "detail": "618 prims, 618 distinct footprints",
+      "detail": "616 prims, 616 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -1967,11 +1967,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 472,
-        "max": 15.52,
-        "median": 2.94,
-        "over": 160,
-        "p90": 8.07
+        "lots": 468,
+        "max": 14.06,
+        "median": 3.06,
+        "over": 165,
+        "p90": 7.95
       }
     },
     {
@@ -2034,10 +2034,10 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "blocks": 16,
-        "city": 18349,
-        "edges": 62,
-        "lots": 618
+        "blocks": 17,
+        "city": 18445,
+        "edges": 64,
+        "lots": 616
       }
     }
   ],
@@ -2096,7 +2096,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 117
+      "value": 116
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -2115,7 +2115,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "junctions": 39,
+        "junctions": 45,
         "m2": 0.0,
         "per_junction": 0.0
       }
@@ -2130,7 +2130,7 @@
           -107.9,
           -268.0
         ],
-        "edge_m": 16.4,
+        "edge_m": 12.7,
         "m2": 0.0,
         "patches": 0,
         "worst": []
@@ -2142,7 +2142,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "loops": 21,
+        "loops": 27,
         "multiplicity": {},
         "open_loops": 0,
         "unpaired_ends": 0
@@ -2175,8 +2175,8 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "interior": 8,
-        "total": 17
+        "interior": 5,
+        "total": 14
       }
     },
     {
@@ -2198,8 +2198,8 @@
         "over": 0,
         "solver_turn_spike": 1.01,
         "spike_prim_at": [
-          -286.38,
-          224.53
+          -59.1,
+          0.91
         ],
         "worst_at": [
           250.64,
@@ -2213,11 +2213,11 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "min_segment_m": 3.7376,
+        "min_segment_m": 3.6731,
         "under": 0,
         "worst_at": [
-          -275.59,
-          -125.41
+          -14.99,
+          96.79
         ]
       }
     },
@@ -2867,14 +2867,14 @@
       "value": 0
     },
     {
-      "detail": "133 corners, 126 arcs fitted; 121 join two street classes, where the lesser one sets the radius (S5)",
+      "detail": "154 corners, 146 arcs fitted; 142 join two street classes, where the lesser one sets the radius (S5)",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
       "value": {
         "fit": 2.24e-05,
-        "mixed_class": 121,
-        "radius": 2e-07,
+        "mixed_class": 142,
+        "radius": 5e-07,
         "radius_fit": 0.801,
         "straight": 0,
         "tangent": 4.48e-05,
@@ -2886,7 +2886,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "804/804"
+      "value": "931/931"
     },
     {
       "detail": "",
@@ -2915,18 +2915,18 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "min_ratio": 0.819,
-        "min_standing_m": 20.166,
+        "min_ratio": 0.242,
+        "min_standing_m": 6.49,
         "under": 0,
         "under_ratio": 0,
-        "under_ratio_all": 3,
+        "under_ratio_all": 8,
         "worst_at": [
-          72.04,
-          -70.82
+          -177.43,
+          -254.86
         ],
         "worst_ratio_at": [
-          -111.23,
-          -311.53
+          -177.43,
+          -254.86
         ]
       }
     },
@@ -2936,7 +2936,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "ends": 133,
+        "ends": 154,
         "max": 0.0001,
         "mean": 0.0,
         "over_0.05m": 0,
@@ -2947,7 +2947,7 @@
       }
     },
     {
-      "detail": "mouths whose street s5j_trim deleted, out of 133",
+      "detail": "mouths whose street s5j_trim deleted, out of 154",
       "name": "every_mouth_has_a_road",
       "ok": true,
       "skipped": false,
@@ -2972,14 +2972,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 312071.2 vs blocks 312071.2)",
+      "detail": "relative area error (lots 302915.1 vs blocks 302915.2)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 8.3e-08
+      "value": 8.7e-08
     },
     {
-      "detail": "785 prims, 785 distinct footprints",
+      "detail": "762 prims, 762 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -2991,11 +2991,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 606,
-        "max": 16.09,
-        "median": 3.24,
-        "over": 194,
-        "p90": 8.37
+        "lots": 614,
+        "max": 16.22,
+        "median": 3.08,
+        "over": 166,
+        "p90": 7.79
       }
     },
     {
@@ -3037,9 +3037,9 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "built": 11310.8,
+        "built": 8364.4,
         "disc": 11309.7,
-        "gap": 37.86
+        "gap": -1.14
       }
     },
     {
@@ -3062,10 +3062,10 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "blocks": 20,
-        "city": 20250,
-        "edges": 75,
-        "lots": 785
+        "blocks": 26,
+        "city": 21171,
+        "edges": 84,
+        "lots": 762
       }
     }
   ],

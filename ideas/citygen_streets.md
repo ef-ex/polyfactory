@@ -357,6 +357,71 @@ finding, and the two together are the whole answer.
 Dead ends that remain after all of this are real cul-de-sacs and should be **deliberate** — a
 `dead_end_ratio` the artist dials, not a leftover.
 
+#### ⚠️ A CONNECTION WAS BEING REFUSED FOR BEING TOO CLOSE — fixed 2026-08-10
+
+`graph_extend` case (b) — *extend to the nearest point on an existing edge* — gated the landing
+at `clear_b = max(min_node_dist, min_edge_len)` = **40 m**, so an end that came to rest *inside*
+the crowding range was not merged, it was **dropped**, and it shipped as a dead end sitting in
+the target's pavement. Measured on C_radial after the tongue drop: **4 of its 8 interior dead
+ends had an edge within 40 m**, and one of them was **7.3 m from a 26.8 m wide arterial** — a
+stub three and a half metres inside the road it was refused a connection to.
+
+The floor is now 1.0 m and a gap below `clear_b` is closed by **moving the end onto the
+landing** rather than bridging it, exactly as case (a) has always done at its own snap range;
+`graph_stitch` then splits the target at the T-touch. Everything that is about the *junction*
+rather than about the *connector* still binds — `max_curvature` on our own end, the T's leg
+angle, and `min_node_dist` measured **along the target** so the split cannot crowd the nodes at
+either end of the edge it lands on — and the snap will not consume its own street.
+
+**Measured, C_radial:** dead ends **17 → 14 total, 8 → 5 interior** (28 / 13 before this round's
+work began). Blocks **20 → 26**, B_grid **16 → 17** — the connections close real city blocks.
+`plaza_disc_is_clear` recovered on its own: **built 11310.8 → 8364.4 m², gap 37.86 → −1.14 m**,
+because the arms that stopped 62–66 m from the plaza centre now reach it. `lots_clear_of_roads`
+**16.4 → 12.7 m**. `city_is_fully_paved`, `lots_clear_of_junctions`, `selfx_junction_surface`,
+folds, seam, `every_mouth_has_a_road`, `graph_planar_y` all still **0**.
+
+Two numbers moved the wrong way and neither is swept up:
+
+* `selfx_city_merged` on B **89 → 93**. B gained a junction (107 → 111 mouths); 4e-1 is
+  road-and-patch interpenetration *at every junction*, so this tracks the junction count almost
+  exactly and is not a new defect.
+* `trim_leaves_road_standing.under_ratio_all` on C **3 → 8**, worst ratio **0.242**. A snap
+  splits its target, and `clear_b` = 40 m only guarantees each piece is 40 m long — an arterial
+  piece that short loses ~17 m to each of its two mouths and ships ~6 m standing at 26.8 m
+  width. **This is the tongue again, in the one position `s5j_tongue_mark` may not touch**: a
+  street between two junctions, where deleting it would disconnect the city. `under_ratio`, the
+  asserted quantity, stays 0.
+
+#### ⚠️ The node merge: attempted, measured, reverted — and the blocker is NOT the clamp
+
+§S3 step 3's answer to the above is to **weld the two crowding junctions into one node**. The
+recorded blocker was that the S3b clamp pins prim endpoints, so a merge performed after it
+leaves a kink at the node that nothing can relax (κ × R_min 40.2, still 28.2 after spreading
+into the incident arms). **That was addressed and it was not the binding constraint.** The whole
+drop/merge pass was moved to sit between `graph_width` and `graph_turn_resample`, i.e. *before*
+the clamp, so the clamp simply solves the graph it is handed; and the merge was restricted to
+streets whose **both** ends are already degree ≥ 3, so the weld can never produce a degree-2
+node — a bend at a node, which is the case the clamp genuinely cannot fix.
+
+It still failed, and differently. On C_radial, 6 merges (plus 8 drops) produced:
+
+| | before | after the merge |
+|---|---|---|
+| `every_mouth_has_a_road` | 0 | **14** |
+| `selfx_junction_surface` | 0 | **349** |
+| `block_boundary_closes` | 0 unpaired, 0 open | **28 unpaired, 14 open loops** |
+| `lots_clear_of_junctions` | 0 m² | **9606 m²** |
+| `trim_leaves_road_standing.min_standing_m` | 20.2 m | **−1952 m** |
+| suite | 18 failing | **27 failing** |
+
+A trim of −1952 m on a street a few hundred metres long is a **miter spike**: welding two
+junctions 6 m apart brings their arms together at a shallow angle, `pfsj_corner_lines` finds the
+kerb intersection hundreds of metres out, and the cut runs past the far end of the street. So the
+real prerequisite is §S5's **construction 2 — "merge incident edges within `merge_angle`
+(default 20°) into a single direction before solving"** — which is listed as adopted and is still
+unbuilt. **The node merge cannot land before the shallow-arm merge does**; it is not a threshold
+to tune and it is not the clamp. Reverted, and the numbers above are why.
+
 ### S3 — Graph (the contract, and the missing 80%)
 
 **Purpose: turn curves into a graph with real topology — planar *per layer*, not globally planar.**
