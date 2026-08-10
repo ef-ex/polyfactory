@@ -490,7 +490,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "hoveroutlinemixin",
-      "community": 32,
+      "community": 34,
       "norm_label": "hoveroutlinemixin"
     },
     {
@@ -1920,7 +1920,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_thumbnail_dropped_at",
-      "community": 20,
+      "community": 8,
       "norm_label": "._on_thumbnail_dropped_at()"
     },
     {
@@ -1930,7 +1930,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qpoint",
-      "community": 20,
+      "community": 8,
       "norm_label": "qpoint"
     },
     {
@@ -2220,7 +2220,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_383",
-      "community": 20,
+      "community": 8,
       "norm_label": "forward thumbnail drop to the browser-level signal."
     },
     {
@@ -2420,7 +2420,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase",
-      "community": 23,
+      "community": 20,
       "norm_label": "assetdatabase"
     },
     {
@@ -2430,7 +2430,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_init",
-      "community": 23,
+      "community": 20,
       "norm_label": ".__init__()"
     },
     {
@@ -2440,7 +2440,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_ensure_directory",
-      "community": 23,
+      "community": 20,
       "norm_label": "._ensure_directory()"
     },
     {
@@ -2450,7 +2450,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_connect",
-      "community": 23,
+      "community": 20,
       "norm_label": "._connect()"
     },
     {
@@ -2460,7 +2460,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_initialize_schema",
-      "community": 23,
+      "community": 20,
       "norm_label": "._initialize_schema()"
     },
     {
@@ -2490,7 +2490,7 @@
       "source_location": "L204",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_asset",
-      "community": 23,
+      "community": 20,
       "norm_label": ".get_asset()"
     },
     {
@@ -2500,7 +2500,7 @@
       "source_location": "L225",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_asset_tags",
-      "community": 23,
+      "community": 20,
       "norm_label": ".get_asset_tags()"
     },
     {
@@ -2510,7 +2510,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_search_assets",
-      "community": 23,
+      "community": 20,
       "norm_label": ".search_assets()"
     },
     {
@@ -2520,7 +2520,7 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_categories",
-      "community": 23,
+      "community": 20,
       "norm_label": ".get_all_categories()"
     },
     {
@@ -2530,7 +2530,7 @@
       "source_location": "L312",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_tags",
-      "community": 23,
+      "community": 20,
       "norm_label": ".get_all_tags()"
     },
     {
@@ -2540,7 +2540,7 @@
       "source_location": "L323",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_names",
-      "community": 23,
+      "community": 20,
       "norm_label": ".get_all_names()"
     },
     {
@@ -2550,7 +2550,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_update_asset",
-      "community": 23,
+      "community": 20,
       "norm_label": ".update_asset()"
     },
     {
@@ -2560,7 +2560,7 @@
       "source_location": "L367",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_delete_asset",
-      "community": 23,
+      "community": 20,
       "norm_label": ".delete_asset()"
     },
     {
@@ -2580,7 +2580,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_remove_tags_from_assets",
-      "community": 23,
+      "community": 20,
       "norm_label": ".remove_tags_from_assets()"
     },
     {
@@ -2590,7 +2590,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_close",
-      "community": 23,
+      "community": 20,
       "norm_label": ".close()"
     },
     {
@@ -2600,7 +2600,7 @@
       "source_location": "L416",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_enter",
-      "community": 23,
+      "community": 20,
       "norm_label": ".__enter__()"
     },
     {
@@ -2610,7 +2610,7 @@
       "source_location": "L419",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_exit",
-      "community": 23,
+      "community": 20,
       "norm_label": ".__exit__()"
     },
     {
@@ -2630,7 +2630,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "asset_library_database_rationale_12",
-      "community": 23,
+      "community": 20,
       "norm_label": "manages the asset library sqlite database"
     },
     {
@@ -2640,7 +2640,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "asset_library_database_rationale_15",
-      "community": 23,
+      "community": 20,
       "norm_label": "initialize database connection                  args:             db_path: pa"
     },
     {
@@ -2650,7 +2650,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "asset_library_database_rationale_35",
-      "community": 23,
+      "community": 20,
       "norm_label": "create database directory if it doesn't exist"
     },
     {
@@ -2660,7 +2660,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "asset_library_database_rationale_65",
-      "community": 23,
+      "community": 20,
       "norm_label": "establish database connection"
     },
     {
@@ -2670,7 +2670,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "asset_library_database_rationale_78",
-      "community": 23,
+      "community": 20,
       "norm_label": "create database tables if they don't exist"
     },
     {
@@ -2700,7 +2700,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "asset_library_database_rationale_205",
-      "community": 23,
+      "community": 20,
       "norm_label": "get asset by id                  args:             asset_id: asset id"
     },
     {
@@ -2710,7 +2710,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "asset_library_database_rationale_226",
-      "community": 23,
+      "community": 20,
       "norm_label": "get all tags for an asset                  args:             asset_id: asset"
     },
     {
@@ -2720,7 +2720,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "asset_library_database_rationale_244",
-      "community": 23,
+      "community": 20,
       "norm_label": "search assets with various filters                  args:             search_"
     },
     {
@@ -2730,7 +2730,7 @@
       "source_location": "L302",
       "_origin": "ast",
       "id": "asset_library_database_rationale_302",
-      "community": 23,
+      "community": 20,
       "norm_label": "get all unique categories                  returns:             list of categ"
     },
     {
@@ -2740,7 +2740,7 @@
       "source_location": "L313",
       "_origin": "ast",
       "id": "asset_library_database_rationale_313",
-      "community": 23,
+      "community": 20,
       "norm_label": "get all unique tags                  returns:             list of tag strings"
     },
     {
@@ -2750,7 +2750,7 @@
       "source_location": "L324",
       "_origin": "ast",
       "id": "asset_library_database_rationale_324",
-      "community": 23,
+      "community": 20,
       "norm_label": "get all unique asset names                  returns:             list of asse"
     },
     {
@@ -2760,7 +2760,7 @@
       "source_location": "L335",
       "_origin": "ast",
       "id": "asset_library_database_rationale_335",
-      "community": 23,
+      "community": 20,
       "norm_label": "update asset fields                  args:             asset_id: asset id"
     },
     {
@@ -2770,7 +2770,7 @@
       "source_location": "L368",
       "_origin": "ast",
       "id": "asset_library_database_rationale_368",
-      "community": 23,
+      "community": 20,
       "norm_label": "delete an asset from the database                  args:             asset_id"
     },
     {
@@ -2790,7 +2790,7 @@
       "source_location": "L388",
       "_origin": "ast",
       "id": "asset_library_database_rationale_388",
-      "community": 23,
+      "community": 20,
       "norm_label": "remove specific tags from multiple assets.          tags that do not exist on"
     },
     {
@@ -2800,7 +2800,7 @@
       "source_location": "L412",
       "_origin": "ast",
       "id": "asset_library_database_rationale_412",
-      "community": 23,
+      "community": 20,
       "norm_label": "close database connection"
     },
     {
@@ -3310,7 +3310,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "object",
-      "community": 76,
+      "community": 72,
       "norm_label": "object"
     },
     {
@@ -5000,7 +5000,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init",
-      "community": 0,
+      "community": 12,
       "norm_label": "__init__.py"
     },
     {
@@ -5010,7 +5010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init_rationale_1",
-      "community": 0,
+      "community": 12,
       "norm_label": "polyfactory ui framework =========================  modern qt widget library"
     },
     {
@@ -5020,7 +5020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_functions",
-      "community": 0,
+      "community": 22,
       "norm_label": "functions.py"
     },
     {
@@ -5030,7 +5030,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "core_functions_functions",
-      "community": 101,
+      "community": 0,
       "norm_label": "functions"
     },
     {
@@ -5040,7 +5040,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "core_functions_functions_set_svg_icon",
-      "community": 22,
+      "community": 0,
       "norm_label": ".set_svg_icon()"
     },
     {
@@ -5050,7 +5050,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "core_functions_functions_set_svg_image",
-      "community": 101,
+      "community": 0,
       "norm_label": ".set_svg_image()"
     },
     {
@@ -5060,7 +5060,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "core_functions_functions_set_image",
-      "community": 101,
+      "community": 0,
       "norm_label": ".set_image()"
     },
     {
@@ -5070,7 +5070,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_json_settings",
-      "community": 76,
+      "community": 12,
       "norm_label": "json_settings.py"
     },
     {
@@ -5170,7 +5170,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_qt_core",
-      "community": 0,
+      "community": 12,
       "norm_label": "qt_core.py"
     },
     {
@@ -5180,7 +5180,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "columns_ui_left_column",
-      "community": 85,
+      "community": 12,
       "norm_label": "ui_left_column.py"
     },
     {
@@ -5190,7 +5190,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "columns_ui_left_column_ui_leftcolumn",
-      "community": 85,
+      "community": 72,
       "norm_label": "ui_leftcolumn"
     },
     {
@@ -5200,7 +5200,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "columns_ui_left_column_ui_leftcolumn_setupui",
-      "community": 85,
+      "community": 72,
       "norm_label": ".setupui()"
     },
     {
@@ -5210,7 +5210,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "columns_ui_left_column_ui_leftcolumn_retranslateui",
-      "community": 85,
+      "community": 72,
       "norm_label": ".retranslateui()"
     },
     {
@@ -5610,7 +5610,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_credits_bar_init",
-      "community": 58,
+      "community": 85,
       "norm_label": "__init__.py"
     },
     {
@@ -5620,7 +5620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits",
-      "community": 58,
+      "community": 85,
       "norm_label": "py_credits.py"
     },
     {
@@ -5630,7 +5630,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits_pycredits",
-      "community": 58,
+      "community": 85,
       "norm_label": "pycredits"
     },
     {
@@ -5640,7 +5640,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits_pycredits_init",
-      "community": 58,
+      "community": 85,
       "norm_label": ".__init__()"
     },
     {
@@ -5650,7 +5650,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits_pycredits_setup_ui",
-      "community": 58,
+      "community": 85,
       "norm_label": ".setup_ui()"
     },
     {
@@ -5850,7 +5850,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button_pyiconbutton_init",
-      "community": 92,
+      "community": 69,
       "norm_label": ".__init__()"
     },
     {
@@ -5970,7 +5970,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button_tooltip",
-      "community": 92,
+      "community": 69,
       "norm_label": "_tooltip"
     },
     {
@@ -5990,7 +5990,7 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "py_icon_button_py_icon_button_tooltip_init",
-      "community": 92,
+      "community": 69,
       "norm_label": ".__init__()"
     },
     {
@@ -6010,7 +6010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_icon",
-      "community": 85,
+      "community": 12,
       "norm_label": "py_icon.py"
     },
     {
@@ -6020,7 +6020,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon",
-      "community": 85,
+      "community": 91,
       "norm_label": "pyicon"
     },
     {
@@ -6030,7 +6030,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_init",
-      "community": 85,
+      "community": 91,
       "norm_label": ".__init__()"
     },
     {
@@ -6040,7 +6040,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_setup_ui",
-      "community": 85,
+      "community": 91,
       "norm_label": ".setup_ui()"
     },
     {
@@ -6050,7 +6050,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_set_icon",
-      "community": 85,
+      "community": 91,
       "norm_label": ".set_icon()"
     },
     {
@@ -6060,7 +6060,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_left_button",
-      "community": 69,
+      "community": 12,
       "norm_label": "py_left_button.py"
     },
     {
@@ -6080,7 +6080,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_init",
-      "community": 69,
+      "community": 6,
       "norm_label": ".__init__()"
     },
     {
@@ -6200,7 +6200,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip",
-      "community": 69,
+      "community": 6,
       "norm_label": "_tooltip"
     },
     {
@@ -6210,7 +6210,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip_init",
-      "community": 69,
+      "community": 6,
       "norm_label": ".__init__()"
     },
     {
@@ -6220,7 +6220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_left_column",
-      "community": 85,
+      "community": 12,
       "norm_label": "py_left_column.py"
     },
     {
@@ -6290,7 +6290,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_menu_py_div",
-      "community": 0,
+      "community": 22,
       "norm_label": "py_div.py"
     },
     {
@@ -6300,7 +6300,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_left_menu_py_div_pydiv",
-      "community": 0,
+      "community": 22,
       "norm_label": "pydiv"
     },
     {
@@ -6310,7 +6310,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_menu_py_div_pydiv_init",
-      "community": 0,
+      "community": 22,
       "norm_label": ".__init__()"
     },
     {
@@ -6320,7 +6320,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu",
-      "community": 0,
+      "community": 22,
       "norm_label": "py_left_menu.py"
     },
     {
@@ -6440,7 +6440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button",
-      "community": 0,
+      "community": 22,
       "norm_label": "py_left_menu_button.py"
     },
     {
@@ -6460,7 +6460,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_pyleftmenubutton_init",
-      "community": 22,
+      "community": 69,
       "norm_label": ".__init__()"
     },
     {
@@ -6620,7 +6620,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_tooltip",
-      "community": 22,
+      "community": 69,
       "norm_label": "_tooltip"
     },
     {
@@ -6630,7 +6630,7 @@
       "source_location": "L349",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button_tooltip_init",
-      "community": 22,
+      "community": 69,
       "norm_label": ".__init__()"
     },
     {
@@ -6730,7 +6730,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_init",
-      "community": 0,
+      "community": 90,
       "norm_label": "__init__.py"
     },
     {
@@ -6740,7 +6740,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_py_push_button",
-      "community": 0,
+      "community": 90,
       "norm_label": "py_push_button.py"
     },
     {
@@ -6940,7 +6940,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar",
-      "community": 12,
+      "community": 0,
       "norm_label": "pytitlebar"
     },
     {
@@ -6950,7 +6950,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_init",
-      "community": 12,
+      "community": 0,
       "norm_label": ".__init__()"
     },
     {
@@ -6960,7 +6960,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_add_menus",
-      "community": 22,
+      "community": 0,
       "norm_label": ".add_menus()"
     },
     {
@@ -6970,7 +6970,7 @@
       "source_location": "L206",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_btn_clicked",
-      "community": 12,
+      "community": 0,
       "norm_label": ".btn_clicked()"
     },
     {
@@ -6980,7 +6980,7 @@
       "source_location": "L209",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_btn_released",
-      "community": 12,
+      "community": 0,
       "norm_label": ".btn_released()"
     },
     {
@@ -6990,7 +6990,7 @@
       "source_location": "L214",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_set_title",
-      "community": 12,
+      "community": 0,
       "norm_label": ".set_title()"
     },
     {
@@ -7000,7 +7000,7 @@
       "source_location": "L220",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_maximize_restore",
-      "community": 12,
+      "community": 0,
       "norm_label": ".maximize_restore()"
     },
     {
@@ -7010,7 +7010,7 @@
       "source_location": "L252",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_setup_ui",
-      "community": 12,
+      "community": 0,
       "norm_label": ".setup_ui()"
     },
     {
@@ -7250,7 +7250,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_hitbutton",
-      "community": 20,
+      "community": 8,
       "norm_label": ".hitbutton()"
     },
     {
@@ -7600,7 +7600,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -7610,7 +7610,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_normal_indicator",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw_normal_indicator()"
     },
     {
@@ -7630,7 +7630,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -7640,7 +7640,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_50",
-      "community": 60,
+      "community": 39,
       "norm_label": "draw line indicating surface normal.          args:         drawable: houdini"
     },
     {
@@ -9630,7 +9630,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input",
-      "community": 32,
+      "community": 34,
       "norm_label": "tag_input.py"
     },
     {
@@ -9780,7 +9780,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip",
-      "community": 32,
+      "community": 34,
       "norm_label": "tagchip"
     },
     {
@@ -9790,7 +9790,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_init",
-      "community": 32,
+      "community": 34,
       "norm_label": ".__init__()"
     },
     {
@@ -9800,7 +9800,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_paintevent",
-      "community": 32,
+      "community": 34,
       "norm_label": ".paintevent()"
     },
     {
@@ -9810,7 +9810,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_on_remove",
-      "community": 32,
+      "community": 34,
       "norm_label": "._on_remove()"
     },
     {
@@ -10010,7 +10010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_1",
-      "community": 32,
+      "community": 34,
       "norm_label": "tag input widget - autocompleting tag input with removable chips similar to sho"
     },
     {
@@ -10030,7 +10030,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_90",
-      "community": 32,
+      "community": 34,
       "norm_label": "individual tag chip with remove button"
     },
     {
@@ -10040,7 +10040,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_133",
-      "community": 32,
+      "community": 34,
       "norm_label": "custom paint to draw rounded background with darker blue + animated hover outlin"
     },
     {
@@ -10050,7 +10050,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_149",
-      "community": 32,
+      "community": 34,
       "norm_label": "handle remove button click"
     },
     {
@@ -10960,7 +10960,7 @@
       "source_location": "L546",
       "_origin": "ast",
       "id": "citygen_checks_junction_boundary_is_simple",
-      "community": 89,
+      "community": 7,
       "norm_label": "junction_boundary_is_simple()"
     },
     {
@@ -10990,7 +10990,7 @@
       "source_location": "L734",
       "_origin": "ast",
       "id": "citygen_checks_dead_ends",
-      "community": 7,
+      "community": 89,
       "norm_label": "dead_ends()"
     },
     {
@@ -11247,7 +11247,7 @@
       "label": "city_is_fully_paved()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2091",
+      "source_location": "L2166",
       "_origin": "ast",
       "id": "citygen_checks_city_is_fully_paved",
       "community": 71,
@@ -11400,7 +11400,7 @@
       "source_location": "L547",
       "_origin": "ast",
       "id": "citygen_checks_rationale_547",
-      "community": 89,
+      "community": 7,
       "norm_label": "the boundary must not self-cross. capin/capout assigned by distance to     the p"
     },
     {
@@ -11430,7 +11430,7 @@
       "source_location": "L735",
       "_origin": "ast",
       "id": "citygen_checks_rationale_735",
-      "community": 7,
+      "community": 89,
       "norm_label": "dead ends, split by whether they sit on the edge of the traced domain.      pari"
     },
     {
@@ -11677,9 +11677,9 @@
       "label": "Nothing inside the street corridor may be left unpaved.      THE check that woul",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2093",
+      "source_location": "L2168",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_2093",
+      "id": "citygen_checks_rationale_2168",
       "community": 71,
       "norm_label": "nothing inside the street corridor may be left unpaved.      the check that woul"
     },
@@ -15400,7 +15400,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "ideas_citygen_4_cross_subsystem_contracts",
-      "community": 45,
+      "community": 58,
       "norm_label": "4. cross-subsystem contracts"
     },
     {
@@ -15410,7 +15410,7 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "ideas_citygen_contract_1_the_region_is_the_unit_of_identity_caching_locking_and_transfer",
-      "community": 45,
+      "community": 58,
       "norm_label": "contract 1 \u2014 the **region** is the unit of identity, caching, locking and transfer"
     },
     {
@@ -15420,7 +15420,7 @@
       "source_location": "L173",
       "_origin": "ast",
       "id": "ideas_citygen_contract_2_the_override_layer_an_upstream_node_committed_to_by_a_downstream_write",
-      "community": 45,
+      "community": 58,
       "norm_label": "contract 2 \u2014 the override layer: an upstream node, committed to by a downstream write"
     },
     {
@@ -15430,7 +15430,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "ideas_citygen_the_edit_node_design_hannes_concept_adopted",
-      "community": 45,
+      "community": 58,
       "norm_label": "the edit-node design (hannes' concept, adopted)"
     },
     {
@@ -15440,7 +15440,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "ideas_citygen_contract_3_terrain_city_two_terrain_nodes_no_loop",
-      "community": 45,
+      "community": 58,
       "norm_label": "contract 3 \u2014 terrain \u2194 city: two terrain nodes, no loop"
     },
     {
@@ -15450,7 +15450,7 @@
       "source_location": "L245",
       "_origin": "ast",
       "id": "ideas_citygen_contract_4_city_vegetation_masks",
-      "community": 45,
+      "community": 58,
       "norm_label": "contract 4 \u2014 city \u2192 vegetation masks"
     },
     {
@@ -15460,7 +15460,7 @@
       "source_location": "L250",
       "_origin": "ast",
       "id": "ideas_citygen_contract_5_chunking_is_spatial_shots_do_not_drive_generation",
-      "community": 45,
+      "community": 58,
       "norm_label": "contract 5 \u2014 chunking is spatial. **shots do not drive generation.**"
     },
     {
@@ -15470,7 +15470,7 @@
       "source_location": "L266",
       "_origin": "ast",
       "id": "ideas_citygen_contract_6_networks_are_layered_and_typed",
-      "community": 45,
+      "community": 58,
       "norm_label": "contract 6 \u2014 networks are layered and typed"
     },
     {
@@ -15480,7 +15480,7 @@
       "source_location": "L280",
       "_origin": "ast",
       "id": "ideas_citygen_contract_7_a_reusable_python_state_library_new",
-      "community": 45,
+      "community": 58,
       "norm_label": "contract 7 \u2014 a reusable python state library (new)"
     },
     {
@@ -15490,7 +15490,7 @@
       "source_location": "L327",
       "_origin": "ast",
       "id": "ideas_citygen_contract_8_two_wired_streams_houdini_attributes_are_the_data_format",
-      "community": 45,
+      "community": 58,
       "norm_label": "contract 8 \u2014 two wired streams; houdini attributes are the data format"
     },
     {
@@ -15500,7 +15500,7 @@
       "source_location": "L353",
       "_origin": "ast",
       "id": "ideas_citygen_overrides_ride_inside_the_data_stream",
-      "community": 45,
+      "community": 58,
       "norm_label": "overrides ride *inside* the data stream"
     },
     {
@@ -15510,7 +15510,7 @@
       "source_location": "L384",
       "_origin": "ast",
       "id": "ideas_citygen_deliberately_not_designed_yet",
-      "community": 45,
+      "community": 58,
       "norm_label": "deliberately not designed yet"
     },
     {
@@ -15927,7 +15927,7 @@
       "label": "Three constructions adopted from the civil sweep \u2014 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1153",
+      "source_location": "L1179",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
       "community": 37,
@@ -15937,7 +15937,7 @@
       "label": "Higher-degree junctions \u2014 untested, and structurally unreachable from the field",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1188",
+      "source_location": "L1214",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
       "community": 37,
@@ -15947,7 +15947,7 @@
       "label": "Plazas and roundabouts at degenerate points",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1205",
+      "source_location": "L1231",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
       "community": 37,
@@ -15957,7 +15957,7 @@
       "label": "S5b \u2014 Bridges, tunnels, ramps",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1228",
+      "source_location": "L1254",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5b_bridges_tunnels_ramps",
       "community": 17,
@@ -15967,7 +15967,7 @@
       "label": "Where bridges go \u2014 cost-driven routing (Hannes' technique, adopted)",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1237",
+      "source_location": "L1263",
       "_origin": "ast",
       "id": "ideas_citygen_streets_where_bridges_go_cost_driven_routing_hannes_technique_adopted",
       "community": 17,
@@ -15977,7 +15977,7 @@
       "label": "S6 \u2014 Cross-section \u2192 road geometry",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1272",
+      "source_location": "L1298",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s6_cross_section_road_geometry",
       "community": 17,
@@ -15987,7 +15987,7 @@
       "label": "S7 \u2014 Blocks",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1310",
+      "source_location": "L1336",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s7_blocks",
       "community": 17,
@@ -15997,47 +15997,57 @@
       "label": "The other end of the same seam: lots ON the road at a dead end \u2014 2026-08-10",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1331",
+      "source_location": "L1357",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_other_end_of_the_same_seam_lots_on_the_road_at_a_dead_end_2026_08_10",
       "community": 17,
       "norm_label": "the other end of the same seam: lots on the road at a dead end \u2014 2026-08-10"
     },
     {
+      "label": "\u26a0\ufe0f AREA WAS NOT ENOUGH EITHER. The fifth wrong seam \u2014 2026-08-10",
+      "file_type": "document",
+      "source_file": "ideas/citygen_streets.md",
+      "source_location": "L1404",
+      "_origin": "ast",
+      "id": "ideas_citygen_streets_area_was_not_enough_either_the_fifth_wrong_seam_2026_08_10",
+      "community": 17,
+      "norm_label": "\u26a0\ufe0f area was not enough either. the fifth wrong seam \u2014 2026-08-10"
+    },
+    {
       "label": "S8 \u2014 Lots",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1378",
+      "source_location": "L1463",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s8_lots",
-      "community": 91,
+      "community": 17,
       "norm_label": "s8 \u2014 lots"
     },
     {
       "label": "\u26a0\ufe0f Voronoi is wrong for lots. Rewritten 2026-08-09.",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1384",
+      "source_location": "L1469",
       "_origin": "ast",
       "id": "ideas_citygen_streets_voronoi_is_wrong_for_lots_rewritten_2026_08_09",
-      "community": 91,
+      "community": 17,
       "norm_label": "\u26a0\ufe0f voronoi is wrong for lots. rewritten 2026-08-09."
     },
     {
       "label": "The three subdivision modes \u2014 both of the first two are required",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1406",
+      "source_location": "L1491",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_three_subdivision_modes_both_of_the_first_two_are_required",
-      "community": 91,
+      "community": 17,
       "norm_label": "the three subdivision modes \u2014 both of the first two are required"
     },
     {
       "label": "4c. Implementation status \u2014 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1441",
+      "source_location": "L1526",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4c_implementation_status_2026_08_09",
       "community": 96,
@@ -16047,7 +16057,7 @@
       "label": "Overnight run \u2014 2026-08-09/10",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1452",
+      "source_location": "L1537",
       "_origin": "ast",
       "id": "ideas_citygen_streets_overnight_run_2026_08_09_10",
       "community": 96,
@@ -16057,7 +16067,7 @@
       "label": "\u26a0\ufe0f `2aba0a9` raised six numbers and recorded one \u2014 2026-08-10",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1466",
+      "source_location": "L1551",
       "_origin": "ast",
       "id": "ideas_citygen_streets_2aba0a9_raised_six_numbers_and_recorded_one_2026_08_10",
       "community": 96,
@@ -16067,7 +16077,7 @@
       "label": "Two more from the same audit \u2014 recorded, one fixed",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1526",
+      "source_location": "L1611",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_more_from_the_same_audit_recorded_one_fixed",
       "community": 96,
@@ -16077,7 +16087,7 @@
       "label": "The loop-closure gate, per-gate \u2014 measured, and two entries in `80dc19c` were wrong",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1575",
+      "source_location": "L1660",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_loop_closure_gate_per_gate_measured_and_two_entries_in_80dc19c_were_wrong",
       "community": 96,
@@ -16087,7 +16097,7 @@
       "label": "The sagitta gate is gone. The seam is bounded instead \u2014 2026-08-10",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1657",
+      "source_location": "L1742",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_sagitta_gate_is_gone_the_seam_is_bounded_instead_2026_08_10",
       "community": 96,
@@ -16097,9 +16107,9 @@
       "label": "Before and after, per criterion",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1715",
+      "source_location": "L1800",
       "_origin": "ast",
-      "id": "ideas_citygen_streets_before_and_after_per_criterion_1715",
+      "id": "ideas_citygen_streets_before_and_after_per_criterion_1800",
       "community": 96,
       "norm_label": "before and after, per criterion"
     },
@@ -16107,7 +16117,7 @@
       "label": "\u26a0\ufe0f The road-under-chord metric was ill-posed. Use the pavement deficit",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1744",
+      "source_location": "L1829",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_road_under_chord_metric_was_ill_posed_use_the_pavement_deficit",
       "community": 96,
@@ -16117,7 +16127,7 @@
       "label": "Every promoted parameter, measured \u2014 2026-08-10",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1787",
+      "source_location": "L1872",
       "_origin": "ast",
       "id": "ideas_citygen_streets_every_promoted_parameter_measured_2026_08_10",
       "community": 96,
@@ -16127,7 +16137,7 @@
       "label": "4f. Civil-engineering sweep \u2014 2026-08-09. What it changes",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1860",
+      "source_location": "L1945",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4f_civil_engineering_sweep_2026_08_09_what_it_changes",
       "community": 18,
@@ -16137,7 +16147,7 @@
       "label": "4e. Independent audit findings \u2014 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1917",
+      "source_location": "L2002",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4e_independent_audit_findings_2026_08_09",
       "community": 18,
@@ -16147,7 +16157,7 @@
       "label": "4g. Second audit \u2014 the dead-end build, 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1998",
+      "source_location": "L2083",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4g_second_audit_the_dead_end_build_2026_08_09",
       "community": 18,
@@ -16157,7 +16167,7 @@
       "label": "The junction-spacing ceiling \u2014 measured 2026-08-09, and re-read after the audit",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L2030",
+      "source_location": "L2115",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_junction_spacing_ceiling_measured_2026_08_09_and_re_read_after_the_audit",
       "community": 18,
@@ -16167,7 +16177,7 @@
       "label": "4h. Third pass \u2014 the seam, the radius rule, the two dead-end mechanisms. 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L2071",
+      "source_location": "L2156",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4h_third_pass_the_seam_the_radius_rule_the_two_dead_end_mechanisms_2026_08_09",
       "community": 18,
@@ -16177,7 +16187,7 @@
       "label": "4i. Fourth pass \u2014 the dead-end holes, the rail ceiling, the collinear average. 2026-08-09",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L2196",
+      "source_location": "L2281",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4i_fourth_pass_the_dead_end_holes_the_rail_ceiling_the_collinear_average_2026_08_09",
       "community": 18,
@@ -16187,7 +16197,7 @@
       "label": "4d. Measured state of the shipped build \u2014 2026-08-09 (pre-fix)",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L2320",
+      "source_location": "L2405",
       "_origin": "ast",
       "id": "ideas_citygen_streets_4d_measured_state_of_the_shipped_build_2026_08_09_pre_fix",
       "community": 18,
@@ -16197,7 +16207,7 @@
       "label": "5. Scale strategy",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L2360",
+      "source_location": "L2445",
       "_origin": "ast",
       "id": "ideas_citygen_streets_5_scale_strategy",
       "community": 18,
@@ -16207,7 +16217,7 @@
       "label": "6. Attribute schema",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L2376",
+      "source_location": "L2461",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6_attribute_schema",
       "community": 18,
@@ -16217,7 +16227,7 @@
       "label": "6b. Shipped V1 assets",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L2427",
+      "source_location": "L2512",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6b_shipped_v1_assets",
       "community": 18,
@@ -16227,7 +16237,7 @@
       "label": "7. Where the code goes",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L2456",
+      "source_location": "L2541",
       "_origin": "ast",
       "id": "ideas_citygen_streets_7_where_the_code_goes",
       "community": 18,
@@ -16237,7 +16247,7 @@
       "label": "8. Build order",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L2470",
+      "source_location": "L2555",
       "_origin": "ast",
       "id": "ideas_citygen_streets_8_build_order",
       "community": 18,
@@ -16247,7 +16257,7 @@
       "label": "9. Open decisions",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L2488",
+      "source_location": "L2573",
       "_origin": "ast",
       "id": "ideas_citygen_streets_9_open_decisions",
       "community": 18,
@@ -16257,7 +16267,7 @@
       "label": "10. Explicit non-goals for v1",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L2520",
+      "source_location": "L2605",
       "_origin": "ast",
       "id": "ideas_citygen_streets_10_explicit_non_goals_for_v1",
       "community": 18,
@@ -16855,7 +16865,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/__init__.py",
       "source_location": "L1",
-      "community": 0,
+      "community": 12,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_init_py"
     },
@@ -16891,7 +16901,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_credits_bar/__init__.py",
       "source_location": "L1",
-      "community": 58,
+      "community": 85,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_credits_bar_init_py"
     },
@@ -16918,7 +16928,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_left_column/__init__.py",
       "source_location": "L1",
-      "community": 85,
+      "community": 12,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_left_column_init_py"
     },
@@ -16927,7 +16937,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_left_menu/py_div.py",
       "source_location": "L1",
-      "community": 0,
+      "community": 22,
       "norm_label": "py_div.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_left_menu_py_div_py"
     },
@@ -16936,7 +16946,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_left_menu/__init__.py",
       "source_location": "L1",
-      "community": 0,
+      "community": 22,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_left_menu_init_py"
     },
@@ -16954,7 +16964,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_push_button/__init__.py",
       "source_location": "L1",
-      "community": 0,
+      "community": 90,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_push_button_init_py"
     },
@@ -38603,11 +38613,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2093",
+      "source_location": "L2168",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_rationale_2093",
-      "target": "citygen_checks_city_is_fully_paved"
+      "source": "citygen_checks_rationale_2168",
+      "target": "citygen_checks_city_is_fully_paved",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -39550,9 +39560,9 @@
       "source_file": "tests/citygen/parm_liveness.py",
       "source_location": "L124",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_parm_liveness",
-      "target": "citygen_parm_liveness_digest",
-      "confidence_score": 1.0
+      "target": "citygen_parm_liveness_digest"
     },
     {
       "relation": "contains",
@@ -39560,9 +39570,9 @@
       "source_file": "tests/citygen/parm_liveness.py",
       "source_location": "L166",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_parm_liveness",
-      "target": "citygen_parm_liveness_generic",
-      "confidence_score": 1.0
+      "target": "citygen_parm_liveness_generic"
     },
     {
       "relation": "contains",
@@ -39570,9 +39580,9 @@
       "source_file": "tests/citygen/parm_liveness.py",
       "source_location": "L181",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_parm_liveness",
-      "target": "citygen_parm_liveness_main",
-      "confidence_score": 1.0
+      "target": "citygen_parm_liveness_main"
     },
     {
       "relation": "rationale_for",
@@ -39580,9 +39590,9 @@
       "source_file": "tests/citygen/parm_liveness.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_parm_liveness_rationale_1",
-      "target": "citygen_parm_liveness",
-      "confidence_score": 1.0
+      "target": "citygen_parm_liveness"
     },
     {
       "relation": "rationale_for",
@@ -39590,9 +39600,9 @@
       "source_file": "tests/citygen/parm_liveness.py",
       "source_location": "L125",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_parm_liveness_rationale_125",
-      "target": "citygen_parm_liveness_digest",
-      "confidence_score": 1.0
+      "target": "citygen_parm_liveness_digest"
     },
     {
       "relation": "calls",
@@ -39601,9 +39611,9 @@
       "source_file": "tests/citygen/parm_liveness.py",
       "source_location": "L224",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_parm_liveness_main",
-      "target": "citygen_parm_liveness_generic",
-      "confidence_score": 1.0
+      "target": "citygen_parm_liveness_generic"
     },
     {
       "relation": "rationale_for",
@@ -39611,9 +39621,9 @@
       "source_file": "tests/citygen/parm_liveness.py",
       "source_location": "L167",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_parm_liveness_rationale_167",
-      "target": "citygen_parm_liveness_generic",
-      "confidence_score": 1.0
+      "target": "citygen_parm_liveness_generic"
     },
     {
       "relation": "contains",
@@ -43603,6 +43613,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "ideas/citygen_streets.md",
+      "source_location": "L1404",
+      "weight": 1.0,
+      "source": "ideas_citygen_streets_s7_blocks",
+      "target": "ideas_citygen_streets_area_was_not_enough_either_the_fifth_wrong_seam_2026_08_10",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ideas/citygen_streets.md",
       "source_location": "L1019",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -43655,9 +43675,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L1787",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_overnight_run_2026_08_09_10",
-      "target": "ideas_citygen_streets_every_promoted_parameter_measured_2026_08_10",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_every_promoted_parameter_measured_2026_08_10"
     },
     {
       "relation": "contains",
@@ -43703,10 +43723,10 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L1715",
+      "source_location": "L1800",
       "weight": 1.0,
       "source": "ideas_citygen_streets_the_sagitta_gate_is_gone_the_seam_is_bounded_instead_2026_08_10",
-      "target": "ideas_citygen_streets_before_and_after_per_criterion_1715",
+      "target": "ideas_citygen_streets_before_and_after_per_criterion_1800",
       "confidence_score": 1.0
     },
     {
@@ -44284,5 +44304,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "79ae3e633e021e7f2c0a779a987fa55ce5226acd"
+  "built_at_commit": "7a43f698d31e4863a87d25d0788897d44e964183"
 }

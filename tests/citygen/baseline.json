@@ -79,11 +79,13 @@
       }
     },
     {
-      "detail": "lot area lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so this is 0 by construction (2 m2 allowed)",
+      "detail": "lot area AND lot boundary lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so both are 0 by construction (2 m2 / 1 m allowed). `edge_m` exists because a Sutherland-Hodgman zero-width bridge across the pavement has no area at all",
       "name": "lots_clear_of_roads",
       "ok": true,
       "skipped": false,
       "value": {
+        "edge_at": null,
+        "edge_m": 0.0,
         "m2": 0.0,
         "patches": 0,
         "worst": []
@@ -1068,11 +1070,16 @@
       }
     },
     {
-      "detail": "lot area lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so this is 0 by construction (2 m2 allowed)",
+      "detail": "lot area AND lot boundary lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so both are 0 by construction (2 m2 / 1 m allowed). `edge_m` exists because a Sutherland-Hodgman zero-width bridge across the pavement has no area at all",
       "name": "lots_clear_of_roads",
-      "ok": true,
+      "ok": false,
       "skipped": false,
       "value": {
+        "edge_at": [
+          33.0,
+          18.16
+        ],
+        "edge_m": 26.1,
         "m2": 0.0,
         "patches": 0,
         "worst": []
@@ -2057,11 +2064,16 @@
       }
     },
     {
-      "detail": "lot area lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so this is 0 by construction (2 m2 allowed)",
+      "detail": "lot area AND lot boundary lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so both are 0 by construction (2 m2 / 1 m allowed). `edge_m` exists because a Sutherland-Hodgman zero-width bridge across the pavement has no area at all",
       "name": "lots_clear_of_roads",
-      "ok": true,
+      "ok": false,
       "skipped": false,
       "value": {
+        "edge_at": [
+          -107.89,
+          -268.01
+        ],
+        "edge_m": 1290.6,
         "m2": 0.0,
         "patches": 0,
         "worst": []
@@ -3050,11 +3062,13 @@
       }
     },
     {
-      "detail": "lot area lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so this is 0 by construction (2 m2 allowed)",
+      "detail": "lot area AND lot boundary lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so both are 0 by construction (2 m2 / 1 m allowed). `edge_m` exists because a Sutherland-Hodgman zero-width bridge across the pavement has no area at all",
       "name": "lots_clear_of_roads",
       "ok": true,
       "skipped": false,
       "value": {
+        "edge_at": null,
+        "edge_m": 0.0,
         "m2": 0.0,
         "patches": 0,
         "worst": []

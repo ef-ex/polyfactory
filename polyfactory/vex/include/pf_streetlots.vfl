@@ -37,10 +37,34 @@ float pfsl_area(const vector p[]) { return abs(pfsl_signed_area(p)); }
 
 
 // Sutherland-Hodgman half-plane clip: keep the side the normal points AWAY
-// from, i.e. dot(q - p0, nrm) <= 0. Exact for the convex lots this produces,
-// which is also what Parish requires ("forbids the creation of concave
-// allotments") - so a mildly concave block degrades to a convex lot rather
-// than to a self-touching one.
+// from, i.e. dot(q - p0, nrm) <= 0. Exact while the SUBJECT is convex.
+//
+// !! IT IS NOT SAFE ON A CONCAVE SUBJECT, and the sentence that used to stand
+// here - "a mildly concave block degrades to a convex lot rather than to a
+// self-touching one" - was measured false on 2026-08-10 and is deleted.
+// S-H on a concave subject returns ONE ring joining the disjoint pieces with a
+// ZERO-WIDTH BRIDGE: two coincident edges traversed in opposite directions
+// along the clip line. Control case, a U-shaped block (the shape of every
+// block that wraps a dead-end stub, where the notch IS the stub's road) split
+// across the notch mouth:
+//
+//   U    = (0,0)(100,0)(100,60)(60,60)(60,20)(40,20)(40,60)(0,60)
+//   clip = keep z >= 20
+//   ring = (100,20)(100,60)(60,60)(60,20)(40,20)(40,60)(0,60)(0,20)
+//
+// The two prongs are right and pfsl_area returns exactly 3200 = their true
+// area, because the bridge encloses nothing. But the ring's boundary crosses
+// the notch TWICE - once on (60,20)->(40,20) and once on the closing
+// (0,20)->(100,20) - so the parcel that ships has two edges lying down the
+// middle of the stub's pavement while every area measurement in the project
+// reads zero. Measured on C_radial: 39 lots, 1290 m of boundary inside the
+// road surface, `lots_clear_of_roads` m2 = 0.0 at cell sizes down to 0.01 m.
+// `lots_clear_of_roads.edge_m` and `lots_are_simple_polygons` are what see it.
+//
+// The fix is a clipper that returns MULTIPLE polygons - pair the crossings
+// along the clip line in sorted order, or use Greiner-Hormann - and a
+// recursion in `lots_subdiv` that can accept more than one piece per cut.
+// Not done; see citygen_streets.md S8.
 vector[] pfsl_clip(const vector p[]; const vector p0, nrm) {
     vector out[];
     int n = len(p);

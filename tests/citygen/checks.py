@@ -2039,7 +2039,7 @@ def lots_clear_of_junctions(lot_geo, patch_node, cell=0.5, tol_per_junction=0.5)
 
 
 def lots_clear_of_roads(lot_geo, roads_node, surface_node, cell=0.5,
-                        min_area=1.0, tol_area=2.0):
+                        min_area=1.0, tol_area=2.0, tol_edge=1.0):
     """No lot may lie on the road, ANYWHERE — not just inside a junction patch.
 
     THE GAP `lots_clear_of_junctions` leaves, and the fourth time in this
@@ -2063,6 +2063,29 @@ def lots_clear_of_roads(lot_geo, roads_node, surface_node, cell=0.5,
     are both non-convex and a clip would lie about them. A lot edge lying
     exactly along a kerb costs nothing: `_rasterise` tests cell CENTRES, so an
     abutting pair claims disjoint cells. Measured — B_grid reads exactly 0.0.
+
+    ⚠️ AREA WAS NOT ENOUGH, and this is the FIFTH time a check here has passed by
+    measuring the wrong quantity. 2026-08-10 the artist marked lot geometry
+    lying on the road at four dead-end stubs in C_radial while this check read
+    **0.0 m² — correctly**. Re-rasterised at 0.5 / 0.2 / 0.1 / 0.05 / 0.01 m,
+    whole-city and in 80 m windows around every degree-1 node, the answer stayed
+    0.00: no lot INTERIOR is on the road. What is on the road is lot BOUNDARY.
+
+    `pfsl_clip` (`pf_streetlots.vfl`) half-plane-clips the block with
+    Sutherland-Hodgman, whose subject must be convex — and the block that wraps
+    a dead-end stub is a U. S-H on a non-convex subject returns one ring that
+    joins the disjoint pieces with a ZERO-WIDTH BRIDGE, and around a stub that
+    bridge runs straight across the pavement. It encloses no area, so
+    `pfsl_area` is exact, `lot_area` is exact, `lots_tile_blocks` passes, and
+    every area test in this file — including this one — reads zero on geometry
+    that ships two edges lying down the middle of an arterial. Measured on
+    C_radial: **40 lots, 1329 m of boundary strictly inside the road surface.**
+    (`lots_are_simple_polygons` sees the same lots from the other side and is
+    already failing with 41; it says "self-touching", not "on the road".)
+
+    So this check now measures both, and `edge_m` is the one with teeth. The
+    road mask is eroded by one cell first, so a frontage edge lying ON the kerb
+    — which is where every legitimate lot edge lies — cannot count.
     """
     try:
         import numpy as np
@@ -2075,17 +2098,69 @@ def lots_clear_of_roads(lot_geo, roads_node, surface_node, cell=0.5,
     if len(lot_geo.prims()) == 0:
         return _skip("lots_clear_of_roads", "no lots in this case")
     grid = _raster_grid(geos + [lot_geo], cell)
-    road = np.zeros((grid[3], grid[2]), dtype=bool)
+    x0, z0, nx, nz, _ = grid
+    road = np.zeros((nz, nx), dtype=bool)
     for g in geos:
         road |= _rasterise(np, g, grid)
     over = road & _rasterise(np, lot_geo, grid)
     blobs = _blobs(np, over, grid, min_area)
     total = round(float(over.sum()) * cell * cell, 1)
-    return Result("lots_clear_of_roads", bool(total <= tol_area),
-                  {"m2": total, "patches": len(blobs), "worst": blobs[:3]},
-                  "lot area lying on the road surface anywhere, junction or "
-                  "not; the block boundary IS the kerb, so this is 0 by "
-                  "construction (%g m2 allowed)" % tol_area)
+
+    # ...and the half with no area. One 4-neighbour erosion = `cell` metres of
+    # slack, which is what keeps an edge lying along the kerb out of it.
+    er = road.copy()
+    er[1:, :] &= road[:-1, :]
+    er[:-1, :] &= road[1:, :]
+    er[:, 1:] &= road[:, :-1]
+    er[:, :-1] &= road[:, 1:]
+    step = cell * 0.5
+    edge_m, worst_at = 0.0, None
+    for pr in lot_geo.prims():
+        vs = pr.vertices()
+        if len(vs) < 3:
+            continue
+        P = np.array([(v.point().position()[0], v.point().position()[2])
+                      for v in vs], dtype=np.float64)
+        A = P
+        B = np.roll(P, -1, axis=0)
+        seg = B - A
+        L = np.hypot(seg[:, 0], seg[:, 1])
+        keep = L > 1e-9
+        if not keep.any():
+            continue
+        A, B, seg, L = A[keep], B[keep], seg[keep], L[keep]
+        n = np.maximum((L / step).astype(int), 1)
+        for k in range(len(A)):
+            t = (np.arange(1, n[k]) / float(n[k]))
+            if not len(t):
+                continue
+            pts = A[k] + seg[k] * t[:, None]
+            i = ((pts[:, 0] - x0) / cell).astype(int)
+            j = ((pts[:, 1] - z0) / cell).astype(int)
+            ok = (i >= 0) & (i < nx) & (j >= 0) & (j < nz)
+            if not ok.any():
+                continue
+            hit = np.zeros(len(t), dtype=bool)
+            hit[ok] = er[j[ok], i[ok]]
+            if hit.any():
+                edge_m += float(hit.sum()) * L[k] / n[k]
+                if worst_at is None:
+                    p = pts[np.flatnonzero(hit)[0]]
+                    # a list, not a tuple: baseline.json round-trips through
+                    # JSON and a tuple comes back a list, so every later run
+                    # would report this row as "moved" for ever
+                    worst_at = [round(float(p[0]), 2), round(float(p[1]), 2)]
+    edge_m = round(float(edge_m), 1)
+    return Result("lots_clear_of_roads",
+                  bool(total <= tol_area and edge_m <= tol_edge),
+                  {"m2": total, "patches": len(blobs), "edge_m": edge_m,
+                   "edge_at": worst_at, "worst": blobs[:3]},
+                  "lot area AND lot boundary lying on the road surface "
+                  "anywhere, junction or not; the block boundary IS the kerb, "
+                  "so both are 0 by construction (%g m2 / %g m allowed). "
+                  "`edge_m` exists because a Sutherland-Hodgman zero-width "
+                  "bridge across the pavement has no area at all"
+                  % (tol_area, tol_edge))
 
 
 def city_is_fully_paved(city_node, outer_node, cell=1.0, min_area=4.0,

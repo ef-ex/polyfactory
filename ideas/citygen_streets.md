@@ -1123,6 +1123,32 @@ Both were unspecified, and the audit showed the code was silently inventing an a
    nothing — and thirteen more lost over half their length. Note the threshold mismatch this
    exposes: `graph_prune` deletes stubs under 8 m, but a junction needs ~22 m of clearance, so a
    street can survive pruning and still be eaten by its own corners.
+
+   ⚠️ **That threshold mismatch is now the visible defect the artist circled, and it has
+   coordinates. Measured 2026-08-10 on C_radial.** Ranked by what is left of a street after
+   its two junction cuts (`s5j_streets` trim_start/trim_end against the centreline length):
+
+   | left | length | trim | prim | from → to | class | width |
+   |---|---|---|---|---|---|---|
+   | **6.24 m** | 24.00 | 17.75 + 0 | 60 | (−289.34, 227.08) deg 4 → (−273.90, 245.45) deg 1 | local | 14.4 |
+   | 6.20 m | 18.00 | 11.80 + 0 | 73 | (55.98, 379.60) deg 4 → (58.57, 397.41) deg 1 | arterial | 26.8 |
+   | 13.13 m | 23.99 | 10.86 + 0 | 27 | (88.34, −372.82) deg 4 → (93.71, −396.20) deg 1 | arterial | 26.8 |
+   | 15.91 m | 49.84 | 19.88 + 14.05 | 16 | (72.04, −70.82) → (29.93, −96.48) | local | 14.4 |
+
+   **Prim 60 is the one in the lower-left quadrant and it is the best match for the artist's
+   green circle.** What ships there is a **6.24 m tongue of a 14.4 m-wide road** — pavement
+   wider than it is long — sticking out of a four-way junction's patch and stopping flat, with
+   the junction boundary making a square jog where the mouth meets it. It is **not** a
+   degree-2 bend (the published graph has **zero** degree-2 nodes) and **not** a failed
+   degree-3 patch (all 39 of C's degree-3+ nodes have one); it is a 24 m arm that
+   `graph_prune_min_edge_len` = 13 m keeps and the junction mouth then eats.
+
+   `trim_leaves_road_standing` passes on all of these because `s5j_params_min_end_segment` is
+   1.0 m and 6.24 > 1.0. **The floor is the wrong quantity**: what makes a leg legible is its
+   length against its own *width*, not against a fixed metre. The two candidate fixes are
+   S3's node merge/relax (§S3 step 3) and sizing `graph_prune_min_edge_len` by the junction
+   clearance the arm's class needs instead of by a constant — **both are S3/S5 work that the
+   S3–S5-into-the-trace-node refactor will move, so neither was attempted here.**
 2. **At a mixed-class corner, the LESSER street sets the radius.**
    ⚠️ **Reversed 2026-08-09, same day, after the civil-engineering sweep (§4f).** I first decided
    "the wider street wins", reasoning that the turning radius follows the largest vehicle. That is
@@ -1374,6 +1400,65 @@ four outputs on B_grid, where it is rejecting extensions into existing junctions
 junction or not, rasterised like its two neighbours because a block and a patch are both
 non-convex. It fails on the pre-fix build (C 48.2 m²) and passes after. Committed with the fix
 and wired into the runner beside `lots_clear_of_junctions`, which it exists to complete.
+
+#### ⚠️ AREA WAS NOT ENOUGH EITHER. The fifth wrong seam — 2026-08-10
+
+The artist marked lot geometry on the road at four dead-end stubs in C_radial, and
+`lots_clear_of_roads` read **0.0 m² — correctly.** Re-rasterised at **0.5 / 0.2 / 0.1 / 0.05
+and 0.01 m**, whole-city and in 80 m windows around every one of C's 28 degree-1 nodes, the
+answer stayed 0.00. **No lot INTERIOR is on the road. What is on the road is lot BOUNDARY:
+39 lots, 1,290 m of it.**
+
+⚠️ **An exact Sutherland–Hodgman clipper was tried first as the cross-check and it lied**,
+reporting 536.9 m² over 190 lots. S–H is only exact for a convex *clipper*; on the non-convex
+lots here the result carries degenerate connector edges and its area is meaningless. The 0.01 m
+raster refuted it on three separate lots. **Recorded because it would have been a very
+convincing wrong answer** — it agreed with the artist.
+
+**Root cause, and it is in S8, not S7.** `pfsl_clip` (`pf_streetlots.vfl`) is Sutherland–Hodgman
+half-plane clipping, and its own comment claimed *"a mildly concave block degrades to a convex
+lot rather than to a self-touching one"*. Measured false. A block that wraps a dead-end stub is
+a **U, and the notch is the stub's road**; S–H on a concave subject returns one ring joining the
+disjoint pieces with a **zero-width bridge** — two coincident edges traversed in opposite
+directions along the clip line. Control case, run standalone:
+
+```
+U    = (0,0)(100,0)(100,60)(60,60)(60,20)(40,20)(40,60)(0,60)   # notch = the stub
+clip = keep z >= 20                                             # split across the mouth
+ring = (100,20)(100,60)(60,60)(60,20)(40,20)(40,60)(0,60)(0,20)
+```
+
+The two prongs are correct and `pfsl_area` returns **exactly 3200 = their true area**, because
+the bridge encloses nothing. But the ring crosses the notch **twice** — on `(60,20)→(40,20)` and
+on the closing `(0,20)→(100,20)` — so the parcel ships with two edges down the middle of the
+stub's pavement. That is why `lot_area` is exact, `lots_tile_blocks` passes, `city_is_fully_paved`
+passes, `lots_clear_of_junctions` reads 0 and `lots_clear_of_roads` read 0: **every one of them
+integrates area, and the defect has none.** Blocks are clean — 0 m of block boundary inside the
+road — so it happens during subdivision, not in S7.
+
+**Six clusters in C, all at interior dead-end stubs** (the artist circled four of them):
+
+| cluster | nearest degree-1 node | worst lots |
+|---|---|---|
+| (−90, −273), a 94 m band | 2266 (−96.98, −272.03) and 733 (−135.75, −246.53) | prim 10 · 83.3 m, prim 56 · 37.9 m, then ~14 parcels at 27.6 m each |
+| (−170, −85) | 997 (−140.17, −63.61) | prim 100 · 88.5 m, prim 123 · 55.4 m, prim 99 · 54.5 m, prim 124 · 48.7 m |
+| (−60, 190) / (42, 200) | 1798 (−39.59, 124.33) · 1878 (18.39, 124.36) | prim 530 · 94.1 m, prim 547 · 54.1 m, prim 536 · 50.8 m, prim 535 · 42.2 m |
+| (−41, −70) | 190 (−37.64, −54.19) | prim 178 · 49.3 m |
+| (0, −10) | 1378 (62.42, 18.74) · 1306 (−60.42, 16.82) | — |
+| (245, 0) | 1469 (247.35, −4.95) | — |
+
+**The check now measures both, and `edge_m` is the one with teeth**: metres of lot boundary
+strictly inside the road mask, the mask eroded by one cell first so a frontage edge lying *on*
+the kerb — where every legitimate lot edge lies — cannot count. A 0.5 m grid, sampled at 0.25 m.
+Values: **A 0.0 · B 26.1 · C 1290.6 · D 0.0 · E/F skip (no lots)**. Suite **17 → 19 failing**;
+no other value moved, and baseline.json is rebaselined with this commit.
+
+**Not fixed, and the fix is not blocked by the S3–S5 refactor.** It needs a clipper that returns
+**multiple** polygons — pair the crossings along the clip line in sorted order, or Greiner–Hormann
+— and a recursion in `lots_subdiv` that accepts more than one piece per cut. That is an S8 job,
+independent of moving the graph stages into the trace node, and it is the same defect §4e already
+records as *"non-convex blocks produce bowties that pass the area check because the pinch has zero
+area"* — now with a named mechanism and a control case instead of a category.
 
 ### S8 — Lots
 

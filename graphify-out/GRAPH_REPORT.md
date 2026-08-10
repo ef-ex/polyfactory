@@ -1,16 +1,16 @@
 # Graph Report - polyfactory  (2026-08-10)
 
 ## Corpus Check
-- 124 files · ~149,876 words
+- 124 files · ~151,590 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1707 nodes · 2632 edges · 103 communities (89 shown, 14 thin omitted)
+- 1708 nodes · 2633 edges · 102 communities (89 shown, 13 thin omitted)
 - Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 290 edges (avg confidence: 0.67)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `79ae3e63`
+- Built from commit: `7a43f698`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -102,7 +102,6 @@
 - [[_COMMUNITY_Community 89|Community 89]]
 - [[_COMMUNITY_Community 90|Community 90]]
 - [[_COMMUNITY_Community 91|Community 91]]
-- [[_COMMUNITY_Community 92|Community 92]]
 - [[_COMMUNITY_Community 93|Community 93]]
 - [[_COMMUNITY_Community 96|Community 96]]
 - [[_COMMUNITY_Community 97|Community 97]]
@@ -147,7 +146,7 @@
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 4-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 
-## Communities (103 total, 14 thin omitted)
+## Communities (102 total, 13 thin omitted)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.08
@@ -170,16 +169,16 @@ Cohesion: 0.06
 Nodes (14): line(), Runnable check for street graph construction.  No Houdini needed.      python, A cul-de-sac is legitimate; only SHORT dead ends are noise., Removing one stub can expose another behind it., 3x3 crossing streets, each overshooting the outer ones.          Every street, Sampled straight line from a to b, so welding sees interior points., Guards the documented precondition: two streets that cross without         shar, The classic spatial-hash bug: neighbours must be searched too. (+6 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.22
-Nodes (3): PyCircularProgress, QColor, Set background color for expression state.
+Cohesion: 0.18
+Nodes (4): PyCircularProgress, _ToolTip, QColor, Set background color for expression state.
 
 ### Community 7 - "Community 7"
 Cohesion: 0.10
-Nodes (17): attribute_schema(), dead_ends(), graph_is_planar(), no_downward_faces(), no_duplicate_lot_footprints(), no_scratch_attribs(), no_scratch_groups(), no_zero_area_prims() (+9 more)
+Nodes (17): attribute_schema(), graph_is_planar(), junction_boundary_is_simple(), no_downward_faces(), no_duplicate_lot_footprints(), no_scratch_attribs(), no_scratch_groups(), no_zero_area_prims() (+9 more)
 
 ### Community 8 - "Community 8"
-Cohesion: 0.14
-Nodes (12): AssetBrowserDialog, AssetDropHandler, _handle_drop(), Asset Browser UI - Grid view of assets with search and filtering, Standalone asset browser dialog, Double-click in the floating browser: create and connect the         asset plac, Show the asset browser dialog, Handles drops from the asset browser onto Houdini's viewport or network     edi (+4 more)
+Cohesion: 0.11
+Nodes (14): AssetBrowserDialog, AssetDropHandler, _handle_drop(), Asset Browser UI - Grid view of assets with search and filtering, Forward thumbnail drop to the browser-level signal., Standalone asset browser dialog, Double-click in the floating browser: create and connect the         asset plac, Show the asset browser dialog (+6 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.12
@@ -210,8 +209,8 @@ Cohesion: 0.05
 Nodes (41): Accessing Package Assets, Asset Database, Branch Structure, Code Quality - Error Handling, Code Style: Functional Over Object-Oriented, Common Patterns, Creative / Procedural Tool Requests Require Design Breakdown First, Critical Conventions (+33 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.13
-Nodes (15): 4. Stage design, Chaotic / organic patterns — clarified, not scrapped, Dead ends are the exception, not the norm — and the fix is in the papers, Layers — the change bridges force, Networks are typed, S0 — Domain, S1 — Field (pluggable generators), S2 — Trace (+7 more)
+Cohesion: 0.11
+Nodes (19): 4. Stage design, ⚠️ AREA WAS NOT ENOUGH EITHER. The fifth wrong seam — 2026-08-10, Chaotic / organic patterns — clarified, not scrapped, Dead ends are the exception, not the norm — and the fix is in the papers, Layers — the change bridges force, Networks are typed, S0 — Domain, S1 — Field (pluggable generators) (+11 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.11
@@ -222,16 +221,16 @@ Cohesion: 0.23
 Nodes (13): Module reloader for Polyfactory development  Intelligently reloads modules for, Reload widget library modules., Reload asset library modules., Reload viewer utilities modules., Reload UI framework modules (PyOneDark-based)., Reload all Polyfactory modules., Internal helper to reload a list of modules., reload_all() (+5 more)
 
 ### Community 20 - "Community 20"
-Cohesion: 0.07
-Nodes (21): HoverSlider, QSlider with animated hover outline, AssetBrowserWidget, Asset browser with grid view, search, and filters, Load assets from database, Filter assets based on search, category, and tags, Update grid with filtered assets, Handle asset single-click.  Ctrl+click toggles, Shift+click selects range. (+13 more)
+Cohesion: 0.04
+Nodes (35): HoverSlider, QSlider with animated hover outline, AssetBrowserWidget, Asset browser with grid view, search, and filters, Load assets from database, Filter assets based on search, category, and tags, Update grid with filtered assets, Handle asset single-click.  Ctrl+click toggles, Shift+click selects range. (+27 more)
 
 ### Community 21 - "Community 21"
 Cohesion: 0.18
 Nodes (7): AssetPlaceNodeUI, Asset Place HDA UI - Python Panel for pf_asset_place node.  Shows the full ass, Python Panel widget for pf_asset_place HDA.      Embeds the full AssetBrowserW, Called by onNodePathChanged — updates which node we drive., Reload asset list (called on pane activation)., Highlight the thumbnail matching the node's current asset_id., User double-clicked an asset — push into node parms.
 
 ### Community 23 - "Community 23"
-Cohesion: 0.06
-Nodes (19): AssetDatabase, Manages the asset library SQLite database, Add a new asset to the database                  Args:             name: Asse, Initialize database connection                  Args:             db_path: Pa, Associate tags with an asset, Get asset by ID                  Args:             asset_id: Asset ID, Get all tags for an asset                  Args:             asset_id: Asset, Search assets with various filters                  Args:             search_ (+11 more)
+Cohesion: 0.33
+Nodes (3): Add a new asset to the database                  Args:             name: Asse, Associate tags with an asset, Add tags to multiple assets.  Existing tag associations are left intact.
 
 ### Community 24 - "Community 24"
 Cohesion: 0.24
@@ -266,16 +265,16 @@ Cohesion: 0.05
 Nodes (37): 1. Context Window Management, 1. Houdini Python Panel (PySide6 UI), 2. Error Recovery, 2. LLM Integration Layer, 3. Scene Context Extractor, 3. Undo/Redo Integration, 4. Code Executor, 4. Cost Control (+29 more)
 
 ### Community 32 - "Community 32"
-Cohesion: 0.08
-Nodes (16): HoverListWidget, QListWidget with animated hover outline, HoverOutlineMixin, HoverOutlineMixin, Initialize hover outline animation.                  Args:             color:, Get current hover outline opacity (0.0 to 1.0), Set hover outline opacity (0.0 to 1.0), Start fade-in animation on hover (+8 more)
+Cohesion: 0.11
+Nodes (10): HoverListWidget, QListWidget with animated hover outline, HoverOutlineMixin, Initialize hover outline animation.                  Args:             color:, Get current hover outline opacity (0.0 to 1.0), Set hover outline opacity (0.0 to 1.0), Start fade-in animation on hover, Start fade-out animation on leave (+2 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.06
 Nodes (33): Adding New Placement Modes, Adding Viewer Utils Functions, Align to Mesh (Default), Alignment Issues, Architecture, Asset Data Flow, Components, Core Functions (+25 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.06
-Nodes (19): QEvent, QObject, FlowLayout, Layout that wraps widgets to multiple lines like text flow, Tag input widget with autocomplete and chip display, Set the list of available tags for autocomplete                  Args:, Get current list of tags                  Returns:             List of tag st, Set the current tags                  Args:             tags: List of tag str (+11 more)
+Cohesion: 0.05
+Nodes (25): HoverOutlineMixin, QEvent, QObject, FlowLayout, Tag Input Widget - Autocompleting tag input with removable chips Similar to Sho, Layout that wraps widgets to multiple lines like text flow, Custom paint to draw rounded background with darker blue + animated hover outlin, Handle remove button click (+17 more)
 
 ### Community 35 - "Community 35"
 Cohesion: 0.12
@@ -291,7 +290,7 @@ Nodes (7): Higher-degree junctions — untested, and structurally unreachable fr
 
 ### Community 39 - "Community 39"
 Cohesion: 0.38
-Nodes (4): draw_crosshair(), Drawing utilities for viewer states Pure functions for viewport drawing helpers, Draw simple crosshair at position.          Args:         drawable: Houdini d, Viewer utilities for Houdini viewer states Reusable library components for rayc
+Nodes (4): draw_normal_indicator(), Drawing utilities for viewer states Pure functions for viewport drawing helpers, Draw line indicating surface normal.          Args:         drawable: Houdini, Viewer utilities for Houdini viewer states Reusable library components for rayc
 
 ### Community 40 - "Community 40"
 Cohesion: 0.08
@@ -314,8 +313,8 @@ Cohesion: 0.67
 Nodes (3): dropAccept(), get_drop_context(), get the context where the drop happened      Returns:         hou.NetowrkEdit
 
 ### Community 45 - "Community 45"
-Cohesion: 0.07
-Nodes (27): 1. The vision (Hannes, 2026-08-08), 2.1 No constants — the override cascade, 2.2 Validation is advisory, never a wall, 2.3 Intervene at any stage — the authoring model, 2. Art direction is the first principle, 3. Terminology: "biome" was overloaded — split it, 4. Cross-subsystem contracts, 4b. APEX — assessed 2026-08-08. Real fit, but not yet (+19 more)
+Cohesion: 0.12
+Nodes (15): 1. The vision (Hannes, 2026-08-08), 2.1 No constants — the override cascade, 2.2 Validation is advisory, never a wall, 2.3 Intervene at any stage — the authoring model, 2. Art direction is the first principle, 3. Terminology: "biome" was overloaded — split it, 4b. APEX — assessed 2026-08-08. Real fit, but not yet, 5. SideFX Labs policy — revised 2026-08-08 (+7 more)
 
 ### Community 46 - "Community 46"
 Cohesion: 0.10
@@ -353,6 +352,10 @@ Nodes (12): BaseParmWidget, ParmFloat, Handle value change from InputField., Upd
 Cohesion: 0.13
 Nodes (7): ParmTuple, ParmColor, Color picker widget using Houdini's native ColorField., Handle color change from ColorField., Update widget from parameter value., Update visual feedback for expression state., Reset parameter to default value (Ctrl+MMB on label).
 
+### Community 58 - "Community 58"
+Cohesion: 0.17
+Nodes (12): 4. Cross-subsystem contracts, Contract 1 — The **region** is the unit of identity, caching, locking and transfer, Contract 2 — The override layer: an upstream node, committed to by a downstream write, Contract 3 — Terrain ↔ city: two terrain nodes, no loop, Contract 4 — City → vegetation masks, Contract 5 — Chunking is spatial. **Shots do not drive generation.**, Contract 6 — Networks are layered and typed, Contract 7 — A reusable Python state library (new) (+4 more)
+
 ### Community 59 - "Community 59"
 Cohesion: 0.33
 Nodes (6): build_all(), install_hdas(), CityGen test cases — builds every scene the checks run against.  Scenes are buil, hython does not load the polyfactory package, so $POLYFACTORY is unset     and `, Build every case. Returns {case_name: {role: node}}., setup_env()
@@ -378,8 +381,8 @@ Cohesion: 0.29
 Nodes (4): ParmString, Update visual feedback for expression state., String input widget with enhanced label., Reset parameter to default value (Ctrl+MMB on label).
 
 ### Community 69 - "Community 69"
-Cohesion: 0.28
-Nodes (3): _ToolTip, _ToolTip, QLabel
+Cohesion: 0.24
+Nodes (4): _ToolTip, _ToolTip, _ToolTip, QLabel
 
 ### Community 70 - "Community 70"
 Cohesion: 0.50
@@ -390,8 +393,8 @@ Cohesion: 0.24
 Nodes (11): _blobs(), city_is_fully_paved(), lots_clear_of_junctions(), lots_clear_of_roads(), _raster_grid(), _rasterise(), Even-odd fill of every polygon in `geo` onto a boolean XZ grid., Connected components of a boolean mask as (area, cx, cz), largest first.      Ru (+3 more)
 
 ### Community 72 - "Community 72"
-Cohesion: 0.13
-Nodes (5): Ui_RightColumn, Themes, SetupMainWindow, UI_MainWindow, Ui_MainPages
+Cohesion: 0.12
+Nodes (7): Ui_LeftColumn, Ui_RightColumn, Themes, SetupMainWindow, UI_MainWindow, object, Ui_MainPages
 
 ### Community 73 - "Community 73"
 Cohesion: 0.33
@@ -402,8 +405,8 @@ Cohesion: 0.22
 Nodes (9): _arc_lengths(), every_corner_is_an_arc(), _fit_circle(), _pos_at_length(), Kasa algebraic circle fit in XZ. Returns (cx, cz, r, max_residual) or     None w, Position at arc length `s` along a polyline — what s5j_trim's     pfsg_pos_at_le, A junction corner that is not a correctly-placed fillet arc.      Measured 50/50, THE S5 SEAM: the road's terminal cross-section IS the mouth's cap segment. (+1 more)
 
 ### Community 76 - "Community 76"
-Cohesion: 0.24
-Nodes (4): Settings, object, PyWindow, Styles
+Cohesion: 0.27
+Nodes (3): Settings, PyWindow, Styles
 
 ### Community 77 - "Community 77"
 Cohesion: 0.19
@@ -430,8 +433,8 @@ Cohesion: 0.25
 Nodes (7): Attribution, Credits, Modifications, Polyfactory Integration, Polyfactory UI Framework, Structure, Usage in Polyfactory
 
 ### Community 85 - "Community 85"
-Cohesion: 0.13
-Nodes (5): Ui_LeftColumn, PyIcon, PyLeftColumn, PySlider, QSlider
+Cohesion: 0.15
+Nodes (4): PyCredits, PyLeftColumn, PySlider, QSlider
 
 ### Community 86 - "Community 86"
 Cohesion: 0.50
@@ -447,15 +450,11 @@ Nodes (4): merged_city_self_intersections(), Intersection Analysis reports 0 for
 
 ### Community 89 - "Community 89"
 Cohesion: 0.17
-Nodes (12): junction_boundary_is_simple(), lots_are_simple_polygons(), no_loose_points(), no_orphan_components(), no_short_graph_segments(), CityGen geometry checks — the assertions, in one place.  Every check here caught, No segment of a shipped centreline may be shorter than `floor` metres.      THE, Points belonging to no primitive. They ship as stray dots and blow out     every (+4 more)
+Nodes (12): dead_ends(), lots_are_simple_polygons(), no_loose_points(), no_orphan_components(), no_short_graph_segments(), CityGen geometry checks — the assertions, in one place.  Every check here caught, No segment of a shipped centreline may be shorter than `floor` metres.      THE, Points belonging to no primitive. They ship as stray dots and blow out     every (+4 more)
 
 ### Community 90 - "Community 90"
 Cohesion: 0.06
 Nodes (32): AssetInstanceWidget, createInterface(), KitbashNodeUI, PlacedAssetsListWidget, Kitbash HDA UI - Python Panel interface for pf_kitbash node  NEW WORKFLOW: -, Create styled spinbox, Load values from node parameters, Handle spinbox value change (+24 more)
-
-### Community 91 - "Community 91"
-Cohesion: 0.67
-Nodes (3): S8 — Lots, The three subdivision modes — both of the first two are required, ⚠️ Voronoi is wrong for lots. Rewritten 2026-08-09.
 
 ### Community 96 - "Community 96"
 Cohesion: 0.20
@@ -478,18 +477,18 @@ Cohesion: 0.47
 Nodes (6): centreline_curvature_within_class(), Mirror of `pfsg_turn_at`: |turn| at b and the two edge lengths.      ⚠️ THE ANGL, Per-vertex turn (radians) and its ceiling, from geometry alone.      Returns (ph, No centreline may bend tighter than its class minimum curve radius.      S3b. A, _turn_at(), _turn_ceilings()
 
 ## Knowledge Gaps
-- **287 isolated node(s):** `Project Overview`, `Package Structure`, `Environment Variables`, `Temporary / One-Off Scripts`, `Houdini Bridge - AI Agent Integration` (+282 more)
+- **288 isolated node(s):** `Project Overview`, `Package Structure`, `Environment Variables`, `Temporary / One-Off Scripts`, `Houdini Bridge - AI Agent Integration` (+283 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **14 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `PyPushButton` connect `Community 90` to `Community 32`, `Community 97`, `Community 0`, `Community 64`, `Community 36`, `Community 101`, `Community 8`, `Community 78`, `Community 47`, `Community 20`, `Community 85`?**
+- **Why does `PyPushButton` connect `Community 90` to `Community 32`, `Community 97`, `Community 64`, `Community 36`, `Community 101`, `Community 8`, `Community 78`, `Community 47`, `Community 20`, `Community 85`?**
   _High betweenness centrality (0.104) - this node is a cross-community bridge._
 - **Why does `HoverOutlineMixin` connect `Community 32` to `Community 97`, `Community 34`, `Community 36`, `Community 78`, `Community 15`, `Community 20`, `Community 90`?**
   _High betweenness centrality (0.073) - this node is a cross-community bridge._
-- **Why does `Result` connect `Community 7` to `Community 71`, `Community 104`, `Community 106`, `Community 43`, `Community 74`, `Community 76`, `Community 86`, `Community 88`, `Community 89`?**
+- **Why does `Result` connect `Community 7` to `Community 71`, `Community 72`, `Community 104`, `Community 106`, `Community 43`, `Community 74`, `Community 86`, `Community 88`, `Community 89`?**
   _High betweenness centrality (0.061) - this node is a cross-community bridge._
 - **Are the 16 inferred relationships involving `AssetBrowserWidget` (e.g. with `AssetPlaceNodeUI` and `._setup_ui()`) actually correct?**
   _`AssetBrowserWidget` has 16 INFERRED edges - model-reasoned connections that need verification._
