@@ -105,6 +105,26 @@ PERTURB = {
     ("trace", "s5j_params_arc_steps"): [12],
     ("trace", "s5j_params_max_fillet_fraction"): [0.15],
     ("trace", "s5j_params_min_end_segment"): [3.0],
+    # ⚠️ THREE PARMS USED TO FALL THROUGH TO generic() AND IT GOT ALL THREE
+    # WRONG, one of them badly enough to fail the run.
+    #
+    # `graph_params_repair_passes` is a CAP and every case converges well
+    # inside it, so generic()'s cur*2 = 16 clamped to the range max of 12 was a
+    # guaranteed no-op: it swept the one direction in which a cap cannot
+    # matter, reported DEAD, and exited 1. Downwards it is the liveliest parm
+    # on the node — 1 is the documented single-pass build and it moves the
+    # geometry of every case.
+    ("trace", "graph_params_repair_passes"): [1],
+    # ...and the tolerance the loop is measured against. 0 asks for a bit-exact
+    # fixed point that float32 re-accumulation cannot deliver, so it runs to
+    # the cap; 0.1 m stops it early. Either way the graph moves.
+    ("trace", "graph_params_repair_tolerance"): [0.1, 0.0],
+    # These two read GEOM only by luck of the doubling. Both are thresholds
+    # whose interesting direction is DOWN (or off), and the case that was
+    # written for the first of them is G_tongue — which is why STREET_CASES now
+    # includes it.
+    ("trace", "s5j_params_min_standing_widths"): [0.0, 3.0],
+    ("trace", "s5j_params_culdesac_radius"): [30.0, 0.0],
     ("mesh", "lots_params_lot_frontage"): [40.0],
     ("mesh", "lots_params_subdiv_mode"): ["flip"],
     ("mesh", "lots_params_target_lot_area"): [1800.0],
@@ -151,7 +171,11 @@ KNOWN_ATTR_ONLY = {
 # of them.
 FIELD_CASE = {"field_grid": "B_grid", "field_radial": "C_radial"}
 TRACE_CASES = ["C_radial", "B_grid"]
-STREET_CASES = ["C_radial", "A_drawn", "B_grid", "D_offset", "E_short_t", "F_bend"]
+# ⚠️ G_tongue belongs here. `s5j_params_min_standing_widths` is swept over this
+# list, and G_tongue is the case that was WRITTEN for it (cases.py) — the sweep
+# was running the tongue parameter on every case except the tongue.
+STREET_CASES = ["C_radial", "A_drawn", "B_grid", "D_offset", "E_short_t",
+                "F_bend", "G_tongue"]
 
 # S3/S4/S5 moved onto the tracer with the stages they steer, so `pf_citygen_trace`
 # now carries two populations of parameter: the field/trace ones, which only the

@@ -1001,15 +1001,134 @@ def lots_tile_blocks(lot_geo, block_geo, rel_tol=1e-4):
                   "relative area error (lots %.1f vs blocks %.1f)" % (la, ba))
 
 
-def _graph_invariants(geo):
-    """What a REPAIR changes, and nothing else. Counts and sums only, so point
-    renumbering — which graph_fuse, polypath and the blasts do freely — cannot
-    move any of it. Mirrors `repair_verdict` inside pf_citygen_trace; if that
-    wrangle changes, this must follow."""
-    nodes = sum(1 for pt in geo.points() if len(pt.prims()) != 1)
-    length = sum(pr.intrinsicValue("measuredperimeter") for pr in geo.prims())
-    return {"edges": len(geo.prims()), "points": len(geo.points()),
-            "nodes": nodes, "length_m": round(length, 2)}
+def _point_grid(geo, cell):
+    """(cell -> [point index], flat P) for order-independent nearest lookup."""
+    pos = geo.pointFloatAttribValues("P")
+    grid = {}
+    for i in range(len(pos) // 3):
+        grid.setdefault((int(math.floor(pos[3 * i] / cell)),
+                         int(math.floor(pos[3 * i + 1] / cell)),
+                         int(math.floor(pos[3 * i + 2] / cell))), []).append(i)
+    return grid, pos
+
+
+def _nearest(grid, pos, cell, p):
+    """Distance to, and index of, the closest point. Rings outwards so an
+    isolated point is still found rather than reported as infinitely far."""
+    kx, ky, kz = (int(math.floor(p[0] / cell)), int(math.floor(p[1] / cell)),
+                  int(math.floor(p[2] / cell)))
+    best, bi = None, -1
+    for r in range(0, 6):
+        for dx in range(-r, r + 1):
+            for dy in range(-r, r + 1):
+                for dz in range(-r, r + 1):
+                    if r and max(abs(dx), abs(dy), abs(dz)) != r:
+                        continue          # only the new shell
+                    for i in grid.get((kx + dx, ky + dy, kz + dz), ()):
+                        d = ((pos[3 * i] - p[0]) ** 2 + (pos[3 * i + 1] - p[1]) ** 2
+                             + (pos[3 * i + 2] - p[2]) ** 2)
+                        if best is None or d < best:
+                            best, bi = d, i
+        if best is not None and best <= (r * cell) ** 2:
+            break
+    if best is None:
+        for i in range(len(pos) // 3):
+            d = ((pos[3 * i] - p[0]) ** 2 + (pos[3 * i + 1] - p[1]) ** 2
+                 + (pos[3 * i + 2] - p[2]) ** 2)
+            if best is None or d < best:
+                best, bi = d, i
+    return (math.sqrt(best) if best is not None else float("inf")), bi
+
+
+def _ends(geo):
+    """(start P, end P) per prim, plus point -> [prim] for the endpoints."""
+    out, by_pt = [], {}
+    for pr in geo.prims():
+        vs = list(pr.vertices())
+        if len(vs) < 2:
+            out.append(None)
+            continue
+        a, b = vs[0].point(), vs[-1].point()
+        out.append((a.position(), b.position()))
+        by_pt.setdefault(a.number(), []).append(len(out) - 1)
+        by_pt.setdefault(b.number(), []).append(len(out) - 1)
+    return out, by_pt
+
+
+def _graph_geometry_delta(a, b, tol):
+    """The FULL geometry of two graphs, compared order-independently.
+
+    ⚠️ This used to be `_graph_invariants` — four counts and sums, a strict
+    SUBSET of what `repair_verdict` already tested, since it dropped even the
+    bbox term. So the replay was an independent NODE but not an independent
+    CRITERION: it could not fail on anything the solver's own verdict could not
+    fail on, which is the whole reason for running it. Every defect the verdict
+    was blind to — a point sliding along its polyline, a point crossing it, an
+    edge reversing — was equally invisible here.
+
+    So it compares the geometry itself: a symmetric Hausdorff over the point
+    sets (a real MAX, not a sum) and a per-edge direction match, both matched
+    through position rather than through numbering, because graph_fuse,
+    polypath and the blasts renumber freely and an index-wise comparison reads
+    that as hundreds of metres of movement.
+    """
+    nodes_a = sum(1 for pt in a.points() if len(pt.prims()) != 1)
+    nodes_b = sum(1 for pt in b.points() if len(pt.prims()) != 1)
+    out = {"edges": [len(a.prims()), len(b.prims())],
+           "points": [len(a.points()), len(b.points())],
+           "nodes": [nodes_a, nodes_b],
+           "length_m": [round(sum(pr.intrinsicValue("measuredperimeter")
+                                  for pr in a.prims()), 2),
+                        round(sum(pr.intrinsicValue("measuredperimeter")
+                                  for pr in b.prims()), 2)]}
+    cell = 8.0
+    ga, pa = _point_grid(a, cell)
+    gb, pb = _point_grid(b, cell)
+    move = 0.0
+    for i in range(len(pa) // 3):
+        d, _ = _nearest(gb, pb, cell, (pa[3 * i], pa[3 * i + 1], pa[3 * i + 2]))
+        move = max(move, d)
+    for i in range(len(pb) // 3):
+        d, _ = _nearest(ga, pa, cell, (pb[3 * i], pb[3 * i + 1], pb[3 * i + 2]))
+        move = max(move, d)
+    out["max_point_move_m"] = round(move, 6)
+
+    ends_a, _ = _ends(a)
+    ends_b, by_pt_b = _ends(b)
+    reversed_edges = 0
+    for ea in ends_a:
+        if ea is None:
+            continue
+        s, e = ea
+        cand = []
+        for p in (s, e):
+            _, j = _nearest(gb, pb, cell, p)
+            if j >= 0:
+                cand.extend(by_pt_b.get(j, ()))
+        best, best_rev = None, 0
+        for q in cand:
+            eb = ends_b[q]
+            if eb is None:
+                continue
+            s1, e1 = eb
+            f = (s1 - s).length() + (e1 - e).length()
+            g = (e1 - s).length() + (s1 - e).length()
+            if best is None or f < best:
+                best, best_rev = f, 0
+            if g < best:
+                best, best_rev = g, 1
+        reversed_edges += best_rev
+    out["reversed_edges"] = reversed_edges
+    bad = {k: out[k] for k in ("edges", "points", "nodes")
+           if out[k][0] != out[k][1]}
+    if abs(out["length_m"][0] - out["length_m"][1]) > 0.01:
+        bad["length_m"] = out["length_m"]
+    if move > tol:
+        bad["max_point_move_m"] = out["max_point_move_m"]
+    if reversed_edges:
+        bad["reversed_edges"] = reversed_edges
+    out["moved"] = bad
+    return out
 
 
 def graph_reaches_a_fixed_point(trace_node):
@@ -1037,6 +1156,15 @@ def graph_reaches_a_fixed_point(trace_node):
     * **And an independent pass must agree.** A second `pf_citygen_trace`, same
       parameters, fed the shipped splines on its drawn-spline input. If the
       first node's idea of "converged" is wrong, this is what catches it.
+
+    ⚠️ **The replay compares the FULL GEOMETRY, not a reduced invariant set,
+    and that correction is the whole point of the second tooth.** It used to
+    call `_graph_invariants` — edges, points, nodes and total length — which is
+    a strict SUBSET of what `repair_verdict` itself tested (it did not even
+    carry the bbox term), so the replay was an independent node running a
+    weaker criterion and could not catch anything the solver had already
+    missed. It now compares per-point positions and per-edge direction, which
+    are exactly the two things the old verdict was blind to.
     """
     name = "graph_reaches_a_fixed_point"
     geo = trace_node.geometry(0)
@@ -1044,6 +1172,10 @@ def graph_reaches_a_fixed_point(trace_node):
         return Result(name, False, None, "no repair loop on this tracer")
     conv = geo.attribValue("repair_converged")
     iters = geo.attribValue("repair_iterations")
+    resid = (geo.attribValue("repair_residual_m")
+             if geo.findGlobalAttrib("repair_residual_m") is not None else None)
+    tolp = trace_node.parm("graph_params_repair_tolerance")
+    tol = tolp.eval() if tolp is not None else 0.001
     parent = trace_node.parent()
     probe = parent.node("__chk_fixed_point")
     if probe is not None:
@@ -1062,15 +1194,86 @@ def graph_reaches_a_fixed_point(trace_node):
         if probe.errors():
             return Result(name, False, {"converged": conv, "passes": iters},
                           "replay errored: %s" % probe.errors()[0][:160])
-        was = _graph_invariants(geo)
-        now = _graph_invariants(probe.geometry(0))
+        delta = _graph_geometry_delta(geo, probe.geometry(0), tol)
     finally:
         probe.destroy()
-    moved = {k: [was[k], now[k]] for k in was
-             if (abs(was[k] - now[k]) > 0.01 if k == "length_m" else was[k] != now[k])}
+    moved = delta["moved"]
     return Result(name, conv == 1 and not moved,
-                  {"converged": conv, "passes": iters, "replay_moved": moved or None},
-                  "the repair pass re-run on the graph it shipped must be a no-op")
+                  {"converged": conv, "passes": iters,
+                   "residual_m": None if resid is None else round(resid, 6),
+                   "reversed": delta["reversed_edges"],
+                   "replay_move_m": delta["max_point_move_m"],
+                   "replay_moved": moved or None},
+                  "the repair pass re-run on the graph it shipped must be a "
+                  "no-op — full geometry, to within Repair Tolerance (%.4g m)"
+                  % tol)
+
+
+def forced_extra_repair_pass(trace_node, city_node):
+    """Turn OFF the loop's early exit, run one pass MORE than it asked for, and
+    see what the shipped city does. **Run this last: it re-cooks the city.**
+
+    ⚠️ This is the experiment that caught the old verdict, and it belongs here
+    rather than in an auditor's scratch file — it is the only thing that can
+    tell "the loop stopped" from "the loop converged". Every term the verdict
+    tests is chosen by the person who wrote the verdict; this one asks the
+    pipeline instead. On the four-aggregate verdict it moved **A 82 → 83 lots
+    and B 622 → 617** on a pass the solver had certified as a no-op.
+
+    ⚠️ **LOT COUNT IS RECORDED, NOT ASSERTED, and the reason is S8 rather than
+    S3.** With the displacement and direction terms in, A, B, D, E, F and G are
+    stable across the forced pass and **C_radial still moves 774 → 770**. The
+    pass that does it moves no point further than **4.5e-5 m** — the last ulp
+    of float32 at these coordinates — and reverses no edge. The repair pass
+    cannot be made bit-exact idempotent, because `resample`, `graph_polypath`
+    and the S3b clamp all re-accumulate arc length in float32 every pass; and
+    S8's recursive-OBB split is chaotic at that scale — measured on `A_drawn`,
+    a **1.5e-5 m** jitter alone flips a parcel. Asserting the lot count here
+    would therefore assert S8's determinism, which is a separate task, in S8.
+    So: the STRUCTURE is asserted (edges, points, blocks) and the lot count is
+    recorded, which is what makes a future improvement visible in the baseline
+    diff instead of invisible.
+    """
+    name = "forced_extra_repair_pass"
+    geo = trace_node.geometry(0)
+    if geo.findGlobalAttrib("repair_iterations") is None:
+        return _skip(name, "no repair loop on this tracer")
+    iters = geo.attribValue("repair_iterations")
+
+    def state():
+        g = trace_node.geometry(0)
+        return {"edges": len(g.prims()), "points": len(g.points()),
+                "blocks": len(city_node.geometry(1).prims()),
+                "lots": len(city_node.geometry(2).prims())}
+
+    was = state()
+    trace_node.allowEditingOfContents()
+    end = trace_node.node("repair_end")
+    cap = trace_node.parm("graph_params_repair_passes")
+    if end is None or cap is None:
+        return _skip(name, "repair_end / cap parm missing")
+    old_stop, old_cap = end.parm("stopattrib").eval(), cap.eval()
+    try:
+        end.parm("stopattrib").set("")          # no early out
+        cap.set(iters + 1)
+        city_node.cook(force=True)
+        if trace_node.errors():
+            return Result(name, False, None,
+                          "forced pass errored: %s" % trace_node.errors()[0][:160])
+        now = state()
+    finally:
+        end.parm("stopattrib").set(old_stop)
+        cap.set(old_cap)
+        city_node.cook(force=True)             # leave the city as it shipped
+    moved = {k: [was[k], now[k]] for k in was if was[k] != now[k]}
+    structural = {k: v for k, v in moved.items() if k != "lots"}
+    return Result(name, not structural,
+                  {"passes": iters, "forced": iters + 1,
+                   "lots": [was["lots"], now["lots"]],
+                   "moved": moved or None},
+                  "one pass past the loop's own verdict, with the Stop "
+                  "Attribute disabled: structure must not move, lot count is "
+                  "recorded (S8 is chaotic at the float32 noise floor)")
 
 
 def every_block_is_subdivided(lot_geo, block_geo, floor=0):

@@ -198,6 +198,10 @@ def run_case(name, built, field=None):
                         {"city": len(g_city.prims()), "blocks": len(g_blocks.prims()),
                          "lots": len(g_lots.prims()), "edges": len(g_graph.prims())},
                         "informational"))
+    # LAST, because it re-cooks the city: the loop's own verdict is written by
+    # the same person who wrote the loop, so ask the pipeline instead — disable
+    # the early out, run one pass more than it wanted, and see what ships.
+    out.append(C.forced_extra_repair_pass(trace, city))
     return out
 
 

@@ -624,27 +624,101 @@ there are errors left after solving on the new network."*
 **Repair, planarise, reclassify and solve now iterate to a fixed point.** The whole S3→S5 chain
 sits inside a feedback loop in `pf_citygen_trace` (`repair_begin` … `repair_verdict` …
 `repair_end`), and `repair_verdict` compares the pass's output against its own input and writes
-two detail attributes that ship on the graph:
+these detail attributes onto the graph it ships:
 
-- **`repair_converged`** — 1 only if the last pass changed nothing. It is the block-end's **Stop
-  Attribute**, so the loop ends by *proving* the fixed point rather than by running out of budget.
-- **`repair_iterations`** — passes used, against `Max Repair Passes` (default 8).
+- **`repair_converged`** — 1 only after **two consecutive** passes have changed nothing. It is
+  the block-end's **Stop Attribute**, so the loop ends by *proving* the fixed point rather than
+  by running out of budget.
+- **`repair_iterations`** — passes used, against `Max Repair Passes` (default 12).
+- **`repair_residual_m`** — the largest distance any point still moved on the last pass, against
+  `Repair Tolerance` (default 1 mm). **The verdict is a number, not only a flag.**
+- **`repair_reversed`** — how many edges the last pass turned round.
+- **`repair_noop`** — whether *this* pass changed nothing, which is what the streak is counted on.
 
 ⚠️ **Non-convergence is surfaced, not shipped.** Hitting the cap ships `repair_converged = 0` and
 `graph_reaches_a_fixed_point` fails. That failure mode has now cost this project four separate
 defects — §S3b's `iters = 200`, the trace stall, the clamp budget, and this — and a solver that
 cannot say whether it converged ships a broken answer silently every time.
 
-**Measured, passes to convergence: A 2 · B 5 · C 3 · D 2 · E 2 · F 3 · G 2**, and the cook time
-is unchanged (C_radial's tracer, 0.3 s) because the loop stops as soon as a pass is a no-op.
+**Measured, passes to convergence: A 3 · B 9 · C 8 · D 3 · E 3 · F 6 · G 3**, and the extra
+passes are close to free: cold end-to-end city cook **C_radial 1.69 → 1.97 s, B_grid 1.36 →
+1.64 s, A_drawn 0.59 → 0.64 s** — 2.7× the passes for 1.17× the time, because a repair pass is
+cheap next to S6–S8.
 **`Max Repair Passes` = 1 reproduces the old single-pass build exactly**, which is both the
 A/B and the escape hatch.
 
 ⚠️ **COMPARE THE GRAPH, NOT THE POINT NUMBERING.** The first verdict compared `P` index-wise
 and read `graph_fuse` / `polypath` / the blasts renumbering as **777 m of movement**: C_radial's
-geometry is settled by pass 3 (order-independent max move 3.8e-5 m) and the loop still ran to
-its cap at 8. Every term is now a count or a sum — edges, points, nodes, total centreline
-length (1 cm), bounding box (1 mm) — which is exactly the set of things a *repair* changes.
+geometry is settled and the loop still ran to its cap at 8. Every term must therefore be
+order-independent — a count, a sum, or a nearest-neighbour match.
+
+#### ⚠️ …AND THEN IT STOPPED TOO EARLY, BECAUSE FOUR AGGREGATES CANNOT SEE A REDISTRIBUTION
+
+Corrected 2026-08-10 after an independent audit of `ac64636` + `54bf0e3`. The paragraph above
+used to end *"every term is now a count or a sum — edges, points, nodes, total centreline length,
+bounding box — which is exactly the set of things a repair changes."* **That sentence was wrong,
+and it is the reason the loop stopped, rather than converged, on three of the seven cases.**
+
+Two counts, one length sum and a bounding box over six coordinates are all **global aggregates**,
+and every local redistribution that conserves them is invisible to all four: a point sliding
+*along* its polyline changes no length, a point moving *across* it changes a 5 m segment by a
+second-order amount lost in a 9 km sum, and a bounding box only ever sees the extremes. Forced
+one pass past its own verdict:
+
+| case | old verdict stopped at | the next pass still moved a point by | edges | total length |
+|---|---|---|---|---|
+| `F_bend` | 3 | **56.2 mm** at (140.0, −109.84) | 3 → 3 | unchanged |
+| `C_radial` | 3 | **26.0 mm** at (246.35, −101.22) | 86 → 86 | unchanged |
+| `B_grid` | 5 | 0.034 mm | 64 → 64 | unchanged |
+
+**And it is not cosmetic.** S8's recursive-OBB split is chaotic in a few centimetres, so that
+"no-op" pass moves the shipped city: **C 766 → 774 lots** and every parcel *area* changes on A
+and D while the street network is bit-stable.
+
+**The second term is the one that matters for the future: primitive DIRECTION.** Reversing a
+polyline changes no count, no node, no length and no bounding box — and it flips the shipped
+`connectionStart` / `connectionEnd` (§6). Measured on C_radial: **14 edges reverse on the pass
+the old verdict stopped at**, 9 on the next, 4 on the next, 1 on the next. It is harmless **only**
+because all six shipped templates have `sidewalkWidthLeft == sidewalkWidthRight`;
+`boulevard_bus_bike` is already in the library, and **the first asymmetric cross-section turns a
+direction flip into the wide sidewalk swapping sides**, with all four of the old terms still
+reporting "converged".
+
+**What replaced it.** The four aggregate terms stay, and two more join them:
+
+- a **symmetric Hausdorff** over the two point sets — a real **max**, not another sum — measured
+  through `nearpoint()` so renumbering cannot move it, against the artist-facing
+  **`Repair Tolerance`** (default **1 mm**, about 11× the float32 settling noise, whose worst
+  case across all seven cases is 9.2e-5 m on `F_bend`);
+- a **per-edge direction match**: each edge is matched to the previous pass's edge that shares
+  its endpoints — through the nodes, not through the numbering — and the loop will not stop while
+  any of them comes back the other way round.
+
+⚠️ **The stop rule needs TWO consecutive no-op passes, and `B_grid` is the case that proves it.**
+The repair is a function of the graph **and of its point/prim order**, and a pass that changes no
+geometry still hands the next pass a different ordering. B's pass 5 moves nothing and reverses
+nothing — a clean no-op by every term above — and then pass 6 reverses an edge and pass 7
+reverses another. One no-op pass proves `f(x) == x` and says nothing whatever about `f(f(x))`.
+Requiring the streak proves both; on B it costs 5 passes → 9 and settles the orientation for good.
+`Max Repair Passes` went 8 → 12 with it, because the real fixed points are 8 (C) and 9 (B) and
+the old cap could not hold them.
+
+**Measured against the acceptance the audit set**, whole suite, `54bf0e3` → this commit:
+17 failing → **17 failing**, and `city_is_fully_paved`, `lots_clear_of_junctions`,
+`selfx_junction_surface`, folds, `every_mouth_has_a_road`, `graph_planar_y` and
+`block_boundary_closes` all still 0, seam still 0.0001, dead ends unmoved at
+A 8 · B 17 · C 12 · D 8 · E 3 · F 3 · G 3. `selfx_city_merged` on C **131 → 127**.
+`lot_aspect_ratio` over-3.0 count **B 164 → 161, C 192 → 189**.
+
+⚠️ **One acceptance item did NOT land, and the reason is not the verdict.** "Lot counts stable
+across an extra forced pass" is now true of A, B, D, E, F and G — A was 82 → 83 and B 622 → 617
+before this change, and both are stable now — but **C still moves 774 → 770**. The pass that does
+it moves no point further than **4.5e-5 m** and reverses no edge: that is the *last ulp* of
+float32 at these coordinates, and the repair pass cannot be made bit-exact idempotent because
+`resample`, `graph_polypath` and the clamp all re-accumulate arc length in float32 every pass.
+Measured on `A_drawn`, a **1.5e-5 m** jitter alone flips a parcel. **So the residual instability
+is S8's determinism, not S3's convergence**, and closing it means making the recursive-OBB split
+insensitive to a 45-micron input change — a separate task, in S8.
 
 **What the second pass actually does, on C_radial:**
 
@@ -680,6 +754,26 @@ extends.*
 parameters, fed the shipped splines on its drawn-spline input. At `Max Repair Passes` = 1 the
 replay reports C_radial moving **84 → 86 edges, 45 → 47 nodes, +93.7 m**, which is the artist's
 report reproduced as a number.
+
+⚠️ **The replay was an independent NODE and not an independent CRITERION, and that is a
+different thing.** Corrected 2026-08-10 by the same audit. `_graph_invariants` compared four
+terms — edges, points, nodes, total length — which is a **strict subset** of `repair_verdict`,
+dropping even its bounding-box term. A replay that runs a weaker test than the solver it is
+auditing **cannot fail on anything the solver missed**, which is the only reason to run it: every
+defect above was equally invisible to both. It now compares the **full geometry** — per-point
+positions by symmetric Hausdorff, and per-edge direction — against the same `Repair Tolerance`.
+
+**Checked for teeth rather than assumed to have them**, by stopping each case at the pass the old
+verdict stopped at and asking what the replay says:
+
+| case | stopped at | what the replay independently reports |
+|---|---|---|
+| `C_radial` | 3 | **10 edges reversed, 1.18 mm of movement** |
+| `F_bend` | 3 | **1.65 mm of movement** |
+| `B_grid` | 5 | **2 edges reversed** |
+
+At the shipped defaults all seven cases replay to **0.0 m moved and 0 edges reversed** — the
+replay is bit-exact, not merely within tolerance.
 
 **What this does NOT do.** The loop re-runs the repair; it does not add a repair. §S3 step 3's
 node merge and §S5's shallow-arm merge (`merge_angle`) are still unbuilt, so a connection that
@@ -2265,6 +2359,83 @@ same failing set, no baseline movement.
 `{3 64}` range — does move C_radial. That confirms its recorded reason (wired, never the binding
 gate) rather than contradicting it, but the distinction has to be stated or the next reader will
 "disprove" the row with an illegal value.
+
+#### ⚠️ THE SWEEP ITSELF WAS BROKEN, AND IT FAILED IN THE ONE WAY THAT LOOKS LIKE SUCCESS
+
+Found 2026-08-10 by the audit of `ac64636` + `54bf0e3`. `parm_liveness.py` exited **1** on
+`trace / graph_params_repair_passes  DEAD`, and the parm is not dead — the *perturbation* was.
+
+With no `PERTURB` entry the parm falls through to `generic()`, which doubles the current value:
+8 → 16, clamped to the range maximum of **12**, so the sweep raised a **cap** that no case comes
+near. **It tested the only direction in which the parameter cannot possibly matter.** The fix is
+one line — `("trace", "graph_params_repair_passes"): [1]` — and at 1 the geometry of every case
+moves, because 1 is the documented single-pass build.
+
+Two more were falling through to `generic()` and reading GEOM **only by luck of the doubling**,
+which is not the same as being measured:
+
+- `s5j_params_min_standing_widths` — a floor whose interesting direction is **off** (0), not
+  doubled. Worse, it sits in `GRAPH_PARMS`, so it is swept over `STREET_CASES` — **which did not
+  include `G_tongue`, the case written for it** (`cases.py`: *"adding a parameter means adding a
+  case"*). The sweep was running the tongue parameter on every case except the tongue. `G_tongue`
+  is now in `STREET_CASES`.
+- `s5j_params_culdesac_radius` — same shape, same fix.
+
+**The general lesson, and it is not about these three parms.** `generic()` is a *fallback*, and a
+fallback that silently produces a wrong answer is worse than one that refuses: doubling is
+meaningless for a cap, for a floor, and for anything whose default already sits at one end of its
+useful range. The printed `(no perturbation listed for …)` line is the warning; treat it as one.
+
+#### Recorded, not fixed — from the same audit
+
+- **`restlength` is the last float prim attribute a connector does not inherit**, and nothing
+  recomputes it. Impact today is **zero** because nothing reads it — but it is exactly the class
+  of bug that §S3's connector fix above was written for (`streetWidth` diluted by a
+  length-weighted average), so it should be inherited the next time that code is opened.
+- **`every_block_is_subdivided` is inert on E, F and G.** They close no block, so `blocks == 0`
+  and the assertion degrades to `len(lots) >= 0`. On the cases where it does run it asserts only
+  **≥ 1 parcel per block**, and it locates parcels by **centroid-in-polygon** — so a neighbour's
+  centroid falling inside an empty concave block masks exactly the failure the check was written
+  to catch.
+- **`attribute_schema` reports 0 while 8 of §6's attributes are absent** from the shipped graph.
+  It is asserting *something*, but it is not asserting the §6 table, and the name says it is.
+- **`streetWidth` drifts in the last ulp** — 26.8 → 26.7999 — even on `G_tongue`, where nothing
+  is repaired at all. `graph_polypath` re-averages prim attributes on every pass and
+  `graph_width`'s *"an authored value wins"* guard is `streetWidth <= 0`, which never refreshes
+  it. Cosmetic at one part in 10⁶; it becomes real the moment anything compares two widths for
+  equality.
+- **A white unpaved, unparcelled wedge on C_radial near (−175, −300)** — enclosed by the outer
+  ring, a radial arterial and the cul-de-sac arm below it, and it is neither a block nor a
+  corridor: no lot, no pavement, nothing. **Confirmed pixel-identical before and after** this
+  commit (whole-city top-down raster, 0.53 m/px, differenced). It predates all of this work, it
+  is the same family as §S7's collect-and-close failures, and it is the one visible defect a
+  whole-city render of C still shows.
+
+  ⚠️ **Note for whoever renders next: the GUI flipbook path was unavailable** — the artist's
+  session had a blocked main thread, so every `hou` call through the bridge timed out while a
+  bare Python expression returned fine. These cities are flat, so an orthographic top-down raster
+  drawn straight off outputs 0–3 (blocks, city, lots, graph) with PIL in `hython` **is** the
+  whole-city view, it is deterministic, and it can be differenced pixel-for-pixel between two
+  builds — which is how the "pixel-identical" claim above was made rather than eyeballed. It also
+  leaves nothing behind in anyone's session. What B and C show at this commit: the street network
+  is bit-stable (B 64 edges, C 86, unchanged), every block is fully parcelled, paving is
+  continuous through every junction, and the only visible difference is that the parcels inside
+  the blocks are **re-cut** — about 2.5% of pixels on C and 3% on B, spread evenly over the whole
+  city rather than concentrated anywhere. That is the signature of S8 re-running on a settled
+  graph, which is exactly what this change was supposed to produce.
+
+#### ⚠️ C's east sector subdivides into long ribbons, and `ac64636` recorded only the improvements
+
+`lot_aspect_ratio` **over-3.0 count 167 → 192** on C_radial and **161 → 164** on B_grid across
+that commit, with C's p90 **7.29 → 7.93** — the maximum improved (14.84 → 13.97) and the
+distribution behind it got worse. The commit message listed the maximum and not the count. The
+repair-loop fix in this commit takes it partway back — **C 192 → 189, B 164 → 161**, with C's max
+going the other way, 13.97 → 15.04 — but the sector is still visibly ribboned and this is the
+open S8 defect, not a closed one.
+
+Also moving the wrong way, and recorded because it is under its own threshold rather than fixed:
+`lots_clear_of_roads` on B_grid **0.0 → 0.2 m²**, which is a **single 0.5 m raster cell** and
+0 blobs — a lot boundary shifting a few centimetres, not a lot on the road.
 
 ---
 

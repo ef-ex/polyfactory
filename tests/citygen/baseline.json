@@ -135,14 +135,17 @@
       }
     },
     {
-      "detail": "the repair pass re-run on the graph it shipped must be a no-op",
+      "detail": "the repair pass re-run on the graph it shipped must be a no-op \u2014 full geometry, to within Repair Tolerance (0.001 m)",
       "name": "graph_reaches_a_fixed_point",
       "ok": true,
       "skipped": false,
       "value": {
         "converged": 1,
-        "passes": 2,
-        "replay_moved": null
+        "passes": 3,
+        "replay_move_m": 0.0,
+        "replay_moved": null,
+        "residual_m": 1.5e-05,
+        "reversed": 0
       }
     },
     {
@@ -842,7 +845,7 @@
         "fit": 6.6e-06,
         "mixed_class": 22,
         "radius": 5e-07,
-        "radius_fit": 0.004,
+        "radius_fit": 0.008,
         "straight": 0,
         "tangent": 1.4e-05,
         "unfitted": 0
@@ -876,7 +879,7 @@
       "skipped": false,
       "value": {
         "bulbs": 8,
-        "circle_fit": 2.07e-05,
+        "circle_fit": 2.11e-05,
         "malformed": 0,
         "mouth_off_circle": 1e-05,
         "under_radius": 0.0
@@ -956,7 +959,7 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 2.3e-07
+      "value": 2.84e-07
     },
     {
       "detail": "blocks holding no parcel at all, and the per-case lot floor",
@@ -968,11 +971,11 @@
         "empty": 0,
         "empty_at": null,
         "floor": 74,
-        "lots": 82
+        "lots": 83
       }
     },
     {
-      "detail": "82 prims, 82 distinct footprints",
+      "detail": "83 prims, 83 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -984,11 +987,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 69,
-        "max": 9.52,
-        "median": 3.66,
-        "over": 18,
-        "p90": 8.22
+        "lots": 67,
+        "max": 9.47,
+        "median": 4.06,
+        "over": 19,
+        "p90": 7.73
       }
     },
     {
@@ -1052,9 +1055,24 @@
       "skipped": false,
       "value": {
         "blocks": 2,
-        "city": 4458,
+        "city": 4459,
         "edges": 15,
-        "lots": 82
+        "lots": 83
+      }
+    },
+    {
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "name": "forced_extra_repair_pass",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "forced": 4,
+        "lots": [
+          83,
+          83
+        ],
+        "moved": null,
+        "passes": 3
       }
     }
   ],
@@ -1145,7 +1163,7 @@
       "value": {
         "edge_at": null,
         "edge_m": 0.0,
-        "m2": 0.0,
+        "m2": 0.2,
         "patches": 0,
         "worst": []
       }
@@ -1194,14 +1212,17 @@
       }
     },
     {
-      "detail": "the repair pass re-run on the graph it shipped must be a no-op",
+      "detail": "the repair pass re-run on the graph it shipped must be a no-op \u2014 full geometry, to within Repair Tolerance (0.001 m)",
       "name": "graph_reaches_a_fixed_point",
       "ok": true,
       "skipped": false,
       "value": {
         "converged": 1,
-        "passes": 5,
-        "replay_moved": null
+        "passes": 9,
+        "replay_move_m": 0.0,
+        "replay_moved": null,
+        "residual_m": 3.4e-05,
+        "reversed": 0
       }
     },
     {
@@ -2015,7 +2036,7 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 8e-09
+      "value": 9.3e-08
     },
     {
       "detail": "blocks holding no parcel at all, and the per-case lot floor",
@@ -2027,11 +2048,11 @@
         "empty": 0,
         "empty_at": null,
         "floor": 560,
-        "lots": 622
+        "lots": 619
       }
     },
     {
-      "detail": "622 prims, 622 distinct footprints",
+      "detail": "619 prims, 619 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -2043,11 +2064,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 473,
-        "max": 14.52,
-        "median": 3.28,
-        "over": 164,
-        "p90": 8.01
+        "lots": 468,
+        "max": 12.86,
+        "median": 3.48,
+        "over": 161,
+        "p90": 8.03
       }
     },
     {
@@ -2111,9 +2132,24 @@
       "skipped": false,
       "value": {
         "blocks": 17,
-        "city": 18590,
+        "city": 18587,
         "edges": 64,
-        "lots": 622
+        "lots": 619
+      }
+    },
+    {
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "name": "forced_extra_repair_pass",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "forced": 10,
+        "lots": [
+          619,
+          619
+        ],
+        "moved": null,
+        "passes": 9
       }
     }
   ],
@@ -2172,7 +2208,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 131
+      "value": 127
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -2253,14 +2289,17 @@
       }
     },
     {
-      "detail": "the repair pass re-run on the graph it shipped must be a no-op",
+      "detail": "the repair pass re-run on the graph it shipped must be a no-op \u2014 full geometry, to within Repair Tolerance (0.001 m)",
       "name": "graph_reaches_a_fixed_point",
       "ok": true,
       "skipped": false,
       "value": {
         "converged": 1,
-        "passes": 3,
-        "replay_moved": null
+        "passes": 8,
+        "replay_move_m": 0.0,
+        "replay_moved": null,
+        "residual_m": 4.3e-05,
+        "reversed": 0
       }
     },
     {
@@ -2300,8 +2339,8 @@
         "min_segment_m": 3.6739,
         "under": 0,
         "worst_at": [
-          3.3,
-          98.12
+          10.64,
+          97.71
         ]
       }
     },
@@ -2960,9 +2999,9 @@
         "fit": 2.24e-05,
         "mixed_class": 145,
         "radius": 2e-07,
-        "radius_fit": 0.748,
+        "radius_fit": 0.923,
         "straight": 0,
-        "tangent": 4.73e-05,
+        "tangent": 4.38e-05,
         "unfitted": 0
       }
     },
@@ -2997,7 +3036,7 @@
         "circle_fit": 3.31e-05,
         "malformed": 0,
         "mouth_off_circle": 3e-05,
-        "under_radius": 1e-05
+        "under_radius": 2e-05
       }
     },
     {
@@ -3039,8 +3078,8 @@
         "mean": 0.0,
         "over_0.05m": 0,
         "worst_at": [
-          210.15,
-          -320.8
+          -233.31,
+          -303.58
         ]
       }
     },
@@ -3074,7 +3113,7 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 7e-09
+      "value": 3e-09
     },
     {
       "detail": "blocks holding no parcel at all, and the per-case lot floor",
@@ -3086,11 +3125,11 @@
         "empty": 0,
         "empty_at": null,
         "floor": 683,
-        "lots": 766
+        "lots": 774
       }
     },
     {
-      "detail": "766 prims, 766 distinct footprints",
+      "detail": "774 prims, 774 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -3102,11 +3141,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 648,
-        "max": 13.97,
-        "median": 3.12,
-        "over": 192,
-        "p90": 7.93
+        "lots": 650,
+        "max": 15.04,
+        "median": 3.19,
+        "over": 189,
+        "p90": 7.94
       }
     },
     {
@@ -3174,9 +3213,29 @@
       "skipped": false,
       "value": {
         "blocks": 28,
-        "city": 21355,
+        "city": 21363,
         "edges": 86,
-        "lots": 766
+        "lots": 774
+      }
+    },
+    {
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "name": "forced_extra_repair_pass",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "forced": 9,
+        "lots": [
+          774,
+          770
+        ],
+        "moved": {
+          "lots": [
+            774,
+            770
+          ]
+        },
+        "passes": 8
       }
     }
   ],
@@ -3316,14 +3375,17 @@
       }
     },
     {
-      "detail": "the repair pass re-run on the graph it shipped must be a no-op",
+      "detail": "the repair pass re-run on the graph it shipped must be a no-op \u2014 full geometry, to within Repair Tolerance (0.001 m)",
       "name": "graph_reaches_a_fixed_point",
       "ok": true,
       "skipped": false,
       "value": {
         "converged": 1,
-        "passes": 2,
-        "replay_moved": null
+        "passes": 3,
+        "replay_move_m": 0.0,
+        "replay_moved": null,
+        "residual_m": 1.5e-05,
+        "reversed": 0
       }
     },
     {
@@ -4023,7 +4085,7 @@
         "fit": 6.6e-06,
         "mixed_class": 22,
         "radius": 5e-07,
-        "radius_fit": 0.004,
+        "radius_fit": 0.008,
         "straight": 0,
         "tangent": 1.4e-05,
         "unfitted": 0
@@ -4057,7 +4119,7 @@
       "skipped": false,
       "value": {
         "bulbs": 8,
-        "circle_fit": 2.07e-05,
+        "circle_fit": 2.11e-05,
         "malformed": 0,
         "mouth_off_circle": 1e-05,
         "under_radius": 0.0
@@ -4137,7 +4199,7 @@
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 1.71e-07
+      "value": 2.82e-07
     },
     {
       "detail": "blocks holding no parcel at all, and the per-case lot floor",
@@ -4236,6 +4298,21 @@
         "city": 4437,
         "edges": 15,
         "lots": 61
+      }
+    },
+    {
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "name": "forced_extra_repair_pass",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "forced": 4,
+        "lots": [
+          61,
+          61
+        ],
+        "moved": null,
+        "passes": 3
       }
     }
   ],
@@ -4369,14 +4446,17 @@
       }
     },
     {
-      "detail": "the repair pass re-run on the graph it shipped must be a no-op",
+      "detail": "the repair pass re-run on the graph it shipped must be a no-op \u2014 full geometry, to within Repair Tolerance (0.001 m)",
       "name": "graph_reaches_a_fixed_point",
       "ok": true,
       "skipped": false,
       "value": {
         "converged": 1,
-        "passes": 2,
-        "replay_moved": null
+        "passes": 3,
+        "replay_move_m": 0.0,
+        "replay_moved": null,
+        "residual_m": 0.0,
+        "reversed": 0
       }
     },
     {
@@ -5067,12 +5147,12 @@
       "skipped": false,
       "value": {
         "culdesac_skipped": 2,
-        "fit": 4e-07,
+        "fit": 3e-07,
         "mixed_class": 0,
         "radius": 0.0,
         "radius_fit": 0.0,
         "straight": 0,
-        "tangent": 1e-07,
+        "tangent": 7e-07,
         "unfitted": 0
       }
     },
@@ -5104,7 +5184,7 @@
       "skipped": false,
       "value": {
         "bulbs": 2,
-        "circle_fit": 3.9e-06,
+        "circle_fit": 3.3e-06,
         "malformed": 0,
         "mouth_off_circle": 0.0,
         "under_radius": 0.0
@@ -5277,6 +5357,21 @@
         "edges": 3,
         "lots": 0
       }
+    },
+    {
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "name": "forced_extra_repair_pass",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "forced": 4,
+        "lots": [
+          0,
+          0
+        ],
+        "moved": null,
+        "passes": 3
+      }
     }
   ],
   "F_bend": [
@@ -5409,14 +5504,17 @@
       }
     },
     {
-      "detail": "the repair pass re-run on the graph it shipped must be a no-op",
+      "detail": "the repair pass re-run on the graph it shipped must be a no-op \u2014 full geometry, to within Repair Tolerance (0.001 m)",
       "name": "graph_reaches_a_fixed_point",
       "ok": true,
       "skipped": false,
       "value": {
         "converged": 1,
-        "passes": 3,
-        "replay_moved": null
+        "passes": 6,
+        "replay_move_m": 0.0,
+        "replay_moved": null,
+        "residual_m": 6.1e-05,
+        "reversed": 0
       }
     },
     {
@@ -5453,11 +5551,11 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "min_segment_m": 3.9711,
+        "min_segment_m": 3.9715,
         "under": 0,
         "worst_at": [
-          139.56,
-          -117.71
+          140.0,
+          64.97
         ]
       }
     },
@@ -6150,7 +6248,7 @@
       "skipped": false,
       "value": {
         "bulbs": 3,
-        "circle_fit": 9.3e-06,
+        "circle_fit": 8.7e-06,
         "malformed": 0,
         "mouth_off_circle": 1e-05,
         "under_radius": 0.0
@@ -6195,7 +6293,7 @@
         "mean": 0.0,
         "over_0.05m": 0,
         "worst_at": [
-          -26.45,
+          -53.55,
           -140.0
         ]
       }
@@ -6214,7 +6312,7 @@
       "skipped": false,
       "value": {
         "folds": 0,
-        "max_ratio": 0.253,
+        "max_ratio": 0.252,
         "min_seg": 2.3363
       }
     },
@@ -6322,6 +6420,21 @@
         "city": 2224,
         "edges": 3,
         "lots": 0
+      }
+    },
+    {
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "name": "forced_extra_repair_pass",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "forced": 7,
+        "lots": [
+          0,
+          0
+        ],
+        "moved": null,
+        "passes": 6
       }
     }
   ],
@@ -6455,14 +6568,17 @@
       }
     },
     {
-      "detail": "the repair pass re-run on the graph it shipped must be a no-op",
+      "detail": "the repair pass re-run on the graph it shipped must be a no-op \u2014 full geometry, to within Repair Tolerance (0.001 m)",
       "name": "graph_reaches_a_fixed_point",
       "ok": true,
       "skipped": false,
       "value": {
         "converged": 1,
-        "passes": 2,
-        "replay_moved": null
+        "passes": 3,
+        "replay_move_m": 0.0,
+        "replay_moved": null,
+        "residual_m": 8e-06,
+        "reversed": 0
       }
     },
     {
@@ -6496,7 +6612,7 @@
         "min_segment_m": 3.9682,
         "under": 0,
         "worst_at": [
-          -130.95,
+          -126.98,
           0.0
         ]
       }
@@ -7153,12 +7269,12 @@
       "skipped": false,
       "value": {
         "culdesac_skipped": 3,
-        "fit": 3e-07,
+        "fit": 2e-07,
         "mixed_class": 0,
         "radius": 0.0,
         "radius_fit": 0.001,
         "straight": 0,
-        "tangent": 1.1e-06,
+        "tangent": 1.9e-06,
         "unfitted": 0
       }
     },
@@ -7190,7 +7306,7 @@
       "skipped": false,
       "value": {
         "bulbs": 3,
-        "circle_fit": 7.2e-06,
+        "circle_fit": 5.9e-06,
         "malformed": 0,
         "mouth_off_circle": 0.0,
         "under_radius": 0.0
@@ -7362,6 +7478,21 @@
         "city": 2291,
         "edges": 3,
         "lots": 0
+      }
+    },
+    {
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: structure must not move, lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "name": "forced_extra_repair_pass",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "forced": 4,
+        "lots": [
+          0,
+          0
+        ],
+        "moved": null,
+        "passes": 3
       }
     }
   ]
