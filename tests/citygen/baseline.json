@@ -54,7 +54,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 6
+      "value": 9
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -76,6 +76,17 @@
         "junctions": 6,
         "m2": 0.0,
         "per_junction": 0.0
+      }
+    },
+    {
+      "detail": "lot area lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so this is 0 by construction (2 m2 allowed)",
+      "name": "lots_clear_of_roads",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "m2": 0.0,
+        "patches": 0,
+        "worst": []
       }
     },
     {
@@ -122,17 +133,23 @@
       "value": 0
     },
     {
-      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, and not_converged means the solver said so itself",
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
       "name": "centreline_curvature_within_class",
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 0.889,
+        "max_kappa_over_clamp": 0.364,
+        "max_turn_spike": 1.01,
         "not_converged": 0,
         "over": 0,
+        "solver_turn_spike": 1.01,
+        "spike_prim_at": [
+          -0.54,
+          140.28
+        ],
         "worst_at": [
-          -59.6,
-          9.82
+          -59.61,
+          9.45
         ]
       }
     },
@@ -151,7 +168,7 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
@@ -201,6 +218,7 @@
           "moved": 16.793224,
           "sweeps": 68
         },
+        "gain_sweep": "all 6 gains clean",
         "ring_legal": {
           "R_delivered": 119.99,
           "converged": 1,
@@ -211,13 +229,13 @@
           "sweeps": 0
         },
         "ring_square": {
-          "R_delivered": 26.6,
+          "R_delivered": 26.8,
           "converged": 1,
           "half_width": 13.4,
-          "kappa": 1.0077,
-          "min_seg": 3.7455,
-          "moved": 18.562005,
-          "sweeps": 41
+          "kappa": 0.9999,
+          "min_seg": 3.1057,
+          "moved": 77.509212,
+          "sweeps": 136
         },
         "ring_tight": {
           "R_delivered": 19.97,
@@ -246,7 +264,7 @@
         "fit": 6.6e-06,
         "mixed_class": 22,
         "radius": 5e-07,
-        "radius_fit": 0.009,
+        "radius_fit": 0.004,
         "straight": 0,
         "tangent": 1.36e-05,
         "unfitted": 0
@@ -301,7 +319,7 @@
       "skipped": false,
       "value": {
         "ends": 22,
-        "max": 0.0001,
+        "max": 0.0,
         "mean": 0.0,
         "over_0.05m": 0,
         "worst_at": [
@@ -324,7 +342,7 @@
       "skipped": false,
       "value": {
         "folds": 0,
-        "max_ratio": 0.269,
+        "max_ratio": 0.127,
         "min_seg": 1.024
       }
     },
@@ -336,14 +354,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 33771.9 vs blocks 33771.9)",
+      "detail": "relative area error (lots 33775.6 vs blocks 33775.6)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 1.45e-07
+      "value": 2.2e-07
     },
     {
-      "detail": "84 prims, 84 distinct footprints",
+      "detail": "83 prims, 83 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -355,11 +373,11 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 66,
-        "max": 9.49,
-        "median": 3.74,
-        "over": 16,
-        "p90": 7.09
+        "lots": 64,
+        "max": 9.54,
+        "median": 4.11,
+        "over": 19,
+        "p90": 7.73
       }
     },
     {
@@ -400,9 +418,9 @@
       "skipped": false,
       "value": {
         "blocks": 2,
-        "city": 4324,
+        "city": 4323,
         "edges": 15,
-        "lots": 84
+        "lots": 83
       }
     }
   ],
@@ -461,7 +479,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 93
+      "value": 95
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -486,12 +504,23 @@
       }
     },
     {
+      "detail": "lot area lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so this is 0 by construction (2 m2 allowed)",
+      "name": "lots_clear_of_roads",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "m2": 0.0,
+        "patches": 0,
+        "worst": []
+      }
+    },
+    {
       "detail": "every kerb run end must meet exactly one other and every loop must close; an open chain still ships as a block",
       "name": "block_boundary_closes",
       "ok": true,
       "skipped": false,
       "value": {
-        "loops": 16,
+        "loops": 17,
         "multiplicity": {},
         "open_loops": 0,
         "unpaired_ends": 0
@@ -517,8 +546,8 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "interior": 5,
-        "total": 21
+        "interior": 4,
+        "total": 19
       }
     },
     {
@@ -529,17 +558,23 @@
       "value": 0
     },
     {
-      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, and not_converged means the solver said so itself",
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
       "name": "centreline_curvature_within_class",
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 0.841,
+        "max_kappa_over_clamp": 0.498,
+        "max_turn_spike": 1.01,
         "not_converged": 0,
         "over": 0,
+        "solver_turn_spike": 1.01,
+        "spike_prim_at": [
+          187.68,
+          89.31
+        ],
         "worst_at": [
-          224.57,
-          -235.5
+          379.08,
+          -23.44
         ]
       }
     },
@@ -558,7 +593,7 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
@@ -608,6 +643,7 @@
           "moved": 16.793224,
           "sweeps": 68
         },
+        "gain_sweep": "all 6 gains clean",
         "ring_legal": {
           "R_delivered": 119.99,
           "converged": 1,
@@ -618,13 +654,13 @@
           "sweeps": 0
         },
         "ring_square": {
-          "R_delivered": 26.6,
+          "R_delivered": 26.8,
           "converged": 1,
           "half_width": 13.4,
-          "kappa": 1.0077,
-          "min_seg": 3.7455,
-          "moved": 18.562005,
-          "sweeps": 41
+          "kappa": 0.9999,
+          "min_seg": 3.1057,
+          "moved": 77.509212,
+          "sweeps": 136
         },
         "ring_tight": {
           "R_delivered": 19.97,
@@ -645,7 +681,7 @@
       "value": 0
     },
     {
-      "detail": "109 corners, 98 arcs fitted; 109 join two street classes, where the lesser one sets the radius (S5)",
+      "detail": "109 corners, 99 arcs fitted; 109 join two street classes, where the lesser one sets the radius (S5)",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
@@ -653,9 +689,9 @@
         "fit": 1.48e-05,
         "mixed_class": 109,
         "radius": 2e-07,
-        "radius_fit": 0.018,
+        "radius_fit": 0.102,
         "straight": 0,
-        "tangent": 3.4e-05,
+        "tangent": 3.47e-05,
         "unfitted": 0
       }
     },
@@ -664,7 +700,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "600/600"
+      "value": "614/614"
     },
     {
       "detail": "",
@@ -693,11 +729,11 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "min_standing_m": 2.183,
+        "min_standing_m": 10.113,
         "under": 0,
         "worst_at": [
-          386.2,
-          -41.67
+          332.14,
+          -369.09
         ]
       }
     },
@@ -731,7 +767,7 @@
       "skipped": false,
       "value": {
         "folds": 0,
-        "max_ratio": 0.104,
+        "max_ratio": 0.215,
         "min_seg": 1.005
       }
     },
@@ -743,14 +779,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 225285.2 vs blocks 225285.2)",
+      "detail": "relative area error (lots 245356.3 vs blocks 245356.3)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 7e-09
+      "value": 1.6e-08
     },
     {
-      "detail": "568 prims, 568 distinct footprints",
+      "detail": "618 prims, 618 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -762,21 +798,21 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 427,
+        "lots": 461,
         "max": 13.46,
-        "median": 2.87,
-        "over": 142,
-        "p90": 8.42
+        "median": 3.08,
+        "over": 159,
+        "p90": 7.91
       }
     },
     {
-      "detail": "self-touching parcels within 0.001 m (0 of them ship as buildable)",
+      "detail": "self-touching parcels within 0.001 m (3 of them ship as buildable)",
       "name": "lots_are_simple_polygons",
-      "ok": true,
+      "ok": false,
       "skipped": false,
       "value": {
-        "lots": 0,
-        "viable": 0
+        "lots": 3,
+        "viable": 3
       }
     },
     {
@@ -806,10 +842,10 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "blocks": 15,
-        "city": 18376,
-        "edges": 65,
-        "lots": 568
+        "blocks": 16,
+        "city": 18486,
+        "edges": 64,
+        "lots": 618
       }
     }
   ],
@@ -868,7 +904,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 336
+      "value": 270
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -887,9 +923,20 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "junctions": 36,
+        "junctions": 39,
         "m2": 0.0,
         "per_junction": 0.0
+      }
+    },
+    {
+      "detail": "lot area lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so this is 0 by construction (2 m2 allowed)",
+      "name": "lots_clear_of_roads",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "m2": 0.0,
+        "patches": 0,
+        "worst": []
       }
     },
     {
@@ -898,7 +945,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "loops": 17,
+        "loops": 21,
         "multiplicity": {},
         "open_loops": 0,
         "unpaired_ends": 0
@@ -924,8 +971,8 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "interior": 18,
-        "total": 33
+        "interior": 13,
+        "total": 28
       }
     },
     {
@@ -936,17 +983,23 @@
       "value": 0
     },
     {
-      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, and not_converged means the solver said so itself",
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
       "name": "centreline_curvature_within_class",
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 0.852,
+        "max_kappa_over_clamp": 1.009,
+        "max_turn_spike": 1.01,
         "not_converged": 0,
         "over": 0,
+        "solver_turn_spike": 1.01,
+        "spike_prim_at": [
+          -82.91,
+          23.36
+        ],
         "worst_at": [
-          -5.17,
-          -100.42
+          250.64,
+          -94.59
         ]
       }
     },
@@ -965,7 +1018,7 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
@@ -1015,6 +1068,7 @@
           "moved": 16.793224,
           "sweeps": 68
         },
+        "gain_sweep": "all 6 gains clean",
         "ring_legal": {
           "R_delivered": 119.99,
           "converged": 1,
@@ -1025,13 +1079,13 @@
           "sweeps": 0
         },
         "ring_square": {
-          "R_delivered": 26.6,
+          "R_delivered": 26.8,
           "converged": 1,
           "half_width": 13.4,
-          "kappa": 1.0077,
-          "min_seg": 3.7455,
-          "moved": 18.562005,
-          "sweeps": 41
+          "kappa": 0.9999,
+          "min_seg": 3.1057,
+          "moved": 77.509212,
+          "sweeps": 136
         },
         "ring_tight": {
           "R_delivered": 19.97,
@@ -1052,7 +1106,7 @@
       "value": 0
     },
     {
-      "detail": "135 corners, 131 arcs fitted; 135 join two street classes, where the lesser one sets the radius (S5)",
+      "detail": "144 corners, 138 arcs fitted; 135 join two street classes, where the lesser one sets the radius (S5)",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
@@ -1062,7 +1116,7 @@
         "radius": 2e-07,
         "radius_fit": 0.524,
         "straight": 0,
-        "tangent": 4.38e-05,
+        "tangent": 4.48e-05,
         "unfitted": 0
       }
     },
@@ -1071,7 +1125,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "828/828"
+      "value": "879/879"
     },
     {
       "detail": "",
@@ -1090,9 +1144,9 @@
     {
       "detail": "intersection points",
       "name": "selfx_roads",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 9
+      "value": 0
     },
     {
       "detail": "street length left after both junction trims; below 1.00 m s5j_trim is about to delete it under a live mouth",
@@ -1114,18 +1168,18 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "ends": 135,
+        "ends": 144,
         "max": 0.0001,
         "mean": 0.0,
         "over_0.05m": 0,
         "worst_at": [
-          -211.75,
-          165.85
+          261.14,
+          -280.78
         ]
       }
     },
     {
-      "detail": "mouths whose street s5j_trim deleted, out of 135",
+      "detail": "mouths whose street s5j_trim deleted, out of 144",
       "name": "every_mouth_has_a_road",
       "ok": true,
       "skipped": false,
@@ -1138,7 +1192,7 @@
       "skipped": false,
       "value": {
         "folds": 0,
-        "max_ratio": 0.214,
+        "max_ratio": 0.254,
         "min_seg": 1.0006
       }
     },
@@ -1150,14 +1204,14 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 311966.6 vs blocks 311966.6)",
+      "detail": "relative area error (lots 308994.6 vs blocks 308994.6)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 5.6e-08
+      "value": 1.09e-07
     },
     {
-      "detail": "791 prims, 791 distinct footprints",
+      "detail": "773 prims, 773 distinct footprints",
       "name": "no_duplicate_lot_footprints",
       "ok": true,
       "skipped": false,
@@ -1169,21 +1223,21 @@
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 576,
-        "max": 16.25,
+        "lots": 594,
+        "max": 19.53,
         "median": 3.21,
-        "over": 201,
-        "p90": 8.89
+        "over": 197,
+        "p90": 8.7
       }
     },
     {
-      "detail": "self-touching parcels within 0.001 m (49 of them ship as buildable)",
+      "detail": "self-touching parcels within 0.001 m (40 of them ship as buildable)",
       "name": "lots_are_simple_polygons",
       "ok": false,
       "skipped": false,
       "value": {
-        "lots": 52,
-        "viable": 49
+        "lots": 41,
+        "viable": 40
       }
     },
     {
@@ -1217,10 +1271,10 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "blocks": 16,
-        "city": 21138,
-        "edges": 84,
-        "lots": 791
+        "blocks": 20,
+        "city": 21026,
+        "edges": 86,
+        "lots": 773
       }
     }
   ],
@@ -1279,7 +1333,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 6
+      "value": 9
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -1301,6 +1355,17 @@
         "junctions": 6,
         "m2": 0.0,
         "per_junction": 0.0
+      }
+    },
+    {
+      "detail": "lot area lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so this is 0 by construction (2 m2 allowed)",
+      "name": "lots_clear_of_roads",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "m2": 0.0,
+        "patches": 0,
+        "worst": []
       }
     },
     {
@@ -1347,17 +1412,23 @@
       "value": 0
     },
     {
-      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, and not_converged means the solver said so itself",
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
       "name": "centreline_curvature_within_class",
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 0.889,
+        "max_kappa_over_clamp": 0.364,
+        "max_turn_spike": 1.01,
         "not_converged": 0,
         "over": 0,
+        "solver_turn_spike": 1.01,
+        "spike_prim_at": [
+          -0.54,
+          140.28
+        ],
         "worst_at": [
-          -59.6,
-          9.82
+          -59.61,
+          9.45
         ]
       }
     },
@@ -1376,7 +1447,7 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
@@ -1426,6 +1497,7 @@
           "moved": 16.793224,
           "sweeps": 68
         },
+        "gain_sweep": "all 6 gains clean",
         "ring_legal": {
           "R_delivered": 119.99,
           "converged": 1,
@@ -1436,13 +1508,13 @@
           "sweeps": 0
         },
         "ring_square": {
-          "R_delivered": 26.6,
+          "R_delivered": 26.8,
           "converged": 1,
           "half_width": 13.4,
-          "kappa": 1.0077,
-          "min_seg": 3.7455,
-          "moved": 18.562005,
-          "sweeps": 41
+          "kappa": 0.9999,
+          "min_seg": 3.1057,
+          "moved": 77.509212,
+          "sweeps": 136
         },
         "ring_tight": {
           "R_delivered": 19.97,
@@ -1471,7 +1543,7 @@
         "fit": 6.6e-06,
         "mixed_class": 22,
         "radius": 5e-07,
-        "radius_fit": 0.009,
+        "radius_fit": 0.004,
         "straight": 0,
         "tangent": 1.36e-05,
         "unfitted": 0
@@ -1526,7 +1598,7 @@
       "skipped": false,
       "value": {
         "ends": 22,
-        "max": 0.0001,
+        "max": 0.0,
         "mean": 0.0,
         "over_0.05m": 0,
         "worst_at": [
@@ -1549,7 +1621,7 @@
       "skipped": false,
       "value": {
         "folds": 0,
-        "max_ratio": 0.269,
+        "max_ratio": 0.127,
         "min_seg": 1.024
       }
     },
@@ -1561,11 +1633,11 @@
       "value": 0.0
     },
     {
-      "detail": "relative area error (lots 33771.9 vs blocks 33771.9)",
+      "detail": "relative area error (lots 33775.6 vs blocks 33775.6)",
       "name": "lots_tile_blocks",
       "ok": true,
       "skipped": false,
-      "value": 1.58e-07
+      "value": 2.28e-07
     },
     {
       "detail": "61 prims, 61 distinct footprints",
@@ -1711,6 +1783,13 @@
       }
     },
     {
+      "detail": "no lots in this case",
+      "name": "lots_clear_of_roads",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "every kerb run end must meet exactly one other and every loop must close; an open chain still ships as a block",
       "name": "block_boundary_closes",
       "ok": true,
@@ -1754,14 +1833,17 @@
       "value": 0
     },
     {
-      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, and not_converged means the solver said so itself",
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
       "name": "centreline_curvature_within_class",
       "ok": true,
       "skipped": false,
       "value": {
         "max_kappa_over_clamp": 0.0,
+        "max_turn_spike": 0.0,
         "not_converged": 0,
         "over": 0,
+        "solver_turn_spike": 0.0,
+        "spike_prim_at": null,
         "worst_at": null
       }
     },
@@ -1780,7 +1862,7 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
@@ -1830,6 +1912,7 @@
           "moved": 16.793224,
           "sweeps": 68
         },
+        "gain_sweep": "all 6 gains clean",
         "ring_legal": {
           "R_delivered": 119.99,
           "converged": 1,
@@ -1840,13 +1923,13 @@
           "sweeps": 0
         },
         "ring_square": {
-          "R_delivered": 26.6,
+          "R_delivered": 26.8,
           "converged": 1,
           "half_width": 13.4,
-          "kappa": 1.0077,
-          "min_seg": 3.7455,
-          "moved": 18.562005,
-          "sweeps": 41
+          "kappa": 0.9999,
+          "min_seg": 3.1057,
+          "moved": 77.509212,
+          "sweeps": 136
         },
         "ring_tight": {
           "R_delivered": 19.97,
@@ -2109,6 +2192,13 @@
       }
     },
     {
+      "detail": "no lots in this case",
+      "name": "lots_clear_of_roads",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "every kerb run end must meet exactly one other and every loop must close; an open chain still ships as a block",
       "name": "block_boundary_closes",
       "ok": true,
@@ -2152,14 +2242,20 @@
       "value": 0
     },
     {
-      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, and not_converged means the solver said so itself",
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
       "name": "centreline_curvature_within_class",
       "ok": true,
       "skipped": false,
       "value": {
         "max_kappa_over_clamp": 1.004,
+        "max_turn_spike": 1.004,
         "not_converged": 0,
         "over": 0,
+        "solver_turn_spike": 1.004,
+        "spike_prim_at": [
+          127.42,
+          -135.91
+        ],
         "worst_at": [
           127.42,
           -135.91
@@ -2181,7 +2277,7 @@
       }
     },
     {
-      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched",
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp with R above the half-width; infeasible ones (fold-back, tight ring) must be flagged, not diverged; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range",
       "name": "turn_clamp_control_rig",
       "ok": true,
       "skipped": false,
@@ -2231,6 +2327,7 @@
           "moved": 16.793224,
           "sweeps": 68
         },
+        "gain_sweep": "all 6 gains clean",
         "ring_legal": {
           "R_delivered": 119.99,
           "converged": 1,
@@ -2241,13 +2338,13 @@
           "sweeps": 0
         },
         "ring_square": {
-          "R_delivered": 26.6,
+          "R_delivered": 26.8,
           "converged": 1,
           "half_width": 13.4,
-          "kappa": 1.0077,
-          "min_seg": 3.7455,
-          "moved": 18.562005,
-          "sweeps": 41
+          "kappa": 0.9999,
+          "min_seg": 3.1057,
+          "moved": 77.509212,
+          "sweeps": 136
         },
         "ring_tight": {
           "R_delivered": 19.97,

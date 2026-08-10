@@ -1308,7 +1308,68 @@ def block_boundary_closes(kerb_node, loops_node):
                   "loop must close; an open chain still ships as a block")
 
 
-def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02):
+# --- mirror of pfsg_turn_ceilings in pf_streetgraph.vfl ---------------------
+# Kept in step with the VEX by hand, which is a real cost and is paid on
+# purpose. `max_turn_spike` used to READ the solver's own `turn_smooth_ratio`
+# attribute, which made the detector and the fix the same code: it reported
+# whatever the solver believed when it stopped, it could not see anything the
+# clamp did afterwards, and because the solver stops at tol = 1.01 against this
+# check's 1.02 slack it carried exactly one bit -- A, B, C and D all read a flat
+# 1.01. Recomputing it from the shipped centreline is the same discipline
+# `max_kappa_over_clamp` already follows, and it is what makes a spike that
+# survives to the output visible.
+_SMOOTH_W = 3
+_SMOOTH_FLOOR = 0.25
+
+
+def _turn_ceilings(pts, rmin, gain, closed):
+    """Per-vertex turn (radians) and its ceiling, from geometry alone.
+
+    Returns (phi, ceiling); either list holds None where the vertex has no turn
+    to bound. `gain <= 0` gives ceiling == the class allowance, so the spike
+    residual degenerates to `max_kappa_over_clamp` exactly -- by construction,
+    not by coincidence.
+    """
+    n = len(pts)
+    phi = [0.0] * n
+    cls = [None] * n
+    rng = list(range(n)) if closed else list(range(1, n - 1))
+    for i in rng:
+        e1 = pts[i] - pts[(i - 1) % n]
+        e2 = pts[(i + 1) % n] - pts[i]
+        l1, l2 = e1.length(), e2.length()
+        if l1 < 1e-9 or l2 < 1e-9:
+            continue
+        d = max(-1.0, min(1.0, (e1 / l1).dot(e2 / l2)))
+        phi[i] = math.acos(d)
+        cls[i] = 0.5 * (l1 + l2) / rmin
+    ceil = [None] * n
+    for i in rng:
+        if cls[i] is None:
+            continue
+        if gain <= 0.0:
+            ceil[i] = cls[i]
+            continue
+        window, s, c = [phi[i]], 0.0, 0
+        for j in range(-_SMOOTH_W, _SMOOTH_W + 1):
+            if j == 0:
+                continue
+            q = i + j
+            if closed:
+                q %= n
+            elif q < 1 or q > n - 2:
+                continue
+            s += phi[q]
+            c += 1
+            window.append(phi[q])
+        noise = gain * s / c if c else cls[i]
+        level = sorted(window)[(len(window) - 1) // 2]
+        ceil[i] = min(cls[i], max(noise, level, _SMOOTH_FLOOR * cls[i]))
+    return phi, ceil
+
+
+def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02,
+                                      gain_parm=None):
     """No centreline may bend tighter than its class minimum curve radius.
 
     S3b. A node where two streets meet is a BEND, not a junction, and it is
@@ -1353,8 +1414,17 @@ def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02):
         return Result(name, False, {"not_converged": None},
                       "the graph carries no turn_clamp_converged: the S3b "
                       "solver's verdict is not reaching the output")
+    # ⚠️ ABSENT IS NOT SMOOTH either. The residual is recomputed below, but the
+    # solver must still be shown to be REACHING the output — the same "follow it
+    # to the output" rule the converged flag gets.
+    if graph_geo.findPrimAttrib("turn_smooth_ratio") is None:
+        return Result(name, False, {"max_turn_spike": None},
+                      "the graph carries no turn_smooth_ratio: 4f-4's "
+                      "curvature-noise residual is not reaching the output")
     scale = scale_parm.eval() if scale_parm is not None else 2.0
+    gain = gain_parm.eval() if gain_parm is not None else 2.0
     worst, over, at = 0.0, 0, None
+    spike, spike_at = 0.0, None
     unconverged = []
     for pr in graph_geo.prims():
         pts = [v.point().position() for v in pr.vertices()]
@@ -1372,6 +1442,7 @@ def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02):
         closed = bool(pr.intrinsicValue("closed"))
         n = len(pts)
         rng = range(n) if closed else range(1, n - 1)
+        phi, ceil = _turn_ceilings(pts, rmin, gain, closed)
         for i in rng:
             e1 = pts[i] - pts[(i - 1) % n]
             e2 = pts[(i + 1) % n] - pts[i]
@@ -1385,35 +1456,41 @@ def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02):
                 worst, at = ratio, [round(pts[i][0], 2), round(pts[i][2], 2)]
             if ratio > slack:
                 over += 1
-    # ⚠️ A LOW kappa IS ALSO NOT THE SAME AS A SMOOTH CENTRELINE, and this half
-    # is why. 4f-4's mechanism is "smooth kappa THEN clamp to 1/R_min"; only the
-    # clamp was built, so C_radial's ring-closure seam came out of it as a
-    # single-vertex 13.4 deg turn against a 2.5 deg median — R = 16.9 m against
-    # R_min = 14.4 m. LEGAL BY RADIUS, so this check read 0.852 and passed while
-    # the artist could see the corner in a 100 m radius ring. `turn_smooth_ratio`
-    # is the solver's residual against the curvature-noise bound as well as the
-    # class one, and asserting it is what stops that recurring.
-    spike, spike_at = 0.0, None
-    if graph_geo.findPrimAttrib("turn_smooth_ratio") is not None:
-        for pr in graph_geo.prims():
-            r = pr.attribValue("turn_smooth_ratio")
-            if r > spike:
-                spike = r
-                p = pr.vertices()[0].point().position()
-                spike_at = [round(p[0], 2), round(p[2], 2)]
-    else:
-        return Result(name, False, {"max_turn_spike": None},
-                      "the graph carries no turn_smooth_ratio: 4f-4's "
-                      "curvature-noise residual is not reaching the output")
+            if ceil[i] is not None and ceil[i] > 1e-9:
+                sr = phi[i] / ceil[i]
+                if sr > spike:
+                    spike = sr
+                    spike_at = [round(pts[i][0], 2), round(pts[i][2], 2)]
+    # ⚠️ A LOW kappa IS ALSO NOT THE SAME AS A SMOOTH CENTRELINE, and that is
+    # what `max_turn_spike` is for. 4f-4's mechanism is "smooth kappa THEN clamp
+    # to 1/R_min"; only the clamp was built, so C_radial's ring-closure seam came
+    # out of it as a single-vertex 13.4 deg turn against a 2.5 deg median —
+    # R = 16.9 m against R_min = 14.4 m. LEGAL BY RADIUS, so this check read
+    # 0.852 and passed while the artist could see the corner in a 100 m radius
+    # ring.
+    #
+    # It is recomputed above from the SHIPPED centreline rather than read off the
+    # solver's `turn_smooth_ratio` attribute. Reading the attribute made this
+    # blind to anything the pipeline does after the solver stops, and blind by
+    # construction: the solver's own tol is 1.01 against this slack of 1.02, so
+    # every converged prim reported "1.01 or less" and the check carried a single
+    # bit. A, B, C and D all read a flat 1.010. The solver's own verdict is still
+    # reported alongside, so the two disagreeing is visible rather than silent.
+    solver = 0.0
+    for pr in graph_geo.prims():
+        solver = max(solver, pr.attribValue("turn_smooth_ratio"))
     return Result(name, over == 0 and not unconverged and spike <= slack,
                   {"max_kappa_over_clamp": round(worst, 3), "over": over,
                    "worst_at": at, "not_converged": len(unconverged),
-                   "max_turn_spike": round(spike, 3), "spike_prim_at": spike_at},
+                   "max_turn_spike": round(spike, 3), "spike_prim_at": spike_at,
+                   "solver_turn_spike": round(solver, 3)},
                   "discrete curvature x R_min(class); > %.2f means the "
                   "centreline bends tighter than S3b allows, "
                   "not_converged means the solver said so itself, and "
                   "max_turn_spike is the same residual against 4f-4's "
-                  "curvature-noise bound — a kink that is legal by radius" % slack)
+                  "curvature-noise bound — a kink that is legal by radius — "
+                  "recomputed from the shipped centreline, not read off the "
+                  "solver" % slack)
 
 
 def no_short_graph_segments(graph_geo, floor=1.0):
@@ -1537,18 +1614,34 @@ def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
     "closed prims are handled" and "closed prims are handled when they look
     like this one".
 
+    **AND IT SWEEPS `turn_smooth_gain` OVER ITS WHOLE SHIPPED RANGE**, because
+    the fourth instance of the same pattern was the gain itself. It shipped at
+    the default 2 with a {0 8} slider and help text saying only "0 disables it";
+    at 0.5 and at 1.0 — the first two values anyone reaching for "less
+    smoothing" will try — the suite went 17 -> 25 failing, this rig among them.
+    The cause was that the bound compared a vertex against the mean of its
+    neighbours WITH ITSELF EXCLUDED, so below gain 1 every vertex of a correctly
+    fitted arc was over by construction and the solver spent its whole budget
+    flattening geometry that was already right. `ring_legal` came back
+    bit-identical throughout and was read as proof that uniform curvature was a
+    fixed point; it is not, it clears the bound through the floor. Sweeping the
+    parameter is the only thing that would have caught it, so the sweep is the
+    check. Adding a parameter means adding a case.
+
     It copies the real `graph_turn_clamp` node so it cannot drift from what
     ships, and destroys everything it made — an audit that leaves scratch nodes
     or display flags behind makes the next pass diagnose a scene it did not
     build.
     """
     name = "turn_clamp_control_rig"
-    import hou
     clamp = city_node.node("graph_turn_clamp")
     if clamp is None:
         return _skip(name, "graph_turn_clamp not found")
     shown = next((c for c in city_node.children() if c.isDisplayFlagSet()), None)
     made = []
+    shipped_gain = city_node.parm("graph_params_turn_smooth_gain").eval()
+    # every value in the shipped {0 8} range that a slider makes easy to land on
+    gains = (0.0, 0.5, 1.0, 2.0, 4.0, 8.0)
     try:
         src = city_node.createNode("python", "__chk_rig_src")
         made.append(src)
@@ -1556,37 +1649,25 @@ def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
         w = clamp.copyTo(city_node)
         made.append(w)
         w.setInput(0, src)
-        w.cook(force=True)
-        geo = w.geometry()
-        got = {}
-        src_geo = src.geometry()
-        for pr in geo.prims():
-            pts = [v.point().position() for v in pr.vertices()]
-            n = len(pts)
-            closed = bool(pr.intrinsicValue("closed"))
-            rmin = 0.5 * pr.attribValue("streetWidth") * \
-                city_node.parm("graph_params_turn_radius_scale").eval()
-            worst = 0.0
-            for i in (range(n) if closed else range(1, n - 1)):
-                e1 = pts[i] - pts[(i - 1) % n]
-                e2 = pts[(i + 1) % n] - pts[i]
-                l1, l2 = e1.length(), e2.length()
-                if l1 < 1e-9 or l2 < 1e-9:
-                    continue
-                d = max(-1.0, min(1.0, (e1 / l1).dot(e2 / l2)))
-                worst = max(worst, math.acos(d) / (0.5 * (l1 + l2)) * rmin)
-            was = [v.point().position() for v in src_geo.prims()[pr.number()].vertices()]
-            moved = max((pts[i] - was[i]).length() for i in range(n))
-            got[pr.attribValue("rig")] = {
-                "kappa": round(worst, 4),
-                "R_delivered": round(rmin / max(worst, 1e-9), 2),
-                "half_width": round(0.5 * pr.attribValue("streetWidth"), 2),
-                "min_seg": round(min((pts[i] - pts[(i - 1) % n]).length()
-                                     for i in (range(n) if closed
-                                               else range(1, n))), 4),
-                "converged": int(pr.attribValue("turn_clamp_converged")),
-                "sweeps": int(pr.attribValue("turn_clamp_sweeps")),
-                "moved": round(moved, 6)}
+        base = w.parm("snippet").rawValue()
+        # ⚠️ The gain is overridden by REWRITING THE COPY'S SNIPPET, not by
+        # touching the city's parameter — setting the real parm would recook the
+        # entire city twice per gain. The substitution is asserted below: if the
+        # wrangle ever stops reading the gain from this channel the rig fails
+        # loudly instead of silently sweeping one value six times.
+        chan = 'chf("../graph_params/turn_smooth_gain")'
+        if chan not in base:
+            raise RuntimeError("graph_turn_clamp no longer reads %s" % chan)
+        sweep = {}
+        for gain in gains:
+            w.parm("snippet").set(base.replace(chan, "%.6f" % gain))
+            w.cook(force=True)
+            sweep[gain] = _rig_measure(w.geometry(), src.geometry(), city_node)
+        got = sweep[shipped_gain] if shipped_gain in sweep else None
+        if got is None:
+            w.parm("snippet").set(base)
+            w.cook(force=True)
+            got = _rig_measure(w.geometry(), src.geometry(), city_node)
     except Exception as exc:
         # ⚠️ FAIL, do not skip. This used to `_skip`, and `_skip` sets ok=True —
         # so deleting the `turn_clamp_converged` write, which makes this raise,
@@ -1606,36 +1687,83 @@ def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0):
                 shown.setDisplayFlag(True)
             except Exception:
                 pass
+
+    bad = {}
+    for gain in gains:
+        why = _rig_verdict(sweep[gain], slack, floor)
+        if why:
+            bad["%g" % gain] = why
+    value = dict(got)
+    value["gain_sweep"] = "all %d gains clean" % len(gains) if not bad else bad
+    return Result(name, not bad and not _rig_verdict(got, slack, floor), value,
+                  "feasible turns (90, 135, both drawn as arcs, square ring) "
+                  "must converge inside the clamp with R above the half-width; "
+                  "infeasible ones (fold-back, tight ring) must be flagged, not "
+                  "diverged; a legal ring must be untouched — and all of that "
+                  "at every turn_smooth_gain in the shipped range")
+
+
+def _rig_measure(geo, src_geo, city_node):
+    """One cook of the control rig, read back per rig polyline."""
+    got = {}
+    for pr in geo.prims():
+        pts = [v.point().position() for v in pr.vertices()]
+        n = len(pts)
+        closed = bool(pr.intrinsicValue("closed"))
+        rmin = 0.5 * pr.attribValue("streetWidth") * \
+            city_node.parm("graph_params_turn_radius_scale").eval()
+        worst = 0.0
+        for i in (range(n) if closed else range(1, n - 1)):
+            e1 = pts[i] - pts[(i - 1) % n]
+            e2 = pts[(i + 1) % n] - pts[i]
+            l1, l2 = e1.length(), e2.length()
+            if l1 < 1e-9 or l2 < 1e-9:
+                continue
+            d = max(-1.0, min(1.0, (e1 / l1).dot(e2 / l2)))
+            worst = max(worst, math.acos(d) / (0.5 * (l1 + l2)) * rmin)
+        was = [v.point().position() for v in src_geo.prims()[pr.number()].vertices()]
+        moved = max((pts[i] - was[i]).length() for i in range(n))
+        got[pr.attribValue("rig")] = {
+            "kappa": round(worst, 4),
+            "R_delivered": round(rmin / max(worst, 1e-9), 2),
+            "half_width": round(0.5 * pr.attribValue("streetWidth"), 2),
+            "min_seg": round(min((pts[i] - pts[(i - 1) % n]).length()
+                                 for i in (range(n) if closed
+                                           else range(1, n))), 4),
+            "converged": int(pr.attribValue("turn_clamp_converged")),
+            "sweeps": int(pr.attribValue("turn_clamp_sweeps")),
+            "moved": round(moved, 6)}
+    return got
+
+
+def _rig_verdict(got, slack, floor):
+    """[] when every rig behaved; otherwise the rigs that did not, named."""
     want = ("bend90", "bend135", "bend135_r18", "bend90_r10", "foldback",
             "ring_legal", "ring_square", "ring_tight")
-    if any(k not in got for k in want):
-        return Result(name, False, got, "rig geometry missing: %s"
-                      % ", ".join(k for k in want if k not in got))
+    missing = [k for k in want if k not in got]
+    if missing:
+        return ["missing:" + ",".join(missing)]
 
     def solved(r):
         return (r["converged"] == 1 and r["kappa"] <= slack
                 and r["R_delivered"] > r["half_width"] and r["min_seg"] >= floor)
 
-    def flagged(r):
+    def flagged(r, which):
         # infeasible: bounded no worse than the input, intact, and REPORTED
         return (r["converged"] == 0 and r["min_seg"] >= floor
-                and r["kappa"] <= _RIG_INPUT_KAPPA[
-                    "foldback" if r is got["foldback"] else "ring_tight"] + 1e-3)
+                and r["kappa"] <= _RIG_INPUT_KAPPA[which] + 1e-3)
 
-    ok = (solved(got["bend90"]) and solved(got["bend135"])
-          and solved(got["bend135_r18"]) and solved(got["bend90_r10"])
-          and solved(got["ring_square"])
-          and flagged(got["foldback"]) and flagged(got["ring_tight"])
-          # a ring already inside the clamp must come back BIT-IDENTICAL: the
-          # solver may not touch geometry it has nothing to fix
-          and got["ring_legal"]["converged"] == 1
-          and got["ring_legal"]["sweeps"] == 0
-          and got["ring_legal"]["moved"] == 0.0)
-    return Result(name, ok, got,
-                  "feasible turns (90, 135, both drawn as arcs, square ring) "
-                  "must converge inside the clamp with R above the half-width; "
-                  "infeasible ones (fold-back, tight ring) must be flagged, not "
-                  "diverged; a legal ring must be untouched")
+    bad = [k for k in ("bend90", "bend135", "bend135_r18", "bend90_r10",
+                       "ring_square") if not solved(got[k])]
+    bad += [k for k in ("foldback", "ring_tight")
+            if not flagged(got[k], k)]
+    # a ring already inside the clamp must come back BIT-IDENTICAL: the solver
+    # may not touch geometry it has nothing to fix
+    if not (got["ring_legal"]["converged"] == 1
+            and got["ring_legal"]["sweeps"] == 0
+            and got["ring_legal"]["moved"] == 0.0):
+        bad.append("ring_legal")
+    return bad
 
 
 # kappa x R_min of the two infeasible rigs as authored. The solver may never

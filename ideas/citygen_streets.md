@@ -450,11 +450,33 @@ Operations, in order:
    4), C 33 → 28 (interior 18 → 13)**, and paving, junction overlap, lot-over-road, junction
    self-intersection, sweep folds and the seam all unmoved.
 
-   **45 is the last clean rung, and what stops 50 is S5, not S3.** At 50 the new junctions
-   crowd each other and S5's *unbounded* fillet pull-back (`r/tan(θ/2)`, §4e-3) eats them:
-   C picks up **8,984 m² of lots on the roads and 339 junction self-intersections**. At 60
-   with `min_node_dist` 20 it is 4,262 m² and 338. That ceiling is the **S5 fillet clamp**
-   and the **shallow-arm merge** — neither is built, and neither is reachable from S3.
+   ⚠️ **45 is still the right rung, but the reason recorded here was wrong and the wrong
+   reason was pointing the next task at the wrong stage.** Corrected 2026-08-10 after an
+   independent audit of `2fe1725`; the paragraph this replaces claimed *"at 50 C picks up
+   8,984 m² of lots on the roads and 339 junction self-intersections … that ceiling is the
+   S5 fillet clamp and the shallow-arm merge"*. **Not reproducible on this build.** Measured,
+   whole suite, one value per column:
+
+   | `max_curvature` | 45 | 50 | 60 | 90 |
+   |---|---|---|---|---|
+   | suite failing | **17** | **20** | 21 | 25 |
+   | `lots_clear_of_roads` (every case) | 0.0 m² | **0.0 m²** | **0.0 m²** | C **123.8 m²** |
+   | `selfx_junction_surface` (every case) | 0 | **0** | **0** | C **36** |
+   | C dead ends (total / interior) | 28 / 13 | **27 / 12** | 27 / 12 | 27 / 12 |
+   | C `selfx_city_merged` | 270 | **212** | 217 | 338 |
+   | C `lots_are_simple_polygons` | 41 | **22** | 22 | 34 |
+
+   **At 50, C is *better* on three metrics and the fillet failure does not occur at all.**
+   The described failure first appears at **90**, and then at 123.8 m² and 36 — an order of
+   magnitude below the numbers that were recorded for 50.
+
+   **What actually stops 50 is a different seam.** The three new failures at 50 are all on C
+   and all are S7/S5-trim, not S5 fillet: `block_boundary_closes` (**2 unpaired kerb ends,
+   1 open loop** — S7's collect-and-close), `trim_metric_is_consistent` (**4.018 m**, one end
+   over the 0.05 m tolerance — the S5 trim seam) and `lots_tile_blocks` (**0.193**, the
+   downstream consequence of the open loop). 60 adds `every_corner_is_an_arc`
+   (`radius_fit` 2.493). So the next task here is **S7's kerb collect-and-close and the S5
+   trim metric**, *not* the shallow-arm merge, and the fillet clamp is not what is binding.
 
    ⚠️ **S3 step 3's node merge was built and measured and it is NET-NEGATIVE at the trigger
    this document specifies. Reverted; the measurements are the deliverable.** A detail
@@ -692,13 +714,17 @@ corner in a 100 m radius ring.
 all the things that read as CG. **Only the clamp half was ever built.** The smooth-κ half is
 now `pfsg_turn_ceilings`: the per-vertex turn ceiling is the class clamp **tightened** by a
 bound relative to the vertex's own neighbourhood — no vertex may turn more than
-`turn_smooth_gain` × the mean turn of the ±3 vertices around it, floored at a quarter of the
+`turn_smooth_gain` × the mean turn of the ±3 vertices around it **or the median turn of that
+same window with the vertex itself included, whichever is larger**, floored at a quarter of the
 class allowance so an isolated corner in a straight run asks for a bounded radius rather than
-an infinite one. Three properties make it safe:
+an infinite one. Four properties make it safe:
 
-- **uniform curvature is a fixed point.** On a circular arc every neighbour turns the same, so
-  the bound is `gain ×` the vertex's own turn and never binds. `ring_legal` still comes back
-  bit-identical — 0 sweeps, 0 points moved — which the control rig asserts;
+- **uniform curvature is a fixed point, at every gain > 0** — and **the median term is the only
+  reason that is true.** See the correction below: without it the property holds only for
+  `gain ≥ 1`, and this parameter ships on a `{0 8}` slider;
+- **a vertex is never asked to turn less than its own neighbourhood's median**, so the bound
+  can only bind on a vertex in the strict upper half of its own window. That is what a spike
+  *is*, and it is why this cannot flatten a curve for being curved;
 - it is a `min` with the class clamp, so it can never *loosen* it;
 - `turn_smooth_gain = 0` restores the previous behaviour exactly, and that is how the A/B was
   measured. The sweep's spread `m` was rewritten as `(φ/φmax − 1)`, which is algebraically the
@@ -735,9 +761,78 @@ pre-existing S8 defect class that C has failed with 49–57 parcels throughout; 
 B because the centreline moved, and it is an S8 bug, not this one. Recorded here rather than
 absorbed: the number went up, and a number going up is the thing this file exists to catch.
 
+##### ⚠️ The fixed-point claim was false below gain 1, and it shipped — 2026-08-10
+
+Corrected after an independent audit of `2aba0a9`. The first bullet above previously read
+*"on a circular arc every neighbour turns the same, so the bound is `gain ×` the vertex's own
+turn and never binds"*, and the same sentence stood in the code comment and in the commit
+message. **It is only true for `gain ≥ 1`.** Below 1, `gain × φ < φ` at *every* vertex of a
+correctly fitted arc, so the solver was asked to flatten geometry that was already right; it
+burned its whole 200-sweep budget, stalled, and shipped the residual. Even at exactly 1 the
+bound bit at the **ends** of a curved run, where the ±3 window pulls in the straight
+neighbours and drags the mean below the vertex's own turn.
+
+Swept through the committed suite over the whole shipped `{0 8}` range:
+
+| gain | before | after |
+|---|---|---|
+| 0 | 16 failing | 16 |
+| **0.5** | **25 failing** | **17** |
+| **1** | **25 failing** | **17** |
+| 2 (shipped default) | 17 | **17, and every value bit-identical** |
+| 4 | 17 | 17 |
+| 8 | 17 | 17 |
+
+The eight extra failures at 0.5 were `centreline_curvature_within_class` on **C_radial**
+(spike 1.100) and on **F_bend** (spike **1.688** — the case that exists to run this mechanism
+at its design amplitude, worst hit of all), plus `turn_clamp_control_rig` on all six cases:
+its `bend90` arc was flattened from R = 26.8 m to **57.8 m** and `bend135` stopped converging
+at all. F_bend at gain 0.5 now reads **1.004, the same as the default**. The failing *set* is
+now identical at 0.5, 1, 2, 4 and 8.
+
+⚠️ **What hid it, and it is the more useful half of this finding.** `ring_legal` came back
+bit-identical at *every* gain, and the control rig asserted exactly that — so the fixed point
+looked proven. It was not: `ring_legal` clears the bound through the **floor**, not through the
+fixed point. At κ × R_min = 0.223 the floor `0.25 × cls` already exceeds its own turn. The
+self-excluded mean binds on a uniform arc precisely when **`gain < 1` *and* `κ × R_min > 0.25`**,
+and no ring in the rig was above the floor. A fixed-point assertion satisfied by the wrong
+mechanism is not an assertion.
+
+**The cure is a `max` with the local median.** A spike is a minority of one in a window of
+seven, so the median is blind to it and the `gain × mean` term still governs there; a uniform
+arc, the end of a curved run and a monotonically tightening spiral all have the vertex's own
+turn *as* the median, so the ceiling cannot fall below it. The **lower** median is taken, so a
+truncated window at a prim end errs toward smoothing rather than toward letting a spike
+through. **At the shipped default of 2 this changes nothing** — the median can only ever raise
+a ceiling, and at a real spike `2 × mean` is already above it — which the A/B confirms number
+for number, C's 41 bowtie lots and 270 merged-city crossings included.
+
+**And `turn_clamp_control_rig` now sweeps the gain over all six values**, so the range is
+exercised by the suite rather than by an audit. **Fifth mechanism in this project to ship green
+and unexercised at a value the suite never ran**, after `offset` lot mode (§4e-6),
+`max_fillet_fraction` (§4h-2) and the clamp amplitude (§S3b). The cure is the same one every
+time: adding a parameter means adding a case.
+
 **`turn_smooth_ratio` ships on every graph prim** and
 `centreline_curvature_within_class` now fails on it, so a kink that is legal by radius can no
 longer pass silently — which is exactly how this one survived.
+
+⚠️ **But the detector and the fix used to be the same code, and it carried one bit.** Until
+2026-08-10 `max_turn_spike` **read the solver's own `turn_smooth_ratio` attribute** instead of
+recomputing anything. Two consequences, both found by audit:
+
+- it reported what the solver believed when it stopped, so it was **blind to everything the
+  pipeline does after the clamp** — the failure mode §4e names as "assert the output, not the
+  intent";
+- the solver stops at `tol = 1.01` against this check's `1.02` slack, so every converged prim
+  reported "≤ 1.01" by construction. **A, B, C and D all read a flat 1.010** — a single bit.
+
+It is now recomputed from the **shipped centreline**, the same discipline `max_kappa_over_clamp`
+already followed, with the solver's own verdict reported alongside as `solver_turn_spike` so the
+two disagreeing is visible rather than silent. On the current build they agree to three decimals
+on every case, which is itself the finding: nothing between the clamp and `OUT_graph2` moves the
+centreline. At `gain = 0` the recomputed spike degenerates to exactly `max_kappa_over_clamp` —
+now by construction rather than by coincidence, since the ceiling *is* the class allowance there.
 
 #### Still unguarded after this pass — recorded, not fixed
 
@@ -1196,6 +1291,85 @@ had never worked; two of those were never audited and one was audited too late.
 | **Ring closure gate re-derived from cell size** (`011fdcb`) | **implementer-verified** | Defaults proven byte-identical by hashing every vertex. Audit running |
 | **Sagitta gate replaced by a ceiling on the seam; the floor's closed-form bound** (2026-08-10) | **implemented, unverified** | Acting on an independent audit of `f0edcc6`. Max accepted chord 145.90 → **65.85 m**, chords > 100 m 12 → **0**, sole rejector 5 → **25**; defaults byte-identical over 26 digests; suite 17 failing with no baseline movement. The sweep that measured it is committed as `tests/citygen/closure_gate.py` — see "The sagitta gate is gone" below |
 | Node merge/relax, shallow-arm merge, dead ends, majors-enclose-minors | not started | — |
+| **`turn_smooth_gain` fixed point below gain 1** (2026-08-10) | **implemented, unverified** | Acting on an independent audit of `2aba0a9`/`68f6a21`/`2fe1725`. The bound is now `max(gain × mean(neighbours), median(window incl. self))`; the whole shipped `{0 8}` range sweeps to the same 17 failing and the same failing *set*, default bit-identical. `turn_clamp_control_rig` sweeps the gain. See §S3b "The fixed-point claim was false below gain 1" |
+
+#### ⚠️ `2aba0a9` raised six numbers and recorded one — 2026-08-10
+
+Found by an independent audit; recorded here because a number going up is the thing this
+file exists to catch, and this one went up invisibly. `2aba0a9` (the smooth-κ bound) reported
+its cost as *"one new failure, 3 bowtie lots in B"* and *"folds unchanged"*. Both are true as
+far as they go and both hid a regression. Measured across the three commits:
+
+| | pre-work `f993cfd` | after `2aba0a9` | current |
+|---|---|---|---|
+| A `selfx_city_merged` | 6 | **9** | 9 |
+| B `selfx_city_merged` | 93 | **95** | 95 |
+| C `selfx_city_merged` | 336 | **359** | 270 |
+| D `selfx_city_merged` | 6 | **9** | 9 |
+| C `lots_are_simple_polygons` | 52 | **57** | 41 |
+| B `no_sweep_fold_after_trim` `max_ratio` | 0.104 | 0.063 | **0.215** |
+| C `no_sweep_fold_after_trim` `max_ratio` | 0.214 | 0.153 | **0.254** |
+
+⚠️ **Provenance, because it differs by column.** The *pre-work* column is
+`tests/citygen/baseline.json` as it stood at `f993cfd`, re-read before this pass rebaselined
+it; the *current* column is a suite run on this build. The *after `2aba0a9`* column is the
+audit's, cross-checked against `2aba0a9`'s own before/after table in §S3b — it has **not**
+been re-measured by rebuilding that commit.
+
+⚠️ **`baseline.json` had been three commits stale, and that is half the reason this was
+invisible.** The runner *was* printing every one of these rows under "moved since baseline"
+on every run; a diff that long is a diff nobody reads. It is rebaselined as of this pass, so
+the next moved number is visible again. **Rebaseline with the commit that moves the number,
+or the diff stops being a regression test and becomes wallpaper.**
+
+Two mechanisms hid it:
+
+1. **Commits 2 and 3 reported their gains against the pre-work 336 / 52, not against the
+   actual pre-commit 359 / 57.** Measuring an improvement from the wrong baseline is how
+   commit 1's regression became invisible — the ledger read "336 → 302" when it was
+   "359 → 302".
+2. **"Folds unchanged" was true of the fold COUNT and false of `max_ratio`**, which is the
+   leading indicator that metric exists to give. It is now **above pre-work on both B and C**
+   while the count is still 0. A count that is zero on both sides cannot report a trend; the
+   ratio can, and it was in the value dict the whole time.
+
+**Confirmed causal, not correlated, and measured on the current build** by switching the same
+mechanism off with `turn_smooth_gain = 0`:
+
+| `selfx_city_merged` | A | B | C | D | C `lots_are_simple_polygons` |
+|---|---|---|---|---|---|
+| pre-work `f993cfd` | 6 | 93 | 336 | 6 | 52 |
+| current, gain **0** | **6** | **93** | 223 | **6** | 30 |
+| current, gain **2** (shipped) | **9** | **95** | 270 | **9** | 41 |
+
+Switching the bound off restores A, B and D to their pre-work values **exactly**; C differs
+because commits 2 and 3 moved it as well. So the smooth-κ bound is buying C's ring seam and
+A's `centreline_curvature_within_class` (0.889 → 0.364) at the price of those two, and the
+trade is real rather than suspected.
+
+⚠️ **And the suite's 17 → 17 across the three commits is a coincidence, not a wash.**
+`selfx_roads` on C went **9 → 0** (fixed by `68f6a21`) while `lots_are_simple_polygons` on B
+went **0 → 3** (broken by `2aba0a9`). Two different checks, opposite directions, same total.
+A failing *count* is not a regression test; the per-check baseline diff is, and it was
+printing all seven of these rows the whole time.
+
+#### Two more from the same audit — recorded, one fixed
+
+- **`max_turn_spike` was reading the solver instead of the geometry.** Fixed; see §S3b
+  "the detector and the fix used to be the same code".
+- **The snap-merge at `graph_extend` fires exactly once in the whole suite** — C_radial only,
+  the (251.39, −87.10) / (249.37, −93.47) pair at a 6.68 m gap, and the two ends find each
+  other symmetrically so it is one merge and one moved point. A, B, D, E and F produce **zero**
+  candidates. Its gate is `min_join_angle = 45°` on the two legs, which admits a **135° turn**,
+  and the one real instance leaves the clamp at **κ × R_min = 1.009 against a 1.02 slack**.
+  ⚠️ That 1.1% is *the solver's own stopping tolerance* (`tol = 1.01`), not a geometric
+  near-miss — C's `worst_at` is (250.64, −94.59), this corner, and it converged.
+  **Sizing the gate by available tangent run instead of leg angle was considered and is not
+  cheap**, for a reason worth recording: `streetWidth` is written in **`s5j_solve`**, deep in
+  S5, so `R_min = ½·streetWidth·turn_radius_scale` does not exist at `graph_extend`; the class
+  is decided from the street's **length**, which the merge itself changes; and at the one real
+  instance the legs are **156 m and 330 m** against a required run of **≈26 m** — a 6× and a
+  12.7× margin, so the gate would not move any shipped output. Build it when a case reaches it.
 
 **Suite 23 → 15 failing.** Verified on a clean tree, and A rendered whole-city: continuous
 paving, no strip along the drawn street, lots meeting the road at every junction.

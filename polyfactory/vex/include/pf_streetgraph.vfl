@@ -299,12 +299,15 @@ float pfsg_turn_residual(const vector P[]; const float rmin; const int closed) {
 //   relative to the vertex's own neighbourhood can.
 //
 // So a vertex may turn at most `gain` times the mean turn of the vertices
-// within +/-PFSG_SMOOTH_W of it. Three properties make this safe rather than a
-// general smoother:
-//   * UNIFORM CURVATURE IS A FIXED POINT. On a circular arc every neighbour
-//     turns the same, so the bound is `gain` x the vertex's own turn and never
-//     binds. A legal ring still comes back bit-identical, which the control rig
-//     asserts.
+// within +/-PFSG_SMOOTH_W of it, OR the MEDIAN turn of that same window with the
+// vertex itself included, whichever is larger. Four properties make this safe
+// rather than a general smoother:
+//   * UNIFORM CURVATURE IS A FIXED POINT, AT EVERY gain > 0. The median term is
+//     what buys that, and it is not decoration -- see the audit note below.
+//   * A VERTEX IS NEVER ASKED TO TURN LESS THAN ITS OWN NEIGHBOURHOOD'S MEDIAN,
+//     so the bound can only ever bind on a vertex in the upper half of its own
+//     window. That is the definition of a spike, and it is why this cannot
+//     flatten a curve that is simply curved.
 //   * IT NEVER LOOSENS THE CLASS CLAMP -- it is a `min` with it.
 //   * IT HAS A FLOOR of `PFSG_SMOOTH_FLOOR` x the class allowance, so an
 //     isolated corner in a dead-straight run (a 90 deg bend before the arc seed
@@ -312,6 +315,31 @@ float pfsg_turn_residual(const vector P[]; const float rmin; const int closed) {
 //     than an infinite one.
 // `gain <= 0` disables the noise half entirely and restores the class-only
 // behaviour exactly, which is how the A/B for this change was measured.
+//
+// ⚠️ THE MEDIAN TERM IS A BUG FIX, NOT A REFINEMENT, and the bug shipped. The
+// first build bounded the vertex by `gain x mean(neighbours)` with the vertex
+// ITSELF EXCLUDED, and asserted -- in this comment, in the commit message and in
+// the design doc -- that uniform curvature was therefore a fixed point. That is
+// only true for `gain >= 1`: below it, `gain x phi < phi` at every vertex of a
+// correctly fitted arc, so the solver was asked to flatten geometry that was
+// already right, burned its whole 200-sweep budget and stalled. Even at exactly
+// 1 it bound at the ENDS of a curved run, where the +/-3 window pulls in the
+// straight neighbours and drags the mean below the vertex's own turn.
+//
+// MEASURED on `2fe1725`, sweeping the shipped {0 8} range through the committed
+// suite: gain 0 -> 16 failing, 0.5 -> 25, 1 -> 25, 2 -> 17, 4 -> 17, 8 -> 17.
+// The two extra failures at 0.5 are `centreline_curvature_within_class` on
+// C_radial (spike 1.100) and on F_bend (spike 1.688 -- the case that exists to
+// run this mechanism at its design amplitude, worst hit of all); the other six
+// are `turn_clamp_control_rig`, whose bend90 arc was flattened from R = 26.8 m
+// to 57.8 m and whose bend135 stopped converging at all.
+//
+// The escape that hid it: `ring_legal` came back bit-identical at every gain and
+// was read as proof of the fixed point. It is not. It clears the bound through
+// the FLOOR, not through the fixed point -- at kappa x R_min = 0.223 the floor
+// 0.25 x cls already exceeds its own turn. The self-excluded mean binds on a
+// uniform arc exactly when `gain < 1` AND `kappa x R_min > PFSG_SMOOTH_FLOOR`,
+// and no ring in the rig was above the floor. The rig now sweeps the gain.
 //
 // ⚠️ THIS IS NOT SURGICAL AND CANNOT BE MADE SO. It was tuned looking for a
 // setting that touches C's ring seam and leaves A, B and D bit-identical, and
@@ -334,6 +362,17 @@ float pfsg_turn_residual(const vector P[]; const float rmin; const int closed) {
 // because the centreline moved. It is an S8 bug, not this one.
 #define PFSG_SMOOTH_W 3
 #define PFSG_SMOOTH_FLOOR 0.25
+
+// Lower median of a small unsorted array. Lower rather than mid-point so an
+// even-sized window (the truncated one at a prim end) errs toward the tighter
+// ceiling, i.e. toward smoothing, never toward letting a spike through.
+float pfsg_median_lower(const float v[]) {
+    int m = len(v);
+    if (m < 1) return 0.0;
+    float s[] = sort(v);
+    return s[(m - 1) / 2];
+}
+
 
 void pfsg_turn_ceilings(const vector P[]; const float rmin, gain;
                         const int closed; export float phimax[]) {
@@ -358,8 +397,10 @@ void pfsg_turn_ceilings(const vector P[]; const float rmin, gain;
     for (int i = lo; i < hi; i++) {
         if (cls[i] < 0.0) continue;
         if (gain <= 0.0) { phimax[i] = cls[i]; continue; }
-        float s = 0.0;
+        float s = 0.0, w[];
         int c = 0;
+        resize(w, 0);
+        append(w, phi[i]);          // the level includes the vertex itself
         for (int j = -PFSG_SMOOTH_W; j <= PFSG_SMOOTH_W; j++) {
             if (j == 0) continue;
             int q = i + j;
@@ -367,9 +408,17 @@ void pfsg_turn_ceilings(const vector P[]; const float rmin, gain;
             else if (q < 1 || q > n - 2) continue;
             s += phi[q];
             c += 1;
+            append(w, phi[q]);
         }
         float noise = (c > 0) ? gain * s / float(c) : cls[i];
-        phimax[i] = min(cls[i], max(noise, PFSG_SMOOTH_FLOOR * cls[i]));
+        // The neighbourhood LEVEL. On any window where this vertex is not in
+        // the strict upper half -- a uniform arc, the end of a curved run, a
+        // monotonically tightening spiral -- the median IS this vertex's own
+        // turn, so the ceiling cannot fall below it and the bound cannot bind.
+        // A spike is a minority of one in a window of seven, so the median is
+        // blind to it and the `gain x mean` term still governs there.
+        float level = pfsg_median_lower(w);
+        phimax[i] = min(cls[i], max(max(noise, level), PFSG_SMOOTH_FLOOR * cls[i]));
     }
 }
 

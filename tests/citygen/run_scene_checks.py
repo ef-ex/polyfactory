@@ -93,7 +93,8 @@ def run_case(name, city, field=None):
     out.append(C.dead_ends(g_graph))
     out.append(C.attribute_schema(g_graph, g_city))
     out.append(C.centreline_curvature_within_class(
-        g_graph, city.parm("graph_params_turn_radius_scale")))
+        g_graph, city.parm("graph_params_turn_radius_scale"),
+        gain_parm=city.parm("graph_params_turn_smooth_gain")))
     # the floor the S3b clamp and s5j_trim must both respect, asserted on the
     # graph as published rather than on either mechanism's own output
     out.append(C.no_short_graph_segments(
