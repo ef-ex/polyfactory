@@ -152,7 +152,8 @@
         "replay_move_m": 0.0,
         "replay_moved": null,
         "residual_m": 1.5e-05,
-        "reversed": 0
+        "reversed": 0,
+        "tol_m": 0.001
       }
     },
     {
@@ -163,11 +164,12 @@
       "value": 0
     },
     {
-      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
       "skipped": false,
       "value": {
+        "attrib_drift": null,
         "max_move_m": 0.0,
         "prims": 15
       }
@@ -1078,7 +1080,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -1088,7 +1090,13 @@
           83,
           83
         ],
-        "moved": null,
+        "lots_moved": 78,
+        "moved": {
+          "city_points": [
+            5568,
+            5569
+          ]
+        },
         "passes": 3,
         "residual_m": 1.53e-05,
         "reversed": 0,
@@ -1249,7 +1257,8 @@
         "replay_move_m": 0.0,
         "replay_moved": null,
         "residual_m": 3.4e-05,
-        "reversed": 0
+        "reversed": 0,
+        "tol_m": 0.001
       }
     },
     {
@@ -1260,11 +1269,12 @@
       "value": 0
     },
     {
-      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
       "skipped": false,
       "value": {
+        "attrib_drift": null,
         "max_move_m": 0.0,
         "prims": 64
       }
@@ -2175,7 +2185,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -2185,6 +2195,7 @@
           619,
           619
         ],
+        "lots_moved": 443,
         "moved": null,
         "passes": 9,
         "residual_m": 3.41e-05,
@@ -2346,7 +2357,8 @@
         "replay_move_m": 0.0,
         "replay_moved": null,
         "residual_m": 4.3e-05,
-        "reversed": 0
+        "reversed": 0,
+        "tol_m": 0.001
       }
     },
     {
@@ -2357,11 +2369,12 @@
       "value": 0
     },
     {
-      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
       "skipped": false,
       "value": {
+        "attrib_drift": null,
         "max_move_m": 0.0,
         "prims": 86
       }
@@ -3276,7 +3289,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -3286,7 +3299,16 @@
           774,
           770
         ],
+        "lots_moved": null,
         "moved": {
+          "city_points": [
+            28835,
+            28825
+          ],
+          "city_prims": [
+            21363,
+            21359
+          ],
           "lots": [
             774,
             770
@@ -3452,7 +3474,8 @@
         "replay_move_m": 0.0,
         "replay_moved": null,
         "residual_m": 1.5e-05,
-        "reversed": 0
+        "reversed": 0,
+        "tol_m": 0.001
       }
     },
     {
@@ -3463,11 +3486,12 @@
       "value": 0
     },
     {
-      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
       "skipped": false,
       "value": {
+        "attrib_drift": null,
         "max_move_m": 0.0,
         "prims": 15
       }
@@ -4378,7 +4402,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -4388,6 +4412,7 @@
           61,
           61
         ],
+        "lots_moved": 0,
         "moved": null,
         "passes": 3,
         "residual_m": 1.53e-05,
@@ -4543,7 +4568,8 @@
         "replay_move_m": 0.0,
         "replay_moved": null,
         "residual_m": 0.0,
-        "reversed": 0
+        "reversed": 0,
+        "tol_m": 0.001
       }
     },
     {
@@ -4554,11 +4580,12 @@
       "value": 0
     },
     {
-      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
       "skipped": false,
       "value": {
+        "attrib_drift": null,
         "max_move_m": 0.0,
         "prims": 3
       }
@@ -5456,7 +5483,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -5466,6 +5493,7 @@
           0,
           0
         ],
+        "lots_moved": 0,
         "moved": null,
         "passes": 3,
         "residual_m": 0.0,
@@ -5621,7 +5649,8 @@
         "replay_move_m": 0.0,
         "replay_moved": null,
         "residual_m": 6.1e-05,
-        "reversed": 0
+        "reversed": 0,
+        "tol_m": 0.001
       }
     },
     {
@@ -5632,11 +5661,12 @@
       "value": 0
     },
     {
-      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
       "skipped": false,
       "value": {
+        "attrib_drift": null,
         "max_move_m": 0.0,
         "prims": 3
       }
@@ -6540,7 +6570,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -6550,6 +6580,7 @@
           0,
           0
         ],
+        "lots_moved": 0,
         "moved": null,
         "passes": 6,
         "residual_m": 6.1e-05,
@@ -6705,7 +6736,8 @@
         "replay_move_m": 0.0,
         "replay_moved": null,
         "residual_m": 8e-06,
-        "reversed": 0
+        "reversed": 0,
+        "tol_m": 0.001
       }
     },
     {
@@ -6716,11 +6748,12 @@
       "value": 0
     },
     {
-      "detail": "output 3 must be input 0 point for point \u2014 the mesh republishes the graph it was given",
+      "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
       "skipped": false,
       "value": {
+        "attrib_drift": null,
         "max_move_m": 0.0,
         "prims": 3
       }
@@ -7618,7 +7651,7 @@
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the structure must not move; lot count is recorded (S8 is chaotic at the float32 noise floor)",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the GRAPH structure must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
@@ -7628,6 +7661,7 @@
           0,
           0
         ],
+        "lots_moved": 0,
         "moved": null,
         "passes": 3,
         "residual_m": 0.0,

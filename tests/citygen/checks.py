@@ -1203,6 +1203,11 @@ def graph_reaches_a_fixed_point(trace_node):
                    "residual_m": None if resid is None else round(resid, 6),
                    "reversed": delta["reversed_edges"],
                    "replay_move_m": delta["max_point_move_m"],
+                   # RECORDED because it is the acceptance threshold and it is a
+                   # live artist parameter: measured on C_radial, raising it to
+                   # 2e-3 or even 1e-2 changes no other value in this dict, so a
+                   # 10x loosening of this tooth was invisible to the baseline.
+                   "tol_m": tol,
                    "replay_moved": moved or None},
                   "the repair pass re-run on the graph it shipped must be a "
                   "no-op — full geometry, to within Repair Tolerance (%.4g m)"
@@ -1237,8 +1242,19 @@ def forced_extra_repair_pass(trace_node, city_node):
     all seven forced passes: worst residual **6.10e-5 m on F_bend** against a
     1e-3 m `Repair Tolerance`, a **16×** margin, and **0** reversals. It costs
     no extra cook: the numbers are already on the geometry the pass produced.
-    A missing attribute FAILS rather than being read defensively — that is how
-    `turn_clamp_converged` once stopped shipping without anything noticing.
+    **The tooth was proved on the three real defects**, by capping each case at
+    the pass the old verdict stopped at with the tolerance left at 1e-3:
+    `F_bend` fails at a 1.587e-3 m residual, `C_radial` at 1.142e-3 m and **9**
+    reversals, `B_grid` on **1** reversal with its structure stable — all three
+    of which the old `edges`/`points`/`blocks` flag passed.
+
+    ⚠️ **Two things this does NOT do, measured rather than assumed.** Both
+    asserted terms are the solver's own self-report, so a bug inside
+    `repair_verdict` reads as 0 / 0 and passes here; the independent half of
+    the check is still the blind set. And if `repair_verdict` stops writing
+    altogether this returns a **SKIP**, not a failure, at the
+    `repair_iterations` guard above — `graph_reaches_a_fixed_point` is what
+    fails hard in that case, and it is the reason the suite is still covered.
 
     ⚠️ **LOT COUNT IS RECORDED, NOT ASSERTED, and the reason is S8 rather than
     S3.** With the displacement and direction terms in, A, B, D, E, F and G are
@@ -1250,9 +1266,15 @@ def forced_extra_repair_pass(trace_node, city_node):
     S8's recursive-OBB split is chaotic at that scale — measured on `A_drawn`,
     a **1.5e-5 m** jitter alone flips a parcel. Asserting the lot count here
     would therefore assert S8's determinism, which is a separate task, in S8.
-    ⚠️ And stability across *this* pass is a property of *this* pass, not a
-    durability guarantee: under an independent ±4.5e-5 m jitter every case's
-    lot count moves. See citygen_streets.md §S3.
+    ⚠️ And "stable" was a claim about four integers. Rank-sorted parcel areas
+    across the same forced pass move on **78 of A's 83 parcels** (worst 40.6 m²)
+    and **443 of B's 619** (worst 23.6 m²) while total lot area is conserved to
+    6e-4 m² — a textbook redistribution under a conserved aggregate, one level
+    downstream of the one this check was written to catch, and it printed
+    `moved: None`. `lots_moved` is that term, and `city_prims` / `city_points`
+    close the other gap: A's shipped city gains a point across the pass and
+    nothing sampled it. All of them are RECORDED, not asserted, for the same
+    reason the lot count is — see citygen_streets.md §S3.
     """
     name = "forced_extra_repair_pass"
     geo = trace_node.geometry(0)
@@ -1263,12 +1285,19 @@ def forced_extra_repair_pass(trace_node, city_node):
     tol = tolp.eval() if tolp is not None else 0.001
 
     def state():
+        """Counts, plus the parcel AREAS the counts cannot see — rank-sorted, so
+        S8 renumbering cannot fake a match."""
         g = trace_node.geometry(0)
-        return {"edges": len(g.prims()), "points": len(g.points()),
-                "blocks": len(city_node.geometry(1).prims()),
-                "lots": len(city_node.geometry(2).prims())}
+        lots = city_node.geometry(2)
+        city = city_node.geometry(0)
+        return ({"edges": len(g.prims()), "points": len(g.points()),
+                 "blocks": len(city_node.geometry(1).prims()),
+                 "lots": len(lots.prims()),
+                 "city_prims": len(city.prims()),
+                 "city_points": len(city.points())},
+                sorted(pr.intrinsicValue("measuredarea") for pr in lots.prims()))
 
-    was = state()
+    was, was_areas = state()
     # left unlocked on purpose: run_scene_checks unlocks the tracer for the
     # whole case (turn_clamp_control_rig builds inside it), so re-locking here
     # would take the network away from the checks that run after this one.
@@ -1297,24 +1326,34 @@ def forced_extra_repair_pass(trace_node, city_node):
                               "stopped being written" % a)
         resid = forced_geo.attribValue("repair_residual_m")
         rev = forced_geo.attribValue("repair_reversed")
-        now = state()
+        now, now_areas = state()
     finally:
         stop.set(old_stop)
         cap.set(old_cap)
         city_node.cook(force=True)             # leave the city as it shipped
     moved = {k: [was[k], now[k]] for k in was if was[k] != now[k]}
-    structural = {k: v for k, v in moved.items() if k != "lots"}
+    # S3's terms are asserted; S8's are RECORDED, for the reason in the
+    # docstring. `lots`, `city_prims`, `city_points` and `lots_moved` all move
+    # with the recursive-OBB split, which is a separate task in S8.
+    structural = {k: v for k, v in moved.items()
+                  if k in ("edges", "points", "blocks")}
+    lots_moved = (sum(1 for x, y in zip(was_areas, now_areas)
+                      if abs(x - y) > 1.0)
+                  if len(was_areas) == len(now_areas) else None)
     return Result(name, not structural and resid <= tol and rev == 0,
                   {"passes": iters, "forced": iters + 1,
                    "residual_m": round(resid, 7), "reversed": rev,
                    "tol_m": tol,
                    "lots": [was["lots"], now["lots"]],
+                   "lots_moved": lots_moved,
                    "moved": moved or None},
                   "one pass past the loop's own verdict, with the Stop "
                   "Attribute disabled: the pass must move no point further "
                   "than Repair Tolerance (%.4g m) and reverse no edge, and the "
-                  "structure must not move; lot count is recorded (S8 is "
-                  "chaotic at the float32 noise floor)" % tol)
+                  "GRAPH structure must not move; every S8 term — lot count, "
+                  "parcels whose area moves > 1 m2, city prims and points — is "
+                  "recorded, because S8 is chaotic at the float32 noise floor"
+                  % tol)
 
 
 def input0_reaches_an_output(graph_geo, mesh_graph_geo):
@@ -1336,9 +1375,20 @@ def input0_reaches_an_output(graph_geo, mesh_graph_geo):
       the suite has a bridge**, which is why the merged prim count never moves.
 
     So input 0 stays, and this is the standing proof: the mesh's graph output
-    must be its input 0, point for point. Deleting the input, or quietly
-    re-sourcing output 3 from somewhere else, fails here instead of passing a
-    prim-count comparison.
+    must be its input 0 — point for point AND attribute for attribute.
+
+    ⚠️ **Positions alone were not enough, and an audit proved it on this check
+    the day it was written.** Re-sourcing `out_graph` one hop downstream, from
+    `s5b_mark`, leaves every point where it was: the position-only version
+    PASSED while the published graph had silently gained `is_bridge`,
+    `is_tunnel`, `is_ramp` and `terrain_op`. The attribute NAME SETS are
+    compared for that reason — a pass-through that adds a column is not a
+    pass-through.
+
+    ⚠️ **Known gap, not covered here.** Cutting `blocks_id`'s second input —
+    the identity consumer this check cites as a reason to keep input 0 —
+    collapses every block's `region_id` to `region_00` and loses `land_use`,
+    and **nothing in the suite fails.** Block identity has no check of its own.
     """
     name = "input0_reaches_an_output"
     if len(graph_geo.prims()) != len(mesh_graph_geo.prims()) or \
@@ -1349,13 +1399,21 @@ def input0_reaches_an_output(graph_geo, mesh_graph_geo):
                        "in_points": len(graph_geo.points()),
                        "out_points": len(mesh_graph_geo.points())},
                       "the mesh's graph output is not its input 0")
+    drift = []
+    for kind, a, b in (("pr", graph_geo.primAttribs(), mesh_graph_geo.primAttribs()),
+                       ("pt", graph_geo.pointAttribs(), mesh_graph_geo.pointAttribs())):
+        sa = set(x.name() for x in a)
+        sb = set(x.name() for x in b)
+        drift += ["+%s.%s" % (kind, n) for n in sorted(sb - sa)]
+        drift += ["-%s.%s" % (kind, n) for n in sorted(sa - sb)]
     worst = 0.0
     for a, b in zip(graph_geo.points(), mesh_graph_geo.points()):
         worst = max(worst, (a.position() - b.position()).length())
-    return Result(name, worst == 0.0,
-                  {"prims": len(graph_geo.prims()), "max_move_m": worst},
-                  "output 3 must be input 0 point for point — the mesh "
-                  "republishes the graph it was given")
+    return Result(name, worst == 0.0 and not drift,
+                  {"prims": len(graph_geo.prims()), "max_move_m": worst,
+                   "attrib_drift": drift or None},
+                  "output 3 must be input 0 point for point and attribute for "
+                  "attribute — the mesh republishes the graph it was given")
 
 
 def every_block_is_subdivided(lot_geo, block_geo, floor=0):

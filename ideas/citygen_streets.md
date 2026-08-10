@@ -821,12 +821,25 @@ forced. Measured across all seven forced passes: worst **6.10e-5 m** (`F_bend`) 
 A *missing* attribute fails rather than being skipped: reading a verdict defensively is how
 `turn_clamp_converged` once stopped shipping with nothing noticing (§6).
 
-**And the tooth was proved to bite rather than assumed to**, which is the question the old flag
-would have failed: driving `Repair Tolerance` to 1e-6 m makes `F_bend` **FAIL** at
-`residual_m` 9.16e-5 against `tol_m` 1e-6. The other two new checks were broken on purpose the
-same way — `no_scratch_attribs_city` fails the moment a detail attribute is put back on the city,
-and `input0_reaches_an_output` fails both on a 0.5 m perturbation of input 0 and on the input
-being **unwired altogether**, which is the change the audit recommended.
+**And the tooth was proved to bite on the three real defects**, at the *shipped* tolerance — cap
+each case at the pass the old verdict stopped at and ask the new flag:
+
+| case | capped at | new flag | old flag | why |
+|---|---|---|---|---|
+| `F_bend` | 3 | **FAIL** | PASS | forced-pass residual **1.587e-3 m** |
+| `C_radial` | 3 | **FAIL** | PASS | residual **1.142e-3 m** and **9** reversals |
+| `B_grid` | 5 | **FAIL** | PASS | **1** reversal, structure stable |
+
+⚠️ The first falsification written for this was *"drive `Repair Tolerance` to 1e-6 and `F_bend`
+fails"* — which is **weaker than it looks and should not be used**: at 1e-6 the loop never
+converges and runs to its 12-pass cap, so `repair_converged` is 0 and `graph_reaches_a_fixed_point`
+fails too. It demonstrates the *old* tooth as much as the new one. The table above does not.
+
+The other two new checks were broken on purpose the same way. `no_scratch_attribs_city` fails with
+5 leaked when `out_detailclean` is bypassed and 6 when `repair_scratch` is bypassed as well.
+`input0_reaches_an_output` fails on a 0.5 m perturbation of input 0, on the input being **unwired
+altogether** — the change the audit recommended — and on the graph output being **re-sourced one
+hop downstream**, which is the case that needed the attribute term (below).
 
 Two smaller repairs in the same check: the `stopattrib` round-trip went through `.eval()`, which
 would have flattened an expression to a literal on the way back in, and now goes through
@@ -834,10 +847,39 @@ would have flattened an expression to a literal on the way back in, and now goes
 forgotten — the runner unlocks the tracer for the whole case, so re-locking would take the network
 away from the checks that run after it. It is commented as such.
 
-#### Recorded, not fixed — three latent holes in the replay's geometry compare
+#### ⚠️ AND THE FIX LEFT THE SAME PATTERN ONE LEVEL DOWNSTREAM
+
+Found by the audit of the fix itself, 2026-08-10, and it is the finding that matters most here.
+The two new terms were added on the **graph**; the half of the check that looks at the **shipped
+product** was still four integers. Same forced pass, parcel areas compared **rank-sorted** so S8's
+renumbering cannot fake a match:
+
+| case | lots | city prims | city **points** | parcels moving > 1 m² | worst | total area delta |
+|---|---|---|---|---|---|---|
+| `A_drawn` | 83 → 83 | 4459 → 4459 | **5568 → 5569** | **78 of 83** | **40.6 m²** | 0.008 m² |
+| `B_grid` | 619 → 619 | 18587 → 18587 | 24283 | **443 of 619** | **23.6 m²** | 0.0006 m² |
+| `D_offset` | 61 → 61 | 4437 → 4437 | 5523 | 0 | 0.004 m² | 0.008 m² |
+
+The check printed `'moved': None` and passed on A and B. **Total lot area is conserved to 6e-4 m²
+— a textbook redistribution under a conserved aggregate**, which is the identical failure mode to
+the one this whole section is about, one stage further down. `D_offset` moving 0 proves the
+measurement discriminates rather than reporting noise. And A's shipped city *gains a point* across
+the pass, which even the "structural" half never sampled because `state()` counted the graph and
+the blocks, not the city.
+
+So `state()` now carries `lots_moved` (parcels whose area moves more than 1 m²), `city_prims` and
+`city_points`. **All of them are RECORDED, not asserted**, for exactly the reason the lot count is:
+they are S8's determinism, not S3's convergence. What changes is that the redistribution is now
+visible in the baseline diff instead of invisible. This is also the direct evidence for the
+"S8 is chaotic on every case" correction above — it needs no injected jitter.
+
+#### Recorded, not fixed — three latent holes in the geometry compare
 
 All three measured **inactive on this build** (C/B/A: 0 unmatched edges, 0.0 worst match residual),
-which is why they are recorded rather than repaired. They are in `_graph_geometry_delta`:
+which is why they are recorded rather than repaired. ⚠️ **They are in the shipped VEX
+`repair_verdict` verbatim as well as in the suite's `_graph_geometry_delta`** — which matters more
+now that `forced_extra_repair_pass` asserts the solver's own numbers, because both asserted terms
+are then the solver's self-report and a bug *inside* `repair_verdict` reads as 0 / 0 and passes:
 
 1. **The per-edge match residual is computed and discarded.** `best` — how far the matched partner
    actually is — is used only to pick the orientation, so an edge matched to a partner **141 m
@@ -852,6 +894,15 @@ which is why they are recorded rather than repaired. They are in `_graph_geometr
 read `graph_params_repair_tolerance` as their own tolerance, which is right in that the solver and
 its auditor should agree — and means **an artist who sets 2 mm silences the replay tooth**: today's
 margins are **1.18×** on `C_radial` and **1.65×** on `F_bend` (the numbers in the table above).
+Both checks therefore **record `tol_m` in their value dict**, so a loosening moves the baseline
+instead of hiding in it. `graph_reaches_a_fixed_point` did not, and it was measured invisible:
+on `C_radial` at a tolerance of 2e-3 *and* 1e-2, city 21363, lots 774, edges 86, the residual and
+the pass count all come back identical — a **10× loosening of the tooth with nothing to see it**.
+
+⚠️ **One more thing this check does not do:** if `repair_verdict` stops writing altogether,
+`forced_extra_repair_pass` returns a **SKIP**, not a failure, because its `repair_iterations` guard
+fires first. `graph_reaches_a_fixed_point` fails hard in that case and is why the suite is still
+covered — but "a missing attribute FAILS" is true of the replay, not of the forced pass.
 
 #### `pf_citygen_mesh` input 0 is NOT dead — it is under-observed
 
@@ -868,11 +919,31 @@ does not move. Re-measured with the same jitter:
   suite has a bridge**, which is why the merged primitive count never moves.
 
 So input 0 stays and `cases.py` is unchanged. `input0_reaches_an_output` is committed as the
-standing proof — output 3 must be input 0 point for point — so that deleting the input, or quietly
-re-sourcing the graph output, fails a check instead of passing a primitive-count comparison.
-**A bridge case is the gap that remains**: the pier branch is a live consumer of input 0 that the
-suite has never executed, which is the same "a mechanism the suite never runs is untested" pattern
-as `offset` lot mode (4e-6), `max_fillet_fraction` (4h-2) and the clamp at amplitude (F_bend).
+standing proof — output 3 must be input 0 **point for point and attribute for attribute**.
+
+⚠️ **Positions alone were not enough, and the audit proved it on this check the day it was
+written.** Re-sourcing `out_graph` one hop downstream, from `s5b_mark`, leaves every point exactly
+where it was: the position-only version **passed**, `attribute_schema` passed, nothing in the suite
+failed — while the published graph had silently gained `is_bridge`, `is_tunnel`, `is_ramp` and
+`terrain_op`. **A pass-through that adds a column is not a pass-through**, so the attribute name
+sets are compared too. (Unwiring input 0 outright was already caught before this commit, by
+`attribute_schema` and `centreline_curvature_within_class`; what this check adds there is the
+diagnosis, not the coverage.)
+
+⚠️ **Two gaps remain, recorded rather than closed.**
+- **Block identity is unguarded.** Cutting `blocks_id`'s second input — the very consumer that
+  justifies keeping input 0 — collapses every block's `region_id` to `region_00` and loses
+  `land_use`, and **not one check in the suite fails**. `source_node` / `region_id` survival is
+  §6's Contract 2 and has no assertion behind it on the blocks branch.
+- **A bridge case.** The pier branch is a live consumer of input 0 that the suite has never
+  executed — `parm_liveness` reports all three `s5b_params_*` DEAD for that reason — which is the
+  same "a mechanism the suite never runs is untested" pattern as `offset` lot mode (4e-6),
+  `max_fillet_fraction` (4h-2) and the clamp at amplitude (`F_bend`). It also bites the detail
+  check: `s5b_piers` writes `bridge_count`, `pier_count`, `piers_rejected`, `worst_span` and
+  `span_violations` as **detail** attributes, and the first version of `out_detailclean` named five
+  attributes, so all five bridge counters would have shipped on the city and tripped
+  `no_scratch_attribs_city` for an unrelated reason on the first bridge case. It deletes `*` now:
+  **the city mesh ships no detail attributes at all**, which is the rule, not a list.
 
 **What this does NOT do.** The loop re-runs the repair; it does not add a repair. §S3 step 3's
 node merge and §S5's shallow-arm merge (`merge_angle`) are still unbuilt, so a connection that
