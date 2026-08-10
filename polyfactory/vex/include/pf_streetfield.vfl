@@ -47,13 +47,22 @@ vector2 pfsf_gen_grid(const float angle_deg, weight) {
 
 // Radial: streets run toward/around a centre.  falloff is the radius at which
 // the influence has decayed to about a third.
-vector2 pfsf_gen_radial(const vector p, centre; const float weight, falloff) {
+//
+// angle_deg rotates the frame off the pure spoke/ring pair, which is what
+// turns a radial field into a SPIRAL one - the same meaning `angle` has on the
+// grid generator.  It was promoted on the radial HDA, written onto the source
+// descriptor and read back by the tensor wrangle, and then never passed in
+// here: measured 2026-08-10, the parameter moved no digest at any value from
+// -180 to 180 on any output.  0 is the pure radial field, so the default is
+// bit-identical.
+vector2 pfsf_gen_radial(const vector p, centre; const float weight, falloff,
+                        angle_deg) {
     vector d = p - centre;
     d.y = 0;
     float r = length(d);
     if (r < 1e-4) return set(0, 0);
     float w = weight * exp(-r / max(falloff, 1e-4));
-    return pfsf_tensor(atan2(d.z, d.x), w);
+    return pfsf_tensor(atan2(d.z, d.x) + radians(angle_deg), w);
 }
 
 // Organic: a base bearing perturbed by noise.  This is what produces

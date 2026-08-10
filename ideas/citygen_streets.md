@@ -262,7 +262,7 @@ list of desired patterns does *not* come from one algorithm.
 | Generator | Basis | Artist control |
 |---|---|---|
 | `grid` | constant θ | rectangle / angle |
-| `radial` | field around a centre | circle, centre point |
+| `radial` | field around a centre | circle, centre point, **spiral angle** (0 = spokes + rings, 90 = the two swapped, between = a spiral) |
 | `organic` | noise-perturbed θ, randomised bend | amplitude, scale |
 | `terrain` | contour + gradient directions from the heightfield | blend weight |
 | `brush` | painted directions | direct paint |
@@ -422,10 +422,18 @@ Operations, in order:
 
    Everything currently refusing connections is a **missing capability wearing a rule's
    clothing**: `min_node_dist` stands in for node merge/relax, the degree-≥3 test stands in
-   for corner geometry at a bend, and the angle rails stand in for arm merging. Measured,
-   they are also mostly inert — `min_node_dist` 50 → 40 produced *bit-identical* output and
-   `min_join_angle` has never fired on any case. Build the three capabilities and the rails
-   go to zero.
+   for corner geometry at a bend, and the angle rails stand in for arm merging. Build the
+   three capabilities and the rails go to zero.
+
+   ⚠️ **The "measured, they are also mostly inert" sentence that stood here was wrong on both
+   halves, and it is deleted rather than softened.** Corrected 2026-08-10 by the full parameter
+   sweep (§4c "Every promoted parameter, measured"). `min_node_dist` 50 → 40 *is* bit-identical
+   and reproduces — but 50 → 0 and 50 → 300 move every output on both B and C, so it is
+   threshold-insensitive around its default, not inert; and the two parameters spelled
+   `min_node_dist` (the tracer's lookahead-crowding test, and `graph_params_min_node_dist` at
+   `graph_extend`) are different parameters that this ledger had been conflating.
+   `min_join_angle` **fires**: 45 → 5 moves all four outputs on B_grid, so at 45 it is rejecting
+   extensions into existing junctions there.
 
    ⚠️ **Correction to an earlier conclusion in this document.** §4h read the spacing ceiling
    as evidence that dead ends need the majors-enclose-minors restructure (§3b row 3). That
@@ -1344,9 +1352,12 @@ into parcels sitting on the arterial.
 are moved onto one point. What comes out is a street turning a corner, and S3b solves corners:
 its control rig converges 90° and 135° onto a tangent arc. So at snap range the rail that binds
 is **`min_join_angle` on the two legs** — the rail this parameter was written for (*"every pair
-of legs at the new node must clear it"*) and which §4c's ledger records as **never having
-fired**. A fold-back, where the two streets double back alongside each other, has a small leg
-angle and is still refused; this pair reads 91.6° against a 45° floor and merges.
+of legs at the new node must clear it"*). A fold-back, where the two streets double back
+alongside each other, has a small leg angle and is still refused; this pair reads 91.6° against
+a 45° floor and merges.
+⚠️ This paragraph used to add that §4c's ledger records `min_join_angle` as **never having
+fired**. That record is refuted — see §4c "Every promoted parameter, measured": 45 → 5 moves all
+four outputs on B_grid, where it is rejecting extensions into existing junctions.
 
 | | before | after |
 |---|---|---|
@@ -1772,6 +1783,77 @@ implementation: `pavement_deficit` in `tests/citygen/closure_gate.py`, committed
 
 Suite: **6 failing → 2**. Nothing regressed against baseline. But see §4e — the suite is
 measuring the wrong things, and both remaining failures were misdiagnosed.
+
+#### Every promoted parameter, measured — 2026-08-10
+
+The artist reported *"the ui of the nodes is not connected, I played around with the sliders
+and I think I found only 2 or 3 that work across all nodes."* **Measured, that is wrong by an
+order of magnitude — and it is still pointing at something real.** All **57** promoted
+parameters on the four HDAs were swept: build fresh from `cases.py`, cook, SHA-1 all four
+outputs (counts, `P`, topology and *every* point/prim/vertex/detail attribute), perturb one
+parm to a sane in-range value, re-cook, re-hash. A parm counts as live only if a digest moves;
+it counts as dead only if it moves nothing on **any** of the six cases.
+
+| | count |
+|---|---|
+| moved an output at the first perturbation | **42 / 57** |
+| moved only at a second, more extreme in-range value | 5 |
+| **moved nothing at any value on any case** | **9** (+1 removed twice over, below) |
+
+The nine, with the cause named rather than counted:
+
+| parm | HDA | cause | disposition |
+|---|---|---|---|
+| `angle` | field_radial | **wiring bug.** Promoted → written onto the source descriptor → read back into `ang` by the trace node's `field_tensor` → **never passed to `pfsf_gen_radial`**, which had no angle argument at all | **fixed.** The generator takes `angle_deg` and adds it to the tensor bearing, so 0 is the pure radial field (bit-identical) and anything between 0 and 90 is a spiral |
+| `s5_params_junction_scale` | streets | **referenced by nothing.** Grep of every `.parm` in the expanded HDA finds it only in the `s5_params` null that carries it. A relic of the trim-back-by-a-radius junction that §S5 rules out permanently | **removed**, with its backing spare parm. (`max_trim_fraction` on the same null is the other half of that relic — not promoted, also unreferenced, left in place) |
+| `lots_params_setback` | streets | **referenced by nothing.** Same test. A building setback is not an S8 splitting rule and §S8 never lists it | **removed**, with its backing spare parm |
+| `organic_amp` | trace | inert-by-design: read **only** on the `field_type == "organic"` branch of `field_tensor`, and **no organic generator ships** (§S1 designs it; it is not built) | kept, help text now says so |
+| `organic_scale` | trace | same | kept, help text now says so |
+| `close_min_pts` | trace | wired and in the gate chain, but **never binding**: 3 → 64 moves nothing on any case, and `closure_gate.py`'s ledger already records it as sole rejector for 0 of 12,792 traced streets | kept, help text now says so |
+| `s5b_params_pier_spacing` | streets | inert-by-design: S5b runs only on edges with `is_bridge` = 1, i.e. `layer` > 0. **Measured: every case ships `layer` ∈ {0} and 0 bridge edges** | kept, help text now says so |
+| `s5b_params_max_span` | streets | same | kept, help text now says so |
+| `s5b_params_pier_clearance` | streets | same | kept, help text now says so |
+
+⚠️ **The three `s5b_*` parms are an untested branch, not just a quiet one.** No case reaches
+S5b at all, so pier placement has never executed. That is the same defect class as `offset` lot
+mode (§4e-6), `max_fillet_fraction` (§4h-2) and the turn clamp (§S3b) — and the cure is the same
+one every time: **a case in `cases.py` that carries a `layer` > 0 edge.** Not built here.
+
+**Five parms that are live but only at a value or on a case the first sweep did not reach** —
+these are what the artist actually hit, and none of them is a bug:
+
+- **`weight` on both field HDAs is a no-op with a single source, and that is arithmetic, not
+  wiring.** Sources sum as *tensors* and the direction is recovered as `½·atan2(t.y, t.x)`, which
+  is invariant under a positive scale — so one grid source at weight 1 and at weight 8 is
+  bit-identical. It only steers geometry where two or more sources overlap, which **no case in
+  the suite does**. Proved with a two-source control rig (grid + radial into one trace): weight
+  1 → 4 on *either* source moves all four outputs. Radial additionally moves at 8 and at 0
+  because its weight also scales the exponential decay against the tracer's strength floor.
+- **`min_node_dist` on the trace node is live.** §S3 records *"`min_node_dist` 50 → 40 produced
+  bit-identical output"* and that reproduces exactly — but 50 → 0 and 50 → 300 both move every
+  output on both B and C. It is threshold-insensitive around its default, not inert. **The two
+  parameters called `min_node_dist` are different parameters** (trace's lookahead-crowding test;
+  `graph_params_min_node_dist` at `graph_extend`) and the ledger has been conflating them.
+- **`graph_params_min_join_angle` fires. The "never fired" record is refuted.** 45 → 5 moves all
+  four outputs on **B_grid**, so at 45 it is rejecting extensions into existing junctions there.
+  §S3 and §S7 both cite *"never having fired"*; that was measured before `68f6a21` and is no
+  longer true.
+- `street_params_arterial_len` / `collector_len` move nothing on C_radial and move everything on
+  A_drawn — C's traced streets are all far from the class boundaries.
+- `lots_params_lot_frontage` is read **only** by the `offset` branch of `lots_subdiv`; it is now
+  `disablewhen`'d outside that mode so it stops reading as a dead slider.
+
+⚠️ **`street_params_zone_inner` / `zone_core` are live but change no geometry** — they only pick
+the `land_use` string. Prim counts are identical and the *lots* output is bit-identical while
+city, blocks and graph move, because `land_use` is not propagated to parcels. Recorded, not
+fixed: the buildings subsystem is what will need it.
+
+**After the fixes: 55 promoted parms, 49 live, 6 dead** — and the six are exactly the six
+tabled above that were kept. `tests/citygen/parm_liveness.py` is the sweep, committed, and it
+**fails on a disagreement in either direction**: a parm going dead is a regression, and a parm
+listed as dead that starts moving output means the entry is stale. Every default is
+byte-identical after the fixes (26 digests over six cases) and the suite is unchanged at **17
+failing**, same failing set, no baseline movement.
 
 ---
 
