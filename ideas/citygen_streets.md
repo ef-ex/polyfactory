@@ -432,6 +432,57 @@ Operations, in order:
    is wrong. Row 3 is worth building for the *hierarchy*, which is visibly absent, but it is
    not the dead-end fix — the dead-end fix is the three capabilities above.
 
+   ##### Where the rails actually stand, measured 2026-08-10
+
+   Every dangling end at `graph_extend` was replayed against every gate. The union of what
+   refuses them, over B and C:
+
+   | rail | interior ends it blocks |
+   |---|---|
+   | `max_curvature` on the connector direction (case b) | **every** interior refusal in both cases |
+   | `max(min_node_dist, min_edge_len)` as a floor on the CONNECTOR LENGTH (case b) | 14 of 24 in C, 12 of 14 in B |
+   | the split-crowding test, `min_node_dist` from the target edge's own ends | most of the rest |
+   | `max_curvature` on the corner (case a) | 11 in C, 8 in B |
+
+   **`max_curvature` 25 → 45 is the one that could be paid for today**, because it stands in
+   for corner geometry at a bend and S3b's solver now converges 90° and 135° onto a tangent
+   arc. Swept against every invariant on all six cases: **B dead ends 21 → 19 (interior 5 →
+   4), C 33 → 28 (interior 18 → 13)**, and paving, junction overlap, lot-over-road, junction
+   self-intersection, sweep folds and the seam all unmoved.
+
+   **45 is the last clean rung, and what stops 50 is S5, not S3.** At 50 the new junctions
+   crowd each other and S5's *unbounded* fillet pull-back (`r/tan(θ/2)`, §4e-3) eats them:
+   C picks up **8,984 m² of lots on the roads and 339 junction self-intersections**. At 60
+   with `min_node_dist` 20 it is 4,262 m² and 338. That ceiling is the **S5 fillet clamp**
+   and the **shallow-arm merge** — neither is built, and neither is reachable from S3.
+
+   ⚠️ **S3 step 3's node merge was built and measured and it is NET-NEGATIVE at the trigger
+   this document specifies. Reverted; the measurements are the deliverable.** A detail
+   wrangle after `graph_fuse` collapsed every edge shorter than `min_node_dist` whose two
+   ends are both nodes, union-found the clusters and moved each to its centroid.
+
+   - **Moving the node alone is not the merge.** A node is a prim *endpoint* and the S3b
+     clamp pins endpoints, so a node dragged sideways leaves a kink one segment in that
+     **nothing downstream can touch**: κ × R_min went to **40.2** and C lost 672 of its 790
+     lots. Spreading the displacement into the incident arms with a hat weight (S3 step 3's
+     *"arms re-sorted around the merged centre"*) recovered the lots and brought κ to 28.2 —
+     still far outside the clamp, because the corner **at** the node is still between two
+     different prims.
+   - **At the specified trigger it eats legitimate blocks.** `min_node_dist` = 40 means every
+     40 m edge between two junctions, and a radial city is full of them.
+   - **Below the trigger it is inert or it breaks other cases.** At 25 with `max_curvature`
+     45 it is genuinely good for the two cases it was tuned on — **C 33 → 21, B 21 → 18, all
+     invariants clean** — and then A and D pick up a junction self-intersection and **E loses
+     its 20 m arm to the merge outright**, taking the whole S3b verdict attribute with it.
+     Suite 17 → **23**. Tuning on two of six cases is how that was missed, and it is recorded
+     here because it will be tempting to retry.
+
+   **What the merge needs before it is worth rebuilding:** a trigger decoupled from
+   `min_node_dist` and sized by the junction surface rather than by an edge length, and a way
+   to relax a corner **at** a node — which today no solver in the pipeline has, because the
+   clamp works on prim interiors only. That gap is the single most valuable thing to build
+   next for dead ends.
+
 3. **Merge or relax colliding junctions.** After extension, any two nodes closer than the
    space their junction surfaces need are **fused into one node** (all arms re-sorted around
    the merged centre) or **pushed apart** along their connecting edge until they fit,
