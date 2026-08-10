@@ -616,6 +616,78 @@ the same one every time: **case `F_bend`** in `tests/citygen/cases.py` puts a re
 real arterial through the real pipeline, and `turn_clamp_control_rig` runs the shipped wrangle on
 the five inputs no case can reach — 135°, the infeasible fold-back, and all three kinds of ring.
 
+#### The clamp is a radius floor and that is not the same as a smooth street — 2026-08-10
+
+**The artist reported an unclamped kink on C's inner ring and the standing hypothesis for it
+was wrong.** The hypothesis was that `graph_turn_clamp` still skipped closed prims
+(`primintrinsic("closed") → continue`), the failure §4g-D6 predicted for the day the ring
+closure landed. Measured on the current build, all three parts of it are refuted:
+
+- the wrangle has **no such skip** — the wrap-around relaxation above shipped with it;
+- `OUT_graph2` contains **zero closed prims** in every case, C included. `graph_polypath`
+  runs with `closeloops = off` and the ring is split by the radial spokes crossing it, so it
+  ships as several open prims and the seam is an interior vertex of one of them;
+- `centreline_curvature_within_class` **was** measuring it, and **passed**: 0.852.
+
+**What is actually wrong is that a radius floor cannot see a kink that clears the floor.**
+Measured at the clamp's input, C's ring-closure seam is a single vertex turning **19.03°**
+against a **2.04° median** on a 14.4 m local at 4 m spacing. The clamp fires once, brings it
+to **13.36°**, and stops — because 13.36° over 3.9 m is R = 16.9 m and R_min is 14.4 m, so by
+radius it is now legal. κ × R_min = 0.852, comfortably inside the 1.02 slack, and a visible
+corner in a 100 m radius ring.
+
+§4f-4's mechanism is **"resample → discrete curvature → smooth κ → clamp to `1/R_min(class)`
+→ re-integrate"**, and it names *curvature noise in the traced polyline* as the loudest of
+all the things that read as CG. **Only the clamp half was ever built.** The smooth-κ half is
+now `pfsg_turn_ceilings`: the per-vertex turn ceiling is the class clamp **tightened** by a
+bound relative to the vertex's own neighbourhood — no vertex may turn more than
+`turn_smooth_gain` × the mean turn of the ±3 vertices around it, floored at a quarter of the
+class allowance so an isolated corner in a straight run asks for a bounded radius rather than
+an infinite one. Three properties make it safe:
+
+- **uniform curvature is a fixed point.** On a circular arc every neighbour turns the same, so
+  the bound is `gain ×` the vertex's own turn and never binds. `ring_legal` still comes back
+  bit-identical — 0 sweeps, 0 points moved — which the control rig asserts;
+- it is a `min` with the class clamp, so it can never *loosen* it;
+- `turn_smooth_gain = 0` restores the previous behaviour exactly, and that is how the A/B was
+  measured. The sweep's spread `m` was rewritten as `(φ/φmax − 1)`, which is algebraically the
+  old expression for the class ceiling, so gain 0 is bit-identical and not merely close.
+
+⚠️ **It is not surgical and it cannot be made so — this was measured, not assumed.** Several
+(gain, floor) pairs were tried looking for one that touches C's seam and leaves A, B and D
+untouched. **No such setting exists**, because the seam is not geometrically distinct from a
+legitimate corner: at the clamp's input C's seam is 18.1° at **25.4×** its neighbourhood while
+A's *hand-drawn* arterial corner at (−59.6, 9.9) is 11.0° at **53.9×** — the drawn corner has
+the higher contrast, and both leave the clamp at 0.85–0.89 of R_min. What makes one read as a
+defect is that it sits inside a ring, and no local measure sees that. The floor therefore
+decides *how much* smoothing, not *where*:
+
+| floor | C's seam | suite |
+|---|---|---|
+| 0.50 | 13.4° → ~11.9°, still visible | 17 → **19** failing (a flipped face in C, 2 bowtie lots in B) |
+| **0.25** | 13.4° → **7.26°**, kink gone in the render | 17 → **18** failing (3 bowtie lots in B, and B alone) |
+
+##### Before and after, per criterion
+
+| | before | after |
+|---|---|---|
+| C ring seam, worst vertex turn | 13.36° (19.03° at the clamp input) | **7.26°**, spread over 5 vertices |
+| C outer ring seam | 13.20° (18.10° in) | **5.63°** |
+| `centreline_curvature_within_class` A / B / C / D | 0.889 / 0.841 / 0.852 / 0.889 | **0.364 / 0.252 / 0.463 / 0.364** |
+| F_bend (the deliberate 90° corner) | 1.004 | **1.004, bit-identical** — and so is E |
+| `no_sweep_fold_after_trim` max ratio A / B / C | 0.269 / 0.104 / 0.214 | **0.127 / 0.063 / 0.153**, 0 folds throughout |
+| `city_is_fully_paved` · `lots_clear_of_junctions` · `selfx_junction_surface` · seam | 0 · 0 · 0 · 0.0001 m | **unchanged** |
+| suite | 17 failing | **18 failing** |
+
+**The one new failure is `lots_are_simple_polygons` on B — 3 self-touching parcels.** That is a
+pre-existing S8 defect class that C has failed with 49–57 parcels throughout; it is exposed in
+B because the centreline moved, and it is an S8 bug, not this one. Recorded here rather than
+absorbed: the number went up, and a number going up is the thing this file exists to catch.
+
+**`turn_smooth_ratio` ships on every graph prim** and
+`centreline_curvature_within_class` now fails on it, so a kink that is legal by radius can no
+longer pass silently — which is exactly how this one survived.
+
 #### Still unguarded after this pass — recorded, not fixed
 
 - **The 1.0 m segment floor is asserted, not enforced.** `no_short_graph_segments` catches a
@@ -1054,6 +1126,12 @@ deviation slot now holds a flat ceiling on the seam.
 they meet, so the closing segment introduces a 21.3°/14.8° pair of turns against a 3.28°
 median. It does not fold (ratio 0.28 against a threshold of 1.0). **§S3b's curvature clamp
 is the cure** — do not patch it separately.
+**CLOSED 2026-08-10, and the clamp alone was not the cure.** The clamp took the seam from
+19.03° to 13.36° and stopped there, because at R = 16.9 m against R_min = 14.4 m it is legal
+by radius — `centreline_curvature_within_class` read 0.852 and passed on a corner the artist
+could see. §4f-4's **smooth-κ** step, named in the design and never built, is what closes it:
+seam **7.26°**, and the whole-city curvature maximum 0.852 → 0.463. See §S3b "The clamp is a
+radius floor and that is not the same as a smooth street".
 
 #### The loop-closure gate, per-gate — measured, and two entries in `80dc19c` were wrong
 

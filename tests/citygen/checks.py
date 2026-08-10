@@ -1385,12 +1385,35 @@ def centreline_curvature_within_class(graph_geo, scale_parm, slack=1.02):
                 worst, at = ratio, [round(pts[i][0], 2), round(pts[i][2], 2)]
             if ratio > slack:
                 over += 1
-    return Result(name, over == 0 and not unconverged,
+    # ⚠️ A LOW kappa IS ALSO NOT THE SAME AS A SMOOTH CENTRELINE, and this half
+    # is why. 4f-4's mechanism is "smooth kappa THEN clamp to 1/R_min"; only the
+    # clamp was built, so C_radial's ring-closure seam came out of it as a
+    # single-vertex 13.4 deg turn against a 2.5 deg median — R = 16.9 m against
+    # R_min = 14.4 m. LEGAL BY RADIUS, so this check read 0.852 and passed while
+    # the artist could see the corner in a 100 m radius ring. `turn_smooth_ratio`
+    # is the solver's residual against the curvature-noise bound as well as the
+    # class one, and asserting it is what stops that recurring.
+    spike, spike_at = 0.0, None
+    if graph_geo.findPrimAttrib("turn_smooth_ratio") is not None:
+        for pr in graph_geo.prims():
+            r = pr.attribValue("turn_smooth_ratio")
+            if r > spike:
+                spike = r
+                p = pr.vertices()[0].point().position()
+                spike_at = [round(p[0], 2), round(p[2], 2)]
+    else:
+        return Result(name, False, {"max_turn_spike": None},
+                      "the graph carries no turn_smooth_ratio: 4f-4's "
+                      "curvature-noise residual is not reaching the output")
+    return Result(name, over == 0 and not unconverged and spike <= slack,
                   {"max_kappa_over_clamp": round(worst, 3), "over": over,
-                   "worst_at": at, "not_converged": len(unconverged)},
+                   "worst_at": at, "not_converged": len(unconverged),
+                   "max_turn_spike": round(spike, 3), "spike_prim_at": spike_at},
                   "discrete curvature x R_min(class); > %.2f means the "
-                  "centreline bends tighter than S3b allows, and "
-                  "not_converged means the solver said so itself" % slack)
+                  "centreline bends tighter than S3b allows, "
+                  "not_converged means the solver said so itself, and "
+                  "max_turn_spike is the same residual against 4f-4's "
+                  "curvature-noise bound — a kink that is legal by radius" % slack)
 
 
 def no_short_graph_segments(graph_geo, floor=1.0):

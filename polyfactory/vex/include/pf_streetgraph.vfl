@@ -284,6 +284,114 @@ float pfsg_turn_residual(const vector P[]; const float rmin; const int closed) {
 }
 
 
+// PER-VERTEX TURN CEILING = the class clamp, tightened by a CURVATURE-NOISE
+// bound. 4f-4's mechanism is "resample -> discrete curvature -> SMOOTH kappa ->
+// clamp to 1/R_min(class) -> re-integrate", and it names curvature noise in the
+// traced polyline as "loudest by far" among the things that read as CG. Only
+// the clamp half was ever built, and the two are different criteria:
+//
+//   MEASURED on C_radial's ring-closure seam. The weld leaves a single-vertex
+//   19.0 deg turn against a 2.0 deg median. The clamp fires once, brings it to
+//   13.4 deg -- R = 16.9 m against R_min = 14.4 m -- and then stops, because by
+//   RADIUS it is now legal. `centreline_curvature_within_class` read 0.852 and
+//   PASSED while the artist could see the corner in a 100 m radius ring.
+//   A radius floor cannot catch a spike that clears the floor; only a bound
+//   relative to the vertex's own neighbourhood can.
+//
+// So a vertex may turn at most `gain` times the mean turn of the vertices
+// within +/-PFSG_SMOOTH_W of it. Three properties make this safe rather than a
+// general smoother:
+//   * UNIFORM CURVATURE IS A FIXED POINT. On a circular arc every neighbour
+//     turns the same, so the bound is `gain` x the vertex's own turn and never
+//     binds. A legal ring still comes back bit-identical, which the control rig
+//     asserts.
+//   * IT NEVER LOOSENS THE CLASS CLAMP -- it is a `min` with it.
+//   * IT HAS A FLOOR of `PFSG_SMOOTH_FLOOR` x the class allowance, so an
+//     isolated corner in a dead-straight run (a 90 deg bend before the arc seed
+//     runs, where the neighbourhood mean is 0) asks for a bounded radius rather
+//     than an infinite one.
+// `gain <= 0` disables the noise half entirely and restores the class-only
+// behaviour exactly, which is how the A/B for this change was measured.
+//
+// ⚠️ THIS IS NOT SURGICAL AND CANNOT BE MADE SO. It was tuned looking for a
+// setting that touches C's ring seam and leaves A, B and D bit-identical, and
+// MEASURED, no such setting exists: the seam is not geometrically distinct from
+// a legitimate drawn corner. At the clamp's input C's seam is phi = 18.1 deg at
+// 25.4x its neighbourhood; A's hand-drawn arterial corner at (-59.6, 9.9) is
+// 11.0 deg at 53.9x. The drawn corner has the HIGHER contrast. Both come out of
+// the class clamp at 0.85-0.89 of R_min, i.e. at the same place; what makes one
+// read as a defect is that it sits inside a 100 m radius ring and the other
+// does not, and no local measure sees that.
+//
+// So the choice is how much smoothing, not where. Measured over the whole suite:
+//   floor 0.50 -- seam 13.4 -> ~11.9 deg, still visible; suite 17 -> 19 failing
+//                 (a flipped face in C, two bowtie lots in B)
+//   floor 0.25 -- seam 13.4 -> 7.3 deg, kink gone in the render; suite 17 -> 18
+//                 (three bowtie lots in B, and B alone)
+// 0.25 both fixes the defect and costs less, so 0.25 it is. The one new failure
+// is `lots_are_simple_polygons` on B: self-touching parcels are a pre-existing
+// S8 defect that C has failed with 49-57 parcels throughout, exposed in B
+// because the centreline moved. It is an S8 bug, not this one.
+#define PFSG_SMOOTH_W 3
+#define PFSG_SMOOTH_FLOOR 0.25
+
+void pfsg_turn_ceilings(const vector P[]; const float rmin, gain;
+                        const int closed; export float phimax[]) {
+    int n = len(P);
+    resize(phimax, n);
+    float phi[], cls[];
+    resize(phi, n);
+    resize(cls, n);
+    for (int i = 0; i < n; i++) {
+        phi[i] = 0.0;
+        cls[i] = -1.0;               // -1 = this vertex has no turn to bound
+        phimax[i] = -1.0;
+    }
+    int lo = closed ? 0 : 1, hi = closed ? n : n - 1;
+    for (int i = lo; i < hi; i++) {
+        float l1, l2;
+        float t = abs(pfsg_turn_at(P[(i - 1 + n) % n], P[i], P[(i + 1) % n], l1, l2));
+        if (l1 < 1e-9 || l2 < 1e-9) continue;
+        phi[i] = t;
+        cls[i] = 0.5 * (l1 + l2) / rmin;
+    }
+    for (int i = lo; i < hi; i++) {
+        if (cls[i] < 0.0) continue;
+        if (gain <= 0.0) { phimax[i] = cls[i]; continue; }
+        float s = 0.0;
+        int c = 0;
+        for (int j = -PFSG_SMOOTH_W; j <= PFSG_SMOOTH_W; j++) {
+            if (j == 0) continue;
+            int q = i + j;
+            if (closed) q = (q % n + n) % n;
+            else if (q < 1 || q > n - 2) continue;
+            s += phi[q];
+            c += 1;
+        }
+        float noise = (c > 0) ? gain * s / float(c) : cls[i];
+        phimax[i] = min(cls[i], max(noise, PFSG_SMOOTH_FLOOR * cls[i]));
+    }
+}
+
+
+// Worst turn / its own ceiling. With `gain <= 0` the ceilings are the class
+// clamp and this returns exactly `pfsg_turn_residual`.
+float pfsg_turn_ratio(const vector P[]; const float phimax[]; const int closed) {
+    int n = len(P);
+    if (n < 3) return 0.0;
+    float worst = 0.0;
+    int lo = closed ? 0 : 1, hi = closed ? n : n - 1;
+    for (int i = lo; i < hi; i++) {
+        float l1, l2;
+        float phi = abs(pfsg_turn_at(P[(i - 1 + n) % n], P[i], P[(i + 1) % n], l1, l2));
+        if (l1 < 1e-9 || l2 < 1e-9 || phimax[i] <= 1e-9) continue;
+        float r = phi / phimax[i];
+        if (r > worst) worst = r;
+    }
+    return worst;
+}
+
+
 float pfsg_poly_length(const vector P[]; const int closed) {
     int n = len(P);
     float L = 0.0;
@@ -524,7 +632,15 @@ int pfsg_turn_fillet_seed(export vector P[]; const float rmin) {
 // turn actually needs (its arc length is (phi - phimax) * rmin) instead of
 // being applied to the one vertex. That single change is what removes the
 // O(k^2): the corrected region no longer grows one vertex per sweep.
-int pfsg_turn_sweep(export vector P[]; const float rmin, relax; const int closed) {
+//
+// The ceiling is now supplied per vertex by `pfsg_turn_ceilings` rather than
+// derived from `rmin` here, so the same sweep serves the class clamp and the
+// curvature-noise bound. The spread `m` is written in terms of the ceiling
+// itself - the excess needs (phi - pm) x R_ceiling of arc and R_ceiling is
+// meanseg / pm - which is ALGEBRAICALLY THE SAME EXPRESSION as before for the
+// class ceiling, so this is bit-identical with the noise bound switched off.
+int pfsg_turn_sweep(export vector P[]; const float phimax[]; const float relax;
+                    const int closed) {
     int n = len(P);
     if (n < 3) return 0;
     vector D[];
@@ -536,14 +652,15 @@ int pfsg_turn_sweep(export vector P[]; const float rmin, relax; const int closed
         float l1, l2;
         float phi = abs(pfsg_turn_at(a, b, c, l1, l2));
         if (l1 < 1e-9 || l2 < 1e-9) continue;
-        float phimax = 0.5 * (l1 + l2) / rmin;
-        if (phi < 1e-6 || phi <= phimax) continue;
+        float pm = phimax[i];
+        if (pm <= 1e-9) continue;
+        if (phi < 1e-6 || phi <= pm) continue;
         vector ac = c - a;
         float L2 = dot(ac, ac);
         if (L2 < 1e-12) continue;
         vector foot = a + ac * (dot(b - a, ac) / L2);
-        vector dx = (foot + (b - foot) * (phimax / phi) - b) * relax;
-        int m = int((phi - phimax) * rmin / max(0.5 * (l1 + l2), 1e-6));
+        vector dx = (foot + (b - foot) * (pm / phi) - b) * relax;
+        int m = int((phi - pm) / pm);
         if (m < 1) m = 1;
         for (int j = -m; j <= m; j++) {
             int q = i + j;
@@ -563,16 +680,31 @@ int pfsg_turn_sweep(export vector P[]; const float rmin, relax; const int closed
 // the best iterate so a diverging sequence cannot ship its worst state, refuses
 // any step that would take a segment below `minseg`, and reports whether it got
 // there. Returns 1 when converged; `resid` and `sweeps` come back either way.
-int pfsg_turn_clamp_solve(export vector P[]; const float rmin, tol, minseg;
+//
+// TWO RESIDUALS, and they are not interchangeable. `resid` is the CLASS metric
+// - the same expression `centreline_curvature_within_class` measures - and it
+// alone decides `turn_clamp_converged`, because a solver that reports against a
+// metric the check does not measure is a solver nobody can audit. `smooth` is
+// the combined metric including 4f-4's curvature-noise bound, and it is what
+// the iteration drives down. An iterate is only ever ACCEPTED when its class
+// residual is no worse than where we started, so switching the noise bound on
+// cannot make the class clamp worse - which is the failure mode the fold-back
+// rig exists to catch.
+int pfsg_turn_clamp_solve(export vector P[]; const float rmin, tol, minseg, gain;
                           const int closed, budget;
-                          export float resid; export int sweeps) {
+                          export float resid; export int sweeps;
+                          export float smooth) {
     int n = len(P);
     sweeps = 0;
+    float phimax[];
+    pfsg_turn_ceilings(P, rmin, gain, closed, phimax);
     resid = pfsg_turn_residual(P, rmin, closed);
-    if (n < 4 || resid <= tol) return resid <= tol;
+    smooth = max(resid, pfsg_turn_ratio(P, phimax, closed));
+    if (n < 4 || smooth <= tol) return resid <= tol;
 
     vector best[] = P;
-    float bestr = resid;
+    float bestclass = resid, bestscore = smooth, startclass = resid;
+    float accept = max(tol, startclass);
     int nseg = closed ? n : n - 1, stall = 0;
 
     if (!closed) {                      // the arc construction pins two ends
@@ -580,13 +712,18 @@ int pfsg_turn_clamp_solve(export vector P[]; const float rmin, tol, minseg;
         pfsg_turn_fillet_seed(S, rmin);
         sweeps = 1;
         if (pfsg_poly_length(S, closed) >= minseg * float(nseg)) {
-            float r = pfsg_turn_residual(S, rmin, closed);
+            pfsg_turn_ceilings(S, rmin, gain, closed, phimax);
+            float rc = pfsg_turn_residual(S, rmin, closed);
+            float rs = max(rc, pfsg_turn_ratio(S, phimax, closed));
             P = S;
-            if (r < bestr) { bestr = r; best = S; }
+            if (rs < bestscore && rc <= accept) {
+                bestscore = rs; bestclass = rc; best = S;
+            }
         }
     }
-    while (sweeps < budget && bestr > tol) {
-        if (!pfsg_turn_sweep(P, rmin, 0.5, closed)) break;
+    while (sweeps < budget && bestscore > tol) {
+        pfsg_turn_ceilings(P, rmin, gain, closed, phimax);
+        if (!pfsg_turn_sweep(P, phimax, 0.5, closed)) break;
         sweeps += 1;
         // Backstop only. The re-parametrisation below is what actually bounds
         // the segments - it makes every one of them L/(n-1) - and an audit
@@ -595,13 +732,18 @@ int pfsg_turn_clamp_solve(export vector P[]; const float rmin, tol, minseg;
         // be caught before it ships, not because it is doing the work.
         if (pfsg_poly_length(P, closed) < minseg * float(nseg)) break;
         pfsg_turn_reparam(P, closed);
-        float r = pfsg_turn_residual(P, rmin, closed);
-        if (r < bestr - 1e-6) { bestr = r; best = P; stall = 0; }
+        pfsg_turn_ceilings(P, rmin, gain, closed, phimax);
+        float rc = pfsg_turn_residual(P, rmin, closed);
+        float rs = max(rc, pfsg_turn_ratio(P, phimax, closed));
+        if (rs < bestscore - 1e-6 && rc <= accept) {
+            bestscore = rs; bestclass = rc; best = P; stall = 0;
+        }
         else if (++stall >= 50) break;  // not converging; stop burning cook time
     }
     P = best;
-    resid = bestr;
-    return bestr <= tol;
+    resid = bestclass;
+    smooth = bestscore;
+    return bestclass <= tol;
 }
 
 
