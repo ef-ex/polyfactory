@@ -2079,13 +2079,25 @@ def lots_clear_of_roads(lot_geo, roads_node, surface_node, cell=0.5,
     `pfsl_area` is exact, `lot_area` is exact, `lots_tile_blocks` passes, and
     every area test in this file — including this one — reads zero on geometry
     that ships two edges lying down the middle of an arterial. Measured on
-    C_radial: **40 lots, 1329 m of boundary strictly inside the road surface.**
+    C_radial: **39 lots, 1290.6 m of boundary strictly inside the road surface**
+    (an independent re-measurement with no raster at all -- exact point-in-
+    polygon with a 0.5 m disc-clearance test -- got 40 / 1287.8, a 0.2% spread).
     (`lots_are_simple_polygons` sees the same lots from the other side and is
     already failing with 41; it says "self-touching", not "on the road".)
 
     So this check now measures both, and `edge_m` is the one with teeth. The
     road mask is eroded by one cell first, so a frontage edge lying ON the kerb
     — which is where every legitimate lot edge lies — cannot count.
+
+    ⚠️ THE SLACK IS `cell`, NOT A STATED DISTANCE, so `edge_m` is not
+    cell-independent: C_radial reads 1198.1 / 1290.6 / 1322.4 / 1348.0 at cell
+    1.0 / 0.5 / 0.25 / 0.1. It is phase-independent (translating the city by
+    0.25 m, or by 100 m, reproduces 1290.6 exactly) and it has teeth — pushing
+    one B_grid lot 0.6 m into the road adds 8.7 m — but a finer run will read
+    HIGHER and that is resolution, not a regression. Below cell ≈ 0.2 m the
+    erosion stops covering the largest legitimate kerb-to-block deviation, the
+    fillet arc-chord sagitta L²/8R ≈ 4²/(8·26.8) ≈ 0.075 m, which at cell 0.5
+    has a ~6× margin.
     """
     try:
         import numpy as np

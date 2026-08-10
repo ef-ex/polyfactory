@@ -1135,6 +1135,11 @@ Both were unspecified, and the audit showed the code was silently inventing an a
    | 13.13 m | 23.99 | 10.86 + 0 | 27 | (88.34, −372.82) deg 4 → (93.71, −396.20) deg 1 | arterial | 26.8 |
    | 15.91 m | 49.84 | 19.88 + 14.05 | 16 | (72.04, −70.82) → (29.93, −96.48) | local | 14.4 |
 
+   Ranked by *surviving length ÷ width*, prim 60 is the worst in the −X/+Z quadrant at **0.43**
+   (next: 0.80, prim 48 at (−60.42, 16.82)). ⚠️ **The worst in the whole city is prim 73 at
+   (58.57, 397.41) — ratio 0.23** — but it is +X, so it is not the circled one; name it anyway,
+   because it is the same defect one notch worse.
+
    **Prim 60 is the one in the lower-left quadrant and it is the best match for the artist's
    green circle.** What ships there is a **6.24 m tongue of a 14.4 m-wide road** — pavement
    wider than it is long — sticking out of a four-way junction's patch and stopping flat, with
@@ -1885,6 +1890,26 @@ it counts as dead only if it moves nothing on **any** of the six cases.
 | moved only at a second, more extreme in-range value | 5 |
 | **moved nothing at any value on any case** | **9** (+1 removed twice over, below) |
 
+⚠️ **"Moved an output" is not the same as "changed the city", and the first version of this
+audit conflated them.** Corrected after an independent audit of `7a43f69`. Splitting the digest
+into a geometry half (counts + P + real vertex→point topology) and an attribute half puts the
+55 surviving parms at **45 geometry · 4 attribute-only · 6 dead**. The four are
+`street_params_region_size` (ids only), `street_params_zone_inner` / `zone_core` (the `land_use`
+string only) and — the one that matters —
+
+> **`lots_params_min_lot_area` deletes nothing.** At 50, 900, 5000 and **20 000 m²** C_radial
+> ships the same **773 lot prims in the same places**; only `lot_reject`, `lot_viable` and `Cd`
+> move. That is **correct**: §S8 viability is advisory by design (`citygen.md` §2.2 — flag and
+> explain, never delete). But an artist dragging a slider called *Minimum Lot Area* over a 400×
+> range and watching nothing happen has found the same complaint again, and "it is advisory"
+> has to be on the parameter, not only in a design doc.
+
+⚠️ **The topology term in the first digest was dead code.** `hou.Geometry.primIntrinsicValues`
+does not exist in H22 and the call sat inside a bare `except`, so for one commit the "topology"
+half of the hash was silently absent. It is a Python vertex walk now. Nothing in the recorded
+verdicts changed — every parm called live still moves counts, `P` or attributes — but the
+mechanism was not what the docstring said it was.
+
 The nine, with the cause named rather than counted:
 
 | parm | HDA | cause | disposition |
@@ -1912,8 +1937,20 @@ these are what the artist actually hit, and none of them is a bug:
   is invariant under a positive scale — so one grid source at weight 1 and at weight 8 is
   bit-identical. It only steers geometry where two or more sources overlap, which **no case in
   the suite does**. Proved with a two-source control rig (grid + radial into one trace): weight
-  1 → 4 on *either* source moves all four outputs. Radial additionally moves at 8 and at 0
-  because its weight also scales the exponential decay against the tracer's strength floor.
+  1 → 4 on *either* source moves all four outputs (Δθ up to 0.54 rad; single-source Δθ measured
+  **0** at weight 0.5–100).
+  ⚠️ **Two corrections from an independent audit of `7a43f69`.** The sentence that stood here —
+  *"radial additionally moves at 8 and at 0 because its weight also scales the exponential decay
+  against the tracer's strength floor"* — is **false**. The floor is `1e-6`; radial strength over
+  C's 800 m domain is 5.4–8 at weight 8, six orders above it. The real mechanism is **float32
+  rounding**: `u@tensor` is stored float32, so a *power-of-two* rescale is bit-identical
+  (2.5 → 5.0, → 10.0, → 1.25 all reproduce the city exactly) and any other ratio shifts the
+  recovered angle by ~3e-8 rad, which the tracer amplifies into a different city. And **weight 0
+  is not "removes the source"** on the only source: `t` collapses, `field_tensor`'s
+  `strength < 1e-9` guard fires, and the whole field becomes a flat 0° grid. A slider that is
+  exactly inert at 2× and chaotic at 1.2× is worse for the artist than a dead one; sizing the
+  tensor in float64, or normalising the summed tensor before recovering θ, is the real fix and
+  is not built.
 - **`min_node_dist` on the trace node is live.** §S3 records *"`min_node_dist` 50 → 40 produced
   bit-identical output"* and that reproduces exactly — but 50 → 0 and 50 → 300 both move every
   output on both B and C. It is threshold-insensitive around its default, not inert. **The two
@@ -1928,17 +1965,20 @@ these are what the artist actually hit, and none of them is a bug:
 - `lots_params_lot_frontage` is read **only** by the `offset` branch of `lots_subdiv`; it is now
   `disablewhen`'d outside that mode so it stops reading as a dead slider.
 
-⚠️ **`street_params_zone_inner` / `zone_core` are live but change no geometry** — they only pick
-the `land_use` string. Prim counts are identical and the *lots* output is bit-identical while
-city, blocks and graph move, because `land_use` is not propagated to parcels. Recorded, not
-fixed: the buildings subsystem is what will need it.
-
-**After the fixes: 55 promoted parms, 49 live, 6 dead** — and the six are exactly the six
+**After the fixes: 55 promoted parms, 45 geometry · 4 attribute-only · 6 dead** — and the six dead are exactly the six
 tabled above that were kept. `tests/citygen/parm_liveness.py` is the sweep, committed, and it
-**fails on a disagreement in either direction**: a parm going dead is a regression, and a parm
-listed as dead that starts moving output means the entry is stale. Every default is
-byte-identical after the fixes (26 digests over six cases) and the suite is unchanged at **17
-failing**, same failing set, no baseline movement.
+**fails on a disagreement in either direction** for *both* the dead set and the attribute-only
+set: a parm going dead is a regression, and a parm recorded dead or attribute-only that starts
+moving geometry means the entry is stale. Every default is byte-identical after the fixes —
+independently re-verified by rebuilding the whole pre-commit tree (four HDAs plus all of
+`vex/include`) at `7a43f69^` in a separate process and hashing **all four outputs of all six
+cases** with topology included: every hash identical. The suite is unchanged at **17 failing**,
+same failing set, no baseline movement.
+
+⚠️ **DEAD is scoped to the shipped slider range.** `close_min_pts` at **1000** — far outside its
+`{3 64}` range — does move C_radial. That confirms its recorded reason (wired, never the binding
+gate) rather than contradicting it, but the distinction has to be stated or the next reader will
+"disprove" the row with an illegal value.
 
 ---
 

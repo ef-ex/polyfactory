@@ -11,19 +11,36 @@ because a parameter that quietly stops mattering is invisible to every other
 check here — `run_scene_checks.py` only ever cooks the defaults.
 
 Method, and it is the whole point: build every case fresh from `cases.py`, cook,
-SHA-1 all four outputs — counts, P, topology AND every point/prim/vertex/detail
-attribute, so an attribute-only change is still seen — then set one parm to a
-sane in-range value, re-cook, re-hash.
+SHA-1 all four outputs, then set one parm to a sane in-range value, re-cook,
+re-hash.
 
-A parm is LIVE as soon as one digest moves on one case.  A parm is DEAD only
-after every value in its list has been tried on every case that can reach it;
-"it did nothing at +30%" is not the same finding and the second value in each
-list exists to keep the two apart.  Anything unlisted gets a generic
+⚠️ TWO DIGESTS, NOT ONE, and this is the correction an audit forced on
+2026-08-10.  The first version hashed geometry and attributes together and
+called a parm LIVE if anything moved — which certified sliders that move no
+geometry at all.  `lots_params_min_lot_area` was the proof: at 50, 900, 5000
+and 20000 m² C_radial ships the same 773 lot prims in the same places, because
+S8 viability is ADVISORY by design (`citygen.md` §2.2 — flag and explain, never
+delete), so only `lot_reject` / `lot_viable` / `Cd` move.  Recorded LIVE, and to
+the artist dragging it, dead.  So the sweep now reports three states:
+
+    GEOM  counts, P or topology moved   — the slider changes the city
+    ATTR  only attribute values moved   — the slider changes labels, not shapes
+    DEAD  nothing moved at any value
+
+A parm is GEOM/ATTR as soon as one digest moves on one case.  A parm is DEAD
+only after every value in its list has been tried on every case that can reach
+it; "it did nothing at +30%" is not the same finding and the second value in
+each list exists to keep the two apart.  Anything unlisted gets a generic
 perturbation, so a parm added tomorrow is swept tomorrow rather than silently
 skipped.
 
-The nine dead ones as of 2026-08-10, and their causes, are tabled in
-`ideas/citygen_streets.md` §4c "Every promoted parameter, measured".
+⚠️ DEAD is scoped to the shipped slider range.  `close_min_pts` at 1000 — far
+outside its `{3 64}` range — does move C_radial.  That confirms its recorded
+reason ("wired, never the binding gate") rather than contradicting it, but a
+value outside the range is not evidence about the parameter as shipped.
+
+The dead and attribute-only ones as of 2026-08-10, and their causes, are tabled
+in `ideas/citygen_streets.md` §4c "Every promoted parameter, measured".
 """
 
 import array
@@ -108,10 +125,26 @@ PERTURB = {
 KNOWN_DEAD = {
     ("trace", "organic_amp"): "no `organic` field generator ships (S1)",
     ("trace", "organic_scale"): "no `organic` field generator ships (S1)",
-    ("trace", "close_min_pts"): "wired, never the binding gate",
+    ("trace", "close_min_pts"): "wired, never the binding gate in range",
     ("streets", "s5b_params_pier_spacing"): "no case has layer > 0, so no bridge",
     ("streets", "s5b_params_max_span"): "no case has layer > 0, so no bridge",
     ("streets", "s5b_params_pier_clearance"): "no case has layer > 0, so no bridge",
+}
+
+# Moves attributes and no geometry, at the value swept.  Same contract as
+# KNOWN_DEAD: a disagreement either way fails the run.
+KNOWN_ATTR_ONLY = {
+    ("streets", "street_params_region_size"): "region_id / block_id / lot_id only",
+    ("streets", "street_params_zone_inner"): "land_use string only",
+    ("streets", "street_params_zone_core"): "land_use string only",
+    # NOT lots_params_lot_depth: it is only a frontage tolerance in
+    # recursive_obb, so it reads attribute-only on C_radial -- but it is the
+    # ring inset in `offset` mode and moves geometry on D_offset. Escalating to
+    # the next case is what tells those apart; one case is not a measurement.
+    ("streets", "lots_params_min_lot_area"): (
+        "S8 viability is ADVISORY by design (citygen.md 2.2) -- it writes "
+        "lot_reject / lot_viable / Cd and deletes nothing. 50 -> 20000 m2 "
+        "leaves C_radial's 773 lot prims untouched"),
 }
 
 # Which cases can reach a parm, cheapest first.  A parm is only DEAD after all
@@ -122,21 +155,31 @@ STREET_CASES = ["C_radial", "A_drawn", "B_grid", "D_offset", "E_short_t", "F_ben
 
 
 def digest(geo):
-    """Everything that could distinguish two cooks of the same node."""
+    """(geometry digest, attribute digest) for one output.
+
+    Split so an attribute-only change reads as ATTR rather than as LIVE. The
+    geometry half is counts + P + real vertex->point topology; it is walked in
+    Python on purpose, because `hou.Geometry.primIntrinsicValues("vertexcount")`
+    DOES NOT EXIST in H22 and the first version of this file called it inside a
+    bare `except`, so the topology term was silently absent for a whole commit.
+    """
     import hou
-    h = hashlib.sha1()
     if geo is None:
-        return "NONE"
-    h.update(("c %s %s %s\n" % (geo.intrinsicValue("pointcount"),
-                                geo.intrinsicValue("primitivecount"),
+        return ("NONE", "NONE")
+    g = hashlib.sha1()
+    a = hashlib.sha1()
+    npt = geo.intrinsicValue("pointcount")
+    g.update(("c %s %s %s\n" % (npt, geo.intrinsicValue("primitivecount"),
                                 geo.intrinsicValue("vertexcount"))).encode())
-    if geo.intrinsicValue("pointcount"):
-        h.update(array.array("f", geo.pointFloatAttribValues("P")).tobytes())
-    if geo.intrinsicValue("primitivecount"):
-        try:
-            h.update(array.array("i", geo.primIntrinsicValues("vertexcount")).tobytes())
-        except Exception:
-            pass
+    if npt:
+        g.update(array.array("f", geo.pointFloatAttribValues("P")).tobytes())
+    topo = array.array("i")
+    for pr in geo.prims():
+        vs = pr.vertices()
+        topo.append(len(vs))
+        for v in vs:
+            topo.append(v.point().number())
+    g.update(topo.tobytes())
     for attribs, fg, ig, sg in (
             (geo.pointAttribs(), geo.pointFloatAttribValues,
              geo.pointIntAttribValues, geo.pointStringAttribValues),
@@ -144,23 +187,25 @@ def digest(geo):
              geo.primIntAttribValues, geo.primStringAttribValues),
             (geo.vertexAttribs(), geo.vertexFloatAttribValues,
              geo.vertexIntAttribValues, geo.vertexStringAttribValues)):
-        for a in sorted(attribs, key=lambda x: x.name()):
-            h.update(a.name().encode())
+        for at in sorted(attribs, key=lambda x: x.name()):
+            if at.name() == "P":
+                continue                      # already in the geometry half
+            a.update(at.name().encode())
             try:
-                if a.dataType() == hou.attribData.Float:
-                    h.update(array.array("f", fg(a.name())).tobytes())
-                elif a.dataType() == hou.attribData.Int:
-                    h.update(array.array("i", ig(a.name())).tobytes())
+                if at.dataType() == hou.attribData.Float:
+                    a.update(array.array("f", fg(at.name())).tobytes())
+                elif at.dataType() == hou.attribData.Int:
+                    a.update(array.array("i", ig(at.name())).tobytes())
                 else:
-                    h.update(repr(sg(a.name())).encode())
+                    a.update(repr(sg(at.name())).encode())
             except Exception as exc:
-                h.update(("ERR %s" % exc).encode())
-    for a in sorted(geo.globalAttribs(), key=lambda x: x.name()):
+                a.update(("ERR %s" % exc).encode())
+    for at in sorted(geo.globalAttribs(), key=lambda x: x.name()):
         try:
-            h.update(("%s=%r" % (a.name(), geo.attribValue(a.name()))).encode())
+            a.update(("%s=%r" % (at.name(), geo.attribValue(at.name()))).encode())
         except Exception:
             pass
-    return h.hexdigest()[:16]
+    return (g.hexdigest()[:16], a.hexdigest()[:16])
 
 
 def generic(parm):
@@ -214,7 +259,7 @@ def main():
                 continue
             plan.append((hda, pt.name(), ck_list))
 
-    rows, dead = [], []
+    rows, dead, attr_only = [], [], []
     for hda, pname, ck_list in plan:
         vals = PERTURB.get((hda, pname))
         first = owner(hda, ck_list[0]).parm(pname)
@@ -223,7 +268,7 @@ def main():
         if vals is None:
             vals = generic(first)
             print("  (no perturbation listed for %s/%s, using %r)" % (hda, pname, vals))
-        moved, where = False, ""
+        state, where = "DEAD", ""
         for ck in ck_list:
             p = owner(hda, ck).parm(pname)
             if p is None:
@@ -238,36 +283,46 @@ def main():
                     d = dig(ck)
                 finally:
                     p.set(old)
-                mv = [i for i in range(4) if d[i] != base[ck][i]]
+                geom = [i for i in range(4) if d[i][0] != base[ck][i][0]]
+                attr = [i for i in range(4) if d[i][1] != base[ck][i][1]]
                 if VERBOSE:
-                    print("    %s/%s %s=%s on %s -> %s"
-                          % (hda, pname, pname, new, ck, mv or "no change"))
-                if mv:
-                    moved, where = True, "%s %s=%s outputs %s" % (ck, pname, new, mv)
+                    print("    %s/%s=%s on %s -> geom %s attr %s"
+                          % (hda, pname, new, ck, geom or "-", attr or "-"))
+                if geom:
+                    state = "GEOM"
+                    where = "%s %s=%s geometry moved on outputs %s" % (ck, pname, new, geom)
                     break
-            if moved:
+                if attr and state == "DEAD":
+                    state = "ATTR"
+                    where = "%s %s=%s ATTRIBUTES ONLY on outputs %s" % (ck, pname, new, attr)
+            if state == "GEOM":
                 break
-        rows.append((hda, pname, moved, where))
-        if not moved:
+        rows.append((hda, pname, state, where))
+        if state == "DEAD":
             dead.append((hda, pname))
-        print("%-12s %-36s %s  %s" % (hda, pname, "LIVE" if moved else "DEAD", where))
+        elif state == "ATTR":
+            attr_only.append((hda, pname))
+        print("%-12s %-36s %-4s  %s" % (hda, pname, state, where))
 
     post = {k: dig(k) for k in city}
     drift = [k for k in city if post[k] != base[k]]
 
-    print("\n%d parms swept: %d live, %d dead" % (len(rows), len(rows) - len(dead),
-                                                  len(dead)))
+    print("\n%d parms swept: %d move geometry, %d move attributes only, %d dead"
+          % (len(rows), len(rows) - len(dead) - len(attr_only), len(attr_only),
+             len(dead)))
     fails = 0
-    for key in dead:
-        if key not in KNOWN_DEAD:
-            print("REGRESSION: %s/%s moves no output at any tested value and is not "
-                  "a known dead parm" % key)
-            fails += 1
-    for key, why in KNOWN_DEAD.items():
-        if key not in dead:
-            print("STALE: %s/%s is recorded dead (%s) but it moved an output"
-                  % (key[0], key[1], why))
-            fails += 1
+    for label, got, known in (("dead", dead, KNOWN_DEAD),
+                              ("attribute-only", attr_only, KNOWN_ATTR_ONLY)):
+        for key in got:
+            if key not in known:
+                print("REGRESSION: %s/%s is %s and is not a known %s parm"
+                      % (key[0], key[1], label, label))
+                fails += 1
+        for key, why in known.items():
+            if key not in got:
+                print("STALE: %s/%s is recorded %s (%s) but it did something else"
+                      % (key[0], key[1], label, why))
+                fails += 1
     if drift:
         print("RESTORE DRIFT on %s -- a perturbation was not undone" % drift)
         fails += 1
