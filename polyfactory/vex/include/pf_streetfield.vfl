@@ -65,6 +65,17 @@ vector2 pfsf_gen_radial(const vector p, centre; const float weight, falloff,
     return pfsf_tensor(atan2(d.z, d.x) + radians(angle_deg), w);
 }
 
+// Backwards-compatible overload - the four-argument list this function had
+// before `angle_deg` was added on 2026-08-10.  Adding the argument changed the
+// signature under every caller that already existed, and a hand-built network
+// is not a network anyone can grep: /obj/pf_citygen/field_tensor in the
+// artist's scene went red with "No matching function for vector2
+// pfsf_gen_radial(...)" and took ten-plus downstream nodes with it.  0 is the
+// pure radial field, so this forwards to exactly the old behaviour.
+vector2 pfsf_gen_radial(const vector p, centre; const float weight, falloff) {
+    return pfsf_gen_radial(p, centre, weight, falloff, 0.0);
+}
+
 // Organic: a base bearing perturbed by noise.  This is what produces
 // irregular, non-grid street patterns - and it IS a field, so the existing
 // tracer handles it unchanged.

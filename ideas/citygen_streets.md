@@ -3288,9 +3288,43 @@ and once for real, and the pre-measure nodes were *copies* of the shipped ones. 
 same HDA instanced twice, with `do_culdesac` off on the pre-measure — the copy cannot drift from
 what ships, because there is no copy.
 
-⚠️ **`pf_citygen_streets` is gone.** It was renamed and gutted; the mesh node is the direct
-descendant. Any scene wiring `pf_citygen_trace → pf_citygen_streets` must be rebuilt, and note
-that the tracer's **out0 changed meaning** — it was raw centrelines, it is now the solved graph.
+⚠️ **`pf_citygen_streets` is DEPRECATED, not gone — corrected 2026-08-11.** It was renamed and
+gutted and the mesh node is the direct descendant, so any scene wiring
+`pf_citygen_trace → pf_citygen_streets` should be rebuilt, and note that the tracer's **out0
+changed meaning** — it was raw centrelines, it is now the solved graph.
+
+But *deleting the .hda file* was the wrong way to retire it. Houdini had baked a copy of the
+definition into the artist's `cityGen.hip`, so the scene still opened — on an **Embedded,
+`incomplete`** definition that Houdini itself warns "will not function properly". It opened by
+luck, and a clean load on any other machine would not have. The file is therefore **restored at
+its last shipped revision (`ac64636^`) and frozen**: it is never edited, never fixed, and nothing
+new may wire to it. It exists so old scenes load *and cook*. `tests/citygen/cases.py` pins its
+five assets by name, so the deprecated file is invisible to the suite.
+
+**Retiring a shipped asset means leaving the file on disk, not removing it.** A missing definition
+is not a migration path; it is a scene that cannot be opened.
+
+### ⚠️ Never change a shared VEX signature under existing callers — 2026-08-11
+
+The same delete-and-move-on reflex hit `polyfactory/vex/include/`. Adding `angle_deg` to
+`pfsf_gen_radial` changed its signature, and the artist's **hand-built** `/obj/pf_citygen` — not
+an HDA, so not greppable and not migratable by any script — went red across 46 nodes.
+
+Both include files now carry **backwards-compatible overloads** in a `DEPRECATED` block:
+`pfsf_gen_radial` (4-arg, forwards `angle = 0`) in `pf_streetfield.vfl`, and `pfsj_fillet`
+(pre-`max_run`), `pfsj_bevel` and `pfsj_arc_centre_through` in `pf_streetjunction.vfl`. VEX
+overloads on arity *and type*, both resolve exactly, and it costs nothing.
+
+⚠️ **The loud break was not the dangerous one.** `pfsj_fillet` gained `max_run` and lost `centre`,
+so old and new both take **ten** arguments — the old call site did **not** go red. It bound a
+`vector` into a `float` through an implicit cast and shipped quietly wrong junctions. A red node
+is a bug report; that was not. When a signature must change, **change the arity or change the
+name** — never silently re-order same-count parameters.
+
+Measured on the whole branch: `pfsg_turn_clamp_solve`, `pfsg_turn_sweep`, `pfsj_inward_offset` and
+`pfsl_clip` also changed or vanished, but **every** live call site already uses the new form, so
+they need no shim. Verify that claim by call-site inspection before deleting a shim, not by
+assuming.
 
 **The relocation was proven behaviour-preserving before anything else changed.** Both halves of
 `digest()` — geometry (counts + P + vertex→point topology) and attributes — on all four outputs

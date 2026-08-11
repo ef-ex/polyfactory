@@ -200,4 +200,77 @@ vector pfsj_arc_point(const vector arc_centre, tanA, tanB; const float t) {
     return arc_centre + (an * m) * r;
 }
 
+
+// ---------------------------------------------------------------------------
+// DEPRECATED - backwards compatibility for networks built before 2026-08-10
+// ---------------------------------------------------------------------------
+//
+// These are the pre-split signatures.  They exist so hand-built networks that
+// nobody can grep - the artist's /obj/pf_citygen in cityGen.hip is one - keep
+// compiling and keep their ORIGINAL behaviour.  Nothing shipped calls them;
+// new code must use the versions above.
+//
+// Why this block exists at all: changing a shared signature under existing
+// callers breaks scenes silently.  `pfsj_fillet` was the instructive case -
+// old and new both take 10 arguments, so the old call site did NOT go red, it
+// bound `dirB` (a vector) to `radius` (a float) through an implicit cast and
+// produced quietly wrong junctions.  A red node is a bug report; this was not.
+
+// Pre-2026-08-10 fillet: took the junction `centre` as its first argument (and
+// ignored it), and had no `max_run` clamp - the radius was used as given.
+// Restored verbatim so old callers get the geometry they had, not the clamped
+// geometry the new solver produces.
+void pfsj_fillet(const vector centre, corner, dirA, dirB; const float radius;
+                 export vector arc_centre, tanA, tanB;
+                 export float radius_used; export int ok) {
+    float d = clamp(dot(dirA, dirB), -1.0, 1.0);
+    float theta = acos(d);
+    float half = theta * 0.5;
+    if (sin(half) < 0.02 || tan(half) < PFSJ_EPS) {
+        ok = 0; radius_used = 0.0;
+        arc_centre = corner; tanA = corner; tanB = corner;
+        return;
+    }
+    ok = 1;
+    radius_used = radius;                      // no max_run clamp: old behaviour
+    float t = radius_used / tan(half);
+
+    tanA = corner + dirA * t;
+    tanB = corner + dirB * t;
+    vector bis = normalize(dirA + dirB);
+    if (length(dirA + dirB) < PFSJ_EPS) bis = dirA;
+    arc_centre = corner + bis * (radius_used / sin(half));
+}
+
+// Removed 2026-08-10 by "citygen S5: every junction corner is a real fillet",
+// which replaced the bevel fallback with a true fillet.  Old callers still
+// reference it, so it stays available to them unchanged.
+void pfsj_bevel(const vector centre, dirA, dirB; const float wA, wB;
+                export vector bA, bB) {
+    vector up = {0, 1, 0};
+    vector nA = normalize(cross(dirA, up));
+    vector nB = normalize(cross(dirB, up));
+    if (dot(nA, dirB) < 0) nA = -nA;      // face the neighbour
+    if (dot(nB, dirA) < 0) nB = -nB;
+    bA = centre + nA * (wA * 0.5);
+    bB = centre + nB * (wB * 0.5);
+}
+
+// Removed by the same commit.  Note `r = max(radius, halfc)` - a smaller circle
+// cannot reach both endpoints.  That line was later identified as the root
+// cause of two visual failures, which is exactly why it must NOT be "fixed"
+// here: this function's contract is to reproduce the old output.
+vector pfsj_arc_centre_through(const vector p, q, inside; const float radius) {
+    vector mid = (p + q) * 0.5;
+    vector chord = q - p;
+    float halfc = length(chord) * 0.5;
+    if (halfc < PFSJ_EPS) return mid;
+    float r = max(radius, halfc);
+    float h = sqrt(max(r * r - halfc * halfc, 0.0));
+    vector up = {0, 1, 0};
+    vector perp = normalize(cross(normalize(chord), up));
+    if (dot(perp, mid - inside) < 0) perp = -perp;   // bulge away from the node
+    return mid + perp * h;
+}
+
 #endif
