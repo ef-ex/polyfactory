@@ -2697,7 +2697,14 @@ def block_boundary_closes(kerb_node, loops_node):
     bad = collections.Counter(v for v in seen.values() if v != 2)
     open_loops = sum(1 for pr in lg.prims()
                      if not pr.intrinsicValue("closed") or pr.numVertices() < 3)
-    value = {"unpaired_ends": sum(bad.values()), "multiplicity": dict(bad),
+    # keys stringified because the baseline round-trips through JSON, which has
+    # no integer keys: {1: 12} is written and read back as {"1": 12}, so an
+    # int-keyed dict reports as "moved" on EVERY run for ever. A baseline diff
+    # that always shows a line is a baseline diff nobody reads — the same
+    # failure as a tripwire that is red by design (see
+    # connections_are_never_refused).
+    value = {"unpaired_ends": sum(bad.values()),
+             "multiplicity": {str(k): v for k, v in bad.items()},
              "open_loops": open_loops, "loops": len(lg.prims())}
     return Result(name, not bad and not open_loops, value,
                   "every kerb run end must meet exactly one other and every "

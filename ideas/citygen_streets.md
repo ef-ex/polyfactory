@@ -4598,13 +4598,29 @@ generation time. Everything in the edit-and-override design depends on it.
 
 ## 6b. Shipped V1 assets
 
-### ⚠️ TWO PIPELINES SHIP SIDE BY SIDE, ON PURPOSE — status 2026-08-12
+### The old chain is being retired — status 2026-08-12
 
-`polyfactory/otls/` now holds **eight** HDAs, not five. The split described further down as
-"planned" was built; the original chain was **deliberately kept**, at Hannes' instruction:
-*"keep the old HDAs around until I am happy with the new ones, so we have them as reference in
-case something serious breaks."* That is a decision, not a leftover — do not delete them, and do
-not treat the duplication as drift to be cleaned up.
+The split described further down as "planned" was built, and the original chain was kept beside it
+at Hannes' instruction — *"keep the old HDAs around until I am happy with the new ones, so we have
+them as reference in case something serious breaks."* **That reference period is over:** once §S5a's
+junction shipped he called it, *"you can get rid of the old HDAs now, everything works with the new
+ones."*
+
+✅ **`pf_citygen_streets` is DELETED** (2026-08-12). Nothing referenced it — not `cases.py`'s
+install list, not a single `createNode`, only prose. The S3–S8 monolith is now only in git history.
+
+⚠️ **`pf_citygen_trace` is KEPT, and only because of one live consumer:**
+`tests/citygen/closure_gate.py:93` builds one (`createNode("pf_citygen_trace", …)`) and installs it
+through `cases.install_hdas()`. That file is the loop-closure sweep harness, and its own header says
+the sweep *"has now been derived from scratch and thrown away three times… Do not re-derive it;
+extend it."* Deleting the asset silently breaks it. **Port `closure_gate.py` onto
+`tracer → segmenter`, then delete `pf_citygen_trace.hda` and drop it from `cases.py`'s `HDAS`.**
+The stale docstring at `checks.py:1156` describing "a second `pf_citygen_trace`" should go with it —
+no such node is created any more.
+
+⚠️ **Scene note:** any `pf_citygen_streets` instance left in a .hip — the `A_city` / `B_city` /
+`C_city` examples — now has no definition and will load as an unknown node type. Delete those
+example nodes; the `*_NEW` chains replace them.
 
 | chain | assets | wiring, read off the live scene 2026-08-12 |
 |---|---|---|

@@ -490,7 +490,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "hoveroutlinemixin",
-      "community": 34,
+      "community": 32,
       "norm_label": "hoveroutlinemixin"
     },
     {
@@ -3650,7 +3650,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_hoverlistwidget",
-      "community": 97,
+      "community": 32,
       "norm_label": "hoverlistwidget"
     },
     {
@@ -3660,7 +3660,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_hoverlistwidget_init",
-      "community": 97,
+      "community": 32,
       "norm_label": ".__init__()"
     },
     {
@@ -3670,7 +3670,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_hoverlistwidget_paintevent",
-      "community": 97,
+      "community": 32,
       "norm_label": ".paintevent()"
     },
     {
@@ -3910,7 +3910,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_24",
-      "community": 97,
+      "community": 32,
       "norm_label": "qlistwidget with animated hover outline"
     },
     {
@@ -9630,7 +9630,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input",
-      "community": 34,
+      "community": 32,
       "norm_label": "tag_input.py"
     },
     {
@@ -9780,7 +9780,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip",
-      "community": 34,
+      "community": 32,
       "norm_label": "tagchip"
     },
     {
@@ -9790,7 +9790,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_init",
-      "community": 34,
+      "community": 32,
       "norm_label": ".__init__()"
     },
     {
@@ -9800,7 +9800,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_paintevent",
-      "community": 34,
+      "community": 32,
       "norm_label": ".paintevent()"
     },
     {
@@ -9810,7 +9810,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_on_remove",
-      "community": 34,
+      "community": 32,
       "norm_label": "._on_remove()"
     },
     {
@@ -10010,7 +10010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_1",
-      "community": 34,
+      "community": 32,
       "norm_label": "tag input widget - autocompleting tag input with removable chips similar to sho"
     },
     {
@@ -10030,7 +10030,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_90",
-      "community": 34,
+      "community": 32,
       "norm_label": "individual tag chip with remove button"
     },
     {
@@ -10040,7 +10040,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_133",
-      "community": 34,
+      "community": 32,
       "norm_label": "custom paint to draw rounded background with darker blue + animated hover outlin"
     },
     {
@@ -10050,7 +10050,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_149",
-      "community": 34,
+      "community": 32,
       "norm_label": "handle remove button click"
     },
     {
@@ -11397,7 +11397,7 @@
       "label": "_turn_at()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2721",
+      "source_location": "L2728",
       "_origin": "ast",
       "id": "citygen_checks_turn_at",
       "community": 86,
@@ -11407,7 +11407,7 @@
       "label": "_turn_ceilings()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2741",
+      "source_location": "L2748",
       "_origin": "ast",
       "id": "citygen_checks_turn_ceilings",
       "community": 86,
@@ -11417,7 +11417,7 @@
       "label": "centreline_curvature_within_class()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2791",
+      "source_location": "L2798",
       "_origin": "ast",
       "id": "citygen_checks_centreline_curvature_within_class",
       "community": 86,
@@ -11427,7 +11427,7 @@
       "label": "no_short_graph_segments()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2913",
+      "source_location": "L2920",
       "_origin": "ast",
       "id": "citygen_checks_no_short_graph_segments",
       "community": 7,
@@ -11437,7 +11437,7 @@
       "label": "_junction_graph()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2952",
+      "source_location": "L2959",
       "_origin": "ast",
       "id": "citygen_checks_junction_graph",
       "community": 104,
@@ -11447,7 +11447,7 @@
       "label": "junctions_not_too_close()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2996",
+      "source_location": "L3003",
       "_origin": "ast",
       "id": "citygen_checks_junctions_not_too_close",
       "community": 104,
@@ -11457,7 +11457,7 @@
       "label": "no_multileg_junctions()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3034",
+      "source_location": "L3041",
       "_origin": "ast",
       "id": "citygen_checks_no_multileg_junctions",
       "community": 104,
@@ -11467,7 +11467,7 @@
       "label": "connections_are_never_refused()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3087",
+      "source_location": "L3094",
       "_origin": "ast",
       "id": "citygen_checks_connections_are_never_refused",
       "community": 7,
@@ -11477,7 +11477,7 @@
       "label": "trim_leaves_road_standing()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3205",
+      "source_location": "L3212",
       "_origin": "ast",
       "id": "citygen_checks_trim_leaves_road_standing",
       "community": 43,
@@ -11487,7 +11487,7 @@
       "label": "turn_clamp_control_rig()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3328",
+      "source_location": "L3335",
       "_origin": "ast",
       "id": "citygen_checks_turn_clamp_control_rig",
       "community": 86,
@@ -11497,7 +11497,7 @@
       "label": "_rig_kappa()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3481",
+      "source_location": "L3488",
       "_origin": "ast",
       "id": "citygen_checks_rig_kappa",
       "community": 86,
@@ -11507,7 +11507,7 @@
       "label": "_rig_measure()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3493",
+      "source_location": "L3500",
       "_origin": "ast",
       "id": "citygen_checks_rig_measure",
       "community": 86,
@@ -11517,7 +11517,7 @@
       "label": "_rig_verdict()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3525",
+      "source_location": "L3532",
       "_origin": "ast",
       "id": "citygen_checks_rig_verdict",
       "community": 86,
@@ -11527,7 +11527,7 @@
       "label": "lots_clear_of_junctions()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3729",
+      "source_location": "L3736",
       "_origin": "ast",
       "id": "citygen_checks_lots_clear_of_junctions",
       "community": 71,
@@ -11537,7 +11537,7 @@
       "label": "lots_clear_of_roads()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3766",
+      "source_location": "L3773",
       "_origin": "ast",
       "id": "citygen_checks_lots_clear_of_roads",
       "community": 71,
@@ -11547,7 +11547,7 @@
       "label": "city_is_fully_paved()",
       "file_type": "code",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3903",
+      "source_location": "L3910",
       "_origin": "ast",
       "id": "citygen_checks_city_is_fully_paved",
       "community": 71,
@@ -12047,9 +12047,9 @@
       "label": "Mirror of `pfsg_turn_at`: |turn| at b and the two edge lengths.      \u26a0\ufe0f THE ANGL",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2722",
+      "source_location": "L2729",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_2722",
+      "id": "citygen_checks_rationale_2729",
       "community": 86,
       "norm_label": "mirror of `pfsg_turn_at`: |turn| at b and the two edge lengths.      \u26a0\ufe0f the angl"
     },
@@ -12057,9 +12057,9 @@
       "label": "Per-vertex turn (radians) and its ceiling, from geometry alone.      Returns (ph",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2742",
+      "source_location": "L2749",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_2742",
+      "id": "citygen_checks_rationale_2749",
       "community": 86,
       "norm_label": "per-vertex turn (radians) and its ceiling, from geometry alone.      returns (ph"
     },
@@ -12067,9 +12067,9 @@
       "label": "No centreline may bend tighter than its class minimum curve radius.      S3b. A",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2793",
+      "source_location": "L2800",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_2793",
+      "id": "citygen_checks_rationale_2800",
       "community": 86,
       "norm_label": "no centreline may bend tighter than its class minimum curve radius.      s3b. a"
     },
@@ -12077,9 +12077,9 @@
       "label": "No segment of a shipped centreline may be shorter than `floor` metres.      THE",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2914",
+      "source_location": "L2921",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_2914",
+      "id": "citygen_checks_rationale_2921",
       "community": 7,
       "norm_label": "no segment of a shipped centreline may be shorter than `floor` metres.      the"
     },
@@ -12087,9 +12087,9 @@
       "label": "Endpoint degree, edge lengths, and the clusters a multi-leg junction hides     i",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2953",
+      "source_location": "L2960",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_2953",
+      "id": "citygen_checks_rationale_2960",
       "community": 104,
       "norm_label": "endpoint degree, edge lengths, and the clusters a multi-leg junction hides     i"
     },
@@ -12097,9 +12097,9 @@
       "label": "No edge may join two junctions closer together than `floor` metres.      THE JOG",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2997",
+      "source_location": "L3004",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_2997",
+      "id": "citygen_checks_rationale_3004",
       "community": 104,
       "norm_label": "no edge may join two junctions closer together than `floor` metres.      the jog"
     },
@@ -12107,9 +12107,9 @@
       "label": "No junction may carry more than `cap` arms - counted AFTER near-coincident     j",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3035",
+      "source_location": "L3042",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_3035",
+      "id": "citygen_checks_rationale_3042",
       "community": 104,
       "norm_label": "no junction may carry more than `cap` arms - counted after near-coincident     j"
     },
@@ -12117,9 +12117,9 @@
       "label": "No repair pass after the first may DELETE a street.      S3: *\"a connection is n",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3088",
+      "source_location": "L3095",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_3088",
+      "id": "citygen_checks_rationale_3095",
       "community": 7,
       "norm_label": "no repair pass after the first may delete a street.      s3: *\"a connection is n"
     },
@@ -12127,9 +12127,9 @@
       "label": "A junction may never trim away the whole street it opens onto \u2014 and what     it",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3206",
+      "source_location": "L3213",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_3206",
+      "id": "citygen_checks_rationale_3213",
       "community": 43,
       "norm_label": "a junction may never trim away the whole street it opens onto \u2014 and what     it"
     },
@@ -12137,9 +12137,9 @@
       "label": "Run the SHIPPED S3b clamp on the inputs that broke the first one.      This is t",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3330",
+      "source_location": "L3337",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_3330",
+      "id": "citygen_checks_rationale_3337",
       "community": 86,
       "norm_label": "run the shipped s3b clamp on the inputs that broke the first one.      this is t"
     },
@@ -12147,9 +12147,9 @@
       "label": "Worst discrete curvature x R_min over one rig polyline.",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3482",
+      "source_location": "L3489",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_3482",
+      "id": "citygen_checks_rationale_3489",
       "community": 86,
       "norm_label": "worst discrete curvature x r_min over one rig polyline."
     },
@@ -12157,9 +12157,9 @@
       "label": "One cook of the control rig, read back per rig polyline.",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3494",
+      "source_location": "L3501",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_3494",
+      "id": "citygen_checks_rationale_3501",
       "community": 86,
       "norm_label": "one cook of the control rig, read back per rig polyline."
     },
@@ -12167,9 +12167,9 @@
       "label": "[] when every rig behaved; otherwise the rigs that did not, named.",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3526",
+      "source_location": "L3533",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_3526",
+      "id": "citygen_checks_rationale_3533",
       "community": 86,
       "norm_label": "[] when every rig behaved; otherwise the rigs that did not, named."
     },
@@ -12177,9 +12177,9 @@
       "label": "No lot may lie inside a junction. The other half of city_is_fully_paved.      `c",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3730",
+      "source_location": "L3737",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_3730",
+      "id": "citygen_checks_rationale_3737",
       "community": 71,
       "norm_label": "no lot may lie inside a junction. the other half of city_is_fully_paved.      `c"
     },
@@ -12187,9 +12187,9 @@
       "label": "No lot may lie on the road, ANYWHERE \u2014 not just inside a junction patch.      TH",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3768",
+      "source_location": "L3775",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_3768",
+      "id": "citygen_checks_rationale_3775",
       "community": 71,
       "norm_label": "no lot may lie on the road, anywhere \u2014 not just inside a junction patch.      th"
     },
@@ -12197,9 +12197,9 @@
       "label": "Nothing inside the street corridor may be left unpaved.      THE check that woul",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3905",
+      "source_location": "L3912",
       "_origin": "ast",
-      "id": "citygen_checks_rationale_3905",
+      "id": "citygen_checks_rationale_3912",
       "community": 71,
       "norm_label": "nothing inside the street corridor may be left unpaved.      the check that woul"
     },
@@ -17314,20 +17314,20 @@
       "norm_label": "6b. shipped v1 assets"
     },
     {
-      "label": "\u26a0\ufe0f TWO PIPELINES SHIP SIDE BY SIDE, ON PURPOSE \u2014 status 2026-08-12",
+      "label": "The old chain is being retired \u2014 status 2026-08-12",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4601",
       "_origin": "ast",
-      "id": "ideas_citygen_streets_two_pipelines_ship_side_by_side_on_purpose_status_2026_08_12",
+      "id": "ideas_citygen_streets_the_old_chain_is_being_retired_status_2026_08_12",
       "community": 111,
-      "norm_label": "\u26a0\ufe0f two pipelines ship side by side, on purpose \u2014 status 2026-08-12"
+      "norm_label": "the old chain is being retired \u2014 status 2026-08-12"
     },
     {
       "label": "The original V1 assets",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4629",
+      "source_location": "L4645",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_original_v1_assets",
       "community": 111,
@@ -17337,7 +17337,7 @@
       "label": "\u26a0\ufe0f The boundary moved \u2014 2026-08-10. It is now between DATA and GEOMETRY",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4643",
+      "source_location": "L4659",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_boundary_moved_2026_08_10_it_is_now_between_data_and_geometry",
       "community": 111,
@@ -17347,7 +17347,7 @@
       "label": "\u2705 BUILT \u2014 the next boundary: SEGMENTER and SOLVER",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4662",
+      "source_location": "L4678",
       "_origin": "ast",
       "id": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver",
       "community": 102,
@@ -17357,7 +17357,7 @@
       "label": "Why it has to split again",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4678",
+      "source_location": "L4694",
       "_origin": "ast",
       "id": "ideas_citygen_streets_why_it_has_to_split_again",
       "community": 102,
@@ -17367,7 +17367,7 @@
       "label": "The criterion, and why the cut is clean",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4693",
+      "source_location": "L4709",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_criterion_and_why_the_cut_is_clean",
       "community": 102,
@@ -17377,7 +17377,7 @@
       "label": "\u26a0\ufe0f The repair loop decides the cut, and it makes the solver thin",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4710",
+      "source_location": "L4726",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_repair_loop_decides_the_cut_and_it_makes_the_solver_thin",
       "community": 102,
@@ -17387,7 +17387,7 @@
       "label": "The residual circularity, and the rule that settles it",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4743",
+      "source_location": "L4759",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_residual_circularity_and_the_rule_that_settles_it",
       "community": 102,
@@ -17397,7 +17397,7 @@
       "label": "\u26a0\ufe0f The split shipped a defect: `copyToHDAFile` copies the PARAMETER INTERFACE too",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4765",
+      "source_location": "L4781",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_split_shipped_a_defect_copytohdafile_copies_the_parameter_interface_too",
       "community": 102,
@@ -17407,7 +17407,7 @@
       "label": "\u26a0\ufe0f The harness could not reach the Tracer at all",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4807",
+      "source_location": "L4823",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_harness_could_not_reach_the_tracer_at_all",
       "community": 102,
@@ -17417,7 +17417,7 @@
       "label": "Naming \u2014 settled 2026-08-11",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4817",
+      "source_location": "L4833",
       "_origin": "ast",
       "id": "ideas_citygen_streets_naming_settled_2026_08_11",
       "community": 102,
@@ -17427,7 +17427,7 @@
       "label": "The Labs Building Generator precedent \u2014 checked, and it half-holds",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4842",
+      "source_location": "L4858",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_labs_building_generator_precedent_checked_and_it_half_holds",
       "community": 102,
@@ -17437,7 +17437,7 @@
       "label": "Open decisions, to settle before building",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4863",
+      "source_location": "L4879",
       "_origin": "ast",
       "id": "ideas_citygen_streets_open_decisions_to_settle_before_building",
       "community": 102,
@@ -17447,7 +17447,7 @@
       "label": "What must be asserted once it is built",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4935",
+      "source_location": "L4951",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_must_be_asserted_once_it_is_built",
       "community": 102,
@@ -17457,7 +17457,7 @@
       "label": "\u26a0\ufe0f Never change a shared VEX signature under existing callers \u2014 2026-08-11",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4965",
+      "source_location": "L4981",
       "_origin": "ast",
       "id": "ideas_citygen_streets_never_change_a_shared_vex_signature_under_existing_callers_2026_08_11",
       "community": 111,
@@ -17467,7 +17467,7 @@
       "label": "7. Where the code goes",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L5004",
+      "source_location": "L5020",
       "_origin": "ast",
       "id": "ideas_citygen_streets_7_where_the_code_goes",
       "community": 18,
@@ -17477,7 +17477,7 @@
       "label": "8. Build order",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L5018",
+      "source_location": "L5034",
       "_origin": "ast",
       "id": "ideas_citygen_streets_8_build_order",
       "community": 18,
@@ -17487,7 +17487,7 @@
       "label": "9. Open decisions",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L5036",
+      "source_location": "L5052",
       "_origin": "ast",
       "id": "ideas_citygen_streets_9_open_decisions",
       "community": 18,
@@ -17497,7 +17497,7 @@
       "label": "\u26d4 OPEN AND BLOCKING \u2014 the multi-leg junction (\u00a7S5a). Added 2026-08-12",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L5064",
+      "source_location": "L5080",
       "_origin": "ast",
       "id": "ideas_citygen_streets_open_and_blocking_the_multi_leg_junction_s5a_added_2026_08_12",
       "community": 18,
@@ -17507,7 +17507,7 @@
       "label": "10. Explicit non-goals for v1",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L5148",
+      "source_location": "L5164",
       "_origin": "ast",
       "id": "ideas_citygen_streets_10_explicit_non_goals_for_v1",
       "community": 18,
@@ -38154,9 +38154,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases_rationale_20",
-      "target": "citygen_cases_setup_env",
-      "confidence_score": 1.0
+      "target": "citygen_cases_setup_env"
     },
     {
       "relation": "calls",
@@ -38176,9 +38176,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L168",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases_chain",
-      "target": "citygen_cases_parm",
-      "confidence_score": 1.0
+      "target": "citygen_cases_parm"
     },
     {
       "relation": "rationale_for",
@@ -38186,9 +38186,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases_rationale_117",
-      "target": "citygen_cases_chain",
-      "confidence_score": 1.0
+      "target": "citygen_cases_chain"
     },
     {
       "relation": "calls",
@@ -38207,9 +38207,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L177",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases_rationale_177",
-      "target": "citygen_cases_build_all",
-      "confidence_score": 1.0
+      "target": "citygen_cases_build_all"
     },
     {
       "relation": "rationale_for",
@@ -38217,9 +38217,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L524",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases_rationale_524",
-      "target": "citygen_cases_inner",
-      "confidence_score": 1.0
+      "target": "citygen_cases_inner"
     },
     {
       "relation": "calls",
@@ -38238,9 +38238,9 @@
       "source_file": "tests/citygen/cases.py",
       "source_location": "L540",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_cases_rationale_540",
-      "target": "citygen_cases_parm",
-      "confidence_score": 1.0
+      "target": "citygen_cases_parm"
     },
     {
       "relation": "contains",
@@ -38258,9 +38258,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1704",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_area_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_area_xz"
     },
     {
       "relation": "contains",
@@ -38328,9 +38328,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3087",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_connections_are_never_refused",
-      "confidence_score": 1.0
+      "target": "citygen_checks_connections_are_never_refused"
     },
     {
       "relation": "contains",
@@ -38398,9 +38398,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1710",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_expected_reject",
-      "confidence_score": 1.0
+      "target": "citygen_checks_expected_reject"
     },
     {
       "relation": "contains",
@@ -38488,9 +38488,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2952",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_junction_graph",
-      "confidence_score": 1.0
+      "target": "citygen_checks_junction_graph"
     },
     {
       "relation": "contains",
@@ -38498,9 +38498,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2996",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_junctions_not_too_close",
-      "confidence_score": 1.0
+      "target": "citygen_checks_junctions_not_too_close"
     },
     {
       "relation": "contains",
@@ -38638,9 +38638,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3034",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_no_multileg_junctions",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_multileg_junctions"
     },
     {
       "relation": "contains",
@@ -38728,9 +38728,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2113",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_orient_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_orient_xz"
     },
     {
       "relation": "contains",
@@ -38828,9 +38828,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_seg_cross_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_seg_cross_xz"
     },
     {
       "relation": "contains",
@@ -38838,9 +38838,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1647",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_seg_dist_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_seg_dist_xz"
     },
     {
       "relation": "contains",
@@ -38888,9 +38888,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2044",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_street_edge_control_rig",
-      "confidence_score": 1.0
+      "target": "citygen_checks_street_edge_control_rig"
     },
     {
       "relation": "contains",
@@ -38898,9 +38898,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1659",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks",
-      "target": "citygen_checks_street_edge_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_street_edge_xz"
     },
     {
       "relation": "contains",
@@ -39013,9 +39013,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3188",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_connections_are_never_refused",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -39134,9 +39134,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3026",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_junctions_not_too_close",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -39255,9 +39255,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3080",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_no_multileg_junctions",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -39417,9 +39417,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2085",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_street_edge_control_rig",
-      "target": "citygen_checks_result",
-      "confidence_score": 1.0
+      "target": "citygen_checks_result"
     },
     {
       "relation": "calls",
@@ -40071,9 +40071,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1222",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1222",
-      "target": "citygen_checks_lot_area_delta",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lot_area_delta"
     },
     {
       "relation": "rationale_for",
@@ -40081,9 +40081,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1261",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1261",
-      "target": "citygen_checks_forced_extra_repair_pass",
-      "confidence_score": 1.0
+      "target": "citygen_checks_forced_extra_repair_pass"
     },
     {
       "relation": "calls",
@@ -40102,9 +40102,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1447",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1447",
-      "target": "citygen_checks_attrib_values",
-      "confidence_score": 1.0
+      "target": "citygen_checks_attrib_values"
     },
     {
       "relation": "rationale_for",
@@ -40112,9 +40112,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1467",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1467",
-      "target": "citygen_checks_input0_reaches_an_output",
-      "confidence_score": 1.0
+      "target": "citygen_checks_input0_reaches_an_output"
     },
     {
       "relation": "rationale_for",
@@ -40132,9 +40132,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1559",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1559",
-      "target": "citygen_checks_every_block_is_subdivided",
-      "confidence_score": 1.0
+      "target": "citygen_checks_every_block_is_subdivided"
     },
     {
       "relation": "rationale_for",
@@ -40152,9 +40152,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1633",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1633",
-      "target": "citygen_checks_no_duplicate_lot_footprints",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_duplicate_lot_footprints"
     },
     {
       "relation": "rationale_for",
@@ -40162,9 +40162,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1648",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1648",
-      "target": "citygen_checks_seg_dist_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_seg_dist_xz"
     },
     {
       "relation": "calls",
@@ -40173,9 +40173,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1685",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_street_edge_xz",
-      "target": "citygen_checks_seg_dist_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_seg_dist_xz"
     },
     {
       "relation": "calls",
@@ -40184,9 +40184,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1850",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_lot_aspect_ratio",
-      "target": "citygen_checks_street_edge_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_street_edge_xz"
     },
     {
       "relation": "rationale_for",
@@ -40194,9 +40194,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1660",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1660",
-      "target": "citygen_checks_street_edge_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_street_edge_xz"
     },
     {
       "relation": "calls",
@@ -40205,9 +40205,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1857",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_lot_aspect_ratio",
-      "target": "citygen_checks_area_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_area_xz"
     },
     {
       "relation": "calls",
@@ -40216,9 +40216,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1875",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_lot_aspect_ratio",
-      "target": "citygen_checks_expected_reject",
-      "confidence_score": 1.0
+      "target": "citygen_checks_expected_reject"
     },
     {
       "relation": "rationale_for",
@@ -40226,9 +40226,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1713",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1713",
-      "target": "citygen_checks_expected_reject",
-      "confidence_score": 1.0
+      "target": "citygen_checks_expected_reject"
     },
     {
       "relation": "rationale_for",
@@ -40236,9 +40236,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L1753",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_1753",
-      "target": "citygen_checks_lot_aspect_ratio",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lot_aspect_ratio"
     },
     {
       "relation": "rationale_for",
@@ -40246,9 +40246,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2045",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_2045",
-      "target": "citygen_checks_street_edge_control_rig",
-      "confidence_score": 1.0
+      "target": "citygen_checks_street_edge_control_rig"
     },
     {
       "relation": "calls",
@@ -40257,9 +40257,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2121",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_seg_cross_xz",
-      "target": "citygen_checks_orient_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_orient_xz"
     },
     {
       "relation": "calls",
@@ -40268,9 +40268,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2175",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_lots_are_simple_polygons",
-      "target": "citygen_checks_seg_cross_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_seg_cross_xz"
     },
     {
       "relation": "rationale_for",
@@ -40278,9 +40278,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2118",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_2118",
-      "target": "citygen_checks_seg_cross_xz",
-      "confidence_score": 1.0
+      "target": "citygen_checks_seg_cross_xz"
     },
     {
       "relation": "rationale_for",
@@ -40288,9 +40288,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2127",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_2127",
-      "target": "citygen_checks_lots_are_simple_polygons",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lots_are_simple_polygons"
     },
     {
       "relation": "calls",
@@ -40309,9 +40309,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2279",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_2279",
-      "target": "citygen_checks_lot_clip_control_rig",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lot_clip_control_rig"
     },
     {
       "relation": "rationale_for",
@@ -40319,9 +40319,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2412",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_2412",
-      "target": "citygen_checks_hou_vec3",
-      "confidence_score": 1.0
+      "target": "citygen_checks_hou_vec3"
     },
     {
       "relation": "rationale_for",
@@ -40329,9 +40329,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2420",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_2420",
-      "target": "citygen_checks_no_scratch_attribs",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_scratch_attribs"
     },
     {
       "relation": "rationale_for",
@@ -40339,9 +40339,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2484",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_2484",
-      "target": "citygen_checks_attribute_schema",
-      "confidence_score": 1.0
+      "target": "citygen_checks_attribute_schema"
     },
     {
       "relation": "calls",
@@ -40360,9 +40360,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2502",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_2502",
-      "target": "citygen_checks_self_intersections",
-      "confidence_score": 1.0
+      "target": "citygen_checks_self_intersections"
     },
     {
       "relation": "rationale_for",
@@ -40370,9 +40370,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2540",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_2540",
-      "target": "citygen_checks_merged_city_self_intersections",
-      "confidence_score": 1.0
+      "target": "citygen_checks_merged_city_self_intersections"
     },
     {
       "relation": "calls",
@@ -40446,9 +40446,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2574",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_2574",
-      "target": "citygen_checks_rasterise",
-      "confidence_score": 1.0
+      "target": "citygen_checks_rasterise"
     },
     {
       "relation": "calls",
@@ -40478,9 +40478,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2606",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_2606",
-      "target": "citygen_checks_blobs",
-      "confidence_score": 1.0
+      "target": "citygen_checks_blobs"
     },
     {
       "relation": "rationale_for",
@@ -40488,9 +40488,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L2658",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_2658",
-      "target": "citygen_checks_block_boundary_closes",
-      "confidence_score": 1.0
+      "target": "citygen_checks_block_boundary_closes"
     },
     {
       "relation": "calls",
@@ -40507,9 +40507,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2722",
+      "source_location": "L2729",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_2722",
+      "source": "citygen_checks_rationale_2729",
       "target": "citygen_checks_turn_at",
       "confidence_score": 1.0
     },
@@ -40550,9 +40550,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2742",
+      "source_location": "L2749",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_2742",
+      "source": "citygen_checks_rationale_2749",
       "target": "citygen_checks_turn_ceilings",
       "confidence_score": 1.0
     },
@@ -40560,9 +40560,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2793",
+      "source_location": "L2800",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_2793",
+      "source": "citygen_checks_rationale_2800",
       "target": "citygen_checks_centreline_curvature_within_class",
       "confidence_score": 1.0
     },
@@ -40570,9 +40570,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2914",
+      "source_location": "L2921",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_2914",
+      "source": "citygen_checks_rationale_2921",
       "target": "citygen_checks_no_short_graph_segments",
       "confidence_score": 1.0
     },
@@ -40583,9 +40583,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3016",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_junctions_not_too_close",
-      "target": "citygen_checks_junction_graph",
-      "confidence_score": 1.0
+      "target": "citygen_checks_junction_graph"
     },
     {
       "relation": "calls",
@@ -40594,7 +40594,17 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3056",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_no_multileg_junctions",
+      "target": "citygen_checks_junction_graph"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks.py",
+      "source_location": "L2960",
+      "weight": 1.0,
+      "source": "citygen_checks_rationale_2960",
       "target": "citygen_checks_junction_graph",
       "confidence_score": 1.0
     },
@@ -40602,19 +40612,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L2953",
+      "source_location": "L3004",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_2953",
-      "target": "citygen_checks_junction_graph",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/citygen/checks.py",
-      "source_location": "L2997",
-      "weight": 1.0,
-      "source": "citygen_checks_rationale_2997",
+      "source": "citygen_checks_rationale_3004",
       "target": "citygen_checks_junctions_not_too_close",
       "confidence_score": 1.0
     },
@@ -40622,9 +40622,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3035",
+      "source_location": "L3042",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_3035",
+      "source": "citygen_checks_rationale_3042",
       "target": "citygen_checks_no_multileg_junctions",
       "confidence_score": 1.0
     },
@@ -40632,9 +40632,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3088",
+      "source_location": "L3095",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_3088",
+      "source": "citygen_checks_rationale_3095",
       "target": "citygen_checks_connections_are_never_refused",
       "confidence_score": 1.0
     },
@@ -40642,9 +40642,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3206",
+      "source_location": "L3213",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_3206",
+      "source": "citygen_checks_rationale_3213",
       "target": "citygen_checks_trim_leaves_road_standing",
       "confidence_score": 1.0
     },
@@ -40652,9 +40652,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3330",
+      "source_location": "L3337",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_3330",
+      "source": "citygen_checks_rationale_3337",
       "target": "citygen_checks_turn_clamp_control_rig",
       "confidence_score": 1.0
     },
@@ -40684,9 +40684,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3482",
+      "source_location": "L3489",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_3482",
+      "source": "citygen_checks_rationale_3489",
       "target": "citygen_checks_rig_kappa",
       "confidence_score": 1.0
     },
@@ -40705,9 +40705,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3494",
+      "source_location": "L3501",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_3494",
+      "source": "citygen_checks_rationale_3501",
       "target": "citygen_checks_rig_measure",
       "confidence_score": 1.0
     },
@@ -40715,9 +40715,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3526",
+      "source_location": "L3533",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_3526",
+      "source": "citygen_checks_rationale_3533",
       "target": "citygen_checks_rig_verdict",
       "confidence_score": 1.0
     },
@@ -40725,9 +40725,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3730",
+      "source_location": "L3737",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_3730",
+      "source": "citygen_checks_rationale_3737",
       "target": "citygen_checks_lots_clear_of_junctions",
       "confidence_score": 1.0
     },
@@ -40735,9 +40735,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3768",
+      "source_location": "L3775",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_3768",
+      "source": "citygen_checks_rationale_3775",
       "target": "citygen_checks_lots_clear_of_roads",
       "confidence_score": 1.0
     },
@@ -40745,9 +40745,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks.py",
-      "source_location": "L3905",
+      "source_location": "L3912",
       "weight": 1.0,
-      "source": "citygen_checks_rationale_3905",
+      "source": "citygen_checks_rationale_3912",
       "target": "citygen_checks_city_is_fully_paved",
       "confidence_score": 1.0
     },
@@ -41732,9 +41732,9 @@
       "source_file": "tests/citygen/parm_liveness.py",
       "source_location": "L223",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_parm_liveness_rationale_223",
-      "target": "citygen_parm_liveness_digest",
-      "confidence_score": 1.0
+      "target": "citygen_parm_liveness_digest"
     },
     {
       "relation": "calls",
@@ -41753,9 +41753,9 @@
       "source_file": "tests/citygen/parm_liveness.py",
       "source_location": "L277",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_parm_liveness_rationale_277",
-      "target": "citygen_parm_liveness_generic",
-      "confidence_score": 1.0
+      "target": "citygen_parm_liveness_generic"
     },
     {
       "relation": "contains",
@@ -45487,9 +45487,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L1854",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_4_stage_design",
-      "target": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5"
     },
     {
       "relation": "contains",
@@ -45847,9 +45847,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2722",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_and_k_s_own_numbers_refute_the_rule_k_was_built_to_justify",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_and_k_s_own_numbers_refute_the_rule_k_was_built_to_justify"
     },
     {
       "relation": "contains",
@@ -45857,9 +45857,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2217",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_and_the_audit_killed_it_graph_realign_moved_the_junction_not_the_leg_2026_08_12",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_and_the_audit_killed_it_graph_realign_moved_the_junction_not_the_leg_2026_08_12"
     },
     {
       "relation": "contains",
@@ -45867,9 +45867,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2699",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_and_the_tripwire_shipped_red_on_the_artist_s_own_scene_for_a_deletion_the_design_asks_for",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_and_the_tripwire_shipped_red_on_the_artist_s_own_scene_for_a_deletion_the_design_asks_for"
     },
     {
       "relation": "contains",
@@ -45877,9 +45877,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2679",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_audit_of_the_hardening_done_and_the_tripwire_was_condemning_a_sanctioned_deletion",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_audit_of_the_hardening_done_and_the_tripwire_was_condemning_a_sanctioned_deletion"
     },
     {
       "relation": "contains",
@@ -45887,9 +45887,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L1949",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_but_the_corner_solver_is_the_wrong_target_researched_2026_08_11",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_but_the_corner_solver_is_the_wrong_target_researched_2026_08_11"
     },
     {
       "relation": "contains",
@@ -45897,9 +45897,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2049",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_four_approaches_built_and_reverted_2026_08_11_read_before_attempting_a_fifth",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_four_approaches_built_and_reverted_2026_08_11_read_before_attempting_a_fifth"
     },
     {
       "relation": "contains",
@@ -45907,9 +45907,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2437",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_independent_audit_ship_it_2026_08_12_and_the_one_latent_defect_it_found",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_independent_audit_ship_it_2026_08_12_and_the_one_latent_defect_it_found"
     },
     {
       "relation": "contains",
@@ -45917,9 +45917,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L1900",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_stub_edge_collapse_and_the_5_arm_solver_defect_it_uncovered_2026_08_11",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_stub_edge_collapse_and_the_5_arm_solver_defect_it_uncovered_2026_08_11"
     },
     {
       "relation": "contains",
@@ -45927,9 +45927,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L1860",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_the_defect_as_it_stands_measured_in_the_live_session_2026_08_12",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_defect_as_it_stands_measured_in_the_live_session_2026_08_12"
     },
     {
       "relation": "contains",
@@ -45937,9 +45937,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2509",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_the_eighth_pass_the_gate_can_see_the_third_corner_and_the_suite_finally_runs_this_2026_08_12",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_eighth_pass_the_gate_can_see_the_third_corner_and_the_suite_finally_runs_this_2026_08_12"
     },
     {
       "relation": "contains",
@@ -45947,9 +45947,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2090",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_the_fifth_approach_2026_08_12_it_settles_which_layer_the_fix_belongs_to",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_fifth_approach_2026_08_12_it_settles_which_layer_the_fix_belongs_to"
     },
     {
       "relation": "contains",
@@ -45957,9 +45957,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2146",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_the_layer_question_is_now_settled_by_measurement_2026_08_12",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_layer_question_is_now_settled_by_measurement_2026_08_12"
     },
     {
       "relation": "contains",
@@ -45967,9 +45967,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2284",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_the_seventh_approach_the_realign_is_fixed_and_c_radial_cannot_take_it_2026_08_12",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_seventh_approach_the_realign_is_fixed_and_c_radial_cannot_take_it_2026_08_12"
     },
     {
       "relation": "contains",
@@ -45977,9 +45977,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2174",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_the_sixth_approach_works_at_the_junction_layer_2026_08_12_artist_s_rule_artist_s_framing",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_sixth_approach_works_at_the_junction_layer_2026_08_12_artist_s_rule_artist_s_framing"
     },
     {
       "relation": "contains",
@@ -45987,9 +45987,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2010",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s5a_multi_leg_junctions_the_stub_triangle_and_degree_5",
-      "target": "ideas_citygen_streets_the_three_resolutions_ranked_researched_across_multiple_sources_2026_08_11",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_three_resolutions_ranked_researched_across_multiple_sources_2026_08_11"
     },
     {
       "relation": "contains",
@@ -45997,9 +45997,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2296",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_seventh_approach_the_realign_is_fixed_and_c_radial_cannot_take_it_2026_08_12",
-      "target": "ideas_citygen_streets_1_the_assertion_first_and_it_is_a_tripwire_rather_than_a_measurement",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_1_the_assertion_first_and_it_is_a_tripwire_rather_than_a_measurement"
     },
     {
       "relation": "contains",
@@ -46007,9 +46007,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2315",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_seventh_approach_the_realign_is_fixed_and_c_radial_cannot_take_it_2026_08_12",
-      "target": "ideas_citygen_streets_2_graph_realign_with_the_defect_removed",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_2_graph_realign_with_the_defect_removed"
     },
     {
       "relation": "contains",
@@ -46017,9 +46017,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2335",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_seventh_approach_the_realign_is_fixed_and_c_radial_cannot_take_it_2026_08_12",
-      "target": "ideas_citygen_streets_3_and_it_did_nothing_at_all_for_a_whole_suite_run_on_one_wrong_function",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_3_and_it_did_nothing_at_all_for_a_whole_suite_run_on_one_wrong_function"
     },
     {
       "relation": "contains",
@@ -46027,9 +46027,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2349",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_seventh_approach_the_realign_is_fixed_and_c_radial_cannot_take_it_2026_08_12",
-      "target": "ideas_citygen_streets_4_it_works_and_the_artist_s_own_junction_is_the_proof",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_4_it_works_and_the_artist_s_own_junction_is_the_proof"
     },
     {
       "relation": "contains",
@@ -46037,9 +46037,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2371",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_seventh_approach_the_realign_is_fixed_and_c_radial_cannot_take_it_2026_08_12",
-      "target": "ideas_citygen_streets_5_and_c_radial_cannot_take_the_fix_that_field_is_at_the_jog_rule_s_own_resolution_limit",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_5_and_c_radial_cannot_take_the_fix_that_field_is_at_the_jog_rule_s_own_resolution_limit"
     },
     {
       "relation": "contains",
@@ -46047,9 +46047,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2406",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_seventh_approach_the_realign_is_fixed_and_c_radial_cannot_take_it_2026_08_12",
-      "target": "ideas_citygen_streets_6_so_the_collapse_is_gated_on_repairability_and_that_is_the_shipped_rule",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_6_so_the_collapse_is_gated_on_repairability_and_that_is_the_shipped_rule"
     },
     {
       "relation": "contains",
@@ -46057,9 +46057,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2420",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_seventh_approach_the_realign_is_fixed_and_c_radial_cannot_take_it_2026_08_12",
-      "target": "ideas_citygen_streets_7_what_this_leaves_open",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_7_what_this_leaves_open"
     },
     {
       "relation": "contains",
@@ -46067,9 +46067,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2518",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_eighth_pass_the_gate_can_see_the_third_corner_and_the_suite_finally_runs_this_2026_08_12",
-      "target": "ideas_citygen_streets_1_the_gate_now_counts_the_cluster_and_it_reads_5_where_it_read_4_3_3",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_1_the_gate_now_counts_the_cluster_and_it_reads_5_where_it_read_4_3_3"
     },
     {
       "relation": "contains",
@@ -46077,9 +46077,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2536",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_eighth_pass_the_gate_can_see_the_third_corner_and_the_suite_finally_runs_this_2026_08_12",
-      "target": "ideas_citygen_streets_2_and_a_counter_read_the_input_and_shipped_a_confident_zero",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_2_and_a_counter_read_the_input_and_shipped_a_confident_zero"
     },
     {
       "relation": "contains",
@@ -46087,9 +46087,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2546",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_eighth_pass_the_gate_can_see_the_third_corner_and_the_suite_finally_runs_this_2026_08_12",
-      "target": "ideas_citygen_streets_3_two_hand_drawn_cases_and_the_suite_executes_the_machinery_for_the_first_time",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_3_two_hand_drawn_cases_and_the_suite_executes_the_machinery_for_the_first_time"
     },
     {
       "relation": "contains",
@@ -46097,9 +46097,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2603",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_eighth_pass_the_gate_can_see_the_third_corner_and_the_suite_finally_runs_this_2026_08_12",
-      "target": "ideas_citygen_streets_4_the_tripwire_watches_five_nodes_and_it_was_watching_one",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_4_the_tripwire_watches_five_nodes_and_it_was_watching_one"
     },
     {
       "relation": "contains",
@@ -46107,9 +46107,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2631",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_eighth_pass_the_gate_can_see_the_third_corner_and_the_suite_finally_runs_this_2026_08_12",
-      "target": "ideas_citygen_streets_5_the_cluster_is_not_only_a_triangle_and_a_four_junction_chain_is_where_the_two_changes_meet",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_5_the_cluster_is_not_only_a_triangle_and_a_four_junction_chain_is_where_the_two_changes_meet"
     },
     {
       "relation": "contains",
@@ -46117,9 +46117,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L2663",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_eighth_pass_the_gate_can_see_the_third_corner_and_the_suite_finally_runs_this_2026_08_12",
-      "target": "ideas_citygen_streets_6_and_it_went_red_on_the_artist_s_own_scene_on_its_first_run",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_6_and_it_went_red_on_the_artist_s_own_scene_on_its_first_run"
     },
     {
       "relation": "contains",
@@ -46157,9 +46157,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3090",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_junction_repair_used_to_be_recorded_here_moved_to_s5a_2026_08_12",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_junction_repair_used_to_be_recorded_here_moved_to_s5a_2026_08_12"
     },
     {
       "relation": "contains",
@@ -46167,9 +46167,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3344",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_new_case_h_offset_strict",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_new_case_h_offset_strict"
     },
     {
       "relation": "contains",
@@ -46177,9 +46177,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3291",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_on_shipped_data_the_new_rung_is_decision_identical_to_raising_min_frontage_to_8",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_on_shipped_data_the_new_rung_is_decision_identical_to_raising_min_frontage_to_8"
     },
     {
       "relation": "contains",
@@ -46187,9 +46187,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3394",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_round_seven_the_fold_fix_is_partial_and_three_claims_made_for_it_were_false",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_round_seven_the_fold_fix_is_partial_and_three_claims_made_for_it_were_false"
     },
     {
       "relation": "contains",
@@ -46197,9 +46197,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3356",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_round_six_the_first_pipeline_defect_and_offset_mode_was_shipping_broken_parcels",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_round_six_the_first_pipeline_defect_and_offset_mode_was_shipping_broken_parcels"
     },
     {
       "relation": "contains",
@@ -46207,9 +46207,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3254",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_round_two_the_fix_for_round_one_s_finding_did_not_fix_it",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_round_two_the_fix_for_round_one_s_finding_did_not_fix_it"
     },
     {
       "relation": "contains",
@@ -46217,9 +46217,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3306",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_rounds_three_and_four_the_verification_was_wrong_one_level_deeper_each_time",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_rounds_three_and_four_the_verification_was_wrong_one_level_deeper_each_time"
     },
     {
       "relation": "contains",
@@ -46227,9 +46227,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3096",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_the_buildability_ladder_a_fifth_source_and_the_first_one_that_actually_implements_it",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_buildability_ladder_a_fifth_source_and_the_first_one_that_actually_implements_it"
     },
     {
       "relation": "contains",
@@ -46237,9 +46237,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3200",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_the_third_rung_min_street_edge_2026_08_11",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_third_rung_min_street_edge_2026_08_11"
     },
     {
       "relation": "contains",
@@ -46257,9 +46257,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3276",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_two_defects_neither_round_asked_about",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_two_defects_neither_round_asked_about"
     },
     {
       "relation": "contains",
@@ -46267,9 +46267,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3456",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_two_failed_experiments_and_they_relocate_the_cause_2026_08_11",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_two_failed_experiments_and_they_relocate_the_cause_2026_08_11"
     },
     {
       "relation": "contains",
@@ -46287,9 +46287,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3224",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_what_the_audit_changed_the_check_was_green_by_luck",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_what_the_audit_changed_the_check_was_green_by_luck"
     },
     {
       "relation": "contains",
@@ -46297,9 +46297,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3152",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_what_was_built_2026_08_11",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_what_was_built_2026_08_11"
     },
     {
       "relation": "contains",
@@ -46307,9 +46307,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3043",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_s8_lots",
-      "target": "ideas_citygen_streets_where_the_thresholds_came_from_researched_2026_08_11_after_they_shipped",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_where_the_thresholds_came_from_researched_2026_08_11_after_they_shipped"
     },
     {
       "relation": "contains",
@@ -46417,9 +46417,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3775",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_sagitta_gate_is_gone_the_seam_is_bounded_instead_2026_08_10",
-      "target": "ideas_citygen_streets_before_and_after_per_criterion_3775",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_before_and_after_per_criterion_3775"
     },
     {
       "relation": "contains",
@@ -46437,9 +46437,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4662",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_6b_shipped_v1_assets",
-      "target": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver"
     },
     {
       "relation": "contains",
@@ -46465,21 +46465,21 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4629",
+      "source_location": "L4601",
       "weight": 1.0,
       "source": "ideas_citygen_streets_6b_shipped_v1_assets",
-      "target": "ideas_citygen_streets_the_original_v1_assets",
+      "target": "ideas_citygen_streets_the_old_chain_is_being_retired_status_2026_08_12",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L4601",
+      "source_location": "L4629",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_6b_shipped_v1_assets",
-      "target": "ideas_citygen_streets_two_pipelines_ship_side_by_side_on_purpose_status_2026_08_12",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_original_v1_assets"
     },
     {
       "relation": "contains",
@@ -46487,9 +46487,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4817",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver",
-      "target": "ideas_citygen_streets_naming_settled_2026_08_11",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_naming_settled_2026_08_11"
     },
     {
       "relation": "contains",
@@ -46497,9 +46497,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4863",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver",
-      "target": "ideas_citygen_streets_open_decisions_to_settle_before_building",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_open_decisions_to_settle_before_building"
     },
     {
       "relation": "contains",
@@ -46507,9 +46507,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4693",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver",
-      "target": "ideas_citygen_streets_the_criterion_and_why_the_cut_is_clean",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_criterion_and_why_the_cut_is_clean"
     },
     {
       "relation": "contains",
@@ -46517,9 +46517,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4807",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver",
-      "target": "ideas_citygen_streets_the_harness_could_not_reach_the_tracer_at_all",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_harness_could_not_reach_the_tracer_at_all"
     },
     {
       "relation": "contains",
@@ -46527,9 +46527,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4842",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver",
-      "target": "ideas_citygen_streets_the_labs_building_generator_precedent_checked_and_it_half_holds",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_labs_building_generator_precedent_checked_and_it_half_holds"
     },
     {
       "relation": "contains",
@@ -46537,9 +46537,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4710",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver",
-      "target": "ideas_citygen_streets_the_repair_loop_decides_the_cut_and_it_makes_the_solver_thin",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_repair_loop_decides_the_cut_and_it_makes_the_solver_thin"
     },
     {
       "relation": "contains",
@@ -46547,9 +46547,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4743",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver",
-      "target": "ideas_citygen_streets_the_residual_circularity_and_the_rule_that_settles_it",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_residual_circularity_and_the_rule_that_settles_it"
     },
     {
       "relation": "contains",
@@ -46557,9 +46557,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4765",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver",
-      "target": "ideas_citygen_streets_the_split_shipped_a_defect_copytohdafile_copies_the_parameter_interface_too",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_the_split_shipped_a_defect_copytohdafile_copies_the_parameter_interface_too"
     },
     {
       "relation": "contains",
@@ -46567,9 +46567,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4935",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver",
-      "target": "ideas_citygen_streets_what_must_be_asserted_once_it_is_built",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_what_must_be_asserted_once_it_is_built"
     },
     {
       "relation": "contains",
@@ -46577,9 +46577,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4678",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_built_the_next_boundary_segmenter_and_solver",
-      "target": "ideas_citygen_streets_why_it_has_to_split_again",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_why_it_has_to_split_again"
     },
     {
       "relation": "contains",
@@ -46587,9 +46587,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L5064",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_9_open_decisions",
-      "target": "ideas_citygen_streets_open_and_blocking_the_multi_leg_junction_s5a_added_2026_08_12",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_open_and_blocking_the_multi_leg_junction_s5a_added_2026_08_12"
     },
     {
       "relation": "contains",
@@ -47156,5 +47156,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c1a798d4fc1d37fd5246e5275b174be9cfbfc80f"
+  "built_at_commit": "b1f5f63405894d3a7d83c703ec4cc98d6c1ea8a1"
 }
