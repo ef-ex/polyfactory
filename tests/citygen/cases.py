@@ -12,7 +12,8 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 OTLS = os.path.join(REPO, "polyfactory", "otls")
 
 HDAS = ("pf_citygen_field_grid.hda", "pf_citygen_field_radial.hda",
-        "pf_citygen_junction.hda", "pf_citygen_trace.hda", "pf_citygen_mesh.hda")
+        "pf_citygen_junction.hda", "pf_citygen_trace.hda", "pf_citygen_mesh.hda",
+        "pf_citygen_tracer.hda", "pf_citygen_segmenter.hda", "pf_citygen_solver.hda")
 
 
 def setup_env():
@@ -74,6 +75,31 @@ TONGUE_STREETS = [
     [(0, 0, 0), (0, 0, -24)],          # the 24 m local arm the mouth eats
 ]
 
+# Case J's input: A FIVE-WAY STAR THE REALIGN CAN REPAIR. Five arms on one node
+# at bearings 0 / 32 / 100 / 180 / 255 degrees. See build_all() for how every
+# number is derived from graph_realign's own feasibility condition.
+STAR5_STREETS = [
+    [(0, 0, 0), (200.00, 0, 0.00)],        # 0 deg,   200 m  arterial  - the host
+    [(0, 0, 0), (101.77, 0, 63.59)],       # 32 deg,  120 m  collector - the minor leg
+    [(0, 0, 0), (-19.10, 0, 108.33)],      # 100 deg, 110 m  collector
+    [(0, 0, 0), (-200.00, 0, 0.00)],       # 180 deg, 200 m  arterial
+    [(0, 0, 0), (-25.88, 0, -96.59)],      # 255 deg, 100 m  collector
+]
+
+# Case K's input: THE STUB TRIANGLE THE GATE MUST REFUSE. Three junctions inside
+# min_node_dist closing a 3-cycle, and the third corner carries a 55 m arm -
+# so the five-way the collapse would make cannot be repaired. See build_all().
+STUB_TRIANGLE_STREETS = [
+    [(0, 0, 0), (32, 0, 0)],               # A-B, 32.00 m
+    [(32, 0, 0), (16, 0, 28)],             # B-C, 32.25 m
+    [(16, 0, 28), (0, 0, 0)],              # C-A, 32.25 m
+    [(0, 0, 0), (-200.00, 0, 0.00)],       # A, 180.0 deg, 200.00 m arterial
+    [(0, 0, 0), (-51.30, 0, -140.95)],     # A, 250.0 deg, 150.00 m collector
+    [(32, 0, 0), (143.20, 0, 153.60)],     # B,  54.1 deg, 189.63 m arterial
+    [(32, 0, 0), (109.30, 0, -130.20)],    # B, 300.7 deg, 151.42 m collector
+    [(16, 0, 28), (16.00, 0, 83.00)],      # C,  90.0 deg,  55.00 m local - SHORT
+]
+
 _DRAW_SNIPPET = """
 import hou
 g = hou.pwd().geometry(); g.clear()
@@ -88,21 +114,63 @@ for pts in STREETS:
 
 
 def _chain(parent, name, upstream, drawn):
-    """The pipeline as it now splits: SPLINES then GEOMETRY.
+    """The four-node pipeline: TRACER · SEGMENTER · SOLVER · MESHER.
 
-    `pf_citygen_trace` owns S1 field, S2 trace, S3 graph, S4 classify and S5
-    junctions and emits two streams — out0 the editable centreline splines,
-    out1 the junction solution.  `pf_citygen_mesh` owns S6 sweep, S7 blocks and
-    S8 lots and consumes both.  Hand-drawn splines are not a special case: they
-    enter the SAME tracer on input 1, which is what `citygen_streets.md` §3 has
-    said since it was written.
+    Split from the old two-node `trace → mesh` on 2026-08-11. The cut is
+    TOPOLOGY versus GEOMETRY, and it works because topology does not need
+    widths — where two curves cross is independent of how wide they are.
+
+      * `pf_citygen_tracer`    field sources → raw splines (S1, S2)
+      * `pf_citygen_segmenter` splines → final topology + default attributes
+        (S3, S3b, S4). Owns the fixed-point repair loop, so nothing after it
+        creates or destroys an edge or a node.
+      * `pf_citygen_solver`    → out0 the splines, out1 the junction solution (S5)
+      * `pf_citygen_mesh`      → city, blocks, lots, graph (S6, S7, S8)
+
+    ⚠️ **A hand-drawn spline is no longer a special input.** It enters the
+    SEGMENTER on the same port traced splines use — there is no second port and
+    no switch. That was the whole point of the split: one workflow whatever the
+    source. Verified bit-identical to the old chain on all four outputs, for
+    both the field path and the drawn path, before this was adopted.
     """
-    t = parent.createNode("pf_citygen_trace", name + "_trace")
-    t.setInput(1 if drawn else 0, upstream)
+    if drawn:
+        t = None
+        seg_in = upstream
+    else:
+        t = parent.createNode("pf_citygen_tracer", name + "_tracer")
+        t.setInput(0, upstream)
+        seg_in = t
+    s = parent.createNode("pf_citygen_segmenter", name + "_segmenter")
+    s.setInput(0, seg_in, 0 if t is not None else 0)
+    v = parent.createNode("pf_citygen_solver", name + "_solver")
+    v.setInput(0, s, 0)
+
+    # ⚠️ TWO PARAMETERS EXIST ON MORE THAN ONE NODE AFTER THE SPLIT, and the
+    # duplication is real, not a test artefact — §6b records it as needing
+    # unification. The SEGMENTER is made the single source of truth here so a
+    # case that sets one value cannot silently drive only half the pipeline.
+    #
+    #   `domain`     the tracer traces over it, the segmenter's turn clamp
+    #                measures against it. Setting it on the segmenter alone
+    #                left the tracer at its 900 default: B_grid came back with
+    #                79 edges instead of 64 and 22 dead ends instead of 17.
+    #   `s5j_params_*`  the segmenter's `junction_premeasure` reads them to
+    #                decide the tongue drop; the SOLVER's `junction_solve` reads
+    #                them to build the actual corners. E_short_t sets
+    #                `corner_radius_scale` and would otherwise have steered the
+    #                pre-measure while the real solve stayed at default.
+    # `domain` used to be promoted on all three nodes and live on only the
+    # Tracer — an audit measured Domain set on the Segmenter silently shipping a
+    # 25% larger city (26706 prims / 1165 lots against 21363 / 774). It is now
+    # removed from the Segmenter and Solver, so there is nothing left to link
+    # and the value is set on the Tracer directly, where it is read.
+    for q in v.parms():
+        if q.name().startswith("s5j_params_") and s.parm(q.name()) is not None:
+            q.setExpression('ch("../%s/%s")' % (s.name(), q.name()))
     m = parent.createNode("pf_citygen_mesh", name)
-    m.setInput(0, t, 0)
-    m.setInput(1, t, 1)
-    return t, m
+    m.setInput(0, v, 0)
+    m.setInput(1, v, 1)
+    return s, v, m
 
 
 def build_all(parent=None):
@@ -117,25 +185,25 @@ def build_all(parent=None):
     # A — artist draws streets, gets roads, junctions, blocks and lots
     draw = parent.createNode("python", "A_drawn_streets")
     draw.parm("python").set(_DRAW_SNIPPET)
-    at, a = _chain(parent, "A_city", draw, True)
-    cases["A_drawn"] = {"city": a, "trace": at, "input": draw}
+    at, at_solver, a = _chain(parent, "A_city", draw, True)
+    cases["A_drawn"] = {"city": a, "trace": at, "solver": at_solver, "input": draw}
 
     # B — straight/grid tensor field
     bf = parent.createNode("pf_citygen_field_grid", "B_field_grid")
     bf.parm("angle").set(18.0)
     bf.parm("weight").set(1.0)
     bf.parm("falloff").set(3000.0)
-    bt, b = _chain(parent, "B_city", bf, False)
-    bt.parm("domain").set(800.0)
-    cases["B_grid"] = {"city": b, "trace": bt, "input": bf, "field": bf}
+    bt, bt_solver, b = _chain(parent, "B_city", bf, False)
+    parent.node("B_city_tracer").parm("domain").set(800.0)
+    cases["B_grid"] = {"city": b, "trace": bt, "solver": bt_solver, "input": bf, "field": bf}
 
     # C — radial tensor field
     cf = parent.createNode("pf_citygen_field_radial", "C_field_radial")
     cf.parm("weight").set(2.5)
     cf.parm("falloff").set(2000.0)
-    ct, c = _chain(parent, "C_city", cf, False)
-    ct.parm("domain").set(800.0)
-    cases["C_radial"] = {"city": c, "trace": ct, "input": cf, "field": cf}
+    ct, ct_solver, c = _chain(parent, "C_city", cf, False)
+    parent.node("C_city_tracer").parm("domain").set(800.0)
+    cases["C_radial"] = {"city": c, "trace": ct, "solver": ct_solver, "input": cf, "field": cf}
 
     # D — the OFFSET lot mode (European perimeter block). A fourth case rather
     # than a parameter sweep over A/B/C: the mode only changes S8, so running
@@ -148,9 +216,56 @@ def build_all(parent=None):
     # suite. It failed a committed check — lots_tile_blocks — the first time
     # anyone ran it, and the person who ran it was the auditor, not the author.
     # Adding a mode means adding a case.
-    dt, d = _chain(parent, "D_city", draw, True)
+    dt, dt_solver, d = _chain(parent, "D_city", draw, True)
     d.parm("lots_params_subdiv_mode").set(1)          # 0 recursive_obb, 1 offset
-    cases["D_offset"] = {"city": d, "trace": dt, "input": draw}
+    cases["D_offset"] = {"city": d, "trace": dt, "solver": dt_solver, "input": draw}
+
+    # H — `offset` mode with the shape rungs BITING.
+    #
+    # ⚠️ The reason this case earns its place is NOT the one it was added for.
+    # It was added because D_offset rejects 0 parcels and so caught 0 of 5 rung
+    # drops — true, but an audit then ran a 19-break x 5-case matrix and found
+    # H catches only ONE rung drop, and A, B and C already catch it. C_radial
+    # alone catches all five. H's marginal coverage on rung drops is zero.
+    #
+    # What H catches that NOTHING else does: a revert of the courtyard rung-skip
+    # in `lots_viability`. Undo that fix and H goes red (label_wrong 1, prim 60)
+    # while A, B, C *and D* stay green. It is the only case in the suite that
+    # notices the European exemption regressing, which is precisely the thing
+    # that shipped as a no-op once already.
+    #
+    # `max_aspect` = 1.9, not 1.8. At 1.8 the ring rejection this case exists to
+    # produce sits 0.006 over the line against `agree_tol` 0.05 — so the ONE
+    # verdict the case was added for is the one verdict `_expected_reject`
+    # declines to assert, and it drags two more parcels into the band. 1.8 is
+    # also inside the documented argmin instability (3.1e-2), so `rejected`
+    # could flip 2<->1 on float noise and move the baseline with no defect. At
+    # 1.9: zero parcels unassertable, the courtyard rejection kept, the revert
+    # detection kept.
+    ht, ht_solver, h = _chain(parent, "H_city", draw, True)
+    h.parm("lots_params_subdiv_mode").set(1)
+    h.parm("lots_params_max_aspect").set(1.9)
+    cases["H_offset_strict"] = {"city": h, "trace": ht, "solver": ht_solver, "input": draw}
+
+    # I — `offset` mode on a block shape that is NOT A's.
+    #
+    # ⚠️ THIS CASE IS EXPECTED TO FAIL `lots_are_simple_polygons`, and that is
+    # why it exists. D and H are both A's geometry — 2 of the 49 block rings the
+    # suite builds — so the round-six fold fix was validated on 4% of them. One
+    # parm click reaches the rest, and there the fix does not hold: a simple
+    # inner ring does NOT imply simple ring parcels (S8 round seven names three
+    # independent mechanisms, including an inside-out ring that the sign guard
+    # is structurally incapable of catching, because a 180 degree rotation in 2D
+    # preserves orientation).
+    #
+    # A red case is the honest form of a known defect. The alternative is a
+    # green suite over a mode the design calls a hard requirement, shipping
+    # self-intersecting parcels labelled buildable — which is what the last six
+    # audit rounds were spent discovering.
+    it, it_solver, i = _chain(parent, "I_city", cf, False)
+    parent.node("I_city_tracer").parm("domain").set(800.0)
+    i.parm("lots_params_subdiv_mode").set(1)
+    cases["I_offset_radial"] = {"city": i, "trace": it, "solver": it_solver, "input": cf, "field": cf}
 
     # E — the SHORT T, the one case that reaches `max_fillet_fraction`.
     #
@@ -171,9 +286,9 @@ def build_all(parent=None):
     edraw = parent.createNode("python", "E_drawn_streets")
     edraw.parm("python").set(_DRAW_SNIPPET.replace(
         repr(DRAWN_STREETS), repr(SHORT_T_STREETS)))
-    et, e = _chain(parent, "E_short_t", edraw, True)
+    et, et_solver, e = _chain(parent, "E_short_t", edraw, True)
     et.parm("s5j_params_corner_radius_scale").set(2.5)
-    cases["E_short_t"] = {"city": e, "trace": et, "input": edraw}
+    cases["E_short_t"] = {"city": e, "trace": et, "solver": et_solver, "input": edraw}
 
     # F — the 90 DEGREE BEND ON AN ARTERIAL. S3b's own worked example, and the
     # one amplitude at which the curvature clamp is actually a solver rather
@@ -200,8 +315,8 @@ def build_all(parent=None):
     fdraw = parent.createNode("python", "F_drawn_streets")
     fdraw.parm("python").set(_DRAW_SNIPPET.replace(
         repr(DRAWN_STREETS), repr(BEND_STREETS)))
-    ft, f = _chain(parent, "F_arterial_bend", fdraw, True)
-    cases["F_bend"] = {"city": f, "trace": ft, "input": fdraw}
+    ft, ft_solver, f = _chain(parent, "F_arterial_bend", fdraw, True)
+    cases["F_bend"] = {"city": f, "trace": ft, "solver": ft_solver, "input": fdraw}
 
     # G - THE TONGUE, drawn deliberately. `s5j_params_min_standing_widths` is
     # the parameter it exercises, and adding a parameter means adding a case.
@@ -229,8 +344,124 @@ def build_all(parent=None):
     gdraw = parent.createNode("python", "G_drawn_streets")
     gdraw.parm("python").set(_DRAW_SNIPPET.replace(
         repr(DRAWN_STREETS), repr(TONGUE_STREETS)))
-    gt, g = _chain(parent, "G_tongue", gdraw, True)
-    cases["G_tongue"] = {"city": g, "trace": gt, "input": gdraw}
+    gt, gt_solver, g = _chain(parent, "G_tongue", gdraw, True)
+    cases["G_tongue"] = {"city": g, "trace": gt, "solver": gt_solver, "input": gdraw}
+
+    # J - THE FIVE-WAY STAR, and the first case in this suite that executes the
+    # S5a repair at all.
+    #
+    # ⚠️ Until this existed, `graph_stub_mark`, `graph_stub_kill`,
+    # `graph_stub_fuse` and `graph_realign` were run by NOTHING. They fire on the
+    # artist's radial scene and on no test case: A/B/D/E/F/G/H never reach five
+    # arms, and on C_radial and I_offset_radial the feasibility gate declines, so
+    # the wrangle bodies never execute. That is the gap S5a section 7 item 2 and
+    # section 9 item 1(c) have now recorded three times - a fix for a case the
+    # suite does not run cannot be verified, which is precisely how the sixth
+    # attempt shipped green while it was deleting streets.
+    #
+    # Sized from `graph_realign`'s own feasibility condition, not from taste.
+    # The crowded pair is the tightest angular gap at the node, so the bearings
+    # are uneven and 0 / 32 degrees is the minimum: 32 clears
+    # `street_params_min_junction_angle` (25) so `graph_min_angle` does not
+    # simply delete one of the pair, and it is the same order as the 32.5 degree
+    # pair measured on C_radial. Then, with the arterial 26.8 m wide and the
+    # collector 15.1 m:
+    #
+    #   need = (26.8 + 15.1)/2 / (2 sin(32/2)) = 38.0 m   - the two mouths clear
+    #   lo   = min_node_dist + one resample step = 40 + 5 = 45 m
+    #   d    = max(need, lo) = 45 m, then clamped to HALF of each arm
+    #
+    # so both arms of the crowded pair must be at least 90 m: the host is 200 m
+    # (also >= `street_params_arterial_len` 180, so it is the wide one and the
+    # minor leg is therefore the collector, by width) and the minor leg is 120 m
+    # (>= `collector_len` 70). The landing is snapped to a host VERTEX and
+    # `graph_resample` puts those 5 m apart, so it lands at exactly 45 m, leaving
+    # 155 m of host beyond it - clear of the same 45 m floor at the far end. The
+    # other three arms are 110 / 200 / 100 m so no arm is a tongue, none is
+    # pruned (`graph_prune_min_edge_len` 13 m), and every arm tip is more than
+    # `d_extend` (90 m) from anything `graph_extend` could bridge it to.
+    #
+    # What it asserts, through the standard suite: `no_multileg_junctions`
+    # max_arms 4 / over_cap 0 reached WITHOUT a deletion
+    # (`connections_are_never_refused` green, every counter 0 after pass 0), a
+    # real T rather than a touch (`counts.edges` 6 for 5 drawn arms - the host
+    # split in two - and `dead_ends` still 5), and the T clear of the jog rule
+    # (`junctions_not_too_close` shortest 45 m against a 40 m floor).
+    jdraw = parent.createNode("python", "J_drawn_streets")
+    jdraw.parm("python").set(_DRAW_SNIPPET.replace(
+        repr(DRAWN_STREETS), repr(STAR5_STREETS)))
+    jt, jt_solver, j = _chain(parent, "J_five_star", jdraw, True)
+    cases["J_five_star"] = {"city": j, "trace": jt, "solver": jt_solver, "input": jdraw}
+
+    # K - THE STUB TRIANGLE THE GATE MUST REFUSE, which is the other half of J.
+    #
+    # ⚠️ THIS CASE IS EXPECTED TO BE RED ON `junctions_not_too_close` AND
+    # `no_multileg_junctions`, and that is what it is for. S5a's shipped rule is
+    # that a jog is collapsed ONLY when what it leaves can be repaired, because
+    # an unrepaired jog is a smaller defect than a five-way the corner solver
+    # inverts on. Those two checks are the honest form of the jog that stays; the
+    # assertion this case adds is that the refusal is CLEAN - nothing deleted, no
+    # degree-5 node shipped - rather than a collapse into a junction nothing can
+    # repair.
+    #
+    # It is also the case that has teeth against the feasibility gate's own blind
+    # spot. The gate built its arm set from `pointprims(pt) + pointprims(other)`,
+    # the two ends of the edge being collapsed, so on a 3-CYCLE the third
+    # corner's external arms - which land on the same merged node over the
+    # following passes - were never counted. Measured on the artist's live graph
+    # it read narm = 4 / 3 / 3 where the truth is 5. There it is harmless. Here
+    # it is not, and the A/B is measured: run against the pre-fix definition this
+    # case COLLAPSES (8 edges -> 6) and `graph_realign` then refuses the five-way
+    # it made, so a degree-5 node ships - which is C_radial's failure mode,
+    # boundary inversion and +24 selfx_junction_surface.
+    #
+    # ⚠️ AND THE FIRST VERSION OF THIS CASE DID NOT REPRODUCE THAT, which is why
+    # the numbers below are what they are. With the short arm at 80 m the blind
+    # gate collapsed the triangle and the realign then succeeded anyway - it only
+    # ever tries the TIGHTEST angular pair, and that pair happened to be two
+    # other, longer arms. A case that documents a gate has to make the gate's own
+    # answer decide the outcome, so the geometry is arranged so the tightest pair
+    # after the merge is the one containing the short arm.
+    #
+    # Sized so every threshold is cleared on purpose. The three sides are
+    # 32.00 / 32.25 / 32.25 m - under `graph_params_min_node_dist` (40 m), so
+    # they are jogs, and over `graph_prune_min_edge_len` (13 m), so pruning keeps
+    # them. The corners carry 2 + 2 + 1 external arms, which is exactly the
+    # 3 + 4 + 4 degree histogram and the five external arms measured on the
+    # artist's scene. Every angle at every corner is at least 59.5 degrees, well
+    # clear of `min_junction_angle` (25), so nothing here is resolved by deleting
+    # a leg, and every arm tip is more than `d_extend` (90 m) from anything
+    # `graph_extend` could bridge it to.
+    #
+    # The two numbers that decide it, both derived from `graph_realign`:
+    #
+    #   * the gate's floor is 2 x (min_node_dist + one resample step) = 90 m, and
+    #     the third corner's arm is 55 m, so the CORRECTED gate refuses.
+    #   * a collapse LENGTHENS that arm, because its foot moves to the merged
+    #     node: 55 m from (16, 28) becomes 84.53 m from (0, 0), still under 90.
+    #     The realign may not move an endpoint past half its own street, so
+    #     d clamps to 42.27 m against a 45 m landing floor and it refuses too.
+    #     The four outer bearings are placed so that after the merge the arms sit
+    #     at 47.0 / 79.1 / 180.0 / 250.0 / 310.0 degrees - gaps of 32.1 / 100.9 /
+    #     70.0 / 60.0 / 97.0 - so the tightest pair IS the short arm and its
+    #     189.6 m arterial neighbour, and 32.1 degrees still clears
+    #     `min_junction_angle`. Nothing is resolved by deletion in either build.
+    kdraw = parent.createNode("python", "K_drawn_streets")
+    kdraw.parm("python").set(_DRAW_SNIPPET.replace(
+        repr(DRAWN_STREETS), repr(STUB_TRIANGLE_STREETS)))
+    kt, kt_solver, k = _chain(parent, "K_stub_triangle", kdraw, True)
+    cases["K_stub_triangle"] = {"city": k, "trace": kt, "solver": kt_solver,
+                                "input": kdraw}
+
+    # ⚠️ The harness could not reach the TRACER at all. `_chain` returns the
+    # segmenter as the "trace" role, so `cases.parm()` searched city/trace/solver
+    # and never saw the Tracer — `parm_liveness` swept its eleven live
+    # parameters on nodes where they are dead and reported twelve regressions,
+    # while the node they actually drive was swept by nothing.
+    for _c in cases.values():
+        _t = parent.node(_c["city"].name() + "_tracer")
+        if _t is not None:
+            _c["tracer"] = _t
 
     parent.layoutChildren()
     return parent, cases
@@ -245,7 +476,11 @@ INTERNAL = {
     "surface": ("city", "s5j_surface"),
     # patches AND street polylines, before the trim — and before the bulbs, so
     # it stays the pre-cul-de-sac solve it has always been.
-    "solve": ("trace", "junction_solve/s5j_solve"),
+    # ⚠️ `junction_solve` moved OUT of the tracer when the pipeline split on
+    # 2026-08-11. It now lives in the SOLVER, which is the only node that owns
+    # S5. Leaving this pointing at "trace" would have silently returned None and
+    # skipped four checks — `inner()` returns None for a missing node.
+    "solve": ("solver", "junction_solve/s5j_solve"),
     "streets": ("city", "s5j_streets"),   # streets carrying trim_start / trim_end
     "trim": ("city", "s5j_trim"),         # the same streets after the cut
     "roads": ("city", "OUT_roads"),
@@ -267,7 +502,22 @@ OUTPUT_INDEX = {"city": 0, "blocks": 1, "lots": 2, "graph": 3}
 # lots" — which is exactly what was suspected of the new half-plane clipper and
 # had to be disproved by hand. E/F/G close no block and legitimately ship none.
 LOT_FLOOR = {"A_drawn": 74, "B_grid": 560, "C_radial": 683, "D_offset": 55,
-             "E_short_t": 0, "F_bend": 0, "G_tongue": 0}
+             "E_short_t": 0, "F_bend": 0, "G_tongue": 0,
+             # J is a star of dead ends and closes no block at all. K closes
+             # exactly one - the ~450 m2 triangle interior, which is smaller than
+             # the kerbs around it; both are pinned at 0 for the same reason I is,
+             # because a parcel count is only worth defending once the geometry
+             # under it is not a documented defect.
+             "J_five_star": 0, "K_stub_triangle": 0,
+             # H is D's geometry, so it ships D's parcel count; only the
+             # LABELS differ. If this floor ever drops, the shape rungs have
+             # started deleting rather than flagging.
+             "H_offset_strict": 55,
+             # I is deliberately unpinned at 0. It is a case that documents a
+             # LIVE defect, so its parcel count is not yet a number worth
+             # defending — pin it the day `offset` stops folding on non-A
+             # blocks, and not before, or this floor freezes broken output in.
+             "I_offset_radial": 0}
 
 
 def inner(case, role):
@@ -289,7 +539,7 @@ def inner(case, role):
 def parm(case, name):
     """A promoted parameter, wherever it now lives. The S3/S4/S5 controls moved
     to the tracer with the stages they steer; S6/S7/S8 stayed on the mesh."""
-    for role in ("city", "trace"):
+    for role in ("city", "trace", "solver", "tracer"):
         n = case.get(role)
         p = None if n is None else n.parm(name)
         if p is not None:

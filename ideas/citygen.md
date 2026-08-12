@@ -484,7 +484,11 @@ identity via regions · Labs policy · state target resolution · SOP-only (no L
 states deferred to v2 · data format is Houdini attributes, not JSON · pier placement (just work,
 plus the standard validation rule).
 
-Still open — none of these block v1 streets:
+⛔ **One item DOES block v1 streets and it is not listed here:** the multi-leg junction —
+[`citygen_streets.md`](citygen_streets.md) §S5a, tracked in that document's §9. Not built, live on
+C_radial, present in both the old and new HDA chains.
+
+Still open at system level — none of these block v1 streets:
 
 1. **Instancing substrate** — PointInstancer vs instanceable prims vs primvar-keyed `elem_id`.
    The SOP-authoring decision favours primvar-keyed, but **prototype at real city scale** before

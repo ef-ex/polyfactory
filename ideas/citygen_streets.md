@@ -1758,6 +1758,15 @@ This is not luck: two *perpendicular* eigenvector families can only ever cross a
 tracing alone cannot produce a 3- or 5-way junction, so the solver's hardest cases are entirely
 unexercised.
 
+⚠️ **CORRECTION — 2026-08-12. The first sentence is false as stated, and the reasoning that
+produced it is what hid the defect for three sessions.** Tracing alone still cannot emit a 5-way
+node, so no *point* in the graph reads degree 5 — and every check that asks "what is the maximum
+degree" therefore reports 4 and passes. But C_radial carries a **degree-5 junction that is spelled
+as three degree-3/4 nodes 20–32 m apart**: a triangle too small to be a city block, which the
+solver treats as three junctions and solves into the same space. Measured live, §S5a. **A degree
+histogram is not evidence that multi-leg junctions are absent** — the arm count has to be taken
+after near-coincident junctions are identified, not before.
+
 Consequences for the plan:
 
 - The Parish extend-to-connect rule in S3 (b) — extend to the nearest point *on an edge* — is the
@@ -1838,9 +1847,896 @@ in the no-regression set held: `city_is_fully_paved` · `lots_clear_of_junctions
 `selfx_junction_surface` · folds · `every_mouth_has_a_road` · `graph_planar_y` · `selfx_roads` ·
 `block_boundary_closes` all **0**, seam still 0.0001 m, suite still **18 failing**.
 
-Known-hard cases still to prototype: degree ≥ 5, junctions between very different widths, junctions
-on a grade, and dual-carriageway short-road clusters (A/B Street collapses these into a single
-intersection).
+Known-hard cases still to prototype: degree ≥ 5 (**now a live defect, not a future one — §S5a**),
+junctions between very different widths, junctions on a grade, and dual-carriageway short-road
+clusters (A/B Street collapses these into a single intersection).
+
+### S5a — Multi-leg junctions: the stub triangle and degree ≥ 5
+
+⚠️ **This is a LIVE defect on C_radial, nothing here is fixed, and this is the section to read
+before touching junctions.** It was filed under §S8 — Lots until 2026-08-12, which is why it was
+twice reported as already handled.
+
+#### The defect as it stands, measured in the live session — 2026-08-12
+
+Read off `/obj/citygen_examples/C_segmenter/OUT_graph2` (95 edges, 2835 points) and the old
+`C_city` (`pf_citygen_streets`), inspect-only, nothing saved.
+
+| | measured |
+|---|---|
+| endpoint-degree histogram | **1×9 · 3×27 · 4×25** — maximum degree **4**, which is why every degree check passes |
+| the tiny triangle | prims **86 (31.58 m) · 87 (25.37 m) · 88 (19.90 m)**, closing on points **2313** (deg 3, at 124.8, 290.9) · **2345** (deg 4, at 138.3, 262.3) · **2655** (deg 4, at 147.6, 279.9) |
+| against the threshold | all three sides are under `graph_params_min_node_dist` = **40 m**; the longest is 79% of it |
+| collapse the triangle to one node | **exactly 5 external arms** — prims **77, 78, 83, 92, 94** |
+| old pipeline vs new | **bit-identical**: `pf_citygen_streets` yields the same three prim numbers, the same three lengths and the same histogram |
+| repair machinery present | **none** — no `merge_*`, realign or roundabout node in `pf_citygen_segmenter` |
+
+**It is not a regression from the Segmenter/Solver split.** The triangle is already present at
+`graph_stitch`, the first stitched state, and passes unchanged through `graph_extend`,
+`graph_prune`, `graph_min_angle`, `graph_kill_angle`, `graph_drop_tongue` and `graph_drop_orphans`
+to `OUT_graph2` — in **both** builds. Hannes: *"this junction issue did not work in the old one as
+well, so that is simply a bug we never caught."* Confirmed: nothing in either build has ever looked
+for it. `graph_kill_angle` is the closest thing to a guard and it tests angles at a node, not the
+distance between two nodes.
+
+⚠️ **Do not key anything on prim 85/86/87/88.** The artist's original report named prim 85; the same
+triangle is 86/87/88 today. Prim numbers move with every upstream change — the stable description is
+*"a cycle of three edges, every side shorter than `min_node_dist`, every corner a junction."*
+
+**Two open holes this exposes in the suite**, both of which would have caught it years earlier:
+
+1. **No check for junction-to-junction edges under `min_node_dist`.** The measurement above is four
+   lines of Python and is not committed. It belongs in `checks.py` before any fix is attempted, so
+   the fix has something to turn green.
+2. **No degree-5 case.** §S5 *"Higher-degree junctions"* asked for a hand-drawn star of five in
+   `tests/citygen/cases.py`; grep finds none. A fix for a case the suite does not run cannot be
+   verified, and this is the second time that gap has been recorded without being filled.
+
+⚠️ **And the threshold itself is ambiguous.** `pf_citygen_segmenter` exposes **two** parameters:
+`min_node_dist` = **50.0** and `graph_params_min_node_dist` = **40.0**. This document has only ever
+discussed the 40 m one. Which governs the collapse must be settled before it is built, or the
+threshold silently moves by 25%.
+
+#### Stub-edge collapse, and the 5-arm solver defect it uncovered — 2026-08-11
+
+The artist: *"prim 85 should actually be removed because it is a very small street creating a tiny
+triangle which should be invalid size wise."* Three streets crossing within a few metres leave a
+tiny triangle whose short side is not a street — it is the residue of two crossings that should have
+been one junction. S5 then solves three junctions into the space of one and their patches collide.
+
+**The threshold is not invented.** Subdivision street standards prohibit street jogs offset under
+**125–150 ft (38–46 m)** and discourage offset intersections generally;
+`graph_params_min_node_dist` already defaults to **40 m**, squarely inside that band. The value was
+right and nothing enforced it — it is read in exactly one place, `graph_extend`, as a rejection test
+when landing a *new* junction. The procedural literature resolves the same degenerate loops by
+**removing an edge**, not by fusing whatever is nearby.
+
+⚠️ **"Built" — AND THEN REVERTED THE SAME DAY. This paragraph said "Built:" with no revert
+marker until 2026-08-12, and it is the single reason the fix was reported finished twice while the
+defect was still on screen.** It is a *design record*, not a status: **no `merge_*` node exists in
+any shipped HDA** (verified 2026-08-12 — `pf_citygen_segmenter` has 39 children, the only
+degree-aware ones are `graph_degree` and `graph_degree_final`). Read it with the revert table
+below, which is the authority on what ships.
+
+**The design, as built and measured before reverting:** `merge_init` → `merge_mark` → `merge_fuse`
+→ `merge_degree` → `merge_scratch`, inside the Segmenter's repair loop after `graph_width`. An edge
+joining **two junctions** (both degree ≥ 3) shorter than `min_node_dist` is collapsed, higher point
+number snapping onto lower so chains resolve over passes and the process terminates. Measured then:
+**A_drawn and B_grid bit-unchanged** (15 and 64 edges), C_radial drops 6 stub edges, **0 stubs
+remain on any case** — and the suite went **21 → 36 failing**, because the collapse is correct and
+what it exposes is not.
+
+⚠️ **Two approaches were tried and rejected first, both recorded in the wrangle.** Fusing any two
+junctions within `min_node_dist` collapsed 8 junctions where 2 clusters exist and tore S7 open
+(1414 m² unpaved, an open block loop). Doing it geometrically — merge when kerb corners would
+overlap — **cascaded**, because merged nodes drift to their average, fall inside each other's
+radius and re-merge every pass: B_grid ended at a **degree-167 node**. Only edges are collapsed now,
+so a merge is bounded by the graph rather than by a radius.
+
+⚠️ **THE COLLAPSE IS CORRECT AND IT EXPOSES A REAL SOLVER DEFECT. S5 DOES NOT HANDLE 5 ARMS.**
+C_radial's two merged nodes come out at **degree 5, minimum angular gap 32.5°**, and the junction
+solve fails on them: `junction_boundary_is_simple` 0 → 1, `selfx_junction_surface` 0 → 24, a corner
+tangent out by **2.18 m**, and the S7/S8 damage that follows. Suite 21 → 36 failing, all on C_radial.
+
+**Root cause, located:** `s5j_solve` clamps **each corner independently** against `miter_limit` —
+`K = X + normalize(K - X) * (miter_limit * h2)` — and never checks that two *adjacent* corners around
+the same node do not overlap. At degree 3 or 4 the angular gaps are wide enough that it never
+happens. Tuning the limit is non-monotone and therefore not the fix: 4.0 → 1 non-simple boundary,
+3.0 → 0, **2.5 → 1 again**, because the clamp moves corners without making them aware of each other.
+The fix is a per-node pass that orders the corners angularly and enforces that consecutive ones do
+not cross — not a different threshold.
+
+#### ⚠️ But the corner solver is the WRONG TARGET. Researched 2026-08-11
+
+Real practice does not mitre a five-leg junction. **Multi-leg intersections (5+ legs) are to be
+avoided**, and where they occur the accepted resolutions are exactly three:
+
+1. **Eliminate one leg.**
+2. **Realign a leg** so it becomes two ordinary junctions instead of one multi-leg.
+3. **Make it a roundabout.**
+
+Channelization plus signalization is the fallback when the geometry cannot be changed — an operating
+measure, not a geometric one, and therefore not available to us. AASHTO's *Green Book* carries the
+realignment options.
+
+⚠️ **CORRECTION — the claim first written here, that "our reference library has nothing on
+multi-leg junctions", was FALSE.** It came from grepping for "multi-leg" and its spellings, which
+none of our sources use. Two things were already recorded:
+
+- **JunctionArt** (AugmentedDesignLab) — *"generates intersections with three to seven incident
+  roads and outputs OpenDRIVE. It is the only reference found that addresses degree-5+ at all"*
+  (§3b). We do not have the code. We do have its method, and it is instructive: it does **not**
+  solve overlap in closed form. Its docs say *"if the connection length is too small, roads will
+  overlap"* and then list **pre-tested safe parameter combinations for 8-road junctions**, backed by
+  an `IntersectionValidator.py`. Conflict is prevented by **tuning plus validation**, not by
+  construction — the opposite of our closed-form kerb-line fillet.
+- **§S5 construction 2, adopted 2026-08-09 and never built:** *"Merge incident edges within
+  `merge_angle` (default 20°) into a single direction before solving. Two nearly-parallel arms at
+  one node are not two corners — treating them as two produces a corner with almost no angular room,
+  **which is what inverts the boundary polygon**."* Boundary inversion is exactly what
+  `junction_boundary_is_simple` reports on the degree-5 nodes. **This document diagnosed the failure
+  and prescribed the cure before the external search began.**
+
+So there are **two layers**, and they are complementary rather than alternatives:
+
+| level | rule | status |
+|---|---|---|
+| **graph** | cap arms at 4; realign a leg, else roundabout | external practice, researched 2026-08-11 |
+| **corner** | merge arms within `merge_angle` into one direction before solving | §S5, adopted, **never built** |
+
+⚠️ **The measured gap decides which layer applies, and ours does not fit the corner rule.** C_radial's
+crowded pair is **32.5°** apart, above the 20° `merge_angle` default. Either that default is too
+tight for real traced fields, or 32.5° is genuinely two streets and the graph-level fix is the
+correct one. **Settle this before building either** — it determines whether the work is a
+threshold change or a realignment pass.
+
+**What this means here.** §S5 already declares three node types — plaza, **roundabout (21–67 m
+ICD)** and cul-de-sac bulb — and the roundabout is never triggered by arm count. So the correct
+response to a degree-5 node is to **convert it**, not to teach the miter solver to survive it:
+
+- degree ≤ 4 → the existing corner solve, unchanged
+- **degree ≥ 5 → roundabout**, ICD sized from the incident widths within the 21–67 m band
+
+That reuses machinery that already exists, matches published practice, and sidesteps the
+adjacent-corner overlap entirely, because a roundabout has no mitred corners to overlap. The
+per-node corner-ordering pass stays worth doing as a guard, but it is no longer the primary fix.
+
+⚠️ **Correction — eliminating the triangle leg does NOT avoid the problem.** The artist:
+*"the leg i asked you to eliminate is the one creating the triangle, if you do that you are still
+left with 5 streets."* Right: the tiny triangle and the multi-leg junction are **two separate
+defects that happen to coincide**. Removing the stub is necessary and does not reduce the arm count.
+So both must be handled, in that order.
+
+#### The three resolutions, ranked — researched across multiple sources, 2026-08-11
+
+A **multi-leg intersection is one with more than four legs**; the extra leg *"creates a large area
+of vehicular conflict and reduces intersection capacity."* Published practice offers three fixes,
+and they are not equal:
+
+| | resolution | standing |
+|---|---|---|
+| **1** | **REALIGN a leg** into a separate right-angled T, *"located at a sufficient distance to prevent interference with the main intersection"* | **preferred** — *"where economically feasible, the corrective measure"* |
+| **2** | **Roundabout** | named alternative |
+| **3** | **Eliminate a leg** | crude fallback; loses a street |
+
+⚠️ **"Economically feasible" is the constraint on realignment in the real world, and it does not
+apply to us.** Moving a road costs money on the ground and nothing here. So the option practice
+prefers is the one a generator can take most freely — which inverts the usual assumption that the
+roundabout is the easy answer.
+
+**Separation distance.** No source gives a single figure for this case; two bracket it. The jog
+rule already established here — **125–150 ft (38–46 m) minimum offset**, and offsets below that
+prohibited — is the floor. The **split intersection** pattern, which deliberately replaces one
+four-leg junction with two, separates them by **200–300 ft (61–91 m)**. So: never below ~40 m,
+target ~60–90 m.
+
+**Why this is cheap for us:** `graph_extend` already lands a new junction on a target street while
+respecting `min_node_dist`. Realigning the fifth leg to form a T is that same operation run
+deliberately rather than as repair, and it leaves two junctions the corner solver already handles —
+no roundabout, no multi-leg miter, every street kept.
+
+**Proposed cascade for degree ≥ 5, in the order practice ranks them:**
+
+1. **Realign** the minor-most leg onto its neighbour at 60–90 m, if the neighbour is long enough to
+   take a T that far out and still clear `min_node_dist` at both ends.
+2. Else **roundabout**, ICD from the incident widths within §S5's 21–67 m band.
+3. Never eliminate: §S3's *"a connection is never refused"* forbids resolution 3 outright.
+
+⚠️ **Still a gap:** which leg is "minor-most" needs a rule. Width and class are the obvious keys —
+the arterial goes straight through, the local moves — which is the same principle §S5 already uses
+to decide that the lesser street sets the corner radius.
+
+#### ⚠️ Four approaches built and reverted — 2026-08-11. Read before attempting a fifth
+
+The rule is settled: **cap junction arms at 4**, realign a leg when feasible, roundabout otherwise.
+The CityEngine cleanup order (intersect → snap → merge → resolve conflicts) is the model, run **once,
+not inside the repair loop**. What is *not* settled is how to realign without wrecking the street.
+
+Everything below was built, measured and reverted. The suite is back at **21 failing, zero baseline
+movement**. Nothing in this subsection ships.
+
+| # | approach | result |
+|---|---|---|
+| 1 | **Proximity fuse** — merge any two junctions within `min_node_dist` | collapsed 8 junctions where 2 clusters exist; S7 tore open (1414 m² unpaved, an open block loop) |
+| 2 | **Geometric fuse** — merge when kerb corners would overlap, radius = widest incident half-width | **cascaded**: merged nodes drift to their average, fall inside each other's radius, re-merge every pass → **degree-167 node** on B_grid |
+| 3 | **Stub-edge collapse** — collapse an edge joining two junctions shorter than `min_node_dist` | ✅ **graph-correct**: A and B bit-unchanged, C drops 6 edges, 0 stubs remain. ❌ produces **degree-5** nodes, and S5 inverts the boundary polygon on them → 21 → 36 failing |
+| 4 | **3 + realign a leg** — move the minor leg's endpoint onto its neighbour `d` out, let `graph_stitch` form the T next pass | maxdeg back to **4 on every case, 0 roundabouts needed** — and 21 → **27 failing**: 2096 m² unpaved, 720 m² of lots on roads, and the repair loop **stopped converging** |
+| 4b | 4 + a minimum-angle gate on the new T | **worse, 44 failing** — blocking the skew realignments left the degree-5 nodes unresolved instead |
+
+⚠️ **THE ROOT CAUSE OF 4, AND IT IS NOT A THRESHOLD.** Moving the endpoint relocates *one vertex*
+and leaves the rest of the leg where it was. The pair being realigned was chosen for being **nearly
+parallel**, so the leg then meets its host at a shallow skew, with a kink where its old shape meets
+the new endpoint. Practice calls for a **right-angled T**; FDOT is explicit — *"intersection angles
+are to be as close to 90 degrees as practical… less than 75 degrees should be avoided"*. Gating on
+that angle (4b) does not help, because it only converts a bad realign into no realign.
+
+**Realignment requires RE-ROUTING the leg**, not relocating its endpoint: the last stretch has to be
+rebuilt to approach the host near-perpendicular, inside S3b's curvature floor (`R > halfwidth`).
+That is the missing piece, and it is real work rather than a parameter.
+
+**Also worth keeping from these runs:**
+
+- **A proximity merge adds nothing here.** Measured after the stub collapse: **zero** unconnected
+  junction pairs within `min_node_dist` on any case. `graph_stitch` + `graph_fuse` already cover
+  CityEngine's *intersect* and *snap*; the stub collapse covers *resolveConflictShapes*. Only
+  *mergeNodes* was ever missing, and there is nothing for it to do.
+- **The cap does work.** Approach 4 held every case at degree ≤ 4 with no roundabout needed, so the
+  realign branch is sufficient in practice and the roundabout is a genuine fallback rather than the
+  common path — worth knowing before building roundabout machinery.
+- **`needs_roundabout` accumulated stale flags** because it is set inside the repair loop and never
+  cleared: 13 nodes flagged on a graph whose maximum degree was 4. Any retry must clear per-pass
+  state at the top of the pass.
+
+#### ⚠️ The fifth approach — 2026-08-12. It settles which LAYER the fix belongs to
+
+Built, measured, reverted. **The two checks stay; nothing else does.** The suite is back at
+**25 failing with zero baseline movement** — every value bit-identical to the run before the
+attempt.
+
+**1. The checks are committed, and they were the point.** `junctions_not_too_close` and
+`no_multileg_junctions` (`checks.py`, wired in `run_scene_checks.py`, thresholds read from
+`graph_params_min_node_dist`). Red on **C_radial and I_offset_radial**, green on the other seven.
+They are why the count went 21 → 25 and that is not a regression: the defect was always there and
+nothing could see it. `no_multileg_junctions` clusters junctions within `min_node_dist` **before**
+counting arms, which is the only way to see a five-way spelled as three nodes.
+
+**2. The stub collapse works, and it is not the hard part.** `graph_stub_mark` → `graph_stub_kill`
+→ `graph_stub_fuse`, after `graph_width`, higher point number snapping onto lower. Measured:
+
+| | before | after |
+|---|---|---|
+| `junctions_not_too_close` | under **3**, shortest 30.65 m | under **0**, shortest **41.03 m** |
+| A · B · D · E · F · G · H | — | **bit-unchanged, all seven** |
+| C_radial edges | 86 | 83 |
+| hidden multi-leg sites | 3 clusters | **3 explicit degree-5 nodes** |
+| suite | 25 failing | **39 failing** |
+
+**3. And the solver mostly survives five arms.** `junction_boundary_is_simple` reports **1**, not 3
+— two of the three degree-5 nodes solve cleanly. The failure is **angular, not arity**:
+
+| node | arm gaps | verdict |
+|---|---|---|
+| (−177.4, −254.9) | 48.5 · 90.1 · 89.7 · 90.8 · **40.8** | solves |
+| (−56.3, −80.9) | **32.8** · 76.7 · 89.5 · 90.7 · 70.4 | solves |
+| (−94.2, 26.5) | 92.0 · 89.5 · 67.3 · **32.5** · 78.6 | **inverts** |
+
+**4. The root cause is confirmed and it has a closed form.** Two mouths `phi` apart, each cut `d`
+from the node, clear each other exactly when **2 d sin(phi/2) ≥ hA + hB**. At the failing node a
+26.8 m arterial and a 15.1 m collector sit 32.5° apart: the mouths need **d ≥ 37.4 m** and the cut
+lands at ~26 m, so they overlap and the boundary folds back. That is the "adjacent corners are
+never made aware of each other" defect, measured rather than argued.
+
+**5. Enforcing it through the cut fails in both directions, and the pair of failures is the
+result.**
+
+| variant | outcome |
+|---|---|
+| floor from the **iterating** frame, uncapped | **fixes the inversion** — `junction_boundary_is_simple` 1 → **0**, `selfx_roads` 1 → 0, folds 1 → 0, `no_downward_faces` 1 → 0 — and **runs away**: `trim_leaves_road_standing` min_standing **−2363 m**, min_ratio −156, `every_mouth_has_a_road` 0 → 10, `selfx_junction_surface` 24 → 364 |
+| floor from the **node** frame, capped at `maxfrac × shorter arm` | no runaway, and **too weak** — the inversion returns, 40 failing |
+
+⚠️ **The runaway is positive feedback, not a bad constant.** Moving the cut out re-reads the tangent
+on a curved arm, which *narrows* the gap, which raises the floor, which moves the cut further — and
+`dist` is monotone from pass 3, so it latches instead of oscillating. Any retry must compute this in
+the fixed node frame.
+
+⚠️ **AND THE CAP CANNOT BE RAISED TO CLOSE THE GAP.** The mouths need 37.4 m; the fillet's own cap
+allows `0.4 × 48.8 = 19.5 m` on the shorter arm. Trimming to 37.4 m would eat 77% of a 48.8 m
+street. **Two streets that close cannot be separated by trimming, at any threshold.**
+
+#### The layer question is now settled — by measurement, 2026-08-12
+
+The table above asked *"either `merge_angle`'s 20° default is too tight for real traced fields, or
+32.5° is genuinely two streets and the graph-level fix is the correct one — settle this before
+building either."* It is settled: **the graph level.** A corner solver cannot fix 32.5° between a
+26.8 m and a 15.1 m street, because the required cut exceeds the street. The cap-arms-at-4 rule is
+not a stylistic preference borrowed from AASHTO; it is what the geometry forces.
+
+**Two further findings from the same run, neither shipped:**
+
+- ⚠️ **`graph_min_angle` deletes the wrong street.** On the live radial scene the collapsed
+  five-way's crowded pair is **13.2°** — inside `min_junction_angle` (25°), so the existing rule
+  fires and drops one. It keeps *the longer*, which is a 202.5 m **local**, and deletes a 151.8 m
+  **arterial**. Width-first with length as the tie-break reverses that and leaves a clean four-way
+  of 59.7 · 120.3 · 57.2 · 122.8° — the arterial goes straight through, the lesser street gives
+  way, which is the principle §S5 already uses for the corner radius. Three lines, measured, and
+  reverted with the rest only because it has no value without the collapse.
+- **One parameter would land the whole thing today, and it is the resolution practice ranks last.**
+  All three sites have crowded pairs at 32.5–40.8°; raising `min_junction_angle` to ~35° makes
+  `graph_min_angle` resolve them by dropping the lesser street. That is **eliminate a leg**, which
+  §S3's *"a connection is never refused"* forbids. It is recorded as a decision for the artist, not
+  taken here.
+
+**So the remaining work is exactly one thing, and it is the one practice prefers:** realign the
+minor leg into a separate T. Everything under it is now measured — which leg is minor (class, then
+width, then length), why a 4-arm cap is forced rather than chosen, and why the corner solver must
+not be asked to absorb it.
+
+#### ✅ The sixth approach WORKS at the junction layer — 2026-08-12. Artist's rule, artist's framing
+
+Hannes, reading the measurement back: *"if 2 streets land in the same place is this not the answer?
+those streets can probably form the T junction before it goes into the 4 way."* That is the
+resolution practice ranks first, and it reframes the number that had looked like a dead end.
+
+⚠️ **THE SAME INEQUALITY THAT SAYS THE FIVE-WAY IS UNSOLVABLE SAYS WHERE THE T GOES.** Two mouths
+`phi` apart need `2 d sin(phi/2) ≥ hA + hB`. Read as a trim it is fatal — 37.4 m off a 48.8 m
+street. Read as an *offset* it is the answer: at `d` the two streets have already separated by a
+full street width, so a junction there fits by construction. Floored at `min_node_dist`, because a
+T closer than that is the jog this section exists to remove.
+
+**Built:** `graph_realign`, after the stub collapse. At any node with ≥ 5 arms it takes the tightest
+angular pair, picks the **minor leg by width then length**, and moves its approach onto the major
+arm at arc distance `d` — clamped to half of each arm — with the offset **blended to zero over
+`max(3 |offset|, 2 min_node_dist)`**. That blend is the whole difference from the two attempts that
+failed: they relocated one vertex and left the rest of the leg behind, so it met its host at a kink
+and a shallow skew. Here the leg keeps its own shape and arrives with one gentle curve behind it,
+which is what S3b's clamp is for. The far end never moves. One arm per node per pass; the repair
+loop is a fixed point, so a six-way resolves over two passes.
+
+**Measured on C_radial and I_offset_radial — every one of these was red before:**
+
+| check | before | after |
+|---|---|---|
+| `junctions_not_too_close` | under 3 | **0** |
+| `no_multileg_junctions` | max_arms 5, over_cap 3 | **max_arms 4, over_cap 0** |
+| `junction_boundary_is_simple` | 1 | **0** |
+| `selfx_junction_surface` | 24 | **0** |
+| `graph_reaches_a_fixed_point` | — | **converged, 12 passes** |
+
+**No street is deleted.** The five-way becomes a four-way plus a T, which is what §S5a has said the
+answer is since 2026-08-11 and what nothing had built.
+
+⚠️ **AND IT REGRESSES THE LAYER BELOW IT. NOT DONE.** Newly red on the same two cases:
+`block_boundary_closes` · `city_is_fully_paved` · `lots_clear_of_roads` · `lots_tile_blocks` ·
+`no_downward_faces` · `no_sweep_fold_after_trim` · `selfx_roads` · `trim_metric_is_consistent` ·
+`lots_are_simple_polygons`. Counts moved **edges 83 → 77, blocks 28 → 23, lots 764 → 719**, and
+`trim_leaves_road_standing` reports **1.523 m standing** at (−137.7, −250.22). Suite 25 → 39: the
+same total as the collapse alone, with the failures moved from the junction layer to the block
+layer. **Six edges vanish that the realign did not intend to remove, and which node removes them is
+not yet known.** The other seven cases are untouched.
+
+#### ⛔ AND THE AUDIT KILLED IT. `graph_realign` MOVED THE JUNCTION, NOT THE LEG — 2026-08-12
+
+Independent audit on the build above (dev-loop Rule 0). Verdict: **do not keep it.** Reverted; the
+suite is back at 25 failing with the baseline in sync.
+
+⚠️ **ONE LINE, AND IT IS THE WHOLE DEFECT.** The blend loop starts at `k = 0`, and for the minor
+prim `pv[0]` **is the shared junction point** — shared by every incident arm after
+`graph_stub_fuse`. At `k = 0`, `acc = 0`, so `t = 1.0` and `setpointattrib(0, "P", …)` writes the
+full offset onto **the node**. It does not move a leg onto its neighbour; it **translates the whole
+junction 40 m and drags all five arms with it.** The code's own comment — *"the whole approach
+blends, the far end never moves"* — is true for one arm in five. Measured, C_radial pass 0: three
+junction points move 40.000 / 40.000 / 39.452 m, only 14 points move in the entire graph, and the
+four non-minor arms get **no blend at all** — their second vertex stays put while their endpoint
+jumps 40 m (prim 1, a 26.8 m arterial: its second vertex was 1.4 m from the node and is now 40.9 m
+out; length 72.32 → 111.84).
+
+⚠️ **SO THE T NEVER FORMS, AND THE ARM CAP IS REACHED BY DELETING STREETS.** Immediately after the
+realign the three nodes are **still degree 5, just 40 m away**. They only reach degree 4 in pass 2,
+when the drag has pushed arms below `min_junction_angle` (25°) and `graph_kill_angle` blasts them:
+**8 deletions across passes 1 and 2, two of them arterials.** With the realign bypassed,
+`graph_kill_angle` deletes **0 in every pass**. `no_multileg_junctions` went green by **eliminating
+a leg** — resolution 3, the one §S3 forbids outright.
+
+⚠️ **AND THE CHECK THAT REPORTED SUCCESS CANNOT TELL THE TWO APART.** `no_multileg_junctions`
+counts arms; deleting an arm satisfies it exactly as well as realigning one. **Nothing in the suite
+asserts *"a connection is never refused"*.** The missing assertion is one line and it would have
+gone red on the first run: **`graph_kill_angle` deletes 0 prims after pass 0**, or the published
+edge count never falls below the pre-repair count. Junction health and street preservation are
+asserted separately and never together — the union check, again.
+
+Also measured, and to be fixed with it:
+
+- **The realign's "wins" are probably the deletions.** `junction_boundary_is_simple` 1 → 0 and
+  `selfx_junction_surface` 24 → 0 are both at node 16 — the node whose 26.8 m arterial arm
+  `kill_angle` deleted. *(Inferred from the deletion list plus the site coordinates, not isolated.)*
+- **Convergence got worse and nothing noticed**: OFF settles at pass 2; ON churns 81 → 89 → 81 → 77
+  and settles at pass 4. `graph_reaches_a_fixed_point` still passes, because it only asks whether
+  it *eventually* stops.
+- **`realigned`, `kill_angle` and `kill_stub` ship on `OUT_graph2`,** and `realigned` is **stale** —
+  the final pass moves 0 points and flags 3 prims. The `needs_roundabout` stale-state failure this
+  section already warns about, reproduced exactly.
+- **The branch has one test graph, not two.** C_radial and I_offset_radial publish **identical
+  point sets**; they differ only in `lots_params_subdiv_mode`. The other seven never reach degree 5,
+  so the wrangle body never executes. §9 item 1(c) — the hand-drawn 5-star — is the only thing that
+  would give this independent coverage.
+- **Refuted, so do not chase them:** `graph_prune`, `graph_drop_orphans` and `graph_drop_tongue` are
+  per-pass identical in both builds. The published graph is *clean* — 0 crossings, 0 folds, 0 prims
+  under `R > halfwidth`, turn clamp converged on all 77. The damage downstream is not a malformed
+  graph, it is a **smaller** one.
+
+**THE FIX, FULLY SPECIFIED — this is now a small job, not a research problem:**
+
+1. **Detach the minor leg's endpoint before moving it.** `addpoint` at `land`, `setvertexpoint` the
+   minor prim's terminal vertex onto the new point, leave the junction point where it is, and start
+   the blend at `k = 1`. `graph_stitch` then has a free endpoint lying on the host polyline and can
+   split it into the T — which today it never gets the chance to do. **The blend machinery itself is
+   correct and should be kept as is.**
+2. **Drop or re-project the host's vertices inside `d`.** prim 50's landing point is 39.45 m out and
+   its own vertex sits at 38.9 m, leaving a 1.1 m segment at `dot = −1.000`. prim 7 escaped only
+   because its first segment happened to be 47.3 m long. Whether the host folds is luck of vertex
+   spacing.
+3. **Never realign two adjacent nodes in the same pass.** prim 10 joins two realigned nodes and is
+   blended from **both ends at once**, over 105 m of its 131 m length: 131.02 → 79.07 m and a
+   zigzag. "One arm per node per pass" is not a bound when the nodes share an edge.
+4. **Commit the street-preservation assertion first** (above), or the next attempt can pass the
+   same way this one did.
+
+#### The seventh approach — the realign is FIXED, and C_radial cannot take it. 2026-08-12
+
+Built on the audit's four-point specification above. **Three of the four are in; the fourth turned
+out to be the wrong shape of problem.** What ships: the missing assertion, a `graph_realign` that
+moves the leg instead of the junction, and a feasibility gate on the stub collapse. What does not: a
+green `no_multileg_junctions` on C_radial, because at that field's density there is nowhere to put
+the T.
+
+⚠️ **§9's blocking entry is now stale** — it says *"Not built. Nothing of it ships"* and items 3 and
+4 are no longer accurate. It was left untouched here only because a concurrent owner boundary ran
+through it; it needs the correction below folded in.
+
+##### 1. The assertion first, and it is a tripwire rather than a measurement
+
+`connections_are_never_refused` (`checks.py`, wired in `run_scene_checks.py`). It asserts S3's
+*"a connection is never refused"* directly: **`graph_kill_angle` may delete 0 primitives in any pass
+after pass 0.** Pass 0 is exempt because `graph_min_angle` exists to remove the near-parallel
+duplicates *tracing* produced; from pass 1 the graph is being repaired, not cleaned, so a kill there
+is a repair destroying a street to make its own numbers work.
+
+⚠️ **It had to be instrumented, because per-pass state is not reachable from outside the asset.**
+`repair_end` is a feedback block and its **Single Pass re-runs ONE iteration from the original
+input** instead of stepping the feedback — measured, `repair_iterations` came back **1** for every
+requested pass 0–7. So `graph_min_angle` now counts the prims it flags and accumulates
+`repair_killed_pass0` / `repair_killed_late` through the loop, and the check reads them off the
+published graph. A MISSING attribute fails rather than skipping.
+
+Committed and run before any HDA change: **green on all nine cases, zero baseline movement, 25
+failing unchanged.** `graph_kill_angle` deletes 0 in every pass on every case in today's build,
+which is what makes it a tripwire rather than a measurement.
+
+##### 2. `graph_realign`, with the defect removed
+
+Exactly as the audit specified: `addpoint` at the landing, `setvertexpoint` the minor prim's
+**terminal vertex** onto it, the junction point never written, blend from `k = 1`. The blend
+machinery is unchanged — it was correct. Three things around it are new:
+
+- **The landing is a host VERTEX, not an arc position.** An interpolated landing lands wherever it
+  lands — prim 50's was 39.45 m out with the host's own vertex at 38.9 m, and prim 7 escaped a fold
+  only because its first segment happened to be 47.3 m. Snapping to the host's own vertex removes
+  the sliver by construction instead of by luck, which does the same job as dropping or re-projecting
+  the host's vertices and is five lines. It also sets the floor: the landing can only be placed on
+  the vertex grid, so the floor is `min_node_dist + one resample step` = **45 m**, not 40.
+- **`busy[]` refuses any node ADJACENT to one already realigned this pass**, which is the bound
+  "one arm per node per pass" was not. The repair loop is a fixed point, so deferring a node costs a
+  pass and nothing else.
+- **Per-pass state is cleared** at the top of the block (`graph_stub_mark` zeroes `kill_stub` and
+  `realigned` on every prim), and `repair_scratch` now deletes `kill_angle`, `kill_stub` and
+  `realigned` so none of them ship on `OUT_graph2`. Both were audit findings; the stale `realigned`
+  was the `needs_roundabout` failure reproduced exactly.
+
+##### 3. ⚠️ AND IT DID NOTHING AT ALL FOR A WHOLE SUITE RUN, ON ONE WRONG FUNCTION
+
+The new-junction proximity guard — the rail `graph_extend` already carries, that a new junction may
+not crowd an existing one — asked *"is this point a node or just shape?"* as
+`len(pointprims(0, p)) == 2`. **An interior vertex of a polyline belongs to exactly ONE prim, not
+two.** So every shape point read as a node, every landing had a "node" within `min_node_dist`, and
+**every realign was refused.** The wrangle compiled, cooked, errored on nothing and flagged nothing,
+and the suite came back **bit-identical to the stub collapse alone** — 39 failing, every value
+equal. `neighbourcount(0, p) != 2` is what `graph_extend` uses for the same question and is correct.
+
+**A wrangle that refuses everything is indistinguishable from a wrangle that is not there**, and the
+only thing that separates them is a number that should have moved and did not. Worth remembering the
+next time a change lands bit-clean.
+
+##### 4. It works, and the artist's own junction is the proof
+
+Measured on `/obj/citygen_examples/C_segmenter` — the scene §S5a's first measurement was taken on.
+Inspect-only, nothing saved.
+
+| | before | after |
+|---|---|---|
+| the triangle | prims of **31.58 · 25.37 · 19.90 m** closing on three junctions | **gone** |
+| the site | 3 junctions of degree 3 · 4 · 4, **5 external arms** | one **degree-4** node at (138.27, 262.31) plus a **degree-3 T** at (174.70, 331.27) |
+| the four-way's angles | — | **57.24 · 122.81 · 59.67 · 120.28°** |
+| the T's angles | — | 131.35 · **48.25** · 180.41°, clear of `min_junction_angle` (25°) |
+| shortest junction-to-junction edge | 19.90 m | **46.26 m** |
+| max node degree | 4 — the five-way spelled as three nodes, which is why every degree check passed | **4**, and now genuinely |
+| edges | 95 | **93** — three stub edges collapsed, one T split added |
+| streets deleted | — | **0**. `repair_killed_pass0` = `repair_killed_late` = 0 |
+| repair loop | converged, 9 passes | converged, **12 passes** |
+
+The four-way predicted in this section before anything was built was *"59.7 · 120.3 · 57.2 ·
+122.8°"*. It came out at 59.67 · 120.28 · 57.24 · 122.81. **Rendered and looked at, both builds,
+same crop:** the old pipeline shows three roads knotted into one blob with the junction patches
+overlapping; the new one shows a clean four-way and a clean filleted T.
+
+##### 5. ⛔ AND C_RADIAL CANNOT TAKE THE FIX. THAT FIELD IS AT THE JOG RULE'S OWN RESOLUTION LIMIT
+
+This is the finding that matters, and it is a property of the case rather than of the code.
+
+`graph_realign` must land its T at least **45 m** out along the host, and may not move an endpoint
+further than **half its own street** — past that it is not realigning a leg, it is dragging one
+across the block. So the crowded pair it separates needs **both** arms at least **90 m** long.
+C_radial at domain 800, after the stub collapse, measured per site:
+
+| node | arms (m) | crowded pair | `need` | `d` after the clamps | verdict |
+|---|---|---|---|---|---|
+| (−81.3, −34.5) | 169.7 · 58.7 · 66.6 · **42.5** · 69.3 | 29.53°, arterial + local | 40.4 m | **29.4 m** | refused |
+| (−94.2, 26.5) | 69.3 · **81.9** · 245.6 · 97.0 · 48.8 | 32.55°, two collectors | 26.9 m | **41.0 m** | refused |
+| (−177.4, −254.9) | 72.3 · 87.5 · **86.0** · 212.0 · 75.2 | 40.82°, two locals | 20.6 m | **43.0 m** | refused |
+
+And the reason is one line of numbers: **the shortest junction-to-junction edges in that whole graph
+are 41.03 · 42.53 · 44.09 · 48.85 · 49.28 · 49.84 m.** The entire network sits about one resample
+step above the 40 m jog floor. There is no 90 m street anywhere near these nodes to hang a T on,
+because at this field density there are almost no 90 m streets between junctions at all.
+
+⚠️ **So the realignment resolution is unavailable here, and it is not a threshold that can be
+tuned.** Lowering the landing floor under `min_node_dist` makes `junctions_not_too_close` red by
+construction — it builds the jog this section exists to remove. Lifting the half-street clamp gives
+the violent version, and that was measured: run ungated, the realign moved endpoints clean across
+their own blocks, `trim_leaves_road_standing` reported **−98.88 m standing**,
+`block_boundary_closes` 6 open loops and 12 unpaired ends, `selfx_junction_surface` 0 → 120,
+`lots_tile_blocks` 3e-9 → 0.065, suite **25 → 41**.
+
+**Re-measured, and it corrects this section's own earlier claim about roundabouts.** A roundabout
+needs `R >= need`, so ICDs of **80.8 · 53.8 · 41.2 m** at the three sites. §S5's band is 21–67 m, so
+**two of the three DO fit** and only (−81.3, −34.5) does not. The earlier statement that a
+roundabout *"cannot deliver it either"* was generalised from the single 32.5° / 37.4 m case and is
+too strong. The roundabout is a live option for two of C_radial's three sites and it is the only one
+left for them.
+
+##### 6. So the collapse is gated on repairability, and that is the shipped rule
+
+`graph_stub_mark` collapses a jog **only when what it leaves can be repaired**: if the merge would
+leave more than four arms, every surviving arm must be at least 90 m
+(`2 × (min_node_dist + resample step)`, the realign's own feasibility condition). Every *stub* is
+excluded from that arm set, not just the one being collapsed — the defect is a CYCLE of three short
+edges, so for any pair of corners the other two sides are incident to both, and counting them as
+arms measured 19.9 and 25.4 m and refused the collapse on the artist's own scene until it was fixed.
+
+The rule it encodes: **an unrepaired jog is a smaller defect than a five-way the corner solver
+inverts on.** Ungated, the collapse alone is 25 → 39 failing and the collapse plus realign 25 → 41.
+Gated: **25 failing, all nine cases bit-unchanged, zero moved values** — and the artist's scene
+fixed.
+
+##### 7. What this leaves open
+
+1. ⛔ **`no_multileg_junctions` and `junctions_not_too_close` are still RED on C_radial and
+   I_offset_radial**, and on that field they cannot be closed by realignment. The next move there is
+   a **roundabout at two of the three sites** (§S5's 21–67 m ICD covers them), or the artist's call
+   on `min_junction_angle`.
+2. ~~⚠️ **Nothing in the suite executes `graph_realign` or the collapse.**~~ **CLOSED 2026-08-12 —
+   see "the eighth pass" below.** `J_five_star` runs the realign and `K_stub_triangle` runs the
+   gate's refusal; both are committed and in the baseline. The paragraph is kept because the *shape*
+   of the gap is worth remembering: they fired on the artist's live scene and on no test case, and
+   that was recorded three times before it was filled.
+3. The T's approach angle is whatever the crowded pair's angle was, softened by the blend — 48.25°
+   on the artist's scene, against FDOT's *"less than 75 degrees should be avoided"*. Enough to clear
+   `min_junction_angle` by construction; not yet a right-angled T. **Re-routing the last stretch is
+   still the unbuilt piece**, and it is what would let the landing floor come down and make the
+   dense-field sites reachable.
+
+#### ✅ INDEPENDENT AUDIT: SHIP IT — 2026-08-12. And the one latent defect it found
+
+Verdict on the seventh approach: **ship**, all four claims survive measurement, one latent defect
+to record. Read-only audit; `C_segmenter` never unlocked, `matchesCurrentDefinition()` still true,
+the .hda mtime unchanged, the .hip never saved.
+
+**The number this whole section exists for.** `intersectionanalysis` on the merged city, same A/B
+chain:
+
+| | whole city | within 60 m of the site |
+|---|---|---|
+| pre-fix | 246 | **128 — one 117-point cluster at (149.8, 272.9)** |
+| shipped | **131** | **3** at the four-way + **4** at the new T |
+
+That cluster is the tangle the artist has been looking at for weeks. It is gone.
+
+**The T is a genuine split, not a touch.** Prim 0 (arterial 26.8 m, 78.0 m) and prim 1 (arterial
+26.8 m, 73.78 m) are two distinct prims sharing point 0, 180.41° apart, with a 14.4 m local as the
+third leg. Both halves clear `min_node_dist`. S5 on the live mesher: `junction_boundary_is_simple`
+**0 bad of 60 patches**, `selfx_junction_surface` 0, `selfx_roads` 0, `every_mouth_has_a_road` 0,
+folds 0, min standing 8.82 m, 0 graph crossings.
+
+**The realigned street is not attempt 6's zigzag.** 202.48 → 156.76 m (it now starts at the T),
+max turn 15.84° → **15.74°**, min radius 14.40 → **14.32 m**, turn-sign flips 10/50 → 5/39, uniform
+3.92 m segments, no sliver at the landing. City-wide curvature worst 1.003 → **1.009** against 1.02
+slack — legal, and it is now the sharpest bend in the city, 8 m from the T. Convergence 9 → 12
+passes, genuinely converged (residual 5.1e-5, 0 reversals). Cook cost 0.48 → 0.55 s on B_grid; the
+loop is gated behind `if (n < 5) continue` and never executes where there is no five-way.
+
+**The tripwire proved it can fail — on the artist's own scene, without breaking anything.** Bypass
+`graph_realign` alone and `connections_are_never_refused` goes **red**: `repair_killed_late` 1, the
+casualty being the **151.8 m arterial** from (138.27, 262.31) to (208.95, 396.62), because
+`graph_min_angle` keeps the longer 202.5 m *local*. It also fails closed when the attribute is
+missing. ⚠️ **Coverage caveat:** it counts only `graph_min_angle`'s flags. Four other nodes in the
+repair loop delete prims — `graph_stub_kill` (3, by design), `graph_drop_orphans`,
+`graph_drop_tongue`, `graph_prune` — and **nothing asserts any of them**. `orphan_edges_dropped` is
+written to the geometry and read by no check.
+
+**The gate refuses on the suite for the right reason, and that was proven the hard way.** Removing
+the gate line entirely in a throwaway session makes C_radial produce 3 explicit degree-5 nodes and
+`graph_realign` *still* flags 0 prims: it genuinely cannot land a legal T there. Correction to the
+seventh approach's write-up — the refusal is driven by surviving **arms** of 48.85–87.45 m against
+the 90 m floor, not by the 41–50 m junction-to-junction edge lengths quoted there.
+
+⚠️ **THE LATENT DEFECT — THE FEASIBILITY GATE IS STRUCTURALLY BLIND ON A 3-CYCLE, WHICH IS THE
+EXACT TOPOLOGY THIS SECTION EXISTS FOR.** The gate builds its arm set from
+`pointprims(pt) + pointprims(other)` — the two endpoints of the edge being collapsed. In a triangle
+the **third corner's external arms land on the same merged node over the following passes and are
+never counted.** Measured on the live pre-fix graph, replicating the predicate exactly:
+
+| side collapsed | `narm` the gate computes | truth |
+|---|---|---|
+| prim 86 (31.58 m) | 3 | |
+| prim 87 (25.37 m) | 3 | **5 external arms after full collapse** |
+| prim 88 (19.90 m) | 4 | |
+
+With three degree-3 corners the gate reads 4 and a genuine five-way results, every time. **Here it
+is harmless — the five true arms are 127–191 m, all far above the 90 m floor, so a correctly
+counting gate permits the same collapse. The right answer for the wrong reason.** A 3-cycle whose
+third corner carries an arm under 90 m would be collapsed against the gate's own rule and left as
+an unrepairable degree-5 node: `graph_realign` refuses it, and the result is C_radial's failure
+mode — boundary inversion, +24 `selfx_junction_surface`, 39 failing. **No case in the suite would
+see it, because no case runs the collapse.**
+
+**Fix, small:** build the arm set by flood-filling the stub-connected cluster containing `pt` and
+`other`, then count the external arms of the whole cluster. That also makes the gate's own comment
+true. ✅ **BUILT 2026-08-12 — "the eighth pass" below**, and the coverage caveat in the paragraph
+above it (the tripwire counting only `graph_min_angle`) is closed there too.
+
+Also confirmed, severity unchanged: the T's 48.25° approach is below FDOT's 75° guidance; nothing
+in the suite exercises the collapse or the realign; the 25 baseline failures are pre-existing.
+
+#### The eighth pass — the gate can see the third corner, and the suite finally runs this. 2026-08-12
+
+Three of the audit's items closed: the blind gate, the coverage gap §9 item 1(c) had recorded three
+times, and the tripwire that watched one deleting node out of five. **The shipped junction did not
+move.** Every number in the "seventh approach" table above re-measures bit-identical — 93 edges,
+the degree-4 node at (138.27, 262.31) at 57.24 · 122.81 · 59.67 · 120.28°, the degree-3 T at
+(174.70, 331.27), shortest junction-to-junction edge 46.26 m, `repair_killed_pass0` =
+`repair_killed_late` = 0, converged in 12 passes.
+
+##### 1. The gate now counts the cluster, and it reads 5 where it read 4 / 3 / 3
+
+`graph_stub_mark` flood-fills the stub-connected cluster containing both ends of the candidate edge
+— junctions joined by edges shorter than `min_node_dist`, the same predicate the arm count already
+used to exclude stubs — and counts the external arms of the whole cluster. Measured on the live
+pre-fix graph, instrumented inside the wrangle itself rather than replicated in Python:
+
+| side collapsed | before | after | arms it now sees |
+|---|---|---|---|
+| 19.90 m | narm **4** | narm **5** | 127.46 · 131.89 · 156.00 · 165.60 · 193.38 m |
+| 31.58 m | narm **3** | narm **5** | the same five |
+| 25.37 m | narm **3** | narm **5** | the same five |
+
+`ok` stays 1 because every one of the five is far above the 90 m floor, so all three sides are still
+marked `kill_stub` and the collapse proceeds exactly as before. **The right answer, now for the
+right reason.** The gate's own comment — *"EVERY stub is excluded, not just the one being
+collapsed"* — is finally true of the arm set as well as of the exclusion.
+
+##### 2. ⚠️ AND A COUNTER READ THE INPUT AND SHIPPED A CONFIDENT ZERO
+
+Instrumenting the collapse looked like one line — sum `kill_stub` over the prims after the marking
+loop. It came back **0 on a pass that collapsed four edges**. `prim(0, "kill_stub", i)` reads the
+INPUT geometry, not the writes this same wrangle has just made, and the attribute does not exist on
+the input in pass 0 at all. The count is now taken beside the `setprimattrib` that makes the mark,
+where each edge is marked at most once because the scan only ever considers `other < pt`. Same
+family as the `pointprims(0, p) == 2` defect two subsections up: **a measurement that silently reads
+zero is worse than no measurement**, because it is evidence of the wrong thing.
+
+##### 3. Two hand-drawn cases, and the suite executes the machinery for the first time
+
+`J_five_star` and `K_stub_triangle` in `cases.py`. Until they existed `graph_stub_mark`,
+`graph_stub_kill`, `graph_stub_fuse` and `graph_realign` were run by **nothing**: they fire on the
+artist's radial scene and on no test case, because A/B/D/E/F/G/H never reach five arms and on
+C_radial and I_offset_radial the gate declines before the wrangle bodies execute.
+
+**J — the five-way the realign CAN repair.** Five arms on one node at 0 / 32 / 100 / 180 / 255°,
+lengths 200 / 120 / 110 / 200 / 100 m. Every number falls out of `graph_realign`'s own feasibility
+condition: `need = (26.8 + 15.1)/2 / (2 sin 16°) = 38.0 m`, floored at `min_node_dist + one resample
+step = 45 m`, then clamped to half of each arm — so both arms of the crowded pair must be ≥ 90 m,
+and the 32° pair clears `min_junction_angle` (25°) so nothing is resolved by deleting a leg.
+Measured: **6 edges** (the 200 m host split), a **degree-4** centre at 105 · 100 · 80 · 75° and a
+**degree-3 T at (48.00, 0.00)** at 56.70 · 123.30 · 180.00°, shortest junction-to-junction edge
+**48.00 m**, `junction_boundary_is_simple` 0, `selfx_junction_surface` 0, converged in 5 passes and
+**every deletion counter 0**. The cap is reached by realigning, not by refusing a connection, and
+now something asserts that.
+
+**K — the stub triangle the gate must refuse.** Three sides of 32.00 / 32.25 / 32.25 m, corners
+carrying 2 + 2 + 1 external arms — the same 3 · 4 · 4 degree histogram and the same five external
+arms as the artist's site — and the third corner's arm is **55 m**, under the 90 m floor. Measured:
+the gate refuses, the triangle stays at degrees 4 · 4 · 3, `repair_stub_pass0` 0, **nothing
+deleted**, converged in 3 passes, and **no degree-5 node ships**.
+
+⚠️ **THE FIRST VERSION OF K PROVED NOTHING, AND THE A/B IS WHAT CAUGHT IT.** With the third
+corner's arm at 80 m the pre-fix gate collapsed the triangle and `graph_realign` then succeeded
+anyway — it only ever tries the **tightest** angular pair, and that pair happened to be two other,
+longer arms. The case would have been committed green on both builds. The arm is now 55 m and the
+four outer bearings are placed so the merge leaves arms at 47.0 / 79.1 / 180.0 / 250.0 / 310.0°,
+which puts the tightest gap on the short arm. Run against the pre-fix definition:
+
+| | pre-fix gate | shipped gate |
+|---|---|---|
+| edges | **5** — the triangle collapsed | **8** — it stands |
+| max node degree | **5** | **4** |
+| the node | one at (0, 0), gaps 60.01 · 96.99 · **32.08** · 100.91 · 70.0 | three at degrees 4 · 4 · 3 |
+| arms | 200 · 150 · 210 · 170 · **84.53** m | 200 · 150 · 189.63 · 151.42 · **55.00** m |
+| `graph_realign` | refuses — 84.53/2 = 42.27 m against a 45 m landing floor | never asked |
+
+A collapse **lengthens** the third corner's arm, because its foot moves to the merged node: 55 m
+becomes 84.53 m and is still under the floor. That is the failure mode this section exists for,
+reproduced in a committed case for the first time rather than argued from the live scene.
+
+⚠️ **K IS RED ON TEN CHECKS AND THAT IS THE POINT**, on the same precedent as I_offset_radial. Two
+are universal (`no_scratch_attribs_lots`, `selfx_city_merged` fail on all eleven cases). Two are the
+jog itself: `junctions_not_too_close` under 3, shortest 32.00 m, and `no_multileg_junctions`
+max_arms 5, over_cap 1 — the cluster IS a five-way and the check is right to say so. The other six
+are the damage that follows three junction patches solved into the space of one:
+`selfx_junction_surface` **50**, `trim_leaves_road_standing` **−13.43 m standing**,
+`every_mouth_has_a_road` 6 of 11, `lots_clear_of_junctions` 54.2 m², `lots_clear_of_roads` 54.2 m²,
+`block_boundary_closes` 6 open loops. **That is the artist's original defect, in numbers, on a scene
+of eight streets.** The rule S5a ships — an unrepaired jog is a smaller defect than a five-way the
+corner solver inverts on — now has both of its sides on the record instead of one.
+
+Suite **25 → 37 failing**: 25 unchanged, J adds 2, K adds 10. The only value that moved on the nine
+pre-existing cases is `connections_are_never_refused`'s own, which necessarily got wider.
+
+##### 4. The tripwire watches five nodes, and it was watching one
+
+`connections_are_never_refused` counted only `graph_min_angle`'s flags — the same blind spot as the
+gate, one level up. Four other nodes in the repair loop delete primitives and nothing asserted any
+of them. All five now publish `repair_<stem>_pass0` / `repair_<stem>_late`, accumulated through the
+feedback loop:
+
+| node | what it deletes | verdict when it fires late |
+|---|---|---|
+| `graph_min_angle` | one of two near-parallel arms | refusal |
+| `graph_prune` | short dead ends | refusal |
+| `graph_drop_orphans` | components with no junction | refusal |
+| `graph_drop_tongue` | arms the mouth has eaten | refusal |
+| `graph_stub_kill` | the jog edge | **BY DESIGN** — reported, never counted |
+
+The stub collapse is separated rather than ignored, because **a by-design deletion nobody counts is
+indistinguishable from a refusal** — which is exactly how the sixth attempt shipped green.
+
+**The pass-0 exemption generalises, and that is measured rather than assumed.** Across all nine
+pre-existing cases every deletion happens in pass 0 — prune 0–3, orphan 0–3, tongue 0–8, `late`
+zero everywhere — so a late deletion is a repair destroying a street, not tracing residue being
+cleaned. **Proven able to fail, per node, on throwaway copies:** bypass `graph_realign` and
+`graph_min_angle` kills the **151.78 m arterial (208.95, 396.62) → (138.27, 262.31) in pass 1**,
+which is the seventh approach's proof case unchanged; forcing one late removal in `prune_mark` gives
+`graph_prune` 65 late, in `graph_mark_orphans` gives `graph_drop_orphans` 11 late, and both go red.
+`orphan_edges_dropped` — written to the geometry since S3 and read by no check — is now accumulated
+and asserted alongside the rest.
+
+##### 5. The cluster is not only a triangle, and a four-junction CHAIN is where the two changes meet
+
+Branch coverage for the flood fill past the 3-cycle, measured in an isolated session on a chain
+A(0,0) · B(30,0) · C(60,0) · D(90,0) — three 30 m links, six external arms hung 2 · 1 · 1 · 2. The
+gate reads **cluster = 4, narm = 6**, so the fill finds every member and terminates. Then the two
+variants diverge, and the A/B against the pre-fix definition is the whole argument for both tasks
+at once:
+
+| B's arm | pre-fix gate | shipped gate |
+|---|---|---|
+| 150 m (all six arms ≥ 90) | narm **2 / 3** → permits · **3 edges of 9** | narm **6**, ok 1 → permits · **3 edges of 9** |
+| 60 m (one arm under 90) | narm **2 / 3** → permits · **3 edges of 9**, six streets lost | narm **6**, ok 0 → **REFUSES** · **9 edges of 9, nothing lost** |
+
+**The gate's blindness was never really about triangles.** It was about counting two corners of a
+cluster of any size, and on a chain of four the pre-fix gate saw at most 3 arms of the 6 that exist.
+Where that cluster cannot be repaired, the corrected gate now keeps **all nine streets** instead of
+publishing three.
+
+⚠️ **And the top row is a defect this section did not know about, which the widened tripwire found
+on its first outing.** Both builds lose three streets there — and the counters say who took them:
+**`repair_orphan_late` = 2**, `graph_drop_orphans` deleting two components *after* pass 0, with
+`repair_killed_late` 0 throughout. It is **not a regression** (bit-identical on both definitions,
+and the collapse itself is by design at `repair_stub_pass0` = 3); it is a pre-existing hole in the
+permissive branch — collapse a wide cluster, let the realign work on the six-way it makes, and
+pieces of the city come off. Nothing could see it before, because nothing counted anything but
+`graph_min_angle`.
+
+**The next case is fully specified and deliberately not added here**, to keep this change to the two
+the work was scoped for: the chain above with B's arm at 150 m, expected red on
+`connections_are_never_refused` with `graph_drop_orphans` 2 late. It is the third hand-drawn case
+and it is half an hour's work.
+
+##### 6. ⚠️ AND IT WENT RED ON THE ARTIST'S OWN SCENE, ON ITS FIRST RUN
+
+`graph_drop_tongue` deletes a **42.00 m arterial, 26.8 m wide, from (−240.37, 232.73) to
+(−210.19, 203.54), in PASS 1** of `/obj/citygen_examples/C_segmenter`. It reproduces with
+`graph_realign` bypassed, so it is not the realign's doing, and it is nowhere near the S5a site — it
+is pre-existing behaviour that nothing has ever counted. All eleven suite cases are green on this
+term, so **the suite still cannot see it**.
+
+**Whether that is a defect is a design decision and is deliberately left open here.** The tongue
+drop is a designed mechanism with its own checks, and an arm the mouth has already eaten may only
+become measurable once the geometry settles, which is an argument for allowing it late. Against it:
+S3 says a connection is never refused, this is a 42 m arterial, and the rule that exempts pass 0 for
+every other node in the loop is that from pass 1 the graph is being repaired rather than cleaned.
+**One street on one scene, now visible, with a number on it.** It needs the artist's call, not the
+implementer's.
+
+#### ✅ AUDIT OF THE HARDENING: DONE — and the tripwire was condemning a sanctioned deletion
+
+Independent audit, 2026-08-12, read-only (both .hda md5-unchanged after every experiment,
+`updateFromNode` never called, .hip never saved). Verdict: **the three tasks are done.** The
+artist's junction is provably unchanged, not merely observed to be: the pre-collapse graph has
+exactly **four** candidate edges — the triangle (19.90 / 25.37 / 31.58 m) plus a separate **0.67 m
+jog at (−100.35, −136.33)** — the flood fill takes all three triangle sides from `narm` 4 / 3 / 3
+to **5 / 5 / 5** (arms 127.46 · 131.89 · 156.00 · 165.60 · 193.38 m, all clear of the 90 m floor)
+and leaves the 0.67 m jog's predicate untouched, so the shipped output *cannot* have moved.
+
+⚠️ **CORRECTION: `repair_stub_pass0` is 4, not 3.** The earlier note missed the 0.67 m jog.
+
+**The flood fill was proven on chains, not argued.** Two control scenes: CHAIN3 (three junctions in
+a line, 55 m arm on the *middle*) and CHAIN4 (four junctions, 55 m arm on the *far end*). Both are
+refused by the shipped build and collapsed by the pre-fix one. CHAIN4 is decisive — a pair-only
+gate reads `narm` 4 on the A–B stub and permits, so refusal is only possible if the fill walked
+three stubs to reach D. Termination is structural (each point appended at most once). One residual
+**under-count**, narrow and unreproduced: a ≥ 40 m edge joining two cluster junctions becomes a
+self-loop after the merge and is counted as one arm, which makes the gate slightly *permissive*.
+
+#### ⚠️ …AND THE TRIPWIRE SHIPPED RED ON THE ARTIST'S OWN SCENE, FOR A DELETION THE DESIGN ASKS FOR
+
+`repair_tongue_late` is **1** there: a **42.00 m arterial** at (−240.37, 232.73) → (−210.19, 203.54),
+dropped by `graph_drop_tongue` in pass 1. **Pre-existing** — with all four S5a nodes bypassed the
+graph is 95 prims converging in 9 passes, this section's own pre-S5a numbers, and the drop still
+happens. **Root cause located:** in pass 0 that node has three arms; pass 1's extend/stitch lands a
+fourth, and `s5j_tongue_mark` only considers dead-end arms off nodes of degree ≥ 4 — so the 42 m
+arm became a candidate the instant the node reached degree 4. *Late* is normal for it.
+
+**Fixed 2026-08-12: `graph_drop_tongue` is reclassified as by-design** in
+`connections_are_never_refused` — reported in the value dict, not added to `refused`. The
+classification is decidable from the code's own rails rather than from taste: `s5j_tongue_mark` is
+guarded to LEAF arms only and must leave the node three arms, so the arm it removes already went
+nowhere and no connection between two places is refused. **`G_tongue` is a committed case whose
+whole purpose is to assert that this drop HAPPENS** — counting it as a refusal put two committed
+checks in direct contradiction. Verified after the change: refused = 0 on the live scene, the check
+passes, and `repair_tongue_late` 1 is still recorded rather than hidden. Suite unmoved at 37.
+
+**A tripwire that is red-by-design on the primary scene is a tripwire someone mutes** — which is
+precisely the failure this section exists to prevent. `graph_prune` stays in the refusal set: it is
+arguably the same by-design case, but nobody has read its rails the way the tongue's were read.
+Read them before reclassifying it.
+
+#### ⚠️ AND K's OWN NUMBERS REFUTE THE RULE K WAS BUILT TO JUSTIFY
+
+`K_stub_triangle`'s reds are **expected** and must stay recorded as such: 10 checks, of which 7 are
+red *only with the fix*, because the refusing build keeps the jog while the collapsing build
+removes the triangle and ships 0 blocks / 0 lots, making every lot check vacuous. But
+`selfx_junction_surface` **50**, six dead mouths and **−13.43 m** of over-trim are not lot
+artifacts: they are three junctions 32 m apart whose patches overlap.
+
+⚠️ **And the load-bearing measurement: `junction_boundary_is_simple` is 0 in BOTH builds on K.** The
+corner solver does **not** invert on K's five-way. So this section's stated rule — *"an unrepaired
+jog is a smaller defect than a five-way the corner solver inverts on"* — is refuted by the very case
+built to justify it. **It is the right call for C_radial, where it was measured. It is not a general
+law, and it must stop being written as one.** Whether refusal or collapse is better on a given
+site is an open question, not a settled one.
+
+Minor, recorded: `cases.py` says J's landing is "exactly 45 m"; it measures **48.0 m**. The T's
+approach is **48.25°**, below FDOT's 75° guidance. `orphan_edges_dropped` still ships on
+`OUT_graph2`, is read by no check, and is now superseded by `repair_orphan_pass0/late`.
 
 ### S5b — Bridges, tunnels, ramps
 
@@ -2143,6 +3039,457 @@ street edge rather than to the OBB when the two disagree.
 at all** → not a lot. Convexity is enforced, not hoped for. Street access is tested against the
 **block's street-facing edges**, and those must be the kerb boundary from S7 — measuring frontage
 against a filled polygon returns ~0 everywhere inside it and passes everything.
+
+#### ⚠️ Where the thresholds came from — researched 2026-08-11, after they shipped
+
+Hannes: *"did you ever check how lots are sized in real world, and also how all the other tools are
+sizing them we checked out?"* **Fair challenge — only one of the four had a researched source.**
+`max_aspect` 4.0 came from the Unreal sample's HDA; `min_lot_width` 6.0 was chosen to match the
+existing `min_frontage`; `min_street_edge` 8.0 was chosen; `target_lot_area` 600 is an inherited
+default of unknown provenance. Researched properly now.
+
+**Real parcels, in metres:**
+
+| typology | width × depth | area | aspect |
+|---|---|---|---|
+| Amsterdam canal house | **6** × ~30 | ~180 m² | ~5:1 |
+| US row house (APA PAS 164) | **6.1** (20 ft) × 27–30 | 167–186 m² | **4.5–5.0:1** |
+| — obsolete below | 4.9 (16 ft) | | |
+| US urban lot | — | 139–465 m² | |
+| US suburban, quarter acre | **22.9** × 44.2 | 1012 m² | **1.9:1** |
+| US suburban, typical district | — | 697–929 m² | |
+
+**What the other tools do:**
+
+- **CityEngine** — `lotAreaMin` / `lotAreaMax` (an area **band**, not a target), `lotWidthMin`,
+  `irregularity`, `offsetWidth` for the offset mode, plus `cornerAngleMax` / `cornerWidth` for
+  **corner lots as a distinct case**. ⚠️ **No aspect-ratio constraint at all.** Minimum *width*
+  carries the shape discipline.
+- **The Unreal sample** — `1.3 / 4 / 10` aspect ladder with `min_size` 2000 m² and a
+  `new_york_lot` band of 5699–9857 m². That is Manhattan-density downtown; its 4.0 was never
+  aimed at row housing.
+
+**Two conclusions, both against what shipped:**
+
+1. **`min_lot_width` 6.0 m is right, and now has a source.** Amsterdam is 6, the US row minimum is
+   6.1, and below 4.9 is called obsolete. Keep it.
+2. ⚠️ **`max_aspect` 4.0 is too tight for the typology this project calls very important.** A
+   genuine terraced/row parcel is **4.5–5.0:1** and our ladder rejects it as `elongated`. We
+   imported a downtown number and applied it to row housing. And a single global ratio cannot serve
+   both typologies at once — row is ~5:1, suburban is ~1.9:1 — so the threshold is either
+   per-`land_use` / per-mode, or it is replaced by CityEngine's answer: **minimum width plus an
+   area band, with no ratio at all.**
+
+**And the reframe this gives §S8's open task.** The shipped median parcel is **~9 m wide × 45 m
+deep**. That width is row-house; that depth is suburban; **no real typology is 9 × 45.** Real row is
+6 × 30, real suburban is 23 × 44. So the subdivider's defect is not "parcels too small" — it is that
+**depth is a free variable while width is being squeezed**, which is exactly what task #15 fixes.
+The target is not a bigger lot, it is a *coherent* one: pick the typology, pin depth, let frontage
+follow — which is what `offset` mode already does and `recursive_obb` does not.
+
+#### Junction repair used to be recorded here — moved to §S5a, 2026-08-12
+
+The stub-edge collapse, the 5-arm solver defect it uncovered and the four reverted approaches
+were written in the middle of the lots section, which is where two later sessions failed to find
+them and re-reported the defect as new. They are junction work and now live in **§S5a**.
+
+#### The buildability ladder — a fifth source, and the first one that actually implements it
+
+Every source above *names* viability; the Unreal sample is the only one that ships a working
+rejection test, and Hannes remembered it correctly. Read out of
+`resources/citygen/unrealCitygen/houdini/otls/City_Processors.hda`, node
+`city::lot_processor::1.0/group_too_small_or_elongated_ones`, verbatim:
+
+```
+@maxSide = max(v@size.x, v@size.z);           // bbox of the lot
+@minSide = min(v@size.x, v@size.z);
+if (@minSide < minSide_actor)   → group 'nonPrefabCompliant'
+if (@maxSide/@minSide > 1.3)    → group 'elongated'
+if (@maxSide/@minSide > 4)      → group 'superElongated'
+if (@maxSide/@minSide > 10)     → group 'not_buildable'
+```
+
+Three things transfer, and one does not.
+
+1. **The groups are consumed, not just written.** `blast4` deletes `not_buildable` and `blast5`
+   deletes `superElongated`; `elongated` routes to a different building treatment rather than
+   being dropped. **Ours is advisory and deletes nothing** (`citygen.md` §2.2), which is a
+   deliberate contract — but "advisory" has to mean *routed to another outcome*, the way
+   `elongated` is, not *shipped as a house plot anyway*.
+2. **The floor is derived from the asset library, not chosen.** `minSide_actor` is read from
+   **input 1's bbox detail attributes** — the smallest building prefab they own. The minimum lot
+   dimension is *whatever the smallest thing you can put on it needs*. That is a better answer
+   than a magic `min_frontage` and it is the one to adopt: S8's floor should come from the
+   building catalogue, so the two can never drift apart.
+3. **Ratio thresholds are dimensionless and transfer directly**; their absolute areas
+   (`min_size` 2000, `max_foot_print_size` 6500, `new_york_lot_min_size` 5699 →
+   `new_york_lot_max_size` 9857, a size *band* selecting a building style) do not — the unit
+   scale of their scene was not verified, and their target is a Manhattan-density downtown.
+
+⚠️ **What does NOT transfer: their test is on the AXIS-ALIGNED bounding box.** That is only sound
+because their city is axis-aligned — `City_Layout.hda` splits along X then Z. Measured on our
+cases the two disagree badly, and in the dangerous direction:
+
+| case | lots | AABB ladder (their test) | OBB ladder (ours) | min side, m |
+|---|---|---|---|---|
+| A_drawn | 83 | 93% / **49%** / 1% | 93% / 61% / 8% | 4.0 · p10 5.4 · med 9.5 |
+| B_grid | 619 | 83% / **0%** / 0% | 93% / 59% / **26%** | 2.8 · p10 4.3 · med 8.7 |
+| C_radial | 774 | 68% / **21%** / 1% | 90% / 47% / 16% | 2.7 · p10 5.1 · med 10.3 |
+| D_offset | 61 | 3% / 0% / 0% | 15% / 0% / 0% | 13.0 · p10 14.3 · med 17.9 |
+
+*(percentages are `>1.3` elongated / `>4` superElongated / `>10` not_buildable)*
+
+**B_grid is the proof: 0% by their test, 59% by ours.** B's field is rotated 18°, so every parcel
+is a diagonal ribbon with a near-square axis-aligned box. An arbitrary-angle city must measure the
+**oriented** box, which `lot_aspect_ratio` already does — this is one place our check is stronger
+than the source's, and the reason is our own requirement (arbitrary angles), not cleverness.
+
+**And the verdict on the shipped build:** under either measure, roughly half of every case's
+parcels are what this source would delete outright. `D_offset` is the exception at 0% — because
+`lot_depth` pins depth and frontage follows. The European mode already has the shape discipline
+`recursive_obb` lacks, which is the shape of the fix.
+
+#### What was built — 2026-08-11
+
+Two parms on `pf_citygen_mesh`, wired like the existing advisory pair, and two tests appended to
+the `lots_viability` ladder:
+
+| parm | default | writes |
+|---|---|---|
+| `lots_params_min_lot_width` | **6.0 m** — OBB short side | `lot_reject` = `"too_narrow"` |
+| `lots_params_max_aspect` | **4.0** — dimensionless | `lot_reject` = `"elongated"` |
+
+The full ladder is now `area` → `no_frontage` → `too_narrow` → `elongated`, and the evidence
+ships with the verdict: `f@lot_width` and `f@lot_aspect` are published prim attributes, so an
+artist can argue with a label instead of taking it on trust.
+
+**It flags; it does not delete.** `citygen.md` §2.2 is unchanged — filter on `lot_viable`
+downstream. 4.0 is the ratio at which the researched source *deletes*, so our advisory boundary
+and its destructive one are the same number, deliberately.
+
+Measured on the shipped build the moment it landed — **the parcels that would not hold a
+building**:
+
+| case | lots | rejected | median ratio | worst |
+|---|---|---|---|---|
+| A_drawn | 83 | **51 (61%)** | 4.57 | 14.4:1 |
+| B_grid | 619 | **367 (59%)** | 5.02 | **31.3:1** |
+| C_radial | 774 | **364 (47%)** | 3.78 | 30.8:1 |
+| D_offset | 61 | 2 (3%) | 1.01 | 2.1:1 |
+
+⚠️ **These distributions are worse than the ones this section previously recorded, and nothing
+got worse.** The old `lot_aspect_ratio` measured `viable_only=True` — it was reporting a median
+over the survivors while excluding the very parcels it existed to find. B's true worst parcel is
+**31.3:1, not 12.9:1**. Correcting the population is why the numbers jumped.
+
+⚠️ **And the check that measures this had to be rewritten in the same commit, or the feature
+would have silently disabled it.** `viable_only=True` becomes a check that CANNOT FAIL the moment
+anything sets `lot_viable` from shape: every ribbon is marked non-viable, filtered out of the
+sample, and a clean median is reported over what remains. The fix would have read as a triumph.
+It now asserts the **label** instead of the population — fail if a parcel the pipeline calls
+viable is over the ratio or under the width — which has teeth because the two measurements are
+independent implementations (`_obb` in Python here, `pfsl_obb` in VEX there). Currently
+`mislabelled: 0` on all four cases, and the distribution over *all* lots is still recorded,
+because labelling ribbons correctly is not the same as not producing them and only the baseline
+diff can tell those apart.
+
+**Suite: 17 → 14 failing.** `lot_aspect_ratio` passes on all four cases; `no_scratch_attribs_lots`
+drops from 9 to 8 (and 5 to 4) because `lot_reject` was being counted as a leak while the shipped
+parm help told artists to read it — one of the two was wrong, and the help was right.
+
+#### The third rung — `min_street_edge`, 2026-08-11
+
+Hannes, looking at the result: *"i would maybe add one more parameter which is minimum streetside
+length, it is still possible to get long thin lots where no building could fit on."* He is right,
+and an independent audit reached the same gap from the other side: **`min_lot_width` is not the
+test this section specifies.** Line 2094 asks for *"minimum width at the frontage"*; what was built
+is the minimum oriented-box dimension **in any orientation**, which on a shallow wide parcel is the
+*depth*, shipped labelled `too_narrow`. At its default it rejected **17 parcels in 1537**, all on
+C_radial, because the frontage rung above it already caught the rest.
+
+Three measures, three different questions, and **none implies another**:
+
+| measure | what it answers | blind to |
+|---|---|---|
+| `min_frontage` — `pfsl_frontage` | how much boundary touches a street, **summed** | three separate 2 m nibbles sum to 6 m and pass |
+| `min_lot_width` — OBB short side | narrowest dimension in any orientation | a trapezoid 3 m at the street, 20 m at the back |
+| **`min_street_edge`** — `pfsl_street_edge` | **longest UNBROKEN run of street frontage** | — |
+
+`pfsl_street_edge` walks the lot ring twice so a run straddling the start vertex is measured whole,
+and clamps to the summed total so a parcel entirely on the boundary cannot report twice its own
+perimeter. Default **8.0 m**, `lot_reject` = `"no_street_edge"`. Measured on landing: **+5 on
+B_grid, +6 on C_radial**, parcels every other rung passed — small, and exactly the wedge case that
+motivated it. Raise it to bite harder; it is art direction, not a threshold with a right answer.
+
+#### What the audit changed — the check was green by luck
+
+An independent audit broke the pipeline eight ways and the check slept through three of them.
+Root causes, not counts:
+
+- **Nothing asserted the evidence was published.** `lot_aspect_ratio` computed its own OBB and read
+  only `lot_viable`; `lot_width` and `lot_aspect` appeared in the suite exactly once, in an
+  *allow-list*, and an allow-list does not require presence. Delete both attributes and the run
+  stayed green — so "the evidence ships with the verdict" was prose, asserted by nothing.
+- **The reject vocabulary was unasserted.** Relabelling every rejection `"area"` passed.
+- **⚠️ The tolerance was 1e-4 against a measured 3.1e-2 disagreement.** The two OBBs are the same
+  algorithm at two precisions, not independent implementations, and `lot_aspect` is an **argmin** —
+  which is *discontinuous*. Where two candidate rectangles tie in area (C_radial prims 473 and 406
+  tie to 1.4e-7 relative) float32 VEX and float64 Python pick **different rectangles** and the ratio
+  differs by a finite amount, not an epsilon. C_radial already ships **4 viable parcels within
+  0.0312 of the 4.0 line**. The check was one geometry nudge from a red run with no defect present.
+
+Now: five assertions — evidence published · evidence agrees within a band **derived from that
+measurement** (0.05, still ~80× tighter than the smallest real defect, since the axis-aligned break
+moves aspect by whole integers) · no viable parcel over any threshold, tested on the **published**
+numbers so deleting them cannot make it pass · vocabulary closed · `lot_reject` and `lot_viable`
+agree parcel by parcel. All four cases clean.
+
+Two smaller ones from the same audit, both fixed: `"worst": sorted(offenders)[:5]` sorted by
+`(kind, primnum)`, so the field named *worst* reported the five **lowest-numbered** offenders — it
+now sorts by distance past the line; and the threshold lookup in `run_scene_checks.py` was
+`parm(x).eval() if parm(x) else <default>`, which **failed open in both directions at once** —
+delete the promoted parm and VEX's `ch()` returns 0 while the check silently drops the width
+assertion and loosens the ratio, so a missing parameter read green.
+
+#### Round two — the fix for round one's finding did not fix it
+
+A second audit broke the pipeline fifteen ways. **Eleven caught, four green** — and one of the four
+was round one's own headline finding, unfixed.
+
+- ⚠️ **Relabelling every rejection `"area"` still passed.** The round-one fix asserted the label is
+  a *member of a closed vocabulary*; the property actually violated is that the label must **match
+  the reason**. A set containing `"area"` cannot detect relabelling to `"area"`. Membership had been
+  substituted for correctness.
+- ⚠️ **Deleting `lot_street_edge` passed** — the *identical* defect round one named, repeated on the
+  new attribute. It appeared in the suite exactly once, in an **allow-list**, and an allow-list does
+  not require presence. The threshold test also read `if edge is not None`, failing open.
+- ⚠️ **`pfsl_street_edge` had no verification at all.** Replacing it with the summed `pfsl_frontage`,
+  pinning it to `1e9`, and halving it were all green.
+
+Fixed by: `street_edge_control_rig` (fifth control rig in the suite — five hand-computed cases, and
+the discriminating one is `nibbles`: three separate 2 m touches where the sum is 6.0 and the longest
+run is 2.0); `lot_street_edge` added to the evidence assertion with the fail-open removed; and
+`_expected_reject`, which recomputes the ladder from the **published** numbers and the node's
+thresholds and asserts it equals `lot_reject`, excluding parcels within the tolerance band of any
+threshold they are tested against.
+
+#### Two defects neither round asked about
+
+- ⚠️ **Courtyards shipped rejected.** `lots_subdiv` exempts them (`lt == "courtyard" || fr >=
+  minfront`); `lots_viability` then overwrote `lot_viable` with no exemption, so D_offset's two
+  courtyards carried `lot_reject` = `"no_frontage"`. The shipped help says *"filter on `lot_viable`
+  downstream"* — **doing so deletes every courtyard in every European block**, against this
+  section's own "a first-class output, not a discard". Fixed in `lots_viability`, and the check
+  needed the same exemption: a courtyard has zero street frontage **by definition**, so the
+  threshold assertions must skip it or the two disagree.
+- ⚠️ **`lot_type` and `lot_viable` had diverged — 502 parcels** (A 35, B 221, C 246) carrying
+  `lot_type` = `"lot"` with `lot_viable` = 0. `lot_type` was written once in `lots_subdiv` from the
+  old two-rung test and never updated by the three shape rungs. This section's own principle is
+  that advisory must mean **routed to another outcome**, and `lot_type` *is* the routing field. It
+  now reads `"unbuildable"`.
+
+#### ⚠️ On shipped data the new rung is decision-identical to raising `min_frontage` to 8
+
+Honest limit, measured. `pfsl_street_edge` returns `min(best, total)` where `total` **is**
+`pfsl_frontage`'s sum, so `lot_street_edge <= lot_frontage` identically — 0 of 1537 parcels
+exceed it. With `min_street_edge` (8) above `min_frontage` (6), **all 292 `no_frontage` parcels are
+also under the street-edge floor**, and `no_frontage` survives only by sitting earlier in the
+else-if chain. All 11 parcels the rung newly catches have `lot_street_edge == lot_frontage`
+exactly — zero fragmentation. The fragmented case is real (16 C_radial parcels, `frontage − run`
+up to 20.78 m) but all 16 are viable, so fragmentation currently decides nothing.
+
+So: *"none implies another"* is true of the three **measures** and false of the two **thresholds as
+shipped**. The rung is right and the wedge case it guards against is real; it is simply not yet the
+binding constraint on any parcel this suite builds. That changes the moment the subdivider stops
+making ribbons, which is the next task.
+
+#### Rounds three and four — the verification was wrong one level deeper each time
+
+⚠️ **Round three.** The suite had a control rig proving the VEX *function* correct on synthetic
+input, and a label assertion proving the *label* followed from the *published attribute* — and
+**nothing spanning the gap between them.** Corrupt the value where it is written and both halves
+agree with each other while the decision is wrong. Six of 27 breaks shipped green; four flipped real
+decisions, the worst setting `lot_street_edge` 0.04 under its own threshold, which put **all 1537
+parcels inside the tolerance band** and flipped every parcel in every case to unbuildable, green.
+Fixed with `_street_edge_xz` — the shipped block ring and lot polygon re-measured in Python, the
+treatment `_obb` had always given width and aspect. Also: the band now applies only to the rung that
+**decides** a parcel, not all five up front.
+
+⚠️ **Round four, and the sharpest finding of the four: the pipeline half of round three's courtyard
+fix was a NO-OP.** `lots_viability` is an else-if chain and a courtyard's frontage is **0 by
+construction**, so the chain always short-circuited at `no_frontage`; the exemption then *erased*
+that label. Narrowing which labels get erased changed **which verdict was deleted, not which rungs
+ran** — A/B'd over 11 threshold configurations, narrowed and blanket were **bit-identical in 9**,
+including every configuration with `min_frontage > 0`, i.e. every one an artist can reach. The
+exemption now **skips the two frontage rungs inside the ladder**, so a courtyard is still tested on
+area, width and aspect.
+
+> **The generalisation, and the reason it took four rounds:** every fix had been validated by
+> inspection, never by an **A/B against the behaviour it replaced**. A fix that is a no-op looks
+> identical to a fix that works.
+
+Round four also found the coverage hole under the round-three fix: the recomputation sat behind
+`if tol is not None and rings:`, so with the blocks withheld it silently did not run and **all six
+breaks went green again** — the same defect as round one's allow-list and round two's
+`if edge is not None`, three rounds running. **An assertion whose condition is not itself asserted
+is not an assertion.** There is now a coverage counter (`recomputed_n` / `uncovered`), plus the two
+invariants that make the courtyard exemption more than a word anyone can claim: **zero street
+frontage**, and **at most one per block**.
+
+⚠️ And one defect this work introduced and the A/B caught immediately: writing
+`lot_type = "unbuildable"` on rejection **erased the only record that the frontage rungs had been
+skipped**, so a rejected courtyard became unreconstructable. A rejected courtyard is still a
+courtyard; `lot_viable` = 0 carries the rejection.
+
+#### New case: `H_offset_strict`
+
+**D_offset ships 0 rejected parcels, so it caught 0 of 5 rung drops.** The European perimeter block
+is a hard requirement of this project and it had the least-asserting case in the suite — a rung that
+never decides anything is untested however green the run is. Same defect class as `offset` mode
+itself (§4e-6), `max_fillet_fraction` (§4h-2) and the turn clamp (§S3b), and the same cure: a case.
+H is D's inputs in `offset` mode with `max_aspect` at **1.8**, chosen from D's own measured
+distribution (median 1.01, max 2.10) so it rejects the tail rather than everything. It is the value
+that exposed the no-op: at 1.8 the 2.096 courtyard must come back `elongated`, which it could not
+while the exemption erased verdicts. Suite is **16 failing** — 14 plus this case's own instances of
+the two known S8 failures, no new defect class.
+
+#### ⚠️ Round six — the first PIPELINE defect, and `offset` mode was shipping broken parcels
+
+Five audits found defects in the *verification*. The sixth was asked to sort every finding into
+**PIPELINE** (the city Houdini builds is wrong) or **CHECK** (the suite would not notice), and to
+lead with PIPELINE even if less severe. It came back with a real one.
+
+**`offset` mode — the European perimeter block this document calls a hard requirement — shipped
+6 of 61 parcels self-intersecting and mutually overlapping, at the default `lot_depth`. Five of the
+six were labelled buildable.** Measured on `OUT_lots` directly, confirmed by an even-odd raster:
+parcels {8,9,10} covering the same 1.94 m², and the *courtyard* eating into the ring parcels.
+
+**Root cause.** `pfsj_inward_offset` is a per-vertex **miter displacement**, not a polygon
+**offset**: it moves each vertex along its bisector and removes no self-intersections. Wherever a
+concave feature of the block is narrower than 2 × `lot_depth` the inner ring folds through itself,
+and because ring parcels are built from consecutive inner vertices the fold propagates into them.
+Monotone in depth — 0 broken at 12 m, 6 at 18, 13 at 24, 15 at 30.
+
+**Why six rounds missed it, and this is the half worth keeping:**
+
+- `lots_tile_blocks` is **structurally incapable** of seeing it. A folded polygon's negative lobe
+  cancels its positive lobe, so per-block area error stays at ~3e-7 across the whole sweep —
+  including at 15 of 61 broken — while 4.6 m² is covered twice. **This is the same cancellation
+  §4e-5 already recorded for the Sutherland–Hodgman bridge**, back from a different cause, in the
+  other mode.
+- `lots_are_simple_polygons` tested *"any vertex lying on a non-adjacent edge"* while its docstring
+  claimed that *"covers the pinch and a true crossing alike"*. **False.** Two edges crossing X-wise
+  with no vertex near the other edge are invisible to a vertex-to-edge test: the nearest such
+  distance on the six offenders ran **0.029 m to 1.14 m against a 1e-3 m tolerance**. The stated
+  property and the implemented predicate were different properties.
+
+**The fix, both halves in one commit.** `lots_subdiv` now **bisects the inset down to the deepest
+one each block can hold**, testing with `pfsl_ring_is_simple`. `lots_are_simple_polygons` gained an
+**exact, tolerance-free edge-edge crossing test** beside the vertex-on-edge one, because the fold
+and the pinch are different defects. A/B: reverting the pipeline fix in memory gives **6 caught,
+6 viable**; restoring it gives 0, and it returns 0 on all 1476 `recursive_obb` parcels, so it
+manufactures no failures. **The check half is sound.** The pipeline half is not, and round seven
+took it apart.
+
+#### ⚠️ Round seven — the fold fix is PARTIAL, and three claims made for it were false
+
+**1. The depth cost was misreported here and to the artist.** This section claimed *"median 17.91 m
+against a requested 18.0, minimum 17.85, zero parcels below 90%… the fold cost about a centimetre."*
+**Wrong measurement.** That was the oriented box's LONG SIDE, which on a parcel wider than it is deep
+is the *width*. Measured as depth — distance from the block boundary to the inner ring, two
+independent ways that agree — it is **median 16.07 m, minimum 15.55 m, and 30 of 59 parcels below
+90% of requested**. Block `B_00000` keeps **15.89 m** and gives up **2.11 m across 31 parcels**.
+
+**2. Simplicity is NOT monotone in depth, so bisection is the wrong search.** 10 of 49 blocks flip
+more than once: `C_radial#1` is simple, folds at 8.0 m, is simple again at 10.9 m, folds again at
+15.8 m. Bisection assumes one transition and lands in the wrong bracket — it keeps **7.9 m where
+15.8 m is available (44% lost)**, and 8.7 m against 21.6 m on another. The ring it returns was
+always tested, so this is a depth-quality defect, not a validity one.
+
+**3. ⚠️ A SIMPLE INNER RING DOES NOT GUARANTEE SIMPLE PARCELS.** The fix asserts a property of the
+ring; the thing that ships is the parcel, built as `outer… + inner[k2] + inner[k]`. The implication
+is false in three independent ways, all with `pfsl_ring_is_simple` returning 1:
+
+- **An inside-out ring the sign guard cannot see.** Over-offsetting past the incenter maps the ring
+  to an approximately **point-reflected** copy — and a 180° rotation in 2D **preserves orientation**,
+  so `sign(ai) != sign(...)` can never fire, and the reflected polygon is itself simple. `C_radial`
+  block 24 at depth 30: inner area +561.3 against the ring's +1034.4, every inner edge antiparallel
+  to its outer edge, all 7 parcels bowties.
+- **Miter-spike overshoot** crossing the parcel's own outer chain — `pfsj_inward_offset`'s
+  `max(dot(bis,n1), 0.5)` permits 2× displacement in a near-arbitrary direction.
+- **Duplicate vertices** from the outer-chain walk: its `PFSL_EPS` is 1e-6, a thousand times finer
+  than the check's 1e-3, so a block vertex 1e-5 from a station survives and is immediately followed
+  by that station.
+
+Measured at the shipped defaults, `offset` mode: **B_grid 2 broken parcels, C_radial 1** — all
+labelled buildable. At `lot_depth` 30: **C_radial 8, four buildable**, and 561.76 m² double-covered.
+
+**4. The fix was validated on 2 of the 49 block shapes the suite builds.** D and H are both A's
+geometry. Reaching the other 47 is one parm click on a mode this document calls a hard requirement —
+the same defect class named three times already (§4e-6, §4h-2, §S3b) with the same cure each time.
+
+**5. `8` bisection iterations is a load-bearing constant that nothing records.** Bisection converges
+on the tangency depth by construction, so the residual clearance is set by the iteration count — and
+`lots_are_simple_polygons`'s *pinch* half has a 1e-3 m tolerance. At 16 iterations the suite goes
+**red with no defect present** (4 parcels at 4.6e-4 m). Raising the search resolution, the obvious
+improvement, breaks it.
+
+**Next, in the order round seven prescribes:** add a case running `offset` on a block shape other
+than A's two (`C_radial` in `offset` is enough — it goes red on the committed check immediately),
+*then* replace the predicate. "The inner ring is simple" must become the property that actually
+matters — **each ring parcel is simple**, or equivalently no inner edge is antiparallel to its
+outer edge. Case first, so the replacement is measurable instead of argued.
+
+⚠️ **And round six's other finding: round five's pipeline fix was a NO-OP too — the second in a
+row.** `lots_subdiv`'s courtyard guard is *dead code*: the courtyard polygon **is** `inner`, and it
+is emitted only inside `abs(ai) >= minarea`, so `viable` is unconditionally 1 for every courtyard
+that exists and the branch it guards is unreachable. Bit-identical over 48 configurations. Harmless,
+kept for the invariant it states — but it is the second consecutive fix that changed nothing, from
+the round *after* the one that named "validated by inspection, never A/B'd" as the meta-cause.
+
+> **The lesson that outlived every individual finding:** across six rounds, no defect was ever found
+> by reading code. Every one was found by *measuring the difference between two builds* — with the
+> fix and without it, at the call site, on shipped geometry. Inspection cannot distinguish a fix
+> that works from a fix that does nothing, and it cannot distinguish a check that passes from a
+> check that cannot fail.
+
+#### ⚠️ Two failed experiments, and they relocate the cause — 2026-08-11
+
+Hannes chose the typology: *"i think the 10 x 30 sounds about right"* — a middling urban parcel,
+~300 m², 3:1. Two attempts to make `recursive_obb` produce it. **Both made every metric worse, and
+both are reverted.** `max_aspect` was deliberately left at 4.0 throughout so `rejected` stayed
+comparable — the threshold being measured must not move with the thing being measured.
+
+| | median W × L | median aspect | rejected |
+|---|---|---|---|
+| shipped | 9.5 × 45.4 | 4.57 | **61%** (A) |
+| **1. infer frontage, cut across then along** | 4.6 × 73.6 | **15.65** | **73%** |
+| **2. cap the OBB long side at `lot_depth`** | 4.6 × 42.1 | **9.68** | **85%** |
+
+1. **Frontage inference is unreliable.** Early in the recursion a piece's longest boundary edge need
+   not be street-facing, and an interior piece has no boundary edge at all — so "depth" was measured
+   along the wrong axis and then driven harder.
+2. **The long-side cap is bounded on paper and never binds in practice**, and *that* is the useful
+   result. With the cap at 30 m the median long side still came out **36–42 m**, because
+   `W < minfront` fires first: **pieces reach 4.6 m wide before their long side comes down.**
+
+> ⚠️ **Splitting the long axis cannot narrow a piece.** So something else is narrowing them, and it
+> is not this stop condition. It is the **force-street-access swap** further down `lots_subdiv`,
+> which recurses with no depth limit and drives frontage toward `min_frontage` while never touching
+> depth. `lot_aspect_ratio`'s docstring has said exactly this since it was written; both experiments
+> assumed the area-only stop condition was the cause instead, and deepening the recursion merely fed
+> the swap more opportunities.
+
+**This corrects the hypothesis this section has carried all session** — *"`recursive_obb` splits to
+hit `target_area` with no shape term, so it trades width for depth without limit"*. The stop
+condition is not where the width is lost. **Fix the swap, not the stop condition**, and both failed
+experiments are recorded in the wrangle itself so the next attempt does not start where these did.
+
+**Still open, and the actual cure:** this makes the ribbons *visible*, it does not stop them being
+made. Half of every case being unbuildable is a **subdivider** defect —
+`recursive_obb` splits to hit `target_area` with no shape term at all, so it is free to trade
+width for depth without limit. The fix is to give it the depth discipline `offset` already has,
+and its target is now measurable: drive `rejected` towards D_offset's 3%.
 
 ⚠️ **Knowledge gap, still open:** the rigorous treatment is **Vanegas et al. 2012, "Procedural
 Generation of Parcels in Urban Modeling"** (CGF), which we do not have. It is the peer-reviewed
@@ -3251,7 +4598,37 @@ generation time. Everything in the edit-and-override design depends on it.
 
 ## 6b. Shipped V1 assets
 
-Five HDAs in `polyfactory/otls/`, versioned. Build examples from `tests/citygen/cases.py`.
+### ⚠️ TWO PIPELINES SHIP SIDE BY SIDE, ON PURPOSE — status 2026-08-12
+
+`polyfactory/otls/` now holds **eight** HDAs, not five. The split described further down as
+"planned" was built; the original chain was **deliberately kept**, at Hannes' instruction:
+*"keep the old HDAs around until I am happy with the new ones, so we have them as reference in
+case something serious breaks."* That is a decision, not a leftover — do not delete them, and do
+not treat the duplication as drift to be cleaned up.
+
+| chain | assets | wiring, read off the live scene 2026-08-12 |
+|---|---|---|
+| **new** | `pf_citygen_tracer` · `pf_citygen_segmenter` · `pf_citygen_solver` · `pf_citygen_mesh` | `C_field_radial → C_tracer → C_segmenter → C_solver →(out0 splines, out1 junctions)→ C_mesher →` 4 outputs |
+| **old, kept as reference** | `pf_citygen_trace` · `pf_citygen_streets` · `pf_citygen_mesh` | `C_field_radial → C_trace → C_city → OUT_C_radial` |
+
+Both chains hang off the same field source, so any case can be compared A/B in one cook.
+`pf_citygen_tracer` / `_segmenter` / `_solver` are **untracked in git** as of this writing.
+
+⚠️ **The two chains are not independent evidence.** §S5a's junction defect was measured on both and
+is **bit-identical** — same prim numbers, same lengths, same degree histogram. When the old chain
+agrees with the new one, that means the defect predates the split, **not** that the new chain is
+validated.
+
+⚠️ **`copyToHDAFile` copied the parameter interface, and it is still there.** Measured 2026-08-12:
+Tracer, Segmenter and Solver each expose the *same* 13 folders — `Field Resolution … Graph (S3) ·
+Streets (S4) · Junctions (S5)`. The Segmenter shows tracing controls it never reads and the Solver
+shows graph controls it never reads. That is the defect already recorded below under *"The split
+shipped a defect"*, unfixed, and it is the direct cause of the Segmenter carrying **two** distance
+parameters (`min_node_dist` 50.0 **and** `graph_params_min_node_dist` 40.0 — §S5a).
+
+### The original V1 assets
+
+Build examples from `tests/citygen/cases.py`.
 
 | Asset | In → Out |
 |---|---|
@@ -3281,6 +4658,287 @@ stayed.
 *"an artist can inject hand-drawn splines directly at S3 […] entering the pipeline one stage
 later"* made literal. Case A goes `draw → trace(in1) → mesh` and cases B/C go
 `field → trace(in0) → mesh`; the only difference is which input is wired.
+
+### ✅ BUILT — the next boundary: SEGMENTER and SOLVER
+
+⚠️ **This subsection said "🔵 PLANNED, NOT BUILT — nothing here ships" until 2026-08-12, by which
+time the three HDAs had existed for a day and were wired into every case in the scene.** It was
+written 2026-08-11 as a specification, from Hannes' requirements, with every stage assignment read
+off the live `pf_citygen_trace` cook order. It shipped; the text below is kept as the rationale,
+and the status is §6b's table at the top.
+
+**Two things specified here were NOT delivered and are still open:**
+
+- **The parameter interface was never trimmed** — all three assets carry all 13 folders (§6b).
+- **The `out1` precondition below is unmet.** The wiring measured 2026-08-12 is still
+  `C_solver:out1 → C_mesher:in1`, i.e. the mesher still consumes baked junction *geometry* on a
+  second stream rather than deriving corners from graph attributes at cook time. Whether the
+  byte-identical-output symptom below still reproduces was **not** re-measured.
+
+#### Why it has to split again
+
+The splines are not an intermediate, they are **the product**. Hannes: *"the splines do serve as the
+construct how data flows and the mesher is only acting on the data it reads there."* Three consumers
+need them, and only one exists yet: the cross-section template per curve; RailClone-style final
+geometry instancing (what ships today is proxy); and traffic animation/simulation.
+
+⚠️ **Measured 2026-08-11: the current `trace → mesh` split does not deliver that.** Doubling
+`streetWidth` on half the streets between the two nodes changes the output **byte for byte
+identically** — 4459 prims / 5568 points before and after. The mesher follows `out1`, the baked
+junction *geometry*, and ignores what you wrote on `out0`. So *"editable centreline splines"* above
+is true of the attributes and false of their effect. **`out1` must become attributes on the graph**
+— junction data on the node point, per §S5's own quantities — and the mesher must derive corners at
+cook time. That is a precondition for everything below.
+
+#### The criterion, and why the cut is clean
+
+**Topology versus geometry — and topology does not need widths.** Where two curves cross is
+independent of how wide they are. That is the whole reason this split works rather than being an
+arbitrary line through a chain.
+
+- **SEGMENTER** — produces the final graph: which edges and which nodes exist. Contract: *nothing
+  after me creates or destroys an edge or a node.*
+- **artist authors** — on segments (prims) and junctions (points), both of which now exist and are
+  addressable.
+- **SOLVER** — produces geometry from that topology plus whatever was authored. Contract: *I never
+  change topology.*
+
+Dead-end resolution belongs to the **segmenter**, not the solver: merging a dead end into a
+neighbour *creates a junction*, and a junction created after the authoring point is one the artist
+never had the chance to tag.
+
+#### ⚠️ The repair loop decides the cut, and it makes the solver thin
+
+Everything from `graph_resample` to `graph_degree_final` runs **inside the fixed-point repair loop**
+(`repair_begin … repair_verdict … repair_end`). The loop exists because topology changes feed back:
+a dropped tongue changes degree, which changes the next junction measure. **So every stage that can
+change topology must be inside the loop, and the loop must be inside the segmenter** — including
+several stages that are geometry by nature and are there only because topology depends on them.
+
+| stage (live cook order) | kind | goes to |
+|---|---|---|
+| `field_tensor` · `trace` | field → raw splines | **trace** (unchanged) |
+| `input_switch` | source merge | becomes an ordinary **merge** |
+| `graph_resample` | geometry prep | segmenter |
+| `graph_extend` | **topology** — extend dangling ends to connect | segmenter |
+| `graph_stitch` | **topology** — split curves at crossings | segmenter ← *the core* |
+| `graph_fuse` · `graph_convertline` · `graph_polypath` | **topology** — weld, rebuild | segmenter |
+| `graph_degree` | derived | segmenter |
+| `prune_mark` · `graph_prune` | **topology** — drop short edges | segmenter |
+| `graph_min_angle` · `graph_kill_angle` | **topology** — drop shallow-angle edges | segmenter |
+| `graph_connectivity` · `graph_mark_orphans` · `graph_drop_orphans` | **topology** — drop orphans | segmenter |
+| `graph_edge_attribs` | **identity** — `edge_id`, `region_id` | segmenter ← *authoring needs it* |
+| `graph_classify` | **default** `street_class` | segmenter |
+| `xsection_library` · `graph_width` | **default** `streetWidth` | segmenter |
+| `graph_turn_resample` · `_fuse` · `graph_turn_clamp` | *geometry* — but it moves centrelines, and a moved street can cross something new | segmenter (inside the loop) |
+| `junction_premeasure` | *geometry* — but the tongue test needs it | segmenter (inside the loop) |
+| `s5j_tongue_mark` · `graph_drop_tongue` | **topology driven by geometry** | segmenter |
+| `graph_degree_final` · `repair_verdict` | derived · fixed-point test | segmenter |
+| `junction_solve` | corners, trims, cul-de-sac bulbs | **solver** |
+
+**The solver is thin, and that is the correct answer rather than a disappointment.** It means the
+authoring point sits exactly where topology is already final and proven stable — which is the
+property the whole design rests on.
+
+#### The residual circularity, and the rule that settles it
+
+`graph_width` writes **default** widths *inside* the loop, and the tongue test consumes them. So an
+artist who overrides a width *after* the segmenter has changed an input the topology decision was
+already made on. Wider street → bigger corner → deeper trim → a short neighbour that should have
+been dropped, but wasn't.
+
+> **The solver CLAMPS and FLAGS. It never deletes.** This is §S3's *"a connection is never refused"*
+> applied one stage later: a 40 m roundabout that will not fit shrinks to the largest that does,
+> records what it used and why, and reports the shortfall. Shipping a short street is a visible
+> defect the artist can act on; silently deleting one is not. The same rule covers the turn clamp
+> moving a street into a new crossing.
+
+Consequence for authoring, and it is a real constraint rather than a preference:
+
+| attribute | where it must be authored | why |
+|---|---|---|
+| `streetWidth`, `street_class` | **before** the segmenter — on the source curves, which propagate (measured: arbitrary prim attributes survive stitch/fuse/polypath intact, 15 segments from 5 curves all correctly attributed) | they change corners, trims, and can delete edges |
+| `street_template`, `land_use`, instancing tags, lane metadata | between segmenter and solver, per segment | no topological consequence — **but see the open decision** |
+| `junction_template`, when size-neutral | between segmenter and solver, per point | the junction point exists by then |
+| `junction_template`, when size-changing | same place, but the solver clamps it to fit | a roundabout's ICD is a trim, and a trim is structural |
+
+#### ⚠️ The split shipped a defect: `copyToHDAFile` copies the PARAMETER INTERFACE too
+
+Found by audit, 2026-08-11, on the version already saved into the artist's scene.
+
+The three new assets were forked from `pf_citygen_trace` and then cut down internally — but the
+fork carries the **whole promoted parameter interface**, and only the guts were trimmed. All 36
+parms are promoted on all three nodes:
+
+| asset | promoted | live on that node | **inert decoys** |
+|---|---|---|---|
+| Tracer | 36 | 11 | **25** |
+| Segmenter | 38 | 18 | **20** |
+| Solver | 36 | 6 | **30** |
+
+**75 of 110 slider slots do nothing on the node they appear on.** Nothing was lost — every parm
+lands live somewhere — but the panel is ~68% decoys.
+
+⚠️ **The worst is `domain`, and it fails SILENTLY.** It is live only on the Tracer; on the
+Segmenter its only occurrence is inside a code comment and on the Solver it does not appear at all.
+It is also the decoy an artist is most likely to reach for, because this document and `cases.py`
+both point at the Segmenter for graph controls. Measured: setting Domain on the Segmenter ships a
+**25% larger city** — 26 706 prims / 1 165 lots against 21 363 / 774 — rather than erroring.
+
+⚠️ **And bit-identity could never have caught it.** The split was verified by hashing all four
+outputs against the old chain on all nine cases, which is structurally incapable of detecting a
+*lost parameter link*: an unwired slider produces identical output for as long as nobody moves it.
+A different measurement was needed and only an audit ran it.
+
+**Fixed:** `domain` removed from the Segmenter and Solver; the two orphans the reverted arm-cap work
+left behind (`graph_params_realign_dist`, `graph_params_merge_scale`, read by nothing) removed; the
+Tracer and Segmenter corrected from 2 declared outputs to 1 — `tracer.geometry(1)` had been leaking
+**19 321 prims** of internal field-sampling geometry through an unlabelled port. Suite unchanged at
+21 failing, zero baseline movement, and the artist's scene reproduces its recorded prim counts
+exactly.
+
+⚠️ **Still open: the other ~70 decoys.** Pruning them needs a per-node liveness measurement, and the
+quick sweep run at the time disagreed with the audit's (6/6/3 against 11/18/6) because the two used
+different perturbation magnitudes — several of these parms only move at extreme values, which is
+the exact trap `parm_liveness`'s two-value convention exists to avoid. **Pruning on the weaker
+measurement would delete live parameters**, which is worse than a cluttered panel, so only the
+verified-inert ones were removed.
+
+#### ⚠️ The harness could not reach the Tracer at all
+
+`_chain` returns the Segmenter as the `"trace"` role, so `cases.parm()` searched
+`city`/`trace`/`solver` and never saw the Tracer. Every S1/S2 parameter — the entire tracing stage —
+was perturbed on a node where it is dead and reported as a regression, while the node it actually
+drives was swept by nothing: **12 false regressions and zero coverage of the stage that generates
+the streets.** `cases.py` now exposes a `tracer` role and `parm_liveness` sweeps it, with the S1/S2
+entries retargeted and the Tracer restricted to the parms it owns. Back to
+**62 swept · 49 GEOM · 7 ATTR · 6 DEAD, exit 0.**
+
+#### Naming — settled 2026-08-11
+
+Hannes: *"just name them what they do not which elements they are for."* The `CityGen` prefix stays;
+everything after it is the **job**, not the subject matter.
+
+| type name (unchanged) | label | status |
+|---|---|---|
+| `pf_citygen_field_grid` | **CityGen Field: Grid** | already correct |
+| `pf_citygen_field_radial` | **CityGen Field: Radial** | already correct |
+| `pf_citygen_trace` | **CityGen Tracer** | 🔵 **at the split** — see below |
+| *(new)* | **CityGen Segmenter** | 🔵 planned |
+| `pf_citygen_junction` | **CityGen Solver** | ✅ renamed |
+| `pf_citygen_mesh` | **CityGen Mesher** | ✅ renamed |
+| `pf_citygen_streets` | **CityGen: Streets (DEPRECATED, frozen)** | ✅ renamed |
+
+⚠️ **Labels only. Type names are NOT renamed, and that is deliberate.** A type name is what a `.hip`
+stores; changing `pf_citygen_trace` turns every existing instance into a missing definition. This
+project lost a working session to exactly that failure, and the recovery required restoring a
+deleted asset byte-identically from git. Labels are free, type names are a migration.
+
+⚠️ **`pf_citygen_trace` keeps its long label until the segmenter is cut**, because "Tracer" would be
+a lie today — it currently owns S1–S5, not just the trace. Renaming it now would make the tab menu
+describe an architecture that does not exist. It becomes **CityGen Tracer** on the day it only
+traces.
+
+#### The Labs Building Generator precedent — checked, and it half-holds
+
+Hannes offered it as guidance: *"you describe building features, connect them all into a data
+stream, and have one solver node at the end."* Read rather than recalled
+(<https://www.sidefx.com/docs/houdini/nodes/sop/labs--building_generator-4.0.html>):
+
+- ✅ **One solver at the end of a chain — confirmed.** It takes low-resolution blockout meshes,
+  slices them into floors, identifies walls/corners/ledges and substitutes high-resolution modules.
+  That is precisely the role of the **Mesher** here.
+- ✅ **A companion authoring node exists** — *Labs Building Generator Utility* prepares and
+  configures the modules upstream. Direct precedent for the planned template-authoring node.
+- ❌ **But modules are selected by NAME through parameters** — Facade Module Pattern, Corner Module,
+  Top/Bottom Ledge Module — **not** by descriptors merged into a data stream.
+
+⚠️ **So the precedent validates the SHAPE and not the PLUMBING**, and the difference is the thing
+this section is about: name-referenced module parameters are exactly what the Mesher does today with
+its six hard-coded `road_br_*` blasts, and it is what makes an artist unable to add a seventh
+template. Feeding templates on the stream is a step **beyond** the precedent, not a copy of it — and
+it is already the project's own pattern for field sources (§6b: *"descriptors rather than baked
+grids, so any number merge and blend for free"*).
+
+#### Open decisions, to settle before building
+
+1. ✅ **SETTLED 2026-08-11 — the template defines the width.** Hannes: *"you do after all design the
+   template so the street looks a certain way… whatever the artist designed is what the solver needs
+   to account for."* So `street_template` is **structural**: assigning a different template to a
+   segment changes its width, therefore its corners, therefore its trims. It must be authored
+   **before the segmenter**, alongside `street_class` and `streetWidth`, and the per-segment
+   template edit has to round-trip back to the source curve rather than being applied after.
+   *Variable templates* — exposing segments within a template that may stretch — are a future
+   feature and would make part of the width elastic without changing this rule.
+
+   ⚠️ **And the template library is not where an artist can reach it.** Measured: `xsection_library`,
+   a Python SOP **inside** `pf_citygen_trace`, emits exactly the shape Hannes expected — **6 points,
+   one per template**, carrying `template_name`, `streetWidth`, `laneWidth`,
+   `sidewalkWidthLeft/Right`. But it has **no promoted parameter and no input**, the node has only
+   its field and drawn ports, and `pf_citygen_mesh` builds a **second copy** of the same library
+   (`xsection_all`) from the same Python constant. Worse, the mesher then branches on template
+   **by name, with six hard-coded blasts** — `road_br_alley`, `road_br_arterial_median`,
+   `road_br_boulevard_bus_bike`, `road_br_collector`, `road_br_highway`,
+   `road_br_local_residential`. **Adding a seventh template means editing the HDA.** The artist
+   cannot add one at all, which contradicts §1's *"an artist-authored template geometry replaces
+   [the starter presets] entirely"*.
+
+   **A TEMPLATE MAY NOT LIVE INSIDE A NODE. It arrives on the data stream.** Hannes, 2026-08-11:
+   *"the template needs to be plugged in with the datastream it cannot live inside a node."*
+
+   ⚠️ **This is a FOUNDATION requirement, not a later feature, and the distinction matters.** The
+   node that *authors* templates comes after the foundation is right — but the **input that carries
+   them must exist from the start**, on the segmenter (it reads template widths to write defaults)
+   and on the mesher (it builds the cross-section profile). Build the foundation without that port
+   and the interfaces get re-cut later, which is precisely the rework this split exists to avoid.
+   Until an authoring node exists, the current starter library feeds that port — same data, moved
+   from inside the node to outside it.
+
+   **The project already has this pattern and templates were the exception.** §6b: *"Field sources
+   are descriptors rather than baked grids, so any number merge and blend for free."* A field source
+   is one point emitted by an HDA, merged into the stream, read downstream. Templates are the same
+   kind of thing and should work the same way — which is a consistency argument, not just a
+   preference.
+
+   Consumption must be **generic**: a loop over whatever templates arrive, never a branch per name.
+
+   Two shapes to decide when it is built:
+
+   - **What carries the cross-section.** The library points today hold only a **4-number digest**
+     (`streetWidth` / `laneWidth` / `sidewalkWidthLeft` / `sidewalkWidthRight`); the real profile —
+     per-element width, height, drivable, walkable, colour — is re-expanded from `STARTER_TEMPLATES`
+     *inside* each node and never travels. RailClone-style instancing needs the **full element list
+     in the stream**. Either array attributes on one point per template, or **one polyline per
+     template whose points are the cross-section stations** — the second is profile geometry the
+     sweep consumes natively and is the more Houdini-shaped answer; the first matches "one point per
+     template" literally.
+   - **Dedicated input port, or merged into the spline stream?** Merging matches the field-source
+     precedent but needs a marker attribute (`field_src` is the existing one) so no stage mistakes a
+     template for street geometry. A separate port cannot be contaminated but breaks the "everything
+     merges" symmetry. **Decide before the segmenter is cut**, because it fixes the port count.
+2. **`node_id` does not exist.** Prims carry a stable `edge_id` (verified: 15 distinct, all 15
+   unchanged across an unrelated parameter change). Points carry only `P`, `is_node`, `node_class`,
+   `node_degree` — **no identity**. Live editing downstream of the segmenter needs none; a *stored*
+   selection in the edit node does. Add it in the segmenter beside `edge_id`.
+3. **Neither id is known to survive a GEOMETRY change.** Both were only tested against a parameter
+   change. If ids renumber when a drawn curve moves, every stored override points at the wrong
+   element. **Measure before designing the edit node** — it decides whether overrides key on ids or
+   on something spatial.
+4. **The turn clamp must not move node points.** It smooths centrelines inside the segmenter; if it
+   moves a junction, positions desync from the topology the solver is handed. Assert it, do not
+   assume it.
+5. **Provenance is not stamped.** `src_curve` propagates perfectly when an artist adds it by hand
+   (verified semantically: all 15 segments land on the correct axis for their source curve), but
+   nothing writes it automatically. `source_node` is *tool* provenance
+   (`/obj/…/graph_classify`), not authoring provenance. The segmenter should stamp source identity.
+
+#### What must be asserted once it is built
+
+- Topology is **byte-identical** across the solver — same edge count, same `edge_id` set, same node
+  degrees in and out. This is the contract; without a test it is a comment.
+- An authored `streetWidth` **changes the mesh**. The measurement that exposed the current failure
+  becomes the regression test.
+- A clamped junction **reports** its clamp, and nothing is deleted.
 
 **The junction solver is its own asset because it was already being used twice.** §S5's
 `min_standing_widths` requires the solve to run once as a pre-measure (to learn each arm's trim)
@@ -3403,7 +5061,87 @@ film · topology is cached so S8 determinism is not required · planar-per-layer
 - **Pier placement** — not a design question, just implementation plus the standard validation
   rule. Specified in §S5b.
 
-Nothing currently blocking. Open items are tracked system-wide in [`citygen.md`](citygen.md) §7.
+### ⛔ OPEN AND BLOCKING — the multi-leg junction (§S5a). Added 2026-08-12
+
+This entry said *"nothing currently blocking"* while the defect below was visible in the viewport,
+which is the other half of why it was reported fixed twice.
+
+⚠️ **STATUS 2026-08-12 — IT SHIPS, AND THE SUITE NOW RUNS IT.** `graph_stub_mark` →
+`graph_stub_kill` → `graph_stub_fuse` → `graph_realign` are in `pf_citygen_segmenter`, gated on
+repairability: the collapse fires only where a legal T fits, and declines otherwise. On the
+artist's scene that is measured and rendered good — the five-way is a **degree-4 node at
+(138.27, 262.31)**, angles 57.24 · 122.81 · 59.67 · 120.28°, plus a real **degree-3 T at
+(174.70, 331.27)** where the 151.79 m arterial split into 78.0 + 73.8 m, **zero streets deleted**.
+An independent audit measured that build and returned **ship**, with one latent defect: the
+feasibility gate was structurally blind on a 3-cycle.
+
+**Updated after the eighth pass (§S5a, 2026-08-12).** The gate now flood-fills the stub-connected
+cluster and counts the whole cluster's external arms — 5 where it read 4 / 3 / 3 — and the shipped
+junction is bit-unchanged. The coverage gap is closed: **`J_five_star` and `K_stub_triangle` are
+committed**, the first cases in the suite that execute the realign and the gate's refusal at all.
+`connections_are_never_refused` now watches **all five** deleting nodes in the repair loop, with the
+stub collapse accounted separately as a by-design deletion, and is proven able to fail per node.
+Suite **37 failing**: the 25 pre-existing plus J's 2 and K's 10, and K's ten are the honest form of
+an unrepaired jog. On the other nine cases every deletion still happens in pass 0 and no other value
+moved.
+
+⚠️ **What that turned up, and both are open.** (1) On the artist's own live scene the widened
+tripwire is **RED**: `graph_drop_tongue` deletes a 42.00 m arterial at (−240.37, 232.73) →
+(−210.19, 203.54) in pass 1. Pre-existing, reproducible with the realign bypassed, unrelated to
+S5a, invisible to all eleven cases — and **whether a late tongue drop is a by-design deletion or a
+refused connection is the artist's call, not the implementer's** (§S5a "the eighth pass" item 6).
+(2) On a four-junction stub CHAIN whose arms all clear the floor, the collapse is permitted and
+`graph_drop_orphans` then removes two components after pass 0, publishing 3 edges of 9 — identical
+on both definitions, so pre-existing, and newly visible (item 5, which specifies the case to add).
+
+The rule is settled — **cap junction arms at 4; realign a leg where feasible, roundabout
+otherwise** — and four attempts have already been built, measured and reverted (§S5a). The order
+that follows from those failures:
+
+1. ✅ **Commit the checks first** — DONE 2026-08-12. `junctions_not_too_close` and
+   `no_multileg_junctions` are committed and in the baseline, red on C_radial and I_offset_radial.
+   ✅ **(c) the hand-drawn 5-star is DONE too**, 2026-08-12, after being recorded as missing three
+   times: `J_five_star` (the realign repairs it) and `K_stub_triangle` (the gate refuses it) are
+   committed and in the baseline. See §S5a "the eighth pass".
+2. ✅ **Which threshold governs** — `graph_params_min_node_dist` (40.0). The checks read it and the
+   collapse read it. `min_node_dist` (50.0) is the Tracer's, duplicated onto the Segmenter by the
+   `copyToHDAFile` interface copy (§6b) and unread there.
+
+   ⚠️ **Steps 3 and 4 below are now BUILT and shipped — read the status note above, not the
+   "reverted"/"only remaining piece" wording they still carry from before.** The coverage gap that
+   replaced them is now closed as well (item 1(c)). What is left open is item 4's *quality*: the T
+   forms, but its approach angle is whatever the crowded pair's was.
+3. ✅ **Collapse the stub triangle** — built and measured 2026-08-12 (§S5a "the fifth approach"):
+   correct, bit-clean on seven of nine cases, and it *raises* the arm count as designed. It ships,
+   gated on repairability, and since the eighth pass the gate counts the whole stub-connected
+   cluster instead of the two ends of one edge — on a 3-cycle that is 5 arms where it read 4 / 3 / 3.
+4. ⚠️ **Realign the minor-most leg** into a separate T — **built and shipping**; minor-most is
+   decided (**class, then width, then length**) and the landing is a host vertex at
+   `min_node_dist + one resample step`. What is still unbuilt is **re-routing the last stretch** to
+   meet the host at 75–90° inside S3b's `R > halfwidth`. Today the T's approach is whatever the
+   crowded pair's angle was, softened by the blend: 48.25° on the artist's scene, 56.70° on
+   `J_five_star`. Both clear `min_junction_angle` by construction; neither is a right-angled T, and
+   re-routing is what would let the landing floor come down and make the dense C_radial sites
+   reachable.
+5. **Roundabout is NOT the fallback it was assumed to be.** At 32.5° two mouths need 37.4 m of
+   separation; an ICD inside §S5's 21–67 m band gives a radius of 10.5–33.5 m and cannot deliver
+   it either. It remains right for *wide-angle* five-ways; it does not rescue a crowded pair.
+6. **Never eliminate a leg** — §S3's *"a connection is never refused"*. ⚠️ Note that
+   `graph_min_angle` already does exactly this below `min_junction_angle` (25°), and raising that
+   threshold to ~35° would resolve all three sites today. That is a real option and it is the
+   artist's call, not the implementer's.
+
+Run the cascade **once, outside the repair loop**, and clear per-pass state at the top of the pass
+(`needs_roundabout` accumulated stale flags last time). Of the three sub-questions recorded here as
+undecided, two are settled — "minor-most" is class, then width, then length, and the 32.5° pair is
+two streets, so the fix is graph-level (§S5a, "the layer question is now settled"). **What remains
+genuinely undecided is how to re-route the leg's last stretch.**
+
+⚠️ **No part of this may be reported "done" on a green suite.** The suite has been green through
+both pipelines while the defect shipped. It needs an independent audit on the current build; until
+then the honest words are *"implemented, unverified"*.
+
+Other open items are tracked system-wide in [`citygen.md`](citygen.md) §7.
 
 ---
 

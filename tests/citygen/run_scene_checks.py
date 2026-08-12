@@ -126,6 +126,20 @@ def run_case(name, built, field=None):
     # graph as published rather than on either mechanism's own output
     out.append(C.no_short_graph_segments(
         g_graph, parm("s5j_params_min_end_segment").eval()))
+    # ...and the OTHER length floor on the same graph, which nothing asserted
+    # until 2026-08-12: not "is this segment too short" but "are these two
+    # JUNCTIONS too close". `min_node_dist` was read in one place, as a rejection
+    # test for new junctions, and never against the ones tracing produced. Both
+    # of these are red on C_radial today; they are the committed form of the
+    # measurement that found S5a's triangle.
+    out.append(C.junctions_not_too_close(
+        g_graph, parm("graph_params_min_node_dist").eval()))
+    out.append(C.no_multileg_junctions(
+        g_graph, parm("graph_params_min_node_dist").eval()))
+    # ...and the OTHER half of that pair, which is the whole reason the last
+    # attempt shipped green while it was deleting streets. Both of the above are
+    # satisfied by REMOVING an arm; S3 forbids it. Assert them together.
+    out.append(C.connections_are_never_refused(g_graph))
     # ...and the clamp run at its design amplitude, which no case can reach on
     # the infeasible side. See turn_clamp_control_rig().
     out.append(C.turn_clamp_control_rig(trace))
@@ -182,7 +196,29 @@ def run_case(name, built, field=None):
     out.append(C.every_block_is_subdivided(g_lots, g_blocks,
                                            cases.LOT_FLOOR.get(name, 0)))
     out.append(C.no_duplicate_lot_footprints(g_lots))
-    out.append(C.lot_aspect_ratio(g_lots))
+    # Thresholds read from the node, so the suite and the asset cannot drift.
+    # NOT `parm(x).eval() if parm(x) else <default>`: that was the first
+    # version, and it failed OPEN in both directions at once — delete the
+    # promoted parm and VEX's ch() returns 0 while the check quietly drops the
+    # width assertion and loosens the ratio, so a missing parameter reads green.
+    # Every other threshold in this file indexes straight through and raises.
+    out.append(C.lot_aspect_ratio(g_lots,
+                                  parm("lots_params_max_aspect").eval(),
+                                  parm("lots_params_min_lot_width").eval(),
+                                  parm("lots_params_min_street_edge").eval(),
+                                  parm("lots_params_min_lot_area").eval(),
+                                  parm("lots_params_min_frontage").eval(),
+                                  # the blocks, so the frontage inputs can be
+                                  # RE-MEASURED off the shipped rings instead of
+                                  # trusted — see _street_edge_xz
+                                  g_blocks,
+                                  parm("lots_params_lot_depth").eval(),
+                                  parm("lots_params_subdiv_mode").eval()))
+    # ...and the measurement the whole ladder rests on, on cases whose answers
+    # are known by hand. An audit swapped pfsl_street_edge for the summed
+    # pfsl_frontage, pinned it to 1e9 and halved it; the suite stayed green
+    # through all three.
+    out.append(C.street_edge_control_rig(city))
     out.append(C.lots_are_simple_polygons(g_lots))
     # ...and the clipper those two rest on, run on the concave case the shipped
     # blocks only reach by luck. See lot_clip_control_rig.

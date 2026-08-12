@@ -72,20 +72,20 @@ PERTURB = {
     ("field_radial", "angle"): [45.0, 90.0, -180.0],
     ("field_radial", "plaza_radius"): [120.0],
 
-    ("trace", "domain"): [600.0],
-    ("trace", "res"): [90],
-    ("trace", "seed_spacing"): [90.0],
-    ("trace", "step"): [10.0],
-    ("trace", "max_steps"): [150],
-    ("trace", "min_street_sep"): [90.0],
-    ("trace", "min_node_dist"): [40.0, 300.0, 0.0],
-    ("trace", "d_lookahead"): [40.0, 0.0],
-    ("trace", "organic_amp"): [60.0, 90.0, 0.0],
-    ("trace", "organic_scale"): [80.0, 3000.0, 1.0],
-    ("trace", "close_seam_cells"): [0.5, 0.0],
-    ("trace", "close_road_width"): [40.0, 0.0],
-    ("trace", "close_max_end_angle"): [15.0, 0.0],
-    ("trace", "close_min_pts"): [40, 64, 3],
+    ("tracer", "domain"): [600.0],
+    ("tracer", "res"): [90],
+    ("tracer", "seed_spacing"): [90.0],
+    ("tracer", "step"): [10.0],
+    ("tracer", "max_steps"): [150],
+    ("tracer", "min_street_sep"): [90.0],
+    ("tracer", "min_node_dist"): [40.0, 300.0, 0.0],
+    ("tracer", "d_lookahead"): [40.0, 0.0],
+    ("tracer", "organic_amp"): [60.0, 90.0, 0.0],
+    ("tracer", "organic_scale"): [80.0, 3000.0, 1.0],
+    ("tracer", "close_seam_cells"): [0.5, 0.0],
+    ("tracer", "close_road_width"): [40.0, 0.0],
+    ("tracer", "close_max_end_angle"): [15.0, 0.0],
+    ("tracer", "close_min_pts"): [40, 64, 3],
 
     ("trace", "graph_prune_min_edge_len"): [30.0],
     ("trace", "graph_params_min_node_dist"): [20.0],
@@ -133,6 +133,15 @@ PERTURB = {
     ("mesh", "lots_params_lot_depth"): [45.0],
     ("mesh", "lots_params_min_lot_area"): [900.0],
     ("mesh", "lots_params_min_frontage"): [30.0],
+    # Two values each, one at a range end, per this table's own convention — the
+    # generic cur*2 gives a single mid-range probe, and for a THRESHOLD the
+    # interesting direction is the one that switches the rung off entirely.
+    # ⚠️ The sweep stops at the first value that classifies, so a live parm never
+    # reaches its second entry; these exist for the day one of them goes quiet,
+    # which is exactly when a single mid-range probe would lie.
+    ("mesh", "lots_params_min_street_edge"): [16.0, 0.0],
+    ("mesh", "lots_params_min_lot_width"): [12.0, 0.0],
+    ("mesh", "lots_params_max_aspect"): [8.0, 20.0],
     ("mesh", "s5b_params_pier_spacing"): [80.0, 4.0, 300.0],
     ("mesh", "s5b_params_max_span"): [20.0, 600.0],
     ("mesh", "s5b_params_pier_clearance"): [40.0, 0.0, 120.0],
@@ -143,9 +152,9 @@ PERTURB = {
 # the measured set disagree in either direction: a parm going dead is a
 # regression, and a parm coming alive means the entry here is stale.
 KNOWN_DEAD = {
-    ("trace", "organic_amp"): "no `organic` field generator ships (S1)",
-    ("trace", "organic_scale"): "no `organic` field generator ships (S1)",
-    ("trace", "close_min_pts"): "wired, never the binding gate in range",
+    ("tracer", "organic_amp"): "no `organic` field generator ships (S1)",
+    ("tracer", "organic_scale"): "no `organic` field generator ships (S1)",
+    ("tracer", "close_min_pts"): "wired, never the binding gate in range",
     ("mesh", "s5b_params_pier_spacing"): "no case has layer > 0, so no bridge",
     ("mesh", "s5b_params_max_span"): "no case has layer > 0, so no bridge",
     ("mesh", "s5b_params_pier_clearance"): "no case has layer > 0, so no bridge",
@@ -165,6 +174,20 @@ KNOWN_ATTR_ONLY = {
         "S8 viability is ADVISORY by design (citygen.md 2.2) -- it writes "
         "lot_reject / lot_viable / Cd and deletes nothing. 50 -> 20000 m2 "
         "leaves C_radial's 773 lot prims untouched"),
+    # The two SHAPE tests added 2026-08-11. Same contract as min_lot_area and
+    # for the same reason: they are the other three quarters of the same
+    # advisory ladder, so they move lot_reject / lot_viable / lot_width /
+    # lot_aspect / Cd and no geometry. If either ever reads GEOM, S8 has started
+    # deleting parcels and that is a contract change, not a passing test.
+    ("mesh", "lots_params_min_lot_width"): (
+        "advisory shape test -- writes lot_reject = \"too_narrow\" and never "
+        "deletes"),
+    ("mesh", "lots_params_max_aspect"): (
+        "advisory shape test -- writes lot_reject = \"elongated\" and never "
+        "deletes"),
+    ("mesh", "lots_params_min_street_edge"): (
+        "advisory shape test -- writes lot_reject = \"no_street_edge\" and "
+        "never deletes"),
 }
 
 # Which cases can reach a parm, cheapest first.  A parm is only DEAD after all
@@ -273,6 +296,7 @@ def main():
     field = {"field_grid": built["B_grid"]["field"],
              "field_radial": built["C_radial"]["field"]}
     trace = {k: v["trace"] for k, v in built.items()}
+    tracer = {k: v.get("tracer") for k, v in built.items()}
 
     def dig(ck):
         city[ck].cook(force=True)
@@ -285,22 +309,47 @@ def main():
     def owner(hda, ck):
         if hda in field:
             return field[hda]
+        if hda == "tracer":
+            return tracer[ck]
         if hda == "trace":
             return trace[ck]
         return city[ck]
 
+    # ⚠️ THE TRACER WAS SWEPT BY NOTHING. When the pipeline split, `_chain`
+    # started returning the SEGMENTER as the "trace" role, so every S1/S2
+    # parameter — the whole tracing stage — was perturbed on a node where it is
+    # dead and reported as a regression, while the node it actually drives was
+    # never swept at all. Ten false regressions, and zero coverage of the stage
+    # that generates the streets.
     plan = []
     for hda, ck_list in (("field_grid", [FIELD_CASE["field_grid"]]),
                          ("field_radial", [FIELD_CASE["field_radial"]]),
+                         ("tracer", TRACE_CASES),
                          ("trace", TRACE_CASES),
                          ("mesh", STREET_CASES)):
         node = owner(hda, ck_list[0])
+        if node is None:
+            continue
         for pt in node.type().definition().parmTemplateGroup().entriesWithoutFolders():
             if pt.type() in (hou.parmTemplateType.Separator,
                              hou.parmTemplateType.Label):
                 continue
-            plan.append((hda, pt.name(),
-                         STREET_CASES if pt.name() in GRAPH_PARMS else ck_list))
+            # ⚠️ The three assets forked from `pf_citygen_trace` inherited its
+            # WHOLE promoted interface, so most parms on any one of them belong
+            # to a different node. Sweeping the Tracer's copy of a Segmenter parm
+            # measures a decoy and reports it dead. The Tracer is therefore swept
+            # only on the S1/S2 parms it actually owns — the ones this table
+            # names — and the Segmenter keeps the rest.
+            if hda == "tracer" and (hda, pt.name()) not in PERTURB:
+                continue
+            if hda == "trace" and (("tracer", pt.name()) in PERTURB):
+                continue
+            cks = STREET_CASES if pt.name() in GRAPH_PARMS else ck_list
+            if hda == "tracer":
+                cks = [c for c in cks if built[c].get("tracer") is not None]
+                if not cks:
+                    continue
+            plan.append((hda, pt.name(), cks))
 
     rows, dead, attr_only = [], [], []
     for hda, pname, ck_list in plan:
@@ -313,7 +362,10 @@ def main():
             print("  (no perturbation listed for %s/%s, using %r)" % (hda, pname, vals))
         state, where = "DEAD", ""
         for ck in ck_list:
-            p = owner(hda, ck).parm(pname)
+            _own = owner(hda, ck)
+            if _own is None:
+                continue
+            p = _own.parm(pname)
             if p is None:
                 continue
             old = p.eval()

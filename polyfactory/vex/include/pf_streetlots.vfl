@@ -274,6 +274,92 @@ float pfsl_min_frontage(const vector block[], pts[]; const int cnt[];
 }
 
 
+// Longest CONTIGUOUS run of lot boundary lying on the block boundary.
+//
+// NOT pfsl_frontage, which SUMS every qualifying edge. A wedge parcel with
+// three separate 2 m nibbles of street sums to 6 m and clears a 6 m minimum
+// while having no single edge a building can sit against - the classic radial
+// failure, pinched at the inner ring. A building needs one unbroken street
+// edge, which is what S8 asks for as "minimum width at the frontage" and what
+// no summed measure can see.
+//
+// Also not the oriented box's short side: that is the narrowest dimension in
+// ANY orientation, so a trapezoid 3 m at the street and 20 m at the back passes
+// it. The three measures answer three different questions and none implies
+// another.
+float pfsl_street_edge(const vector block[], lot[]; const float tol) {
+    int nb = len(block), nl = len(lot);
+    if (nl < 2 || nb < 2) return 0.0;
+
+    int onb[];
+    float seg[];
+    resize(onb, nl);
+    resize(seg, nl);
+    float total = 0;
+    for (int i = 0; i < nl; i++) {
+        vector a = lot[i], b = lot[(i + 1) % nl];
+        vector mid = (a + b) * 0.5;
+        float d = 1e30;
+        for (int k = 0; k < nb; k++)
+            d = min(d, pfsl_seg_dist(block[k], block[(k + 1) % nb], mid));
+        onb[i] = (d <= tol);
+        seg[i] = distance(a, b);
+        if (onb[i]) total += seg[i];
+    }
+
+    // Two laps of the ring, so a run straddling the start vertex is measured
+    // whole instead of being cut in half by where the array happens to begin.
+    float best = 0, run = 0;
+    for (int lap = 0; lap < 2; lap++) {
+        for (int i = 0; i < nl; i++) {
+            if (onb[i]) { run += seg[i]; best = max(best, run); }
+            else        { run = 0; }
+        }
+    }
+    // ...and the guard the second lap needs: a parcel entirely on the boundary
+    // never resets, so it would report twice its own perimeter.
+    return min(best, total);
+}
+
+
+// Signed orientation of (a, b, c) in XZ. > 0 means c is left of a->b.
+float pfsl_orient(const vector a, b, c) {
+    return (b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x);
+}
+
+
+// Do two segments PROPERLY cross in XZ - strictly, interior to both? Touching
+// at an endpoint or lying collinear is not a crossing.
+int pfsl_seg_cross(const vector a, b, c, d) {
+    float o1 = pfsl_orient(a, b, c), o2 = pfsl_orient(a, b, d);
+    float o3 = pfsl_orient(c, d, a), o4 = pfsl_orient(c, d, b);
+    return (o1 * o2 < 0.0) && (o3 * o4 < 0.0);
+}
+
+
+// Is a closed ring simple - does no edge cross any non-adjacent edge?
+//
+// ⚠️ This is an EDGE-EDGE test, and that is the whole point. The suite's
+// `lots_are_simple_polygons` asks whether any VERTEX lies on a non-adjacent
+// edge, and its docstring claimed that "covers the pinch and a true crossing
+// alike". It does not: two edges crossing X-wise with no vertex near the other
+// edge are invisible to a vertex-to-edge distance test. On the six folded
+// parcels this function was written for, the nearest vertex-to-edge distance
+// ranges from 0.029 m to 1.14 m against a 1e-3 m tolerance - three orders out.
+int pfsl_ring_is_simple(const vector p[]) {
+    int n = len(p);
+    if (n < 4) return 1;
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 2; j < n; j++) {
+            if (i == 0 && j == n - 1) continue;      // adjacent across the seam
+            if (pfsl_seg_cross(p[i], p[(i + 1) % n], p[j], p[(j + 1) % n]))
+                return 0;
+        }
+    }
+    return 1;
+}
+
+
 // Emit one lot polygon, dropping the slivers a clip leaves behind.
 int pfsl_emit(const int geo; const vector p[]; const float minarea) {
     int n = len(p);

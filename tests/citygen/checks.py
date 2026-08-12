@@ -1189,7 +1189,11 @@ def graph_reaches_a_fixed_point(trace_node):
                     q.set(p.eval())
                 except Exception:
                     pass
-        probe.setInput(1, trace_node, 0)
+        # ⚠️ Port 1 was the tracer's drawn-spline input. The SEGMENTER has one
+        # port — that was the point of the split, one workflow whatever the
+        # source — so the replay feeds port 0. Wire it to port 1 and the check
+        # raises rather than failing, which is worse than either.
+        probe.setInput(0, trace_node, 0)
         probe.cook(force=True)
         if probe.errors():
             return Result(name, False, {"converged": conv, "passes": iters},
@@ -1640,72 +1644,519 @@ def no_duplicate_lot_footprints(lot_geo, tol=2):
                   "%d prims, %d distinct footprints" % (len(lot_geo.prims()), len(seen)))
 
 
-def lot_aspect_ratio(lot_geo, max_ratio=5.0, viable_only=True):
-    """Ribbons, not rectangles. Parcels 6.2 m wide and 62 m deep ship viable.
+def _seg_dist_xz(a, b, q):
+    """Point-segment distance on (x, z) tuples. Plain arithmetic on purpose:
+    this is one half of a cross-check, so it may not share code with the thing
+    it checks."""
+    abx, abz = b[0] - a[0], b[1] - a[1]
+    L2 = abx * abx + abz * abz
+    if L2 < 1e-12:
+        return math.hypot(q[0] - a[0], q[1] - a[1])
+    t = max(0.0, min(1.0, ((q[0] - a[0]) * abx + (q[1] - a[1]) * abz) / L2))
+    return math.hypot(q[0] - (a[0] + abx * t), q[1] - (a[1] + abz * t))
 
-    citygen_streets.md 4e-4. OBB aspect ratio measured median ~4:1, p90 9:1,
-    max 31.5:1. The force-street-access swap in `lots_subdiv` recurses with no
-    depth limit, driving frontage down towards `min_frontage` while never
-    touching depth, so the split that "fixes" access is the one that makes the
-    ribbon.
 
-    S8 names "maximum aspect ratio" and "minimum width at the frontage" among
-    the viability tests and implements NEITHER, which is why 10:1 ribbons carry
-    `lot_viable = 1`. The doc gives no number, so the suite pins one here:
-    `max_ratio` is the knob, and moving it is a design decision, not a fix.
+def _street_edge_xz(block, lot, tol):
+    """`pfsl_street_edge` and `pfsl_frontage`, re-derived here in Python.
 
-    Aspect is taken from the minimum-area oriented box, not the axis-aligned
-    one — a diagonal ribbon has a perfectly square AABB.
+    ⚠️ This exists because of a defect three audits took to reach. The suite had
+    a control rig proving the VEX FUNCTION is correct on synthetic input, and a
+    label assertion proving the LABEL follows from the PUBLISHED ATTRIBUTE — and
+    nothing at all spanning the gap between them. Corrupting the attribute at
+    its call site left both halves agreeing with each other while the pipeline's
+    decision was wrong: setting `lot_street_edge` to half its true value flipped
+    218 parcels and the suite stayed green; setting it 0.04 under its own
+    threshold flipped every parcel in every case to unbuildable, green.
+
+    `lot_width` and `lot_aspect` never had that hole, because `_obb` here has
+    always recomputed them from the shipped geometry. This is that same
+    treatment for the other three inputs — measure the shipped rings, do not
+    take the shipped numbers on trust.
+
+    Returns (longest unbroken run, summed frontage).
+    """
+    nl, nb = len(lot), len(block)
+    if nl < 2 or nb < 2:
+        return 0.0, 0.0
+    on, seg, total = [], [], 0.0
+    for i in range(nl):
+        a, b = lot[i], lot[(i + 1) % nl]
+        mid = ((a[0] + b[0]) * 0.5, (a[1] + b[1]) * 0.5)
+        d = min(_seg_dist_xz(block[k], block[(k + 1) % nb], mid)
+                for k in range(nb))
+        hit = d <= tol
+        L = math.hypot(b[0] - a[0], b[1] - a[1])
+        on.append(hit)
+        seg.append(L)
+        if hit:
+            total += L
+    best = run = 0.0
+    for _ in range(2):              # two laps: a run may straddle index 0
+        for i in range(nl):
+            if on[i]:
+                run += seg[i]
+                best = max(best, run)
+            else:
+                run = 0.0
+    return min(best, total), total
+
+
+def _area_xz(p):
+    n = len(p)
+    return abs(sum(p[i][0] * p[(i + 1) % n][1] - p[(i + 1) % n][0] * p[i][1]
+                   for i in range(n))) * 0.5
+
+
+def _expected_reject(lot_type, area, frontage, width, aspect, edge,
+                     min_area, min_frontage, min_width, max_ratio, min_edge,
+                     band):
+    """The S8 ladder, recomputed from the evidence and the node's thresholds.
+
+    Returns the label the pipeline should have written, or None when the parcel
+    sits within `band` of the threshold of the rung that DECIDES it — a float32
+    value against a float64 threshold flaps either way on the line.
+
+    ⚠️ The first version tested every threshold up front and returned None if
+    ANY was near. That silenced the other four rungs, and it was exploitable
+    rather than merely loose: publishing `lot_street_edge` 0.04 below its own
+    threshold put 1537 of 1537 parcels inside the band, so `label_wrong` read 0
+    while every parcel in every case flipped to unbuildable. Only the deciding
+    rung may unassert a parcel.
+
+    A COURTYARD is exempt from the two FRONTAGE rungs, because being interior is
+    its definition. It is NOT exempt from area, width or aspect — a courtyard
+    that is a 2 m sliver is still a defect. The pipeline's exemption and this
+    one both used to be blanket, which meant relabelling every rejected ribbon
+    "courtyard" shipped 421 of them viable with a green suite.
+    """
+    court = (lot_type == "courtyard")
+    for label, val, thr, over in (
+            ("area", area, min_area, False),
+            ("no_frontage", frontage, min_frontage, False),
+            ("too_narrow", width, min_width, False),
+            ("elongated", aspect, max_ratio, True),
+            ("no_street_edge", edge, min_edge, False)):
+        if thr is None:
+            continue
+        if court and label in ("no_frontage", "no_street_edge"):
+            continue
+        if abs(val - thr) <= band:
+            return None                      # this rung decides, and it is a tie
+        if (val > thr) if over else (val < thr):
+            return label
+    return ""
+
+
+def lot_aspect_ratio(lot_geo, max_ratio=5.0, min_width=None, min_edge=None,
+                     min_area=None, min_frontage=None, blocks_geo=None,
+                     lot_depth=None, subdiv_mode=None, agree_tol=0.05):
+    """Ribbons, not rectangles — and whether S8 both SAYS SO and SHOWS ITS WORK.
+
+    ⚠️ Rewritten twice on 2026-08-11. First when S8 gained the shape tests: the
+    old version measured `viable_only=True`, which was right while nothing set
+    `lot_viable` from shape and became a check that CANNOT FAIL the moment
+    something did — every ribbon marked non-viable, filtered out here, and a
+    clean median reported over the survivors. Then again after an audit broke
+    the pipeline eight ways and found three breaks this still slept through:
+    deleting the published evidence, relabelling every rejection, and a
+    tolerance that was green by luck.
+
+    Five assertions now, none of which re-implements the ladder's ORDER (that
+    would only prove the check agrees with itself):
+
+    1. `lot_width` / `lot_aspect` are PUBLISHED. S8 promises the evidence ships
+       with the verdict; nothing asserted it, and both could vanish silently.
+    2. Those published values agree with an OBB measured here.
+    3. No parcel the pipeline calls VIABLE is over the ratio, under the width,
+       or under the street edge.
+    4. Every `lot_reject` is in the known vocabulary.
+    5. `lot_reject` non-empty and `lot_viable` == 0 agree, parcel by parcel.
+
+    ⚠️ `agree_tol` is 0.05, not the 1e-4 it started at, and the reason is not
+    slack. `lot_aspect` comes from an ARGMIN over candidate rectangles, and
+    argmin is discontinuous: where two candidates tie in area, float32 VEX and
+    float64 Python pick DIFFERENT rectangles and the ratio differs by a finite
+    amount, not an epsilon. Measured on C_radial prims 473 and 406 — tied to
+    1.4e-7 relative, disagreeing by 3.1e-2. At 1e-4 this check was one geometry
+    nudge away from going red with no defect present. The band is set from that
+    measurement, and it is still ~80x tighter than the smallest real defect it
+    has to catch (the axis-aligned break moves aspect by whole integers).
+
+    The distribution over ALL lots stays in the value, because it is the number
+    that says whether the SUBDIVIDER improved. Labelling ribbons correctly is
+    not the same as not producing them.
     """
     name = "lot_aspect_ratio"
-    ratios = []
-    for pr in lot_geo.prims():
-        if viable_only:
+    # The shipped block rings, so the ladder's frontage inputs can be
+    # RE-MEASURED rather than taken on trust. Same tolerance `lots_subdiv`
+    # uses, because a different one would report a disagreement that is only a
+    # difference of question.
+    rings, edge_bad, bad_courtyard = {}, [], []
+    recomputed_n = 0
+    courts = {}
+    tol = None if lot_depth is None else max(lot_depth * 0.02, 0.05)
+    if blocks_geo is not None:
+        for bp in blocks_geo.prims():
             try:
-                if pr.attribValue("lot_viable") != 1:
-                    continue
+                bid = bp.attribValue("block_id")
             except Exception:
-                pass
+                continue
+            rings[bid] = [(v.point().position()[0], v.point().position()[2])
+                          for v in bp.vertices()]
+    ratios, offenders = [], []
+    rejected = missing = mismatched = 0
+    disagree, badvocab, label_wrong, bad_routing = [], {}, [], []
+    for pr in lot_geo.prims():
         pts = [v.point().position() for v in pr.vertices()]
         if len(pts) < 3:
             continue
         lng, shrt = _obb(pts)
         if shrt < 1e-9:
             continue
-        ratios.append(lng / shrt)
+        ratio = lng / shrt
+        ratios.append(ratio)
+
+        # 1. the evidence must exist at all. `lot_street_edge` belongs here and
+        #    was left out of the first version, which repeated the exact defect
+        #    this assertion was written to fix: it appeared in the suite only in
+        #    an ALLOW-LIST, and an allow-list does not require presence. Deleting
+        #    it passed.
+        try:
+            pub_w = pr.attribValue("lot_width")
+            pub_a = pr.attribValue("lot_aspect")
+            pub_e = pr.attribValue("lot_street_edge")
+            pub_ar = pr.attribValue("lot_area")
+            pub_fr = pr.attribValue("lot_frontage")
+            pub_ty = pr.attribValue("lot_type")
+            pub_bid = pr.attribValue("block_id")
+        except Exception:
+            missing += 1
+            continue
+        # 2. ...and mean what it says. `lot_width` / `lot_aspect` are checked
+        #    against `_obb`; `lot_street_edge`, `lot_frontage` and `lot_area`
+        #    were checked against NOTHING until round three, which is how six
+        #    corruptions of them shipped green — including one that flipped
+        #    every parcel in the city.
+        if abs(pub_a - ratio) > agree_tol or abs(pub_w - shrt) > agree_tol:
+            disagree.append((pr.number(), round(pub_a, 3), round(ratio, 3),
+                             round(pub_w, 3), round(shrt, 3)))
+        if tol is not None and rings:
+            ring = rings.get(pub_bid)
+            if ring is None:
+                edge_bad.append((pr.number(), "no such block", pub_bid))
+            else:
+                recomputed_n += 1
+                xz = [(q[0], q[2]) for q in pts]
+                re_edge, re_front = _street_edge_xz(ring, xz, tol)
+                if abs(re_edge - pub_e) > agree_tol:
+                    edge_bad.append((pr.number(), "street_edge",
+                                     round(pub_e, 3), round(re_edge, 3)))
+                elif abs(re_front - pub_fr) > agree_tol:
+                    edge_bad.append((pr.number(), "frontage",
+                                     round(pub_fr, 3), round(re_front, 3)))
+                elif abs(_area_xz(xz) - pub_ar) > max(agree_tol, pub_ar * 1e-4):
+                    edge_bad.append((pr.number(), "area", round(pub_ar, 2),
+                                     round(_area_xz(xz), 2)))
+
+        try:
+            rej = pr.attribValue("lot_reject")
+        except Exception:
+            rej = ""
+        # 4. the vocabulary is closed...
+        if rej not in LOT_REJECT_VOCAB:
+            badvocab[rej] = badvocab.get(rej, 0) + 1
+        # ...and — the assertion the closed vocabulary was mistaken for — the
+        # label must MATCH THE REASON. Membership in a set containing "area"
+        # cannot detect relabelling everything to "area", which is exactly the
+        # break that survived two rounds. Recomputing the ladder here is not
+        # circular: every input is a PUBLISHED number and every threshold is
+        # read off the node, so this catches a rung deleted, reordered,
+        # mis-thresholded or relabelled.
+        rung = _expected_reject(pub_ty, pub_ar, pub_fr, pub_w, pub_a, pub_e,
+                                min_area, min_frontage, min_width, max_ratio,
+                                min_edge, agree_tol)
+        if rung is not None and rung != rej:
+            label_wrong.append((pr.number(), rej, rung))
+        try:
+            viable = pr.attribValue("lot_viable") == 1
+        except Exception:
+            viable = True
+        # 5. the two ways of saying "rejected" must agree
+        if viable != (rej == ""):
+            mismatched += 1
+        # ⚠️ COURTYARD INVARIANTS RUN FIRST, on every parcel claiming the type,
+        #    viable or not. They used to sit below `if not viable: continue`,
+        #    which was written when a rejected courtyard could not exist — the
+        #    pipeline retyped it `unbuildable`. Making a rejected courtyard
+        #    reachable (so the exemption could skip rungs instead of erasing
+        #    verdicts) created a state these assertions did not cover, and in
+        #    the same commit that added them: 780 parcels could wear
+        #    `lot_type` = "courtyard" in `recursive_obb`, a mode that cannot
+        #    produce one, with 289 reject labels no longer matching their
+        #    reason, on a fully green suite.
+        #
+        #    That is the fifth round of one defect: an assertion gated on a
+        #    condition nobody asserts (the allow-list, the closed vocabulary,
+        #    `if edge is not None`, `if tol is not None and rings`, and this).
+        #    The general form is that each fix creates a new reachable state and
+        #    each assertion is written for the states that existed before it.
+        if pub_ty == "courtyard":
+            # PROVENANCE. A courtyard is the interior remainder of an `offset`
+            # perimeter block and no other mode can produce one, so a courtyard
+            # anywhere else is a parcel wearing an exemption it did not earn.
+            if subdiv_mode is not None and subdiv_mode != 1:
+                bad_courtyard.append((pr.number(), "mode", subdiv_mode))
+            # ...and the two invariants that make the exemption meaningful
+            # rather than a word anyone can claim. Provenance alone is vacuous
+            # IN offset mode, which is the only mode that can emit one: label
+            # every ring parcel "courtyard" there and the exemption swallowed
+            # all 61. A courtyard is INTERIOR (zero street frontage) and there
+            # is at most ONE per block. Both are already measured above.
+            if pub_fr > agree_tol or pub_e > agree_tol:
+                bad_courtyard.append((pr.number(), "has frontage",
+                                      round(pub_fr, 2)))
+            courts[pub_bid] = courts.get(pub_bid, 0) + 1
+            if courts[pub_bid] > 1:
+                bad_courtyard.append((pr.number(), "second in block", pub_bid))
+
+        if not viable:
+            rejected += 1
+            # `lot_type` IS the routing field, and S8 requires advisory to mean
+            # ROUTED TO ANOTHER OUTCOME. 502 parcels carried lot_type "lot"
+            # with lot_viable 0 because only lots_subdiv's two-rung test ever
+            # wrote it; the three shape rungs never did.
+            if pub_ty not in ("unbuildable", "courtyard"):
+                bad_routing.append((pr.number(), pub_ty))
+            continue
+        # 3. nothing called viable may be over the line — measured on the
+        #    PUBLISHED numbers, so deleting them cannot make this pass.
+        #    A courtyard is exempt from the STREET-EDGE rung only, matching the
+        #    ladder: being interior is its definition, but a courtyard that is a
+        #    2 m sliver or a 30:1 ribbon is still a defect. This block used to
+        #    `continue` on any courtyard, exempting it from aspect and width
+        #    too — wider than the pipeline's own exemption, so the two disagreed
+        #    about their own scope.
+        if pub_a > max_ratio + agree_tol:
+            offenders.append((round(pub_a - max_ratio, 3), "aspect",
+                              pr.number(), round(pub_a, 2)))
+        elif min_width is not None and pub_w < min_width - agree_tol:
+            offenders.append((round(min_width - pub_w, 3), "width",
+                              pr.number(), round(pub_w, 2)))
+        elif (min_edge is not None and pub_ty != "courtyard"
+              and pub_e < min_edge - agree_tol):
+            offenders.append((round(min_edge - pub_e, 3), "street_edge",
+                              pr.number(), round(pub_e, 2)))
     if not ratios:
         return _skip(name, "no lots with an OBB")
     ratios.sort()
-    over = sum(1 for r in ratios if r > max_ratio)
+    # worst FIRST, by how far over the line it is. This used to be
+    # sorted(offenders)[:5] on a (kind, primnum) tuple, so the field named
+    # `worst` reported the five lowest-numbered offenders.
+    offenders.sort(reverse=True)
+    # ⚠️ COVERAGE, not a truthy gate. The recomputation sits behind
+    # `if tol is not None and rings:` — and with the blocks absent or their
+    # block_id deleted it silently did not run, `evidence_recomputed` read 0,
+    # and ALL SIX of round three's corruptions went green again. An assertion
+    # whose condition is not itself asserted is the same defect three rounds
+    # running: the allow-list, then `if edge is not None`, now this.
+    uncovered = len(ratios) - missing - recomputed_n
+    ok = (not offenders and not missing and not disagree and not badvocab
+          and not mismatched and not label_wrong and not bad_routing
+          and not edge_bad and not bad_courtyard and uncovered <= 0)
     value = {"max": round(ratios[-1], 2),
              "median": round(ratios[len(ratios) // 2], 2),
              "p90": round(ratios[int(len(ratios) * 0.9)], 2),
-             "over": over, "lots": len(ratios)}
-    return Result(name, over == 0, value,
-                  "OBB long/short on %s lots; S8 viability caps it at %.1f:1"
-                  % ("viable" if viable_only else "all", max_ratio))
+             "over": sum(1 for r in ratios if r > max_ratio),
+             "lots": len(ratios), "rejected": rejected,
+             "mislabelled": len(offenders), "no_evidence": missing,
+             "evidence_disagrees": len(disagree), "viable_reject_mismatch":
+             mismatched, "unknown_reject": badvocab,
+             "label_wrong": len(label_wrong), "bad_routing":
+             len(bad_routing), "evidence_recomputed": len(edge_bad),
+             # every assertion that can turn this red must also be REPORTABLE.
+             # `bad_courtyard` was in `ok` and in no field here, so the check
+             # could go red without saying why and the baseline diff could not
+             # see it move. Reported now, with the coverage counter beside it.
+             "recomputed_n": recomputed_n, "uncovered": max(uncovered, 0),
+             "courtyard_bad": len(bad_courtyard),
+             "worst_courtyard": bad_courtyard[:3],
+             "worst_recomputed": edge_bad[:3],
+             "worst": [o[1:] for o in offenders[:5]],
+             "worst_evidence": disagree[:3],
+             "worst_label": label_wrong[:3], "worst_routing": bad_routing[:3]}
+    return Result(name, ok, value,
+                  "distribution over ALL lots; FAILS if the published evidence "
+                  "is absent or disagrees by more than %g, if a viable lot "
+                  "exceeds %.1f:1 / is under %s m wide / has under %s m of "
+                  "street edge, or if a reject label is unknown or contradicts "
+                  "lot_viable" % (agree_tol, max_ratio, min_width, min_edge))
+
+
+# Five hand-answered cases for `pfsl_street_edge`, authored in metres and read
+# as (x, z). The block is the square (0,0)-(100,100) throughout; `tol` is 0.5.
+#
+# `nibbles` is the whole reason the function exists and the reason this rig is
+# committed: three separate 2 m touches of the same street. `pfsl_frontage`
+# SUMS them to 6.0 and passes a 6 m minimum; the longest unbroken run is 2.0
+# and no building fits. An audit replaced `pfsl_street_edge` with
+# `pfsl_frontage`, with 1e9, and with half the true value, and every committed
+# check stayed green through all three — because nothing measured it.
+_EDGE_RIG_SNIPPET = """
+#include <pf_streetlots.vfl>
+vector B[] = { {0,0,0}, {100,0,0}, {100,0,100}, {0,0,100} };
+float tol = 0.5;
+
+vector all_on[]  = { {0,0,0}, {100,0,0}, {100,0,100}, {0,0,100} };
+vector wrap[]    = { {0,0,0}, {100,0,0}, {100,0,20}, {0,0,20} };
+vector onevert[] = { {0,0,0}, {20,0,10}, {10,0,20} };
+vector nibbles[] = {
+    {5,0,0}, {7,0,0}, {7,0,10}, {15,0,10}, {15,0,0}, {17,0,0},
+    {17,0,10}, {25,0,10}, {25,0,0}, {27,0,0}, {27,0,20}, {5,0,20}
+};
+vector nothing[] = { {40,0,40}, {60,0,40}, {60,0,60}, {40,0,60} };
+
+string names[] = { "all_on", "wrap", "one_vertex", "nibbles", "nothing" };
+// hand-computed: the whole ring clamped to its own perimeter; the left+bottom+
+// right run measured across the array start; a single shared vertex is not an
+// edge; the longest of three 2 m touches; nothing at all.
+float want[]  = { 400.0, 140.0, 0.0, 2.0, 0.0 };
+
+for (int i = 0; i < 5; i++) {
+    vector lot[];
+    if (i == 0) lot = all_on;
+    if (i == 1) lot = wrap;
+    if (i == 2) lot = onevert;
+    if (i == 3) lot = nibbles;
+    if (i == 4) lot = nothing;
+    int pt = addpoint(0, set(float(i), 0, 0));
+    setpointattrib(0, "case", pt, names[i]);
+    setpointattrib(0, "got",  pt, pfsl_street_edge(B, lot, tol));
+    setpointattrib(0, "want", pt, want[i]);
+    // the discriminator: SUM vs LONGEST RUN. Equal on four cases and 6 vs 2 on
+    // `nibbles`, which is exactly the parcel the rung was added to catch.
+    setpointattrib(0, "sum",  pt, pfsl_frontage(B, lot, tol));
+}
+"""
+_EDGE_RIG_SUM = {"all_on": 400.0, "wrap": 140.0, "one_vertex": 0.0,
+                 "nibbles": 6.0, "nothing": 0.0}
+
+
+def street_edge_control_rig(city_node, tol=1e-3):
+    """Run the SHIPPED `pfsl_street_edge` on cases whose answers are known.
+
+    citygen_streets.md S8, "the third rung". Fifth control rig in the suite and
+    here for the reason all five are: an audit broke the measurement three
+    different ways — swapped it for the summed `pfsl_frontage`, pinned it to
+    1e9, halved it — and the whole suite stayed green every time, because
+    `lot_street_edge` was only ever named in an ALLOW-LIST and an allow-list
+    does not require a value to be right, or even present.
+
+    The assertion is `got == want` on five hand-computed cases, plus `sum`
+    against `pfsl_frontage` so the two measures are pinned as DIFFERENT on the
+    case that motivated the rung: 6.0 summed against a 2.0 longest run.
+
+    ⚠️ Known and deliberately not asserted here: the per-edge test uses the edge
+    MIDPOINT, so a lot edge whose midpoint lands on a reflex vertex of a
+    concave block counts whole even when half of it is interior. `pfsl_frontage`
+    has had the identical flaw since it was written. Measured over all 1537
+    shipped parcels the worst error is 0.001 m and it flips no decision, so it
+    is recorded rather than fixed — but a block with deep notches would change
+    that, and this note is where to start looking.
+    """
+    name = "street_edge_control_rig"
+    shown = next((c for c in city_node.children() if c.isDisplayFlagSet()), None)
+    made = []
+    try:
+        city_node.allowEditingOfContents()
+        w = city_node.createNode("attribwrangle", "__chk_edge_rig")
+        made.append(w)
+        w.parm("class").set(0)
+        w.parm("snippet").set(_EDGE_RIG_SNIPPET)
+        w.setInput(0, None)
+        geo = w.geometry()
+        rows = {}
+        for pt in geo.points():
+            rows[pt.attribValue("case")] = (round(pt.attribValue("got"), 4),
+                                            round(pt.attribValue("want"), 4),
+                                            round(pt.attribValue("sum"), 4))
+    except Exception as exc:
+        # FAIL, never skip: a rig that cannot run is a failure of the thing it
+        # tests, not an absence of information about it.
+        return Result(name, False, {"error": str(exc)[:200]},
+                      "the street-edge control rig could not be run at all")
+    finally:
+        for nd in reversed(made):
+            try:
+                nd.destroy()
+            except Exception:
+                pass
+        if shown is not None:
+            try:
+                shown.setDisplayFlag(True)
+            except Exception:
+                pass
+
+    wrong = {k: {"got": g, "want": wnt} for k, (g, wnt, _) in rows.items()
+             if abs(g - wnt) > tol}
+    badsum = {k: {"sum": sm, "want": _EDGE_RIG_SUM.get(k)}
+              for k, (_, _, sm) in rows.items()
+              if abs(sm - _EDGE_RIG_SUM.get(k, -1)) > tol}
+    missing = sorted(set(_EDGE_RIG_SUM) - set(rows))
+    value = {"cases": len(rows), "wrong": wrong, "frontage_wrong": badsum,
+             "missing": missing,
+             "nibbles_run_vs_sum": list(rows.get("nibbles", (None, None, None)))[::2]}
+    return Result(name, not wrong and not badsum and not missing, value,
+                  "pfsl_street_edge against five hand-computed answers; "
+                  "`nibbles` must read 2.0 as a run and 6.0 as a sum")
+
+
+def _orient_xz(a, b, c):
+    return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+
+
+def _seg_cross_xz(a, b, c, d):
+    """Do two segments PROPERLY cross — strictly interior to both? Touching at
+    an endpoint or lying collinear is not a crossing. Mirrors `pfsl_seg_cross`
+    in VEX so the pipeline and the suite agree on what "simple" means."""
+    o1, o2 = _orient_xz(a, b, c), _orient_xz(a, b, d)
+    o3, o4 = _orient_xz(c, d, a), _orient_xz(c, d, b)
+    return o1 * o2 < 0.0 and o3 * o4 < 0.0
 
 
 def lots_are_simple_polygons(lot_geo, tol=1e-3):
-    """Bowtie parcels: two lobes joined by a zero-width bridge.
+    """Bowtie parcels: two lobes joined by a zero-width bridge — AND true
+    crossings, which this check claimed to cover and did not.
 
-    citygen_streets.md 4e-5. `pfsl_clip` is Sutherland-Hodgman, whose output is
-    only guaranteed simple for a CONVEX subject. Its comment claims a mildly
-    concave block "degrades gracefully"; in fact every block is non-convex
-    (2/2, 9/9, 13/13, up to 291 reflex vertices), and the clip then walks out
-    along one lobe, back down the same line, and out along another.
+    citygen_streets.md 4e-5 and S8. `pfsl_clip` was Sutherland-Hodgman, whose
+    output is only guaranteed simple for a CONVEX subject, and every block here
+    is non-convex. The clip then walks out along one lobe, back down the same
+    line, and out along another.
 
     This needs its own check because the numeric ones cannot see it:
     `lots_tile_blocks` passes to 1e-8 because the bridge has ZERO AREA, and
     `no_duplicate_lot_footprints` compares centroids, which a bowtie shares with
-    nothing. Exactly the defect class that hides behind aggregate numbers.
+    nothing.
 
-    The predicate is "the boundary is not simple": any vertex lying on a
-    non-adjacent edge. That covers the pinch (a repeated vertex) and a true
-    crossing alike, and unlike a parametric crossing test it is stated in
-    metres. `tol` = 1 mm sits on a plateau — the counts are stable from 1e-4 to
-    1e-2 m — comfortably above float32 P quantisation (~6e-5 m at the domain
-    edge) and far below any real parcel feature.
+    ⚠️ Rewritten 2026-08-11 after an audit. The predicate was "any vertex lying
+    on a non-adjacent edge", and the docstring asserted that "covers the pinch
+    (a repeated vertex) and a true crossing alike". **That is false**, and it
+    hid a live pipeline defect for six audit rounds: two edges crossing X-wise
+    with no vertex near the other edge are invisible to a vertex-to-edge
+    distance test. `offset` mode was shipping 6 of 61 parcels folded through
+    themselves, 5 of them labelled buildable, and the nearest vertex-to-edge
+    distance on those six ran from 0.029 m to 1.14 m — up to three orders of
+    magnitude outside this check's 1e-3 m tolerance. The stated property and the
+    implemented predicate were different properties.
+
+    So there are now TWO predicates, because they catch different things:
+
+    * **proper edge-edge crossing** (`_seg_cross_xz`), exact and tolerance-free
+      — the fold. Returns 0 on all 1476 `recursive_obb` parcels, so it
+      manufactures no failures.
+    * **vertex on a non-adjacent edge** within `tol` — the pinch, where a
+      zero-width bridge has no transversal crossing to find. `tol` = 1 mm sits
+      on a plateau: counts are stable from 1e-4 to 1e-2 m, above float32 P
+      quantisation (~6e-5 m at the domain edge) and far below any real feature.
     """
     name = "lots_are_simple_polygons"
     bad, viable = 0, 0
@@ -1715,7 +2166,22 @@ def lots_are_simple_polygons(lot_geo, tol=1e-3):
         if n < 4:
             continue
         hit = False
+        # the FOLD: an exact, tolerance-free crossing test
+        xz = [(q[0], q[2]) for q in pts]
         for i in range(n):
+            for j in range(i + 2, n):
+                if i == 0 and j == n - 1:
+                    continue                      # adjacent across the seam
+                if _seg_cross_xz(xz[i], xz[(i + 1) % n],
+                                 xz[j], xz[(j + 1) % n]):
+                    hit = True
+                    break
+            if hit:
+                break
+        # the PINCH: a zero-width bridge has no transversal crossing to find
+        for i in range(n):
+            if hit:
+                break
             a, b = pts[i], pts[(i + 1) % n]
             for j in range(n):
                 if j == i or j == (i + 1) % n or (j + 1) % n == i:
@@ -1723,8 +2189,6 @@ def lots_are_simple_polygons(lot_geo, tol=1e-3):
                 if _seg_point_dist(a, b, pts[j]) < tol:
                     hit = True
                     break
-            if hit:
-                break
         if not hit:
             continue
         bad += 1
@@ -1742,7 +2206,24 @@ def lots_are_simple_polygons(lot_geo, tol=1e-3):
 # plus the section-6 identity attributes that must survive to final geometry.
 # Everything else on OUT_lots is inherited block/graph scratch.
 LOT_PRIM_ATTRS = ("block_id", "lot_id", "lot_type", "lot_area", "lot_frontage",
-                  "lot_viable", "land_use", "region_id", "source_node", "layer")
+                  "lot_viable", "land_use", "region_id", "source_node", "layer",
+                  # the evidence behind a shape rejection, published so the
+                  # label can be argued with rather than taken on trust
+                  "lot_width", "lot_aspect",
+                  # ...and the label itself, which was being counted as a leak
+                  # while the shipped parm help told artists to read it
+                  # ("a parcel under this area gets `lot_reject` = \"area\"").
+                  # One of the two had to be wrong; the help is right, and
+                  # citygen.md 2.2 backs it: a validation warning is "persisted
+                  # as an attribute/record on the offending element".
+                  "lot_reject", "lot_street_edge")
+
+# The complete `lot_reject` vocabulary. Pinned here so a typo, a silently
+# dropped rung or a relabelling is a test failure rather than a shrug: an
+# auditor broke the ladder by relabelling every rejection "area" and every
+# check stayed green.
+LOT_REJECT_VOCAB = ("", "area", "no_frontage", "too_narrow", "elongated",
+                    "no_street_edge")
 LOT_POINT_ATTRS = ("P",)
 
 
@@ -1948,9 +2429,12 @@ def no_scratch_attribs(geo, prim_allowed=(), point_allowed=("P",),
     already corrupted a stage here once (see `no_scratch_groups`); the same
     hazard applies to attribute names.
 
-    `lot_reject` is listed as leakage per the audit even though the wrangle that
-    writes it treats it as an advisory explanation — the allow-list above is one
-    line to change if that call goes the other way.
+    ⚠️ `lot_reject` WAS counted as leakage here; that call was reversed on
+    2026-08-11 and it is now allow-listed. It is a published output by design:
+    `citygen.md` §2.2 says a validation warning is "persisted as an
+    attribute/record on the offending element", and the shipped parm help on
+    `min_lot_area` has told artists to read it since before the shape rungs
+    existed. One of the two had to be wrong, and it was this list.
 
     ⚠️ **`None` means "do not police this class", and the city output is why it
     exists.** This is the only thing in the suite that looks at DETAIL
@@ -2463,6 +2947,259 @@ def no_short_graph_segments(graph_geo, floor=1.0):
                    "under": count, "worst_at": at},
                   "shortest centreline segment in the published graph; the "
                   "floor is %.2f m" % floor)
+
+
+def _junction_graph(graph_geo, floor):
+    """Endpoint degree, edge lengths, and the clusters a multi-leg junction hides
+    in.
+
+    Returns (deg, edges, clusters) where `edges` is [(a, b, length)] over the
+    polyline ENDPOINTS only - interior vertices of a polyline are shape, not
+    topology, and `graph_polypath` has already merged every degree-2 node away,
+    so there are none to find.
+    """
+    deg, edges = {}, []
+    for pr in graph_geo.prims():
+        vs = list(pr.vertices())
+        if len(vs) < 2:
+            continue
+        pts = [v.point().position() for v in vs]
+        L = sum((pts[i] - pts[i - 1]).length() for i in range(1, len(pts)))
+        a, b = vs[0].point().number(), vs[-1].point().number()
+        deg[a] = deg.get(a, 0) + 1
+        deg[b] = deg.get(b, 0) + 1
+        edges.append((a, b, L))
+
+    parent = {}
+
+    def find(x):
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(x, y):
+        rx, ry = find(x), find(y)
+        if rx != ry:
+            parent[ry] = rx
+
+    for a, b, L in edges:
+        if L < floor and deg.get(a, 0) >= 3 and deg.get(b, 0) >= 3:
+            union(a, b)
+    clusters = {}
+    for p in deg:
+        clusters.setdefault(find(p), []).append(p)
+    return deg, edges, clusters
+
+
+def junctions_not_too_close(graph_geo, floor):
+    """No edge may join two junctions closer together than `floor` metres.
+
+    THE JOG RULE, and it is the one threshold here taken from subdivision street
+    standards rather than from measurement: street jogs offset under 125-150 ft
+    (38-46 m) are prohibited, and `graph_params_min_node_dist` defaults to 40 m,
+    inside that band. The value was already right and nothing enforced it - it
+    was read in exactly ONE place, `graph_extend`, as a rejection test when
+    landing a NEW junction. Nothing ever looked at the junctions tracing had
+    already produced.
+
+    What its absence cost: C_radial shipped three junctions closing a
+    19.9 x 25.4 x 31.6 m triangle - present from the first stitched state, in
+    BOTH the old `pf_citygen_streets` chain and the new Segmenter, and untouched
+    by graph_extend, graph_prune, graph_min_angle, graph_kill_angle and
+    graph_drop_tongue. S5 then solved three junction patches into the space of
+    one and they collided. The artist found it in the viewport; not one check in
+    this file could see it. See S5a.
+    """
+    name = "junctions_not_too_close"
+    deg, edges, _ = _junction_graph(graph_geo, floor)
+    worst, at, count = None, None, 0
+    for a, b, L in edges:
+        if deg.get(a, 0) < 3 or deg.get(b, 0) < 3:
+            continue
+        if worst is None or L < worst:
+            p = graph_geo.point(a).position()
+            worst, at = L, [round(p[0], 1), round(p[2], 1)]
+        if L < floor:
+            count += 1
+    return Result(name, count == 0,
+                  {"under": count,
+                   "shortest_m": None if worst is None else round(worst, 2),
+                   "worst_at": at},
+                  "shortest edge joining two junctions; the floor is %.1f m"
+                  % floor)
+
+
+def no_multileg_junctions(graph_geo, floor, cap=4):
+    """No junction may carry more than `cap` arms - counted AFTER near-coincident
+    junctions are treated as one.
+
+    ⚠️ THE ARM COUNT IS NOT THE NODE DEGREE, and reading the degree is exactly
+    what hid this defect through two pipelines. C_radial's five-way is spelled as
+    three nodes of degree 3, 4 and 4 standing 20-32 m apart, so a degree
+    histogram reports a maximum of 4 and passes - it did, on every run, while the
+    junction was visibly broken. Cluster junctions joined by an edge shorter than
+    `floor` first, then count the edges LEAVING the cluster: 3 + 4 + 4 arms less
+    two ends each for the 3 internal edges leaves exactly 5.
+
+    Multi-leg intersections (5+ legs) are to be avoided in published practice,
+    and the accepted resolutions are realign a leg into a separate T, make it a
+    roundabout, or eliminate a leg - which S3 forbids outright. This check does
+    not care which is chosen; it asserts the cap. See S5a.
+
+    It is deliberately NOT a subset of `junctions_not_too_close`: collapsing the
+    stub edges makes that one green and leaves this one red, which is the whole
+    shape of the defect and the reason both are committed.
+    """
+    name = "no_multileg_junctions"
+    deg, edges, clusters = _junction_graph(graph_geo, floor)
+    site = {}
+    for root, members in clusters.items():
+        for m in members:
+            site[m] = root
+    arms = {}
+    for a, b, L in edges:
+        ra, rb = site[a], site[b]
+        if ra == rb:
+            continue                      # internal to the cluster: not an arm
+        arms[ra] = arms.get(ra, 0) + 1
+        arms[rb] = arms.get(rb, 0) + 1
+    worst, at, over, merged = 0, None, 0, 0
+    for root, members in clusters.items():
+        k = arms.get(root, 0)
+        if len(members) > 1:
+            merged += 1
+        if k < 3:
+            continue                      # a dead end or a through-node, not a junction
+        if k > worst:
+            p = graph_geo.point(members[0]).position()
+            worst, at = k, [round(p[0], 1), round(p[2], 1)]
+        if k > cap:
+            over += 1
+    return Result(name, over == 0,
+                  {"max_arms": worst, "over_cap": over,
+                   "clusters_merged": merged, "worst_at": at},
+                  "arms at the busiest junction, counting junctions within "
+                  "%.1f m as one; the cap is %d" % (floor, cap))
+
+
+def connections_are_never_refused(graph_geo):
+    """No repair pass after the first may DELETE a street.
+
+    S3: *"a connection is never refused"*. Every other check in this file
+    measures junction HEALTH, and every one of them is satisfied just as well by
+    removing an arm as by fixing it. That is not a hypothetical: the sixth S5a
+    attempt reported `no_multileg_junctions` green while `graph_kill_angle`
+    blasted **8 streets across passes 1 and 2, two of them arterials** — the
+    realign had dragged the whole junction 40 m, pushed arms under
+    `min_junction_angle`, and the existing cleanup rule then removed them. The
+    arm cap was reached by resolution 3, the one S3 forbids outright, and the
+    suite could not tell the two apart because junction health and street
+    preservation were asserted separately and never together. This is the union
+    term, and it would have gone red on that build's first run.
+
+    Pass 0 is exempt and deliberately so: `graph_min_angle` exists to remove the
+    near-parallel duplicates TRACING produced, and on this build it removes none
+    on any of the nine cases. From pass 1 the graph is being repaired rather than
+    cleaned, so a kill there is a repair destroying a street to make its own
+    numbers work.
+
+    The counts are written inside the Segmenter's repair loop
+    (`repair_<node>_pass0` / `repair_<node>_late`) because the loop is a feedback
+    block: Single Pass on `repair_end` re-runs one iteration from the ORIGINAL
+    input rather than stepping the feedback, so the per-pass state is not
+    reachable from outside — measured 2026-08-12, `repair_iterations` came back 1
+    for every requested pass. A MISSING attribute fails rather than skipping; the
+    same "fails open" trap already cost this suite a silently dropped width
+    assertion (see `lot_aspect_ratio`).
+
+    ⚠️ **IT COUNTED ONE NODE OUT OF FIVE, which is the same blind spot one level
+    up.** The first version read only `graph_min_angle`'s flags, and an audit
+    found FOUR other nodes in the same repair loop that delete primitives with
+    nothing asserting any of them: `graph_prune` (short dead ends, inside its own
+    6-iteration loop), `graph_drop_orphans` (whole components carrying no
+    junction), `graph_drop_tongue` (arms the junction mouth has eaten) and
+    `graph_stub_kill` (the jog collapse). A repair that reached its numbers
+    through any of those four would have shipped green past a tripwire written
+    for exactly that failure. `orphan_edges_dropped` was already on the geometry
+    and read by no check at all.
+
+    **`graph_stub_kill` is the one deletion the design ASKS for** and it is
+    reported, never flagged: the jog edge goes and its two junctions become one,
+    so the connection survives as the merged node. It is counted separately
+    rather than ignored, because a by-design deletion nobody counts is
+    indistinguishable from a refusal.
+
+    The others are refusals when they fire late, on the same reasoning that
+    exempts pass 0 for `graph_min_angle`: measured 2026-08-12 across all nine
+    committed cases, every one of them deletes ONLY in pass 0 — prune 0-3, orphan
+    0-3, tongue 0-8, late counts 0 everywhere — so a late deletion is a repair
+    destroying a street, not tracing residue being cleaned.
+
+    ⚠️ **`graph_drop_tongue` IS BY DESIGN TOO, and counting it as a refusal made
+    this check RED ON THE ARTIST'S OWN SCENE — which is how a tripwire gets
+    muted.** An audit found `repair_tongue_late` 1 there: a 42.00 m arterial at
+    (−240.37, 232.73) → (−210.19, 203.54), dropped in pass 1. Pre-existing and
+    nothing to do with S5a — with all four S5a nodes bypassed the graph is 95
+    prims converging in 9 passes, §S5a's own pre-S5a numbers, and the drop still
+    happens. Root cause: in pass 0 that node has three arms, and pass 1's
+    extend/stitch lands a fourth; `s5j_tongue_mark` only considers dead-end arms
+    off nodes of degree ≥ 4, so the 42 m arm became a candidate the instant the
+    node reached degree 4. Late is normal for it, not suspicious.
+
+    **The classification is decidable from the code's own rails, not from
+    taste.** `s5j_tongue_mark` is guarded to LEAF arms only and must leave the
+    node three arms (`if ((!leafstart && !leafend) || (leafstart && leafend) ||
+    junc < 4 …) removeprim`), and `pfsg_is_short_stub` carries the same rail. A
+    tongue drop therefore removes an arm that already went nowhere: no connection
+    between two places is refused. `G_tongue` is a committed case whose entire
+    purpose is to assert that this drop HAPPENS — counting it as a refusal put
+    two committed checks in direct contradiction.
+
+    So of the five instrumented nodes only **`graph_min_angle` and
+    `graph_drop_orphans`** can refuse a connection by construction. `graph_prune`
+    is left in the refusal set for now: it deletes short dead ends, which is
+    arguably the same by-design case, but nobody has read its rails the way the
+    tongue's were read, and it fires late on nothing today. Read them before
+    reclassifying it — that is exactly the shortcut that produced the false red
+    above. Every node stays in the value dict either way, so a baseline diff
+    still catches movement in any of them.
+    """
+    name = "connections_are_never_refused"
+    # (attribute stem, the node that does the deleting, is it a refusal?)
+    NODES = (("killed", "graph_min_angle", True),
+             ("prune", "graph_prune", True),
+             ("orphan", "graph_drop_orphans", True),
+             ("tongue", "graph_drop_tongue", False),
+             ("stub", "graph_stub_kill", False))
+    missing, pass0, late, refused = [], {}, {}, 0
+    for stem, node, is_refusal in NODES:
+        for when in ("pass0", "late"):
+            attr = "repair_%s_%s" % (stem, when)
+            if graph_geo.findGlobalAttrib(attr) is None:
+                missing.append(attr)
+                continue
+            v = graph_geo.attribValue(attr)
+            (pass0 if when == "pass0" else late)[node] = v
+            if when == "late" and is_refusal:
+                refused += v
+    if missing:
+        return Result(name, False, {"missing": missing},
+                      "the segmenter is not reporting %s — the tripwire in the "
+                      "repair loop is gone" % ", ".join(missing))
+    return Result(name, refused == 0,
+                  {"killed_after_pass0": late["graph_min_angle"],
+                   "killed_in_pass0": pass0["graph_min_angle"],
+                   "refused_after_pass0": refused,
+                   "deleted_late": late,
+                   "deleted_in_pass0": pass0,
+                   "by_design_stub_collapse": [pass0["graph_stub_kill"],
+                                               late["graph_stub_kill"]]},
+                  "streets deleted by every node in the repair loop that can "
+                  "delete one; a repair may fix a junction but may never delete "
+                  "an arm to do it. The stub collapse deletes BY DESIGN and is "
+                  "reported, not counted as a refusal")
 
 
 def trim_leaves_road_standing(streets_geo, floor=1.0, width_floor=0.0):
