@@ -76,10 +76,61 @@ def instrument(snippet):
 
 
 def build_trace(parent, field, name="T", domain=800.0):
-    """field -> trace, with the trace wrangle instrumented.
+    """field -> TRACER -> SEGMENTER, with the trace wrangle instrumented.
 
     Only the INSTANCE is unlocked. The definition is never written and
     updateFromNode is never called.
+
+    ⚠️ This used to build one `pf_citygen_trace`, which owned S1-S5. That asset
+    is gone; the same span is now `pf_citygen_tracer` (S1 field, S2 trace, and
+    the loop-closure gate, which lives in the trace wrangle) followed by
+    `pf_citygen_segmenter` (S3 graph). The sweep reads the SEGMENTER, because
+    that is what the old node's output 0 was: the graph after stitch, fuse and
+    repair. Reading the TRACER's output instead would be a different and much
+    cleaner measurement, and swapping the two silently is how a harness stops
+    measuring what its recorded numbers describe -- see below.
+
+    Measured on the fast grid, old node vs port, per config and per src_id:
+    NOT ONE TRACED STREET IS LOST OR GAINED and the weld verdict per street is
+    identical (radial sep22/step30 6 and 6, sep130/step12 2 and 2, sep90/step6
+    2 and 2; grid 0 throughout). `ground_truth_welds` still passes, and every
+    bounded metric lands on the same number: max_seam 8.412, max doubled
+    pavement 729.6 m2, worst rasterised deficit 1325.7 m2 at the same config,
+    the same 21 self-intersecting loops with the same worst three, the same
+    seam distribution and gaps, the same 4 failing checks.
+
+    ⚠️ WHAT DOES MOVE IS THE ROW COUNT -- 5910 -> 5799 rows, 563 -> 549 welds --
+    AND IT IS NOT A STREET COUNT AT ALL. The graph stage splits every traced
+    street at every crossing, and each fragment inherits `src_id` and the whole
+    `x_*` gate-input set, so this sweep has always counted FRAGMENTS: at radial
+    sep22/step30 the 42 traced streets arrive as 408 rows (old) and 407 (port),
+    and one street alone, `trace_1_2_0`, is 24 fragments in one build and 23 in
+    the other. And the inherited values are INTERPOLATED, so `tracelen` reads
+    2369.9954 / 2369.9993 / 2370.0012 on three fragments of the street the
+    tracer reports as exactly 2370.0.
+
+    ⚠️ EVERY `gate_matches_vex` FAILURE IS THAT, AND NOT A TRANSCRIPTION DRIFT.
+    Checked in the ported build, in all four configs it flags, against the
+    TRACER's own exact record for the same street: the Python gate agrees with
+    the wrangle on every traced street, and disagrees only on fragments. (The
+    old build's four rows were not opened one by one before the asset went;
+    they are the same street in the same configs, one fragment fewer.)
+
+      * one fragment per street carries BLENDED attributes -- radial sep65
+        step2, `trace_1_2_2`: seam 250.80 against the street's 31.25, tracelen
+        376.2 against 590.0, and `cell` 63.20 where the traced value is a
+        constant 65.0, which only a weighted blend can produce. It fails three
+        gates at once.
+      * and one is a float straddle: radial sep150 step2, |turn| = 6.283187
+        against the loop gate's 2*pi = 6.2831853. It fails by 1.6e-6. The
+        tracer's exact value, 6.283185, passes.
+
+    So the port is faithful and the harness has a standing defect underneath it:
+    reading `tr.geometry()` on the TRACER gives one row per street with exact
+    values, and would take this check green. That is a change to what the sweep
+    measures, not a rewiring, and this file's own header says not to re-derive
+    it -- so it is recorded here and in `ideas/citygen_streets.md` section 6b,
+    for a decision, rather than done in passing.
     """
     if field == "grid":
         fn = parent.createNode("pf_citygen_field_grid", "F_" + name)
@@ -90,13 +141,15 @@ def build_trace(parent, field, name="T", domain=800.0):
         fn = parent.createNode("pf_citygen_field_radial", "F_" + name)
         fn.parm("weight").set(2.5)
         fn.parm("falloff").set(2000.0)
-    tr = parent.createNode("pf_citygen_trace", name)
+    tr = parent.createNode("pf_citygen_tracer", name)
     tr.setInput(0, fn)
     tr.parm("domain").set(domain)
     tr.allowEditingOfContents()
     w = tr.node("trace")
     w.parm("snippet").set(instrument(w.parm("snippet").eval()))
-    return fn, tr
+    sg = parent.createNode("pf_citygen_segmenter", name + "_seg")
+    sg.setInput(0, tr, 0)
+    return fn, tr, sg
 
 
 # ------------------------------------------------------ the gate, in Python
@@ -354,15 +407,15 @@ def sweep(full=False, want_paths=True, progress=True):
     cfgs = configs(full)
     rows = []
     for i, (field, sep, step) in enumerate(cfgs):
-        _, tr = nodes[field]
+        _, tr, sg = nodes[field]
         tr.parm("min_street_sep").set(float(sep))
         tr.parm("step").set(float(step))
-        geo = tr.geometry()
+        geo = sg.geometry()
         if geo is None:
             # A VEX compile error reads as geometry() == None, which as a bare
             # `continue` produced a sweep of 0 streets and a green run. Never
             # swallow it — print the wrangle's own error and stop.
-            errs = tr.node("trace").errors() or tr.errors()
+            errs = tr.node("trace").errors() or tr.errors() or sg.errors()
             raise RuntimeError("%s sep %s step %s did not cook: %s"
                                % (field, sep, step, (errs or ["(no error text)"])[0][:400]))
         recs = read_streets(geo, want_paths=want_paths)
@@ -395,9 +448,13 @@ def gate_matches_vex(rows):
 
     Nothing else in this file is worth reading if this fails: every number it
     reports would be describing a gate the HDA does not implement.
+
+    ⚠️ It used to report the bare `src_id`, which is not unique across the 58
+    configs of a sweep — so a real failure printed as four copies of one name
+    with no way to reproduce it. The config is now part of the record.
     """
-    bad = [r["src_id"] for r in rows
-           if int(accepted(gates(r))) != r["shipped"]]
+    bad = ["%s sep%s step%s %s" % (r["field"], r["sep"], r["step"], r["src_id"])
+           for r in rows if int(accepted(gates(r))) != r["shipped"]]
     return R("gate_matches_vex", not bad, len(bad),
              "" if not bad else "transcription drifted from the HDA: %s" % bad[:5])
 

@@ -4609,14 +4609,10 @@ ones."*
 ✅ **`pf_citygen_streets` is DELETED** (2026-08-12). Nothing referenced it — not `cases.py`'s
 install list, not a single `createNode`, only prose. The S3–S8 monolith is now only in git history.
 
-⚠️ **`pf_citygen_trace` is KEPT, and only because of one live consumer:**
-`tests/citygen/closure_gate.py:93` builds one (`createNode("pf_citygen_trace", …)`) and installs it
-through `cases.install_hdas()`. That file is the loop-closure sweep harness, and its own header says
-the sweep *"has now been derived from scratch and thrown away three times… Do not re-derive it;
-extend it."* Deleting the asset silently breaks it. **Port `closure_gate.py` onto
-`tracer → segmenter`, then delete `pf_citygen_trace.hda` and drop it from `cases.py`'s `HDAS`.**
-The stale docstring at `checks.py:1156` describing "a second `pf_citygen_trace`" should go with it —
-no such node is created any more.
+✅ **`pf_citygen_trace` is DELETED** (2026-08-12). Its one live consumer, `closure_gate.py`, was
+ported onto `tracer → segmenter` first — see *"The retirement, finished"* below — and
+`cases.py`'s `HDAS` and the stale `checks.py` docstring went with it. **Both monoliths are now only
+in git history, and no new asset has ever had either as a dependency.**
 
 ⚠️ **Scene note:** any `pf_citygen_streets` instance left in a .hip — the `A_city` / `B_city` /
 `C_city` examples — now has no definition and will load as an unknown node type. Delete those
@@ -4625,22 +4621,161 @@ example nodes; the `*_NEW` chains replace them.
 | chain | assets | wiring, read off the live scene 2026-08-12 |
 |---|---|---|
 | **new** | `pf_citygen_tracer` · `pf_citygen_segmenter` · `pf_citygen_solver` · `pf_citygen_mesh` | `C_field_radial → C_tracer → C_segmenter → C_solver →(out0 splines, out1 junctions)→ C_mesher →` 4 outputs |
-| **old, kept as reference** | `pf_citygen_trace` · `pf_citygen_streets` · `pf_citygen_mesh` | `C_field_radial → C_trace → C_city → OUT_C_radial` |
+| **old, DELETED 2026-08-12** | ~~`pf_citygen_trace`~~ · ~~`pf_citygen_streets`~~ | was `C_field_radial → C_trace → C_city → OUT_C_radial` |
 
-Both chains hang off the same field source, so any case can be compared A/B in one cook.
-`pf_citygen_tracer` / `_segmenter` / `_solver` are **untracked in git** as of this writing.
+There is one chain now. `pf_citygen_tracer` / `_segmenter` / `_solver` are tracked in git as of
+`dc22701`.
 
-⚠️ **The two chains are not independent evidence.** §S5a's junction defect was measured on both and
-is **bit-identical** — same prim numbers, same lengths, same degree histogram. When the old chain
-agrees with the new one, that means the defect predates the split, **not** that the new chain is
-validated.
+⚠️ **The two chains were never independent evidence, which is part of why keeping one cost nothing
+to give up.** §S5a's junction defect was measured on both and was **bit-identical** — same prim
+numbers, same lengths, same degree histogram. When the old chain agreed with the new one, that meant
+the defect predated the split, **not** that the new chain was validated.
 
-⚠️ **`copyToHDAFile` copied the parameter interface, and it is still there.** Measured 2026-08-12:
-Tracer, Segmenter and Solver each expose the *same* 13 folders — `Field Resolution … Graph (S3) ·
-Streets (S4) · Junctions (S5)`. The Segmenter shows tracing controls it never reads and the Solver
-shows graph controls it never reads. That is the defect already recorded below under *"The split
-shipped a defect"*, unfixed, and it is the direct cause of the Segmenter carrying **two** distance
-parameters (`min_node_dist` 50.0 **and** `graph_params_min_node_dist` 40.0 — §S5a).
+### The retirement, finished — 2026-08-12
+
+Hannes: *"make the new nodes independent, they should never have had the old node as a dependency."*
+There never was a runtime one — no new asset contains a `pf_citygen_trace` sub-node and not one
+parameter expression names it — so what was left of the fork was the **parameter interface** and one
+test-harness `createNode`. Both are now gone.
+
+#### Every promoted parameter, measured by who READS it
+
+The pruning the last round refused to do on a weak measurement (*"pruning on the weaker measurement
+would delete live parameters, which is worse than a cluttered panel"*) was done on a different kind
+of evidence: not "does perturbing it move the output" but **"is there a `ch()` anywhere inside this
+asset that lands on it"**. Every parm expression, VEX snippet, `#include`d `.vfl` and Python SOP body
+in every descendant node, resolved through the internal parameter-holder nulls to the promoted parm.
+A parm nothing references cannot be read at any value, which is the property a perturbation sweep
+can only ever approximate.
+
+⚠️ **Two things had to be got right before that scan was worth anything, and the first draft got
+both wrong.** `hou.Parm.unexpandedString()` **raises on non-string parms**, so a scan built on it
+silently skips every float and int parm — i.e. every channel reference — and reports an asset that
+reads nothing. And the trace wrangle builds its channel paths: `string C = "../"; float cell =
+chf(concat(C,"min_street_sep"));`. A literal-only `ch("...")` regex misses all of it and reports the
+**entire tracing stage** as dead. The scanner's control is the old monolith: on `pf_citygen_trace` it
+finds **0 unreferenced of 36** — the node that reads everything it exposes, as it should.
+
+| asset | promoted before | reads | **removed** | top-level entries | folders |
+|---|---|---|---|---|---|
+| `pf_citygen_tracer` | 36 | 14 | **22** | 14 → 11 | 4 → 1 |
+| `pf_citygen_segmenter` | 35 | 22 | **13** | 13 → 3 | 4 → 3 |
+| `pf_citygen_solver` | 35 | 7 | **28** | 13 → 1 | 4 → 1 |
+| `pf_citygen_mesh` | 15 | 15 | 0 | untouched | — |
+
+**63 decoy sliders gone**, and the evidence per group:
+
+- **Tracer** loses all of `Graph (S3)`, `Streets (S4)` and `Junctions (S5)` — 22 parms, 3 whole
+  folders. It contains five nodes (`field_grid`, `field_tensor`, `trace`, `IN_field`, `out`); there
+  is no graph, street or junction node in it to read them. It keeps `domain` and `res` (read by
+  `field_grid.sizex/cols`), the six S2 parms and the four `Loop Closure` ones (all read by
+  `trace.snippet`), and `organic_amp` / `organic_scale` (read by `field_tensor`, and dead for the
+  separate recorded reason that no `organic` field generator ships).
+- **Segmenter** loses the nine S1/S2 parms and the whole `Loop Closure` folder — 13. It has no field
+  generator and no trace wrangle. **This is where the duplicate distance parameter goes:**
+  `min_node_dist` 50.0 was the Tracer's, unread here, and `graph_params_min_node_dist` 40.0 — read
+  by `graph_extend`, `graph_realign` and `graph_stub_mark` — **exactly three readers, measured;
+  an earlier draft of this line said "and two more", and there is no fourth or fifth** — is the one
+  that governs.
+  One distance parameter now, not two.
+- **Solver** keeps `Junctions (S5)` and nothing else — 28 removed, three folders. Every one of its
+  seven survivors is read by `junction_solve`. The thin solver the design predicted has a
+  seven-slider panel to match.
+
+⚠️ **And the scan was then checked against a measurement that does not share its assumptions**,
+because a static scan can only ever miss a mechanism — it had already missed two. The **pre-trim**
+copies of the three assets were installed from a scratch backup (never the repo files; no
+`updateFromNode`, no `setParmTemplateGroup`), and each of the 63 removed parms was perturbed **on the
+asset it was removed from**, hashing *that asset's own outputs* — the exact question, and cheap
+enough to afford several values. **295 perturbations, up to three values per parm including both ends
+of its range, on `C_radial` and `A_drawn`: not one moved anything.** Scoping the hash to the asset
+rather than the whole chain is what makes this stronger than the sweep that was distrusted — a decoy
+on the Solver cannot hide behind the Mesher.
+
+**Nothing moved downstream either.** `run_scene_checks.py` before and after: **37 failing**, no *"moved since baseline"*
+line in either run, `baseline.json` untouched — and the two runs *after* the change are byte-identical
+to each other (against the run *before* it, the comparison is the whole of `K_stub_triangle`'s block
+plus baseline agreement on every recorded value, which is the instrument that exists for this).
+`parm_liveness.py`: **62 swept · 49 GEOM · 7 ATTR · 6 DEAD, exit 0** — the same 62 as before, because
+the 63 removed parms are exactly the ones the sweep already knew not to sweep on that node.
+
+⚠️ **And `parm_liveness` lost the two skip-guards that hid this defect in the first place.** They
+existed to stop the sweep measuring the Tracer's copy of a Segmenter parm — which meant that if an
+asset re-inherits an interface, the inherited parms are skipped, report nothing, and pass. With the
+interfaces trimmed the guards are inert, so they are gone.
+
+⚠️ **AND THE SENTENCE THAT STOOD HERE — *"everything promoted is now swept, and a re-inherited parm
+moves nothing, reads DEAD and fails the run"* — WAS FALSE, measured by audit 2026-08-12.**
+`parm_liveness`'s `plan` enrols `field_grid · field_radial · tracer · trace · mesh`, and `owner()`
+has no solver branch either — it falls through to the mesher. **`pf_citygen_solver` is swept by
+nothing.** The arithmetic proves it: 5 + 6 + 14 + 22 + 15 = **62**, the solver's 7 nowhere in it.
+
+**The uncovered asset is the one that carried 28 of the 63 decoys** — precisely the case the alarm
+is advertised to catch. A future fork that re-inherits the *solver's* interface passes this run
+silently. No live defect today, because the solver's 7 `s5j_params_*` are expression-linked to the
+segmenter's copies by `cases.py`'s `_chain()`, so they are exercised indirectly while the segmenter's
+copies are swept directly.
+
+**Open, and deliberately not done:** enrolling the solver is not a one-line fix — `p.set()` on a
+parm carrying `ch("../…_segmenter/…")` destroys the link and trips the run's own RESTORE DRIFT
+check, so the sweep has to perturb the segmenter end instead. **The fix went at the symptom (the
+skip-guards) and not at the `plan` tuple, which is where an asset is actually enrolled.** That is
+the general lesson: a guard that skips is visible, a plan that omits is not.
+
+#### `closure_gate.py` ported onto `tracer → segmenter`
+
+It builds the two-node chain, instruments the tracer's `trace` wrangle exactly as before — the
+instance only, never the definition — and reads the **segmenter's** output, because that is what the
+old node's output 0 was: the graph after stitch, fuse and repair.
+
+Verified per config and per `src_id` against the old node before it was deleted: **not one traced
+street is lost or gained**, the weld verdict per street is identical (radial sep22/step30 6 and 6,
+sep130/step12 2 and 2, sep90/step6 2 and 2; grid 0 throughout), `ground_truth_welds` still passes,
+and every bounded metric lands on the same number — max_seam 8.412, max doubled pavement 729.6 m²,
+worst rasterised deficit 1325.7 m² at the same config, the same 21 self-intersecting loops with the
+same worst three, the same seam distribution and gaps, the same 4 failing checks.
+
+⚠️ **What the port did expose is a standing defect in the sweep, and it is worth more than the port
+was.** The row count moves — 5910 → 5799 rows, 563 → 549 welds — **and it was never a street count.**
+The graph stage splits every traced street at every crossing and each fragment inherits `src_id` and
+the whole `x_*` gate-input set, so the sweep counts FRAGMENTS: at radial sep22/step30 the **42**
+traced streets arrive as **408** rows in the old build and **407** in the port, and one street alone,
+`trace_1_2_0`, is 24 fragments in one and 23 in the other. And the inherited values are
+*interpolated* — `tracelen` reads 2369.9954 / 2369.9993 / 2370.0012 on three fragments of the street
+the tracer itself reports as exactly 2370.0.
+
+⚠️ **`gate_matches_vex` has therefore never been failing on what it says it is failing on.** Its own
+docstring says *"nothing else in this file is worth reading if this fails"*, and it has been red at
+4 rows (old) and 5 (port). Checked in the ported build, in all four configs it flags, against the
+tracer's exact record for the same street: **the Python transcription agrees with the wrangle on
+every traced street** and disagrees only on fragments, for two measured reasons —
+
+- **one fragment per street carries blended attributes.** radial sep65 step2, `trace_1_2_2`:
+  seam **250.80** against the street's 31.25, tracelen 376.2 against 590.0, and `cell` **63.20**
+  where the traced value is a constant **65.0** — a number only a weighted blend can produce. It
+  fails three gates at once.
+- **and one is a float straddle.** radial sep150 step2, |turn| = **6.283187** against the loop gate's
+  2π = **6.2831853**. It fails by 1.6e-6; the tracer's exact 6.283185 passes.
+
+The cure is one line — read `tr.geometry()` on the **tracer**, one row per street with exact values,
+which would also take this check green — but that changes what the sweep measures rather than where
+it is wired, and this file's header says not to re-derive it. **Left for a decision, deliberately,
+rather than done in passing.** `gate_matches_vex` now names the config as well as the `src_id`,
+because a bare `src_id` is not unique across 58 configs and printed as four copies of one name.
+
+⚠️ **Scene note for the artist:** the trimmed parameters were dead on those nodes, so no cook changes
+— but a `.hip` that carries an explicit non-default value on one of them (or an expression pointing
+at one) will lose it on load. Nothing in the test scene did; the live scene was not opened.
+
+⚠️ **Verification status, stated plainly: the Rule 0 independent audit did NOT run.** Two audit
+agents were spawned and neither returned or answered a message. Their four highest-value checks were
+then run by the author, which is evidence but *is not independence*: every promoted name the suite
+reads by name resolves to the node that reads it (`graph_*` and `s5j_*` → segmenter, `lots_*` →
+mesh, `domain` → tracer, and all 7 of the solver's `s5j_params_*` still expression-linked to the
+segmenter); `parm_liveness` sweeps all 62 with **zero** `generic()` fall-throughs, so nothing is
+probed at a value nobody chose; the `--table` branch runs and its gate tallies are structurally
+unchanged; and `polyfactory/otls/backup/` (gitignored) gained no file, so `create_backup=False`
+held. **A fresh reader has still not looked at this.**
 
 ### The original V1 assets
 
@@ -4651,7 +4786,7 @@ Build examples from `tests/citygen/cases.py`.
 | `pf_citygen_field_grid` | — → a field **source descriptor** (one point: type, centre, weight, falloff, bearing). Chainable via its input |
 | `pf_citygen_field_radial` | same, radial |
 | `pf_citygen_junction` | graph splines → the S5 solution (junction patches + streets carrying `trim_start`/`trim_end`). A helper asset, used twice inside the tracer and testable on its own |
-| `pf_citygen_trace` | in0 field sources **or** in1 **any curves** → out0 **editable centreline splines** (§6 schema) · out1 the junction solution. S1·S2·S3·S4·S5 |
+| ~~`pf_citygen_trace`~~ | *deleted 2026-08-12.* Was in0 field sources **or** in1 **any curves** → out0 **editable centreline splines** (§6 schema) · out1 the junction solution. S1·S2·S3·S4·S5. Replaced by `pf_citygen_tracer` → `_segmenter` → `_solver` |
 | `pf_citygen_mesh` | in0 splines · in1 junction solution → out0 city geometry · out1 blocks · out2 lots · **out3 the graph, passed through** (the data stream, Contract 8). S6·S7·S8 |
 
 Field sources are descriptors rather than baked grids, so any number merge and blend for free.
@@ -4683,9 +4818,11 @@ written 2026-08-11 as a specification, from Hannes' requirements, with every sta
 off the live `pf_citygen_trace` cook order. It shipped; the text below is kept as the rationale,
 and the status is §6b's table at the top.
 
-**Two things specified here were NOT delivered and are still open:**
+**Two things specified here were not delivered with the split. One is now done:**
 
-- **The parameter interface was never trimmed** — all three assets carry all 13 folders (§6b).
+- ✅ **The parameter interface is trimmed** (2026-08-12) — 63 inherited decoys removed across the
+  three assets, each one measured to have no `ch()` referring to it anywhere inside. See §6b
+  *"The retirement, finished"*.
 - **The `out1` precondition below is unmet.** The wiring measured 2026-08-12 is still
   `C_solver:out1 → C_mesher:in1`, i.e. the mesher still consumes baked junction *geometry* on a
   second stream rather than deriving corners from graph attributes at cook time. Whether the
@@ -4813,12 +4950,14 @@ Tracer and Segmenter corrected from 2 declared outputs to 1 — `tracer.geometry
 21 failing, zero baseline movement, and the artist's scene reproduces its recorded prim counts
 exactly.
 
-⚠️ **Still open: the other ~70 decoys.** Pruning them needs a per-node liveness measurement, and the
-quick sweep run at the time disagreed with the audit's (6/6/3 against 11/18/6) because the two used
-different perturbation magnitudes — several of these parms only move at extreme values, which is
-the exact trap `parm_liveness`'s two-value convention exists to avoid. **Pruning on the weaker
-measurement would delete live parameters**, which is worse than a cluttered panel, so only the
-verified-inert ones were removed.
+✅ **The other decoys — 63 of them — were removed 2026-08-12.** This paragraph used to say the
+pruning was blocked: the quick sweep run at the time disagreed with the audit's (6/6/3 against
+11/18/6) because the two used different perturbation magnitudes, several of these parms only move at
+extreme values, and **pruning on the weaker measurement would delete live parameters**, which is
+worse than a cluttered panel. That was right, and the way past it was not a better sweep but a
+different kind of evidence — *is there a `ch()` anywhere inside this asset that lands on this parm* —
+which does not depend on a magnitude at all. §6b *"The retirement, finished"* has the method, the
+two ways the first scan of it was wrong, and the per-asset counts.
 
 #### ⚠️ The harness could not reach the Tracer at all
 
@@ -4839,21 +4978,29 @@ everything after it is the **job**, not the subject matter.
 |---|---|---|
 | `pf_citygen_field_grid` | **CityGen Field: Grid** | already correct |
 | `pf_citygen_field_radial` | **CityGen Field: Radial** | already correct |
-| `pf_citygen_trace` | **CityGen Tracer** | 🔵 **at the split** — see below |
-| *(new)* | **CityGen Segmenter** | 🔵 planned |
-| `pf_citygen_junction` | **CityGen Solver** | ✅ renamed |
+| ~~`pf_citygen_trace`~~ | — | ✅ **DELETED 2026-08-12** — `pf_citygen_tracer` replaces it |
+| ~~`pf_citygen_streets`~~ | — | ✅ **DELETED 2026-08-12** — the four-asset chain replaces it |
+| `pf_citygen_tracer` | **CityGen Tracer** | ✅ built |
+| `pf_citygen_segmenter` | **CityGen Segmenter** | ✅ built |
+| `pf_citygen_solver` | **CityGen Solver** | ✅ built |
+| `pf_citygen_junction` | **CityGen Junction (internal helper)** | ✅ used by the Segmenter and the Solver |
 | `pf_citygen_mesh` | **CityGen Mesher** | ✅ renamed |
-| `pf_citygen_streets` | **CityGen: Streets (DEPRECATED, frozen)** | ✅ renamed |
+
+⚠️ **Corrected 2026-08-12, by audit.** This table said `pf_citygen_junction` was labelled *CityGen
+Solver* — it is not; that label belongs to `pf_citygen_solver`, and the junction asset's own label on
+disk is *CityGen Junction*. It also listed `pf_citygen_streets` as "✅ renamed", contradicting §6b's
+deletion of it 340 lines earlier, and had no row at all for `pf_citygen_tracer` or
+`pf_citygen_solver`. A naming table that disagrees with the labels on disk is worse than none.
 
 ⚠️ **Labels only. Type names are NOT renamed, and that is deliberate.** A type name is what a `.hip`
 stores; changing `pf_citygen_trace` turns every existing instance into a missing definition. This
 project lost a working session to exactly that failure, and the recovery required restoring a
 deleted asset byte-identically from git. Labels are free, type names are a migration.
 
-⚠️ **`pf_citygen_trace` keeps its long label until the segmenter is cut**, because "Tracer" would be
-a lie today — it currently owns S1–S5, not just the trace. Renaming it now would make the tab menu
-describe an architecture that does not exist. It becomes **CityGen Tracer** on the day it only
-traces.
+⚠️ **`pf_citygen_trace` kept its long label until the segmenter was cut**, because "Tracer" would
+have been a lie while it owned S1–S5. The point is now moot in the cleanest way: the name went to a
+**new type**, `pf_citygen_tracer`, which really does only trace, and the old type was retired rather
+than renamed — so no existing instance ever lost its definition.
 
 #### The Labs Building Generator precedent — checked, and it half-holds
 

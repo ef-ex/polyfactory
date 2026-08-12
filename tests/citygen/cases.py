@@ -12,7 +12,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 OTLS = os.path.join(REPO, "polyfactory", "otls")
 
 HDAS = ("pf_citygen_field_grid.hda", "pf_citygen_field_radial.hda",
-        "pf_citygen_junction.hda", "pf_citygen_trace.hda", "pf_citygen_mesh.hda",
+        "pf_citygen_junction.hda", "pf_citygen_mesh.hda",
         "pf_citygen_tracer.hda", "pf_citygen_segmenter.hda", "pf_citygen_solver.hda")
 
 
@@ -537,8 +537,14 @@ def inner(case, role):
 
 
 def parm(case, name):
-    """A promoted parameter, wherever it now lives. The S3/S4/S5 controls moved
-    to the tracer with the stages they steer; S6/S7/S8 stayed on the mesh."""
+    """A promoted parameter, wherever it now lives.
+
+    Since the interfaces were trimmed to what each asset READS (2026-08-12),
+    exactly one asset carries any given name and this search cannot pick the
+    wrong copy: S1/S2 and Loop Closure on the tracer, S3/S3b/S4 on the
+    segmenter, S5 on the segmenter AND the solver (the pre-measure and the
+    solve must agree, and `_chain` links them), S6/S7/S8 on the mesh.
+    """
     for role in ("city", "trace", "solver", "tracer"):
         n = case.get(role)
         p = None if n is None else n.parm(name)

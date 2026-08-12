@@ -1153,9 +1153,13 @@ def graph_reaches_a_fixed_point(trace_node):
       rather than shipping a half-repaired graph quietly. That failure mode has
       now bitten this project four times (S3b `iters = 200`, the trace stall,
       the clamp budget, and this).
-    * **And an independent pass must agree.** A second `pf_citygen_trace`, same
-      parameters, fed the shipped splines on its drawn-spline input. If the
-      first node's idea of "converged" is wrong, this is what catches it.
+    * **And an independent pass must agree.** A second node OF THE SAME TYPE as
+      the one under test — `trace_node.type().name()`, i.e. the SEGMENTER, which
+      is what owns the repair loop since the split — same parameters, fed the
+      shipped splines on its only input. If the first node's idea of
+      "converged" is wrong, this is what catches it. It said "a second
+      `pf_citygen_trace`" until 2026-08-12; no such node has been built here
+      since the pipeline became four assets, and that asset no longer exists.
 
     ⚠️ **The replay compares the FULL GEOMETRY, not a reduced invariant set,
     and that correction is the whole point of the second tooth.** It used to

@@ -200,11 +200,10 @@ TRACE_CASES = ["C_radial", "B_grid"]
 STREET_CASES = ["C_radial", "A_drawn", "B_grid", "D_offset", "E_short_t",
                 "F_bend", "G_tongue"]
 
-# S3/S4/S5 moved onto the tracer with the stages they steer, so `pf_citygen_trace`
-# now carries two populations of parameter: the field/trace ones, which only the
-# two generated cases can reach, and these, which every case reaches because a
-# hand-drawn spline enters the same node.  They share a definition and need
-# different case lists, so the split is by name.
+# The SEGMENTER's parms fall into two populations: it is reached both by the
+# two generated cases (through the tracer) and by every drawn case, which enters
+# it directly.  These are the ones every case reaches.  They share a definition
+# and need different case lists, so the split is by name.
 GRAPH_PARMS = {
     "graph_prune_min_edge_len", "graph_params_min_node_dist",
     "graph_params_min_join_angle", "graph_params_d_extend",
@@ -334,16 +333,36 @@ def main():
             if pt.type() in (hou.parmTemplateType.Separator,
                              hou.parmTemplateType.Label):
                 continue
-            # ⚠️ The three assets forked from `pf_citygen_trace` inherited its
-            # WHOLE promoted interface, so most parms on any one of them belong
-            # to a different node. Sweeping the Tracer's copy of a Segmenter parm
-            # measures a decoy and reports it dead. The Tracer is therefore swept
-            # only on the S1/S2 parms it actually owns — the ones this table
-            # names — and the Segmenter keeps the rest.
-            if hda == "tracer" and (hda, pt.name()) not in PERTURB:
-                continue
-            if hda == "trace" and (("tracer", pt.name()) in PERTURB):
-                continue
+            # ⚠️ TWO SKIP-GUARDS STOOD HERE AND THEY HID THE DEFECT THEY WERE
+            # WRITTEN FOR. The three assets forked from the old monolith
+            # inherited its WHOLE promoted interface, so most parms on any one
+            # of them belonged to a different node; the guards skipped the
+            # Tracer's copy of a Segmenter parm and vice versa, so the decoys
+            # were never swept and never reported. They are gone with the decoys
+            # themselves (2026-08-12): every promoted parm on every asset is now
+            # one that asset reads.
+            #
+            # ⚠️ BUT THAT DOES NOT MEAN EVERYTHING PROMOTED GETS SWEPT, AND THIS
+            # COMMENT CLAIMED IT DID. An audit measured the guarantee false:
+            # `plan` below enrols field_grid · field_radial · tracer · trace ·
+            # mesh, and `owner()` has no solver branch either — it falls through
+            # to the mesher. So `pf_citygen_solver` is swept by NOTHING. The
+            # arithmetic proves it: 5 + 6 + 14 + 22 + 15 = 62, the solver's 7
+            # nowhere in it.
+            #
+            # The uncovered asset is the one that carried 28 of the 63 decoys —
+            # exactly the case this alarm is advertised to catch. **A future fork
+            # that re-inherits the SOLVER's interface would pass this run
+            # silently.** No live defect today: the solver's 7 `s5j_params_*` are
+            # expression-linked to the segmenter's copies by `cases.py`'s
+            # `_chain()`, so they are exercised indirectly and the segmenter's
+            # copies are swept directly.
+            #
+            # It is NOT a one-line fix, which is why it is written down rather
+            # than done: `p.set()` on a solver parm carrying
+            # `ch("../…_segmenter/…")` destroys the link and trips this run's own
+            # RESTORE DRIFT check. Enrolling it means teaching the sweep to
+            # perturb the segmenter end of the link instead.
             cks = STREET_CASES if pt.name() in GRAPH_PARMS else ck_list
             if hda == "tracer":
                 cks = [c for c in cks if built[c].get("tracer") is not None]
