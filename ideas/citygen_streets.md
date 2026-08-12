@@ -4722,6 +4722,47 @@ check, so the sweep has to perturb the segmenter end instead. **The fix went at 
 skip-guards) and not at the `plan` tuple, which is where an asset is actually enrolled.** That is
 the general lesson: a guard that skips is visible, a plan that omits is not.
 
+#### ✅ AUDIT OF THE TRIM — and the monolith was NOT a control, it was a divergence hazard
+
+Independent audit 2026-08-12, by a route the implementer did not use: every `.hda` expanded with
+`hotl -X` and **every** channel reference extracted from the raw contents — `.chn` expressions,
+wrangle snippets, node `.parm` values, Python SOP bodies. **Each of the 63 removed names appears
+nowhere in the entire contents of the asset that carried it.** That closes the question
+*structurally* rather than statistically: a name absent from the network cannot be read by any mode,
+toggle, branch or input path, so "live only on a path the suite never runs" is not possible.
+Parameters it could not prove dead: **none.** Both indirection classes were re-verified with its own
+probe — the `.chn` channel form (`ch("../s5j_params_miter_limit")`, how all 7 solver keeps arrive)
+and the `concat()` form (10 sites on the tracer, 5 segmenter, 16 mesh, 8 junction) — and the control
+reproduced: 36 promoted / 36 referenced / **0 unreferenced** on the retired monolith.
+
+**Two checks nobody had written, both clean:** every surviving parameter is **template-identical**
+before and after — type, default, min/max, label, help, tags, `disableWhen`, hidden, join, folder
+*and interface order*, 0 differences across all 58 survivors; and the **internal networks are
+byte-identical** on all four assets. The change is purely the interface, which no baseline diff
+could have told us — a lost range or `disableWhen` moves no number.
+
+⚠️ **The 6 remaining DEAD are the opposite of decoys, and they are evidence the method was right.**
+`tracer/organic_amp` · `tracer/organic_scale` · `tracer/close_min_pts` · the three `mesh/s5b_*` are
+all **referenced in VEX**; their branch is simply unreached by any committed case (no organic
+generator, no `layer > 0`). **Perturbation evidence alone would have deleted all six.** That is why
+the trim was cut on "is there a `ch()` that lands on this parm", not on "did it move a number".
+
+⚠️ **AND THE RETIRED MONOLITH WAS STALE — deleting it was MORE right than recorded, not less.**
+Node-by-node against the split assets, the segmenter has **four nodes `pf_citygen_trace` never had**
+— `graph_realign`, `graph_stub_mark`, `graph_stub_fuse`, `graph_stub_kill`, i.e. the whole of §S5a —
+plus five changed bodies (`graph_drop_tongue`, `graph_mark_orphans`, `graph_min_angle`,
+`prune_mark`, and `repair_scratch`, whose `primdel` went `""` → `"kill_angle kill_stub realigned"`).
+**The `trace` wrangle itself is byte-identical between the two**, which is exactly why the traced
+streets and the weld verdicts are identical and the port is faithful. So the old asset had not been
+a reference build since 2026-08-12 — it was a second, diverging graph stage kept alive beside the
+real one. ⚠️ **Correction to the port's own claim:** "every bounded metric lands on the same number"
+omits `retrograde_welds_bounded`, whose n moved **67 → 61**.
+
+⚠️ **`pf_citygen_junction`'s 8 promoted parms are swept by nothing either** — same root cause as the
+solver's 7: no `plan` entry, no `owner()` branch. Measured: all 8 are read by the junction's own VEX
+and it holds **zero `../..` references**, so no read escapes it. Not a live defect; not covered.
+Recorded in `parm_liveness.py` alongside the solver gap.
+
 #### `closure_gate.py` ported onto `tracer → segmenter`
 
 It builds the two-node chain, instruments the tracer's `trace` wrangle exactly as before — the

@@ -1,4 +1,9 @@
-"""Does every promoted parameter on the four CityGen HDAs actually do anything?
+"""Does every promoted parameter on the CityGen HDAs actually do anything?
+
+⚠️ It says FIVE of the seven. `plan` enrols field_grid · field_radial · tracer ·
+trace · mesh; `pf_citygen_solver` (7 parms) and `pf_citygen_junction` (8) are
+enrolled by nothing — see the note at the sweep loop below. Both are read by
+their own VEX, measured, so neither is a live defect; but neither is covered.
 
     hython tests/citygen/parm_liveness.py
     hython tests/citygen/parm_liveness.py --verbose
@@ -349,6 +354,12 @@ def main():
             # to the mesher. So `pf_citygen_solver` is swept by NOTHING. The
             # arithmetic proves it: 5 + 6 + 14 + 22 + 15 = 62, the solver's 7
             # nowhere in it.
+            #
+            # ...and `pf_citygen_junction`'s 8 promoted parms are enrolled by
+            # nothing either, for the same reason: no plan entry, no `owner()`
+            # branch. Measured: all 8 are read by the junction's own VEX and it
+            # holds zero `../..` references, so nothing escapes it — but it is
+            # not covered.
             #
             # The uncovered asset is the one that carried 28 of the 63 decoys —
             # exactly the case this alarm is advertised to catch. **A future fork

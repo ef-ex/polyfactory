@@ -539,11 +539,29 @@ def inner(case, role):
 def parm(case, name):
     """A promoted parameter, wherever it now lives.
 
-    Since the interfaces were trimmed to what each asset READS (2026-08-12),
-    exactly one asset carries any given name and this search cannot pick the
-    wrong copy: S1/S2 and Loop Closure on the tracer, S3/S3b/S4 on the
-    segmenter, S5 on the segmenter AND the solver (the pre-measure and the
-    solve must agree, and `_chain` links them), S6/S7/S8 on the mesh.
+    Since the interfaces were trimmed to what each asset READS (2026-08-12):
+    S1/S2 and Loop Closure on the tracer, S3/S3b/S4 on the segmenter, S5 on the
+    segmenter AND the solver (the pre-measure and the solve must agree, and
+    `_chain` links them), S6/S7/S8 on the mesh.
+
+    ⚠️ **THIS DOCSTRING CLAIMED "exactly one asset carries any given name and
+    this search cannot pick the wrong copy". IT IS FALSE, and it contradicted
+    itself two lines later.** Measured by audit 2026-08-12: **eight names live
+    on two roles** — the seven `s5j_params_*` plus `junctions_folder`, on the
+    segmenter *and* the solver. The trim removed the decoys; it did not and
+    could not make names unique, because S5 is genuinely shared.
+
+    The search is still correct, but by ORDER and not by uniqueness: `solver`
+    comes after `trace`, so a shared name returns the SEGMENTER's copy, which is
+    the one `_chain()` drives and the solver's copy is expression-linked to.
+    Verified: 7 of 7 links bind and track on all 11 cases. Change that role
+    order and S5 parameters silently start steering the linked end instead of
+    the driving one.
+
+    A stated-but-untrue invariant in the helper every case uses to find a
+    parameter is exactly the class of thing that produced the `domain` incident
+    (promoted on three assets, read by one, 25% larger city). Do not restore the
+    claim; if uniqueness is ever wanted, make it true and assert it.
     """
     for role in ("city", "trace", "solver", "tracer"):
         n = case.get(role)
