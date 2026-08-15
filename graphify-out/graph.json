@@ -1550,7 +1550,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "asset_library_batch_importer_next_free_filename",
-      "community": 24,
+      "community": 83,
       "norm_label": "next_free_filename()"
     },
     {
@@ -1610,7 +1610,7 @@
       "source_location": "L293",
       "_origin": "ast",
       "id": "asset_library_batch_importer_sanitize",
-      "community": 24,
+      "community": 83,
       "norm_label": "_sanitize()"
     },
     {
@@ -1640,7 +1640,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_159",
-      "community": 24,
+      "community": 83,
       "norm_label": "find the next available numbered filename (no extension).      scans both the"
     },
     {
@@ -1680,7 +1680,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_294",
-      "community": 24,
+      "community": 83,
       "norm_label": "sanitize a name for use as a filesystem component."
     },
     {
@@ -16697,7 +16697,7 @@
       "label": "\u26d4 OPEN AND BLOCKING \u2014 the multi-leg junction (\u00a7S5a). Added 2026-08-12",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L5268",
+      "source_location": "L5292",
       "_origin": "ast",
       "id": "ideas_citygen_streets_open_and_blocking_the_multi_leg_junction_s5a_added_2026_08_12",
       "community": 18,
@@ -16707,7 +16707,7 @@
       "label": "10. Explicit non-goals for v1",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L5352",
+      "source_location": "L5376",
       "_origin": "ast",
       "id": "ideas_citygen_streets_10_explicit_non_goals_for_v1",
       "community": 18,
@@ -17257,7 +17257,7 @@
       "label": "The cases",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L115",
+      "source_location": "L117",
       "_origin": "ast",
       "id": "tests_readme_the_cases",
       "community": 62,
@@ -17267,7 +17267,7 @@
       "label": "Known-failing at time of writing",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L135",
+      "source_location": "L137",
       "_origin": "ast",
       "id": "tests_readme_known_failing_at_time_of_writing",
       "community": 62,
@@ -45263,5 +45263,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "400748f691425dc8b2ae062dfa82e92e28e0e3ef"
+  "built_at_commit": "e5df16cbc4d70a5c1667a77a1cc1359ca9b17509"
 }

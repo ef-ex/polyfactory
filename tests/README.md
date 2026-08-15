@@ -105,7 +105,9 @@ junction patch alone and reported 0. `selfx_roads` cooked it on the roads alone
 and reported 0. Nothing cooked it on the merged city, which carried 102 / 529 /
 863 intersection points through four commits. Two green checks, one broken seam,
 no signal. If two subsystems have to meet, assert on the merged result —
-`selfx_city_merged` is that assertion.
+`selfx_city_merged` is that assertion. (What it turned out to be measuring is an
+unbuilt feature rather than a broken one — see the note under *Known-failing* —
+but that is the point: nothing else could see the seam at all.)
 
 **Every branch.** `lots_params_subdiv_mode` has two settings and the suite only
 ever ran mode 0. Mode 1 failed a *committed* check the first time anybody
@@ -139,7 +141,19 @@ Not noise — real, tracked defects, all of them findings in
 
 | Case | Check | Value | Finding |
 |---|---|---|---|
-| A B C D | `selfx_city_merged` | 102 / 529 / 863 / 86 | 4e-1 — roads and junction patches interpenetrate at every junction |
+| A B C D | `selfx_city_merged` | 9 / 101 / 127 / 9 | **NOT A DEFECT — it measures a declared v1 non-goal.** See below. |
+
+⚠️ **`selfx_city_merged` is the standing measure of an unbuilt feature, and reading it as
+breakage wasted a review round.** Diagnosed in the viewport 2026-08-15. At every crossing site
+the incident prims are a road band at y = 0.15 with its kerb riser, and the junction plate at
+y = 0 — the street's raised elements arrive at the junction still at their own height, because a
+street is swept as ONE ribbon and nothing brings the section down at the seam. Per-segment
+cross-section transitions are an **explicit §10 non-goal for v1**; the approach when it is built
+is the Wang-tile segmentation recorded in `citygen_streets.md` §9. So this number is a progress
+bar on a feature, not a fault to trim away: it goes to zero when the end pieces exist and not
+before. **Do not chase it with thresholds.** Keep it recorded — it is the only thing that will
+tell you the transition work is actually landing.
+
 | A B C D | `trim_metric_is_consistent` | max 0.30 / 2.75 / 3.34 / 0.30 m | 4e-1 root cause — `s5j_solve` cuts by axial distance, `s5j_trim` by arc length |
 | B C | `every_mouth_has_a_road` | 2 / 1 | 4e-3 — `pfsj_fillet` has no radius clamp, `s5j_trim` deletes the street, the mouth stays |
 | C | `no_sweep_fold_after_trim` | ratio 3.21, 2 folds | 4e-7 — the CAUSE of C's `no_downward_faces`: 0.022 m segments under a 7.2 m half-width |

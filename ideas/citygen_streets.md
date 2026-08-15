@@ -5265,6 +5265,30 @@ film · topology is cached so S8 determinism is not required · planar-per-layer
 - **Pier placement** — not a design question, just implementation plus the standard validation
   rule. Specified in §S5b.
 
+- **How the deferred cross-section transition gets built — WANG TILES, not a solver.** Decided
+  2026-08-15 while looking at the failure in the viewport. The v1 non-goal in §10 says the seam is
+  left open; this records the *approach*, so the eventual build does not start from scratch.
+
+  A street is currently swept as ONE ribbon from junction to junction, so its raised elements —
+  a median, a kerb, a sidewalk band — arrive at the junction still at their own height and run
+  straight over the junction plate, which is flat carriageway (`elem_type` = `lane`, y = 0).
+  Measured on A_drawn: at every one of the six crossing sites the incident prims are a road band
+  at y = 0.15 with its riser, and the 34 x 39 m junction plate at y = 0. That is the whole of
+  `selfx_city_merged` — 9 points on A, 101 on B, 127 on C. **It is a missing feature, not a bug,
+  and no threshold or trim fixes it.**
+
+  The cure is to stop treating a street as one ribbon and **split it into segments, then choose
+  each segment's geometry from what it connects TO** — middle pieces, end pieces, and whatever
+  else the catalogue turns out to need. Wang tiles in the simple sense: the tile is picked by its
+  neighbours, so an end piece that meets a junction is the piece that ramps the median down and
+  brings the section to the junction's elevation. It is a lookup, not a solve.
+
+  Two consequences worth writing down now. The segmentation is what makes it possible at all, so
+  it comes first and it is not optional. And the catalogue is per TEMPLATE, so every cross-section
+  an artist authors needs its end piece or it has no legal way to meet a junction — which is an
+  argument for deriving the end piece from the template automatically wherever it can be, and
+  authoring it only where it cannot.
+
 ### ⛔ OPEN AND BLOCKING — the multi-leg junction (§S5a). Added 2026-08-12
 
 This entry said *"nothing currently blocking"* while the defect below was visible in the viewport,
@@ -5358,5 +5382,7 @@ being designed to make it possible later, that is all) · rail, metro and sky-la
 (`network_type` reserved, not implemented) · multi-level stacked city layouts (`layer` reserved and
 proven on bridges, but Coruscant-scale stacking is not a v1 target) · underground utilities ·
 procedural signage and road markings beyond material assignment · per-segment cross-section
-transitions (seam left open, §S6) · Voronoi graph generator (deferred, §S1) · `skeleton` lot
+transitions (seam left open, §S6; the approach when it IS built is the Wang-tile segmentation in
+§9, and `selfx_city_merged` is the standing measure of how open the seam is) · Voronoi graph
+generator (deferred, §S1) · `skeleton` lot
 subdivision (deferred to v2, needs Vanegas 2012 — §S8; `recursive_obb` and `offset` are both v1).
