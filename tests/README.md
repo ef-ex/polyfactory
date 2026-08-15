@@ -149,7 +149,13 @@ Not noise — real, tracked defects, all of them findings in
 | A B C | `lot_aspect_ratio` | max 10.6 / 31.5 / 25.6 | 4e-4 — ribbons, not rectangles; S8 names the test and never implemented it |
 | B C D | `lots_are_simple_polygons` | 24 / 47 / 1 | 4e-5 — Sutherland–Hodgman bowties on non-convex blocks |
 | D | `lots_tile_blocks` | 0.0061 | 4e-6 — `offset` mode resamples the contour and chords across block vertices |
-| A B C D | `no_scratch_attribs_lots` | 27 / 28 / 28 / 27 | 4e-10 — the whole graph-edge schema leaks onto `OUT_lots` |
+
+`no_scratch_attribs_lots` was on this list at 27 / 28 / 28 / 27 and is **fixed**
+(4e-10). `lots_normal` now deletes the seven blocks-branch duplicates and a
+`lots_publish` node drops `Cd` on the published branch only — the city keeps the
+green/red viability colour. ⚠️ An allow-list only detects EXTRA attributes, never
+MISSING ones: `LOT_PRIM_ATTRS` still promises `layer`, which the lots output has
+never shipped. Ship it or drop it from the list; the check cannot tell you.
 
 Passing, and that is the point — each has been shown to fail under fault
 injection or on another case, so none of them is decoration:
