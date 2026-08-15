@@ -5322,8 +5322,64 @@ refused connection is the artist's call, not the implementer's** (§S5a "the eig
 `graph_drop_orphans` then removes two components after pass 0, publishing 3 edges of 9 — identical
 on both definitions, so pre-existing, and newly visible (item 5, which specifies the case to add).
 
-The rule is settled — **cap junction arms at 4; realign a leg where feasible, roundabout
-otherwise** — and four attempts have already been built, measured and reverted (§S5a). The order
+⚠️ **THE RULE CHANGED ON 2026-08-15, AND IT CHANGED BECAUSE THE DATA SAID THE OLD ONE WAS
+MEASURING THE WRONG QUANTITY.** It used to read: *cap junction arms at 4; realign a leg where
+feasible, roundabout otherwise*, with `min_node_dist` 40 m enforced as a floor. Both halves were
+asserted as thresholds. Neither predicts a defect:
+
+| case | gap | arms | geometry checks broken at that junction |
+|---|---|---|---|
+| C_radial | 30.65 m | 5 | **0 of 8** |
+| I_offset_radial | 30.65 m | 5 | **0 of 8** |
+| K_stub_triangle | 32.00 m | 5 | **5 of 8** |
+
+30.65 m with five arms is clean — `trim_leaves_road_standing` leaves +6.49 m, no mouth lost, no
+self-intersection, all 29 block loops closed. 32.00 m with five arms is a disaster: −13.43 m
+standing, 6 mouths orphaned, 50 self-intersections. **Distance does not separate them and arm
+count does not separate them.** What separates them is whether the junction PLATES fit: K's are
+42 m across on a 32 m gap.
+
+The rule as it now stands, from the artist:
+
+- **`min_node_dist` (40 m) is a SEARCH RADIUS, not a minimum size.** It says how far to look for
+  neighbours that might interact. A junction that solves correctly at a smaller spacing is
+  correct. What must be zero is errors, not metres.
+- **The cap of 4 is the AIM, not a cap.** Published practice is that an engineer designs for at
+  most four arms, and that stays the default to aim for — but five-way junctions exist in the
+  world, and one that solves correctly is correct.
+- **Only where it does NOT solve is a resolution required, and the resolution is unchanged:**
+  realign a leg into a separate T, leaving a T and a four-way (`graph_realign`, already built).
+  Eliminating a leg stays forbidden by §S3.
+
+Consequences already applied: `junctions_not_too_close` and `no_multileg_junctions` are now
+**measured and recorded, not asserted** — the assertion moved to the checks that measure the
+outcome (`trim_leaves_road_standing`, `every_mouth_has_a_road`, `selfx_junction_surface`,
+`block_boundary_closes`, `lots_clear_of_junctions`). Suite 26 → 20 failing with **no geometry
+change at all**, because four of those six rows were never defects. K still fails all five
+outcome checks, which is the point.
+
+Still to apply in CODE: `graph_stub_mark` treats *any* edge under 40 m as a jog to collapse
+regardless of whether it has a problem, which is the old semantics. It should act on the
+premeasured standing length instead. And the derived thresholds that quote the vertex grid —
+`min_node_dist + one resample step` = 45 m, `2 x` that = 90 m — stop being about distance at all.
+
+**Four attempts to enforce the OLD rule were built, measured and reverted (§S5a). Attempt five
+was mine, 2026-08-15, and it failed for two causes worth recording** because both are traps for
+the next attempt:
+
+1. **A per-edge push applied to a per-cluster problem.** It separated each deficient edge by half
+   its shortfall, capped per edge by half the endpoint's shortest other street — the realign's own
+   rail. On a 3-cycle *every* side is deficient, so each corner is shoved two or three times per
+   pass in different directions. Nothing capped the total per NODE.
+2. **It moved only the two endpoints, and the interior is resampled at ~5 m.** Shifting an
+   endpoint 16 m while vertex #2 stays put hinges the street at the junction. This is the deeper
+   one, and it is why the node/segment model in §9 has to come first: a street whose shape is
+   DERIVED from its end nodes re-curves when a node moves, and this failure mode cannot occur.
+
+Measured outcome of attempt five: K's graph emptied over the loop's ten passes — `counts` city
+1979 → 0, edges 8 → 0 — and suite 26 → 31. ⚠️ **Three checks went GREEN while it did that**
+(`junctions_not_too_close` 3 → 0, `no_multileg_junctions` 5 → 0 arms, `selfx_junction_surface`
+50 → 0), all of them because there was no geometry left to fail them. Reverted. The order
 that follows from those failures:
 
 1. ✅ **Commit the checks first** — DONE 2026-08-12. `junctions_not_too_close` and

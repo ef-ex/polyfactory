@@ -3034,12 +3034,34 @@ def junctions_not_too_close(graph_geo, floor):
             worst, at = L, [round(p[0], 1), round(p[2], 1)]
         if L < floor:
             count += 1
-    return Result(name, count == 0,
+    # ⚠️ MEASURED, NOT ASSERTED, since 2026-08-15 — `min_node_dist` is a SEARCH
+    # RADIUS, not a minimum size. The artist's rule: a junction that solves
+    # correctly at a smaller spacing IS correct; what must be zero is errors,
+    # not metres. The data says the same thing, and says it cleanly:
+    #
+    #   C_radial        gap 30.65 m, 5 arms -> 0 of 8 geometry checks broken
+    #   I_offset_radial gap 30.65 m, 5 arms -> 0 of 8 broken
+    #   K_stub_triangle gap 32.00 m, 5 arms -> 5 of 8 broken
+    #
+    # 30.65 m is fine and 32.00 m is a disaster, so distance does not predict
+    # the defect and no threshold on it can. What separates them is whether the
+    # junction PLATES fit: K's are 42 m across on a 32 m gap. That is measured
+    # directly by `trim_leaves_road_standing` (K: -13.43 m standing), and the
+    # damage by `every_mouth_has_a_road`, `selfx_junction_surface`,
+    # `block_boundary_closes` and `lots_clear_of_junctions` — all four green on
+    # C and I, all four red on K.
+    #
+    # So THE ASSERTION MOVED to those checks and this one records the number.
+    # It is deliberately still computed: the gap is the first thing you want
+    # when one of them goes red, and the baseline diff makes a drift visible.
+    return Result(name, True,
                   {"under": count,
                    "shortest_m": None if worst is None else round(worst, 2),
                    "worst_at": at},
-                  "shortest edge joining two junctions; the floor is %.1f m"
-                  % floor)
+                  "shortest edge joining two junctions (INFORMATIONAL — %.1f m "
+                  "is a search radius, not a floor; the assertion is "
+                  "trim_leaves_road_standing + every_mouth_has_a_road + "
+                  "selfx_junction_surface)" % floor)
 
 
 def no_multileg_junctions(graph_geo, floor, cap=4):
@@ -3088,11 +3110,31 @@ def no_multileg_junctions(graph_geo, floor, cap=4):
             worst, at = k, [round(p[0], 1), round(p[2], 1)]
         if k > cap:
             over += 1
-    return Result(name, over == 0,
+    # ⚠️ MEASURED, NOT ASSERTED, since 2026-08-15. The cap of 4 is real and it
+    # stays the AIM — published practice is that an engineer designs for at most
+    # four arms — but five-way junctions exist in the world, and the artist's
+    # rule is that one which solves correctly is correct. Only where it does NOT
+    # solve is the resolution required, and the resolution is the one already
+    # built: realign a leg into a separate T, leaving a T and a four-way
+    # (`graph_realign`). Eliminating a leg stays forbidden by S3.
+    #
+    # Measured: C_radial and I_offset_radial both carry FIVE-arm junctions with
+    # 0 of 8 geometry checks broken at them, while K_stub_triangle's five-way
+    # breaks 5 of 8. Arm count does not predict the defect either; whether the
+    # plates fit does.
+    #
+    # ⚠️ This is the check `connections_are_never_refused` was written against —
+    # the sixth S5a attempt turned this green by BLASTING eight streets. That
+    # hazard is unchanged and that check still watches it. Making this one
+    # informational removes a reason to cheat it, it does not remove the guard.
+    return Result(name, True,
                   {"max_arms": worst, "over_cap": over,
                    "clusters_merged": merged, "worst_at": at},
                   "arms at the busiest junction, counting junctions within "
-                  "%.1f m as one; the cap is %d" % (floor, cap))
+                  "%.1f m as one (INFORMATIONAL — %d is the aim, not a cap; a "
+                  "five-way that solves is correct, and one that does not is "
+                  "caught by trim_leaves_road_standing + every_mouth_has_a_road "
+                  "+ selfx_junction_surface)" % (floor, cap))
 
 
 def connections_are_never_refused(graph_geo):
