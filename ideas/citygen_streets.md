@@ -5265,6 +5265,43 @@ film · topology is cached so S8 determinism is not required · planar-per-layer
 - **Pier placement** — not a design question, just implementation plus the standard validation
   rule. Specified in §S5b.
 
+- **THE NODE/SEGMENT MODEL — built, measured, and NOT yet shipped. 2026-08-15.** The
+  Cities-Skylines model: you grab a node, you do not grab every vertex, and the road re-curves.
+
+  ⚠️ **THE STRUCTURE ALREADY EXISTS AND NOBODY HAD USED IT.** `graph_polypath` already leaves
+  every prim running node-to-node. Measured on A_drawn: all 8 prims have `is_node` = 1 at *both*
+  ends and **zero** interior nodes, with 23–47 shape points between. So a prim already IS a
+  segment; `is_node` (§6, "1 = topological node, 0 = shape point") already labels which points are
+  structural. What was missing is only the DERIVATION — moving a node did nothing to the shape,
+  so the street hinged at the junction, which is cause (2) of attempt five below.
+
+  **The mechanism, validated:** capture each shape point in its segment's own chord frame —
+  `u` along, `v` across, both divided by chord length — then rebuild from the end nodes. The
+  reconstruction is a similarity (rotate, uniform scale, translate), so the segment keeps its
+  shape and follows its nodes. Two traps found by measuring, both non-obvious:
+
+  1. ⚠️ **A LOSSY IDENTITY INSIDE AN ITERATING LOOP IS A RANDOM WALK.** Running the rebuild
+     unconditionally moved **68 recorded values** on cases where no node moved at all — city prim
+     counts, lot counts, `selfx_city_merged` in both directions. `u`/`v` are float32, so the round
+     trip drifts ~1e-6 relative — ~1 mm at 800 m coordinates — and the repair loop runs up to ten
+     passes. `graph_reaches_a_fixed_point` tolerates 1 mm and never saw it. **The rebuild must
+     store the endpoints with the frame and skip when they have not moved** — not "recompute to
+     the same value", *skip*. With that gate all ten other cases went bit-identical.
+  2. ⚠️ **IT MUST NOT WRAP A MOVER THAT DOES ITS OWN SHAPE WORK.** Wrapped around
+     `graph_realign` it regressed `block_boundary_closes` (1 closed loop → 2 open, 4 unpaired
+     ends) and `trim_metric_is_consistent` (0.0 → **2.66 m** at (44.0, 0.0)) on `J_five_star`, the
+     one case the realign fires on. The realign lands its T deliberately and blends the approach;
+     the rebuild then overwrote that interior with a similarity of the *pre-realign* shape and
+     threw the blend away. **Its consumer is a mover that repositions nodes and nothing else** —
+     the cluster spread — not the realign.
+
+  Where it fires it does exactly what it is for: on `J_five_star`,
+  `centreline_curvature_within_class` went 0.427 → **0.0** and `no_sweep_fold_after_trim`
+  0.107 → **0.0**. The hinge is real and this removes it.
+
+  **Status: reverted, unshipped, and the two wrangles are worth rebuilding verbatim** when the
+  cluster spread exists to consume them. Suite unchanged at 20.
+
 - **How the deferred cross-section transition gets built — WANG TILES, not a solver.** Decided
   2026-08-15 while looking at the failure in the viewport. The v1 non-goal in §10 says the seam is
   left open; this records the *approach*, so the eventual build does not start from scratch.

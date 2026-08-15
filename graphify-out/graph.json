@@ -7170,7 +7170,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -7200,7 +7200,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -7320,7 +7320,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_raycast_to_ground_plane",
-      "community": 60,
+      "community": 26,
       "norm_label": "raycast_to_ground_plane()"
     },
     {
@@ -7390,7 +7390,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_rationale_82",
-      "community": 60,
+      "community": 26,
       "norm_label": "raycast to horizontal plane (xz plane at given height).          args:"
     },
     {
@@ -16697,7 +16697,7 @@
       "label": "\u26d4 OPEN AND BLOCKING \u2014 the multi-leg junction (\u00a7S5a). Added 2026-08-12",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L5292",
+      "source_location": "L5329",
       "_origin": "ast",
       "id": "ideas_citygen_streets_open_and_blocking_the_multi_leg_junction_s5a_added_2026_08_12",
       "community": 18,
@@ -16707,7 +16707,7 @@
       "label": "10. Explicit non-goals for v1",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L5432",
+      "source_location": "L5469",
       "_origin": "ast",
       "id": "ideas_citygen_streets_10_explicit_non_goals_for_v1",
       "community": 18,
@@ -39234,9 +39234,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3068",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_3068",
-      "target": "citygen_checks_no_multileg_junctions",
-      "confidence_score": 1.0
+      "target": "citygen_checks_no_multileg_junctions"
     },
     {
       "relation": "rationale_for",
@@ -39244,9 +39244,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3141",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_3141",
-      "target": "citygen_checks_connections_are_never_refused",
-      "confidence_score": 1.0
+      "target": "citygen_checks_connections_are_never_refused"
     },
     {
       "relation": "rationale_for",
@@ -39254,9 +39254,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3259",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_3259",
-      "target": "citygen_checks_trim_leaves_road_standing",
-      "confidence_score": 1.0
+      "target": "citygen_checks_trim_leaves_road_standing"
     },
     {
       "relation": "rationale_for",
@@ -39264,9 +39264,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3383",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_3383",
-      "target": "citygen_checks_turn_clamp_control_rig",
-      "confidence_score": 1.0
+      "target": "citygen_checks_turn_clamp_control_rig"
     },
     {
       "relation": "calls",
@@ -39296,9 +39296,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3535",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_3535",
-      "target": "citygen_checks_rig_kappa",
-      "confidence_score": 1.0
+      "target": "citygen_checks_rig_kappa"
     },
     {
       "relation": "calls",
@@ -39317,9 +39317,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3547",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_3547",
-      "target": "citygen_checks_rig_measure",
-      "confidence_score": 1.0
+      "target": "citygen_checks_rig_measure"
     },
     {
       "relation": "rationale_for",
@@ -39327,9 +39327,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3579",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_3579",
-      "target": "citygen_checks_rig_verdict",
-      "confidence_score": 1.0
+      "target": "citygen_checks_rig_verdict"
     },
     {
       "relation": "rationale_for",
@@ -39337,9 +39337,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3783",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_3783",
-      "target": "citygen_checks_lots_clear_of_junctions",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lots_clear_of_junctions"
     },
     {
       "relation": "rationale_for",
@@ -39347,9 +39347,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3821",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_3821",
-      "target": "citygen_checks_lots_clear_of_roads",
-      "confidence_score": 1.0
+      "target": "citygen_checks_lots_clear_of_roads"
     },
     {
       "relation": "rationale_for",
@@ -39357,9 +39357,9 @@
       "source_file": "tests/citygen/checks.py",
       "source_location": "L3958",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_rationale_3958",
-      "target": "citygen_checks_city_is_fully_paved",
-      "confidence_score": 1.0
+      "target": "citygen_checks_city_is_fully_paved"
     },
     {
       "relation": "contains",
@@ -45263,5 +45263,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "d043ec613c95413c43db69dadaba69f46f0814bd"
+  "built_at_commit": "d035241e20a57bff8b7952b35e72404709a6bed5"
 }
