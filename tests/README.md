@@ -5,7 +5,6 @@ Two layers. Run the fast one constantly, the slow one before you believe a fix.
 ```bash
 # pure logic — no Houdini, ~0.002s
 python tests/unit/test_citygen.py
-python tests/unit/test_graph.py
 
 # geometry — throwaway Houdini session, never saves a .hip
 hython tests/citygen/run_scene_checks.py
@@ -58,7 +57,6 @@ improvement before running `--update-baseline`.**
 tests/
   unit/                  pure Python, no Houdini
     test_citygen.py      cross-section profile maths (22 tests)
-    test_graph.py        street graph construction (25 tests)
   citygen/
     checks.py            the assertion library — add to this
     cases.py             scene construction + headless env setup

@@ -450,7 +450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets",
-      "community": 20,
+      "community": 78,
       "norm_label": "asset_browser_widgets.py"
     },
     {
@@ -490,7 +490,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "hoveroutlinemixin",
-      "community": 20,
+      "community": 32,
       "norm_label": "hoveroutlinemixin"
     },
     {
@@ -500,7 +500,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_init",
-      "community": 78,
+      "community": 36,
       "norm_label": ".__init__()"
     },
     {
@@ -520,7 +520,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox",
-      "community": 20,
+      "community": 78,
       "norm_label": "hovercombobox"
     },
     {
@@ -530,7 +530,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_init",
-      "community": 78,
+      "community": 36,
       "norm_label": ".__init__()"
     },
     {
@@ -710,7 +710,7 @@
       "source_location": "L425",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_init",
-      "community": 78,
+      "community": 36,
       "norm_label": ".__init__()"
     },
     {
@@ -800,7 +800,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_1",
-      "community": 20,
+      "community": 78,
       "norm_label": "asset browser widgets - low-level widget classes extracted from browser_ui.py."
     },
     {
@@ -830,7 +830,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_62",
-      "community": 20,
+      "community": 78,
       "norm_label": "qcombobox with animated hover outline"
     },
     {
@@ -1920,7 +1920,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_thumbnail_dropped_at",
-      "community": 8,
+      "community": 20,
       "norm_label": "._on_thumbnail_dropped_at()"
     },
     {
@@ -1930,7 +1930,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qpoint",
-      "community": 8,
+      "community": 20,
       "norm_label": "qpoint"
     },
     {
@@ -2060,7 +2060,7 @@
       "source_location": "L691",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog_init",
-      "community": 8,
+      "community": 20,
       "norm_label": ".__init__()"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L764",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_init",
-      "community": 8,
+      "community": 20,
       "norm_label": ".__init__()"
     },
     {
@@ -2220,7 +2220,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_383",
-      "community": 8,
+      "community": 20,
       "norm_label": "forward thumbnail drop to the browser-level signal."
     },
     {
@@ -2830,7 +2830,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_init",
-      "community": 92,
+      "community": 87,
       "norm_label": ".__init__()"
     },
     {
@@ -2840,7 +2840,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_setup_ui",
-      "community": 92,
+      "community": 87,
       "norm_label": "._setup_ui()"
     },
     {
@@ -2870,7 +2870,7 @@
       "source_location": "L451",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_batch_detect",
-      "community": 92,
+      "community": 24,
       "norm_label": "._batch_detect()"
     },
     {
@@ -2920,7 +2920,7 @@
       "source_location": "L639",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_load_existing_data",
-      "community": 92,
+      "community": 87,
       "norm_label": "._load_existing_data()"
     },
     {
@@ -2950,7 +2950,7 @@
       "source_location": "L732",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_validate_inputs",
-      "community": 83,
+      "community": 92,
       "norm_label": "._validate_inputs()"
     },
     {
@@ -2960,7 +2960,7 @@
       "source_location": "L756",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_on_export",
-      "community": 83,
+      "community": 92,
       "norm_label": "._on_export()"
     },
     {
@@ -3020,7 +3020,7 @@
       "source_location": "L640",
       "_origin": "ast",
       "id": "asset_library_export_ui_rationale_640",
-      "community": 92,
+      "community": 87,
       "norm_label": "load existing categories from database"
     },
     {
@@ -3050,7 +3050,7 @@
       "source_location": "L757",
       "_origin": "ast",
       "id": "asset_library_export_ui_rationale_757",
-      "community": 83,
+      "community": 92,
       "norm_label": "handle export button click"
     },
     {
@@ -3554,86 +3554,6 @@
       "norm_label": "register the state with houdini"
     },
     {
-      "label": "kitbash_setup.py",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "asset_library_kitbash_setup",
-      "community": 27,
-      "norm_label": "kitbash_setup.py"
-    },
-    {
-      "label": "register_kitbash_state()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L13",
-      "_origin": "ast",
-      "id": "asset_library_kitbash_setup_register_kitbash_state",
-      "community": 27,
-      "norm_label": "register_kitbash_state()"
-    },
-    {
-      "label": "open_asset_browser()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L21",
-      "_origin": "ast",
-      "id": "asset_library_kitbash_setup_open_asset_browser",
-      "community": 27,
-      "norm_label": "open_asset_browser()"
-    },
-    {
-      "label": "test_workflow()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L27",
-      "_origin": "ast",
-      "id": "asset_library_kitbash_setup_test_workflow",
-      "community": 27,
-      "norm_label": "test_workflow()"
-    },
-    {
-      "label": "Setup and test script for kitbash workflow  To use: 1. First create the pf_ki",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "asset_library_kitbash_setup_rationale_1",
-      "community": 27,
-      "norm_label": "setup and test script for kitbash workflow  to use: 1. first create the pf_ki"
-    },
-    {
-      "label": "Register the kitbash placement Python state",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L14",
-      "_origin": "ast",
-      "id": "asset_library_kitbash_setup_rationale_14",
-      "community": 27,
-      "norm_label": "register the kitbash placement python state"
-    },
-    {
-      "label": "Open the asset browser dialog",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "asset_library_kitbash_setup_rationale_22",
-      "community": 27,
-      "norm_label": "open the asset browser dialog"
-    },
-    {
-      "label": "Test the complete workflow",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "asset_library_kitbash_setup_rationale_28",
-      "community": 27,
-      "norm_label": "test the complete workflow"
-    },
-    {
       "label": "kitbash_ui.py",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_ui.py",
@@ -3680,7 +3600,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_assetinstancewidget",
-      "community": 47,
+      "community": 97,
       "norm_label": "assetinstancewidget"
     },
     {
@@ -3700,7 +3620,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_assetinstancewidget_setup_ui",
-      "community": 47,
+      "community": 97,
       "norm_label": "._setup_ui()"
     },
     {
@@ -3710,7 +3630,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_assetinstancewidget_create_label",
-      "community": 47,
+      "community": 97,
       "norm_label": "._create_label()"
     },
     {
@@ -3720,7 +3640,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_assetinstancewidget_create_spinbox",
-      "community": 47,
+      "community": 97,
       "norm_label": "._create_spinbox()"
     },
     {
@@ -3740,7 +3660,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_assetinstancewidget_on_value_changed",
-      "community": 47,
+      "community": 97,
       "norm_label": "._on_value_changed()"
     },
     {
@@ -3770,7 +3690,7 @@
       "source_location": "L243",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_placedassetslistwidget_setup_ui",
-      "community": 47,
+      "community": 97,
       "norm_label": "._setup_ui()"
     },
     {
@@ -3920,7 +3840,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_37",
-      "community": 47,
+      "community": 97,
       "norm_label": "widget representing a single placed asset instance"
     },
     {
@@ -3930,7 +3850,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_65",
-      "community": 47,
+      "community": 97,
       "norm_label": "create ui for single asset instance"
     },
     {
@@ -3940,7 +3860,7 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_146",
-      "community": 47,
+      "community": 97,
       "norm_label": "create styled spinbox"
     },
     {
@@ -3960,7 +3880,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "asset_library_kitbash_ui_rationale_202",
-      "community": 47,
+      "community": 97,
       "norm_label": "handle spinbox value change"
     },
     {
@@ -4574,326 +4494,6 @@
       "norm_label": "write the swept cross-section profile as a single open polyline.      output lie"
     },
     {
-      "label": "graph.py",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "citygen_graph",
-      "community": 9,
-      "norm_label": "graph.py"
-    },
-    {
-      "label": "_dist2()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L47",
-      "_origin": "ast",
-      "id": "citygen_graph_dist2",
-      "community": 9,
-      "norm_label": "_dist2()"
-    },
-    {
-      "label": "_dist()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L54",
-      "_origin": "ast",
-      "id": "citygen_graph_dist",
-      "community": 9,
-      "norm_label": "_dist()"
-    },
-    {
-      "label": "edge_length()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L58",
-      "_origin": "ast",
-      "id": "citygen_graph_edge_length",
-      "community": 9,
-      "norm_label": "edge_length()"
-    },
-    {
-      "label": "weld()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L66",
-      "_origin": "ast",
-      "id": "citygen_graph_weld",
-      "community": 9,
-      "norm_label": "weld()"
-    },
-    {
-      "label": "segment_degree()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L114",
-      "_origin": "ast",
-      "id": "citygen_graph_segment_degree",
-      "community": 9,
-      "norm_label": "segment_degree()"
-    },
-    {
-      "label": "split_at_junctions()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L124",
-      "_origin": "ast",
-      "id": "citygen_graph_split_at_junctions",
-      "community": 9,
-      "norm_label": "split_at_junctions()"
-    },
-    {
-      "label": "endpoint_degree()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L142",
-      "_origin": "ast",
-      "id": "citygen_graph_endpoint_degree",
-      "community": 9,
-      "norm_label": "endpoint_degree()"
-    },
-    {
-      "label": "junctions()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L151",
-      "_origin": "ast",
-      "id": "citygen_graph_junctions",
-      "community": 9,
-      "norm_label": "junctions()"
-    },
-    {
-      "label": "prune_stubs()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L166",
-      "_origin": "ast",
-      "id": "citygen_graph_prune_stubs",
-      "community": 9,
-      "norm_label": "prune_stubs()"
-    },
-    {
-      "label": "dedupe_edges()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L183",
-      "_origin": "ast",
-      "id": "citygen_graph_dedupe_edges",
-      "community": 9,
-      "norm_label": "dedupe_edges()"
-    },
-    {
-      "label": "remove_isolated_nodes()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L194",
-      "_origin": "ast",
-      "id": "citygen_graph_remove_isolated_nodes",
-      "community": 9,
-      "norm_label": "remove_isolated_nodes()"
-    },
-    {
-      "label": "validate()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L207",
-      "_origin": "ast",
-      "id": "citygen_graph_validate",
-      "community": 9,
-      "norm_label": "validate()"
-    },
-    {
-      "label": "summarise()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L248",
-      "_origin": "ast",
-      "id": "citygen_graph_summarise",
-      "community": 9,
-      "norm_label": "summarise()"
-    },
-    {
-      "label": "build()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L259",
-      "_origin": "ast",
-      "id": "citygen_graph_build",
-      "community": 9,
-      "norm_label": "build()"
-    },
-    {
-      "label": "CityGen - street graph construction.  Design: ideas/citygen_streets.md section S",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "citygen_graph_rationale_1",
-      "community": 9,
-      "norm_label": "citygen - street graph construction.  design: ideas/citygen_streets.md section s"
-    },
-    {
-      "label": "Merge points within `tol` into shared nodes.      Returns (nodes, seqs) where no",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L67",
-      "_origin": "ast",
-      "id": "citygen_graph_rationale_67",
-      "community": 9,
-      "norm_label": "merge points within `tol` into shared nodes.      returns (nodes, seqs) where no"
-    },
-    {
-      "label": "Incident segment count per node.  Interior-of-one-polyline == 2.",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L115",
-      "_origin": "ast",
-      "id": "citygen_graph_rationale_115",
-      "community": 9,
-      "norm_label": "incident segment count per node.  interior-of-one-polyline == 2."
-    },
-    {
-      "label": "Cut every polyline wherever an interior point is not a simple pass-through.",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L125",
-      "_origin": "ast",
-      "id": "citygen_graph_rationale_125",
-      "community": 9,
-      "norm_label": "cut every polyline wherever an interior point is not a simple pass-through."
-    },
-    {
-      "label": "Node degree counted over graph edges (not segments).",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L143",
-      "_origin": "ast",
-      "id": "citygen_graph_rationale_143",
-      "community": 9,
-      "norm_label": "node degree counted over graph edges (not segments)."
-    },
-    {
-      "label": "Indices of topological nodes - the schema's `is_node` points.      A point inter",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L152",
-      "_origin": "ast",
-      "id": "citygen_graph_rationale_152",
-      "community": 9,
-      "norm_label": "indices of topological nodes - the schema's `is_node` points.      a point inter"
-    },
-    {
-      "label": "Iteratively drop dead-end edges shorter than `min_len`.      Iterative because r",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L167",
-      "_origin": "ast",
-      "id": "citygen_graph_rationale_167",
-      "community": 9,
-      "norm_label": "iteratively drop dead-end edges shorter than `min_len`.      iterative because r"
-    },
-    {
-      "label": "Collapse duplicate edges between the same node pair, keeping the shortest.",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L184",
-      "_origin": "ast",
-      "id": "citygen_graph_rationale_184",
-      "community": 9,
-      "norm_label": "collapse duplicate edges between the same node pair, keeping the shortest."
-    },
-    {
-      "label": "Drop nodes no edge references, and reindex. Returns (nodes, edges, removed).",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L195",
-      "_origin": "ast",
-      "id": "citygen_graph_rationale_195",
-      "community": 9,
-      "norm_label": "drop nodes no edge references, and reindex. returns (nodes, edges, removed)."
-    },
-    {
-      "label": "Return a list of {rule, severity, detail} findings.      Nothing here raises.  V",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L208",
-      "_origin": "ast",
-      "id": "citygen_graph_rationale_208",
-      "community": 9,
-      "norm_label": "return a list of {rule, severity, detail} findings.      nothing here raises.  v"
-    },
-    {
-      "label": "Counts per severity, for reporting on the node.",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L249",
-      "_origin": "ast",
-      "id": "citygen_graph_rationale_249",
-      "community": 9,
-      "norm_label": "counts per severity, for reporting on the node."
-    },
-    {
-      "label": "Curves in, graph out.      Returns dict with nodes, edges, degree, issues, stats",
-      "file_type": "rationale",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L261",
-      "_origin": "ast",
-      "id": "citygen_graph_rationale_261",
-      "community": 9,
-      "norm_label": "curves in, graph out.      returns dict with nodes, edges, degree, issues, stats"
-    },
-    {
-      "label": "fpipe.py",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/fpipe.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "polyfactory_fpipe",
-      "community": 75,
-      "norm_label": "fpipe.py"
-    },
-    {
-      "label": "get_assets()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/fpipe.py",
-      "source_location": "L9",
-      "_origin": "ast",
-      "id": "polyfactory_fpipe_get_assets",
-      "community": 75,
-      "norm_label": "get_assets()"
-    },
-    {
-      "label": "process_assets()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/fpipe.py",
-      "source_location": "L14",
-      "_origin": "ast",
-      "id": "polyfactory_fpipe_process_assets",
-      "community": 75,
-      "norm_label": "process_assets()"
-    },
-    {
-      "label": "done()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/fpipe.py",
-      "source_location": "L24",
-      "_origin": "ast",
-      "id": "polyfactory_fpipe_done",
-      "community": 75,
-      "norm_label": "done()"
-    },
-    {
-      "label": "mtlx.py",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/mtlx.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "polyfactory_mtlx",
-      "community": 95,
-      "norm_label": "mtlx.py"
-    },
-    {
       "label": "parmUtils.py",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/parmUtils.py",
@@ -4964,43 +4564,13 @@
       "norm_label": "get parms of multiparm as dictionary      args:         multi (hou.parm): mul"
     },
     {
-      "label": "pyvex.py",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/pyvex.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "polyfactory_pyvex",
-      "community": 57,
-      "norm_label": "pyvex.py"
-    },
-    {
-      "label": "ocio_transform()",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/pyvex.py",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "polyfactory_pyvex_ocio_transform",
-      "community": 57,
-      "norm_label": "ocio_transform()"
-    },
-    {
-      "label": "test.py",
-      "file_type": "code",
-      "source_file": "polyfactory/scripts/python/polyfactory/test.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "polyfactory_test",
-      "community": 82,
-      "norm_label": "test.py"
-    },
-    {
       "label": "__init__.py",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/__init__.py",
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init",
-      "community": 0,
+      "community": 5,
       "norm_label": "__init__.py"
     },
     {
@@ -5010,7 +4580,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init_rationale_1",
-      "community": 0,
+      "community": 5,
       "norm_label": "polyfactory ui framework =========================  modern qt widget library"
     },
     {
@@ -5020,7 +4590,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_functions",
-      "community": 98,
+      "community": 5,
       "norm_label": "functions.py"
     },
     {
@@ -5030,7 +4600,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "core_functions_functions",
-      "community": 98,
+      "community": 0,
       "norm_label": "functions"
     },
     {
@@ -5040,7 +4610,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "core_functions_functions_set_svg_icon",
-      "community": 98,
+      "community": 0,
       "norm_label": ".set_svg_icon()"
     },
     {
@@ -5050,7 +4620,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "core_functions_functions_set_svg_image",
-      "community": 98,
+      "community": 0,
       "norm_label": ".set_svg_image()"
     },
     {
@@ -5060,7 +4630,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "core_functions_functions_set_image",
-      "community": 98,
+      "community": 0,
       "norm_label": ".set_image()"
     },
     {
@@ -5170,7 +4740,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_qt_core",
-      "community": 0,
+      "community": 5,
       "norm_label": "qt_core.py"
     },
     {
@@ -5180,7 +4750,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "columns_ui_left_column",
-      "community": 0,
+      "community": 5,
       "norm_label": "ui_left_column.py"
     },
     {
@@ -5220,7 +4790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "columns_ui_right_column",
-      "community": 52,
+      "community": 9,
       "norm_label": "ui_right_column.py"
     },
     {
@@ -5230,7 +4800,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn",
-      "community": 52,
+      "community": 9,
       "norm_label": "ui_rightcolumn"
     },
     {
@@ -5240,7 +4810,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_setupui",
-      "community": 52,
+      "community": 9,
       "norm_label": ".setupui()"
     },
     {
@@ -5250,7 +4820,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_retranslateui",
-      "community": 52,
+      "community": 9,
       "norm_label": ".retranslateui()"
     },
     {
@@ -5260,7 +4830,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pages_ui_main_pages",
-      "community": 52,
+      "community": 27,
       "norm_label": "ui_main_pages.py"
     },
     {
@@ -5270,7 +4840,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages",
-      "community": 52,
+      "community": 27,
       "norm_label": "ui_mainpages"
     },
     {
@@ -5280,7 +4850,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_setupui",
-      "community": 52,
+      "community": 27,
       "norm_label": ".setupui()"
     },
     {
@@ -5290,7 +4860,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_retranslateui",
-      "community": 52,
+      "community": 27,
       "norm_label": ".retranslateui()"
     },
     {
@@ -5520,7 +5090,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "main_window_ui_main_ui_mainwindow_setup_ui",
-      "community": 52,
+      "community": 0,
       "norm_label": ".setup_ui()"
     },
     {
@@ -6010,7 +5580,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_icon",
-      "community": 0,
+      "community": 5,
       "norm_label": "py_icon.py"
     },
     {
@@ -6020,7 +5590,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon",
-      "community": 85,
+      "community": 47,
       "norm_label": "pyicon"
     },
     {
@@ -6030,7 +5600,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_init",
-      "community": 85,
+      "community": 47,
       "norm_label": ".__init__()"
     },
     {
@@ -6040,7 +5610,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_setup_ui",
-      "community": 85,
+      "community": 47,
       "norm_label": ".setup_ui()"
     },
     {
@@ -6050,7 +5620,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_set_icon",
-      "community": 85,
+      "community": 47,
       "norm_label": ".set_icon()"
     },
     {
@@ -6060,7 +5630,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_left_button",
-      "community": 69,
+      "community": 64,
       "norm_label": "py_left_button.py"
     },
     {
@@ -6080,7 +5650,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_init",
-      "community": 69,
+      "community": 64,
       "norm_label": ".__init__()"
     },
     {
@@ -6200,7 +5770,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip",
-      "community": 69,
+      "community": 64,
       "norm_label": "_tooltip"
     },
     {
@@ -6210,7 +5780,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip_init",
-      "community": 69,
+      "community": 64,
       "norm_label": ".__init__()"
     },
     {
@@ -6220,7 +5790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_left_column",
-      "community": 0,
+      "community": 5,
       "norm_label": "py_left_column.py"
     },
     {
@@ -6290,7 +5860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_menu_py_div",
-      "community": 98,
+      "community": 5,
       "norm_label": "py_div.py"
     },
     {
@@ -6300,7 +5870,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_left_menu_py_div_pydiv",
-      "community": 98,
+      "community": 5,
       "norm_label": "pydiv"
     },
     {
@@ -6310,7 +5880,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_menu_py_div_pydiv_init",
-      "community": 98,
+      "community": 5,
       "norm_label": ".__init__()"
     },
     {
@@ -6320,7 +5890,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu",
-      "community": 98,
+      "community": 5,
       "norm_label": "py_left_menu.py"
     },
     {
@@ -6440,7 +6010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_menu_py_left_menu_button",
-      "community": 98,
+      "community": 5,
       "norm_label": "py_left_menu_button.py"
     },
     {
@@ -6730,7 +6300,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_init",
-      "community": 47,
+      "community": 85,
       "norm_label": "__init__.py"
     },
     {
@@ -6740,7 +6310,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_push_button_py_push_button",
-      "community": 47,
+      "community": 85,
       "norm_label": "py_push_button.py"
     },
     {
@@ -6750,7 +6320,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "py_push_button_py_push_button_pypushbutton",
-      "community": 47,
+      "community": 97,
       "norm_label": "pypushbutton"
     },
     {
@@ -6760,7 +6330,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "py_push_button_py_push_button_pypushbutton_init",
-      "community": 47,
+      "community": 97,
       "norm_label": ".__init__()"
     },
     {
@@ -6960,7 +6530,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_add_menus",
-      "community": 98,
+      "community": 0,
       "norm_label": ".add_menus()"
     },
     {
@@ -7020,7 +6590,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_title_button",
-      "community": 0,
+      "community": 69,
       "norm_label": "py_title_button.py"
     },
     {
@@ -7250,7 +6820,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_hitbutton",
-      "community": 8,
+      "community": 20,
       "norm_label": ".hitbutton()"
     },
     {
@@ -7350,7 +6920,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polyfactory_ui_utils",
-      "community": 106,
+      "community": 97,
       "norm_label": "ui_utils.py"
     },
     {
@@ -7370,7 +6940,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "polyfactory_ui_utils_get_houdini_font",
-      "community": 106,
+      "community": 97,
       "norm_label": "get_houdini_font()"
     },
     {
@@ -7380,7 +6950,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "polyfactory_ui_utils_get_font_stylesheet",
-      "community": 47,
+      "community": 97,
       "norm_label": "get_font_stylesheet()"
     },
     {
@@ -7390,7 +6960,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "polyfactory_ui_utils_apply_houdini_font",
-      "community": 106,
+      "community": 97,
       "norm_label": "apply_houdini_font()"
     },
     {
@@ -7400,7 +6970,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polyfactory_ui_utils_rationale_1",
-      "community": 106,
+      "community": 97,
       "norm_label": "ui utilities for matching houdini's font sizes and scaling"
     },
     {
@@ -7420,7 +6990,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "polyfactory_ui_utils_rationale_24",
-      "community": 106,
+      "community": 97,
       "norm_label": "get houdini's default application font.          returns:         qfont objec"
     },
     {
@@ -7430,7 +7000,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "polyfactory_ui_utils_rationale_34",
-      "community": 47,
+      "community": 97,
       "norm_label": "generate font stylesheet matching houdini's scaling.          args:         s"
     },
     {
@@ -7440,7 +7010,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "polyfactory_ui_utils_rationale_66",
-      "community": 106,
+      "community": 97,
       "norm_label": "apply houdini's font to a widget with optional size override.          args:"
     },
     {
@@ -7600,7 +7170,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -7630,7 +7200,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 39,
+      "community": 60,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -7750,7 +7320,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_raycast_to_ground_plane",
-      "community": 60,
+      "community": 26,
       "norm_label": "raycast_to_ground_plane()"
     },
     {
@@ -7820,7 +7390,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "viewer_utils_raycasting_rationale_82",
-      "community": 60,
+      "community": 26,
       "norm_label": "raycast to horizontal plane (xz plane at given height).          args:"
     },
     {
@@ -9790,7 +9360,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_init",
-      "community": 34,
+      "community": 32,
       "norm_label": ".__init__()"
     },
     {
@@ -13072,416 +12642,6 @@
       "id": "unit_test_citygen_rationale_87",
       "community": 4,
       "norm_label": "a sidewalk beside a lane must produce a vertical segment: two         points sh"
-    },
-    {
-      "label": "test_graph.py",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "unit_test_graph",
-      "community": 5,
-      "norm_label": "test_graph.py"
-    },
-    {
-      "label": "line()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L18",
-      "_origin": "ast",
-      "id": "unit_test_graph_line",
-      "community": 5,
-      "norm_label": "line()"
-    },
-    {
-      "label": "TestWeld",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L24",
-      "_origin": "ast",
-      "id": "unit_test_graph_testweld",
-      "community": 5,
-      "norm_label": "testweld"
-    },
-    {
-      "label": ".test_coincident_endpoints_become_one_node()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L26",
-      "_origin": "ast",
-      "id": "unit_test_graph_testweld_test_coincident_endpoints_become_one_node",
-      "community": 5,
-      "norm_label": ".test_coincident_endpoints_become_one_node()"
-    },
-    {
-      "label": ".test_near_coincident_within_tolerance_welds()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L32",
-      "_origin": "ast",
-      "id": "unit_test_graph_testweld_test_near_coincident_within_tolerance_welds",
-      "community": 5,
-      "norm_label": ".test_near_coincident_within_tolerance_welds()"
-    },
-    {
-      "label": ".test_outside_tolerance_does_not_weld()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L37",
-      "_origin": "ast",
-      "id": "unit_test_graph_testweld_test_outside_tolerance_does_not_weld",
-      "community": 5,
-      "norm_label": ".test_outside_tolerance_does_not_weld()"
-    },
-    {
-      "label": ".test_points_straddling_a_bucket_boundary_still_weld()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L42",
-      "_origin": "ast",
-      "id": "unit_test_graph_testweld_test_points_straddling_a_bucket_boundary_still_weld",
-      "community": 5,
-      "norm_label": ".test_points_straddling_a_bucket_boundary_still_weld()"
-    },
-    {
-      "label": ".test_zero_tolerance_is_rejected()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L50",
-      "_origin": "ast",
-      "id": "unit_test_graph_testweld_test_zero_tolerance_is_rejected",
-      "community": 5,
-      "norm_label": ".test_zero_tolerance_is_rejected()"
-    },
-    {
-      "label": ".test_repeated_points_are_collapsed()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L54",
-      "_origin": "ast",
-      "id": "unit_test_graph_testweld_test_repeated_points_are_collapsed",
-      "community": 5,
-      "norm_label": ".test_repeated_points_are_collapsed()"
-    },
-    {
-      "label": "TestSplit",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L59",
-      "_origin": "ast",
-      "id": "unit_test_graph_testsplit",
-      "community": 5,
-      "norm_label": "testsplit"
-    },
-    {
-      "label": "._cross()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L61",
-      "_origin": "ast",
-      "id": "unit_test_graph_testsplit_cross",
-      "community": 5,
-      "norm_label": "._cross()"
-    },
-    {
-      "label": ".test_crossing_node_has_degree_four()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L68",
-      "_origin": "ast",
-      "id": "unit_test_graph_testsplit_test_crossing_node_has_degree_four",
-      "community": 5,
-      "norm_label": ".test_crossing_node_has_degree_four()"
-    },
-    {
-      "label": ".test_two_crossing_streets_become_four_edges()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L73",
-      "_origin": "ast",
-      "id": "unit_test_graph_testsplit_test_two_crossing_streets_become_four_edges",
-      "community": 5,
-      "norm_label": ".test_two_crossing_streets_become_four_edges()"
-    },
-    {
-      "label": ".test_edge_interiors_contain_no_junctions()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L79",
-      "_origin": "ast",
-      "id": "unit_test_graph_testsplit_test_edge_interiors_contain_no_junctions",
-      "community": 5,
-      "norm_label": ".test_edge_interiors_contain_no_junctions()"
-    },
-    {
-      "label": ".test_plain_polyline_is_not_split()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L87",
-      "_origin": "ast",
-      "id": "unit_test_graph_testsplit_test_plain_polyline_is_not_split",
-      "community": 5,
-      "norm_label": ".test_plain_polyline_is_not_split()"
-    },
-    {
-      "label": "TestPrune",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L93",
-      "_origin": "ast",
-      "id": "unit_test_graph_testprune",
-      "community": 5,
-      "norm_label": "testprune"
-    },
-    {
-      "label": ".test_short_dead_end_stub_is_removed()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L95",
-      "_origin": "ast",
-      "id": "unit_test_graph_testprune_test_short_dead_end_stub_is_removed",
-      "community": 5,
-      "norm_label": ".test_short_dead_end_stub_is_removed()"
-    },
-    {
-      "label": ".test_long_dead_end_is_kept()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L110",
-      "_origin": "ast",
-      "id": "unit_test_graph_testprune_test_long_dead_end_is_kept",
-      "community": 5,
-      "norm_label": ".test_long_dead_end_is_kept()"
-    },
-    {
-      "label": ".test_pruning_cascades()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L120",
-      "_origin": "ast",
-      "id": "unit_test_graph_testprune_test_pruning_cascades",
-      "community": 5,
-      "norm_label": ".test_pruning_cascades()"
-    },
-    {
-      "label": ".test_dedupe_keeps_the_shorter_of_two_parallel_edges()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L132",
-      "_origin": "ast",
-      "id": "unit_test_graph_testprune_test_dedupe_keeps_the_shorter_of_two_parallel_edges",
-      "community": 5,
-      "norm_label": ".test_dedupe_keeps_the_shorter_of_two_parallel_edges()"
-    },
-    {
-      "label": "TestValidate",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L142",
-      "_origin": "ast",
-      "id": "unit_test_graph_testvalidate",
-      "community": 5,
-      "norm_label": "testvalidate"
-    },
-    {
-      "label": ".test_clean_graph_reports_no_blocking_issues()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L144",
-      "_origin": "ast",
-      "id": "unit_test_graph_testvalidate_test_clean_graph_reports_no_blocking_issues",
-      "community": 5,
-      "norm_label": ".test_clean_graph_reports_no_blocking_issues()"
-    },
-    {
-      "label": ".test_duplicate_edges_are_reported_when_dedupe_is_off()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L149",
-      "_origin": "ast",
-      "id": "unit_test_graph_testvalidate_test_duplicate_edges_are_reported_when_dedupe_is_off",
-      "community": 5,
-      "norm_label": ".test_duplicate_edges_are_reported_when_dedupe_is_off()"
-    },
-    {
-      "label": ".test_zero_length_edge_is_blocking()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L154",
-      "_origin": "ast",
-      "id": "unit_test_graph_testvalidate_test_zero_length_edge_is_blocking",
-      "community": 5,
-      "norm_label": ".test_zero_length_edge_is_blocking()"
-    },
-    {
-      "label": ".test_isolated_nodes_are_reported()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L159",
-      "_origin": "ast",
-      "id": "unit_test_graph_testvalidate_test_isolated_nodes_are_reported",
-      "community": 5,
-      "norm_label": ".test_isolated_nodes_are_reported()"
-    },
-    {
-      "label": ".test_validate_never_raises()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L164",
-      "_origin": "ast",
-      "id": "unit_test_graph_testvalidate_test_validate_never_raises",
-      "community": 5,
-      "norm_label": ".test_validate_never_raises()"
-    },
-    {
-      "label": "TestBuildEndToEnd",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L169",
-      "_origin": "ast",
-      "id": "unit_test_graph_testbuildendtoend",
-      "community": 5,
-      "norm_label": "testbuildendtoend"
-    },
-    {
-      "label": ".test_grid_of_streets_closes_faces()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L171",
-      "_origin": "ast",
-      "id": "unit_test_graph_testbuildendtoend_test_grid_of_streets_closes_faces",
-      "community": 5,
-      "norm_label": ".test_grid_of_streets_closes_faces()"
-    },
-    {
-      "label": ".test_weld_does_not_invent_intersections()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L199",
-      "_origin": "ast",
-      "id": "unit_test_graph_testbuildendtoend_test_weld_does_not_invent_intersections",
-      "community": 5,
-      "norm_label": ".test_weld_does_not_invent_intersections()"
-    },
-    {
-      "label": ".test_junction_flags_match_edge_endpoints()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L208",
-      "_origin": "ast",
-      "id": "unit_test_graph_testbuildendtoend_test_junction_flags_match_edge_endpoints",
-      "community": 5,
-      "norm_label": ".test_junction_flags_match_edge_endpoints()"
-    },
-    {
-      "label": ".test_isolated_nodes_are_dropped_and_reindexed()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L214",
-      "_origin": "ast",
-      "id": "unit_test_graph_testbuildendtoend_test_isolated_nodes_are_dropped_and_reindexed",
-      "community": 5,
-      "norm_label": ".test_isolated_nodes_are_dropped_and_reindexed()"
-    },
-    {
-      "label": ".test_stats_are_self_consistent()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L221",
-      "_origin": "ast",
-      "id": "unit_test_graph_testbuildendtoend_test_stats_are_self_consistent",
-      "community": 5,
-      "norm_label": ".test_stats_are_self_consistent()"
-    },
-    {
-      "label": ".test_empty_input_is_survivable()",
-      "file_type": "code",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L229",
-      "_origin": "ast",
-      "id": "unit_test_graph_testbuildendtoend_test_empty_input_is_survivable",
-      "community": 5,
-      "norm_label": ".test_empty_input_is_survivable()"
-    },
-    {
-      "label": "Runnable check for street graph construction.  No Houdini needed.      python",
-      "file_type": "rationale",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "unit_test_graph_rationale_1",
-      "community": 5,
-      "norm_label": "runnable check for street graph construction.  no houdini needed.      python"
-    },
-    {
-      "label": "Sampled straight line from a to b, so welding sees interior points.",
-      "file_type": "rationale",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L19",
-      "_origin": "ast",
-      "id": "unit_test_graph_rationale_19",
-      "community": 5,
-      "norm_label": "sampled straight line from a to b, so welding sees interior points."
-    },
-    {
-      "label": "The classic spatial-hash bug: neighbours must be searched too.",
-      "file_type": "rationale",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L43",
-      "_origin": "ast",
-      "id": "unit_test_graph_rationale_43",
-      "community": 5,
-      "norm_label": "the classic spatial-hash bug: neighbours must be searched too."
-    },
-    {
-      "label": "An overshoot past a junction leaves a short tail. It must go.          Note th",
-      "file_type": "rationale",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L96",
-      "_origin": "ast",
-      "id": "unit_test_graph_rationale_96",
-      "community": 5,
-      "norm_label": "an overshoot past a junction leaves a short tail. it must go.          note th"
-    },
-    {
-      "label": "A cul-de-sac is legitimate; only SHORT dead ends are noise.",
-      "file_type": "rationale",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L111",
-      "_origin": "ast",
-      "id": "unit_test_graph_rationale_111",
-      "community": 5,
-      "norm_label": "a cul-de-sac is legitimate; only short dead ends are noise."
-    },
-    {
-      "label": "Removing one stub can expose another behind it.",
-      "file_type": "rationale",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L121",
-      "_origin": "ast",
-      "id": "unit_test_graph_rationale_121",
-      "community": 5,
-      "norm_label": "removing one stub can expose another behind it."
-    },
-    {
-      "label": "3x3 crossing streets, each overshooting the outer ones.          Every street",
-      "file_type": "rationale",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L172",
-      "_origin": "ast",
-      "id": "unit_test_graph_rationale_172",
-      "community": 5,
-      "norm_label": "3x3 crossing streets, each overshooting the outer ones.          every street"
-    },
-    {
-      "label": "Guards the documented precondition: two streets that cross without         shar",
-      "file_type": "rationale",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L200",
-      "_origin": "ast",
-      "id": "unit_test_graph_rationale_200",
-      "community": 5,
-      "norm_label": "guards the documented precondition: two streets that cross without         shar"
     },
     {
       "label": "copilot-instructions.md",
@@ -18037,7 +17197,7 @@
       "label": "Why this exists",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L19",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "tests_readme_why_this_exists",
       "community": 62,
@@ -18047,7 +17207,7 @@
       "label": "Numbers first, renders second",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L31",
+      "source_location": "L30",
       "_origin": "ast",
       "id": "tests_readme_numbers_first_renders_second",
       "community": 62,
@@ -18057,7 +17217,7 @@
       "label": "The baseline",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L46",
+      "source_location": "L45",
       "_origin": "ast",
       "id": "tests_readme_the_baseline",
       "community": 62,
@@ -18067,7 +17227,7 @@
       "label": "Layout",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L55",
+      "source_location": "L54",
       "_origin": "ast",
       "id": "tests_readme_layout",
       "community": 62,
@@ -18077,7 +17237,7 @@
       "label": "The closure sweep, and why it is a file rather than a habit",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L70",
+      "source_location": "L68",
       "_origin": "ast",
       "id": "tests_readme_the_closure_sweep_and_why_it_is_a_file_rather_than_a_habit",
       "community": 62,
@@ -18087,7 +17247,7 @@
       "label": "Test the union, and every branch",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L100",
+      "source_location": "L98",
       "_origin": "ast",
       "id": "tests_readme_test_the_union_and_every_branch",
       "community": 62,
@@ -18097,7 +17257,7 @@
       "label": "The cases",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L117",
+      "source_location": "L115",
       "_origin": "ast",
       "id": "tests_readme_the_cases",
       "community": 62,
@@ -18107,7 +17267,7 @@
       "label": "Known-failing at time of writing",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L137",
+      "source_location": "L135",
       "_origin": "ast",
       "id": "tests_readme_known_failing_at_time_of_writing",
       "community": 62,
@@ -18145,7 +17305,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/__init__.py",
       "source_location": "L1",
-      "community": 0,
+      "community": 5,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_init_py"
     },
@@ -18208,7 +17368,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_left_column/__init__.py",
       "source_location": "L1",
-      "community": 0,
+      "community": 5,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_left_column_init_py"
     },
@@ -18217,7 +17377,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_left_menu/py_div.py",
       "source_location": "L1",
-      "community": 98,
+      "community": 5,
       "norm_label": "py_div.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_left_menu_py_div_py"
     },
@@ -18226,7 +17386,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_left_menu/__init__.py",
       "source_location": "L1",
-      "community": 98,
+      "community": 5,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_left_menu_init_py"
     },
@@ -18244,7 +17404,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_push_button/__init__.py",
       "source_location": "L1",
-      "community": 47,
+      "community": 85,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_push_button_init_py"
     },
@@ -23118,17 +22278,6 @@
       "target": "asset_library_browser_ui_show_asset_browser"
     },
     {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L24",
-      "weight": 1.0,
-      "source": "asset_library_kitbash_setup_open_asset_browser",
-      "target": "asset_library_browser_ui_show_asset_browser"
-    },
-    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/asset_library/browser_ui.py",
@@ -25051,98 +24200,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L21",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "asset_library_kitbash_setup",
-      "target": "asset_library_kitbash_setup_open_asset_browser"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L13",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "asset_library_kitbash_setup",
-      "target": "asset_library_kitbash_setup_register_kitbash_state"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L27",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "asset_library_kitbash_setup",
-      "target": "asset_library_kitbash_setup_test_workflow"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "asset_library_kitbash_setup_rationale_1",
-      "target": "asset_library_kitbash_setup"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L14",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "asset_library_kitbash_setup_rationale_14",
-      "target": "asset_library_kitbash_setup_register_kitbash_state"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L35",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "asset_library_kitbash_setup_test_workflow",
-      "target": "asset_library_kitbash_setup_register_kitbash_state"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L22",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "asset_library_kitbash_setup_rationale_22",
-      "target": "asset_library_kitbash_setup_open_asset_browser"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L39",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "asset_library_kitbash_setup_test_workflow",
-      "target": "asset_library_kitbash_setup_open_asset_browser"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_setup.py",
-      "source_location": "L28",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "asset_library_kitbash_setup_rationale_28",
-      "target": "asset_library_kitbash_setup_test_workflow"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/asset_library/kitbash_ui.py",
       "source_location": "L36",
       "weight": 1.0,
@@ -26938,483 +25995,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L259",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_build"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L183",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_dedupe_edges"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L54",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_dist"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L47",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_dist2"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L58",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_edge_length"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L142",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_endpoint_degree"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L151",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_junctions"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L166",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_prune_stubs"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L194",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_remove_isolated_nodes"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L114",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_segment_degree"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L124",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_split_at_junctions"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L248",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_summarise"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L207",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_validate"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L66",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph",
-      "target": "citygen_graph_weld"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_rationale_1",
-      "target": "citygen_graph"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L55",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_dist",
-      "target": "citygen_graph_dist2"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L59",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_edge_length",
-      "target": "citygen_graph_dist"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L188",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_dedupe_edges",
-      "target": "citygen_graph_edge_length"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L177",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_prune_stubs",
-      "target": "citygen_graph_edge_length"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L222",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_validate",
-      "target": "citygen_graph_edge_length"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L267",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_build",
-      "target": "citygen_graph_weld"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L67",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_rationale_67",
-      "target": "citygen_graph_weld"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L268",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_build",
-      "target": "citygen_graph_segment_degree"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L158",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_junctions",
-      "target": "citygen_graph_segment_degree"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L115",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_rationale_115",
-      "target": "citygen_graph_segment_degree"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L270",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_build",
-      "target": "citygen_graph_split_at_junctions"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L125",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_rationale_125",
-      "target": "citygen_graph_split_at_junctions"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L294",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_build",
-      "target": "citygen_graph_endpoint_degree"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L174",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_prune_stubs",
-      "target": "citygen_graph_endpoint_degree"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L143",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_rationale_143",
-      "target": "citygen_graph_endpoint_degree"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L240",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_validate",
-      "target": "citygen_graph_endpoint_degree"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L152",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_rationale_152",
-      "target": "citygen_graph_junctions"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L278",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_build",
-      "target": "citygen_graph_prune_stubs"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L167",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_rationale_167",
-      "target": "citygen_graph_prune_stubs"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L274",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_build",
-      "target": "citygen_graph_dedupe_edges"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L184",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_rationale_184",
-      "target": "citygen_graph_dedupe_edges"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L281",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_build",
-      "target": "citygen_graph_remove_isolated_nodes"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L195",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_rationale_195",
-      "target": "citygen_graph_remove_isolated_nodes"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L282",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_build",
-      "target": "citygen_graph_validate"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L208",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_rationale_208",
-      "target": "citygen_graph_validate"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L304",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_build",
-      "target": "citygen_graph_summarise"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L249",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_rationale_249",
-      "target": "citygen_graph_summarise"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/citygen/graph.py",
-      "source_location": "L261",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_graph_rationale_261",
-      "target": "citygen_graph_build"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/fpipe.py",
-      "source_location": "L24",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polyfactory_fpipe",
-      "target": "polyfactory_fpipe_done"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/fpipe.py",
-      "source_location": "L9",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polyfactory_fpipe",
-      "target": "polyfactory_fpipe_get_assets"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/fpipe.py",
-      "source_location": "L14",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polyfactory_fpipe",
-      "target": "polyfactory_fpipe_process_assets"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/parmUtils.py",
       "source_location": "L48",
       "weight": 1.0,
@@ -27482,16 +26062,6 @@
       "confidence_score": 1.0,
       "source": "polyfactory_parmutils_rationale_25",
       "target": "polyfactory_parmutils_get_multiparm_dict"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/pyvex.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polyfactory_pyvex",
-      "target": "polyfactory_pyvex_ocio_transform"
     },
     {
       "relation": "imports_from",
@@ -41772,9 +40342,9 @@
       "source_file": "tests/citygen/parm_liveness.py",
       "source_location": "L227",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_parm_liveness_rationale_227",
-      "target": "citygen_parm_liveness_digest",
-      "confidence_score": 1.0
+      "target": "citygen_parm_liveness_digest"
     },
     {
       "relation": "calls",
@@ -41793,9 +40363,9 @@
       "source_file": "tests/citygen/parm_liveness.py",
       "source_location": "L281",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_parm_liveness_rationale_281",
-      "target": "citygen_parm_liveness_generic",
-      "confidence_score": 1.0
+      "target": "citygen_parm_liveness_generic"
     },
     {
       "relation": "contains",
@@ -42137,549 +40707,6 @@
       "confidence_score": 1.0,
       "source": "unit_test_citygen_testtemplates",
       "target": "unit_test_citygen_testtemplates_test_unknown_template_lists_the_valid_names"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L18",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph",
-      "target": "unit_test_graph_line"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L169",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph",
-      "target": "unit_test_graph_testbuildendtoend"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L93",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph",
-      "target": "unit_test_graph_testprune"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L59",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph",
-      "target": "unit_test_graph_testsplit"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L142",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph",
-      "target": "unit_test_graph_testvalidate"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L24",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph",
-      "target": "unit_test_graph_testweld"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_rationale_1",
-      "target": "unit_test_graph"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L19",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_rationale_19",
-      "target": "unit_test_graph_line"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L215",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testbuildendtoend_test_isolated_nodes_are_dropped_and_reindexed",
-      "target": "unit_test_graph_line"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L113",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testprune_test_long_dead_end_is_kept",
-      "target": "unit_test_graph_line"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L123",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testprune_test_pruning_cascades",
-      "target": "unit_test_graph_line"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L102",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testprune_test_short_dead_end_stub_is_removed",
-      "target": "unit_test_graph_line"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L88",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testsplit_test_plain_polyline_is_not_split",
-      "target": "unit_test_graph_line"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L145",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testvalidate_test_clean_graph_reports_no_blocking_issues",
-      "target": "unit_test_graph_line"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L27",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testweld_test_coincident_endpoints_become_one_node",
-      "target": "unit_test_graph_line"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L33",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testweld_test_near_coincident_within_tolerance_welds",
-      "target": "unit_test_graph_line"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L38",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testweld_test_outside_tolerance_does_not_weld",
-      "target": "unit_test_graph_line"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L52",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testweld_test_zero_tolerance_is_rejected",
-      "target": "unit_test_graph_line"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L26",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testweld",
-      "target": "unit_test_graph_testweld_test_coincident_endpoints_become_one_node"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L32",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testweld",
-      "target": "unit_test_graph_testweld_test_near_coincident_within_tolerance_welds"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L37",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testweld",
-      "target": "unit_test_graph_testweld_test_outside_tolerance_does_not_weld"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L42",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testweld",
-      "target": "unit_test_graph_testweld_test_points_straddling_a_bucket_boundary_still_weld"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L54",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testweld",
-      "target": "unit_test_graph_testweld_test_repeated_points_are_collapsed"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L50",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testweld",
-      "target": "unit_test_graph_testweld_test_zero_tolerance_is_rejected"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L43",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_rationale_43",
-      "target": "unit_test_graph_testweld_test_points_straddling_a_bucket_boundary_still_weld"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L61",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testsplit",
-      "target": "unit_test_graph_testsplit_cross"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L68",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testsplit",
-      "target": "unit_test_graph_testsplit_test_crossing_node_has_degree_four"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L79",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testsplit",
-      "target": "unit_test_graph_testsplit_test_edge_interiors_contain_no_junctions"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L87",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testsplit",
-      "target": "unit_test_graph_testsplit_test_plain_polyline_is_not_split"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L73",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testsplit",
-      "target": "unit_test_graph_testsplit_test_two_crossing_streets_become_four_edges"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L69",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testsplit_test_crossing_node_has_degree_four",
-      "target": "unit_test_graph_testsplit_cross"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L80",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testsplit_test_edge_interiors_contain_no_junctions",
-      "target": "unit_test_graph_testsplit_cross"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L74",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testsplit_test_two_crossing_streets_become_four_edges",
-      "target": "unit_test_graph_testsplit_cross"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L132",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testprune",
-      "target": "unit_test_graph_testprune_test_dedupe_keeps_the_shorter_of_two_parallel_edges"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L110",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testprune",
-      "target": "unit_test_graph_testprune_test_long_dead_end_is_kept"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L120",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testprune",
-      "target": "unit_test_graph_testprune_test_pruning_cascades"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L95",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testprune",
-      "target": "unit_test_graph_testprune_test_short_dead_end_stub_is_removed"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L96",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_rationale_96",
-      "target": "unit_test_graph_testprune_test_short_dead_end_stub_is_removed"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L111",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_rationale_111",
-      "target": "unit_test_graph_testprune_test_long_dead_end_is_kept"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L121",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_rationale_121",
-      "target": "unit_test_graph_testprune_test_pruning_cascades"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L144",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testvalidate",
-      "target": "unit_test_graph_testvalidate_test_clean_graph_reports_no_blocking_issues"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L149",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testvalidate",
-      "target": "unit_test_graph_testvalidate_test_duplicate_edges_are_reported_when_dedupe_is_off"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L159",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testvalidate",
-      "target": "unit_test_graph_testvalidate_test_isolated_nodes_are_reported"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L164",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testvalidate",
-      "target": "unit_test_graph_testvalidate_test_validate_never_raises"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L154",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testvalidate",
-      "target": "unit_test_graph_testvalidate_test_zero_length_edge_is_blocking"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L229",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testbuildendtoend",
-      "target": "unit_test_graph_testbuildendtoend_test_empty_input_is_survivable"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L171",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testbuildendtoend",
-      "target": "unit_test_graph_testbuildendtoend_test_grid_of_streets_closes_faces"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L214",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testbuildendtoend",
-      "target": "unit_test_graph_testbuildendtoend_test_isolated_nodes_are_dropped_and_reindexed"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L208",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testbuildendtoend",
-      "target": "unit_test_graph_testbuildendtoend_test_junction_flags_match_edge_endpoints"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L221",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testbuildendtoend",
-      "target": "unit_test_graph_testbuildendtoend_test_stats_are_self_consistent"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L199",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_testbuildendtoend",
-      "target": "unit_test_graph_testbuildendtoend_test_weld_does_not_invent_intersections"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L172",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_rationale_172",
-      "target": "unit_test_graph_testbuildendtoend_test_grid_of_streets_closes_faces"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/unit/test_graph.py",
-      "source_location": "L200",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "unit_test_graph_rationale_200",
-      "target": "unit_test_graph_testbuildendtoend_test_weld_does_not_invent_intersections"
     },
     {
       "relation": "contains",
@@ -46537,9 +44564,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L4725",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_retirement_finished_2026_08_12",
-      "target": "ideas_citygen_streets_audit_of_the_trim_and_the_monolith_was_not_a_control_it_was_a_divergence_hazard",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_audit_of_the_trim_and_the_monolith_was_not_a_control_it_was_a_divergence_hazard"
     },
     {
       "relation": "contains",
@@ -47236,5 +45263,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "021c8c57eefe58a627fb69521eafc9b7de9ce9a0"
+  "built_at_commit": "400748f691425dc8b2ae062dfa82e92e28e0e3ef"
 }
