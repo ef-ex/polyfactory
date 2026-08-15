@@ -43,11 +43,11 @@
       "value": 0
     },
     {
-      "detail": "pr.Cd, pr.area, pr.centre, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.perimeter",
+      "detail": "",
       "name": "no_scratch_attribs_lots",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 8
+      "value": 0
     },
     {
       "detail": "",
@@ -1241,11 +1241,11 @@
       "value": 0
     },
     {
-      "detail": "pr.Cd, pr.area, pr.centre, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.perimeter",
+      "detail": "",
       "name": "no_scratch_attribs_lots",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 8
+      "value": 0
     },
     {
       "detail": "",
@@ -2434,11 +2434,11 @@
       "value": 0
     },
     {
-      "detail": "pr.Cd, pr.area, pr.centre, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.perimeter",
+      "detail": "",
       "name": "no_scratch_attribs_lots",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 8
+      "value": 0
     },
     {
       "detail": "",
@@ -3644,11 +3644,11 @@
       "value": 0
     },
     {
-      "detail": "pr.Cd, pr.area, pr.centre, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.perimeter",
+      "detail": "",
       "name": "no_scratch_attribs_lots",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 8
+      "value": 0
     },
     {
       "detail": "",
@@ -4837,11 +4837,11 @@
       "value": 0
     },
     {
-      "detail": "pr.Cd, pr.frontage, pr.frontage_ratio, pr.perimeter",
+      "detail": "",
       "name": "no_scratch_attribs_lots",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 4
+      "value": 0
     },
     {
       "detail": "",
@@ -5990,11 +5990,11 @@
       "value": 0
     },
     {
-      "detail": "pr.Cd, pr.frontage, pr.frontage_ratio, pr.perimeter",
+      "detail": "",
       "name": "no_scratch_attribs_lots",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 4
+      "value": 0
     },
     {
       "detail": "",
@@ -7149,11 +7149,11 @@
       "value": 0
     },
     {
-      "detail": "pr.Cd, pr.frontage, pr.frontage_ratio, pr.perimeter",
+      "detail": "",
       "name": "no_scratch_attribs_lots",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 4
+      "value": 0
     },
     {
       "detail": "",
@@ -8302,11 +8302,11 @@
       "value": 0
     },
     {
-      "detail": "pr.Cd, pr.area, pr.centre, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.perimeter",
+      "detail": "",
       "name": "no_scratch_attribs_lots",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 8
+      "value": 0
     },
     {
       "detail": "",
@@ -9495,11 +9495,11 @@
       "value": 0
     },
     {
-      "detail": "pr.Cd, pr.area, pr.centre, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.perimeter",
+      "detail": "",
       "name": "no_scratch_attribs_lots",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 8
+      "value": 0
     },
     {
       "detail": "",
@@ -10695,11 +10695,11 @@
       "value": 0
     },
     {
-      "detail": "pr.Cd, pr.frontage, pr.frontage_ratio, pr.perimeter",
+      "detail": "",
       "name": "no_scratch_attribs_lots",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 4
+      "value": 0
     },
     {
       "detail": "",
@@ -11857,11 +11857,11 @@
       "value": 0
     },
     {
-      "detail": "pr.Cd, pr.area, pr.centre, pr.frontage, pr.frontage_ratio, pr.is_block, pr.is_outer, pr.perimeter",
+      "detail": "",
       "name": "no_scratch_attribs_lots",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 8
+      "value": 0
     },
     {
       "detail": "",
