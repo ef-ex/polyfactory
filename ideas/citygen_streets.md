@@ -5300,7 +5300,8 @@ film · topology is cached so S8 determinism is not required · planar-per-layer
   0.107 → **0.0**. The hinge is real and this removes it.
 
   **Status: reverted, unshipped, and the two wrangles are worth rebuilding verbatim** when the
-  cluster spread exists to consume them. Suite unchanged at 20.
+  cluster spread exists to consume them. Suite unchanged at 20. Consumer architecture and
+  integration requirements: **§11** (11.6–11.8).
 
 - **How the deferred cross-section transition gets built — WANG TILES, not a solver.** Decided
   2026-08-15 while looking at the failure in the viewport. The v1 non-goal in §10 says the seam is
@@ -5399,6 +5400,9 @@ Still to apply in CODE: `graph_stub_mark` treats *any* edge under 40 m as a jog 
 regardless of whether it has a problem, which is the old semantics. It should act on the
 premeasured standing length instead. And the derived thresholds that quote the vertex grid —
 `min_node_dist + one resample step` = 45 m, `2 x` that = 90 m — stop being about distance at all.
+→ **Superseded by the §11 spec**: the distance trigger and `graph_min_angle`'s deletion both
+become planner decisions (11.5, M5), and item 4's re-route ships as one mechanism with the
+shallow-angle merge (11.6).
 
 **Four attempts to enforce the OLD rule were built, measured and reverted (§S5a). Attempt five
 was mine, 2026-08-15, and it failed for two causes worth recording** because both are traps for
@@ -5479,3 +5483,430 @@ transitions (seam left open, §S6; the approach when it IS built is the Wang-til
 §9, and `selfx_city_merged` is the standing measure of how open the seam is) · Voronoi graph
 generator (deferred, §S1) · `skeleton` lot
 subdivision (deferred to v2, needs Vanegas 2012 — §S8; `recursive_obb` and `offset` are both v1).
+
+---
+
+## 11. Implementation spec — the planner/builder split and junction types. 2026-08-15
+
+**For the implementing agent.** Read, in order: this section · §S5a's ⛔ entry (including the
+2026-08-15 rule change and attempt five) · the two §9 entries dated 2026-08-15 (node/segment
+model, Wang tiles) · `tests/README.md`. Call `houdini_get_skill("houdini-dev-loop")` before
+touching anything. Rule 0 applies to every milestone below: no "done" without an independent
+audit on the current build, and the honest words before that are *implemented, unverified*.
+
+### 11.0 Why this exists — the measured evidence
+
+Every mechanism in the repair loop decides locally and discovers next pass what the others did.
+The proof is the spread's min-angle interaction: **three guard variants** (chord prediction at
+cluster nodes · tangent-via-dihedral · far-endpoint extension) each measured *zero violations at
+the spread's own stage* — instrumented: `dbg_minang_deg` 25.0, scale untouched at 1.12 — while
+`graph_min_angle` still deleted a street a pass later, because `graph_resample → graph_stitch →
+graph_fuse → graph_polypath` reshape the graph between the decision and its consequence. That is
+not a guard bug. **Decisions are being made against a representation the pipeline keeps
+invalidating.** The cure is architectural: decide on the abstract graph, build geometry once.
+
+CityEngine's node model (doc.arcgis.com, node parameters — read by the artist and me,
+2026-08-15) confirms the shape of the fix: node **Type** ∈ Crossing / Junction / Roundabout /
+Freeway; a **principal street** that Junction and Freeway leave unbroken; an angle threshold
+that makes streets **bend to avoid each other** rather than ever deleting one; freeways that
+*ignore* the angle threshold because a shallow merge is intended geometry there. We have built
+exactly one of the four types (Crossing), applied it to every node in the city, and K's
+−13.43 m standing is the direct cost: a 32 m street trimmed from *both* ends by two Crossing
+plates that a Junction type would never have broken.
+
+### 11.1 The constitution — every mechanism is designed against this page
+
+Three times on 2026-08-15 a blocker turned out to be one of the artist's rules, discovered at
+gate time. Design against this list, not into it:
+
+1. **A connection is never refused.** No mechanism may delete a street — not as a repair, not as
+   a cleanup, not late in the loop. The two existing by-design deletions (leaf tongues, the stub
+   collapse) stay bounded and accounted in `connections_are_never_refused`; no new ones.
+2. **Errors, not thresholds.** `min_node_dist` is a SEARCH RADIUS. The arm cap of 4 is the AIM.
+   A configuration that solves with zero broken outcome checks is correct at any spacing, any
+   arm count, any angle. Measured: 30.65 m five-arm solves clean; 32.00 m five-arm is a disaster;
+   no threshold separates them — whether the plates fit does.
+3. **The resolution ladder when it does NOT solve:** pick a richer node type (junction · merge ·
+   T-split realign · roundabout as art option) → move nodes (cluster spread, fallback) → never
+   delete.
+4. **Authored beats computed.** `junction_type` and `principal_edges` are artist attributes with
+   computed defaults, fill-if-empty — the `graph_classify` pattern.
+5. **Nodes are the only authority on position; shape is derived.** No mechanism moves an
+   endpoint without its segment (§9, the hinge). No rebuild touches a segment whose ends did not
+   move (§9, the random walk).
+6. **Decide on the plan, build once.** No decision may depend on measuring geometry that the
+   pipeline will reshape before the decision's consequence lands (11.0).
+
+### 11.2 Architecture
+
+- **Planner** — pure Python, `hou`-free, at
+  `polyfactory/scripts/python/polyfactory/citygen/plan.py`, unit-tested in
+  `tests/unit/test_plan.py` at test_citygen speed. Operates on plain data (nodes: id, xz, arm
+  edge-ids · edges: id, endpoints, width, class, length). Owns: node type selection, principal
+  selection, footprints, standing/feasibility, cluster resolution *decisions*.
+  ⚠️ This is NOT a resurrection of the deleted `citygen/graph.py` — that module solved
+  weld/prune, which the segmenter now owns in VEX, and it died with a green test suite because
+  nothing consumed it. `plan.py` lands **with** its adapter and consumer in the same milestone
+  or not at all.
+- **Adapter** — a thin Python SOP in the segmenter: geometry → plain data → `plan.py` →
+  attributes written back. Small graph, cooks once per topology change; the `xsection_library`
+  Python SOP is the precedent.
+- **Builder** — VEX, as today. Realizes geometry from the plan. The repair loop shrinks toward
+  a fallback executor of planner decisions.
+
+### 11.3 Schema additions
+
+On `is_node == 1` points (fill-if-empty, artist wins):
+
+| attr | type | values |
+|---|---|---|
+| `junction_type` | string | `""` (decide for me) · `crossing` · `junction` · `merge` · `roundabout` (reserved, unimplemented) |
+| `principal_edges` | string | `""` (auto: the two arms of maximal `streetWidth`; tie → longer, then lexicographic `edge_id` — deterministic, the tongue-rank precedent) or two space-separated `edge_id`s |
+
+Pin the vocabulary in `checks.py` as `JUNCTION_TYPE_VOCAB` — the `LOT_REJECT_VOCAB` precedent:
+an auditor once relabelled every rejection and stayed green.
+
+### 11.4 The footprint function, and M1 — the experiment that gates everything
+
+`plan.py` gets `crossing_trims(node) → {edge_id: consumed_m}` and
+`junction_trims(node, principal) → …`: what each node type consumes from each arm, as a
+FUNCTION of arms + widths + classes + corner radii — not a measurement of built plates.
+`standing(edge) = length − consumed(end A) − consumed(end B)`, checkable before any geometry
+exists. This eventually retires the premeasure double-solve and its float32 drift.
+
+⚠️ **CALIBRATE, DO NOT INVENT.** Dump measured `trim_start`/`trim_end` + node data from all 11
+cases (hython script), and assert the crossing model predicts every measured trim within
+0.5 m before trusting anything downstream of it.
+
+**M1 deliverable:** with `junction` type and widest-pair principal at K's three corners, is
+`standing > 0` on all three triangle sides? Committed as `test_plan.py`'s first fixture using
+K's real numbers. **The verdict decides whether the spread is ever needed** — the principal
+pair takes zero trim from its own node, so K's negative standing may simply not occur.
+
+### 11.5 Node types — builder contracts
+
+- **crossing** — today's `s5j_solve`, unchanged. The default the planner writes everywhere
+  until 11.5-junction is proven (see M3/M4 rollout).
+- **junction** — the principal pair is ONE continuous street through the node: no break, no
+  mouth, no trim contribution from this node. Minors trim to the principal's flank
+  (halfwidth + corner arc). Plate: a rectangle on the principal spanning the minor mouths
+  (CityEngine's blue). ⚠️ **S7 is the named integration risk**: the block boundary IS the kerb,
+  and at a junction node the principal's kerb runs *through* while minor kerbs tee into it —
+  `blocks_kerb`'s collect-and-close must survive that. The S7 T-case (11.10) exists before this
+  ships, and the render gets LOOKED at.
+- **merge** — chosen where the approach angle is under `min_junction_angle` (reuse the parm,
+  do not duplicate it): the minor is re-routed (11.6) to arrive parallel and fuse tangentially.
+  Feasibility: minor length ≥ `R_min(class) × θ` + a parallel run (new parm, artist default —
+  ~11.7 m of swing for an arterial at 25°, so this is real length). Its footprint is consumed
+  ALONG the principal — a length, not a radius — and `standing` on the principal must account
+  it. Infeasible → planner falls back down the ladder (T realign, then spread). Never delete.
+- **roundabout** — vocabulary reserved, nothing built. §S5a already measured it cannot rescue a
+  crowded pair; it returns later as an art option, not a repair.
+
+### 11.6 The re-route — one mechanism, two targets
+
+Replace the minor's last stretch with a curve through pinned endpoints, tangency at the landing,
+`R ≥ R_min(class)`: target **0°** = the merge; target **75–90°** = the T landing that closes
+⛔ §S5a item 4. Investigate reusing the S3b clamp machinery (`pfsg_turn_clamp_solve` family)
+before writing a new solver — same constraint family, one extra tangency pin. Verification is a
+control rig in the `turn_clamp_control_rig` mould: authored-feasible and authored-infeasible
+pairs, swept across street classes and `turn_radius_scale` — the gain-sweep lesson says sweep
+every new parameter across its shipped range.
+
+### 11.7 Segment-model integration requirements
+
+The §9 rest/rebuild pair is correct and reverted; rebuild it verbatim, subject to: (a) the
+rebuild stores the endpoints with the frame and **skips bit-exact** when they have not moved
+(float32 u/v drifted ~1 mm/pass and moved 68 recorded values inside the loop's tolerance);
+(b) it lives ONLY inside a mover that repositions nodes and does nothing else — wrapped around
+`graph_realign` it overwrote the realign's deliberate approach blend (`trim_metric` 0 → 2.66 m,
+1 closed loop → 2 open). The re-route (11.6) and the spread (11.8) are its only legal consumers.
+
+### 11.8 The cluster spread — fallback, reference implementation
+
+Status at revert: **20 → 15 failing.** K: gap 32.0 → 40.61 m, arms 5 → 4, standing −13.43 → ✅,
+`selfx_junction_surface` 50 → 0, `selfx_city_merged` 87 → 4, city prims intact (1979 → 2017) —
+and ONE regression: `graph_min_angle` deleted 1 street in a late pass (`edges` 8 → 6, the
+triangle's interior block lost). Do not attempt guard #4 — 11.0 explains why the guard cannot
+be written from where the spread runs. Under the planner the interaction is decided before
+geometry exists, or the shallow leg is a merge and `graph_min_angle`'s deletion is retired
+(M5) — which is the artist's ruling.
+
+Ship checklist if re-integrated (M6): planner chooses it, not a threshold · strip `dbg_*`
+details · clean `repair_spread_nodes` / `repair_spread_m` before the city output
+(`no_scratch_attribs_city` polices details) · tripwire accounting stays honest.
+
+Wiring: `s5j_spread_mark` (attribwrangle, run over prims, input 0 = `junction_premeasure`) and
+`graph_cluster_spread` (attribwrangle, run over detail, input 0 = `graph_drop_tongue`,
+input 1 = `s5j_spread_mark`, output → `graph_degree_final` input 0).
+
+`s5j_spread_mark`:
+
+```
+#include <pf_streetgraph.vfl>
+
+// S3 - the two-junction streets that cannot host both their junctions.
+// The complement of `s5j_tongue_mark`: that one keeps LEAF arms and deletes
+// them; this keeps streets with a junction at BOTH ends - the case its rails
+// refuse, because deleting one disconnects the city. Separating is the third
+// option beside delete and merge. Runs on the premeasure copy of the junction
+// solve, so the number cannot drift from what ships.
+float ratio = chf("../s5j_params_min_standing_widths");
+int   pts[] = primpoints(0, @primnum);
+
+if (ratio <= 0.0 || prim(0, "is_junction_patch", @primnum) == 1 || len(pts) < 2) {
+    removeprim(0, @primnum, 0);
+    return;
+}
+int d0 = neighbourcount(0, pts[0]);
+int d1 = neighbourcount(0, pts[-1]);
+if (d0 < 3 || d1 < 3) { removeprim(0, @primnum, 0); return; }
+
+float w = prim(0, "streetWidth", @primnum);
+if (w <= 0.0) { removeprim(0, @primnum, 0); return; }
+
+float L  = pfsg_primlength(0, @primnum);
+float ts = prim(0, "trim_start", @primnum);
+float te = prim(0, "trim_end", @primnum);
+float standing = L - ts - te;
+float need     = ratio * w;
+
+// ⚠️ THE TRIGGER IS AN ERROR, NOT A THRESHOLD, and getting that wrong cost a
+// whole build. Firing on `standing < need` fixed K and REGRESSED 14 checks on
+// C_radial and I_offset_radial - three two-junction streets at ratio 0.82-0.85,
+// under the floor, tolerated by design, measurably clean. `standing <= 0` is
+// the error: the plates have consumed more street than exists, so they
+// physically overlap (K: -13.43 m). A short street that still fits is a short
+// street.
+if (standing > 0.0) { removeprim(0, @primnum, 0); return; }
+
+setprimattrib(0, "spread_deficit", @primnum, need - standing);
+setprimattrib(0, "spread_standing", @primnum, standing);
+```
+
+`graph_cluster_spread` (the damped, guard-free build — the 15-failing state):
+
+```
+#include <pf_streetgraph.vfl>
+
+// S3 - SEPARATE A CLUSTER OF JUNCTIONS THAT CANNOT FIT, AND CARRY THE STREETS.
+//
+// ⚠️ THE CLUSTER SCALES UNIFORMLY ABOUT ITS OWN CENTROID; IT IS NOT A SUM OF
+// PER-EDGE PUSHES. Attempt five pushed each deficient edge apart on its own;
+// on a 3-cycle every corner is an endpoint of two or three deficient edges and
+// got shoved that many times per pass - the triangle tumbled and K's graph
+// emptied, 1979 prims -> 0. One scale factor per cluster is one target per
+// node. Uniform scale also preserves every angle, so the plates keep their
+// size and the requirement does not move while we satisfy it; the factor
+// solves in closed form, s >= (L + deficit) / L per edge, largest wins.
+//
+// ⚠️ THE REBUILD IS THE SECOND HALF OF THIS NODE, NOT A NODE OF ITS OWN.
+// Moving an end node while the ~5 m resampled interior stays put hinges the
+// street at the junction. As a separate wrangle around `graph_realign` it
+// overwrote the realign's own approach blend: trim_metric 0.0 -> 2.66 m.
+//
+// ⚠️ SEGMENTS WHOSE ENDS DID NOT MOVE ARE NOT TOUCHED - not "recomputed to
+// the same value", untouched. float32 (u,v) is ~1 mm lossy at 800 m and this
+// sits in a ten-pass loop: unconditional, it moved 68 recorded values under
+// graph_reaches_a_fixed_point's 1 mm tolerance.
+//
+// `edge_id` is the key, never the prim number: `s5_resample` and `s5_fuse`
+// sit between the streams (the graph_drop_tongue precedent).
+int nmark = nprimitives(1);
+if (nmark == 0) return;
+int n0 = nprimitives(0);
+int np = npoints(0);
+
+// --- the deficient edges, resolved into this stream -----------------------
+int defprim[] = {};
+float defneed[] = {};
+for (int q = 0; q < nmark; q++) {
+    string eid = prim(1, "edge_id", q);
+    float def = prim(1, "spread_deficit", q);
+    if (def <= 0.0) continue;
+    for (int p = 0; p < n0; p++) {
+        string e = prim(0, "edge_id", p);
+        if (e == eid) { append(defprim, p); append(defneed, def); break; }
+    }
+}
+if (len(defprim) == 0) return;
+
+// --- flood-fill the clusters they join ------------------------------------
+int lab[]; resize(lab, np);
+for (int i = 0; i < np; i++) lab[i] = -1;
+int ncl = 0;
+foreach (int idx; int pr; defprim) {
+    int pp[] = primpoints(0, pr);
+    int a = pp[0], b = pp[-1];
+    int la = lab[a], lb = lab[b];
+    if (la < 0 && lb < 0) { lab[a] = ncl; lab[b] = ncl; ncl++; }
+    else if (la < 0) lab[a] = lb;
+    else if (lb < 0) lab[b] = la;
+    else if (la != lb) { for (int i = 0; i < np; i++) if (lab[i] == lb) lab[i] = la; }
+}
+
+vector cen[]; resize(cen, ncl);
+float cnt[]; resize(cnt, ncl);
+float scl[]; resize(scl, ncl);
+float rad[]; resize(rad, ncl);
+float cap[]; resize(cap, ncl);
+for (int c = 0; c < ncl; c++) {
+    cen[c] = {0, 0, 0}; cnt[c] = 0.0; scl[c] = 1.0; rad[c] = 0.0; cap[c] = 1e9;
+}
+for (int i = 0; i < np; i++) {
+    int c = lab[i];
+    if (c < 0) continue;
+    cen[c] += vector(point(0, "P", i));
+    cnt[c] += 1.0;
+}
+for (int c = 0; c < ncl; c++) if (cnt[c] > 0.0) cen[c] /= cnt[c];
+
+// --- the factor each cluster needs ----------------------------------------
+foreach (int idx; int pr; defprim) {
+    int pp[] = primpoints(0, pr);
+    int c = lab[pp[0]];
+    if (c < 0) continue;
+    float L = pfsg_primlength(0, pr);
+    if (L < 1e-4) continue;
+    scl[c] = max(scl[c], (L + defneed[idx]) / L);
+}
+
+// --- and what the arms LEAVING the cluster will allow ----------------------
+// The realign's own rail: no endpoint moves further than half its own street.
+for (int i = 0; i < np; i++) {
+    int c = lab[i];
+    if (c < 0) continue;
+    rad[c] = max(rad[c], distance(vector(point(0, "P", i)), cen[c]));
+    foreach (int pr; pointprims(0, i)) {
+        int pp[] = primpoints(0, pr);
+        int o = (pp[0] == i) ? pp[-1] : pp[0];
+        if (lab[o] == c) continue;          // internal to the cluster
+        cap[c] = min(cap[c], pfsg_primlength(0, pr) * 0.5);
+    }
+}
+for (int c = 0; c < ncl; c++)
+    if (rad[c] > 1e-4) scl[c] = min(scl[c], 1.0 + cap[c] / rad[c]);
+
+// ⚠️ AND DAMPED, BECAUSE THE LOOP IS THE SOLVER. K needs s = 2.26 in one step,
+// which yanks each corner ~23 m and lets the cleanup downstream delete the
+// wreckage - measured, K emptied to 0 prims. The loop runs up to ten passes
+// and re-measures every one; 1.12^10 is over 3x, more than any real input
+// needs. (1.12 is a magic number - derive from remaining passes or expose as
+// a parm if this ships.)
+for (int c = 0; c < ncl; c++) scl[c] = min(scl[c], 1.12);
+
+// --- capture every touched segment in its own chord frame ------------------
+int touched[] = {};
+float ru[]; resize(ru, np);
+float rv[]; resize(rv, np);
+vector pa[]; resize(pa, n0);
+vector pb[]; resize(pb, n0);
+for (int p = 0; p < n0; p++) {
+    int pp[] = primpoints(0, p);
+    if (len(pp) < 2) continue;
+    if (lab[pp[0]] < 0 && lab[pp[-1]] < 0) continue;
+    append(touched, p);
+    vector A = point(0, "P", pp[0]);
+    vector B = point(0, "P", pp[-1]);
+    pa[p] = A; pb[p] = B;
+    vector ch = B - A; ch.y = 0;
+    float L = length(ch);
+    if (L < 1e-5 || len(pp) < 3) continue;
+    vector dir  = ch / L;
+    vector perp = normalize(cross(dir, set(0, 1, 0)));
+    for (int k = 1; k < len(pp) - 1; k++) {
+        vector d = vector(point(0, "P", pp[k])) - A; d.y = 0;
+        ru[pp[k]] = dot(d, dir) / L;
+        rv[pp[k]] = dot(d, perp) / L;
+    }
+}
+
+// --- move the nodes -------------------------------------------------------
+int nmoved = 0;
+float total = 0.0;
+for (int i = 0; i < np; i++) {
+    int c = lab[i];
+    if (c < 0 || scl[c] <= 1.0 + 1e-9) continue;
+    vector Pp = point(0, "P", i);
+    vector Q = cen[c] + (Pp - cen[c]) * scl[c];
+    Q.y = Pp.y;                              // planar per layer
+    setpointattrib(0, "P", i, Q);
+    total += distance(Pp, Q);
+    nmoved++;
+}
+
+// --- and carry the streets with them --------------------------------------
+foreach (int p; touched) {
+    int pp[] = primpoints(0, p);
+    if (len(pp) < 3) continue;
+    vector A = point(0, "P", pp[0]);
+    vector B = point(0, "P", pp[-1]);
+    if (distance(A, pa[p]) < 1e-6 && distance(B, pb[p]) < 1e-6) continue;
+    vector ch = B - A; ch.y = 0;
+    float L = length(ch);
+    if (L < 1e-5) continue;
+    vector dir  = ch / L;
+    vector perp = normalize(cross(dir, set(0, 1, 0)));
+    for (int k = 1; k < len(pp) - 1; k++) {
+        vector q = A + dir * (ru[pp[k]] * L) + perp * (rv[pp[k]] * L);
+        q.y = 0;
+        setpointattrib(0, "P", pp[k], q);
+    }
+}
+setdetailattrib(0, "repair_spread_nodes", nmoved, "set");
+setdetailattrib(0, "repair_spread_m", total, "set");
+```
+
+### 11.9 Milestones — each ends with the full gate, a baseline compare, and an audit
+
+- **M0 — this commit.** Spec + constitution recorded; spread preserved above; working tree
+  reverted to the committed 20-failing state.
+- **M1 — the planner core and the K verdict.** `plan.py` + `test_plan.py` + the hython dump
+  script that extracts measured trims for calibration. Pure Python; the gate must not move.
+  Exit: footprint calibrated within 0.5 m on all 11 cases; the K junction-verdict recorded here
+  in §11 with its numbers.
+- **M2 — cases first.** The four-junction stub chain (⛔ item 5 already specifies it) and a
+  shallow-Y family across angles and classes, committed with today's behaviour recorded —
+  red rows are the honest form (the J/K precedent). The S7 T-case lands with M4.
+- **M3 — schema + adapter.** `junction_type` / `principal_edges` + vocabulary check; planner
+  writes `crossing` everywhere unless authored. Exit: gate **bit-identical** — this milestone
+  changes no geometry, and proving that is the point.
+- **M4 — junction type in the builder**, authored-only first; S7 T-case green and its render
+  LOOKED at; then flip the computed default in its own commit; re-measure K against the M1
+  verdict.
+- **M5 — merge type + re-route** (11.6 control rig included). Shallow-Y family goes green;
+  `graph_min_angle` stops deleting — a shallow angle becomes a planner signal (the artist's
+  ruling); tripwire accounting updated; ⛔ §S5a item 4 closed by the same mechanism at 75–90°.
+- **M6 — the spread**, only if M4/M5 leave it a consumer. If K dissolves under junction type,
+  the honest exit is to delete it as dead — this repo's own audit discipline.
+
+### 11.10 Test plan
+
+New: `test_plan.py` (M1) · stub-chain case · shallow-Y family (M2) · S7 T-case (M4) · re-route
+control rig (M5) · `JUNCTION_TYPE_VOCAB` pinned. **Quiet-case A/B hash** for every new
+mechanism: on cases where its trigger is absent, output hashes must equal a build with the
+mechanism bypassed — bit-exact, not within tolerance. ⚠️ Do NOT assert bit-exact idempotence on
+the *whole* repair loop: `forced_extra_repair_pass` already measures a 2.16e-05 m residual from
+float32 re-accumulation; the loop is not bit-stable today and that is a separate, older debt.
+`parm_liveness.py` runs for every added parm. Baseline updates only with every moved value
+justified in the commit.
+
+### 11.11 Environment and traps
+
+Gate: `POLYFACTORY="F:/projects/polyfactory/polyfactory"
+HOUDINI_PATH="F:/projects/polyfactory/polyfactory;&" hython
+tests/citygen/run_scene_checks.py [--json out.json]` (Houdini 22.0.398). Compare
+fixed/regressed/moved against `tests/citygen/baseline.json` — and ⚠️ **read `counts` before
+believing any green**: three checks went green on 2026-08-15 while K's graph was EMPTY. HDA
+edits via hython + `definition().updateFromNode(node)` — it writes the library file
+immediately. Editing a `#include`d .vfl does not recompile dependent wrangles (nudge the
+snippet). `edge_id`, never prim numbers, across streams. `resample` unshares points and
+interpolates attributes. Type `point()` returns into locals. Never save a .hip in tests. Named
+git paths only — no tree-wide add/checkout/stash, another agent may share the repo.
+
+### 11.12 Reserved for the artist
+
+Type vocabulary naming · the merge's parallel-run default · when the junction computed default
+flips on (M4) · whether roundabout enters v1 at all · the S7 T-case render review — "look at
+it" is part of the exit criteria, and on 2026-08-15 the artist's viewport reading twice
+overturned what the numbers seemed to say.
