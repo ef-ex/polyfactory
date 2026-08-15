@@ -5,6 +5,11 @@ Two layers. Run the fast one constantly, the slow one before you believe a fix.
 ```bash
 # pure logic — no Houdini, ~0.002s
 python tests/unit/test_citygen.py
+python tests/unit/test_plan.py            # the S5 planner, ~0.02s
+
+# re-measure what the builder's plates actually consume (rewrites the fixture
+# tests/unit/test_plan.py calibrates against)
+hython tests/citygen/dump_trims.py
 
 # geometry — throwaway Houdini session, never saves a .hip
 hython tests/citygen/run_scene_checks.py
@@ -57,13 +62,39 @@ improvement before running `--update-baseline`.**
 tests/
   unit/                  pure Python, no Houdini
     test_citygen.py      cross-section profile maths (22 tests)
+    test_plan.py         the S5 planner + its calibration (43 tests)
+    trim_calibration.json  measured junction footprints, 524 arms
   citygen/
     checks.py            the assertion library — add to this
     cases.py             scene construction + headless env setup
     run_scene_checks.py  the runner
     baseline.json        recorded values
+    dump_trims.py        writes trim_calibration.json from the live solve
     closure_gate.py      the loop-closure sweep — harness AND its own checks
 ```
+
+## The planner's calibration is a baseline too
+
+`plan.crossing_trims` predicts what a junction cuts off each arm without cooking
+anything, so `standing` is checkable before the geometry exists (§11.4). It is
+only worth something if it agrees with the plates the builder really lays down,
+so `dump_trims.py` exports `trim_start` / `trim_end` from
+`junction_solve/s5j_solve` on all eleven cases and `test_plan.py` asserts the
+model against every one of the 524 arms.
+
+The residual is **pinned per case, not tolerated globally**: exact (≤ 3.4e-5 m)
+on the five cases whose arms are straight, and up to 4.58 m either way on the six
+with curved ones, because `s5j_solve` re-solves each corner in the frame at its
+own cut and the planner has no arm shape to do that with. Read those numbers as a
+recorded state, the same way `baseline.json` is read.
+
+⚠️ **But the metre is not the property, and the M1 audit caught this file
+implying it was.** What the planner is FOR is the answer — does this street still
+stand? Over all 304 edges the planner's `standing > 0` verdict never disagrees
+with the builder's: **0 false-OK, 0 false-BAD**. That is asserted directly, and
+it is the assertion to keep green. The per-case residuals are a tripwire on the
+model drifting, not a safety margin — treating them as one is how a 5.88 m
+optimistic error got recorded as a 2.02 m bound.
 
 ## The closure sweep, and why it is a file rather than a habit
 
@@ -119,29 +150,49 @@ a case.
 | | Input | Why it exists |
 |---|---|---|
 | **A** `A_drawn` | hand-drawn curves | the artist path; smallest and fastest |
-| **B** `B_grid` | grid tensor field | straight streets, 9 blocks |
+| **B** `B_grid` | grid tensor field | straight streets, 17 blocks |
 | **C** `C_radial` | radial tensor field | curved streets — where the seam defects show |
 | **D** `D_offset` | A's curves, `subdiv_mode = 1` | the European perimeter block (S8 `offset`) |
 | **E** `E_short_t` | a 20 m perpendicular T | the only case that reaches `max_fillet_fraction` |
 | **F** `F_bend` | a 90° arterial bend | S3b's curvature clamp at its design amplitude |
 | **G** `G_tongue` | a 24 m arm off a four-way | `s5j_params_min_standing_widths` — the tongue |
+| **H** `H_offset_strict` | D's input, `max_aspect` 1.9 | the only case that notices the courtyard rung-skip regressing |
+| **I** `I_offset_radial` | C's field, `subdiv_mode = 1` | `offset` on block shapes that are NOT A's — expected red on `lots_are_simple_polygons` |
+| **J** `J_five_star` | a hand-drawn 5-way star | the first case that EXECUTES the S5a realign |
+| **K** `K_stub_triangle` | a 3-cycle of 32 m jogs | the case the repair gate REFUSES — six red rows, one defect |
 
-Three of the seven exist because a mechanism shipped green and unexercised at its
+⚠️ **This table listed seven cases while the suite ran eleven** — found by the M1
+audit, 2026-08-15, alongside a stale block count for B. Two of the four missing
+ones — J and K — are the only cases that carry the S5a junction work at all, so a
+reader looking for them found nothing. Whole suite: eleven.
+
+Five of the eleven exist because a mechanism shipped green and unexercised at its
 design amplitude — `max_fillet_fraction` (E), the S3b clamp (F), the tongue drop
-(G). Adding a parameter means adding a case.
+(G), the realign (J) and its refusal (K). Adding a parameter means adding a case.
 
 D reuses A's input rather than sweeping the mode over all three: the mode only
 changes S8, so a sweep would re-run every street and junction check for no new
 information. Whole suite: ~17 s.
 
-## Known-failing at time of writing
+## Known-failing — re-measured 2026-08-15, 20 rows
 
-Not noise — real, tracked defects, all of them findings in
+Not noise — real, tracked defects, most of them findings in
 `ideas/citygen_streets.md` §4e. **Do not `--update-baseline` these away.**
+
+⚠️ **THIS TABLE HAD DRIFTED OUT OF DATE AND WAS POINTING THE NEXT READER AT
+PHANTOMS.** Found during the M1 audit, 2026-08-15: it listed six checks that
+pass on today's build (`trim_metric_is_consistent`, `no_sweep_fold_after_trim`,
+`no_downward_faces`, `selfx_roads`, `lot_aspect_ratio`, `lots_tile_blocks`),
+attributed rows to the wrong cases, and omitted the six K_stub_triangle rows
+that are the honest form of an unrepaired jog. Rebuilt below from a gate run
+rather than edited. Why the six went green is **not recorded anywhere** and this
+table is not the place to guess — treat their §4e findings as unverified rather
+than closed. A stale known-failing list is worse than none: it makes a real
+regression look expected.
 
 | Case | Check | Value | Finding |
 |---|---|---|---|
-| A B C D | `selfx_city_merged` | 9 / 101 / 127 / 9 | **NOT A DEFECT — it measures a declared v1 non-goal.** See below. |
+| A B C D F G H I J K | `selfx_city_merged` | 9 / 101 / 127 / 9 / 2 / 6 / 9 / 127 / 6 / 87 | **NOT A DEFECT — it measures a declared v1 non-goal.** See below. |
 
 ⚠️ **`selfx_city_merged` is the standing measure of an unbuilt feature, and reading it as
 breakage wasted a review round.** Diagnosed in the viewport 2026-08-15. At every crossing site
@@ -154,15 +205,19 @@ bar on a feature, not a fault to trim away: it goes to zero when the end pieces 
 before. **Do not chase it with thresholds.** Keep it recorded — it is the only thing that will
 tell you the transition work is actually landing.
 
-| A B C D | `trim_metric_is_consistent` | max 0.30 / 2.75 / 3.34 / 0.30 m | 4e-1 root cause — `s5j_solve` cuts by axial distance, `s5j_trim` by arc length |
-| B C | `every_mouth_has_a_road` | 2 / 1 | 4e-3 — `pfsj_fillet` has no radius clamp, `s5j_trim` deletes the street, the mouth stays |
-| C | `no_sweep_fold_after_trim` | ratio 3.21, 2 folds | 4e-7 — the CAUSE of C's `no_downward_faces`: 0.022 m segments under a 7.2 m half-width |
-| C | `no_downward_faces` | 4 | 4e-7 symptom of the above |
-| C | `selfx_roads` | 12 | 4e-8 — two degree-1 streets 6.7 m apart driving through each other |
-| C | `plaza_disc_is_clear` | 10,363 of 11,310 m² built over, 2.45 m gap | 4e-2 — the plaza ring is emitted correctly and deleted before it ships |
-| A B C | `lot_aspect_ratio` | max 10.6 / 31.5 / 25.6 | 4e-4 — ribbons, not rectangles; S8 names the test and never implemented it |
-| B C D | `lots_are_simple_polygons` | 24 / 47 / 1 | 4e-5 — Sutherland–Hodgman bowties on non-convex blocks |
-| D | `lots_tile_blocks` | 0.0061 | 4e-6 — `offset` mode resamples the contour and chords across block vertices |
+| C I | `plaza_disc_is_clear` | 8,364 of 11,310 m² built over, −1.14 m gap | 4e-2 — the plaza ring is emitted correctly and deleted before it ships |
+| I | `lots_are_simple_polygons` | 1 lot, 1 viable | 4e-5 — Sutherland–Hodgman bowties on non-convex blocks; I exists to reach the 96% of block rings D and H are not |
+| I | `every_block_is_subdivided` | 1 empty of 28, at (21.31, 33.04) | S8 on a radial block I's `offset` mode cannot fill |
+| K | `trim_leaves_road_standing` | min_standing **−13.434 m**, ratio −0.933, 3 under | §S5a — the stub triangle's plates overlap. **This is the number §11.4's planner reproduces.** |
+| K | `selfx_junction_surface` | 50 | same cause: three crossing plates 42 m across on 32 m gaps |
+| K | `every_mouth_has_a_road` | 6 of 11 | the streets those plates ate |
+| K | `block_boundary_closes` | 6 open loops, 12 unpaired ends | the kerb cannot close around an overlapped junction |
+| K | `lots_clear_of_junctions` | 54.2 m² over 8 junctions | lots on the overlap |
+| K | `lots_clear_of_roads` | 54.2 m², worst edge 56.3 m at (15.74, 12.92) | same |
+
+K's six rows are one defect, not six, and they are what M4/M5/M6 exist to
+close. They are the honest form of a jog the repair loop refuses to collapse —
+see `cases.py`'s note on K and §S5a.
 
 `no_scratch_attribs_lots` was on this list at 27 / 28 / 28 / 27 and is **fixed**
 (4e-10). `lots_normal` now deletes the seven blocks-branch duplicates and a

@@ -5563,6 +5563,12 @@ On `is_node == 1` points (fill-if-empty, artist wins):
 | `junction_type` | string | `""` (decide for me) · `crossing` · `junction` · `merge` · `roundabout` (reserved, unimplemented) |
 | `principal_edges` | string | `""` (auto: the two arms of maximal `streetWidth`; tie → longer, then lexicographic `edge_id` — deterministic, the tongue-rank precedent) or two space-separated `edge_id`s |
 
+⚠️ **The auto rule above is BUILT and it is also under review — see the M1 result in 11.4.**
+Width and length must be compared quantised to 1 mm or the tie is never detected and the
+lexicographic step never runs (measured: a 1.3e-12 m length difference decided K's third
+corner). And on K the widest pair is the wrong pair: **the pair nearest 180° apart** rescues
+all three triangle sides where the widest pair rescues one. Which rule ships is 11.12.
+
 Pin the vocabulary in `checks.py` as `JUNCTION_TYPE_VOCAB` — the `LOT_REJECT_VOCAB` precedent:
 an auditor once relabelled every rejection and stayed green.
 
@@ -5583,6 +5589,149 @@ cases (hython script), and assert the crossing model predicts every measured tri
 K's real numbers. **The verdict decides whether the spread is ever needed** — the principal
 pair takes zero trim from its own node, so K's negative standing may simply not occur.
 
+#### M1 BUILT AND MEASURED — 2026-08-15. The verdict, and what the calibration refused
+
+Built: `polyfactory/scripts/python/polyfactory/citygen/plan.py` (pure Python, `hou`-free) ·
+`tests/citygen/dump_trims.py` (hython, all 11 cases → `tests/unit/trim_calibration.json`,
+524 arms) · `tests/unit/test_plan.py` (43 tests, 0.03 s). No HDA touched, no parm added; the
+gate is unmoved at **20 failing, and an independent value-by-value diff against
+`baseline.json` over all 11 cases moved zero entries**.
+
+⚠️ **INDEPENDENTLY AUDITED FOUR TIMES — every round came back NO.** Round 1 came back NO on the
+numbers rather than the code. The
+auditor re-extracted the HDA, wrote its own transcription of `s5j_solve` from the VEX, and
+found it agrees with `crossing_trims` to **1.1e-13 m over 40 000 random nodes** — including
+**60 066 miter-clamp firings and 27 816 reflex (>180°) gaps**, configurations the 524-arm
+fixture never produces. The construction is right. What was wrong was every number written
+*about* it, and four mutations of `plan.py` that the suite could not see. Those four are fixed
+and killed — ⚠️ but **"zero survivors" was never true of the whole suite and this section used
+to say it was**: `test_plan.py`'s docstring records twelve, seven proven equivalent and five
+reachable only through M3's adapter. Rounds 2–4 then found more, each in the *previous round's
+fix* (§11.9 has the shape of it). The corrections are folded into the text below rather than
+appended, and the ones worth carrying forward are:
+
+- ⚠️ **THE RESIDUAL IS TWO-SIGNED, and the first version of this section claimed it was not.**
+  `s5j_solve` latches monotone only from its third pass (`dist[i] = (iter < 3) ? dd :
+  max(dist[i], dd)`), so passes 1 and 2 may RETREAT below the node-frame value. "The builder
+  always cuts more" was a guess dressed as a measurement.
+- ⚠️ **A 5.88 m optimistic error was recorded as a 2.02 m safety margin.** The published
+  constant had been written from A/D/H before B and C were measured, and nothing asserted it —
+  mutating it to 99.0 left the suite green. The quantity that matters is not the per-arm
+  residual at all but the error on `standing`, where both ends compound: worst **+5.876 m**
+  optimistic, **−8.418 m** pessimistic (C_radial / I_offset_radial).
+- ✅ **AND THE PROPERTY THAT ACTUALLY MATTERS WAS TRUE AND UNASSERTED.** Over all **304 edges**
+  of the suite the planner's `standing > 0` **verdict** never disagrees with the builder's —
+  **0 false-OK, 0 false-BAD**. A planner 4 m out that calls every street correctly is usable; no
+  residual table can distinguish that from one 0.1 m out that flips a verdict. It is now the
+  suite's headline assertion, and it is the one to defend in M4–M6.
+- ⚠️ **The miter clamp fires on 0 of 524 calibration corners**, and its one test used three
+  arms of equal width — so `max(wA,wB)` and `min(wA,wB)` were the same number and two wrong
+  clamps passed. Same shape as `max_fillet_fraction` (E), the S3b clamp (F) and the tongue (G):
+  a mechanism the suite never runs at its design amplitude. Now pinned to 1e-4 on an
+  arterial-against-local corner, and `COLLINEAR_SIN` is pinned either side of 1.146° — it too
+  was free to take any value.
+
+⚠️ **THE 0.5 m CALIBRATION IS MET ON FIVE CASES AND CANNOT BE MET ON THE OTHER SIX, and the
+line between them is not arbitrary.** `crossing_trims` is a closed-form transcription of
+`s5j_solve`'s corner construction in the NODE frame. What `s5j_solve` does that no function of
+the plan can do is **re-read each arm's frame at its own current cut and re-solve the corner
+there, eight times** — a fixed point on a straight arm, a moving target on a curved one:
+
+| case | arms | worst \|predicted − measured\| | arms over 0.5 m |
+|---|---|---|---|
+| E_short_t · F_bend · G_tongue · **J_five_star** · **K_stub_triangle** | 27 | **≤ 0.000034 m** | **0** |
+| A_drawn · D_offset · H_offset_strict | 66 | 2.024 m | 2 of 22 each |
+| B_grid | 111 | 3.995 m | 24 |
+| C_radial · I_offset_radial | 320 | 4.575 m | 97 of 160 each |
+
+Two things came out of getting there, and both are load-bearing:
+
+1. **`pfsg_clear_of_vertex` belongs to the PLAN, not the builder.** It moves 184 of the 524
+   arms by up to `2 × min_end_segment` (worst +1.971 m), one-signed, and without it a
+   `standing` is optimistic on a third of the city. It looked like geometry and is not: `s5_resample` cuts each arm
+   into `ceil(L / 4 m)` EQUAL segments — verified on all 304 prims, spread 8e-5 m within one,
+   and now asserted in `test_plan.py` against the fixture's own `npts`, which matters because
+   10 of the 304 sit exactly on an integer `L / 4` where one ulp shifts the whole grid — so
+   the vertex grid is a function of the arm's **length**, which is plain edge data. Modelling
+   it is what took E/F/G/J/K from ~1.8 m of error to exact. ⚠️ Its two branches are NOT mirror
+   images: the start branch takes the first vertex *strictly* beyond the cut, the end branch
+   the first *at or* beyond, so a cut landing exactly on a vertex pushes from one end and not
+   the other. Transcribed, and pinned by a control test against a literal walk of the grid.
+2. **Closing the curved-arm residual needs the arm's SHAPE, and that is the §9 segment model,
+   not a curvature fudge.** A segment's captured `(u, v)` frame is invariant under node moves
+   by construction, so a planner carrying it could evaluate position and tangent at any arc
+   length and iterate the builder's own fixed point exactly. That is the honest route and it
+   is not M1's. Until it exists, `crossing_trims` is out by up to **4.58 m per arm either
+   way**, and on `standing` — the quantity anything downstream reads — by **+5.88 m
+   optimistic / −8.42 m pessimistic**, recorded in `plan.py` as `STANDING_OPTIMISM_M` and
+   `CURVED_ARM_RESIDUAL_M`, pinned per case and signed in `test_plan.py`. ⚠️ These are bounds
+   on the ERROR, not on the verdict, and they are not a safety margin to guard with — the
+   verdict agreement above is the property to rely on.
+
+**THE K VERDICT — and the answer to the question as posed is NO.** All numbers from K's own
+measured node data; the crossing row reproduces the gate's `min_standing_m` −13.434 to the
+millimetre without cooking anything, which is the claim of this section discharged.
+
+| K, node type / principal rule | A–B (32.00 m) | A–C (32.25 m) | B–C (32.25 m) | worst over all 8 edges |
+|---|---|---|---|---|
+| **crossing** (today) | **−10.000** | **−6.651** | **−13.434** | −13.434 |
+| **junction**, widest-pair principal (the computed default) | **−10.000** | +12.949 | **−13.434** | −13.434 |
+| **junction**, principal = the pair nearest 180° apart | +11.000 | +12.949 | +12.649 | **+11.000** |
+
+Why the computed default fails: at A and at B the two widest arms are the **external** arterial
+and collector, so both triangle sides at that corner stay minors and keep their full trim. Only
+C — degree 3, all three arms 14.4 m locals — has a triangle side wide enough to be principal,
+and it can only take one of the two. **So junction type alone does not dissolve K, the
+resolution ladder still needs its next rung, and the spread is not dead** (M6 stays open).
+
+**But the type is not what decides it — the principal RULE is.** Choose the pair nearest to
+running straight through, which is what a principal street *means*, and every side of K stands
+with no node moved and nothing deleted. That is a candidate change to §11.3's computed default
+and it is **the artist's call** (§11.12): the widest pair and the straightest pair are different
+rules, and on K they differ by the whole outcome.
+
+⚠️ **AND THAT THIRD ROW IS A COIN-FLIP UNTIL SOMEBODY BREAKS THE TIE ON PURPOSE.** Found by the
+M1 audit. K's node C is *exactly* symmetric — |CA| = |CB| = 32.249031 and the third arm runs
+along the axis of symmetry — so **two pairs are equally straight**, differing by 2.311e-07 rad
+of float noise, and the rule as stated does not say which wins:
+
+| principal at C | A–B | A–C | B–C | |
+|---|---|---|---|---|
+| E_00007 + E_00001 | +11.000 | +12.949 | +12.649 | K dissolves |
+| E_00007 + E_00004 | +11.000 | **−6.651** | +32.249 | **K does not** |
+
+This is §11.3's float-tie defect restated in ANGLE instead of length, and it is the second time
+the same class has decided K. `test_plan.py` quantises the angle and falls through to the same
+width → length → `edge_id` chain, which lands on the row that dissolves K — but that is luck,
+not a reason, and **whichever rule ships must break this tie deliberately** (11.12).
+
+⚠️ **AND THE FIRST TIE-BREAK WRITTEN FOR IT MOVED THE COIN-FLIP RATHER THAN REMOVING IT** — found
+by audit round 2, on the fix rather than on the build. The key read only the first arm of the
+pair, so the winner depended on the order `pointprims()` returned the arms in: of node C's six
+orderings, **five gave +11.000 and one gave −6.651**, and on a symmetric X 12 of 24 permutations
+disagreed. The key is now built from BOTH arms, sorted, so it is a property of the pair. **Any
+computed default that ranks PAIRS has this failure mode**, and the same reading applies to
+§11.3's widest-pair rule the day two arms tie on width and length.
+
+⚠️ **AND THE FIX FOR *THAT* LEAKED THE SAME DEPENDENCE OUT OF ITS RETURN VALUE** — round 3. The
+winning *set* became order-independent while the returned *tuple* stayed ordered by arm index,
+and the neighbouring test read it positionally: three of six orderings failed, and in the failing
+half the test constructed a **third** pair that is in neither row of the table above and dissolves
+K as well. Round 4 then found the corrected order guaranteed but **unasserted** — reverting it
+left the whole suite green. Three rounds, one defect, each fix landing one level further out:
+the lesson is that **a rule which ranks pairs must be canonical in what it compares AND in what
+it returns, and both halves need an assertion**, or the next reader inherits a guarantee with a
+countdown on it.
+
+⚠️ **AND THE DOCUMENTED TIE-BREAK WAS UNREACHABLE.** §11.3 says *maximal `streetWidth`; tie →
+longer, then lexicographic `edge_id`*. On K's third corner the three arms are all 14.4 m wide
+and two of them are the same 32.249 m long — and in float the widths differ by 5e-6 m and the
+lengths by **1.3e-12 m**, so `-width` alone settled it and the lexicographic step was dead code.
+Which of two identical triangle sides survived turned on 1.3e-12 m. `default_principal` now
+quantises to **1 mm** — the noise floor `graph_reaches_a_fixed_point` already works to — before
+ranking, so the rule that runs is the rule the doc describes. Same defect class as S8's argmin
+instability at `max_aspect` 1.8.
+
 ### 11.5 Node types — builder contracts
 
 - **crossing** — today's `s5j_solve`, unchanged. The default the planner writes everywhere
@@ -5590,7 +5739,26 @@ pair takes zero trim from its own node, so K's negative standing may simply not 
 - **junction** — the principal pair is ONE continuous street through the node: no break, no
   mouth, no trim contribution from this node. Minors trim to the principal's flank
   (halfwidth + corner arc). Plate: a rectangle on the principal spanning the minor mouths
-  (CityEngine's blue). ⚠️ **S7 is the named integration risk**: the block boundary IS the kerb,
+  (CityEngine's blue).
+
+  ⚠️ **THREE GAPS BETWEEN THIS PARAGRAPH AND M1's MODEL, measured 2026-08-15 by the M1 audit,
+  and M4 closes them by DECIDING rather than by matching.** `plan.junction_trims` is
+  `crossing_trims` with the principal zeroed — exact for the model, and not the same claim as
+  "this is the plate above":
+  1. **Two adjacent minors with no principal between them.** The model charges their
+     minor-to-minor kerb corner; a rectangle-on-the-principal has no such corner in it.
+     Measured, 14.4 m minors at 70° and 110° off an arterial principal: **30.77 m against
+     22.59 m**. The model is the conservative one.
+  2. **`max_fillet_fraction` caps on the principal ARM's length, not the through-length** it
+     would have as one continuous street. Measured on 30 m arms: a minor trims **25.40 m under
+     the arm cap, 29.40 m under the 60 m through cap** — and this one goes the UNSAFE way, the
+     plan under-charging the minor by 4 m.
+  3. **The computed principal need not run through at all** — at K's node A the widest pair sits
+     **70.0°** apart (node B's is 113.4°), and the model then returns zero trim on both arms of
+     it. A pair that bends 110° through its own junction is not "one continuous street"; nothing
+     signals it today.
+
+  ⚠️ **S7 is the named integration risk**: the block boundary IS the kerb,
   and at a junction node the principal's kerb runs *through* while minor kerbs tee into it —
   `blocks_kerb`'s collect-and-close must survive that. The S7 T-case (11.10) exists before this
   ships, and the render gets LOOKED at.
@@ -5861,10 +6029,25 @@ setdetailattrib(0, "repair_spread_m", total, "set");
 
 - **M0 — this commit.** Spec + constitution recorded; spread preserved above; working tree
   reverted to the committed 20-failing state.
-- **M1 — the planner core and the K verdict.** `plan.py` + `test_plan.py` + the hython dump
-  script that extracts measured trims for calibration. Pure Python; the gate must not move.
-  Exit: footprint calibrated within 0.5 m on all 11 cases; the K junction-verdict recorded here
-  in §11 with its numbers.
+- **M1 — the planner core and the K verdict.** **BUILT 2026-08-15, AUDITED FOUR TIMES.**
+  `plan.py` + `test_plan.py` (43 tests) + `dump_trims.py`. Gate unmoved: 20 failing, zero moved
+  entries on a value-by-value baseline diff, re-verified independently in three separate rounds.
+  Exit as written was *calibrated within 0.5 m on all 11 cases*: **met exactly (≤ 3.4e-5 m) on
+  the five straight-arm cases including K, and refused on the six with curved arms** — the
+  residual is `s5j_solve`'s own frame refinement and closing it needs the §9 segment shape, not
+  a fudge. K's verdict (11.4) is **negative for the widest-pair principal**: two of three sides
+  still overlap, so the spread is not dead and M6 stays open.
+
+  ⚠️ **NO ✅ HERE, AND THE AUDIT HISTORY IS THE REASON.** Rounds 1–4 all returned NO, and the
+  shape of them is the record worth keeping: round 1 found the construction correct to 1.1e-13 m
+  over 40 000 random nodes and **every number written about it wrong**; rounds 2 and 3 each found
+  that *the fix for the previous round* was itself behaviourally wrong (a coin-flip moved from
+  float noise to arm order, then the same dependence leaking out of a return value); round 4
+  found **no behavioural defect and no moved answer** — one unasserted guarantee and three doc
+  errors. That is convergence, and it is also four rounds of evidence for §11.0's thesis: the
+  defects were never in the geometry, they were in decisions made against a representation
+  nobody was asserting. Surviving mutants and the guarantees `dump_trims.py` supplies that
+  **M3's adapter must re-establish** are listed in `test_plan.py`'s module docstring.
 - **M2 — cases first.** The four-junction stub chain (⛔ item 5 already specifies it) and a
   shallow-Y family across angles and classes, committed with today's behaviour recorded —
   red rows are the honest form (the J/K precedent). The S7 T-case lands with M4.
