@@ -5529,7 +5529,8 @@ gate time. Design against this list, not into it:
 3. **The resolution ladder when it does NOT solve:** pick a richer node type (junction · merge ·
    T-split realign · roundabout as art option) → move nodes (cluster spread, fallback) → never
    delete.
-4. **Authored beats computed.** `junction_type` and `principal_edges` are artist attributes with
+4. **Authored beats computed.** `junction_type` and the `principal_start` / `principal_end`
+   booleans (per-edge since the 2026-08-16 ruling, §11.3) are artist attributes with
    computed defaults, fill-if-empty — the `graph_classify` pattern.
 5. **Nodes are the only authority on position; shape is derived.** No mechanism moves an
    endpoint without its segment (§9, the hinge). No rebuild touches a segment whose ends did not
@@ -5558,25 +5559,53 @@ gate time. Design against this list, not into it:
 
 On `is_node == 1` points (fill-if-empty, artist wins):
 
-| attr | type | values |
-|---|---|---|
-| `junction_type` | string | `""` (decide for me) · `crossing` · `junction` · `merge` · `roundabout` (reserved, unimplemented) |
-| `principal_edges` | string | `""` (auto: the two arms of maximal `streetWidth`; tie → longer, then lexicographic `edge_id` — deterministic, the tongue-rank precedent) or two space-separated `edge_id`s |
+| attr | class | type | values |
+|---|---|---|---|
+| `junction_type` | point | string | `""` (decide for me) · `crossing` · `junction` · `merge` · `roundabout` (reserved, unimplemented) |
+| `principal_start` / `principal_end` | **prim, on the edge** | int | 1 = this street is the principal at its start / end node. Planner-computed, fill-if-empty |
 
-✅ **BUILT by M3.** `graph_plan` writes `junction_type` on every `is_node` point of degree
->= 3 and creates `principal_edges` empty; `JUNCTION_TYPE_VOCAB` and `junction_schema` in
-`checks.py` pin the vocabulary AND the pairing (a type only where a plate is built), because a
-closed set alone cannot detect everything being relabelled to one member of it.
+⚠️ **THE PRINCIPAL MOVED FROM A NODE STRING TO PER-EDGE BOOLEANS — artist ruling, 2026-08-16.**
+The first shipped shape was `principal_edges`, a node-side string of two space-separated
+`edge_id`s. Three audit rounds found four defects that are all properties of that SHAPE, not of
+any implementation: a pair naming a stranger, the same edge twice, only one edge, and an
+int-typed value that crashed the whole gate through `.split()`. The booleans erase the class —
+an edge cannot name a stranger about itself — and replace it with one small check, cardinality:
+**at each node, the arms claiming principal must number exactly 0 or 2.** This is CityEngine's
+own shape (its docs: *"The principal street is specified … by setting the object attribute
+`principleStreetStart` or `principleStreetEnd` on adjacent streets"*), and it mirrors
+`trim_start` / `trim_end`, which already proved the per-edge-end pattern here. It is also what
+makes an authoring surface POSSIBLE: a prim attribute exists on a drawn curve before the
+segmenter runs — the prim-attribute half of the `graph_classify` precedent, the half that DOES
+transfer — where a node-side string could not be authored at all because nodes do not exist
+until the segmenter creates them (M3's measured gap).
 
-⚠️ **The auto rule for `principal_edges` is BUILT IN THE PLANNER, NOT WRITTEN TO GEOMETRY,
-and it is under review — see the M1 result in 11.4.**
-Width and length must be compared quantised to 1 mm or the tie is never detected and the
-lexicographic step never runs (measured: a 1.3e-12 m length difference decided K's third
-corner). And on K the widest pair is the wrong pair: **the pair nearest 180° apart** rescues
-all three triangle sides where the widest pair rescues one. Which rule ships is 11.12.
+**THE RULE IS DECIDED (artist, 2026-08-16): widest pair, ratified.** CityEngine's automatic is
+the same (*"the two segments with the maximal street widths are automatically treated as a
+major street"*), and the artist's definition of continuity is IDENTITY, not bearing — the
+biggest street through the node stays the same street even where it turns, so a principal pair
+sitting 70° apart is legal geometry, and 11.5's plate must survive a bent principal. The
+straightest-pair alternative recorded in 11.4 stays as measurement history: it is what showed
+the RULE decides K's outcome, which is why the decision was put to the artist before M4 built
+anything. Consequence, kept visible: **widest pair does not dissolve K** — two of three sides
+still overlap — so the ladder's next rungs stay live and M6 stays open.
+
+**THE TIE-BREAK IS DECIDED (artist, 2026-08-16): first in the list — and ⚠️ "the list" is the
+DETERMINISTIC one.** Width and length compare quantised to 1 mm (measured: a 1.3e-12 m length
+difference once decided K's third corner), then the tie falls to **lexicographic `edge_id`
+order** — first-come-first-served on the stable list, the tongue-rank precedent, and exactly
+what `default_principal` already ships. It must NEVER mean arm order: `pointprims()` order is
+cook-dependent, and three audit rounds measured that reordering K's node-C arms flips a
+standing side from +12.9 m to −6.65 m with no geometry change. First by `edge_id`, never by
+cook order.
 
 Pin the vocabulary in `checks.py` as `JUNCTION_TYPE_VOCAB` — the `LOT_REJECT_VOCAB` precedent:
 an auditor once relabelled every rejection and stayed green.
+
+**M4's authoring surface, designed here so it stops being a gap:** the artist marks the DRAWN
+CURVE (a prim attribute, e.g. `principal_priority`), which survives the split onto every child
+edge; the planner turns that into `principal_start` / `principal_end` at each node the street
+passes through, computed default = widest pair where nothing is authored. Per-node authoring
+downstream stays possible by editing the booleans directly.
 
 ### 11.4 The footprint function, and M1 — the experiment that gates everything
 
@@ -5728,6 +5757,17 @@ left the whole suite green. Three rounds, one defect, each fix landing one level
 the lesson is that **a rule which ranks pairs must be canonical in what it compares AND in what
 it returns, and both halves need an assertion**, or the next reader inherits a guarantee with a
 countdown on it.
+
+✅ **RESOLVED BY THE ARTIST, 2026-08-16 — widest pair ratified, tie broken first-by-`edge_id`.**
+The artist's definition settles what "straight" was standing in for: street continuity is
+IDENTITY, not bearing — the biggest street through the node stays the same street even where it
+bends — and CityEngine's automatic is the same rule. Checked against the sources rather than
+asserted: no system in the reference set derives the principal from geometry or identity;
+CityEngine uses maximal width with a per-street override, and OpenDRIVE's road identity is a
+label, not a selector. The straightest-pair rows above stay as the measurement that forced the
+decision. The tie falls to lexicographic `edge_id` — the deterministic list — never arm order,
+which is the coin-flip documented above. Schema consequence in §11.3: the principal became
+per-edge booleans, CityEngine's own shape.
 
 ⚠️ **AND THE DOCUMENTED TIE-BREAK WAS UNREACHABLE.** §11.3 says *maximal `streetWidth`; tie →
 longer, then lexicographic `edge_id`*. On K's third corner the three arms are all 14.4 m wide
@@ -6154,7 +6194,8 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   with one leg is one deletion away from nothing.** Each Y now carries a second plain T 300 m
   west so the case measures the angle rather than the orphan filter — and that is a rule for
   every case added from here: a case whose graph can empty asserts nothing.
-- **M3 — schema + adapter.** ✅ **BUILT 2026-08-15.** `junction_type` / `principal_edges` +
+- **M3 — schema + adapter.** ✅ **BUILT 2026-08-15.** `junction_type` / the principal (as
+  `principal_edges`, reworked to the per-edge booleans 2026-08-16 — see the addendum) +
   `junction_schema` in `checks.py`; the planner writes `crossing` everywhere unless authored.
 
   **EXIT MET, and it was established by comparing GEOMETRY, not by trusting the baseline diff.**
@@ -6182,7 +6223,8 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   `plan.py` was imported by nothing but its own test, which is the state that killed the deleted
   `graph.py`; it now has a real consumer.
 
-  ⚠️ **`principal_edges` is created and deliberately LEFT EMPTY.** §11.3 calls it fill-if-empty
+  ⚠️ **The principal attributes are created and deliberately LEFT EMPTY** (originally the
+  `principal_edges` string; the per-edge booleans since the 2026-08-16 rework). §11.3 called it fill-if-empty
   with a computed default, but 11.4's audit found the two candidate rules — widest pair vs
   straightest pair — disagree on K by the whole outcome, with the tie between them decided by
   float noise. Freezing either into geometry now would ship a decision 11.12 reserves for the
@@ -6195,7 +6237,25 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   `out_detailclean`, the city branch's existing attribdelete (the `lots_publish` precedent), so
   the graph output — a pass-through of the mesh's input 0 — keeps them.
 
-  **`junction_schema` is proven able to fail**, and it took two rounds to make it so. The audit
+  ⚠️ **ADDENDUM 2026-08-16 — THE PRINCIPAL SCHEMA WAS REWORKED TO THE BOOLEAN SHAPE** on the
+  artist's ruling (§11.3): `principal_edges`, the node-side string, is RETIRED; the principal is
+  `principal_start` / `principal_end`, int booleans on the edge prim. The rework was proven the
+  same way the original was: gate 26 failing; the only baseline movement is **15 `junction_schema` values gaining the
+  deliberate `claims` key** (the principal's pin — without it, M4 flipping the computed default
+  on would move ZERO baseline values), geometry unmoved — and eight fresh injections on the boolean shape all
+  fail as red rows with clean restores, including the one the string shape could not survive: a
+  wrong-TYPE value authored upstream, which now produces red rows instead of killing all 15
+  cases. A well-formed authored pair stays green. One trap found installing it: **a string parm
+  evaluates backtick pairs as HSCRIPT** — identifier-like contents happen to be benign, which is
+  why every earlier snippet cooked, and a pair containing dots is a syntax error that kills the
+  whole cook. The new leak channel that comes with prim-class attributes — the booleans riding
+  the sweep onto the published city's ROAD PRIMS — is cleaned at `out_detailclean` (`primdel`,
+  previously empty) and detected by the leak check's home-map scan.
+
+  **`junction_schema` is proven able to fail**, and it took two rounds to make it so. ⚠️ The
+  injection list below is the STRING ERA's, kept as history — the boolean shape makes the three
+  principal injections inexpressible, and its own eight injections are recorded in the
+  2026-08-16 addendum above and `tests/README.md`. The audit
   found three states it passed that it should not: `principal_edges` naming the SAME edge twice
   (a pair that is one street), a principal on a dead end (only `junction_type` was degree-paired),
   and — the vacuity this project keeps rediscovering — `is_node` destroyed, where every term
@@ -6218,7 +6278,9 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   its terms at zero, because it only ever reads nodes. **`node_schema_stays_on_the_graph`** is the
   detector, and it took three rounds to finish: `leaked` (city / blocks / lots AND the graph, on
   points, VERTICES, prims and detail — `out_detailclean` had the same vertex hole), `off_node`
-  (BOTH attributes: `principal_edges` on 497 shape points left both checks green),
+  (in the string era it read BOTH attributes — `principal_edges` on 497 shape points had left
+  both checks green; since the boolean rework it reads point-class `junction_type` only, the
+  booleans being prim-class with their own claim accounting),
   `untyped_plated` (any point the builder would plate that is not a typed node — both checks
   select by `is_node`, the attribute the adapter also selects by, while `s5j_solve` never reads
   it), and `schema_source` (the shared name-set constant was INERT for a round because the
@@ -6259,7 +6321,11 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   in the adapter takes only `pts[1]` or `pts[-2]`, yielding one arm where two exist. **`edge_id`
   is not a valid arm key.** Unreachable today (0 closed prims on all 15 cases, and
   `graph_mark_orphans` deletes any component with no point of degree >= 3), which is why
-  `principal_edges` naming the same edge twice is now RED: it is the visible symptom.
+  a principal pair that is one street twice is RED — since the boolean rework via THREE guards:
+  `junction_schema`'s same-prim claim test, `default_principal`'s distinct-street skip, and
+  `principal_of`'s distinct-id fallback on the authored channel (the third found unasserted by
+  the rework audit's own mutation pass, and now pinned). The symptom is guarded; the cause
+  (`edge_id` is not a valid arm key) stays M4's.
 - **M4 — junction type in the builder**, authored-only first; S7 T-case green and its render
   LOOKED at; then flip the computed default in its own commit; re-measure K against the M1
   verdict.
@@ -6299,3 +6365,7 @@ Type vocabulary naming · the merge's parallel-run default · when the junction 
 flips on (M4) · whether roundabout enters v1 at all · the S7 T-case render review — "look at
 it" is part of the exit criteria, and on 2026-08-15 the artist's viewport reading twice
 overturned what the numbers seemed to say.
+
+**Decided 2026-08-16, no longer open:** the principal rule (widest pair, ratified — continuity
+is street identity, not bearing) and its tie-break (first by `edge_id`, the deterministic list,
+never cook order). Recorded with the CityEngine and OpenDRIVE evidence in §11.3 and §11.4.

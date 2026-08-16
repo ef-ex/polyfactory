@@ -62,7 +62,7 @@ improvement before running `--update-baseline`.**
 tests/
   unit/                  pure Python, no Houdini
     test_citygen.py      cross-section profile maths (22 tests)
-    test_plan.py         the S5 planner + its calibration (43 tests)
+    test_plan.py         the S5 planner + its calibration (44 tests)
     trim_calibration.json  measured junction footprints, 539 arms
   citygen/
     checks.py            the assertion library — add to this
@@ -98,22 +98,46 @@ optimistic error got recorded as a 2.02 m bound.
 
 ## The node schema, and why a closed vocabulary is not enough
 
-`junction_schema` (M3) watches §11.3's `junction_type` / `principal_edges` on
-the graph's `is_node` points. `JUNCTION_TYPE_VOCAB` is the closed set, and it is
-only the FIRST of four terms — `LOT_REJECT_VOCAB`'s lesson was that membership
-cannot detect an auditor relabelling every rejection to one member of the set.
-The other three tie each value to something independently measurable: a junction
-of degree >= 3 with no type (the shape of a silently-bypassed adapter), a type on
-a node where `s5j_solve` builds no plate, and a `principal_edges` that is not two
-`edge_id`s both incident to that node.
+`junction_schema` (M3) watches §11.3's node schema: `junction_type` on the
+graph's `is_node` points, and — since the artist ruling of 2026-08-16 — the
+principal as `principal_start` / `principal_end`, **int booleans on the prim**,
+CityEngine's own shape. `JUNCTION_TYPE_VOCAB` is the closed set, and it is only
+the FIRST of four terms — `LOT_REJECT_VOCAB`'s lesson was that membership cannot
+detect an auditor relabelling every rejection to one member of the set. The
+other three tie each value to something independently measurable: a junction of
+degree >= 3 with no type (the shape of a silently-bypassed adapter), a type on a
+node where `s5j_solve` builds no plate, and principal claims that number
+anything but **0 or 2 at a node**, or sit at a dead end, or at a prim end that
+is not a node at all.
 
-Eight injections were shown to fail it — and three of them only after an audit
-found them passing: adapter bypassed, a value outside the vocabulary, a type on
-a degree-1 node, a principal naming a stranger, a principal naming only one
-edge, **a principal naming the SAME edge twice** (a pair that is one street),
-**a principal on a dead end** (only `junction_type` had been degree-paired), and
-**`is_node` destroyed** — where every term read 0 because the loop never ran,
-the same vacuity that let three checks go green on an EMPTY graph in 2026-08-15.
+⚠️ **The boolean shape retired four defects by making them inexpressible.** The
+first schema was a node-side string of two `edge_id`s, and three audit rounds
+found a stranger edge, the same edge twice, one edge of two, and an int-typed
+value that crashed the whole gate through `.split()` — all properties of the
+SHAPE. A boolean an edge carries about itself can express none of them; what it
+can still express is wrong cardinality, which is one small term instead of a
+parser. Injections re-proven on the boolean shape: one claim at a four-way,
+three claims at one node, claims at all eight dead ends, a string-typed boolean
+authored upstream (red rows, no crash), a point-class `principal_start` on the
+graph, the stale `principal_edges` reappearing, and the city-prim leak with the
+cleaner's `primdel` cleared — every one a red row with a clean restore, and a
+WELL-FORMED authored pair stays green.
+
+Two claims only make a pair when they come from two DIFFERENT prims — a
+closed street claiming at both of its own ends is one street twice, red (built
+synthetically and measured; no committed case can reach it while
+`graph_mark_orphans` eats loop-only components). And the recorded value carries
+**`claims`**, the total of claiming prim-ends, because it is the principal's pin
+the way `types` is `junction_type`'s: without it, M4 flipping the computed
+principal default on would move ZERO baseline values and §11.9's "the gate
+movement is its own diff" would be false for exactly the attribute it was
+written for. The normal M4 state — a principal street claiming end-at-one-node,
+start-at-the-next — passes green with `claims` counting it.
+
+Historical injections from the string era, kept because the vacuity lesson
+outlives the shape: **`is_node` destroyed** made every term read 0 because the
+loop never ran — the same vacuity that let three checks go green on an EMPTY
+graph on 2026-08-15. That guard survives unchanged.
 
 ## And a second check, because the first one's blind spot had already bitten
 
@@ -129,12 +153,20 @@ the leak restored: `no_scratch_attribs_city` **PASS 0** (it is called with
 **Four terms**, and it started with two — each of the others was added because
 an audit injection walked past what was there:
 
-* `leaked` — absent from city / blocks / lots on points, VERTICES, prims and
-  detail, and from the graph on everything but points. Vertex is in that list
+* `leaked` — every (attribute, class) pair except each attribute's own HOME,
+  on all four geometries and all four classes. Two homes since the boolean
+  ruling: `junction_type` on graph POINTS, the principal booleans on graph
+  PRIMS — so a point-class `principal_start` on the graph is a leak exactly as
+  a prim-class `junction_type` is, and the booleans riding the sweep onto the
+  published city's ROAD PRIMS is the new channel the point-class schema never
+  had (cleaned by `out_detailclean`'s `primdel`, now non-empty). The retired
+  `principal_edges` stays on the scan list: nothing creates it any more, so its
+  appearance anywhere means something stale is writing it. Vertex is scanned
   because `out_detailclean` had the identical hole (`dovtxdel on`, `vtxdel ""`).
-* `off_node` — on the graph, a non-empty value of EITHER attribute may sit only
-  on an `is_node` point. Testing `junction_type` alone was not enough:
-  `principal_edges` on all 497 shape points left both checks green.
+* `off_node` — on the graph, a non-empty `junction_type` may sit only on an
+  `is_node` point (497 shape points once wore a value while `junction_schema`,
+  nodes-only, stayed green). The principal booleans' twin of this term lives in
+  `junction_schema`'s claim accounting, because they are prim-class.
 * `untyped_plated` — any point with 3+ incident prims that is not a typed node.
   Both checks select by `is_node`, the same attribute the adapter selects by, so
   a cleared `is_node` hid a junction from everything at once while `s5j_solve`
@@ -143,10 +175,11 @@ an audit injection walked past what was there:
   shared constant was inert for a whole round because the import path was wrong,
   and a value-identical fallback hid it; now a fallback moves a baseline number.
 
-⚠️ A wrong-TYPE value is a red row, never an exception. `i@principal_edges`
-instead of `s@` used to raise out of `run_case` and lose **all 15 cases** with no
-JSON and no baseline compare — while a mistyped `junction_type` was already
-handled gracefully, which was the tell.
+⚠️ A wrong-TYPE value is a red row, never an exception. The string era's
+`i@principal_edges` raised out of `run_case` and lost **all 15 cases** with no
+JSON and no baseline compare; the boolean era's `_schema_flag` reads any type
+without raising, and a string-typed boolean authored upstream was measured as
+red rows, not a dead gate.
 
 ⚠️ **A/B-ing an HDA change needs a guard, or it lies.** With `HOUDINI_PATH`
 set the way the gate sets it, Houdini auto-scans `polyfactory/otls` at startup

@@ -44,11 +44,20 @@ DEFAULT_CORNER_RADIUS = 4.0                 # `local`, and anything unclassified
 COLLINEAR_SIN = 0.02
 EPS = 1e-6
 
-# §11.3's node schema, named once. The adapter writes these and `checks.py`
-# polices them; before this constant existed the set was spelled out in three
-# places and a fourth attribute could have been added in one and policed in
-# none.
-NODE_SCHEMA_ATTRS = ("junction_type", "principal_edges")
+# §11.3's schema, named once. The adapter writes these and `checks.py` polices
+# them; before these constants existed the set was spelled out in three places
+# and a fourth attribute could have been added in one and policed in none.
+#
+# ⚠️ Two constants because the schema lives in two CLASSES since the artist's
+# 2026-08-16 ruling: `junction_type` is a POINT attribute on the node, and the
+# principal is a pair of PER-EDGE booleans — `principal_start` / `principal_end`
+# on the prim, CityEngine's own shape (`principleStreetStart` / `...End`). The
+# node-string form (`principal_edges`) is RETIRED: three audit rounds found four
+# defects that were properties of the shape itself — a stranger edge, the same
+# edge twice, one edge, and an int-typed value that crashed the gate — and none
+# of them is expressible as a boolean an edge carries about itself.
+NODE_SCHEMA_ATTRS = ("junction_type",)
+EDGE_SCHEMA_ATTRS = ("principal_start", "principal_end")
 
 # ⚠️ THE ONE THING THIS MODEL DOES NOT PREDICT, measured rather than assumed.
 #
@@ -120,13 +129,18 @@ class Arm(object):
     """
 
     def __init__(self, edge_id, direction, width, street_class, length,
-                 at_start=True):
+                 at_start=True, principal=False):
         self.edge_id = edge_id
         self.direction = (float(direction[0]), float(direction[1]))
         self.width = float(width)
         self.street_class = street_class
         self.length = float(length)
         self.at_start = bool(at_start)
+        # `principal_start` / `principal_end` read at THIS end of the edge: does
+        # this street claim to be the principal at this node? Authored or
+        # planner-computed on the prim; a boolean an edge carries about itself,
+        # so the stranger/duplicate/split-crash class cannot be expressed.
+        self.principal = bool(principal)
 
     @property
     def bearing(self):
@@ -138,12 +152,11 @@ class Arm(object):
 
 
 class Node(object):
-    def __init__(self, node_id, pos, arms, junction_type="", principal_edges=()):
+    def __init__(self, node_id, pos, arms, junction_type=""):
         self.node_id = node_id
         self.pos = (float(pos[0]), float(pos[1]))
         self.arms = list(arms)
         self.junction_type = junction_type
-        self.principal_edges = tuple(principal_edges)
 
 
 def corner_radius(street_class):
@@ -329,10 +342,20 @@ RANK_TOL_M = 0.001
 
 
 def default_principal(node):
-    """The computed `principal_edges` default: the two arms of maximal width.
+    """The computed principal pair: the two arms of maximal width, as
+    `principal_start` / `principal_end` claims (§11.3, artist-ratified
+    2026-08-16 — widest pair, continuity is street identity, not bearing).
 
     Tie -> longer, then lexicographic `edge_id` (§11.3, the tongue-rank
     precedent). Artist-authored wins.
+
+    ⚠️ **A PAIR IS TWO STREETS, so the two edge_ids must DIFFER.** A self-loop
+    puts one `edge_id` on two arms, and the naive top-two returned
+    ('E_loop', 'E_loop') — the boolean audit measured it — which downstream
+    collapses to ONE `junction_trims` key and silently drops an arm ("edge_id
+    is not a valid arm key", the recorded M4 defect). So the second pick is the
+    best arm with a DIFFERENT edge_id, and a node whose arms are all one street
+    has no pair at all.
 
     ⚠️ **THE TIE-BREAK ONLY WORKS IF THE TIE IS DETECTED, and on raw floats it
     never is.** Measured on K's third corner: three arms all 14.4 m wide, two of
@@ -351,13 +374,32 @@ def default_principal(node):
                 a.edge_id)
 
     ranked = sorted(node.arms, key=rank)
-    return (ranked[0].edge_id, ranked[1].edge_id)
+    first = ranked[0].edge_id
+    for other in ranked[1:]:
+        if other.edge_id != first:
+            return (first, other.edge_id)
+    return ()                            # every arm is one street: no pair
 
 
 def principal_of(node):
-    """Authored `principal_edges` if present, else the computed default."""
-    authored = tuple(e for e in node.principal_edges if e)
-    return authored if len(authored) == 2 else default_principal(node)
+    """The authored principal pair if the booleans name one, else computed.
+
+    An arm's `principal` flag is `principal_start` / `principal_end` read at
+    this node. The authored channel wins only when it is WELL-FORMED — exactly
+    two arms claiming — which is the artist ruling of 2026-08-16 made
+    mechanical: cardinality is the one failure the boolean shape still permits,
+    `junction_schema` reds it on the geometry, and the planner falls back down
+    to the computed default rather than guessing which of one/three claims was
+    meant.
+
+    Returned sorted by `edge_id` — first-come-first-served on the DETERMINISTIC
+    list, never arm order, which is cook-dependent and flipped K's outcome in
+    three separate audit rounds.
+    """
+    flagged = sorted(a.edge_id for a in node.arms if a.principal)
+    if len(flagged) == 2 and flagged[0] != flagged[1]:
+        return tuple(flagged)
+    return default_principal(node)
 
 
 def junction_trims(node, principal=None, params=DEFAULTS):

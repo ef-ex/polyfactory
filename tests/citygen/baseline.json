@@ -164,13 +164,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 14,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -1393,13 +1394,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 48,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -2617,13 +2619,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 59,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -3858,13 +3861,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 14,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -5076,13 +5080,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 4,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -6260,13 +6265,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 4,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -7450,13 +7456,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 4,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -8640,13 +8647,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 14,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -9864,13 +9872,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 59,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -11089,13 +11098,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 7,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -12299,13 +12309,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 8,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -13517,13 +13528,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 4,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -14703,13 +14715,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 6,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -15896,13 +15909,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 4,
         "schema_source": "plan",
         "typed_non_junction": 0,
@@ -17086,13 +17100,14 @@
       "value": 0
     },
     {
-      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
       "name": "junction_schema",
       "ok": true,
       "skipped": false,
       "value": {
         "bad_principal": 0,
         "bad_vocab": 0,
+        "claims": 0,
         "nodes": 4,
         "schema_source": "plan",
         "typed_non_junction": 0,

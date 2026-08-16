@@ -52,14 +52,17 @@ things no consumer exists to hit yet. One list, because they are one obligation:
     where two exist. **`edge_id` is not a valid arm key.** Zero closed prims on
     all 15 cases and `graph_mark_orphans` deletes any component with no point of
     degree >= 3 — but `closeloop` exists in the trace wrangle, so a closed street
-    is a real object here. `junction_schema` now reds a principal naming the
-    same edge twice, which is the visible symptom, not the cause. **M4 owns the
-    fix.**
-  * `junction_trims`' `if edge_id in trims` guard: without it an authored
-    `principal_edges` naming a non-incident edge is INVENTED into the result at
-    0.0 m. Now pinned by keyset — it was not, which is why it is here.
-  * That the stranger is silently ignored at all is pinned behaviour, NOT an
-    endorsement: warn / raise / fall back is an M4 decision (11.12).
+    is a real object here. Since the boolean rework the SYMPTOM is guarded three
+    ways — `default_principal` skips to a distinct street, `principal_of` falls
+    back on an authored same-id pair, and `junction_schema` reds two claims from
+    one prim — but the CAUSE stands. **M4 owns the fix.**
+  * `junction_trims`' `if edge_id in trims` guard — ⚠️ **API-ONLY since the
+    boolean rework**: `principal_of` can only return edge_ids drawn from the
+    node's own arms, so no geometry or adapter path can produce a stranger any
+    more. The guard and its keyset pin stay because `junction_trims(node,
+    principal=...)` is a public signature M4's builder will call directly, and
+    a stranger passed THERE is still silently ignored — pinned behaviour, not
+    an endorsement; warn / raise / fall back is an M4 decision (11.12).
   * ~~`plan.py` has no consumer~~ — **PAID by M3.** `graph_plan`, a Python SOP
     after `repair_scratch` in the segmenter, is the adapter: geometry -> plain
     data -> `plan.default_junction_type` -> `junction_type` written back on
@@ -416,10 +419,14 @@ class TestKVerdict(unittest.TestCase):
                                          math.dist(p, e["p1"])) < 1e-3) == 2)
 
     def _standing(self, kind, principals=None):
+        """`principals` maps node_id -> the pair to author, realised as the
+        per-arm booleans the 2026-08-16 schema actually ships — the flag an
+        edge carries about itself, not a node-side list."""
         for node in self.nodes:
             node.junction_type = kind
-            node.principal_edges = () if principals is None \
-                else principals[node.node_id]
+            want = () if principals is None else principals[node.node_id]
+            for arm in node.arms:
+                arm.principal = arm.edge_id in want
         trims = plan.graph_trims(self.nodes, self.params)
         return dict((eid, plan.standing(self.edges[eid]["length"], *trims[eid]))
                     for eid in trims)
@@ -460,8 +467,11 @@ class TestKVerdict(unittest.TestCase):
 
     @staticmethod
     def _straightest(node, tol_rad=1e-6):
-        """The pair nearest 180 degrees apart, with the SAME tie-break §11.3
-        needs and for the same reason.
+        """The pair nearest 180 degrees apart — the MEASUREMENT rule that
+        forced the principal decision, kept for the K-verdict tests. ⚠️ Not a
+        candidate default since 2026-08-16: the artist ratified WIDEST pair
+        (§11.3, continuity is street identity, not bearing). Same tie-break
+        discipline as the shipped rule, for the same reason.
 
         ⚠️ Without a tie-break this rule is undefined on K. Node C is exactly
         symmetric — |CA| = |CB| = 32.249031 and the third arm runs along the
@@ -503,8 +513,11 @@ class TestKVerdict(unittest.TestCase):
     def test_the_straightest_rule_does_not_depend_on_ARM_ORDER(self):
         """⚠️ THE DEFECT ROUND 2 FOUND IN ROUND 1's FIX, pinned at its root.
 
-        A rule §11.3 recommends to the artist as a computed default may not
-        depend on the order `pointprims()` hands back its arms. Asserted over
+        No pair-ranking rule here may depend on the order `pointprims()`
+        hands back its arms — measured across three audit rounds as the
+        coin-flip that flipped K. (When this was written the straightest rule
+        was a candidate default; §11.3 has since ratified WIDEST, and this
+        family stays as the K-verdict measurement.) Asserted over
         every ordering of K's node C — the exactly-symmetric one — and over a
         symmetric X where two pairs are exactly 180 degrees apart, which is the
         case that has no float noise to hide behind at all.
@@ -567,8 +580,10 @@ class TestKVerdict(unittest.TestCase):
         K's third corner offers two equally-straight pairs. Take the other one
         and A–C goes back to -6.651 m: the straightest-pair rule dissolves K
         only with a tie-break, and the tie-break that happens to work is the
-        lexicographic `edge_id` — which is luck, not a reason. Whoever ships a
-        computed default (11.12) has to decide this on purpose.
+        lexicographic `edge_id` — which is luck, not a reason. Decided
+        2026-08-16 (§11.12): the shipping rule is WIDEST pair with the
+        first-by-`edge_id` tie-break; this measurement family stays because it
+        is what showed the rule decides K's outcome.
 
         ⚠️ The two pairs are named outright, exactly as §11.4's table names
         them. Deriving "the other one" by position — which this test used to do
@@ -988,15 +1003,69 @@ class TestPrincipal(unittest.TestCase):
 
     def test_authored_beats_computed(self):
         node = plan.Node("n", (0, 0), self._arms(
-            [("a", 14.4, 100.0), ("b", 26.8, 50.0), ("c", 15.1, 200.0)]),
-            principal_edges=("a", "c"))
+            [("a", 14.4, 100.0), ("b", 26.8, 50.0), ("c", 15.1, 200.0)]))
+        for arm in node.arms:
+            arm.principal = arm.edge_id in ("a", "c")
         self.assertEqual(plan.principal_of(node), ("a", "c"))
 
     def test_a_half_authored_pair_falls_back_rather_than_shipping_one_arm(self):
+        """Cardinality is the ONE failure the boolean shape still permits — one
+        arm claiming, or three. Both fall back to the computed default rather
+        than guessing which claim was meant; `junction_schema` reds the geometry
+        so the fallback cannot pass silently."""
         node = plan.Node("n", (0, 0), self._arms(
-            [("a", 14.4, 100.0), ("b", 26.8, 50.0), ("c", 15.1, 200.0)]),
-            principal_edges=("a", ""))
+            [("a", 14.4, 100.0), ("b", 26.8, 50.0), ("c", 15.1, 200.0)]))
+        node.arms[0].principal = True                      # one claim
         self.assertEqual(plan.principal_of(node), ("b", "c"))
+        for arm in node.arms:                              # three claims
+            arm.principal = True
+        self.assertEqual(plan.principal_of(node), ("b", "c"))
+
+    def test_a_pair_is_two_STREETS_so_a_self_loop_cannot_be_both_of_them(self):
+        """⚠️ THE STATE THE BOOLEAN REWORK'S AUDIT FOUND UNGUARDED. A self-loop
+        puts one `edge_id` on two arms, and the naive top-two returned
+        ('E_loop', 'E_loop') — a "pair" that is one street twice, which
+        `junction_trims` collapses to ONE dict key, silently dropping an arm
+        (the recorded M4 defect: `edge_id` is not a valid arm key). The
+        computed default now skips to the best arm of a DIFFERENT street, and a
+        node whose arms are all one street has no pair at all.
+
+        Unreachable from today's geometry (0 closed prims on all 15 cases,
+        `graph_mark_orphans` deletes loop-only components) — asserted here at
+        the planner level because that is where the defect lives; the committed
+        scene case arrives with M4, when loops become reachable.
+        """
+        loop_wide = plan.Arm("E_loop", (1.0, 0.0), 26.8, "arterial", 60.0)
+        loop_back = plan.Arm("E_loop", (0.0, 1.0), 26.8, "arterial", 60.0,
+                             at_start=False)
+        street = plan.Arm("E_street", (-1.0, 0.0), 14.4, "local", 100.0)
+        node = plan.Node("n", (0, 0), [loop_wide, loop_back, street])
+        self.assertEqual(plan.default_principal(node), ("E_loop", "E_street"))
+        # ...and a node that is ONLY the loop has no pair, rather than a fake one
+        only_loop = plan.Node("n", (0, 0), [loop_wide, loop_back])
+        self.assertEqual(plan.default_principal(only_loop), ())
+        # ⚠️ The AUTHORED channel has the same trap and got its guard unasserted
+        # — round 2 of the rework audit deleted `principal_of`'s
+        # `flagged[0] != flagged[1]` and 45 tests stayed green while an authored
+        # self-loop returned ('E_loop', 'E_loop'). Author both loop arms:
+        # cardinality is 2 but the street count is 1, so the authored channel
+        # must fall through to the computed default, not honour the fake pair.
+        loop_wide.principal = True
+        loop_back.principal = True
+        self.assertEqual(plan.principal_of(node), ("E_loop", "E_street"))
+        self.assertEqual(plan.principal_of(only_loop), ())
+
+    def test_the_authored_pair_returns_in_edge_id_order_not_arm_order(self):
+        """First-come-first-served on the DETERMINISTIC list (artist ruling,
+        2026-08-16). Arm order is cook order, and three audit rounds measured a
+        cook reorder flipping K's outcome — so the authored pair comes back
+        sorted by `edge_id` whatever order the arms arrived in."""
+        node = plan.Node("n", (0, 0), self._arms(
+            [("z_late", 14.4, 100.0), ("a_early", 26.8, 50.0),
+             ("m_mid", 15.1, 200.0)]))
+        for arm in node.arms:
+            arm.principal = arm.edge_id in ("z_late", "a_early")
+        self.assertEqual(plan.principal_of(node), ("a_early", "z_late"))
 
 
 class TestJunctionType(unittest.TestCase):
@@ -1069,13 +1138,14 @@ class TestJunctionType(unittest.TestCase):
     def test_an_authored_principal_naming_a_stranger_is_silently_IGNORED(self):
         """⚠️ PINS TODAY'S BEHAVIOUR, WHICH IS PROBABLY NOT THE RIGHT ONE.
 
-        `principal_edges` is an artist attribute (§11.1 rule 4), so a typo — or
-        an edge_id that stopped being incident after a repair pass — is the live
-        failure, not a hypothetical. Today `junction_trims` skips the name it
-        cannot find and the arm silently keeps a full crossing trim, with
-        nothing said. Whether that should warn, raise, or fall back to the
-        computed default is an M4 builder-contract decision (11.12); until then
-        the behaviour is at least asserted rather than accidental.
+        Under the retired string schema a typo was the LIVE failure. The boolean
+        rework abolished that path — `principal_of` can only return edge_ids
+        drawn from the node's own arms — so what this pins now is the PUBLIC
+        `junction_trims(node, principal=...)` signature M4's builder calls
+        directly: the one place a stranger can still arrive, where it is skipped
+        and the arm silently keeps a full crossing trim, with nothing said.
+        Whether that should warn, raise, or fall back is an M4 builder-contract
+        decision (11.12); until then the behaviour is asserted, not accidental.
         """
         node = plan.Node("j", (0, 0), [
             plan.Arm("east", (1, 0), 26.8, "arterial", 200.0),

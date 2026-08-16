@@ -2489,7 +2489,7 @@ ROAD_POINT_ATTRS = ("elem_type", "elem_index", "u_cross", "drivable", "walkable"
 JUNCTION_TYPE_VOCAB = ("", "crossing", "junction", "merge", "roundabout")
 
 
-_SCHEMA_FALLBACK = ("junction_type", "principal_edges")
+_SCHEMA_FALLBACK = (("junction_type",), ("principal_start", "principal_end"))
 
 
 def _node_schema_attrs():
@@ -2513,9 +2513,11 @@ def _node_schema_attrs():
     """
     try:
         from polyfactory.citygen import plan
-        return tuple(plan.NODE_SCHEMA_ATTRS), "plan"
+        return (tuple(plan.NODE_SCHEMA_ATTRS), tuple(plan.EDGE_SCHEMA_ATTRS),
+                "plan")
     except Exception as exc:
-        return _SCHEMA_FALLBACK, "fallback:%s" % type(exc).__name__
+        return (_SCHEMA_FALLBACK[0], _SCHEMA_FALLBACK[1],
+                "fallback:%s" % type(exc).__name__)
 
 
 def _schema_str(pt, attrib):
@@ -2534,8 +2536,35 @@ def _schema_str(pt, attrib):
     return v if isinstance(v, str) else repr(v)
 
 
+def _schema_flag(prim, attrib):
+    """A principal boolean, read so no authored TYPE can raise.
+
+    The retired string schema crashed the whole gate on `i@principal_edges`;
+    the boolean schema must not crash on `s@principal_start`. A string that is
+    not empty and not "0" counts as a claim — the artist meant SOMETHING, and
+    cardinality (not parsing) is where a malformed claim gets its red row.
+
+    Known misreads, measured, all erring RED: the strings "0.0", "no" and
+    "false", and any tuple value (including a zero vector) count as claims. A
+    float 0.0 reads correctly as no claim. A prim on a geometry that lacks the
+    attribute entirely makes `attribValue` RAISE OperationFailed — the except
+    returns False, so the verdict is right by the guard, not by a default read.
+    """
+    try:
+        v = prim.attribValue(attrib)
+    except Exception:
+        return False
+    if isinstance(v, str):
+        return v.strip() not in ("", "0")
+    try:
+        return bool(v)
+    except Exception:
+        return False
+
+
 def junction_schema(graph_geo):
-    """§11.3's `junction_type` / `principal_edges`, and whether they MEAN anything.
+    """§11.3's node schema — `junction_type` and the principal booleans — and
+    whether they MEAN anything.
 
     ⚠️ **A CLOSED VOCABULARY CANNOT DETECT EVERYTHING BEING RELABELLED TO ONE OF
     ITS MEMBERS** — that is `LOT_REJECT_VOCAB`'s lesson, where an auditor
@@ -2552,32 +2581,55 @@ def junction_schema(graph_geo):
         `s5j_solve` builds nothing. `""` and "decide for me" are the same string
         (§11.3), so DEGREE is what tells them apart and this is the assertion
         that makes the pairing real rather than decorative.
-      * `bad_principal` — `principal_edges` that is not exactly two
-        space-separated `edge_id`s, both incident to that node. An artist typo,
-        or an edge_id that stopped being incident after a repair pass, is the
-        live failure — and `plan.junction_trims` silently ignores a stranger, so
-        nothing downstream would say a word.
+      * `bad_principal` — wrong CARDINALITY. Since the artist ruling of
+        2026-08-16 the principal is `principal_start` / `principal_end`, INT
+        booleans on the PRIM — a flag an edge carries about itself, so the
+        string shape's whole failure class (a stranger edge, the same edge
+        twice, one edge of two, an int that crashed `.split()`) is not
+        expressible. What remains expressible is a claim COUNT that is not 0
+        or 2 at a node, and a claim at the end of an edge whose node has no
+        plate (degree < 3). `plan.principal_of` falls back to the computed
+        default on wrong cardinality rather than guessing, so this term is the
+        only thing that stops that fallback passing silently.
 
-    M3 writes `crossing` at every junction and leaves `principal_edges` empty
+    M3 writes `crossing` at every junction and leaves both booleans at 0
     everywhere, so `bad_principal` has nothing to bite on YET. It is written
     now because M4 is the milestone that starts authoring principals, and a
     check added after the mechanism cannot show the mechanism was ever right.
     """
     name = "junction_schema"
-    _names, _src = _node_schema_attrs()
-    for _a in _names:
+    _pt_names, _pr_names, _src = _node_schema_attrs()
+    for _a in _pt_names:
         if graph_geo.findPointAttrib(_a) is None:
             return Result(name, False, "%s attribute missing" % _a,
                           "the adapter did not run")
+    for _a in _pr_names:
+        if graph_geo.findPrimAttrib(_a) is None:
+            return Result(name, False, "%s attribute missing" % _a,
+                          "the adapter did not run")
 
-    edges_at = {}
+    # claims per node: for every prim, which end sits on which point, and does
+    # the boolean at that end claim principal-ness. `pts[0]` is the start end —
+    # the same rule `s5j_solve`, the adapter and `dump_trims` all use.
+    # per node: WHICH prims claim, not just how many. A closed street claiming
+    # at both of its own ends is two claims from ONE street — a "pair" that is
+    # one street twice, which the string era reddened and the first boolean
+    # cardinality count let through (measured by the rework audit). Two claims
+    # only make a pair when they come from two DIFFERENT prims.
+    claims_at = {}
+    total_claims = 0
     for pr in graph_geo.prims():
-        try:
-            eid = pr.attribValue("edge_id")
-        except Exception:
+        vtx = pr.vertices()
+        if len(vtx) < 2:
             continue
-        for v in pr.vertices():
-            edges_at.setdefault(v.point().number(), set()).add(eid)
+        p0 = vtx[0].point().number()
+        p1 = vtx[-1].point().number()
+        if _schema_flag(pr, _pr_names[0]):          # principal_start
+            claims_at.setdefault(p0, []).append(pr.number())
+            total_claims += 1
+        if _schema_flag(pr, _pr_names[1]):          # principal_end
+            claims_at.setdefault(p1, []).append(pr.number())
+            total_claims += 1
 
     bad_vocab, untyped, typed_low, bad_principal = [], [], [], []
     counts, nodes = {}, 0
@@ -2597,19 +2649,29 @@ def junction_schema(graph_geo):
             untyped.append(pt.number())
         elif deg < 3 and jt != "":
             typed_low.append((pt.number(), deg, jt))
-        # ⚠️ THREE WAYS TO BE WRONG, and the first version caught only one.
-        # "two space-separated edge_ids, both incident" left `E_7 E_7` passing —
-        # a pair that is one street twice — and left a principal on a dead end
-        # passing, because only `junction_type` was degree-paired. Both were
-        # measured green through the real adapter path before this line grew.
-        pe = _schema_str(pt, "principal_edges").split()
-        if pe and (len(pe) != 2
-                   or len(set(pe)) != 2
-                   or deg < 3
-                   or any(e not in edges_at.get(pt.number(), ()) for e in pe)):
-            bad_principal.append((pt.number(), deg, pe))
+        # Cardinality, the one failure the boolean shape still permits — plus
+        # the degree pairing the string shape's audit added: a claim at a node
+        # with no plate is wrong however many claims there are.
+        claiming = claims_at.pop(pt.number(), [])
+        nclaims = len(claiming)
+        if (nclaims not in (0, 2) or (nclaims and deg < 3)
+                or len(set(claiming)) != nclaims):
+            bad_principal.append((pt.number(), deg, nclaims))
 
+    # ...and whatever `claims_at` still holds is a claim at a prim end that is
+    # NOT an is_node point. Graph prims run node-to-node (§9), so this is
+    # unreachable from a healthy graph — which is exactly the state the is_node
+    # loop above cannot see, the same blind spot `untyped_plated` closes for
+    # `junction_type`.
+    for ptnum, claiming in sorted(claims_at.items()):
+        bad_principal.append((ptnum, "non-node", len(claiming)))
+
+    # `claims` is the principal's pin, the way `types` pins `junction_type`:
+    # without it, flipping the computed principal default on (M4) would move
+    # ZERO baseline values, and §11.9's "the gate movement is its own diff"
+    # promise would be false for exactly the attribute it was written for.
     val = {"nodes": nodes, "types": dict(sorted(counts.items())),
+           "claims": total_claims,
            "bad_vocab": len(bad_vocab), "untyped_junction": len(untyped),
            "typed_non_junction": len(typed_low),
            "bad_principal": len(bad_principal), "schema_source": _src}
@@ -2623,7 +2685,8 @@ def junction_schema(graph_geo):
                       % len(graph_geo.prims()))
     ok = not (bad_vocab or untyped or typed_low or bad_principal)
     detail = "§11.3 node schema: vocabulary closed, every junction typed, " \
-             "no type on a node with no plate, principals incident and paired"
+             "no type on a node with no plate, principal claims 0-or-2 per " \
+             "node and only where a plate is built"
     if not ok:
         detail = "vocab %s untyped %s typed_low %s principal %s" % (
             bad_vocab[:3], untyped[:3], typed_low[:3], bad_principal[:3])
@@ -2647,16 +2710,19 @@ FOUR terms. It started with two — one per half of the leak as it was first
     found — and two audit rounds added the rest, each because an injection walked
     past what was there:
 
-      * `leaked` — the attributes must be ABSENT from city, blocks and lots on
-        points, VERTICES, prims and detail, and from the GRAPH on everything but
-        points. Vertex is in that list because `out_detailclean` had the same
-        hole (`dovtxdel on`, `vtxdel ""`), and the graph's prim/detail because a
-        `junction_type` PRIM attribute on the graph was invisible to both checks.
-      * `off_node` — on the graph, a non-empty value of EITHER attribute may only
-        sit on an `is_node` point. `junction_type` alone was not enough:
-        `principal_edges` on all 497 shape points left this check and
-        `junction_schema` both green, which is the leak shape this check exists
-        for, on the attribute M4 starts writing.
+      * `leaked` — every (attribute, class) pair except each attribute's own
+        HOME is a leak, on all four geometries and all four classes. Two homes
+        since the 2026-08-16 boolean ruling: `junction_type` on graph POINTS,
+        `principal_start`/`principal_end` on graph PRIMS. Vertex is scanned
+        because `out_detailclean` had the same hole (`dovtxdel on`, `vtxdel
+        ""`); the retired `principal_edges` stays on the list because nothing
+        creates it any more, so its appearance anywhere means something stale
+        is writing it.
+      * `off_node` — on the graph, a non-empty `junction_type` may only sit on
+        an `is_node` point (497 shape points once wore a value while
+        `junction_schema`, which reads nodes only, stayed green). The principal
+        booleans' equivalent lives in `junction_schema`'s claim accounting,
+        because they are prim-class.
       * `untyped_plated` — any point with 3+ incident prims that is not a typed
         node. Both checks select their population by `is_node`, which is the same
         attribute `graph_plan` selects by, so a cleared `is_node` hid a junction
@@ -2671,28 +2737,41 @@ FOUR terms. It started with two — one per half of the leak as it was first
         because the import path was wrong, and a value-identical fallback hid it.
     """
     name = "node_schema_stays_on_the_graph"
-    names, src = _node_schema_attrs()
+    pt_names, pr_names, src = _node_schema_attrs()
 
-    missing = [a for a in names if graph_geo.findPointAttrib(a) is None]
+    missing = [a for a in pt_names if graph_geo.findPointAttrib(a) is None]
+    missing += [a for a in pr_names if graph_geo.findPrimAttrib(a) is None]
     leaked = []
     # ⚠️ VERTEX is in this tuple because `out_detailclean` has the same hole:
     # it runs with `dovtxdel on` and `vtxdel ""`, so an attribute promoted to
     # vertices would be neither deleted nor noticed. And the GRAPH is scanned
-    # too, for prim and detail — the first version looked at city/blocks/lots
-    # only, so a `junction_type` PRIM attribute on the graph was invisible to
-    # both checks.
+    # too — every (name, class) except each attribute's own HOME is a leak.
+    # Since the 2026-08-16 ruling the schema has TWO homes: `junction_type`
+    # lives on graph POINTS, the principal booleans live on graph PRIMS, so a
+    # point-class `principal_start` on the graph is a leak exactly as a
+    # prim-class `junction_type` is. The retired `principal_edges` stays on the
+    # scan list: nothing creates it any more, so anywhere it appears something
+    # stale is writing it.
     kinds = (("point", "findPointAttrib"), ("vertex", "findVertexAttrib"),
              ("prim", "findPrimAttrib"), ("detail", "findGlobalAttrib"))
-    for label, geo, skip_point in (("city", city_geo, False),
-                                   ("blocks", blocks_geo, False),
-                                   ("lots", lots_geo, False),
-                                   ("graph", graph_geo, True)):
+    home = {("graph", "point"): set(pt_names),
+            ("graph", "prim"): set(pr_names)}
+    # ...plus the retired string form AND §11.3's designed-but-unbuilt M4
+    # authoring attribute. `principal_priority` is scanned BEFORE it exists for
+    # the same reason `bad_principal` was written before authoring existed: a
+    # check added after the mechanism cannot show the mechanism was ever right,
+    # and the spec invented the name in the same revision that invented this
+    # scan. (The cleaner's masks cover it with a `principal_*` wildcard.)
+    all_names = (tuple(pt_names) + tuple(pr_names)
+                 + ("principal_edges", "principal_priority"))
+    for label, geo in (("city", city_geo), ("blocks", blocks_geo),
+                       ("lots", lots_geo), ("graph", graph_geo)):
         if geo is None:
             continue
-        for a in names:
+        for a in all_names:
             for kind, finder in kinds:
-                if skip_point and kind == "point":
-                    continue            # the graph is where they belong
+                if a in home.get((label, kind), ()):
+                    continue            # this is where it belongs
                 find = getattr(geo, finder, None)
                 if find is not None and find(a) is not None:
                     leaked.append("%s.%s.%s" % (label, kind, a))
@@ -2706,13 +2785,14 @@ FOUR terms. It started with two — one per half of the leak as it was first
                 node = False
             if node:
                 continue
-            # ⚠️ BOTH attributes. The first version tested `junction_type`
-            # only, and `principal_edges` written onto all 497 non-node points
-            # of A_drawn left this check and `junction_schema` BOTH green — the
-            # very leak shape this check was created for, on the attribute M4
-            # starts writing. `resample` interpolates point attributes onto the
-            # points it creates, which is how it would happen.
-            if any(_schema_str(pt, a) for a in names):
+            # A non-empty `junction_type` may only sit on an `is_node` point —
+            # `resample` interpolates point attributes onto the points it
+            # creates, which is how 497 shape points once wore a value while
+            # `junction_schema` (nodes only) stayed green. The principal
+            # booleans are PRIM class since 2026-08-16, so their equivalent of
+            # this term is `junction_schema`'s non-node claim accounting plus
+            # the point-class leak scan above.
+            if any(_schema_str(pt, a) for a in pt_names):
                 off_node += 1
 
     # ...and the population the ADAPTER typed must be the population the BUILDER
