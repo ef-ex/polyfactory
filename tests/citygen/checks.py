@@ -2484,6 +2484,262 @@ EDGE_ATTRS = ("edge_id", "street_class", "street_template", "streetWidth",
 ROAD_POINT_ATTRS = ("elem_type", "elem_index", "u_cross", "drivable", "walkable")
 
 
+# §11.3's node schema. Reserved members are listed even though nothing builds
+# them: `roundabout` is vocabulary-only by design, and `merge` arrives with M5.
+JUNCTION_TYPE_VOCAB = ("", "crossing", "junction", "merge", "roundabout")
+
+
+_SCHEMA_FALLBACK = ("junction_type", "principal_edges")
+
+
+def _node_schema_attrs():
+    """The schema's attribute names, from `plan.py` — one definition, not three.
+
+    Imported lazily because `cases.setup_env()` is what puts the polyfactory
+    package on `sys.path`, and it runs after this module is imported.
+
+    ⚠️ **THE FIRST VERSION IMPORTED `citygen.plan` AND NEVER RESOLVED.**
+    `setup_env` adds `.../scripts/python`, which makes `polyfactory.citygen.plan`
+    importable and `citygen.plan` never — the shorter form was copied from
+    `test_plan.py`, which inserts the deeper path. So the shared constant was
+    inert on every call and the set was still spelled out in three places, which
+    is precisely the hazard it was added to abolish. It went unnoticed because
+    the fallback is value-identical **today**, and M4 is the milestone that adds
+    an attribute.
+
+    Which is why the source is now REPORTED rather than swallowed: the checks
+    put `schema_source` in their recorded value, so falling back to the literal
+    moves a baseline number instead of hiding behind a bare `except`.
+    """
+    try:
+        from polyfactory.citygen import plan
+        return tuple(plan.NODE_SCHEMA_ATTRS), "plan"
+    except Exception as exc:
+        return _SCHEMA_FALLBACK, "fallback:%s" % type(exc).__name__
+
+
+def _schema_str(pt, attrib):
+    """A schema value as a string, whatever type it was authored as.
+
+    ⚠️ An artist writing `i@principal_edges` instead of `s@` used to take the
+    WHOLE GATE down: `.split()` on an int raised out of `run_case` and all 15
+    cases were lost with no JSON and no baseline compare. A wrong type is a red
+    row, not a dead run — and the asymmetry was the tell, because a mistyped
+    `junction_type` was already handled gracefully as `bad_vocab`.
+    """
+    try:
+        v = pt.attribValue(attrib)
+    except Exception:
+        return ""
+    return v if isinstance(v, str) else repr(v)
+
+
+def junction_schema(graph_geo):
+    """§11.3's `junction_type` / `principal_edges`, and whether they MEAN anything.
+
+    ⚠️ **A CLOSED VOCABULARY CANNOT DETECT EVERYTHING BEING RELABELLED TO ONE OF
+    ITS MEMBERS** — that is `LOT_REJECT_VOCAB`'s lesson, where an auditor
+    relabelled every rejection "area" and the suite stayed green. So membership
+    is only the first of four terms here, and the other three tie each value to
+    something independently measurable:
+
+      * `bad_vocab` — a value outside the vocabulary.
+      * `untyped_junction` — a node of degree >= 3 with no type. The planner
+        must decide every node that gets a plate; `""` there means the adapter
+        did not run, which is exactly how a silently-bypassed Python SOP would
+        look.
+      * `typed_non_junction` — a type on a node of degree < 3, where
+        `s5j_solve` builds nothing. `""` and "decide for me" are the same string
+        (§11.3), so DEGREE is what tells them apart and this is the assertion
+        that makes the pairing real rather than decorative.
+      * `bad_principal` — `principal_edges` that is not exactly two
+        space-separated `edge_id`s, both incident to that node. An artist typo,
+        or an edge_id that stopped being incident after a repair pass, is the
+        live failure — and `plan.junction_trims` silently ignores a stranger, so
+        nothing downstream would say a word.
+
+    M3 writes `crossing` at every junction and leaves `principal_edges` empty
+    everywhere, so `bad_principal` has nothing to bite on YET. It is written
+    now because M4 is the milestone that starts authoring principals, and a
+    check added after the mechanism cannot show the mechanism was ever right.
+    """
+    name = "junction_schema"
+    _names, _src = _node_schema_attrs()
+    for _a in _names:
+        if graph_geo.findPointAttrib(_a) is None:
+            return Result(name, False, "%s attribute missing" % _a,
+                          "the adapter did not run")
+
+    edges_at = {}
+    for pr in graph_geo.prims():
+        try:
+            eid = pr.attribValue("edge_id")
+        except Exception:
+            continue
+        for v in pr.vertices():
+            edges_at.setdefault(v.point().number(), set()).add(eid)
+
+    bad_vocab, untyped, typed_low, bad_principal = [], [], [], []
+    counts, nodes = {}, 0
+    for pt in graph_geo.points():
+        try:
+            if pt.attribValue("is_node") != 1:
+                continue
+        except Exception:
+            continue
+        nodes += 1
+        jt = _schema_str(pt, "junction_type")
+        deg = len(pt.prims())
+        counts[jt] = counts.get(jt, 0) + 1
+        if jt not in JUNCTION_TYPE_VOCAB:
+            bad_vocab.append((pt.number(), jt))
+        elif deg >= 3 and jt == "":
+            untyped.append(pt.number())
+        elif deg < 3 and jt != "":
+            typed_low.append((pt.number(), deg, jt))
+        # ⚠️ THREE WAYS TO BE WRONG, and the first version caught only one.
+        # "two space-separated edge_ids, both incident" left `E_7 E_7` passing —
+        # a pair that is one street twice — and left a principal on a dead end
+        # passing, because only `junction_type` was degree-paired. Both were
+        # measured green through the real adapter path before this line grew.
+        pe = _schema_str(pt, "principal_edges").split()
+        if pe and (len(pe) != 2
+                   or len(set(pe)) != 2
+                   or deg < 3
+                   or any(e not in edges_at.get(pt.number(), ()) for e in pe)):
+            bad_principal.append((pt.number(), deg, pe))
+
+    val = {"nodes": nodes, "types": dict(sorted(counts.items())),
+           "bad_vocab": len(bad_vocab), "untyped_junction": len(untyped),
+           "typed_non_junction": len(typed_low),
+           "bad_principal": len(bad_principal), "schema_source": _src}
+    # ⚠️ AND THE WHOLE CHECK PASSES VACUOUSLY ON A GRAPH WITH NO NODES: destroy
+    # `is_node` and every term above reads 0 because the loop never runs. Same
+    # shape as the three checks that went green on 2026-08-15 while K's graph was
+    # EMPTY. A graph with streets has junctions.
+    if len(graph_geo.prims()) > 0 and nodes == 0:
+        return Result(name, False, val,
+                      "no is_node points on a graph with %d prims"
+                      % len(graph_geo.prims()))
+    ok = not (bad_vocab or untyped or typed_low or bad_principal)
+    detail = "§11.3 node schema: vocabulary closed, every junction typed, " \
+             "no type on a node with no plate, principals incident and paired"
+    if not ok:
+        detail = "vocab %s untyped %s typed_low %s principal %s" % (
+            bad_vocab[:3], untyped[:3], typed_low[:3], bad_principal[:3])
+    return Result(name, ok, val, detail)
+
+
+def node_schema_stays_on_the_graph(graph_geo, city_geo, blocks_geo, lots_geo):
+    """§11.3's attributes belong to graph NODES and to nothing else.
+
+    ⚠️ **THIS IS THE DETECTOR FOR A FIX THAT SHIPPED WITHOUT ONE.** M3's adapter
+    leaked `junction_type` / `principal_edges` onto all 5568 city points, and
+    that was found by probing the outputs by hand — no check could see it, then
+    or after the fix. Measured on frozen copies of the shipped geometry with the
+    leak re-added: `no_scratch_attribs_city` returns **PASS 0** (it is called
+    with `None, None`, so point attributes on the city are deliberately
+    unpoliced) and `attribute_schema` returns **PASS 0** (it counts only MISSING
+    attributes). Clear `out_detailclean`'s `ptdel` and the whole suite stays
+    green.
+
+FOUR terms. It started with two — one per half of the leak as it was first
+    found — and two audit rounds added the rest, each because an injection walked
+    past what was there:
+
+      * `leaked` — the attributes must be ABSENT from city, blocks and lots on
+        points, VERTICES, prims and detail, and from the GRAPH on everything but
+        points. Vertex is in that list because `out_detailclean` had the same
+        hole (`dovtxdel on`, `vtxdel ""`), and the graph's prim/detail because a
+        `junction_type` PRIM attribute on the graph was invisible to both checks.
+      * `off_node` — on the graph, a non-empty value of EITHER attribute may only
+        sit on an `is_node` point. `junction_type` alone was not enough:
+        `principal_edges` on all 497 shape points left this check and
+        `junction_schema` both green, which is the leak shape this check exists
+        for, on the attribute M4 starts writing.
+      * `untyped_plated` — any point with 3+ incident prims that is not a typed
+        node. Both checks select their population by `is_node`, which is the same
+        attribute `graph_plan` selects by, so a cleared `is_node` hid a junction
+        from the adapter AND from every assertion about it at once — while
+        `s5j_solve`, which reads `len(pointprims) >= 3` and never `is_node`,
+        still built a plate there. ⚠️ It therefore INHERITS the builder's own
+        self-loop blind spot: a closed street contributes one prim, so a 3-arm
+        junction made of a loop plus one street reads degree 2 to both. M4 owns
+        that (`edge_id` is not a valid arm key).
+      * `schema_source` — which definition of the attribute set was used. See
+        `_node_schema_attrs`: the shared constant was inert for a whole round
+        because the import path was wrong, and a value-identical fallback hid it.
+    """
+    name = "node_schema_stays_on_the_graph"
+    names, src = _node_schema_attrs()
+
+    missing = [a for a in names if graph_geo.findPointAttrib(a) is None]
+    leaked = []
+    # ⚠️ VERTEX is in this tuple because `out_detailclean` has the same hole:
+    # it runs with `dovtxdel on` and `vtxdel ""`, so an attribute promoted to
+    # vertices would be neither deleted nor noticed. And the GRAPH is scanned
+    # too, for prim and detail — the first version looked at city/blocks/lots
+    # only, so a `junction_type` PRIM attribute on the graph was invisible to
+    # both checks.
+    kinds = (("point", "findPointAttrib"), ("vertex", "findVertexAttrib"),
+             ("prim", "findPrimAttrib"), ("detail", "findGlobalAttrib"))
+    for label, geo, skip_point in (("city", city_geo, False),
+                                   ("blocks", blocks_geo, False),
+                                   ("lots", lots_geo, False),
+                                   ("graph", graph_geo, True)):
+        if geo is None:
+            continue
+        for a in names:
+            for kind, finder in kinds:
+                if skip_point and kind == "point":
+                    continue            # the graph is where they belong
+                find = getattr(geo, finder, None)
+                if find is not None and find(a) is not None:
+                    leaked.append("%s.%s.%s" % (label, kind, a))
+
+    off_node = 0
+    if not missing:
+        for pt in graph_geo.points():
+            try:
+                node = pt.attribValue("is_node") == 1
+            except Exception:
+                node = False
+            if node:
+                continue
+            # ⚠️ BOTH attributes. The first version tested `junction_type`
+            # only, and `principal_edges` written onto all 497 non-node points
+            # of A_drawn left this check and `junction_schema` BOTH green — the
+            # very leak shape this check was created for, on the attribute M4
+            # starts writing. `resample` interpolates point attributes onto the
+            # points it creates, which is how it would happen.
+            if any(_schema_str(pt, a) for a in names):
+                off_node += 1
+
+    # ...and the population the ADAPTER typed must be the population the BUILDER
+    # plates. Both checks select on `is_node`, which is the same attribute
+    # `graph_plan` selects on — so a stale or cleared `is_node` hides a junction
+    # from the adapter and from every assertion about it at once, while
+    # `s5j_solve` (which reads `len(pointprims) >= 3`, never `is_node`) still
+    # builds a plate there. §11.9 claims these populations are equal; this is
+    # the claim asserted rather than restated.
+    hidden = []
+    for pt in graph_geo.points():
+        deg = len(pt.prims())
+        try:
+            node = pt.attribValue("is_node") == 1
+        except Exception:
+            node = False
+        if deg >= 3 and not (node and _schema_str(pt, "junction_type")):
+            hidden.append(pt.number())
+
+    val = {"leaked": leaked, "off_node": off_node, "missing": missing,
+           "untyped_plated": len(hidden), "schema_source": src}
+    ok = not (leaked or off_node or missing or hidden)
+    return Result(name, ok, val,
+                  "the node schema lives on graph nodes and nowhere else, and "
+                  "every node the builder plates carries one")
+
+
 def attribute_schema(graph_geo, road_geo):
     """Conformance with the schema table. Identity must survive to the final
     geometry, not merely exist at generation time (citygen.md Contract 2)."""

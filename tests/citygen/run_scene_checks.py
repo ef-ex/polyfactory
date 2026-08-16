@@ -115,6 +115,15 @@ def run_case(name, built, field=None):
     # pass must have run itself out, not merely run once
     out.append(C.graph_reaches_a_fixed_point(trace))
     out.append(C.attribute_schema(g_graph, g_city))
+    # ...and §11.3's node schema, which the M3 adapter writes. Separate from
+    # attribute_schema because that one only counts MISSING attributes: it
+    # cannot see a value outside the vocabulary, or a junction nobody typed.
+    out.append(C.junction_schema(g_graph))
+    # ...and the leak detector. `junction_schema` reads only NODES on the GRAPH,
+    # so it is blind to the two ways M3's attributes escaped: onto every city
+    # point, and onto graph points that are not nodes.
+    out.append(C.node_schema_stays_on_the_graph(g_graph, g_city, g_blocks,
+                                                g_lots))
     # ...and that the mesh's input 0 is load-bearing at all. An audit measured
     # a 2.5 m jitter on it against three prim counts, saw nothing move and
     # called the input dead; output 3 is a pass-through of it. See the check.

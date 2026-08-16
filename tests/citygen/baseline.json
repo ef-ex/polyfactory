@@ -164,6 +164,37 @@
       "value": 0
     },
     {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 14,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 8,
+          "crossing": 6
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
+    },
+    {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
@@ -1362,6 +1393,37 @@
       "value": 0
     },
     {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 48,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 17,
+          "crossing": 31
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
+    },
+    {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
@@ -2553,6 +2615,37 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 59,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 12,
+          "crossing": 47
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
     },
     {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
@@ -3765,6 +3858,37 @@
       "value": 0
     },
     {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 14,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 8,
+          "crossing": 6
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
+    },
+    {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
@@ -4952,6 +5076,37 @@
       "value": 0
     },
     {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 4,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 3,
+          "crossing": 1
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
+    },
+    {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
@@ -6103,6 +6258,37 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 4,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 3,
+          "crossing": 1
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
     },
     {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
@@ -7264,6 +7450,37 @@
       "value": 0
     },
     {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 4,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 3,
+          "crossing": 1
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
+    },
+    {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
@@ -8421,6 +8638,37 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 14,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 8,
+          "crossing": 6
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
     },
     {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
@@ -9614,6 +9862,37 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 59,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 12,
+          "crossing": 47
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
     },
     {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
@@ -10810,6 +11089,37 @@
       "value": 0
     },
     {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 7,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 5,
+          "crossing": 2
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
+    },
+    {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
@@ -11987,6 +12297,37 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 8,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 5,
+          "crossing": 3
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
     },
     {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
@@ -13176,6 +13517,37 @@
       "value": 0
     },
     {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 4,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 3,
+          "crossing": 1
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
+    },
+    {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
@@ -14329,6 +14701,37 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 6,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 4,
+          "crossing": 2
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
     },
     {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
@@ -15493,6 +15896,37 @@
       "value": 0
     },
     {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 4,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 3,
+          "crossing": 1
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
+    },
+    {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
       "name": "input0_reaches_an_output",
       "ok": true,
@@ -16650,6 +17084,37 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principals incident and paired",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "nodes": 4,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 3,
+          "crossing": 1
+        },
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
     },
     {
       "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",

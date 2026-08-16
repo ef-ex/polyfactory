@@ -16,12 +16,12 @@ number is calibrated against measured builder output
 (`tests/citygen/dump_trims.py` -> `tests/unit/trim_calibration.json`, asserted by
 `tests/unit/test_plan.py`).
 
-⚠️ **BUT IT IS IN THE SAME UNCONSUMED STATE, and §11.2's rule is that `plan.py`
-lands WITH its adapter or not at all.** Nothing in this repo imports it except
-its own test. M1 built it deliberately ahead of that rule so the K verdict could
-be measured before any HDA was touched; M3 owes it the adapter, and until that
-lands this module is the exact thing the paragraph above warns about. Do not let
-it sit here.
+✅ **AND M3 PAID §11.2's DEBT: it now has a consumer.** `graph_plan`, a thin
+Python SOP sitting after `repair_scratch` in `pf_citygen_segmenter`, is the
+adapter the architecture calls for — geometry to plain data, plan.py, attributes
+written back on `is_node` points. M1 built this module deliberately ahead of
+that rule so the K verdict could be measured before any HDA was touched; for two
+milestones it was the exact thing the paragraph above warns about.
 
 `crossing_trims` is a transcription of `s5j_solve`'s corner construction into
 closed form, in the NODE frame. The one thing it does not model — and cannot,
@@ -44,6 +44,12 @@ DEFAULT_CORNER_RADIUS = 4.0                 # `local`, and anything unclassified
 COLLINEAR_SIN = 0.02
 EPS = 1e-6
 
+# §11.3's node schema, named once. The adapter writes these and `checks.py`
+# polices them; before this constant existed the set was spelled out in three
+# places and a fourth attribute could have been added in one and policed in
+# none.
+NODE_SCHEMA_ATTRS = ("junction_type", "principal_edges")
+
 # ⚠️ THE ONE THING THIS MODEL DOES NOT PREDICT, measured rather than assumed.
 #
 # `s5j_solve` re-reads each arm's frame at the current cut and re-solves the
@@ -51,8 +57,8 @@ EPS = 1e-6
 # closed form below is exact — measured to 3.4e-5 m on the NINE straight cases
 # (E_short_t, F_bend, G_tongue, J_five_star, K_stub_triangle, and M2's
 # M_shallow_y_24, N_shallow_y_32, O_shallow_y_host_dies, P_stub_chain). On a
-# curved arm
-# the tangent at the cut is not the tangent at the node and the corner moves.
+# curved arm the tangent at the cut is not the tangent at the node, and the
+# corner moves.
 #
 # ⚠️ **AND IT IS TWO-SIGNED. The builder does not always cut more.** The VEX
 # latches monotone only from its third pass — `dist[i] = (iter < 3) ? dd :
@@ -392,6 +398,25 @@ def junction_trims(node, principal=None, params=DEFAULTS):
         if edge_id in trims:
             trims[edge_id] = 0.0
     return trims
+
+
+def default_junction_type(node):
+    """Which node type the planner picks where the artist has not said.
+
+    ⚠️ Today it is `crossing` at every junction — deliberately, and it is the
+    whole point of M3: the schema lands, the adapter runs, and the geometry does
+    not move by so much as a float. M4 is where this returns `junction` and the
+    gate is expected to move (§11.9's rollout: authored-only first, then flip the
+    computed default in its own commit).
+
+    Below degree 3 there is no plate to build — `crossing_trims` solves nothing
+    there and `s5j_solve` skips the point — so the type stays `""`. That is the
+    same `""` the schema uses for "decide for me", and the two are told apart by
+    DEGREE, which is why `junction_schema` asserts the pairing rather than just
+    checking the vocabulary (the `LOT_REJECT_VOCAB` lesson: a closed set cannot
+    detect everything being relabelled to one member of it).
+    """
+    return "crossing" if len(node.arms) >= 3 else ""
 
 
 def node_trims(node, params=DEFAULTS):

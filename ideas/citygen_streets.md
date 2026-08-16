@@ -5563,7 +5563,13 @@ On `is_node == 1` points (fill-if-empty, artist wins):
 | `junction_type` | string | `""` (decide for me) · `crossing` · `junction` · `merge` · `roundabout` (reserved, unimplemented) |
 | `principal_edges` | string | `""` (auto: the two arms of maximal `streetWidth`; tie → longer, then lexicographic `edge_id` — deterministic, the tongue-rank precedent) or two space-separated `edge_id`s |
 
-⚠️ **The auto rule above is BUILT and it is also under review — see the M1 result in 11.4.**
+✅ **BUILT by M3.** `graph_plan` writes `junction_type` on every `is_node` point of degree
+>= 3 and creates `principal_edges` empty; `JUNCTION_TYPE_VOCAB` and `junction_schema` in
+`checks.py` pin the vocabulary AND the pairing (a type only where a plate is built), because a
+closed set alone cannot detect everything being relabelled to one member of it.
+
+⚠️ **The auto rule for `principal_edges` is BUILT IN THE PLANNER, NOT WRITTEN TO GEOMETRY,
+and it is under review — see the M1 result in 11.4.**
 Width and length must be compared quantised to 1 mm or the tie is never detected and the
 lexicographic step never runs (measured: a 1.3e-12 m length difference decided K's third
 corner). And on K the widest pair is the wrong pair: **the pair nearest 180° apart** rescues
@@ -6148,9 +6154,112 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   with one leg is one deletion away from nothing.** Each Y now carries a second plain T 300 m
   west so the case measures the angle rather than the orphan filter — and that is a rule for
   every case added from here: a case whose graph can empty asserts nothing.
-- **M3 — schema + adapter.** `junction_type` / `principal_edges` + vocabulary check; planner
-  writes `crossing` everywhere unless authored. Exit: gate **bit-identical** — this milestone
-  changes no geometry, and proving that is the point.
+- **M3 — schema + adapter.** ✅ **BUILT 2026-08-15.** `junction_type` / `principal_edges` +
+  `junction_schema` in `checks.py`; the planner writes `crossing` everywhere unless authored.
+
+  **EXIT MET, and it was established by comparing GEOMETRY, not by trusting the baseline diff.**
+  The baseline records what the checks look at, and a check that looks at nothing sees nothing.
+  The audit digested every output of every case — point / prim / vertex counts, a hash of the
+  full vertex→point topology, and every value of every point, vertex, prim and detail attribute
+  with floats packed as doubles — against the HDAs checked out from HEAD. **30 differences over
+  15 cases × 4 outputs, and all 30 are the two new string attributes appearing on the GRAPH
+  output.** `P` is bit-identical on city, blocks, lots and graph everywhere. The baseline agrees:
+  gate 26 failing before and after, and the diff is insertions only — new check rows, no moved
+  value.
+
+  ⚠️ **AND THE FIRST ATTEMPT AT THAT A/B PRODUCED A FALSE GREEN** — worth knowing before
+  anyone repeats it. With `HOUDINI_PATH` set as the gate command sets it, Houdini auto-scans
+  `polyfactory/otls` at startup and those definitions WIN over an explicit
+  `hou.hda.installFile` of a HEAD copy, so both halves of the A/B cooked the working-tree HDA
+  and came back byte-identical, md5 and all. Any before/after here needs a guard that prints
+  and asserts the library file path and the node's presence before cooking.
+
+  **The adapter is `graph_plan`**, a Python SOP after `repair_scratch` in the segmenter — the
+  `xsection_library` precedent, and §11.2's shape exactly: geometry → plain data →
+  `plan.default_junction_type` → attributes written back on `is_node` points. It sits AFTER the
+  repair loop, so it decides once on the settled graph rather than against a representation the
+  loop keeps invalidating (rule 6). **This also pays §11.2's other debt** — for two milestones
+  `plan.py` was imported by nothing but its own test, which is the state that killed the deleted
+  `graph.py`; it now has a real consumer.
+
+  ⚠️ **`principal_edges` is created and deliberately LEFT EMPTY.** §11.3 calls it fill-if-empty
+  with a computed default, but 11.4's audit found the two candidate rules — widest pair vs
+  straightest pair — disagree on K by the whole outcome, with the tie between them decided by
+  float noise. Freezing either into geometry now would ship a decision 11.12 reserves for the
+  artist, and M4's rollout is authored-only first for exactly that reason.
+
+  ⚠️ **The attributes leaked onto every city point and no check could see it.** They belong on
+  graph nodes; the city mesh has no use for a `junction_type` string per point. Caught by
+  probing the outputs directly rather than by the gate — `no_scratch_attribs_city` polices
+  DETAIL attributes only, so a point-attribute leak was invisible to it. Cleaned at
+  `out_detailclean`, the city branch's existing attribdelete (the `lots_publish` precedent), so
+  the graph output — a pass-through of the mesh's input 0 — keeps them.
+
+  **`junction_schema` is proven able to fail**, and it took two rounds to make it so. The audit
+  found three states it passed that it should not: `principal_edges` naming the SAME edge twice
+  (a pair that is one street), a principal on a dead end (only `junction_type` was degree-paired),
+  and — the vacuity this project keeps rediscovering — `is_node` destroyed, where every term
+  reads 0 because the loop never runs. All three now fail, alongside the original five: adapter
+  bypassed → *attribute missing*; outside the vocabulary → `bad_vocab` 6; a type on a degree-1
+  node → `typed_non_junction` 8; a principal naming a stranger, only one edge_id, or the same
+  edge twice → `bad_principal` 6 / 6 / 6; a principal on a dead end → `bad_principal` 8.
+
+  ⚠️ It deliberately does NOT assert WHICH type a node carries: `junction_type` is
+  artist-authorable, so "junction everywhere" is a legal state and a check forbidding it would be
+  asserting taste. What pins today's choice is the recorded `types` histogram — M4 flipping the
+  computed default moves it visibly.
+
+  ⚠️ **AND THE LEAK FIX SHIPPED WITHOUT A DETECTOR, WHICH IS THE COMPOUNDING RULE BROKEN ON THE
+  ONE CHANGE M3 MADE THAT WAS NOT A NO-OP.** Measured on frozen copies with the leak put back:
+  `no_scratch_attribs_city` returns PASS 0 (it is called with `None, None`, so city POINT
+  attributes are deliberately unpoliced) and `attribute_schema` returns PASS 0 (it counts only
+  MISSING attributes). Clearing `out_detailclean`'s `ptdel` left the whole suite green. And
+  `crossing` written on 497 non-node graph points left `junction_schema` green with all four of
+  its terms at zero, because it only ever reads nodes. **`node_schema_stays_on_the_graph`** is the
+  detector, and it took three rounds to finish: `leaked` (city / blocks / lots AND the graph, on
+  points, VERTICES, prims and detail — `out_detailclean` had the same vertex hole), `off_node`
+  (BOTH attributes: `principal_edges` on 497 shape points left both checks green),
+  `untyped_plated` (any point the builder would plate that is not a typed node — both checks
+  select by `is_node`, the attribute the adapter also selects by, while `s5j_solve` never reads
+  it), and `schema_source` (the shared name-set constant was INERT for a round because the
+  import path was wrong, and a value-identical fallback hid it). Nine injections proven to fail.
+
+  ⚠️ **FILL-IF-EMPTY WORKS AND THERE IS NOWHERE TO AUTHOR — M4 INHERITS THIS.** An authored
+  `junction_type` set upstream of the segmenter survives the entire repair loop and `graph_plan`
+  correctly declines to overwrite it, measured end to end. But **node identity does not exist
+  upstream**, so authoring there is necessarily blanket, and blanket authoring is exactly what
+  the schema check rejects (`typed_non_junction` 8, `bad_principal` 14 → red). Downstream, where
+  `is_node` exists, `graph_plan` has already written `crossing`, so the artist would be
+  overwriting rather than filling. **The §11.3 `graph_classify` precedent does not transfer**:
+  `street_class` is a PRIM attribute on a drawn curve that has identity before the segmenter
+  runs, while `junction_type` is a POINT attribute on a node the segmenter CREATES. **BLANKET
+  authoring upstream needs no HDA unlock** — a plain attribwrangle in the artist's own scene
+  reaches it, and all 14 nodes shipped the authored value with `graph_plan` declining every one.
+  What has no surface is PER-NODE authoring, and blanket authoring fails three terms, not two:
+  `typed_non_junction` 8, `bad_principal` 14 **and `off_node` 497**. M4's authoring surface has
+  to clear all three.
+
+  Recorded and not fixed: the SOLVER's output 1 (the junction solution) also carries both
+  attributes — 822 empty and 6 on the real junction nodes, so tidiness rather than wrong data,
+  and one node upstream of where the city branch is cleaned — and **no check is passed the
+  solver's outputs at all**. Also open, all unreachable today and recorded so the next round does
+  not re-derive them: `node_schema_stays_on_the_graph` receives city / blocks / lots
+  POSITIONALLY, so swapping two of them is undetectable (only a graph-vs-other swap is caught);
+  an EMPTY graph still passes `junction_schema` vacuously, where only `counts` would show it; a
+  differently-CASED attribute name (`Junction_Type`) and a GROUP named for a schema attribute are
+  both outside the leak scan; and `untyped_plated` inherits the builder's self-loop blind spot by
+  construction — a closed street contributes one prim, so a 3-arm junction made of a loop plus
+  one street reads degree 2 to the check and to `s5j_solve` alike.
+
+  ⚠️ **AND THE SELF-LOOP IS A PLANNER DEFECT, NOT A CHECK QUIRK — M4 OWNS IT.**
+  `test_plan.py`'s docstring lists it among the guarantees "M3's adapter must re-establish", and
+  **M3 did not**: nothing in `graph_plan` or either check prevents, detects or asserts a closed
+  edge. The audit found the mechanism underneath it: `junction_trims` returns a dict keyed by
+  `edge_id`, so a loop's TWO arms collapse to ONE key and an arm is silently lost — and `_arms`
+  in the adapter takes only `pts[1]` or `pts[-2]`, yielding one arm where two exist. **`edge_id`
+  is not a valid arm key.** Unreachable today (0 closed prims on all 15 cases, and
+  `graph_mark_orphans` deletes any component with no point of degree >= 3), which is why
+  `principal_edges` naming the same edge twice is now RED: it is the visible symptom.
 - **M4 — junction type in the builder**, authored-only first; S7 T-case green and its render
   LOOKED at; then flip the computed default in its own commit; re-measure K against the M1
   verdict.

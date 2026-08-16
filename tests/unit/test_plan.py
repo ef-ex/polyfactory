@@ -45,16 +45,28 @@ things no consumer exists to hit yet. One list, because they are one obligation:
     nodes cannot both claim one end.
   * `crossing_trims`' `hypot(direction) > 1e-9` arm filter: guaranteed by
     `dump_trims.py`'s own `if n < 1e-9: continue`.
-  * A SELF-LOOP (one `edge_id` on both arms of a pair) makes `default_principal`
-    return a "pair" naming one street twice. Zero closed edges today and
-    `dump_trims` structurally cannot emit one — but `closeloop` exists in the
-    trace wrangle, so a closed street is a real object in this pipeline.
+  * A SELF-LOOP — ⚠️ **STILL OPEN AFTER M3, and it is a PLANNER defect rather
+    than an adapter one.** `junction_trims` returns a dict keyed by `edge_id`,
+    so a loop's TWO arms collapse to ONE key and an arm is silently lost; and
+    the adapter's `_arms` takes only `pts[1]` or `pts[-2]`, yielding one arm
+    where two exist. **`edge_id` is not a valid arm key.** Zero closed prims on
+    all 15 cases and `graph_mark_orphans` deletes any component with no point of
+    degree >= 3 — but `closeloop` exists in the trace wrangle, so a closed street
+    is a real object here. `junction_schema` now reds a principal naming the
+    same edge twice, which is the visible symptom, not the cause. **M4 owns the
+    fix.**
   * `junction_trims`' `if edge_id in trims` guard: without it an authored
     `principal_edges` naming a non-incident edge is INVENTED into the result at
     0.0 m. Now pinned by keyset — it was not, which is why it is here.
   * That the stranger is silently ignored at all is pinned behaviour, NOT an
     endorsement: warn / raise / fall back is an M4 decision (11.12).
-  * `plan.py` has no consumer at all, which §11.2 forbids: M3 owes it one.
+  * ~~`plan.py` has no consumer~~ — **PAID by M3.** `graph_plan`, a Python SOP
+    after `repair_scratch` in the segmenter, is the adapter: geometry -> plain
+    data -> `plan.default_junction_type` -> `junction_type` written back on
+    `is_node` points. ⚠️ **It re-established the first two guarantees above and
+    NOT the self-loop** — `at_start` from `pts[0].number()` and the `n < 1e-9`
+    filter are carried over verbatim; the loop is not. Do not read "paid" as
+    "all three handed over".
 
 Two things this file is deliberately NOT:
 

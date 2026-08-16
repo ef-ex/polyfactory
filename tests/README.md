@@ -96,6 +96,71 @@ it is the assertion to keep green. The per-case residuals are a tripwire on the
 model drifting, not a safety margin — treating them as one is how a 5.88 m
 optimistic error got recorded as a 2.02 m bound.
 
+## The node schema, and why a closed vocabulary is not enough
+
+`junction_schema` (M3) watches §11.3's `junction_type` / `principal_edges` on
+the graph's `is_node` points. `JUNCTION_TYPE_VOCAB` is the closed set, and it is
+only the FIRST of four terms — `LOT_REJECT_VOCAB`'s lesson was that membership
+cannot detect an auditor relabelling every rejection to one member of the set.
+The other three tie each value to something independently measurable: a junction
+of degree >= 3 with no type (the shape of a silently-bypassed adapter), a type on
+a node where `s5j_solve` builds no plate, and a `principal_edges` that is not two
+`edge_id`s both incident to that node.
+
+Eight injections were shown to fail it — and three of them only after an audit
+found them passing: adapter bypassed, a value outside the vocabulary, a type on
+a degree-1 node, a principal naming a stranger, a principal naming only one
+edge, **a principal naming the SAME edge twice** (a pair that is one street),
+**a principal on a dead end** (only `junction_type` had been degree-paired), and
+**`is_node` destroyed** — where every term read 0 because the loop never ran,
+the same vacuity that let three checks go green on an EMPTY graph in 2026-08-15.
+
+## And a second check, because the first one's blind spot had already bitten
+
+`node_schema_stays_on_the_graph` exists because M3 shipped a FIX with no
+detector. The adapter leaked `junction_type` / `principal_edges` onto all 5568
+city points; that was found by probing outputs by hand, and after the fix
+nothing could have told you if it came back. Measured on frozen geometry with
+the leak restored: `no_scratch_attribs_city` **PASS 0** (it is called with
+`None, None` — city POINT attributes are deliberately unpoliced) and
+`attribute_schema` **PASS 0** (it counts only MISSING attributes). Clearing
+`out_detailclean`'s `ptdel` left the entire suite green.
+
+**Four terms**, and it started with two — each of the others was added because
+an audit injection walked past what was there:
+
+* `leaked` — absent from city / blocks / lots on points, VERTICES, prims and
+  detail, and from the graph on everything but points. Vertex is in that list
+  because `out_detailclean` had the identical hole (`dovtxdel on`, `vtxdel ""`).
+* `off_node` — on the graph, a non-empty value of EITHER attribute may sit only
+  on an `is_node` point. Testing `junction_type` alone was not enough:
+  `principal_edges` on all 497 shape points left both checks green.
+* `untyped_plated` — any point with 3+ incident prims that is not a typed node.
+  Both checks select by `is_node`, the same attribute the adapter selects by, so
+  a cleared `is_node` hid a junction from everything at once while `s5j_solve`
+  — which reads `len(pointprims) >= 3` and never `is_node` — still plated it.
+* `schema_source` — which definition of the attribute name set was used. The
+  shared constant was inert for a whole round because the import path was wrong,
+  and a value-identical fallback hid it; now a fallback moves a baseline number.
+
+⚠️ A wrong-TYPE value is a red row, never an exception. `i@principal_edges`
+instead of `s@` used to raise out of `run_case` and lose **all 15 cases** with no
+JSON and no baseline compare — while a mistyped `junction_type` was already
+handled gracefully, which was the tell.
+
+⚠️ **A/B-ing an HDA change needs a guard, or it lies.** With `HOUDINI_PATH`
+set the way the gate sets it, Houdini auto-scans `polyfactory/otls` at startup
+and those definitions WIN over an explicit `hou.hda.installFile` of a HEAD copy
+— so a before/after comparison silently cooks the working-tree asset twice and
+comes back byte-identical, md5 and all. Print and assert the library file path
+and the node's presence before cooking anything.
+
+⚠️ It deliberately does NOT assert WHICH type a node carries. `junction_type`
+is artist-authorable, so "junction everywhere" is a legal state and a check that
+forbade it would be asserting taste. Today's choice is pinned by the recorded
+`types` histogram in `baseline.json` instead — M4 flipping the computed default
+moves that number where anyone can see it.
+
 ## The closure sweep, and why it is a file rather than a habit
 
 `closure_gate.py` is the third rule applied to a review that kept repeating itself. The
