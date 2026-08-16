@@ -15,7 +15,7 @@ every one of them.
 used to claim: the model is exact on straight arms and out by up to 4.58 m on
 curved ones, because `s5j_solve` re-solves each corner in the frame at its own
 cut. The bounds are pinned per case in `test_plan.py`, and the property to rely
-on is the `standing > 0` VERDICT — which agrees with the builder on all 304
+on is the `standing > 0` VERDICT — which agrees with the builder on all 318
 edges.
 
 It reads `junction_solve/s5j_solve`, which is where the trims are written and
@@ -70,7 +70,7 @@ def dump_case(built, full=False):
     """{"edges": [...], "nodes": [...]} straight off the solve node.
 
     `full` also writes every polyline vertex. That is diagnostic material, not
-    fixture material — it is ~1.5 MB across the eleven cases and it is exactly
+    fixture material — it is ~1.5 MB across the fifteen cases and it is exactly
     the geometry the planner is forbidden to depend on — so it goes to a
     scratch file, never to the committed calibration.
     """

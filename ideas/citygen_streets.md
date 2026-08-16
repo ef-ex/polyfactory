@@ -6048,9 +6048,106 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   defects were never in the geometry, they were in decisions made against a representation
   nobody was asserting. Surviving mutants and the guarantees `dump_trims.py` supplies that
   **M3's adapter must re-establish** are listed in `test_plan.py`'s module docstring.
-- **M2 — cases first.** The four-junction stub chain (⛔ item 5 already specifies it) and a
-  shallow-Y family across angles and classes, committed with today's behaviour recorded —
-  red rows are the honest form (the J/K precedent). The S7 T-case lands with M4.
+- **M2 — cases first.** **BUILT 2026-08-15, AUDITED TWICE.** Four cases, 11 → 15; gate 20 →
+  **26 failing**, and the baseline diff is **4635 insertions and ZERO deletions** — verified
+  against `HEAD` rather than trusting the diff shape: **0 pre-existing values moved**. Three of
+  the six new rows are the declared v1 non-goal already recorded on ten other cases; the other
+  three are defects the build had and nothing could see.
+
+  **The shallow-Y family** (M 24° · N 32° · O 22°) samples either side of `min_junction_angle`.
+  `graph_min_angle` deletes one street in pass 0 on M and O; N keeps its leg.
+
+  ⚠️ **There was a fourth, L at 15°, and an audit deleted it.** It was bit-identical to M on
+  all 50 checks and all 848 leaf baseline values — because below the floor the published graph
+  does not depend on the angle at all: the leg goes, the Y node falls to degree 2, the host
+  re-fuses, and the shallow site leaves NO trace. The decisive measurement was a control scene
+  with no shallow leg drawn at all, which reproduced **44 of L's 50 checks**. The whole of L was
+  one bit, and M carries the same bit closer to the floor. **A case that is bit-identical to
+  another today does not earn its place on a promised future divergence** — add the second
+  sub-floor angle the day M5 gives it something to assert. And the bracket is looser than ±1°:
+  the samples locate the floor only to (24, 32]; swept live the transition is at (24.998, 25.5],
+  and a case authored at exactly 25.0° still deletes, because the leg endpoint is rounded to
+  2 dp and measures 24.998°.
+
+  ⚠️ **AND WHAT DECIDES WHICH STREET DIES IS LENGTH, NOT ANGLE OR CLASS** — found by audit,
+  and it killed the family's first fourth case. `graph_min_angle` reads only
+  `min_junction_angle` and `pfsg_primlength`, and it runs at **position 16** of the repair chain
+  while `graph_classify` is at 22 and `graph_width` at **23**: in **pass 0** class and width do
+  not exist when the verdict is taken, and the tie-break is
+  `kill = (lens[i] < lens[j]) ? prims[i] : prims[j]` — keep the longer. ⚠️ From pass 1 the
+  loop's feedback carries `street_class` and `streetWidth` written by the previous pass, so they
+  exist and are simply **not read**; do not reorder the chain expecting that to change anything. A case built to show "class
+  does not change the verdict" could therefore never have failed — it was true by construction.
+  O now varies the thing that actually decides: its leg is LONGER than the host's east half, so
+  `graph_min_angle` takes **the host's own arterial**, and the city ships the west host fused to
+  the leg as a single **599.77 m** street — verified by geometry: no edge terminates at (200,0).
+  Nothing else in the suite reaches that branch. (It truncates the host rather than severing a
+  connection: the deleted edge's far end is degree 1, so `connections_are_never_refused` stays
+  green, and O earns its slot on its published GEOMETRY — 2730 city prims against M's 3380,
+  `centreline_curvature_within_class` 0.648/1.01 against 0/0 — not on the deletion alone.)
+
+  ⚠️ M and O stay GREEN on `connections_are_never_refused` while each deletes a street, because
+  pass 0 is exempt by design. The deletion is **recorded** in `deleted_in_pass0.graph_min_angle`
+  = 1 rather than asserted, so the baseline pins it and M5 turning it to 0 is visible.
+
+  ⚠️ **N's TWO RED ROWS ARE ONE DEFECT, IT IS NEW, AND TWO ROOT CAUSES WERE WRONG BEFORE THIS
+  ONE.** First the absent `merge` type was blamed; then a zero trim. The second matters, because
+  the fix it implied would not have worked. Measured: `s5j_trim` deletes a junction's shared
+  point unconditionally — *"a shared junction point belongs to several edges; only ever delete
+  it"* — and the surviving last point is moved to the cut only by `if (de < te)`. **The
+  predicate is that line and it is not a constant**: `de` is the arm's own TERMINAL SEGMENT,
+  `L / ceil(L / step)` — bounded by `(step/2, step]`, so a 2.00 m floor in principle, and
+  measured **3.5832 .. 4.0000 m** over the suite's 539 junction-side ends, equal to 4.00 only on
+  the 22 whose length is an exact multiple of the step. So the
+  endpoint is re-created only when **`trim > de`** and the hole is **`de − trim`**. ⚠️ Two
+  earlier versions of this entry said "non-zero" and then "`> 4.00 m`" — 4.00 is the resample
+  CAP, and writing the fix as `if (te < 4.0)` detaches it from the geometry it was measured on. Swept on the
+  shallow-Y rig: a 25.5–45° leg leaves trim 0.0000 and a **4.000 m** gap; 50° leaves trim 1.4107
+  and **2.589 m**; 55° leaves 2.9575 and **1.043 m**; from 60° the trim clears 4 m and the gap
+  is 0. **A non-zero trim of 1.41 m still leaves a 2.59 m hole**, so "snap when the trim is
+  zero" ships a green gate over a live defect — the corpus has no arm strictly between 0 and 4,
+  and four arms sit at 4.35–5.00 m, 0.35 m from the trigger.
+
+  ⚠️ **And the trigger was over-generalised twice.** It is not "every junction with one wide
+  arm pair" — of **539 arms** exactly **one** has a junction-side trim ≤ 4 m, and **87 of the 88
+  junctions with two or more arterial arms do not exhibit it** (`G_tongue` is two collinear
+  arterials plus a third and trims 22.4 all round). Nor is it "the arm opposite a near-floor pair
+  at a 3-arm node", which generalised one rig. **The hole condition is just `trim < de`**: an
+  arm's trim is `max(reach_ahead, reach_behind, 0)` in the planner and in the builder alike, so
+  any arm whose larger corner reach falls short of its own terminal segment gaps. ⚠️ "Both
+  corner reaches ≤ 0" is a SUB-condition — it yields `trim == 0` and so the MAXIMAL hole, the
+  full `de`; both `_corner` implementations floor at ≥ 0, so it can only mean "== 0", and the
+  precise form is `raw + run ≤ 0` (the fillet run counts, so "kerb lines cross behind the node"
+  alone is not it). Degree-independent either way: over legal degree-4 nodes (every gap ≥ 25°,
+  nothing deleted) **964 bearing sets** produce an arm at trim ≤ 4 m — e.g. bearings
+  (0, 25, 150, 275) at widths (26.8, 15.1, 26.8, 15.1) → **2.957 m, with BOTH reaches at
+  +2.957**, a real gap with neither reach at zero. The angle floor is not part of it at all: on the 3-arm rig
+  the opposite arterial is at trim 0.000 for **every** gap from 5° to 45°, and symmetrically at
+  135–175°. On N the hole is **107.20 m² = 4.00 × 26.80 exactly** (not the 104.53 first
+  recorded), a clean rectangle — which is what the root cause predicts.
+  **Recorded, not fixed: M2 is cases-first.**
+
+  ⚠️ **And `city_is_fully_paved` cannot see it**, because it builds the must-be-paved region
+  from the corridor's own outer boundary — which the same defect breaks. On N those prims span
+  x −518.09..−4.00 and 0.00..518.09, so the hole falls outside the region by construction and
+  the check passes at `unpaved_m2 0.0`. The one check written to find holes is blind to a hole
+  that also opens the block boundary: the `selfx_*` lesson again, a check whose input is
+  produced by the thing it is checking.
+
+  **The stub chain** (P) reproduces ⛔ item 5 exactly, from a spec written before the case
+  existed — and by the specified MECHANISM, not merely to the same counts: live instrumentation
+  inside the repair loop reads `cluster 4, narm 6, ok 1` → permits, then `graph_stub_kill` **3**
+  in pass 0 by design and **`graph_drop_orphans` 2 LATE**, red on the tripwire, **3 edges of 9
+  published**. The flood fill past a 3-cycle now has coverage; K only ever exercised the
+  triangle.
+
+  ⚠️ **AND THE FIRST VERSION OF THE FAMILY PUBLISHED AN EMPTY GRAPH ON THREE OF FOUR CASES**
+  — city 0, edges 0, reported as three tidy red rows. §11.11's own warning arriving on schedule.
+  Not a bug: `graph_min_angle` removes the shallow leg, the Y node falls to degree 2, the
+  component holds no junction, and `graph_drop_orphans` correctly deletes all of it. **A host
+  with one leg is one deletion away from nothing.** Each Y now carries a second plain T 300 m
+  west so the case measures the angle rather than the orphan filter — and that is a rule for
+  every case added from here: a case whose graph can empty asserts nothing.
 - **M3 — schema + adapter.** `junction_type` / `principal_edges` + vocabulary check; planner
   writes `crossing` everywhere unless authored. Exit: gate **bit-identical** — this milestone
   changes no geometry, and proving that is the point.

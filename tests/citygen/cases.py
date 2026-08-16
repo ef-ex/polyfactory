@@ -100,6 +100,129 @@ STUB_TRIANGLE_STREETS = [
     [(16, 0, 28), (16.00, 0, 83.00)],      # C,  90.0 deg,  55.00 m local - SHORT
 ]
 
+# The SHALLOW-Y FAMILY (M2). A host street running straight through a node with
+# one leg arriving at a shallow angle - the configuration §11.5's `merge` type
+# exists for, and the one `graph_min_angle` resolves today by DELETING a street.
+#
+# Sampled either side of `street_params_min_junction_angle` (25 deg): M at 24 is
+# under it, N at 32 is over. 32 is not an arbitrary control - it is
+# J_five_star's crowded pair and the same order as C_radial's measured 32.5 deg
+# site, so the family's upper sample is a configuration the suite already knows
+# solves.
+#
+# ⚠️ **AND M IS ONE BIT FROM A NO-LEG CONTROL TOO — recorded, not acted on.**
+# The same experiment that deleted L, run against M: `counts` identical
+# (city 3380, edges 3), all 50 checks share the same verdict, and 44 of 50
+# VALUES match a scene with no shallow leg drawn at all. M's defence is not
+# distinct output, it is BRANCH COVERAGE of the length tie-break - M is the
+# leg-dies branch, O is the host-dies branch - and deleting it would leave the
+# leg-dies branch uncovered. O is genuinely distinct (9 values differ from M,
+# 2730 city prims against 3380). Do not delete M on the L argument without
+# replacing the coverage.
+#
+# ⚠️ **THE LETTER L IS MISSING ON PURPOSE.** There was an `L_shallow_y_15`, and
+# an audit deleted it: it was bit-identical to M on all 50 checks and all 848
+# leaf baseline values, because below the floor the published graph does not
+# depend on the angle at all - the leg is deleted, the Y node falls to degree 2,
+# the host re-fuses, and the shallow site leaves NO TRACE. The decisive
+# measurement was a control scene with no shallow leg drawn at all, which
+# reproduced 44 of L's 50 checks; the whole of L was one bit,
+# `graph_min_angle: 1`, and M carries the same bit closer to the floor. A second
+# case that is bit-identical to another today does not earn its place on a
+# PROMISED FUTURE divergence - add the second sub-floor angle the day M5 gives
+# it something to assert.
+#
+# ⚠️ And the bracket is looser than it looks: the samples locate the threshold
+# only to (24, 32]. Swept live, the transition is at (24.998, 25.5]. A case
+# authored at exactly 25.0 deg still DELETES, because the leg endpoint below is
+# rounded to 2 dp and the resulting measured angle is 24.998 - the family cannot
+# resolve the floor finer than its own rounding.
+#
+# ⚠️ **AND WHAT DECIDES THE VERDICT IS NEITHER ANGLE NOR CLASS, IT IS LENGTH.**
+# Measured by audit: `graph_min_angle` reads only `min_junction_angle` and
+# `pfsg_primlength`, and it runs at position 16 of the repair chain while
+# `graph_classify` is at 22 and `graph_width` at 23 - so in PASS 0 class and
+# width do not exist when the verdict is taken, and the tie-break is
+# `kill = (lens[i] < lens[j]) ? prims[i] : prims[j]`, i.e. keep the longer. A
+# case built to show class does not matter could therefore never have failed.
+# The family varies the thing that decides instead: in M/N the leg is the
+# shorter arm and the LEG dies; in O the leg is longer and the HOST'S east arm
+# dies, which was covered by nothing. ⚠️ And class/width are not merely absent -
+# from pass 1 the loop's feedback carries `street_class` and `streetWidth`
+# written by the PREVIOUS pass's classify/width. They exist and are simply not
+# read. Only in pass 0 are they genuinely absent.
+#
+# ⚠️ The leg length is bounded from BELOW by `d_extend` (90 m), and that is not
+# obvious: at a shallow angle the leg's tip runs alongside the host and ends up
+# NEAR THE HOST'S OWN TIP. At 15 deg a 120 m leg off a 2 x 200 m host lands
+# 89.7 m from the host's east end - under the floor, so `graph_extend` would
+# bridge them and the case would be measuring the extender instead of the angle.
+# Measured closest arm-tip pair: 223.6 m on M/N, and 136.9 m on O, whose host is
+# asymmetric - both clear of `d_extend` 90.
+#
+# ⚠️ **AND THE FIRST VERSION OF THIS FAMILY PUBLISHED AN EMPTY GRAPH ON THREE OF
+# ITS CASES**, which the suite reported as tidy red rows while
+# `counts` read city 0 / edges 0. Measured 2026-08-15, and it is §11.11's own
+# warning arriving on schedule. The cause is a CHAIN of two by-design
+# mechanisms: `graph_min_angle` removes the shallow leg, which leaves the Y node
+# at degree 2 - so the component now contains no junction at all, and
+# `graph_drop_orphans` correctly deletes the whole thing. A host with one leg is
+# not a city; it is one deletion away from nothing.
+#
+# So the host carries a SECOND junction, a plain perpendicular T 300 m west,
+# whose only job is to keep the component alive when the shallow site loses its
+# leg. That is what makes the family measure the angle rather than the orphan
+# filter. It also has to be far enough west that nothing interacts: 300 m clears
+# `min_node_dist` (40) by an order of magnitude, and the closest pair of arm
+# tips in the whole case is 224 m against `d_extend`'s 90.
+#
+# Host halves stay ARTERIAL either side of both junctions - 200 / 300 / 500 m
+# (200 / 300 / 200 for O), all >= `arterial_len` 180 - so the through street's
+# class is constant across the family and only the contested LENGTHS change.
+def _shallow_y(deg, leg_len, host_east=500.0):
+    import math
+    a = math.radians(deg)
+    return [[(-500, 0, 0), (host_east, 0, 0)],      # the host, split by both
+            [(-300, 0, 0), (-300, 0, 100)],         # the anchor T, 100 m
+            [(0, 0, 0), (round(leg_len * math.cos(a), 2), 0,
+                         round(leg_len * math.sin(a), 2))]]
+
+
+# Case P's input: THE FOUR-JUNCTION STUB CHAIN. Specified in full by §S5a item 5
+# ("fully specified and deliberately not added here") and measured there in an
+# isolated session: A(0,0) B(30,0) C(60,0) D(90,0), three 30 m links, six
+# external arms hung 2 - 1 - 1 - 2, all of them >= 90 m.
+#
+# It is the branch-coverage case for the flood fill PAST the 3-cycle: the gate
+# reads cluster = 4, narm = 6, so the fill finds every member and terminates.
+# K_stub_triangle only ever exercises a 3-cycle, where a wrong fill still
+# happens to touch every node.
+#
+# ⚠️ AND IT IS EXPECTED RED, on a defect the widened tripwire found and nothing
+# has fixed: with every arm over the floor the collapse is PERMITTED, and
+# `graph_drop_orphans` then removes two components after pass 0 - publishing
+# 3 edges of 9. Bit-identical on both gate definitions, so pre-existing, not a
+# regression. A red row is the honest form of that (the J/K precedent).
+#
+# Sized so nothing else can be the cause. Links are 30 m: under
+# `graph_params_min_node_dist` (40) so they are jogs, over
+# `graph_prune_min_edge_len` (13) so pruning keeps them. Every angle at every
+# node is at least 60 deg, well clear of `min_junction_angle` (25), so no leg is
+# resolved by deletion. Every pair of arm tips is more than `d_extend` (90 m)
+# apart - closest is 100.0 m (A's two arms, and D's two) - so `graph_extend`
+# bridges nothing. B's arm is 150 m, which is the row §S5a measured.
+STUB_CHAIN_STREETS = [
+    [(0, 0, 0), (30, 0, 0)],               # A-B, 30.00 m
+    [(30, 0, 0), (60, 0, 0)],              # B-C, 30.00 m
+    [(60, 0, 0), (90, 0, 0)],              # C-D, 30.00 m
+    [(0, 0, 0), (-86.60, 0, 50.00)],       # A, 150.0 deg, 100.00 m collector
+    [(0, 0, 0), (-86.60, 0, -50.00)],      # A, 210.0 deg, 100.00 m collector
+    [(30, 0, 0), (30.00, 0, 150.00)],      # B,  90.0 deg, 150.00 m collector
+    [(60, 0, 0), (60.00, 0, -100.00)],     # C, 270.0 deg, 100.00 m collector
+    [(90, 0, 0), (176.60, 0, 50.00)],      # D,  30.0 deg, 100.00 m collector
+    [(90, 0, 0), (176.60, 0, -50.00)],     # D, 330.0 deg, 100.00 m collector
+]
+
 _DRAW_SNIPPET = """
 import hou
 g = hou.pwd().geometry(); g.clear()
@@ -453,6 +576,42 @@ def build_all(parent=None):
     cases["K_stub_triangle"] = {"city": k, "trace": kt, "solver": kt_solver,
                                 "input": kdraw}
 
+    # M / N / O - THE SHALLOW-Y FAMILY (M2). See _shallow_y() for the
+    # sizing; the three differ ONLY in the leg's angle and its LENGTH relative
+    # to the host's east arm - which is what decides the victim, not class.
+    #
+    # ⚠️ These are cases-first, ahead of the mechanism that resolves them
+    # (§11.5's `merge`, M5). Their job today is to RECORD what the build does
+    # with a shallow approach, which is `graph_min_angle` deleting a street
+    # below `min_junction_angle` - the one deletion §S3 forbids and §S5a item 6
+    # left as the artist's call. A family that only got added once the fix
+    # existed would be a family that could never show the fix changed anything.
+    for label, deg, leg, east in (("M_shallow_y_24", 24.0, 120.0, 500.0),
+                                  ("N_shallow_y_32", 32.0, 120.0, 500.0),
+                                  # ...and the OTHER branch of the same
+                                  # deletion. The east host half is 200 m and
+                                  # the leg 300 m, so the leg is the LONGER of
+                                  # the offending pair and `graph_min_angle`
+                                  # takes the host's own arterial instead. Same
+                                  # rig, same angle as M's neighbour, opposite
+                                  # victim - and nothing else in the suite
+                                  # reaches it.
+                                  ("O_shallow_y_host_dies", 22.0, 300.0, 200.0)):
+        ydraw = parent.createNode("python", label + "_streets")
+        ydraw.parm("python").set(_DRAW_SNIPPET.replace(
+            repr(DRAWN_STREETS), repr(_shallow_y(deg, leg, east))))
+        yt, yt_solver, y = _chain(parent, label, ydraw, True)
+        cases[label] = {"city": y, "trace": yt, "solver": yt_solver,
+                        "input": ydraw}
+
+    # P - THE FOUR-JUNCTION STUB CHAIN. See STUB_CHAIN_STREETS.
+    pdraw = parent.createNode("python", "P_drawn_streets")
+    pdraw.parm("python").set(_DRAW_SNIPPET.replace(
+        repr(DRAWN_STREETS), repr(STUB_CHAIN_STREETS)))
+    pt_, pt_solver, p = _chain(parent, "P_stub_chain", pdraw, True)
+    cases["P_stub_chain"] = {"city": p, "trace": pt_, "solver": pt_solver,
+                             "input": pdraw}
+
     # ⚠️ The harness could not reach the TRACER at all. `_chain` returns the
     # segmenter as the "trace" role, so `cases.parm()` searched city/trace/solver
     # and never saw the Tracer — `parm_liveness` swept its eleven live
@@ -517,7 +676,12 @@ LOT_FLOOR = {"A_drawn": 74, "B_grid": 560, "C_radial": 683, "D_offset": 55,
              # LIVE defect, so its parcel count is not yet a number worth
              # defending — pin it the day `offset` stops folding on non-A
              # blocks, and not before, or this floor freezes broken output in.
-             "I_offset_radial": 0}
+             "I_offset_radial": 0,
+             # M2's cases close no block between them: the shallow-Y family is a
+             # host and one leg, and the stub chain is a chain — neither has a
+             # cycle, so there is no ring for S7 to close and no parcel to pin.
+             "M_shallow_y_24": 0, "N_shallow_y_32": 0,
+             "O_shallow_y_host_dies": 0, "P_stub_chain": 0}
 
 
 def inner(case, role):
@@ -554,7 +718,7 @@ def parm(case, name):
     The search is still correct, but by ORDER and not by uniqueness: `solver`
     comes after `trace`, so a shared name returns the SEGMENTER's copy, which is
     the one `_chain()` drives and the solver's copy is expression-linked to.
-    Verified: 7 of 7 links bind and track on all 11 cases. Change that role
+    Verified: 7 of 7 links bind and track on all 15 cases. Change that role
     order and S5 parameters silently start steering the linked end instead of
     the driving one.
 

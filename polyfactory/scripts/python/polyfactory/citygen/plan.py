@@ -48,15 +48,17 @@ EPS = 1e-6
 #
 # `s5j_solve` re-reads each arm's frame at the current cut and re-solves the
 # corner THERE, eight times. On a straight arm that is a fixed point and the
-# closed form below is exact — measured to 3.4e-5 m on the FIVE straight cases
-# (E_short_t, F_bend, G_tongue, J_five_star, K_stub_triangle). On a curved arm
+# closed form below is exact — measured to 3.4e-5 m on the NINE straight cases
+# (E_short_t, F_bend, G_tongue, J_five_star, K_stub_triangle, and M2's
+# M_shallow_y_24, N_shallow_y_32, O_shallow_y_host_dies, P_stub_chain). On a
+# curved arm
 # the tangent at the cut is not the tangent at the node and the corner moves.
 #
 # ⚠️ **AND IT IS TWO-SIGNED. The builder does not always cut more.** The VEX
 # latches monotone only from its third pass — `dist[i] = (iter < 3) ? dd :
 # max(dist[i], dd)` — so passes 1 and 2 are free to RETREAT below the node-frame
 # value, and the fixed point lands on either side of it. Measured, predicted
-# minus measured, over all 524 arms:
+# minus measured, over all 539 arms:
 #
 #   A_drawn / D_offset / H_offset_strict   -0.347 .. +2.024
 #   B_grid                                 -3.995 .. +2.404
@@ -72,7 +74,7 @@ EPS = 1e-6
 # leave. That bound is below, and the calibration test pins it against the
 # fixture so it cannot rot the way its first value did.
 #
-# ⚠️ Both are bounds on the RESIDUAL, not on the verdict. Measured over all 304
+# ⚠️ Both are bounds on the RESIDUAL, not on the verdict. Measured over all 318
 # edges of the suite, the planner's `standing > 0` answer never disagrees with
 # the builder's — 0 false-OK, 0 false-BAD — and THAT is the property downstream
 # milestones actually rely on. `test_plan.py` asserts it directly; do not
@@ -221,11 +223,12 @@ def resample_segments(length, params=DEFAULTS):
 
     ⚠️ **THE `- 1e-9` IS A GUARD AGAINST DUST, AND THE FIXTURE DOES NOT EXERCISE
     IT.** An earlier version of this docstring claimed it mattered because "10
-    of the 304 edges sit exactly on an integer `L / step`" — backwards: sitting
+    of the 304 edges sit exactly on an integer `L / step`" — backwards (and the
+    counts were pre-M2; today it is 19 of 318). Sitting
     *exactly* on the integer is the one place `ceil` needs no help. It bites at
     `n + 1e-13 … n + 1e-9`, where a length that is arithmetically `4n` arrives a
     few ulps over and would silently gain a segment, shifting every vertex. On
-    today's 304 edges **zero** need it, so nothing in the calibration can pin
+    today's 318 edges **zero** need it, so nothing in the calibration can pin
     it; `test_plan.py` pins it directly instead, on both sides of the dust
     threshold.
     """
@@ -241,13 +244,13 @@ def clear_of_vertex(cut, length, params=DEFAULTS, at_start=True):
     leave the road a sliver of a terminal segment: measured 0.028 m against a
     13.4 m half-width, and a ribbon swept along a segment that short folds. It
     moves the cut by up to `2 x min_end_segment`, one-signed, and it happens on
-    184 of the 524 arms in the suite (worst +1.971 m) — big enough that a
+    190 of the 539 arms in the suite (worst +1.971 m) — big enough that a
     `standing` computed without it is optimistic on a third of the city.
 
     It is modelled here rather than left as a builder-side residual because it
     needs no geometry: `s5_resample` divides an arm into `ceil(L / step)` EQUAL
     segments — Houdini's All Equal Segments shrinks every segment rather than
-    leaving a short last one, verified on all 304 prims — so the vertex grid is
+    leaving a short last one, verified on all 318 prims — so the vertex grid is
     a function of the arm's LENGTH, which is plain edge data.
 
     ⚠️ Latent, and recorded because it is invisible when it bites: `length` here

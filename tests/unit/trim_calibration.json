@@ -12806,6 +12806,516 @@
     "min_end_segment": 1.0,
     "miter_limit": 4.0
    }
+  },
+  "M_shallow_y_24": {
+   "edges": [
+    {
+     "edge_id": "region_+00_+00/E_00000",
+     "length": 800.0,
+     "npts": 201,
+     "p0": [
+      -300.0,
+      0.0
+     ],
+     "p1": [
+      500.0,
+      0.0
+     ],
+     "street_class": "arterial",
+     "trim_end": 0.0,
+     "trim_start": 13.54998779296875,
+     "width": 26.799785614013672
+    },
+    {
+     "edge_id": "region_-02_+00/E_00001",
+     "length": 200.0,
+     "npts": 51,
+     "p0": [
+      -300.0,
+      0.0
+     ],
+     "p1": [
+      -500.0,
+      0.0
+     ],
+     "street_class": "arterial",
+     "trim_end": 0.0,
+     "trim_start": 13.54998779296875,
+     "width": 26.799964904785156
+    },
+    {
+     "edge_id": "region_-02_+00/E_00002",
+     "length": 100.0,
+     "npts": 26,
+     "p0": [
+      -300.0,
+      0.0
+     ],
+     "p1": [
+      -300.0,
+      100.0
+     ],
+     "street_class": "collector",
+     "trim_end": 0.0,
+     "trim_start": 21.0,
+     "width": 15.100001335144043
+    }
+   ],
+   "nodes": [
+    {
+     "arms": [
+      {
+       "at_start": true,
+       "dir": [
+        1.0,
+        0.0
+       ],
+       "edge_id": "region_+00_+00/E_00000",
+       "length": 800.0,
+       "measured_trim": 13.54998779296875,
+       "street_class": "arterial",
+       "width": 26.799785614013672
+      },
+      {
+       "at_start": true,
+       "dir": [
+        -1.0,
+        0.0
+       ],
+       "edge_id": "region_-02_+00/E_00001",
+       "length": 200.0,
+       "measured_trim": 13.54998779296875,
+       "street_class": "arterial",
+       "width": 26.799964904785156
+      },
+      {
+       "at_start": true,
+       "dir": [
+        0.0,
+        1.0
+       ],
+       "edge_id": "region_-02_+00/E_00002",
+       "length": 100.0,
+       "measured_trim": 21.0,
+       "street_class": "collector",
+       "width": 15.100001335144043
+      }
+     ],
+     "pos": [
+      -300.0,
+      0.0
+     ]
+    }
+   ],
+   "params": {
+    "arc_steps": 5,
+    "corner_radius_scale": 1.0,
+    "max_fillet_fraction": 0.4,
+    "min_end_segment": 1.0,
+    "miter_limit": 4.0
+   }
+  },
+  "N_shallow_y_32": {
+   "edges": [
+    {
+     "edge_id": "region_+00_+00/E_00004",
+     "length": 120.00341801856115,
+     "npts": 32,
+     "p0": [
+      0.0,
+      0.0
+     ],
+     "p1": [
+      101.7699966430664,
+      63.59000015258789
+     ],
+     "street_class": "collector",
+     "trim_end": 0.0,
+     "trim_start": 58.296234130859375,
+     "width": 15.100000381469727
+    },
+    {
+     "edge_id": "region_+01_+00/E_00003",
+     "length": 500.0,
+     "npts": 126,
+     "p0": [
+      0.0,
+      0.0
+     ],
+     "p1": [
+      500.0,
+      0.0
+     ],
+     "street_class": "arterial",
+     "trim_end": 0.0,
+     "trim_start": 56.618812561035156,
+     "width": 26.800119400024414
+    },
+    {
+     "edge_id": "region_-01_+00/E_00000",
+     "length": 300.0,
+     "npts": 76,
+     "p0": [
+      -300.0,
+      0.0
+     ],
+     "p1": [
+      0.0,
+      0.0
+     ],
+     "street_class": "arterial",
+     "trim_end": 0.0,
+     "trim_start": 13.54998779296875,
+     "width": 26.8000545501709
+    },
+    {
+     "edge_id": "region_-02_+00/E_00001",
+     "length": 200.0,
+     "npts": 51,
+     "p0": [
+      -300.0,
+      0.0
+     ],
+     "p1": [
+      -500.0,
+      0.0
+     ],
+     "street_class": "arterial",
+     "trim_end": 0.0,
+     "trim_start": 13.54998779296875,
+     "width": 26.79996681213379
+    },
+    {
+     "edge_id": "region_-02_+00/E_00002",
+     "length": 100.0,
+     "npts": 26,
+     "p0": [
+      -300.0,
+      0.0
+     ],
+     "p1": [
+      -300.0,
+      100.0
+     ],
+     "street_class": "collector",
+     "trim_end": 0.0,
+     "trim_start": 21.0,
+     "width": 15.100001335144043
+    }
+   ],
+   "nodes": [
+    {
+     "arms": [
+      {
+       "at_start": true,
+       "dir": [
+        1.0,
+        0.0
+       ],
+       "edge_id": "region_-01_+00/E_00000",
+       "length": 300.0,
+       "measured_trim": 13.54998779296875,
+       "street_class": "arterial",
+       "width": 26.8000545501709
+      },
+      {
+       "at_start": true,
+       "dir": [
+        -1.0,
+        0.0
+       ],
+       "edge_id": "region_-02_+00/E_00001",
+       "length": 200.0,
+       "measured_trim": 13.54998779296875,
+       "street_class": "arterial",
+       "width": 26.79996681213379
+      },
+      {
+       "at_start": true,
+       "dir": [
+        0.0,
+        1.0
+       ],
+       "edge_id": "region_-02_+00/E_00002",
+       "length": 100.0,
+       "measured_trim": 21.0,
+       "street_class": "collector",
+       "width": 15.100001335144043
+      }
+     ],
+     "pos": [
+      -300.0,
+      0.0
+     ]
+    },
+    {
+     "arms": [
+      {
+       "at_start": false,
+       "dir": [
+        -1.0,
+        0.0
+       ],
+       "edge_id": "region_-01_+00/E_00000",
+       "length": 300.0,
+       "measured_trim": 0.0,
+       "street_class": "arterial",
+       "width": 26.8000545501709
+      },
+      {
+       "at_start": true,
+       "dir": [
+        1.0,
+        0.0
+       ],
+       "edge_id": "region_+01_+00/E_00003",
+       "length": 500.0,
+       "measured_trim": 56.618812561035156,
+       "street_class": "arterial",
+       "width": 26.800119400024414
+      },
+      {
+       "at_start": true,
+       "dir": [
+        0.8480591373001531,
+        0.5299015943000359
+       ],
+       "edge_id": "region_+00_+00/E_00004",
+       "length": 120.00341801856115,
+       "measured_trim": 58.296234130859375,
+       "street_class": "collector",
+       "width": 15.100000381469727
+      }
+     ],
+     "pos": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "params": {
+    "arc_steps": 5,
+    "corner_radius_scale": 1.0,
+    "max_fillet_fraction": 0.4,
+    "min_end_segment": 1.0,
+    "miter_limit": 4.0
+   }
+  },
+  "O_shallow_y_host_dies": {
+   "edges": [
+    {
+     "edge_id": "region_-01_+00/E_00000",
+     "length": 599.7677917226629,
+     "npts": 151,
+     "p0": [
+      -300.0,
+      0.0
+     ],
+     "p1": [
+      278.1600036621094,
+      112.37999725341797
+     ],
+     "street_class": "arterial",
+     "trim_end": 0.0,
+     "trim_start": 13.549986839294434,
+     "width": 26.79978370666504
+    },
+    {
+     "edge_id": "region_-02_+00/E_00001",
+     "length": 200.0,
+     "npts": 51,
+     "p0": [
+      -300.0,
+      0.0
+     ],
+     "p1": [
+      -500.0,
+      0.0
+     ],
+     "street_class": "arterial",
+     "trim_end": 0.0,
+     "trim_start": 13.54998779296875,
+     "width": 26.799964904785156
+    },
+    {
+     "edge_id": "region_-02_+00/E_00002",
+     "length": 100.0,
+     "npts": 26,
+     "p0": [
+      -300.0,
+      0.0
+     ],
+     "p1": [
+      -300.0,
+      100.0
+     ],
+     "street_class": "collector",
+     "trim_end": 0.0,
+     "trim_start": 21.0,
+     "width": 15.100001335144043
+    }
+   ],
+   "nodes": [
+    {
+     "arms": [
+      {
+       "at_start": true,
+       "dir": [
+        1.0,
+        0.0
+       ],
+       "edge_id": "region_-01_+00/E_00000",
+       "length": 599.7677917226629,
+       "measured_trim": 13.549986839294434,
+       "street_class": "arterial",
+       "width": 26.79978370666504
+      },
+      {
+       "at_start": true,
+       "dir": [
+        -1.0,
+        0.0
+       ],
+       "edge_id": "region_-02_+00/E_00001",
+       "length": 200.0,
+       "measured_trim": 13.54998779296875,
+       "street_class": "arterial",
+       "width": 26.799964904785156
+      },
+      {
+       "at_start": true,
+       "dir": [
+        0.0,
+        1.0
+       ],
+       "edge_id": "region_-02_+00/E_00002",
+       "length": 100.0,
+       "measured_trim": 21.0,
+       "street_class": "collector",
+       "width": 15.100001335144043
+      }
+     ],
+     "pos": [
+      -300.0,
+      0.0
+     ]
+    }
+   ],
+   "params": {
+    "arc_steps": 5,
+    "corner_radius_scale": 1.0,
+    "max_fillet_fraction": 0.4,
+    "min_end_segment": 1.0,
+    "miter_limit": 4.0
+   }
+  },
+  "P_stub_chain": {
+   "edges": [
+    {
+     "edge_id": "region_+00_+00/E_00002",
+     "length": 152.97058540779074,
+     "npts": 40,
+     "p0": [
+      0.0,
+      0.0
+     ],
+     "p1": [
+      30.0,
+      150.0
+     ],
+     "street_class": "collector",
+     "trim_end": 0.0,
+     "trim_start": 20.611621856689453,
+     "width": 15.100031852722168
+    },
+    {
+     "edge_id": "region_-01_+00/E_00000",
+     "length": 99.99779865436435,
+     "npts": 26,
+     "p0": [
+      0.0,
+      0.0
+     ],
+     "p1": [
+      -86.5999984741211,
+      50.0
+     ],
+     "street_class": "collector",
+     "trim_end": 0.0,
+     "trim_start": 24.999469757080078,
+     "width": 15.100001335144043
+    },
+    {
+     "edge_id": "region_-01_-01/E_00001",
+     "length": 99.99779865436435,
+     "npts": 26,
+     "p0": [
+      0.0,
+      0.0
+     ],
+     "p1": [
+      -86.5999984741211,
+      -50.0
+     ],
+     "street_class": "collector",
+     "trim_end": 0.0,
+     "trim_start": 24.999469757080078,
+     "width": 15.100001335144043
+    }
+   ],
+   "nodes": [
+    {
+     "arms": [
+      {
+       "at_start": true,
+       "dir": [
+        -0.8660190368920729,
+        0.500011027618918
+       ],
+       "edge_id": "region_-01_+00/E_00000",
+       "length": 99.99779865436435,
+       "measured_trim": 24.999469757080078,
+       "street_class": "collector",
+       "width": 15.100001335144043
+      },
+      {
+       "at_start": true,
+       "dir": [
+        -0.8660190368920729,
+        -0.500011027618918
+       ],
+       "edge_id": "region_-01_-01/E_00001",
+       "length": 99.99779865436435,
+       "measured_trim": 24.999469757080078,
+       "street_class": "collector",
+       "width": 15.100001335144043
+      },
+      {
+       "at_start": true,
+       "dir": [
+        0.19611613221582688,
+        0.9805806762753916
+       ],
+       "edge_id": "region_+00_+00/E_00002",
+       "length": 152.97058540779074,
+       "measured_trim": 20.611621856689453,
+       "street_class": "collector",
+       "width": 15.100031852722168
+      }
+     ],
+     "pos": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "params": {
+    "arc_steps": 5,
+    "corner_radius_scale": 1.0,
+    "max_fillet_fraction": 0.4,
+    "min_end_segment": 1.0,
+    "miter_limit": 4.0
+   }
   }
  },
  "houdini": "22.0.398"

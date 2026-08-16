@@ -3153,8 +3153,11 @@ def connections_are_never_refused(graph_geo):
     term, and it would have gone red on that build's first run.
 
     Pass 0 is exempt and deliberately so: `graph_min_angle` exists to remove the
-    near-parallel duplicates TRACING produced, and on this build it removes none
-    on any of the nine cases. From pass 1 the graph is being repaired rather than
+    near-parallel duplicates TRACING produced. ⚠️ It used to remove none on any
+    case, and that is no longer true: M2's shallow-Y family (M2 the milestone —
+    `M_shallow_y_24`, `O_shallow_y_host_dies`) is drawn to make it fire, and each
+    records one pass-0 kill. The exemption is why they stay GREEN here while
+    deleting a street, so read `deleted_in_pass0` rather than the verdict. From pass 1 the graph is being repaired rather than
     cleaned, so a kill there is a repair destroying a street to make its own
     numbers work.
 

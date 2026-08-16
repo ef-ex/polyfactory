@@ -6,7 +6,7 @@
 `s5j_solve` cuts off each arm, as a function of arms, widths, classes and
 angles, so `standing` is checkable before any geometry exists. The measured
 plates it is checked against live in `trim_calibration.json`, written by
-`hython tests/citygen/dump_trims.py` on all eleven cases — 524 arms.
+`hython tests/citygen/dump_trims.py` on all fifteen cases — 539 arms.
 
 MUTATION-TESTED across four audit rounds (10, then 16, then 1 real survivor).
 The tables, the tolerances, the `_straightest` key and its returned order, and
@@ -93,6 +93,10 @@ RESIDUAL_M = {
     "G_tongue":        0.001,   # measured 0.000000
     "J_five_star":     0.001,   # measured 0.000034
     "K_stub_triangle": 0.001,   # measured 0.000007
+    "M_shallow_y_24":  0.001,   # M2, measured 0.000000
+    "N_shallow_y_32":  0.001,   # M2, measured 0.000000
+    "O_shallow_y_host_dies": 0.001,   # M2, measured 0.000000
+    "P_stub_chain":    0.001,   # M2, measured 0.000000
     "A_drawn":         2.03,    # measured 2.024024
     "D_offset":        2.03,    # measured 2.024024
     "H_offset_strict": 2.03,    # measured 2.024024
@@ -107,6 +111,8 @@ OVER_HALF_METRE = {
     "A_drawn": 2, "B_grid": 24, "C_radial": 97, "D_offset": 2,
     "E_short_t": 0, "F_bend": 0, "G_tongue": 0, "H_offset_strict": 2,
     "I_offset_radial": 97, "J_five_star": 0, "K_stub_triangle": 0,
+    "M_shallow_y_24": 0, "N_shallow_y_32": 0, "O_shallow_y_host_dies": 0,
+    "P_stub_chain": 0,
 }
 
 # ⚠️ The residual on an ARM is not the number a consumer needs, and reporting it
@@ -127,10 +133,15 @@ STANDING_ERROR_M = {
     "G_tongue":       (0.001, -0.001),
     "J_five_star":    (0.001, -0.001),
     "K_stub_triangle": (0.001, -0.001),
+    "M_shallow_y_24": (0.001, -0.001),
+    "N_shallow_y_32": (0.001, -0.001),
+    "O_shallow_y_host_dies": (0.001, -0.001),
+    "P_stub_chain": (0.001, -0.001),
 }
 
 STRAIGHT_CASES = ("E_short_t", "F_bend", "G_tongue", "J_five_star",
-                  "K_stub_triangle")
+                  "K_stub_triangle", "M_shallow_y_24", "N_shallow_y_32",
+                  "O_shallow_y_host_dies", "P_stub_chain")
 
 
 def load():
@@ -213,7 +224,7 @@ class TestCalibration(unittest.TestCase):
                     "%s: %.6f m at node %s on %s" % (name, worst[0], worst[1],
                                                      worst[2]))
                 # ⚠️ `bound - 0.02` is VACUOUS where the bound is 1 mm — it
-                # reads `> -0.019` and passes for anything, so the five exact
+                # reads `> -0.019` and passes for anything, so the nine exact
                 # cases could be loosened 20x unnoticed. They get an equality
                 # instead: their bound is the exactness floor, not a measurement.
                 if name in STRAIGHT_CASES:
@@ -266,7 +277,7 @@ class TestCalibration(unittest.TestCase):
         that is 0.1 m out and flips a verdict is not, and no residual table can
         tell the two apart.
 
-        Measured over all 304 edges of the suite: zero false-OK (planner says
+        Measured over all 318 edges of the suite: zero false-OK (planner says
         the street stands, the builder ate it) and zero false-BAD. That result
         was found by the M1 audit and was not asserted anywhere, which is
         exactly how a good property rots.
@@ -286,7 +297,7 @@ class TestCalibration(unittest.TestCase):
                     false_ok.append((name, e["edge_id"], mine, theirs))
                 elif theirs > 0 >= mine:
                     false_bad.append((name, e["edge_id"], mine, theirs))
-        self.assertEqual(edges, 304)
+        self.assertEqual(edges, 318)
         self.assertEqual(false_ok, [])
         self.assertEqual(false_bad, [])
 
@@ -339,7 +350,7 @@ class TestCalibration(unittest.TestCase):
         junction at both. Swapping `trim_start` for `trim_end` leaves every
         per-arm comparison above green and makes every `standing` on a
         two-junction street garbage. Asserted against the builder's own
-        `trim_start` / `trim_end` on all 524 arms — and every street the builder
+        `trim_start` / `trim_end` on all 539 arms — and every street the builder
         cut must be a street the planner saw, which is the coverage half of the
         same claim: an arm silently dropped in node extraction would leave the
         per-arm comparison green and simply not be checked.
@@ -364,7 +375,7 @@ class TestCalibration(unittest.TestCase):
                         self.assertEqual(e["trim_end"], 0.0)
                     else:
                         seen += 1
-        self.assertEqual(seen, 304, "the planner did not see every street")
+        self.assertEqual(seen, 318, "the planner did not see every street")
 
 
 class TestKVerdict(unittest.TestCase):
@@ -721,8 +732,8 @@ class TestCornerModel(unittest.TestCase):
         test used three 14.4 m locals and so reproduced, inside the test written
         to close one audit finding, the exact defect of another: the fallback is
         `max(a.width, b.width)` and with equal arms `max` and `min` are the same
-        number, so a wrong one passed. **Zero of the suite's 524 corners take
-        this branch** — all 49 collinear corners are the angle≈pi side — so this
+        number, so a wrong one passed. **Zero of the suite's 539 corners take
+        this branch** — all 53 collinear corners are the angle≈pi side — so this
         hand-built node is its only coverage anywhere in the repo.
         """
         p = plan.Params(min_end_segment=0.0)
@@ -818,7 +829,7 @@ class TestClearOfVertex(unittest.TestCase):
         `ceil(L / 4)` equal segments. That premise was verified once, by hand,
         and asserted nowhere — while `plan.py` carries a note that the two ways
         of counting it (chord-sum here, input arc length in the SOP) could
-        disagree, and **10 of the 304 edges sit exactly on an integer L/4**,
+        disagree, and **19 of the 318 edges sit exactly on an integer L/4**,
         where one ulp flips `nseg` and shifts the whole grid.
 
         The fixture already records `npts`, so the premise is free to check.
@@ -837,8 +848,8 @@ class TestClearOfVertex(unittest.TestCase):
                                  e["npts"] - 1,
                                  "%s %s L=%r" % (name, e["edge_id"],
                                                  e["length"]))
-        self.assertEqual(checked, 304)
-        self.assertEqual(on_integer, 10)     # the ones the epsilon protects
+        self.assertEqual(checked, 318)
+        self.assertEqual(on_integer, 19)     # the ones the epsilon protects
 
     def test_the_dust_epsilon_is_pinned_on_BOTH_sides(self):
         """⚠️ The fixture cannot pin this and the test that claimed to did not.
@@ -846,7 +857,7 @@ class TestClearOfVertex(unittest.TestCase):
         `resample_segments` subtracts 1e-9 before `ceil` so a length that is
         arithmetically `4n`, arriving a few ulps over, does not gain a segment
         and shift every vertex. Round 3 deleted the epsilon and all 38 tests
-        stayed green: of the 304 edges, the 10 "on an integer L/4" sit at
+        stayed green: of the 318 edges, the 19 "on an integer L/4" sit at
         exactly 0.0 deviation, where `ceil` needs no help, and **zero** sit in
         the band where it does. So it is pinned here, directly, on both sides —
         dust is absorbed, a real overshoot is not.
