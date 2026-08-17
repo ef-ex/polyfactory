@@ -7,7 +7,14 @@ Branch `cityGen`. Started 2026-08-08. Revised after clarification rounds 1 and 2
 
 **This file owns:** the vision, the principles, and the contracts that span subsystems.
 **Subsystem designs:** [`citygen_streets.md`](citygen_streets.md) — streets (first subsystem).
-Terrain, vegetation, zoning, buildings — not yet written.
+Terrain, vegetation, zoning — not yet written.
+**Buildings:** [`citygen_buildings.md`](citygen_buildings.md) — *research only*, no design taken.
+Surveys the papers, the tool landscape and corroborated artist feedback; §7 there records what the
+survey implies for the eventual design.
+Tree/foliage *generation* is its own polyfactory system, specced in [`foliage.md`](foliage.md);
+the future vegetation subsystem here owns only city-context *placement* and will consume it.
+**Related tooling study:** [`terrain_presets.md`](terrain_presets.md) — the Gaea preset/recipe
+research. Tooling only; it does **not** own the terrain subsystem design. Parked behind streets.
 
 **Reference library:** `polyfactory/resources/citygen/README.md` — gitignored, local only.
 
@@ -47,6 +54,29 @@ Stated plainly by Hannes and it outranks everything else in this document:
 
 This is not a feature. It is a **rule that constrains every other decision**, so it is written once
 here and referenced everywhere.
+
+### 2.0 "Start realistic, end artistic" — the house rule
+
+Hannes, 2026-08-17, proposing this as the general rule for **every** polyfactory tool, not just
+citygen:
+
+> you start realistic and you end artistic [...] we follow the realistic way as much as possible and
+> give artists controls to make unrealistic things
+
+Worked example that prompted it: a real timber section table would give the generator a set of
+beam dimensions that actually exist. **If the art director wants a beam dimension that does not
+exist, the tool builds it anyway.** Real-world data supplies the *default*; it never supplies a
+limit.
+
+⚠️ **This introduces no new mechanism.** It is the name for what §2.1 and §2.2 already are:
+real-world values enter as **defaults at cascade level 1–3**, and any physical or historical rule is
+a **`warn`, never a `block`**. Recording the phrasing because a rule with a name gets applied, and
+because it settles in advance every future argument of the form *"but that's not how it's really
+built"* — the answer is *"then it is a default with a warning, not a constraint."*
+
+It also fixes the direction of travel: **realistic is where the tool starts, not where it must
+end.** Any subsystem that can only produce correct real-world output has failed this rule, and so
+has any subsystem whose defaults are invented rather than sourced.
 
 ### 2.1 No constants — the override cascade
 
@@ -471,7 +501,9 @@ Each subsystem must be usable on its own before the next begins.
    fully specified from Parish 2001 + CityEngine; only `skeleton` still needs Vanegas et al. 2012
    (not acquired). See [`citygen_streets.md`](citygen_streets.md) §S8
 3. **Zoning** — §3; shares its mechanism with vegetation biomes
-4. **Buildings** — largest unknown, written from scratch
+4. **Buildings** — written from scratch. Research done: [`citygen_buildings.md`](citygen_buildings.md).
+   The *algorithm* is no longer the unknown (20 years of convergence on blockout → scope split →
+   module fill → junctions → roof); the unknown is the authoring and override model
 5. **Terrain integration** — Contract 3
 6. **Vegetation / scatter** — Contract 4, Labs as starting point only
 7. **Art-direction tooling** — Contracts 1, 2 and 7 made usable: selection, region locking,
@@ -490,6 +522,14 @@ C_radial, present in both the old and new HDA chains.
 
 Still open at system level — none of these block v1 streets:
 
+0. ⛔ **The building subsystem's input contract: polygon-with-edge-roles, or volume-with-face-roles?**
+   Raised 2026-08-17 by stress-testing the building design against Coruscant —
+   [`citygen_buildings.md`](citygen_buildings.md) §9g. Our chain is
+   *streets → blocks → lots → building*, which is **planar**; the multi-level sci-fi case in §1 has
+   no ground plane and streets at many altitudes. Six of seven building stages generalise to it;
+   **the lot assumption does not.** This is the one place "schema must not preclude it" is at risk,
+   so it is a decision to take **before** the building schema is written, not after. Does not block
+   v1 streets.
 1. **Instancing substrate** — PointInstancer vs instanceable prims vs primvar-keyed `elem_id`.
    The SOP-authoring decision favours primvar-keyed, but **prototype at real city scale** before
    committing; per-instance override is the specific thing to stress.
@@ -497,5 +537,8 @@ Still open at system level — none of these block v1 streets:
 3. **SideFX Labs licence** for copying node internals into anything distributed — §5. Unchecked.
 4. Verify `viewer_states/` is scanned from `HOUDINI_PATH` for package-local distribution — needed
    only when states are built (v2).
-5. **Check SideFX Project Vitruvius release status.** Cannot be a dependency; worth studying.
+5. ~~**Check SideFX Project Vitruvius release status.**~~ Searched 2026-08-17: still announced-only,
+   no release found. Cannot be a dependency; worth watching. **Project Skylark** (June 2025) *has*
+   shipped a free blockout-driven building generator + tutorial — study that instead.
+   See [`citygen_buildings.md`](citygen_buildings.md) §3c.
 6. **APEX for the building subsystem** — prototype before committing (§4b).
