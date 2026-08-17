@@ -625,14 +625,23 @@ def build_all(parent=None):
 
     # Q - THE S7 T-CASE (M4): two AUTHORED `junction` nodes on a closed ring.
     #
-    # §11.5 names S7 as the integration risk: at a junction node the
-    # principal's kerb runs THROUGH while minor kerbs tee into it, and
-    # blocks_kerb's collect-and-close must survive that. A lone T closes no
-    # block, so the case is a ring - and it carries TWO Ts, not one, because a
-    # ring with a single junction becomes ONE CLOSED PRIM from that node back
-    # to itself (graph_polypath merges the degree-2 corners away), which is the
-    # self-loop the planner cannot represent (`edge_id` is not a valid arm
-    # key, the recorded M4 defect). Two Ts split the ring into two open prims
+    # ⚠️ 2026-08-17: the artist ruled the uncut-principal render a BUG
+    # (section 11.5) and the build path was reverted - the type moves NO
+    # geometry now. Q keeps its authoring on purpose: it is the proof the
+    # schema flows downstream while the build stays the crossing's. The
+    # revert A/B measured Q's city/blocks/lots outputs bit-identical to its
+    # authoring-bypassed twin; only the graph output's ATTRIBUTE digest
+    # differs, which is the authored schema values themselves flowing.
+    #
+    # As drawn (historical premise): §11.5 named S7 as the integration risk -
+    # at a junction node the principal's kerb ran THROUGH while minor kerbs
+    # teed into it, and blocks_kerb's collect-and-close had to survive that.
+    # A lone T closes no block, so the case is a ring - and it carries TWO Ts,
+    # not one, because a ring with a single junction becomes ONE CLOSED PRIM
+    # from that node back to itself (graph_polypath merges the degree-2 corners
+    # away), which is the self-loop the planner cannot represent (`edge_id` is
+    # not a valid arm key, the recorded defect - M4 closed without fixing it
+    # and it is unowned). Two Ts split the ring into two open prims
     # and the loop never forms.
     #
     # Sized so the ring halves are unambiguous principals: 150+300+150 = 600 m
@@ -752,10 +761,11 @@ LOT_FLOOR = {"A_drawn": 74, "B_grid": 560, "C_radial": 683, "D_offset": 55,
              # cycle, so there is no ring for S7 to close and no parcel to pin.
              "M_shallow_y_24": 0, "N_shallow_y_32": 0,
              "O_shallow_y_host_dies": 0, "P_stub_chain": 0,
-             # Q closes ONE block - the ring interior. Unpinned at 0 until the
-             # junction-type geometry has had its render looked at (11.12);
-             # pin from measurement after that, the A-D precedent.
-             "Q_junction_ring": 0}
+             # Q closes ONE block - the ring interior. The render was looked
+             # at 2026-08-17 (verdict: the junction type builds as a crossing,
+             # section 11.5's ruling), so the count is pinned from measurement
+             # per the A-D precedent: 155 lots shipped, floor ~90%.
+             "Q_junction_ring": 139}
 
 
 def inner(case, role):

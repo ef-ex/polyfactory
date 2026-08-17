@@ -5607,11 +5607,42 @@ edge; the planner turns that into `principal_start` / `principal_end` at each no
 passes through, computed default = widest pair where nothing is authored. Per-node authoring
 downstream stays possible by editing the booleans directly.
 
+**STREET IDENTITY — data model decided 2026-08-17, derivation deferred to the markings/decals
+milestone.** The artist's question ("should we already start to think street identity? it
+would drive the middle stripe") is answered YES at the data level, and the schema above
+already contains its local half: a valid principal pair at a node IS street identity through
+that node — "straight means you stay on the street" was the ruling that ratified the widest
+pair, and CityEngine's booleans encode the same statement. The global form is derived, not
+authored:
+
+* **`street_id`** (prim, on the edge, planner-written): chain the pairings. At every node
+  whose claims form a valid pair, the two claimed edge-ends are one street; at every plain
+  degree-2 point the two incident edges continue one street by default (a degree-2 node has
+  exactly one through pair — authorable apart later if a boundary is ever wanted there).
+  Union-find over those links; each component is a street, id'd deterministically (lowest
+  member `edge_id` — the tongue-rank precedent, never cook order). Pure Python in `plan.py`,
+  no HDA edits, testable on all 16 cases; the self-loop keyset defect recorded in
+  `test_plan.py`'s docstring is in scope for whoever builds this, because a loop is one
+  street whose two ends meet at one node.
+* **Per-street flags ride the edges of the street** (fill-if-empty, artist wins), e.g.
+  `median_continuous` — the busy-main-street condition the artist named: "you are not
+  allowed to cross the other side of the road". One flag on the street, and every junction
+  along it keeps its median decal running through and places its zebras accordingly. A flag
+  that differs across one street's edges is a schema red, same discipline as cardinality.
+* **Consumers, in order of arrival:** the median-continuation condition and zebra placement
+  (markings are DECALS — artist ruling 2026-08-17, instancing first, geometry generation
+  deferred wholesale); later naming, class/width consistency along a street, and decal runs
+  that span a whole street. None of them move carriageway geometry: identity is
+  markings-and-priority data, exactly like the type vocabulary since the §11.5 ruling.
+
 ### 11.4 The footprint function, and M1 — the experiment that gates everything
 
 `plan.py` gets `crossing_trims(node) → {edge_id: consumed_m}` and
 `junction_trims(node, principal) → …`: what each node type consumes from each arm, as a
 FUNCTION of arms + widths + classes + corner radii — not a measurement of built plates.
+(`junction_trims` was deleted 2026-08-17 with the render ruling — §11.5 ⛔ — after serving
+as this section's measurement instrument; `crossing_trims` is the only trim model, every
+vocabulary type builds it, and `node_trims` asserts that invariance.)
 `standing(edge) = length − consumed(end A) − consumed(end B)`, checkable before any geometry
 exists. This eventually retires the premeasure double-solve and its float32 drift.
 
@@ -5780,17 +5811,44 @@ instability at `max_aspect` 1.8.
 
 ### 11.5 Node types — builder contracts
 
-- **crossing** — today's `s5j_solve`, unchanged. The default the planner writes everywhere
-  until 11.5-junction is proven (see M3/M4 rollout).
-- **junction** — the principal pair is ONE continuous street through the node: no break, no
-  mouth, no trim contribution from this node. Minors trim to the principal's flank
-  (halfwidth + corner arc). Plate: a rectangle on the principal spanning the minor mouths
-  (CityEngine's blue).
+- **crossing** — `s5j_solve`, unchanged. Since the 2026-08-17 ruling below it is not merely
+  the default the planner writes: it is what EVERY vocabulary type builds today, and
+  `plan.node_trims` asserts that invariance. ⚠️ The invariance is a statement about what is
+  BUILT, not a law about types: the ruling is that a type may not change how a junction is
+  DRIVEN (open mouth, kerb into the fillets, median interrupted), and priority-through-a-node
+  therefore lives in markings. The **merge** below is the one type whose contract genuinely
+  consumes carriageway — a length along the principal, not a plate — so M5 breaks this
+  invariance deliberately, and `node_trims` and the builder move together when it does.
+- **junction** — ⛔ **SCHEMA ONLY.** The paragraph below is the contract as DESIGNED and BUILT
+  in M4, and it was reverted on 2026-08-17 (ruling immediately after it): the principal pair
+  WAS to be one continuous street through the node — no break, no mouth, no trim contribution
+  from this node; minors trimming to the principal's flank (halfwidth + corner arc); plate a
+  rectangle on the principal spanning the minor mouths (CityEngine's blue). None of that is
+  built. What the type means today: this node's principal pair is the street that has
+  PRIORITY through it — data for the zebra and median decals, and the local half of street
+  identity (§11.3).
 
-  ⚠️ **THREE GAPS BETWEEN THIS PARAGRAPH AND M1's MODEL, measured 2026-08-15 by the M1 audit,
-  and M4 closes them by DECIDING rather than by matching.** `plan.junction_trims` is
-  `crossing_trims` with the principal zeroed — exact for the model, and not the same claim as
-  "this is the plate above":
+  ⛔ **ARTIST RULING 2026-08-17 — the as-built junction render is a BUG, not a decision.** The
+  uncut principal carries its kerb/sidewalk band and its median stripe straight across the
+  minor's mouth, and a street you cannot turn into is not a junction. The crossing's carriageway
+  solve — open mouth, kerb breaking into the fillets, median interrupted — is the ONLY correct
+  geometry, for every type. What "the principal runs through" buys is NOT geometry, it is
+  markings and priority: the through-footway reading becomes a **zebra crossing** over the
+  minor's mouth, and the median continues ONLY as an authored special condition (the busy main
+  street you may not cross) — a per-STREET property, which is exactly what street identity is
+  for. Markings are a **decal workflow** (artist's call, same day — instancing is the point),
+  so their generation is deferred wholesale; the junction type keeps its schema and principal
+  pair as the DATA that will drive those decals. The jtrim/is_plate/through-extension build
+  path above is overruled as a shipped look; whether it is gated off now or at the markings
+  milestone is M4-close-out sequencing, not an open design question.
+
+  ⚠️ **HISTORICAL — THE THREE GAPS between the plate paragraph and M1's model, measured
+  2026-08-15 by the M1 audit; M4 closed them by DECIDING rather than by matching, and the
+  2026-08-17 revert deleted both sides.** `plan.junction_trims` WAS `crossing_trims` with the
+  principal zeroed — exact for the model, and not the same claim as "this is the plate above".
+  Kept because these are now the ONLY surviving record of the measurements (the tests that
+  carried them went with the function), and because a merge (M5) consuming footprint along a
+  principal will meet gaps 1 and 2 again:
   1. **Two adjacent minors with no principal between them.** The model charges their
      minor-to-minor kerb corner; a rectangle-on-the-principal has no such corner in it.
      Measured, 14.4 m minors at 70° and 110° off an arterial principal: **30.77 m against
@@ -5804,10 +5862,12 @@ instability at `max_aspect` 1.8.
      it. A pair that bends 110° through its own junction is not "one continuous street"; nothing
      signals it today.
 
-  ⚠️ **S7 is the named integration risk**: the block boundary IS the kerb,
-  and at a junction node the principal's kerb runs *through* while minor kerbs tee into it —
-  `blocks_kerb`'s collect-and-close must survive that. The S7 T-case (11.10) exists before this
-  ships, and the render gets LOOKED at.
+  ⚠️ **S7 WAS the named integration risk**: the block boundary IS the kerb, and at a junction
+  node the principal's kerb ran *through* while minor kerbs teed into it — `blocks_kerb`'s
+  collect-and-close had to survive that. It did (Q: 0 unpaired ends), the risk is moot while
+  no type cuts differently, and the S7 T-case (11.10) and its render requirement both DID
+  their job: the render is what killed the feature. **The rule generalises — any future typed
+  build (M5's merge first) re-opens S7 and gets LOOKED at before it is called done.**
 - **merge** — chosen where the approach angle is under `min_junction_angle` (reuse the parm,
   do not duplicate it): the minor is re-routed (11.6) to arrive parallel and fuse tangentially.
   Feasibility: minor length ≥ `R_min(class) × θ` + a parallel run (new parm, artist default —
@@ -6155,10 +6215,15 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   and four arms sit at 4.35–5.00 m, 0.35 m from the trigger.
 
   ⚠️ **And the trigger was over-generalised twice.** It is not "every junction with one wide
-  arm pair" — of **545 arms** exactly **five** have a junction-side trim ≤ 4 m (N's, plus Q's
-  four deliberately-uncut through arms since M4), and **87 of the 88
+  arm pair" — of **545 arms** exactly **one** has a junction-side trim ≤ 4 m (N's, measured
+  0.0000; the count read five while M4's four deliberately-uncut Q arms existed, and the
+  2026-08-17 revert gave them real crossing trims again), and **89 of the 90
   junctions with two or more arterial arms do not exhibit it** (`G_tongue` is two collinear
-  arterials plus a third and trims 22.4 all round). Nor is it "the arm opposite a near-floor pair
+  arterials plus a third and trims 22.4 all round). ⚠️ That second figure read `87 of the 88`
+  and BOTH halves were wrong — the denominator was the pre-Q count, stale since M4 added a
+  sixteenth case, and the numerator moved with this revert. The audit caught it three words
+  from the clause I had just recomputed: **re-derive the whole sentence, not the number you
+  came for.** Nor is it "the arm opposite a near-floor pair
   at a 3-arm node", which generalised one rig. **The hole condition is just `trim < de`**: an
   arm's trim is `max(reach_ahead, reach_behind, 0)` in the planner and in the builder alike, so
   any arm whose larger corner reach falls short of its own terminal segment gaps. ⚠️ "Both
@@ -6242,8 +6307,10 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   artist's ruling (§11.3): `principal_edges`, the node-side string, is RETIRED; the principal is
   `principal_start` / `principal_end`, int booleans on the edge prim. The rework was proven the
   same way the original was: gate 26 failing; the only baseline movement is **15 `junction_schema` values gaining the
-  deliberate `claims` key** (the principal's pin — without it, M4 flipping the computed default
-  on would move ZERO baseline values), geometry unmoved — and eight fresh injections on the boolean shape all
+  deliberate `claims` key** (the principal's pin — without it, turning the computed default on
+  would move ZERO baseline values; written for M4's flip, which the 2026-08-17 ruling blocked,
+  and the pin outlives it because the booleans still ship as data), geometry unmoved — and
+  eight fresh injections on the boolean shape all
   fail as red rows with clean restores, including the one the string shape could not survive: a
   wrong-TYPE value authored upstream, which now produces red rows instead of killing all 15
   cases. A well-formed authored pair stays green. One trap found installing it: **a string parm
@@ -6267,8 +6334,9 @@ setdetailattrib(0, "repair_spread_m", total, "set");
 
   ⚠️ It deliberately does NOT assert WHICH type a node carries: `junction_type` is
   artist-authorable, so "junction everywhere" is a legal state and a check forbidding it would be
-  asserting taste. What pins today's choice is the recorded `types` histogram — M4 flipping the
-  computed default moves it visibly.
+  asserting taste. What pins today's choice is the recorded `types` histogram — any change to
+  what the planner computes moves it visibly. (Written for M4's flip; that flip is blocked
+  since the 2026-08-17 ruling, and the pin is what makes ANY future default change visible.)
 
   ⚠️ **AND THE LEAK FIX SHIPPED WITHOUT A DETECTOR, WHICH IS THE COMPOUNDING RULE BROKEN ON THE
   ONE CHANGE M3 MADE THAT WAS NOT A NO-OP.** Measured on frozen copies with the leak put back:
@@ -6314,11 +6382,14 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   construction — a closed street contributes one prim, so a 3-arm junction made of a loop plus
   one street reads degree 2 to the check and to `s5j_solve` alike.
 
-  ⚠️ **AND THE SELF-LOOP IS A PLANNER DEFECT, NOT A CHECK QUIRK — M4 OWNS IT.**
-  `test_plan.py`'s docstring lists it among the guarantees "M3's adapter must re-establish", and
-  **M3 did not**: nothing in `graph_plan` or either check prevents, detects or asserts a closed
-  edge. The audit found the mechanism underneath it: `junction_trims` returns a dict keyed by
-  `edge_id`, so a loop's TWO arms collapse to ONE key and an arm is silently lost — and `_arms`
+  ⚠️ **AND THE SELF-LOOP IS A PLANNER DEFECT, NOT A CHECK QUIRK — AND IT IS UNOWNED.** It was
+  assigned to M4, and **M4 closed on 2026-08-17 without fixing it**; the next milestone to
+  touch this ground owns it, and street identity (§11.3) meets it first, because a loop is one
+  street whose two ends meet at one node. `test_plan.py`'s docstring lists it among the
+  guarantees "M3's adapter must re-establish", and **M3 did not**: nothing in `graph_plan` or
+  either check prevents, detects or asserts a closed edge. The audit found the mechanism
+  underneath it: any `edge_id`-keyed trim dict (`junction_trims` then, `crossing_trims` now)
+  collapses a loop's TWO arms to ONE key and an arm is silently lost — and `_arms`
   in the adapter takes only `pts[1]` or `pts[-2]`, yielding one arm where two exist. **`edge_id`
   is not a valid arm key.** Unreachable today (0 closed prims on all 15 cases, and
   `graph_mark_orphans` deletes any component with no point of degree >= 3), which is why
@@ -6327,14 +6398,23 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   `principal_of`'s distinct-id fallback on the authored channel (the third found unasserted by
   the rework audit's own mutation pass, and now pinned). The symptom is guarded; the cause
   (`edge_id` is not a valid arm key) stays M4's.
-- **M4 — junction type in the builder**, authored-only first; S7 T-case green and its render
-  LOOKED at; then flip the computed default in its own commit; re-measure K against the M1
-  verdict.
+- **M4 — junction type in the builder** — ⛔ **CLOSED 2026-08-17 WITH THE BUILD REVERTED.** Its
+  plan was: authored-only first; S7 T-case green and its render LOOKED at; then flip the
+  computed default in its own commit; re-measure K. The render step did its job and killed the
+  feature — the type ships as SCHEMA ONLY (markings + identity data, §11.3/§11.5), the flip is
+  blocked, and K's rescue reverts to the resolution ladder (M5/M6). See the close-out below.
 
-  **AUTHORED-ONLY HALF BUILT 2026-08-16.** `s5j_solve` validates an authored junction (type +
+  ⛔ **EVERYTHING FROM HERE TO THE CLOSE-OUT IS A HISTORICAL RECORD OF A BUILD THAT WAS
+  REVERTED.** The artist looked at the render on 2026-08-17 and ruled it a bug (§11.5 ⛔): the
+  build below is not in the repo. Kept because its measurements are the evidence — the S7
+  finding, the three audit blockers, the injection proofs — and because the schema half of it
+  survives. Read it in the past tense; the close-out at the end of this milestone says what
+  stands today.
+
+  **AUTHORED-ONLY HALF BUILT 2026-08-16.** `s5j_solve` validated an authored junction (type +
   exactly two principal claims from two distinct prims — the planner's cardinality rule,
-  mirrored) and builds THE CROSSING CONSTRUCTION with two differences: principals take no
-  street trim (they write `jtrim_*`, the KERB-only trim) and their caps are marked `is_plate`.
+  mirrored) and built THE CROSSING CONSTRUCTION with two differences: principals took no
+  street trim (they wrote `jtrim_*`, the KERB-only trim) and their caps were marked `is_plate`.
   Anything invalid builds as a crossing, and `junction_schema` reds the geometry so the
   fallback cannot pass silently — proven by injection (cardinality 1 → crossing trims on every
   arm, `bad_principal` 2, kerb still closed).
@@ -6356,9 +6436,11 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   15 pre-existing cases bit-identical at GEOMETRY level (audited digest, 0 differences); the
   only baseline movement is the deliberate `unbuilt_type: 0` key on 15 `junction_schema` rows — because every new
   code path is behind attributes that only exist once a junction is authored. The calibration
-  closes the geometry→planner round trip at last: `dump_trims` exports the type and the claims,
-  `test_plan` dispatches `node_trims`, and Q reproduces to **1e-5 m** — `junction_trims` with
-  authored booleans IS the builder's plate, principals at zero included.
+  closed the geometry→planner round trip at last: `dump_trims` exports the type and the claims,
+  `test_plan` dispatches `node_trims`, and Q reproduced to **1e-5 m** — `junction_trims` with
+  authored booleans WAS the builder's plate, principals at zero included. (Post-revert the same
+  round trip runs against the crossing solve and Q reproduces to **7.9e-5 m**; the export and
+  the dispatch are what survived, the model they agreed on is `crossing_trims`.)
 
   ⚠️ **AUDIT ROUND 1 (NO) found the guarantees around the geometry, not the geometry.** Three
   blockers, all fixed and re-injected: (F1) a `junction` node with ZERO claims was schema-legal
@@ -6396,18 +6478,101 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   between the two, and the proxy reported Q's authored attributes as drift on a faithful
   pass-through. Value-identical on unauthored cases.
 
-  **STILL OPEN, deliberately:** the computed-default FLIP (the artist's call, §11.12 — one
-  commit, re-measure K against the M1 verdict when it lands) · **the render review** ("look at
-  it" is part of the exit, and it needs the artist's eyes in a GUI session — Q is built for
-  exactly that viewing) · differing principal widths abut without a taper (K's arterial +
-  collector pair will show a step; recorded, CityEngine tapers, v1 abuts) · the principal's
-  sidewalk band sweeps THROUGH across minor mouths (continuous-footway reading; the Wang-tile
-  transitions own the real fix).
+  **The render review happened 2026-08-17 and the verdict is REJECTED** (⛔ ruling in §11.5):
+  the uncut principal's through-kerb and through-median block turning traffic — a bug, not a
+  decision. The "sidewalk band sweeps THROUGH" item this list used to carry as a cosmetic is
+  the disqualifying defect. Consequences: the **computed-default FLIP is BLOCKED**, no longer
+  merely the artist's timing call — flipping it would put ruled-wrong geometry on every
+  degree-≥3 node; it stays off until the junction builds the crossing's carriageway solve and
+  the through-ness lives in markings (zebra decal + conditional median, deferred with the decal
+  workflow). Quarantine fact: the wrong look only exists where `junction` is AUTHORED, i.e. in
+  the Q case — no computed default ever writes it. Still recorded: differing principal widths
+  abut without a taper (K's arterial + collector pair will show a step; CityEngine tapers,
+  v1 abuts) — moot while the junction renders as a crossing, alive again when markings land.
+
+  **M4 CLOSE-OUT — the revert, 2026-08-17 (the ruling made mechanical).** The three M4 build
+  wrangles went back to their 763ca6c text byte-exactly — `s5j_solve` (jt/isP gate, `jtrim_*`
+  writes, `is_plate` caps), `s5j_trim` (the through-end re-extension), `blocks_kerb` (jtrim
+  truncation + dead-end-cap guards) — verified by extracting all three from the written
+  libraries and diffing against both git states: reverted wrangles == pre-M4, everything else
+  == HEAD, node inventories unchanged, `out_detailclean`'s schema masking untouched (it
+  pre-dates M4). Planner: `junction_trims` DELETED, `node_trims` collapses to
+  crossing-for-every-vocab-type (out-of-vocab still raises), and the K-verdict measurement
+  family (`_straightest` + its pins) went with the model it measured — the arm-order lesson
+  re-pinned on `default_principal` (permutation test), the ruling pinned twice
+  (`test_no_vocabulary_type_moves_a_trim_since_the_ruling` on K's real nodes,
+  `test_node_trims_is_type_invariant_and_flag_invariant` on synthetic ones). Calibration
+  regenerated: Q's worst residual 0.000079 m (straight-exact again), 545 arms / 322 edges
+  unchanged, 38 unit tests green. `trim_metric_is_consistent`'s `is_plate` skip and `jtrim_*`
+  through-end term removed — the attributes they read can no longer exist. Gate: **moved
+  values are Q-ONLY and every one improves or re-reports** — `selfx_city_merged` 122 → 4 (the
+  coplanar plate WAS most of Q's self-intersection count — the z-fight the artist saw), city
+  prims 4137 → 4033 (equal to the crossing twin), `trim_metric` still 6 ends at 0.0 max; 27
+  failing before and after, no regressions. Q's lot floor pinned at 139 (155 shipped, the A–D
+  precedent — the render has now been looked at). What SURVIVES of M4: the schema, the
+  adapter, the principal booleans and their planner rules, `junction_schema` /
+  `node_schema_stays_on_the_graph`, and Q as the proof that authored schema flows while the
+  build stays the crossing's. What DIED: every geometric consequence of the type.
+
+  **REVERT AUDIT, round 1 — seven findings, and the worst one was mine.** It verified the
+  claims independently (`hotl -X` per-node diffs proving the three wrangles byte-identical to
+  763ca6c and every other `.parm` identical to 86f61b1; **`junction_type` proven inert on three
+  topologies it had never seen** — all four vocabulary values × principal flags on/off authored
+  onto A, J and K, 24 variants, city/blocks/lots digests bit-identical to unauthored in all 24,
+  with the harness proven non-blind because the graph attribute digest DOES move; gate 27
+  failing matching the working-tree baseline on all 832 rows). Then: **(F1, mine, the reason
+  the verdict was NO) the §11.9 rewrite welded M5's bullet onto the end of this close-out** —
+  deleting M5 from the milestone list while three cross-references still pointed at it, and
+  making this paragraph claim the revert had turned the shallow-Y family green. A text merge,
+  invisible to every test in the repo. (F2) §11.5's live half still specified the reverted
+  build in the present tense — *after* the ⛔ ruling, and disagreeing with `cases.py`, which
+  had been past-tensed. (F3) **a stale plan inside an HDA**, `graph_plan`'s comment still
+  sequencing the flip, invisible to `git diff`. (F4) `tests/README.md` contradicted itself 60
+  lines apart. (F5) `default_junction_type` had NO unit coverage: four mutants of it survived
+  all 38 tests — a coverage gap, not a live defect (the gate's four schema terms catch each),
+  but its docstring now carries the post-ruling planner's strongest claim. (F6) **the junction
+  HDA's `hdaroot` came back `display on render on` where both git states have off** — the
+  flag ride-along, through a guard that watched children and not the root. (F7) two stale
+  rationales in `checks.py`. All seven fixed, and the F3 fix cost two further HDA-write traps
+  of my own (eval/backticks, `.OPfallbacks`/CWD) — recorded with F6's in §11.11, where
+  `hotl -X` is now the standing discipline.
+
+  **Round 2 ran as TWO independent verification passes, confirmed every fix, and found
+  fourteen more between them — all mine.** (Recorded because the two passes could not see
+  each other: the second one later reported that the first two items below were self-found
+  and asked me to strike the audit's credit for them. They were the FIRST pass's N1 and N2.
+  Provenance across concurrent auditors is exactly as easy to get wrong as the counts
+  below.) The material ones: a number
+  I had just recomputed was wrong again three words later (`87 of the 88` → **89 of the 90**,
+  where the denominator had been stale since M4 added Q and the numerator moved with this
+  revert — *re-derive the sentence, not the number you came for*); `JUNCTION_TYPE_VOCAB` and
+  `RESERVED_JUNCTION_TYPES` were **never pinned by value**, so widening either survived every
+  test — which this change made load-bearing, since `node_trims` now branches on vocabulary
+  membership and nothing else; §11.5's rewritten `crossing` bullet claimed a type changes the
+  carriageway "never", contradicting the merge contract twelve lines below it; M6's new
+  rationale credited the revert with closing an exit that M1's measurement had closed two days
+  earlier; §11.11's own whitelist was FILE-scoped, so as first written it could not have
+  caught the trap it was written for; `plan.py`'s `default_principal` still named
+  `junction_trims` in the present tense; and the README's test count was corrected 45 → 38 in
+  the same round a 39th test was added. Every one fixed, the vocabulary pins mutation-checked.
 - **M5 — merge type + re-route** (11.6 control rig included). Shallow-Y family goes green;
   `graph_min_angle` stops deleting — a shallow angle becomes a planner signal (the artist's
   ruling); tripwire accounting updated; ⛔ §S5a item 4 closed by the same mechanism at 75–90°.
-- **M6 — the spread**, only if M4/M5 leave it a consumer. If K dissolves under junction type,
-  the honest exit is to delete it as dead — this repo's own audit discipline.
+  ⚠️ **M5 is the first milestone that has to build a typed node's GEOMETRY under the 2026-08-17
+  ruling**, and the only type whose contract legitimately consumes carriageway: the merge's
+  footprint is a LENGTH along the principal (§11.5), so the trim half lands in the solver and
+  in `plan.node_trims` together — never one without the other, which is the mirror duty the M4
+  audit priced at 12.93 m. Its other half is the re-route, and that is NOT a solver change:
+  §11.6 points it at the S3b clamp machinery and §11.7 confines it to a mover that repositions
+  nodes and does nothing else. Whatever it builds gets LOOKED at before it is called done —
+  every check was green on M4's render, and the artist's eye is what caught it.
+- **M6 — the spread**, only if M5 leaves it a consumer. ⚠️ Its old exit condition — "if K
+  dissolves under junction type, delete the spread as dead" — is retired, but ⚠️ **not by the
+  revert**: M1 measured on 2026-08-15 that the widest-pair principal does NOT dissolve K
+  (§11.4's table, two of three sides still overlapping), and the artist ratified widest pair on
+  08-16, so the exit was already closed before the junction type was built. The revert only
+  removed the geometry that the retired reading still referred to. K's six red rows are M5's
+  and M6's to answer.
 
 ### 11.10 Test plan
 
@@ -6433,13 +6598,52 @@ snippet). `edge_id`, never prim numbers, across streams. `resample` unshares poi
 interpolates attributes. Type `point()` returns into locals. Never save a .hip in tests. Named
 git paths only — no tree-wide add/checkout/stash, another agent may share the repo.
 
+⚠️ **THREE WAYS AN HDA WRITE CHANGES MORE THAN YOU EDITED, none of them visible in
+`git diff` on a binary — all three hit the 2026-08-17 revert: trap 2 was found by its audit,
+traps 1 and 3 by me while fixing what that audit found.** Verify every HDA write by expanding
+both versions with
+`hotl -X <dir> <file>` and diffing the trees. ⚠️ **The whitelist is LINE-scoped, not
+file-scoped, and that distinction is the whole point** — `hdaroot.def` differs on EVERY write
+because its `stat` block carries `create`/`modify`, and the `flags =` line that trap 2
+corrupts lives in that same file, so a rule that waves the FILE through cannot catch trap 2.
+It has to be read. Besides the sections you deliberately edited (`<node>.parm`, plus
+`hdaroot.order` / `hdaroot.net` / `Contents.contents` if you added a node — which trap 2's own
+remedy tells you to do), the only differences that may pass are:
+`INDEX__SECTION`; the `create`/`modify` lines inside a `*.def` `stat` block **and nothing else
+in that file**; and `.OPdummydefs` — ⚠️ **only after you have looked inside it**, because it
+is not a timestamp file: it caches whole nested HDA definitions (the segmenter's copy embeds
+the entire `Sop/pf_citygen_junction` type, DialogScript included), so a real interface change
+next door moves it materially. `cat -v` it and confirm only the embedded epochs moved. ⚠️ Do
+not confuse it with `.OPfallbacks` — three letters apart, a different file, and the subject of
+trap 3, which is the OTHER way nested-asset bookkeeping goes wrong:
+1. **`parm.eval()` on a string parm evaluates its backtick pairs as HSCRIPT.** Reading a
+   4 KB Python-SOP comment block with `eval()` and writing it back stripped EVERY backtick
+   pair in it (4170 → 4146 chars) while the intended edit landed perfectly. Read
+   **`parm.unexpandedString()`**, write that, and assert the backtick count moved by exactly
+   what your edits account for. (The older half of this trap — a backtick pair *containing
+   dots* killing a cook outright — is why the rule was written; this is the silent half.)
+2. **The instance's own display/render flags become the stored `hdaroot` flags.** A geo whose
+   ONLY SOP is the instance forces them ON, so `updateFromNode` writes `display on render on`
+   into the definition. Guarding `allSubChildren()` flags does not catch it — the root is not
+   its own child. Match what git has: add a second SOP to hold the flag when the definition
+   stores `off`, add nothing when it stores `on`.
+3. **`.OPfallbacks` records a nested HDA's library path RELATIVE TO THE PROCESS CWD.** Editing
+   the segmenter from the repo root rewrote its record of the junction HDA from
+   `otls/…` to `polyfactory/otls/…`. Run the edit from the directory that reproduces the
+   committed spelling (here `<repo>/polyfactory`).
+
 ### 11.12 Reserved for the artist
 
-Type vocabulary naming · the merge's parallel-run default · when the junction computed default
-flips on (M4) · whether roundabout enters v1 at all · the S7 T-case render review — "look at
-it" is part of the exit criteria, and on 2026-08-15 the artist's viewport reading twice
-overturned what the numbers seemed to say.
+Type vocabulary naming · the merge's parallel-run default · whether roundabout enters v1 at
+all · the median-continuation condition's authoring shape (per-street flag, §11.5 ruling) ·
+the zebra decal's look and placement rules.
 
 **Decided 2026-08-16, no longer open:** the principal rule (widest pair, ratified — continuity
 is street identity, not bearing) and its tie-break (first by `edge_id`, the deterministic list,
 never cook order). Recorded with the CityEngine and OpenDRIVE evidence in §11.3 and §11.4.
+
+**Decided 2026-08-17, no longer open:** the S7/T-case render review — verdict REJECTED, the
+uncut-principal junction render is a bug (⛔ §11.5); the computed-default flip is BLOCKED on
+that rework, no longer a timing call; street markings are a **decal workflow** (instancing
+first, generation deferred). For the third time the artist's viewport reading overturned what
+the numbers said: every check was green on geometry a driver could not use.

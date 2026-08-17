@@ -9,11 +9,12 @@ plates it is checked against live in `trim_calibration.json`, written by
 `hython tests/citygen/dump_trims.py` on all sixteen cases — 545 arms.
 
 MUTATION-TESTED across four audit rounds (10, then 16, then 1 real survivor).
-The tables, the tolerances, the `_straightest` key and its returned order, and
-the dust epsilon are all two-sided-pinned. What survives is recorded below so the
-next round does not re-derive it — ⚠️ **and a short list is worse than none, so
-add to it rather than trusting it blind** (round 4 found this list three
-entries short).
+The tables, the tolerances and the dust epsilon are all two-sided-pinned.
+(The `_straightest` measurement rule and its pins were deleted 2026-08-17 with
+the junction build path they measured — §11.4 keeps the numbers.) What
+survives is recorded below so the next round does not re-derive it — ⚠️ **and
+a short list is worse than none, so add to it rather than trusting it blind**
+(round 4 found this list three entries short).
 
 EQUIVALENT, PROVEN:
 
@@ -26,8 +27,6 @@ EQUIVALENT, PROVEN:
     branch returns `cut` unchanged at 0.
   * `_corner`'s `max(raw + run, ka)` floor: subsumed by `crossing_trims`' own
     `max(ahead, behind, 0.0)`.
-  * `_straightest`'s `key < best` -> `<=`: equivalent ONLY because `edge_id` is
-    unique per node — it stops being equivalent on a self-loop (below).
   * `EPS` 1e-6 -> 1e-3. Two of its three uses (`max_half < EPS`, `k_len > EPS`)
     need a sub-millimetre carriageway. The third, `tan(half) < EPS`, is
     discriminated by an ANGLE and is dead only because `sin(half) <
@@ -45,24 +44,21 @@ things no consumer exists to hit yet. One list, because they are one obligation:
     nodes cannot both claim one end.
   * `crossing_trims`' `hypot(direction) > 1e-9` arm filter: guaranteed by
     `dump_trims.py`'s own `if n < 1e-9: continue`.
-  * A SELF-LOOP — ⚠️ **STILL OPEN AFTER M3, and it is a PLANNER defect rather
-    than an adapter one.** `junction_trims` returns a dict keyed by `edge_id`,
-    so a loop's TWO arms collapse to ONE key and an arm is silently lost; and
-    the adapter's `_arms` takes only `pts[1]` or `pts[-2]`, yielding one arm
-    where two exist. **`edge_id` is not a valid arm key.** Zero closed prims on
-    all 15 cases and `graph_mark_orphans` deletes any component with no point of
-    degree >= 3 — but `closeloop` exists in the trace wrangle, so a closed street
-    is a real object here. Since the boolean rework the SYMPTOM is guarded three
-    ways — `default_principal` skips to a distinct street, `principal_of` falls
-    back on an authored same-id pair, and `junction_schema` reds two claims from
-    one prim — but the CAUSE stands. **M4 owns the fix.**
-  * `junction_trims`' `if edge_id in trims` guard — ⚠️ **API-ONLY since the
-    boolean rework**: `principal_of` can only return edge_ids drawn from the
-    node's own arms, so no geometry or adapter path can produce a stranger any
-    more. The guard and its keyset pin stay because `junction_trims(node,
-    principal=...)` is a public signature M4's builder will call directly, and
-    a stranger passed THERE is still silently ignored — pinned behaviour, not
-    an endorsement; warn / raise / fall back is an M4 decision (11.12).
+  * A SELF-LOOP — ⚠️ **STILL OPEN, and it is a PLANNER defect rather than an
+    adapter one.** `crossing_trims` returns a dict keyed by `edge_id`, so a
+    loop's TWO arms collapse to ONE key (the second write wins) and an arm's
+    cut is silently lost; and the adapter's `_arms` takes only `pts[1]` or
+    `pts[-2]`, yielding one arm where two exist. **`edge_id` is not a valid
+    arm key.** Zero closed prims on all 16 cases and `graph_mark_orphans`
+    deletes any component with no point of degree >= 3 — but `closeloop`
+    exists in the trace wrangle, so a closed street is a real object here.
+    The boolean rework guards the PRINCIPAL symptom three ways
+    (`default_principal` skips to a distinct street, `principal_of` falls back
+    on an authored same-id pair, `junction_schema` reds two claims from one
+    prim); M4 closed WITHOUT fixing the cause — it stands, unowned. (M4's
+    `junction_trims`, which had the same keyset defect and a stranger-ignoring
+    guard pinned here, was deleted with the 2026-08-17 render ruling — the
+    build path it modelled no longer exists.)
   * ~~`plan.py` has no consumer~~ — **PAID by M3.** `graph_plan`, a Python SOP
     after `repair_scratch` in the segmenter, is the adapter: geometry -> plain
     data -> `plan.default_junction_type` -> `junction_type` written back on
@@ -112,7 +108,8 @@ RESIDUAL_M = {
     "N_shallow_y_32":  0.001,   # M2, measured 0.000000
     "O_shallow_y_host_dies": 0.001,   # M2, measured 0.000000
     "P_stub_chain":    0.001,   # M2, measured 0.000000
-    "Q_junction_ring": 0.001,   # M4, junction dispatch, measured 0.000010
+    "Q_junction_ring": 0.001,   # M4 case; crossing build since the 2026-08-17
+                                # revert, measured 0.000079
     "A_drawn":         2.03,    # measured 2.024024
     "D_offset":        2.03,    # measured 2.024024
     "H_offset_strict": 2.03,    # measured 2.024024
@@ -189,9 +186,10 @@ def residuals(case):
     nodes, params = case_nodes(case)
     out = []
     for node, nd in zip(nodes, case["nodes"]):
-        # M4: dispatch on the node's type, exactly as the builder does. An
-        # authored `junction` node's principals predict 0 via junction_trims;
-        # everything else is crossing_trims as before.
+        # Dispatch via node_trims, the same door every planner consumer walks
+        # through. Since the 2026-08-17 ruling every vocabulary type is the
+        # crossing solve, so the dispatch is invariance rather than branching —
+        # and the calibration would catch the day that stops being true.
         pred = plan.node_trims(node, params)
         for a in nd["arms"]:
             out.append((pred[a["edge_id"]] - a["measured_trim"],
@@ -404,16 +402,18 @@ class TestCalibration(unittest.TestCase):
 
 
 class TestKVerdict(unittest.TestCase):
-    """§11.4's experiment: does `junction` type rescue K's stub triangle?
+    """K's stub triangle, on its own measured numbers — and the type ruling.
 
     K's three 32 m sides are trimmed from BOTH ends by two crossing plates and
-    end up with negative standing — the plates physically overlap. The question
-    the whole spread depends on is whether a node type that leaves a principal
-    pair unbroken removes the need to move any node at all.
-
-    Answered here on K's own measured numbers, and the answer is NO for the
-    computed default and YES for a straight-through principal. Both are asserted
-    so neither can drift.
+    end up with negative standing — the plates physically overlap. §11.4's M1
+    experiment asked whether a `junction` type that leaves a principal pair
+    uncut removes the need to move any node; the answer (NO under the computed
+    widest default, YES under a straightest rule only by tie-break luck) is
+    recorded with its numbers in §11.4/§11.9. On 2026-08-17 the artist ruled
+    the uncut-principal render a BUG — every type builds the crossing solve —
+    so the experiment's code went with the build path it measured, and what
+    this class now pins is (a) the planner reproducing the gate's own numbers
+    without cooking, and (b) the ruling itself: no type, no flag, moves a trim.
     """
 
     @classmethod
@@ -458,232 +458,30 @@ class TestKVerdict(unittest.TestCase):
         self.assertEqual(got, [-13.434, -10.0, -6.651])
         self.assertAlmostEqual(min(st.values()), -13.434, places=3)
 
-    def test_widest_pair_principal_rescues_ONE_side_of_three(self):
-        """⚠️ THE VERDICT, AND IT IS NEGATIVE.
+    def test_no_vocabulary_type_moves_a_trim_since_the_ruling(self):
+        """⚠️ THE 2026-08-17 RULING, pinned on K's own measured nodes: an uncut
+        principal blocks turning traffic, so EVERY vocabulary type builds the
+        crossing's carriageway solve and `junction_type` moves no geometry —
+        it is markings-and-identity data. Authoring the widest pair onto the
+        flags (exactly what the retired computed-default flip would have
+        written) must change nothing either, so the flags are authored for
+        every type here, not just `junction`.
 
-        At every corner of K the two widest arms are the EXTERNAL arterial and
-        collector, so both triangle sides at that corner stay minors and keep
-        their full trim. Only the third corner — degree 3, all three arms 14.4 m
-        locals — has a triangle side wide enough to be principal, and it can
-        only take one of the two.
-
-        So `junction` type with the computed default does NOT dissolve K, and
-        the resolution ladder still needs its next rung. The spread is not dead.
-
-        The computed default is AUTHORED here — `default_principal` computed,
-        then written onto the arm flags — because that is what the flip
-        actually does (`graph_plan` computes and writes the booleans), and
-        because `node_trims` no longer invents a computed pair on its own: an
-        unauthored junction falls back to crossing, mirroring the builder
-        (the M4 audit's 12.93 m divergence, fixed on both sides).
+        This is also the K-verdict's tombstone. The M1 experiment measured
+        that the junction type could NOT dissolve K under the computed default
+        (one side of three rescued, min standing still -13.434) and could
+        under a straightest-pair rule only by tie-break luck — recorded with
+        its numbers in §11.4/§11.9, code deleted with the build path it
+        measured. K's rescue belongs to the resolution ladder (M5's merge,
+        M6's spread), not to a node type.
         """
+        base = self._standing("crossing")
         principals = dict((n.node_id, plan.default_principal(n))
                           for n in self.nodes)
-        st = self._standing("junction", principals)
-        rescued = [e for e in self.sides if st[e] > 0]
-        self.assertEqual(len(rescued), 1)
-        self.assertAlmostEqual(min(st[e] for e in self.sides), -13.434, places=3)
-
-    @staticmethod
-    def _straightest(node, tol_rad=1e-6):
-        """The pair nearest 180 degrees apart — the MEASUREMENT rule that
-        forced the principal decision, kept for the K-verdict tests. ⚠️ Not a
-        candidate default since 2026-08-16: the artist ratified WIDEST pair
-        (§11.3, continuity is street identity, not bearing). Same tie-break
-        discipline as the shipped rule, for the same reason.
-
-        ⚠️ Without a tie-break this rule is undefined on K. Node C is exactly
-        symmetric — |CA| = |CB| = 32.249031 and the third arm runs along the
-        axis of symmetry — so two pairs are equally straight, separated by
-        **2.311e-07 rad** of float noise. `tol_rad` quantises that away, which
-        is right (2.3e-7 rad is not a difference) and which is also what MAKES
-        it a tie, so the rest of the key has to settle it.
-
-        ⚠️ **AND THE FIRST VERSION OF THAT KEY READ ONLY ARM `i`, SO THE
-        COIN-FLIP MOVED FROM FLOAT NOISE TO ARM ORDER.** Round 2 of the M1 audit
-        enumerated all six orderings of node C's arms: five gave the pair that
-        dissolves K and ordering (0, 2, 1) gave the other one, +11.000 m turning
-        into −6.651 m on the sequence `pointprims()` happened to return. On a
-        symmetric X, 12 of 24 permutations disagreed. The key below is built
-        from BOTH arms, sorted, so it is a property of the pair and not of the
-        loop — and `edge_id` is unique, so no two pairs can tie all the way
-        down.
-
-        ⚠️ **AND THE SECOND VERSION LEAKED THE SAME DEPENDENCE OUT OF ITS
-        RETURN VALUE.** Round 3 found that making the winning SET
-        order-independent left the returned TUPLE ordered by arm index — and the
-        next test down indexed it. Both halves are now canonical: the key is
-        built from the sorted pair, and so is what comes back.
-        """
-        best = None
-        for i in range(len(node.arms)):
-            for j in range(i + 1, len(node.arms)):
-                a, b = node.arms[i], node.arms[j]
-                gap = abs(a.bearing - b.bearing)
-                gap = min(gap, 2 * math.pi - gap)
-                pair = sorted((-round(x.width / plan.RANK_TOL_M),
-                               -round(x.length / plan.RANK_TOL_M), x.edge_id)
-                              for x in (a, b))
-                key = (round(abs(math.pi - gap) / tol_rad), pair)
-                if best is None or key < best[0]:
-                    best = (key, tuple(sorted((a.edge_id, b.edge_id))))
-        return best[1]
-
-    def test_the_straightest_rule_does_not_depend_on_ARM_ORDER(self):
-        """⚠️ THE DEFECT ROUND 2 FOUND IN ROUND 1's FIX, pinned at its root.
-
-        No pair-ranking rule here may depend on the order `pointprims()`
-        hands back its arms — measured across three audit rounds as the
-        coin-flip that flipped K. (When this was written the straightest rule
-        was a candidate default; §11.3 has since ratified WIDEST, and this
-        family stays as the K-verdict measurement.) Asserted over
-        every ordering of K's node C — the exactly-symmetric one — and over a
-        symmetric X where two pairs are exactly 180 degrees apart, which is the
-        case that has no float noise to hide behind at all.
-
-        ⚠️ It asserts the returned TUPLE, not just the set it contains. The
-        first version compared `frozenset(...)` — which is blind to exactly the
-        half of the guarantee round 3 had to add, so reverting the `sorted()` in
-        `_straightest` left all 42 tests green while the neighbouring test went
-        back to being arm-order-dependent. A fix without an assertion is a fix
-        with a countdown on it.
-        """
-        import itertools
-        node = [n for n in self.nodes if abs(n.pos[0] - 16.0) < 0.01][0]
-        base = list(node.arms)
-        try:
-            answers = set()
-            for perm in itertools.permutations(range(len(base))):
-                node.arms = [base[i] for i in perm]
-                answers.add(self._straightest(node))
-            self.assertEqual(len(answers), 1, "arm order changed the principal")
-        finally:
-            node.arms = base
-
-        sq = [plan.Arm("n", (0, 1), 14.4, "local", 100.0),
-              plan.Arm("e", (1, 0), 14.4, "local", 100.0),
-              plan.Arm("s", (0, -1), 14.4, "local", 100.0),
-              plan.Arm("w", (-1, 0), 14.4, "local", 100.0)]
-        answers = set()
-        for perm in itertools.permutations(range(4)):
-            answers.add(self._straightest(
-                plan.Node("x", (0, 0), [sq[i] for i in perm])))
-        self.assertEqual(len(answers), 1, "a symmetric X is order-dependent")
-        # ...and on the three crosses the key test uses, where two pairs tie at
-        # every level and the natural i<j order is NOT already sorted
-        for delta, wide in ((2e-7, False), (1e-5, False), (0.0, True)):
-            arms = self._cross(delta, wide).arms
-            got = set()
-            for perm in itertools.permutations(range(4)):
-                got.add(self._straightest(
-                    plan.Node("x", (0, 0), [arms[i] for i in perm])))
-            self.assertEqual(len(got), 1, "delta=%r wide=%r" % (delta, wide))
-
-    def test_straight_through_principal_dissolves_K_entirely(self):
-        """...and the same node type with a different principal RULE does.
-
-        Pick the pair closest to 180 degrees apart at each corner — one street
-        actually running through, which is what a principal street means — and
-        every side of the triangle stands, worst +11.000 m, with no node moved.
-        The rule, not the type, is what decides whether the spread is needed.
-        """
-        principals = dict((n.node_id, self._straightest(n)) for n in self.nodes)
-        st = self._standing("junction", principals)
-        for eid in self.sides:
-            self.assertGreater(st[eid], 0.0, eid)
-        self.assertAlmostEqual(min(st.values()), 11.0, places=3)
-
-    def test_and_the_OTHER_resolution_of_that_tie_does_not(self):
-        """⚠️ THE CAVEAT ON THE ROW ABOVE, pinned so it travels with it.
-
-        K's third corner offers two equally-straight pairs. Take the other one
-        and A–C goes back to -6.651 m: the straightest-pair rule dissolves K
-        only with a tie-break, and the tie-break that happens to work is the
-        lexicographic `edge_id` — which is luck, not a reason. Decided
-        2026-08-16 (§11.12): the shipping rule is WIDEST pair with the
-        first-by-`edge_id` tie-break; this measurement family stays because it
-        is what showed the rule decides K's outcome.
-
-        ⚠️ The two pairs are named outright, exactly as §11.4's table names
-        them. Deriving "the other one" by position — which this test used to do
-        — reads an ordering the rule does not promise, and under half of node
-        C's arm orderings it built a THIRD pair that is in neither row of the
-        table and dissolves K as well. A caveat that only holds for some input
-        orderings is not a caveat.
-        """
-        pre = "region_+00_+00/"
-        chosen, other = pre + "E_00001", pre + "E_00004"
-        principals = dict((n.node_id, self._straightest(n)) for n in self.nodes)
-        for node in self.nodes:
-            if abs(node.pos[0] - 16.0) < 0.01:          # K's node C
-                self.assertEqual(principals[node.node_id],
-                                 tuple(sorted((chosen, pre + "E_00007"))))
-                principals[node.node_id] = (pre + "E_00007", other)
-        st = self._standing("junction", principals)
-        self.assertEqual(sum(1 for e in self.sides if st[e] <= 0), 1)
-        self.assertAlmostEqual(min(st[e] for e in self.sides), -6.651, places=3)
-
-    @staticmethod
-    def _cross(delta_rad, wide_pair=False):
-        """Four arms in two opposed pairs, one pair off-axis by `delta_rad`.
-
-        Named so that a tie falls to `a_*` and a strict angle comparison falls
-        to `c_*`, which is what makes the two answers distinguishable.
-        """
-        w = 26.8 if wide_pair else 14.4
-        d = 3 * math.pi / 2 + delta_rad
-        return plan.Node("x", (0, 0), [
-            plan.Arm("a_n", (0.0, 1.0), 14.4, "local", 100.0),
-            plan.Arm("b_s", (math.cos(d), math.sin(d)), 14.4, "local", 100.0),
-            plan.Arm("c_e", (1.0, 0.0), w, "arterial" if wide_pair else "local",
-                     100.0),
-            plan.Arm("d_w", (-1.0, 0.0), w, "arterial" if wide_pair else "local",
-                     100.0)])
-
-    def test_the_straightest_key_is_pinned_at_every_level(self):
-        """⚠️ `tol_rad` is `RANK_TOL_M`'s twin and it was free to be anything:
-        1e-12 and 1.0 both left the suite green, and so did reducing the pair
-        key to `edge_id` alone. The first version of this test computed buckets
-        itself — a copy of the formula, which is the exact mistake round 3 found
-        in the epsilon test — so it could not see the shipped default move.
-
-        Every assertion below goes through `_straightest` itself, on inputs
-        built so each level of the key is the one that decides:
-
-          * 2e-7 rad apart is NOISE. It must be quantised into a tie, or float
-            picks the winner again — which is the whole reason `tol_rad` exists.
-            A tolerance below the noise floor gets this wrong.
-          * 1e-5 rad apart is a REAL difference. It must NOT be absorbed, or an
-            unrelated pair joins the tie. A tolerance far above gets this wrong.
-          * and when the angle genuinely ties, WIDTH decides before `edge_id` —
-            §11.3's chain, which an `edge_id`-only key skips straight past.
-        """
-        # noise: tie detected, so the name decides and `a_*` wins
-        self.assertEqual(self._straightest(self._cross(2e-7)), ("a_n", "b_s"))
-        # a real angle: not absorbed, so the straighter `c_*` pair wins
-        self.assertEqual(self._straightest(self._cross(1e-5)), ("c_e", "d_w"))
-        # exact tie on angle -> the WIDER pair, though `a_*` sorts first
-        self.assertEqual(self._straightest(self._cross(0.0, wide_pair=True)),
-                         ("c_e", "d_w"))
-
-    def test_the_two_tied_pairs_are_the_two_the_doc_table_names(self):
-        """The premise under both tests above: node C really does offer exactly
-        two equally-straight pairs, and they are the ones §11.4 tabulates. If a
-        third ever ties, the table is incomplete and both verdicts are stale."""
-        node = [n for n in self.nodes if abs(n.pos[0] - 16.0) < 0.01][0]
-        gaps = []
-        for i in range(len(node.arms)):
-            for j in range(i + 1, len(node.arms)):
-                g = abs(node.arms[i].bearing - node.arms[j].bearing)
-                g = min(g, 2 * math.pi - g)
-                gaps.append((round(abs(math.pi - g) / 1e-6),
-                             frozenset((node.arms[i].edge_id,
-                                        node.arms[j].edge_id))))
-        best = min(g[0] for g in gaps)
-        tied = sorted(sorted(e.split("/")[-1] for e in g[1])
-                      for g in gaps if g[0] == best)
-        self.assertEqual(tied, [["E_00001", "E_00007"],
-                                ["E_00004", "E_00007"]])
+        for kind in plan.JUNCTION_TYPE_VOCAB:
+            st = self._standing(kind, principals)
+            self.assertEqual(st, base, kind)
+        self.assertAlmostEqual(min(base.values()), -13.434, places=3)
 
 
 class TestCornerModel(unittest.TestCase):
@@ -1043,9 +841,10 @@ class TestPrincipal(unittest.TestCase):
     def test_a_pair_is_two_STREETS_so_a_self_loop_cannot_be_both_of_them(self):
         """⚠️ THE STATE THE BOOLEAN REWORK'S AUDIT FOUND UNGUARDED. A self-loop
         puts one `edge_id` on two arms, and the naive top-two returned
-        ('E_loop', 'E_loop') — a "pair" that is one street twice, which
-        `junction_trims` collapses to ONE dict key, silently dropping an arm
-        (the recorded M4 defect: `edge_id` is not a valid arm key). The
+        ('E_loop', 'E_loop') — a "pair" that is one street twice, which any
+        `edge_id`-keyed trim dict (`crossing_trims` today) collapses to ONE
+        key, silently dropping an arm (the recorded defect: `edge_id` is not
+        a valid arm key). The
         computed default now skips to the best arm of a DIFFERENT street, and a
         node whose arms are all one street has no pair at all.
 
@@ -1086,116 +885,61 @@ class TestPrincipal(unittest.TestCase):
             arm.principal = arm.edge_id in ("z_late", "a_early")
         self.assertEqual(plan.principal_of(node), ("a_early", "z_late"))
 
+    def test_default_principal_does_not_depend_on_arm_order(self):
+        """⚠️ THE DEFECT CLASS THREE M1-AUDIT ROUNDS KEPT FINDING, pinned on
+        the SHIPPED rule now that the `_straightest` measurement family is
+        deleted with the junction build path: no pair rule may depend on the
+        order `pointprims()` hands back its arms — a cook reorder flipped K's
+        outcome three separate times. `default_principal` is immune by
+        construction (one `sorted()` over a full-key rank), and this is the
+        assertion that keeps a refactor from re-introducing the coin-flip.
+
+        Asserted on a symmetric X where every rank ties and only `edge_id`
+        can decide, and on K's node-C shape — two sides 1.3e-12 m apart in
+        length, inside `RANK_TOL_M`, the exact float-noise tie that used to
+        be settled by whoever came first.
+        """
+        import itertools
+        sq = self._arms([("n", 14.4, 100.0), ("e", 14.4, 100.0),
+                         ("s", 14.4, 100.0), ("w", 14.4, 100.0)])
+        answers = set()
+        for perm in itertools.permutations(range(4)):
+            answers.add(plan.default_principal(
+                plan.Node("x", (0, 0), [sq[i] for i in perm])))
+        self.assertEqual(answers, {("e", "n")})
+        kc = self._arms([("z_side", 14.400002479553223, 32.24903099319551),
+                         ("a_side", 14.400002479553223, 32.24903099319423),
+                         ("long", 14.400007247924805, 55.0)])
+        answers = set()
+        for perm in itertools.permutations(range(3)):
+            answers.add(plan.default_principal(
+                plan.Node("x", (0, 0), [kc[i] for i in perm])))
+        self.assertEqual(answers, {("long", "a_side")})
+
 
 class TestJunctionType(unittest.TestCase):
 
-    def test_the_principal_pair_pays_nothing_and_the_minors_are_unchanged(self):
-        a = math.radians
-        arms = [plan.Arm("east", (1, 0), 26.8, "arterial", 200.0),
-                plan.Arm("west", (-1, 0), 26.8, "arterial", 200.0),
-                plan.Arm("north", (math.cos(a(90)), math.sin(a(90))), 14.4,
-                         "local", 100.0)]
-        node = plan.Node("j", (0, 0), arms)
-        crossing = plan.crossing_trims(node)
-        junction = plan.junction_trims(node, ("east", "west"))
-        self.assertEqual(junction["east"], 0.0)
-        self.assertEqual(junction["west"], 0.0)
-        self.assertAlmostEqual(junction["north"], crossing["north"], places=9)
+    def test_node_trims_is_type_invariant_and_flag_invariant(self):
+        """⚠️ THE MIRROR DUTY, post-ruling form. The M4 audit's headline was
+        a 12.93 m planner/builder disagreement from fallbacks that differed
+        (the cardinality-0 authored junction), and the fix was `node_trims`
+        as the builder's shadow, state for state. Since 2026-08-17 the
+        builder has ONE state — the crossing solve, every type, every claim
+        shape (the uncut-principal render was ruled a bug and reverted) — so
+        the mirror assertion collapses to invariance: every vocabulary type
+        crossed with every claim cardinality (0, 1, 2, 3) returns the
+        crossing trims EXACTLY, dict-equal. A value outside the vocabulary
+        is a programming error and still raises; geometry-side it is
+        `junction_schema`'s bad_vocab.
 
-    def test_where_this_model_and_11_5s_PLATE_disagree(self):
-        """⚠️ NOT A PROPERTY — A PINNED DISAGREEMENT, so M4 cannot ship past it.
-
-        `junction_trims` is `crossing_trims` with the principal zeroed. That is
-        exact for the model and it is NOT the same claim as "this is §11.5's
-        plate". The M1 audit named three gaps; two of them are numbers, and both
-        are recorded here so the builder either matches them or the divergence
-        is a deliberate decision rather than a surprise.
-        """
-        a = plan.Params(min_end_segment=0.0)
-
-        def arm(bd, w, cls, L, eid):
-            r = math.radians(bd)
-            return plan.Arm(eid, (math.cos(r), math.sin(r)), w, cls, L)
-
-        # (1) TWO ADJACENT MINORS. This model charges their mutual kerb corner;
-        # a rectangle-on-the-principal plate has no such corner in it.
-        both = plan.Node("j", (0, 0), [
-            arm(0, 26.8, "arterial", 400.0, "pe"),
-            arm(180, 26.8, "arterial", 400.0, "pw"),
-            arm(70, 14.4, "local", 400.0, "m1"),
-            arm(110, 14.4, "local", 400.0, "m2")])
-        alone = plan.Node("j", (0, 0), [
-            arm(0, 26.8, "arterial", 400.0, "pe"),
-            arm(180, 26.8, "arterial", 400.0, "pw"),
-            arm(70, 14.4, "local", 400.0, "m1")])
-        with_neighbour = plan.junction_trims(both, ("pe", "pw"), a)["m1"]
-        flank_only = plan.junction_trims(alone, ("pe", "pw"), a)["m1"]
-        self.assertAlmostEqual(with_neighbour, 30.7717, places=4)
-        self.assertAlmostEqual(flank_only, 22.5932, places=4)
-        # the model is the conservative one here — it over-charges the minor
-        self.assertGreater(with_neighbour, flank_only)
-
-        # (2) max_fillet_fraction caps on the principal ARM's length. As ONE
-        # continuous street the cap would be the through-length, and the model
-        # then UNDER-charges the minor — the unsafe direction.
-        p4 = plan.Params(corner_radius_scale=4.0, min_end_segment=0.0)
-        short = plan.Node("j", (0, 0), [
-            arm(0, 26.8, "arterial", 30.0, "pe"),
-            arm(180, 26.8, "arterial", 30.0, "pw"),
-            arm(90, 14.4, "local", 300.0, "minor")])
-        through = plan.Node("j", (0, 0), [
-            arm(0, 26.8, "arterial", 60.0, "pe"),
-            arm(180, 26.8, "arterial", 60.0, "pw"),
-            arm(90, 14.4, "local", 300.0, "minor")])
-        self.assertAlmostEqual(
-            plan.junction_trims(short, ("pe", "pw"), p4)["minor"], 25.4,
-            places=4)
-        self.assertAlmostEqual(
-            plan.junction_trims(through, ("pe", "pw"), p4)["minor"], 29.4,
-            places=4)
-
-    def test_an_authored_principal_naming_a_stranger_is_silently_IGNORED(self):
-        """⚠️ PINS TODAY'S BEHAVIOUR, WHICH IS PROBABLY NOT THE RIGHT ONE.
-
-        Under the retired string schema a typo was the LIVE failure. The boolean
-        rework abolished that path — `principal_of` can only return edge_ids
-        drawn from the node's own arms — so what this pins now is the PUBLIC
-        `junction_trims(node, principal=...)` signature M4's builder calls
-        directly: the one place a stranger can still arrive, where it is skipped
-        and the arm silently keeps a full crossing trim, with nothing said.
-        Whether that should warn, raise, or fall back is an M4 builder-contract
-        decision (11.12); until then the behaviour is asserted, not accidental.
-        """
-        node = plan.Node("j", (0, 0), [
-            plan.Arm("east", (1, 0), 26.8, "arterial", 200.0),
-            plan.Arm("west", (-1, 0), 26.8, "arterial", 200.0),
-            plan.Arm("north", (0, 1), 14.4, "local", 100.0)])
-        crossing = plan.crossing_trims(node)
-        got = plan.junction_trims(node, ("east", "not_an_arm_here"))
-        # ⚠️ THE KEYSET, which is the half this test was named for and did not
-        # check: without `junction_trims`' `if edge_id in trims` guard the
-        # stranger is INVENTED into the result at 0.0 m. No consumer today
-        # iterates the dict by key — `graph_trims` reads it by arm — so it is
-        # invisible until M3's adapter, which is exactly what will iterate it.
-        self.assertEqual(set(got), {"east", "west", "north"})
-        self.assertEqual(got["east"], 0.0)
-        self.assertAlmostEqual(got["west"], crossing["west"], places=9)
-        self.assertAlmostEqual(got["north"], crossing["north"], places=9)
-
-    def test_node_trims_mirrors_the_BUILDERS_fallbacks_exactly(self):
-        """⚠️ THE M4 AUDIT'S HEADLINE: the planner and the builder had different
-        fallbacks, and the gap was a 12.93 m disagreement under a green gate.
-
-        The contract now: `node_trims` does what `s5j_solve` does, state for
-        state. A `junction` node with anything but a valid authored pair —
-        cardinality 0 (the artist typed the node and stopped), 1, 3, or a
-        same-street pair — builds as a CROSSING on both sides. A reserved
-        vocabulary type (`merge`, `roundabout`) builds as a crossing on both
-        sides too, with the not-silent duty carried by `junction_schema`'s
-        `unbuilt_type` red, not by an exception: the first version RAISED,
-        and once M4 put this function on the calibration path a schema-legal
-        authored `merge` crashed the unit suite instead of producing a red
-        row — the `i@principal_edges` incident one level up.
+        ⚠️ **`merge` IS IN THIS LOOP AND M5 IS EXPECTED TO BREAK IT.** §11.5's
+        merge contract consumes footprint ALONG the principal — a length, a
+        real trim — so the milestone that builds it must move this assertion
+        and `s5j_solve` in the same commit. That is the point, not an
+        oversight: this test is what will FAIL when the merge lands, which is
+        the mirror duty the M4 audit priced at 12.93 m. Do not relax it by
+        skipping `merge`; change it when the builder changes, with the
+        measurement that justifies the new expectation.
         """
         def t_node(jtype, flags):
             arms = [plan.Arm("a", (1, 0), 26.8, "arterial", 200.0,
@@ -1207,27 +951,72 @@ class TestJunctionType(unittest.TestCase):
             return plan.Node("r", (0, 0), arms, junction_type=jtype)
 
         crossing = plan.crossing_trims(t_node("", ()))
-        # the valid pair: principals zeroed, minor unchanged
-        good = plan.node_trims(t_node("junction", ("a", "b")))
-        self.assertEqual(good["a"], 0.0)
-        self.assertEqual(good["b"], 0.0)
-        self.assertAlmostEqual(good["c"], crossing["c"], places=9)
-        # every invalid authored state = the crossing, exactly
-        for flags in ((), ("a",), ("a", "b", "c")):
-            got = plan.node_trims(t_node("junction", flags))
-            for k in crossing:
-                self.assertAlmostEqual(got[k], crossing[k], places=9,
-                                       msg="flags=%r %s" % (flags, k))
-        # reserved types = the crossing, exactly, no exception
-        for kind in ("merge", "roundabout"):
-            got = plan.node_trims(t_node(kind, ()))
-            for k in crossing:
-                self.assertAlmostEqual(got[k], crossing[k], places=9, msg=kind)
-        # ...and a value OUTSIDE the vocabulary is a programming error, which
-        # still raises: it is not an authorable state, geometry-side it is
-        # bad_vocab
+        for jtype in plan.JUNCTION_TYPE_VOCAB:
+            for flags in ((), ("a",), ("a", "b"), ("a", "b", "c")):
+                got = plan.node_trims(t_node(jtype, flags))
+                self.assertEqual(got, crossing,
+                                 "jtype=%r flags=%r" % (jtype, flags))
         with self.assertRaises(ValueError):
             plan.node_trims(t_node("roundybout", ()))
+
+    def test_the_vocabulary_tuples_are_pinned_BY_VALUE(self):
+        """⚠️ Three tests iterate `JUNCTION_TYPE_VOCAB` and one asserts
+        membership in it — all four are VACUOUS under widening, measured by the
+        revert's second audit round: adding a member survives every test. It is
+        the
+        `LOT_REJECT_VOCAB` lesson the checks already cite, aimed at itself — a
+        closed set cannot detect being widened by the code that defines it, and
+        `checks.py` DERIVES the geometry-side vocabulary from this tuple, so a
+        widening moves both sides together and nothing goes red.
+
+        It matters more since the revert than it did before: `node_trims` now
+        branches on vocabulary membership and NOTHING else, so this tuple is
+        the single gate on what the planner will accept. `RESERVED_JUNCTION_TYPES`
+        gets the same treatment — emptying it silently retires
+        `junction_schema`'s `unbuilt_type` term, which is the not-silent duty
+        for a type the builder has no contract for.
+
+        §11.10 promises the vocabulary is pinned. This is that promise, made
+        true.
+        """
+        self.assertEqual(plan.JUNCTION_TYPE_VOCAB,
+                         ("", "crossing", "junction", "merge", "roundabout"))
+        self.assertEqual(plan.RESERVED_JUNCTION_TYPES, ("merge", "roundabout"))
+        # ...and the reserved set must be part of the vocabulary, or
+        # `junction_schema` reds a state `node_trims` refuses to accept
+        for kind in plan.RESERVED_JUNCTION_TYPES:
+            self.assertIn(kind, plan.JUNCTION_TYPE_VOCAB)
+
+    def test_the_computed_default_is_crossing_at_every_plated_node(self):
+        """⚠️ THE GAP THE REVERT'S AUDIT FOUND: `default_junction_type` had NO
+        unit coverage at all, and four mutants of it survived all 38 tests —
+        returning `junction` (the retired flip), `""`, `roundabout`, or moving
+        the degree gate to 4. The gate catches each one (`bad_principal`
+        typed-no-claims, `untyped_junction`, `unbuilt_type`,
+        `typed_non_junction`), so this was a coverage gap rather than a live
+        defect — but the function's docstring now carries the strongest claim
+        in the post-ruling planner, that `crossing` everywhere is the END
+        STATE and not a staging step, and a claim nothing asserts is a comment.
+
+        DEGREE is the discriminator: `""` means "decide for me" AND "nothing
+        to decide" (§11.3), and only the arm count tells them apart — which is
+        why `junction_schema` pairs type with degree rather than just checking
+        the vocabulary.
+        """
+        def node(narms):
+            arms = [plan.Arm("e%d" % i, (math.cos(i), math.sin(i)), 14.4,
+                             "local", 100.0) for i in range(narms)]
+            return plan.Node("d", (0, 0), arms)
+
+        for narms in (3, 4, 5):
+            self.assertEqual(plan.default_junction_type(node(narms)),
+                             "crossing", narms)
+        for narms in (0, 1, 2):
+            self.assertEqual(plan.default_junction_type(node(narms)), "",
+                             narms)
+        # ...and whatever it returns must be sayable in the schema
+        self.assertIn(plan.default_junction_type(node(3)),
+                      plan.JUNCTION_TYPE_VOCAB)
 
 
 if __name__ == "__main__":

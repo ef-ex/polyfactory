@@ -360,10 +360,11 @@ def default_principal(node):
     ⚠️ **A PAIR IS TWO STREETS, so the two edge_ids must DIFFER.** A self-loop
     puts one `edge_id` on two arms, and the naive top-two returned
     ('E_loop', 'E_loop') — the boolean audit measured it — which downstream
-    collapses to ONE `junction_trims` key and silently drops an arm ("edge_id
-    is not a valid arm key", the recorded M4 defect). So the second pick is the
-    best arm with a DIFFERENT edge_id, and a node whose arms are all one street
-    has no pair at all.
+    collapses to ONE key in any `edge_id`-keyed trim dict (`crossing_trims`
+    today) and silently drops an arm ("edge_id is not a valid arm key", the
+    recorded defect, still unowned). So the second pick is the best arm with a
+    DIFFERENT edge_id, and a node whose arms are all one street has no pair at
+    all.
 
     ⚠️ **THE TIE-BREAK ONLY WORKS IF THE TIE IS DETECTED, and on raw floats it
     never is.** Measured on K's third corner: three arms all 14.4 m wide, two of
@@ -410,54 +411,15 @@ def principal_of(node):
     return default_principal(node)
 
 
-def junction_trims(node, principal=None, params=DEFAULTS):
-    """What a `junction` plate consumes: the principal pair runs through unbroken.
-
-    §11.5: the principal pair is ONE continuous street through the node — no
-    break, no mouth, no trim contribution from this node. The minors are left
-    unchanged, and that IS exact for the model: each arm's cut in
-    `crossing_trims` depends only on its own two corners, so removing the
-    principal's cut cannot move a minor's.
-
-    ⚠️ **BUT "unchanged minors" IS NOT THE SAME CLAIM AS "this is §11.5's
-    plate", and M4 must close three gaps this model cannot decide alone.**
-    Recorded with numbers rather than resolved, because the builder contract is
-    11.12's call and guessing it here would put M1's verdict behind a fiction:
-
-      1. **Two ADJACENT minors with no principal between them.** This model
-         charges their minor-to-minor kerb corner; §11.5's plate is "a rectangle
-         on the principal spanning the minor mouths" and has no such corner in
-         it. Measured on an E-W arterial principal with 14.4 m minors at 70 deg
-         and 110 deg: model 30.772 m against 22.593 m for flank-only — **8.18 m
-         apart**, the model the more conservative of the two.
-      2. **`max_fillet_fraction` is capped on the principal ARM's length, not
-         the through-length** it would have as one continuous street (see
-         `_corner`'s `min(a.length, b.length)`). Measured on 30 m principal arms
-         with `corner_radius_scale` 4: a minor trims 25.400 m under the arm cap
-         and 29.400 m under the 60 m through cap — **4.0 m**, and this one goes
-         the UNSAFE way, the model under-charging the minor.
-      3. **The default principal need not run through at all.** At K's node A
-         the widest pair sits **70.0 deg** apart (node B's is 113.4), and this
-         returns zero trim on both arms of it. Nothing here signals that a
-         "principal street" bends 110 degrees through its own junction.
-    """
-    if principal is None:
-        principal = principal_of(node)
-    trims = crossing_trims(node, params)
-    for edge_id in principal:
-        if edge_id in trims:
-            trims[edge_id] = 0.0
-    return trims
-
-
 def default_junction_type(node):
     """Which node type the planner picks where the artist has not said.
 
-    ⚠️ Today it is `crossing` at every junction — deliberately, and it is the
-    whole point of M3: the schema lands, the adapter runs, and the geometry does
-    not move by so much as a float. M4 is where this returns `junction` and the
-    gate is expected to move (§11.9's rollout: authored-only first, then flip the
-    computed default in its own commit).
+    It is `crossing` at every junction, and since the 2026-08-17 ruling that is
+    the END STATE, not a staging step: the crossing's open-mouth carriageway
+    solve is the only correct geometry for every type (§11.5 ⛔). The planned M4
+    flip to `junction` is dead — the type and the principal booleans are DATA
+    for markings (zebra decals, the conditional median) and for street identity,
+    and they move no geometry.
 
     Below degree 3 there is no plate to build — `crossing_trims` solves nothing
     there and `s5j_solve` skips the point — so the type stays `""`. That is the
@@ -470,47 +432,32 @@ def default_junction_type(node):
 
 
 def node_trims(node, params=DEFAULTS):
-    """Dispatch on `junction_type` — MIRRORING THE BUILDER'S FALLBACKS EXACTLY.
+    """Dispatch on `junction_type` — MIRRORING THE BUILDER EXACTLY.
 
-    ⚠️ **THE FIRST VERSION HAD ITS OWN, DIFFERENT FALLBACKS, and the M4 audit
-    measured a 12.93 m planner/builder disagreement under a green gate.** Two
-    ways:
+    Since the 2026-08-17 ruling (§11.5 ⛔) that is one line: **every vocabulary
+    type builds the crossing's carriageway solve**, because an uncut principal's
+    through-kerb and through-median block turning traffic — the artist ruled the
+    M4 junction render a bug, and its build path (`jtrim_*`, `is_plate`, the
+    through-end re-extension) was reverted the same day. `junction_type` and
+    the principal booleans still ride the graph: they are DATA for markings
+    (zebra decals, the conditional median) and street identity, not for trims.
 
-      1. A `junction` node whose AUTHORED claims are not a valid pair: the
-         builder falls back to the crossing construction, while this function
-         routed through `principal_of`, whose fallback is the COMPUTED widest
-         pair — so the planner zeroed a principal the builder was busy cutting.
-         Cardinality 0 was the killer: schema-legal (0 claims is "nothing
-         authored"), gate green, `standing` optimistic by the full plate reach
-         on the exact state an artist reaches by typing the node and stopping.
-         The junction branch now reads the authored channel alone and falls to
-         `crossing_trims` on anything but a valid pair, which IS the builder.
-         (`junction_schema` now reds a typed junction with zero claims too —
-         belt and braces from opposite sides.)
-
-      2. A vocabulary-RESERVED type (`merge`, `roundabout`): the builder has no
-         contract and builds a crossing; this function raised ValueError — and
-         since M4 put `node_trims` on the calibration path, a schema-legal
-         authored `merge` crashed the unit suite instead of producing a red
-         row. The reserved types now fall to `crossing_trims`, exactly as the
-         builder does, and the not-silent duty lives in `junction_schema`'s
-         `unbuilt_type` term, which reds them on the geometry.
+    ⚠️ The mirror duty is the surviving lesson, not the branch table. M4's
+    first version had fallbacks the builder didn't (the audit measured a
+    12.93 m planner/builder disagreement under a green gate, on the
+    cardinality-0 authored junction), and the fix was to make this function
+    the builder's shadow, state for state. If a typed build path ever returns
+    — a merge that consumes length along the principal is still M5's contract
+    — it lands HERE and in `s5j_solve` in the same commit, or `standing` lies.
 
     A type OUTSIDE the vocabulary still raises: that is a programming error in
     the caller, not an authorable state — geometry-side it is `bad_vocab`.
     """
     kind = node.junction_type or "crossing"
-    if kind == "junction":
-        flagged = sorted(a.edge_id for a in node.arms if a.principal)
-        if len(flagged) == 2 and flagged[0] != flagged[1]:
-            return junction_trims(node, tuple(flagged), params=params)
-        return crossing_trims(node, params)      # the builder's own fallback
-    if kind in RESERVED_JUNCTION_TYPES:          # reserved, unbuilt: crossing,
-        return crossing_trims(node, params)      # as the builder builds it
-    if kind == "crossing":
-        return crossing_trims(node, params)
-    raise ValueError("junction_type %r is outside JUNCTION_TYPE_VOCAB"
-                     % (kind,))
+    if kind not in JUNCTION_TYPE_VOCAB:
+        raise ValueError("junction_type %r is outside JUNCTION_TYPE_VOCAB"
+                         % (kind,))
+    return crossing_trims(node, params)
 
 
 def graph_trims(nodes, params=DEFAULTS):

@@ -62,7 +62,7 @@ improvement before running `--update-baseline`.**
 tests/
   unit/                  pure Python, no Houdini
     test_citygen.py      cross-section profile maths (22 tests)
-    test_plan.py         the S5 planner + its calibration (45 tests)
+    test_plan.py         the S5 planner + its calibration (40 tests)
     trim_calibration.json  measured junction footprints, 545 arms
   citygen/
     checks.py            the assertion library — add to this
@@ -82,10 +82,11 @@ so `dump_trims.py` exports `trim_start` / `trim_end` from
 `junction_solve/s5j_solve` on all sixteen cases and `test_plan.py` asserts the
 model against every one of the 545 arms.
 
-The residual is **pinned per case, not tolerated globally**: exact (≤ 3.4e-5 m)
+The residual is **pinned per case, not tolerated globally**: exact (≤ 1e-4 m)
 on the ten cases whose arms are straight — Q_junction_ring among them, dispatched
-through `node_trims`, which closes the geometry→planner round trip for the
-junction type at 1e-5 m, and up to 4.58 m either way on the six
+through `node_trims`, which since the 2026-08-17 ruling asserts type-INVARIANCE
+(every vocabulary type builds the crossing solve; the uncut-principal junction
+render was ruled a bug and reverted), and up to 4.58 m either way on the six
 with curved ones, because `s5j_solve` re-solves each corner in the frame at its
 own cut and the planner has no arm shape to do that with. Read those numbers as a
 recorded state, the same way `baseline.json` is read.
@@ -130,10 +131,12 @@ closed street claiming at both of its own ends is one street twice, red (built
 synthetically and measured; no committed case can reach it while
 `graph_mark_orphans` eats loop-only components). And the recorded value carries
 **`claims`**, the total of claiming prim-ends, because it is the principal's pin
-the way `types` is `junction_type`'s: without it, M4 flipping the computed
-principal default on would move ZERO baseline values and §11.9's "the gate
-movement is its own diff" would be false for exactly the attribute it was
-written for. The normal M4 state — a principal street claiming end-at-one-node,
+the way `types` is `junction_type`'s: without it, turning the computed principal
+default on would move ZERO baseline values and §11.9's "the gate movement is its
+own diff" would be false for exactly the attribute it was written for. (That
+flip is BLOCKED since the 2026-08-17 ruling — the pin outlives it, because the
+booleans still ship as markings/identity data and something must see them
+move.) The normal authored state — a principal street claiming end-at-one-node,
 start-at-the-next — passes green with `claims` counting it.
 
 Historical injections from the string era, kept because the vacuity lesson
@@ -193,8 +196,11 @@ and the node's presence before cooking anything.
 ⚠️ It deliberately does NOT assert WHICH type a node carries. `junction_type`
 is artist-authorable, so "junction everywhere" is a legal state and a check that
 forbade it would be asserting taste. Today's choice is pinned by the recorded
-`types` histogram in `baseline.json` instead — M4 flipping the computed default
-moves that number where anyone can see it.
+`types` histogram in `baseline.json` instead — any change to what the planner
+computes moves that number where anyone can see it. (The specific change this
+sentence used to name, M4's computed-default flip, is BLOCKED since the
+2026-08-17 ruling; the pin is what makes ANY future default move visible, which
+is why it outlives the flip.)
 
 ## The closure sweep, and why it is a file rather than a habit
 
@@ -264,7 +270,7 @@ a case.
 | **N** `N_shallow_y_32` | a 32° leg, over the floor | the control: nothing deleted, and the junction is still broken |
 | **O** `O_shallow_y_host_dies` | 22°, but the leg is LONGER than the host's east half | the other branch: `graph_min_angle` takes the **host's own arterial**, published as a 599.77 m survivor |
 | **P** `P_stub_chain` | four junctions on three 30 m links | the flood fill PAST a 3-cycle; 3 edges of 9 ship |
-| **Q** `Q_junction_ring` | two AUTHORED `junction` Ts on a ring | the S7 T-case: through-kerb + collect-and-close, 0 unpaired ends, 1 block |
+| **Q** `Q_junction_ring` | two AUTHORED `junction` Ts on a ring | the S7 T-case. Since the 2026-08-17 ruling the type moves NO geometry (builds as crossing; type + principal booleans are markings/identity data) — Q now proves the authored schema flows while the build stays the crossing's |
 
 ⚠️ **This table listed seven cases while the suite ran eleven** — found by the M1
 audit, 2026-08-15, alongside a stale block count for B. Two of the four missing
@@ -338,8 +344,10 @@ tell you the transition work is actually landing.
 | K | `lots_clear_of_junctions` | 54.2 m² over 8 junctions | lots on the overlap |
 | K | `lots_clear_of_roads` | 54.2 m², worst edge 56.3 m at (15.74, 12.92) | same |
 
-K's six rows are one defect, not six, and they are what M4/M5/M6 exist to
-close. They are the honest form of a jog the repair loop refuses to collapse —
+K's six rows are one defect, not six, and they are what **M5/M6** exist to
+close. (M4 was the third candidate and it closed none of them: the junction
+type that might have dissolved K was ruled a bug on 2026-08-17 and reverted, so
+K's rescue is back with the resolution ladder — see §11.9.) They are the honest form of a jog the repair loop refuses to collapse —
 see `cases.py`'s note on K and §S5a.
 
 **M2 added four cases and six rows, 20 → 26** (and M4's Q later added its
@@ -352,7 +360,7 @@ build had and nothing could see:
 | M O N | `selfx_city_merged` | 4 / 5 / 6 | the v1 non-goal again, see above — **not** new information. N is highest because it keeps its leg, so it has one more junction seam |
 | N | `block_boundary_closes` | 1 open loop, 2 unpaired ends at (0.000, ±13.400) | ⚠️ ONE defect with the row below, and it is **not** the missing merge — see the trim-under-a-step gap |
 | N | `trim_metric_is_consistent` | max **4.00 m** at (−4.0, 0.0), 1 end over 0.05 | the only case with an end OVER the 0.05 m threshold; B/C/I sit at 0.0001 |
-| Q | `selfx_city_merged` | 122 | the v1 non-goal at its M4 shape: the junction plate spans the through principal, whose ribbon runs beneath it — coplanar overlap by design, plus the usual seams. Goes to zero with the Wang-tile transitions and not before |
+| Q | `selfx_city_merged` | 4 | the v1 non-goal, ordinary seams. It read **122** while M4's junction plate spanned the through principal (coplanar overlap — the z-fight the artist saw); the 2026-08-17 revert took 118 of those with it |
 | P | `connections_are_never_refused` | `graph_stub_kill` **3** pass 0 (by design), `graph_drop_orphans` **2 late** | §S5a item 5, reproduced exactly — and by the specified mechanism: `cluster 4, narm 6, ok 1` measured live. Collapse a wide cluster, let the realign work on what it makes, and two components fall off — **3 edges of 9 ship** |
 
 ⚠️ **N's TWO ROWS ARE ONE DEFECT, IT LIVES IN `s5j_trim`, AND THE TRIGGER IS NOT
@@ -388,11 +396,16 @@ every arm in that band. Four arms already sit at 4.35–5.00 m, **0.35 m** from
 the trigger.
 
 ⚠️ And the generalisation was wrong three times. It is **not** "every junction
-with one wide arm pair": of **545 arms** exactly **five** have a junction-side trim
-≤ 4 m — N's zero-trim arm plus Q's four through arms, whose recorded 0 is the
-absent-attribute default on a street that is deliberately not cut, and **87 of the 88 junctions with two or more arterial arms do not exhibit
+with one wide arm pair": of **545 arms** exactly **one** has a junction-side trim
+≤ 4 m — N's zero-trim arm. (It read five while M4's four deliberately-uncut Q
+arms existed; the 2026-08-17 revert gave them real crossing trims.) And **89 of
+the 90 junctions with two or more arterial arms do not exhibit
 it** — `G_tongue` is two collinear arterials plus a third and trims 22.4 all
-round. Nor is it "the arm opposite a near-floor pair at a 3-arm node", which
+round. ⚠️ That row read `87 of the 88` and **both halves were wrong**: the
+denominator was the pre-Q count, stale since M4 added a sixteenth case, and the
+numerator moved when the revert gave Q's four arms real trims. Recomputed from
+`trim_calibration.json`, 2026-08-17. Nor is it "the arm opposite a near-floor
+pair at a 3-arm node", which
 generalised one rig.
 
 **The hole condition is just `trim < de`**, and nothing narrower. An arm's trim

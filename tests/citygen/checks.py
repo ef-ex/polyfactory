@@ -715,21 +715,16 @@ def trim_metric_is_consistent(solve_geo, trimmed_geo, tol=0.05):
         pts = [v.point() for v in pr.vertices()]
         n = len(pts)
         # a mouth is the cap-in -> cap-out pair; both carry the same `capc`
+        # (M4's `is_plate` skip and `jtrim_*` through-end term were removed
+        # with the 2026-08-17 revert: the attributes they read can no longer
+        # exist — every type builds the crossing solve, so every cap pair is
+        # a real mouth again.)
         mouths = []
-        # M4: a PLATE EDGE (a junction-through principal's cap pair) is not a
-        # mouth - the street behind it is uncut, its terminal is elsewhere, and
-        # matching it here would measure the whole plate reach as "error".
-        # `is_plate` only exists once a junction node is authored; guard the
-        # read so pre-M4 geometry is untouched.
-        has_plate = solve_geo.findPointAttrib("is_plate") is not None
         for i in range(n):
             a, b = pts[i], pts[(i + 1) % n]
             if (a.attribValue("is_cap") == 1 and a.attribValue("after_corner") == 0
                     and b.attribValue("is_cap") == 1
                     and b.attribValue("after_corner") == 1):
-                if has_plate and (a.attribValue("is_plate") == 1
-                                  or b.attribValue("is_plate") == 1):
-                    continue
                 mouths.append((a.attribValue("capc"), a.position(), b.position()))
         if not mouths:
             continue
@@ -748,29 +743,8 @@ def trim_metric_is_consistent(solve_geo, trimmed_geo, tol=0.05):
                 continue
             if (rp[0] - node).length() <= (rp[-1] - node).length():
                 end, nb = rp[0], rp[1]
-                at_start = True
             else:
                 end, nb = rp[-1], rp[-2]
-                at_start = False
-            # M4: a junction-through end is not a trimmed end - the street
-            # runs beneath the plate, so there is no mouth to match. ⚠️ But
-            # SKIPPING it entirely left the through seam measured by NOTHING:
-            # the M4 audit pulled a through end 7.96 m back along the street -
-            # reopening the exact hole the s5j_trim re-extension exists to
-            # close - and every check stayed bit-identically green. The through
-            # end HAS a seam, and it is the node itself: `s5j_trim` re-extends
-            # the terminal onto the junction point, so its distance from the
-            # node IS this check's error term for that end.
-            try:
-                jt = e.attribValue("jtrim_start" if at_start else "jtrim_end")
-            except Exception:
-                jt = 0.0
-            if jt > 0.0:
-                err = (end - node).length()
-                errs.append(err)
-                if worst is None or err > worst[0]:
-                    worst = (err, [round(end[0], 2), round(end[2], 2)])
-                continue
             d = nb - end
             d = type(end)(d[0], 0.0, d[2])
             if d.length() < 1e-12:
@@ -2634,12 +2608,12 @@ def junction_schema(graph_geo):
         twice, one edge of two, an int that crashed `.split()`) is not
         expressible. What remains expressible is a claim COUNT that is not 0
         or 2 at a node, and a claim at the end of an edge whose node has no
-        plate (degree < 3). Since the M4 audit, `plan.node_trims` mirrors
-        the BUILDER's fallback exactly — anything but a valid pair builds as a
-        crossing on both sides — so this term is not a lone guard any more; it
-        is the geometry-side red that makes the shared fallback LOUD, including
-        cardinality 0 on a TYPED junction, which was schema-legal while a
-        12.93 m planner/builder divergence rode beneath it.
+        plate (degree < 3). `plan.node_trims` mirrors the BUILDER exactly, and
+        since the 2026-08-17 revert both build EVERY type as the crossing
+        solve — the type is markings-and-identity data. So this term is the
+        geometry-side red that keeps a malformed authored state LOUD,
+        including cardinality 0 on a TYPED junction, which was schema-legal
+        while a 12.93 m planner/builder divergence rode beneath it.
 
     M3 wrote `crossing` everywhere with both booleans at 0; Q (M4) authors a
     junction with four claims, so the terms bite for real now — including
@@ -2710,10 +2684,14 @@ def junction_schema(graph_geo):
                 or len(set(claiming)) != nclaims):
             bad_principal.append((pt.number(), deg, nclaims))
         # ⚠️ ...and 0 claims is NOT legal on a node TYPED `junction`. The M4
-        # audit measured the divergence: schema green, builder falling back to
-        # a crossing (12.93 m of trim), planner zeroing a computed pair - a
-        # green gate over a 12.93 m disagreement, reached by typing the node
-        # and authoring nothing else. A junction type requires its pair.
+        # audit measured what it cost when the two sides could disagree:
+        # schema green, builder falling back to a crossing (12.93 m of trim),
+        # planner zeroing a computed pair - reached by typing the node and
+        # authoring nothing else. That divergence is now structurally
+        # impossible (since 2026-08-17 every type builds the crossing solve),
+        # but the rule stands on its own terms: a junction type is a CLAIM
+        # about which street has priority, and a claim with no pair is
+        # half-authored data that the markings will read.
         elif jt == "junction" and nclaims == 0:
             bad_principal.append((pt.number(), deg, "typed-no-claims"))
         # ...and a RESERVED type is recorded loudly, not honoured quietly: the
@@ -2731,9 +2709,12 @@ def junction_schema(graph_geo):
         bad_principal.append((ptnum, "non-node", len(claiming)))
 
     # `claims` is the principal's pin, the way `types` pins `junction_type`:
-    # without it, flipping the computed principal default on (M4) would move
-    # ZERO baseline values, and §11.9's "the gate movement is its own diff"
-    # promise would be false for exactly the attribute it was written for.
+    # without it, a change to what the planner computes for the booleans would
+    # move ZERO baseline values, and §11.9's "the gate movement is its own
+    # diff" promise would be false for exactly the attribute it was written
+    # for. (Written for M4's computed-default flip, which the 2026-08-17
+    # ruling blocked; the pin outlives it because the booleans still ship as
+    # markings/identity data and something must see them move.)
     val = {"nodes": nodes, "types": dict(sorted(counts.items())),
            "claims": total_claims,
            "bad_vocab": len(bad_vocab), "untyped_junction": len(untyped),
@@ -2795,8 +2776,10 @@ FOUR terms. It started with two — one per half of the leak as it was first
         `s5j_solve`, which reads `len(pointprims) >= 3` and never `is_node`,
         still built a plate there. ⚠️ It therefore INHERITS the builder's own
         self-loop blind spot: a closed street contributes one prim, so a 3-arm
-        junction made of a loop plus one street reads degree 2 to both. M4 owns
-        that (`edge_id` is not a valid arm key).
+        junction made of a loop plus one street reads degree 2 to both. M4
+        closed WITHOUT fixing that (`edge_id` is not a valid arm key) — it is
+        unowned, and the street-identity derivation (§11.3) inherits it,
+        because a loop is one street whose two ends meet at one node.
       * `schema_source` — which definition of the attribute set was used. See
         `_node_schema_attrs`: the shared constant was inert for a whole round
         because the import path was wrong, and a value-identical fallback hid it.

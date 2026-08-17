@@ -18209,7 +18209,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 122
+      "value": 4
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -19182,8 +19182,8 @@
         "mean": 0.0,
         "over_0.05m": 0,
         "worst_at": [
-          150.0,
-          -17.4
+          137.07,
+          300.0
         ]
       }
     },
@@ -19228,7 +19228,7 @@
         "blocks": 1,
         "empty": 0,
         "empty_at": null,
-        "floor": 0,
+        "floor": 139,
         "lots": 155
       }
     },
@@ -19347,7 +19347,7 @@
       "skipped": false,
       "value": {
         "blocks": 1,
-        "city": 4137,
+        "city": 4033,
         "edges": 4,
         "lots": 155
       }
@@ -19367,12 +19367,12 @@
         "lots_worst_m2": 34.6021,
         "moved": {
           "city_points": [
-            4952,
-            4954
+            4844,
+            4846
           ],
           "city_prims": [
-            4137,
-            4138
+            4033,
+            4034
           ],
           "lots": [
             155,
