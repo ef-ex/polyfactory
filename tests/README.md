@@ -62,8 +62,8 @@ improvement before running `--update-baseline`.**
 tests/
   unit/                  pure Python, no Houdini
     test_citygen.py      cross-section profile maths (22 tests)
-    test_plan.py         the S5 planner + its calibration (44 tests)
-    trim_calibration.json  measured junction footprints, 539 arms
+    test_plan.py         the S5 planner + its calibration (45 tests)
+    trim_calibration.json  measured junction footprints, 545 arms
   citygen/
     checks.py            the assertion library — add to this
     cases.py             scene construction + headless env setup
@@ -79,18 +79,20 @@ tests/
 anything, so `standing` is checkable before the geometry exists (§11.4). It is
 only worth something if it agrees with the plates the builder really lays down,
 so `dump_trims.py` exports `trim_start` / `trim_end` from
-`junction_solve/s5j_solve` on all fifteen cases and `test_plan.py` asserts the
-model against every one of the 539 arms.
+`junction_solve/s5j_solve` on all sixteen cases and `test_plan.py` asserts the
+model against every one of the 545 arms.
 
 The residual is **pinned per case, not tolerated globally**: exact (≤ 3.4e-5 m)
-on the nine cases whose arms are straight, and up to 4.58 m either way on the six
+on the ten cases whose arms are straight — Q_junction_ring among them, dispatched
+through `node_trims`, which closes the geometry→planner round trip for the
+junction type at 1e-5 m, and up to 4.58 m either way on the six
 with curved ones, because `s5j_solve` re-solves each corner in the frame at its
 own cut and the planner has no arm shape to do that with. Read those numbers as a
 recorded state, the same way `baseline.json` is read.
 
 ⚠️ **But the metre is not the property, and the M1 audit caught this file
 implying it was.** What the planner is FOR is the answer — does this street still
-stand? Over all 318 edges the planner's `standing > 0` verdict never disagrees
+stand? Over all 322 edges the planner's `standing > 0` verdict never disagrees
 with the builder's: **0 false-OK, 0 false-BAD**. That is asserted directly, and
 it is the assertion to keep green. The per-case residuals are a tripwire on the
 model drifting, not a safety margin — treating them as one is how a 5.88 m
@@ -102,7 +104,7 @@ optimistic error got recorded as a 2.02 m bound.
 graph's `is_node` points, and — since the artist ruling of 2026-08-16 — the
 principal as `principal_start` / `principal_end`, **int booleans on the prim**,
 CityEngine's own shape. `JUNCTION_TYPE_VOCAB` is the closed set, and it is only
-the FIRST of four terms — `LOT_REJECT_VOCAB`'s lesson was that membership cannot
+the FIRST of five terms — `LOT_REJECT_VOCAB`'s lesson was that membership cannot
 detect an auditor relabelling every rejection to one member of the set. The
 other three tie each value to something independently measurable: a junction of
 degree >= 3 with no type (the shape of a silently-bypassed adapter), a type on a
@@ -262,13 +264,14 @@ a case.
 | **N** `N_shallow_y_32` | a 32° leg, over the floor | the control: nothing deleted, and the junction is still broken |
 | **O** `O_shallow_y_host_dies` | 22°, but the leg is LONGER than the host's east half | the other branch: `graph_min_angle` takes the **host's own arterial**, published as a 599.77 m survivor |
 | **P** `P_stub_chain` | four junctions on three 30 m links | the flood fill PAST a 3-cycle; 3 edges of 9 ship |
+| **Q** `Q_junction_ring` | two AUTHORED `junction` Ts on a ring | the S7 T-case: through-kerb + collect-and-close, 0 unpaired ends, 1 block |
 
 ⚠️ **This table listed seven cases while the suite ran eleven** — found by the M1
 audit, 2026-08-15, alongside a stale block count for B. Two of the four missing
 ones — J and K — are the only cases that carry the S5a junction work at all, so a
-reader looking for them found nothing. Whole suite: **fifteen**.
+reader looking for them found nothing. Whole suite: **sixteen**.
 
-Five of the fifteen exist because a mechanism shipped green and unexercised at
+Five of the sixteen exist because a mechanism shipped green and unexercised at
 its design amplitude — `max_fillet_fraction` (E), the S3b clamp (F), the tongue
 drop (G), the realign (J) and its refusal (K). Adding a parameter means adding a
 case.
@@ -339,7 +342,8 @@ K's six rows are one defect, not six, and they are what M4/M5/M6 exist to
 close. They are the honest form of a jog the repair loop refuses to collapse —
 see `cases.py`'s note on K and §S5a.
 
-**M2 added four cases and six rows, 20 → 26.** Three of the six are the declared
+**M2 added four cases and six rows, 20 → 26** (and M4's Q later added its
+`selfx_city_merged` row, 26 → 27). Three of the six are the declared
 v1 non-goal already recorded on ten other cases; the other three are defects the
 build had and nothing could see:
 
@@ -348,6 +352,7 @@ build had and nothing could see:
 | M O N | `selfx_city_merged` | 4 / 5 / 6 | the v1 non-goal again, see above — **not** new information. N is highest because it keeps its leg, so it has one more junction seam |
 | N | `block_boundary_closes` | 1 open loop, 2 unpaired ends at (0.000, ±13.400) | ⚠️ ONE defect with the row below, and it is **not** the missing merge — see the trim-under-a-step gap |
 | N | `trim_metric_is_consistent` | max **4.00 m** at (−4.0, 0.0), 1 end over 0.05 | the only case with an end OVER the 0.05 m threshold; B/C/I sit at 0.0001 |
+| Q | `selfx_city_merged` | 122 | the v1 non-goal at its M4 shape: the junction plate spans the through principal, whose ribbon runs beneath it — coplanar overlap by design, plus the usual seams. Goes to zero with the Wang-tile transitions and not before |
 | P | `connections_are_never_refused` | `graph_stub_kill` **3** pass 0 (by design), `graph_drop_orphans` **2 late** | §S5a item 5, reproduced exactly — and by the specified mechanism: `cluster 4, narm 6, ok 1` measured live. Collapse a wide cluster, let the realign work on what it makes, and two components fall off — **3 edges of 9 ship** |
 
 ⚠️ **N's TWO ROWS ARE ONE DEFECT, IT LIVES IN `s5j_trim`, AND THE TRIGGER IS NOT
@@ -359,7 +364,7 @@ delete it"*), and the surviving last point is only moved to the cut by
 `if (de < te)`. **The predicate is in that line and it is not a constant**:
 `de` is the arm's own TERMINAL SEGMENT, which `s5_resample` sets to
 `L / ceil(L / step)` — bounded by `(step/2, step]`, so a 2.00 m floor in
-principle, and measured **3.5832 .. 4.0000 m** across the 539 junction-side ends
+principle, and measured **3.5832 .. 4.0000 m** across the 545 junction-side ends
 of the suite, equal to 4.00 only on the 22 ends whose arm length is an exact
 multiple of the step. So the endpoint is re-created only when
 **`trim > de`**, and the hole is **`de − trim`**. ⚠️ Two earlier versions of this
@@ -383,8 +388,9 @@ every arm in that band. Four arms already sit at 4.35–5.00 m, **0.35 m** from
 the trigger.
 
 ⚠️ And the generalisation was wrong three times. It is **not** "every junction
-with one wide arm pair": of **539 arms** exactly **one** has a junction-side trim
-≤ 4 m, and **87 of the 88 junctions with two or more arterial arms do not exhibit
+with one wide arm pair": of **545 arms** exactly **five** have a junction-side trim
+≤ 4 m — N's zero-trim arm plus Q's four through arms, whose recorded 0 is the
+absent-attribute default on a street that is deliberately not cut, and **87 of the 88 junctions with two or more arterial arms do not exhibit
 it** — `G_tongue` is two collinear arterials plus a third and trims 22.4 all
 round. Nor is it "the arm opposite a near-floor pair at a 3-arm node", which
 generalised one rig.

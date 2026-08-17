@@ -179,6 +179,7 @@
           "": 8,
           "crossing": 6
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -1409,6 +1410,7 @@
           "": 17,
           "crossing": 31
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -2634,6 +2636,7 @@
           "": 12,
           "crossing": 47
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -3876,6 +3879,7 @@
           "": 8,
           "crossing": 6
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -5095,6 +5099,7 @@
           "": 3,
           "crossing": 1
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -6280,6 +6285,7 @@
           "": 3,
           "crossing": 1
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -7471,6 +7477,7 @@
           "": 3,
           "crossing": 1
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -8662,6 +8669,7 @@
           "": 8,
           "crossing": 6
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -9887,6 +9895,7 @@
           "": 12,
           "crossing": 47
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -11113,6 +11122,7 @@
           "": 5,
           "crossing": 2
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -12324,6 +12334,7 @@
           "": 5,
           "crossing": 3
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -13543,6 +13554,7 @@
           "": 3,
           "crossing": 1
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -14730,6 +14742,7 @@
           "": 4,
           "crossing": 2
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -15924,6 +15937,7 @@
           "": 3,
           "crossing": 1
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -17115,6 +17129,7 @@
           "": 3,
           "crossing": 1
         },
+        "unbuilt_type": 0,
         "untyped_junction": 0
       }
     },
@@ -18127,6 +18142,1245 @@
         "moved": null,
         "passes": 4,
         "residual_m": 1.57e-05,
+        "reversed": 0,
+        "tol_m": 0.001
+      }
+    }
+  ],
+  "Q_junction_ring": [
+    {
+      "detail": "degenerate prims must be dropped after the sweep",
+      "name": "no_zero_area_prims",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "points with no primitive",
+      "name": "no_loose_points",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_groups_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_attribs_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_scratch_attribs_city",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_city_merged",
+      "ok": false,
+      "skipped": false,
+      "value": 122
+    },
+    {
+      "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
+      "name": "city_is_fully_paved",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "regions": 0,
+        "unpaved_m2": 0.0,
+        "worst": []
+      }
+    },
+    {
+      "detail": "lot area lying inside a junction patch; the block boundary must BE S5's kerb, so this is 0 by construction",
+      "name": "lots_clear_of_junctions",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "junctions": 4,
+        "m2": 0.0,
+        "per_junction": 0.0
+      }
+    },
+    {
+      "detail": "lot area AND lot boundary lying on the road surface anywhere, junction or not; the block boundary IS the kerb, so both are 0 by construction (2 m2 / 1 m allowed). `edge_m` exists because a Sutherland-Hodgman zero-width bridge across the pavement has no area at all",
+      "name": "lots_clear_of_roads",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edge_at": null,
+        "edge_m": 0.0,
+        "m2": 0.0,
+        "patches": 0,
+        "worst": []
+      }
+    },
+    {
+      "detail": "every kerb run end must meet exactly one other and every loop must close; an open chain still ships as a block",
+      "name": "block_boundary_closes",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "loops": 2,
+        "multiplicity": {},
+        "open_loops": 0,
+        "unpaired_ends": 0
+      }
+    },
+    {
+      "detail": "segment crossings with no shared node (per layer)",
+      "name": "graph_is_planar",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "y spread; flatten after PolyExpand2D",
+      "name": "graph_planar_y",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "1 components total",
+      "name": "no_orphan_components",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "informational; interior ones are the ones S2/S3 must remove",
+      "name": "dead_ends",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "interior": 0,
+        "total": 2
+      }
+    },
+    {
+      "detail": "the repair pass re-run on the graph it shipped must be a no-op \u2014 full geometry, to within Repair Tolerance (0.001 m)",
+      "name": "graph_reaches_a_fixed_point",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "converged": 1,
+        "passes": 5,
+        "replay_move_m": 0.0,
+        "replay_moved": null,
+        "residual_m": 0.000153,
+        "reversed": 0,
+        "tol_m": 0.001
+      }
+    },
+    {
+      "detail": "",
+      "name": "attribute_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "\u00a711.3 node schema: vocabulary closed, every junction typed, no type on a node with no plate, principal claims 0-or-2 per node and only where a plate is built",
+      "name": "junction_schema",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_principal": 0,
+        "bad_vocab": 0,
+        "claims": 4,
+        "nodes": 4,
+        "schema_source": "plan",
+        "typed_non_junction": 0,
+        "types": {
+          "": 2,
+          "junction": 2
+        },
+        "unbuilt_type": 0,
+        "untyped_junction": 0
+      }
+    },
+    {
+      "detail": "the node schema lives on graph nodes and nowhere else, and every node the builder plates carries one",
+      "name": "node_schema_stays_on_the_graph",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "leaked": [],
+        "missing": [],
+        "off_node": 0,
+        "schema_source": "plan",
+        "untyped_plated": 0
+      }
+    },
+    {
+      "detail": "output 3 must be input 0 point for point and attribute for attribute \u2014 the mesh republishes the graph it was given",
+      "name": "input0_reaches_an_output",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "attrib_drift": null,
+        "max_move_m": 0.0,
+        "prims": 4
+      }
+    },
+    {
+      "detail": "discrete curvature x R_min(class); > 1.02 means the centreline bends tighter than S3b allows, not_converged means the solver said so itself, and max_turn_spike is the same residual against 4f-4's curvature-noise bound \u2014 a kink that is legal by radius \u2014 recomputed from the shipped centreline, not read off the solver",
+      "name": "centreline_curvature_within_class",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "max_kappa_over_clamp": 1.005,
+        "max_turn_spike": 1.005,
+        "not_converged": 0,
+        "over": 0,
+        "solver_turn_spike": 1.005,
+        "spike_prim_at": [
+          291.39,
+          292.81
+        ],
+        "worst_at": [
+          291.39,
+          292.81
+        ]
+      }
+    },
+    {
+      "detail": "shortest centreline segment in the published graph; the floor is 1.00 m",
+      "name": "no_short_graph_segments",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_segment_m": 3.9775,
+        "under": 0,
+        "worst_at": [
+          114.2,
+          300.0
+        ]
+      }
+    },
+    {
+      "detail": "shortest edge joining two junctions (INFORMATIONAL \u2014 40.0 m is a search radius, not a floor; the assertion is trim_leaves_road_standing + every_mouth_has_a_road + selfx_junction_surface)",
+      "name": "junctions_not_too_close",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "shortest_m": 576.76,
+        "under": 0,
+        "worst_at": [
+          150.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "detail": "arms at the busiest junction, counting junctions within 40.0 m as one (INFORMATIONAL \u2014 4 is the aim, not a cap; a five-way that solves is correct, and one that does not is caught by trim_leaves_road_standing + every_mouth_has_a_road + selfx_junction_surface)",
+      "name": "no_multileg_junctions",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "clusters_merged": 0,
+        "max_arms": 3,
+        "over_cap": 0,
+        "worst_at": [
+          150.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "detail": "streets deleted by every node in the repair loop that can delete one; a repair may fix a junction but may never delete an arm to do it. The stub collapse deletes BY DESIGN and is reported, not counted as a refusal",
+      "name": "connections_are_never_refused",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "by_design_stub_collapse": [
+          0,
+          0
+        ],
+        "deleted_in_pass0": {
+          "graph_drop_orphans": 0,
+          "graph_drop_tongue": 0,
+          "graph_min_angle": 0,
+          "graph_prune": 0,
+          "graph_stub_kill": 0
+        },
+        "deleted_late": {
+          "graph_drop_orphans": 0,
+          "graph_drop_tongue": 0,
+          "graph_min_angle": 0,
+          "graph_prune": 0,
+          "graph_stub_kill": 0
+        },
+        "killed_after_pass0": 0,
+        "killed_in_pass0": 0,
+        "refused_after_pass0": 0
+      }
+    },
+    {
+      "detail": "feasible turns (90, 135, both drawn as arcs, square ring) must converge inside the clamp and NOT be flattened past 1.25 x R_min (2.00 for the closed square); infeasible ones (fold-back, tight ring) must be flagged, not diverged, and no worse than the input they were handed; a legal ring must be untouched \u2014 and all of that at every turn_smooth_gain in the shipped range, sized from the live turn_radius_scale",
+      "name": "turn_clamp_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bend135": {
+          "R_delivered": 26.55,
+          "R_min": 26.8,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0093,
+          "kappa_in": 15.8306,
+          "min_seg": 2.3439,
+          "moved": 43.217969,
+          "sweeps": 5
+        },
+        "bend135_r18": {
+          "R_delivered": 26.6,
+          "R_min": 26.8,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0077,
+          "kappa_in": 1.4941,
+          "min_seg": 3.7487,
+          "moved": 14.128267,
+          "sweeps": 2
+        },
+        "bend90": {
+          "R_delivered": 26.55,
+          "R_min": 26.8,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0095,
+          "kappa_in": 10.5243,
+          "min_seg": 3.7114,
+          "moved": 11.104608,
+          "sweeps": 3
+        },
+        "bend90_r10": {
+          "R_delivered": 26.71,
+          "R_min": 26.8,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 1.0032,
+          "kappa_in": 2.6735,
+          "min_seg": 3.9203,
+          "moved": 6.772969,
+          "sweeps": 1
+        },
+        "foldback": {
+          "R_delivered": 4.87,
+          "R_min": 26.8,
+          "converged": 0,
+          "half_width": 13.4,
+          "kappa": 5.5002,
+          "kappa_in": 10.5243,
+          "min_seg": 2.1001,
+          "moved": 16.793224,
+          "sweeps": 68
+        },
+        "gain_sweep": {
+          "0": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7455,
+              "moved": 18.562005,
+              "sweeps": 41
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "0.5": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128518,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.59,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0081,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.105361,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 39.9,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.6717,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0567,
+              "moved": 77.495379,
+              "sweeps": 200
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "1": {
+            "bend135": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0069,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3438,
+              "moved": 43.218656,
+              "sweeps": 7
+            },
+            "bend135_r18": {
+              "R_delivered": 26.62,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0068,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.12834,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.56,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0092,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104763,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 29.89,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.8966,
+              "kappa_in": 10.5243,
+              "min_seg": 3.0695,
+              "moved": 77.495061,
+              "sweeps": 137
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "2": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.9999,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1057,
+              "moved": 77.509212,
+              "sweeps": 136
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "4": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1405,
+              "moved": 77.414652,
+              "sweeps": 126
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          },
+          "8": {
+            "bend135": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0093,
+              "kappa_in": 15.8306,
+              "min_seg": 2.3439,
+              "moved": 43.217969,
+              "sweeps": 5
+            },
+            "bend135_r18": {
+              "R_delivered": 26.6,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0077,
+              "kappa_in": 1.4941,
+              "min_seg": 3.7487,
+              "moved": 14.128267,
+              "sweeps": 2
+            },
+            "bend90": {
+              "R_delivered": 26.55,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0095,
+              "kappa_in": 10.5243,
+              "min_seg": 3.7114,
+              "moved": 11.104608,
+              "sweeps": 3
+            },
+            "bend90_r10": {
+              "R_delivered": 26.71,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0032,
+              "kappa_in": 2.6735,
+              "min_seg": 3.9203,
+              "moved": 6.772969,
+              "sweeps": 1
+            },
+            "foldback": {
+              "R_delivered": 4.87,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 5.5002,
+              "kappa_in": 10.5243,
+              "min_seg": 2.1001,
+              "moved": 16.793224,
+              "sweeps": 68
+            },
+            "ring_legal": {
+              "R_delivered": 119.99,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 0.2234,
+              "kappa_in": 0.2234,
+              "min_seg": 4.0104,
+              "moved": 0.0,
+              "sweeps": 0
+            },
+            "ring_square": {
+              "R_delivered": 26.8,
+              "R_min": 26.8,
+              "converged": 1,
+              "half_width": 13.4,
+              "kappa": 1.0,
+              "kappa_in": 10.5243,
+              "min_seg": 3.1693,
+              "moved": 77.331642,
+              "sweeps": 121
+            },
+            "ring_tight": {
+              "R_delivered": 19.97,
+              "R_min": 26.8,
+              "converged": 0,
+              "half_width": 13.4,
+              "kappa": 1.3423,
+              "kappa_in": 1.3423,
+              "min_seg": 4.0467,
+              "moved": 0.0,
+              "sweeps": 50
+            }
+          }
+        },
+        "ring_legal": {
+          "R_delivered": 119.99,
+          "R_min": 26.8,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 0.2234,
+          "kappa_in": 0.2234,
+          "min_seg": 4.0104,
+          "moved": 0.0,
+          "sweeps": 0
+        },
+        "ring_square": {
+          "R_delivered": 26.8,
+          "R_min": 26.8,
+          "converged": 1,
+          "half_width": 13.4,
+          "kappa": 0.9999,
+          "kappa_in": 10.5243,
+          "min_seg": 3.1057,
+          "moved": 77.509212,
+          "sweeps": 136
+        },
+        "ring_tight": {
+          "R_delivered": 19.97,
+          "R_min": 26.8,
+          "converged": 0,
+          "half_width": 13.4,
+          "kappa": 1.3423,
+          "kappa_in": 1.3423,
+          "min_seg": 4.0467,
+          "moved": 0.0,
+          "sweeps": 50
+        }
+      }
+    },
+    {
+      "detail": "collapsed fillet arcs",
+      "name": "no_degenerate_corner_segments",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "6 corners, 4 arcs fitted; 6 join two street classes, where the lesser one sets the radius (S5); 2 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
+      "name": "every_corner_is_an_arc",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "culdesac_skipped": 2,
+        "fit": 8.1e-06,
+        "mixed_class": 6,
+        "radius": 0.0,
+        "radius_fit": 0.007,
+        "straight": 0,
+        "tangent": 8.4e-06,
+        "unfitted": 0
+      }
+    },
+    {
+      "detail": "bands vs live corner segments",
+      "name": "sidewalk_bands_match_corners",
+      "ok": true,
+      "skipped": false,
+      "value": "66/66"
+    },
+    {
+      "detail": "",
+      "name": "junction_boundary_is_simple",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_junction_surface",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "each bulb is a circle of at least max(14.00 m, 1.35 x the road half-width) with both mouth corners ON it",
+      "name": "culdesac_bulbs_are_circles",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bulbs": 2,
+        "circle_fit": 1.05e-05,
+        "malformed": 0,
+        "mouth_off_circle": 1e-05,
+        "under_radius": 0.0
+      }
+    },
+    {
+      "detail": "intersection points",
+      "name": "selfx_roads",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "street length left after both junction trims; below 1.00 m s5j_trim is about to delete it under a live mouth, and below 1.00 x its own WIDTH it ships as a tongue of pavement instead of a street (asserted on the dead-end arms off degree >= 4 nodes, which is what s5j_tongue_mark can remove)",
+      "name": "trim_leaves_road_standing",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "min_ratio": 2.958,
+        "min_standing_m": 30.593,
+        "under": 0,
+        "under_ratio": 0,
+        "under_ratio_all": 0,
+        "worst_at": [
+          150.0,
+          0.0
+        ],
+        "worst_ratio_at": [
+          150.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "detail": "road terminal cross-section vs mouth cap corners; both endpoints must land within 0.05 m",
+      "name": "trim_metric_is_consistent",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "ends": 6,
+        "max": 0.0,
+        "mean": 0.0,
+        "over_0.05m": 0,
+        "worst_at": [
+          150.0,
+          -17.4
+        ]
+      }
+    },
+    {
+      "detail": "mouths whose street s5j_trim deleted, out of 6",
+      "name": "every_mouth_has_a_road",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "h*tan(turn/2) / segment; > 1 means the swept ribbon crosses itself",
+      "name": "no_sweep_fold_after_trim",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "folds": 0,
+        "max_ratio": 0.252,
+        "min_seg": 2.6001
+      }
+    },
+    {
+      "detail": "y spread; flatten after PolyExpand2D",
+      "name": "lots_planar",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "relative area error (lots 74474.3 vs blocks 74474.3)",
+      "name": "lots_tile_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 5.09e-07
+    },
+    {
+      "detail": "blocks holding no parcel at all, and the per-case lot floor",
+      "name": "every_block_is_subdivided",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 1,
+        "empty": 0,
+        "empty_at": null,
+        "floor": 0,
+        "lots": 155
+      }
+    },
+    {
+      "detail": "155 prims, 155 distinct footprints",
+      "name": "no_duplicate_lot_footprints",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "distribution over ALL lots; FAILS if the published evidence is absent or disagrees by more than 0.05, if a viable lot exceeds 4.0:1 / is under 6.0 m wide / has under 8.0 m of street edge, or if a reject label is unknown or contradicts lot_viable",
+      "name": "lot_aspect_ratio",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "bad_routing": 0,
+        "courtyard_bad": 0,
+        "evidence_disagrees": 0,
+        "evidence_recomputed": 0,
+        "label_wrong": 0,
+        "lots": 155,
+        "max": 42.43,
+        "median": 16.76,
+        "mislabelled": 0,
+        "no_evidence": 0,
+        "over": 138,
+        "p90": 33.74,
+        "recomputed_n": 155,
+        "rejected": 141,
+        "uncovered": 0,
+        "unknown_reject": {},
+        "viable_reject_mismatch": 0,
+        "worst": [],
+        "worst_courtyard": [],
+        "worst_evidence": [],
+        "worst_label": [],
+        "worst_recomputed": [],
+        "worst_routing": []
+      }
+    },
+    {
+      "detail": "pfsl_street_edge against five hand-computed answers; `nibbles` must read 2.0 as a run and 6.0 as a sum",
+      "name": "street_edge_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "cases": 5,
+        "frontage_wrong": {},
+        "missing": [],
+        "nibbles_run_vs_sum": [
+          2.0,
+          6.0
+        ],
+        "wrong": {}
+      }
+    },
+    {
+      "detail": "self-touching parcels within 0.001 m (0 of them ship as buildable)",
+      "name": "lots_are_simple_polygons",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "lots": 0,
+        "viable": 0
+      }
+    },
+    {
+      "detail": "the shipped clipper on a U-shaped block split across the notch mouth: two 1600 m2 prongs and a 2000 m2 bar, no piece self-touching, and NO edge crossing the notch - the notch is the dead-end stub's road, and a Sutherland-Hodgman bridge runs straight down it",
+      "name": "lot_clip_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "convex_order_matches_SH": true,
+        "convex_pieces": 1,
+        "edges_in_notch": 0,
+        "nonsimple": 0,
+        "u_keep_bottom": [
+          2000.0
+        ],
+        "u_keep_top": [
+          1600.0,
+          1600.0
+        ],
+        "u_mid": [
+          800.0,
+          800.0
+        ]
+      }
+    },
+    {
+      "detail": "no plaza declared by this case",
+      "name": "plaza_disc_is_clear",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "no_downward_lots",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "no_downward_blocks",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "informational",
+      "name": "counts",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "blocks": 1,
+        "city": 4137,
+        "edges": 4,
+        "lots": 155
+      }
+    },
+    {
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (6 passes, not 5), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
+      "name": "forced_extra_repair_pass",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "forced": 6,
+        "lots": [
+          155,
+          156
+        ],
+        "lots_moved": 55,
+        "lots_worst_m2": 34.6021,
+        "moved": {
+          "city_points": [
+            4952,
+            4954
+          ],
+          "city_prims": [
+            4137,
+            4138
+          ],
+          "lots": [
+            155,
+            156
+          ]
+        },
+        "passes": 5,
+        "residual_m": 0.0001221,
         "reversed": 0,
         "tol_m": 0.001
       }

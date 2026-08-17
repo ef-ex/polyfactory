@@ -223,6 +223,17 @@ STUB_CHAIN_STREETS = [
     [(90, 0, 0), (176.60, 0, -50.00)],     # D, 330.0 deg, 100.00 m collector
 ]
 
+# Case Q's input: the S7 junction ring. See build_all()'s Q block for the
+# derivation of every number.
+JUNCTION_RING_STREETS = [
+    [(0, 0, 0), (300, 0, 0)],              # south side - splits at T1 (150,0)
+    [(300, 0, 0), (300, 0, 300)],          # east side
+    [(300, 0, 300), (0, 0, 300)],          # north side - splits at T2 (150,300)
+    [(0, 0, 300), (0, 0, 0)],              # west side
+    [(150, 0, 0), (150, 0, -60)],          # minor at T1, outward, 60 m local
+    [(150, 0, 300), (150, 0, 360)],        # minor at T2, outward, 60 m local
+]
+
 _DRAW_SNIPPET = """
 import hou
 g = hou.pwd().geometry(); g.clear()
@@ -612,6 +623,65 @@ def build_all(parent=None):
     cases["P_stub_chain"] = {"city": p, "trace": pt_, "solver": pt_solver,
                              "input": pdraw}
 
+    # Q - THE S7 T-CASE (M4): two AUTHORED `junction` nodes on a closed ring.
+    #
+    # §11.5 names S7 as the integration risk: at a junction node the
+    # principal's kerb runs THROUGH while minor kerbs tee into it, and
+    # blocks_kerb's collect-and-close must survive that. A lone T closes no
+    # block, so the case is a ring - and it carries TWO Ts, not one, because a
+    # ring with a single junction becomes ONE CLOSED PRIM from that node back
+    # to itself (graph_polypath merges the degree-2 corners away), which is the
+    # self-loop the planner cannot represent (`edge_id` is not a valid arm
+    # key, the recorded M4 defect). Two Ts split the ring into two open prims
+    # and the loop never forms.
+    #
+    # Sized so the ring halves are unambiguous principals: 150+300+150 = 600 m
+    # each (arterial, 26.8 m) against 60 m local minors (14.4 m). The 90-degree
+    # ring corners are interior vertices - S3b's turn clamp owns them (the
+    # F_bend precedent), legs 150/300 clear the 26.8 m tangent runs. Minors
+    # point OUTWARD so the interior block's kerb at each T is the pure
+    # through-kerb case; their tips extend along their own direction into
+    # nothing (the G_tongue precedent for `d_extend`).
+    #
+    # AUTHORING is two wrangles between segmenter and solver - the per-node
+    # downstream path §11.3 records, on the settled graph where node identity
+    # exists. The ring prims claim principal at BOTH their ends (each node
+    # gets exactly 2 claims from 2 distinct prims); the T nodes are typed
+    # `junction`, overwriting the adapter's `crossing` default - authored
+    # beats computed, exercised for real.
+    qdraw = parent.createNode("python", "Q_drawn_streets")
+    qdraw.parm("python").set(_DRAW_SNIPPET.replace(
+        repr(DRAWN_STREETS), repr(JUNCTION_RING_STREETS)))
+    qs = parent.createNode("pf_citygen_segmenter", "Q_junction_ring_segmenter")
+    qs.setInput(0, qdraw)
+    qa_prim = parent.createNode("attribwrangle", "Q_author_principal")
+    qa_prim.parm("class").set(1)
+    qa_prim.parm("snippet").set(
+        "// authored principal: the two 600 m ring halves, claiming at BOTH\n"
+        "// their ends - 2 claims from 2 distinct prims at each T node\n"
+        'if (f@edge_len > 500.0) {\n'
+        "    i@principal_start = 1;\n"
+        "    i@principal_end = 1;\n"
+        "}\n")
+    qa_prim.setInput(0, qs)
+    qa_pt = parent.createNode("attribwrangle", "Q_author_junction")
+    qa_pt.parm("class").set(2)
+    qa_pt.parm("snippet").set(
+        "// authored junction type at both Ts (the only degree >= 3 nodes)\n"
+        'if (i@is_node == 1 && neighbourcount(0, @ptnum) >= 3)\n'
+        '    s@junction_type = "junction";\n')
+    qa_pt.setInput(0, qa_prim)
+    qv = parent.createNode("pf_citygen_solver", "Q_junction_ring_solver")
+    qv.setInput(0, qa_pt)
+    for q in qv.parms():
+        if q.name().startswith("s5j_params_") and qs.parm(q.name()) is not None:
+            q.setExpression('ch("../%s/%s")' % (qs.name(), q.name()))
+    qm = parent.createNode("pf_citygen_mesh", "Q_junction_ring")
+    qm.setInput(0, qv, 0)
+    qm.setInput(1, qv, 1)
+    cases["Q_junction_ring"] = {"city": qm, "trace": qs, "solver": qv,
+                                "input": qdraw}
+
     # ⚠️ The harness could not reach the TRACER at all. `_chain` returns the
     # segmenter as the "trace" role, so `cases.parm()` searched city/trace/solver
     # and never saw the Tracer — `parm_liveness` swept its eleven live
@@ -681,7 +751,11 @@ LOT_FLOOR = {"A_drawn": 74, "B_grid": 560, "C_radial": 683, "D_offset": 55,
              # host and one leg, and the stub chain is a chain — neither has a
              # cycle, so there is no ring for S7 to close and no parcel to pin.
              "M_shallow_y_24": 0, "N_shallow_y_32": 0,
-             "O_shallow_y_host_dies": 0, "P_stub_chain": 0}
+             "O_shallow_y_host_dies": 0, "P_stub_chain": 0,
+             # Q closes ONE block - the ring interior. Unpinned at 0 until the
+             # junction-type geometry has had its render looked at (11.12);
+             # pin from measurement after that, the A-D precedent.
+             "Q_junction_ring": 0}
 
 
 def inner(case, role):

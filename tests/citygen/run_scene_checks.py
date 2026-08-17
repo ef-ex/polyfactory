@@ -127,7 +127,15 @@ def run_case(name, built, field=None):
     # ...and that the mesh's input 0 is load-bearing at all. An audit measured
     # a 2.5 m jitter on it against three prim counts, saw nothing move and
     # called the input dead; output 3 is a pass-through of it. See the check.
-    out.append(C.input0_reaches_an_output(trace.geometry(0), g_graph))
+    #
+    # ⚠️ The comparison source is the mesh's ACTUAL input 0, not the segmenter's
+    # output. Those were the same stream until M4: §11.3's downstream authoring
+    # path legitimately writes `junction_type` and the principal booleans
+    # BETWEEN segmenter and solver, and Q does — the segmenter proxy reported
+    # the authored attributes as drift on a pass-through that was faithfully
+    # passing them through. On unauthored cases the two sources are
+    # value-identical, so nothing recorded moves.
+    out.append(C.input0_reaches_an_output(city.inputGeometry(0), g_graph))
     out.append(C.centreline_curvature_within_class(
         g_graph, parm("graph_params_turn_radius_scale"),
         gain_parm=parm("graph_params_turn_smooth_gain")))

@@ -270,6 +270,7 @@
        "edge_id": "region_-01_-01/E_00003",
        "length": 124.28507881903941,
        "measured_trim": 20.329681396484375,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099979400634766
       },
@@ -282,6 +283,7 @@
        "edge_id": "region_-01_-01/E_00010",
        "length": 180.28152810859152,
        "measured_trim": 16.676658630371094,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -294,10 +296,12 @@
        "edge_id": "region_-01_-01/E_00011",
        "length": 80.10213994630305,
        "measured_trim": 12.690960884094238,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.09999942779541
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -119.9205551147461,
       -118.09334564208984
@@ -314,6 +318,7 @@
        "edge_id": "region_-01_+00/E_00000",
        "length": 139.49900805030077,
        "measured_trim": 20.92957305908203,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100010871887207
       },
@@ -326,6 +331,7 @@
        "edge_id": "region_-01_+00/E_00001",
        "length": 85.41994331215116,
        "measured_trim": 16.530893325805664,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099991798400879
       },
@@ -338,6 +344,7 @@
        "edge_id": "region_-01_+00/E_00002",
        "length": 181.73418819813972,
        "measured_trim": 16.80297088623047,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -350,10 +357,12 @@
        "edge_id": "region_-01_-01/E_00003",
        "length": 124.28507881903941,
        "measured_trim": 17.981815338134766,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099979400634766
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -114.79713439941406,
       6.08591890335083
@@ -370,6 +379,7 @@
        "edge_id": "region_-01_+00/E_00000",
        "length": 139.49900805030077,
        "measured_trim": 20.928421020507812,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100010871887207
       },
@@ -382,6 +392,7 @@
        "edge_id": "region_-01_+00/E_00004",
        "length": 89.96249272050063,
        "measured_trim": 13.919502258300781,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099987983703613
       },
@@ -394,6 +405,7 @@
        "edge_id": "region_-01_+00/E_00005",
        "length": 180.28692518266624,
        "measured_trim": 13.874626159667969,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -406,10 +418,12 @@
        "edge_id": "region_-01_+00/E_00006",
        "length": 114.51312945853074,
        "measured_trim": 20.743654251098633,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099985122680664
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -110.14974975585938,
       145.5074920654297
@@ -426,6 +440,7 @@
        "edge_id": "region_+00_-01/E_00007",
        "length": 105.99112523262322,
        "measured_trim": 18.451581954956055,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100003242492676
       },
@@ -438,6 +453,7 @@
        "edge_id": "region_-01_-01/E_00010",
        "length": 180.28152810859152,
        "measured_trim": 12.153366088867188,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -450,10 +466,12 @@
        "edge_id": "region_+00_-01/E_00014",
        "length": 159.73536269724832,
        "measured_trim": 14.588241577148438,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100016593933105
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       60.30989456176758,
       -113.8021469116211
@@ -470,6 +488,7 @@
        "edge_id": "region_-01_+00/E_00002",
        "length": 181.73418819813972,
        "measured_trim": 16.802978515625,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -482,6 +501,7 @@
        "edge_id": "region_+00_-01/E_00007",
        "length": 105.99112523262322,
        "measured_trim": 18.232961654663086,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100003242492676
       },
@@ -494,6 +514,7 @@
        "edge_id": "region_+00_-01/E_00008",
        "length": 155.24770501403816,
        "measured_trim": 13.947393417358398,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100028038024902
       },
@@ -506,10 +527,12 @@
        "edge_id": "region_+00_+00/E_00009",
        "length": 152.767815315315,
        "measured_trim": 21.0786190032959,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100028038024902
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       65.60283660888672,
       -7.943262577056885
@@ -526,6 +549,7 @@
        "edge_id": "region_-01_+00/E_00005",
        "length": 180.28692518266624,
        "measured_trim": 16.6771240234375,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -538,6 +562,7 @@
        "edge_id": "region_+00_+00/E_00009",
        "length": 152.767815315315,
        "measured_trim": 20.774932861328125,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100028038024902
       },
@@ -550,6 +575,7 @@
        "edge_id": "region_+00_+00/E_00012",
        "length": 150.4882258873912,
        "measured_trim": 14.816842079162598,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100022315979004
       },
@@ -562,10 +588,12 @@
        "edge_id": "region_+00_+00/E_00013",
        "length": 115.25681212514115,
        "measured_trim": 18.3046875,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099985122680664
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       69.8603515625,
       144.76319885253906
@@ -1683,6 +1711,7 @@
        "edge_id": "region_-02_+00/E_00025",
        "length": 150.33790846135804,
        "measured_trim": 17.400074005126953,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       },
@@ -1695,6 +1724,7 @@
        "edge_id": "region_-02_+00/E_00035",
        "length": 80.33952175755758,
        "measured_trim": 12.477068901062012,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800024032592773
       },
@@ -1707,6 +1737,7 @@
        "edge_id": "region_-02_+00/E_00036",
        "length": 78.4106143638318,
        "measured_trim": 12.761592864990234,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -1719,10 +1750,12 @@
        "edge_id": "region_-02_+01/E_00037",
        "length": 196.1223960877526,
        "measured_trim": 17.400033950805664,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400004386901855
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -319.803466796875,
       208.81350708007812
@@ -1739,6 +1772,7 @@
        "edge_id": "region_-01_-01/E_00016",
        "length": 176.50028313335812,
        "measured_trim": 17.4000244140625,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -1751,6 +1785,7 @@
        "edge_id": "region_-02_+00/E_00023",
        "length": 132.85090623223522,
        "measured_trim": 12.722134590148926,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -1763,6 +1798,7 @@
        "edge_id": "region_-01_+00/E_00024",
        "length": 78.40730661051421,
        "measured_trim": 12.761086463928223,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -1775,10 +1811,12 @@
        "edge_id": "region_-02_+00/E_00025",
        "length": 150.33790846135804,
        "measured_trim": 17.400066375732422,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -273.3466491699219,
       65.83361053466797
@@ -1795,6 +1833,7 @@
        "edge_id": "region_-01_+00/E_00034",
        "length": 150.5268299085231,
        "measured_trim": 17.589004516601562,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       },
@@ -1807,6 +1846,7 @@
        "edge_id": "region_-02_+00/E_00036",
        "length": 78.4106143638318,
        "measured_trim": 12.761589050292969,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -1819,10 +1859,12 @@
        "edge_id": "region_-01_+01/E_00045",
        "length": 136.38920023021873,
        "measured_trim": 12.690496444702148,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79994773864746
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -245.29205322265625,
       233.22238159179688
@@ -1839,6 +1881,7 @@
        "edge_id": "region_-01_-01/E_00008",
        "length": 129.54882731515076,
        "measured_trim": 17.400026321411133,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -1851,6 +1894,7 @@
        "edge_id": "region_-02_-01/E_00014",
        "length": 122.64183261690192,
        "measured_trim": 12.868562698364258,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800031661987305
       },
@@ -1863,6 +1907,7 @@
        "edge_id": "region_-01_-01/E_00015",
        "length": 55.913846514999875,
        "measured_trim": 12.981544494628906,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       },
@@ -1875,10 +1920,12 @@
        "edge_id": "region_-01_-01/E_00016",
        "length": 176.50028313335812,
        "measured_trim": 17.400012969970703,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -218.80523681640625,
       -102.02819061279297
@@ -1895,6 +1942,7 @@
        "edge_id": "region_-01_+00/E_00024",
        "length": 78.40730661051421,
        "measured_trim": 12.761093139648438,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -1907,6 +1955,7 @@
        "edge_id": "region_-01_+00/E_00033",
        "length": 136.74166134194152,
        "measured_trim": 12.720715522766113,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79994773864746
       },
@@ -1919,10 +1968,12 @@
        "edge_id": "region_-01_+00/E_00034",
        "length": 150.5268299085231,
        "measured_trim": 17.40001106262207,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -198.77687072753906,
       90.06280517578125
@@ -1939,6 +1990,7 @@
        "edge_id": "region_-01_-02/E_00003",
        "length": 134.49713837056345,
        "measured_trim": 17.400039672851562,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399975776672363
       },
@@ -1951,6 +2003,7 @@
        "edge_id": "region_-01_-01/E_00006",
        "length": 140.40826767037478,
        "measured_trim": 12.700688362121582,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       },
@@ -1963,6 +2016,7 @@
        "edge_id": "region_-01_-01/E_00007",
        "length": 55.92176229051111,
        "measured_trim": 12.983238220214844,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       },
@@ -1975,10 +2029,12 @@
        "edge_id": "region_-01_-01/E_00008",
        "length": 129.54882731515076,
        "measured_trim": 17.40003204345703,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -178.77259826660156,
       -225.2364959716797
@@ -1995,6 +2051,7 @@
        "edge_id": "region_-01_-01/E_00013",
        "length": 129.91457258844216,
        "measured_trim": 17.400009155273438,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -2007,6 +2064,7 @@
        "edge_id": "region_-01_-01/E_00015",
        "length": 55.913846514999875,
        "measured_trim": 12.98154067993164,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       },
@@ -2019,10 +2077,12 @@
        "edge_id": "region_-01_-01/E_00022",
        "length": 158.87976920834362,
        "measured_trim": 12.91598892211914,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799928665161133
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -165.6280059814453,
       -84.74987030029297
@@ -2039,6 +2099,7 @@
        "edge_id": "region_-01_-02/E_00000",
        "length": 147.71583644954688,
        "measured_trim": 12.97695541381836,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799962997436523
       },
@@ -2051,6 +2112,7 @@
        "edge_id": "region_-01_-02/E_00001",
        "length": 56.09909616123481,
        "measured_trim": 12.219818115234375,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -2063,6 +2125,7 @@
        "edge_id": "region_-01_-02/E_00002",
        "length": 46.992929868491984,
        "measured_trim": 17.40003204345703,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -2075,10 +2138,12 @@
        "edge_id": "region_-01_-02/E_00003",
        "length": 134.49713837056345,
        "measured_trim": 17.40003204345703,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399975776672363
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -137.21080017089844,
       -353.1509094238281
@@ -2095,6 +2160,7 @@
        "edge_id": "region_-01_-02/E_00005",
        "length": 134.13579464593678,
        "measured_trim": 17.050081253051758,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399975776672363
       },
@@ -2107,6 +2173,7 @@
        "edge_id": "region_-01_-01/E_00007",
        "length": 55.92176229051111,
        "measured_trim": 12.983238220214844,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       },
@@ -2119,6 +2186,7 @@
        "edge_id": "region_-01_-01/E_00012",
        "length": 158.8873674123077,
        "measured_trim": 12.916555404663086,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799928665161133
       },
@@ -2131,10 +2199,12 @@
        "edge_id": "region_-01_-01/E_00013",
        "length": 129.91457258844216,
        "measured_trim": 17.765708923339844,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -125.48233032226562,
       -208.30601501464844
@@ -2151,6 +2221,7 @@
        "edge_id": "region_-01_+00/E_00044",
        "length": 150.34931559103265,
        "measured_trim": 17.400148391723633,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       },
@@ -2163,6 +2234,7 @@
        "edge_id": "region_-01_+01/E_00045",
        "length": 136.38920023021873,
        "measured_trim": 12.690505981445312,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79994773864746
       },
@@ -2175,6 +2247,7 @@
        "edge_id": "region_-01_+01/E_00054",
        "length": 226.91755556717044,
        "measured_trim": 12.943033218383789,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80006980895996
       },
@@ -2187,10 +2260,12 @@
        "edge_id": "region_-01_+01/E_00055",
        "length": 127.58107735652248,
        "measured_trim": 17.400053024291992,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400023460388184
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -115.52287292480469,
       275.18804931640625
@@ -2207,6 +2282,7 @@
        "edge_id": "region_-01_-02/E_00001",
        "length": 56.09909616123481,
        "measured_trim": 11.385093688964844,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -2219,6 +2295,7 @@
        "edge_id": "region_-01_-02/E_00004",
        "length": 158.69477788864663,
        "measured_trim": 12.902109146118164,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799928665161133
       },
@@ -2231,10 +2308,12 @@
        "edge_id": "region_-01_-02/E_00005",
        "length": 134.13579464593678,
        "measured_trim": 17.40436363220215,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399975776672363
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -83.85736846923828,
       -335.8153991699219
@@ -2251,6 +2330,7 @@
        "edge_id": "region_-01_+00/E_00033",
        "length": 136.74166134194152,
        "measured_trim": 12.720710754394531,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79994773864746
       },
@@ -2263,6 +2343,7 @@
        "edge_id": "region_-01_+00/E_00041",
        "length": 119.98537847468472,
        "measured_trim": 17.41205596923828,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -2275,6 +2356,7 @@
        "edge_id": "region_-01_+00/E_00043",
        "length": 55.03557556609198,
        "measured_trim": 12.793336868286133,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       },
@@ -2287,10 +2369,12 @@
        "edge_id": "region_-01_+00/E_00044",
        "length": 150.34931559103265,
        "measured_trim": 17.411663055419922,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -68.72782135009766,
       132.31829833984375
@@ -2307,6 +2391,7 @@
        "edge_id": "region_-01_-01/E_00032",
        "length": 56.526896237649396,
        "measured_trim": 17.400012969970703,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -2319,6 +2404,7 @@
        "edge_id": "region_-01_+00/E_00041",
        "length": 119.98537847468472,
        "measured_trim": 17.400028228759766,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -2331,10 +2417,12 @@
        "edge_id": "region_-01_+00/E_00042",
        "length": 54.9334686159246,
        "measured_trim": 12.77145767211914,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -31.99213981628418,
       18.106977462768555
@@ -2351,6 +2439,7 @@
        "edge_id": "region_-01_+00/E_00043",
        "length": 55.03557556609198,
        "measured_trim": 12.7933349609375,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       },
@@ -2363,6 +2452,7 @@
        "edge_id": "region_+00_+00/E_00051",
        "length": 119.98791037288194,
        "measured_trim": 17.400070190429688,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -2375,10 +2465,12 @@
        "edge_id": "region_+00_+00/E_00053",
        "length": 171.56810861899547,
        "measured_trim": 12.969868659973145,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80003547668457
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -16.3858585357666,
       149.32516479492188
@@ -2395,6 +2487,7 @@
        "edge_id": "region_+00_-01/E_00021",
        "length": 129.54908493080407,
        "measured_trim": 17.399978637695312,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -2407,6 +2500,7 @@
        "edge_id": "region_-01_-01/E_00022",
        "length": 158.87976920834362,
        "measured_trim": 12.915985107421875,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799928665161133
       },
@@ -2419,10 +2513,12 @@
        "edge_id": "region_-01_-01/E_00032",
        "length": 56.526896237649396,
        "measured_trim": 17.39996337890625,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -14.524374008178711,
       -35.653297424316406
@@ -2439,6 +2535,7 @@
        "edge_id": "region_-01_+00/E_00042",
        "length": 54.9334686159246,
        "measured_trim": 10.742382049560547,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       },
@@ -2451,6 +2548,7 @@
        "edge_id": "region_+00_+00/E_00049",
        "length": 172.0258380500219,
        "measured_trim": 12.729034423828125,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800079345703125
       },
@@ -2463,6 +2561,7 @@
        "edge_id": "region_+00_+00/E_00051",
        "length": 119.98791037288194,
        "measured_trim": 17.41463851928711,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -2475,10 +2574,12 @@
        "edge_id": "region_+00_+00/E_00052",
        "length": 44.66926539992952,
        "measured_trim": 17.41469383239746,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       20.252695083618164,
       35.08234786987305
@@ -2495,6 +2596,7 @@
        "edge_id": "region_+00_-01/E_00011",
        "length": 134.4971411746944,
        "measured_trim": 17.400100708007812,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399975776672363
       },
@@ -2507,6 +2609,7 @@
        "edge_id": "region_-01_-01/E_00012",
        "length": 158.8873674123077,
        "measured_trim": 12.916549682617188,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799928665161133
       },
@@ -2519,6 +2622,7 @@
        "edge_id": "region_+00_-01/E_00020",
        "length": 161.84964614066914,
        "measured_trim": 12.842657089233398,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800050735473633
       },
@@ -2531,10 +2635,12 @@
        "edge_id": "region_+00_-01/E_00021",
        "length": 129.54908493080407,
        "measured_trim": 17.400007247924805,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       25.508487701416016,
       -158.86180114746094
@@ -2551,6 +2657,7 @@
        "edge_id": "region_-01_-02/E_00004",
        "length": 158.69477788864663,
        "measured_trim": 12.902099609375,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799928665161133
       },
@@ -2563,6 +2670,7 @@
        "edge_id": "region_+00_-02/E_00009",
        "length": 161.86997409648257,
        "measured_trim": 12.844141006469727,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800050735473633
       },
@@ -2575,6 +2683,7 @@
        "edge_id": "region_+00_-02/E_00010",
        "length": 115.53450761830305,
        "measured_trim": 17.400129318237305,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       },
@@ -2587,10 +2696,12 @@
        "edge_id": "region_+00_-01/E_00011",
        "length": 134.4971411746944,
        "measured_trim": 17.400114059448242,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399975776672363
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       67.07038879394531,
       -286.77618408203125
@@ -2607,6 +2718,7 @@
        "edge_id": "region_-01_+01/E_00054",
        "length": 226.91755556717044,
        "measured_trim": 12.943023681640625,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80006980895996
       },
@@ -2619,6 +2731,7 @@
        "edge_id": "region_+00_+01/E_00058",
        "length": 150.35514831310073,
        "measured_trim": 17.044984817504883,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       },
@@ -2631,6 +2744,7 @@
        "edge_id": "region_+00_+01/E_00059",
        "length": 131.96693345434423,
        "measured_trim": 12.99699878692627,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80003547668457
       },
@@ -2643,10 +2757,12 @@
        "edge_id": "region_+00_+01/E_00060",
        "length": 53.64491667803868,
        "measured_trim": 17.755393981933594,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       100.39007568359375,
       344.96875
@@ -2663,6 +2779,7 @@
        "edge_id": "region_+00_+00/E_00048",
        "length": 120.00000647941214,
        "measured_trim": 17.044296264648438,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -2675,6 +2792,7 @@
        "edge_id": "region_+00_+00/E_00053",
        "length": 171.56810861899547,
        "measured_trim": 12.969863891601562,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80003547668457
       },
@@ -2687,6 +2805,7 @@
        "edge_id": "region_+00_+00/E_00057",
        "length": 139.35719300079538,
        "measured_trim": 12.944908142089844,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79994773864746
       },
@@ -2699,10 +2818,12 @@
        "edge_id": "region_+00_+01/E_00058",
        "length": 150.35514831310073,
        "measured_trim": 17.772525787353516,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       146.89218139648438,
       201.98556518554688
@@ -2719,6 +2840,7 @@
        "edge_id": "region_+00_-01/E_00019",
        "length": 133.84107854365507,
        "measured_trim": 17.40003204345703,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399975776672363
       },
@@ -2731,6 +2853,7 @@
        "edge_id": "region_+00_-01/E_00020",
        "length": 161.84964614066914,
        "measured_trim": 12.8426513671875,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800050735473633
       },
@@ -2743,10 +2866,12 @@
        "edge_id": "region_+00_-01/E_00031",
        "length": 65.02634198076977,
        "measured_trim": 12.475242614746094,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       179.43667602539062,
       -108.84759521484375
@@ -2763,6 +2888,7 @@
        "edge_id": "region_+00_-01/E_00040",
        "length": 185.83873187395773,
        "measured_trim": 17.019668579101562,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400006294250488
       },
@@ -2775,6 +2901,7 @@
        "edge_id": "region_+00_+00/E_00048",
        "length": 120.00000647941214,
        "measured_trim": 17.7994327545166,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -2787,6 +2914,7 @@
        "edge_id": "region_+00_+00/E_00049",
        "length": 172.0258380500219,
        "measured_trim": 12.729032516479492,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800079345703125
       },
@@ -2799,10 +2927,12 @@
        "edge_id": "region_+01_+00/E_00050",
        "length": 139.28839809096843,
        "measured_trim": 12.93899917602539,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79994773864746
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       183.97409057617188,
       87.85873413085938
@@ -2819,6 +2949,7 @@
        "edge_id": "region_+00_-02/E_00009",
        "length": 161.86997409648257,
        "measured_trim": 12.844146728515625,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800050735473633
       },
@@ -2831,6 +2962,7 @@
        "edge_id": "region_+01_-01/E_00017",
        "length": 65.12179580715978,
        "measured_trim": 12.49208927154541,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -2843,6 +2975,7 @@
        "edge_id": "region_+00_-02/E_00018",
        "length": 161.9732566015193,
        "measured_trim": 18.02813148498535,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399986267089844
       },
@@ -2855,10 +2988,12 @@
        "edge_id": "region_+00_-01/E_00019",
        "length": 133.84107854365507,
        "measured_trim": 16.792152404785156,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399975776672363
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       220.79568481445312,
       -236.13807678222656
@@ -2875,6 +3010,7 @@
        "edge_id": "region_+00_+01/E_00059",
        "length": 131.96693345434423,
        "measured_trim": 9.181564331054688,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80003547668457
       },
@@ -2887,6 +3023,7 @@
        "edge_id": "region_+01_+01/E_00062",
        "length": 151.10964003640953,
        "measured_trim": 18.87783432006836,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       },
@@ -2899,10 +3036,12 @@
        "edge_id": "region_+00_+01/E_00063",
        "length": 41.99999356084533,
        "measured_trim": 13.381033897399902,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799997329711914
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       225.78001403808594,
       386.08367919921875
@@ -2919,6 +3058,7 @@
        "edge_id": "region_+01_-01/E_00028",
        "length": 134.33606392456338,
        "measured_trim": 17.238800048828125,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399975776672363
       },
@@ -2931,6 +3071,7 @@
        "edge_id": "region_+00_-01/E_00031",
        "length": 65.02634198076977,
        "measured_trim": 12.475238800048828,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -2943,6 +3084,7 @@
        "edge_id": "region_+01_-01/E_00039",
        "length": 152.3820827303686,
        "measured_trim": 12.721691131591797,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -2955,10 +3097,12 @@
        "edge_id": "region_+00_-01/E_00040",
        "length": 185.83873187395773,
        "measured_trim": 17.56205940246582,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400006294250488
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       241.32861328125,
       -88.90762329101562
@@ -2975,6 +3119,7 @@
        "edge_id": "region_+01_+00/E_00056",
        "length": 119.98679802306651,
        "measured_trim": 17.06418228149414,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -2987,6 +3132,7 @@
        "edge_id": "region_+00_+00/E_00057",
        "length": 139.35719300079538,
        "measured_trim": 12.944900512695312,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79994773864746
       },
@@ -2999,6 +3145,7 @@
        "edge_id": "region_+01_+01/E_00061",
        "length": 126.07075319770583,
        "measured_trim": 12.819140434265137,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       },
@@ -3011,10 +3158,12 @@
        "edge_id": "region_+01_+01/E_00062",
        "length": 151.10964003640953,
        "measured_trim": 17.736494064331055,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       279.4027404785156,
       245.07888793945312
@@ -3031,6 +3180,7 @@
        "edge_id": "region_+00_-02/E_00018",
        "length": 161.9732566015193,
        "measured_trim": 20.752838134765625,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399986267089844
       },
@@ -3043,6 +3193,7 @@
        "edge_id": "region_+01_-02/E_00029",
        "length": 54.29621244128975,
        "measured_trim": 8.749831199645996,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       },
@@ -3055,10 +3206,12 @@
        "edge_id": "region_+01_-02/E_00030",
        "length": 41.999964536848175,
        "measured_trim": 13.89342212677002,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799997329711914
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       280.6288757324219,
       -386.2202453613281
@@ -3075,6 +3228,7 @@
        "edge_id": "region_+01_-01/E_00017",
        "length": 65.12179580715978,
        "measured_trim": 12.49209213256836,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -3087,6 +3241,7 @@
        "edge_id": "region_+01_-01/E_00026",
        "length": 118.53976517095126,
        "measured_trim": 12.853975296020508,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -3099,6 +3254,7 @@
        "edge_id": "region_+01_-02/E_00027",
        "length": 160.20339044760004,
        "measured_trim": 17.400005340576172,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399986267089844
       },
@@ -3111,10 +3267,12 @@
        "edge_id": "region_+01_-01/E_00028",
        "length": 134.33606392456338,
        "measured_trim": 17.400007247924805,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399975776672363
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       282.9129638671875,
       -216.64492797851562
@@ -3131,6 +3289,7 @@
        "edge_id": "region_+01_+00/E_00047",
        "length": 188.44879944145268,
        "measured_trim": 17.305923461914062,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399964332580566
       },
@@ -3143,6 +3302,7 @@
        "edge_id": "region_+01_+00/E_00050",
        "length": 139.28839809096843,
        "measured_trim": 12.939002990722656,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79994773864746
       },
@@ -3155,10 +3315,12 @@
        "edge_id": "region_+01_+00/E_00056",
        "length": 119.98679802306651,
        "measured_trim": 17.495481491088867,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       316.4203796386719,
       130.94534301757812
@@ -3175,6 +3337,7 @@
        "edge_id": "region_+01_-02/E_00027",
        "length": 160.20339044760004,
        "measured_trim": 17.034374237060547,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399986267089844
       },
@@ -3187,6 +3350,7 @@
        "edge_id": "region_+01_-02/E_00029",
        "length": 54.29621244128975,
        "measured_trim": 12.634910583496094,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       },
@@ -3199,10 +3363,12 @@
        "edge_id": "region_+01_-02/E_00038",
        "length": 65.72295870464056,
        "measured_trim": 12.598169326782227,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       332.143798828125,
       -369.0908508300781
@@ -3219,6 +3385,7 @@
        "edge_id": "region_+01_-01/E_00039",
        "length": 152.3820827303686,
        "measured_trim": 12.277633666992188,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -3231,6 +3398,7 @@
        "edge_id": "region_+01_-01/E_00046",
        "length": 40.416827156838124,
        "measured_trim": 19.37128448486328,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400007247924805
       },
@@ -3243,10 +3411,12 @@
        "edge_id": "region_+01_+00/E_00047",
        "length": 188.44879944145268,
        "measured_trim": 21.394941329956055,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399964332580566
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       386.20086669921875,
       -41.66575241088867
@@ -4738,6 +4908,7 @@
        "edge_id": "region_-02_-01/E_00053",
        "length": 255.8714139147021,
        "measured_trim": 17.975357055664062,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400023460388184
       },
@@ -4750,6 +4921,7 @@
        "edge_id": "region_-02_+00/E_00054",
        "length": 109.72536073845961,
        "measured_trim": 12.756278991699219,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -4762,6 +4934,7 @@
        "edge_id": "region_-02_+00/E_00069",
        "length": 43.023828906949014,
        "measured_trim": 12.733758926391602,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799997329711914
       },
@@ -4774,10 +4947,12 @@
        "edge_id": "region_-02_+00/E_00070",
        "length": 145.66927717796204,
        "measured_trim": 17.93504524230957,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399985313415527
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -354.4114685058594,
       97.85630798339844
@@ -4794,6 +4969,7 @@
        "edge_id": "region_-02_-01/E_00037",
        "length": 56.94880831487299,
        "measured_trim": 11.48604965209961,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -4806,6 +4982,7 @@
        "edge_id": "region_-02_-01/E_00052",
        "length": 68.71218464896806,
        "measured_trim": 12.452018737792969,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -4818,10 +4995,12 @@
        "edge_id": "region_-02_-01/E_00053",
        "length": 255.8714139147021,
        "measured_trim": 17.8420352935791,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400023460388184
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -334.2764892578125,
       -151.9946746826172
@@ -4838,6 +5017,7 @@
        "edge_id": "region_-01_+00/E_00056",
        "length": 109.498808094811,
        "measured_trim": 12.732009887695312,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -4850,6 +5030,7 @@
        "edge_id": "region_-02_+00/E_00070",
        "length": 145.66927717796204,
        "measured_trim": 18.177242279052734,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399985313415527
       },
@@ -4862,10 +5043,12 @@
        "edge_id": "region_-02_+01/E_00071",
        "length": 134.58249296413598,
        "measured_trim": 12.874916076660156,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -289.34210205078125,
       227.0832061767578
@@ -4882,6 +5065,7 @@
        "edge_id": "region_-02_-01/E_00023",
        "length": 91.13832654030935,
        "measured_trim": 17.959644317626953,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -4894,6 +5078,7 @@
        "edge_id": "region_-02_-01/E_00037",
        "length": 56.94880831487299,
        "measured_trim": 12.389764785766602,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -4906,10 +5091,12 @@
        "edge_id": "region_-02_-01/E_00038",
        "length": 52.32755236065099,
        "measured_trim": 11.315481185913086,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -282.3789367675781,
       -128.54751586914062
@@ -4926,6 +5113,7 @@
        "edge_id": "region_-02_-01/E_00040",
        "length": 179.53316411505907,
        "measured_trim": 18.211933135986328,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -4938,6 +5126,7 @@
        "edge_id": "region_-01_+00/E_00042",
        "length": 111.24924300598148,
        "measured_trim": 11.989174842834473,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -4950,6 +5139,7 @@
        "edge_id": "region_-02_+00/E_00054",
        "length": 109.72536073845961,
        "measured_trim": 12.756284713745117,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -4962,10 +5152,12 @@
        "edge_id": "region_-01_+00/E_00055",
        "length": 101.87583746584389,
        "measured_trim": 18.139923095703125,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -248.60220336914062,
       68.80750274658203
@@ -4982,6 +5174,7 @@
        "edge_id": "region_-01_-01/E_00024",
        "length": 102.85901372674061,
        "measured_trim": 18.233779907226562,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -4994,6 +5187,7 @@
        "edge_id": "region_-02_-01/E_00038",
        "length": 52.32755236065099,
        "measured_trim": 12.21303939819336,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       },
@@ -5006,6 +5200,7 @@
        "edge_id": "region_-01_-01/E_00039",
        "length": 104.0100255290714,
        "measured_trim": 11.916690826416016,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -5018,10 +5213,12 @@
        "edge_id": "region_-02_-01/E_00040",
        "length": 179.53316411505907,
        "measured_trim": 18.171070098876953,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -234.8083953857422,
       -106.74943542480469
@@ -5038,6 +5235,7 @@
        "edge_id": "region_-01_-01/E_00011",
        "length": 75.17326229664614,
        "measured_trim": 5.761026382446289,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       },
@@ -5050,6 +5248,7 @@
        "edge_id": "region_-02_-01/E_00023",
        "length": 91.13832654030935,
        "measured_trim": 24.055187225341797,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -5062,10 +5261,12 @@
        "edge_id": "region_-01_-01/E_00024",
        "length": 102.85901372674061,
        "measured_trim": 24.736696243286133,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -233.39437866210938,
       -204.9475555419922
@@ -5082,6 +5283,7 @@
        "edge_id": "region_-01_+01/E_00072",
        "length": 124.51317080768867,
        "measured_trim": 12.673103332519531,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       },
@@ -5094,6 +5296,7 @@
        "edge_id": "region_-01_+01/E_00073",
        "length": 120.6412483308438,
        "measured_trim": 17.8543701171875,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -5106,10 +5309,12 @@
        "edge_id": "region_-01_+01/E_00080",
        "length": 76.99943283547574,
        "measured_trim": 12.549917221069336,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -222.8340606689453,
       311.2953796386719
@@ -5126,6 +5331,7 @@
        "edge_id": "region_-01_-02/E_00010",
        "length": 72.31618656556614,
        "measured_trim": 11.603668212890625,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799999237060547
       },
@@ -5138,6 +5344,7 @@
        "edge_id": "region_-01_-02/E_00020",
        "length": 101.64699457066813,
        "measured_trim": 17.894254684448242,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -5150,6 +5357,7 @@
        "edge_id": "region_-01_-02/E_00021",
        "length": 103.10327705265148,
        "measured_trim": 10.874784469604492,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       },
@@ -5162,10 +5370,12 @@
        "edge_id": "region_-01_-02/E_00022",
        "length": 61.8214970725451,
        "measured_trim": 17.962932586669922,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -218.80419921875,
       -314.169677734375
@@ -5182,6 +5392,7 @@
        "edge_id": "region_-01_+00/E_00043",
        "length": 143.65880703784504,
        "measured_trim": 12.971572875976562,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       },
@@ -5194,6 +5405,7 @@
        "edge_id": "region_-01_+00/E_00055",
        "length": 101.87583746584389,
        "measured_trim": 18.228363037109375,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -5206,6 +5418,7 @@
        "edge_id": "region_-01_+00/E_00056",
        "length": 109.498808094811,
        "measured_trim": 10.652070999145508,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -5218,10 +5431,12 @@
        "edge_id": "region_-01_+00/E_00057",
        "length": 73.99482155136663,
        "measured_trim": 18.188283920288086,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -203.35081481933594,
       159.30148315429688
@@ -5238,6 +5453,7 @@
        "edge_id": "region_-01_-01/E_00003",
        "length": 30.65338078429368,
        "measured_trim": 11.668560028076172,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799989700317383
       },
@@ -5250,6 +5466,7 @@
        "edge_id": "region_-01_-02/E_00008",
        "length": 87.45167316245877,
        "measured_trim": 17.93659210205078,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -5262,6 +5479,7 @@
        "edge_id": "region_-01_-02/E_00010",
        "length": 72.31618656556614,
        "measured_trim": 12.418357849121094,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799999237060547
       },
@@ -5274,10 +5492,12 @@
        "edge_id": "region_-01_-01/E_00011",
        "length": 75.17326229664614,
        "measured_trim": 18.08858299255371,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -177.43455505371094,
       -254.85618591308594
@@ -5294,6 +5514,7 @@
        "edge_id": "region_-01_-01/E_00000",
        "length": 74.65411365354616,
        "measured_trim": 17.680770874023438,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       },
@@ -5306,6 +5527,7 @@
        "edge_id": "region_-01_-01/E_00003",
        "length": 30.65338078429368,
        "measured_trim": 12.495014190673828,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799989700317383
       },
@@ -5318,10 +5540,12 @@
        "edge_id": "region_-01_-01/E_00004",
        "length": 181.29930494647664,
        "measured_trim": 12.823869705200195,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799936294555664
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -159.94508361816406,
       -229.68214416503906
@@ -5338,6 +5562,7 @@
        "edge_id": "region_-01_+00/E_00057",
        "length": 73.99482155136663,
        "measured_trim": 16.770008087158203,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       },
@@ -5350,6 +5575,7 @@
        "edge_id": "region_-01_+00/E_00058",
        "length": 81.24399467893214,
        "measured_trim": 16.502288818359375,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400008201599121
       },
@@ -5362,10 +5588,12 @@
        "edge_id": "region_-01_+01/E_00072",
        "length": 124.51317080768867,
        "measured_trim": 12.673110008239746,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -150.05392456054688,
       210.26918029785156
@@ -5382,6 +5610,7 @@
        "edge_id": "region_-01_+00/E_00027",
        "length": 48.84718876404189,
        "measured_trim": 16.029903411865234,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       },
@@ -5394,6 +5623,7 @@
        "edge_id": "region_-01_+00/E_00042",
        "length": 111.24924300598148,
        "measured_trim": 36.75868606567383,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -5406,10 +5636,12 @@
        "edge_id": "region_-01_+00/E_00043",
        "length": 143.65880703784504,
        "measured_trim": 34.85138702392578,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -141.3089141845703,
       39.41599655151367
@@ -5426,6 +5658,7 @@
        "edge_id": "region_-01_-02/E_00009",
        "length": 51.98667926182534,
        "measured_trim": 12.99691390991211,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       },
@@ -5438,6 +5671,7 @@
        "edge_id": "region_-01_-02/E_00016",
        "length": 220.40487136174067,
        "measured_trim": 17.846481323242188,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -5450,10 +5684,12 @@
        "edge_id": "region_-01_-02/E_00020",
        "length": 101.64699457066813,
        "measured_trim": 18.002059936523438,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -128.6677703857422,
       -360.5094299316406
@@ -5470,6 +5706,7 @@
        "edge_id": "region_-01_+01/E_00059",
        "length": 124.09956229885961,
        "measured_trim": 12.634323120117188,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       },
@@ -5482,6 +5719,7 @@
        "edge_id": "region_-01_+01/E_00073",
        "length": 120.6412483308438,
        "measured_trim": 18.032825469970703,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -5494,10 +5732,12 @@
        "edge_id": "region_-01_+01/E_00074",
        "length": 173.35753787206033,
        "measured_trim": 17.858367919921875,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -115.26179504394531,
       364.6880798339844
@@ -5514,6 +5754,7 @@
        "edge_id": "region_-01_-02/E_00002",
        "length": 49.272326988328885,
        "measured_trim": 20.062580108642578,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       },
@@ -5526,6 +5767,7 @@
        "edge_id": "region_-01_-02/E_00008",
        "length": 87.45167316245877,
        "measured_trim": 24.164634704589844,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -5538,10 +5780,12 @@
        "edge_id": "region_-01_-02/E_00009",
        "length": 51.98667926182534,
        "measured_trim": 4.348482608795166,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -111.23333740234375,
       -311.5337219238281
@@ -5558,6 +5802,7 @@
        "edge_id": "region_-01_-01/E_00000",
        "length": 74.65411365354616,
        "measured_trim": 16.599884033203125,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       },
@@ -5570,6 +5815,7 @@
        "edge_id": "region_-01_-02/E_00001",
        "length": 157.1317000819842,
        "measured_trim": 16.713165283203125,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400023460388184
       },
@@ -5582,10 +5828,12 @@
        "edge_id": "region_-01_-02/E_00002",
        "length": 49.272326988328885,
        "measured_trim": 12.370548248291016,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -94.59945678710938,
       -265.1544189453125
@@ -5602,6 +5850,7 @@
        "edge_id": "region_-01_-01/E_00014",
        "length": 121.70381156112408,
        "measured_trim": 20.62964630126953,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -5614,6 +5863,7 @@
        "edge_id": "region_-01_+00/E_00027",
        "length": 48.84718876404189,
        "measured_trim": 12.27242660522461,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       },
@@ -5626,6 +5876,7 @@
        "edge_id": "region_-01_+00/E_00028",
        "length": 38.82917981083021,
        "measured_trim": 13.621780395507812,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -5638,10 +5889,12 @@
        "edge_id": "region_-01_+00/E_00029",
        "length": 97.03264282256009,
        "measured_trim": 20.28619384765625,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400004386901855
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -94.19935607910156,
       26.514854431152344
@@ -5658,6 +5911,7 @@
        "edge_id": "region_-01_+00/E_00044",
        "length": 160.53377177824274,
        "measured_trim": 14.350839614868164,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800050735473633
       },
@@ -5670,6 +5924,7 @@
        "edge_id": "region_-01_+00/E_00058",
        "length": 81.24399467893214,
        "measured_trim": 18.268964767456055,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400008201599121
       },
@@ -5682,6 +5937,7 @@
        "edge_id": "region_-01_+01/E_00059",
        "length": 124.09956229885961,
        "measured_trim": 10.611114501953125,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       },
@@ -5694,10 +5950,12 @@
        "edge_id": "region_-01_+00/E_00060",
        "length": 114.26207759045545,
        "measured_trim": 21.380563735961914,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -77.65290069580078,
       246.42567443847656
@@ -5714,6 +5972,7 @@
        "edge_id": "region_-01_-01/E_00025",
        "length": 73.02150844635257,
        "measured_trim": 15.64117431640625,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100000381469727
       },
@@ -5726,6 +5985,7 @@
        "edge_id": "region_-01_+00/E_00028",
        "length": 38.82917981083021,
        "measured_trim": 12.648754119873047,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -5738,10 +5998,12 @@
        "edge_id": "region_+00_+00/E_00041",
        "length": 215.3518035263426,
        "measured_trim": 16.951984405517578,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100054740905762
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -56.7984619140625,
       16.09522247314453
@@ -5758,6 +6020,7 @@
        "edge_id": "region_-01_-01/E_00004",
        "length": 181.29930494647664,
        "measured_trim": 10.620508193969727,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799936294555664
       },
@@ -5770,6 +6033,7 @@
        "edge_id": "region_-01_-01/E_00012",
        "length": 39.74117669060551,
        "measured_trim": 12.82061767578125,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -5782,6 +6046,7 @@
        "edge_id": "region_-01_-01/E_00013",
        "length": 90.700526676737,
        "measured_trim": 20.717504501342773,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -5794,10 +6059,12 @@
        "edge_id": "region_-01_-01/E_00014",
        "length": 121.70381156112408,
        "measured_trim": 20.243694305419922,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -56.34434127807617,
       -80.91065979003906
@@ -5814,6 +6081,7 @@
        "edge_id": "region_-01_-01/E_00012",
        "length": 39.74117669060551,
        "measured_trim": 12.922351837158203,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -5826,6 +6094,7 @@
        "edge_id": "region_-01_-01/E_00025",
        "length": 73.02150844635257,
        "measured_trim": 16.372947692871094,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100000381469727
       },
@@ -5838,10 +6107,12 @@
        "edge_id": "region_+00_-01/E_00026",
        "length": 82.37076770619586,
        "measured_trim": 16.68967056274414,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.09999942779541
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -33.682533264160156,
       -48.26887512207031
@@ -5858,6 +6129,7 @@
        "edge_id": "region_-01_+00/E_00029",
        "length": 97.03264282256009,
        "measured_trim": 16.525222778320312,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400004386901855
       },
@@ -5870,6 +6142,7 @@
        "edge_id": "region_-01_+00/E_00044",
        "length": 160.53377177824274,
        "measured_trim": 9.986310005187988,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800050735473633
       },
@@ -5882,10 +6155,12 @@
        "edge_id": "region_-01_+00/E_00045",
        "length": 44.087015753042586,
        "measured_trim": 15.569208145141602,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -29.270404815673828,
       93.36577606201172
@@ -5902,6 +6177,7 @@
        "edge_id": "region_-01_+00/E_00045",
        "length": 44.087015753042586,
        "measured_trim": 15.492809295654297,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -5914,6 +6190,7 @@
        "edge_id": "region_+00_+00/E_00047",
        "length": 112.16032977844868,
        "measured_trim": 15.794570922851562,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       },
@@ -5926,10 +6203,12 @@
        "edge_id": "region_+00_+00/E_00061",
        "length": 149.6620935677985,
        "measured_trim": 10.183267593383789,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799928665161133
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       14.290131568908691,
       97.32667541503906
@@ -5946,6 +6225,7 @@
        "edge_id": "region_+00_-01/E_00005",
        "length": 165.87502182003777,
        "measured_trim": 13.251374244689941,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800024032592773
       },
@@ -5958,6 +6238,7 @@
        "edge_id": "region_-01_-01/E_00013",
        "length": 90.700526676737,
        "measured_trim": 17.913785934448242,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -5970,10 +6251,12 @@
        "edge_id": "region_+00_-01/E_00015",
        "length": 49.84191667816447,
        "measured_trim": 14.045783042907715,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       29.931373596191406,
       -96.4825439453125
@@ -5990,6 +6273,7 @@
        "edge_id": "region_-01_+00/E_00060",
        "length": 114.26207759045545,
        "measured_trim": 18.15996551513672,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       },
@@ -6002,6 +6286,7 @@
        "edge_id": "region_+00_+00/E_00061",
        "length": 149.6620935677985,
        "measured_trim": 12.005884170532227,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799928665161133
       },
@@ -6014,6 +6299,7 @@
        "edge_id": "region_+00_+01/E_00075",
        "length": 135.67929497459374,
        "measured_trim": 10.659355163574219,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -6026,10 +6312,12 @@
        "edge_id": "region_+00_+00/E_00076",
        "length": 97.4862844555974,
        "measured_trim": 18.18277359008789,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400004386901855
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       36.18840789794922,
       245.37400817871094
@@ -6046,6 +6334,7 @@
        "edge_id": "region_+00_-01/E_00026",
        "length": 82.37076770619586,
        "measured_trim": 16.689674377441406,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.09999942779541
       },
@@ -6058,6 +6347,7 @@
        "edge_id": "region_+00_-01/E_00030",
        "length": 41.03481329534932,
        "measured_trim": 10.17342758178711,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799997329711914
       },
@@ -6070,10 +6360,12 @@
        "edge_id": "region_+00_+00/E_00041",
        "length": 215.3518035263426,
        "measured_trim": 16.664962768554688,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100054740905762
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       42.426422119140625,
       -42.4263916015625
@@ -6090,6 +6382,7 @@
        "edge_id": "region_-01_+01/E_00074",
        "length": 173.35753787206033,
        "measured_trim": 17.98484992980957,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -6102,6 +6395,7 @@
        "edge_id": "region_+00_+01/E_00075",
        "length": 135.67929497459374,
        "measured_trim": 12.436271667480469,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -6114,10 +6408,12 @@
        "edge_id": "region_+00_+01/E_00081",
        "length": 151.59077531343982,
        "measured_trim": 17.929059982299805,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       55.97550964355469,
       379.6011047363281
@@ -6134,6 +6430,7 @@
        "edge_id": "region_-01_-02/E_00001",
        "length": 157.1317000819842,
        "measured_trim": 18.239913940429688,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400023460388184
       },
@@ -6146,6 +6443,7 @@
        "edge_id": "region_+00_-01/E_00005",
        "length": 165.87502182003777,
        "measured_trim": 11.959266662597656,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800024032592773
       },
@@ -6158,6 +6456,7 @@
        "edge_id": "region_+00_-02/E_00006",
        "length": 116.98408119270866,
        "measured_trim": 12.698419570922852,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -6170,10 +6469,12 @@
        "edge_id": "region_+00_-01/E_00007",
        "length": 80.61385672319159,
        "measured_trim": 18.056612014770508,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400008201599121
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       61.391014099121094,
       -258.9848327636719
@@ -6190,6 +6491,7 @@
        "edge_id": "region_+00_-01/E_00015",
        "length": 49.84191667816447,
        "measured_trim": 19.87102699279785,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -6202,6 +6504,7 @@
        "edge_id": "region_+00_-01/E_00030",
        "length": 41.03481329534932,
        "measured_trim": 13.355047225952148,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799997329711914
       },
@@ -6214,6 +6517,7 @@
        "edge_id": "region_+00_-01/E_00031",
        "length": 165.41682843603758,
        "measured_trim": 10.261331558227539,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800024032592773
       },
@@ -6226,10 +6530,12 @@
        "edge_id": "region_+00_-01/E_00032",
        "length": 107.02615164540505,
        "measured_trim": 20.819656372070312,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       72.03892517089844,
       -70.81759643554688
@@ -6246,6 +6552,7 @@
        "edge_id": "region_+00_-02/E_00006",
        "length": 116.98408119270866,
        "measured_trim": 12.698417663574219,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -6258,6 +6565,7 @@
        "edge_id": "region_-01_-02/E_00016",
        "length": 220.40487136174067,
        "measured_trim": 18.072715759277344,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -6270,10 +6578,12 @@
        "edge_id": "region_+00_-02/E_00017",
        "length": 115.32128362952359,
        "measured_trim": 17.763547897338867,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       88.33544921875,
       -372.82122802734375
@@ -6290,6 +6600,7 @@
        "edge_id": "region_+00_-01/E_00032",
        "length": 107.02615164540505,
        "measured_trim": 16.85572052001953,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -6302,6 +6613,7 @@
        "edge_id": "region_+00_+00/E_00046",
        "length": 74.00187649571066,
        "measured_trim": 10.061678886413574,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799999237060547
       },
@@ -6314,10 +6626,12 @@
        "edge_id": "region_+00_+00/E_00047",
        "length": 112.16032977844868,
        "measured_trim": 16.47039031982422,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       94.97918701171875,
       28.500892639160156
@@ -6334,6 +6648,7 @@
        "edge_id": "region_+00_+00/E_00076",
        "length": 97.4862844555974,
        "measured_trim": 16.48286247253418,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400004386901855
       },
@@ -6346,6 +6661,7 @@
        "edge_id": "region_+00_+00/E_00078",
        "length": 109.72772845506832,
        "measured_trim": 16.827316284179688,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -6358,10 +6674,12 @@
        "edge_id": "region_+00_+01/E_00082",
        "length": 135.62705252702938,
        "measured_trim": 10.875040054321289,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       127.34247589111328,
       212.7100830078125
@@ -6378,6 +6696,7 @@
        "edge_id": "region_+00_-01/E_00007",
        "length": 80.61385672319159,
        "measured_trim": 16.83405303955078,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400008201599121
       },
@@ -6390,6 +6709,7 @@
        "edge_id": "region_+00_-01/E_00018",
        "length": 69.32214820451263,
        "measured_trim": 16.621427536010742,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -6402,10 +6722,12 @@
        "edge_id": "region_+00_-02/E_00019",
        "length": 117.54905835822855,
        "measured_trim": 12.754913330078125,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       135.8629608154297,
       -228.96961975097656
@@ -6422,6 +6744,7 @@
        "edge_id": "region_+00_+00/E_00046",
        "length": 74.00187649571066,
        "measured_trim": 13.382678985595703,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799999237060547
       },
@@ -6434,6 +6757,7 @@
        "edge_id": "region_+00_+00/E_00062",
        "length": 74.50052927318434,
        "measured_trim": 40.21080780029297,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799999237060547
       },
@@ -6446,10 +6770,12 @@
        "edge_id": "region_+00_+00/E_00063",
        "length": 101.69390946874414,
        "measured_trim": 40.113040924072266,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       165.92066955566406,
       49.55006790161133
@@ -6466,6 +6792,7 @@
        "edge_id": "region_+00_-01/E_00018",
        "length": 69.32214820451263,
        "measured_trim": 18.09976577758789,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -6478,6 +6805,7 @@
        "edge_id": "region_+00_-01/E_00031",
        "length": 165.41682843603758,
        "measured_trim": 12.016971588134766,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800024032592773
       },
@@ -6490,6 +6818,7 @@
        "edge_id": "region_+00_-01/E_00035",
        "length": 116.99411915464943,
        "measured_trim": 10.525287628173828,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -6502,10 +6831,12 @@
        "edge_id": "region_+00_-01/E_00036",
        "length": 118.28667961744826,
        "measured_trim": 18.26764678955078,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       190.3542022705078,
       -186.40655517578125
@@ -6522,6 +6853,7 @@
        "edge_id": "region_+00_-02/E_00017",
        "length": 115.32128362952359,
        "measured_trim": 17.917259216308594,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       },
@@ -6534,6 +6866,7 @@
        "edge_id": "region_+00_-02/E_00019",
        "length": 117.54905835822855,
        "measured_trim": 11.947097778320312,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -6546,6 +6879,7 @@
        "edge_id": "region_+00_-02/E_00033",
        "length": 100.81570648425506,
        "measured_trim": 17.857669830322266,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -6558,10 +6892,12 @@
        "edge_id": "region_+00_-02/E_00034",
        "length": 77.99983767236407,
        "measured_trim": 10.592181205749512,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       195.13973999023438,
       -330.4759521484375
@@ -6578,6 +6914,7 @@
        "edge_id": "region_+00_+01/E_00081",
        "length": 151.59077531343982,
        "measured_trim": 17.975879669189453,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       },
@@ -6590,6 +6927,7 @@
        "edge_id": "region_+00_+01/E_00082",
        "length": 135.62705252702938,
        "measured_trim": 12.967094421386719,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -6602,6 +6940,7 @@
        "edge_id": "region_+01_+01/E_00084",
        "length": 168.82885455551047,
        "measured_trim": 17.80905532836914,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400038719177246
       },
@@ -6614,10 +6953,12 @@
        "edge_id": "region_+00_+01/E_00085",
        "length": 83.11779964939869,
        "measured_trim": 10.873340606689453,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800024032592773
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       197.76492309570312,
       328.6186828613281
@@ -6634,6 +6975,7 @@
        "edge_id": "region_+00_+00/E_00063",
        "length": 101.69390946874414,
        "measured_trim": 11.90359878540039,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       },
@@ -6646,6 +6988,7 @@
        "edge_id": "region_+00_+00/E_00068",
        "length": 74.09605939817678,
        "measured_trim": 18.256038665771484,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       },
@@ -6658,6 +7001,7 @@
        "edge_id": "region_+01_+00/E_00077",
        "length": 135.48949016453585,
        "measured_trim": 10.77916145324707,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -6670,10 +7014,12 @@
        "edge_id": "region_+00_+00/E_00078",
        "length": 109.72772845506832,
        "measured_trim": 18.139894485473633,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       206.20274353027344,
       137.73289489746094
@@ -6690,6 +7036,7 @@
        "edge_id": "region_+00_-01/E_00051",
        "length": 163.58573244065929,
        "measured_trim": 18.327945709228516,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399986267089844
       },
@@ -6702,6 +7049,7 @@
        "edge_id": "region_+00_+00/E_00062",
        "length": 74.50052927318434,
        "measured_trim": 11.863275527954102,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799999237060547
       },
@@ -6714,6 +7062,7 @@
        "edge_id": "region_+01_+00/E_00067",
        "length": 135.71021144311607,
        "measured_trim": 10.909521102905273,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -6726,10 +7075,12 @@
        "edge_id": "region_+00_+00/E_00068",
        "length": 74.09605939817678,
        "measured_trim": 17.99492073059082,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       237.32455444335938,
       70.80033874511719
@@ -6746,6 +7097,7 @@
        "edge_id": "region_+00_-01/E_00036",
        "length": 118.28667961744826,
        "measured_trim": 8.447551727294922,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -6758,6 +7110,7 @@
        "edge_id": "region_+01_-01/E_00050",
        "length": 110.39527681500752,
        "measured_trim": 8.885370254516602,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -6770,10 +7123,12 @@
        "edge_id": "region_+00_-01/E_00051",
        "length": 163.58573244065929,
        "measured_trim": 9.006391525268555,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399986267089844
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       257.6873474121094,
       -91.19198608398438
@@ -6790,6 +7145,7 @@
        "edge_id": "region_+00_-02/E_00033",
        "length": 100.81570648425506,
        "measured_trim": 18.057050704956055,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -6802,6 +7158,7 @@
        "edge_id": "region_+00_-01/E_00035",
        "length": 116.99411915464943,
        "measured_trim": 12.699424743652344,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -6814,6 +7171,7 @@
        "edge_id": "region_+01_-02/E_00048",
        "length": 171.0096653563881,
        "measured_trim": 10.85006332397461,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80003547668457
       },
@@ -6826,10 +7184,12 @@
        "edge_id": "region_+01_-01/E_00049",
        "length": 90.04265601123295,
        "measured_trim": 17.845579147338867,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       274.0440368652344,
       -268.1556396484375
@@ -6846,6 +7206,7 @@
        "edge_id": "region_+01_+00/E_00077",
        "length": 135.48949016453585,
        "measured_trim": 12.9549560546875,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -6858,6 +7219,7 @@
        "edge_id": "region_+01_+00/E_00079",
        "length": 114.92188159669311,
        "measured_trim": 17.92436408996582,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       },
@@ -6870,6 +7232,7 @@
        "edge_id": "region_+01_+00/E_00083",
        "length": 93.65680553895,
        "measured_trim": 12.707101821899414,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799959182739258
       },
@@ -6882,10 +7245,12 @@
        "edge_id": "region_+01_+01/E_00084",
        "length": 168.82885455551047,
        "measured_trim": 17.891342163085938,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400038719177246
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       318.8841247558594,
       212.96591186523438
@@ -6902,6 +7267,7 @@
        "edge_id": "region_+01_-01/E_00049",
        "length": 90.04265601123295,
        "measured_trim": 16.742515563964844,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -6914,6 +7280,7 @@
        "edge_id": "region_+01_-01/E_00064",
        "length": 79.17763412851161,
        "measured_trim": 17.035388946533203,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -6926,10 +7293,12 @@
        "edge_id": "region_+01_-01/E_00065",
        "length": 77.15006749522017,
        "measured_trim": 12.572511672973633,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       328.9807434082031,
       -197.07449340820312
@@ -6946,6 +7315,7 @@
        "edge_id": "region_+01_-01/E_00050",
        "length": 110.39527681500752,
        "measured_trim": 12.828071594238281,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -6958,6 +7328,7 @@
        "edge_id": "region_+01_-01/E_00064",
        "length": 79.17763412851161,
        "measured_trim": 12.876655578613281,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -6970,10 +7341,12 @@
        "edge_id": "region_+01_-01/E_00066",
        "length": 238.77386420860114,
        "measured_trim": 12.938694953918457,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       362.460693359375,
       -125.47586059570312
@@ -6990,6 +7363,7 @@
        "edge_id": "region_+01_-01/E_00066",
        "length": 238.77386420860114,
        "measured_trim": 17.878326416015625,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -7002,6 +7376,7 @@
        "edge_id": "region_+01_+00/E_00067",
        "length": 135.71021144311607,
        "measured_trim": 12.974449157714844,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -7014,10 +7389,12 @@
        "edge_id": "region_+01_+00/E_00079",
        "length": 114.92188159669311,
        "measured_trim": 17.965774536132812,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       367.4522705078125,
       109.31936645507812
@@ -7302,6 +7679,7 @@
        "edge_id": "region_-01_-01/E_00003",
        "length": 124.28507881903941,
        "measured_trim": 20.329681396484375,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099979400634766
       },
@@ -7314,6 +7692,7 @@
        "edge_id": "region_-01_-01/E_00010",
        "length": 180.28152810859152,
        "measured_trim": 16.676658630371094,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -7326,10 +7705,12 @@
        "edge_id": "region_-01_-01/E_00011",
        "length": 80.10213994630305,
        "measured_trim": 12.690960884094238,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.09999942779541
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -119.9205551147461,
       -118.09334564208984
@@ -7346,6 +7727,7 @@
        "edge_id": "region_-01_+00/E_00000",
        "length": 139.49900805030077,
        "measured_trim": 20.92957305908203,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100010871887207
       },
@@ -7358,6 +7740,7 @@
        "edge_id": "region_-01_+00/E_00001",
        "length": 85.41994331215116,
        "measured_trim": 16.530893325805664,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099991798400879
       },
@@ -7370,6 +7753,7 @@
        "edge_id": "region_-01_+00/E_00002",
        "length": 181.73418819813972,
        "measured_trim": 16.80297088623047,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -7382,10 +7766,12 @@
        "edge_id": "region_-01_-01/E_00003",
        "length": 124.28507881903941,
        "measured_trim": 17.981815338134766,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099979400634766
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -114.79713439941406,
       6.08591890335083
@@ -7402,6 +7788,7 @@
        "edge_id": "region_-01_+00/E_00000",
        "length": 139.49900805030077,
        "measured_trim": 20.928421020507812,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100010871887207
       },
@@ -7414,6 +7801,7 @@
        "edge_id": "region_-01_+00/E_00004",
        "length": 89.96249272050063,
        "measured_trim": 13.919502258300781,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099987983703613
       },
@@ -7426,6 +7814,7 @@
        "edge_id": "region_-01_+00/E_00005",
        "length": 180.28692518266624,
        "measured_trim": 13.874626159667969,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -7438,10 +7827,12 @@
        "edge_id": "region_-01_+00/E_00006",
        "length": 114.51312945853074,
        "measured_trim": 20.743654251098633,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099985122680664
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -110.14974975585938,
       145.5074920654297
@@ -7458,6 +7849,7 @@
        "edge_id": "region_+00_-01/E_00007",
        "length": 105.99112523262322,
        "measured_trim": 18.451581954956055,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100003242492676
       },
@@ -7470,6 +7862,7 @@
        "edge_id": "region_-01_-01/E_00010",
        "length": 180.28152810859152,
        "measured_trim": 12.153366088867188,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -7482,10 +7875,12 @@
        "edge_id": "region_+00_-01/E_00014",
        "length": 159.73536269724832,
        "measured_trim": 14.588241577148438,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100016593933105
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       60.30989456176758,
       -113.8021469116211
@@ -7502,6 +7897,7 @@
        "edge_id": "region_-01_+00/E_00002",
        "length": 181.73418819813972,
        "measured_trim": 16.802978515625,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -7514,6 +7910,7 @@
        "edge_id": "region_+00_-01/E_00007",
        "length": 105.99112523262322,
        "measured_trim": 18.232961654663086,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100003242492676
       },
@@ -7526,6 +7923,7 @@
        "edge_id": "region_+00_-01/E_00008",
        "length": 155.24770501403816,
        "measured_trim": 13.947393417358398,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100028038024902
       },
@@ -7538,10 +7936,12 @@
        "edge_id": "region_+00_+00/E_00009",
        "length": 152.767815315315,
        "measured_trim": 21.0786190032959,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100028038024902
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       65.60283660888672,
       -7.943262577056885
@@ -7558,6 +7958,7 @@
        "edge_id": "region_-01_+00/E_00005",
        "length": 180.28692518266624,
        "measured_trim": 16.6771240234375,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -7570,6 +7971,7 @@
        "edge_id": "region_+00_+00/E_00009",
        "length": 152.767815315315,
        "measured_trim": 20.774932861328125,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100028038024902
       },
@@ -7582,6 +7984,7 @@
        "edge_id": "region_+00_+00/E_00012",
        "length": 150.4882258873912,
        "measured_trim": 14.816842079162598,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100022315979004
       },
@@ -7594,10 +7997,12 @@
        "edge_id": "region_+00_+00/E_00013",
        "length": 115.25681212514115,
        "measured_trim": 18.3046875,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099985122680664
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       69.8603515625,
       144.76319885253906
@@ -7678,6 +8083,7 @@
        "edge_id": "region_-01_+00/E_00000",
        "length": 60.0,
        "measured_trim": 17.0,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399991989135742
       },
@@ -7690,6 +8096,7 @@
        "edge_id": "region_+00_+00/E_00001",
        "length": 60.0,
        "measured_trim": 17.0,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399991989135742
       },
@@ -7702,10 +8109,12 @@
        "edge_id": "region_+00_+00/E_00002",
        "length": 20.0,
        "measured_trim": 17.0,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       0.0,
       0.0
@@ -7786,6 +8195,7 @@
        "edge_id": "region_-01_-01/E_00000",
        "length": 160.0,
        "measured_trim": 13.550006866455078,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100020408630371
       },
@@ -7798,6 +8208,7 @@
        "edge_id": "region_+00_-01/E_00001",
        "length": 508.36024905205613,
        "measured_trim": 13.550006866455078,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79981231689453
       },
@@ -7810,10 +8221,12 @@
        "edge_id": "region_-01_-01/E_00002",
        "length": 140.0,
        "measured_trim": 21.0,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100010871887207
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -40.0,
       -140.0
@@ -7894,6 +8307,7 @@
        "edge_id": "region_-01_+00/E_00000",
        "length": 250.0,
        "measured_trim": 22.399974822998047,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799949645996094
       },
@@ -7906,6 +8320,7 @@
        "edge_id": "region_+00_+00/E_00001",
        "length": 250.0,
        "measured_trim": 22.399974822998047,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799949645996094
       },
@@ -7918,10 +8333,12 @@
        "edge_id": "region_+00_+00/E_00002",
        "length": 250.0,
        "measured_trim": 22.399974822998047,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799949645996094
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       0.0,
       0.0
@@ -8206,6 +8623,7 @@
        "edge_id": "region_-01_-01/E_00003",
        "length": 124.28507881903941,
        "measured_trim": 20.329681396484375,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099979400634766
       },
@@ -8218,6 +8636,7 @@
        "edge_id": "region_-01_-01/E_00010",
        "length": 180.28152810859152,
        "measured_trim": 16.676658630371094,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -8230,10 +8649,12 @@
        "edge_id": "region_-01_-01/E_00011",
        "length": 80.10213994630305,
        "measured_trim": 12.690960884094238,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.09999942779541
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -119.9205551147461,
       -118.09334564208984
@@ -8250,6 +8671,7 @@
        "edge_id": "region_-01_+00/E_00000",
        "length": 139.49900805030077,
        "measured_trim": 20.92957305908203,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100010871887207
       },
@@ -8262,6 +8684,7 @@
        "edge_id": "region_-01_+00/E_00001",
        "length": 85.41994331215116,
        "measured_trim": 16.530893325805664,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099991798400879
       },
@@ -8274,6 +8697,7 @@
        "edge_id": "region_-01_+00/E_00002",
        "length": 181.73418819813972,
        "measured_trim": 16.80297088623047,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -8286,10 +8710,12 @@
        "edge_id": "region_-01_-01/E_00003",
        "length": 124.28507881903941,
        "measured_trim": 17.981815338134766,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099979400634766
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -114.79713439941406,
       6.08591890335083
@@ -8306,6 +8732,7 @@
        "edge_id": "region_-01_+00/E_00000",
        "length": 139.49900805030077,
        "measured_trim": 20.928421020507812,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100010871887207
       },
@@ -8318,6 +8745,7 @@
        "edge_id": "region_-01_+00/E_00004",
        "length": 89.96249272050063,
        "measured_trim": 13.919502258300781,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099987983703613
       },
@@ -8330,6 +8758,7 @@
        "edge_id": "region_-01_+00/E_00005",
        "length": 180.28692518266624,
        "measured_trim": 13.874626159667969,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -8342,10 +8771,12 @@
        "edge_id": "region_-01_+00/E_00006",
        "length": 114.51312945853074,
        "measured_trim": 20.743654251098633,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099985122680664
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -110.14974975585938,
       145.5074920654297
@@ -8362,6 +8793,7 @@
        "edge_id": "region_+00_-01/E_00007",
        "length": 105.99112523262322,
        "measured_trim": 18.451581954956055,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100003242492676
       },
@@ -8374,6 +8806,7 @@
        "edge_id": "region_-01_-01/E_00010",
        "length": 180.28152810859152,
        "measured_trim": 12.153366088867188,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -8386,10 +8819,12 @@
        "edge_id": "region_+00_-01/E_00014",
        "length": 159.73536269724832,
        "measured_trim": 14.588241577148438,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100016593933105
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       60.30989456176758,
       -113.8021469116211
@@ -8406,6 +8841,7 @@
        "edge_id": "region_-01_+00/E_00002",
        "length": 181.73418819813972,
        "measured_trim": 16.802978515625,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -8418,6 +8854,7 @@
        "edge_id": "region_+00_-01/E_00007",
        "length": 105.99112523262322,
        "measured_trim": 18.232961654663086,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100003242492676
       },
@@ -8430,6 +8867,7 @@
        "edge_id": "region_+00_-01/E_00008",
        "length": 155.24770501403816,
        "measured_trim": 13.947393417358398,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100028038024902
       },
@@ -8442,10 +8880,12 @@
        "edge_id": "region_+00_+00/E_00009",
        "length": 152.767815315315,
        "measured_trim": 21.0786190032959,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100028038024902
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       65.60283660888672,
       -7.943262577056885
@@ -8462,6 +8902,7 @@
        "edge_id": "region_-01_+00/E_00005",
        "length": 180.28692518266624,
        "measured_trim": 16.6771240234375,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -8474,6 +8915,7 @@
        "edge_id": "region_+00_+00/E_00009",
        "length": 152.767815315315,
        "measured_trim": 20.774932861328125,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100028038024902
       },
@@ -8486,6 +8928,7 @@
        "edge_id": "region_+00_+00/E_00012",
        "length": 150.4882258873912,
        "measured_trim": 14.816842079162598,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100022315979004
       },
@@ -8498,10 +8941,12 @@
        "edge_id": "region_+00_+00/E_00013",
        "length": 115.25681212514115,
        "measured_trim": 18.3046875,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099985122680664
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       69.8603515625,
       144.76319885253906
@@ -9993,6 +10438,7 @@
        "edge_id": "region_-02_-01/E_00053",
        "length": 255.8714139147021,
        "measured_trim": 17.975357055664062,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400023460388184
       },
@@ -10005,6 +10451,7 @@
        "edge_id": "region_-02_+00/E_00054",
        "length": 109.72536073845961,
        "measured_trim": 12.756278991699219,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -10017,6 +10464,7 @@
        "edge_id": "region_-02_+00/E_00069",
        "length": 43.023828906949014,
        "measured_trim": 12.733758926391602,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799997329711914
       },
@@ -10029,10 +10477,12 @@
        "edge_id": "region_-02_+00/E_00070",
        "length": 145.66927717796204,
        "measured_trim": 17.93504524230957,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399985313415527
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -354.4114685058594,
       97.85630798339844
@@ -10049,6 +10499,7 @@
        "edge_id": "region_-02_-01/E_00037",
        "length": 56.94880831487299,
        "measured_trim": 11.48604965209961,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -10061,6 +10512,7 @@
        "edge_id": "region_-02_-01/E_00052",
        "length": 68.71218464896806,
        "measured_trim": 12.452018737792969,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -10073,10 +10525,12 @@
        "edge_id": "region_-02_-01/E_00053",
        "length": 255.8714139147021,
        "measured_trim": 17.8420352935791,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400023460388184
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -334.2764892578125,
       -151.9946746826172
@@ -10093,6 +10547,7 @@
        "edge_id": "region_-01_+00/E_00056",
        "length": 109.498808094811,
        "measured_trim": 12.732009887695312,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -10105,6 +10560,7 @@
        "edge_id": "region_-02_+00/E_00070",
        "length": 145.66927717796204,
        "measured_trim": 18.177242279052734,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399985313415527
       },
@@ -10117,10 +10573,12 @@
        "edge_id": "region_-02_+01/E_00071",
        "length": 134.58249296413598,
        "measured_trim": 12.874916076660156,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -289.34210205078125,
       227.0832061767578
@@ -10137,6 +10595,7 @@
        "edge_id": "region_-02_-01/E_00023",
        "length": 91.13832654030935,
        "measured_trim": 17.959644317626953,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -10149,6 +10608,7 @@
        "edge_id": "region_-02_-01/E_00037",
        "length": 56.94880831487299,
        "measured_trim": 12.389764785766602,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -10161,10 +10621,12 @@
        "edge_id": "region_-02_-01/E_00038",
        "length": 52.32755236065099,
        "measured_trim": 11.315481185913086,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -282.3789367675781,
       -128.54751586914062
@@ -10181,6 +10643,7 @@
        "edge_id": "region_-02_-01/E_00040",
        "length": 179.53316411505907,
        "measured_trim": 18.211933135986328,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -10193,6 +10656,7 @@
        "edge_id": "region_-01_+00/E_00042",
        "length": 111.24924300598148,
        "measured_trim": 11.989174842834473,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -10205,6 +10669,7 @@
        "edge_id": "region_-02_+00/E_00054",
        "length": 109.72536073845961,
        "measured_trim": 12.756284713745117,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -10217,10 +10682,12 @@
        "edge_id": "region_-01_+00/E_00055",
        "length": 101.87583746584389,
        "measured_trim": 18.139923095703125,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -248.60220336914062,
       68.80750274658203
@@ -10237,6 +10704,7 @@
        "edge_id": "region_-01_-01/E_00024",
        "length": 102.85901372674061,
        "measured_trim": 18.233779907226562,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -10249,6 +10717,7 @@
        "edge_id": "region_-02_-01/E_00038",
        "length": 52.32755236065099,
        "measured_trim": 12.21303939819336,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80002784729004
       },
@@ -10261,6 +10730,7 @@
        "edge_id": "region_-01_-01/E_00039",
        "length": 104.0100255290714,
        "measured_trim": 11.916690826416016,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -10273,10 +10743,12 @@
        "edge_id": "region_-02_-01/E_00040",
        "length": 179.53316411505907,
        "measured_trim": 18.171070098876953,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -234.8083953857422,
       -106.74943542480469
@@ -10293,6 +10765,7 @@
        "edge_id": "region_-01_-01/E_00011",
        "length": 75.17326229664614,
        "measured_trim": 5.761026382446289,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       },
@@ -10305,6 +10778,7 @@
        "edge_id": "region_-02_-01/E_00023",
        "length": 91.13832654030935,
        "measured_trim": 24.055187225341797,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -10317,10 +10791,12 @@
        "edge_id": "region_-01_-01/E_00024",
        "length": 102.85901372674061,
        "measured_trim": 24.736696243286133,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -233.39437866210938,
       -204.9475555419922
@@ -10337,6 +10813,7 @@
        "edge_id": "region_-01_+01/E_00072",
        "length": 124.51317080768867,
        "measured_trim": 12.673103332519531,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       },
@@ -10349,6 +10826,7 @@
        "edge_id": "region_-01_+01/E_00073",
        "length": 120.6412483308438,
        "measured_trim": 17.8543701171875,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -10361,10 +10839,12 @@
        "edge_id": "region_-01_+01/E_00080",
        "length": 76.99943283547574,
        "measured_trim": 12.549917221069336,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -222.8340606689453,
       311.2953796386719
@@ -10381,6 +10861,7 @@
        "edge_id": "region_-01_-02/E_00010",
        "length": 72.31618656556614,
        "measured_trim": 11.603668212890625,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799999237060547
       },
@@ -10393,6 +10874,7 @@
        "edge_id": "region_-01_-02/E_00020",
        "length": 101.64699457066813,
        "measured_trim": 17.894254684448242,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -10405,6 +10887,7 @@
        "edge_id": "region_-01_-02/E_00021",
        "length": 103.10327705265148,
        "measured_trim": 10.874784469604492,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       },
@@ -10417,10 +10900,12 @@
        "edge_id": "region_-01_-02/E_00022",
        "length": 61.8214970725451,
        "measured_trim": 17.962932586669922,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -218.80419921875,
       -314.169677734375
@@ -10437,6 +10922,7 @@
        "edge_id": "region_-01_+00/E_00043",
        "length": 143.65880703784504,
        "measured_trim": 12.971572875976562,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       },
@@ -10449,6 +10935,7 @@
        "edge_id": "region_-01_+00/E_00055",
        "length": 101.87583746584389,
        "measured_trim": 18.228363037109375,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -10461,6 +10948,7 @@
        "edge_id": "region_-01_+00/E_00056",
        "length": 109.498808094811,
        "measured_trim": 10.652070999145508,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -10473,10 +10961,12 @@
        "edge_id": "region_-01_+00/E_00057",
        "length": 73.99482155136663,
        "measured_trim": 18.188283920288086,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -203.35081481933594,
       159.30148315429688
@@ -10493,6 +10983,7 @@
        "edge_id": "region_-01_-01/E_00003",
        "length": 30.65338078429368,
        "measured_trim": 11.668560028076172,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799989700317383
       },
@@ -10505,6 +10996,7 @@
        "edge_id": "region_-01_-02/E_00008",
        "length": 87.45167316245877,
        "measured_trim": 17.93659210205078,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -10517,6 +11009,7 @@
        "edge_id": "region_-01_-02/E_00010",
        "length": 72.31618656556614,
        "measured_trim": 12.418357849121094,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799999237060547
       },
@@ -10529,10 +11022,12 @@
        "edge_id": "region_-01_-01/E_00011",
        "length": 75.17326229664614,
        "measured_trim": 18.08858299255371,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -177.43455505371094,
       -254.85618591308594
@@ -10549,6 +11044,7 @@
        "edge_id": "region_-01_-01/E_00000",
        "length": 74.65411365354616,
        "measured_trim": 17.680770874023438,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       },
@@ -10561,6 +11057,7 @@
        "edge_id": "region_-01_-01/E_00003",
        "length": 30.65338078429368,
        "measured_trim": 12.495014190673828,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799989700317383
       },
@@ -10573,10 +11070,12 @@
        "edge_id": "region_-01_-01/E_00004",
        "length": 181.29930494647664,
        "measured_trim": 12.823869705200195,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799936294555664
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -159.94508361816406,
       -229.68214416503906
@@ -10593,6 +11092,7 @@
        "edge_id": "region_-01_+00/E_00057",
        "length": 73.99482155136663,
        "measured_trim": 16.770008087158203,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       },
@@ -10605,6 +11105,7 @@
        "edge_id": "region_-01_+00/E_00058",
        "length": 81.24399467893214,
        "measured_trim": 16.502288818359375,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400008201599121
       },
@@ -10617,10 +11118,12 @@
        "edge_id": "region_-01_+01/E_00072",
        "length": 124.51317080768867,
        "measured_trim": 12.673110008239746,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -150.05392456054688,
       210.26918029785156
@@ -10637,6 +11140,7 @@
        "edge_id": "region_-01_+00/E_00027",
        "length": 48.84718876404189,
        "measured_trim": 16.029903411865234,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       },
@@ -10649,6 +11153,7 @@
        "edge_id": "region_-01_+00/E_00042",
        "length": 111.24924300598148,
        "measured_trim": 36.75868606567383,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79997444152832
       },
@@ -10661,10 +11166,12 @@
        "edge_id": "region_-01_+00/E_00043",
        "length": 143.65880703784504,
        "measured_trim": 34.85138702392578,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -141.3089141845703,
       39.41599655151367
@@ -10681,6 +11188,7 @@
        "edge_id": "region_-01_-02/E_00009",
        "length": 51.98667926182534,
        "measured_trim": 12.99691390991211,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       },
@@ -10693,6 +11201,7 @@
        "edge_id": "region_-01_-02/E_00016",
        "length": 220.40487136174067,
        "measured_trim": 17.846481323242188,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -10705,10 +11214,12 @@
        "edge_id": "region_-01_-02/E_00020",
        "length": 101.64699457066813,
        "measured_trim": 18.002059936523438,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -128.6677703857422,
       -360.5094299316406
@@ -10725,6 +11236,7 @@
        "edge_id": "region_-01_+01/E_00059",
        "length": 124.09956229885961,
        "measured_trim": 12.634323120117188,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       },
@@ -10737,6 +11249,7 @@
        "edge_id": "region_-01_+01/E_00073",
        "length": 120.6412483308438,
        "measured_trim": 18.032825469970703,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -10749,10 +11262,12 @@
        "edge_id": "region_-01_+01/E_00074",
        "length": 173.35753787206033,
        "measured_trim": 17.858367919921875,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -115.26179504394531,
       364.6880798339844
@@ -10769,6 +11284,7 @@
        "edge_id": "region_-01_-02/E_00002",
        "length": 49.272326988328885,
        "measured_trim": 20.062580108642578,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       },
@@ -10781,6 +11297,7 @@
        "edge_id": "region_-01_-02/E_00008",
        "length": 87.45167316245877,
        "measured_trim": 24.164634704589844,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -10793,10 +11310,12 @@
        "edge_id": "region_-01_-02/E_00009",
        "length": 51.98667926182534,
        "measured_trim": 4.348482608795166,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -111.23333740234375,
       -311.5337219238281
@@ -10813,6 +11332,7 @@
        "edge_id": "region_-01_-01/E_00000",
        "length": 74.65411365354616,
        "measured_trim": 16.599884033203125,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       },
@@ -10825,6 +11345,7 @@
        "edge_id": "region_-01_-02/E_00001",
        "length": 157.1317000819842,
        "measured_trim": 16.713165283203125,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400023460388184
       },
@@ -10837,10 +11358,12 @@
        "edge_id": "region_-01_-02/E_00002",
        "length": 49.272326988328885,
        "measured_trim": 12.370548248291016,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -94.59945678710938,
       -265.1544189453125
@@ -10857,6 +11380,7 @@
        "edge_id": "region_-01_-01/E_00014",
        "length": 121.70381156112408,
        "measured_trim": 20.62964630126953,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -10869,6 +11393,7 @@
        "edge_id": "region_-01_+00/E_00027",
        "length": 48.84718876404189,
        "measured_trim": 12.27242660522461,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       },
@@ -10881,6 +11406,7 @@
        "edge_id": "region_-01_+00/E_00028",
        "length": 38.82917981083021,
        "measured_trim": 13.621780395507812,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -10893,10 +11419,12 @@
        "edge_id": "region_-01_+00/E_00029",
        "length": 97.03264282256009,
        "measured_trim": 20.28619384765625,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400004386901855
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -94.19935607910156,
       26.514854431152344
@@ -10913,6 +11441,7 @@
        "edge_id": "region_-01_+00/E_00044",
        "length": 160.53377177824274,
        "measured_trim": 14.350839614868164,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800050735473633
       },
@@ -10925,6 +11454,7 @@
        "edge_id": "region_-01_+00/E_00058",
        "length": 81.24399467893214,
        "measured_trim": 18.268964767456055,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400008201599121
       },
@@ -10937,6 +11467,7 @@
        "edge_id": "region_-01_+01/E_00059",
        "length": 124.09956229885961,
        "measured_trim": 10.611114501953125,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800046920776367
       },
@@ -10949,10 +11480,12 @@
        "edge_id": "region_-01_+00/E_00060",
        "length": 114.26207759045545,
        "measured_trim": 21.380563735961914,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -77.65290069580078,
       246.42567443847656
@@ -10969,6 +11502,7 @@
        "edge_id": "region_-01_-01/E_00025",
        "length": 73.02150844635257,
        "measured_trim": 15.64117431640625,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100000381469727
       },
@@ -10981,6 +11515,7 @@
        "edge_id": "region_-01_+00/E_00028",
        "length": 38.82917981083021,
        "measured_trim": 12.648754119873047,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -10993,10 +11528,12 @@
        "edge_id": "region_+00_+00/E_00041",
        "length": 215.3518035263426,
        "measured_trim": 16.951984405517578,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100054740905762
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -56.7984619140625,
       16.09522247314453
@@ -11013,6 +11550,7 @@
        "edge_id": "region_-01_-01/E_00004",
        "length": 181.29930494647664,
        "measured_trim": 10.620508193969727,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799936294555664
       },
@@ -11025,6 +11563,7 @@
        "edge_id": "region_-01_-01/E_00012",
        "length": 39.74117669060551,
        "measured_trim": 12.82061767578125,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -11037,6 +11576,7 @@
        "edge_id": "region_-01_-01/E_00013",
        "length": 90.700526676737,
        "measured_trim": 20.717504501342773,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -11049,10 +11589,12 @@
        "edge_id": "region_-01_-01/E_00014",
        "length": 121.70381156112408,
        "measured_trim": 20.243694305419922,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -56.34434127807617,
       -80.91065979003906
@@ -11069,6 +11611,7 @@
        "edge_id": "region_-01_-01/E_00012",
        "length": 39.74117669060551,
        "measured_trim": 12.922351837158203,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       },
@@ -11081,6 +11624,7 @@
        "edge_id": "region_-01_-01/E_00025",
        "length": 73.02150844635257,
        "measured_trim": 16.372947692871094,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100000381469727
       },
@@ -11093,10 +11637,12 @@
        "edge_id": "region_+00_-01/E_00026",
        "length": 82.37076770619586,
        "measured_trim": 16.68967056274414,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.09999942779541
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -33.682533264160156,
       -48.26887512207031
@@ -11113,6 +11659,7 @@
        "edge_id": "region_-01_+00/E_00029",
        "length": 97.03264282256009,
        "measured_trim": 16.525222778320312,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400004386901855
       },
@@ -11125,6 +11672,7 @@
        "edge_id": "region_-01_+00/E_00044",
        "length": 160.53377177824274,
        "measured_trim": 9.986310005187988,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800050735473633
       },
@@ -11137,10 +11685,12 @@
        "edge_id": "region_-01_+00/E_00045",
        "length": 44.087015753042586,
        "measured_trim": 15.569208145141602,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -29.270404815673828,
       93.36577606201172
@@ -11157,6 +11707,7 @@
        "edge_id": "region_-01_+00/E_00045",
        "length": 44.087015753042586,
        "measured_trim": 15.492809295654297,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -11169,6 +11720,7 @@
        "edge_id": "region_+00_+00/E_00047",
        "length": 112.16032977844868,
        "measured_trim": 15.794570922851562,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       },
@@ -11181,10 +11733,12 @@
        "edge_id": "region_+00_+00/E_00061",
        "length": 149.6620935677985,
        "measured_trim": 10.183267593383789,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799928665161133
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       14.290131568908691,
       97.32667541503906
@@ -11201,6 +11755,7 @@
        "edge_id": "region_+00_-01/E_00005",
        "length": 165.87502182003777,
        "measured_trim": 13.251374244689941,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800024032592773
       },
@@ -11213,6 +11768,7 @@
        "edge_id": "region_-01_-01/E_00013",
        "length": 90.700526676737,
        "measured_trim": 17.913785934448242,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -11225,10 +11781,12 @@
        "edge_id": "region_+00_-01/E_00015",
        "length": 49.84191667816447,
        "measured_trim": 14.045783042907715,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       29.931373596191406,
       -96.4825439453125
@@ -11245,6 +11803,7 @@
        "edge_id": "region_-01_+00/E_00060",
        "length": 114.26207759045545,
        "measured_trim": 18.15996551513672,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       },
@@ -11257,6 +11816,7 @@
        "edge_id": "region_+00_+00/E_00061",
        "length": 149.6620935677985,
        "measured_trim": 12.005884170532227,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799928665161133
       },
@@ -11269,6 +11829,7 @@
        "edge_id": "region_+00_+01/E_00075",
        "length": 135.67929497459374,
        "measured_trim": 10.659355163574219,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -11281,10 +11842,12 @@
        "edge_id": "region_+00_+00/E_00076",
        "length": 97.4862844555974,
        "measured_trim": 18.18277359008789,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400004386901855
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       36.18840789794922,
       245.37400817871094
@@ -11301,6 +11864,7 @@
        "edge_id": "region_+00_-01/E_00026",
        "length": 82.37076770619586,
        "measured_trim": 16.689674377441406,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.09999942779541
       },
@@ -11313,6 +11877,7 @@
        "edge_id": "region_+00_-01/E_00030",
        "length": 41.03481329534932,
        "measured_trim": 10.17342758178711,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799997329711914
       },
@@ -11325,10 +11890,12 @@
        "edge_id": "region_+00_+00/E_00041",
        "length": 215.3518035263426,
        "measured_trim": 16.664962768554688,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100054740905762
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       42.426422119140625,
       -42.4263916015625
@@ -11345,6 +11912,7 @@
        "edge_id": "region_-01_+01/E_00074",
        "length": 173.35753787206033,
        "measured_trim": 17.98484992980957,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -11357,6 +11925,7 @@
        "edge_id": "region_+00_+01/E_00075",
        "length": 135.67929497459374,
        "measured_trim": 12.436271667480469,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -11369,10 +11938,12 @@
        "edge_id": "region_+00_+01/E_00081",
        "length": 151.59077531343982,
        "measured_trim": 17.929059982299805,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       55.97550964355469,
       379.6011047363281
@@ -11389,6 +11960,7 @@
        "edge_id": "region_-01_-02/E_00001",
        "length": 157.1317000819842,
        "measured_trim": 18.239913940429688,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400023460388184
       },
@@ -11401,6 +11973,7 @@
        "edge_id": "region_+00_-01/E_00005",
        "length": 165.87502182003777,
        "measured_trim": 11.959266662597656,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800024032592773
       },
@@ -11413,6 +11986,7 @@
        "edge_id": "region_+00_-02/E_00006",
        "length": 116.98408119270866,
        "measured_trim": 12.698419570922852,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -11425,10 +11999,12 @@
        "edge_id": "region_+00_-01/E_00007",
        "length": 80.61385672319159,
        "measured_trim": 18.056612014770508,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400008201599121
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       61.391014099121094,
       -258.9848327636719
@@ -11445,6 +12021,7 @@
        "edge_id": "region_+00_-01/E_00015",
        "length": 49.84191667816447,
        "measured_trim": 19.87102699279785,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -11457,6 +12034,7 @@
        "edge_id": "region_+00_-01/E_00030",
        "length": 41.03481329534932,
        "measured_trim": 13.355047225952148,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799997329711914
       },
@@ -11469,6 +12047,7 @@
        "edge_id": "region_+00_-01/E_00031",
        "length": 165.41682843603758,
        "measured_trim": 10.261331558227539,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800024032592773
       },
@@ -11481,10 +12060,12 @@
        "edge_id": "region_+00_-01/E_00032",
        "length": 107.02615164540505,
        "measured_trim": 20.819656372070312,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       72.03892517089844,
       -70.81759643554688
@@ -11501,6 +12082,7 @@
        "edge_id": "region_+00_-02/E_00006",
        "length": 116.98408119270866,
        "measured_trim": 12.698417663574219,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -11513,6 +12095,7 @@
        "edge_id": "region_-01_-02/E_00016",
        "length": 220.40487136174067,
        "measured_trim": 18.072715759277344,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -11525,10 +12108,12 @@
        "edge_id": "region_+00_-02/E_00017",
        "length": 115.32128362952359,
        "measured_trim": 17.763547897338867,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       88.33544921875,
       -372.82122802734375
@@ -11545,6 +12130,7 @@
        "edge_id": "region_+00_-01/E_00032",
        "length": 107.02615164540505,
        "measured_trim": 16.85572052001953,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -11557,6 +12143,7 @@
        "edge_id": "region_+00_+00/E_00046",
        "length": 74.00187649571066,
        "measured_trim": 10.061678886413574,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799999237060547
       },
@@ -11569,10 +12156,12 @@
        "edge_id": "region_+00_+00/E_00047",
        "length": 112.16032977844868,
        "measured_trim": 16.47039031982422,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       94.97918701171875,
       28.500892639160156
@@ -11589,6 +12178,7 @@
        "edge_id": "region_+00_+00/E_00076",
        "length": 97.4862844555974,
        "measured_trim": 16.48286247253418,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400004386901855
       },
@@ -11601,6 +12191,7 @@
        "edge_id": "region_+00_+00/E_00078",
        "length": 109.72772845506832,
        "measured_trim": 16.827316284179688,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -11613,10 +12204,12 @@
        "edge_id": "region_+00_+01/E_00082",
        "length": 135.62705252702938,
        "measured_trim": 10.875040054321289,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       127.34247589111328,
       212.7100830078125
@@ -11633,6 +12226,7 @@
        "edge_id": "region_+00_-01/E_00007",
        "length": 80.61385672319159,
        "measured_trim": 16.83405303955078,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400008201599121
       },
@@ -11645,6 +12239,7 @@
        "edge_id": "region_+00_-01/E_00018",
        "length": 69.32214820451263,
        "measured_trim": 16.621427536010742,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -11657,10 +12252,12 @@
        "edge_id": "region_+00_-02/E_00019",
        "length": 117.54905835822855,
        "measured_trim": 12.754913330078125,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       135.8629608154297,
       -228.96961975097656
@@ -11677,6 +12274,7 @@
        "edge_id": "region_+00_+00/E_00046",
        "length": 74.00187649571066,
        "measured_trim": 13.382678985595703,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799999237060547
       },
@@ -11689,6 +12287,7 @@
        "edge_id": "region_+00_+00/E_00062",
        "length": 74.50052927318434,
        "measured_trim": 40.21080780029297,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799999237060547
       },
@@ -11701,10 +12300,12 @@
        "edge_id": "region_+00_+00/E_00063",
        "length": 101.69390946874414,
        "measured_trim": 40.113040924072266,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       165.92066955566406,
       49.55006790161133
@@ -11721,6 +12322,7 @@
        "edge_id": "region_+00_-01/E_00018",
        "length": 69.32214820451263,
        "measured_trim": 18.09976577758789,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -11733,6 +12335,7 @@
        "edge_id": "region_+00_-01/E_00031",
        "length": 165.41682843603758,
        "measured_trim": 12.016971588134766,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800024032592773
       },
@@ -11745,6 +12348,7 @@
        "edge_id": "region_+00_-01/E_00035",
        "length": 116.99411915464943,
        "measured_trim": 10.525287628173828,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -11757,10 +12361,12 @@
        "edge_id": "region_+00_-01/E_00036",
        "length": 118.28667961744826,
        "measured_trim": 18.26764678955078,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       190.3542022705078,
       -186.40655517578125
@@ -11777,6 +12383,7 @@
        "edge_id": "region_+00_-02/E_00017",
        "length": 115.32128362952359,
        "measured_trim": 17.917259216308594,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       },
@@ -11789,6 +12396,7 @@
        "edge_id": "region_+00_-02/E_00019",
        "length": 117.54905835822855,
        "measured_trim": 11.947097778320312,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -11801,6 +12409,7 @@
        "edge_id": "region_+00_-02/E_00033",
        "length": 100.81570648425506,
        "measured_trim": 17.857669830322266,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -11813,10 +12422,12 @@
        "edge_id": "region_+00_-02/E_00034",
        "length": 77.99983767236407,
        "measured_trim": 10.592181205749512,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       195.13973999023438,
       -330.4759521484375
@@ -11833,6 +12444,7 @@
        "edge_id": "region_+00_+01/E_00081",
        "length": 151.59077531343982,
        "measured_trim": 17.975879669189453,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400031089782715
       },
@@ -11845,6 +12457,7 @@
        "edge_id": "region_+00_+01/E_00082",
        "length": 135.62705252702938,
        "measured_trim": 12.967094421386719,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -11857,6 +12470,7 @@
        "edge_id": "region_+01_+01/E_00084",
        "length": 168.82885455551047,
        "measured_trim": 17.80905532836914,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400038719177246
       },
@@ -11869,10 +12483,12 @@
        "edge_id": "region_+00_+01/E_00085",
        "length": 83.11779964939869,
        "measured_trim": 10.873340606689453,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800024032592773
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       197.76492309570312,
       328.6186828613281
@@ -11889,6 +12505,7 @@
        "edge_id": "region_+00_+00/E_00063",
        "length": 101.69390946874414,
        "measured_trim": 11.90359878540039,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800003051757812
       },
@@ -11901,6 +12518,7 @@
        "edge_id": "region_+00_+00/E_00068",
        "length": 74.09605939817678,
        "measured_trim": 18.256038665771484,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       },
@@ -11913,6 +12531,7 @@
        "edge_id": "region_+01_+00/E_00077",
        "length": 135.48949016453585,
        "measured_trim": 10.77916145324707,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -11925,10 +12544,12 @@
        "edge_id": "region_+00_+00/E_00078",
        "length": 109.72772845506832,
        "measured_trim": 18.139894485473633,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       206.20274353027344,
       137.73289489746094
@@ -11945,6 +12566,7 @@
        "edge_id": "region_+00_-01/E_00051",
        "length": 163.58573244065929,
        "measured_trim": 18.327945709228516,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399986267089844
       },
@@ -11957,6 +12579,7 @@
        "edge_id": "region_+00_+00/E_00062",
        "length": 74.50052927318434,
        "measured_trim": 11.863275527954102,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799999237060547
       },
@@ -11969,6 +12592,7 @@
        "edge_id": "region_+01_+00/E_00067",
        "length": 135.71021144311607,
        "measured_trim": 10.909521102905273,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -11981,10 +12605,12 @@
        "edge_id": "region_+00_+00/E_00068",
        "length": 74.09605939817678,
        "measured_trim": 17.99492073059082,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399996757507324
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       237.32455444335938,
       70.80033874511719
@@ -12001,6 +12627,7 @@
        "edge_id": "region_+00_-01/E_00036",
        "length": 118.28667961744826,
        "measured_trim": 8.447551727294922,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -12013,6 +12640,7 @@
        "edge_id": "region_+01_-01/E_00050",
        "length": 110.39527681500752,
        "measured_trim": 8.885370254516602,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -12025,10 +12653,12 @@
        "edge_id": "region_+00_-01/E_00051",
        "length": 163.58573244065929,
        "measured_trim": 9.006391525268555,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399986267089844
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       257.6873474121094,
       -91.19198608398438
@@ -12045,6 +12675,7 @@
        "edge_id": "region_+00_-02/E_00033",
        "length": 100.81570648425506,
        "measured_trim": 18.057050704956055,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -12057,6 +12688,7 @@
        "edge_id": "region_+00_-01/E_00035",
        "length": 116.99411915464943,
        "measured_trim": 12.699424743652344,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800004959106445
       },
@@ -12069,6 +12701,7 @@
        "edge_id": "region_+01_-02/E_00048",
        "length": 171.0096653563881,
        "measured_trim": 10.85006332397461,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80003547668457
       },
@@ -12081,10 +12714,12 @@
        "edge_id": "region_+01_-01/E_00049",
        "length": 90.04265601123295,
        "measured_trim": 17.845579147338867,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       274.0440368652344,
       -268.1556396484375
@@ -12101,6 +12736,7 @@
        "edge_id": "region_+01_+00/E_00077",
        "length": 135.48949016453585,
        "measured_trim": 12.9549560546875,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -12113,6 +12749,7 @@
        "edge_id": "region_+01_+00/E_00079",
        "length": 114.92188159669311,
        "measured_trim": 17.92436408996582,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       },
@@ -12125,6 +12762,7 @@
        "edge_id": "region_+01_+00/E_00083",
        "length": 93.65680553895,
        "measured_trim": 12.707101821899414,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799959182739258
       },
@@ -12137,10 +12775,12 @@
        "edge_id": "region_+01_+01/E_00084",
        "length": 168.82885455551047,
        "measured_trim": 17.891342163085938,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400038719177246
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       318.8841247558594,
       212.96591186523438
@@ -12157,6 +12797,7 @@
        "edge_id": "region_+01_-01/E_00049",
        "length": 90.04265601123295,
        "measured_trim": 16.742515563964844,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400005340576172
       },
@@ -12169,6 +12810,7 @@
        "edge_id": "region_+01_-01/E_00064",
        "length": 79.17763412851161,
        "measured_trim": 17.035388946533203,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -12181,10 +12823,12 @@
        "edge_id": "region_+01_-01/E_00065",
        "length": 77.15006749522017,
        "measured_trim": 12.572511672973633,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80000114440918
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       328.9807434082031,
       -197.07449340820312
@@ -12201,6 +12845,7 @@
        "edge_id": "region_+01_-01/E_00050",
        "length": 110.39527681500752,
        "measured_trim": 12.828071594238281,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400009155273438
       },
@@ -12213,6 +12858,7 @@
        "edge_id": "region_+01_-01/E_00064",
        "length": 79.17763412851161,
        "measured_trim": 12.876655578613281,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -12225,10 +12871,12 @@
        "edge_id": "region_+01_-01/E_00066",
        "length": 238.77386420860114,
        "measured_trim": 12.938694953918457,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       362.460693359375,
       -125.47586059570312
@@ -12245,6 +12893,7 @@
        "edge_id": "region_+01_-01/E_00066",
        "length": 238.77386420860114,
        "measured_trim": 17.878326416015625,
+       "principal": 0,
        "street_class": "local",
        "width": 14.39998722076416
       },
@@ -12257,6 +12906,7 @@
        "edge_id": "region_+01_+00/E_00067",
        "length": 135.71021144311607,
        "measured_trim": 12.974449157714844,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79998207092285
       },
@@ -12269,10 +12919,12 @@
        "edge_id": "region_+01_+00/E_00079",
        "length": 114.92188159669311,
        "measured_trim": 17.965774536132812,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       367.4522705078125,
       109.31936645507812
@@ -12404,6 +13056,7 @@
        "edge_id": "region_+00_+00/E_00000",
        "length": 48.0,
        "measured_trim": 10.338526725769043,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79996109008789
       },
@@ -12416,6 +13069,7 @@
        "edge_id": "region_-01_+00/E_00001",
        "length": 110.00090595667253,
        "measured_trim": 22.0882568359375,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.09999942779541
       },
@@ -12428,6 +13082,7 @@
        "edge_id": "region_-01_+00/E_00002",
        "length": 200.0,
        "measured_trim": 21.0,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799964904785156
       },
@@ -12440,10 +13095,12 @@
        "edge_id": "region_-01_-01/E_00003",
        "length": 99.99700870083724,
        "measured_trim": 24.999286651611328,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100001335144043
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       0.0,
       0.0
@@ -12460,6 +13117,7 @@
        "edge_id": "region_+00_+00/E_00000",
        "length": 48.0,
        "measured_trim": 5.0,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79996109008789
       },
@@ -12472,6 +13130,7 @@
        "edge_id": "region_+00_+00/E_00004",
        "length": 152.0,
        "measured_trim": 28.95489501953125,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799930572509766
       },
@@ -12484,10 +13143,12 @@
        "edge_id": "region_+00_+00/E_00005",
        "length": 84.56036592049746,
        "measured_trim": 32.111427307128906,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.099991798400879
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       48.0,
       0.0
@@ -12653,6 +13314,7 @@
        "edge_id": "region_+00_+00/E_00000",
        "length": 32.0,
        "measured_trim": 21.0,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       },
@@ -12665,6 +13327,7 @@
        "edge_id": "region_+00_+00/E_00001",
        "length": 32.24903099319423,
        "measured_trim": 19.299610137939453,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400002479553223
       },
@@ -12677,6 +13340,7 @@
        "edge_id": "region_-01_+00/E_00002",
        "length": 200.0,
        "measured_trim": 21.480363845825195,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79996681213379
       },
@@ -12689,10 +13353,12 @@
        "edge_id": "region_-01_-01/E_00003",
        "length": 149.9953051313147,
        "measured_trim": 25.576601028442383,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100022315979004
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       0.0,
       0.0
@@ -12709,6 +13375,7 @@
        "edge_id": "region_+00_+00/E_00001",
        "length": 32.24903099319423,
        "measured_trim": 19.60000228881836,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400002479553223
       },
@@ -12721,6 +13388,7 @@
        "edge_id": "region_+00_+00/E_00004",
        "length": 32.24903099319551,
        "measured_trim": 19.599998474121094,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400002479553223
       },
@@ -12733,10 +13401,12 @@
        "edge_id": "region_+00_+00/E_00007",
        "length": 55.0,
        "measured_trim": 4.928571701049805,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400007247924805
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       16.0,
       28.0
@@ -12753,6 +13423,7 @@
        "edge_id": "region_+00_+00/E_00000",
        "length": 32.0,
        "measured_trim": 21.0,
+       "principal": 0,
        "street_class": "local",
        "width": 14.399994850158691
       },
@@ -12765,6 +13436,7 @@
        "edge_id": "region_+00_+00/E_00004",
        "length": 32.24903099319551,
        "measured_trim": 26.08258056640625,
+       "principal": 0,
        "street_class": "local",
        "width": 14.400002479553223
       },
@@ -12777,6 +13449,7 @@
        "edge_id": "region_+00_+00/E_00005",
        "length": 189.6270054510326,
        "measured_trim": 20.169288635253906,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.80003547668457
       },
@@ -12789,10 +13462,12 @@
        "edge_id": "region_+00_-01/E_00006",
        "length": 151.41773237357924,
        "measured_trim": 16.938711166381836,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100022315979004
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       32.0,
       0.0
@@ -12873,6 +13548,7 @@
        "edge_id": "region_+00_+00/E_00000",
        "length": 800.0,
        "measured_trim": 13.54998779296875,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799785614013672
       },
@@ -12885,6 +13561,7 @@
        "edge_id": "region_-02_+00/E_00001",
        "length": 200.0,
        "measured_trim": 13.54998779296875,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799964904785156
       },
@@ -12897,10 +13574,12 @@
        "edge_id": "region_-02_+00/E_00002",
        "length": 100.0,
        "measured_trim": 21.0,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100001335144043
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -300.0,
       0.0
@@ -13015,6 +13694,7 @@
        "edge_id": "region_-01_+00/E_00000",
        "length": 300.0,
        "measured_trim": 13.54998779296875,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.8000545501709
       },
@@ -13027,6 +13707,7 @@
        "edge_id": "region_-02_+00/E_00001",
        "length": 200.0,
        "measured_trim": 13.54998779296875,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79996681213379
       },
@@ -13039,10 +13720,12 @@
        "edge_id": "region_-02_+00/E_00002",
        "length": 100.0,
        "measured_trim": 21.0,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100001335144043
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -300.0,
       0.0
@@ -13059,6 +13742,7 @@
        "edge_id": "region_-01_+00/E_00000",
        "length": 300.0,
        "measured_trim": 0.0,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.8000545501709
       },
@@ -13071,6 +13755,7 @@
        "edge_id": "region_+01_+00/E_00003",
        "length": 500.0,
        "measured_trim": 56.618812561035156,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.800119400024414
       },
@@ -13083,10 +13768,12 @@
        "edge_id": "region_+00_+00/E_00004",
        "length": 120.00341801856115,
        "measured_trim": 58.296234130859375,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100000381469727
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       0.0,
       0.0
@@ -13167,6 +13854,7 @@
        "edge_id": "region_-01_+00/E_00000",
        "length": 599.7677917226629,
        "measured_trim": 13.549986839294434,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.79978370666504
       },
@@ -13179,6 +13867,7 @@
        "edge_id": "region_-02_+00/E_00001",
        "length": 200.0,
        "measured_trim": 13.54998779296875,
+       "principal": 0,
        "street_class": "arterial",
        "width": 26.799964904785156
       },
@@ -13191,10 +13880,12 @@
        "edge_id": "region_-02_+00/E_00002",
        "length": 100.0,
        "measured_trim": 21.0,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100001335144043
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       -300.0,
       0.0
@@ -13275,6 +13966,7 @@
        "edge_id": "region_-01_+00/E_00000",
        "length": 99.99779865436435,
        "measured_trim": 24.999469757080078,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100001335144043
       },
@@ -13287,6 +13979,7 @@
        "edge_id": "region_-01_-01/E_00001",
        "length": 99.99779865436435,
        "measured_trim": 24.999469757080078,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100001335144043
       },
@@ -13299,13 +13992,192 @@
        "edge_id": "region_+00_+00/E_00002",
        "length": 152.97058540779074,
        "measured_trim": 20.611621856689453,
+       "principal": 0,
        "street_class": "collector",
        "width": 15.100031852722168
       }
      ],
+     "junction_type": "crossing",
      "pos": [
       0.0,
       0.0
+     ]
+    }
+   ],
+   "params": {
+    "arc_steps": 5,
+    "corner_radius_scale": 1.0,
+    "max_fillet_fraction": 0.4,
+    "min_end_segment": 1.0,
+    "miter_limit": 4.0
+   }
+  },
+  "Q_junction_ring": {
+   "edges": [
+    {
+     "edge_id": "region_+00_+00/E_00000",
+     "length": 576.7570564269035,
+     "npts": 146,
+     "p0": [
+      150.0,
+      0.0
+     ],
+     "p1": [
+      150.0,
+      300.0
+     ],
+     "street_class": "arterial",
+     "trim_end": 0.0,
+     "trim_start": 0.0,
+     "width": 26.79976463317871
+    },
+    {
+     "edge_id": "region_+00_+01/E_00003",
+     "length": 60.0,
+     "npts": 16,
+     "p0": [
+      150.0,
+      300.0
+     ],
+     "p1": [
+      150.0,
+      360.0
+     ],
+     "street_class": "local",
+     "trim_end": 0.0,
+     "trim_start": 17.399871826171875,
+     "width": 14.39998722076416
+    },
+    {
+     "edge_id": "region_+00_-01/E_00002",
+     "length": 60.0,
+     "npts": 16,
+     "p0": [
+      150.0,
+      0.0
+     ],
+     "p1": [
+      150.0,
+      -60.0
+     ],
+     "street_class": "local",
+     "trim_end": 0.0,
+     "trim_start": 17.399883270263672,
+     "width": 14.39998722076416
+    },
+    {
+     "edge_id": "region_+01_+00/E_00001",
+     "length": 576.7570539389853,
+     "npts": 146,
+     "p0": [
+      150.0,
+      0.0
+     ],
+     "p1": [
+      150.0,
+      300.0
+     ],
+     "street_class": "arterial",
+     "trim_end": 0.0,
+     "trim_start": 0.0,
+     "width": 26.79976463317871
+    }
+   ],
+   "nodes": [
+    {
+     "arms": [
+      {
+       "at_start": true,
+       "dir": [
+        -1.0,
+        0.0
+       ],
+       "edge_id": "region_+00_+00/E_00000",
+       "length": 576.7570564269035,
+       "measured_trim": 0.0,
+       "principal": 1,
+       "street_class": "arterial",
+       "width": 26.79976463317871
+      },
+      {
+       "at_start": true,
+       "dir": [
+        1.0,
+        0.0
+       ],
+       "edge_id": "region_+01_+00/E_00001",
+       "length": 576.7570539389853,
+       "measured_trim": 0.0,
+       "principal": 1,
+       "street_class": "arterial",
+       "width": 26.79976463317871
+      },
+      {
+       "at_start": true,
+       "dir": [
+        0.0,
+        -1.0
+       ],
+       "edge_id": "region_+00_-01/E_00002",
+       "length": 60.0,
+       "measured_trim": 17.399883270263672,
+       "principal": 0,
+       "street_class": "local",
+       "width": 14.39998722076416
+      }
+     ],
+     "junction_type": "junction",
+     "pos": [
+      150.0,
+      0.0
+     ]
+    },
+    {
+     "arms": [
+      {
+       "at_start": false,
+       "dir": [
+        -1.0,
+        0.0
+       ],
+       "edge_id": "region_+00_+00/E_00000",
+       "length": 576.7570564269035,
+       "measured_trim": 0.0,
+       "principal": 1,
+       "street_class": "arterial",
+       "width": 26.79976463317871
+      },
+      {
+       "at_start": false,
+       "dir": [
+        1.0,
+        0.0
+       ],
+       "edge_id": "region_+01_+00/E_00001",
+       "length": 576.7570539389853,
+       "measured_trim": 0.0,
+       "principal": 1,
+       "street_class": "arterial",
+       "width": 26.79976463317871
+      },
+      {
+       "at_start": true,
+       "dir": [
+        0.0,
+        1.0
+       ],
+       "edge_id": "region_+00_+01/E_00003",
+       "length": 60.0,
+       "measured_trim": 17.399871826171875,
+       "principal": 0,
+       "street_class": "local",
+       "width": 14.39998722076416
+      }
+     ],
+     "junction_type": "junction",
+     "pos": [
+      150.0,
+      300.0
      ]
     }
    ],

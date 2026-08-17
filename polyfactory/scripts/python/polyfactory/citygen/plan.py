@@ -59,6 +59,14 @@ EPS = 1e-6
 NODE_SCHEMA_ATTRS = ("junction_type",)
 EDGE_SCHEMA_ATTRS = ("principal_start", "principal_end")
 
+# ...and the VOCABULARY gets the same single owner. The M4 audit found it
+# spelled out in `checks.py` with the reserved subset repeated independently in
+# `node_trims` - consistent that day, and a two-file drift hazard the moment M5
+# moves `merge` from reserved to built. One definition; `checks.py` reads it
+# through the same lazy-import-with-reported-fallback the attribute names use.
+JUNCTION_TYPE_VOCAB = ("", "crossing", "junction", "merge", "roundabout")
+RESERVED_JUNCTION_TYPES = ("merge", "roundabout")   # in vocab, no builder yet
+
 # ⚠️ THE ONE THING THIS MODEL DOES NOT PREDICT, measured rather than assumed.
 #
 # `s5j_solve` re-reads each arm's frame at the current cut and re-solves the
@@ -73,7 +81,7 @@ EDGE_SCHEMA_ATTRS = ("principal_start", "principal_end")
 # latches monotone only from its third pass — `dist[i] = (iter < 3) ? dd :
 # max(dist[i], dd)` — so passes 1 and 2 are free to RETREAT below the node-frame
 # value, and the fixed point lands on either side of it. Measured, predicted
-# minus measured, over all 539 arms:
+# minus measured, over all 545 arms:
 #
 #   A_drawn / D_offset / H_offset_strict   -0.347 .. +2.024
 #   B_grid                                 -3.995 .. +2.404
@@ -89,7 +97,7 @@ EDGE_SCHEMA_ATTRS = ("principal_start", "principal_end")
 # leave. That bound is below, and the calibration test pins it against the
 # fixture so it cannot rot the way its first value did.
 #
-# ⚠️ Both are bounds on the RESIDUAL, not on the verdict. Measured over all 318
+# ⚠️ Both are bounds on the RESIDUAL, not on the verdict. Measured over all 322
 # edges of the suite, the planner's `standing > 0` answer never disagrees with
 # the builder's — 0 false-OK, 0 false-BAD — and THAT is the property downstream
 # milestones actually rely on. `test_plan.py` asserts it directly; do not
@@ -243,11 +251,11 @@ def resample_segments(length, params=DEFAULTS):
     ⚠️ **THE `- 1e-9` IS A GUARD AGAINST DUST, AND THE FIXTURE DOES NOT EXERCISE
     IT.** An earlier version of this docstring claimed it mattered because "10
     of the 304 edges sit exactly on an integer `L / step`" — backwards (and the
-    counts were pre-M2; today it is 19 of 318). Sitting
+    counts were pre-M2; today it is 21 of 322). Sitting
     *exactly* on the integer is the one place `ceil` needs no help. It bites at
     `n + 1e-13 … n + 1e-9`, where a length that is arithmetically `4n` arrives a
     few ulps over and would silently gain a segment, shifting every vertex. On
-    today's 318 edges **zero** need it, so nothing in the calibration can pin
+    today's 322 edges **zero** need it, so nothing in the calibration can pin
     it; `test_plan.py` pins it directly instead, on both sides of the dust
     threshold.
     """
@@ -263,13 +271,13 @@ def clear_of_vertex(cut, length, params=DEFAULTS, at_start=True):
     leave the road a sliver of a terminal segment: measured 0.028 m against a
     13.4 m half-width, and a ribbon swept along a segment that short folds. It
     moves the cut by up to `2 x min_end_segment`, one-signed, and it happens on
-    190 of the 539 arms in the suite (worst +1.971 m) — big enough that a
+    190 of the 545 arms in the suite (worst +1.971 m) — big enough that a
     `standing` computed without it is optimistic on a third of the city.
 
     It is modelled here rather than left as a builder-side residual because it
     needs no geometry: `s5_resample` divides an arm into `ceil(L / step)` EQUAL
     segments — Houdini's All Equal Segments shrinks every segment rather than
-    leaving a short last one, verified on all 318 prims — so the vertex grid is
+    leaving a short last one, verified on all 322 prims — so the vertex grid is
     a function of the arm's LENGTH, which is plain edge data.
 
     ⚠️ Latent, and recorded because it is invisible when it bites: `length` here
@@ -462,14 +470,47 @@ def default_junction_type(node):
 
 
 def node_trims(node, params=DEFAULTS):
-    """Dispatch on `junction_type`. `""` means decide for me, and the decided
-    default is `crossing` — what the builder does today, everywhere (§11.5)."""
+    """Dispatch on `junction_type` — MIRRORING THE BUILDER'S FALLBACKS EXACTLY.
+
+    ⚠️ **THE FIRST VERSION HAD ITS OWN, DIFFERENT FALLBACKS, and the M4 audit
+    measured a 12.93 m planner/builder disagreement under a green gate.** Two
+    ways:
+
+      1. A `junction` node whose AUTHORED claims are not a valid pair: the
+         builder falls back to the crossing construction, while this function
+         routed through `principal_of`, whose fallback is the COMPUTED widest
+         pair — so the planner zeroed a principal the builder was busy cutting.
+         Cardinality 0 was the killer: schema-legal (0 claims is "nothing
+         authored"), gate green, `standing` optimistic by the full plate reach
+         on the exact state an artist reaches by typing the node and stopping.
+         The junction branch now reads the authored channel alone and falls to
+         `crossing_trims` on anything but a valid pair, which IS the builder.
+         (`junction_schema` now reds a typed junction with zero claims too —
+         belt and braces from opposite sides.)
+
+      2. A vocabulary-RESERVED type (`merge`, `roundabout`): the builder has no
+         contract and builds a crossing; this function raised ValueError — and
+         since M4 put `node_trims` on the calibration path, a schema-legal
+         authored `merge` crashed the unit suite instead of producing a red
+         row. The reserved types now fall to `crossing_trims`, exactly as the
+         builder does, and the not-silent duty lives in `junction_schema`'s
+         `unbuilt_type` term, which reds them on the geometry.
+
+    A type OUTSIDE the vocabulary still raises: that is a programming error in
+    the caller, not an authorable state — geometry-side it is `bad_vocab`.
+    """
     kind = node.junction_type or "crossing"
     if kind == "junction":
-        return junction_trims(node, params=params)
+        flagged = sorted(a.edge_id for a in node.arms if a.principal)
+        if len(flagged) == 2 and flagged[0] != flagged[1]:
+            return junction_trims(node, tuple(flagged), params=params)
+        return crossing_trims(node, params)      # the builder's own fallback
+    if kind in RESERVED_JUNCTION_TYPES:          # reserved, unbuilt: crossing,
+        return crossing_trims(node, params)      # as the builder builds it
     if kind == "crossing":
         return crossing_trims(node, params)
-    raise ValueError("no builder contract for junction_type %r" % (kind,))
+    raise ValueError("junction_type %r is outside JUNCTION_TYPE_VOCAB"
+                     % (kind,))
 
 
 def graph_trims(nodes, params=DEFAULTS):

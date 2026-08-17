@@ -6143,7 +6143,7 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   it"* — and the surviving last point is moved to the cut only by `if (de < te)`. **The
   predicate is that line and it is not a constant**: `de` is the arm's own TERMINAL SEGMENT,
   `L / ceil(L / step)` — bounded by `(step/2, step]`, so a 2.00 m floor in principle, and
-  measured **3.5832 .. 4.0000 m** over the suite's 539 junction-side ends, equal to 4.00 only on
+  measured **3.5832 .. 4.0000 m** over the suite's 545 junction-side ends, equal to 4.00 only on
   the 22 whose length is an exact multiple of the step. So the
   endpoint is re-created only when **`trim > de`** and the hole is **`de − trim`**. ⚠️ Two
   earlier versions of this entry said "non-zero" and then "`> 4.00 m`" — 4.00 is the resample
@@ -6155,7 +6155,8 @@ setdetailattrib(0, "repair_spread_m", total, "set");
   and four arms sit at 4.35–5.00 m, 0.35 m from the trigger.
 
   ⚠️ **And the trigger was over-generalised twice.** It is not "every junction with one wide
-  arm pair" — of **539 arms** exactly **one** has a junction-side trim ≤ 4 m, and **87 of the 88
+  arm pair" — of **545 arms** exactly **five** have a junction-side trim ≤ 4 m (N's, plus Q's
+  four deliberately-uncut through arms since M4), and **87 of the 88
   junctions with two or more arterial arms do not exhibit it** (`G_tongue` is two collinear
   arterials plus a third and trims 22.4 all round). Nor is it "the arm opposite a near-floor pair
   at a 3-arm node", which generalised one rig. **The hole condition is just `trim < de`**: an
@@ -6329,6 +6330,79 @@ setdetailattrib(0, "repair_spread_m", total, "set");
 - **M4 — junction type in the builder**, authored-only first; S7 T-case green and its render
   LOOKED at; then flip the computed default in its own commit; re-measure K against the M1
   verdict.
+
+  **AUTHORED-ONLY HALF BUILT 2026-08-16.** `s5j_solve` validates an authored junction (type +
+  exactly two principal claims from two distinct prims — the planner's cardinality rule,
+  mirrored) and builds THE CROSSING CONSTRUCTION with two differences: principals take no
+  street trim (they write `jtrim_*`, the KERB-only trim) and their caps are marked `is_plate`.
+  Anything invalid builds as a crossing, and `junction_schema` reds the geometry so the
+  fallback cannot pass silently — proven by injection (cardinality 1 → crossing trims on every
+  arm, `bad_principal` 2, kerb still closed).
+
+  ⚠️ **THE S7 RISK WAS REAL AND IT LIVED IN `s5j_trim`, NOT `blocks_kerb`.** The first build
+  left a **7.96 m hole in the through carriageway over every junction node**: `s5j_trim`
+  deletes the shared node point unconditionally, and with trim = 0 nothing re-created the
+  endpoint — M2's measured `de − trim` gap arriving exactly where its record predicted, and it
+  also shifted every arc `blocks_kerb` measures from the prim start (the kerb landed one
+  resample segment off, 16 unpaired ends). Fix: the deleted point's neighbour re-extends to the
+  node when its end carries `jtrim > 0`, so the carriageway is continuous and arc zero IS the
+  node. `blocks_kerb` then treats a through end like a trimmed end for the KERB — frontage
+  truncated at the plate corners, no false dead-end cap — and the collect-and-close closes:
+  **Q_junction_ring, 0 unpaired ends, 1 interior block, 155 lots.**
+
+  **The Q case** (two authored `junction` Ts on a ring) is the S7 T-case: gate 16 cases,
+  **27 failing = 26 + Q's `selfx_city_merged` (122, the declared v1 non-goal — the plate spans
+  the principal, whose ribbon runs beneath it: coplanar overlap, recorded not fought)**. All
+  15 pre-existing cases bit-identical at GEOMETRY level (audited digest, 0 differences); the
+  only baseline movement is the deliberate `unbuilt_type: 0` key on 15 `junction_schema` rows — because every new
+  code path is behind attributes that only exist once a junction is authored. The calibration
+  closes the geometry→planner round trip at last: `dump_trims` exports the type and the claims,
+  `test_plan` dispatches `node_trims`, and Q reproduces to **1e-5 m** — `junction_trims` with
+  authored booleans IS the builder's plate, principals at zero included.
+
+  ⚠️ **AUDIT ROUND 1 (NO) found the guarantees around the geometry, not the geometry.** Three
+  blockers, all fixed and re-injected: (F1) a `junction` node with ZERO claims was schema-legal
+  while planner and builder fell back DIFFERENTLY — a green gate over a 12.93 m disagreement in
+  the state an artist reaches by typing the node and stopping. `node_trims` now mirrors the
+  builder's fallback exactly (invalid pair → crossing) and `junction_schema` reds
+  typed-no-claims (`bad_principal`). (F2) a vocabulary-RESERVED type (`merge`) was schema-legal
+  and CRASHED the calibration, since M4 put `node_trims` on that path — reserved types now build
+  as crossing on both sides and `junction_schema` reds them (`unbuilt_type`), the not-silent
+  duty moved to geometry. (F3) the through seam was measured by NOTHING — pulling a through end
+  7.96 m back along the street, reopening the exact hole the fix closes, left every check
+  bit-identically green. `trim_metric_is_consistent` now asserts terminal == node per through
+  end (Q: 6 ends measured, was 2).
+
+  **§11.5's model-vs-plate gaps: TWO of three are DECIDED, in the model's favour** the builder keeps the
+  crossing's minor-minor corners (two adjacent minors' kerbs really do collide before the
+  principal's flank) and the per-arm `max_fillet_fraction` cap — so builder and planner agree
+  by construction instead of by tolerance. The plate is the crossing boundary with the
+  principals uncut, which over the principal's span IS "a rectangle on the principal spanning
+  the minor mouths". **The THIRD gap stays OPEN, on the authored channel**: nothing tests the
+  angle of an authored principal pair — the audit built a ring with junctions AT the corners and
+  two "through" ribbons leaving each node at 90.0°, all green including kerb closure. Partly
+  freedom (authored beats computed; a bent principal is legal geometry), partly unmeasured: on a
+  principal CURVING at the node the re-extension chords across one resample sample — ~0.30 m of
+  centreline error and ~8.5° of ribbon rotation at the tightest legal arterial radius, by the
+  closed form; no committed case reaches it. Also recorded from the audit: **Q's blocks and lots
+  are bit-identical to the crossing build** — on straight collinear principals the kerb lands on
+  the same points either way, so Q asserts the through-kerb only in the collinear/one-minor
+  configuration (the audit measured bent-pair, two-minors-same-side and minors-both-sides
+  variants all closing, uncommitted); and the solver's graph pass-through is no longer spanned
+  by `input0_reaches_an_output` since it reads the mesh's actual input.
+
+  **`input0_reaches_an_output` now reads the mesh's ACTUAL input 0** rather than the
+  segmenter's output as a proxy for it — §11.3's downstream authoring path legitimately writes
+  between the two, and the proxy reported Q's authored attributes as drift on a faithful
+  pass-through. Value-identical on unauthored cases.
+
+  **STILL OPEN, deliberately:** the computed-default FLIP (the artist's call, §11.12 — one
+  commit, re-measure K against the M1 verdict when it lands) · **the render review** ("look at
+  it" is part of the exit, and it needs the artist's eyes in a GUI session — Q is built for
+  exactly that viewing) · differing principal widths abut without a taper (K's arterial +
+  collector pair will show a step; recorded, CityEngine tapers, v1 abuts) · the principal's
+  sidewalk band sweeps THROUGH across minor mouths (continuous-footway reading; the Wang-tile
+  transitions own the real fix).
 - **M5 — merge type + re-route** (11.6 control rig included). Shallow-Y family goes green;
   `graph_min_angle` stops deleting — a shallow angle becomes a planner signal (the artist's
   ruling); tripwire accounting updated; ⛔ §S5a item 4 closed by the same mechanism at 75–90°.

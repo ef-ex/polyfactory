@@ -6,7 +6,7 @@
 `s5j_solve` cuts off each arm, as a function of arms, widths, classes and
 angles, so `standing` is checkable before any geometry exists. The measured
 plates it is checked against live in `trim_calibration.json`, written by
-`hython tests/citygen/dump_trims.py` on all fifteen cases — 539 arms.
+`hython tests/citygen/dump_trims.py` on all sixteen cases — 545 arms.
 
 MUTATION-TESTED across four audit rounds (10, then 16, then 1 real survivor).
 The tables, the tolerances, the `_straightest` key and its returned order, and
@@ -112,6 +112,7 @@ RESIDUAL_M = {
     "N_shallow_y_32":  0.001,   # M2, measured 0.000000
     "O_shallow_y_host_dies": 0.001,   # M2, measured 0.000000
     "P_stub_chain":    0.001,   # M2, measured 0.000000
+    "Q_junction_ring": 0.001,   # M4, junction dispatch, measured 0.000010
     "A_drawn":         2.03,    # measured 2.024024
     "D_offset":        2.03,    # measured 2.024024
     "H_offset_strict": 2.03,    # measured 2.024024
@@ -127,7 +128,7 @@ OVER_HALF_METRE = {
     "E_short_t": 0, "F_bend": 0, "G_tongue": 0, "H_offset_strict": 2,
     "I_offset_radial": 97, "J_five_star": 0, "K_stub_triangle": 0,
     "M_shallow_y_24": 0, "N_shallow_y_32": 0, "O_shallow_y_host_dies": 0,
-    "P_stub_chain": 0,
+    "P_stub_chain": 0, "Q_junction_ring": 0,
 }
 
 # ⚠️ The residual on an ARM is not the number a consumer needs, and reporting it
@@ -152,11 +153,13 @@ STANDING_ERROR_M = {
     "N_shallow_y_32": (0.001, -0.001),
     "O_shallow_y_host_dies": (0.001, -0.001),
     "P_stub_chain": (0.001, -0.001),
+    "Q_junction_ring": (0.001, -0.001),
 }
 
 STRAIGHT_CASES = ("E_short_t", "F_bend", "G_tongue", "J_five_star",
                   "K_stub_triangle", "M_shallow_y_24", "N_shallow_y_32",
-                  "O_shallow_y_host_dies", "P_stub_chain")
+                  "O_shallow_y_host_dies", "P_stub_chain",
+                  "Q_junction_ring")
 
 
 def load():
@@ -172,8 +175,12 @@ def case_nodes(case):
     nodes = []
     for nd in case["nodes"]:
         arms = [plan.Arm(a["edge_id"], a["dir"], a["width"], a["street_class"],
-                         a["length"], a["at_start"]) for a in nd["arms"]]
-        nodes.append(plan.Node("(%.3f,%.3f)" % tuple(nd["pos"]), nd["pos"], arms))
+                         a["length"], a["at_start"],
+                         principal=a.get("principal", 0) != 0)
+                for a in nd["arms"]]
+        nodes.append(plan.Node("(%.3f,%.3f)" % tuple(nd["pos"]), nd["pos"],
+                               arms,
+                               junction_type=nd.get("junction_type", "")))
     return nodes, params
 
 
@@ -182,7 +189,10 @@ def residuals(case):
     nodes, params = case_nodes(case)
     out = []
     for node, nd in zip(nodes, case["nodes"]):
-        pred = plan.crossing_trims(node, params)
+        # M4: dispatch on the node's type, exactly as the builder does. An
+        # authored `junction` node's principals predict 0 via junction_trims;
+        # everything else is crossing_trims as before.
+        pred = plan.node_trims(node, params)
         for a in nd["arms"]:
             out.append((pred[a["edge_id"]] - a["measured_trim"],
                         node.node_id, a["edge_id"]))
@@ -292,7 +302,7 @@ class TestCalibration(unittest.TestCase):
         that is 0.1 m out and flips a verdict is not, and no residual table can
         tell the two apart.
 
-        Measured over all 318 edges of the suite: zero false-OK (planner says
+        Measured over all 322 edges of the suite: zero false-OK (planner says
         the street stands, the builder ate it) and zero false-BAD. That result
         was found by the M1 audit and was not asserted anywhere, which is
         exactly how a good property rots.
@@ -312,7 +322,7 @@ class TestCalibration(unittest.TestCase):
                     false_ok.append((name, e["edge_id"], mine, theirs))
                 elif theirs > 0 >= mine:
                     false_bad.append((name, e["edge_id"], mine, theirs))
-        self.assertEqual(edges, 318)
+        self.assertEqual(edges, 322)
         self.assertEqual(false_ok, [])
         self.assertEqual(false_bad, [])
 
@@ -365,7 +375,7 @@ class TestCalibration(unittest.TestCase):
         junction at both. Swapping `trim_start` for `trim_end` leaves every
         per-arm comparison above green and makes every `standing` on a
         two-junction street garbage. Asserted against the builder's own
-        `trim_start` / `trim_end` on all 539 arms — and every street the builder
+        `trim_start` / `trim_end` on all 545 arms — and every street the builder
         cut must be a street the planner saw, which is the coverage half of the
         same claim: an arm silently dropped in node extraction would leave the
         per-arm comparison green and simply not be checked.
@@ -390,7 +400,7 @@ class TestCalibration(unittest.TestCase):
                         self.assertEqual(e["trim_end"], 0.0)
                     else:
                         seen += 1
-        self.assertEqual(seen, 318, "the planner did not see every street")
+        self.assertEqual(seen, 322, "the planner did not see every street")
 
 
 class TestKVerdict(unittest.TestCase):
@@ -459,8 +469,17 @@ class TestKVerdict(unittest.TestCase):
 
         So `junction` type with the computed default does NOT dissolve K, and
         the resolution ladder still needs its next rung. The spread is not dead.
+
+        The computed default is AUTHORED here — `default_principal` computed,
+        then written onto the arm flags — because that is what the flip
+        actually does (`graph_plan` computes and writes the booleans), and
+        because `node_trims` no longer invents a computed pair on its own: an
+        unauthored junction falls back to crossing, mirroring the builder
+        (the M4 audit's 12.93 m divergence, fixed on both sides).
         """
-        st = self._standing("junction")
+        principals = dict((n.node_id, plan.default_principal(n))
+                          for n in self.nodes)
+        st = self._standing("junction", principals)
         rescued = [e for e in self.sides if st[e] > 0]
         self.assertEqual(len(rescued), 1)
         self.assertAlmostEqual(min(st[e] for e in self.sides), -13.434, places=3)
@@ -759,8 +778,8 @@ class TestCornerModel(unittest.TestCase):
         test used three 14.4 m locals and so reproduced, inside the test written
         to close one audit finding, the exact defect of another: the fallback is
         `max(a.width, b.width)` and with equal arms `max` and `min` are the same
-        number, so a wrong one passed. **Zero of the suite's 539 corners take
-        this branch** — all 53 collinear corners are the angle≈pi side — so this
+        number, so a wrong one passed. **Zero of the suite's 545 corners take
+        this branch** — all 55 collinear corners are the angle≈pi side — so this
         hand-built node is its only coverage anywhere in the repo.
         """
         p = plan.Params(min_end_segment=0.0)
@@ -856,7 +875,7 @@ class TestClearOfVertex(unittest.TestCase):
         `ceil(L / 4)` equal segments. That premise was verified once, by hand,
         and asserted nowhere — while `plan.py` carries a note that the two ways
         of counting it (chord-sum here, input arc length in the SOP) could
-        disagree, and **19 of the 318 edges sit exactly on an integer L/4**,
+        disagree, and **19 of the 322 edges sit exactly on an integer L/4**,
         where one ulp flips `nseg` and shifts the whole grid.
 
         The fixture already records `npts`, so the premise is free to check.
@@ -875,8 +894,8 @@ class TestClearOfVertex(unittest.TestCase):
                                  e["npts"] - 1,
                                  "%s %s L=%r" % (name, e["edge_id"],
                                                  e["length"]))
-        self.assertEqual(checked, 318)
-        self.assertEqual(on_integer, 19)     # the ones the epsilon protects
+        self.assertEqual(checked, 322)
+        self.assertEqual(on_integer, 21)     # the ones the epsilon protects
 
     def test_the_dust_epsilon_is_pinned_on_BOTH_sides(self):
         """⚠️ The fixture cannot pin this and the test that claimed to did not.
@@ -884,7 +903,7 @@ class TestClearOfVertex(unittest.TestCase):
         `resample_segments` subtracts 1e-9 before `ceil` so a length that is
         arithmetically `4n`, arriving a few ulps over, does not gain a segment
         and shift every vertex. Round 3 deleted the epsilon and all 38 tests
-        stayed green: of the 318 edges, the 19 "on an integer L/4" sit at
+        stayed green: of the 322 edges, the 21 "on an integer L/4" sit at
         exactly 0.0 deviation, where `ceil` needs no help, and **zero** sit in
         the band where it does. So it is pinned here, directly, on both sides —
         dust is absorbed, a real overshoot is not.
@@ -1163,14 +1182,52 @@ class TestJunctionType(unittest.TestCase):
         self.assertAlmostEqual(got["west"], crossing["west"], places=9)
         self.assertAlmostEqual(got["north"], crossing["north"], places=9)
 
-    def test_an_unbuilt_type_raises_rather_than_silently_becoming_a_crossing(self):
-        node = plan.Node("r", (0, 0), [
-            plan.Arm("a", (1, 0), 14.4, "local", 100.0),
-            plan.Arm("b", (-1, 0), 14.4, "local", 100.0),
-            plan.Arm("c", (0, 1), 14.4, "local", 100.0)],
-            junction_type="roundabout")
+    def test_node_trims_mirrors_the_BUILDERS_fallbacks_exactly(self):
+        """⚠️ THE M4 AUDIT'S HEADLINE: the planner and the builder had different
+        fallbacks, and the gap was a 12.93 m disagreement under a green gate.
+
+        The contract now: `node_trims` does what `s5j_solve` does, state for
+        state. A `junction` node with anything but a valid authored pair —
+        cardinality 0 (the artist typed the node and stopped), 1, 3, or a
+        same-street pair — builds as a CROSSING on both sides. A reserved
+        vocabulary type (`merge`, `roundabout`) builds as a crossing on both
+        sides too, with the not-silent duty carried by `junction_schema`'s
+        `unbuilt_type` red, not by an exception: the first version RAISED,
+        and once M4 put this function on the calibration path a schema-legal
+        authored `merge` crashed the unit suite instead of producing a red
+        row — the `i@principal_edges` incident one level up.
+        """
+        def t_node(jtype, flags):
+            arms = [plan.Arm("a", (1, 0), 26.8, "arterial", 200.0,
+                             principal="a" in flags),
+                    plan.Arm("b", (-1, 0), 26.8, "arterial", 200.0,
+                             principal="b" in flags),
+                    plan.Arm("c", (0, 1), 14.4, "local", 100.0,
+                             principal="c" in flags)]
+            return plan.Node("r", (0, 0), arms, junction_type=jtype)
+
+        crossing = plan.crossing_trims(t_node("", ()))
+        # the valid pair: principals zeroed, minor unchanged
+        good = plan.node_trims(t_node("junction", ("a", "b")))
+        self.assertEqual(good["a"], 0.0)
+        self.assertEqual(good["b"], 0.0)
+        self.assertAlmostEqual(good["c"], crossing["c"], places=9)
+        # every invalid authored state = the crossing, exactly
+        for flags in ((), ("a",), ("a", "b", "c")):
+            got = plan.node_trims(t_node("junction", flags))
+            for k in crossing:
+                self.assertAlmostEqual(got[k], crossing[k], places=9,
+                                       msg="flags=%r %s" % (flags, k))
+        # reserved types = the crossing, exactly, no exception
+        for kind in ("merge", "roundabout"):
+            got = plan.node_trims(t_node(kind, ()))
+            for k in crossing:
+                self.assertAlmostEqual(got[k], crossing[k], places=9, msg=kind)
+        # ...and a value OUTSIDE the vocabulary is a programming error, which
+        # still raises: it is not an authorable state, geometry-side it is
+        # bad_vocab
         with self.assertRaises(ValueError):
-            plan.node_trims(node)
+            plan.node_trims(t_node("roundybout", ()))
 
 
 if __name__ == "__main__":

@@ -716,11 +716,20 @@ def trim_metric_is_consistent(solve_geo, trimmed_geo, tol=0.05):
         n = len(pts)
         # a mouth is the cap-in -> cap-out pair; both carry the same `capc`
         mouths = []
+        # M4: a PLATE EDGE (a junction-through principal's cap pair) is not a
+        # mouth - the street behind it is uncut, its terminal is elsewhere, and
+        # matching it here would measure the whole plate reach as "error".
+        # `is_plate` only exists once a junction node is authored; guard the
+        # read so pre-M4 geometry is untouched.
+        has_plate = solve_geo.findPointAttrib("is_plate") is not None
         for i in range(n):
             a, b = pts[i], pts[(i + 1) % n]
             if (a.attribValue("is_cap") == 1 and a.attribValue("after_corner") == 0
                     and b.attribValue("is_cap") == 1
                     and b.attribValue("after_corner") == 1):
+                if has_plate and (a.attribValue("is_plate") == 1
+                                  or b.attribValue("is_plate") == 1):
+                    continue
                 mouths.append((a.attribValue("capc"), a.position(), b.position()))
         if not mouths:
             continue
@@ -739,8 +748,29 @@ def trim_metric_is_consistent(solve_geo, trimmed_geo, tol=0.05):
                 continue
             if (rp[0] - node).length() <= (rp[-1] - node).length():
                 end, nb = rp[0], rp[1]
+                at_start = True
             else:
                 end, nb = rp[-1], rp[-2]
+                at_start = False
+            # M4: a junction-through end is not a trimmed end - the street
+            # runs beneath the plate, so there is no mouth to match. ⚠️ But
+            # SKIPPING it entirely left the through seam measured by NOTHING:
+            # the M4 audit pulled a through end 7.96 m back along the street -
+            # reopening the exact hole the s5j_trim re-extension exists to
+            # close - and every check stayed bit-identically green. The through
+            # end HAS a seam, and it is the node itself: `s5j_trim` re-extends
+            # the terminal onto the junction point, so its distance from the
+            # node IS this check's error term for that end.
+            try:
+                jt = e.attribValue("jtrim_start" if at_start else "jtrim_end")
+            except Exception:
+                jt = 0.0
+            if jt > 0.0:
+                err = (end - node).length()
+                errs.append(err)
+                if worst is None or err > worst[0]:
+                    worst = (err, [round(end[0], 2), round(end[2], 2)])
+                continue
             d = nb - end
             d = type(end)(d[0], 0.0, d[2])
             if d.length() < 1e-12:
@@ -2484,9 +2514,25 @@ EDGE_ATTRS = ("edge_id", "street_class", "street_template", "streetWidth",
 ROAD_POINT_ATTRS = ("elem_type", "elem_index", "u_cross", "drivable", "walkable")
 
 
-# §11.3's node schema. Reserved members are listed even though nothing builds
-# them: `roundabout` is vocabulary-only by design, and `merge` arrives with M5.
-JUNCTION_TYPE_VOCAB = ("", "crossing", "junction", "merge", "roundabout")
+# §11.3's node schema vocabulary — OWNED BY `plan.py` since the M4 audit found
+# it spelled out here with the reserved subset repeated in `node_trims`: one
+# definition or two files drift the day M5 builds `merge`. The literals below
+# are the reported fallback, exactly as `_node_schema_attrs` treats the names.
+_VOCAB_FALLBACK = ("", "crossing", "junction", "merge", "roundabout")
+_RESERVED_FALLBACK = ("merge", "roundabout")
+
+
+def _junction_vocab():
+    try:
+        from polyfactory.citygen import plan
+        return (tuple(plan.JUNCTION_TYPE_VOCAB),
+                tuple(plan.RESERVED_JUNCTION_TYPES))
+    except Exception:
+        return _VOCAB_FALLBACK, _RESERVED_FALLBACK
+
+
+JUNCTION_TYPE_VOCAB = _VOCAB_FALLBACK   # kept for external readers; the check
+                                        # itself resolves through _junction_vocab
 
 
 _SCHEMA_FALLBACK = (("junction_type",), ("principal_start", "principal_end"))
@@ -2588,14 +2634,18 @@ def junction_schema(graph_geo):
         twice, one edge of two, an int that crashed `.split()`) is not
         expressible. What remains expressible is a claim COUNT that is not 0
         or 2 at a node, and a claim at the end of an edge whose node has no
-        plate (degree < 3). `plan.principal_of` falls back to the computed
-        default on wrong cardinality rather than guessing, so this term is the
-        only thing that stops that fallback passing silently.
+        plate (degree < 3). Since the M4 audit, `plan.node_trims` mirrors
+        the BUILDER's fallback exactly — anything but a valid pair builds as a
+        crossing on both sides — so this term is not a lone guard any more; it
+        is the geometry-side red that makes the shared fallback LOUD, including
+        cardinality 0 on a TYPED junction, which was schema-legal while a
+        12.93 m planner/builder divergence rode beneath it.
 
-    M3 writes `crossing` at every junction and leaves both booleans at 0
-    everywhere, so `bad_principal` has nothing to bite on YET. It is written
-    now because M4 is the milestone that starts authoring principals, and a
-    check added after the mechanism cannot show the mechanism was ever right.
+    M3 wrote `crossing` everywhere with both booleans at 0; Q (M4) authors a
+    junction with four claims, so the terms bite for real now — including
+    `typed-no-claims` (a node TYPED junction with zero claims) and
+    `unbuilt_type` (a reserved type the builder has no contract for), both
+    added when the M4 audit measured green gates over each state.
     """
     name = "junction_schema"
     _pt_names, _pr_names, _src = _node_schema_attrs()
@@ -2632,6 +2682,8 @@ def junction_schema(graph_geo):
             total_claims += 1
 
     bad_vocab, untyped, typed_low, bad_principal = [], [], [], []
+    unbuilt = []
+    _vocab, _reserved = _junction_vocab()
     counts, nodes = {}, 0
     for pt in graph_geo.points():
         try:
@@ -2643,7 +2695,7 @@ def junction_schema(graph_geo):
         jt = _schema_str(pt, "junction_type")
         deg = len(pt.prims())
         counts[jt] = counts.get(jt, 0) + 1
-        if jt not in JUNCTION_TYPE_VOCAB:
+        if jt not in _vocab:
             bad_vocab.append((pt.number(), jt))
         elif deg >= 3 and jt == "":
             untyped.append(pt.number())
@@ -2657,6 +2709,18 @@ def junction_schema(graph_geo):
         if (nclaims not in (0, 2) or (nclaims and deg < 3)
                 or len(set(claiming)) != nclaims):
             bad_principal.append((pt.number(), deg, nclaims))
+        # ⚠️ ...and 0 claims is NOT legal on a node TYPED `junction`. The M4
+        # audit measured the divergence: schema green, builder falling back to
+        # a crossing (12.93 m of trim), planner zeroing a computed pair - a
+        # green gate over a 12.93 m disagreement, reached by typing the node
+        # and authoring nothing else. A junction type requires its pair.
+        elif jt == "junction" and nclaims == 0:
+            bad_principal.append((pt.number(), deg, "typed-no-claims"))
+        # ...and a RESERVED type is recorded loudly, not honoured quietly: the
+        # builder has no contract for `merge`/`roundabout` yet and silently
+        # builds a crossing. Red until the milestone that builds it.
+        if jt in _reserved:
+            unbuilt.append((pt.number(), jt))
 
     # ...and whatever `claims_at` still holds is a claim at a prim end that is
     # NOT an is_node point. Graph prims run node-to-node (§9), so this is
@@ -2674,7 +2738,8 @@ def junction_schema(graph_geo):
            "claims": total_claims,
            "bad_vocab": len(bad_vocab), "untyped_junction": len(untyped),
            "typed_non_junction": len(typed_low),
-           "bad_principal": len(bad_principal), "schema_source": _src}
+           "bad_principal": len(bad_principal),
+           "unbuilt_type": len(unbuilt), "schema_source": _src}
     # ⚠️ AND THE WHOLE CHECK PASSES VACUOUSLY ON A GRAPH WITH NO NODES: destroy
     # `is_node` and every term above reads 0 because the loop never runs. Same
     # shape as the three checks that went green on 2026-08-15 while K's graph was
@@ -2683,7 +2748,7 @@ def junction_schema(graph_geo):
         return Result(name, False, val,
                       "no is_node points on a graph with %d prims"
                       % len(graph_geo.prims()))
-    ok = not (bad_vocab or untyped or typed_low or bad_principal)
+    ok = not (bad_vocab or untyped or typed_low or bad_principal or unbuilt)
     detail = "§11.3 node schema: vocabulary closed, every junction typed, " \
              "no type on a node with no plate, principal claims 0-or-2 per " \
              "node and only where a plate is built"

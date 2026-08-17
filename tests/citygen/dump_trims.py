@@ -15,7 +15,7 @@ every one of them.
 used to claim: the model is exact on straight arms and out by up to 4.58 m on
 curved ones, because `s5j_solve` re-solves each corner in the frame at its own
 cut. The bounds are pinned per case in `test_plan.py`, and the property to rely
-on is the `standing > 0` VERDICT — which agrees with the builder on all 318
+on is the `standing > 0` VERDICT — which agrees with the builder on all 322
 edges.
 
 It reads `junction_solve/s5j_solve`, which is where the trims are written and
@@ -70,7 +70,7 @@ def dump_case(built, full=False):
     """{"edges": [...], "nodes": [...]} straight off the solve node.
 
     `full` also writes every polyline vertex. That is diagnostic material, not
-    fixture material — it is ~1.5 MB across the fifteen cases and it is exactly
+    fixture material — it is ~1.5 MB across the sixteen cases and it is exactly
     the geometry the planner is forbidden to depend on — so it goes to a
     scratch file, never to the committed calibration.
     """
@@ -132,7 +132,29 @@ def dump_case(built, full=False):
             })
         if len(arms) < 3:
             continue
-        nodes.append({"pos": [pos[0], pos[2]], "arms": arms})
+        # M4: the node's authored/computed type and each arm's principal claim,
+        # so the calibration can dispatch `node_trims` exactly as the builder
+        # does - the geometry->planner round trip, tested at last.
+        try:
+            jt = pt.attribValue("junction_type")
+        except Exception:
+            jt = ""
+        for a in arms:
+            e = pr = None
+            for cand in incident:
+                if edges[cand.number()]["edge_id"] == a["edge_id"]:
+                    pr = cand
+                    break
+            flag = 0
+            if pr is not None:
+                try:
+                    flag = pr.attribValue("principal_start" if a["at_start"]
+                                          else "principal_end")
+                except Exception:
+                    flag = 0
+            a["principal"] = int(bool(flag))
+        nodes.append({"pos": [pos[0], pos[2]], "arms": arms,
+                      "junction_type": jt})
 
     nodes.sort(key=lambda n: (round(n["pos"][0], 4), round(n["pos"][1], 4)))
     out_edges = sorted(edges.values(), key=lambda e: e["edge_id"])
