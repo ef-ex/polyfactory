@@ -303,7 +303,7 @@ D reuses A's input rather than sweeping the mode over all three: the mode only
 changes S8, so a sweep would re-run every street and junction check for no new
 information. Whole suite: ~17 s.
 
-## Known-failing — re-measured 2026-08-15, 20 rows
+## Known-failing — 25 rows (re-measured 2026-08-17)
 
 Not noise — real, tracked defects, most of them findings in
 `ideas/citygen_streets.md` §4e. **Do not `--update-baseline` these away.**
@@ -350,21 +350,27 @@ type that might have dissolved K was ruled a bug on 2026-08-17 and reverted, so
 K's rescue is back with the resolution ladder — see §11.9.) They are the honest form of a jog the repair loop refuses to collapse —
 see `cases.py`'s note on K and §S5a.
 
-**M2 added four cases and six rows, 20 → 26** (and M4's Q later added its
-`selfx_city_merged` row, 26 → 27). Three of the six are the declared
-v1 non-goal already recorded on ten other cases; the other three are defects the
-build had and nothing could see:
+**M2 added four cases and six rows, 20 → 26** (M4's Q later added its
+`selfx_city_merged` row, 26 → 27; **M5.2 then closed N's two, 27 → 25**).
+Three of the six were the declared v1 non-goal already recorded on ten other
+cases; the other three were defects the build had and nothing could see — **two
+of them N's, fixed 2026-08-17 and no longer in the table below**:
 
 | Case | Check | Value | Finding |
 |---|---|---|---|
 | M O N | `selfx_city_merged` | 4 / 5 / 6 | the v1 non-goal again, see above — **not** new information. N is highest because it keeps its leg, so it has one more junction seam |
-| N | `block_boundary_closes` | 1 open loop, 2 unpaired ends at (0.000, ±13.400) | ⚠️ ONE defect with the row below, and it is **not** the missing merge — see the trim-under-a-step gap |
-| N | `trim_metric_is_consistent` | max **4.00 m** at (−4.0, 0.0), 1 end over 0.05 | the only case with an end OVER the 0.05 m threshold; B/C/I sit at 0.0001 |
 | Q | `selfx_city_merged` | 4 | the v1 non-goal, ordinary seams. It read **122** while M4's junction plate spanned the through principal (coplanar overlap — the z-fight the artist saw); the 2026-08-17 revert took 118 of those with it |
 | P | `connections_are_never_refused` | `graph_stub_kill` **3** pass 0 (by design), `graph_drop_orphans` **2 late** | §S5a item 5, reproduced exactly — and by the specified mechanism: `cluster 4, narm 6, ok 1` measured live. Collapse a wide cluster, let the realign work on what it makes, and two components fall off — **3 edges of 9 ship** |
 
-⚠️ **N's TWO ROWS ARE ONE DEFECT, IT LIVES IN `s5j_trim`, AND THE TRIGGER IS NOT
-"TRIM == 0".** This table first blamed the missing merge, then blamed a zero
+✅ **N's TWO ROWS WERE ONE DEFECT AND M5.2 FIXED IT (2026-08-17), in TWO wrangles.** The
+diagnosis below is kept because it is the fix's derivation and because the second cause was
+only visible once the first was fixed: closing the carriageway hole put the road ON the
+node with `trim_end` 0, and `blocks_kerb` read `trim <= 0` as "dead end" and laid a cap across
+a live junction — 1 open loop became 3. The dead-end test is now cap PRESENCE, asked of
+the patch. Result: `trim_metric_is_consistent` max **4.00 → 0.00 m**, `block_boundary_closes`
+**1 open loop / 2 unpaired ends → 0 / 0**, and no other value in the suite moved.
+
+⚠️ **THE TRIGGER WAS NOT "TRIM == 0".** This table first blamed the missing merge, then blamed a zero
 trim; both were wrong, and the second one matters because the fix it implied
 would not have worked. `s5j_trim` deletes a junction's shared point
 unconditionally (*"a shared junction point belongs to several edges; only ever

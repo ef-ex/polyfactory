@@ -1019,5 +1019,201 @@ class TestJunctionType(unittest.TestCase):
                       plan.JUNCTION_TYPE_VOCAB)
 
 
+class TestMerge(unittest.TestCase):
+    """M5.1 — the merge's planner model, before any geometry exists.
+
+    The M1 pattern, applied to the one type whose contract consumes carriageway:
+    decide on the ABSTRACT graph whether a merge is even possible on the cases
+    that need it, so the build is not the thing that finds out.
+    """
+
+    COLLECTOR = 15.10               # the shallow-Y rig's leg, as classified
+    ARTERIAL = 26.8
+
+    def test_min_turn_radius_is_S3bs_expression_not_the_corner_radius(self):
+        """⚠️ TWO RADII, UNRELATED, AND MIXING THEM IS SILENT. `corner_radius`
+        is the KERB fillet at a crossing (4-25 m by class); `min_turn_radius` is
+        the CENTRELINE bend floor, `0.5 * width * turn_radius_scale`, which is
+        what `centreline_curvature_within_class` measures against. On an
+        arterial they are 9.0 and 26.8 - a factor of three - so a merge sized
+        with the wrong one is feasible when it is not.
+        """
+        self.assertAlmostEqual(plan.min_turn_radius(self.ARTERIAL), 26.8, places=9)
+        self.assertAlmostEqual(plan.min_turn_radius(self.COLLECTOR), 15.10, places=9)
+        self.assertNotAlmostEqual(plan.min_turn_radius(self.ARTERIAL),
+                                  plan.corner_radius("arterial"), places=1)
+        # the scale is a parm, so it must actually be read
+        self.assertAlmostEqual(
+            plan.min_turn_radius(self.ARTERIAL, turn_radius_scale=1.0), 13.4,
+            places=9)
+
+    def test_the_swing_reproduces_11_5s_own_worked_number(self):
+        """§11.5 quotes "~11.7 m of swing for an arterial at 25 deg" as the
+        evidence that a merge costs real length. That sentence is the only
+        number the spec gives for this mechanism, so it is the calibration."""
+        self.assertAlmostEqual(
+            plan.merge_swing_length(self.ARTERIAL, math.radians(25.0)),
+            11.694, places=3)
+
+    def test_the_principal_pays_the_PROJECTION_not_the_arc(self):
+        """⚠️ THE DISTINCTION THAT WOULD HAVE ROTTED QUIETLY. The minor spends
+        an ARC (`R*theta`); the principal loses how far that arc REACHES along
+        it (`R*sin(theta)`), plus the parallel run. Using the arc for both
+        over-charges the principal's `standing` by 3% of the arc at 25 deg and
+        36% at 90 deg - small enough at the angles a merge actually runs at to
+        look like rounding, which is exactly why it is pinned here.
+
+        ⚠️ The ratios below ARE the figures in that sentence: 0.96857 is
+        3.14% short of the arc, 0.63662 is 36.34% short. An earlier draft said
+        "21%" three places over, and once one copy was corrected the prose
+        contradicted an assertion two lines beneath it. Derive the percentage
+        from the pinned ratio rather than restating it.
+        """
+        for deg, ratio in ((25.0, 0.96857), (90.0, 0.63662)):
+            th = math.radians(deg)
+            arc = plan.merge_swing_length(self.ARTERIAL, th)
+            proj = (plan.merge_consumed_along_principal(self.ARTERIAL, th)
+                    - plan.MERGE_PARALLEL_RUN_M)
+            self.assertAlmostEqual(proj / arc, ratio, places=5, msg=str(deg))
+            self.assertLess(proj, arc)
+        # ...and at 0 deg there is nothing to swing through: the merge is the
+        # parallel run alone, which is the degenerate case the builder meets
+        # when a re-route has already made the minor parallel.
+        self.assertAlmostEqual(
+            plan.merge_consumed_along_principal(self.ARTERIAL, 0.0),
+            plan.MERGE_PARALLEL_RUN_M, places=9)
+
+    def test_THE_M5_VERDICT_the_deleting_cases_can_be_merged_instead(self):
+        """⚠️ THE MILESTONE'S GATING QUESTION, answered on the rig's real
+        numbers before a line of builder VEX exists.
+
+        `graph_min_angle` deletes a street in pass 0 on M (24 deg) and O
+        (22 deg). M5 replaces that deletion with a merge - which is only
+        honest if a merge is POSSIBLE there.
+
+        ⚠️ **AND THE TWO CASES DO NOT DELETE THE SAME KIND OF STREET, which
+        the first version of this test got wrong by assuming one class for the
+        whole family.** The rig varies LENGTH, and length decides both the
+        classification and which arm dies:
+
+          * **M** - the leg is 120 m, under `arterial_len` (180) and over
+            `collector_len` (70), so it is a **collector at 15.10 m**. It is
+            also the shorter of the contested pair, so it is what
+            `graph_min_angle` takes. Minor = the leg: needs 10.33 m of 120.
+          * **O** - the leg is 300 m, so it is an **arterial at 26.8 m**, and
+            it is LONGER than the host's 200 m east arm; `graph_min_angle`
+            takes the host's own arterial instead (`cases.py` says so
+            outright, and the case ships west+leg fused as one 599.77 m
+            arterial). Both contesting arms are arterial, so class and width
+            tie and length decides minor-most: the minor is the **200 m east
+            arm**, needing 14.29 m - 46% more than the collector reading it
+            replaced.
+
+        Feasible either way, with better than eleven times the margin, so the
+        deletion is replaceable and the milestone stands. The verdict survived
+        the correction; the evidence for it did not.
+        """
+        for label, minor_len, width, deg, need in (
+                ("M leg", 120.0, self.COLLECTOR, 24.0, 10.3251),
+                ("O host-east arm", 200.0, self.ARTERIAL, 22.0, 14.2905)):
+            th = math.radians(deg)
+            self.assertAlmostEqual(
+                plan.merge_swing_length(width, th) + plan.MERGE_PARALLEL_RUN_M,
+                need, places=4, msg=label)
+            self.assertTrue(plan.merge_feasible(minor_len, width, th), label)
+            self.assertGreater(minor_len / need, 11.0, label)
+        # ...and O's leg, the arm that SURVIVES, is an arterial too - the class
+        # the fixture ships. If this ever reads collector the case has changed
+        # shape and the paragraph above is stale.
+        o_leg = [e for e in load()["cases"]["O_shallow_y_host_dies"]["edges"]
+                 if abs(e["length"] - 599.77) < 0.01]
+        self.assertEqual(len(o_leg), 1)
+        self.assertEqual(o_leg[0]["street_class"], "arterial")
+        self.assertAlmostEqual(o_leg[0]["width"], 26.8, places=3)
+        # ...and M's leg, from N's fixture entry, which is the identically
+        # drawn 120 m leg. Both halves of the paragraph go stale loudly or
+        # neither does.
+        m_leg = [e for e in load()["cases"]["N_shallow_y_32"]["edges"]
+                 if abs(e["length"] - 120.0) < 0.01]
+        self.assertEqual(len(m_leg), 1)
+        self.assertEqual(m_leg[0]["street_class"], "collector")
+        self.assertAlmostEqual(m_leg[0]["width"], self.COLLECTOR, places=2)
+
+    def test_feasibility_is_a_two_sided_floor(self):
+        """A gate asserted only from the passing side certifies itself (the
+        RESIDUAL_M lesson). Straddle it by a millimetre."""
+        th = math.radians(24.0)
+        need = plan.merge_swing_length(self.COLLECTOR, th) + plan.MERGE_PARALLEL_RUN_M
+        self.assertTrue(plan.merge_feasible(need + 1e-3, self.COLLECTOR, th))
+        self.assertFalse(plan.merge_feasible(need - 1e-3, self.COLLECTOR, th))
+        # ⚠️ EXACTLY at the floor is FEASIBLE, and asserting it is the only
+        # thing that pins `>=` against `>`. Straddling by a millimetre does
+        # not: the audit mutated the comparison and all 47 tests stayed green.
+        # "Floor" is a claim about the boundary, so test the boundary.
+        self.assertTrue(plan.merge_feasible(need, self.COLLECTOR, th))
+        # ⚠️ A NEGATIVE ANGLE IS THE FALSE-OK DIRECTION, and nothing asserted
+        # it: dropping `abs()` from `merge_swing_length` survived all 47 tests,
+        # because every other test passes a positive angle. An approach angle
+        # is naturally computed as a SIGNED bearing difference, and a negative
+        # one makes `need` negative - so a zero-length minor reads feasible,
+        # which is exactly the direction `plan.py`'s header calls the only
+        # dangerous one.
+        self.assertGreater(plan.merge_swing_length(self.COLLECTOR, -th), 0.0)
+        self.assertEqual(plan.merge_swing_length(self.COLLECTOR, -th),
+                         plan.merge_swing_length(self.COLLECTOR, th))
+        self.assertFalse(plan.merge_feasible(0.0, self.COLLECTOR, -th))
+        self.assertFalse(plan.merge_feasible(need - 1e-3, self.COLLECTOR, -th))
+        # the run is part of the floor, not decoration: drop it and a leg that
+        # is too short becomes "feasible"
+        self.assertTrue(plan.merge_feasible(need - 1e-3, self.COLLECTOR, th,
+                                            parallel_run=0.0))
+
+    def test_HOW_CLOSE_THE_GATE_COMES_TO_BITING_measured_not_assumed(self):
+        """⚠️ **THE INFEASIBLE PATH IS NEARLY UNREACHABLE IN THIS CORPUS, and
+        the first version of this test said so with a number that was wrong.**
+
+        I wrote "the shortest leg any case carries is 100 m" from the shallow-Y
+        rig and the assertion failed on 20.0 m — `E_short_t`'s arm, the case
+        built precisely to be the shortest thing in the suite. Measured over
+        all 322 edges, at the 25 deg angle floor: the tightest margin is
+        **1.945x** (`E_short_t`, 20.0 m against a 10.28 m floor), then two at
+        1.95x (`C_radial` / `I_offset_radial`, 30.65 m arterials against
+        15.69 m). Nothing is infeasible.
+
+        So §11.5's ladder fallback is code no committed case reaches — but it
+        is ONE case away, not an order of magnitude away, and the honest form
+        of that is a case authored FOR it when the builder lands (M5.3). The
+        same 20 m arm becomes infeasible at 65 deg, which is not a merge angle;
+        a short arm at a shallow angle is what would do it.
+        """
+        floor = plan.merge_swing_length(self.COLLECTOR, math.radians(25.0))             + plan.MERGE_PARALLEL_RUN_M
+        self.assertAlmostEqual(floor, 10.5886, places=4)
+        # the real margin, over every edge, at the angle floor — asserted from
+        # the fixture so a new short case moves it instead of hiding behind it
+        tightest = min(
+            e["length"] / (plan.merge_swing_length(e["width"],
+                                                   math.radians(25.0))
+                           + plan.MERGE_PARALLEL_RUN_M)
+            for c in load()["cases"].values() for e in c["edges"])
+        self.assertAlmostEqual(tightest, 1.9449, places=4)
+        self.assertGreater(tightest, 1.0)      # nothing is infeasible today
+        self.assertLess(tightest, 2.5)         # ...and not by much
+        # a 20 m local arm IS refusable, just not at any angle a merge runs at
+        self.assertFalse(plan.merge_feasible(20.0, 14.4, math.radians(65.0)))
+        self.assertTrue(plan.merge_feasible(20.0, 14.4, math.radians(25.0)))
+
+    def test_the_parallel_run_default_is_a_placeholder_not_a_measurement(self):
+        """§11.5 makes the run a new artist parm and gives it no default, so
+        this constant is unratified. It is pinned only so that a change to it
+        is a visible edit rather than a drift - NOT because 4 m is right.
+        One resample step is the shortest run the builder can express."""
+        self.assertEqual(plan.MERGE_PARALLEL_RUN_M, 4.0)
+        # ⚠️ NOT tied to `resample_step`. The first version asserted the two
+        # were equal, which reads as a derivation and is not one: the resample
+        # step is the junction HDA's Max Segment Length and the run is an
+        # artist parm 11.5 leaves open. They happen to share a number today;
+        # coupling them would red a merge test the day the step changes.
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

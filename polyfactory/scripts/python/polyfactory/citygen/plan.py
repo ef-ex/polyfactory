@@ -494,3 +494,97 @@ def standing(length, trim_start, trim_end):
     (§11.1 rule 2 — firing on `standing < ratio * width` instead cost a build).
     """
     return length - trim_start - trim_end
+
+
+# ---------------------------------------------------------------------------
+# M5 — the merge. §11.5's one type whose contract consumes carriageway.
+# ---------------------------------------------------------------------------
+
+# The parallel run: how far the re-routed minor travels ALONGSIDE the principal,
+# tangent and touching, before the two fuse. §11.5 makes it a new artist parm
+# with no measured default, so this is the placeholder the control rig sweeps —
+# ⚠️ it is NOT a measurement, and nothing may pin a bound to it until the artist
+# rules. Sized as one resample step so a merge always owns at least one full
+# segment of the principal, which is the shortest run the builder can express.
+MERGE_PARALLEL_RUN_M = 4.0
+
+# The re-route swings the minor through its whole approach angle at `R_min`, so
+# a merge is only possible where the minor is long enough to give that arc up.
+# `R_min = 0.5 * width * turn_radius_scale` — S3b's legible floor, the same
+# expression `centreline_curvature_within_class` measures against, NOT the
+# junction's `corner_radius(class)`. ⚠️ Two radii live in this file now and they
+# are unrelated: `corner_radius` is the KERB fillet at a crossing (4–25 m by
+# class), `min_turn_radius` is the CENTRELINE's bend limit (~width). Mixing them
+# silently scales every number below by ~3 (26.8 / 9.0 = 2.98).
+TURN_RADIUS_SCALE = 2.0             # `graph_params_turn_radius_scale`'s default
+
+
+def min_turn_radius(minor_width, turn_radius_scale=TURN_RADIUS_SCALE):
+    """S3b's centreline bend floor for a street of this width.
+
+    26.8 m arterial -> 26.8 m. Verified against §11.5's own worked number: the
+    swing it quotes for "an arterial at 25°" is ~11.7 m, and
+    26.8 * radians(25) = 11.694.
+    """
+    return 0.5 * float(minor_width) * float(turn_radius_scale)
+
+
+def merge_swing_length(minor_width, angle_rad,
+                       turn_radius_scale=TURN_RADIUS_SCALE):
+    """Arc length the minor must spend to arrive PARALLEL: `R_min * θ`.
+
+    θ is the whole approach angle, because the merge's target is 0° — the minor
+    arrives alongside the principal, not at some softened T. This is the term
+    that makes a merge cost real length rather than a corner.
+    """
+    return min_turn_radius(minor_width, turn_radius_scale) * abs(float(angle_rad))
+
+
+def merge_feasible(minor_length, minor_width, angle_rad,
+                   parallel_run=MERGE_PARALLEL_RUN_M,
+                   turn_radius_scale=TURN_RADIUS_SCALE):
+    """§11.5's gate: `minor length >= R_min(class) * θ + a parallel run`.
+
+    Infeasible is NOT a failure and NOT a deletion — §11.1 rule 5, the
+    resolution ladder: the planner falls back to a T realign, then to the
+    spread. `False` here means "choose another rung", never "refuse the
+    connection".
+    """
+    need = merge_swing_length(minor_width, angle_rad, turn_radius_scale) + \
+        float(parallel_run)
+    return float(minor_length) >= need
+
+
+def merge_consumed_along_principal(minor_width, angle_rad,
+                                   parallel_run=MERGE_PARALLEL_RUN_M,
+                                   turn_radius_scale=TURN_RADIUS_SCALE):
+    """What the merge takes FROM THE PRINCIPAL — a length, not a radius (§11.5).
+
+    ⚠️ **This is the swing's PROJECTION, not its arc.** The arc `R*θ` is what
+    the MINOR spends; what the principal loses is how far that arc reaches
+    along it, `R*sin(θ)`. Derived: with heading `phi(s) = θ - s/R` over `s` in
+    `[0, R*θ]`, the along-principal extent is `integral cos(phi) ds =
+    R*sin(θ)`. The two differ by 3% of the arc at 25° (11.69 against 11.33)
+    and by 36% at 90°, so using the arc for both is a quiet over-charge that
+    grows with the angle — and `standing` is what would carry the error.
+
+    ⚠️ **TWO THINGS THIS SCALAR IS NOT, both of which M5.3 must respect.**
+      1. **It is not a per-END trim, and it is not measured from the node.** It
+         is the span of the whole swing, which STRADDLES the node: as a fillet
+         of tangent length `T = R*tan(θ/2)` the arc starts at `-T*cos(θ)` and
+         lands at `+T`, and `T*(1 + cos θ) = R*sin(θ)`. `standing` charges per
+         END and `crossing_trims` returns a per-ARM dict, so writing this
+         number into one arm's trim over-charges that arm and under-charges the
+         other. At 25° on an arterial the downstream half is
+         `R*tan(θ/2) + run` = 9.94 m against this function's 15.33 m.
+      2. **The lateral target is not modelled.** At `R_min` the swing's whole
+         lateral displacement is `R*(1 - cos θ)` = 2.51 m at 25° - well inside
+         a 26.8 m arterial's own carriageway - so this does not yet express
+         "the minor arrives ALONGSIDE and then fuses". §11.5 does not pin the
+         lateral target, and if it turns out to be centreline separation
+         (26.8 m for two arterials) the swing costs 63.4 m of minor at 25°,
+         four times what `merge_feasible` charges. An M5.3 decision, recorded
+         here so this number is not mistaken for a settled one.
+    """
+    r = min_turn_radius(minor_width, turn_radius_scale)
+    return r * abs(math.sin(float(angle_rad))) + float(parallel_run)

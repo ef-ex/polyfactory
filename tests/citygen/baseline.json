@@ -14662,15 +14662,13 @@
     {
       "detail": "every kerb run end must meet exactly one other and every loop must close; an open chain still ships as a block",
       "name": "block_boundary_closes",
-      "ok": false,
+      "ok": true,
       "skipped": false,
       "value": {
-        "loops": 2,
-        "multiplicity": {
-          "1": 2
-        },
-        "open_loops": 1,
-        "unpaired_ends": 2
+        "loops": 1,
+        "multiplicity": {},
+        "open_loops": 0,
+        "unpaired_ends": 0
       }
     },
     {
@@ -15589,16 +15587,16 @@
     {
       "detail": "road terminal cross-section vs mouth cap corners; both endpoints must land within 0.05 m",
       "name": "trim_metric_is_consistent",
-      "ok": false,
+      "ok": true,
       "skipped": false,
       "value": {
         "ends": 6,
-        "max": 4.0,
-        "mean": 0.6667,
-        "over_0.05m": 1,
+        "max": 0.0,
+        "mean": 0.0,
+        "over_0.05m": 0,
         "worst_at": [
-          -4.0,
-          0.0
+          -300.0,
+          21.0
         ]
       }
     },

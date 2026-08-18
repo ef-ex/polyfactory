@@ -6558,6 +6558,67 @@ setdetailattrib(0, "repair_spread_m", total, "set");
 - **M5 — merge type + re-route** (11.6 control rig included). Shallow-Y family goes green;
   `graph_min_angle` stops deleting — a shallow angle becomes a planner signal (the artist's
   ruling); tripwire accounting updated; ⛔ §S5a item 4 closed by the same mechanism at 75–90°.
+
+  **M5.1 BUILT 2026-08-17 — the planner's merge model, and the milestone's gating verdict.**
+  Pure Python, no HDA touched, the M1 pattern: decide on the abstract graph whether a merge is
+  POSSIBLE on the cases that need one before building anything. `min_turn_radius` (S3b's
+  `0.5 × width × turn_radius_scale`, ⚠️ **not** `corner_radius` — 26.8 m against 9.0 m on an
+  arterial, and mixing them silently triples the answer), `merge_swing_length` = `R·θ`,
+  `merge_feasible`, and `merge_consumed_along_principal`. Calibrated against §11.5's own worked
+  number: 26.8 × radians(25°) = **11.694 m**, the "~11.7 m of swing" the contract quotes.
+  ⚠️ **The principal pays the PROJECTION, not the arc** — `R·sin θ` + the run, not `R·θ`: 3% of the arc
+  at 25° and 36% at 90°, an over-charge that grows with the angle and would have ridden
+  into `standing` unnoticed. **THE VERDICT: both deleting cases can be merged instead** — M's
+  120 m collector leg at 24° needs 10.33 m; O's minor is NOT its leg but the host's **200 m
+  arterial east arm** (the leg is 300 m, over `arterial_len` 180, so it is a 26.8 m arterial
+  and the longer of the contested pair — `graph_min_angle` takes the host's own arm and the
+  case ships west+leg fused as one 599.77 m arterial), needing **14.29 m**. Feasible either
+  way with better than eleven times the margin. ⚠️ The first record of this verdict read
+  "O's 300 m leg needs 9.80 m", assuming one class for the whole family when the family varies
+  LENGTH and length decides both the class and which arm dies — 46% low, on the paragraph M5.3
+  builds on. The verdict survived the correction; its evidence did not. So `graph_min_angle`'s deletion is replaceable and the
+  milestone stands. ⚠️ **And the infeasible path is one short case away from unreachable, which
+  I first wrote down as a wrong number**: "the shortest leg any case carries is 100 m" failed
+  on 20.0 m — `E_short_t`'s arm, the case built to be the shortest thing in the suite.
+  Measured over all 322 edges at the 25° floor the tightest margin is **1.945×**; nothing is
+  infeasible, so §11.5's ladder fallback is code no committed case reaches and M5.3 owes it an
+  authored case rather than a green suite that reads as coverage. `MERGE_PARALLEL_RUN_M` = 4.0
+  is a PLACEHOLDER pinned so a change is visible, not a measurement — §11.5 leaves it to the
+  artist.
+
+  ⚠️ **AND THE FEASIBILITY FLOOR IS A LOWER BOUND, NOT THE ANSWER — M5.3 inherits this.**
+  `merge_feasible` charges the swing that turns the minor PARALLEL; it does not charge getting
+  it ALONGSIDE. At `R_min` the whole swing displaces `R(1 - cos θ)` = 2.51 m at 25°, well
+  inside a 26.8 m arterial's own carriageway, so the model does not yet express §11.5's "arrive
+  parallel and fuse tangentially". If the artist pins the lateral target at centreline
+  separation (26.8 m for two arterials) the cost is 63.4 m of minor at 25° — **four times**
+  what the gate charges. The M/O verdict survives that (margins 11.6× → 2.9× and 14.0× →
+  3.5×, both still feasible) but the corpus-wide 1.945× does NOT: `E_short_t`'s 20 m arm would
+  need 48.8 m and become infeasible, which turns "the ladder fallback is unreachable" into "it
+  is reached today". So the lateral target is an M5.3 decision that can move the gate, and
+  nothing may treat this floor as settled until it lands.
+
+  **M5.2 BUILT 2026-08-17 — the shallow-Y family goes green: gate 27 → 25 failing.** N's two
+  red rows were one defect with **two causes in two different wrangles**, and fixing only the
+  first made the second worse — worth recording, because the first fix alone looked like
+  progress on one row while `block_boundary_closes` went from 1 open loop to 3.
+  (a) `s5j_trim` deletes a junction's shared point unconditionally and only ever moves a point
+  that is INSIDE the trim, so a cut falling within the first resample segment had nothing land
+  on it and the street started a step short — the `de − trim` hole, 107.20 m² on N. The
+  neighbour of the deleted point now takes the cut, which is the same move the existing
+  branches make one point further along, and is reachable only where the node point really is
+  shared (a dead end keeps its length). (b) That put the road ON the node with `trim_end = 0`,
+  and `blocks_kerb` read `trim <= 0` as "dead end" and laid a cap **across a live junction** —
+  three kerb runs at each flank point. ⚠️ **The snippet's own warning had predicted this shape
+  and mis-attributed the trigger**: it said the proxy holds "because the graph has NO degree-2
+  nodes", when a degree-THREE node whose corner reaches are both ≤ 0 writes trim 0 just as
+  well. The test is now cap PRESENCE — asked of the patch, whose corners sit 0.000 m from the
+  frontage endpoints — and the snap and the dead-end test read the same predicate, so they
+  cannot disagree. Result: `trim_metric_is_consistent` max **4.00 → 0.00 m**,
+  `block_boundary_closes` **1 open loop / 2 unpaired ends → 0 / 0, one closed loop** (the
+  corridor's outer boundary; N is acyclic so `blocks 0` is correct), and **no other value in
+  the suite moved.**
+
   ⚠️ **M5 is the first milestone that has to build a typed node's GEOMETRY under the 2026-08-17
   ruling**, and the only type whose contract legitimately consumes carriageway: the merge's
   footprint is a LENGTH along the principal (§11.5), so the trim half lands in the solver and
@@ -6597,6 +6658,18 @@ immediately. Editing a `#include`d .vfl does not recompile dependent wrangles (n
 snippet). `edge_id`, never prim numbers, across streams. `resample` unshares points and
 interpolates attributes. Type `point()` returns into locals. Never save a .hip in tests. Named
 git paths only — no tree-wide add/checkout/stash, another agent may share the repo.
+
+⚠️ **MUTATION TESTING CAN TEST THE MUTANT INSTEAD OF THE RESTORE.** Python invalidates a
+`__pycache__/*.pyc` on (mtime, size), and any mutation that PRESERVES THE BYTE COUNT —
+flipping a constant (`2.0` → `1.0`), an operator (`<=` → `>=`), a digit — leaves (mtime, size)
+unchanged if the restore lands inside the same mtime second, so the cache still looks valid
+and the next run imports the MUTANT. ⚠️ A length-CHANGING edit (`>=` → `>`, one byte shorter)
+is safe by accident, which is worth knowing precisely so the rule is not over-applied. Measured 2026-08-17: four `TestMerge` tests failed against a restored
+tree because `min_turn_radius` was still returning 13.4. It cost ten minutes and it reads
+exactly like a real regression — and the dangerous direction is the other one, a stale cache
+reporting SURVIVED for a mutant the tests would have killed. **Delete the `__pycache__`
+directories between every mutation AND after the restore**, and re-run the suite once at the
+end to prove the tree is clean.
 
 ⚠️ **THREE WAYS AN HDA WRITE CHANGES MORE THAN YOU EDITED, none of them visible in
 `git diff` on a binary — all three hit the 2026-08-17 revert: trap 2 was found by its audit,
