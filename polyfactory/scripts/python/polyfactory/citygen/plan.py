@@ -65,7 +65,11 @@ EDGE_SCHEMA_ATTRS = ("principal_start", "principal_end")
 # moves `merge` from reserved to built. One definition; `checks.py` reads it
 # through the same lazy-import-with-reported-fallback the attribute names use.
 JUNCTION_TYPE_VOCAB = ("", "crossing", "junction", "merge", "roundabout")
-RESERVED_JUNCTION_TYPES = ("merge", "roundabout")   # in vocab, no builder yet
+RESERVED_JUNCTION_TYPES = ("roundabout",)   # in vocab, no builder yet.
+# "merge" left this set 2026-08-17: the mover (graph_merge_route, 11.6)
+# produces merge nodes and the landing builds as the crossing solve - built,
+# not reserved. A HAND-authored merge with no mover behind it re-routes
+# nothing and goes green; recorded as a v1 gap in junction_schema.
 
 # ⚠️ THE ONE THING THIS MODEL DOES NOT PREDICT, measured rather than assumed.
 #
@@ -504,8 +508,9 @@ def standing(length, trim_start, trim_end):
 # tangent and touching, before the two fuse. §11.5 makes it a new artist parm
 # with no measured default, so this is the placeholder the control rig sweeps —
 # ⚠️ it is NOT a measurement, and nothing may pin a bound to it until the artist
-# rules. Sized as one resample step so a merge always owns at least one full
-# segment of the principal, which is the shortest run the builder can express.
+# rules. Sized at 4.0 - one turn-resample step, and slightly under the graph
+# resample's 5.0 - as the shortest run the builder can meaningfully express;
+# a placeholder either way, judged in the viewport.
 MERGE_PARALLEL_RUN_M = 4.0
 
 # The re-route swings the minor through its whole approach angle at `R_min`, so

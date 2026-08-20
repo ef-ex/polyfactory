@@ -981,7 +981,9 @@ class TestJunctionType(unittest.TestCase):
         """
         self.assertEqual(plan.JUNCTION_TYPE_VOCAB,
                          ("", "crossing", "junction", "merge", "roundabout"))
-        self.assertEqual(plan.RESERVED_JUNCTION_TYPES, ("merge", "roundabout"))
+        self.assertEqual(plan.RESERVED_JUNCTION_TYPES, ("roundabout",))
+        # "merge" left the reserved set with M5.3: the mover produces it and
+        # the landing builds as the crossing solve. Roundabout stays reserved.
         # ...and the reserved set must be part of the vocabulary, or
         # `junction_schema` reds a state `node_trims` refuses to accept
         for kind in plan.RESERVED_JUNCTION_TYPES:

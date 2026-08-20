@@ -303,7 +303,7 @@ D reuses A's input rather than sweeping the mode over all three: the mode only
 changes S8, so a sweep would re-run every street and junction check for no new
 information. Whole suite: ~17 s.
 
-## Known-failing — 25 rows (re-measured 2026-08-17)
+## Known-failing — 27 rows (re-measured 2026-08-17, post-M5.3)
 
 Not noise — real, tracked defects, most of them findings in
 `ideas/citygen_streets.md` §4e. **Do not `--update-baseline` these away.**
@@ -351,15 +351,19 @@ K's rescue is back with the resolution ladder — see §11.9.) They are the hone
 see `cases.py`'s note on K and §S5a.
 
 **M2 added four cases and six rows, 20 → 26** (M4's Q later added its
-`selfx_city_merged` row, 26 → 27; **M5.2 then closed N's two, 27 → 25**).
+`selfx_city_merged` row, 26 → 27; **M5.2 closed N's two, 27 → 25**;
+**M5.3's merge added O's two mouth rows, 25 → 27** — the streets SHIP now,
+and the mouth that ships them has recorded defects, below).
 Three of the six were the declared v1 non-goal already recorded on ten other
 cases; the other three were defects the build had and nothing could see — **two
 of them N's, fixed 2026-08-17 and no longer in the table below**:
 
 | Case | Check | Value | Finding |
 |---|---|---|---|
-| M O N | `selfx_city_merged` | 4 / 5 / 6 | the v1 non-goal again, see above — **not** new information. N is highest because it keeps its leg, so it has one more junction seam |
+| M O N | `selfx_city_merged` | 6 / 19 / 6 | the v1 non-goal again, see above — mostly. The row read 4 / 5 / 6 pre-merge; M and O rose because their legs now SHIP (more seams), and O's 19 is dominated by the ~100 m gore wedge overlapping its own mouth — the same defect as O's two rows above, counted a second way. Goes down with the merge mouth contract, not with Wang tiles alone |
 | Q | `selfx_city_merged` | 4 | the v1 non-goal, ordinary seams. It read **122** while M4's junction plate spanned the through principal (coplanar overlap — the z-fight the artist saw); the 2026-08-17 revert took 118 of those with it |
+| O | `selfx_junction_surface` | 2 | **the merge MOUTH, M5.3's recorded open half.** The mover ships O's leg as a merge (nothing deleted, `killed_in_pass0` 0) and the landing builds as a crossing — an ~12° arterial pair, **below the 25° floor the corner solve was designed against** (`min_junction_angle` used to guarantee it). The ~100 m miter-clamped gore wedge self-touches twice. M (collector widths) builds the same shape green; the failure is width-driven. The mouth contract in `s5j_solve` is the remaining M5 work — see §11.6 |
+| O | `every_corner_is_an_arc` | tangent **3.17** | same defect, same wedge: one corner arc's end tangent disagrees with its street. One mechanism, two rows — the N precedent |
 | P | `connections_are_never_refused` | `graph_stub_kill` **3** pass 0 (by design), `graph_drop_orphans` **2 late** | §S5a item 5, reproduced exactly — and by the specified mechanism: `cluster 4, narm 6, ok 1` measured live. Collapse a wide cluster, let the realign work on what it makes, and two components fall off — **3 edges of 9 ship** |
 
 ✅ **N's TWO ROWS WERE ONE DEFECT AND M5.2 FIXED IT (2026-08-17), in TWO wrangles.** The

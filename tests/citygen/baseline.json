@@ -939,6 +939,39 @@
       }
     },
     {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -2170,6 +2203,39 @@
       }
     },
     {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -3393,6 +3459,39 @@
           "moved": 0.0,
           "sweeps": 50
         }
+      }
+    },
+    {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
       }
     },
     {
@@ -4639,6 +4738,39 @@
       }
     },
     {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -5850,6 +5982,39 @@
       }
     },
     {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -7042,6 +7207,39 @@
       }
     },
     {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -8225,6 +8423,39 @@
           "moved": 0.0,
           "sweeps": 50
         }
+      }
+    },
+    {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
       }
     },
     {
@@ -9426,6 +9657,39 @@
           "moved": 0.0,
           "sweeps": 50
         }
+      }
+    },
+    {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
       }
     },
     {
@@ -10652,6 +10916,39 @@
           "moved": 0.0,
           "sweeps": 50
         }
+      }
+    },
+    {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
       }
     },
     {
@@ -11882,6 +12179,39 @@
       }
     },
     {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -13094,6 +13424,39 @@
       }
     },
     {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -13442,7 +13805,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 4
+      "value": 6
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -13461,7 +13824,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "junctions": 4,
+        "junctions": 6,
         "m2": 0.0,
         "per_junction": 0.0
       }
@@ -13512,8 +13875,8 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "interior": 0,
-        "total": 3
+        "interior": 1,
+        "total": 4
       }
     },
     {
@@ -13526,7 +13889,7 @@
         "passes": 4,
         "replay_move_m": 0.0,
         "replay_moved": null,
-        "residual_m": 0.0,
+        "residual_m": 1.7e-05,
         "reversed": 0,
         "tol_m": 0.001
       }
@@ -13547,12 +13910,13 @@
         "bad_principal": 0,
         "bad_vocab": 0,
         "claims": 0,
-        "nodes": 4,
+        "nodes": 6,
         "schema_source": "plan",
         "typed_non_junction": 0,
         "types": {
-          "": 3,
-          "crossing": 1
+          "": 4,
+          "crossing": 1,
+          "merge": 1
         },
         "unbuilt_type": 0,
         "untyped_junction": 0
@@ -13579,7 +13943,7 @@
       "value": {
         "attrib_drift": null,
         "max_move_m": 0.0,
-        "prims": 3
+        "prims": 5
       }
     },
     {
@@ -13588,13 +13952,19 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 0.0,
-        "max_turn_spike": 0.0,
+        "max_kappa_over_clamp": 0.252,
+        "max_turn_spike": 1.008,
         "not_converged": 0,
         "over": 0,
-        "solver_turn_spike": 0.0,
-        "spike_prim_at": null,
-        "worst_at": null
+        "solver_turn_spike": 1.008,
+        "spike_prim_at": [
+          3.67,
+          2.2
+        ],
+        "worst_at": [
+          3.67,
+          2.2
+        ]
       }
     },
     {
@@ -13603,11 +13973,11 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "min_segment_m": 4.0,
+        "min_segment_m": 3.992,
         "under": 0,
         "worst_at": [
-          -296.0,
-          0.0
+          95.04,
+          42.32
         ]
       }
     },
@@ -13617,9 +13987,12 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "shortest_m": null,
+        "shortest_m": 296.0,
         "under": 0,
-        "worst_at": null
+        "worst_at": [
+          -300.0,
+          0.0
+        ]
       }
     },
     {
@@ -13650,7 +14023,7 @@
         "deleted_in_pass0": {
           "graph_drop_orphans": 0,
           "graph_drop_tongue": 0,
-          "graph_min_angle": 1,
+          "graph_min_angle": 0,
           "graph_prune": 0,
           "graph_stub_kill": 0
         },
@@ -13662,7 +14035,7 @@
           "graph_stub_kill": 0
         },
         "killed_after_pass0": 0,
-        "killed_in_pass0": 1,
+        "killed_in_pass0": 0,
         "refused_after_pass0": 0
       }
     },
@@ -14305,6 +14678,39 @@
       }
     },
     {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -14312,18 +14718,18 @@
       "value": 0
     },
     {
-      "detail": "3 corners, 2 arcs fitted; 3 join two street classes, where the lesser one sets the radius (S5); 3 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
+      "detail": "6 corners, 4 arcs fitted; 6 join two street classes, where the lesser one sets the radius (S5); 4 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
       "name": "every_corner_is_an_arc",
       "ok": true,
       "skipped": false,
       "value": {
-        "culdesac_skipped": 3,
+        "culdesac_skipped": 4,
         "fit": 3.6e-06,
-        "mixed_class": 3,
+        "mixed_class": 6,
         "radius": 0.0,
         "radius_fit": 0.005,
         "straight": 0,
-        "tangent": 5.9e-06,
+        "tangent": 1.26e-05,
         "unfitted": 0
       }
     },
@@ -14332,7 +14738,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "73/73"
+      "value": "106/106"
     },
     {
       "detail": "",
@@ -14354,8 +14760,8 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "bulbs": 3,
-        "circle_fit": 2.05e-05,
+        "bulbs": 4,
+        "circle_fit": 3.01e-05,
         "malformed": 0,
         "mouth_off_circle": 1e-05,
         "under_radius": 0.0
@@ -14374,17 +14780,17 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "min_ratio": 5.232,
-        "min_standing_m": 66.0,
+        "min_ratio": 2.773,
+        "min_standing_m": 28.897,
         "under": 0,
         "under_ratio": 0,
         "under_ratio_all": 0,
         "worst_at": [
-          -300.0,
+          -4.0,
           0.0
         ],
         "worst_ratio_at": [
-          -300.0,
+          -4.0,
           0.0
         ]
       }
@@ -14395,7 +14801,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "ends": 3,
+        "ends": 6,
         "max": 0.0,
         "mean": 0.0,
         "over_0.05m": 0,
@@ -14406,7 +14812,7 @@
       }
     },
     {
-      "detail": "mouths whose street s5j_trim deleted, out of 3",
+      "detail": "mouths whose street s5j_trim deleted, out of 6",
       "name": "every_mouth_has_a_road",
       "ok": true,
       "skipped": false,
@@ -14420,7 +14826,7 @@
       "value": {
         "folds": 0,
         "max_ratio": 0.0,
-        "min_seg": 2.45
+        "min_seg": 1.9529
       }
     },
     {
@@ -14540,8 +14946,8 @@
       "skipped": false,
       "value": {
         "blocks": 0,
-        "city": 3380,
-        "edges": 3,
+        "city": 3239,
+        "edges": 5,
         "lots": 0
       }
     },
@@ -14560,7 +14966,7 @@
         "lots_worst_m2": null,
         "moved": null,
         "passes": 4,
-        "residual_m": 0.0,
+        "residual_m": 1.71e-05,
         "reversed": 0,
         "tol_m": 0.001
       }
@@ -15500,6 +15906,39 @@
       }
     },
     {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -15823,7 +16262,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 5
+      "value": 19
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -15842,7 +16281,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "junctions": 4,
+        "junctions": 6,
         "m2": 0.0,
         "per_junction": 0.0
       }
@@ -15894,7 +16333,7 @@
       "skipped": false,
       "value": {
         "interior": 0,
-        "total": 3
+        "total": 4
       }
     },
     {
@@ -15904,10 +16343,10 @@
       "skipped": false,
       "value": {
         "converged": 1,
-        "passes": 5,
+        "passes": 4,
         "replay_move_m": 0.0,
         "replay_moved": null,
-        "residual_m": 0.000116,
+        "residual_m": 3.1e-05,
         "reversed": 0,
         "tol_m": 0.001
       }
@@ -15928,12 +16367,13 @@
         "bad_principal": 0,
         "bad_vocab": 0,
         "claims": 0,
-        "nodes": 4,
+        "nodes": 6,
         "schema_source": "plan",
         "typed_non_junction": 0,
         "types": {
-          "": 3,
-          "crossing": 1
+          "": 4,
+          "crossing": 1,
+          "merge": 1
         },
         "unbuilt_type": 0,
         "untyped_junction": 0
@@ -15960,7 +16400,7 @@
       "value": {
         "attrib_drift": null,
         "max_move_m": 0.0,
-        "prims": 3
+        "prims": 5
       }
     },
     {
@@ -15969,18 +16409,18 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 0.648,
-        "max_turn_spike": 1.01,
+        "max_kappa_over_clamp": 0.331,
+        "max_turn_spike": 1.009,
         "not_converged": 0,
         "over": 0,
-        "solver_turn_spike": 1.01,
+        "solver_turn_spike": 1.009,
         "spike_prim_at": [
-          -0.16,
-          0.86
+          3.74,
+          1.99
         ],
         "worst_at": [
-          -0.16,
-          0.86
+          3.74,
+          1.99
         ]
       }
     },
@@ -15990,11 +16430,11 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "min_segment_m": 3.9984,
+        "min_segment_m": 3.9973,
         "under": 0,
         "worst_at": [
-          211.43,
-          85.42
+          222.57,
+          89.92
         ]
       }
     },
@@ -16004,9 +16444,12 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "shortest_m": null,
+        "shortest_m": 296.0,
         "under": 0,
-        "worst_at": null
+        "worst_at": [
+          -300.0,
+          0.0
+        ]
       }
     },
     {
@@ -16037,7 +16480,7 @@
         "deleted_in_pass0": {
           "graph_drop_orphans": 0,
           "graph_drop_tongue": 0,
-          "graph_min_angle": 1,
+          "graph_min_angle": 0,
           "graph_prune": 0,
           "graph_stub_kill": 0
         },
@@ -16049,7 +16492,7 @@
           "graph_stub_kill": 0
         },
         "killed_after_pass0": 0,
-        "killed_in_pass0": 1,
+        "killed_in_pass0": 0,
         "refused_after_pass0": 0
       }
     },
@@ -16692,6 +17135,39 @@
       }
     },
     {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -16699,18 +17175,18 @@
       "value": 0
     },
     {
-      "detail": "3 corners, 2 arcs fitted; 3 join two street classes, where the lesser one sets the radius (S5); 3 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
+      "detail": "6 corners, 4 arcs fitted; 3 join two street classes, where the lesser one sets the radius (S5); 4 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
       "name": "every_corner_is_an_arc",
-      "ok": true,
+      "ok": false,
       "skipped": false,
       "value": {
-        "culdesac_skipped": 3,
+        "culdesac_skipped": 4,
         "fit": 3.6e-06,
         "mixed_class": 3,
         "radius": 0.0,
         "radius_fit": 0.005,
         "straight": 0,
-        "tangent": 6.8e-06,
+        "tangent": 3.1728578,
         "unfitted": 0
       }
     },
@@ -16719,7 +17195,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "73/73"
+      "value": "107/107"
     },
     {
       "detail": "",
@@ -16731,9 +17207,9 @@
     {
       "detail": "intersection points",
       "name": "selfx_junction_surface",
-      "ok": true,
+      "ok": false,
       "skipped": false,
-      "value": 0
+      "value": 2
     },
     {
       "detail": "each bulb is a circle of at least max(14.00 m, 1.35 x the road half-width) with both mouth corners ON it",
@@ -16741,8 +17217,8 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "bulbs": 3,
-        "circle_fit": 1.5e-05,
+        "bulbs": 4,
+        "circle_fit": 1.15e-05,
         "malformed": 0,
         "mouth_off_circle": 1e-05,
         "under_radius": 0.0
@@ -16761,7 +17237,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "min_ratio": 5.232,
+        "min_ratio": 3.772,
         "min_standing_m": 66.0,
         "under": 0,
         "under_ratio": 0,
@@ -16771,7 +17247,7 @@
           0.0
         ],
         "worst_ratio_at": [
-          -300.0,
+          -4.0,
           0.0
         ]
       }
@@ -16782,7 +17258,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "ends": 3,
+        "ends": 6,
         "max": 0.0,
         "mean": 0.0,
         "over_0.05m": 0,
@@ -16793,7 +17269,7 @@
       }
     },
     {
-      "detail": "mouths whose street s5j_trim deleted, out of 3",
+      "detail": "mouths whose street s5j_trim deleted, out of 6",
       "name": "every_mouth_has_a_road",
       "ok": true,
       "skipped": false,
@@ -16806,8 +17282,8 @@
       "skipped": false,
       "value": {
         "folds": 0,
-        "max_ratio": 0.162,
-        "min_seg": 2.4438
+        "max_ratio": 0.0,
+        "min_seg": 1.0818
       }
     },
     {
@@ -16927,18 +17403,18 @@
       "skipped": false,
       "value": {
         "blocks": 0,
-        "city": 2730,
-        "edges": 3,
+        "city": 2761,
+        "edges": 5,
         "lots": 0
       }
     },
     {
-      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (6 passes, not 5), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
+      "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (5 passes, not 4), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
       "skipped": false,
       "value": {
-        "forced": 6,
+        "forced": 5,
         "lots": [
           0,
           0
@@ -16946,8 +17422,8 @@
         "lots_moved": null,
         "lots_worst_m2": null,
         "moved": null,
-        "passes": 5,
-        "residual_m": 9.65e-05,
+        "passes": 4,
+        "residual_m": 4.83e-05,
         "reversed": 0,
         "tol_m": 0.001
       }
@@ -17881,6 +18357,39 @@
           "moved": 0.0,
           "sweeps": 50
         }
+      }
+    },
+    {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
       }
     },
     {
@@ -19082,6 +19591,39 @@
           "moved": 0.0,
           "sweeps": 50
         }
+      }
+    },
+    {
+      "detail": "the shipped mover on its contract: a feasible shallow pair lands one resample step out and flags merged_end; an 8 m leg is infeasible and untouched; 32 deg and degree-4 stay parked; a flagged street never re-fires; and both new parameters flip feasibility INSIDE their shipped ranges",
+      "name": "merge_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "fired": [
+          [
+            -5.0,
+            0.0
+          ],
+          [
+            1595.0,
+            0.0
+          ]
+        ],
+        "infeasible": 1,
+        "merged": 2,
+        "run_sweep": {
+          "0": 1,
+          "30": 0,
+          "4": 1
+        },
+        "scale_sweep": {
+          "1": 1,
+          "2": 1,
+          "4": 1,
+          "8": 0
+        },
+        "shape_parked": 2,
+        "subband": 1
       }
     },
     {

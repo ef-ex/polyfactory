@@ -5872,7 +5872,10 @@ instability at `max_aspect` 1.8.
   their job: the render is what killed the feature. **The rule generalises — any future typed
   build (M5's merge first) re-opens S7 and gets LOOKED at before it is called done.**
 - **merge** — chosen where the approach angle is under `min_junction_angle` (reuse the parm,
-  do not duplicate it): the minor is re-routed (11.6) to arrive parallel and fuse tangentially.
+  do not duplicate it): the minor is re-routed (11.6) toward the principal. ⚠️ "Arrive
+  parallel and fuse tangentially" was the contract as written; §11.6's weld law (measured
+  2026-08-17) makes a tangent arrival unreachable in this pipeline, and the SHIPPED landing
+  arrives at θ/2 ≈ 10.5–14°, one resample step out.
   Feasibility: minor length ≥ `R_min(class) × θ` + a parallel run (new parm, artist default —
   ~11.7 m of swing for an arterial at 25°, so this is real length). Its footprint is consumed
   ALONG the principal — a length, not a radius — and `standing` on the principal must account
@@ -5925,14 +5928,73 @@ charges `R·θ + run` (10.59 m for a collector at 25°) where the construction o
 (3.35 m). Conservative is the safe direction for a feasibility test, and the gap is the room
 the parallel run will need once the artist pins it — do not tighten the gate to `T` first.
 
-**STILL TO BUILD (M5.3's builder half).** The mover that repositions the minor's endpoint onto
-the landing and splits the principal there, with §11.7's rest/rebuild rebuilt verbatim ·
-`graph_min_angle` writing the merge signal instead of `kill_angle` (its tripwire accounting
-moves with it) · the merge in `s5j_solve` and its mirror in `plan.node_trims`, **in the same
-commit** · the §11.6 control rig in the `turn_clamp_control_rig` mould, feasible and
-infeasible pairs swept across classes and `turn_radius_scale` · ⛔ §S5a item 4 at 75–90° by the
-same mechanism. ⚠️ The rig cannot be written before the mover exists — it copies the shipped
-node so it cannot drift from it — so the mover is the first thing, not the last.
+#### The mover SHIPPED 2026-08-17 — and the pipeline overruled the tangent
+
+`graph_merge_route` (detail wrangle after `graph_width`, where street widths first exist;
+`graph_min_angle` keeps its detection as the tripwire's skeleton and deletes NOTHING). The
+mover moves ONE point — the swing street's node-end vertex is rewired onto an EXISTING vertex
+of the continuing arm — plus a same-pass `polypath` (`merge_split_switch` gates it behind the
+mover having fired, because an unconditional rebuild moved every case at the float noise
+floor: Q gained a lot). The swing arm is the pair member that is LESS anti-parallel to the
+third arm — the naive minor-most rule picks O's host-east arm, which is collinear with the
+through street and has no construction at all.
+
+⚠️ **THE TANGENT CONSTRUCTION DOES NOT SURVIVE THIS PIPELINE, and that is a LAW, not a
+bug to fix later — three shapes were built and each was measured off:**
+1. endpoint moved only → `graph_turn_clamp` pins prim ENDPOINTS and cannot round a bend that
+   sits at one: arrival 25°, an arterial pair at a forbidden angle, 98.5 m miter trims, 2
+   self-intersections.
+2. the exact tangent arc written by the mover → a tangential arc runs nearly parallel to the
+   host, its first sample sat 0.12 m from a host sample, and `graph_fuse`'s **0.5 m point
+   weld** dragged the junction onto the arc: the landing migrated −8 → (−4.004, 0.098).
+3. arc samples kept 0.6 m clear of both tangent lines → the clamp and resample REBUILD
+   near-host points every pass; the weld found those instead.
+
+An approach at angle α keeps points within weld radius `c` for `~c/sin α` of length, so
+tangency at 4–5 m sampling with a 0.5 m weld is unreachable by geometry. **The shipped
+landing is therefore ONE RESAMPLE STEP out** — arrival 10.5–14° for every committed
+configuration, every sample clear of the weld under resample jitter — and the landing is an
+existing vertex, so nothing ever dangles for `graph_extend` to retarget. The tangent ideal
+returns the day the fuse can exempt a merge mouth or the local sampling gets finer.
+
+**Result on the deleting cases:** M and O ship ALL their streets —
+`deleted_in_pass0.graph_min_angle` 1 → **0** on both, `repair_merged` 1, landings exactly one
+vertex out, stable across every pass. `merge_route_control_rig` (16 rows, the
+`turn_clamp_control_rig` mould) pins the contract on eight stations: fires / infeasible /
+above-floor / degree-4 / sub-band / through-host / perpendicular-partner, the re-fire OUTCOME
+through a polypath split (landing coordinates, not counts), the EVALUATED
+`merge_parallel_run` default (the parm was once missing entirely and literal substitution made
+the sweep blind to it — the audit's blocker), and both new parameters swept to an IN-RANGE
+feasibility flip.
+
+⚠️ **Three envelope guards ship with the mover, all audit-drawn:** an ARRIVAL FLOOR —
+`θ < 2·asin(0.6/4)` ≈ 17.25° parks the pair (counted, `repair_merge_subband`), because below
+it the weld owns the landing again (10° and 6° pairs were drawn and their junctions migrated);
+an ENDPOINT guard — the node must be a prim endpoint of all three arms, or dirs read off the
+wrong end and the mover rewired a leg 40 m up a side street; and a PARTNER guard — the pair
+partner must continue the third arm within 150°, or there is no through street to merge into
+(both counted, `repair_merge_shape`). ⚠️ Sub-17° pairs now SURVIVE as shallow crossings that
+the weld drags 0.35–0.41 m off-axis (measured at 10°/6°) — pre-existing weld behaviour newly
+EXPOSED because nothing deletes those pairs any more; the ladder's next rung owns them. ⚠️
+And the re-fire guard's redundancy is PARAMETER-DEPENDENT, the audit's refutation of my first
+record: the floor dominates it only while `min_junction_angle` ≤ ~31° (chord geometry; 34.5°
+by the θ/2 model) — raise that artist parm past it and the `merged_end` guard alone stops the
+landing walking, measured at minang 45° / θ 36°: (−5,0) → (−10,0) guard-less.
+⚠️ **The open half is the MOUTH: the landing builds as a crossing at ~12°, below the 25°
+floor the corner solve was designed against.** Collector widths (M) build it green; arterial
+widths (O) ship a ~100 m gore wedge with 2 surface self-intersections and a 3.17 corner-arc
+tangent error — O's two rows in the known-failing table. The merge mouth in `s5j_solve` (and
+its `node_trims` mirror, same commit) is the remaining M5 work, and the artist has not yet
+ruled on the gore look at all.
+
+**STILL OPEN after the mover shipped:** the merge MOUTH contract in `s5j_solve` and its
+`plan.node_trims` mirror, in one commit — the landing builds as a crossing at ~12°, below the
+25° floor the corner solve was designed against, and O's two known-failing rows are its
+recorded price · ⛔ §S5a item 4, the 75–90° T-landing — the mover's second target, not built ·
+the tangent ideal, which returns only with a fuse exemption or finer local sampling · the
+artist's ruling on the gore look. ⚠️ The mover cannot fire in pass 0 (its chain position sees
+endpoint-only prims there); the earliest fire is pass 1, measured — irrelevant at the default
+12 passes, fatal to anyone lowering `repair_passes` to 1.
 
 ### 11.7 Segment-model integration requirements
 
@@ -6705,6 +6767,15 @@ immediately. Editing a `#include`d .vfl does not recompile dependent wrangles (n
 snippet). `edge_id`, never prim numbers, across streams. `resample` unshares points and
 interpolates attributes. Type `point()` returns into locals. Never save a .hip in tests. Named
 git paths only — no tree-wide add/checkout/stash, another agent may share the repo.
+
+⚠️ **`graph_fuse`'s 0.5 m POINT WELD OWNS ALL NEAR-PARALLEL GEOMETRY.** Any two graph
+points within 0.5 m become one, every pass, forever — and a curve arriving at angle α keeps
+points within 0.5 m of its target line for ~0.5/sin α of approach. Below ~13° (at 4–5 m
+sampling) the weld starts eating the approach: measured on the merge, where it dragged a
+junction 4 m along the host and 0.098 m off it, twice, through two different "fixes". Design
+shallow approaches around the weld — land steeper, or on an existing vertex — rather than
+fighting it; the drawn corpus never trips this because `min_join_angle` (45°) keeps drawn
+curves apart.
 
 ⚠️ **MUTATION TESTING CAN TEST THE MUTANT INSTEAD OF THE RESTORE.** Python invalidates a
 `__pycache__/*.pyc` on (mtime, size), and any mutation that PRESERVES THE BYTE COUNT —

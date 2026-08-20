@@ -160,6 +160,8 @@ def run_case(name, built, field=None):
     # ...and the clamp run at its design amplitude, which no case can reach on
     # the infeasible side. See turn_clamp_control_rig().
     out.append(C.turn_clamp_control_rig(trace))
+    # M5: the mover's contract, same mould. See merge_route_control_rig().
+    out.append(C.merge_route_control_rig(trace))
 
     patches = inner("patches")
     surface = inner("surface")

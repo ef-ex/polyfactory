@@ -2493,7 +2493,7 @@ ROAD_POINT_ATTRS = ("elem_type", "elem_index", "u_cross", "drivable", "walkable"
 # definition or two files drift the day M5 builds `merge`. The literals below
 # are the reported fallback, exactly as `_node_schema_attrs` treats the names.
 _VOCAB_FALLBACK = ("", "crossing", "junction", "merge", "roundabout")
-_RESERVED_FALLBACK = ("merge", "roundabout")
+_RESERVED_FALLBACK = ("roundabout",)
 
 
 def _junction_vocab():
@@ -3763,6 +3763,289 @@ def trim_leaves_road_standing(streets_geo, floor=1.0, width_floor=0.0):
                   "instead of a street (asserted on the dead-end arms off "
                   "degree >= 4 nodes, which is what s5j_tongue_mark can remove)"
                   % (floor, width_floor))
+
+
+_MERGE_RIG_SRC = """
+import hou, math
+g = hou.pwd().geometry(); g.clear()
+g.addAttrib(hou.attribType.Prim, "streetWidth", 0.0)
+g.addAttrib(hou.attribType.Prim, "street_class", "")
+CASES = %r
+for ox, oz, deg, leg_len, w, cls, extra in CASES:
+    a = math.radians(deg)
+    host_w = [(ox, 0, oz), (ox - 5, 0, oz), (ox - 10, 0, oz), (ox - 15, 0, oz)]
+    host_e = [(ox, 0, oz), (ox + 5, 0, oz), (ox + 10, 0, oz), (ox + 15, 0, oz)]
+    n = max(2, int(leg_len / 5.0) + 1)
+    leg = [(ox + leg_len * t / (n - 1) * math.cos(a), 0,
+            oz + leg_len * t / (n - 1) * math.sin(a)) for t in range(n)]
+    streets = [(host_w, 26.8, "arterial"), (host_e, 26.8, "arterial"),
+               (leg, w, cls)]
+    if extra == "thru":
+        # ONE host prim running THROUGH the node (interior vertex) plus a
+        # perpendicular spur, so the node holds THREE prims and reaches the
+        # detection. The endpoint guard must park it (audit F3: the unguarded
+        # mover read dirs off the wrong end and rewired a leg 40 m up a side
+        # street). The first draft had only host+leg - two prims, silently
+        # skipped by the degree test, and then DETONATING in the re-fire
+        # block once the polypath split the host.
+        spur = [(ox, 0, oz + 15), (ox, 0, oz)]
+        streets = [(host_w[::-1] + host_e[1:], 26.8, "arterial"),
+                   (spur, 14.4, "local"), (leg, w, cls)]
+    if extra == "perp":
+        # the shallow PAIR is two spurs 80 and 100 deg off the third arm -
+        # 20 deg apart, detectable - and NEITHER continues the third arm, so
+        # the partner guard parks it. The first draft put the spur 56 deg
+        # from the leg: no pair at all, the guard never reached.
+        import math as _m
+        spa = [(ox + 15 * _m.cos(_m.radians(80)), 0,
+                oz + 15 * _m.sin(_m.radians(80))), (ox, 0, oz)]
+        spb = [(ox + 15 * _m.cos(_m.radians(100)), 0,
+                oz + 15 * _m.sin(_m.radians(100))), (ox, 0, oz)]
+        streets = [(host_w, 26.8, "arterial"), (spa, 26.8, "arterial"),
+                   (spb, 26.8, "arterial")]
+    if extra == "deg4":
+        streets.append(([(ox, 0, oz), (ox, 0, oz + 60), (ox, 0, oz + 120)],
+                        14.4, "local"))
+    shared = {}
+    for pts, ww, cc in streets:
+        poly = g.createPolygon(is_closed=False)
+        for pos in pts:
+            key = (round(pos[0], 6), round(pos[2], 6))
+            if key in shared:
+                pt = shared[key]
+            else:
+                pt = g.createPoint(); pt.setPosition(pos); shared[key] = pt
+            poly.addVertex(pt)
+        poly.setAttribValue("streetWidth", ww)
+        poly.setAttribValue("street_class", cc)
+"""
+
+
+def merge_route_control_rig(city_node):
+    """Run the SHIPPED mover on the inputs that define its contract.
+
+    The turn-clamp precedent: a mechanism ships green because no case reaches
+    its envelope, so the rig supplies the envelope. Four stations, 400 m
+    apart so nothing interacts:
+
+      * a feasible 24-deg collector pair -> FIRES: the leg's endpoint lands on
+        the host's first vertex (one resample step out - the WELD-SAFE
+        landing, 11.6), merged_end set, repair_merged 1.
+      * an 8 m leg (need 10.33 m) -> infeasible, geometry untouched.
+      * a 32-deg pair, above the floor -> untouched, no counters.
+      * a degree-4 node with a shallow pair -> untouched (the recorded v1
+        bound; the day this fires the bound has silently widened).
+      * a 12 deg pair -> PARKED as sub-band (the F2 arrival floor: below
+        ~17.3 deg the weld owns the landing; the audit drew 10 and 6 deg
+        pairs and measured the junction migrating).
+      * a host running THROUGH the node on an interior vertex -> PARKED by
+        the endpoint guard (audit F3: the unguarded mover rewired a leg 40 m
+        up a side street).
+      * a pair partner 80 deg off the third arm -> PARKED by the
+        partner-anti-parallel guard (no through street to merge into).
+
+    The rig also asserts the EVALUATED `merge_parallel_run` default - the
+    parm was once missing from the interface entirely, its channel ref
+    dangled at 0, and literal substitution made the sweep blind to it.
+
+    A second copy of the mover then cooks the first copy's OUTPUT: the
+    re-fire guard (without it the landing migrated between passes, measured
+    on O). And the two parameters sweep their shipped ranges against a fifth
+    station with a 20 m leg (the gain-sweep lesson): `turn_radius_scale` in
+    {1, 2, 4, 8} flips it at 8x (need 29.3 m), `merge_parallel_run` in
+    {0, 4, 30} flips it at 30 (need 36.3 m) - both flips are IN range, so
+    both parms are proven live and bounded, which `parm_liveness` cannot see
+    for a parameter whose committed cases sit 11x above its floor. ⚠️ The
+    first version swept the 40 m leg, whose need never exceeds it at any
+    swept value - the rig's own in-range assertion caught the vacuous sweep.
+    """
+    name = "merge_route_control_rig"
+    mover = city_node.node("graph_merge_route")
+    if mover is None:
+        return _skip(name, "graph_merge_route not found")
+    shown = next((c for c in city_node.children() if c.isDisplayFlagSet()), None)
+    made = []
+    # (ox, oz, deg, leg_len, width, class, extra)
+    stations = [
+        (0.0,    0.0, 24.0, 40.0, 15.1, "collector", ""),      # fires
+        (400.0,  0.0, 24.0,  8.0, 15.1, "collector", ""),      # infeasible
+        (800.0,  0.0, 32.0, 40.0, 15.1, "collector", ""),      # above floor
+        (1200.0, 0.0, 24.0, 40.0, 15.1, "collector", "deg4"),  # v1 bound
+        (1600.0, 0.0, 24.0, 20.0, 15.1, "collector", ""),      # the sweep leg
+        (2000.0, 0.0, 12.0, 40.0, 15.1, "collector", ""),      # sub-band: PARKS
+        (2400.0, 0.0, 24.0, 40.0, 15.1, "collector", "thru"),  # shape guard 1
+        (2800.0, 0.0, 24.0, 40.0, 15.1, "collector", "perp"),  # shape guard 2
+    ]
+    try:
+        src = city_node.createNode("python", "__chk_merge_src")
+        made.append(src)
+        src.parm("python").set(_MERGE_RIG_SRC % (stations,))
+        w = mover.copyTo(city_node)
+        made.append(w)
+        w.setInput(0, src)
+        base = w.parm("snippet").rawValue()
+        for chan in ('chf("../street_params/min_junction_angle")',
+                     'chf("../graph_params/turn_radius_scale")',
+                     'chf("../graph_params/merge_parallel_run")'):
+            if chan not in base:
+                raise RuntimeError("graph_merge_route no longer reads %s" % chan)
+        # ⚠️ ...and the EVALUATED value, not just the string. The first
+        # shipped build had the interface parm missing entirely: the spare's
+        # channel ref dangled and evaluated 0, the feasibility gate silently
+        # ran without the run, and this rig - which substitutes literals for
+        # the refs - was structurally blind to it. The audit caught it; this
+        # line is what makes the parm's existence a tested fact.
+        live_run = city_node.node("graph_params").parm("merge_parallel_run")
+        if live_run is None or abs(live_run.eval() - 4.0) > 1e-9:
+            raise RuntimeError(
+                "merge_parallel_run evaluates %r, documented default is 4"
+                % (live_run.eval() if live_run else None))
+
+        def cook(scale, run):
+            snip = base.replace('chf("../graph_params/turn_radius_scale")',
+                                "%.6f" % scale)
+            snip = snip.replace('chf("../graph_params/merge_parallel_run")',
+                                "%.6f" % run)
+            w.parm("snippet").set(snip)
+            w.cook(force=True)
+            geo = w.geometry()
+            fired = []
+            for pr in geo.prims():
+                try:
+                    me = pr.attribValue("merged_end")
+                except Exception:
+                    me = 0
+                if me:
+                    pts = [v.point().position() for v in pr.vertices()]
+                    # a LIST, not a tuple: this lands in baseline.json and
+                    # comes back as a list, so a tuple reports as "moved" on
+                    # every run - the trim_metric worst_at lesson
+                    fired.append([round(pts[0][0], 2), round(pts[0][2], 2)])
+            det = {}
+            for nm in ("repair_merged", "repair_merge_infeasible",
+                       "repair_merge_subband", "repair_merge_shape"):
+                try:
+                    det[nm] = geo.attribValue(nm)
+                except Exception:
+                    det[nm] = None
+            return fired, det
+
+        fired, det = cook(2.0, 4.0)
+        got = {"fired": fired, "merged": det["repair_merged"],
+               "infeasible": det["repair_merge_infeasible"]}
+
+        problems = []
+        if det["repair_merged"] != 2:
+            problems.append("merged %s != 2" % det["repair_merged"])
+        if det["repair_merge_infeasible"] != 1:
+            problems.append("infeasible %s != 1" % det["repair_merge_infeasible"])
+        if sorted(map(tuple, fired)) != [(-5.0, 0.0), (1595.0, 0.0)]:
+            problems.append("landings %s" % fired)
+        if det.get("repair_merge_subband") != 1:
+            problems.append("subband %s != 1 (the 12 deg station must PARK)"
+                            % det.get("repair_merge_subband"))
+        got["subband"] = det.get("repair_merge_subband")
+        got["shape_parked"] = det.get("repair_merge_shape")
+        if det.get("repair_merge_shape") != 2:
+            problems.append("shape %s != 2 (the thru-host and perp-partner "
+                            "stations must PARK)" % det.get("repair_merge_shape"))
+
+        # the re-fire OUTCOME - THROUGH A POLYPATH (audit F4): the split
+        # re-arms the topology, so the second cook is a real opportunity and
+        # the landing coordinates are asserted unchanged. ⚠️ Deleting the
+        # merged_end guard STILL leaves this green - an EQUIVALENT mutation
+        # AT THE SHIPPED DEFAULT ONLY, and the audit refuted the first
+        # version of this sentence: the F2 floor parks every post-merge chord
+        # while arrival stays under 17.25 deg, which holds for pairs
+        # detectable under min_junction_angle 25. Raise that plain artist
+        # parm past ~31 deg (its range is 0-90; crossover measured by chord
+        # geometry, ~34.5 by the theta/2 model) and the guard alone is
+        # load-bearing: measured guard-less at minang 45, theta 36, the
+        # landing walked (-5,0) -> (-10,0) on the second cook. What THIS
+        # block pins is the outcome, whichever layer delivers it.
+        pp2 = city_node.node("merge_polypath")
+        if pp2 is None:
+            raise RuntimeError("merge_polypath not found")
+        pp_copy = pp2.copyTo(city_node)
+        made.append(pp_copy)
+        pp_copy.setInput(0, w)
+        w2 = mover.copyTo(city_node)
+        made.append(w2)
+        w2.setInput(0, pp_copy)
+        w2.parm("snippet").set(base.replace(
+            'chf("../graph_params/turn_radius_scale")', "2.0").replace(
+            'chf("../graph_params/merge_parallel_run")', "4.0"))
+        w2.cook(force=True)
+        g2 = w2.geometry()
+        try:
+            re_merged = g2.attribValue("repair_merged")
+        except Exception:
+            re_merged = None
+        if re_merged != 2:
+            problems.append("re-fire: merged %s != 2 after split + second cook"
+                            % re_merged)
+        fired2 = []
+        for pr in g2.prims():
+            try:
+                me2 = pr.attribValue("merged_end")
+            except Exception:
+                me2 = 0
+            if me2:
+                pts2 = [v.point().position() for v in pr.vertices()]
+                fired2.append([round(pts2[0][0], 2), round(pts2[0][2], 2)])
+        if sorted(map(tuple, fired2)) != [(-5.0, 0.0), (1595.0, 0.0)]:
+            problems.append("re-fire moved a landing: %s" % fired2)
+
+        # parameter sweeps: both flips must be IN the shipped range.
+        # station 1's 40 m leg: need = 0.5*15.1*scale*radians(24) + run
+        theta = 0.41887902
+        LAND = (1595.0, 0.0)                    # the 20 m sweep leg's landing
+        scale_flip = {}
+        for scale in (1.0, 2.0, 4.0, 8.0):
+            f2, d2 = cook(scale, 4.0)
+            need = 0.5 * 15.1 * scale * theta + 4.0
+            scale_flip["%g" % scale] = 1 if list(LAND) in f2 else 0
+            if ((list(LAND) in f2) != (20.0 >= need)):
+                problems.append("scale %g: fired=%s against need %.2f"
+                                % (scale, list(LAND) in f2, need))
+        run_flip = {}
+        for run in (0.0, 4.0, 30.0):
+            f3, d3 = cook(2.0, run)
+            need = 15.1 * theta + run
+            run_flip["%g" % run] = 1 if list(LAND) in f3 else 0
+            if ((list(LAND) in f3) != (20.0 >= need)):
+                problems.append("run %g: fired=%s against need %.2f"
+                                % (run, list(LAND) in f3, need))
+        got["scale_sweep"] = scale_flip
+        got["run_sweep"] = run_flip
+        if scale_flip["1"] == scale_flip["8"]:
+            problems.append("turn_radius_scale flip not in range")
+        if run_flip["0"] == run_flip["30"]:
+            problems.append("merge_parallel_run flip not in range")
+    except Exception as exc:
+        # FAIL, do not skip - the turn-clamp rig's lesson: a rig that cannot
+        # run is a failure of the thing it is testing.
+        return Result(name, False, {"error": str(exc)[:160]},
+                      "the merge control rig could not be run at all")
+    finally:
+        for nd in reversed(made):
+            try:
+                nd.destroy()
+            except Exception:
+                pass
+        if shown is not None:
+            try:
+                shown.setDisplayFlag(True)
+            except Exception:
+                pass
+    if problems:
+        got["problems"] = problems[:4]
+    return Result(name, not problems, got,
+                  "the shipped mover on its contract: a feasible shallow pair "
+                  "lands one resample step out and flags merged_end; an 8 m "
+                  "leg is infeasible and untouched; 32 deg and degree-4 stay "
+                  "parked; a flagged street never re-fires; and both new "
+                  "parameters flip feasibility INSIDE their shipped ranges")
 
 
 def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0, flat=1.25,
