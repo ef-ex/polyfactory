@@ -5475,7 +5475,10 @@ Other open items are tracked system-wide in [`citygen.md`](citygen.md) §7.
 **Moved IN to v1 by clarification round 1:** bridges, tunnels, overpasses and ramps (§S5b).
 
 Still out, recorded so they don't quietly creep in: traffic and pedestrian simulation (the graph is
-being designed to make it possible later, that is all) · rail, metro and sky-lane networks
+being designed to make it possible later, that is all — and
+[`citygen_simulation.md`](citygen_simulation.md) §10.1 now states exactly what "possible later"
+requires of this schema: lane counts and direction, cross-section role surviving onto the graph,
+lane-to-lane connectivity at nodes, and two density floats) · rail, metro and sky-lane networks
 (`network_type` reserved, not implemented) · multi-level stacked city layouts (`layer` reserved and
 proven on bridges, but Coruscant-scale stacking is not a v1 target) · underground utilities ·
 procedural signage and road markings beyond material assignment · per-segment cross-section
@@ -5886,6 +5889,50 @@ before writing a new solver — same constraint family, one extra tangency pin. 
 control rig in the `turn_clamp_control_rig` mould: authored-feasible and authored-infeasible
 pairs, swept across street classes and `turn_radius_scale` — the gain-sweep lesson says sweep
 every new parameter across its shipped range.
+
+#### The construction, SOLVED 2026-08-17 (M5.3's planner half)
+
+⚠️ **THE LANDING IS NOT THE NODE, and that is forced by geometry rather than chosen.** A
+circle tangent to the principal AT the node has its centre on the normal there, so its distance
+to the minor's line is `R·cos θ` — equal to `R` only at `θ = 0`. **No arc can be tangent to
+the principal at the node and also leave the minor tangentially.** What exists is the arc
+inscribed in the corner between the minor's ray and the principal's CONTINUING direction (an
+angle of `π − θ`), and its two tangent points sit
+
+> **`T = R·tan(θ/2)`**
+
+either side of the node — one back along the minor, one forward along the principal. So:
+
+* the **minor** gives up its last `T` of straight and gains an arc of `R·θ`, i.e. a merge
+  **LENGTHENS** the minor by `R(θ − tan(θ/2))` = 5.75 m on an arterial at 25°. Every other
+  footprint in `plan.py` shortens a street; a consumer that assumes "trim" here has the sign
+  backwards.
+* the **principal** pays `T + parallel_run` on its **DOWNSTREAM arm only** — 9.94 m at 25° on
+  an arterial. The upstream arm pays nothing; the construction never reaches it.
+* the **minor's endpoint MOVES** from the node to the landing, and the principal splits there.
+  That is a topology change, so §11.7's rest/rebuild pair is mandatory and the re-route is one
+  of its two legal consumers — exactly as §11.7 already says.
+
+⚠️ **`plan.merge_consumed_along_principal` returned `R·sin θ + run` until this was worked
+out**, which is a different quantity and not a per-arm one: `R·sin θ` is the span between the
+two tangent points measured along the principal, so it STRADDLES the node. Written into one
+arm's trim it over-charges that arm by 54% at 25° and under-charges the other by all of it.
+The identity that made the wrong one look plausible — and that now pins the right one — is
+**`T(1 + cos θ) = R·sin θ`**, asserted exactly in `test_plan.py`.
+
+⚠️ **The feasibility gate is CONSERVATIVE against this construction, deliberately.** §11.5
+charges `R·θ + run` (10.59 m for a collector at 25°) where the construction only needs `T`
+(3.35 m). Conservative is the safe direction for a feasibility test, and the gap is the room
+the parallel run will need once the artist pins it — do not tighten the gate to `T` first.
+
+**STILL TO BUILD (M5.3's builder half).** The mover that repositions the minor's endpoint onto
+the landing and splits the principal there, with §11.7's rest/rebuild rebuilt verbatim ·
+`graph_min_angle` writing the merge signal instead of `kill_angle` (its tripwire accounting
+moves with it) · the merge in `s5j_solve` and its mirror in `plan.node_trims`, **in the same
+commit** · the §11.6 control rig in the `turn_clamp_control_rig` mould, feasible and
+infeasible pairs swept across classes and `turn_radius_scale` · ⛔ §S5a item 4 at 75–90° by the
+same mechanism. ⚠️ The rig cannot be written before the mover exists — it copies the shipped
+node so it cannot drift from it — so the mover is the first thing, not the last.
 
 ### 11.7 Segment-model integration requirements
 

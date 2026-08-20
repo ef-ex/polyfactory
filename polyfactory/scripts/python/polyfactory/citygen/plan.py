@@ -555,36 +555,61 @@ def merge_feasible(minor_length, minor_width, angle_rad,
     return float(minor_length) >= need
 
 
+def merge_tangent_length(minor_width, angle_rad,
+                         turn_radius_scale=TURN_RADIUS_SCALE):
+    """Where the re-routed minor LANDS on the principal: `R * tan(theta/2)`.
+
+    §11.6's construction is "a curve through pinned endpoints, tangency at the
+    landing". ⚠️ **The landing is NOT the node**, and that is forced rather
+    than chosen: a circle tangent to the principal AT the node has its centre
+    on the normal there, and its distance to the minor's line is then
+    `R*cos(theta)`, which equals `R` only at `theta = 0`. So no arc can be
+    tangent to the principal at the node AND leave the minor tangentially.
+
+    What does exist is the arc inscribed in the corner between the minor's ray
+    and the principal's CONTINUING direction - an angle of `pi - theta` - whose
+    two tangent points both sit `T = R*tan(theta/2)` from the node: one back
+    along the minor, one forward along the principal. The minor gives up its
+    last `T` and gains an arc of `R*theta` in its place; the principal gives up
+    `T` of its downstream arm.
+    """
+    r = min_turn_radius(minor_width, turn_radius_scale)
+    return r * abs(math.tan(0.5 * float(angle_rad)))
+
+
 def merge_consumed_along_principal(minor_width, angle_rad,
                                    parallel_run=MERGE_PARALLEL_RUN_M,
                                    turn_radius_scale=TURN_RADIUS_SCALE):
-    """What the merge takes FROM THE PRINCIPAL — a length, not a radius (§11.5).
+    """What the merge takes from the principal's DOWNSTREAM arm - a length,
+    not a radius (§11.5), and a per-ARM number so `standing` can use it.
 
-    ⚠️ **This is the swing's PROJECTION, not its arc.** The arc `R*θ` is what
-    the MINOR spends; what the principal loses is how far that arc reaches
-    along it, `R*sin(θ)`. Derived: with heading `phi(s) = θ - s/R` over `s` in
-    `[0, R*θ]`, the along-principal extent is `integral cos(phi) ds =
-    R*sin(θ)`. The two differ by 3% of the arc at 25° (11.69 against 11.33)
-    and by 36% at 90°, so using the arc for both is a quiet over-charge that
-    grows with the angle — and `standing` is what would carry the error.
+    `T + run`: the arc lands `T` along the principal and the two run together
+    for `parallel_run` before fusing. The UPSTREAM arm pays nothing - the
+    construction never reaches it - so this belongs to exactly one arm's trim.
 
-    ⚠️ **TWO THINGS THIS SCALAR IS NOT, both of which M5.3 must respect.**
-      1. **It is not a per-END trim, and it is not measured from the node.** It
-         is the span of the whole swing, which STRADDLES the node: as a fillet
-         of tangent length `T = R*tan(θ/2)` the arc starts at `-T*cos(θ)` and
-         lands at `+T`, and `T*(1 + cos θ) = R*sin(θ)`. `standing` charges per
-         END and `crossing_trims` returns a per-ARM dict, so writing this
-         number into one arm's trim over-charges that arm and under-charges the
-         other. At 25° on an arterial the downstream half is
-         `R*tan(θ/2) + run` = 9.94 m against this function's 15.33 m.
-      2. **The lateral target is not modelled.** At `R_min` the swing's whole
-         lateral displacement is `R*(1 - cos θ)` = 2.51 m at 25° - well inside
-         a 26.8 m arterial's own carriageway - so this does not yet express
-         "the minor arrives ALONGSIDE and then fuses". §11.5 does not pin the
-         lateral target, and if it turns out to be centreline separation
-         (26.8 m for two arterials) the swing costs 63.4 m of minor at 25°,
-         four times what `merge_feasible` charges. An M5.3 decision, recorded
-         here so this number is not mistaken for a settled one.
+    ⚠️ **THIS RETURNED `R*sin(theta) + run` UNTIL 2026-08-17, WHICH IS A
+    DIFFERENT QUANTITY AND NOT A PER-ARM ONE.** `R*sin(theta)` is the span
+    between the fillet's two tangent points measured along the principal, so it
+    STRADDLES the node; written into one arm's trim it over-charges that arm
+    (15.33 m against 9.94 m at 25° on an arterial, 54%) and under-charges the
+    other by everything. An audit caught it before a consumer existed. The
+    identity that connects them, and the reason the wrong one looked
+    plausible: `T*(1 + cos theta) = R*sin(theta)`.
     """
-    r = min_turn_radius(minor_width, turn_radius_scale)
-    return r * abs(math.sin(float(angle_rad))) + float(parallel_run)
+    return merge_tangent_length(minor_width, angle_rad, turn_radius_scale) \
+        + float(parallel_run)
+
+
+def merge_arc_length(minor_width, angle_rad,
+                     turn_radius_scale=TURN_RADIUS_SCALE):
+    """The arc the minor travels instead of its last straight `T`: `R*theta`.
+
+    So a merge LENGTHENS the minor by `R*(theta - tan(theta/2))` - 5.75 m on an
+    arterial at 25°. It is the same number `merge_feasible` charges, which is
+    why that gate is conservative: the construction only needs `T` of minor
+    (3.35 m for a collector at 25°) while the gate asks for `R*theta + run`
+    (10.59 m). Conservative is the safe direction for a feasibility test; do
+    not "fix" it into the tighter bound without the artist ruling on the
+    parallel run first.
+    """
+    return merge_swing_length(minor_width, angle_rad, turn_radius_scale)

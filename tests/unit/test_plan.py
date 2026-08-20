@@ -1055,33 +1055,88 @@ class TestMerge(unittest.TestCase):
             plan.merge_swing_length(self.ARTERIAL, math.radians(25.0)),
             11.694, places=3)
 
-    def test_the_principal_pays_the_PROJECTION_not_the_arc(self):
-        """⚠️ THE DISTINCTION THAT WOULD HAVE ROTTED QUIETLY. The minor spends
-        an ARC (`R*theta`); the principal loses how far that arc REACHES along
-        it (`R*sin(theta)`), plus the parallel run. Using the arc for both
-        over-charges the principal's `standing` by 3% of the arc at 25 deg and
-        36% at 90 deg - small enough at the angles a merge actually runs at to
-        look like rounding, which is exactly why it is pinned here.
+    def test_the_landing_is_the_fillet_tangent_point_not_the_node(self):
+        """⚠️ §11.6's "tangency at the landing" FORCES the landing off the node,
+        and this is the geometry M5.3's builder rests on.
 
-        ⚠️ The ratios below ARE the figures in that sentence: 0.96857 is
-        3.14% short of the arc, 0.63662 is 36.34% short. An earlier draft said
-        "21%" three places over, and once one copy was corrected the prose
-        contradicted an assertion two lines beneath it. Derive the percentage
-        from the pinned ratio rather than restating it.
+        A circle tangent to the principal AT the node has its centre on the
+        normal there, so its distance to the minor's line is `R*cos(theta)` -
+        equal to `R` only at `theta = 0`. No arc can be tangent to the
+        principal at the node and leave the minor tangentially. What exists is
+        the arc inscribed in the corner between the minor's ray and the
+        principal's CONTINUING direction, tangent points `T = R*tan(theta/2)`
+        either side of the node.
+
+        Asserted as a PROPERTY rather than a table: the circle of radius R
+        centred on the bisector must be exactly `R` from both lines.
         """
-        for deg, ratio in ((25.0, 0.96857), (90.0, 0.63662)):
+        for w, deg in ((self.ARTERIAL, 25.0), (self.COLLECTOR, 24.0),
+                       (self.ARTERIAL, 90.0)):
             th = math.radians(deg)
-            arc = plan.merge_swing_length(self.ARTERIAL, th)
-            proj = (plan.merge_consumed_along_principal(self.ARTERIAL, th)
-                    - plan.MERGE_PARALLEL_RUN_M)
-            self.assertAlmostEqual(proj / arc, ratio, places=5, msg=str(deg))
-            self.assertLess(proj, arc)
-        # ...and at 0 deg there is nothing to swing through: the merge is the
-        # parallel run alone, which is the degenerate case the builder meets
-        # when a re-route has already made the minor parallel.
+            R = plan.min_turn_radius(w)
+            T = plan.merge_tangent_length(w, th)
+            # node at the origin, principal continuing along -x, minor ray at
+            # +theta. Tangent points: A on the minor, B on the principal.
+            ax, az = T * math.cos(th), T * math.sin(th)
+            bx, bz = -T, 0.0
+            # the centre is where the two normals meet; take it from B
+            cx, cz = bx, R
+            # distance from the centre to the minor's line through the origin
+            # with direction (cos th, sin th)
+            cross = abs(cx * math.sin(th) - cz * math.cos(th))
+            self.assertAlmostEqual(cross, R, places=9, msg="%s %s" % (w, deg))
+            self.assertAlmostEqual(abs(cz), R, places=9)      # ...and from the principal
+            # the tangent point A really is on that circle
+            self.assertAlmostEqual(math.hypot(ax - cx, az - cz), R, places=9)
+            # the identity that made the WRONG scalar look plausible
+            self.assertAlmostEqual(T * (1.0 + math.cos(th)), R * math.sin(th),
+                                   places=9)
+
+    def test_the_principal_pays_a_PER_ARM_length_not_a_straddling_span(self):
+        """⚠️ THE QUANTITY THAT WAS WRONG UNTIL AN AUDIT CAUGHT IT, pinned so
+        it cannot come back. `merge_consumed_along_principal` returned
+        `R*sin(theta) + run` - the span between the fillet's two tangent points
+        measured along the principal, which STRADDLES the node. `standing`
+        charges per END and `crossing_trims` returns a per-ARM dict, so that
+        number written into one arm over-charges it by 54% at 25 deg on an
+        arterial and under-charges the other arm by all of it.
+
+        The construction only ever reaches the DOWNSTREAM arm: `T + run`.
+        """
+        th = math.radians(25.0)
+        T = plan.merge_tangent_length(self.ARTERIAL, th)
+        self.assertAlmostEqual(T, 5.9414, places=4)
+        self.assertAlmostEqual(
+            plan.merge_consumed_along_principal(self.ARTERIAL, th),
+            T + plan.MERGE_PARALLEL_RUN_M, places=9)
+        self.assertAlmostEqual(
+            plan.merge_consumed_along_principal(self.ARTERIAL, th),
+            9.9414, places=4)
+        # ...and it is strictly less than the straddling span it replaced
+        straddle = plan.min_turn_radius(self.ARTERIAL) * math.sin(th)
+        self.assertLess(T, straddle)
+        self.assertAlmostEqual(straddle + plan.MERGE_PARALLEL_RUN_M, 15.3262,
+                               places=4)
+        # at 0 deg there is nothing to swing through: the run alone
         self.assertAlmostEqual(
             plan.merge_consumed_along_principal(self.ARTERIAL, 0.0),
             plan.MERGE_PARALLEL_RUN_M, places=9)
+
+    def test_a_merge_LENGTHENS_the_minor(self):
+        """The minor gives up its last `T` of straight and gains `R*theta` of
+        arc, so it gets longer by `R*(theta - tan(theta/2))` - 5.75 m on an
+        arterial at 25 deg. Worth pinning because every other footprint in this
+        module SHORTENS a street, and a consumer that assumes "trim" here would
+        have the sign backwards."""
+        th = math.radians(25.0)
+        gained = (plan.merge_arc_length(self.ARTERIAL, th)
+                  - plan.merge_tangent_length(self.ARTERIAL, th))
+        self.assertAlmostEqual(gained, 5.7523, places=4)
+        self.assertGreater(gained, 0.0)
+        # ...and the gate charges the arc, which is more than the construction
+        # needs (T), so it is conservative in the safe direction
+        self.assertGreater(plan.merge_arc_length(self.COLLECTOR, th),
+                           plan.merge_tangent_length(self.COLLECTOR, th))
 
     def test_THE_M5_VERDICT_the_deleting_cases_can_be_merged_instead(self):
         """⚠️ THE MILESTONE'S GATING QUESTION, answered on the rig's real
