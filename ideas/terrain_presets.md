@@ -15,6 +15,10 @@ belongs in a `citygen_terrain.md`, which should link here rather than restate th
 ⚠️ **Parked.** CityGen streets are mid-flight. Nothing here should start before citygen ships.
 Same parking rule as the foliage knowledge base.
 
+**Artist-facing UI:** [`artist_ui.md`](artist_ui.md) §6b audits this doc — the recipe plan is
+that study's preset pattern verbatim; the added obligation is the promotion discipline when the
+recipe faces are authored (~6 decision knobs, not `heightfield_erode`'s 58).
+
 ---
 
 ## 0. The one-paragraph answer

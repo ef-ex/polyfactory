@@ -2,6 +2,9 @@
 
 **Date:** February 5, 2026  
 **Status:** Planning / Not Implemented
+**Artist-facing UI:** [`artist_ui.md`](artist_ui.md) §6b (2026-08-21) audits this plan — the
+browser/grid/single-asset direction matches the evidence; the drag-drop placement state is the
+feature, not the polish. Read it before building.
 
 ---
 

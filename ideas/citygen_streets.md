@@ -4,6 +4,9 @@
 **Owner doc for:** street field → graph → intersections → road geometry → blocks → lots.
 **System-level architecture and cross-cutting contracts:** [`citygen.md`](citygen.md) — read that first.
 **Reference library:** `polyfactory/resources/citygen/README.md` (gitignored, local).
+**Artist-facing UI:** [`artist_ui.md`](artist_ui.md) §6b audits this doc — the v1
+everything-exposed parameter sheets are the *author* tier; a separate authored promotion pass
+per stage HDA (empty-by-default artist face) and a greybox-while-dragging answer are still owed.
 
 Branch `cityGen`. Written 2026-08-08.
 

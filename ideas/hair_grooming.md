@@ -16,6 +16,11 @@ subsystem is ever designed it belongs in its own file that links here rather tha
 knowledge bases and as [`terrain_presets.md`](terrain_presets.md) — nothing here starts before
 citygen ships. This is research library #3 in the queue.
 
+**Artist-facing UI:** [`artist_ui.md`](artist_ui.md) §6b reads this study through the parameter-
+surface evidence — Disney's hierarchy is the large-shapes/small-shapes control split in production
+form; Wētā shows destructive workflows are safe when they ride a familiar mental model plus
+transfer tools. Read both together if a hair subsystem is ever designed.
+
 ---
 
 ## 0. The one-paragraph answer

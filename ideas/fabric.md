@@ -20,6 +20,9 @@ read the KB for *why* and for every citation.
 4. Scale: 1 unit = 1 m (matches Fibric's convention and Houdini defaults). Yarn radius in meters
    (typical worsted ≈ 0.001–0.002 m).
 5. Do not widen scope. Milestones are ordered by dependency; finish and audit one before the next.
+6. [`artist_ui.md`](artist_ui.md) §6b (2026-08-21) audits this spec against the parameter-surface
+   evidence — the panel/seam/chart workflow is the *author* tier; a garment-preset front door for
+   non-knitter artists is the missing consumer tier (post-M7). Read it before exposing parameters.
 
 ## 1. Goal
 

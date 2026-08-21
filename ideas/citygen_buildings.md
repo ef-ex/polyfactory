@@ -1,6 +1,7 @@
-# CityGen — Building Generation Research
+# CityGen — Building Generation Research & Design Spec
 
-**Status:** research only. **No design decisions taken, nothing built.**
+**Status:** research complete (§§1–11); **design spec v0 in §12**, written 2026-08-17 for later
+pickup. **Nothing built.** Two prototype gates (§12.10) must pass before any B-stage is implemented.
 **Owner doc for:** the building subsystem — [`citygen.md`](citygen.md) §6 roadmap item 4,
 *"largest unknown, written from scratch"*.
 **System-level architecture and cross-cutting contracts:** [`citygen.md`](citygen.md) — read first.
@@ -8,6 +9,13 @@
 **Reference library:** `polyfactory/resources/citygen/README.md` (gitignored, local). It owns
 *inventory and literature*; this file owns *the survey*. What it already holds for buildings — and
 the acquisition list it flags — is in §10a.
+**Artist-facing UI:** [`artist_ui.md`](artist_ui.md) — the parameter surface study; its §6b audits
+this doc (style = data + openable presets, never a second grammar; text rules must never be the
+only path to an art-directable outcome). Binding on the eventual B-stage parameter design.
+**RailClone building workflows:** [`railclone.md`](railclone.md) §6 — how production drives
+RailClone for whole buildings (footprint-spline interface, slot taxonomy, corner machinery,
+RC-Slice kit ingestion) and what transfers to B4/B6, §12.9 kits, and phase 2 of the planned
+**polyChain** assembly tool. Also retracts one flag: the Unit Image RailClone+Houdini claim (§ tool table) is verified.
 
 Written 2026-08-17. Branch `cityGen`.
 
@@ -969,6 +977,234 @@ Xu et al. 25-style benchmark.
   hypothesis to test.
 - **§9e's two-layer model is a synthesis, not a survey finding.** No system does this.
 - **No claim in §8b about marketplace style generators** rests on having opened one.
+
+## 12. Design spec v0 — for later pickup
+
+Written 2026-08-17, at the end of the research session, so an agent can start the building
+subsystem without re-deriving §§1–11. **This is a spec, not a build order to start today** —
+streets v1 still has priority ([`citygen.md`](citygen.md) §7 blocker), and §12.10's gates come
+before any stage implementation.
+
+### 12.0 How to pick this up
+
+1. Read [`citygen.md`](citygen.md) §§1–2 (vision, art-direction contracts) and §5 (Labs policy),
+   then [`citygen_streets.md`](citygen_streets.md) §1 (hard constraints) and §S8 (lots — the
+   upstream producer). Then this file: §1, §5, §9f, §9g. Then
+   `polyfactory/resources/citygen/README.md` (gitignored, local).
+2. Houdini work starts with `houdini_get_skill("houdini-dev-loop")` — not optional — plus
+   `houdini-procedural-modeling` and `houdini-tool-design` before B-stage or parameter work.
+3. Run the gates (§12.10) before building stages. Verification is a **viewport repro scene**, not a
+   test name — build the thing and look at it, per this project's habit.
+4. Nothing may depend on a Labs node at runtime. Study, fork, reimplement.
+
+### 12.1 Scope and non-goals
+
+**v1 delivers:** exterior building shells, generated per lot from the streets chain, in ≥2 genuinely
+different styles from one pipeline; instanced, per-element editable, offline-render target.
+
+**Explicit non-goals for v1** (each with the reason):
+- **Interiors** — no requirement in [`citygen.md`](citygen.md) §1. ⚠️ If ever required, the geometry
+  contract changes wholesale (watertight, circulation rules — Embark, §4). Decide then, not now.
+- **LOD chains** — offline film target, §5 Theme 6.
+- **Structural simulation (FEA/TNA)** — the structure layer is **table-driven** in v1 (§12.6 B3).
+  TNA is a future option for vaults/shells only.
+- **Neural/LLM generation** — §2 Era 3 verdict: wrong output format for editability.
+- **Building-to-building junctions** (skybridges, merged towers) — v2, but B6 must not preclude
+  them (§9g).
+
+### 12.2 Inherited constraints — binding, with sources
+
+| Constraint | Source |
+|---|---|
+| 100% vanilla Houdini; Labs = study only | [`citygen_streets.md`](citygen_streets.md) §1 |
+| Metric metres; offline render; cached topology | [`citygen.md`](citygen.md) §1 |
+| No constants — override cascade, 6 levels, last wins | [`citygen.md`](citygen.md) §2.1 |
+| Validation advisory: `block`/`warn`/`ignore` + global allow-invalid; warnings persisted on elements | [`citygen.md`](citygen.md) §2.2 |
+| Every stage separately runnable, paintable/editable input, one-button full path | [`citygen.md`](citygen.md) §2.3 |
+| **Start realistic, end artistic** — real-world data = defaults, never limits | [`citygen.md`](citygen.md) §2.0 |
+| Standard vocabulary (bay, eave, parapet, party wall…), own implementation | [`citygen_streets.md`](citygen_streets.md) §1 rule 4 |
+| Data format: Houdini attributes, not JSON | [`citygen.md`](citygen.md) §7 resolved list |
+| Every instance supports swap and replace | [`citygen.md`](citygen.md) §1 |
+
+### 12.3 Architecture
+
+**One pipeline, N style template files, two rails.** The generator never knows which style it is
+making; it reads a template. Composable **feature nodes** (Embark's model, §4), not one monolithic
+HDA — an object-level assembly containing SOP-level nodes per architectural element, each
+independently usable, each with its own override hooks.
+
+Stage chain, mirroring the streets S-numbering:
+
+```
+B0 site contract → B1 footprint → B2 mass → B3 structure → B4 facade → B5 cap → B6 junctions & finalize
+```
+
+Corners/junctions are a **first-class stage (B6), not a patch inside B4/B5** — deliberate, because
+junctions are the failure point of every surveyed tool (§5 Theme 4) and of our own streets design
+(S5a). One stage owns every seam.
+
+### 12.4 B0 — the site contract
+
+**Input is a volume with role-tagged faces.** The planar lot from streets S8 is the degenerate
+case: lot polygon extruded to the envelope height, side faces inheriting the lot-edge roles,
+`+skyLane`/`underside`/`abuts` reserved for the multi-level future. This resolves
+[`citygen.md`](citygen.md) §7 item 0 in the forward-compatible direction (§9g) while costing the
+planar case nothing — **proposed here, to be ratified when the schema is written.**
+
+| Attr | Type | Content |
+|---|---|---|
+| `siteId` | detail, int | stable identity, from streets element identity |
+| `faceRole` | prim, string | `front` · `sideStreet` · `interiorSide` · `rear` · `alley` · `sky` · `skyLane` · `underside` · `abuts` |
+| `setback` | prim, float | per-face inset default, from zoning (per-edge role table, §10a) |
+| `coverageMax`, `farMax`, `heightMax` | detail, float | envelope caps — **advisory** (§2.2) |
+| `styleTemplate` | detail, string | template id; resolvable through the cascade (zone default → region → per-site) |
+| `seed` | detail, int | per-site determinism: same seed + template + overrides ⇒ identical geometry |
+| ground sample | input 2 | optional heightfield/prims for slope — Einhof plinths, Emilien-style slope adaptation |
+
+⚠️ Open (§9g): whether the frontage-measured-on-chord / width-at-setback-line rules (§10a)
+generalise from ground-level edges to arbitrary faces. Planar v1 does not need the answer; the
+schema must not block it.
+
+### 12.5 The style template
+
+A template is **data + a small set of rule references** — never code of its own (§5 Theme 2,
+§9f). Stored Houdini-native (geometry file carrying detail dict attributes + packed module prims),
+per the attributes-not-JSON decision. Missing field ⇒ cascade default, so a template may be sparse.
+
+| Field | Type | Notes |
+|---|---|---|
+| `styleId`, `version`, `sources` | meta | `sources` = provenance list; every template records where its numbers came from (this file's evidence-ledger discipline applies to style data too) |
+| `constructionSystem` | ref → data block | see B3 table below. **Input to** the engineering, §9e layer 1 |
+| `volumeTopology` | ref → assembly rule + params | one of the small topology library (Einhof, Paarhof, rowPartyWall, perimeterCourtyard, tower, pavilion…). **Representation decided by gate G1** |
+| `lotToFootprint` | op + per-role params | `setback` / `shapeL` / `shapeU` / `shapeO` / `offset` / `identity` (§7) |
+| `bayRhythm` | spec | regular/irregular, openings-per-bay, per-storey differentiation (ground floor ≠ upper), wall-to-window ratio |
+| `capFamily` | strategy + params | renamed from "roof" per §9g: `skeletonRoof` (pitch range, eave depth) · `flat` · `parapet` · `platform` · `spire` · `continueUp` |
+| `moduleLibrary` | ref → kit manifest | §12.9 |
+| `ornamentSet` | ref | **may reference a different construction system than the structural one** — skeuomorphs are legal and required (Doric case, §9b) |
+
+**No scalar "authenticity dial" in v1.** The MDPI paper gates rules by an authenticity parameter
+(§9c2); for us **the override cascade already is that dial** — template values are the authentic
+defaults, overrides are the artistic end. Adding a second mechanism would duplicate §2.1.
+Per-rule gating can be revisited if a template ever needs "loose vs strict" modes.
+
+### 12.6 Stage specs
+
+Each stage: separately runnable HDA; consumes B(n−1) output + template fields + cascade; every
+value overridable; violations `warn` + persist. Only the deciding details are specced here.
+
+**B1 footprint.** Applies `lotToFootprint` per face role inside the setback envelope.
+`identity` = `setback(0)`. Output: footprint polygon(s) + `frontageEdge` tags carried from face
+roles. Corner lots honoured (`cornerAngleMax` from the streets lot work). Non-convex output is
+**legal and expected** — it is B6's acceptance input. Caps checked here and at B2: exceed ⇒
+`warnCoverageExceeded` / `warnFarExceeded`, never a refusal.
+
+**B2 mass.** Assembles volumes per `volumeTopology`: how many volumes, which functions share a
+roof, party walls, courtyard; plinth/foundation adaptation to the ground sample. Output: massing
+volumes with `volumeRole` (dwelling/stable/barn/stair…) and shared-wall tags. ⚠️ This is the stage
+gate G1 exists for — if each topology turns out to need bespoke code beyond a small assembly-rule
+library, the template idea shrinks and §9f's caveat fires.
+
+**B3 structure.** **Table-driven, no simulation.** Reads the `constructionSystem` block:
+
+| Field | Example (Blockbau) | Example (mass masonry) |
+|---|---|---|
+| `maxSpanM` | ~6 (log length) | vault/joist table |
+| `bayRangeM` | derived from log lengths | regular, from joist span |
+| `wallThicknessM` | log Ø | thick, storey-dependent |
+| `maxStoreys` | 2–3 | 4–6 |
+| `storeyHeightRangeM` | low | tall, ground floor taller |
+| `capPitchRangeDeg` | steep | shallow/parapet |
+
+Output: bay grid (`bayU`/`bayV`) on each volume face, storey splits, wall thickness — the inputs
+B4 and B5 consume. Exceeding a limit ⇒ `warnSpanExceeded` etc., persisted; the geometry is still
+built (Babel case, §9g). Fictional systems are just authored blocks (Coruscant case). ⚠️ The
+span→bay chain is this survey's own hypothesis (§9c flag) — G1/G2 double as its first test.
+
+**B4 facade.** The canon (§1): per face, split scopes along the B3 bay grid per `bayRhythm`,
+recursive subdivision, fill from the module library. Hero-facade override: a face tagged
+`heroFacade` is left untouched or takes hand geometry (the 2006 Polycount requirement, §5 Theme 3
+correction, shipped by Embark). Module UVs preserved; generated wall surfaces get seam-stable UVs
+(Skylark treats UVs as first-class — study before writing this).
+
+**B5 cap.** Strategy per `capFamily`. `skeletonRoof` = our own straight-skeleton implementation
+(§2 Era 1 papers; weighted variants later for style range). **Labs offers nothing here** (§3b) —
+this is written from scratch, and it is the second-largest work item after B6. Output includes
+tagged eave/verge/ridge edges for B6.
+
+**B6 junctions & finalize.** Owns **every seam**: wall corners (convex and reflex), facade↔cap
+(eaves, gables), mass↔mass (party walls, courtyard inner corners), building↔terrain (plinth), and
+— reserved, v2 — building↔building. Strategies per seam class: corner module from the kit, trim
+piece, or computed patch; selectable through the cascade. Also the finalize pass: instancing
+(packed prims + per-building DNA point carrying `styleTemplate`/`seed`/override refs — the City
+Sample pattern, §10a; substrate decision stays with [`citygen.md`](citygen.md) §7 item 1),
+warning collation, `elem_id` stamping.
+
+### 12.7 Identity and overrides
+
+Every emitted element (module instance, wall panel, corner piece, cap face) carries a stable
+`elem_id` derived from `siteId` + stage + structural address (volume/face/bay/storey), **not** from
+generation order — so a recook with identical inputs yields identical ids, and the override layer
+(keyed by `elem_id`, [`citygen.md`](citygen.md) Contract 2) survives regeneration. Override kinds,
+all per §2.1 level 5–6: parameter override, module **swap** (variant), geometry **replace**
+(hand-made), and `heroFacade` face tags.
+
+### 12.8 Warnings
+
+Per §2.2, persisted as attributes on the offending element, viewport-visualisable. Initial set:
+`warnSpanExceeded`, `warnCoverageExceeded`, `warnFarExceeded`, `warnStoreysExceeded`,
+`warnUnbuildableCorner`, `warnFootprintCollapsed` (offset degenerate → OBB fallback, §10a),
+`warnModuleMissing` (kit gap — build a blank stand-in, never fail).
+
+### 12.9 Module library contract
+
+We ship kits; the tool is unusable without them (Buildify's lesson, §10 item 6). Per kit:
+manifest (geometry file, detail attrs) listing modules with `moduleRole`
+(window/door/cornerPiece/eave/…), nominal bay size, and cut geometry where the module needs a wall
+opening (Lake House `*_cut_*` pattern). `human_scale_reference` mandatory in every kit. Naming
+follows the Lake House layout (`modules/{body,cap,stairs,support,setdressing}`) with correct
+architectural names (Embark's naming lesson, §4).
+
+### 12.10 Prototype gates — in order, before any B-stage build
+
+- **G1 — topology as data.** Skeleton B2 only. Two template files: **Hannes' local Einhof** vs
+  **Viennese perimeter block** (§10 "the one prototype worth running"). Pass: both massings emerge
+  from one assembly-rule library + two data files, judged in the viewport. Fail: each needs bespoke
+  code ⇒ shrink §12.5's claim to "small rule library + data" and re-scope.
+- **G2 — corner closure.** L-shaped footprint (`shapeL`), walls + `skeletonRoof` cap, through
+  B4–B6 at prototype quality. Pass: no holes or misalignments at any convex/reflex corner or
+  eave/gable seam, viewport-verified. This is the acceptance test the whole survey points at
+  (§5 Theme 4); run it **before** polishing anything.
+- **G3 — APEX vs VEX/SOP for rule fragments** ([`citygen.md`](citygen.md) §4b): only after G1+G2,
+  using the G1 templates as the test corpus. Fallback is plain SOP/VEX feature nodes; APEX must
+  earn its place.
+
+Build order after gates: B0+B1 (thin — most of it exists in the S8 interface) → B3 minimal tables →
+B4 → B5 → B6 hardening throughout → finalize/instancing. B2 arrives from G1.
+
+### 12.11 v1 acceptance
+
+1. Einhof and perimeter-block generated by the same pipeline, differing **only** in template file.
+2. G2's L-footprint closure holds in the shipped version, plus roofs on non-rectangular footprints
+   — i.e. strictly more than Labs (which breaks corners and has no roofs at all, §3b).
+3. Any generated value overridable at any cascade level; a per-element edit and a `replace` both
+   survive a full recook; warnings persisted and visible.
+4. Per-instance swap/replace works at building scale (feeds the §7-item-1 instancing prototype).
+5. Every claim demonstrated as a **viewport repro scene**, and independently audited on the current
+   build before being called done (dev-loop rule).
+
+### 12.12 Open questions carried into the build
+
+| Question | Where it lands |
+|---|---|
+| Face-role generalisation of frontage rules | B0; ratify with schema |
+| `volumeTopology` representation | G1 decides |
+| Corner strategy per seam class | G2 informs; B6 |
+| APEX or SOP/VEX for rule fragments | G3 |
+| Instancing substrate | [`citygen.md`](citygen.md) §7 item 1, joint with streets |
+| Style template storage format detail | first template authored decides |
+| Straight-skeleton: own implementation scope (weighted? holes?) | B5 design |
+
+---
 
 ## Sources
 

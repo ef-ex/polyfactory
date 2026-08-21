@@ -47,6 +47,10 @@ sources (Smith 2014, UT W227).
    `block`/`warn`/`ignore`, warnings persisted as attributes). Not restated here; that file owns it.
 2. **This is an end-user tool**, not a helper — the art-direction bar is at maximum. The test:
    an artist who didn't build it must get the tree they want from the controls alone.
+   [`artist_ui.md`](artist_ui.md) §6b (2026-08-21) audits this spec against the parameter-surface
+   evidence: result-named labels over solver vocabulary on the promoted face, a ~6-knob top level
+   with the ten §7 sections as the single Advanced tier, and interactive pruning upgraded from
+   "maybe" to v1.1. Read it before building the parameter interface.
 3. **Procedural-modeling constitution applies:** VEX (OpenCL escape hatch) for all per-element
    work, never Python; native nodes before custom code (VDB SDF, pcfind, Scatter); normalize in,
    canonical out.
@@ -388,9 +392,28 @@ growth-animation flipbook next to the reference.
    moments (topology-varying geometry breaks subframe-sample blur; velocity-based blur does not);
    (b) `Substeps per Year` stays in the interface as the escalation path if interpolated growth
    reads as morphing rather than growing. Judge on the M1 flipbook.
-3. **Leaf/foliage authoring** — leaves are a proxy for light+meshing here; actual leaf/twig
-   *design* (the other half of G2) is not specced. Likely its own small tool feeding the meshing
-   stage. The Natsura attribute-schema study (reference library §3.2b) should happen first.
+3. **Leaf/foliage authoring — research done 2026-08-21 (reference library §6c); spec not yet
+   written.** Hannes' vision: artist **draws** a leaf silhouette; the tool generates geometry AND
+   textures automatically via SOPs + Copernicus, with veins from a **growth simulation**. The
+   research says this composes cleanly: leaf venation is the *original* space colonization
+   algorithm (Runions 2005 — same core loop as `pf_treegen`, reused at leaf scale), vein widths
+   follow Murray's law (the leaf-scale pipe model), Copernicus rasterises the grown veins into UV
+   space for height/normal/albedo/translucency maps, and the vein curves double as the aging/wilt
+   rig later (every leaf-deformation paper rigs off the venation skeleton — keep veins as
+   geometry, never texture-only). Output = a twig-style asset (card/geo + atlas) consumed by
+   `pf_treegen` instancing. No shipping tool does draw→grow→texture; the pieces all exist.
+   **The species-preset library (2026-08-21 follow-up): validated, not speculative.** Runions
+   2017 already reproduces named species from parameter changes alone (three *Acer* species +
+   *Quercus rubra*, photo-vs-model figures), and the authors' complete model + **45 per-figure
+   parameter presets are archived** in the reference library (`code/NPHLeafModels_1.0/`, §6c.5)
+   with the SI's Table S1. The library-authoring workflow is published (morphospace exploration +
+   interactive refinement against photos); the *Manual of Leaf Architecture* (Ellis 2009) is the
+   standard species-description vocabulary to key presets by; Chitwood-school morphometric
+   datasets (182k-leaf DB, Passiflora landmarks) give measured per-species validation targets.
+   `pf_leafgen`'s preset schema should be designed to round-trip: flora description in → preset →
+   generated leaf scored against morphometric data.
+   **Next step when active: verify Rasterize Geometry's UV-space mode in a live session, then
+   spec `pf_leafgen` as its own section here.**
 4. **Wind/rig attributes** — Wētā's "rig during construction" idea says reserve per-node rig
    data now. What exactly does a Houdini wind setup want from us? Research when meshing is
    specced, not before.

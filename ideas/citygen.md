@@ -8,6 +8,10 @@ Branch `cityGen`. Started 2026-08-08. Revised after clarification rounds 1 and 2
 **This file owns:** the vision, the principles, and the contracts that span subsystems.
 **Subsystem designs:** [`citygen_streets.md`](citygen_streets.md) — streets (first subsystem).
 Terrain, vegetation, zoning — not yet written.
+**Traffic, crowds and city life:** [`citygen_simulation.md`](citygen_simulation.md) — research +
+**design spec v0 for later pickup** (§12 there; stages L0–L5, gates P1–P5). Vehicles, pedestrians
+and animals; the lane-graph data standards; the tool landscape and artist feedback. §10 there
+records what it implies for the street schema. Build not started, blocked behind streets V1.
 **Buildings:** [`citygen_buildings.md`](citygen_buildings.md) — *research only*, no design taken.
 Surveys the papers, the tool landscape and corroborated artist feedback; §7 there records what the
 survey implies for the eventual design.
@@ -15,6 +19,18 @@ Tree/foliage *generation* is its own polyfactory system, specced in [`foliage.md
 the future vegetation subsystem here owns only city-context *placement* and will consume it.
 **Related tooling study:** [`terrain_presets.md`](terrain_presets.md) — the Gaea preset/recipe
 research. Tooling only; it does **not** own the terrain subsystem design. Parked behind streets.
+**RailClone parity:** [`railclone.md`](railclone.md) — the engine/parity evaluation (2026-08-21).
+Verdict: a standalone general assembly tool — **polyChain** — (1D kernel first), parked behind
+streets V1; citygen
+is its first production consumer (streets Wang-tile catalogue + street furniture, then buildings
+B4/B6). Not iToo-scale parity — kits at polyfactory scale.
+**polyChain spec:** [`polychain.md`](polychain.md) — implementation spec v0 (data contracts,
+kernel algorithms, gates PC-G0–G4), ready for agent pickup after streets V1.
+**Artist-facing UI:** [`artist_ui.md`](artist_ui.md) — the parameter surface study (2026-08-21).
+How complex procedural tools expose controls to non-technical artists; RailClone dissected, good
+and bad tools surveyed, verified literature. Applies to **every** polyfactory tool. §6 there
+records what it implies for citygen, §6b audits every other tool study against it; every
+end-user HDA's parameter page is subject to it.
 
 **Reference library:** `polyfactory/resources/citygen/README.md` — gitignored, local only.
 
@@ -413,9 +429,11 @@ the same stream.
 
 ### Deliberately NOT designed yet
 
-Facade/building grammar internals · vegetation ecology rules · terrain authoring tools · traffic and
-pedestrian simulation · LOD · shading strategy · UI beyond the state library. Each gets its own
-subsystem doc when its turn comes.
+Facade/building grammar internals · vegetation ecology rules · terrain authoring tools · LOD ·
+shading strategy · UI beyond the state library. Each gets its own subsystem doc when its turn comes.
+Traffic and pedestrian simulation has had its research sweep and carries a pickup spec
+([`citygen_simulation.md`](citygen_simulation.md) §12, 2026-08-19); **build not started**,
+blocked behind streets V1 — except the L0-lite schema additions and, optionally, birds.
 
 ---
 
@@ -443,6 +461,10 @@ and `@subgraph` gives the composable rule-fragment library that grammars need.
 
 **Traffic and pedestrians, later.** APEX's native home is rigging and animation. When the splines
 start driving traffic and crowds, APEX is the obvious vehicle.
+⚠️ **Refined 2026-08-18 by the simulation sweep** ([`citygen_simulation.md`](citygen_simulation.md)
+§7b): APEX is the obvious vehicle for the *characters and the artist's edits* — rig evaluation,
+clip blending, APEX Scene re-animation of individual agents — and **not** for the traffic solver or
+the lane graph, neither of which has any concept APEX models.
 
 **Per-element variation at scale.** Generating a small graph per element, with partial evaluation,
 beats one enormous SOP network full of switches.
@@ -455,7 +477,8 @@ template.
 
 ### Verdict
 
-**Not for v1 streets. Revisit at the buildings subsystem, and again at traffic.**
+**Not for v1 streets. Revisit at the buildings subsystem, and again at traffic — where §7b of
+the simulation doc now says which layer it is for.**
 ⚠️ Honest risk: the documented APEX ecosystem is heavily rigging-centric. Using it as a
 general-purpose rule-graph engine is off the beaten path — expect thin examples and rough edges,
 and prototype before committing the building subsystem to it.
@@ -501,9 +524,11 @@ Each subsystem must be usable on its own before the next begins.
    fully specified from Parish 2001 + CityEngine; only `skeleton` still needs Vanegas et al. 2012
    (not acquired). See [`citygen_streets.md`](citygen_streets.md) §S8
 3. **Zoning** — §3; shares its mechanism with vegetation biomes
-4. **Buildings** — written from scratch. Research done: [`citygen_buildings.md`](citygen_buildings.md).
-   The *algorithm* is no longer the unknown (20 years of convergence on blockout → scope split →
-   module fill → junctions → roof); the unknown is the authoring and override model
+4. **Buildings** — written from scratch. Research done and **design spec v0 written**:
+   [`citygen_buildings.md`](citygen_buildings.md) §12 (stages B0–B6, style templates, prototype
+   gates G1–G3). The *algorithm* is no longer the unknown (20 years of convergence on blockout →
+   scope split → module fill → junctions → cap); the remaining risk sits in gate G1 (topology as
+   data) and gate G2 (corner closure), which run before any stage is built
 5. **Terrain integration** — Contract 3
 6. **Vegetation / scatter** — Contract 4, Labs as starting point only
 7. **Art-direction tooling** — Contracts 1, 2 and 7 made usable: selection, region locking,
