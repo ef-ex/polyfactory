@@ -7,7 +7,7 @@ Two layers. Run the fast one constantly, the slow one before you believe a fix.
 python tests/unit/test_citygen.py
 python tests/unit/test_plan.py            # the S5 planner, ~0.02s
 python tests/unit/test_polychain.py       # polyChain contracts + decompose
-python tests/unit/test_polychain_plan.py  # polyChain's fitting solve, ~0.03s
+python tests/unit/test_polychain_plan.py  # polyChain's fitting solve, ~0.2s
 
 # re-measure what the builder's plates actually consume (rewrites the fixture
 # tests/unit/test_plan.py calibrates against)
@@ -66,8 +66,8 @@ tests/
     test_citygen.py      cross-section profile maths (22 tests)
     test_plan.py         the S5 planner + its calibration (40 tests)
     trim_calibration.json  measured junction footprints, 545 arms
-    test_polychain.py    polyChain contracts + 4.1 decompose (45 tests)
-    test_polychain_plan.py  polyChain 4.2, the fitting solve (72 tests)
+    test_polychain.py    polyChain contracts + 4.1 decompose (48 tests)
+    test_polychain_plan.py  polyChain 4.2, the fitting solve (89 tests)
   citygen/
     checks.py            the assertion library — add to this
     cases.py             scene construction + headless env setup

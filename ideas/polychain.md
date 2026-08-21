@@ -28,7 +28,7 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | **cycle 1 — §4.1 decompose + §4.2 plan**, the `hou`-free kernel. 117 unit tests green, 13 mutations killed. Files under §10 |
+| Last completed | **cycle 1 + its review pass (1b)** — §4.1 decompose + §4.2 plan, the `hou`-free kernel. 137 unit tests green (48 + 89), 15 review findings closed, 13 mutations killed. Files under §10 |
 | Next up | §8 build order: **§4.4 place/deform** (the Python SOP adapter first — geometry → kernel → plan points), then §4.3 corners → §4.5 conform → §4.6 finalize/instancing → §5 parm face → starter kit → gates PC-G1–G4 |
 | Gates | PC-G0 ✅ resolved (§2.3) · PC-G1 ⬜ · PC-G2 ⬜ · PC-G3 ⬜ · PC-G4 ⬜ |
 
@@ -454,3 +454,46 @@ list in another order cannot reshuffle a built fence.
 debt `citygen/plan.py` carried for two milestones (§11.2 there). The first job of cycle 2 is the
 thin Python SOP adapter (geometry → these objects → plan points back as inspectable geometry),
 not more kernel.
+
+### Cycle 1b — the review pass over cycle 1 (2026-08-21)
+
+Two independent reviewers (spec-conformance and correctness lenses) returned **15 findings** over
+`plan.py`, `decompose.py` and `__init__.py`. Every one reproduced, and every one is fixed —
+none was a false positive. Unit tests: **137 green** (48 decompose/contracts + 89 plan), 0.28 s,
+still no Houdini imported.
+
+| # | Finding | Fix |
+|---|---|---|
+| 1 | start/end reserved on **every** section, so caps landed at every corner and 8 of them on a closed rectangle | **D18** below — `Section.start_cap`/`end_cap` |
+| 2, 10 | `fit()` divided by a zero `step` when negative padding cancelled the unit (`ZeroDivisionError` out of a function documented "never raises"), and near-cancel planned 90 001 pieces | **D17** — degrade to one scaled unit, clamp to `MAX_UNITS`, warn |
+| 3 | tile's sliced remainder always used `mods[0]`, so a sequence's remainder claimed span its first module cannot supply — a real hole | the remainder now **continues the unit**: whole modules, then one sliced |
+| 4 | the tile fallback checked the *unit's* sliceability while the remainder **re-chose** the module — a `pc_deform = 0` module could be emitted with a slice | the module that lands on the boundary decides; a rigid pick triggers D11 |
+| 5 | marker (and evenly) rules evaluated with `u = section.u0`, so a conditional gate at u = 0.9 tested u = 0 and silently never placed | the rule is read **at the anchor** (and per anchor, so a sequence walks) |
+| 6, 11 | a unit whose internal padding exceeds the span returned a **negative scale**: placements with `s1 < s0`, no warning | scale clamps to 0, positions clip into the span, `pc_warn_degenerate_pad` |
+| 7 | a `pc_section` change at an open curve's **last point** emitted a zero-length phantom section and shifted every section index | breaks exclude the endpoint, mirroring the corner rule; the last segment keeps the earlier key |
+| 8 | `plan_section` never read `Style.params`, so the pipeline face's fill mode was silently dropped | `params=None` resolves to `style.params`; an explicit argument still wins |
+| 9 | `Curve.sample` wrapped `s == length` to 0, so a closed loop's `end_frame` reported the **leaving** tangent of the first segment | a backward read at the seam stays on the closing segment |
+| 12 | tile's remainder was offset by the inter-unit gap even with **zero** whole units before it — the only piece of a 5 m section was placed 2 … 7 m | the gap is added only after a unit |
+| 13 | `justify = "center"` (the default) was not centred: 3.5 m in front of the run, 0.5 m behind; `"end"` put an anchor **on** the span end | centre is symmetric about the anchor pattern; only `adjust_to_end` may land on the end |
+| 14 | D15's claimed invariant was false — evenly anchors interpenetrated the start/end modules | half a module comes off each **capped** end |
+| 15 | a closed run was laid out as an open one: n−1 gaps, so the wrap seam was the one joint with no spacing | **D19** — n gaps, run starts half a gap in |
+
+**New decisions** (the ambiguities the findings exposed; each pinned by a test):
+
+| # | Decision |
+|---|---|
+| D17 | Padding that cancels or reverses a unit ("one more piece costs nothing") is an input no solve can answer, and negative padding is an advertised feature, so it cannot be rejected either. It **degrades**: one scaled unit when `step ≤ 0`, a count clamped to `MAX_UNITS = 100 000` above it, scale clamped to ≥ 0, positions clipped into the span — and `pc_warn_degenerate_pad` on every piece. **Sixth warning name**, alongside the two cycle 1 added |
+| D18 | Start/end modules cap a **run**, not a section. RailClone puts Start/End at spline ends and *corner* segments at corners, so a section boundary earns a cap only when it is a spline end or a `pc_section` limit (the material-ID analog — where one generator stops and the next starts). Carried as `Section.start_cap`/`end_cap`, which is why a closed spline gets no caps at all and an L-shaped fence grows no post pair at its elbow |
+| D19 | A closed section **wraps**, so its run has n inter-unit gaps and not n−1, and it starts half a gap in. Otherwise the seam is the one joint on a ring where the padding contract silently fails (measured: every gap 1.000 m and the seam 0.000 m on a 62.8 m circle). A wrapping run may carry `s0 < 0`; `Curve.sample` resolves it |
+
+**Deviation recorded against D15** (cycle 1): "evenly anchors divide the FREE span so they cannot
+collide with a mandatory piece" was **wrong** — the anchor is the piece's *centre*, so the span
+must also shed half a module at each capped end. The corrected wording is in `plan.py`.
+
+**Randomised audit** (4 000 random kit/style/section combinations, seeded; a 1 500-case version
+is kept as a standing test, `TestRandomisedAudit` — the review's sweep becomes the next review's
+assertion, per `tests/README.md`):
+reversed placements **526 → 0**, rigid-module slices **22 → 0**, exceptions 0, determinism holds.
+Pieces landing outside an **open** section (negative padding overlapping into the neighbouring
+section, and oversized centred anchors — both documented semantics, unchanged by this pass)
+fell from 295 to 154. On **closed** sections a run now deliberately crosses the seam (D19).

@@ -29,6 +29,13 @@ DECISIONS TAKEN HERE (spec 9 / ambiguities), each pinned by a test:
       0 - and start/end slots are unused on it (RailClone semantics). The
       wrapping section carries `s1 > curve.length`; `Curve.sample` wraps, so
       nothing downstream needs to know.
+  D18 A section boundary is not automatically a place for a start/end module.
+      RailClone caps a RUN, not a section: Start/End sit at spline ends (and
+      at a material-ID limit, where another generator takes over), while a
+      corner gets corner segments. So every section carries `start_cap` /
+      `end_cap`, true only at a spline end or a `pc_section` change - which is
+      why a closed spline gets no caps at all and an L-shaped fence does not
+      grow a post pair at its elbow.
 """
 
 import math
@@ -79,7 +86,8 @@ class Section(object):
 
     def __init__(self, curve_id, index, s0, s1, curve_length, section_key=0,
                  style_key="", start_corner=None, end_corner=None,
-                 start_frame=None, end_frame=None, markers=(), closed=False):
+                 start_frame=None, end_frame=None, markers=(), closed=False,
+                 start_cap=None, end_cap=None):
         self.curve_id = curve_id
         self.index = int(index)
         self.s0 = float(s0)
@@ -93,6 +101,10 @@ class Section(object):
         self.end_frame = end_frame or ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
         self.markers = list(markers)
         self.closed = bool(closed)
+        # D18: a boundary earns a start/end module only when it is a real END
+        # of the run - a spline end or a `pc_section` limit - never a corner.
+        self.start_cap = (not self.closed) if start_cap is None else bool(start_cap)
+        self.end_cap = (not self.closed) if end_cap is None else bool(end_cap)
 
     @property
     def length(self):
@@ -123,6 +135,7 @@ class Section(object):
                 "s0": self.s0, "s1": self.s1, "length": self.length,
                 "u0": self.u0, "u1": self.u1, "section_key": self.section_key,
                 "style_key": self.style_key, "closed": self.closed,
+                "start_cap": self.start_cap, "end_cap": self.end_cap,
                 "start_frame": [list(self.start_frame[0]),
                                 list(self.start_frame[1])],
                 "end_frame": [list(self.end_frame[0]), list(self.end_frame[1])],
@@ -218,7 +231,11 @@ def _section_breaks(curve, idx, n):
         return set(), [ids] * n
     keys = [ids[idx[i]] if idx[i] < len(ids) else None for i in range(n)]
     breaks = set()
-    span = range(n) if curve.closed else range(1, n)
+    # An open curve cannot break at its own last point: the break would open a
+    # zero-length section past the end. A value change on the final point
+    # belongs to the segment before it, so the last span keeps the earlier key
+    # (the endpoint rule the corner breaks already follow).
+    span = range(n) if curve.closed else range(1, n - 1)
     for i in span:
         if keys[i] != keys[(i - 1) % n]:
             breaks.add(i)
@@ -280,11 +297,19 @@ def decompose(curve, markers=(), params=DEFAULTS):
         s1 = cum[i1] if i1 < n else total + cum[i1 - n]
         start_c = corner_at.get(idx[i0 % n])
         end_c = corner_at.get(idx[i1 % n])
+        # D18: start/end modules cap a RUN, and a corner is not the end of one
+        # (RailClone puts Corner segments there, never Start/End). Only a
+        # spline end or a `pc_section` limit - the material-ID analog, where
+        # another generator takes over - earns a cap.
+        start_cap = (i0 % n) in sec_breaks
+        end_cap = (i1 % n) in sec_breaks
         if not curve.closed:
             if i0 == 0:
                 start_c = None
+                start_cap = True
             if i1 == n - 1:
                 end_c = None
+                end_cap = True
         # A marker on a boundary belongs to exactly one section - the first
         # that can hold it - so a gate is never placed twice.
         sec_markers = []
@@ -305,7 +330,8 @@ def decompose(curve, markers=(), params=DEFAULTS):
             start_frame=curve.sample(s0, forward=True),
             end_frame=curve.sample(s1, forward=False),
             markers=sec_markers,
-            closed=curve.closed and not breaks))
+            closed=curve.closed and not breaks,
+            start_cap=start_cap, end_cap=end_cap))
     return out
 
 

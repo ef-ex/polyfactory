@@ -29,6 +29,7 @@ The invariants, and why each one is load-bearing:
                   and no exception.
 """
 
+import math
 import os
 import random
 import sys
@@ -178,7 +179,7 @@ class TestFit(unittest.TestCase):
     def test_count_honours_N_including_zero_and_one(self):
         self.assertEqual(plan.fit(10.0, 3.0, "count", pc.Params(count=0)),
                          {"count": 0, "scale": 1.0, "remainder": 0.0,
-                          "slice": False})
+                          "slice": False, "warns": ()})
         one = plan.fit(10.0, 3.0, "count", pc.Params(count=1))
         self.assertEqual(one["count"], 1)
         self.assertAlmostEqual(one["scale"], 10.0 / 3.0, delta=TOL)
@@ -194,6 +195,40 @@ class TestFit(unittest.TestCase):
         for mode in pc.FILL_MODES:
             self.assertEqual(plan.fit(0.0, 3.0, mode)["count"], 0)
             self.assertEqual(plan.fit(10.0, 0.0, mode)["count"], 0)
+
+    def test_padding_that_cancels_the_unit_never_divides_by_zero(self):
+        """D17. Negative padding is a documented feature ("negative =
+        overlap"), so pad = (-0.5, -0.5) on a 1 m module is legal input - and
+        it makes one more piece cost NOTHING, which no fit can answer. It
+        degrades to a single scaled unit and warns; it may not raise."""
+        for mode in pc.FILL_MODES:
+            res = plan.fit(10.0, 1.0, mode, pc.Params(count=3), gap=-1.0)
+            with self.subTest(mode=mode):
+                self.assertEqual(res["count"], 1)
+                self.assertAlmostEqual(res["scale"], 10.0, delta=TOL)
+                self.assertIn(pc.WARN_DEGENERATE_PAD, res["warns"])
+        res = plan.fit(4.0, 1.0, "adaptive", gap=-2.0)      # step is NEGATIVE
+        self.assertEqual(res["count"], 1)
+        self.assertIn(pc.WARN_DEGENERATE_PAD, res["warns"])
+
+    def test_a_nearly_cancelled_step_is_bounded_and_warned(self):
+        """99.99% overlap plans tens of thousands of pieces on a 10 m run.
+        That is what the input asks for, so it is obeyed - but it is flagged,
+        and MAX_UNITS keeps a rounding error from planning a billion."""
+        res = plan.fit(10.0, 1.0, "adaptive", gap=-0.9999)
+        self.assertIn(pc.WARN_DEGENERATE_PAD, res["warns"])
+        self.assertLessEqual(res["count"], pc.MAX_UNITS)
+        huge = plan.fit(1e9, 1.0, "adaptive", gap=-0.999999)
+        self.assertEqual(huge["count"], pc.MAX_UNITS)
+        self.assertIn(pc.WARN_DEGENERATE_PAD, huge["warns"])
+
+    def test_a_unit_wider_than_the_span_never_returns_a_negative_scale(self):
+        """The drop loop stops at n = 1, so a UNIT whose own internal padding
+        is longer than the span used to come back with scale < 0 - geometry
+        built backwards, silently. It degenerates to zero length and warns."""
+        res = plan.fit(1.5, 2.0, "adaptive", fixed=4.0)
+        self.assertEqual(res["scale"], 0.0)
+        self.assertIn(pc.WARN_DEGENERATE_PAD, res["warns"])
 
     def test_padding_wider_than_the_span_drops_units_instead_of_inverting(self):
         """A 2 m gap between 1 m pieces in a 3 m span cannot hold three of
@@ -217,12 +252,27 @@ class TestEvenly(unittest.TestCase):
 
     def test_justify_moves_the_run_inside_its_leftover(self):
         """RailClone's Justify "adjusts the first and last space so the evenly
-        segments fit" - the centre case is its default, and it is the one an
-        artist reads as correct on a fence."""
+        segments fit". `center` is the DEFAULT, so it is the one an artist
+        reads on a fence - and the only reading of centred that survives a
+        look at the viewport is symmetric: equal space before the first anchor
+        and after the last. Centring the run inside its LEFTOVER instead put
+        3.5 m in front of a 10 m run and 0.5 m behind it."""
         c = plan.evenly(10.0, pc.Params(evenly_spacing=3.0, justify="center"))
-        self.assertEqual([round(x, 9) for x in c], [3.5, 6.5, 9.5])
+        self.assertEqual([round(x, 9) for x in c], [2.0, 5.0, 8.0])
+        self.assertAlmostEqual(c[0], 10.0 - c[-1], delta=TOL)      # symmetric
         e = plan.evenly(10.0, pc.Params(evenly_spacing=3.0, justify="end"))
-        self.assertEqual([round(x, 9) for x in e], [4.0, 7.0, 10.0])
+        self.assertEqual([round(x, 9) for x in e], [1.0, 4.0, 7.0])
+        s = plan.evenly(10.0, pc.Params(evenly_spacing=3.0, justify="start"))
+        self.assertEqual([round(x, 9) for x in s], [3.0, 6.0, 9.0])
+
+    def test_no_justify_puts_an_anchor_on_the_span_end(self):
+        """An anchor AT the end centres half its module past the section, into
+        the end cap or off the curve. `adjust_to_end` is the ONE way to ask
+        for it, explicitly."""
+        for j in pc.JUSTIFY:
+            got = plan.evenly(10.0, pc.Params(evenly_spacing=3.0, justify=j))
+            self.assertLess(got[-1], 10.0 - TOL, j)
+            self.assertGreater(got[0], TOL, j)
 
     def test_adjust_to_end_stretches_the_spacing_onto_the_end(self):
         p = pc.Params(evenly_spacing=3.0, justify="start", adjust_to_end=1.0)
@@ -291,6 +341,51 @@ class TestFillModesInPlace(unittest.TestCase):
         self.assertEqual(plan.warnings_of(got), {})
         self.assertTrue(all(abs(p.length - 2.0) < TOL for p in got))
 
+    def test_the_tile_remainder_continues_the_unit_instead_of_repeating_its_head(self):
+        """A remainder longer than the unit's FIRST module cannot be supplied
+        by one copy of it. post(1) + panel(3) tiled on 6 m leaves 2 m, which is
+        a whole post plus 1 m of panel - not a post claiming 2 m of span with
+        a 1.0 slice, which is a metre of hole in the viewport."""
+        k = kit(module("post1", 1.0, deform=pc.DEFORM_SLICE),
+                module("panel3", 3.0, deform=pc.DEFORM_SLICE))
+        s = default_style(("post1", "panel3"), select="sequence")
+        got = plan.plan_section(section(6.0), k, s, pc.Params(fill="tile"))
+        self.assertEqual([p.module for p in got],
+                         ["post1", "panel3", "post1", "panel3"])
+        self.assertEqual([p.slice_t for p in got[:3]], [None] * 3)
+        self.assertAlmostEqual(got[-1].length, 1.0, delta=TOL)
+        self.assertAlmostEqual(got[-1].slice_t, 1.0 / 3.0, delta=TOL)
+        covers(self, got, 0.0, 6.0)
+        for a, b in zip(got, got[1:]):
+            self.assertAlmostEqual(a.s1, b.s0, delta=TOL)
+
+    def test_the_tile_remainder_never_slices_a_rigid_re_selection(self):
+        """The run's UNIT decided the fallback, but a random rule re-picks per
+        piece - so the module that actually lands on the boundary is the one
+        whose `pc_deform` decides whether it may be cut (4.2). Seed 16 is the
+        case that emitted a rigid module with slice_t = 0.5."""
+        k = kit(module("a_slice", 2.0, deform=pc.DEFORM_SLICE),
+                module("b_rigid", 2.0, deform=pc.DEFORM_RIGID))
+        for seed in range(40):
+            s = style([pc.Rule("default", select="random",
+                               modules=["a_slice", "b_rigid"])], seed=seed)
+            got = plan.plan_section(section(7.0), k, s, pc.Params(fill="tile"))
+            with self.subTest(seed=seed):
+                for p in got:
+                    if p.slice_t is not None:
+                        self.assertEqual(p.deform, pc.DEFORM_SLICE, p.module)
+                covers(self, got, 0.0, 7.0)
+
+    def test_a_tile_shorter_than_one_module_starts_at_the_section_start(self):
+        """With no whole unit before it the remainder has no inter-unit gap to
+        clear: offsetting it anyway pushed the only piece of a 5 m section to
+        2..7 m - two metres off the end of the curve."""
+        k = kit(module("big", 10.0, pad=(1.0, 1.0), deform=pc.DEFORM_SLICE))
+        got = plan.plan_section(section(5.0), k, default_style(("big",)),
+                                pc.Params(fill="tile"))
+        self.assertEqual(spans(got), [(0.0, 5.0)])
+        self.assertAlmostEqual(got[0].slice_t, 0.5, delta=TOL)
+
     def test_scale_places_one_stretched_piece(self):
         got = self.plan("scale", 7.0)
         self.assertEqual(len(got), 1)
@@ -344,6 +439,37 @@ class TestPadding(unittest.TestCase):
             got = self._run((0.5, 0.5), length=L)
             self.assertAlmostEqual(got[1].s0 - got[0].s1, 1.0, delta=TOL)
 
+    def test_a_closed_run_carries_the_SAME_gap_across_the_seam(self):
+        """D19. A ring laid out as an open run has n-1 gaps, so the wrap joint
+        gets none: on a padded fence around a round plaza every joint is 1 m
+        except one arbitrary pair of posts that touch."""
+        n = 64
+        pts = [(10.0 * math.cos(2 * math.pi * i / n), 0.0,
+                10.0 * math.sin(2 * math.pi * i / n)) for i in range(n)]
+        sec = dc.decompose(pc.Curve("ring", pts, closed=True))[0]
+        self.assertTrue(sec.closed)
+        k = kit(module("m", 2.0, pad=(0.5, 0.5), deform=pc.DEFORM_BEND))
+        got = plan.plan_section(sec, k, default_style(("m",)))
+        seam = got[0].s0 + (sec.length - got[-1].s1)
+        self.assertAlmostEqual(seam, 1.0, delta=TOL)
+        for a, b in zip(got, got[1:]):
+            self.assertAlmostEqual(b.s0 - a.s1, 1.0, delta=TOL)
+
+    def test_degenerate_padding_places_nothing_outside_the_section(self):
+        """Warn-never-block, the geometric half: the pieces collapse to zero
+        length rather than running backwards, and they stay inside the span
+        rather than being pushed past its end by the padding that broke it."""
+        k = kit(module("a", 1.0, pad=(0.0, 3.0)),
+                module("b", 1.0, pad=(3.0, 0.0)))
+        s = default_style(("a", "b"), select="sequence")
+        got = plan.plan_section(section(4.0), k, s)
+        self.assertTrue(got)
+        for p in got:
+            self.assertGreaterEqual(p.length, -TOL)
+            self.assertGreaterEqual(p.s0, -TOL)
+            self.assertLessEqual(p.s1, 4.0 + TOL)
+            self.assertIn(pc.WARN_DEGENERATE_PAD, p.warns)
+
     def test_padding_still_fills_exactly_in_every_mode(self):
         k = kit(module("p", 2.0, pad=(0.3, -0.2), deform=pc.DEFORM_SLICE))
         for mode in pc.FILL_MODES:
@@ -380,6 +506,60 @@ class TestSlots(unittest.TestCase):
         self.assertEqual(set(p.slot for p in got), {"default"})
         covers(self, got, 0.0, 10.0)
 
+    def test_a_CORNER_is_not_an_end_and_gets_no_caps(self):
+        """D18. RailClone puts Start/End at spline ends and Corner segments at
+        corners; capping every section grew a cap PAIR at every elbow - four
+        pieces on an L instead of two, and the corner slot could never work."""
+        c = pc.Curve("c", [(0.0, 0.0, 0.0), (5.0, 0.0, 0.0), (5.0, 0.0, 5.0)])
+        secs = dc.decompose(c)
+        got = plan.plan_sections(secs, KIT,
+                                 self.style(start=["cap_a"], end=["cap_b"]))
+        caps = [(p.slot, p.section_index) for p in got if p.slot != "default"]
+        self.assertEqual(caps, [("start", 0), ("end", 1)])
+
+    def test_a_CLOSED_spline_gets_no_caps_on_any_side(self):
+        """The corner-free loop was already covered; the rectangle was not -
+        it has four corner-bounded sections and used to grow eight caps."""
+        c = pc.Curve("f", [(0.0, 0.0, 0.0), (12.0, 0.0, 0.0),
+                           (12.0, 0.0, 8.0), (0.0, 0.0, 8.0)], closed=True)
+        got = plan.plan_sections(dc.decompose(c), KIT,
+                                 self.style(start=["cap_a"], end=["cap_b"]))
+        self.assertEqual(set(p.slot for p in got), {"default"})
+
+    def test_a_pc_section_LIMIT_does_cap_like_a_spline_end(self):
+        """The other half of D18: a material-ID limit is where one generator
+        stops and the next starts, so both sides of it are real run ends."""
+        c = pc.Curve("street", [(x, 0.0, 0.0) for x in (0.0, 5.0, 10.0, 15.0)],
+                     section_ids=[1, 1, 2, 2])
+        secs = dc.decompose(c)
+        self.assertEqual([(s.start_cap, s.end_cap) for s in secs],
+                         [(True, True), (True, True)])
+        got = plan.plan_sections(secs, KIT,
+                                 self.style(start=["cap_a"], end=["cap_b"]))
+        self.assertEqual(sorted(p.slot for p in got if p.slot != "default"),
+                         ["end", "end", "start", "start"])
+
+    def test_an_evenly_anchor_never_grows_through_the_end_module(self):
+        """D15 claimed the free span made a collision impossible; it did not -
+        the anchor is the piece's CENTRE, so half a module has to come off
+        each capped end or the last post interpenetrates the end cap."""
+        k = kit(module("panel", 2.0, deform=pc.DEFORM_BEND),
+                module("cap", 2.0, roles="start end"),
+                module("post", 1.0, roles="post"))
+        s = style([pc.Rule("default", modules=["panel"]),
+                   pc.Rule("start", modules=["cap"]),
+                   pc.Rule("end", modules=["cap"]),
+                   pc.Rule("evenly", modules=["post"])])
+        for justify in pc.JUSTIFY:
+            p = pc.Params(evenly_spacing=2.0, justify=justify)
+            got = plan.plan_section(section(12.0), k, s, p)
+            head = [x for x in got if x.slot == "start"][0]
+            tail = [x for x in got if x.slot == "end"][0]
+            for ev in [x for x in got if x.slot == "evenly"]:
+                with self.subTest(justify=justify):
+                    self.assertGreaterEqual(ev.s0, head.s1 - TOL)
+                    self.assertLessEqual(ev.s1, tail.s0 + TOL)
+
     def test_evenly_anchors_are_centred_and_the_fill_runs_between_them(self):
         p = pc.Params(evenly_count=3)
         got = plan.plan_section(section(12.0), KIT,
@@ -405,6 +585,31 @@ class TestSlots(unittest.TestCase):
         self.assertAlmostEqual((gate[0].s0 + gate[0].s1) * 0.5, 4.0, delta=TOL)
         self.assertEqual(gate[0].module, "gate")
         covers(self, got, 0.0, 12.0)
+
+    def test_a_marker_rule_is_evaluated_at_the_MARKER_not_at_the_section_start(self):
+        """3.3 lists `u` as a per-candidate subject. Reading it at the section
+        start made a conditional gate at u = 0.9 test u = 0.0 and silently
+        never place - the failure mode that looks like a missing kit piece."""
+        marks = [{"marker_id": 5, "s": 9.0, "u": 0.9, "data": {},
+                  "s_local": 9.0}]
+        s = style([pc.Rule("default", modules=["panel"]),
+                   pc.Rule("marker:5", "conditional", ["gate"],
+                           cond={"subject": "u", "op": "gt", "value": 0.5})])
+        got = plan.plan_section(section(10.0, markers=marks), KIT, s)
+        gate = [x for x in got if x.slot == "marker:5"]
+        self.assertEqual(len(gate), 1)
+        self.assertAlmostEqual((gate[0].s0 + gate[0].s1) * 0.5, 9.0, delta=TOL)
+
+    def test_an_evenly_rule_is_evaluated_AT_EACH_ANCHOR(self):
+        """Same defect on the evenly slot: one pick at u0 for the whole run,
+        so a sequence never advanced and a conditional tested the wrong end."""
+        p = pc.Params(evenly_count=3)
+        s = style([pc.Rule("default", modules=["panel"]),
+                   pc.Rule("evenly", select="sequence",
+                           modules=["post", "gate"])])
+        got = plan.plan_section(section(12.0), KIT, s, p)
+        self.assertEqual([x.module for x in got if x.slot == "evenly"],
+                         ["post", "gate", "post"])
 
     def test_a_marker_with_no_rule_places_nothing_and_does_not_disturb_the_fill(self):
         marks = [{"marker_id": 9, "s": 4.0, "u": 0.4, "data": {},
@@ -719,6 +924,24 @@ class TestWholeCurves(unittest.TestCase):
             covers(self, [p for p in got if p.section_index == sec.index],
                    0.0, sec.length)
 
+    def test_the_STYLE_carries_its_own_params_when_none_are_passed(self):
+        """2.1's two-face principle: a style payload wired into input 3
+        "overrides the parms entirely". A caller holding only the style must
+        therefore get the style's fill mode, not the HDA defaults - silently
+        planning `adaptive` for a payload that says `tile` drops the whole
+        pipeline face with no error anywhere."""
+        s = style([pc.Rule("default", modules=["tile"])])
+        s.params = pc.Params(fill="tile")
+        got = plan.plan_section(section(11.0), KIT, s)
+        self.assertEqual(len(got), 6)
+        self.assertAlmostEqual(got[-1].slice_t, 0.5, delta=TOL)
+        # an explicit argument is still the artist face, and still wins
+        forced = plan.plan_section(section(11.0), KIT, s,
+                                   pc.Params(fill="adaptive"))
+        self.assertTrue(all(p.slice_t is None for p in forced))
+        self.assertEqual(plan.plan_sections([section(11.0)], KIT, s)[-1].slice_t,
+                         got[-1].slice_t)
+
     def test_ten_thousand_pieces_stay_addressable_and_unique(self):
         """PC-G3's own scale target, on the plan side: `pc_elem_id` is the key
         the swap/replace cascade matches on, so a collision there is a wrong
@@ -730,6 +953,65 @@ class TestWholeCurves(unittest.TestCase):
         ids = set(p.elem_id for p in got)
         self.assertEqual(len(ids), 10000)
         covers(self, got, 0.0, 20000.0)
+
+
+class TestRandomisedAudit(unittest.TestCase):
+    """The review pass's own sweep, kept as a standing assertion.
+
+    Hand-written cases pin the bugs that were found; this one is what found
+    the shape of them. Over 1500 seeded kit/style/section combinations -
+    including negative padding, padding wider than the section, closed
+    sections and every fill mode - the solve may not raise, may not build a
+    piece backwards, may not slice a module that forbids it, and must plan the
+    same thing twice. (Pre-fix this sweep reported 526 reversed placements and
+    22 rigid slices; the point of keeping it is that the number stays 0.)
+    """
+
+    def _case(self, rnd):
+        mods = []
+        for i in range(rnd.randint(1, 3)):
+            mods.append(module(
+                "m%d" % i, rnd.choice([0.4, 1.0, 2.0, 3.3, 7.0]),
+                pad=(rnd.choice([0.0, 0.5, -0.3, 2.0]),
+                     rnd.choice([0.0, 0.5, -0.3, 2.0])),
+                deform=rnd.choice([0, 1, 2]), roles="default start end evenly"))
+        names = [m.name for m in mods]
+        rules = [pc.Rule("default", select=rnd.choice(list(pc.SELECTORS)),
+                         modules=names,
+                         cond={"subject": "u", "op": "lt", "value": 0.5})]
+        if rnd.random() < 0.4:
+            rules += [pc.Rule("start", modules=names[:1]),
+                      pc.Rule("end", modules=names[-1:])]
+        if rnd.random() < 0.3:
+            rules.append(pc.Rule("evenly", modules=names[:1]))
+        params = pc.Params(fill=rnd.choice(list(pc.FILL_MODES)),
+                           count=rnd.randint(0, 5),
+                           evenly_spacing=rnd.choice([0.0, 2.0, 5.0]),
+                           justify=rnd.choice(list(pc.JUSTIFY)),
+                           adjust_to_end=rnd.choice([0.0, 1.0]))
+        L = rnd.choice([0.3, 1.0, 4.0, 12.7, 40.0])
+        marks = ([{"marker_id": 1, "s": L * 0.5, "u": 0.5, "data": {},
+                   "s_local": L * 0.5}] if rnd.random() < 0.2 else [])
+        sec = section(L, markers=marks, closed=rnd.random() < 0.3)
+        return (sec, kit(*mods),
+                style(rules, seed=rnd.randint(0, 99)), params)
+
+    def test_no_input_makes_the_solve_raise_reverse_or_cut_a_rigid_module(self):
+        rnd = random.Random(7)
+        for trial in range(1500):
+            sec, k, s, params = self._case(rnd)
+            got = plan.plan_section(sec, k, s, params)      # must not raise
+            for p in got:
+                with self.subTest(trial=trial, piece=repr(p)):
+                    self.assertGreaterEqual(p.length, -TOL)
+                    if p.slice_t is not None:
+                        self.assertGreaterEqual(p.deform, pc.DEFORM_SLICE)
+                    if p.warns:
+                        self.assertTrue(set(p.warns) <= set(pc.WARN_VOCAB))
+            self.assertEqual(plan.plan_dicts(got),
+                             plan.plan_dicts(plan.plan_section(sec, k, s,
+                                                               params)),
+                             trial)
 
 
 if __name__ == "__main__":

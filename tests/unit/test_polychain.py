@@ -66,6 +66,18 @@ class TestCurve(unittest.TestCase):
         self.assertAlmostEqual(a[0], b[0], places=9)
         self.assertAlmostEqual(a[2], b[2], places=9)
 
+    def test_the_seam_of_a_closed_curve_has_two_tangents_like_any_vertex(self):
+        """`forward` picks which side of a vertex is read, and the wrap threw
+        that away at exactly one vertex: s == length folded to 0, so a closed
+        loop's end frame reported the tangent LEAVING its first segment. 4.3
+        bends corners off these frames."""
+        c = pc.Curve("c", square(10.0), closed=True)
+        _, leaving = c.sample(40.0, forward=True)
+        _, arriving = c.sample(40.0, forward=False)
+        self.assertAlmostEqual(leaving[0], 1.0, places=9)     # off along +x
+        self.assertAlmostEqual(arriving[2], -1.0, places=9)   # in along -z
+        self.assertAlmostEqual(c.sample(0.0, forward=True)[1][0], 1.0, places=9)
+
     def test_a_duplicate_point_does_not_break_sample(self):
         c = pc.Curve("c", [(0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (4.0, 0.0, 0.0)])
         pos, tan = c.sample(2.0)
@@ -206,6 +218,36 @@ class TestSections(unittest.TestCase):
         self.assertEqual(len(secs), 2)
         self.assertAlmostEqual(secs[0].s1, 6.0, places=12)
         self.assertEqual([s.section_key for s in secs], [1, 2])
+
+    def test_a_pc_section_change_at_the_LAST_point_makes_no_phantom_section(self):
+        """The corner rules already exclude an open curve's endpoints; the
+        section rules did not, so a trailing value change emitted a
+        zero-length section past the end - and shifted every section index,
+        which is half of `pc_elem_id`. The final segment keeps the earlier
+        key: a break at the far end of a segment cannot split it."""
+        c = pc.Curve("c", line(0, 5, 10), section_ids=[0, 0, 1])
+        secs = dc.decompose(c)
+        self.assertEqual(len(secs), 1)
+        self.assertEqual(secs[0].section_key, 0)
+        self.assertAlmostEqual(secs[0].length, 10.0, places=12)
+        for s in dc.decompose(pc.Curve("c", line(0, 5, 10, 15),
+                                       section_ids=[0, 1, 1, 2])):
+            self.assertGreater(s.length, 0.0)
+
+    def test_only_a_spline_end_or_a_section_limit_carries_a_cap(self):
+        """D18: start/end modules cap a RUN. A corner is not the end of one -
+        RailClone puts corner segments there - and a closed spline has no run
+        end at all, so it gets no caps on any of its sides."""
+        l_shape = dc.decompose(pc.Curve("c", [(0.0, 0.0, 0.0), (5.0, 0.0, 0.0),
+                                              (5.0, 0.0, 5.0)]))
+        self.assertEqual([(s.start_cap, s.end_cap) for s in l_shape],
+                         [(True, False), (False, True)])
+        for s in dc.decompose(pc.Curve("c", square(10.0), closed=True)):
+            self.assertFalse(s.start_cap or s.end_cap)
+        limits = dc.decompose(pc.Curve("c", line(0, 5, 10, 15),
+                                       section_ids=[1, 1, 2, 2]))
+        self.assertEqual([(s.start_cap, s.end_cap) for s in limits],
+                         [(True, True), (True, True)])
 
     def test_a_scalar_pc_section_is_the_whole_curve_key_and_breaks_nothing(self):
         c = pc.Curve("c", line(0, 2, 4, 6), section_ids=7)

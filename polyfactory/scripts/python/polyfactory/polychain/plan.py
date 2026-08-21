@@ -50,8 +50,17 @@ FURTHER DECISIONS TAKEN HERE:
       property true for a mixed-size random kit.
   D15 Evenly and marker anchors are CENTRED on their anchor position, and
       marker anchors are never nudged to fit (PC-G1 wants the gate exactly at
-      its marker). Evenly anchors divide the FREE span - what is left after
-      start/end are reserved - so they cannot collide with a mandatory piece.
+      its marker). Evenly anchors divide the free span MINUS half a module at
+      each capped end, which is what actually keeps the centred piece off the
+      start/end module - subtracting only the padding does not.
+  D17 Padding that cancels the unit degrades (one scaled piece, or a count
+      clamped to MAX_UNITS) and warns WARN_DEGENERATE_PAD; it never divides by
+      zero, never returns a negative scale, and never plans a million pieces.
+  D18 Start/end modules cap a RUN, not a section - see decompose.py. A corner
+      gets no caps; a spline end and a `pc_section` limit do.
+  D19 A closed section wraps, so its run has n inter-unit gaps and not n-1,
+      and it starts half a gap in. Otherwise the seam is the one joint on the
+      ring where the padding contract does not hold.
   D16 `u` on a placement is 0-1 along the PARENT CURVE at the piece's start.
       That is what 3.4's `pc_u` anchor means downstream. Section-local metres
       (`s0`, `s1`) stay the truth for everything inside this module.
@@ -59,8 +68,9 @@ FURTHER DECISIONS TAKEN HERE:
 
 import math
 
-from . import (DEFAULTS, EPS, WARN_KIT_GAP, WARN_OVERFLOW, WARN_TILE_FALLBACK,
-               WARN_VEXPR_IGNORED, elem_id, elem_key, rng_for)
+from . import (DEFAULTS, EPS, MAX_UNITS, WARN_DEGENERATE_PAD, WARN_KIT_GAP,
+               WARN_OVERFLOW, WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, elem_id,
+               elem_key, rng_for)
 
 
 class Placement(object):
@@ -122,22 +132,38 @@ def fit(length, nominal, mode="adaptive", params=DEFAULTS, gap=0.0, fixed=0.0):
     units. Padding never scales (D5), so it is carried separately rather than
     folded into `nominal`.
 
-    -> {"count", "scale", "remainder", "slice"}. `remainder` is the sliced
-    tail `tile` leaves (0 otherwise); `scale` multiplies module geometry only.
+    -> {"count", "scale", "remainder", "slice", "warns"}. `remainder` is the
+    sliced tail `tile` leaves (0 otherwise); `scale` multiplies module geometry
+    only. `warns` is D17's degenerate-padding flag, never an exception.
     """
     L = float(length)
     s = float(nominal)
     if s <= EPS or L <= EPS:
-        return {"count": 0, "scale": 1.0, "remainder": 0.0, "slice": False}
+        return {"count": 0, "scale": 1.0, "remainder": 0.0, "slice": False,
+                "warns": ()}
     step = s + fixed + gap                       # one more unit costs this much
-    whole = int(math.floor((L + gap + EPS) / step)) if step > EPS else 0
+    if step <= EPS:
+        # D17: the padding cancels (or reverses) the unit, so one more piece
+        # costs nothing and "how many fit" has no answer. Degrade to a single
+        # scaled unit rather than dividing by zero or planning a million.
+        return {"count": 1, "scale": max((L - fixed) / s, 0.0),
+                "remainder": 0.0, "slice": False, "warns": (WARN_DEGENERATE_PAD,)}
+    whole = int(math.floor((L + gap + EPS) / step))
+    # padding that leaves under 1% of the module as the step is obeyed, but it
+    # is a mistake worth seeing in the viewport - it plans thousands of pieces
+    # overlapping by 99%, which reads as one solid blob
+    dense = (WARN_DEGENERATE_PAD,) if step < s * 0.01 else ()
+
+    def clamp(n):
+        return (min(n, MAX_UNITS),
+                dense if n <= MAX_UNITS else (WARN_DEGENERATE_PAD,))
 
     if mode == "tile":
-        n = max(whole, 0)
+        n, warns = clamp(max(whole, 0))
         used = n * (s + fixed) + max(n - 1, 0) * gap
         rem = L - used - (gap if n > 0 else 0.0)
         return {"count": n, "scale": 1.0, "remainder": max(rem, 0.0),
-                "slice": rem > EPS}
+                "slice": rem > EPS, "warns": warns}
 
     if mode == "scale":
         n = 1                                    # D12 - one stretched piece
@@ -150,12 +176,20 @@ def fit(length, nominal, mode="adaptive", params=DEFAULTS, gap=0.0, fixed=0.0):
             n += 1
         n = max(n, 1)
     if n <= 0:
-        return {"count": 0, "scale": 1.0, "remainder": 0.0, "slice": False}
+        return {"count": 0, "scale": 1.0, "remainder": 0.0, "slice": False,
+                "warns": ()}
+    n, warns = clamp(n)
     # positive padding can eat the whole section; drop units until it cannot
     while n > 1 and (L - n * fixed - (n - 1) * gap) <= EPS:
         n -= 1
     scale = (L - n * fixed - (n - 1) * gap) / (n * s)
-    return {"count": n, "scale": scale, "remainder": 0.0, "slice": False}
+    if scale < 0.0:
+        # D17 again, the n == 1 case the drop loop cannot reach: the unit's own
+        # internal padding is longer than the span. A negative scale is
+        # geometry built backwards, so it degenerates to zero length and warns.
+        scale, warns = 0.0, warns + (WARN_DEGENERATE_PAD,)
+    return {"count": n, "scale": scale, "remainder": 0.0, "slice": False,
+            "warns": warns}
 
 
 def evenly(length, params=DEFAULTS):
@@ -163,10 +197,21 @@ def evenly(length, params=DEFAULTS):
 
     Count mode divides the span into `evenly_count + 1` equal parts and
     anchors the interior divisions. Distance mode steps by `evenly_spacing`,
-    then `justify` shifts the whole run inside the leftover (RailClone's
-    Justify "adjusts the first and last space so the evenly segments fit") and
-    `adjust_to_end` stretches the spacing so the last anchor lands exactly on
-    the end when the leftover is small enough.
+    and `justify` sets the LEADING space, which is what RailClone's "adjust
+    the first and last space so the evenly segments fit" asks for:
+
+      start   lead = d           - a full spacing in, leftover trails
+      center  lead = trail       - SYMMETRIC about the span. n anchors span
+                                   (n-1)*d, so the leading space is half of
+                                   what is left of the span, NOT half of the
+                                   leftover: a centred fence must read
+                                   symmetric to the artist, and centring on
+                                   the span MULTIPLE instead shoves the whole
+                                   run to the far end.
+      end     lead = leftover    - mirror of `start`: a full spacing trails.
+
+    `adjust_to_end` overrides all three when the leftover is small enough,
+    stretching the spacing so the last anchor lands exactly on the end.
     """
     L = float(length)
     if L <= EPS:
@@ -184,9 +229,11 @@ def evenly(length, params=DEFAULTS):
     leftover = L - n * d
     if 0.0 < leftover <= params.adjust_to_end + EPS:
         d = L / n                                # last anchor lands on the end
-        leftover = 0.0
-    shift = {"start": 0.0, "center": leftover * 0.5, "end": leftover}[params.justify]
-    return [shift + d * (i + 1) for i in range(n)]
+        return [d * (i + 1) for i in range(n)]
+    lead = {"start": d,
+            "center": (L - (n - 1) * d) * 0.5,
+            "end": leftover}[params.justify]
+    return [lead + d * i for i in range(n)]
 
 
 def pack(cursor, module, scale, prev=None):
@@ -323,13 +370,19 @@ def _unit_metrics(mods):
 
 
 def _fill(a, b, rule, kit, style, ctx_base, params, section, index0,
-          lead_pad=None, trail_pad=None, mode=None, extra_warns=()):
+          lead_pad=None, trail_pad=None, mode=None, extra_warns=(),
+          cyclic=False):
     """Fill [a, b] with one run. Returns (placements, next index).
 
     `lead_pad` / `trail_pad` are the facing pads of the neighbouring pieces,
     or None where there is no neighbour - at a section end nothing is there to
     be pushed, so the run's own outer pad must NOT displace it (padding moves
     neighbours, never the padded piece).
+
+    `cyclic` is a closed section with nothing else on it (D19): the run wraps,
+    so it has n inter-unit gaps and not n-1, and it starts half a gap in - or
+    the seam is the one joint on an otherwise uniform ring where two pieces
+    touch (or, with negative padding, fail to overlap).
     """
     if rule is None:
         return ([], index0)
@@ -345,18 +398,30 @@ def _fill(a, b, rule, kit, style, ctx_base, params, section, index0,
 
     s, fixed, gap = _unit_metrics(mods)
     mode = mode or params.fill
+    lead = 0.0
+    if cyclic and L - gap > EPS:                 # D19: fold the wrap gap in
+        L -= gap
+        lead = gap * 0.5
     res = fit(L, s, mode, params, gap=gap, fixed=fixed)
+    extra_warns = tuple(extra_warns) + tuple(res["warns"])
 
-    if res["slice"] and not mods[0].sliceable:
-        # D11: the whole run falls back, and says so on every piece
+    def fallback():
+        """D11: the whole run falls back to adaptive, and says so on each piece."""
         return _fill(a, b, rule, kit, style, ctx_base, params, section, index0,
                      lead_pad, trail_pad, mode="adaptive",
-                     extra_warns=tuple(extra_warns) + (WARN_TILE_FALLBACK,))
+                     extra_warns=extra_warns + (WARN_TILE_FALLBACK,),
+                     cyclic=cyclic)
 
     out = []
     idx = index0
-    cursor = span_a
+    cursor = span_a + lead
     scale = res["scale"]
+
+    def clip(x):
+        """Degenerate padding walks the cursor out of the span; nothing may be
+        planned outside the section it belongs to, so it stops at the edge."""
+        return min(max(x, span_a), span_b) if WARN_DEGENERATE_PAD in extra_warns \
+            else x
     for u_i in range(res["count"]):
         if u_i > 0:
             cursor += gap
@@ -372,30 +437,56 @@ def _fill(a, b, rule, kit, style, ctx_base, params, section, index0,
                 m = proto
             out.append(Placement(
                 section.curve_id, section.index, "default", idx, m.name,
-                cursor, cursor + target, u=section.u_at(cursor),
+                clip(cursor), clip(cursor + target), u=section.u_at(cursor),
                 scale=(target / m.length) if m.length > EPS else 1.0,
                 deform=m.deform, zmode=_zmode(m, params), variant=m.variant,
                 section_key=section.section_key, style_id=style.style_id,
-                warns=tuple(extra_warns) + tuple(_module_warns(m, rule))))
+                warns=extra_warns + tuple(_module_warns(m, rule))))
             cursor += target
             idx += 1
     if res["slice"] and res["remainder"] > EPS:
-        cursor += gap
-        proto = mods[0]
-        ctx = dict(ctx_base, slot="default", index=idx, segIndex=idx,
-                   u=section.u_at(cursor))
-        m = proto if rule.select == "sequence" else choose(rule, kit, ctx, style)
-        if m is None:
-            m = proto
-        rem = res["remainder"]
-        out.append(Placement(
-            section.curve_id, section.index, "default", idx, m.name,
-            cursor, cursor + rem, u=section.u_at(cursor),
-            scale=1.0, slice_t=min(rem / m.length, 1.0) if m.length > EPS else 1.0,
-            deform=m.deform, zmode=_zmode(m, params), variant=m.variant,
-            section_key=section.section_key, style_id=style.style_id,
-            warns=tuple(extra_warns) + tuple(_module_warns(m, rule))))
-        idx += 1
+        # The tile remainder CONTINUES the unit rather than being one cut copy
+        # of its first module: whole modules until one straddles the boundary,
+        # and only that one is sliced. A 3 m panel cannot supply a 2 m tail
+        # just because the unit happens to start with a 1 m post.
+        if res["count"] > 0:
+            cursor += gap                        # no unit before it => no gap
+        stop = cursor + res["remainder"]
+        prev = None
+        for proto in mods:
+            if prev is not None:
+                cursor += prev.pad[1] + proto.pad[0]
+            avail = stop - cursor
+            if avail <= EPS:
+                break
+            ctx = dict(ctx_base, slot="default", index=idx, segIndex=idx,
+                       u=section.u_at(cursor))
+            m = proto if rule.select == "sequence" else choose(rule, kit, ctx,
+                                                               style)
+            if m is None:
+                m = proto
+            if m.length <= avail + EPS:
+                length, slice_t = m.length, None
+            elif not m.sliceable:
+                # the module that ACTUALLY lands on the boundary decides this,
+                # not the unit's first module: a re-selected rigid piece may
+                # never be cut (4.2), so the whole run falls back instead
+                return fallback()
+            else:
+                length = avail
+                slice_t = min(avail / m.length, 1.0) if m.length > EPS else 1.0
+            out.append(Placement(
+                section.curve_id, section.index, "default", idx, m.name,
+                clip(cursor), clip(cursor + length), u=section.u_at(cursor),
+                scale=1.0, slice_t=slice_t, deform=m.deform,
+                zmode=_zmode(m, params), variant=m.variant,
+                section_key=section.section_key, style_id=style.style_id,
+                warns=extra_warns + tuple(_module_warns(m, rule))))
+            cursor += length
+            idx += 1
+            prev = m
+            if slice_t is not None:
+                break
     return (out, idx)
 
 
@@ -412,8 +503,14 @@ def _anchor_placement(section, style, params, slot, index, rule, module, at,
         warns=tuple(warns) + tuple(_module_warns(module, rule)))
 
 
-def plan_section(section, kit, style, params=DEFAULTS):
-    """The placement plan for one section. Never raises (warn-never-block)."""
+def plan_section(section, kit, style, params=None):
+    """The placement plan for one section. Never raises (warn-never-block).
+
+    `params` defaults to the STYLE's own params (2.1: a wired style payload
+    "overrides the parms entirely"), and to `DEFAULTS` only when the style
+    carries none. An explicit argument still wins - that is the artist face.
+    """
+    params = params or (style.params if style is not None else None) or DEFAULTS
     L = section.length
     if L <= EPS:
         return []
@@ -430,11 +527,16 @@ def plan_section(section, kit, style, params=DEFAULTS):
 
     # --- mandatory start / end, and D13's overflow policy -------------------
     ends = []
-    if not section.closed:                       # RailClone: closed => no ends
-        for slot in ("start", "end"):
-            rule, mod = pick(style, slot, dict(ctx_base, index=0), kit)
-            if mod is not None:
-                ends.append([slot, rule, mod])
+    # D18: caps end a RUN, not a section. `start_cap`/`end_cap` are true at a
+    # spline end and at a `pc_section` limit, false at a corner - so an
+    # L-shaped fence grows no post pair at its elbow and a closed spline gets
+    # no caps at all (RailClone semantics).
+    for slot, capped in (("start", section.start_cap), ("end", section.end_cap)):
+        if not capped:
+            continue
+        rule, mod = pick(style, slot, dict(ctx_base, index=0), kit)
+        if mod is not None:
+            ends.append([slot, rule, mod])
 
     def needed(items):
         tot = sum(it[2].length for it in items)
@@ -484,15 +586,30 @@ def plan_section(section, kit, style, params=DEFAULTS):
     anchors = []
     e_rule, e_mod = pick(style, "evenly", dict(ctx_base, index=0), kit)
     if e_mod is not None:
-        base = free_a + (lead_pad or 0.0) + (e_mod.pad[0] if head else 0.0)
-        top = free_b - (trail_pad or 0.0) - (e_mod.pad[1] if tail else 0.0)
+        # D15, corrected: the anchor divides the free span, but the PIECE is
+        # centred on it, so half a module has to come off each guarded end -
+        # otherwise the last evenly post grows through the end cap.
+        half = e_mod.length * 0.5
+        base = free_a + (lead_pad or 0.0) + (e_mod.pad[0] + half if head else 0.0)
+        top = free_b - (trail_pad or 0.0) - (e_mod.pad[1] + half if tail else 0.0)
         for i, at in enumerate(evenly(max(top - base, 0.0), params)):
+            at += base
+            # the rule is re-read AT THE ANCHOR: 3.3 lists `u` as a
+            # per-candidate subject, and a sequence must walk per anchor
+            a_rule, a_mod = pick(style, "evenly",
+                                 dict(ctx_base, index=i, u=section.u_at(at)),
+                                 kit)
+            if a_mod is None:
+                continue
             anchors.append(_anchor_placement(
-                section, style, params, "evenly", i, e_rule, e_mod, base + at))
+                section, style, params, "evenly", i, a_rule, a_mod, at))
     m_index = {}
     for mk in section.markers:
         slot = "marker:%d" % mk["marker_id"]
+        # the marker's OWN u, not the section start: a conditional marker rule
+        # on `u` otherwise tests a position the marker is not at
         ctx = dict(ctx_base, index=m_index.get(slot, 0),
+                   u=mk.get("u", ctx_base["u"]),
                    marker_data=dict(mk.get("data", {})))
         rule, mod = pick(style, slot, ctx, kit)
         if mod is None:
@@ -516,12 +633,15 @@ def plan_section(section, kit, style, params=DEFAULTS):
                 break
         idx = 0
         a, lead = free_a, lead_pad
+        # D19: only a closed section with nothing else on it wraps as one run
+        cyclic = section.closed and not anchors and not out
         for p in anchors + [None]:
             b = p.s0 if p is not None else free_b
             # the anchor's own pad pushes its neighbours, this run included
             trail = _pad_of(kit, p.module, 0) if p is not None else trail_pad
             runs, idx = _fill(a, b, rule, kit, style, ctx_base, params,
-                              section, idx, lead_pad=lead, trail_pad=trail)
+                              section, idx, lead_pad=lead, trail_pad=trail,
+                              cyclic=cyclic)
             out.extend(runs)
             if p is None:
                 break
@@ -536,7 +656,7 @@ def _pad_of(kit, module_name, side):
     return m.pad[side] if m is not None else 0.0
 
 
-def plan_sections(sections, kit, style, params=DEFAULTS):
+def plan_sections(sections, kit, style, params=None):
     """Every section's plan, in a deterministic order."""
     out = []
     for sec in sorted(sections, key=lambda s: (str(s.curve_id), s.index)):

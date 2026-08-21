@@ -40,6 +40,11 @@ DECISIONS TAKEN IN THIS FILE (spec 9 open questions and ambiguities):
       wins". 3.2 calls the module value a default and the style an override,
       which needs a third state for "style says nothing" - the empty string is
       it. A non-empty style zmode overrides every module.
+  D17 Padding that cancels or reverses a unit ("one more piece costs nothing")
+      is an input a solve cannot answer. It degrades - one scaled unit, or a
+      count clamped to `MAX_UNITS` - and says WARN_DEGENERATE_PAD on every
+      piece. Raising would break warn-never-block; negative padding is a
+      documented feature, so the input cannot simply be rejected.
 """
 
 import math
@@ -65,8 +70,9 @@ WARN_CORNER_DEGENERATE = "pc_warn_corner_degenerate"
 WARN_OVERFLOW = "pc_warn_overflow"
 WARN_TILE_FALLBACK = "pc_warn_tile_fallback"      # 4.2 "else adaptive + pc_warn"
 WARN_VEXPR_IGNORED = "pc_warn_vexpr_ignored"      # D3
+WARN_DEGENERATE_PAD = "pc_warn_degenerate_pad"    # D17 - padding eats the unit
 WARN_VOCAB = (WARN_KIT_GAP, WARN_CORNER_DEGENERATE, WARN_OVERFLOW,
-              WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED)
+              WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD)
 
 # 3.1 / 3.4 attribute names, so the adapter and the checks read one list.
 CURVE_ATTRS = ("pc_corner", "pc_section", "pc_style", "pc_marker")
@@ -75,6 +81,10 @@ ELEM_ATTRS = ("pc_elem_id", "pc_elem_key", "pc_slot", "pc_module", "pc_variant",
 
 EPS = 1e-9          # metres; a chord shorter than this is not a segment
 POS_EPS = 1e-6      # metres; two points closer than this are one point
+MAX_UNITS = 100000  # pieces in ONE run; a ceiling, not a target (D17). PC-G3
+                    # plans 10k in one section legitimately, so this is 10x
+                    # that - it exists only so degenerate padding degrades
+                    # instead of exploding.
 
 
 class Params(object):
@@ -183,7 +193,11 @@ class Curve(object):
         90 degree section starts pointing down the previous leg.
 
         Closed curves wrap, which is what lets a wrapping section carry an
-        `s1` past the total length instead of being split in two.
+        `s1` past the total length instead of being split in two. The wrap
+        lands `s == total` back on 0, which is right for the LEAVING tangent
+        and wrong for the ARRIVING one - so a backward read at the seam is
+        pushed back onto the closing segment, or the one closed section on a
+        loop reports the first segment's direction as its end frame.
         """
         pts = self.points
         if not pts:
@@ -192,9 +206,12 @@ class Curve(object):
             return (pts[0], (0.0, 0.0, 0.0))
         total = self.length
         if self.closed and total > EPS:
+            asked = s
             s = math.fmod(s, total)
             if s < 0.0:
                 s += total
+            if not forward and s <= EPS and asked > EPS:
+                s = total                   # the arriving side of the seam
         cum = self._cumulative()
         s = min(max(s, 0.0), cum[-1])
         segs = []
