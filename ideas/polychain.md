@@ -45,11 +45,31 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 3. Re-read this block's *Next up* row, then continue the §8 order. Do not restart completed stages.
 4. Update this block and the §10 build log before starting the next cycle.
 
-⚠️ **Known limitation, by design:** flipbook/viewport rendering needs a GUI and will not run under
-hython (`tests/README.md`). Overnight verification is therefore **numeric** — headless checks,
-baseline diffs, mutation-tested suites. The viewport-judged half of PC-G1/PC-G2 is confirmed with
-Hannes at the machine. Never mark a viewport gate passed on numbers alone; mark it
-`numerically green, visually unconfirmed`.
+### Two Houdinis — which one to use for what (updated 2026-08-21, mid-run)
+
+Hannes started the **live MCP bridge** on a clean Houdini 22.0.398 GUI session
+(`untitled.hip`, empty `/obj`). Both paths are therefore available, and they are NOT
+interchangeable:
+
+| Use | Path | Why |
+|---|---|---|
+| Building, unit tests, headless scene checks, anything parallel | **hython** (throwaway process) | Parallel-safe: every agent gets its own session. Default to this for ~all work. |
+| **Visual gate confirmation** (PC-G1 corners, PC-G2 fence-on-a-hill) | **live bridge** (`houdini_render_view`) | GUI-only; flipbook/viewport rendering does not run under hython (`tests/README.md`). |
+
+**Live-session rules — non-negotiable, it is Hannes' machine:**
+1. **Serial access only.** Never let two agents drive the bridge at once; a workflow stage that
+   renders must run alone, never inside a `parallel()`.
+2. **Build under a dedicated `/obj/polychain_gate` subnet; delete it when done.** Leave the
+   session as you found it.
+3. **Never `hou.hipFile.save()`** over the user's path, and never `hou.hipFile.clear()` without
+   checking `hasUnsavedChanges()` first — if the session ever has unsaved work in it, that is
+   Hannes', so stop and use hython instead.
+4. Renders are for **judging geometry**, per the show-don't-tell rule — a gate is judged on the
+   image, not on a test name. Save gate images to the scratchpad and reference them in §10.
+
+⚠️ If the bridge is unreachable when you wake (`houdini_status` fails — the session may have been
+closed), do NOT block: continue the build on hython, mark affected gates
+`numerically green, visually unconfirmed`, and leave them for Hannes.
 
 ---
 
