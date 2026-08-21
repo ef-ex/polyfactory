@@ -6,6 +6,8 @@ Two layers. Run the fast one constantly, the slow one before you believe a fix.
 # pure logic — no Houdini, ~0.002s
 python tests/unit/test_citygen.py
 python tests/unit/test_plan.py            # the S5 planner, ~0.02s
+python tests/unit/test_polychain.py       # polyChain contracts + decompose
+python tests/unit/test_polychain_plan.py  # polyChain's fitting solve, ~0.03s
 
 # re-measure what the builder's plates actually consume (rewrites the fixture
 # tests/unit/test_plan.py calibrates against)
@@ -64,6 +66,8 @@ tests/
     test_citygen.py      cross-section profile maths (22 tests)
     test_plan.py         the S5 planner + its calibration (40 tests)
     trim_calibration.json  measured junction footprints, 545 arms
+    test_polychain.py    polyChain contracts + 4.1 decompose (45 tests)
+    test_polychain_plan.py  polyChain 4.2, the fitting solve (72 tests)
   citygen/
     checks.py            the assertion library — add to this
     cases.py             scene construction + headless env setup
@@ -98,6 +102,22 @@ with the builder's: **0 false-OK, 0 false-BAD**. That is asserted directly, and
 it is the assertion to keep green. The per-case residuals are a tripwire on the
 model drifting, not a safety margin — treating them as one is how a 5.88 m
 optimistic error got recorded as a 2.02 m bound.
+
+### polyChain has no calibration fixture yet, and that is on purpose
+
+`test_polychain_plan.py` pins **invariants**, not measurements — exact fill to
+1e-9 m in all four modes, `adaptive` never slicing, padding moving the
+neighbour rather than the padded piece, determinism under shuffle,
+warn-never-block on every degenerate input. There is nothing to calibrate
+against until `polychain.md` §4.4 places real geometry; when it does,
+`tests/polychain/dump_placements.py` writes the fixture and these assertions
+become what the dump is checked against — the same dump→pin loop as
+`dump_trims.py`. Inventing numbers before then is exactly what
+"calibrate, do not invent" forbids.
+
+The kernel is mutation-tested instead, because that is the only pressure
+available to a file with no fixture: 13 mutations, 13 killed, listed in
+`ideas/polychain.md` §10.
 
 ## The node schema, and why a closed vocabulary is not enough
 

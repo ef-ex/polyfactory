@@ -28,8 +28,8 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | *(cycle 1 in flight — update on completion)* |
-| Next up | §8 build order: §4.1/§4.2 → §4.4 place/deform → §4.3 corners → §4.5 conform → §4.6 finalize/instancing → §5 parm face → starter kit → gates PC-G1–G4 |
+| Last completed | **cycle 1 — §4.1 decompose + §4.2 plan**, the `hou`-free kernel. 117 unit tests green, 13 mutations killed. Files under §10 |
+| Next up | §8 build order: **§4.4 place/deform** (the Python SOP adapter first — geometry → kernel → plan points), then §4.3 corners → §4.5 conform → §4.6 finalize/instancing → §5 parm face → starter kit → gates PC-G1–G4 |
 | Gates | PC-G0 ✅ resolved (§2.3) · PC-G1 ⬜ · PC-G2 ⬜ · PC-G3 ⬜ · PC-G4 ⬜ |
 
 **To resume the autonomous run**, re-arm the loop with exactly this:
@@ -358,14 +358,24 @@ gates PC-G1–G4. Phase-1 estimate for a senior TD: **weeks, not months, dominat
 ## 9. Open questions (decide during build, record here)
 
 1. ~~Chain SOP fork-vs-reimplement~~ — **closed 2026-08-21: fork** (factory HDA, see §2.3/PC-G0).
-2. Marker carrier: merged point cloud (§3.1 recommendation) vs separate 5th input — fix before
-   the port count freezes (the streets lesson).
-3. Kit manifest attr names: reconcile with buildings §12.9 (`moduleRole` vs `pc_role`) — one
-   convention, decided with the buildings agent.
-4. `pc_cond` dict schema vs a tiny fixed attr set — resolve when the first real conditional
-   style is authored; do not over-generalize before then (ponytail).
-5. HDA namespacing: `pf::polychain::1.0` vs flat `pf_polychain` — follow whatever the suite's
-   first shipped HDA convention is at build time.
+2. ~~Marker carrier~~ — **closed 2026-08-21 (cycle 1): merged point cloud on input 1**, per
+   §3.1's own recommendation. The port count is now frozen at 4 (spline+markers / kit / style /
+   surface) before the streets segmenter is cut, which is what the streets lesson asks for.
+   The kernel reads markers as plain `Marker(curve_id, u|dist, marker_id, data)` records, so a
+   5th input would only change the adapter, not the kernel.
+3. ~~Kit manifest attr names~~ — **closed 2026-08-21 (cycle 1): `pc_role` is authoritative, and
+   `moduleRole` is accepted as an alias when `pc_role` is absent** (`kit_from_records`). One
+   line, converges with buildings §12.9 without blocking on a meeting; when B-stages start the
+   alias is the migration path, not a fork.
+4. ~~`pc_cond` schema~~ — **closed 2026-08-21 (cycle 1): a fixed `{subject, op, value}` dict**
+   with §3.3's subject list and a dict of seven ops (`lt le gt ge eq ne in`). `pc_vexpr` is
+   accepted, **parsed and ignored** in phase 1 and says so per element
+   (`pc_warn_vexpr_ignored`) — no expression engine before a real conditional style exists
+   (ponytail). Unknown subject, unknown op and type mismatch all evaluate False; nothing raises.
+5. ~~HDA namespacing~~ — **closed 2026-08-21 (cycle 1): flat `pf_polychain`** (`Sop/pf_polychain`).
+   Measured off the shipped assets rather than chosen: the citygen family, the most recently
+   shipped HDAs, is `Sop/pf_citygen_segmenter`; the `Sop/pf_asset_tag::1.0` form is the legacy
+   one. Kernel-side this only fixes the names cycle 2 will build under.
 
 ---
 
@@ -376,4 +386,71 @@ and every decision taken on an open question. This is the streets convention
 ([`citygen_streets.md`](citygen_streets.md)) — the doc is the build's memory, so a context loss
 costs nothing.
 
-*(cycle 1 in flight — decompose + plan)*
+### Cycle 1 — §4.1 decompose + §4.2 plan (2026-08-21)
+
+**Built:** the `hou`-free kernel, mirroring citygen's `plan.py` precedent (decide before geometry
+exists, so it is testable in milliseconds and auditable without a licence).
+
+| File | What |
+|---|---|
+| `polyfactory/scripts/python/polyfactory/polychain/__init__.py` | Contracts: vocabularies, `Params`, `Curve`, `Marker`, `Module`/`Kit`, `Rule`/`Style`, ids and seeding |
+| `polyfactory/scripts/python/polyfactory/polychain/decompose.py` | §4.1 — corners, markers, `pc_section` limits, the ordered section list |
+| `polyfactory/scripts/python/polyfactory/polychain/plan.py` | §4.2 — `fit`/`evenly`/`pack`, selection, `plan_section` |
+| `tests/unit/test_polychain.py` | 45 tests — contracts, decompose, determinism |
+| `tests/unit/test_polychain_plan.py` | 72 tests — the fitting solve |
+
+**Numbers.** 117 unit tests, **0.10 s** total, no Houdini imported (asserted). Exact fill holds to
+**1e-9 m** in all four modes, with padding, with a mixed-size sequence and with start/end reserved.
+Plan scale: a 20 km section plans **10 000 pieces** with 10 000 distinct `pc_elem_id`s.
+
+**Mutation-tested, 13 mutations, 13 killed** — the repo's habit, applied to a file with no
+calibration fixture to lean on: padding moved onto the padded piece (7 red), the random pool left
+in payload order (1), the tile fallback made silent (1), `adaptivePct` ignored (1), the fill left
+1 mm short (56), overflow dropping `start` instead of `end` (2), the element index restarted per
+run (2), the corner threshold read as the included angle (9), duplicate points not collapsed (1),
+`seed_for` switched to builtin `hash()` (1), the closing vertex excluded from corner candidates
+(3), markers landing in every containing section (1), and the section start frame reading the
+*incoming* tangent (1).
+
+⚠️ **No calibration fixture exists yet, and that is deliberate.** `test_plan.py`'s
+"calibrate, do not invent" discipline needs a builder to measure against, and §4.4 does not
+exist. Every number in the polyChain tests is therefore an INVARIANT (exact fill, never-slice,
+padding direction, determinism, warn-never-block), never a measurement. When §4.4 places real
+geometry, `tests/polychain/dump_placements.py` joins these files the way `dump_trims.py` joined
+`test_plan.py` — that is the next debt, and it is named here so it is not forgotten.
+
+**Decisions taken** (open questions §9 items 2–5 are closed above; these are the ambiguities the
+spec did not list, each pinned by a test):
+
+| # | Ambiguity | Decision |
+|---|---|---|
+| D1 | §3.4 calls `pc_elem_id` a *hash* | It is the **string address** `curve\|section\|slot\|index\|styleId`. A 32-bit int over PC-G3's own 10k target collides ~1 % of the time, and this id is what swap/replace matches on. `pc_elem_key` (crc32) ships alongside for grouping/sorting only. **Deviation from §3.4** |
+| D2 | §3.1's `cornerAngle` (30°) and §4.3's narrow angle (15°) are the same word for two angles | Two parms: `corner_angle_deg` = the **turn** (deviation from straight), `min_included_angle_deg` = the **included** angle between the legs. Both are stored on every `Corner`, so the ambiguity cannot come back |
+| D5 | Does `pc_pad` scale with the fit? | **No** — padding is a scene distance in metres; only module geometry stretches. A scaled pad drifts with section length |
+| D6 | §3.2 module `pc_zmode` vs style override | `Params.zmode = ""` means "the module's own value wins"; any non-empty style value overrides every module. The third state is what "the style said nothing" needs |
+| D7 | §3.1 types `pc_section` as a **prim** int, but a prim int cannot express a mid-curve break | Read at **point class first** (a change between consecutive points is a break — the faithful analog of a material-ID limit); a scalar is accepted as the documented whole-curve prim key and breaks nothing |
+| D8 | Duplicate/degenerate vertices | Collapsed before corner detection (a repeated point has no direction, and a naive `acos` on a zero vector is a crash). Arclen is unchanged. < 2 distinct points ⇒ no sections |
+| D9 | A hairpin corner | Still a **corner** — it breaks the section and carries `pc_warn_corner_degenerate` for §4.3 to fall back on. Hiding a hairpin inside a straight run is the worse failure |
+| D10 | Closed splines | Breaks are cyclic, the list starts at the first break and the last section wraps through point 0 (`s1 > length`; `Curve.sample` wraps). A corner-free loop is ONE section with `closed = True` and **no start/end slots** (RailClone semantics) |
+| D11 | §4.2's "else adaptive-fallback + `pc_warn`" scope | The **whole run** falls back, not just the last piece, and every piece carries `pc_warn_tile_fallback`. One adaptive piece inside a tiled run reads as a defect in the viewport; a uniformly rescaled run reads as a choice |
+| D12 | §4.2's `scale` mode: how many pieces? | **One stretched piece.** Verified against iToo's own wording rather than recalled — *"Scale stretches one segment across the entire length of each sub-spline"* ([Mastering the Linear Generator](https://www.itoosoft.com/tutorials/mastering-the-linear-generator)). n stretched pieces IS `adaptive`; giving both the same behaviour would collapse two of the four modes into one |
+| D13 | §3.4 names `pc_warn_overflow` and never defines it | Drop `end` first, then `start`; if the section is shorter than the one survivor, place it **scaled onto L** and warn. Never an empty section, never an exception |
+| D14 | Mixed-size runs | A run is fitted on its **unit**: for a `sequence` rule the unit is the whole pattern (post+panel+…), so mixed sizes fill exactly; for every other selector the unit is one module and a per-piece re-selection is scaled into the slot the unit laid out. That is what keeps exact fill true for a mixed-size random kit |
+| D15 | Where an anchor piece sits | **Centred** on its anchor, and a marker anchor is **never nudged** to tidy the fill — PC-G1's acceptance is "gate exactly at its marker". Evenly anchors divide the FREE span (after start/end are reserved) so they cannot collide with a mandatory piece |
+| D16 | §4.2's "u-range" is unqualified | Metres along the **section** (`s0`,`s1`) are the truth; `u` on a placement is 0–1 along the **parent curve** at the piece start, because that is what §3.4's `pc_u` anchor means downstream |
+
+⚠️ **Two warning names are new** (`pc_warn_tile_fallback`, `pc_warn_vexpr_ignored`). §3.4's list
+has three; §4.2 and §3.3 each imply a warning it does not name. They live in `WARN_VOCAB` with the
+other three so the adapter and the checks read one list.
+
+**Determinism, and the trap avoided.** Seeds come from `zlib.crc32` + one splitmix step over
+`(styleSeed, styleId, scope, scopeKey)` — **never builtin `hash()`**, which `PYTHONHASHSEED`
+randomises per process: a `hash()`-derived seed is green in one session and a different fence on
+the next recook. That is asserted across three child processes with different `PYTHONHASHSEED`
+values. The random pool is also **sorted before weighting**, so re-saving a style with its module
+list in another order cannot reshuffle a built fence.
+
+**Still open, carried to cycle 2:** the plan is `hou`-free and has **no consumer** — exactly the
+debt `citygen/plan.py` carried for two milestones (§11.2 there). The first job of cycle 2 is the
+thin Python SOP adapter (geometry → these objects → plan points back as inspectable geometry),
+not more kernel.
