@@ -17,6 +17,10 @@ hython tests/citygen/dump_trims.py
 hython tests/citygen/run_scene_checks.py
 hython tests/citygen/run_scene_checks.py --update-baseline
 
+# polyChain geometry — throwaway session, no .hip, no node network, ~9 s
+hython tests/polychain/run_scene_checks.py
+hython tests/polychain/run_scene_checks.py --update-baseline
+
 # the loop-closure gate, swept over a sep/step ladder — ~1 min / ~20 min
 hython tests/citygen/closure_gate.py
 hython tests/citygen/closure_gate.py --full --table
@@ -75,6 +79,11 @@ tests/
     baseline.json        recorded values
     dump_trims.py        writes trim_calibration.json from the live solve
     closure_gate.py      the loop-closure sweep — harness AND its own checks
+  polychain/             same four files, same philosophy
+    checks.py            24 checks over placed geometry — add to this
+    cases.py             13 scenes, built as hou.Geometry (no .hip, no nodes)
+    run_scene_checks.py  the runner
+    baseline.json        305 recorded values
 ```
 
 ## The planner's calibration is a baseline too
@@ -103,21 +112,34 @@ it is the assertion to keep green. The per-case residuals are a tripwire on the
 model drifting, not a safety margin — treating them as one is how a 5.88 m
 optimistic error got recorded as a 2.02 m bound.
 
-### polyChain has no calibration fixture yet, and that is on purpose
+### polyChain closed the loop without a calibration fixture, and that is the point
 
 `test_polychain_plan.py` pins **invariants**, not measurements — exact fill to
 1e-9 m in all four modes, `adaptive` never slicing, padding moving the
 neighbour rather than the padded piece, determinism under shuffle,
-warn-never-block on every degenerate input. There is nothing to calibrate
-against until `polychain.md` §4.4 places real geometry; when it does,
-`tests/polychain/dump_placements.py` writes the fixture and these assertions
-become what the dump is checked against — the same dump→pin loop as
-`dump_trims.py`. Inventing numbers before then is exactly what
-"calibrate, do not invent" forbids.
+warn-never-block on every degenerate input. This file used to say the fixture
+arrived with §4.4 as `tests/polychain/dump_placements.py`, the way
+`dump_trims.py` arrived for the planner. **It did not, and it should not.**
 
-The kernel is mutation-tested instead, because that is the only pressure
-available to a file with no fixture: 13 mutations, 13 killed, listed in
-`ideas/polychain.md` §10.
+`dump_trims.py` exists because `plan.crossing_trims` *predicts* what a junction
+cuts off without cooking anything, and a prediction is worth nothing until it
+is compared with the thing it predicts. polyChain's plan is not a prediction:
+`place.py` builds directly from it, so `tests/polychain/checks.py` compares the
+built geometry with the plan **on every case, every run** — `exact_fill_m`,
+`axis_on_curve_m` and `module_fidelity_m` are that comparison. A dumped fixture
+would be a stale copy of a number the suite already re-measures each time.
+
+What `baseline.json` records instead is what the citygen baseline records:
+values, not verdicts — 305 of them, including a `geometry_digest` per case, so
+a change that only shows up in another session moves a recorded value.
+
+Both halves are mutation-tested, which is the pressure that matters when the
+numbers are invariants rather than measurements: the kernel **13 mutations, 13
+killed**, the builder **14 mutations, 14 killed** — and the builder's first
+pass killed only 10. All four survivors were holes in the CHECKS, not in the
+code, and what closed each one is listed in `ideas/polychain.md` §10. That is
+the loop this directory is for: the sweep that finds a survivor leaves a
+standing assertion behind.
 
 ## The node schema, and why a closed vocabulary is not enough
 

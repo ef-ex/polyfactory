@@ -71,8 +71,10 @@ WARN_OVERFLOW = "pc_warn_overflow"
 WARN_TILE_FALLBACK = "pc_warn_tile_fallback"      # 4.2 "else adaptive + pc_warn"
 WARN_VEXPR_IGNORED = "pc_warn_vexpr_ignored"      # D3
 WARN_DEGENERATE_PAD = "pc_warn_degenerate_pad"    # D17 - padding eats the unit
+WARN_BEND_RESOLUTION = "pc_warn_bend_resolution"  # D25 - 4.4 "no auto-subdiv"
 WARN_VOCAB = (WARN_KIT_GAP, WARN_CORNER_DEGENERATE, WARN_OVERFLOW,
-              WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD)
+              WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD,
+              WARN_BEND_RESOLUTION)
 
 # 3.1 / 3.4 attribute names, so the adapter and the checks read one list.
 CURVE_ATTRS = ("pc_corner", "pc_section", "pc_style", "pc_marker")
@@ -104,7 +106,8 @@ class Params(object):
                  fill="adaptive", adaptive_pct=50.0, count=1,
                  evenly_spacing=0.0, evenly_count=0, justify="center",
                  adjust_to_end=0.0, corner_mode="bend", corner_offset_pct=0.0,
-                 fillet_radius=0.0, zmode="", bend_tol=0.01):
+                 fillet_radius=0.0, zmode="", bend_tol=0.01,
+                 fix_slope=False):
         self.corner_angle_deg = float(corner_angle_deg)
         self.min_included_angle_deg = float(min_included_angle_deg)
         self.fill = fill if fill in FILL_MODES else "adaptive"
@@ -119,6 +122,13 @@ class Params(object):
         self.fillet_radius = float(fillet_radius)
         self.zmode = zmode          # "" => the module's own pc_zmode wins (D6)
         self.bend_tol = float(bend_tol)
+        # D26 - RailClone's Slope Fixing: "the segment width will remain the
+        # same as the source geometry when measured on the HORIZONTAL axis,
+        # but if switched off the width will be measured along the angle
+        # defined by the path spline" (iToo, Using Deform modes in RailClone
+        # Lite). Off by default, which is the plain reading of 4.2: the fit
+        # runs on the path's own arc length.
+        self.fix_slope = bool(fix_slope)
 
 
 DEFAULTS = Params()

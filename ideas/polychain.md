@@ -28,8 +28,8 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | **cycle 1 + its review pass (1b)** — §4.1 decompose + §4.2 plan, the `hou`-free kernel. 137 unit tests green (48 + 89), 15 review findings closed, 13 mutations killed. Files under §10 |
-| Next up | §8 build order: **§4.4 place/deform** (the Python SOP adapter first — geometry → kernel → plan points), then §4.3 corners → §4.5 conform → §4.6 finalize/instancing → §5 parm face → starter kit → gates PC-G1–G4 |
+| Last completed | **cycle 2** — §3.2 kit format (`kit.py`, builder + validator + starter kit), §4.4 place/deform (`place.py`), and the scene-check harness `tests/polychain/`. 13 cases, 305 recorded values, 0 failing; 14 mutations, **14 killed**. Files and numbers under §10 |
+| Next up | §8 build order: **§4.3 corners** (bend/miter, the budgeted-hard stage — nothing places a `corner` slot yet), then §4.5 conform → §4.6 finalize/instancing (partly landed: packed-vs-deformed segregation and slice caps are in) → §5 parm face + the §3.3 style-payload reader → gates PC-G1–G4 |
 | Gates | PC-G0 ✅ resolved (§2.3) · PC-G1 ⬜ · PC-G2 ⬜ · PC-G3 ⬜ · PC-G4 ⬜ |
 
 **To resume the autonomous run**, re-arm the loop with exactly this:
@@ -497,3 +497,89 @@ reversed placements **526 → 0**, rigid-module slices **22 → 0**, exceptions 
 Pieces landing outside an **open** section (negative padding overlapping into the neighbouring
 section, and oversized centred anchors — both documented semantics, unchanged by this pass)
 fell from 295 to 154. On **closed** sections a run now deliberately crosses the seam (D19).
+
+### Cycle 2 — §3.2 kit format + §4.4 place/deform + the scene-check harness (2026-08-21)
+
+**Built:** the plan became geometry. Cycle 1's named debt is paid — the kernel now has a consumer.
+
+| File | What |
+|---|---|
+| `polyfactory/scripts/python/polyfactory/polychain/kit.py` | §3.2 — the kit as geometry: `add_module`/`write_manifest` (build), `validate` (warn-never-block), `read` (→ `Kit` + module geometry), `starter_kit()` (post / panel / corner_post / gate) |
+| `polyfactory/scripts/python/polyfactory/polychain/place.py` | §4.4 — `read_curves` (§3.1 off the stream), `Path` (cached sampler), the chord frame, three Z-modes, slope fixing, slicing + caps, the §3.4 stamps, and `analyse()` for the checks |
+| `tests/polychain/cases.py` | 13 scenes. No `.hip` and no node network — §4.4 is a geometry-level adapter, so a case is three `hou.Geometry` objects and a `Style`, and the checks measure the builder and nothing else |
+| `tests/polychain/checks.py` | 24 checks, every one carrying a number |
+| `tests/polychain/run_scene_checks.py` | the runner + baseline diff, `tests/citygen/`'s structure verbatim |
+| `tests/polychain/baseline.json` | **305 recorded values over 13 cases** |
+
+Kernel edits were three lines: `WARN_BEND_RESOLUTION` joins `WARN_VOCAB` (the seventh name) and
+`Params.fix_slope` joins the parm set. Nothing else in `__init__/decompose/plan` moved, the 137
+cycle-1 unit tests are still green, and `place.py`/`kit.py` are the only files that import `hou`.
+
+**Numbers.** `hython tests/polychain/run_scene_checks.py` → **0 failing over 13 cases**, ~9 s.
+
+| Property | Measured |
+|---|---|
+| exact fill — built geometry vs the section end | ≤ **1.5e-6 m**, worst over all cases |
+| gaps/overlaps between consecutive pieces | **0.0 m** on every curved case; ≤ 1.2e-6 m on straight runs (float32 storage at 20 m) |
+| plumb-ness, `vertical` mode | **0.0°** |
+| flatness, `stepped` mode | ≤ **3.8e-7 m** |
+| bank, `adaptive` mode on a 25 % grade | **14.0365°** (atan 0.25 = 14.0362°) |
+| stepped riser on that grade | **0.4909 m** over a 1.9631 m span — the grade, recovered |
+| gate at its marker (PC-G1's own wording) | **1.8e-7 m** |
+| slope fixing ON / OFF, widest horizontal reach of a 1.60 m gate | **1.5998 m** / **1.5521 m** (= 1.60·cos atan 0.25) |
+| determinism | identical positions and ids on a second cook, and **0 moved baseline values across four `PYTHONHASHSEED` values** |
+| scale, straight run | **10 000 pieces in 0.31 s**, all 10 000 packed |
+| scale, curved run | 1 296 deformed pieces in 1.41 s ≈ **1.1 ms/piece** — the Python cost, and the reason §4.6/PC-G3 will want VEX |
+
+**Mutation-tested, 14 mutations, 14 killed** — but the first pass killed only **10**, and *the four
+survivors are the most useful thing this cycle produced*, because every one was a hole in the
+checks rather than a hole in the code:
+
+| Survivor | Why nothing saw it | What closed it |
+|---|---|---|
+| Bent pieces left as packed chords across the bend | `exact_fill` and `max_gap` both measure END POINTS, and a chord has the same end points as the arc it cuts | `axis_on_curve_m` — a bendable piece's axis is checked at **every station**, not only at its ends |
+| The packed frame built from the START TANGENT instead of the chord (D21 deleted) | every packed piece in every case sat on a straight span, where the two are the same vector | case `M_rigid_over_bend` — a **rigid** 2.5 m beam straddling a 33.7° vertex is the only input that can tell them apart |
+| The yaw-only frame replaced by the full 3D tangent | `across` is then un-normalised, so every piece came out 3 % narrow on a 25 % grade — and plumb, flat, fill, gaps and the axis check *all look along the chain or up it, never across it* | `cross_section_m`, which also kills dropping the across term entirely |
+| The slope-fixing remap replaced by the identity | the checks read the section through the **same remap the builder used**, so the check and the defect agreed with each other | `widest_horizontal_m`, derived from the grade and never passing through the remap: 1.60 m fixed, 1.60·cos(atan g) free |
+
+The hill's grade was raised **5 % → 25 %** in the same pass: a 2.86° bank sits close enough to
+zero that a half-wired Z-mode still looks plausible.
+
+**Decisions taken** (each pinned by a check; the mechanism notes live in the two modules' docstrings):
+
+| # | Ambiguity | Decision |
+|---|---|---|
+| D20 | §3.2 never says which way a module points, and §3.4/§4.4 say "Z" for up | **+X along, +Y up, +Z across**; fit origin = bbox **min X**, fit length = `pc_size.x`, so geometry outside `[minX, minX+size.x]` legitimately OVERHANGS and is carried along (RailClone's "fitted size is not the bounding box"). The spec's Z is *Max's* up axis; Houdini is Y-up, so it is **Y** here. **Deviation from §3.2/§4.4's wording, not from its meaning** |
+| D21 | §4.4 says "rebuild from the section end nodes" but not what a rigid piece rides on | The **chord** between the piece's own two ends, never the tangent at its start. This makes piece *k*'s end and piece *k+1*'s start the *same curve sample*, so "no gaps or overlaps" is a property of the construction rather than a tolerance; a start-tangent placement opens a gap at every bend |
+| D22 | §3.2 asks for "a packed prim per module PLUS one point per module" | They are the **same object** — a packed prim already is one point and one prim — so the manifest rides on it and the two cannot drift apart |
+| D23 | Is the starter kit a shipped `.bgeo`? | **No: a builder function.** A binary in the repo is a second source of truth that ages past the format it encodes, and `polyfactory/library/` and `polyfactory/resources/` are both gitignored, so it could not be committed anyway. `write_kit_file()` exists for artists who want one on disk; nothing in the build reads a kit file |
+| D24 | §3.2 asks for a validator and does not say what it does on a bad kit | It **returns warning strings and never raises**, and `read()` fills every missing field with a documented default. A kit is exactly the artist-authored input warn-never-block was written for. Nine distinct faults are detected, and `K_broken_kit` pins the count so a lost detector shows |
+| D25 | §4.4's "warn when a bent module's segment count is too low to follow curvature" | Measured, not counted: for each pair of adjacent local-x stations, the distance between the built chord and the true curve at their midpoint. `> bend_tol` (default 0.01 m) ⇒ `pc_warn_bend_resolution`, and the piece is **still built** — no auto-subdivision. **Seventh warning name** |
+| D26 | "slope fixing" is named in `railclone.md` §1.3 and never defined | Verified against iToo rather than recalled: *"the segment width will remain the same as the source geometry when measured on the horizontal axis, but if switched off the width will be measured along the angle defined by the path spline"* ([Using Deform modes in RailClone Lite](https://www.itoosoft.com/tutorials/using-deform-modes-in-railclone-lite)). Implemented as `Params.fix_slope`, default **off**: the kernel is handed a Y-flattened copy of the curve and a piecewise-linear remap carries every planned distance back onto the real one. ⚠️ Under `adaptive` fill it is a **no-op** — every piece rescales to fill whatever it is given — so it only shows where a piece keeps its own length, which is why the acceptance case is a **tiled** pair and not the obvious one |
+| D27 | What does `vertical` mean for a module with `pc_deform = 0`? | It **degrades to `stepped`**, because vertical IS a deformation ("vertices Z-displaced to elevation") and a rigid piece cannot express one. No warning: RailClone cannot deform a non-deformable segment either, and a warning on every post of a hillside fence is noise |
+| D28 | §4.6's "slice caps: polyfill + box UV ... cap material tag" | `clip` verb + `polyfill` verb — vanilla Houdini, no hand-written polygon clipper — and the cap is found by the **plane test** (every point of the prim on the cut plane). ⚠️ Measured on 22.0.398: a prim `polyfill` creates **inherits its neighbour's attribute values, not the attribute default**, so the obvious "give `pc_cap` the default 1 before the fill" trick reads 0 on the cap it just built. Box UV is not done |
+| D29 | Where does curve identity come from? | `pc_curve_id`, else `edge_id` (the streets id §3.1 says feeds `pc_elem_id`), else the primitive number — always normalised to a **string**, because `pc_elem_id` is a string address (D1) |
+
+**Where the streets lesson landed.** `citygen_streets.md` §11.8's measured warning — *a lossy
+identity inside an iterating loop is a random walk*, 68 recorded values moved by a rebuild on
+cases where nothing had moved — is honoured structurally rather than by a tolerance: **a span
+that holds no interior curve vertex is never rebuilt at all.** Its arc *is* its chord, so the
+per-point round trip could only add float noise to a piece the chord already places exactly. The
+same test is §4.6's instancing segregation arriving for free, which is why a straight 20 km run
+comes out **10 000 packed prims and 0 deformed**.
+
+**Not built, and named here so it is not mistaken for built:**
+- **§4.3 corners.** Nothing places a `corner` slot yet: `corner_post` is in the starter kit and in
+  `fence_style`, and `B_rect_closed` builds four sections that meet at bare corners. That is the
+  next cycle, and §8 budgets the most time for it.
+- **The §3.3 style-payload reader.** `build()` takes a `Style` OBJECT. Input 3 and PC-G4's
+  two-face proof need a geometry reader; the kernel half (`Rule`/`Style`) already exists.
+- **§4.5 conform** (input 4), and the **§5 parm face / the HDA itself** — there is no
+  `pf_polychain` asset yet. Cycle 2 is the library layer an HDA will call.
+- **A rigid piece straddling a bend cuts the corner and does not warn.** §4.4 specs the warning
+  for bent modules only, and that is what shipped; `M_rigid_over_bend` records the behaviour.
+- **PC-G3's VEX rewrite.** 1.1 ms per deformed piece is a Python-SOP number.
+
+**Visual confirmation: none.** Every number above is headless. Per the show-don't-tell rule the
+fence and the hill still have to be *looked at* before PC-G1/PC-G2 can be called anything, and the
+live bridge was deliberately not touched this cycle.
