@@ -57,6 +57,11 @@ MODULE_ATTRS = (
 KIT_DETAIL = "pc_kit"
 KIT_FIELDS = ("kitId", "version", "sources", "human_scale_reference")
 
+# D34: the one warning `read` must recognise rather than merely report. An
+# UNCONNECTED kit input hands the SOP `None`, and warn-never-block means that
+# builds a stand-in fence, not an AttributeError mid-cook.
+UNREADABLE = "pc_kit: unreadable geometry"
+
 
 # --- construction -----------------------------------------------------------
 
@@ -66,6 +71,14 @@ def box_mesh(geo, x0, x1, y0, y1, z0, z1, divx=1):
     Hand-built rather than run through the Box SOP because the Box SOP's
     division mode emits 24 two-point polygons alongside the faces (measured on
     22.0.398), which is not a solid and so can be neither sliced nor capped.
+
+    D33 WINDING IS OUTWARD, AND IT IS ASSERTED AGAINST THE BOX SOP VERB. The
+    first version of this wound every face the other way, which put 18 of the
+    starter gate's 18 faces inside-out (measured: the box verb scores 0/6
+    inward on a centroid-dot-normal test, this scored 6/6) - so every fence the
+    tool built rendered interior-side-out and every normal-dependent op
+    downstream (boolean, peak, displacement) ran on inverted geometry.
+    `module_winding` in the scene checks is that measurement, kept.
     """
     divx = max(int(divx), 1)
     rings = []
@@ -81,13 +94,13 @@ def box_mesh(geo, x0, x1, y0, y1, z0, z1, divx=1):
         a, b = rings[i], rings[i + 1]
         for k in range(4):
             poly = geo.createPolygon()
-            for p in (a[k], a[(k + 1) % 4], b[(k + 1) % 4], b[k]):
+            for p in (a[k], b[k], b[(k + 1) % 4], a[(k + 1) % 4]):
                 poly.addVertex(p)
     cap = geo.createPolygon()
-    for p in reversed(rings[0]):
+    for p in rings[0]:
         cap.addVertex(p)
     cap = geo.createPolygon()
-    for p in rings[-1]:
+    for p in reversed(rings[-1]):
         cap.addVertex(p)
     return geo
 
@@ -168,11 +181,13 @@ def _vattr(pt, name, default):
 def validate(geo):
     """[warning strings]. An empty list means the kit is well formed."""
     warns = []
+    if geo is None:
+        return ["%s (no kit connected)" % UNREADABLE]
     try:
         prims = [p for p in geo.prims()
                  if p.type() == hou.primType.PackedGeometry]
     except Exception as exc:                        # not geometry at all
-        return ["pc_kit: unreadable geometry (%s)" % str(exc)[:120]]
+        return ["%s (%s)" % (UNREADABLE, str(exc)[:120])]
     if not prims:
         warns.append("pc_kit: no packed prims - a kit is one packed prim per "
                      "module (3.2)")
@@ -239,6 +254,8 @@ def read(geo):
     every missing field falls back to the documented default (D24).
     """
     warns = validate(geo)
+    if warns and warns[0].startswith(UNREADABLE):    # D34 - never touch `geo`
+        return (Kit(), {}, warns)                    # again after this
     manifest = {}
     if geo.findGlobalAttrib(KIT_DETAIL) is not None:
         try:

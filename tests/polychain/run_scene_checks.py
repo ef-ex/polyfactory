@@ -30,7 +30,19 @@ BASELINE = os.path.join(HERE, "baseline.json")
 EXPECTED_WARNS = {
     "J_coarse_bend": ("pc_warn_bend_resolution",),
     "K_broken_kit": ("pc_warn_kit_gap",),
+    "O_no_kit": ("pc_warn_kit_gap",),
+    # A 2 m panel resolves the crest with its own 0.25 m stations, and 4.4
+    # forbids auto-subdividing it - so D25's measured warning is the right
+    # answer here, not a clean build.
+    "P_crest_bend": ("pc_warn_bend_resolution",),
+    "Q_vertical_stepped": ("pc_warn_degenerate_frame",),
+    "R_hairpin": ("pc_warn_corner_degenerate",),
 }
+
+# How many kit validation warnings each case is allowed to persist. Pinned
+# exactly, never as a range: a moved count means the validator gained or lost
+# a detector, which is the thing worth seeing.
+EXPECTED_KIT_WARNS = {"K_broken_kit": 9, "O_no_kit": 1}
 
 
 class Scene(object):
@@ -81,6 +93,11 @@ def run_case(name, case):
         C.deformed_flag_matches_geometry(scene),
         C.instancing_split(scene),
         C.horizontal_spacing(scene),
+        C.module_winding(scene),
+        C.frame_continuity(scene),
+        C.station_spacing(scene),
+        C.piece_extent(scene),
+        C.plan_geometry(scene, cases.P),
         C.warnings(scene, EXPECTED_WARNS.get(name, ())),
         C.determinism(scene, cases.rebuild),
         C.geometry_digest(scene),
@@ -97,11 +114,13 @@ def run_case(name, case):
     if name == "H_tile_slope_free":
         out.append(C.horizontal_span_is(
             scene, cases.GATE_LENGTH / math.hypot(1.0, cases.HILL_GRADE)))
-    # Pinned exactly, not as a range: the broken kit carries one distinct
-    # fault per warning (see cases.broken_kit), so a moved count means the
-    # validator gained or lost a detector, which is exactly what should show.
-    out.append(C.kit_validation(scene, 9, 9) if name == "K_broken_kit"
-               else C.kit_validation(scene, 0, 0))
+    if name == "N_marker_mixed":
+        # The whole point of the case: marker 7 is authored in metres and
+        # marker 8 in u, in ONE cloud, and both must land where they say.
+        out.append(C.marker_offset(scene, 7, (5.0, 0.0, 0.0)))
+        out.append(C.marker_offset(scene, 8, (15.0, 0.0, 0.0)))
+    n = EXPECTED_KIT_WARNS.get(name, 0)
+    out.append(C.kit_validation(scene, n, n))
     return out
 
 

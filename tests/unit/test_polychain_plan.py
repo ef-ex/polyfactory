@@ -891,6 +891,23 @@ class TestZModes(unittest.TestCase):
     def test_an_unknown_z_mode_falls_back_rather_than_failing(self):
         self.assertEqual(pc.Module("m", 1.0, zmode="sideways").zmode, "adaptive")
 
+    def test_an_unknown_STYLE_z_mode_degrades_to_the_module_not_to_adaptive(self):
+        """D6's third state is also the landing place for junk.
+
+        `Params.zmode` was unguarded so that "" could mean "the module wins",
+        and an invalid non-empty value then overrode every module and resolved
+        to `adaptive` downstream - discarding the artist's intent AND the
+        module's own default at once. A case-slipped "Vertical" in a style
+        payload banked every picket on a hillside instead of leaving it plumb,
+        silently, while the SAME typo on the kit side is warned by
+        `kit.validate`. Degrading to "" builds the fence the artist meant.
+        """
+        self.assertEqual(pc.Params(zmode="Vertical").zmode, "")
+        k = kit(module("picket", 2.0, zmode="vertical"))
+        got = plan.plan_section(section(10.0), k, default_style(("picket",)),
+                                pc.Params(zmode="Vertical"))
+        self.assertEqual(set(p.zmode for p in got), {"vertical"})
+
     def test_the_deform_flag_rides_onto_every_placement(self):
         got = plan.plan_section(section(10.0), KIT, default_style(("tile",)))
         self.assertEqual(set(p.deform for p in got), {pc.DEFORM_SLICE})

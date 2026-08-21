@@ -33,7 +33,10 @@
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "A[0] end",
@@ -137,6 +140,41 @@
       ]
     },
     {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.119999997
+    },
+    {
+      "detail": "worst 8.419e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 20
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -199,7 +237,10 @@
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "B[0] end",
@@ -303,6 +344,41 @@
       ]
     },
     {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.113207545
+    },
+    {
+      "detail": "worst 2.723e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 40
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -365,7 +441,10 @@
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "",
@@ -469,6 +548,41 @@
       ]
     },
     {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "gate",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.199999809
+    },
+    {
+      "detail": "gate",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.599999905
+    },
+    {
+      "detail": "worst 1.192e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 5
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -487,7 +601,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "33c333d92ab289f9"
+      "value": "bdcc9cfc217ad224"
     },
     {
       "detail": "",
@@ -538,7 +652,10 @@
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "D[0] end",
@@ -642,6 +759,41 @@
       ]
     },
     {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "gate",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.600000024
+    },
+    {
+      "detail": "worst 4.649e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 11
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -711,7 +863,10 @@
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "H[0] end",
@@ -815,6 +970,41 @@
       ]
     },
     {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=2.000",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 0.999861
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.252979218
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.023518014
+    },
+    {
+      "detail": "worst 8.922e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 16
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -833,7 +1023,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "ea4cffff345a1cbf"
+      "value": "7d82f54b21ef1fc5"
     },
     {
       "detail": "",
@@ -877,7 +1067,10 @@
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "H[0] end",
@@ -981,6 +1174,41 @@
       ]
     },
     {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.000",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 0.999861
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.252979086
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.023518801
+    },
+    {
+      "detail": "worst 8.922e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 16
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -999,7 +1227,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "2f0ff5d08670781b"
+      "value": "c2bb8afc892f0f7f"
     },
     {
       "detail": "",
@@ -1043,7 +1271,10 @@
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "H[0] end",
@@ -1147,6 +1378,41 @@
       ]
     },
     {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.000",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 0.999861
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.245425154
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.963076982
+    },
+    {
+      "detail": "worst 8.922e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 16
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -1165,7 +1431,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "2cb86d325f8972ab"
+      "value": "1849d2fa39cc7e73"
     },
     {
       "detail": "",
@@ -1209,7 +1475,10 @@
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "H[0] end",
@@ -1219,7 +1488,7 @@
       "value": 2.05e-07
     },
     {
-      "detail": "gate -> gate",
+      "detail": "",
       "name": "max_gap_m",
       "ok": true,
       "skipped": false,
@@ -1313,6 +1582,41 @@
       ]
     },
     {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "gate @ x=0.400",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 0.999862
+    },
+    {
+      "detail": "gate",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.382444804
+    },
+    {
+      "detail": "gate",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.382444804
+    },
+    {
+      "detail": "worst 8.608e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 21
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -1331,7 +1635,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "c99d0cfe96281a23"
+      "value": "f8538e3bf7757fb7"
     },
     {
       "detail": "",
@@ -1389,7 +1693,10 @@
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "H[0] end",
@@ -1399,7 +1706,7 @@
       "value": 2.05e-07
     },
     {
-      "detail": "gate -> gate",
+      "detail": "",
       "name": "max_gap_m",
       "ok": true,
       "skipped": false,
@@ -1493,6 +1800,41 @@
       ]
     },
     {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "gate @ x=0.400",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 0.999862
+    },
+    {
+      "detail": "gate",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.222198866
+    },
+    {
+      "detail": "gate",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.046781725
+    },
+    {
+      "detail": "worst 9.897e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 20
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -1511,7 +1853,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "18cc786a926c2b73"
+      "value": "6af970e716bc269f"
     },
     {
       "detail": "",
@@ -1569,7 +1911,10 @@
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "J[0] end",
@@ -1673,6 +2018,41 @@
       ]
     },
     {
+      "detail": "of 6",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "rail2 @ x=3.000",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 0.942215
+    },
+    {
+      "detail": "rail2",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3.047359719
+    },
+    {
+      "detail": "rail2",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3.047359719
+    },
+    {
+      "detail": "worst 6.153e-08 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 3
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -1696,7 +2076,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "de3340e7e9deb379"
+      "value": "aeba69a2858160bd"
     },
     {
       "detail": "",
@@ -1740,7 +2120,10 @@
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "",
@@ -1844,6 +2227,41 @@
       ]
     },
     {
+      "detail": "of 30",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "nonexistent_module",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "worst 0.000e+00 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 6
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -1907,11 +2325,14 @@
       "value": 0.0
     },
     {
-      "detail": "L[0]",
+      "detail": "",
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "L[0] end",
@@ -2015,6 +2436,41 @@
       ]
     },
     {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.257694069
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.061552781
+    },
+    {
+      "detail": "worst 1.831e-15 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 6
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -2033,7 +2489,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "05691abd2d8d6fee"
+      "value": "bcfdecf51f9c6e8e"
     },
     {
       "detail": "",
@@ -2077,7 +2533,10 @@
       "name": "section_coverage_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": [
+        0.0,
+        0.0
+      ]
     },
     {
       "detail": "M[0] end",
@@ -2181,6 +2640,41 @@
       ]
     },
     {
+      "detail": "of 6",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "beam",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.114666863
+    },
+    {
+      "detail": "worst 3.503e-08 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 3
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -2200,6 +2694,1264 @@
       "ok": true,
       "skipped": false,
       "value": "e3bcf1f059f3d76b"
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "N_marker_mixed": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "N[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3.87e-07
+    },
+    {
+      "detail": "panel -> gate",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 5.66e-07
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.000",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3.87e-07
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 10",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "10 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.6,
+        2.1
+      ]
+    },
+    {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "gate",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.600000024
+    },
+    {
+      "detail": "worst 3.874e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "39ffb9b27c9ca95f"
+    },
+    {
+      "detail": "gate",
+      "name": "marker_offset_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.79e-07
+    },
+    {
+      "detail": "gate",
+      "name": "marker_offset_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.79e-07
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "O_no_kit": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 8
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no bendable pieces",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "8 stand-ins",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 8",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 8
+    },
+    {
+      "detail": "8 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "detail": "no kit geometry",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "worst 0.000e+00 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 8
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "pc_warn_kit_gap",
+          8
+        ]
+      ]
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "a365858de0866136"
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 1
+    }
+  ],
+  "P_crest_bend": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 3
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "P[0]",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "P[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 8.7e-08
+    },
+    {
+      "detail": "panel -> panel",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.09e-07
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 108.43495
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.500",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.17e-07
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 3",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 2
+    },
+    {
+      "detail": "3 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.46202,
+        1.251372
+      ]
+    },
+    {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.263042256
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.035884444
+    },
+    {
+      "detail": "worst 8.700e-08 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 3
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "pc_warn_bend_resolution",
+          1
+        ]
+      ]
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "dbb0ce6eaeed2c4a"
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "Q_vertical_stepped": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 25
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "1 degenerate sections skipped",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "24 degenerate pairs skipped",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.12
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "25 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no bendable pieces",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 25",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 25
+    },
+    {
+      "detail": "25 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.12,
+        0.12
+      ]
+    },
+    {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.12
+    },
+    {
+      "detail": "worst 1.144e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 25
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "pc_warn_degenerate_frame",
+          25
+        ]
+      ]
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "a78d4c98039d09e9"
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "R_hairpin": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 1
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no bendable pieces",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 1",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 1
+    },
+    {
+      "detail": "1 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.1,
+        0.1
+      ]
+    },
+    {
+      "detail": "of 6",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "beam",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.100000001
+    },
+    {
+      "detail": "worst 0.000e+00 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 1
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "pc_warn_corner_degenerate",
+          1
+        ]
+      ]
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "ddb75f12f45c7970"
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "S_overhang_gate": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.494000256
+      ]
+    },
+    {
+      "detail": "S[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 7.75e-07
+    },
+    {
+      "detail": "panel -> panel",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 6.56e-07
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "gate @ x=0.000",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 7.75e-07
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 10",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 9
+    },
+    {
+      "detail": "10 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.599998,
+        2.1
+      ]
+    },
+    {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "gate",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.399999619
+    },
+    {
+      "detail": "gate",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.599998474
+    },
+    {
+      "detail": "worst 7.749e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "7cebc6c3c3969bc0"
     },
     {
       "detail": "",

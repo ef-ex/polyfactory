@@ -154,19 +154,17 @@ def _face(rec, target, tol=LOCAL_TOL):
     return out
 
 
-def _axis_of(face):
-    """The world point at the face's local (x, 0, 0).
+def _frame_of(face):
+    """(origin, up, across) of one face, read off the built geometry.
 
-    ⚠️ THE OBVIOUS MEASUREMENT - the centroid of the face - IS WRONG, and was
-    measured to be wrong before this existed: a post's cross-section centre
-    sits 0.60 m up and a panel's 0.55 m, so two pieces that met perfectly
-    reported a 0.050 m gap and a run starting exactly on its section reported
-    a 0.575 m error. Every point of one face shares one arc position and
-    therefore one frame, so the face map is AFFINE - world = A + U*y + V*z -
-    and the cross-section offsets divide out exactly from two point pairs.
+    The face map is AFFINE - every point of one face shares one arc position
+    and therefore one frame - so `world = A + up*y + across*z` is recovered
+    exactly from three point pairs. `_axis_of` wants only A; `frame_continuity`
+    wants `across`, which is the vector that used to flip 180 degrees mid
+    piece.
     """
     if not face:
-        return None
+        return (None, None, None)
     (l0, w0) = face[0]
     up, across = (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)
     for (l1, w1) in face[1:]:
@@ -182,7 +180,22 @@ def _axis_of(face):
                       (w2[1] - w0[1] - up[1] * dy) / dz,
                       (w2[2] - w0[2] - up[2] * dy) / dz)
             break
-    return tuple(w0[k] - up[k] * l0[1] - across[k] * l0[2] for k in range(3))
+    origin = tuple(w0[k] - up[k] * l0[1] - across[k] * l0[2] for k in range(3))
+    return (origin, up, across)
+
+
+def _axis_of(face):
+    """The world point at the face's local (x, 0, 0).
+
+    ⚠️ THE OBVIOUS MEASUREMENT - the centroid of the face - IS WRONG, and was
+    measured to be wrong before this existed: a post's cross-section centre
+    sits 0.60 m up and a panel's 0.55 m, so two pieces that met perfectly
+    reported a 0.050 m gap and a run starting exactly on its section reported
+    a 0.575 m error. Every point of one face shares one arc position and
+    therefore one frame, so the face map is AFFINE - world = A + U*y + V*z -
+    and the cross-section offsets divide out exactly from two point pairs.
+    """
+    return _frame_of(face)[0]
 
 
 def axis_points(rec):
@@ -327,23 +340,54 @@ def sampler_matches_kernel(scene, samples=400):
 
 
 def section_coverage(scene):
-    worst, where = 0.0, ""
+    """[shortfall, overshoot] in metres.
+
+    The SHORTFALL is the assertion - a run that stops early would let
+    `exact_fill_m` pass by measuring a short run against its own short end.
+    The overshoot is recorded, not asserted, because a piece anchored on a
+    MARKER near the end legitimately overhangs it (D20 allows the module's own
+    geometry to overhang, D30 makes the sampler carry it): clamping it would
+    move the gate off the marker it was placed on, which is PC-G1's own
+    acceptance criterion.
+    """
+    short, over, where = 0.0, 0.0, ""
     for _track, section, group in _groups(scene):
         d = max(abs(min(p.s0 for p in group)),
-                abs(max(p.s1 for p in group) - section.length))
-        if d > worst:
-            worst, where = d, "%s[%d]" % (group[0].curve_id, section.index)
-    return Result("section_coverage_m", worst <= TOL_M, _round(worst), where)
+                max(section.length - max(p.s1 for p in group), 0.0))
+        over = max(over, max(p.s1 for p in group) - section.length)
+        if d > short:
+            short, where = d, "%s[%d]" % (group[0].curve_id, section.index)
+    return Result("section_coverage_m", short <= TOL_M,
+                  [_round(short), _round(max(over, 0.0))], where)
+
+
+WARN_DEGENERATE_FRAME = "pc_warn_degenerate_frame"       # place / __init__
+
+
+def _degenerate(scene, placement):
+    """Did this piece's yaw frame collapse (D32)?
+
+    A yaw-only z-mode measures along the horizontal, so on a (near-)vertical
+    span there is no horizontal direction left and the piece cannot both stay
+    flat AND land its ends on the curve. It keeps flat - which is what the mode
+    means, and `flat_stepped_m` and `plumb_deg` still assert it - and says so
+    with a warning. The along-the-chain checks skip exactly the pieces carrying
+    that warning, and COUNT them, so the exemption cannot quietly widen.
+    """
+    return WARN_DEGENERATE_FRAME in scene.warns.get(placement.elem_id, {})
 
 
 def exact_fill(scene):
     """The run ENDS where the section ends - measured on built geometry."""
-    worst, where = 0.0, ""
+    worst, where, skipped = 0.0, "", 0
     for track, section, group in _groups(scene):
         path, remap = track["path"], track["remap"]
         first = scene.by_id.get(group[0].elem_id)
         last = scene.by_id.get(group[-1].elem_id)
         if first is None or last is None:
+            continue
+        if _degenerate(scene, group[0]) or _degenerate(scene, group[-1]):
+            skipped += 1
             continue
         pairs = ((path.sample(remap(section.s0 + group[0].s0))[0],
                   axis_points(first)[0], group[0], "start"),
@@ -361,16 +405,21 @@ def exact_fill(scene):
             if d > worst:
                 worst, where = d, "%s[%d] %s" % (group[0].curve_id,
                                                  section.index, tag)
-    return Result("exact_fill_m", worst <= TOL_M, _round(worst), where)
+    return Result("exact_fill_m", worst <= TOL_M, _round(worst),
+                  where or ("%d degenerate sections skipped" % skipped
+                            if skipped else ""))
 
 
 def no_gaps_or_overlaps(scene):
     """Consecutive pieces meet. D21 makes this exact, not approximate."""
-    worst, where = 0.0, ""
+    worst, where, skipped = 0.0, "", 0
     for _track, _section, group in _groups(scene):
         for a, b in zip(group, group[1:]):
             ra, rb = scene.by_id.get(a.elem_id), scene.by_id.get(b.elem_id)
             if ra is None or rb is None:
+                continue
+            if _degenerate(scene, a) or _degenerate(scene, b):
+                skipped += 1
                 continue
             end_a, start_b = axis_points(ra)[1], axis_points(rb)[0]
             if end_a is None or start_b is None:
@@ -379,7 +428,9 @@ def no_gaps_or_overlaps(scene):
             d = _dist_xz(end_a, start_b) if stepped else _dist(end_a, start_b)
             if d > worst:
                 worst, where = d, "%s -> %s" % (a.module, b.module)
-    return Result("max_gap_m", worst <= TOL_M, _round(worst), where)
+    return Result("max_gap_m", worst <= TOL_M, _round(worst),
+                  where or ("%d degenerate pairs skipped" % skipped
+                            if skipped else ""))
 
 
 def stepped_riser(scene):
@@ -511,9 +562,22 @@ def cap_tagged(scene, expect=0):
                   "" if n >= expect else "expected at least %d" % expect)
 
 
+KIT_WARN_ATTR = "pc_kit_warnings"       # place.KIT_WARN_ATTR
+
+
 def kit_validation(scene, expect_min=0, expect_max=0):
-    """The validator reports, never raises (D24)."""
-    warns = scene.report["kit_warnings"]
+    """The validator reports, never raises (D24) - and the report is PERSISTED.
+
+    Read off the output geometry, not out of the Python report: a warning that
+    lives only in a returned dict dies with the call, so a kit missing `kitId`
+    or carrying a duplicate module name would cook clean forever on the HDA.
+    Reading the attribute makes the check fail if the persisting is ever
+    dropped, which reading the report could not.
+    """
+    if scene.geo.findGlobalAttrib(KIT_WARN_ATTR) is None:
+        return Result("kit_warnings", False, None,
+                      "%s not written on the output" % KIT_WARN_ATTR)
+    warns = list(scene.geo.attribValue(KIT_WARN_ATTR))
     n = len(warns)
     ok = expect_min <= n <= expect_max
     return Result("kit_warnings", ok, n,
@@ -734,6 +798,166 @@ def geometry_digest(scene):
         h.update(("|%d|" % rec["pc_deformed"]).encode("utf-8"))
         h.update(",".join("%.6f" % v for v in rec["world"]).encode("utf-8"))
     return Result("geometry_digest", True, h.hexdigest()[:16])
+
+
+def _station_xs(rec):
+    """Sorted distinct local x values of one built element."""
+    out = []
+    for x in sorted(set(round(v, 6) for v in rec["local"][0::3])):
+        if not out or x - out[-1] > LOCAL_TOL:
+            out.append(x)
+    return out
+
+
+def module_winding(scene):
+    """Every face of every kit module points OUT (D33).
+
+    ⚠️ WRITTEN DURING A REVIEW, AND IT FOUND THE WHOLE STARTER KIT INSIDE-OUT:
+    `box_mesh` wound all six faces inward, so 18 of the gate's 18 faces scored
+    inward on this exact test while the Box SOP verb scored 0 of 6 on the same
+    one. Nothing else on this list looks at a normal, so every fence the tool
+    built rendered interior-side-out and every normal-dependent op downstream
+    (boolean, peak, displacement, one-sided shading) ran on inverted geometry.
+    The reference is the box verb, not an opinion about handedness.
+    """
+    kit_geo = scene.case.get("kit")
+    if kit_geo is None:
+        return _skip("inward_faces", "no kit geometry")
+    inward, total = 0, 0
+    for prim in kit_geo.prims():
+        if prim.type() != hou.primType.PackedGeometry:
+            continue
+        src = prim.getEmbeddedGeometry()
+        centre = src.boundingBox().center()
+        for face in src.prims():
+            pts = face.points()
+            if len(pts) < 3:
+                continue
+            total += 1
+            cen = [sum(p.position()[k] for p in pts) / len(pts)
+                   for k in range(3)]
+            nrm = face.normal()
+            if sum((cen[k] - centre[k]) * nrm[k] for k in range(3)) < 0.0:
+                inward += 1
+    if not total:
+        return _skip("inward_faces", "no module faces")
+    return Result("inward_faces", inward == 0, inward, "of %d" % total)
+
+
+def frame_continuity(scene):
+    """A deformed piece's `across` vector never reverses between stations.
+
+    ⚠️ ALSO FROM A REVIEW. `_frame` derived `across` from cross(tangent, up)
+    with no memory, so wherever a tangent's horizontal direction reversed - an
+    overhanging crest, a cliff lip - the frame flipped 180 degrees mid piece
+    and the faces crossed through each other. Measured as the dot of two
+    consecutive stations' unit `across`: 1 is a straight run, and the defect
+    scored -1. Every other check stayed green through it, because none of them
+    compares one station's frame with the next one's.
+    """
+    worst, where, seen = 1.0, "", 0
+    for rec in scene.by_id.values():
+        prev = None
+        for x in _station_xs(rec):
+            across = _frame_of(_face(rec, x))[2]
+            if across is None:
+                continue
+            n = math.sqrt(sum(v * v for v in across))
+            if n < 1e-9:
+                continue
+            unit = tuple(v / n for v in across)
+            if prev is not None:
+                seen += 1
+                dot = sum(unit[k] * prev[k] for k in range(3))
+                if dot < worst:
+                    worst, where = dot, "%s @ x=%.3f" % (rec["pc_module"], x)
+            prev = unit
+    if not seen:
+        return _skip("frame_dot_min", "no multi-station pieces")
+    return Result("frame_dot_min", worst > 0.0, _round(worst, 6), where)
+
+
+def station_spacing(scene):
+    """Two DISTINCT stations of a deformed piece never land on one point.
+
+    ⚠️ THE END-CLAMP DETECTOR. `Path.sample` used to clamp arclength into
+    [0, total] on an open curve, so a gate whose module legitimately overhangs
+    the curve end had its last stations all read back the same end point and
+    the tail of the piece was crushed into a zero-thickness plane. Every
+    position-based check agreed with it, because they resolve the station
+    through the same sampler: this one does not ask where the station SHOULD
+    be, only whether two of them collapsed onto each other.
+    """
+    worst, where, seen = None, "", 0
+    for rec in scene.by_id.values():
+        if not rec["pc_deformed"]:
+            continue
+        pts = [_axis_of(_face(rec, x)) for x in _station_xs(rec)]
+        pts = [p for p in pts if p is not None]
+        for a, b in zip(pts, pts[1:]):
+            seen += 1
+            d = _dist(a, b)
+            if worst is None or d < worst:
+                worst, where = d, rec["pc_module"]
+    if not seen:
+        return _skip("station_spacing_m", "no deformed pieces")
+    return Result("station_spacing_m", worst > TOL_M, _round(worst), where)
+
+
+def piece_extent(scene):
+    """No element is invisible ALONG THE CHAIN.
+
+    ⚠️ THE DEGENERATE-FRAME DETECTOR (D32). A yaw-only z-mode on a vertical
+    span scaled every piece by 1e-9: 25 posts of 0.0000 m along-axis width,
+    stacked, and `warns=[]`. Zero-size geometry passes every other check on
+    this list by having nothing left to measure.
+
+    ⚠️ AND THE OBVIOUS MEASUREMENT - the piece's bounding-box diagonal - MISSES
+    IT, which this check did until the mutation was run: the collapse is along
+    the chain axis ONLY, so a post crushed to 1.2e-10 m of length still
+    measures 1.2 m tall and 0.12 m wide and its diagonal never moves. The
+    number has to be the piece's own axis span.
+    """
+    worst, where = None, ""
+    for rec in scene.by_id.values():
+        a, b = axis_points(rec)
+        if a is None or b is None:
+            continue
+        d = _dist(a, b)
+        if worst is None or d < worst:
+            worst, where = d, rec["pc_module"]
+    if worst is None:
+        return _skip("min_piece_span_m", "no pieces")
+    return Result("min_piece_span_m", worst > 1e-3, _round(worst), where)
+
+
+def plan_geometry(scene, place):
+    """4.2: "the plan is inspectable geometry" - and it is written, not just
+    returned. One point per placement, at that placement's own start on the
+    curve, carrying the plan payload."""
+    geo = hou.Geometry()
+    try:
+        place.plan_points(geo, scene.report)
+    except Exception as exc:
+        return Result("plan_points", False, None,
+                      "%s: %s" % (type(exc).__name__, str(exc)[:120]))
+    n = len(geo.points())
+    if n != len(scene.plan):
+        return Result("plan_points", False, n,
+                      "plan has %d" % len(scene.plan))
+    worst = 0.0
+    for pt, placement in zip(geo.points(), scene.plan):
+        if pt.attribValue("pc_elem_id") != placement.elem_id:
+            return Result("plan_points", False, n, "id mismatch")
+        track = scene.track_of.get(str(placement.curve_id))
+        section = scene.section_of.get((str(placement.curve_id),
+                                        placement.section_index))
+        if track is None or section is None:
+            continue
+        want = track["path"].sample(
+            track["remap"](section.s0 + placement.s0))[0]
+        worst = max(worst, _dist(want, pt.position()))
+    return Result("plan_points", worst <= TOL_M, n, "worst %.3e m" % worst)
 
 
 def horizontal_spacing(scene):

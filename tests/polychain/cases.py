@@ -58,20 +58,32 @@ def polyline(geo, pts, closed=False, curve_id=None):
     return poly
 
 
-def marker(geo, position, curve_id, marker_id, dist):
+def marker(geo, position, curve_id, marker_id, dist=None, u=None):
+    """One 3.1 marker point, authored through `pc_dist` OR `pc_u`.
+
+    ⚠️ AUTHORING ONLY ONE OF THE TWO IS THE POINT. A Houdini attribute is
+    geometry-wide, so as soon as one marker in the cloud carries `pc_dist`
+    every other marker carries it too, with the default 0.0 - which is exactly
+    how a u-authored gate ended up built at the start of its curve. Mixing the
+    two conventions in one cloud is what `N_marker_mixed` is for.
+    """
     for name, default in (("pc_marker", 0), ("pc_marker_id", 0)):
         if geo.findPointAttrib(name) is None:
             geo.addAttrib(hou.attribType.Point, name, default)
     if geo.findPointAttrib("pc_curve") is None:
         geo.addAttrib(hou.attribType.Point, "pc_curve", "")
-    if geo.findPointAttrib("pc_dist") is None:
-        geo.addAttrib(hou.attribType.Point, "pc_dist", 0.0)
+    for name, value in (("pc_dist", dist), ("pc_u", u)):
+        if value is not None and geo.findPointAttrib(name) is None:
+            geo.addAttrib(hou.attribType.Point, name, 0.0)
     pt = geo.createPoint()
     pt.setPosition(position)
     pt.setAttribValue("pc_marker", 1)
     pt.setAttribValue("pc_curve", str(curve_id))
     pt.setAttribValue("pc_marker_id", int(marker_id))
-    pt.setAttribValue("pc_dist", float(dist))
+    if dist is not None:
+        pt.setAttribValue("pc_dist", float(dist))
+    if u is not None:
+        pt.setAttribValue("pc_u", float(u))
     return pt
 
 
@@ -291,6 +303,78 @@ def build_all():
     built["K_broken_kit"] = _case(g, broken_kit(), Style(
         "broken", 1, 4, rules=[Rule("default", "first", ["slab"]),
                                Rule("start", "first", ["nonexistent_module"])],
+        params=Params(fill="adaptive")))
+
+    # ---- the review cases. Every one of these is a defect that was measured
+    # on a build before it was written down here (tests/README.md: a
+    # measurement written during a review belongs in checks.py afterwards).
+
+    # N - one marker cloud, two authoring conventions. Marker 7 is authored in
+    # metres and marker 8 in u, and because a Houdini attribute is
+    # geometry-wide marker 8 also carries pc_dist = 0.0. Reading dist first
+    # without asking whether it was AUTHORED built the second gate at s = 0.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="N")
+    marker(g, (5, 0, 0), "N", 7, dist=5.0)
+    marker(g, (15, 0, 0), "N", 8, u=0.75)
+    built["N_marker_mixed"] = _case(g, kit_geo, Style(
+        "mixed", 1, 2, rules=[Rule("default", "first", ["panel"]),
+                              Rule("marker:7", "first", ["gate"]),
+                              Rule("marker:8", "first", ["gate"])],
+        params=Params(fill="adaptive")))
+
+    # O - NO KIT AT ALL, which is what an unconnected second input hands the
+    # SOP. Warn-never-block means a stand-in fence and a warning, not an
+    # AttributeError halfway through the cook.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (8, 0, 0)], curve_id="O")
+    built["O_no_kit"] = _case(g, None, fence_style())
+
+    # P - an OVERHANGING CREST: the path turns back on itself in the vertical
+    # plane, so the tangent's horizontal direction reverses mid-piece. That is
+    # where a frame derived per point from cross(tangent, up) flips 180
+    # degrees and the panel twists through itself. corner_angle_deg = 60 keeps
+    # it one section, so one panel really does straddle the reversal.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (2, 3, 0), (1, 6, 0)], curve_id="P")
+    built["P_crest_bend"] = _case(g, kit_geo, Style(
+        "crest", 1, 1, rules=[Rule("default", "first", ["panel"])],
+        params=Params(fill="adaptive", zmode="adaptive",
+                      corner_angle_deg=60.0)))
+
+    # Q - a PURELY VERTICAL run in a yaw-only z-mode. The flattened chord has
+    # no length, so the scale used to collapse to 1e-9 and the posts became 25
+    # invisible prims with no warning. D32: they keep their 3D length and say
+    # `pc_warn_degenerate_frame`.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (0, 3, 0)], curve_id="Q")
+    built["Q_vertical_stepped"] = _case(g, kit_geo, Style(
+        "vert", 1, 1, rules=[Rule("default", "first", ["post"])],
+        params=Params(fill="adaptive")))
+
+    # R - a SUPPRESSED HAIRPIN under a rigid module: the beam is asked to
+    # cover 4 m of a there-and-back polyline whose two ends are 0.10 m apart.
+    # Cutting the corner is what rigid means, but a 25x collapse is a
+    # measurable degeneration and warn-never-block says it must be visible.
+    g = hou.Geometry()
+    poly = polyline(g, [(0, 0, 0), (2, 0, 0), (0, 0, 0.1)], curve_id="R")
+    g.addAttrib(hou.attribType.Point, "pc_corner", 0)
+    poly.points()[1].setAttribValue("pc_corner", -1)          # -1 = suppress
+    built["R_hairpin"] = _case(g, rigid_kit(), Style(
+        "hair", 1, 1, rules=[Rule("default", "first", ["beam"])],
+        params=Params(fill="scale", corner_angle_deg=170.0,
+                      min_included_angle_deg=1.0)))
+
+    # S - a gate marked at 19.7 m of a 20.006 m curve, so the 1.6 m module
+    # legitimately OVERHANGS the end (D20 allows exactly that). The sampler
+    # used to clamp, and the last 0.49 m of the gate was crushed into the end
+    # plane - measured as two distinct stations landing on one point.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20.006, 0, 0)], curve_id="S")
+    marker(g, (19.7, 0, 0), "S", 7, dist=19.7)
+    built["S_overhang_gate"] = _case(g, kit_geo, Style(
+        "overhang", 1, 2, rules=[Rule("default", "first", ["panel"]),
+                                 Rule("marker:7", "first", ["gate"])],
         params=Params(fill="adaptive")))
 
     return built

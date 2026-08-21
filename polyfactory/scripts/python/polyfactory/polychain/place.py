@@ -67,6 +67,23 @@ DECISIONS TAKEN HERE (recorded in polychain.md 10):
       polyfill added": measured on 22.0.398, a prim polyfill creates inherits
       its neighbour's attribute values rather than the attribute default, so
       the obvious default-value trick reads 0 on the cap it just built.
+  D30 An OPEN curve EXTRAPOLATES past either end (`Path.sample`, `_Remap`)
+      instead of clamping, so a piece that legitimately overhangs the end is
+      carried rather than crushed into the end plane.
+  D31 The frame is PARALLEL-TRANSPORTED along a deformed piece (`_transport`):
+      `across` is flip-corrected against the previous station's, so a tangent
+      that reverses direction mid-piece cannot twist it through itself.
+  D32 Two silent collapses are now measured and warned, and neither blocks:
+      `_flat_ratio` (a yaw-only mode on a near-vertical span -> the piece keeps
+      its 3D length so it stays visible, plus WARN_DEGENERATE_FRAME) and
+      `_chord_ratio` (a rigid piece over a suppressed hairpin -> still built on
+      its chord, plus WARN_CORNER_DEGENERATE).
+  D34 A `None` input is an UNCONNECTED input, not an error: `read_curves` and
+      `kit.read` return empty results and a warning, and the build makes a
+      stand-in fence. Warn-never-block includes the wiring.
+  D35 `pc_u` vs `pc_dist` is resolved PER MARKER (see `read_curves`), because
+      a Houdini attribute is per-geometry and a merged marker cloud otherwise
+      hands every u-authored marker a default `pc_dist` of 0.
   D29 Curve identity: `pc_curve_id`, else `edge_id` (the streets id, which
       3.1 says feeds `pc_elem_id`), else the primitive number - always
       normalised to a string, because `pc_elem_id` is a string address (D1).
@@ -77,8 +94,9 @@ import math
 
 import hou
 
-from . import (DEFAULTS, EPS, WARN_BEND_RESOLUTION, WARN_KIT_GAP, Curve,
-               Marker, Z_MODES, elem_key, stand_in)
+from . import (DEFAULTS, EPS, WARN_BEND_RESOLUTION, WARN_CORNER_DEGENERATE,
+               WARN_DEGENERATE_FRAME, WARN_KIT_GAP, Curve, Marker, Z_MODES,
+               elem_key, stand_in)
 from . import decompose as _decompose
 from . import kit as _kit
 from . import plan as _plan
@@ -165,14 +183,28 @@ class Path(object):
                 s += total
             if not forward and s <= EPS and asked > EPS:
                 s = total
-        s = min(max(s, 0.0), self.ends[-1])
-        if forward:
+            s = min(max(s, 0.0), self.ends[-1])
+        # D30: an OPEN curve is EXTRAPOLATED past either end along the end
+        # segment's own direction, never clamped. Clamping looks harmless until
+        # a DEFORMED piece overhangs the end: a 1.6 m gate on a marker at 19.7 m
+        # of a 20.006 m curve had both of its last two stations read back the
+        # same end point, and the last 0.49 m of it was crushed into a
+        # zero-thickness plane (built extent 1.11 m of 1.60 m) with no warning
+        # naming the fault. Overhang is legal - D20 says so for the module's own
+        # geometry - so the sampler carries it instead of squashing it.
+        if s < 0.0:
+            i = 0
+        elif s > self.ends[-1]:
+            i = len(self.segs) - 1
+        elif forward:
             i = bisect.bisect_right(self.ends, s + EPS)
         else:
             i = bisect.bisect_left(self.ends, s - EPS)
-        i = min(i, len(self.segs) - 1)
+        i = min(max(i, 0), len(self.segs) - 1)
         lo, hi, a, d = self.segs[i]
-        t = 0.0 if hi - lo < EPS else min(max((s - lo) / (hi - lo), 0.0), 1.0)
+        t = 0.0 if hi - lo < EPS else (s - lo) / (hi - lo)
+        if 0.0 <= s <= self.ends[-1]:
+            t = min(max(t, 0.0), 1.0)
         return ((a[0] + d[0] * t, a[1] + d[1] * t, a[2] + d[2] * t), _unit(d))
 
     def interior_vertices(self, s0, s1, tol=1e-7):
@@ -197,16 +229,21 @@ class _Remap(object):
     same length and the map is piecewise linear and exact between them.
     """
 
-    def __init__(self, flat_cum, real_cum):
+    def __init__(self, flat_cum, real_cum, closed=False):
         self.flat = flat_cum
         self.real = real_cum
+        self.closed = bool(closed)
         self.flat_total = flat_cum[-1] if flat_cum else 0.0
         self.real_total = real_cum[-1] if real_cum else 0.0
 
     def __call__(self, s):
         if self.flat_total <= EPS:
             return 0.0
-        wraps = math.floor(s / self.flat_total)
+        # Only a CLOSED curve wraps. On an open one the clamped index plus an
+        # unclamped `t` extrapolates on the end segment, which is D30's rule
+        # carried through the slope-fixing remap - wrapping there would send a
+        # gate that overhangs the end back to the curve's start.
+        wraps = math.floor(s / self.flat_total) if self.closed else 0.0
         s -= wraps * self.flat_total
         i = min(max(bisect.bisect_right(self.flat, s) - 1, 0),
                 len(self.flat) - 2)
@@ -240,6 +277,8 @@ def read_curves(geo):
     """([Curve], [Marker]) off input 1. Marker points never become curves."""
     markers = []
     marker_pts = set()
+    if geo is None:                     # D34: an unconnected input, not a crash
+        return ([], [])
     if geo.findPointAttrib("pc_marker") is not None:
         for pt in geo.points():
             try:
@@ -251,6 +290,17 @@ def read_curves(geo):
             data = _pattr(pt, "pc_marker_data", None)
             u = _pattr(pt, "pc_u", None)
             dist = _pattr(pt, "pc_dist", None)
+            # D35: 3.1's "pc_u (0-1) OR pc_dist" is a choice PER MARKER, but a
+            # Houdini attribute is geometry-wide - so in a merged marker cloud
+            # (3.1's own "streets-shaped carrier") every u-authored point also
+            # carries pc_dist = 0.0, and `Marker.distance_on` prefers dist. A
+            # u-authored gate at 0.75 of a 20 m curve silently built at s = 0.
+            # A zero dist beside a real u is therefore read as the DEFAULT, not
+            # as an authored 0: when both are zero the two conventions agree on
+            # s = 0 anyway, so only a genuine conflict (both non-zero) is left,
+            # and there dist keeps precedence as before.
+            if dist is not None and u is not None and abs(dist) <= 0.0:
+                dist = None
             if u is None and dist is None:
                 u = 0.0
             markers.append(Marker(
@@ -368,6 +418,69 @@ def _frame(tangent, zmode):
     return (d, (-d[2], 0.0, d[0]), UP)
 
 
+def _transport(frame, prev_across):
+    """D31 - the frame carried along the piece instead of re-derived per point.
+
+    `_frame` builds `across` from cross(tangent, UP), which has no memory: the
+    moment the tangent's HORIZONTAL direction reverses - an overhanging crest,
+    a cliff lip, a loop - `across` flips 180 degrees mid-piece and the piece
+    twists through itself. Measured on a panel over the crest
+    (0,0,0)->(2,3,0)->(1,6,0): the built across vector between two adjacent
+    stations 0.25 m apart had dot -0.0036 on two 0.06 m vectors, an exact
+    reversal, and every other check stayed green.
+
+    Flipping `across` alone would leave a left-handed frame, so `up` flips with
+    it - two of three axes, which preserves the handedness.
+    """
+    d, across, up = frame
+    if prev_across is None:
+        return frame
+    if (across[0] * prev_across[0] + across[1] * prev_across[1]
+            + across[2] * prev_across[2]) >= 0.0:
+        return frame
+    return (d, (-across[0], -across[1], -across[2]),
+            (-up[0], -up[1], -up[2]))
+
+
+def _flat_ratio(path, sa, sb, zmode):
+    """D32 - how much of a planned span survives yaw-flattening, 0..1.
+
+    A yaw-only z-mode measures the piece along the horizontal, so a vertical
+    span leaves nothing to scale by. It used to build silently: a 3 m vertical
+    curve produced 25 posts of 0.0000 m along-axis width, stacked coincident,
+    with `warns=[]`. The onset is continuous (0.0852 m at 45 degrees, 0.0021 m
+    at 89) so this is a RATIO, not a special case for exactly vertical.
+    """
+    span = abs(sb - sa)
+    if zmode == "adaptive" or span <= EPS:
+        return 1.0
+    a = path.sample(sa)[0]
+    b = path.sample(sb, forward=False)[0]
+    return math.hypot(b[0] - a[0], b[2] - a[2]) / span
+
+
+def _chord_ratio(path, sa, sb):
+    """How much of a planned span the straight chord across it covers.
+
+    A rigid piece cuts every corner by design, but a SUPPRESSED HAIRPIN turns
+    that into an order-of-magnitude collapse: a 2.5 m beam asked to cover 4 m
+    of a there-and-back polyline materialised 0.10 m long, 2.5 % of its span,
+    silently. Below `COLLAPSE_RATIO` the piece is still built (never block) and
+    carries WARN_CORNER_DEGENERATE, whose own meaning - the corner degenerated
+    - is exactly the cause.
+    """
+    span = abs(sb - sa)
+    if span <= EPS:
+        return 1.0
+    a = path.sample(sa)[0]
+    b = path.sample(sb, forward=False)[0]
+    return _len(_sub(b, a)) / span
+
+
+COLLAPSE_RATIO = 0.5        # chord vs planned span, for a RIGID piece
+FLAT_RATIO = 0.01           # horizontal reach vs planned span, yaw-only modes
+
+
 def _needs_deform(placement, proto, path, sa, sb, zmode):
     """4.4 + the streets float32 lesson: rebuild ONLY when it changes something."""
     if placement.slice_t is not None:
@@ -407,9 +520,18 @@ def _packed_transform(proto, path, sa, sb, zmode):
     a, ta = path.sample(sa)
     b, _tb = path.sample(sb, forward=False)
     chord = _sub(b, a)
-    if zmode != "adaptive":
-        chord = (chord[0], 0.0, chord[2])
     clen = _len(chord)
+    if zmode != "adaptive":
+        flat = (chord[0], 0.0, chord[2])
+        flen = _len(flat)
+        # D32: when yaw-flattening leaves less than FLAT_RATIO of the 3D chord
+        # there is nothing left to scale by, and scaling by it produced a
+        # 1e-9 sliver - invisible geometry that no check could see. Keep the 3D
+        # length so the piece stays VISIBLE; `_flat_ratio` has already stamped
+        # WARN_DEGENERATE_FRAME on it, so it is visible in the warning
+        # visualisation too.
+        chord = flat
+        clen = flen if flen >= FLAT_RATIO * clen else clen
     if clen < EPS:                       # a zero-length span still gets a frame
         d, across, up = _frame(ta, zmode)
         clen = 0.0
@@ -431,10 +553,20 @@ def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap):
     out = [0.0] * len(local)
     base_y = path.sample(remap(s0_flat))[0][1]
     ax = proto.ax
+    # D31: one frame per STATION, transported along the piece in x order, then
+    # looked up per point. Deriving it per point independently is what let it
+    # flip mid-piece; doing it per station also drops the sampler calls from
+    # one-per-point to one-per-station.
+    frames, prev = {}, None
+    for x in sorted(set(local[0::3])):
+        pos, tan = path.sample(remap(s0_flat + (x - ax) * scale))
+        prev_across = None if prev is None else prev[1]
+        frame = _transport(_frame(tan, zmode), prev_across)
+        frames[x] = (pos, frame)
+        prev = frame
     for i in range(0, len(local), 3):
         x, y, z = local[i], local[i + 1], local[i + 2]
-        pos, tan = path.sample(remap(s0_flat + (x - ax) * scale))
-        d, across, up = _frame(tan, zmode)
+        pos, (d, across, up) = frames[x]
         if zmode == "adaptive":
             out[i] = pos[0] + across[0] * z + up[0] * y
             out[i + 1] = pos[1] + across[1] * z + up[1] * y
@@ -448,6 +580,69 @@ def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap):
 
 
 # --- output attributes ------------------------------------------------------
+
+KIT_WARN_ATTR = "pc_kit_warnings"
+
+# 4.2's "the plan is inspectable geometry", as a point schema. Named
+# separately from ELEM_PRIM_ATTRS because a plan point is not an element: it
+# carries the SOLVE (s0/s1/scale/slice) rather than the built prim's stamps.
+PLAN_POINT_ATTRS = (
+    ("pc_elem_id", ""), ("pc_slot", ""), ("pc_module", ""), ("pc_variant", ""),
+    ("pc_zmode", ""), ("pc_elem_key", 0), ("pc_section", 0), ("pc_index", 0),
+    ("pc_deform", 0), ("pc_plan", 1), ("pc_s0", 0.0), ("pc_s1", 0.0),
+    ("pc_u", 0.0), ("pc_scale", 1.0), ("pc_slice_t", -1.0),
+)
+
+
+def _kit_warnings(geo, warns):
+    """3.4 + the suite constraint: warnings are PERSISTED, not returned.
+
+    Per-element warnings ride on their own prim; the kit-level class had
+    nowhere to live and died with the Python call, so a kit missing `kitId` or
+    carrying a duplicate module name cooked clean forever. This is that class,
+    as a detail string array - one attribute, readable by a middle click.
+    """
+    if geo.findGlobalAttrib(KIT_WARN_ATTR) is None:
+        geo.addArrayAttrib(hou.attribType.Global, KIT_WARN_ATTR,
+                           hou.attribData.String)
+    geo.setGlobalAttribValue(KIT_WARN_ATTR, tuple(str(w) for w in warns))
+
+
+def plan_points(geo, report):
+    """4.2's debuggability contract: one point per PLACEMENT, at its own start
+    on the curve, carrying `plan_dicts()`'s payload.
+
+    The plan is the stage between the kernel and the geometry, and until this
+    existed it lived only inside one Python call - nothing to middle-click when
+    a fill comes out wrong, and nothing for 5's plan-preview-while-dragging to
+    draw. Written into a SEPARATE geometry (the HDA's second output), never
+    merged with the build: a plan point is not an element.
+    """
+    rows = _plan.plan_dicts(report.get("plan") or [])
+    pos = report.get("plan_pos") or [(0.0, 0.0, 0.0)] * len(rows)
+    for name, default in PLAN_POINT_ATTRS:
+        if geo.findPointAttrib(name) is None:
+            geo.addAttrib(hou.attribType.Point, name, default)
+    for row, p in zip(rows, pos):
+        pt = geo.createPoint()
+        pt.setPosition(p)
+        for name, default in PLAN_POINT_ATTRS:
+            src = {"pc_index": "index", "pc_s0": "s0", "pc_s1": "s1",
+                   "pc_scale": "scale", "pc_deform": "pc_deform",
+                   "pc_slice_t": "slice_t"}.get(name, name)
+            if name == "pc_plan":
+                pt.setAttribValue(name, 1)
+            elif name == "pc_slice_t":
+                pt.setAttribValue(name, -1.0 if row["slice_t"] is None
+                                  else float(row["slice_t"]))
+            elif isinstance(default, str):
+                pt.setAttribValue(name, str(row.get(src, default)))
+            elif isinstance(default, int):
+                pt.setAttribValue(name, int(row.get(src, default)))
+            else:
+                pt.setAttribValue(name, float(row.get(src, default)))
+    return geo
+
 
 def _declare(geo, warn_names):
     for name, default in ELEM_PRIM_ATTRS:
@@ -494,7 +689,8 @@ def _prepare(curve, params):
                  closed=curve.closed, corner_flags=curve.corner_flags,
                  section_ids=curve.section_ids, style_key=curve.style_key,
                  attrs=curve.attrs)
-    return (flat, path, _Remap(flat._cumulative(), curve._cumulative()))
+    return (flat, path, _Remap(flat._cumulative(), curve._cumulative(),
+                               curve.closed))
 
 
 def analyse(curve_geo, params=DEFAULTS):
@@ -555,6 +751,11 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
                 deformed = _needs_deform(p, proto, path, s0r, s1r, zmode)
                 scale = 1.0 if p.slice_t is not None else (
                     ((s1f - s0f) / proto.length) if proto.length > EPS else 1.0)
+                if _flat_ratio(path, s0r, s1r, zmode) < FLAT_RATIO:
+                    warns.append(WARN_DEGENERATE_FRAME)          # D32
+                if not deformed and _chord_ratio(path, s0r, s1r) \
+                        < COLLAPSE_RATIO and WARN_CORNER_DEGENERATE not in warns:
+                    warns.append(WARN_CORNER_DEGENERATE)         # D32, rigid
                 if deformed and module.deform > 0:
                     stations = (proto.sliced(p.slice_t)[1]
                                 if p.slice_t is not None else proto.stations)
@@ -603,8 +804,10 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
         out.merge(piece)
         n_deformed += 1
 
+    _kit_warnings(out, kit_warns)
     report = {
         "plan": [j["p"] for j in jobs],
+        "plan_pos": [j["path"].sample(j["s0r"])[0] for j in jobs],
         "kit_warnings": kit_warns,
         "curves": len(curves),
         "markers": len(markers),

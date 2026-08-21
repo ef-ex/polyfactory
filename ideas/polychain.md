@@ -28,8 +28,8 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | **cycle 2** — §3.2 kit format (`kit.py`, builder + validator + starter kit), §4.4 place/deform (`place.py`), and the scene-check harness `tests/polychain/`. 13 cases, 305 recorded values, 0 failing; 14 mutations, **14 killed**. Files and numbers under §10 |
-| Next up | §8 build order: **§4.3 corners** (bend/miter, the budgeted-hard stage — nothing places a `corner` slot yet), then §4.5 conform → §4.6 finalize/instancing (partly landed: packed-vs-deformed segregation and slice caps are in) → §5 parm face + the §3.3 style-payload reader → gates PC-G1–G4 |
+| Last completed | **cycle 2b** — the review pass over cycle 2: 11 findings (4 major), all reproduced under `hython`, all fixed, plus D30–D35. Suite grew to **19 cases / 540 values / 0 failing** and 5 new checks; 9 mutations, **9 killed**. ⚠️ Finding 7 found the **entire starter kit inside-out** through 305 green numbers. Details under §10 "Cycle 2b" |
+| Next up | §8 build order: **§4.3 corners** (bend/miter, the budgeted-hard stage — nothing places a `corner` slot yet), then §4.5 conform → §4.6 finalize/instancing (partly landed: packed-vs-deformed segregation and slice caps are in) → §5 parm face + the §3.3 style-payload reader → gates PC-G1–G4. Deferred and named so it is not forgotten: **§4.4's flatten-under** (see §10 Cycle 2b's not-built list — PC-G2 will see a 0.49 m riser gap under every stepped piece, by design for now) |
 | Gates | PC-G0 ✅ resolved (§2.3) · PC-G1 ⬜ · PC-G2 ⬜ · PC-G3 ⬜ · PC-G4 ⬜ |
 
 **To resume the autonomous run**, re-arm the loop with exactly this:
@@ -583,3 +583,89 @@ comes out **10 000 packed prims and 0 deformed**.
 **Visual confirmation: none.** Every number above is headless. Per the show-don't-tell rule the
 fence and the hill still have to be *looked at* before PC-G1/PC-G2 can be called anything, and the
 live bridge was deliberately not touched this cycle.
+
+### Cycle 2b — the review pass over cycle 2 (2026-08-21)
+
+Two independent reviewers (spec-conformance and geometry-correctness lenses) returned **11
+findings** over `place.py`, `kit.py` and `__init__.py`. **Every one reproduced under `hython`
+before it was touched, and every one is fixed** — none was a false positive, and the two
+"missing item" findings (§4.4's flatten-under, §4.2's plan writer) resolved in opposite
+directions: one built, one written down as deferred below.
+
+Suite after the pass: **19 scene cases, 540 recorded values, 0 failing**, plus **209 unit tests /
+9 625 subtests** green in 0.73 s.
+
+| # | Severity | Finding | Fix |
+|---|---|---|---|
+| 1 | major | A Houdini attribute is geometry-wide, so in a **mixed marker cloud** every `pc_u`-authored marker also carried `pc_dist = 0.0`, and `Marker.distance_on` prefers `dist` — a gate authored at u = 0.75 of a 20 m curve built at **s = 0**, silently | **D35** — `pc_u`/`pc_dist` resolved **per marker**: a zero `dist` beside a real `u` is the attribute default, not an authored 0 (at 0 the two conventions agree anyway, so only a both-non-zero conflict is left, and there `dist` still wins) |
+| 2 | minor | `kit.read(None)`, `read_curves(None)` and `build(curves, None, …)` all raised `AttributeError` — out of a function whose contract says *"Never raises"*. An **unconnected kit input** would crash the cook instead of building the stand-in fence warn-never-block promises | **D34** — `None` is an unconnected input: empty results, one warning, stand-in geometry |
+| 3 | minor | Kit validation warnings lived only in the transient Python report, so a kit missing `kitId` or carrying a duplicate module name **cooked clean forever** on an HDA. Per-element warnings were persisted; only the kit-level class was lost | detail string array **`pc_kit_warnings`** on the output, and `kit_validation` now reads the attribute instead of the report — so dropping the persist fails the check |
+| 4 | minor | `Params.zmode` was deliberately unguarded (for D6's `""` sentinel), so an invalid **style** zmode overrode every module and then resolved to `adaptive`: a case-slipped `"Vertical"` banked every picket on a hillside instead of leaving it plumb. The same typo on the *kit* side is warned | unknown → `""`, i.e. **D6's own third state**: the module wins. The artist's intent is not silently inverted |
+| 5 | minor | §4.4's **flatten-under** (RailClone's Flatten Stepped) is not implemented and was not in the not-built list, so it could be silently forgotten | recorded as deferred below — the honest answer, and PC-G2's visual pass now knows to expect the riser gap |
+| 6 | minor | §4.2's *"the plan is inspectable geometry"* had no geometry writer; cycle 1 named that adapter as cycle 2's first job and it was never written | **`place.plan_points(geo, report)`** — one point per placement at its own start on the curve, carrying `plan_dicts()`'s payload. `plan_points` is now a standing check on every case |
+| 7 | major | **`box_mesh` wound every face inward**: 18 of the starter gate's 18 faces failed a centroid-dot-normal test the Box SOP verb passes 6/6, so every module, every stand-in box and every slice cap was **inside-out** — the slice cap's normal read (−1,0,0) where +X is outward | **D33** — side faces and both end caps rewound; `inward_faces` asserts 0 against the box verb's own convention. ⚠️ Positions did not move: the 8 moved `geometry_digest` values are **vertex reordering only**, proven by rebuilding every case under both windings (worst position difference **0.000e+00 m**) |
+| 8 | major | `Path.sample` **clamped** arclength into `[0, total]` on open curves, so a piece that legitimately overhangs the end was crushed into the end plane: a 1.6 m gate on a marker at 19.7 m of a 20.006 m curve built **1.106 m** long with its last two stations on one point, and the only warning stamped (`bend_resolution`) misnamed the fault | **D30** — an open curve **extrapolates** past either end along the end segment (`Path.sample` and `_Remap` both). The gate now builds 1.600 m. D20 already says a module may overhang; the sampler now carries it |
+| 9 | major | `_frame` derived `across` from `cross(tangent, up)` **per point with no continuity**, so wherever a tangent's horizontal direction reversed — an overhanging crest, a cliff lip — it flipped 180° mid-piece and the panel twisted through itself (measured: consecutive-station `across` dot **−1**) | **D31** — the frame is **parallel-transported** along the piece: computed once per station in x order, flip-corrected against the previous one (`across` *and* `up`, so handedness is preserved). Also drops sampler calls from one-per-point to one-per-station |
+| 10 | major | A yaw-only z-mode on a **vertical span** scaled every piece by `1e-9`: 25 posts of 0.0000 m along-axis width, and `warns = []`. The onset is continuous (0.0852 m at 45°, 0.0021 m at 89°), so it is not a special case for "exactly vertical" | **D32** — `_flat_ratio` under 1 % ⇒ the piece keeps its **3D** length (it stays visible, flat and plumb, which is what the mode still means) and carries the new **`pc_warn_degenerate_frame`, the eighth warning name** |
+| 11 | minor | A rigid piece spanning a **suppressed hairpin** was built on a near-zero chord — a 2.5 m beam asked to cover 4 m materialised **0.10 m** long — with no warning of the 25× collapse | **D32**, second half — chord/span below 50 % stamps `pc_warn_corner_degenerate`, whose own meaning (*the corner degenerated*) is exactly the cause. The piece is still built |
+
+**Six new scene cases**, each one a defect that was measured before it was written down:
+`N_marker_mixed` (both marker conventions in one cloud), `O_no_kit` (unconnected kit input),
+`P_crest_bend` (the overhanging crest), `Q_vertical_stepped` (the vertical run),
+`R_hairpin` (the suppressed hairpin) and `S_overhang_gate` (a gate overhanging the curve end).
+
+**Five new checks**, and *the reason they exist is that nothing already on the list could see any
+of these defects*:
+
+| Check | What it measures | Why the existing 24 missed it |
+|---|---|---|
+| `inward_faces` | every face of every kit module, against the Box SOP verb's winding | **not one existing check reads a normal** |
+| `frame_dot_min` | the dot of consecutive stations' `across` vectors | every other check looks along or across *one* station; none compares a station's frame with the next one's |
+| `station_spacing_m` | the smallest distance between two **distinct** stations of a deformed piece | every position check resolves a station **through the same sampler that had the defect**, so check and defect agreed — this one never asks where a station *should* be |
+| `min_piece_span_m` | the piece's own axis span | zero-size geometry passes everything by having nothing left to measure. ⚠️ The first version measured the **bbox diagonal** and the mutation *survived*: the collapse is along the chain axis only, so a post crushed to 1.2e-10 m long still measures 1.2 m tall |
+| `plan_points` | the plan written as geometry, one point per placement at its own start | the plan existed only inside one Python call |
+
+**Mutation-tested again — 9 mutations, 9 killed** (each puts one fixed defect back):
+marker `dist`-first ⇒ `marker_offset_m = 15.0 m`; the `None` guard removed ⇒ `build_all()` raises,
+loudly; `pc_kit_warnings` dropped ⇒ 19 cases fail; `plan_points` removed ⇒ 19 cases fail; inward
+winding ⇒ `inward_faces = 64 of 64`; the end clamp restored ⇒ `station_spacing_m = 0.0`; no
+transport ⇒ `frame_dot_min = −1.0`; silent degenerate frame ⇒ `min_piece_span_m = 0.0` **and** the
+missing warning; silent hairpin ⇒ the missing warning.
+
+**Two checks were loosened, deliberately, and both record what they no longer assert:**
+`section_coverage_m` became `[shortfall, overshoot]` — the shortfall is still asserted, but a
+piece anchored on a **marker** near the end legitimately overhangs it, and clamping it would move
+the gate off the marker PC-G1 accepts it by. `exact_fill_m` / `max_gap_m` skip pieces carrying
+`pc_warn_degenerate_frame` and **count the skips**, because a collapsed yaw frame cannot both keep
+a piece flat and land its ends on the curve — it keeps flat (still asserted by `flat_stepped_m`
+and `plumb_deg`) and says so.
+
+**New decisions:**
+
+| # | Decision |
+|---|---|
+| D30 | An **open** curve extrapolates past either end along the end segment's own direction; only a **closed** one wraps. Clamping is what crushed an overhanging piece into the end plane, and D20 already promised the module's geometry may overhang its fit length |
+| D31 | The frame of a deformed piece is **parallel-transported**, not re-derived per point: one frame per station, flip-corrected against the previous station's `across`. Two of three axes flip together, so the frame stays right-handed |
+| D32 | Two silent collapses are measured and warned, and **neither blocks**: a yaw-only mode on a near-vertical span keeps its 3D length and says `pc_warn_degenerate_frame` (the **eighth** warning name), and a rigid piece whose chord covers less than half its planned span says `pc_warn_corner_degenerate` |
+| D33 | `box_mesh` winds **outward**, asserted against the Box SOP verb rather than against an opinion about handedness |
+| D34 | A `None` input is an **unconnected** input, not an error. Warn-never-block includes the wiring |
+| D35 | `pc_u` vs `pc_dist` is resolved **per marker**, because a Houdini attribute is per-geometry and §3.1's own "streets-shaped carrier" is a merged cloud |
+
+**Still not built** (this list replaces cycle 2's, unchanged except where noted):
+- **§4.3 corners** — the next cycle, and §8 budgets the most time for it.
+- **§4.4's optional flatten-under** (RailClone's Flatten Stepped, `railclone.md` §1 item 3).
+  ⚠️ *Named by finding 5 and deferred here rather than silently forgotten:* in stepped mode each
+  flat piece steps down a riser — **0.4909 m** on PC-G2's own 25 % hill — leaving a triangular air
+  gap under the downhill end of every piece. RailClone fills exactly that gap. polyChain has no
+  parm for it yet, so **PC-G2's visual pass should expect the gap and not read it as a defect**.
+- **The §3.3 style-payload reader** — `build()` still takes a `Style` object.
+- **§4.5 conform**, and the **§5 parm face / the HDA itself** — no `pf_polychain` asset yet.
+  `plan_points` is written and waiting for that HDA's second output.
+- **A rigid piece straddling a bend cuts the corner** — now *warned* when the chord loses more
+  than half the span (D32), still not corrected; §4.4 specs the bend warning for bendable
+  modules only.
+- **PC-G3's VEX rewrite** — 1.1 ms per deformed piece is a Python-SOP number.
+
+**Visual confirmation: still none.** Unchanged from cycle 2, and finding 7 is the argument for it:
+an entire kit was inside-out through 305 green numbers, because not one number on the list read a
+normal. The fence and the hill still have to be looked at.

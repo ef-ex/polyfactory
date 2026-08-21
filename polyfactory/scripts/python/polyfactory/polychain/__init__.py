@@ -72,9 +72,10 @@ WARN_TILE_FALLBACK = "pc_warn_tile_fallback"      # 4.2 "else adaptive + pc_warn
 WARN_VEXPR_IGNORED = "pc_warn_vexpr_ignored"      # D3
 WARN_DEGENERATE_PAD = "pc_warn_degenerate_pad"    # D17 - padding eats the unit
 WARN_BEND_RESOLUTION = "pc_warn_bend_resolution"  # D25 - 4.4 "no auto-subdiv"
+WARN_DEGENERATE_FRAME = "pc_warn_degenerate_frame"  # D32 - yaw frame collapsed
 WARN_VOCAB = (WARN_KIT_GAP, WARN_CORNER_DEGENERATE, WARN_OVERFLOW,
               WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD,
-              WARN_BEND_RESOLUTION)
+              WARN_BEND_RESOLUTION, WARN_DEGENERATE_FRAME)
 
 # 3.1 / 3.4 attribute names, so the adapter and the checks read one list.
 CURVE_ATTRS = ("pc_corner", "pc_section", "pc_style", "pc_marker")
@@ -120,7 +121,14 @@ class Params(object):
         self.corner_mode = corner_mode if corner_mode in CORNER_MODES else "bend"
         self.corner_offset_pct = float(corner_offset_pct)
         self.fillet_radius = float(fillet_radius)
-        self.zmode = zmode          # "" => the module's own pc_zmode wins (D6)
+        # D6 again, and its THIRD state is also the safe landing for junk: an
+        # unknown style zmode degrades to "" (the module's own value wins), NOT
+        # to "adaptive". Forcing adaptive would discard the artist's intent AND
+        # the module's default at once - a case-slipped "Vertical" in a style
+        # payload silently banked every picket on a hillside instead of leaving
+        # it plumb. The module side of the same typo is already warned in
+        # `kit.validate`; this side degrades to the documented default.
+        self.zmode = zmode if zmode in Z_MODES else ""
         self.bend_tol = float(bend_tol)
         # D26 - RailClone's Slope Fixing: "the segment width will remain the
         # same as the source geometry when measured on the HORIZONTAL axis,
