@@ -28,9 +28,9 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | **cycle 2b** — the review pass over cycle 2: 11 findings (4 major), all reproduced under `hython`, all fixed, plus D30–D35. Suite grew to **19 cases / 540 values / 0 failing** and 5 new checks; 9 mutations, **9 killed**. ⚠️ Finding 7 found the **entire starter kit inside-out** through 305 green numbers. Details under §10 "Cycle 2b" |
-| Next up | §8 build order: **§4.3 corners** (bend/miter, the budgeted-hard stage — nothing places a `corner` slot yet), then §4.5 conform → §4.6 finalize/instancing (partly landed: packed-vs-deformed segregation and slice caps are in) → §5 parm face + the §3.3 style-payload reader → gates PC-G1–G4. Deferred and named so it is not forgotten: **§4.4's flatten-under** (see §10 Cycle 2b's not-built list — PC-G2 will see a 0.49 m riser gap under every stepped piece, by design for now) |
-| Gates | PC-G0 ✅ resolved (§2.3) · PC-G1 ⬜ · PC-G2 ⬜ · PC-G3 ⬜ · PC-G4 ⬜ |
+| Last completed | **cycle 2c** — independent verification of cycle 2/2b by an agent that wrote none of it. Every suite re-run from scratch: **19 cases / 540 values (474 pass, 66 skip) / 0 failing**, **0 moved baseline values**, and **138 polyChain unit tests / 8 700 subtests** in 0.62 s. Five fresh mutations, **5 killed** — but two of them died narrowly and named two coverage defects (§10 "Cycle 2c"). citygen: no regression, proven twice. ⚠️ **Visual confirmation still none** — the live bridge wedged on the first `houdini_render_view` and `/obj/polychain_gate` could not be deleted; see §10 |
+| Next up | §8 build order: **§4.3 corners** (bend/miter, the budgeted-hard stage — nothing places a `corner` slot yet), then §4.5 conform → §4.6 finalize/instancing (partly landed: packed-vs-deformed segregation and slice caps are in) → §5 parm face + the §3.3 style-payload reader → gates PC-G1–G4. Deferred and named so it is not forgotten: **§4.4's flatten-under** (see §10 Cycle 2b's not-built list — PC-G2 will see a 0.49 m riser gap under every stepped piece, by design for now) | Also open, raised by cycle 2c and cheap: **a check that every planned `pc_elem_id` resolves to a built prim** (`exact_fill_m`/`max_gap_m`/`axis_on_curve_m` fail OPEN on a lookup miss), and **`/obj/polychain_gate` may still be sitting in Hannes' GUI session** — delete it before the next live pass |
+| Gates | PC-G0 ✅ resolved (§2.3) · PC-G1 ⬜ · PC-G2 ⬜ · PC-G3 ⬜ · PC-G4 ⬜ — none of them can pass yet (§4.3 corners and the §5 parm face are unbuilt), and **every polyChain number to date is headless**: cycle 2c tried the live bridge and it wedged, so nothing has been LOOKED at |
 
 **To resume the autonomous run**, re-arm the loop with exactly this:
 
@@ -669,3 +669,100 @@ and `plumb_deg`) and says so.
 **Visual confirmation: still none.** Unchanged from cycle 2, and finding 7 is the argument for it:
 an entire kit was inside-out through 305 green numbers, because not one number on the list read a
 normal. The fence and the hill still have to be looked at.
+
+### Cycle 2c — independent verification of cycle 2 / 2b (2026-08-21)
+
+No code was written this cycle. A fresh agent that had authored none of `place.py`, `kit.py`,
+`cases.py` or `checks.py` re-ran every suite from scratch, mutation-tested the checks with
+defects it chose itself, and tried to put the first picture on the record. Two of the three
+succeeded.
+
+**The suites, re-run:**
+
+```
+python -m pytest tests/unit/test_polychain.py tests/unit/test_polychain_plan.py -q
+    138 passed, 8700 subtests passed in 0.62s
+python -m pytest tests/unit -q
+    209 passed, 9625 subtests passed in 0.71s
+hython tests/polychain/run_scene_checks.py
+    19 cases, 474 [PASS] + 66 [SKIP] = 540 recorded values, 0 failing checks
+    no "moved since baseline" block printed - every value equals its recorded one
+```
+
+⚠️ Cycle 2b's "209 unit tests" is the count for **all of `tests/unit`**, citygen included; the
+polyChain half is **138 tests / 8 700 subtests**. Both numbers are real, and the log now says
+which is which.
+
+**No citygen regression, proven two ways rather than asserted:**
+
+```
+git diff --stat cityGen..polychain -- . ':!ideas' ':!graphify-out'
+    12 files changed, 9661 insertions(+)   <- every one of them a polychain/ or tests/polychain/ file
+hython tests/citygen/run_scene_checks.py
+    16 cases, 774 [PASS], 27 [FAIL], and again NO "moved since baseline" block
+```
+
+The branch touches no citygen source at all, and the 27 red citygen checks carry values identical
+to `tests/citygen/baseline.json` — they are the streets V1 work-in-progress failures this branch
+was cut on top of (`selfx_city_merged`, the shallow-Y trims, the plaza disc), not something
+polyChain moved. The citygen unit tests are inside the 209 green above.
+
+**Mutation test — 5 mutations, 5 killed**, each one applied to `place.py` on a clean tree, run
+through the full 19-case suite, then reverted (`git checkout -- place.py`; the tree was verified
+empty afterwards and the suite re-run green):
+
+| Mutation | Result | What went red |
+|---|---|---|
+| `vertical` mode follows the 3D tangent (both `_frame` and `_deform_positions`) | **killed** | `plumb_deg` in 4 cases (`F_hill_vertical`, `H_tile_slope_free`, `I_tile_slope_fixed`, `L_ramp_vertical`) |
+| the slice is skipped — an over-long piece is built whole | **killed** | `exact_fill_m`, `module_fidelity_m`, `cap_prims`, 3 cases each |
+| `pc_elem_id` = the prim's own number | **killed, loudly** | 58 red checks over 12 cases, `element_count` among them |
+| `pc_elem_id` = one id per piece, derived from the output **point count** (ids stay unique and 1:1, only the addresses are wrong) | **killed, narrowly** | only `module_fidelity_m` (3 cases) and `marker_offset_m` (2) — **14 of 19 cases never noticed** |
+| the last piece of a **closed** curve is dropped | **killed, narrowly** | only `section_coverage_m`, only in `B_rect_closed` |
+
+**Two coverage defects, named plainly — both mutations died, but barely, and the reason is
+structural:**
+
+1. **The id-keyed checks fail OPEN.** `exact_fill_m`, `max_gap_m` and `axis_on_curve_m` all
+   resolve built geometry by `scene.by_id.get(placement.elem_id)` and `continue` when the lookup
+   misses, so a build whose prim ids do not match its plan's ids measures **0.0 m and passes**.
+   `element_count` cannot cover for them: it compares `len(by_id)` with `len(plan)`, and a 1:1
+   id scramble keeps both. `unique_elem_ids` reads the **plan**, not the geometry. Cheap fix,
+   and it is on the *Next up* row: assert that every planned `pc_elem_id` has a built prim, and
+   count the misses instead of skipping them.
+2. **`element_count` cannot see a defect in the plan.** It measures geometry against the plan the
+   same run produced, so dropping a placement *before* it becomes a job moves both sides
+   together. Only `section_coverage_m` — which measures against the **section**, an independent
+   quantity — caught the missing final piece of the closed rectangle. That is the argument for
+   keeping at least one check per property anchored to something the builder did not compute.
+
+**Visual sanity: attempted, and it failed — the honest record.** `houdini_status` was green and
+the session was clean (`untitled.hip`, no unsaved changes, `/obj` empty), so per §0.0's live-session
+rules a straight fence and a gently curved one were built under **`/obj/polychain_gate`** — two
+Python SOPs calling `place.build` on the starter kit, both cooking without error:
+
+| Fence | Curve | Built |
+|---|---|---|
+| straight | 20 m line | 20 pieces, **20 packed / 0 deformed**, no warnings |
+| curved | 16-segment arc, R = 30 m, 75°, 39.27 m long | 38 pieces, **23 packed / 15 deformed**, no warnings |
+
+The first `houdini_render_view` call timed out, and from that moment on **every `hou` call that
+touches the node graph timed out** while `houdini_status` kept answering and non-graph HOM calls
+(`hou.applicationVersionString()`) still returned — i.e. the node graph is locked, not the
+process. `houdini_delete_node("/obj/polychain_gate")` and `hou.setUpdateMode(Manual)` timed out
+too, so **the gate subnet could not be removed** and the session was NOT left as it was found.
+
+⚠️ **For Hannes / the next live pass:** `/obj/polychain_gate` is probably still in the GUI session
+and a floating flipbook panel with it. Delete the node; nothing was saved, and the .hip on disk is
+untouched. **Suspected cause, recorded so the next agent does not repeat it:** the Python SOPs
+called `hou.pwd().setComment(...)` *during their own cook* to report the piece counts. Under
+hython that cooks once; in a GUI session with auto-update on, modifying the node from inside its
+cook dirties the node that is cooking. **Never write to a node from inside its own Python SOP —
+return counts through geometry attributes instead.** This is a finding about the *render harness*,
+not about `place.py`: the same two fences cook clean and instantly under `hython`.
+
+So PC-G1 and PC-G2 remain **numerically green, visually unconfirmed** — unchanged from cycle 2b,
+and now with a named reason rather than a deferral.
+
+**Verdict.** Cycle 2 is real: 540 values, re-derived independently, all green; the mutation kills
+show the checks bite; the citygen suites are untouched. It is not "done" in the dev-loop sense,
+because nobody has yet *looked* at a polyChain fence.
