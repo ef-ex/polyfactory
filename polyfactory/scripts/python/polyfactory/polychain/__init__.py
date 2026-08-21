@@ -60,6 +60,9 @@ SCOPES = ("segment", "section", "spline", "generator")
 SELECTORS = ("first", "sequence", "random", "conditional")
 JUSTIFY = ("start", "center", "end")
 CORNER_MODES = ("bend", "miter")
+# 4.3's displacement policy for the DEFAULT pieces meeting a mitered corner.
+# RailClone's own three (docs, "How to Fine Tune Corners", quoted in D40).
+CORNER_DISPLACEMENTS = ("reset", "extend", "symmetric")
 
 DEFORM_RIGID, DEFORM_BEND, DEFORM_SLICE = 0, 1, 2
 
@@ -73,9 +76,10 @@ WARN_VEXPR_IGNORED = "pc_warn_vexpr_ignored"      # D3
 WARN_DEGENERATE_PAD = "pc_warn_degenerate_pad"    # D17 - padding eats the unit
 WARN_BEND_RESOLUTION = "pc_warn_bend_resolution"  # D25 - 4.4 "no auto-subdiv"
 WARN_DEGENERATE_FRAME = "pc_warn_degenerate_frame"  # D32 - yaw frame collapsed
+WARN_FILLET_CLAMPED = "pc_warn_fillet_clamped"    # D43 - 4.3's fillet radius
 WARN_VOCAB = (WARN_KIT_GAP, WARN_CORNER_DEGENERATE, WARN_OVERFLOW,
               WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD,
-              WARN_BEND_RESOLUTION, WARN_DEGENERATE_FRAME)
+              WARN_BEND_RESOLUTION, WARN_DEGENERATE_FRAME, WARN_FILLET_CLAMPED)
 
 # 3.1 / 3.4 attribute names, so the adapter and the checks read one list.
 CURVE_ATTRS = ("pc_corner", "pc_section", "pc_style", "pc_marker")
@@ -107,7 +111,8 @@ class Params(object):
                  fill="adaptive", adaptive_pct=50.0, count=1,
                  evenly_spacing=0.0, evenly_count=0, justify="center",
                  adjust_to_end=0.0, corner_mode="bend", corner_offset_pct=0.0,
-                 fillet_radius=0.0, zmode="", bend_tol=0.01,
+                 corner_displacement="reset", fillet_radius=0.0,
+                 fillet_segments=4, zmode="", bend_tol=0.01,
                  fix_slope=False):
         self.corner_angle_deg = float(corner_angle_deg)
         self.min_included_angle_deg = float(min_included_angle_deg)
@@ -120,7 +125,16 @@ class Params(object):
         self.adjust_to_end = float(adjust_to_end)
         self.corner_mode = corner_mode if corner_mode in CORNER_MODES else "bend"
         self.corner_offset_pct = float(corner_offset_pct)
-        self.fillet_radius = float(fillet_radius)
+        # 4.3 item D. Unknown -> "reset", the do-nothing policy, so a typo in a
+        # style payload cannot silently move every piece at every corner.
+        self.corner_displacement = (corner_displacement
+                                    if corner_displacement in CORNER_DISPLACEMENTS
+                                    else "reset")
+        self.fillet_radius = max(float(fillet_radius), 0.0)
+        # An EVEN count, so the arc always carries a real midpoint vertex - that
+        # vertex is the filleted corner's own break point (D42).
+        n = max(int(fillet_segments), 2)
+        self.fillet_segments = n + (n % 2)
         # D6 again, and its THIRD state is also the safe landing for junk: an
         # unknown style zmode degrades to "" (the module's own value wins), NOT
         # to "adaptive". Forcing adaptive would discard the artist's intent AND

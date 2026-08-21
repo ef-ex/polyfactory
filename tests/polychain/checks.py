@@ -350,18 +350,55 @@ def section_coverage(scene):
     move the gate off the marker it was placed on, which is PC-G1's own
     acceptance criterion.
     """
-    short, over, where = 0.0, 0.0, ""
+    short, over, where, empty = 0.0, 0.0, "", 0
     for _track, section, group in _groups(scene):
-        d = max(abs(min(p.s0 for p in group)),
-                max(section.length - max(p.s1 for p in group), 0.0))
-        over = max(over, max(p.s1 for p in group) - section.length)
+        a, b = _fill_span(section)
+        run = [p for p in group if p.slot != "corner"]
+        if not run:
+            # D44 squeezed a corner assembly onto a section shorter than it,
+            # so there is no default run left to cover anything. That case is
+            # asserted by `pc_warn_overflow`, not by a coverage number that
+            # would otherwise measure the corner against the fill span.
+            empty += 1
+            continue
+        d = max(abs(min(p.s0 for p in run) - a),
+                max(b - max(p.s1 for p in run), 0.0))
+        over = max(over, max(p.s1 for p in run) - b)
         if d > short:
             short, where = d, "%s[%d]" % (group[0].curve_id, section.index)
     return Result("section_coverage_m", short <= TOL_M,
-                  [_round(short), _round(max(over, 0.0))], where)
+                  [_round(short), _round(max(over, 0.0))],
+                  where or ("%d sections fully reserved by corners" % empty
+                            if empty else ""))
 
 
 WARN_DEGENERATE_FRAME = "pc_warn_degenerate_frame"       # place / __init__
+WARN_CORNER_DEGENERATE = "pc_warn_corner_degenerate"     # place / __init__
+
+
+def _mitered(scene, placement):
+    """Was this piece cut on a corner's bisector plane (4.3)?
+
+    A mitered piece is DELIBERATELY not the module any more: its end face is
+    gone, its local x extent is short by the miter, and its axis leaves the
+    curve on the leg's extension (D38). Every along-the-chain check therefore
+    skips it and COUNTS the skips - and what replaces them is not nothing, it
+    is the `corner_*` family, which measures the joint the miter actually
+    made.
+    """
+    return bool(placement is not None and placement.cuts)
+
+
+def _fill_span(section):
+    """[a, b] section-local metres the default run was fitted into.
+
+    4.3 hands a section less span than it has whenever a corner assembly
+    reserves some (or more, when a displacement policy pushes the run through
+    the vertex). Measuring exact fill against the SECTION end after that is
+    measuring the corner, not the fit.
+    """
+    return (getattr(section, "fill_a", 0.0),
+            getattr(section, "fill_b", section.length))
 
 
 def _degenerate(scene, placement):
@@ -382,18 +419,24 @@ def exact_fill(scene):
     worst, where, skipped = 0.0, "", 0
     for track, section, group in _groups(scene):
         path, remap = track["path"], track["remap"]
-        first = scene.by_id.get(group[0].elem_id)
-        last = scene.by_id.get(group[-1].elem_id)
+        run = [p for p in group
+               if p.slot != "corner" and not _mitered(scene, p)]
+        if len(run) != len(group):
+            skipped += 1
+        if not run:
+            continue
+        first = scene.by_id.get(run[0].elem_id)
+        last = scene.by_id.get(run[-1].elem_id)
         if first is None or last is None:
             continue
-        if _degenerate(scene, group[0]) or _degenerate(scene, group[-1]):
+        if _degenerate(scene, run[0]) or _degenerate(scene, run[-1]):
             skipped += 1
             continue
-        pairs = ((path.sample(remap(section.s0 + group[0].s0))[0],
-                  axis_points(first)[0], group[0], "start"),
-                 (path.sample(remap(section.s0 + group[-1].s1),
+        pairs = ((path.sample(remap(section.s0 + run[0].s0))[0],
+                  axis_points(first)[0], run[0], "start"),
+                 (path.sample(remap(section.s0 + run[-1].s1),
                               forward=False)[0],
-                  axis_points(last)[1], group[-1], "end"))
+                  axis_points(last)[1], run[-1], "end"))
         for want, got, placement, tag in pairs:
             if got is None:
                 continue
@@ -406,7 +449,7 @@ def exact_fill(scene):
                 worst, where = d, "%s[%d] %s" % (group[0].curve_id,
                                                  section.index, tag)
     return Result("exact_fill_m", worst <= TOL_M, _round(worst),
-                  where or ("%d degenerate sections skipped" % skipped
+                  where or ("%d sections skipped (miter/degenerate)" % skipped
                             if skipped else ""))
 
 
@@ -418,7 +461,9 @@ def no_gaps_or_overlaps(scene):
             ra, rb = scene.by_id.get(a.elem_id), scene.by_id.get(b.elem_id)
             if ra is None or rb is None:
                 continue
-            if _degenerate(scene, a) or _degenerate(scene, b):
+            if _degenerate(scene, a) or _degenerate(scene, b) \
+                    or _mitered(scene, a) or _mitered(scene, b) \
+                    or "corner" in (a.slot, b.slot):
                 skipped += 1
                 continue
             end_a, start_b = axis_points(ra)[1], axis_points(rb)[0]
@@ -636,6 +681,8 @@ def axis_follows_curve(scene):
         placement = scene.plan_by_id.get(eid)
         if module is None or module.deform < 1 or placement is None:
             continue
+        if _mitered(scene, placement) or placement.slot == "corner":
+            continue        # the miter cut its faces off; corner_* measures it
         track = scene.track_of.get(str(placement.curve_id))
         section = scene.section_of.get((str(placement.curve_id),
                                         placement.section_index))
@@ -738,6 +785,9 @@ def module_fidelity(scene):
             unknown += 1
             continue
         placement = scene.plan_by_id.get(eid)
+        if _mitered(scene, placement):
+            unknown += 1                    # 4.3: the miter took a bite (D41)
+            continue
         want = module.length
         if placement is not None and placement.slice_t is not None:
             want *= placement.slice_t
@@ -749,21 +799,31 @@ def module_fidelity(scene):
             worst = abs(got - want)
             where = "%s want %.4f got %.4f" % (rec["pc_module"], want, got)
     return Result("module_fidelity_m", worst <= TOL_M, _round(worst),
-                  where or ("%d stand-ins" % unknown if unknown else ""))
+                  where or ("%d stand-ins or mitered" % unknown
+                            if unknown else ""))
 
 
 def rigid_never_deformed(scene):
     """4.4: bend only when `pc_deform >= 1`. A rigid module that came back as
     real geometry has been deformed, and the flag says so."""
-    bad = []
+    bad, mitered = [], 0
     for eid, rec in scene.by_id.items():
         module = scene.kit.by_name(rec["pc_module"])
         if module is None:
             continue
         if module.deform <= 0 and rec["pc_deformed"]:
+            # D41: the FILL may only cut a module that opted in (pc_deform 2),
+            # but a miter is not the fill's decision - it is the artist's
+            # corner mode, and RailClone's Bevel Corner slices whatever segment
+            # it is handed. The exemption is counted so it cannot widen
+            # quietly: a rigid piece unpacked for any OTHER reason still fails.
+            if _mitered(scene, scene.plan_by_id.get(eid)):
+                mitered += 1
+                continue
             bad.append(eid)
     return Result("rigid_deformed", not bad, len(bad),
-                  bad[0] if bad else "")
+                  bad[0] if bad else ("%d mitered" % mitered if mitered
+                                      else ""))
 
 
 def deformed_flag_matches_geometry(scene):
@@ -854,27 +914,54 @@ def frame_continuity(scene):
     consecutive stations' unit `across`: 1 is a straight run, and the defect
     scored -1. Every other check stayed green through it, because none of them
     compares one station's frame with the next one's.
+
+    ⚠ AND ITS THRESHOLD IS NOT "POSITIVE" ANY MORE, WHICH IS WHAT 4.3
+    CORRECTED. Once bend mode stopped breaking the run at a corner (D36) a
+    panel legitimately wraps a 90 degree vertex, and the two stations either
+    side of it score EXACTLY 0.0 - a right angle, not a defect - while a 170
+    degree degenerate-fallback corner scores -0.98. The frame is SUPPOSED to
+    turn with the path; the defect was that it turned WITHOUT it. So the
+    recorded number stays the minimum dot and the THRESHOLD moved to -0.866,
+    i.e. a turn of more than 150 degrees between two adjacent stations. The
+    crest defect scored -1.0 with the path barely turning; a right angle
+    scores 0.0; and the one input that could legitimately reach -1 is a
+    hairpin, which carries `pc_warn_corner_degenerate` and is skipped and
+    counted rather than tolerated silently.
     """
-    worst, where, seen = 1.0, "", 0
-    for rec in scene.by_id.values():
-        prev = None
+    worst, where, seen, skipped = 1.0, "", 0, 0
+    for eid, rec in scene.by_id.items():
+        placement = scene.plan_by_id.get(eid)
+        if WARN_CORNER_DEGENERATE in scene.warns.get(eid, {}):
+            skipped += 1        # a hairpin really does turn the frame around
+            continue
+        if _mitered(scene, placement):
+            # the bisector cut takes half of the end cross-section away, so
+            # the affine frame read back off that face is fitted to whatever
+            # survived - it is not the piece's frame, and reading it as one
+            # scored a clean -1.0 on a corner post that had never rotated
+            skipped += 1
+            continue
+        rows = []
         for x in _station_xs(rec):
-            across = _frame_of(_face(rec, x))[2]
-            if across is None:
+            face = _face(rec, x)
+            across, axis = _frame_of(face)[2], _axis_of(face)
+            if across is None or axis is None:
                 continue
             n = math.sqrt(sum(v * v for v in across))
             if n < 1e-9:
                 continue
-            unit = tuple(v / n for v in across)
-            if prev is not None:
-                seen += 1
-                dot = sum(unit[k] * prev[k] for k in range(3))
-                if dot < worst:
-                    worst, where = dot, "%s @ x=%.3f" % (rec["pc_module"], x)
-            prev = unit
+            rows.append((x, axis, tuple(v / n for v in across)))
+        for i in range(len(rows) - 1):
+            seen += 1
+            got = sum(rows[i][2][k] * rows[i + 1][2][k] for k in range(3))
+            if got < worst:
+                worst, where = got, "%s @ x=%.3f" % (rec["pc_module"],
+                                                     rows[i + 1][0])
     if not seen:
         return _skip("frame_dot_min", "no multi-station pieces")
-    return Result("frame_dot_min", worst > 0.0, _round(worst, 6), where)
+    return Result("frame_dot_min", worst > -0.866, _round(worst, 6),
+                  where + (" (%d pieces skipped)" % skipped
+                           if skipped else ""))
 
 
 def station_spacing(scene):
@@ -976,3 +1063,465 @@ def horizontal_spacing(scene):
     return Result("horizontal_span_m", True,
                   [_round(min(spans), 6), _round(max(spans), 6)],
                   "%d pieces" % len(spans))
+
+
+# --- 4.3 CORNERS ------------------------------------------------------------
+#
+# PC-G1's acceptance is "no gaps/overlaps at any corner in either corner mode",
+# so every number below is a distance in world space measured on built
+# geometry, never a restatement of what the solver decided.
+#
+# In BEND mode there is nothing here to measure and that IS the result: the
+# corner does not break the run (D36), so the corner's closure is `max_gap_m`
+# and `axis_on_curve_m` on a chain that never stopped. In MITER mode the joint
+# is two clipped faces, and these check that they are the SAME face:
+#
+#   corner_plane_dev_m  every point of a mitered piece's cut face lies on that
+#                       piece's own bisector plane. A clip on the wrong side,
+#                       or a plane built from the start tangent instead of the
+#                       bisector, moves this immediately.
+#   corner_seam_m       the separation between the two cut faces along the
+#                       plane normal - 0 is "no hole and no overlap", and with
+#                       a corner offset it is the gap the artist asked for.
+#   corner_face_mate_m  the two faces, slid together along the normal, are the
+#                       SAME polygon: worst nearest-point distance both ways.
+#                       Coplanar faces that do not overlap would still pass the
+#                       first two and still leave the corner open.
+#   corner_outside_m    the mitered piece's OUTSIDE face keeps the module's
+#                       full length - iToo's own wording for Bevel Corner, and
+#                       the acceptance number for the single-module case.
+#   corner_symmetry_m   |leg reach in - leg reach out| of the corner assembly:
+#                       0 for an ODD compose count, one module length for an
+#                       EVEN one (D38). The odd/even rule, as a number.
+
+def _sub3(a, b):
+    return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
+
+
+def _dot3(a, b):
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+
+def _caps_by_element(geo):
+    """{elem_id: [world points of its pc_cap prims]} - the cut faces."""
+    if geo.findPrimAttrib("pc_cap") is None:
+        return {}
+    out = {}
+    for prim in geo.prims():
+        if prim.type() == hou.primType.PackedGeometry:
+            continue
+        try:
+            if int(prim.attribValue("pc_cap")) != 1:
+                continue
+            eid = prim.attribValue("pc_elem_id")
+        except (hou.OperationFailed, TypeError, ValueError):
+            continue
+        pts = out.setdefault(eid, [])
+        for vtx in prim.vertices():
+            p = vtx.point().position()
+            pts.append((p[0], p[1], p[2]))
+    return out
+
+
+def _bevels(scene):
+    out = []
+    for track in scene.tracks:
+        out.extend(track.get("bevels") or ())
+    return out
+
+
+def _centroid(rec):
+    w = rec["world"]
+    n = len(w) // 3
+    if not n:
+        return None
+    return tuple(sum(w[k::3]) / n for k in range(3))
+
+
+def _corner_sides(scene):
+    """[(bevel, {"in": [(eid, rec)], "out": [...]})] over every mitered corner.
+
+    An element is assigned to the NEAREST vertex and then to a side by the sign
+    of its centroid against the bisector plane - both read off geometry, so a
+    corner piece built on the wrong leg cannot be quietly filed under the right
+    one.
+    """
+    bevels = [b for b in _bevels(scene) if b.mode == "miter"]
+    if not bevels:
+        return []
+    groups = [(b, {"in": [], "out": []}) for b in bevels]
+    for eid, rec in scene.by_id.items():
+        placement = scene.plan_by_id.get(eid)
+        if placement is None or not placement.cuts:
+            continue
+        cen = _centroid(rec)
+        if cen is None:
+            continue
+        best = min(groups, key=lambda g: _dist(cen, g[0].v))
+        bevel = best[0]
+        side = "out" if _dot3(_sub3(cen, bevel.v), bevel.n) > 0.0 else "in"
+        best[1][side].append((eid, rec))
+    return groups
+
+
+def corner_plane_dev(scene):
+    groups = _corner_sides(scene)
+    if not groups:
+        return _skip("corner_plane_dev_m", "no mitered corners")
+    caps = _caps_by_element(scene.geo)
+    worst, where, seen = 0.0, "", 0
+    for bevel, sides in groups:
+        for side in ("in", "out"):
+            origin = (bevel.plane_in() if side == "in"
+                      else bevel.plane_out())[0]
+            for eid, rec in sides[side]:
+                for p in caps.get(eid, ()):
+                    seen += 1
+                    d = abs(_dot3(_sub3(p, origin), bevel.n))
+                    if d > worst:
+                        worst, where = d, "%s %s" % (rec["pc_module"], side)
+    if not seen:
+        return _skip("corner_plane_dev_m", "no cut faces")
+    return Result("corner_plane_dev_m", worst <= TOL_M, _round(worst), where)
+
+
+def corner_seam(scene, expected=None, tol=2e-3):
+    """Separation of the two cut faces along the plane normal, in metres.
+
+    0 means the corner is closed: no hole, no overlap. `expected` is the gap
+    the corner offset asked for, derived from the parm and the turn and NOT
+    from the solver, so a seam that drifts with the offset shows up as a
+    failure rather than as the builder agreeing with itself.
+    """
+    groups = _corner_sides(scene)
+    if not groups:
+        return _skip("corner_seam_m", "no mitered corners")
+    caps = _caps_by_element(scene.geo)
+    worst, where, seen = 0.0, "", 0
+    for bevel, sides in groups:
+        proj = {}
+        for side in ("in", "out"):
+            vals = []
+            for eid, _rec in sides[side]:
+                for p in caps.get(eid, ()):
+                    vals.append(_dot3(_sub3(p, bevel.v), bevel.n))
+            if vals:
+                proj[side] = sum(vals) / len(vals)
+        if len(proj) < 2:
+            continue
+        seen += 1
+        gap = proj["out"] - proj["in"]
+        if expected is not None:
+            gap -= expected
+        if abs(gap) > abs(worst):
+            worst, where = gap, "turn %.1f deg" % bevel.turn
+    if not seen:
+        return _skip("corner_seam_m", "no paired cut faces")
+    return Result("corner_seam_m", abs(worst) <= tol, _round(worst, 6),
+                  where + ("" if expected is None
+                           else " (residual vs %.4f)" % expected))
+
+
+def corner_face_mate(scene, expected=0.0, tol=TOL_M):
+    """The two cut faces are the SAME polygon once slid together.
+
+    Coplanar faces that do not overlap - two pieces mitered on one plane but
+    displaced sideways - pass `corner_plane_dev_m` and `corner_seam_m` and
+    still leave the corner open, so the faces are compared point for point.
+
+    ⚠️ AND IT IS NOT ALWAYS SUPPOSED TO BE ZERO. The `reset` displacement
+    policy leaves each default piece "in its default position, simply sliced
+    at the corner vertex", so the two cut faces are MIRROR images rather than
+    the same face and a notch of e*sqrt(2) is left on the outside of the
+    corner - measured 0.0424 m for the starter panel at 90 degrees. That is
+    RailClone's documented Reset, so the number is compared against the notch
+    the policy asks for, and it is `extend` that has to come back 0.
+    """
+    groups = _corner_sides(scene)
+    if not groups:
+        return _skip("corner_face_mate_m", "no mitered corners")
+    caps = _caps_by_element(scene.geo)
+    worst, where, seen = 0.0, "", 0
+    for bevel, sides in groups:
+        pts = {}
+        for side in ("in", "out"):
+            acc = []
+            for eid, _rec in sides[side]:
+                acc.extend(caps.get(eid, ()))
+            pts[side] = acc
+        if not pts["in"] or not pts["out"]:
+            continue
+        seen += 1
+
+        def flat(p):
+            d = _dot3(_sub3(p, bevel.v), bevel.n)
+            return tuple(p[k] - bevel.n[k] * d for k in range(3))
+
+        a = [flat(p) for p in pts["in"]]
+        b = [flat(p) for p in pts["out"]]
+        for src, dst in ((a, b), (b, a)):
+            for p in src:
+                d = min(_dist(p, q) for q in dst)
+                if d > worst:
+                    worst, where = d, "turn %.1f deg" % bevel.turn
+    if not seen:
+        return _skip("corner_face_mate_m", "no paired cut faces")
+    return Result("corner_face_mate_m", abs(worst - expected) <= tol,
+                  _round(worst), where + ("" if not expected
+                                          else " (expected %.4f)" % expected))
+
+
+def corner_outside_length(scene, expected=None, tol=2e-3):
+    """iToo's own acceptance for Bevel Corner: the segment is "sliced to
+    maintain its full length on the OUTSIDE of the corner".
+
+    Measured on the mitered piece's own outside half in module-local x - a
+    corner piece is placed at scale 1, so local x IS metres - which means the
+    number never passes through the solver's idea of where the plane went.
+    """
+    groups = _corner_sides(scene)
+    if not groups:
+        return _skip("corner_outside_m", "no mitered corners")
+    worst, where, got_v, seen = 0.0, "", None, 0
+    for bevel, sides in groups:
+        for side in ("in", "out"):
+            for eid, rec in sides[side]:
+                if rec["pc_slot"] != "corner":
+                    continue
+                module = scene.kit.by_name(rec["pc_module"])
+                if module is None:
+                    continue
+                loc, wrl = rec["local"], rec["world"]
+                axis = bevel.tin if side == "in" else bevel.tout
+                # WORLD metres, not local x: D44 may have squeezed the module
+                # onto a short leg, and local x is scale-invariant - it read a
+                # clean 1.200 m on a corner block the builder had scaled to
+                # 0.776 m, so the check agreed with a squeeze it never saw.
+                outer = [_dot3(_sub3((wrl[i], wrl[i + 1], wrl[i + 2]),
+                                     bevel.v), axis)
+                         for i in range(0, len(loc), 3)
+                         if loc[i + 2] * -bevel.side > 1e-6]
+                if len(outer) < 2:
+                    continue
+                seen += 1
+                got = max(outer) - min(outer)
+                want = expected if expected is not None else module.length
+                if abs(got - want) > worst:
+                    worst = abs(got - want)
+                    where = "%s %s" % (rec["pc_module"], side)
+                    got_v = got
+                elif got_v is None:
+                    got_v = got
+    if not seen:
+        return _skip("corner_outside_m", "no corner-slot pieces")
+    return Result("corner_outside_m", worst <= tol, _round(got_v or 0.0, 6),
+                  "%s, error %.2e m" % (where or "all exact", worst))
+
+
+def corner_symmetry(scene, expected=None, tol=2e-3):
+    """D38's odd/even rule as a distance: how far the corner assembly reaches
+    down each leg, measured on the built pieces themselves."""
+    bevels = [b for b in _bevels(scene) if getattr(b, "assembly", None)
+              and b.assembly.pieces]
+    if not bevels:
+        return _skip("corner_symmetry_m", "no corner assemblies")
+    worst, where = None, ""
+    corner_recs = [(eid, rec) for eid, rec in scene.by_id.items()
+                   if rec["pc_slot"] == "corner"]
+    for bevel in bevels:
+        reach = {"in": 0.0, "out": 0.0}
+        seen = False
+        for eid, rec in corner_recs:
+            cen = _centroid(rec)
+            if cen is None:
+                continue
+            near = min(bevels, key=lambda b: _dist(cen, b.v))
+            if near is not bevel:
+                continue
+            side = "out" if _dot3(_sub3(cen, bevel.v), bevel.n) > 0.0 else "in"
+            axis = bevel.tout if side == "out" else bevel.tin
+            sign = 1.0 if side == "out" else -1.0
+            w = rec["world"]
+            for i in range(0, len(w), 3):
+                t = sign * _dot3(_sub3((w[i], w[i + 1], w[i + 2]), bevel.v),
+                                 axis)
+                if t > reach[side]:
+                    reach[side] = t
+            seen = True
+        if not seen:
+            continue
+        d = abs(reach["in"] - reach["out"])
+        if worst is None or d > worst:
+            worst, where = d, "in %.4f out %.4f" % (reach["in"], reach["out"])
+    if worst is None:
+        return _skip("corner_symmetry_m", "no corner geometry")
+    ok = True if expected is None else abs(worst - expected) <= tol
+    return Result("corner_symmetry_m", ok, _round(worst, 6),
+                  where + ("" if expected is None
+                           else " (expected %.4f)" % expected))
+
+
+def corner_clearance(scene, vertex, expected, tol=5e-3):
+    """4.3 item E: the fillet moved the PATH, so the pieces keep their distance
+    from the original sharp vertex.
+
+    `expected` is r*(1/cos(turn/2) - 1) - trigonometry on the INPUT, never a
+    number the builder produced - so a fillet that silently did nothing, or
+    that rounded to the wrong radius, cannot agree with the check.
+    """
+    best = None
+    for rec in scene.by_id.values():
+        # AXIS points, not every point: a panel's own 0.03 m half-width would
+        # otherwise put the nearest vertex 0.03 m inside the path and make the
+        # number a fact about the kit instead of about the fillet.
+        for x in _station_xs(rec):
+            p = _axis_of(_face(rec, x))
+            if p is None:
+                continue
+            d = math.hypot(p[0] - vertex[0], p[2] - vertex[2])
+            if best is None or d < best:
+                best = d
+    if best is None:
+        return _skip("corner_clearance_m", "no pieces")
+    return Result("corner_clearance_m", abs(best - expected) <= tol,
+                  _round(best, 6), "expected %.4f" % expected)
+
+
+def corner_abut(scene):
+    """The seam between the corner assembly and the fill that runs up to it.
+
+    The mitered joint at the vertex is measured by `corner_seam_m`; this is
+    the OTHER joint the corner creates, one per leg, where the corner
+    assembly's outer end meets the last default piece. It is the one a
+    reserve computed slightly wrong opens, and it is invisible to
+    `max_gap_m`, which walks consecutive pieces of one run and stops where
+    the run does.
+
+    Both points are read off built geometry: the corner piece's own outermost
+    axis point on the leg, and the nearest default-piece axis endpoint.
+    """
+    bevels = [b for b in _bevels(scene) if getattr(b, "assembly", None)
+              and b.assembly.pieces]
+    if not bevels:
+        return _skip("corner_abut_m", "no corner assemblies")
+    worst, where, seen = 0.0, "", 0
+    ends = []
+    for eid, rec in scene.by_id.items():
+        if rec["pc_slot"] == "corner":
+            continue
+        a, b = axis_points(rec)
+        for pt in (a, b):
+            if pt is not None:
+                ends.append(pt)
+    if not ends:
+        return _skip("corner_abut_m", "no default pieces")
+    for bevel in bevels:
+        for side in ("in", "out"):
+            axis = bevel.tin if side == "in" else bevel.tout
+            sign = -1.0 if side == "in" else 1.0
+            far, far_t = None, None
+            for eid, rec in scene.by_id.items():
+                if rec["pc_slot"] != "corner":
+                    continue
+                cen = _centroid(rec)
+                # ...of THIS corner. A closed rectangle has four assemblies of
+                # the same module on the same legs, and scanning all of them
+                # picked the post at the far end of the 8 m side: a 0.226 m
+                # "abutment gap" that was really two different corners.
+                if cen is None or min(bevels,
+                                      key=lambda b: _dist(cen, b.v)) is not bevel:
+                    continue
+                for x in _station_xs(rec):
+                    pt = _axis_of(_face(rec, x))
+                    if pt is None:
+                        continue
+                    t = sign * _dot3(_sub3(pt, bevel.v), axis)
+                    if t < -1e-6 or t > 1e6:
+                        continue
+                    if far_t is None or t > far_t:
+                        far_t, far = t, pt
+            if far is None:
+                continue
+            seen += 1
+            d = min(_dist(far, e) for e in ends)
+            if d > worst:
+                worst, where = d, "%s leg, %.3f m out" % (side, far_t)
+    if not seen:
+        return _skip("corner_abut_m", "no corner geometry")
+    return Result("corner_abut_m", worst <= 2e-3, _round(worst, 6), where)
+
+
+def corner_turns(scene):
+    """Every corner this case actually produced: [turn, side, mode].
+
+    Recorded, not asserted, and it is the anti-vacuity check for the whole
+    4.3 family: `side` is -1 exactly where the path turns the OTHER way, so a
+    "reflex corner" case that quietly contained none - which the first zigzag
+    did, both of its vertices turning left - shows up as two +1s instead of
+    reading as coverage it never had. `mode` records where 4.3's degenerate
+    fallback fired.
+    """
+    rows = []
+    for bevel in _bevels(scene):
+        rows.append([_round(bevel.turn, 4), int(bevel.side), bevel.mode,
+                     1 if bevel.degenerate else 0])
+    if not rows:
+        return _skip("corner_turns", "no corners")
+    rows.sort()
+    return Result("corner_turns", True, rows, "%d corners" % len(rows))
+
+
+def corner_welds(scene):
+    """[dissolved corners, of those spanned by one piece] - D36, as a count.
+
+    In `bend` mode 4.3 does not break the run at a corner: the sections are
+    welded and whatever piece lands on the vertex DEFORMS ACROSS IT, which is
+    4.3's own wording. Nothing else on this list can see that decision - the
+    fill, the gaps and the frames are all still fine if the run breaks there -
+    so a revert of D36 only ever showed up as moved baseline values. This is
+    the decision itself, as two numbers.
+
+    ⚠ THE SECOND NUMBER IS NOT ALWAYS THE FIRST, AND THAT IS NOT A DEFECT.
+    On the 24 m L-shape twelve 2 m panels fit exactly, so a piece BOUNDARY
+    lands on the elbow and no single piece spans it: the chain is still
+    continuous (`max_gap_m` = 1.8e-7) but the outside of that corner keeps the
+    notch a butt joint leaves. That is what a corner module and miter mode are
+    for, and it is recorded here rather than hidden behind an average.
+    """
+    total, spanned = 0, 0
+    for track in scene.tracks:
+        cid = str(track["curve"].curve_id)
+        for section in track["sections"]:
+            for w in getattr(section, "welds", ()):
+                total += 1
+                for p in scene.plan:
+                    if str(p.curve_id) != cid                             or p.section_index != section.index:
+                        continue
+                    # a closed ring's seam sits at 0, and D19 lets a run
+                    # wrap it, so the weld is looked for at both ends
+                    if any(p.s0 + 1e-6 < v < p.s1 - 1e-6
+                           for v in (w, w + section.curve_length)):
+                        spanned += 1
+                        break
+    if not total:
+        return _skip("corner_welds", "no dissolved corners")
+    return Result("corner_welds", True, [total, spanned],
+                  "%d of %d spanned by one piece" % (spanned, total))
+
+
+def element_resolution(scene):
+    """Every planned `pc_elem_id` resolves to a built prim. Cycle 2c's own
+    finding, closed.
+
+    ⚠️ WITHOUT THIS, THREE CHECKS FAIL OPEN. `exact_fill_m`, `max_gap_m` and
+    `axis_on_curve_m` all reach the geometry through
+    `scene.by_id.get(placement.elem_id)` and `continue` on a miss, so a build
+    whose prim ids do not match its plan's ids measures 0.0 m and passes.
+    `element_count` cannot cover for them - it compares two lengths, and a 1:1
+    id scramble keeps both - and `unique_elem_ids` reads the PLAN, not the
+    geometry. Cycle 2c killed that mutation with two checks in five cases; the
+    number here is the miss count itself.
+    """
+    missing = [p.elem_id for p in scene.plan if p.elem_id not in scene.by_id]
+    return Result("unresolved_elem_ids", not missing, len(missing),
+                  missing[0] if missing else "")

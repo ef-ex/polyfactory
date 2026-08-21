@@ -97,6 +97,7 @@ import hou
 from . import (DEFAULTS, EPS, WARN_BEND_RESOLUTION, WARN_CORNER_DEGENERATE,
                WARN_DEGENERATE_FRAME, WARN_KIT_GAP, Curve, Marker, Z_MODES,
                elem_key, stand_in)
+from . import corner as _corner
 from . import decompose as _decompose
 from . import kit as _kit
 from . import plan as _plan
@@ -108,7 +109,7 @@ UP = (0.0, 1.0, 0.0)
 ELEM_PRIM_ATTRS = (
     ("pc_elem_id", ""), ("pc_elem_key", 0), ("pc_slot", ""), ("pc_module", ""),
     ("pc_variant", ""), ("pc_section", 0), ("pc_u", 0.0), ("pc_zmode", ""),
-    ("pc_generated", 0), ("pc_deformed", 0),
+    ("pc_generated", 0), ("pc_deformed", 0), ("pc_corner_cut", 0),
 )
 
 _VERBS = {}
@@ -483,8 +484,10 @@ FLAT_RATIO = 0.01           # horizontal reach vs planned span, yaw-only modes
 
 def _needs_deform(placement, proto, path, sa, sb, zmode):
     """4.4 + the streets float32 lesson: rebuild ONLY when it changes something."""
-    if placement.slice_t is not None:
-        return True
+    if placement.slice_t is not None or placement.cuts:
+        return True                                     # D41 - a miter unpacks
+    if placement.anchor is not None:
+        return False                                    # a straight leg piece
     if proto.module.deform <= 0:
         return False                                    # D27
     if path.interior_vertices(sa, sb):
@@ -544,6 +547,57 @@ def _packed_transform(proto, path, sa, sb, zmode):
         [up[0], up[1], up[2], 0.0],
         [across[0], across[1], across[2], 0.0],
         [a[0] - d[0] * ox, a[1] - d[1] * ox, a[2] - d[2] * ox, 1.0]])
+
+
+def _anchor_transform(proto, origin, direction, length, zmode):
+    """4.3 - the 4x4 for a piece built on a STRAIGHT leg instead of on the path.
+
+    A mitered corner piece does not ride the curve: it rides the leg, extended
+    PAST the vertex so the bisector cut can leave its outside face at full
+    length (D38). Sampling the curve out there would walk it round the corner
+    and bend the very piece the miter exists to keep straight.
+    """
+    d, across, up = _frame(direction, zmode)
+    scale = max(length / proto.length, 1e-9) if proto.length > EPS else 1.0
+    ox = proto.ax * scale
+    return hou.Matrix4([
+        [d[0] * scale, d[1] * scale, d[2] * scale, 0.0],
+        [up[0], up[1], up[2], 0.0],
+        [across[0], across[1], across[2], 0.0],
+        [origin[0] - d[0] * ox, origin[1] - d[1] * ox,
+         origin[2] - d[2] * ox, 1.0]])
+
+
+def clip_plane(geo, origin, normal, keep_sign):
+    """Cut `geo` on a WORLD half-space and cap the hole. Returns new geometry.
+
+    D28's machinery, lifted out of module-local space. The `clip` verb keeps
+    the side OPPOSITE its `dir` (measured on 22.0.398, and `corner_plane_dev_m`
+    is what asserts it: a flipped keep-side deletes the piece instead of
+    mitering it). The cap is found by the plane test for the same reason it is
+    in `_Proto.sliced` - a prim `polyfill` creates inherits its neighbour's
+    attribute values, not the attribute default.
+    """
+    away = normal if keep_sign < 0 else (-normal[0], -normal[1], -normal[2])
+    cut = hou.Geometry()
+    clip = _verb("clip")
+    clip.setParms({"origin": tuple(float(v) for v in origin),
+                   "dir": tuple(float(v) for v in away), "clipop": 1})
+    clip.execute(cut, [geo])
+    if not len(cut.prims()):
+        return cut
+    filled = hou.Geometry()
+    pfill = _verb("polyfill")
+    pfill.setParms({"fillmode": 0})
+    pfill.execute(filled, [cut])
+    if filled.findPrimAttrib("pc_cap") is None:
+        filled.addAttrib(hou.attribType.Prim, "pc_cap", 0)
+    for prim in filled.prims():
+        pts = prim.points()
+        if pts and all(abs(sum((p.position()[k] - origin[k]) * normal[k]
+                               for k in range(3))) <= 1e-5 for p in pts):
+            prim.setAttribValue("pc_cap", 1)
+    return filled
 
 
 def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap):
@@ -665,6 +719,7 @@ def _stamp(prim, placement, warns, deformed, zmode):
     prim.setAttribValue("pc_zmode", zmode)
     prim.setAttribValue("pc_generated", 1)
     prim.setAttribValue("pc_deformed", 1 if deformed else 0)
+    prim.setAttribValue("pc_corner_cut", 1 if placement.cuts else 0)
     for w in warns:
         prim.setAttribValue(w, 1)
 
@@ -680,35 +735,54 @@ def _resolve_zmode(placement):
 
 
 def _prepare(curve, params):
-    """(kernel curve, Path on the REAL curve, flat->real remap). D26."""
+    """(kernel curve, Path on the REAL curve, flat->real remap, fillet warns).
+
+    4.3's FILLET runs FIRST and replaces the curve outright (D42): decompose,
+    plan and place then all run on the rounded path, so 4.2's section lengths
+    are recomputed from the real filleted arc instead of being corrected after
+    the fact. Slope fixing (D26) composes on top of the rounded curve, not
+    under it - the flattened copy is taken from whatever path the pieces will
+    actually sit on.
+    """
+    curve, fillet_warns = _corner.fillet(curve, params)
     path = Path(curve)
     if not params.fix_slope:
-        return (curve, path, _identity_remap())
+        return (curve, curve, path, _identity_remap(), fillet_warns)
     flat = Curve(curve.curve_id,
                  [(p[0], 0.0, p[2]) for p in curve.points],
                  closed=curve.closed, corner_flags=curve.corner_flags,
                  section_ids=curve.section_ids, style_key=curve.style_key,
                  attrs=curve.attrs)
-    return (flat, path, _Remap(flat._cumulative(), curve._cumulative(),
-                               curve.closed))
+    return (flat, curve, path, _Remap(flat._cumulative(), curve._cumulative(),
+                                      curve.closed), fillet_warns)
 
 
-def analyse(curve_geo, params=DEFAULTS):
+def analyse(curve_geo, params=DEFAULTS, kit=None, style=None):
     """[{curve, real, path, remap, sections}] - what `build` decomposes,
     exposed so the scene checks measure against the same sections the builder
     used instead of re-deriving them (and re-deriving them differently).
 
     `curve` is what the KERNEL planned on and `real` is what the geometry is
-    built on. Under `fix_slope` they are different curves (D26) and a check
+    built on - both AFTER the fillet, which replaces the curve outright. Under `fix_slope` they are different curves (D26) and a check
     that conflates them measures the slope instead of the builder.
+
+    Pass `kit` and `style` to get the 4.3 stage too: the sections come back
+    WELDED where bend mode welded them (D36), carrying `fill_a`/`fill_b`, and
+    each track carries the solved `bevels`. Without them the sections are the
+    raw 4.1 output, which is a different list the moment a corner exists.
     """
     curves, markers = read_curves(curve_geo)
     out = []
     for curve in sorted(curves, key=lambda c: str(c.curve_id)):
-        kcurve, path, remap = _prepare(curve, params)
-        out.append({"curve": kcurve, "real": curve, "path": path,
-                    "remap": remap,
-                    "sections": _decompose.decompose(kcurve, markers, params)})
+        kcurve, real, path, remap, fillet_warns = _prepare(curve, params)
+        sections = _decompose.decompose(kcurve, markers, params)
+        bevels = []
+        if style is not None:
+            _p, bevels, sections = _corner.plan_curve(kcurve, sections, kit,
+                                                      style, params)
+        out.append({"curve": kcurve, "real": real, "path": path,
+                    "remap": remap, "sections": sections, "bevels": bevels,
+                    "fillet_warns": fillet_warns})
     return out
 
 
@@ -733,40 +807,57 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
 
     # --- pass A: plan, and decide deform/warnings before anything is built --
     jobs = []
+    bevels = []
+    all_sections = []
     for curve in sorted(curves, key=lambda c: str(c.curve_id)):
-        kcurve, path, remap = _prepare(curve, params)
+        kcurve, _real, path, remap, fillet_warns = _prepare(curve, params)
         sections = _decompose.decompose(kcurve, markers, params)
-        for section in sections:
-            for p in _plan.plan_section(section, kit, style, params):
-                module = kit.by_name(p.module) or stand_in(p.module)
-                proto = proto_for(module)
-                zmode = _resolve_zmode(p)
-                # flat = the space the kernel planned in; real = the curve it
-                # is built on. They differ only under fix_slope (D26).
-                s0f, s1f = section.s0 + p.s0, section.s0 + p.s1
-                s0r, s1r = remap(s0f), remap(s1f)
-                warns = list(p.warns)
-                if module.missing and WARN_KIT_GAP not in warns:
-                    warns.append(WARN_KIT_GAP)
-                deformed = _needs_deform(p, proto, path, s0r, s1r, zmode)
-                scale = 1.0 if p.slice_t is not None else (
-                    ((s1f - s0f) / proto.length) if proto.length > EPS else 1.0)
-                if _flat_ratio(path, s0r, s1r, zmode) < FLAT_RATIO:
-                    warns.append(WARN_DEGENERATE_FRAME)          # D32
-                if not deformed and _chord_ratio(path, s0r, s1r) \
-                        < COLLAPSE_RATIO and WARN_CORNER_DEGENERATE not in warns:
-                    warns.append(WARN_CORNER_DEGENERATE)         # D32, rigid
-                if deformed and module.deform > 0:
-                    stations = (proto.sliced(p.slice_t)[1]
-                                if p.slice_t is not None else proto.stations)
-                    if _bend_deviation(proto, stations, path, s0f, scale,
-                                       remap) > params.bend_tol:
-                        warns.append(WARN_BEND_RESOLUTION)
-                jobs.append({"p": p, "proto": proto, "path": path,
-                             "s0f": s0f, "s0r": s0r, "s1r": s1r,
-                             "zmode": zmode, "scale": scale,
-                             "deformed": deformed, "warns": tuple(warns),
-                             "remap": remap})
+        # 4.3 owns everything between the section list and the fill: it welds
+        # what bend must not break (D36), places the corner slot, and hands
+        # each section the span the corners left it.
+        placements, curve_bevels, sections = _corner.plan_curve(
+            kcurve, sections, kit, style, params)
+        bevels.extend(curve_bevels)
+        all_sections.extend(sections)
+        by_section = dict((sec.index, sec) for sec in sections)
+        for p in placements:
+            section = by_section.get(p.section_index)
+            if section is None:
+                continue
+            module = kit.by_name(p.module) or stand_in(p.module)
+            proto = proto_for(module)
+            zmode = _resolve_zmode(p)
+            # flat = the space the kernel planned in; real = the curve it
+            # is built on. They differ only under fix_slope (D26).
+            s0f, s1f = section.s0 + p.s0, section.s0 + p.s1
+            s0r, s1r = remap(s0f), remap(s1f)
+            warns = list(p.warns)
+            for w in fillet_warns:
+                if w not in warns:
+                    warns.append(w)
+            if module.missing and WARN_KIT_GAP not in warns:
+                warns.append(WARN_KIT_GAP)
+            deformed = _needs_deform(p, proto, path, s0r, s1r, zmode)
+            scale = 1.0 if p.slice_t is not None else (
+                ((s1f - s0f) / proto.length) if proto.length > EPS else 1.0)
+            if p.anchor is None and _flat_ratio(path, s0r, s1r,
+                                                zmode) < FLAT_RATIO:
+                warns.append(WARN_DEGENERATE_FRAME)          # D32
+            if p.anchor is None and not deformed \
+                    and _chord_ratio(path, s0r, s1r) < COLLAPSE_RATIO \
+                    and WARN_CORNER_DEGENERATE not in warns:
+                warns.append(WARN_CORNER_DEGENERATE)         # D32, rigid
+            if p.anchor is None and deformed and module.deform > 0:
+                stations = (proto.sliced(p.slice_t)[1]
+                            if p.slice_t is not None else proto.stations)
+                if _bend_deviation(proto, stations, path, s0f, scale,
+                                   remap) > params.bend_tol:
+                    warns.append(WARN_BEND_RESOLUTION)
+            jobs.append({"p": p, "proto": proto, "path": path,
+                         "s0f": s0f, "s0r": s0r, "s1r": s1r,
+                         "zmode": zmode, "scale": scale,
+                         "deformed": deformed, "warns": tuple(warns),
+                         "remap": remap})
 
     warn_names = []
     for job in jobs:
@@ -777,14 +868,18 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
     _declare(out, warn_names)
 
     # --- pass B: materialise -----------------------------------------------
-    n_packed = n_deformed = 0
+    n_packed = n_deformed = n_cut = 0
     for job in jobs:
         p, proto, path = job["p"], job["proto"], job["path"]
         zmode, warns = job["zmode"], job["warns"]
         if not job["deformed"]:
+            xform = (_anchor_transform(proto, p.anchor[0], p.anchor[1],
+                                       p.length, zmode)
+                     if p.anchor is not None
+                     else _packed_transform(proto, path, job["s0r"],
+                                            job["s1r"], zmode))
             prim = out.createPackedGeometry(proto.source)
-            prim.setTransform(_packed_transform(
-                proto, path, job["s0r"], job["s1r"], zmode))
+            prim.setTransform(xform)
             _stamp(prim, p, warns, False, zmode)
             n_packed += 1
             continue
@@ -792,12 +887,31 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
             else proto.source
         piece = hou.Geometry()
         piece.merge(src)
-        world, local = _deform_positions(piece, proto, path, job["s0f"],
-                                         job["scale"], zmode, job["remap"])
-        piece.setPointFloatAttribValues("P", world)
         if piece.findPointAttrib("pc_local") is None:
             piece.addAttrib(hou.attribType.Point, "pc_local", (0.0, 0.0, 0.0))
-        piece.setPointFloatAttribValues("pc_local", local)
+        if p.anchor is not None:
+            # 4.3: a corner piece is rigid on its leg, so its local frame is
+            # the module's own and the transform is baked rather than sampled.
+            local = list(src.pointFloatAttribValues("P"))
+            piece.transform(_anchor_transform(proto, p.anchor[0], p.anchor[1],
+                                              p.length, zmode))
+            # AFTER the transform, never before: `hou.Geometry.transform`
+            # carries any attribute Houdini reads as a vector along with P, and
+            # a rotated `pc_local` would make every local-frame check measure
+            # the world instead of the module.
+            piece.setPointFloatAttribValues("pc_local", local)
+        else:
+            world, local = _deform_positions(piece, proto, path, job["s0f"],
+                                             job["scale"], zmode, job["remap"])
+            piece.setPointFloatAttribValues("P", world)
+            piece.setPointFloatAttribValues("pc_local", local)
+        if p.cuts:
+            # the bisector cut, in WORLD space. `pc_local` rides through the
+            # clip on the verb's own attribute promotion, so the checks can
+            # still recover the piece's frame from the mitered half.
+            for (origin, normal, keep) in p.cuts:
+                piece = clip_plane(piece, origin, normal, keep)
+            n_cut += 1
         _declare(piece, warn_names)
         for prim in piece.prims():
             _stamp(prim, p, warns, True, zmode)
@@ -813,6 +927,9 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
         "markers": len(markers),
         "packed": n_packed,
         "deformed": n_deformed,
+        "corner_cuts": n_cut,
+        "bevels": bevels,
+        "sections": all_sections,
         "warn_names": warn_names,
     }
     return (out, report)

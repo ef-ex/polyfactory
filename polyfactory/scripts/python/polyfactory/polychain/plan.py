@@ -79,7 +79,7 @@ class Placement(object):
     def __init__(self, curve_id, section_index, slot, index, module,
                  s0, s1, u=0.0, scale=1.0, slice_t=None, deform=0,
                  zmode="adaptive", variant="", section_key=0, style_id="",
-                 warns=()):
+                 warns=(), anchor=None, cuts=()):
         self.curve_id = curve_id
         self.section_index = int(section_index)
         self.section_key = section_key
@@ -96,6 +96,13 @@ class Placement(object):
         self.zmode = zmode
         self.style_id = style_id
         self.warns = tuple(warns)
+        # 4.3. `anchor` = ((ox,oy,oz), (dx,dy,dz)) - build this piece on a
+        # STRAIGHT line instead of on the curve, which is what a mitered corner
+        # piece rides on (the leg, extrapolated past the vertex). `cuts` =
+        # ((origin, normal, keep_sign), ...) world-space half-space clips; a
+        # piece carrying one can never stay a packed prim.
+        self.anchor = anchor
+        self.cuts = tuple(cuts)
 
     @property
     def length(self):
@@ -114,7 +121,9 @@ class Placement(object):
                 "pc_variant": self.variant, "s0": self.s0, "s1": self.s1,
                 "length": self.length, "pc_u": self.u, "scale": self.scale,
                 "slice_t": self.slice_t, "pc_deform": self.deform,
-                "pc_zmode": self.zmode, "warns": list(self.warns)}
+                "pc_zmode": self.zmode, "warns": list(self.warns),
+                "pc_corner_cut": 1 if self.cuts else 0,
+                "pc_anchored": 1 if self.anchor else 0}
 
     def __repr__(self):
         return "Placement(%s %s[%d] %.4f..%.4f x%.4f)" % (
@@ -503,12 +512,20 @@ def _anchor_placement(section, style, params, slot, index, rule, module, at,
         warns=tuple(warns) + tuple(_module_warns(module, rule)))
 
 
-def plan_section(section, kit, style, params=None):
+def plan_section(section, kit, style, params=None, trim=(0.0, 0.0)):
     """The placement plan for one section. Never raises (warn-never-block).
 
     `params` defaults to the STYLE's own params (2.1: a wired style payload
     "overrides the parms entirely"), and to `DEFAULTS` only when the style
     carries none. An explicit argument still wins - that is the artist face.
+
+    `trim` is 4.3's contribution: (head, tail) metres taken off the FILL span
+    at each end - positive shrinks it (a corner assembly reserves the space),
+    NEGATIVE grows it past the section boundary (the `extend`/`symmetric`
+    displacement policies push the default run through the corner so the
+    bisector slice has something to cut). It never moves a start/end cap,
+    because a capped boundary is a spline end or a `pc_section` limit and is
+    never a corner (D18).
     """
     params = params or (style.params if style is not None else None) or DEFAULTS
     L = section.length
@@ -577,8 +594,8 @@ def plan_section(section, kit, style, params=None):
             tail = (p, mod)
         out.append(p)
 
-    free_a = head[0].s1 if head else 0.0
-    free_b = tail[0].s0 if tail else L
+    free_a = head[0].s1 if head else float(trim[0])
+    free_b = tail[0].s0 if tail else L - float(trim[1])
     lead_pad = head[1].pad[1] if head else None
     trail_pad = tail[1].pad[0] if tail else None
 

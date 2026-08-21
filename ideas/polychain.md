@@ -28,9 +28,9 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | **cycle 2c** — independent verification of cycle 2/2b by an agent that wrote none of it. Every suite re-run from scratch: **19 cases / 540 values (474 pass, 66 skip) / 0 failing**, **0 moved baseline values**, and **138 polyChain unit tests / 8 700 subtests** in 0.62 s. Five fresh mutations, **5 killed** — but two of them died narrowly and named two coverage defects (§10 "Cycle 2c"). citygen: no regression, proven twice. ⚠️ **Visual confirmation still none** — the live bridge wedged on the first `houdini_render_view` and `/obj/polychain_gate` could not be deleted; see §10 |
-| Next up | §8 build order: **§4.3 corners** (bend/miter, the budgeted-hard stage — nothing places a `corner` slot yet), then §4.5 conform → §4.6 finalize/instancing (partly landed: packed-vs-deformed segregation and slice caps are in) → §5 parm face + the §3.3 style-payload reader → gates PC-G1–G4. Deferred and named so it is not forgotten: **§4.4's flatten-under** (see §10 Cycle 2b's not-built list — PC-G2 will see a 0.49 m riser gap under every stepped piece, by design for now) | Also open, raised by cycle 2c and cheap: **a check that every planned `pc_elem_id` resolves to a built prim** (`exact_fill_m`/`max_gap_m`/`axis_on_curve_m` fail OPEN on a lookup miss), and **`/obj/polychain_gate` may still be sitting in Hannes' GUI session** — delete it before the next live pass |
-| Gates | PC-G0 ✅ resolved (§2.3) · PC-G1 ⬜ · PC-G2 ⬜ · PC-G3 ⬜ · PC-G4 ⬜ — none of them can pass yet (§4.3 corners and the §5 parm face are unbuilt), and **every polyChain number to date is headless**: cycle 2c tried the live bridge and it wedged, so nothing has been LOOKED at |
+| Last completed | **cycle 3** - **§4.3 CORNERS**, the stage §8 budgets the most time for. `corner.py` (bend/miter, compose symmetry, offset, displacement policy, fillet, degenerate fallbacks) + `Placement.anchor`/`.cuts` + a world-space clip in `place.py`. Suite: **33 scene cases / 1 230 values (947 pass, 283 skip) / 0 failing** in ~2 s, **177 polyChain unit tests / 8 700 subtests** in 0.67 s, **10 mutations / 10 killed**. Only 2 of the 19 pre-existing cases moved and both are D36. Corner closure measured: cut faces coplanar to **1.2e-6 m**, mating to **8e-7 m**, seam **1e-6 m**; outside face **0.160000 m**; compose symmetry **0.0 / 1.200 m**; fillet clearance **0.621320 m** against its own analytic value |
+| Next up | §8 build order: **§4.5 conform** (input 4) → **§4.6 finalize/instancing** (partly landed) → **§5 parm face + the §3.3 style-payload reader** → gates PC-G1-G4. Still deferred and named so it is not forgotten: **§4.4's flatten-under** (PC-G2 will see a 0.49 m riser gap under every stepped piece, by design for now), **a corner module in bend mode** (D37 makes it unreachable), and **PC-G3's VEX rewrite**. ⚠️ **`/obj/polychain_gate` may still be sitting in Hannes' GUI session** - delete it before the next live pass |
+| Gates | PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete, visually unconfirmed** - the closed rectangle and the L-shape close in BOTH corner modes, all four fill modes, the gate on its marker, convex and reflex corners (§10 cycle 3); the parm face and the style payload it also asks for are §5 · PC-G2 ⬜ · PC-G3 ⬜ · PC-G4 ⬜. **Every polyChain number to date is headless** - three cycles in, nothing has been LOOKED at |
 
 **To resume the autonomous run**, re-arm the loop with exactly this:
 
@@ -766,3 +766,178 @@ and now with a named reason rather than a deferral.
 **Verdict.** Cycle 2 is real: 540 values, re-derived independently, all green; the mutation kills
 show the checks bite; the citygen suites are untouched. It is not "done" in the dev-loop sense,
 because nobody has yet *looked* at a polyChain fence.
+
+### Cycle 3 — §4.3 corners (2026-08-22)
+
+**Built:** the stage §8 budgets the most time for. One new kernel module, two new
+`Placement` fields, one new warning name, and 14 new scene cases.
+
+| File | What |
+|---|---|
+| `polyfactory/scripts/python/polyfactory/polychain/corner.py` | §4.3 — `Bevel` (the miter plane), `fillet`, `merge_bend_sections`, `build_assembly` (compose), `displacement`, `solve_corners`, `plan_curve` (the orchestrator that now sits between §4.1 and §4.2) |
+| `polychain/{__init__,plan,place}.py` | `Params.corner_displacement` / `fillet_segments`, `WARN_FILLET_CLAMPED`, `Placement.anchor` / `.cuts`, `plan_section(trim=…)`, and in `place.py` the anchored transform, the world-space `clip_plane`, and `pc_corner_cut` |
+| `tests/unit/test_polychain_corner.py` | 39 tests, no `hou`: the miter arithmetic, the odd/even compose equality, weld-vs-not, and that every degenerate input still returns a plan |
+| `tests/polychain/{cases,checks,run_scene_checks}.py` | 14 new cases and 8 new checks, all `corner_*` |
+
+**The behavioural reference was read, not recalled.** `railclone.md` names the corner
+machinery and does not define it, so iToo's own wording was fetched on 2026-08-22 (the
+docs host 403s a plain fetch; the quotes came back through search extracts of *How to
+Fine Tune Corners* and *Mastering the Linear Generator*) and is quoted verbatim in
+`corner.py`'s docstring: **"the segment is repeated on both sides of the corner, and is
+sliced to maintain its full length on the outside of the corner … adjust this slice
+position using the BC Offset option"**; **"using an odd number of segments always creates
+a symmetrical corner composition"** / for an even count **"RailClone centres the segment
+immediately before the vertex"**; and Bevel Mode's three — **Reset** "placed in its
+default position, and simply sliced at the corner vertex", **Extend** "extends the
+geometry of the segments along the bevel, giving an appearance of continuity around the
+corner", **Symmetric** "the segment equalised either side of the Corner vertex".
+
+**The whole of §4.3 in one number.** At a turn `t` the miter plane is
+`n = unit(tin + tout)`, so `n·tin = n·tout = cos(t/2)` and `n·across = sin(t/2)`: a piece
+of half-width `h` reaches `e = h·tan(t/2)` past the vertex on its OUTSIDE edge and is cut
+`e` short on its inside. `e` places the corner module, `e` is how far `extend` pushes a
+default run, and the offset shifts the plane `e` is measured from. Everything else is
+bookkeeping.
+
+**Numbers.** `hython tests/polychain/run_scene_checks.py` → **33 cases, 947 PASS + 283
+SKIP = 1 230 recorded values, 0 failing**, ~2 s. Unit: **177 polyChain tests / 8 700
+subtests in 0.67 s** (248 / 9 625 over all of `tests/unit`).
+
+| Corner property, measured on built geometry | Worst |
+|---|---|
+| every point of a mitered cut face lies on its own bisector plane (`corner_plane_dev_m`) | **1.233e-6 m** over all cases |
+| the two cut faces are the same polygon once slid together (`corner_face_mate_m`) | **8.06e-7 m** — except `reset`, below |
+| the seam at the vertex, offset 0 (`corner_seam_m`) | **1e-6 m** — no hole, no overlap |
+| the seam with corner offset ±25 % (requested ±0.056569 m = 2·o·cos 45°) | residual **1e-6 m** |
+| single-module outside face keeps `pc_size.x` (`corner_outside_m`) | **0.160000 m**, error ≤ **1.1e-6 m** |
+| compose symmetry, THREE corner modules (`corner_symmetry_m`) | **0.0 m** |
+| compose symmetry, TWO corner modules | **1.200 m** = the extra module's own length |
+| the corner assembly meets the fill that runs up to it (`corner_abut_m`) | **1e-6 m** |
+| fillet r = 1.5 m: clearance from the original sharp vertex, analytic `r(1/cos45−1)` = 0.621320 | **0.621320 m** |
+| a squeezed corner (three 1.20 m blocks on a 1.50 m leg), analytic 1.20·1.50/2.32 | **0.775862 m** + `pc_warn_overflow` |
+| the welded closed rectangle, piece to piece (`max_gap_m`) | **5.38e-7 m** |
+
+⚠️ **`corner_face_mate_m` is 0.042426 m under `reset`, and that is the policy working.**
+RailClone's Reset leaves each piece "in its default position, simply sliced", so the two
+cut faces are MIRROR images rather than one face and the outside of the corner keeps a
+notch of `e·√2` = 0.03·1.41421. `extend` closes it to 6.7e-7 m. That one number is the
+difference between the three policies, and the check compares it against the notch the
+policy asks for rather than against zero.
+
+**Mutation-tested, 10 mutations, 10 killed** (each puts one 4.3 defect back on a clean
+tree, runs all 33 cases, and is reverted; the tree was verified clean and the suite green
+afterwards):
+
+| Mutation | What went red |
+|---|---|
+| plane normal = the incoming tangent, not the bisector | 19 red, 75 moved |
+| the corner module is NOT duplicated on both sides | `corner_symmetry_m` in 3 cases, `corner_abut_m` |
+| the miter overhang `e` forced to 0 | `corner_outside_m`, `corner_face_mate_m`, 78 moved |
+| the corner offset ignored | `corner_seam_m`, both offset cases, and only those |
+| the compose straddler is always module 0 | `corner_symmetry_m` in `Y_compose_odd`, 3 more |
+| the clip keeps the wrong side of the plane | 23 red — the pieces are deleted, not mitered |
+| bend breaks the run again (D36 reverted) | 1 red + 15 moved, `corner_welds` and `corner_turns` among them |
+| a squeezed corner assembly no longer warns (D44) | `warnings` in `AD_short_legs` |
+| the fillet does nothing | `corner_clearance_m`, `warnings` |
+| the dissolved degenerate corner is never stamped | `warnings` in `AC_degenerate_corner` |
+| *(cycle 2c's own finding, closed here)* `pc_elem_id` scrambled 1:1 on the built prim | `unresolved_elem_ids` in **all 33 cases** |
+
+**Three checks were written because a mutation would otherwise have survived**, and one
+existing check had to be corrected by 4.3 rather than satisfied by it:
+
+* **Cycle 2c's named coverage defect is closed.** `exact_fill_m`, `max_gap_m` and
+  `axis_on_curve_m` all reach geometry through `by_id.get(elem_id)` and `continue` on a
+  miss, so a build whose prim ids do not match its plan's ids measured 0.0 m and passed;
+  `element_count` compares two lengths that move together and `unique_elem_ids` reads the
+  plan. **`unresolved_elem_ids`** counts the misses instead, and a 1:1 id scramble now
+  turns all 33 cases red instead of two checks in five of them.
+* `corner_outside_m` first measured the piece's LOCAL x extent, which is scale-invariant:
+  it read a clean 1.200 m on a corner block D44 had squeezed to 0.776 m, so the check
+  agreed with a squeeze it could not see. It measures world metres along the leg now.
+* `corner_abut_m` first scanned every corner element on the curve, so on the closed
+  rectangle it paired a post with the post at the far end of the 8 m side and reported a
+  0.226 m "gap" that was really two different corners.
+* `corner_turns` exists because the first reflex case **contained no reflex corner** —
+  both vertices of the zigzag turned left and it scored `side = +1` twice while calling
+  itself coverage. It records `[turn, side, mode, degenerate]` per corner, so that cannot
+  happen quietly again.
+* **`frame_dot_min`'s threshold was wrong the moment bend stopped breaking the run.** It
+  asserted `> 0`, and a panel legitimately wrapping a 90° vertex scores exactly **0.0**.
+  The defect it was written for (the un-transported frame, cycle 2b finding 9) scores
+  **−1.0** with the path barely turning, so the threshold moved to −0.866 (a 150° turn
+  between adjacent stations) and hairpin pieces — which really do turn the frame around,
+  and say `pc_warn_corner_degenerate` — are skipped and counted.
+
+**Decisions taken.**
+
+| # | Ambiguity | Decision |
+|---|---|---|
+| D36 | §4.3 says bend is "the default piece **deforms across the vertex**", but §4.1 breaks a section at every corner — a broken run has no piece to deform across anything | **Bend does not break the run.** The sections either side of a corner are welded and the fill is solved once across the vertex; §4.4's existing interior-vertex test then bends whatever straddles it. RailClone's own wording agrees — *"Bevel Mode should be set to None to prevent the Default segments from continuing through to the corner"*, i.e. by default they DO continue through. A `pc_section` limit is never welded (D18) and neither is a spline end. **Deviation from §4.1's wording, not from its meaning:** decompose still emits the section list; §4.3 decides what to do with the boundaries |
+| D37 | Does the `corner` slot fill in bend mode too? | **No — the corner slot is a miter feature.** A welded run has no joint to fill. `fence_style` therefore uses `corner_post` only when the artist asks for miter, which is exactly how RailClone is used |
+| D38 | §4.3's compose rule names odd/even symmetry and does not say what is laid where | Module `floor((N−1)/2)` **straddles** the vertex; earlier modules run back down the incoming leg, later ones out along the outgoing one. The straddler is the one "repeated on both sides", duplicated and sliced, each copy keeping its outside face at full length — so **N = 1 is the same rule with empty flanks**. The reserve per leg is `(L_c − e) + Σ flank`, which makes odd symmetric and even asymmetric by **arithmetic rather than by special case**: measured 0.000 m and 1.200 m |
+| D39 | §4.3's "± percentage of corner-module length" — of what, and moving what | `o = pct/100 · L_straddler`, and it moves the **cut plane**, not the pieces: `V − o·tin` and `V + o·tout`. Positive parts the two planes by `2·o·cos(t/2)` (the gap), negative crosses them over (pull in and slice). The corner modules follow their own plane, which is why the offset reads as push-apart rather than shrink |
+| D40 | Reset / Extend / Symmetric, which the spec names and does not define | An **extension of the default run past the section boundary**, measured from the plane: reset = 0, extend = `e` for the default module's own half-width (outside faces continuous), symmetric = **half the module's nominal length** so one piece straddles the vertex and is cut in its middle. All three shift by the offset. Applied only where the default run actually reaches the corner — with a corner assembly in the way the run simply abuts it, which is RailClone's own advice |
+| D41 | A mitered `corner_post` has `pc_deform = 0`, and §4.2 may only slice `pc_deform = 2` | **A miter cuts whatever it is given.** §4.2's opt-in is because the FILL chose to cut; the miter is the artist's corner mode, and RailClone's Bevel Corner slices any segment. The piece is unpacked and clipped, `pc_corner_cut = 1` records it, and `rigid_deformed` exempts **and counts** exactly those pieces |
+| D42 | Does a filleted corner still break the run, and what is its turn? | The arc's **midpoint vertex is forced** to be a corner and every other arc vertex is suppressed, so a rounded corner breaks in exactly one place and can still carry a corner module. Its turn is the arc's own per-vertex turn, so the miter degenerates into a plain perpendicular cut — which is right: the fillet has already absorbed the corner |
+| D43 | A fillet radius too big for its legs | **Clamped, never rejected**: the tangent distance is capped at 45 % of the shorter adjacent leg (two adjacent fillets can never eat each other) and the curve carries `pc_warn_fillet_clamped` — the **ninth** warning name. A **degenerate** corner is not filleted at all: `r·tan(t/2)` at 179.99° is 17 km before the clamp bites, so the "fillet" would be the same hairpin with five more vertices on it |
+| D44 | §4.3 item F's "a corner whose adjacent sections are shorter than the corner module" | **Squeezed, not dropped** (D13's policy applied to corners): when a section's two reserves exceed its length the corner modules on that section's side scale by `L/(reserve_in + reserve_out)` and carry `pc_warn_overflow`. Per SECTION, so a corner between a long leg and a short one is squeezed on the short side only and the long side's joint stays exact |
+| D45 | RailClone documents that it **cannot offset the last corner of a closed spline** | **polyChain can.** `decompose` already pairs a closed curve's sections cyclically (D10) and §4.3 walks the same pairing, so the wrap corner is an ordinary corner with an ordinary offset. `V_rect_miter` measures all four corners of PC-G1's own figure and the wrap one is not special-cased anywhere. ⚠️ It cost one real bug first: the wrap piece's section-local `s0` came out at 39.92 m of a 12 m section until `_wrap_local` folded it |
+| D46 | §4.3's narrow-angle fallback "falls back to bend" — in miter mode, what does that mean? | The corner is **welded like a bend corner** even though the mode says miter, because bend means the run continues through. The dissolved vertices are remembered before the weld and `pc_warn_corner_degenerate` is stamped on whichever pieces end up spanning them — otherwise the warning has no boundary left to live on and a hairpin builds silently |
+| D47 | Two corner pieces on one section shared a `pc_elem_id` | A section can receive the "in" half of the corner at its end AND the "out" half of the corner at its start. The index is `2·compose_index + (side == "in")` — structural (D1), and collision-free by construction. **Found by `duplicate_elem_ids`**, which had never fired before: the two colliding posts were merged by `elements()` into one 5.7 m record that then failed five other checks |
+
+**PC-G1's corner criterion, answered.** *"No gaps/overlaps at any corner in either corner
+mode"*, on the closed rectangle and on the L, convex and reflex:
+
+* **miter** — the joint is two clipped faces on one plane: coplanar to **1.2e-6 m**,
+  mating point-for-point to **8e-7 m**, separated by **1e-6 m** at offset 0 and by exactly
+  the requested amount when offset. Both legs' outside faces reach the plane, so there is
+  no notch.
+* **bend** — there is no joint at all: the run is welded and continuous, `max_gap_m`
+  **5.4e-7 m** around the whole ring.
+
+⚠️ **And one honest limit, recorded rather than smoothed over.** In bend mode the corner
+is closed **on the axis**, but whether a single piece actually wraps the vertex depends on
+where the fit put its boundaries: `corner_welds` reads **[4, 3]** on the rectangle (four
+corners dissolved, three wrapped by one panel) and **[1, 0]** on the 24 m L-shape, where
+twelve 2 m panels fit exactly and a piece boundary lands on the elbow. That corner is
+continuous and still shows the notch a butt joint leaves on its outside. **The fix is
+miter with a corner module, which is what corner modules are for** — and it is why
+`corner_welds` records both numbers instead of averaging them.
+
+⚠️ **A wrapped panel says `pc_warn_bend_resolution`, and that is D25 working.** A 2 m
+panel with 0.25 m stations cannot follow a 90° kink inside `bend_tol`, so the welded
+rectangle warns 3 times and §4.4 still refuses to auto-subdivide. The warning IS the
+argument for reaching for miter.
+
+**Baseline movement, all of it explained.** Only **two** of the 19 existing cases moved:
+`B_rect_closed` (13 values — D36 welded its four sections into one closed ring: 40 pieces
+became 38, 40 packed became 35, and it now warns `pc_warn_bend_resolution` 3 times) and
+`R_hairpin` (`frame_dot_min` 1.0 → skipped, the hairpin exemption above). The other 17
+cases are bit-identical, including every `geometry_digest`.
+
+**No citygen regression**, proven the same two ways cycle 2c used:
+`git diff --stat cityGen..polychain -- . ':!ideas'` touches only `polychain/` and
+`tests/polychain/` files, and `hython tests/citygen/run_scene_checks.py` prints **27
+failing checks and no "moved since baseline" block** — the same streets-V1 work-in-progress
+failures this branch was cut on top of, unmoved.
+
+**Not built, and named so it is not mistaken for built:**
+- **A corner module in BEND mode** (D37). The layout code exists and is unreachable: bend
+  welds the run, so nothing asks for it. If a consumer ever wants a post at a smooth
+  corner, that is the branch to open.
+- **Adaptive × miter is not gated.** RailClone documents Adaptive and Bevel as *mutually
+  exclusive* (`railclone.md` §6.2) and works around it with two generators; polyChain
+  simply lets the fit run on the reserved span, and the numbers above say it closes. If a
+  case is ever found where it does not, this paragraph is where to start.
+- **The fillet and the miter do not compose into a mitered fillet** (D42): the fillet
+  absorbs the turn, so the plane becomes a perpendicular cut. That is deliberate, and
+  `AB_fillet` runs in bend mode because miter has nothing left to do there.
+- Everything cycle 2b listed and this cycle did not touch: **§4.4's flatten-under**, the
+  **§3.3 style-payload reader**, **§4.5 conform**, the **§5 parm face / the HDA**, and
+  **PC-G3's VEX rewrite**.
+
+**Visual confirmation: still none**, and this is the third cycle to say so. §4.3 is the
+stage the show-don't-tell rule was written for — 1 164 numbers cannot tell anyone whether
+a mitered fence corner *looks* right — and the live bridge was deliberately not touched
+(cycle 2c wedged it, and `/obj/polychain_gate` may still be sitting in the GUI session).
+PC-G1 is now **numerically complete and visually unconfirmed**.

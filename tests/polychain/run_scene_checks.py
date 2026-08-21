@@ -37,12 +37,70 @@ EXPECTED_WARNS = {
     "P_crest_bend": ("pc_warn_bend_resolution",),
     "Q_vertical_stepped": ("pc_warn_degenerate_frame",),
     "R_hairpin": ("pc_warn_corner_degenerate",),
+    # 4.3/D36: bend welds the four sections of the rectangle into one ring, so
+    # a 2 m panel now WRAPS each 90 degree vertex - and its own 0.25 m stations
+    # cannot resolve a right angle inside `bend_tol`. D25's warning is the
+    # correct answer, and it is also the argument for reaching for miter.
+    "B_rect_closed": ("pc_warn_bend_resolution",),
+    "AB_fillet": ("pc_warn_bend_resolution",),
+    # The 170 degree fallback is bend, so a panel wraps a 10 degree included
+    # angle: it says BOTH that the corner degenerated and that its own 0.25 m
+    # stations cannot follow what it was asked to wrap.
+    "AC_degenerate_corner": ("pc_warn_bend_resolution",
+                             "pc_warn_corner_degenerate"),
+    "AD_short_legs": ("pc_warn_overflow",),
+    # `extend` and `symmetric` push a panel THROUGH the vertex on purpose
+    # (D40), so the piece that straddles it cannot resolve the right angle -
+    # the same D25 measurement as the bend corner, arriving for the same
+    # reason. `reset` does not, and stays clean, which is the difference.
+    "AF_displace_extend": ("pc_warn_bend_resolution",),
+    "AG_displace_symmetric": ("pc_warn_bend_resolution",),
 }
 
 # How many kit validation warnings each case is allowed to persist. Pinned
 # exactly, never as a range: a moved count means the validator gained or lost
 # a detector, which is the thing worth seeing.
 EXPECTED_KIT_WARNS = {"K_broken_kit": 9, "O_no_kit": 1}
+
+# 4.3 item C, derived from the parm and the geometry rather than read off a
+# run: a corner offset of `pct` per cent of the corner module's length parts
+# the two bisector planes by 2*o*cos(turn/2). At the L-shape's 90 degree turn
+# that is 2 * 0.25 * 0.16 * cos(45) = 0.056569 m.
+_CORNER_OFF = 0.25 * cases.CORNER_POST_LENGTH * 2.0 * math.cos(math.pi / 4.0)
+CORNER_SEAM = {
+    "W_corner_offset_pos": _CORNER_OFF,
+    "X_corner_offset_neg": -_CORNER_OFF,
+}
+
+# 4.3 item B, the odd/even compose rule as a distance. An ODD count reaches
+# equally down both legs; an EVEN count carries one extra module on the
+# outgoing leg, so the difference is exactly that module's length.
+# 4.3 item D, the one number that separates the three policies. `reset`
+# leaves each piece where the fit put it and slices it at the vertex, so the
+# two cut faces are mirror images and the corner keeps a notch of
+# e*sqrt(2) = h*tan(45)*sqrt(2) on the outside - 0.03*1.41421 for the starter
+# panel. `extend` and `symmetric` both push the run to (or through) the plane,
+# so their faces mate exactly and their expected mismatch is 0.
+CORNER_MATE = {
+    "AE_displace_reset": 0.03 * math.sqrt(2.0),
+}
+
+# D44's squeeze, derived from the input rather than from the run: three 1.20 m
+# corner blocks reserve (1.20 - e) + 1.20 = 2.32 m of a 1.50 m leg, so every
+# corner module on that side is scaled by 1.50/2.32 and the outside face that
+# should have measured 1.20 m measures 0.7759 m - and says pc_warn_overflow.
+_AD_RESERVE = (cases.CORNER_BLOCK_LENGTH - 0.08) + cases.CORNER_BLOCK_LENGTH
+CORNER_OUTSIDE = {
+    "AD_short_legs": cases.CORNER_BLOCK_LENGTH * (1.5 / _AD_RESERVE),
+}
+
+CORNER_SYMMETRY = {
+    "U_lshape_miter": 0.0,
+    "V_rect_miter": 0.0,
+    "AA_reflex_miter": 0.0,
+    "Y_compose_odd": 0.0,
+    "Z_compose_even": cases.CORNER_BLOCK_LENGTH,
+}
 
 
 class Scene(object):
@@ -58,8 +116,15 @@ class Scene(object):
         self.by_id = dict((r["pc_elem_id"], r) for r in C.elements(self.geo))
         self.plan_by_id = dict((p.elem_id, p) for p in self.plan)
         self.warns = C.collect_warns(self.geo, self.report["warn_names"])
-        self.tracks = cases.P.analyse(case["curve"], self.params)
         self.kit = cases.K.read(case["kit"])[0]
+        # 4.3 lives between decompose and plan, so the tracks must be read
+        # THROUGH it: in bend mode it welds sections (D36) and in miter mode
+        # it reserves span for the corner assembly. Re-deriving the raw 4.1
+        # list here would measure the builder against a section list the
+        # builder never used.
+        self.tracks = cases.P.analyse(case["curve"], self.params,
+                                      kit=cases.K.read(case["kit"])[0],
+                                      style=case["style"])
         self.track_of = dict((str(t["curve"].curve_id), t)
                              for t in self.tracks)
         self.section_of = dict(
@@ -76,6 +141,7 @@ def run_case(name, case):
     out = [
         C.element_count(scene),
         C.unique_elem_ids(scene),
+        C.element_resolution(scene),
         C.output_schema(scene),
         C.sampler_matches_kernel(scene),
         C.section_coverage(scene),
@@ -101,7 +167,21 @@ def run_case(name, case):
         C.warnings(scene, EXPECTED_WARNS.get(name, ())),
         C.determinism(scene, cases.rebuild),
         C.geometry_digest(scene),
+        # --- 4.3, on every case: a corner check that finds no corner reports
+        # SKIP, so the corner numbers ride the whole suite rather than only the
+        # cases that were written for them. A corner appearing where none was
+        # expected therefore shows up as a value, not as silence.
+        C.corner_abut(scene),
+        C.corner_turns(scene),
+        C.corner_welds(scene),
+        C.corner_plane_dev(scene),
+        C.corner_face_mate(scene, expected=CORNER_MATE.get(name, 0.0),
+                           tol=2e-3),
+        C.corner_symmetry(scene, expected=CORNER_SYMMETRY.get(name)),
+        C.corner_outside_length(scene,
+                                expected=CORNER_OUTSIDE.get(name)),
     ]
+    out.append(C.corner_seam(scene, expected=CORNER_SEAM.get(name, 0.0)))
     if name in ("C_tile_slice", "H_tile_slope_free", "I_tile_slope_fixed"):
         out.append(C.cap_tagged(scene, expect=1))
     if name == "D_marker_gate":
@@ -119,6 +199,13 @@ def run_case(name, case):
         # marker 8 in u, in ONE cloud, and both must land where they say.
         out.append(C.marker_offset(scene, 7, (5.0, 0.0, 0.0)))
         out.append(C.marker_offset(scene, 8, (15.0, 0.0, 0.0)))
+    if name == "AB_fillet":
+        # 4.3 item E: a 1.5 m fillet on a 90 degree corner holds the path
+        # 1.5*(1/cos45 - 1) = 0.6213 m off the original sharp vertex, and the
+        # pieces are on the path.
+        out.append(C.corner_clearance(
+            scene, (12.0, 0.0, 0.0),
+            1.5 * (1.0 / math.cos(math.pi / 4.0) - 1.0)))
     n = EXPECTED_KIT_WARNS.get(name, 0)
     out.append(C.kit_validation(scene, n, n))
     return out

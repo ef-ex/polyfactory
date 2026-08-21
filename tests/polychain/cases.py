@@ -189,6 +189,59 @@ def panel_style(zmode="", seed=5, fix_slope=False):
                                fix_slope=fix_slope))
 
 
+# --- 4.3's own inputs -------------------------------------------------------
+# One L, one rectangle and one zigzag, shared by every corner case so the only
+# thing that changes between them is the corner PARAMETERS.
+
+L_SHAPE = [(0.0, 0.0, 0.0), (12.0, 0.0, 0.0), (12.0, 0.0, 12.0)]
+RECT = [(0.0, 0.0, 0.0), (12.0, 0.0, 0.0), (12.0, 0.0, 8.0), (0.0, 0.0, 8.0)]
+# LEFT, then RIGHT. The first version of this turned left twice - both
+# vertices scored `Bevel.side = +1` - so the case called itself "reflex" and
+# tested nothing that the L-shape did not. `corner_turns` records the two
+# signs now, so a reflex case that contains no reflex corner cannot pass as
+# coverage again.
+ZIGZAG = [(0.0, 0.0, 0.0), (8.0, 0.0, 0.0), (12.0, 0.0, 4.0),
+          (20.0, 0.0, 4.0)]
+
+# A 90 degree corner post of half-width 0.08 m reaches e = 0.08*tan(45) past
+# the vertex, so its outside face still measures its full 0.16 m.
+CORNER_POST_LENGTH = 0.16
+CORNER_BLOCK_LENGTH = 1.20
+
+
+def corner_style(mode="miter", offset=0.0, fillet=0.0, fill="adaptive",
+                 displacement="reset"):
+    """The PC-G1 fence, with 4.3's parms exposed. Same kit, same rules."""
+    return Style("corner", 1, 9, rules=[
+        Rule("default", "first", ["panel"]),
+        Rule("start", "first", ["post"]),
+        Rule("end", "first", ["post"]),
+        Rule("corner", "first", ["corner_post"]),
+    ], params=Params(fill=fill, corner_mode=mode, corner_offset_pct=offset,
+                     fillet_radius=fillet, corner_displacement=displacement))
+
+
+def compose_kit():
+    """The starter fence plus a second, LONGER corner module.
+
+    Compose symmetry is only visible when the composed modules differ in
+    length: with three identical blocks an even count and an odd count reach
+    the same distance down one leg by accident. `corner_block` is 1.20 m
+    against `corner_post`'s 0.16 m, so the odd/even difference is 1.20 m and
+    not a rounding artefact.
+    """
+    geo = K.starter_kit()
+    block = hou.Geometry()
+    K.box_mesh(block, 0.0, CORNER_BLOCK_LENGTH, 0.0, 1.30, -0.08, 0.08, 1)
+    K.add_module(geo, "corner_block", block,
+                 size=(CORNER_BLOCK_LENGTH, 1.30, 0.16),
+                 deform=0, zmode="stepped", roles="corner")
+    K.write_manifest(geo, "pf_fence_compose", 1,
+                     sources=("cases.compose_kit",),
+                     human_scale_reference=1.8)
+    return geo
+
+
 # --- the cases --------------------------------------------------------------
 
 def _case(curve_geo, kit_geo, style):
@@ -376,6 +429,113 @@ def build_all():
         "overhang", 1, 2, rules=[Rule("default", "first", ["panel"]),
                                  Rule("marker:7", "first", ["gate"])],
         params=Params(fill="adaptive")))
+
+    # ---- 4.3 CORNERS. PC-G1's own figure is the closed rectangle, so it is
+    # here twice - once per corner mode - and the L-shape is here three times,
+    # once per displacement policy. Every corner case is measured, never
+    # looked at: the numbers are `corner_*` in checks.py.
+
+    # T - the L-shape in BEND mode. D36: the elbow does NOT break the run, so
+    # this is ONE section of 24 m and a panel wraps the 90 degree vertex. The
+    # corner rule in `fence_style` is deliberately present and deliberately
+    # unused (D37) - that is what bend means.
+    g = hou.Geometry()
+    polyline(g, L_SHAPE, curve_id="T")
+    built["T_lshape_bend"] = _case(g, kit_geo, corner_style("bend"))
+
+    # U - the same L in MITER mode with a corner post. The post is duplicated
+    # both sides of the vertex and each copy is sliced on the bisector, so
+    # `corner_outside_m` must read the post's own 0.16 m and `corner_seam_m`
+    # must read 0.
+    g = hou.Geometry()
+    polyline(g, L_SHAPE, curve_id="U")
+    built["U_lshape_miter"] = _case(g, kit_geo, corner_style("miter"))
+
+    # V - PC-G1's closed rectangle, mitered. FOUR corners, and the fourth is
+    # the one RailClone documents it cannot offset: the wrap corner where the
+    # last section rejoins the first (D45). It is measured with the other
+    # three and nothing about it is special-cased.
+    g = hou.Geometry()
+    polyline(g, RECT, closed=True, curve_id="V")
+    built["V_rect_miter"] = _case(g, kit_geo, corner_style("miter"))
+
+    # W, X - the corner offset, +25 % and -25 % of the corner module's length.
+    # Positive parts the two cut planes and leaves a gap of
+    # 2*o*cos(turn/2); negative crosses them over and cuts each piece deeper
+    # into the corner. Both are read off the built cut faces.
+    for name, pct in (("W_corner_offset_pos", 25.0),
+                      ("X_corner_offset_neg", -25.0)):
+        g = hou.Geometry()
+        polyline(g, L_SHAPE, curve_id=name[0])
+        built[name] = _case(g, kit_geo, corner_style("miter", offset=pct))
+
+    # Y, Z - COMPOSE SYMMETRY, the odd/even rule. Y wires three corner modules
+    # and Z wires two, off the same kit, so the only difference between the
+    # two numbers is the count. Odd -> the assembly reaches equally down both
+    # legs; even -> one leg carries one module more.
+    for name, mods in (("Y_compose_odd", ["corner_post", "corner_block",
+                                          "corner_post"]),
+                       ("Z_compose_even", ["corner_post", "corner_block"])):
+        g = hou.Geometry()
+        polyline(g, L_SHAPE, curve_id=name[0])
+        built[name] = _case(g, compose_kit(), Style(
+            "compose", 1, 3,
+            rules=[Rule("default", "first", ["panel"]),
+                   Rule("corner", "sequence", mods)],
+            params=Params(fill="adaptive", corner_mode="miter")))
+
+    # AA - a REFLEX corner. The Z-bend turns left then right, so one vertex
+    # has the outside face on the opposite side from the other. Nothing in
+    # 4.3 special-cases it - `Bevel.side` is a sign - and this case is what
+    # proves that claim rather than asserting it.
+    g = hou.Geometry()
+    polyline(g, ZIGZAG, curve_id="A")
+    built["AA_reflex_miter"] = _case(g, kit_geo, corner_style("miter"))
+
+    # AB - the FILLET. The path is rounded before anything is fitted, so the
+    # section lengths are recomputed off the real arc (4.3 item E) and the
+    # pieces follow it. `corner_clearance_m` is the acceptance: at a 90
+    # degree corner filleted by 1.5 m nothing may come closer to the original
+    # sharp vertex than 1.5*(1/cos45 - 1) = 0.6213 m.
+    g = hou.Geometry()
+    polyline(g, L_SHAPE, curve_id="B")
+    built["AB_fillet"] = _case(g, kit_geo, corner_style("bend", fillet=1.5))
+
+    # AC - a DEGENERATE corner: a 170 degree turn leaves an included angle of
+    # 10 degrees, under the 15 degree threshold, so 4.3 falls back to bend and
+    # says pc_warn_corner_degenerate. It must still build a closed chain -
+    # warn, never fail, always build something.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (6, 0, 0), (0.5, 0, 1.05)], curve_id="C")
+    built["AC_degenerate_corner"] = _case(g, kit_geo,
+                                          corner_style("miter"))
+
+    # AD - LEGS SHORTER THAN THE CORNER ASSEMBLY. Three composed 1.2 m corner
+    # blocks on a 1.5 m leg cannot fit, so D44 squeezes them onto the section
+    # and stamps pc_warn_overflow. Nothing is dropped and nothing raises.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (1.5, 0, 0), (1.5, 0, 1.5)], curve_id="D")
+    built["AD_short_legs"] = _case(g, compose_kit(), Style(
+        "short", 1, 3,
+        rules=[Rule("default", "first", ["panel"]),
+               Rule("corner", "sequence", ["corner_block", "corner_block",
+                                           "corner_block"])],
+        params=Params(fill="adaptive", corner_mode="miter")))
+
+    # AE, AF, AG - the DISPLACEMENT POLICY, on a style with NO corner rule so
+    # the default run is what meets the bisector. Read as a TRIPLE: the three
+    # must not agree, and how far each pushes its last piece past the vertex
+    # is the whole of item D.
+    for name, policy in (("AE_displace_reset", "reset"),
+                         ("AF_displace_extend", "extend"),
+                         ("AG_displace_symmetric", "symmetric")):
+        g = hou.Geometry()
+        polyline(g, L_SHAPE, curve_id=name[:2])
+        built[name] = _case(g, kit_geo, Style(
+            "displace", 1, 4, rules=[Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive", corner_mode="miter",
+                          corner_displacement=policy)))
+
 
     return built
 
