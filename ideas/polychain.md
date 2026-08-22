@@ -41,6 +41,19 @@ this build), and **PC-G0's "fork the Chain SOP" decision should be retired** (Ch
 headline: **62 % of the real node cook is 14 `hou.Prim.setAttribValue` calls per packed piece** -
 D102's fix, never applied to the packed writer. Nothing in §11 is implemented.
 
+**⚠️⚠️ NEWEST, AND IT OUTRANKS THE "Next up" ROW ABOVE: [§13](#13-native-network-architecture--the-rebuild-brief)
+is the NATIVE NETWORK ARCHITECTURE, written 2026-08-22.** Hannes opened the HDA, found it is two
+nodes — a ~6 000-line Python SOP and a null — and ruled: *"everything geometry related should be
+either native nodes, vex or opencl. Python can be used for ui or processing data which is not
+possible to process with the other 3 mentioned options."* That is a rebuild of the kernel's **body**
+(the parm face, the data contracts and all 6 242 baselined values stay), and it **supersedes
+§11.9's "verb-only, no `createNode`" rule (D148)** while carrying every other §11.9 rule forward.
+§13 is design only — nothing is implemented — and it was written from live `hython` probes whose
+numbers are in §13.2. Its build order is N1..N10 in §13.9, starting with the parity rig and then
+**the fitting solve in VEX**. The current Python kernel becomes the **reference implementation and
+parity oracle** and is never deleted. ⚠️ It is numbered **§13, not §12** — §12 was already the
+phase-2 build log; do not renumber either.
+
 **To resume the autonomous run**, re-arm the loop with exactly this:
 
 ```
@@ -5308,6 +5321,16 @@ change this round is a docstring correction in `conform.py`; the only test chang
 **Read this before touching §7's 2D array.** The port is finished and the shape it left behind is
 load-bearing.
 
+⚠️ **ONE CLAUSE OF THIS SECTION IS SUPERSEDED (D148, 2026-08-22).** "The kernel is verb-only and
+node-free … a node would put a network back inside the builder" is **reversed** by
+[§13](#13-native-network-architecture--the-rebuild-brief): the kernel becomes a readable node
+network, because a one-Python-SOP body violates [`artist_ui.md`](artist_ui.md) §6 rule 10. **Every
+other rule below stands and several get stronger** — rule 1 (never touch a wrapper in a loop),
+rule 3 (read the smallest number a node offers), rule 4 (a batch stays additive), rule 5
+(reordering is where determinism dies), rule 6 (the three trials) and rule 7 (warn-never-block, now
+a *design requirement* — see D153). Rule 2's batching problem is structurally deleted for `ray`
+and reborn as a per-NODE cost on many short curves (§13.9 R7).
+
 **What it looks like now.** The kernel is **verb-only and node-free**: there is no `createNode`
 anywhere in `polyfactory/polychain/`, and the only compiled SOPs it reaches are three verbs
 executed inside the Python SOP that is already cooking — `ray` (`conform.Surface.drop_many`),
@@ -5766,3 +5789,634 @@ been independently audited. What is still not built from §7.10 is unchanged: P2
 sub-spline independence, even-odd nesting, `slice`), P2-8 and P2-9.
 
 **Next up: cycle P2-4/P2-5** — unchanged.
+
+---
+
+## 13. Native network architecture — the rebuild brief
+
+**Status:** written 2026-08-22. **No production code in this cycle.** Every mechanism below was
+probed live in headless `hython` on Houdini 22.0.398 before it was written down; §13.2 is the
+evidence and it carries the numbers. Nothing here is implemented.
+
+⚠️ **Numbering.** The brief that commissioned this asked for "§12 Native network architecture".
+**§12 was already taken** by the phase-2 build log (written earlier the same day), so this is
+**§13**. There is exactly one section per number; do not renumber §12.
+
+### 13.0 Why this section exists
+
+Phase 1 works. 350 unit tests, 90 + 22 scene cases, 5 559 + 683 baselined values, four gates
+green, 12.3x on the citygen corner-heavy row. **And it was built the wrong way.** Hannes opened
+`pf_polychain` and found two nodes:
+
+```
+pf_polychain
+  |- kernel   [python]      <- ~6 000 lines; the ENTIRE tool
+  |- OUT      [null]
+```
+
+Sectioning, the fitting solve, placement, deformation, conform, mitring, capping and stamping all
+run inside ONE Python SOP. §11's port made that Python faster and reached three compiled SOPs
+through `nodeVerb`; it deliberately kept the builder **node-free** (§11.9). That decision is now
+reversed, because it violated the project's own law — [`artist_ui.md`](artist_ui.md) §6 rule 10,
+*"the graph stays reachable — unlocked HDAs, macros as the middle tier"*, and §1c's finding that
+artists learn a tool by opening it and toggling nodes off to see what each one does. A tool whose
+entire body is one Python SOP cannot be learned that way, and it cannot be steered by anyone who
+did not write it.
+
+**Hannes' rule, verbatim:** *"everything geometry related should be either native nodes, vex or
+opencl. Python can be used for ui or processing data which is not possible to process with the
+other 3 mentioned options."*
+
+So the fitting solve is geometry and goes to VEX. Python survives only where it is named and
+justified below, and the burden of proof is on **keeping** Python, not on removing it.
+
+**What does not change.** [§3](#3-data-contracts)'s data contracts, [§5](#5-parameter-surface-artist-face)'s
+parm face, the four gates, and the 6 242 baselined values. The Python at
+`polyfactory/scripts/python/polyfactory/polychain/` becomes the **reference implementation** and
+stays runnable with its unit tests — it is how the rewrite proves itself.
+
+---
+
+### 13.1 The shape of the answer, in one paragraph
+
+Every stage of [§4](#4-the-kernel--phase-1-algorithms) becomes a named, visible, displayable run
+of wrangles and native SOPs inside the HDA. The fitting solve is a **two-pass VEX pattern**: a
+point wrangle run over *section* points does each section's sequential accumulation inside one
+thread and writes the result as **per-section arrays**; a `pointgenerate` expands each section to
+exactly its piece count; a second point wrangle reads element *k* of those arrays. That pattern is
+deterministic (probed), needs no `addpoint`, and keeps the solve's sequential nature without
+serialising the whole graph. Placement is **one `copytopoints`** that picks each piece's kit module
+by a string attribute and honours a per-point 3x3 `transform` (probed). The packed branch writes
+the packed `transform` intrinsic from VEX; the deformed branch is one 64-bit point wrangle over
+~360 000 points. Conform is the **`ray` node** reading its `dist` output, once per build. Python
+keeps the parm face, the payload adapter, the kit-authoring helpers, the HDA build script, the
+reference implementation and the test harness — and one named piece of 64-bit integer arithmetic
+VEX has no type for.
+
+---
+
+### 13.2 What was probed, and what it measured
+
+Everything in this table was run in headless `hython` on 22.0.398 this cycle. Scripts are
+throwaway; the numbers are why each decision below is a decision and not a guess.
+
+| Probe | Result | Consequence |
+|---|---|---|
+| `nodeVerb` inventory | `pathdeform`, `bend`, `copytocurves`, `chain`, `attribwrangle`, `attribdelete`, `polycap`, `polypath`, `block_begin/end`, `python`, `subnet`, `solver` all return **None**; `attribvop`, `ray`, `clip`, `polyfill`, `copytopoints`, `resample`, `polyframe`, `measure`, `boolean::2.0`, `polybevel::3.0`, `polysplit::2.0`, `sweep::2.0`, `polyexpand2d`, `carve`, `invoke`, `switch`, `null`, `merge`, `pack`, `sort`, `divide`, `connectivity` return real verbs | **In a network the verb list stops mattering.** `attribwrangle` and `polycap` — both verbless — become first-class. That is the unlock §11.9 could not have. |
+| `attribwrangle` node | 4 inputs; `class` menu `detail/primitive/point/vertex/number`; `vex_precision` menu `auto/32/64` | One wrangle can read spline + kit + style + surface at once. No VOP network needed, unlike the `attribvop` verb §11.0 had to use. |
+| 64-bit through a node | `vex_precision=64`: `L-(L-4.883e-4)` at L=20 000 returns **4.883000000e-04**; at 32 it returns 4.882999929e-04 | §11.0(b)'s 64-bit finding holds for nodes, not just verbs. |
+| **float attribute storage under 64-bit VEX** | `f@big = 20000.0 + 4.883e-4` under `vex_precision=64` reads back **20000.000488300000, error 0.0** — Houdini stored a **float64** attribute | **This is the load-bearing one.** A 64-bit pipeline can carry 64-bit values *between* nodes. Intermediates do not have to be rounded to float32 at every node boundary. |
+| packed prim position at 20 km | a point at x = 20000.0004883 stores as **20000.0** (float32 `P`) | The world-scale floor is real and unchanged: it is where the *reference* already lives too (§11.9 rule 3). Only `P` and packed transforms are forced float32; everything upstream can stay 64-bit. |
+| VEX integer width | `long x = 5;` → *"Invalid declaration type for variable x: long"*. `>>>` → parse error | **VEX has no int64 and no unsigned shift.** `_splitmix`'s 64-bit mixing has no direct expression. This is risk R1 and the one honest Python candidate outside the parm face. |
+| VEX strings | `strlen`, `split(s,"")`, `ord`, `atoi`, `sprintf`, `random_shash` all compile | `elem_key`'s crc32 **is** expressible in VEX. `elem_id` is `sprintf` — see next row. |
+| `elem_id` parity | `sprintf("%s\|%d\|%s\|%d\|%s", …)` reproduced Python's `elem_id()` **exactly** on every tested tuple | §3.4's structural address ports with no format risk. |
+| VEX containers | `dict`, `s[]@`, `f[]@`, `resize`, `append`, `while`, user functions all compile | §3.3's payload dicts, the rule table and the per-section arrays all have a VEX expression. |
+| **the fitting-solve prototype** | a point wrangle over 4 section points ran an adaptive fill with reserved start/end, wrote `f[]@pc_starts / f[]@pc_ends / s[]@pc_slots / f[]@pc_scales / i@pc_npieces`, `pc_fill_err` = 0.0 on every section | The solve fits the two-pass pattern. §13.3.2. |
+| `pointgenerate` | `ptsperpt=1, nptsperpt=1, doattrib=pc_npieces` gives **exactly** `pc_npieces` points per input point (⚠️ the attribute **multiplies** `nptsperpt`, so `nptsperpt` must be 1); `dopointnum`/`dopointidx` stamp source point and index-within-source; `docopyattribs` carries the arrays through. **10 000 sections → 19 999 pieces in 0.0002 s** | The deterministic expander. No `addpoint`, so no thread-order dependence. |
+| expansion determinism | 3 forced cooks of solve → expand → read: **identical digest** | The pattern is safe for `determinism` and `geometry_digest`. |
+| cumulative arclength | prim wrangle scanning `primpoints` and writing `pc_s` per point: **0.0032 s (32-bit) / 0.0037 s (64-bit)** on a 20 001-vertex 20 km line; last `pc_s` = 20000.000000000 | Against `decompose._clean`'s recorded 0.030 s (§11.1). Parallel across curves, sequential within — the right decomposition. |
+| the deform kernel | a representative frame-rebuild point wrangle over **360 000 points**: **0.00055 s (32-bit) / 0.00071 s (64-bit)**, best of 6, dirtied through the node's own spare parm and `cookCount` confirmed | Against the shipped deformed row's 1.5 s. ⚠️ This is a node-only micro-bench, not a build; the real number must come from `scale_gate.py`. |
+| `copytopoints::2.0` | `useidattrib` with a **string** `pc_module` attribute picks the right packed kit module per point; a per-point **`transform` 3x3** attribute is honoured (rotation present with it, absent without it); 10 000 pieces at ~1e-4 s packed and unpacked | §4.4's materialisation is one node, and the frame VEX writes straight into it. |
+| packed transform from VEX | `setprimintrinsic(0,"transform",@primnum,m)` with a typed `matrix3` writes the packed prim's transform; rotation confirmed on the `bounds` intrinsic. ⚠️ the uniform-scale component did **not** show up in `bounds` and must be re-checked against `packedfulltransform` | Risk R8. The mechanism exists; the scale semantics are unverified. |
+| `ray` node | with `dotrans=0, putdist=1, newgrp=1` it leaves `P` untouched and writes a **`dist` point attribute** plus a `rayHitGroup`; 10 000 packed pieces against a 200x200 grid in **0.005 s** | D111's "read the DISTANCE, not the position" is available at node level, and §11.9 rule 2's per-call rebuild cost **structurally disappears**: a node cooks once per build, so there is no batch to hoist. |
+| `polycap` | verbless, so unreachable before; as a node it caps a tube in one cook | Slice caps get a proper node beside `polyfill`. |
+| `attribcast` | exists, with per-attribute `precision` and `typeinfo` casts | The explicit lever for pinning an intermediate to 64-bit or dropping it to 32-bit at a named place. |
+| readability API | `createNetworkBox` + `setComment` + `setGenericFlag(DisplayComment)` + `setColor` + `createStickyNote` all work headless | §13.7's layout is scriptable from the HDA builder. |
+| OpenCL SOP | present (`opencl`); the kernel compiled and cooked with no errors — **but `cookCount` incremented once across six timed passes, so the timing is NOT a measurement** | §13.5. OpenCL is declined again, and this time the reason is recorded as *unmeasured*, not as *slower*. |
+| `chain` SOP | 10 m line, a box 0.2 m along its Z: **50 pieces filling 0.000..10.000**; `Explicit Number = 7` gives 7 pieces over 1.4 m and does **not** stretch to fill | Real fill behaviour, and real limits. §13.4. |
+| `copytocurves` | 3 curves of 15 points total produced **15 copies** — one **per curve point**, rigid, source **Z** axis to the tangent. It does not stretch a piece across a curve | It is `copytopoints` with curve frames. Not a deformer. §13.4. |
+| `pathdeform` | `usepiece`/`pieceattrib` matches a piece of geometry to a **curve**; `curve_posoffsetattrib` / `curve_posendattrib` are read as **primitive attributes on the curves**, one value per curve | It can place-and-deform per piece — but only if every piece gets its own curve. §13.4. |
+
+---
+
+### 13.3 Stage by stage
+
+Read this against [§4](#4-the-kernel--phase-1-algorithms). Each heading names the mechanism, then
+says what the candidate nodes cannot do.
+
+#### 13.3.0 Stage 0 — `config` (new, and it is the only Python SOP left in the cook path)
+
+**Mechanism: one Python SOP.** It evaluates the 39-parm page ([§5](#5-parameter-surface-artist-face)),
+reads the style payload from input 3 through `style.py`, resolves the two-face precedence
+(payload beats parms, §2.1), and writes the result as **detail dictionaries** on a single point:
+`pc_cfg` (the resolved parameters), `pc_rules` (§3.3's ordered rule list, as a `dict[]`), and
+`pc_kitmeta`. Nothing downstream reads a parm directly except through `chf()`/`chs()` where a
+scalar is genuinely a scalar.
+
+**Why Python is right here and nowhere else.** This is parameter and payload marshalling — the
+exact case Hannes' rule reserves. It touches no geometry, its N is the parm count, and its output
+is a dict VEX reads natively (probed). It is also what makes the rest of the graph *generic*: no
+wrangle downstream contains a style name, which is what PC-G4 audits.
+
+**Warning:** this SOP must never grow a geometry loop. The four standing wrapper tripwires
+(§11.9 rule 1) stay pointed at it.
+
+#### 13.3.1 §4.1 Decompose — **native + VEX, no Python**
+
+| Step | Mechanism | Notes |
+|---|---|---|
+| cumulative arclength | `pc_arclength` — **primitive wrangle, `vex_precision=64`** | Scans `primpoints()` per curve, writes `pc_s` per point and `pc_seclen` per prim. Parallel across curves, sequential within one. **0.0037 s at 20 001 verts** vs the reference's 0.030 s. 64-bit is mandatory: this is the 20 km expression §11.0 measured returning 0 at 32 bits. |
+| corner resolution | `pc_corners` — **point wrangle** | Turn angle from the two adjacent edges, `pc_corner` −1/0/1 honoured, `cornerAngle` from `pc_cfg`. Emits point group `pc_cornerpt` and `pc_corner_angle`. |
+| markers | `pc_markers` — **point wrangle over the marker cloud** | `pc_u` **or** `pc_dist` (negative = from end) → `pc_s`, bound to its curve by `pc_curve`. Marker points are already segregated by `pc_marker = 1` (§3.1). |
+| sections | `pc_sections` — **primitive wrangle emitting one point per section** | Walks each curve's corner/section-break list and `addpoint`s the section records. ⚠️ `addpoint` from a prim wrangle is thread-order dependent; the section points are **re-sorted by `(curve_id, section_index)` with a `sort` SOP** immediately after, which makes the order structural rather than cook-ordered. That sort is not optional and gets its own mutation test. |
+| output | `OUT_sections` — **null** | Displayable. This is the section list §4.1 already promises. |
+
+**What was rejected and why.** `resample` unshares points and interpolates point attributes
+(dev-loop trap list), so it cannot derive arclength on a curve whose topology is contractual.
+`measure` gives per-prim perimeter, not a per-vertex cumulative. `polyframe` (0.0023 s on 20 001
+points) gives a frame per point but not the cumulative table or the per-side tangents at a kink —
+§11.1 declined it for the same reason and the reason has not changed.
+
+#### 13.3.2 §4.2 Plan — the fitting solve — **VEX, three nodes**
+
+This is the hard one, and under Hannes' rule it is geometry. It ports.
+
+**The shape: solve → expand → read.**
+
+```
+OUT_sections
+   |
+   +-- pc_plan_solve    [attribwrangle, run over POINTS (= sections), vex_precision 64]
+   |       one section per thread; the fill accumulation is a sequential loop
+   |       INSIDE that thread. Writes PER-SECTION ARRAYS, adds no points.
+   |         f[]@pc_starts  f[]@pc_ends   f[]@pc_scales
+   |         s[]@pc_modules s[]@pc_slots  i[]@pc_flags   i@pc_npieces
+   |         f@pc_fill_err                       <- exact-fill residual, asserted 0
+   |
+   +-- pc_plan_expand   [pointgenerate: ptsperpt=1, nptsperpt=1, doattrib=pc_npieces,
+   |                     dopointnum=pc_secpt, dopointidx=pc_index, docopyattribs=*]
+   |       exactly pc_npieces points per section, in section-major/index-minor order.
+   |
+   +-- pc_plan_read     [attribwrangle, run over POINTS (= pieces), vex_precision 64]
+   |       k = i@pc_index; reads element k of each array; resolves the world station
+   |       pair; stamps pc_elem_id (sprintf), pc_slot, pc_module, pc_scale, pc_u;
+   |       deletes the arrays.
+   |
+   +-- OUT_plan         [null]   <- §4.2's inspectable plan; Display=Plan shows THIS
+```
+
+**Why point-class and not detail-class.** A detail wrangle runs once, on one thread, and would
+serialise every section in the build — 10 000 sections through one thread is the shape that made
+the Python slow in the first place. Running over section points makes sections the parallel axis
+while each section's accumulation stays sequential inside its own thread, which is exactly the
+data dependency the solve actually has.
+
+**Why arrays and not `addpoint`.** `addpoint` from a multithreaded wrangle produces points in
+thread-completion order. `determinism` and `geometry_digest` are pinned on all 90 cases and would
+become a lottery. `pointgenerate` expands deterministically — probed, 3 forced cooks, identical
+digest — and index *k* is then a pure function of `(section, k)` with no ordering at all.
+
+**The four fill modes.** All four are arithmetic on `(L, nominal, pad, adaptivePct, N)` and all
+four are a `for` loop that accumulates `cur`:
+
+- `adaptive` — `n = floor(avail/(s+pad))`, `+1` when the remainder fraction ≥ `adaptivePct`,
+  then one global `scale = avail/(n*(s+pad))`. Prototyped in VEX this cycle, `pc_fill_err` 0.0.
+- `scale` — `n` fixed by the nominal count, per-piece scale to close exactly.
+- `count` — `N` from the parm, scale to close.
+- `tile` — whole pieces plus one **sliced** remainder; the slice flag goes into `i[]@pc_flags`
+  and is consumed by §13.3.3's cut, not by the plan.
+
+**Padding** stays RailClone semantics — `pc_pad` moves the *neighbours*, never the piece — which
+in the accumulation is just `cur += (s + padL + padR) * scale` with the piece's own span being
+`[cur+padL, cur+padL+s*scale]`. Negative overlaps fall out for free.
+
+**Markers, `evenly` anchors and compose rules** are reservations made **before** the fill loop, in
+the same wrangle: anchored spans are appended to a sorted reservation array, and the fill runs on
+each free gap between reservations. That is what the reference does; it is a loop over a
+small sorted array and VEX expresses it directly.
+
+**Selection rules (§3.3).** `pc_rules` is a `dict[]` read from `pc_cfg`. For each candidate slot
+the wrangle assembles a **subject dictionary** (`sectionLength`, `splineLength`, `u`,
+`cornerAngle`, `segIndex`, `markerData:<key>`, `attr:<name>`) and evaluates `pc_cond` as
+`{subject, op, value}` against it. **There is no branch per style name and no branch per slot
+name** — the slot string is a dict key, which is what keeps PC-G4's generic-loop audit passing by
+construction. The `pc_vexpr` escape hatch becomes an actual VEX snippet parm on a dedicated
+`pc_style_vexpr` wrangle that is always present and empty by default, so an artist expression
+never forces the main solve to recompile.
+
+**What genuinely does not port: `_splitmix`.** §3.3's `pc_scope` seeding runs a 64-bit
+splitmix mix, and **VEX has no int64 and no unsigned shift** (probed: `long` is an invalid
+declaration type). Two options, and the burden of proof says try the first:
+
+1. **Implement splitmix64 in VEX as four 16-bit limbs.** Every partial product fits in 31 bits, so
+   signed 32-bit ints suffice with explicit masking. ~25 lines, in a shared `pc_rand.h` VEX
+   include, with a unit test comparing 10 000 values against `polychain.__init__._splitmix`.
+   Bit-exact or it does not land. **This is the recommended path** and it is the first risk item
+   in the build order.
+2. **Fallback if (1) cannot be made bit-exact in one cycle:** the `config` Python SOP emits a seed
+   **table** keyed by scope key. That is small-N for `generator`/`spline`/`section` scope, and
+   degenerates to per-piece only for `segment` scope — which is precisely the per-element Python
+   loop §11 spent five items removing. **So the fallback is not acceptable for `segment` scope**;
+   if (1) fails, `segment` scope gets a VEX-expressible PRNG and its random-selection baselines
+   are re-derived case by case, deliberately, with the moves listed.
+
+**What the port costs, stated honestly.** `plan.py` runs today **with no Houdini imported** — 89
+unit tests, and §11.1 called that property "worth more than the microseconds". Porting to VEX
+loses it for the shipped path. **Mitigation:** `plan.py` stays as the reference, those 89 tests
+keep running against it unchanged, and a new `plan_parity` scene check compares the VEX plan
+against the Python plan on every case. The property does not disappear; it moves from the shipped
+code to the oracle.
+
+**What was rejected.** `chain` and `pathdeform` — see §13.4. Nothing native does exact-fill
+adaptive with `pc_pad` neighbour displacement, marker reservations and compose rules.
+
+#### 13.3.3 §4.3 Corners — **VEX for the geometry, native SOPs for the cut**
+
+| Step | Mechanism |
+|---|---|
+| bisector planes, offsets, fillet radius, the narrow-angle fallback | `pc_corner_planes` — **point wrangle over corner points**. Pure per-corner maths: plane origin + normal, the ± offset, the `Reset`/`Extend`/`Symmetric` displacement policy, `pc_warn_corner_degenerate`. |
+| the fillet | the path is rounded **before** the plan by inserting arc points — a **prim wrangle** on the spine, upstream of `pc_arclength`. |
+| the cut itself | two candidates, **and this is the one mechanism the probe did not settle** (§13.9 R5). |
+| the bend corner's welded ring (D36) | no cut at all: the plan welds the sections into one span and §13.3.4's deform wrangle follows it. `fuse` closes the ring. |
+| caps | `polyfill` (as today) or **`polycap`** — verbless before, a real node now — then `pc_cap_uv`, a **vertex wrangle** for the box UV and the cap material tag. |
+
+**The cut, candidate A — `block_begin`/`block_end` over the cut pieces with a `clip` inside.**
+Faithful to the reference (`clip` + `polyfill` is what ships today). `clip` takes one plane per
+cook, so the loop is unavoidable. `n_cut` is single digits across the whole suite, so N is small
+— **but the per-iteration cost is unmeasured** (the probe's fixture failed to build) and §11.9
+rule 2's lesson is that a per-call fixed cost is invisible until you bench many short curves.
+**Bench it on `streets_300`, not on one fence.**
+
+**The cut, candidate B — one `boolean::2.0` against a merged cutting surface.** All bisector
+planes emitted as one polygon soup by a wrangle, one boolean cook for the whole build, no loop.
+**Try this first**, because it removes the loop entirely; fall back to A if boolean's tolerances
+move `corner_plane_dev_m`, `corner_face_mate_m` or `corner_seam_m`.
+
+`corner.py` stays as the reference and keeps its unit tests. This stage is **last** in the build
+order: it is small-N, it is where the tool's correctness lives, and its mechanism is the least
+certain thing in this document.
+
+#### 13.3.4 §4.4 Place + deform — **`copytopoints` + VEX; two visible branches**
+
+```
+OUT_plan
+   |
+   +-- pc_frames        [attribwrangle, POINTS, 64]  chord frame per piece:
+   |                     u-along / v-across / chord length, the three z-modes
+   |                     (adaptive | vertical | stepped), D98's flatten-under datum,
+   |                     D99's two hybrid level bands, D87's off-spine camber term.
+   |                     Writes 3x3 @transform + @P + @pscale + @pc_module.
+   |
+   +-- pc_deform_gate   [attribwrangle, POINTS]  D87's curvature budget ->
+   |                     point group `pc_needs_deform`. One place, one rule.
+   |
+   +-- blast(packed) --- copy_packed   [copytopoints::2.0, pack=1, useidattrib=pc_module]
+   |                       |
+   |                       +- pc_pack_xform [attribwrangle, PRIMS, 64]
+   |                          setprimintrinsic("transform") + P
+   |
+   +-- blast(deformed) - copy_deformed [copytopoints::2.0, pack=0, useidattrib=pc_module]
+   |                       |
+   |                       +- pc_stations [attribwrangle, POINTS, 64]  per-piece station
+   |                       |                table (shared stations, P3's saving, as arrays)
+   |                       +- pc_deform   [attribwrangle, POINTS, 64]  <- THE HOT NODE
+   |                                        every point rebuilt from (piece, local xyz)
+   |                                        through its frame. ~360 000 points.
+   |
+   +-- MERGE -> OUT_place [null]
+```
+
+**Why `copytopoints` and not `copytocurves`/`chain`/`pathdeform`.** Because the frame is ours.
+Probed: `copytopoints` picks the kit module per point from a **string** `pc_module` attribute and
+honours a per-point 3x3 `transform` — which is precisely the output `pc_frames` produces. Nothing
+native expresses `vertical` (yaw-only frame with vertices Z-displaced to elevation), `stepped`
+(yaw-only, constant Z, flatten-under), D98's datum or D99's bands. **The port moves that code from
+Python into VEX; it does not delegate it.**
+
+**§11.1 declined `copytopoints(pack=1)` for the packed branch** because routing the transform
+through a float32 point attribute moved the result by 4.34e-07 m against a suite asserting
+`marker_offset_m` at 1.788e-07 m. **That objection is now answerable and must be tested, not
+assumed:** `vex_precision=64` writes a **float64** attribute (probed, error 0.0 at 20 km), so the
+frame can reach `copytopoints` in 64 bits. What is *not* answerable is the packed prim's own
+storage — `P` at 20 km rounds to float32 (probed) — but that is where the **reference already
+lives**, so it is parity, not regression. **N4 in the build order is the experiment that settles
+it**, and if it moves `geometry_digest` on any case, the packed branch keeps a VEX-written
+intrinsic instead of an attribute round-trip.
+
+**The deform is one node.** A representative 64-bit frame-rebuild wrangle over 360 000 points
+measured **0.00071 s**. The shipped deformed row is 1.5 s. Do not quote that ratio as the expected
+speedup — the micro-bench excludes materialisation, stamping and conform; `scale_gate.py` is the
+number that counts.
+
+#### 13.3.5 §4.5 Conform — **the `ray` node, once per build**
+
+```
+OUT_place --> ray [dotrans=0, putdist=1, newgrp=1, dirz=-1 from pc_cfg]
+                |     -> `dist` point attribute + `rayHitGroup`
+                +-- pc_drop [attribwrangle, POINTS, 64]
+                      applies the drop along the axis, composes with the z-mode
+                      (adaptive/vertical deform to the surface, stepped sits on it),
+                      applies the per-module Y-tilt camber, warns on a miss.
+```
+
+**Three things this fixes at once.** (1) D111 stands: the drop is read as the **distance**, which
+is one float32 rounding at the size of a drop instead of at the size of the world. (2) `ray`
+rebuilds its surface input on every `execute` (§11.9 rule 2: 0.34 ms at 5 022 prims, 2.25 ms at
+80 352) — as a **node** it cooks once per build, so the batching problem is not solved, it is
+**structurally absent**, and `ray_executions_per_build` becomes 1 by construction. (3) the
+unbounded `ConformPath._cache` (53 861 entries, ~24 MB for one 2 km curve) has nothing to cache.
+
+**A tilted `conform_axis`** already takes the Python path today by design (D24/D34/D53). In the
+network it takes a `switch`: the `ray` branch when the axis is a world axis, a VEX
+`intersect()` branch otherwise. Both visible.
+
+#### 13.3.6 §4.6 Finalize — **VEX wrangles, and one new hazard**
+
+| Step | Mechanism |
+|---|---|
+| the §3.4 stamp | `pc_stamp` — **point and prim wrangles**. `pc_elem_id` via `sprintf` (probed bit-exact); `pc_elem_key`'s crc32 hand-written in VEX (`ord`/`split`/`strlen` all exist) with a parity unit test; `pc_slot`/`pc_module`/`pc_variant`/`pc_section`/`pc_u`/`pc_generated`. |
+| instancing segregation | already decided upstream by `pc_deform_gate`; finalize only stamps `pc_deformed`. |
+| slice caps | `polyfill` / `polycap` + `pc_cap_uv` vertex wrangle. |
+| overrides, swap, replace | a **detail wrangle** builds an index `dict` from the override stream, a **point/prim wrangle** applies swap; hero replacement is a second `copytopoints` branch keyed by `pc_elem_id`, merged. |
+| warnings | each detecting wrangle writes its own `pc_warn_*`; one **detail wrangle** collates the summary. |
+| the starter kit | ⚠️ **becomes native.** `kit.starter_kit()` builds four boxes in Python today, and `hda._padded` loops `pt.setAttribValue` over kit points. In the network that is four `box` SOPs + `pack` + one manifest wrangle, and padding is one line of VEX. Python keeps kit *authoring* for external kits, not kit *construction* in the cook path. |
+
+**⚠️ THE NEW HAZARD: warn-never-block is not free in a network.** Today every verb call is wrapped
+so a raise degrades to the Python path. **A node that errors stops the cook.** Every native node
+that can fail on degenerate input — `ray`, `clip`, `boolean`, `polyfill`, `polycap`, `polybevel` —
+must sit behind a guard: a `switch` driven by an emptiness/validity test written by the wrangle
+above it, with a pass-through `null` on the other branch. This is a **design requirement, not
+polish**; it is the contract in §11.9 rule 7 and the whole warn-never-block house rule. It gets
+its own check: a case that feeds each guarded node its degenerate input and asserts a warning
+plus geometry, not an error.
+
+---
+
+### 13.4 The nodes that were tested and rejected — and exactly what they cannot do
+
+**`chain`** — *the closest native node to this whole tool, and PC-G0 already found it is a factory
+HDA that could be forked.* Probed: a 10 m line with a 0.2 m piece gives **50 pieces filling
+0.000..10.000**; `Explicit Number = 7` places 7 and does **not** stretch to fill. It has piece
+patterns, start/end caps, exact-pattern-length, fuse, and a "Deform Between Pivots" rigid mode
+that is shaped like `stepped`. **What it cannot do:** `pc_pad` neighbour displacement with
+negative overlaps; marker reservations at an exact arclength; §4.2's `adaptivePct` add-one-more
+threshold; §3.3's conditional selection; per-section compose rules; and §4.4's three z-modes.
+Adopting its fill would move every one of the 90 cases' `exact_fill_m`, `section_coverage_m` and
+`max_gap_m` to *chain's* semantics rather than RailClone's. **Rejected for the fill.** §0.0
+already records that PC-G0's fork decision should be retired (chain builds 12 011 652 points
+where polyChain builds 10 000 packed prims); this cycle does not reopen it.
+
+**`copytocurves`** — probed: 3 curves totalling 15 points produced **15 copies, one per curve
+point**, rigid, with the source's **Z** axis aligned to the tangent. The docs confirm it: *"copies
+geometry from the first input onto **points** in the second input"*. It is `copytopoints` with
+curve-derived frames. **It does not stretch a piece along a span**, so it cannot materialise a
+plan. **Rejected.**
+
+**`pathdeform`** — probed: `usepiece`/`pieceattrib` matches a piece of geometry to a **curve**, and
+`curve_posoffsetattrib` / `curve_posendattrib` are **primitive attributes on the curves** — one
+value per curve, not per piece. So it *can* place-and-deform every piece in one node, **but only
+if the plan emits one span curve per piece**. That is a real design: ~2 extra points per piece and
+one node. **Rejected anyway**, for one reason: its frame model is fixed (forward axis, up vector,
+capture region) and cannot express `vertical`'s Z-displacement-to-elevation, `stepped`'s constant
+Z, D98's flatten-under datum or D99's bands. Adopting it for `adaptive` only would mean two
+different deform mechanisms with two different rounding behaviours in one tool — and
+`module_fidelity_m`, `plumb_deg`, `flat_stepped_m` and `bank_deg` are asserted on all 90 cases.
+**Keep one deform, in VEX.** Revisit if a future mode is purely `adaptive`.
+
+**`bend`** — a single-axis deformer with a capture region. No per-piece mapping, no arclength
+placement. **Rejected.**
+
+**`polyexpand2d`, `sweep::2.0`, `polybevel::3.0`** — solve problems this tool does not have
+(offsetting a planar skeleton, generating from cross-sections, rounding an edge). `polyexpand2d`
+additionally breaks planarity by ~2e-5 (dev-loop trap list). **Rejected.**
+
+**`resample`** — unshares points and interpolates point attributes. The spine's topology is
+contractual (§3.1). **Rejected**, as in §11.1.
+
+**`measure` / `polyframe`** — per-prim perimeter and per-point frames respectively; neither gives
+the cumulative arclength table or the per-side tangents at a kink. **Rejected**, as in §11.1.
+
+**`boolean::2.0`** — **not** rejected; it is candidate B for the corner cut (§13.3.3).
+
+**`polycap`** — **adopted as a candidate.** Verbless, and therefore unreachable from the old
+verb-only kernel; a real node now.
+
+---
+
+### 13.5 OpenCL — declined again, and this time with a criterion
+
+The only genuinely large parallel workload in phase 1 is the deformed branch's ~360 000 points,
+and **VEX does a representative kernel for it in 0.00071 s at 64-bit precision** (probed). Adding
+a GPU transfer and a second language to a sub-millisecond stage is cost without payoff, and every
+stage above it is small-N with data-dependent branching — the shape OpenCL is worst at.
+
+**The OpenCL probe is reported as unmeasured, not as slower.** The kernel compiled and cooked with
+no errors, but `cookCount` incremented once across six timed passes, so the number it produced is
+not evidence and is not quoted here.
+
+**The criterion for reopening it, so nobody reopens it without one:** OpenCL becomes worth
+measuring when a *single* deform cook exceeds **50 ms** — i.e. roughly **> 2.5e7 points**, which
+phase 1 cannot reach and phase 2 (§7's N rows through the same kernel) plausibly can. The way to
+be ready without paying for it now is architectural: **`pc_deform` is written as one self-contained
+kernel over (piece index, local xyz, station arrays) with no VEX-only constructs in its inner
+loop** — no strings, no dicts, no `prim()`/`point()` random access outside the station arrays — so
+that the OpenCL SOP version is a transliteration rather than a redesign. That constraint costs
+nothing today and is the whole preparation. **Decision D149.**
+
+---
+
+### 13.6 What stays Python — the complete list, each justified
+
+| What | Why it survives |
+|---|---|
+| `config` Python SOP (new) — parm evaluation, payload read, two-face precedence, `pc_cfg`/`pc_rules` dicts | **UI/parameter marshalling** — the exact case Hannes' rule reserves. No geometry, N = the parm count, output is a dict VEX reads natively. |
+| `style.py` — the §3.3 payload I/O adapter | Reading and validating an external data format, with warn-and-degrade. Not geometry. Runs once per cook. |
+| `kit.py` — kit **authoring** and validation (`pf_polychain_kit`) | Authoring a file, not cooking geometry. ⚠️ **`kit.starter_kit()`'s box construction leaves Python** and becomes native `box` SOPs inside the HDA (§13.3.6). |
+| `devScripts/create_pf_polychain_hda.py` — the HDA build script | Builds the network, the parm interface, the network boxes, the comments and the colours. Tooling, not a cook. It gets **larger** in this rewrite, which is correct. |
+| `polychain/*.py` — the whole current kernel | **The reference implementation and the parity oracle.** Not shipped in the cook path once a stage lands, never deleted, keeps its unit tests. |
+| `tests/` — the harness | Already Python and stays Python. |
+| **`_splitmix`'s 64-bit mixing** — *conditionally* | VEX has **no int64 and no unsigned shift** (probed). This is the one algorithm with no direct VEX expression. §13.3.2 gives the limb implementation as the required first attempt and says exactly what happens if it fails. **This is the only entry on this list that is a concession rather than a fit.** |
+
+Everything else in `polychain/` — `decompose`, `plan`, `corner`, `place`, `conform`, the `hda`
+cook path — leaves the cook. That is roughly 5 900 of the ~6 000 lines.
+
+---
+
+### 13.7 The graph must be readable — the layout, specified
+
+The HDA ships with **unlocked contents** and a network an artist can dive into and understand
+without reading source. [`artist_ui.md`](artist_ui.md) §6 rule 10 and §1c are the requirement.
+
+```
+pf_polychain                          (subnet, unlocked, 4 inputs as today)
+│
+├── IN_SPLINE  IN_KIT  IN_STYLE  IN_SURFACE     [4 named nulls, one per input]
+│
+├─┤ 0 · CONFIG ├───────────────────────────────────── network box, grey
+│   config                       [python]  the ONLY Python SOP in the cook path
+│   starter_kit                  [box x4 -> pack -> manifest wrangle]  used when input 2 is empty
+│
+├─┤ 1 · DECOMPOSE  (§4.1) ├───────────────────────── network box, blue
+│   pc_fillet · pc_arclength · pc_corners · pc_markers · pc_sections · sort
+│   OUT_sections                 [null]
+│
+├─┤ 2 · PLAN  (§4.2) ├────────────────────────────── network box, green
+│   pc_plan_solve · pc_plan_expand · pc_style_vexpr · pc_plan_read
+│   OUT_plan                     [null]   <- Display=Plan renders this
+│
+├─┤ 3 · CORNERS  (§4.3) ├─────────────────────────── network box, orange
+│   pc_corner_planes · (boolean | foreach+clip) · polyfill/polycap · pc_cap_uv
+│   OUT_corners                  [null]
+│
+├─┤ 4 · PLACE + DEFORM  (§4.4) ├──────────────────── network box, red
+│   pc_frames · pc_deform_gate
+│   ├── copy_packed   -> pc_pack_xform
+│   └── copy_deformed -> pc_stations -> pc_deform
+│   merge · OUT_place            [null]
+│
+├─┤ 5 · CONFORM  (§4.5) ├─────────────────────────── network box, cyan
+│   switch(axis) · ray · pc_drop
+│   OUT_conform                  [null]
+│
+├─┤ 6 · FINALIZE  (§4.6) ├────────────────────────── network box, purple
+│   pc_stamp · pc_overrides · hero branch · pc_warn_collate
+│   OUT_finalize                 [null]
+│
+└── stage_switch [switch] ──> OUT [null] ──> output
+```
+
+Rules the build script enforces, and the HDA-wiring check asserts:
+
+1. **Every stage begins and ends in a named `null`.** An artist can drop a display flag on any of
+   them and see that stage's output. Nothing important happens in an unnamed node.
+2. **Every stage is a network box with a title and a one-line comment** naming its §4 subsection.
+   Every wrangle carries `setComment` + `DisplayComment` saying what it computes in one sentence.
+3. **One new parm, on the Debug folder: `Stage`** — a menu over the `OUT_*` nulls, driving
+   `stage_switch`. That is the artist-visible version of "toggle nodes off to see what each does"
+   (§1c) and it costs exactly one parameter. It does **not** replace the existing `Display`
+   (plan / full / proxy) parm, which is a §5 art-direction control, not a debug control.
+4. **No expression may reference a node by absolute path.** Copied `foreach` blocks keeping
+   absolute `blockpath`/`templatepath` is a recorded trap; every internal reference is relative.
+5. **Working groups are prefixed `pc_`** and deleted before `OUT` — a group-name collision between
+   two stages silently corrupts one of them (dev-loop trap list).
+6. **The parm face does not change.** §5 is settled and audited; this is a rebuild of the body,
+   not of the face. Exactly one parm is added (rule 3).
+
+---
+
+### 13.8 Parity strategy — how each stage is proven, and what tolerance is defensible
+
+**The rule: the reference stays live in the same process, and parity is proven by asking BOTH,
+not by diffing two runs** (§11.9 rule 4 — it is what makes `conform_parity` meaningful).
+
+**Per stage, in this order:**
+
+1. **A `*_parity` scene check per stage**, run on all 90 phase-1 cases (and later all 22 phase-2
+   cases): build the stage natively and with the reference on the *same* input, compare
+   element-by-element. `conform_parity` is the existing pattern; `plan_parity`, `decompose_parity`,
+   `frames_parity`, `stamp_parity` (already exists) follow it.
+2. **The 6 242 baselined values move only deliberately.** `run_scene_checks.py` already prints
+   every moved value whether or not the check passes. **Every moved value is explained key by key
+   in the build log before `--update-baseline` is run.** A blanket update is forbidden.
+3. **A mutation per landed node.** The suite's existing device: revert or corrupt the new node and
+   confirm something goes red. A node whose removal leaves the suite green is untested, not
+   correct — this is exactly what cycle P2-3V found six times.
+4. **`geometry_digest` and `determinism` are the ordering pins.** `pointgenerate` emits
+   section-major / index-minor, which **is** the reference's order — but that is a claim to verify
+   per case, not to assume, and it is the first thing to check when a digest moves.
+
+**Tolerances, and why each is defensible:**
+
+| Where | Tolerance | Why |
+|---|---|---|
+| the plan (`pc_starts`/`pc_ends`/`pc_scales`, `exact_fill_m`, `section_coverage_m`, `max_gap_m`) | **exact — 1e-12 relative, no absolute slack** | 64-bit VEX against 64-bit Python doing the same arithmetic in the same order. The fitting solve must not need a tolerance; if it does, the accumulation order differs and that is a defect, not float noise. |
+| any intermediate that feeds another stage | **1e-12 relative** | Because `vex_precision=64` writes **float64** attributes (probed, error 0.0 at 20 km). **Design rule: no intermediate is allowed to round-trip through float32.** `attribcast` is the explicit lever where a value must be pinned. |
+| final `P`, packed transforms, anything the viewport sees | **1e-6 m absolute at fixture scale (≤ 100 m); 1e-3 m at 20 km** | float32 ULP at those magnitudes. `geometry_digest` already quantises the world transform at 1e-6 m, and the **reference writes float32 too** — so this is parity, not a new floor. §11.9 rule 3 measured the same thing from the other side. |
+| conform | **0.0 expected**, as today | D111: the drop is read as a distance, not a position. P5 landed at 0 moved values on 89 cases and the node path reads the same `dist`. If it is not 0, something else changed. |
+| corner cut geometry (`corner_plane_dev_m`, `corner_face_mate_m`, `corner_seam_m`) | **their existing baselined tolerances**, and boolean must meet them or candidate A wins | This is the decision procedure for §13.3.3's two candidates, written down before either is built. |
+
+**Three trials every new native call gets** (D113, §11.9 rule 6, non-negotiable): an
+**irrational-slope** case, a case at **20 km**, and an **asymmetric** case. A parity check green at
+exactly 0.0 on symmetric fixtures is a claim about the fixtures.
+
+**The tripwires carry forward unchanged** — `stamp_calls_per_piece(_deformed)`,
+`prims_wrappers_built(+_deformed/_mitered)`, `points_wrappers_built(+_streets)`,
+`path_sample_calls_per_piece(_deformed)`, `conform_cache_per_element`,
+`ray_executions_per_build`. Several of them will read **0** once their stage is native; **that
+flip is the proof the stage landed**, and the expectation moves with it on the same commit
+(the ladder device §11.2 already uses). Two new ones:
+
+- **`sop_cooks_per_build`** — the node count the graph actually cooks. A network's failure mode is
+  cook count, the way the Python's was wrapper count.
+- **`streets_300_wall_clock`** — because §11.9 rule 2 is reborn in a new form: **a per-NODE fixed
+  cost is invisible on one long fence and multiplies by 300 on the citygen shape.** Bench the
+  many-short-curve fixture from N1 onward, not at the end.
+
+---
+
+### 13.9 Build order, and the risk list
+
+Highest risk and highest value first, so a later cycle that runs out of road has landed the parts
+that mattered. **Each item is one cycle: implement, run all suites, explain every moved value,
+mutation-test, commit, then an independent audit before any completion claim** (dev-loop rule 0).
+
+| # | Item | Why here | Risk |
+|---|---|---|---|
+| **N1** | **The parity rig.** A `pf_polychain_native` sibling HDA and a `*_parity` harness so both implementations cook side by side on the same input, plus `sop_cooks_per_build` and the `streets_300` bench. Nothing of the reference is touched. | Everything below is measured against this. Building it first is what makes the rest cheap. | LOW |
+| **N2** | **§4.2 the fitting solve in VEX** — solve / expand / read, all four fill modes, padding, markers, `evenly`, compose rules, selection rules, and **the splitmix64 limb implementation with its bit-exactness test**. | The hardest thing, the thing Hannes' rule most obviously reclassifies, and the thing every stage below consumes. If splitmix cannot be made bit-exact, that must surface in cycle one, not cycle six. | **HIGH** |
+| **N3** | **§4.1 decompose** — arclength, corners, markers, sections, the sort. | Feeds N2; small and well understood; the 64-bit arclength is already measured. | LOW |
+| **N4** | **§4.4 packed branch** — `pc_frames`, `pc_deform_gate`, `copytopoints(pack=1)`, `pc_pack_xform`. **This is the experiment that settles §11.1's declined `copytopoints`**: does a 64-bit frame attribute reach the packed prim without moving `geometry_digest`? | The branch PC-G3 and every citygen street actually run. Answers an open question with a number. | **HIGH** |
+| **N5** | **§4.4 deformed branch** — `pc_stations` + `pc_deform`, written under §13.5's OpenCL-portability constraint. | The largest measured win and the largest parallel workload. | MEDIUM |
+| **N6** | **§4.5 conform** — `ray` as a node, `pc_drop`, the axis `switch`. | Structurally deletes §11.9 rule 2's batching problem and the 24 MB cache. Well-understood, D111 already proved the distance read. | LOW |
+| **N7** | **§4.6 finalize** — stamp, crc32-in-VEX, caps, overrides, hero, warnings, **and the guard switches for warn-never-block**. | The guards are a contract, and they are cheapest to design in while the stages are still being wired. | MEDIUM |
+| **N8** | **§4.3 corners** — planes in VEX, then boolean (candidate B) with foreach+clip (candidate A) as the fallback. | Last: small-N, least certain mechanism, and it is where the tool's correctness lives — it should be ported when everything around it is already proven. | **HIGH** |
+| **N9** | **The HDA rebuild** — layout, network boxes, comments, colours, the `Stage` parm, unlocked contents, help. The parm face is unchanged but for one parm. | The readability deliverable. It is the *point* of the exercise, and it is cheap once the stages exist. | LOW |
+| **N10** | **Decide the reference's fate** — kernel path retired from the cook, `polychain/*.py` kept as the oracle. | A decision to take with the numbers in hand, not now. | LOW |
+
+**The risks, named:**
+
+- **R1 — no int64 in VEX.** Probed. `_splitmix` has no direct expression; the limb implementation
+  is unproven. Blocks every `random`-selection baseline. **N2, first thing.**
+- **R2 — float32 at world scale.** A packed point at 20 km stores as 20000.0 (probed). Unchanged
+  from today, but **every new intermediate must stay 64-bit or the tool gets worse than it is**.
+  The mitigation is a design rule (§13.8) and `attribcast` is the lever.
+- **R3 — element ORDER.** `pointgenerate`'s order is believed to match the reference's
+  section-major/index-minor order. **Verified on a 4-section fixture, not on 90 cases.**
+  `geometry_digest` is the pin and it will be the first thing to move if this is wrong.
+- **R4 — warn-never-block regresses.** A node errors where a verb wrapper degraded. Guards are
+  designed in at N7 but every stage before it can introduce an ungarded failure. Add the
+  degenerate-input case with the first guarded node, not at the end.
+- **R5 — the corner cut mechanism is unmeasured.** The probe's foreach fixture failed to build, so
+  neither candidate has a number. Two candidates, a written decision procedure, and it is last in
+  the order for exactly that reason.
+- **R6 — `plan.py`'s 89 `hou`-free unit tests** stop covering the shipped path. Mitigated by
+  keeping them on the reference and adding `plan_parity`; stated so nobody discovers it later.
+- **R7 — per-NODE fixed cost on many short curves.** §11.9 rule 2 in a new costume: 300 streets
+  cook the graph 300 times' worth of fixed overhead that one 20 km fence never shows.
+  `streets_300` is benched from N1.
+- **R8 — the packed `transform` intrinsic's scale component** did not appear in the probe's
+  `bounds` reading. Re-check against `packedfulltransform` before N4 relies on it.
+- **R9 — OpenCL is unmeasured**, not measured-and-rejected. §13.5 records the criterion so the
+  next agent does not reopen it without a workload, and does not cite a number that does not exist.
+
+---
+
+### 13.10 Decisions recorded this cycle
+
+- **D148 — the kernel becomes a node network; the verb-only rule of §11.9 is superseded.** §11.9's
+  "no `createNode` anywhere" was correct for a Python builder and is wrong for the tool the artist
+  has to read. Everything else in §11.9's handover — the wrapper rule, the batching rule, the
+  smallest-number rule, the additive-batch rule, the determinism rule, the trial rule and
+  warn-never-block — **carries forward unchanged** and several are strengthened by the move.
+- **D149 — OpenCL is declined for phase 1 again, with a criterion, and `pc_deform` is written to be
+  transliterable.** Reopen at a single deform cook > 50 ms (~2.5e7 points). The probe's OpenCL
+  timing was invalid and is not quoted.
+- **D150 — the fitting solve ports to VEX as solve/expand/read over per-section arrays, not as
+  `addpoint`.** `addpoint` from a multithreaded wrangle is thread-order dependent and would make
+  `determinism` and `geometry_digest` a lottery on 90 cases. `pointgenerate` with an
+  attribute-driven count is deterministic (probed, 3 cooks, identical digest) and costs 0.0002 s
+  for 10 000 sections.
+- **D151 — `chain`, `copytocurves`, `pathdeform` and `bend` are all rejected for the fill and the
+  deform, each for a named limitation** (§13.4), and the reasons are written down so nobody
+  re-derives them. The deform stays ours, in VEX, in one node.
+- **D152 — `plan.py` loses its `hou`-free property for the shipped path and keeps it as the
+  oracle.** 89 unit tests keep running against the reference; `plan_parity` covers the shipped
+  path. Stated as a cost, not hidden as a detail.
+- **D153 — every native node that can fail gets a guard `switch`.** Warn-never-block was free in a
+  verb-only kernel and is not free in a network. This is a design requirement with its own check.
+- **D154 — `kit.starter_kit()`'s geometry construction leaves Python** and becomes native `box`
+  SOPs plus a manifest wrangle inside the HDA; `hda._padded`'s per-point loop becomes one line of
+  VEX. Kit *authoring* stays Python; kit *construction in the cook path* does not.
+- **D155 — one parm is added to §5 and no more: `Stage`**, a Debug-folder menu over the stage
+  output nulls. It is the artist-visible form of §1c's "toggle nodes off to see what each does".
+
