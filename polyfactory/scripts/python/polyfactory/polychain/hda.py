@@ -288,11 +288,22 @@ def colour_warnings(geo, warn_names):
     if geo.findPrimAttrib("Cd") is None:
         geo.addAttrib(hou.attribType.Prim, "Cd", (1.0, 1.0, 1.0))
     present = [n for n in warn_names if geo.findPrimAttrib(n) is not None]
+    n = len(geo.prims())
+    if not present or not n:
+        return 0
+    # 11.2 P1: read every warn column and write `Cd` once, instead of one
+    # `attribValue` per warn per prim and one `setAttribValue` per hit. The
+    # UNWARNED prims keep whatever `Cd` they already had - a kit module may
+    # ship its own colour, so this cannot just rebuild the array from white.
+    cols = [geo.primIntAttribValues(a) for a in present]
+    cd = list(geo.primFloatAttribValues("Cd"))
     hit = 0
-    for prim in geo.prims():
-        if any(prim.attribValue(n) for n in present):
-            prim.setAttribValue("Cd", WARN_COLOUR)
+    for i in range(n):
+        if any(col[i] for col in cols):
+            cd[i * 3], cd[i * 3 + 1], cd[i * 3 + 2] = WARN_COLOUR
             hit += 1
+    if hit:
+        geo.setPrimFloatAttribValues("Cd", cd)
     return hit
 
 

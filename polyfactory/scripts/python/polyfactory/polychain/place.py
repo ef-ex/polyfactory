@@ -1358,24 +1358,39 @@ def plan_points(geo, report):
     for name, default in PLAN_POINT_ATTRS:
         if geo.findPointAttrib(name) is None:
             geo.addAttrib(hou.attribType.Point, name, default)
-    for row, p in zip(rows, pos):
-        pt = geo.createPoint()
-        pt.setPosition(p)
-        for name, default in PLAN_POINT_ATTRS:
-            src = {"pc_index": "index", "pc_s0": "s0", "pc_s1": "s1",
-                   "pc_scale": "scale", "pc_deform": "pc_deform",
-                   "pc_slice_t": "slice_t"}.get(name, name)
-            if name == "pc_plan":
-                pt.setAttribValue(name, 1)
-            elif name == "pc_slice_t":
-                pt.setAttribValue(name, -1.0 if row["slice_t"] is None
-                                  else float(row["slice_t"]))
-            elif isinstance(default, str):
-                pt.setAttribValue(name, str(row.get(src, default)))
-            elif isinstance(default, int):
-                pt.setAttribValue(name, int(row.get(src, default)))
-            else:
-                pt.setAttribValue(name, float(row.get(src, default)))
+    if not rows:
+        return geo
+    # 11.2 P1 again: 15 point attributes, one `setAttribValue` each, once per
+    # placement. `Display = Plan` is the INTERACTIVE preview and it cooked
+    # 1.55 s against the 0.93 s full build it previews, which is the whole
+    # reason. Built the way `_stamp_bulk` builds the prim stamp: one column
+    # per attribute, one call each.
+    base = len(geo.iterPoints())
+    geo.createPoints([tuple(float(v) for v in p) for p in pos[:len(rows)]])
+    for name, default in PLAN_POINT_ATTRS:
+        src = {"pc_index": "index", "pc_s0": "s0", "pc_s1": "s1",
+               "pc_scale": "scale", "pc_deform": "pc_deform",
+               "pc_slice_t": "slice_t"}.get(name, name)
+        if name == "pc_plan":
+            col = [1] * len(rows)
+        elif name == "pc_slice_t":
+            col = [-1.0 if row["slice_t"] is None else float(row["slice_t"])
+                   for row in rows]
+        elif isinstance(default, str):
+            col = [str(row.get(src, default)) for row in rows]
+        elif isinstance(default, int):
+            col = [int(row.get(src, default)) for row in rows]
+        else:
+            col = [float(row.get(src, default)) for row in rows]
+        if isinstance(default, str):
+            head = list(geo.pointStringAttribValues(name))[:base]
+            geo.setPointStringAttribValues(name, head + col)
+        elif isinstance(default, int):
+            head = list(geo.pointIntAttribValues(name))[:base]
+            geo.setPointIntAttribValues(name, head + col)
+        else:
+            head = list(geo.pointFloatAttribValues(name))[:base]
+            geo.setPointFloatAttribValues(name, head + col)
     return geo
 
 
@@ -1392,11 +1407,15 @@ def _stamp_values(placement, warns, deformed, zmode, replaced=False):
     """3.4's stamp as (name, value) pairs - one description, two writers.
 
     D102: the per-prim writer below and the BULK writer are the same list, so
-    a stamp added to one cannot go missing from the other. `_stamp` is what a
-    packed piece takes (one prim, 14 calls); `_stamp_geo` is what a DEFORMED
-    piece takes, and that is the difference between 14 calls and 14 x the
-    piece's prim count - measured, 4 758 096 `Prim.setAttribValue` calls and
-    9.0 s of a 14.1 s build on the `arc_10` row.
+    a stamp added to one cannot go missing from the other. `_stamp` is the
+    REFERENCE - one prim, 14 `Prim.setAttribValue` calls - and `_stamp_bulk`
+    is what the build actually runs, over the whole output at once
+    (11.2 P1). `stamp_parity` compares them on all 89 cases.
+
+    ⚠️ D102's own `_stamp_geo` - the per-PIECE bulk writer - is gone: with
+    P1 accumulating across the whole output there is no piece-sized write
+    left, and leaving a third writer in place would have left `stamp_parity`
+    comparing two paths the build no longer takes.
     """
     eid = placement.elem_id
     return (
@@ -1417,34 +1436,66 @@ def _stamp_values(placement, warns, deformed, zmode, replaced=False):
     ) + tuple((w, 1) for w in warns)
 
 
-def _stamp_geo(geo, placement, warns, deformed, zmode, replaced=False):
-    """D102 - the whole piece stamped through the BULK array setters.
-
-    `hou.Geometry` already has C++-side array writers for exactly this, so
-    the loop that mattered needed no new language: one call per attribute
-    instead of one per attribute PER PRIM. The values are constant across the
-    piece (it is one element), so each array is a repeat.
-    """
-    n = len(geo.prims())
-    if n == 0:
-        return
-    if n == 1:
-        _stamp(geo.prims()[0], placement, warns, deformed, zmode, replaced)
-        return
-    for name, value in _stamp_values(placement, warns, deformed, zmode,
-                                     replaced):
-        if isinstance(value, str):
-            geo.setPrimStringAttribValues(name, [value] * n)
-        elif isinstance(value, int):
-            geo.setPrimIntAttribValues(name, [value] * n)
-        else:
-            geo.setPrimFloatAttribValues(name, [value] * n)
-
-
 def _stamp(prim, placement, warns, deformed, zmode, replaced=False):
     for name, value in _stamp_values(placement, warns, deformed, zmode,
                                      replaced):
         prim.setAttribValue(name, value)
+
+
+_BLANK = {"s": "", "i": 0, "f": 0.0}
+
+
+def _stamp_bulk(geo, rows, warn_names, base=0):
+    """D102's bulk stamp, applied to the WHOLE OUTPUT - 11.2 P1.
+
+    D102 did this for one deformed PIECE at a time; the packed branch - which
+    is what PC-G3's headline row and every citygen street actually runs - kept
+    the per-prim writer, and it was measured as **62 % of the real node cook**:
+    14 `hou.Prim.setAttribValue` calls at 2.19 us, once per packed piece.
+
+    Same fix, one level up. Pass B accumulates `(prim count, stamp values)`
+    per piece in build order and this writes one array per attribute over the
+    finished geometry.
+
+    ⚠️ THE ARRAYS MUST LINE UP WITH `out`'s PRIM NUMBERING, which is why the
+    count travels with the values rather than being assumed: a corner-cut
+    piece goes through `clip` and `polyfill` and comes out with a prim count
+    nothing upstream knows. `base` is the prim count `out` already carried
+    when pass B started - zero for every caller in the tree, and read back
+    from the geometry rather than defaulted so a caller-supplied `out` keeps
+    its own stamps instead of being blanked.
+
+    `_declare` has already run on `geo` (pass A), so every name exists,
+    including the warn attributes - which is what lets an element that did
+    NOT warn take a plain 0 here instead of needing its own branch.
+    """
+    if not rows:
+        return
+    names, kind = [], {}
+    for _n, values in rows:
+        for name, value in values:
+            if name not in kind:
+                names.append(name)
+                kind[name] = ("s" if isinstance(value, str)
+                              else "i" if isinstance(value, int) else "f")
+    for name in warn_names:                     # warned on no element at all
+        if name not in kind:
+            names.append(name)
+            kind[name] = "i"
+    cols = dict((name, []) for name in names)
+    for n, values in rows:
+        row = dict(values)
+        for name in names:
+            cols[name].extend([row.get(name, _BLANK[kind[name]])] * n)
+    get = {"s": geo.primStringAttribValues, "i": geo.primIntAttribValues,
+           "f": geo.primFloatAttribValues}
+    put = {"s": geo.setPrimStringAttribValues,
+           "i": geo.setPrimIntAttribValues,
+           "f": geo.setPrimFloatAttribValues}
+    for name in names:
+        k = kind[name]
+        head = list(get[k](name))[:base]
+        put[k](name, head + cols[name])
 
 
 # --- the pipeline -----------------------------------------------------------
@@ -1694,7 +1745,12 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
     _declare(out, warn_names)
 
     # --- pass B: materialise -----------------------------------------------
+    # 11.2 P1: the stamp is ACCUMULATED here and written once at the end -
+    # `(prim count, values)` per piece, in build order, so the arrays line up
+    # with `out`'s own prim numbering after every merge.
     n_packed = n_deformed = n_cut = n_replaced = 0
+    stamp_rows = []
+    stamp_base = len(out.prims())
     for job in jobs:
         p, proto, path = job["p"], job["proto"], job["path"]
         zmode, warns = job["zmode"], job["warns"]
@@ -1719,7 +1775,8 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                                             job["packed_y"]))
             prim = out.createPackedGeometry(job["hero"])
             prim.setTransform(xform)
-            _stamp(prim, p, warns, False, zmode, replaced=True)
+            stamp_rows.append(
+                (1, _stamp_values(p, warns, False, zmode, replaced=True)))
             n_packed += 1
             n_replaced += 1
             continue
@@ -1739,7 +1796,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                                           job["packed_y"])
             prim = out.createPackedGeometry(proto.source)
             prim.setTransform(xform)
-            _stamp(prim, p, warns, False, zmode)
+            stamp_rows.append((1, _stamp_values(p, warns, False, zmode)))
             n_packed += 1
             continue
         src = proto.sliced(p.slice_t)[0] if p.slice_t is not None \
@@ -1775,11 +1832,12 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                 piece = clip_plane(piece, origin, normal, keep,
                                    proto.module.name, _texel(proto.source))
             n_cut += 1
-        _declare(piece, warn_names)
-        _stamp_geo(piece, p, warns, True, zmode)       # D102 - bulk, not per prim
+        stamp_rows.append((len(piece.prims()),
+                           _stamp_values(p, warns, True, zmode)))
         out.merge(piece)
         n_deformed += 1
 
+    _stamp_bulk(out, stamp_rows, warn_names, stamp_base)
     _kit_warnings(out, kit_warns)
     counts = _collate_warnings(out, jobs)
     report = {

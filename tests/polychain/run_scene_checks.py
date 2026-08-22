@@ -357,6 +357,7 @@ def run_case(name, case):
         C.station_spacing(scene),
         C.piece_extent(scene),
         C.plan_geometry(scene, cases.P),
+        C.plan_point_provenance(scene, cases.P),
         C.warnings(scene, EXPECTED_WARNS.get(name, ())),
         C.determinism(scene, cases.rebuild),
         C.geometry_digest(scene),
@@ -483,7 +484,7 @@ def run_case(name, case):
 # - the same device `scale_gate.py`'s LADDER uses.
 def port_tripwires():
     return [
-        C.stamp_calls_per_piece(cases.tripwire_packed_run, expect_max=15.0),
+        C.stamp_calls_per_piece(cases.tripwire_packed_run, expect_max=1.0),
         C.curve_sample_scaling(cases.Curve, expect="O(n)"),
         C.conform_cache_per_element(cases.tripwire_conformed_run,
                                     cases.CONFORM, expect_max=30.0),

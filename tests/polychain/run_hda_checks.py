@@ -398,6 +398,42 @@ def main():
           "fell back to the starter kit; %d warnings: %s"
           % (len(bad_warns), (bad_warns or ("",))[0][:60]))
 
+    # ---- 7. the warning COLOUR, which nothing asserted ------------------
+    # 11.2 P1 named `run_hda_checks.py`'s "warning-colour rows" as one of its
+    # pins. There were none. Deleting the write in `hda.colour_warnings`
+    # outright left this whole suite green, and `show_warnings` is exempt
+    # from the PC-G4 parm sweep by design (D81/D82: it is a viewing decision),
+    # so the parm and its writer were together unexercised. 2.2's advisory
+    # validation only works if the artist can SEE what was warned about.
+    print("\n=== 7. show_warnings paints the warned elements ===")
+    warned = geo_node.createNode("pf_polychain", "chain_warncolour")
+    warned.setInput(0, spline)
+    warned.parm("slot_default").set("nosuchmodule")
+    warned.parm("slot_start").set("")
+    warned.parm("slot_end").set("")
+    warned.parm("show_warnings").set(1)
+    g_on = warned.geometry()
+    warn_attrs = [a.name() for a in g_on.primAttribs()
+                  if a.name().startswith("pc_warn_")]
+    red = lit = 0
+    for prim in g_on.prims():
+        if any(prim.attribValue(a) for a in warn_attrs):
+            lit += 1
+            if tuple(round(v, 4) for v in prim.attribValue("Cd"))                     == tuple(round(v, 4) for v in H.WARN_COLOUR):
+                red += 1
+    check("warned_elements_are_coloured",
+          bool(warn_attrs) and lit > 0 and red == lit, [lit, red],
+          "%d warned prims, %d at %s" % (lit, red, str(H.WARN_COLOUR)))
+    warned.parm("show_warnings").set(0)
+    g_off = warned.geometry()
+    off_red = sum(1 for prim in g_off.prims()
+                  if g_off.findPrimAttrib("Cd") is not None
+                  and tuple(round(v, 4) for v in prim.attribValue("Cd"))
+                  == tuple(round(v, 4) for v in H.WARN_COLOUR))
+    check("show_warnings_off_paints_nothing", off_red == 0, off_red,
+          "the toggle is the control - without it the check above could pass "
+          "on a builder that painted everything red unconditionally")
+
     # ---- 8. artist_ui 6's UX law, asserted (D96) --------------------------
     # ⚠️ THIS SECTION EXISTS BECAUSE IT WAS MISSING. An independent verifier
     # stripped the help text, the ranges and the unit suffixes off all nine

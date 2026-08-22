@@ -224,6 +224,16 @@
       "value": 17
     },
     {
+      "detail": "A|0|default|2|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -555,7 +565,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        588,
+        630,
         0
       ]
     },
@@ -673,6 +683,16 @@
       "ok": true,
       "skipped": false,
       "value": 14
+    },
+    {
+      "detail": "B|0|default|0|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.7e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -1010,7 +1030,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        336,
+        384,
         0
       ]
     },
@@ -1128,6 +1148,16 @@
       "ok": true,
       "skipped": false,
       "value": 8
+    },
+    {
+      "detail": "C|0|default|4|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -1463,7 +1493,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        168,
+        180,
         0
       ]
     },
@@ -1581,6 +1611,16 @@
       "ok": true,
       "skipped": false,
       "value": 4
+    },
+    {
+      "detail": "D|0|corner|3|short pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.8e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -2031,6 +2071,16 @@
       "value": 12
     },
     {
+      "detail": "AE|1|default|1|displace pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -2474,6 +2524,16 @@
       "ok": true,
       "skipped": false,
       "value": 12
+    },
+    {
+      "detail": "AF|1|default|3|displace pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -2921,6 +2981,16 @@
       "value": 14
     },
     {
+      "detail": "AG|1|default|3|displace pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.8e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -3246,7 +3316,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        672,
+        720,
         0
       ]
     },
@@ -3364,6 +3434,16 @@
       "ok": true,
       "skipped": false,
       "value": 16
+    },
+    {
+      "detail": "AH|0|default|0|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.8e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -3698,7 +3778,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        378,
+        405,
         0
       ]
     },
@@ -3816,6 +3896,16 @@
       "ok": true,
       "skipped": false,
       "value": 9
+    },
+    {
+      "detail": "AI|0|default|0|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -4276,6 +4366,16 @@
       "ok": true,
       "skipped": false,
       "value": 32
+    },
+    {
+      "detail": "AJ|0|default|1|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.1e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -4753,6 +4853,16 @@
       "value": 25
     },
     {
+      "detail": "AK|1|corner|1|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.8e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -5222,6 +5332,16 @@
       "value": 12
     },
     {
+      "detail": "AL|0|default|0|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -5665,6 +5785,16 @@
       "ok": true,
       "skipped": false,
       "value": 12
+    },
+    {
+      "detail": "AM|0|default|1|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.3e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -6112,6 +6242,16 @@
       "value": 16
     },
     {
+      "detail": "AN|1|default|5|tilesym pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -6557,6 +6697,16 @@
       "value": 12
     },
     {
+      "detail": "AO|1|default|3|dispoff pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.8e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -6882,7 +7032,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        840,
+        900,
         0
       ]
     },
@@ -7000,6 +7150,16 @@
       "ok": true,
       "skipped": false,
       "value": 20
+    },
+    {
+      "detail": "AP|0|default|0|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -7352,7 +7512,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        378,
+        405,
         0
       ]
     },
@@ -7470,6 +7630,16 @@
       "ok": true,
       "skipped": false,
       "value": 9
+    },
+    {
+      "detail": "AQ|0|default|4|asym pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.2e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -7804,7 +7974,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        672,
+        720,
         0
       ]
     },
@@ -7922,6 +8092,16 @@
       "ok": true,
       "skipped": false,
       "value": 16
+    },
+    {
+      "detail": "AR|0|default|0|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.8e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -8376,6 +8556,16 @@
       "value": 20
     },
     {
+      "detail": "AS|0|default|12|corner pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -8815,6 +9005,16 @@
       "ok": true,
       "skipped": false,
       "value": 20
+    },
+    {
+      "detail": "A|0|default|7|fence pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.6e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -9276,6 +9476,16 @@
       "value": 10
     },
     {
+      "detail": "BA|0|default|6|conform pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -9712,6 +9922,16 @@
       "ok": true,
       "skipped": false,
       "value": 10
+    },
+    {
+      "detail": "BB|0|default|6|conform pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -10152,6 +10372,16 @@
       "value": 167
     },
     {
+      "detail": "BC|0|default|138|conform pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.7e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -10584,6 +10814,16 @@
       "ok": true,
       "skipped": false,
       "value": 10
+    },
+    {
+      "detail": "BD|0|default|6|camber pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -11024,6 +11264,16 @@
       "value": 10
     },
     {
+      "detail": "BD|0|default|6|camber pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -11342,7 +11592,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        420,
+        480,
         0
       ]
     },
@@ -11460,6 +11710,16 @@
       "ok": true,
       "skipped": false,
       "value": 10
+    },
+    {
+      "detail": "BE|0|default|6|holed pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -11912,6 +12172,16 @@
       "value": 10
     },
     {
+      "detail": "BF|0|default|6|flipped pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -12350,6 +12620,16 @@
       "value": 10
     },
     {
+      "detail": "BF|0|default|6|flipped pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -12668,7 +12948,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        420,
+        450,
         0
       ]
     },
@@ -12786,6 +13066,16 @@
       "ok": true,
       "skipped": false,
       "value": 10
+    },
+    {
+      "detail": "BH|0|default|6|crease pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -13233,6 +13523,16 @@
       "value": 14
     },
     {
+      "detail": "BI|0|default|4|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -13678,6 +13978,16 @@
       "value": 10
     },
     {
+      "detail": "BJ|0|default|6|rail pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -14117,6 +14427,16 @@
     },
     {
       "detail": "",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0
+      ]
+    },
+    {
+      "detail": "",
       "name": "warnings",
       "ok": true,
       "skipped": false,
@@ -14434,7 +14754,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        420,
+        450,
         0
       ]
     },
@@ -14552,6 +14872,16 @@
       "ok": true,
       "skipped": false,
       "value": 10
+    },
+    {
+      "detail": "BL|0|default|6|rail pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -14879,7 +15209,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        420,
+        480,
         0
       ]
     },
@@ -14997,6 +15327,16 @@
       "ok": true,
       "skipped": false,
       "value": 10
+    },
+    {
+      "detail": "BM|0|default|6|rail pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -15449,6 +15789,16 @@
       "value": 167
     },
     {
+      "detail": "BN|0|default|138|overhead pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.7e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -15770,7 +16120,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        1596,
+        1710,
         0
       ]
     },
@@ -15888,6 +16238,16 @@
       "ok": true,
       "skipped": false,
       "value": 38
+    },
+    {
+      "detail": "B|0|default|36|fence pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -16338,6 +16698,16 @@
       "value": 10
     },
     {
+      "detail": "CA|0|default|6|rail pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -16780,6 +17150,16 @@
       "value": 10
     },
     {
+      "detail": "CC|0|default|6|rail pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -17113,7 +17493,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        546,
+        624,
         0
       ]
     },
@@ -17231,6 +17611,16 @@
       "ok": true,
       "skipped": false,
       "value": 13
+    },
+    {
+      "detail": "CD|0|default|1|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.5e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -17701,6 +18091,16 @@
       "value": 10
     },
     {
+      "detail": "CE|0|default|6|rigid pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -18133,6 +18533,16 @@
       "ok": true,
       "skipped": false,
       "value": 10
+    },
+    {
+      "detail": "CF|0|default|6|rigid pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -18569,6 +18979,16 @@
       "value": 10
     },
     {
+      "detail": "CG|0|default|6|rail pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -18887,7 +19307,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        168,
+        180,
         0
       ]
     },
@@ -19005,6 +19425,16 @@
       "ok": true,
       "skipped": false,
       "value": 4
+    },
+    {
+      "detail": "CH|0|default|2|tile pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.5e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -19450,6 +19880,16 @@
       "ok": true,
       "skipped": false,
       "value": 5
+    },
+    {
+      "detail": "CI|0|default|0|swapz pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -19899,6 +20339,16 @@
       "value": 6
     },
     {
+      "detail": "CJ|0|default|0|corner pc_scale",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.5e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -20340,6 +20790,16 @@
       "value": 10
     },
     {
+      "detail": "CK|0|default|6|rail pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -20776,6 +21236,16 @@
       "ok": true,
       "skipped": false,
       "value": 10
+    },
+    {
+      "detail": "CL|0|default|4|rail pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.3e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -21216,6 +21686,16 @@
       "value": 10
     },
     {
+      "detail": "CM|0|default|8|rail pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -21652,6 +22132,16 @@
       "ok": true,
       "skipped": false,
       "value": 10
+    },
+    {
+      "detail": "CN|0|default|4|rail pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.6e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -22092,6 +22582,16 @@
       "value": 15
     },
     {
+      "detail": "CP|0|default|4|tall pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.7e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -22530,6 +23030,16 @@
       "value": 15
     },
     {
+      "detail": "CQ|0|default|8|tall pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.8e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -22966,6 +23476,16 @@
       "ok": true,
       "skipped": false,
       "value": 13
+    },
+    {
+      "detail": "CRa|0|default|4|attrcond pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.2e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -23416,6 +23936,16 @@
       "value": 5
     },
     {
+      "detail": "C|0|default|2|tiled pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.5e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -23861,6 +24391,16 @@
       "value": 270
     },
     {
+      "detail": "H|0|default|268|flat_under pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -24295,6 +24835,16 @@
       "value": 270
     },
     {
+      "detail": "H|0|default|268|flat_under pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -24727,6 +25277,16 @@
       "ok": true,
       "skipped": false,
       "value": 270
+    },
+    {
+      "detail": "H|0|default|268|flat_under pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -25164,6 +25724,16 @@
       "ok": true,
       "skipped": false,
       "value": 16
+    },
+    {
+      "detail": "H|0|default|12|banded pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -25607,6 +26177,16 @@
       "value": 16
     },
     {
+      "detail": "H|0|default|12|banded pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -26045,6 +26625,16 @@
       "value": 10
     },
     {
+      "detail": "CB|0|default|6|crossfall pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -26481,6 +27071,16 @@
       "ok": true,
       "skipped": false,
       "value": 10
+    },
+    {
+      "detail": "CB|0|default|6|crossfall pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -26924,6 +27524,16 @@
       "value": 16
     },
     {
+      "detail": "H|0|default|12|banded pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -27365,6 +27975,16 @@
       "value": 16
     },
     {
+      "detail": "H|0|default|12|banded pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -27801,6 +28421,16 @@
       "ok": true,
       "skipped": false,
       "value": 270
+    },
+    {
+      "detail": "H|0|default|268|flat_under pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -28252,6 +28882,16 @@
       "value": 10
     },
     {
+      "detail": "CB|0|default|6|crossfall pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -28690,6 +29330,16 @@
       "value": 20
     },
     {
+      "detail": "DL|0|default|7|variant pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.6e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -29126,6 +29776,16 @@
       "ok": true,
       "skipped": false,
       "value": 11
+    },
+    {
+      "detail": "D|0|default|6|gated pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.2e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -29573,6 +30233,16 @@
       "value": 16
     },
     {
+      "detail": "H|0|default|12|rail pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -30009,6 +30679,16 @@
       "ok": true,
       "skipped": false,
       "value": 16
+    },
+    {
+      "detail": "H|0|default|12|rail pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -30449,6 +31129,16 @@
       "value": 16
     },
     {
+      "detail": "H|0|default|12|rail pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -30885,6 +31575,16 @@
       "ok": true,
       "skipped": false,
       "value": 21
+    },
+    {
+      "detail": "H|0|default|12|tiled_hill pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -31339,6 +32039,16 @@
       "value": 20
     },
     {
+      "detail": "H|0|default|12|tiled_hill pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -31671,7 +32381,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        126,
+        135,
         0
       ]
     },
@@ -31789,6 +32499,16 @@
       "ok": true,
       "skipped": false,
       "value": 3
+    },
+    {
+      "detail": "J|0|default|0|coarse pc_scale",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.5e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -32116,7 +32836,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        252,
+        270,
         0
       ]
     },
@@ -32234,6 +32954,16 @@
       "ok": true,
       "skipped": false,
       "value": 6
+    },
+    {
+      "detail": "K|0|default|3|broken pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -32677,6 +33407,16 @@
       "value": 6
     },
     {
+      "detail": "L|0|default|0|rail pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -33115,6 +33855,16 @@
       "value": 3
     },
     {
+      "detail": "M|0|default|2|rigid pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -33549,6 +34299,16 @@
       "value": 10
     },
     {
+      "detail": "N|0|default|0|mixed pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.3e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -33881,7 +34641,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        336,
+        360,
         0
       ]
     },
@@ -33999,6 +34759,16 @@
       "ok": true,
       "skipped": false,
       "value": 8
+    },
+    {
+      "detail": "",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -34322,7 +35092,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        126,
+        135,
         0
       ]
     },
@@ -34440,6 +35210,16 @@
       "ok": true,
       "skipped": false,
       "value": 3
+    },
+    {
+      "detail": "P|0|default|0|crest pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -34767,7 +35547,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        1050,
+        1125,
         0
       ]
     },
@@ -34885,6 +35665,16 @@
       "ok": true,
       "skipped": false,
       "value": 25
+    },
+    {
+      "detail": "Q|0|default|8|vert pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -35208,7 +35998,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        42,
+        45,
         0
       ]
     },
@@ -35326,6 +36116,16 @@
       "ok": true,
       "skipped": false,
       "value": 1
+    },
+    {
+      "detail": "R|0|default|0|hair pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.7e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -35769,6 +36569,16 @@
       "value": 10
     },
     {
+      "detail": "S|0|default|8|overhang pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.1e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -36205,6 +37015,16 @@
       "ok": true,
       "skipped": false,
       "value": 14
+    },
+    {
+      "detail": "T|0|default|4|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.6e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -36646,6 +37466,16 @@
       "ok": true,
       "skipped": false,
       "value": 16
+    },
+    {
+      "detail": "U|0|default|4|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.4e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -37091,6 +37921,16 @@
       "ok": true,
       "skipped": false,
       "value": 28
+    },
+    {
+      "detail": "V|2|default|0|corner pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.6e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -37556,6 +38396,16 @@
       "value": 16
     },
     {
+      "detail": "W|0|default|0|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -37999,6 +38849,16 @@
       "ok": true,
       "skipped": false,
       "value": 16
+    },
+    {
+      "detail": "X|0|default|0|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.2e-08,
+        0
+      ]
     },
     {
       "detail": "",
@@ -38446,6 +39306,16 @@
       "value": 14
     },
     {
+      "detail": "Y|1|corner|2|compose pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4e-08,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,
@@ -38668,14 +39538,14 @@
   ],
   "ZZ_port_tripwires": [
     {
-      "detail": "2801 calls, 200 pieces (ceiling 15.0)",
+      "detail": "1 calls, 200 pieces (ceiling 1.0)",
       "name": "stamp_calls_per_piece",
       "ok": true,
       "skipped": false,
-      "value": 14.005
+      "value": 0.005
     },
     {
-      "detail": "3.15 us at 10 verts, 8165.21 us at 20 001 (2592x), expected O(n)",
+      "detail": "3.17 us at 10 verts, 8454.73 us at 20 001 (2670x), expected O(n)",
       "name": "curve_sample_scaling",
       "ok": true,
       "skipped": false,
@@ -38912,6 +39782,16 @@
       "ok": true,
       "skipped": false,
       "value": 14
+    },
+    {
+      "detail": "Z|1|corner|2|compose pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.5e-08,
+        0
+      ]
     },
     {
       "detail": "",

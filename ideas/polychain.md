@@ -3454,3 +3454,79 @@ moved, 0 removed** — re-derived key by key against `HEAD`, not read off the ru
 ⚠️ `corners_200` is 11.3 s here against the audit's 4.322 s: it is not the audit's fixture — this
 one puts a real ±6 m kink at every marked vertex and runs miter, so it builds 1 196 deformed
 corner pieces as well. It is used as an A/B against itself, not against the audit's number.
+
+#### P1 — the packed stamp bulk-written, and two more writers nobody was watching (2026-08-22)
+
+**`place._stamp_bulk` replaces the per-prim writer on BOTH branches.** Pass B accumulates
+`(prim count, stamp values)` per piece in build order and one array per attribute is written over
+the finished geometry at the end. D102 did exactly this for one deformed *piece* at a time; the
+packed branch — PC-G3's headline row and every citygen street — never got it, and it measured as
+62 % of the real node cook.
+
+**Measured, this build, before → after:**
+
+| row | before | after | × |
+|---|---|---|---|
+| `scale_gate` **arc_80/kit** — §11's "real node cook" | **0.933 s** | **0.458 s** | **2.04** |
+| `scale_gate` two_point | 0.508 s | 0.281 s | 1.81 |
+| `scale_gate` resampled (D69's 20 011-vertex row) | 0.673 s | 0.402 s | 1.67 |
+| `scale_gate` arc_10 (deformed, 359 856 pts) | 1.866 s | 1.406 s | 1.33 |
+| bench `packed_20km` | 0.727 s | 0.490 s | 1.48 |
+| bench `packed_straight` | 0.676 s | 0.425 s | 1.59 |
+| bench **`streets_300`** (the citygen shape) | 0.471 s | 0.245 s | **1.92** |
+| bench **`plan_display`** (Display = Plan) | 1.056 s | 0.490 s | **2.15** |
+| bench `colour_warn` | 0.222 s | 0.106 s | 2.10 |
+| `stamp_calls_per_piece` | **14.005** | **0.005** | — |
+
+§11.2 predicted 0.933 → ~0.40 s; measured 0.458 s. **`Display = Plan` cooked 1.55 s against the
+0.93 s build it previews and now cooks 0.49 s against 0.46 s** — `plan_points` got the same
+treatment (15 point attributes, one `setAttribValue` each, per placement → `createPoints` plus one
+column per attribute), and so did `hda.colour_warnings` (one `Cd` array instead of one read per
+warn per prim plus one write per hit; the unwarned prims keep whatever `Cd` they already had,
+because a kit module may ship its own colour).
+
+**D102's `_stamp_geo` is DELETED.** With the accumulation happening across the whole output there
+is no piece-sized write left, and leaving a third writer in the file would have left `stamp_parity`
+comparing two paths the build no longer takes — which is precisely the failure mode cycle 11
+finding (D) already caught once.
+
+**`stamp_parity` was rewritten to match the new shape, and that is not cosmetic.** It used to stamp
+one piece two ways. `_stamp_bulk`'s named risk is that the accumulated columns stop lining up with
+`out`'s prim numbering, so the whole case is now stamped in ONE `_stamp_bulk` call — 3 prims per
+element — against a twin filled element by element by `_stamp`, and compared over 3.4's whole name
+set plus every warn name in the case (an element that did NOT warn has to read 0 where its
+neighbour reads 1 — the half a per-element comparison cannot ask). That is why 21 cases' *compared*
+counts moved; `diffs` is **0 on all 89**.
+
+**FIVE MUTATIONS, and the first run had TWO SURVIVORS — both holes in writers this item rewrites.**
+
+| mutation | verdict |
+|---|---|
+| bulk stamp: `pc_u` + 1e-6 on **every** prim | RED — `stamp_parity`, 88 checks |
+| bulk stamp: `pc_u` + 1e-6 on **prims 2..n only** | RED — `stamp_parity`, 88 checks |
+| bulk stamp: **every column shifted one element** (P1's own named risk) | RED — 678 checks across 24 names |
+| `plan_points`: `pc_u` column shifted by one | **first run GREEN** → now RED on `plan_point_provenance`, 87 cases |
+| `hda.colour_warnings`: the warn colour never written | **first run GREEN** → now RED on `warned_elements_are_coloured` |
+
+⚠️ **`plan_points` asserted TWO of its fifteen values** — `pc_elem_id` and the position — so
+shifting a whole column changed nothing anyone could see. That is standing finding (10) again, in a
+second writer. **`plan_point_provenance`** reads all fifteen back against the `Placement` they came
+from (note `pc_section` on a plan point is the section KEY, not the section index the prim stamp
+carries), float32-relative because a 20 km `pc_s1` cannot be compared at an absolute 1e-9. Worst
+real reading **2.4e-08** relative, 0 mismatches on 88 cases.
+
+⚠️ **§11.2 named `run_hda_checks.py`'s "warning-colour rows" as one of P1's pins. THERE WERE NONE.**
+Deleting the colour write outright left the entire HDA suite green, and `show_warnings` is exempt
+from the PC-G4 parm sweep by design (D81/D82 — it is a viewing decision), so the parm and its
+writer were together unexercised. New **section 7**: `warned_elements_are_coloured` (40 warned
+prims, 40 at `(1.0, 0.25, 0.1)`) plus `show_warnings_off_paints_nothing` as its control — without
+the control a builder that painted everything red unconditionally would pass.
+
+`stamp_calls_per_piece`'s ceiling went **15.0 → 1.0**: restoring the per-piece writer puts it back
+at 14.005 and the check goes red.
+
+**Baseline: 89 cases, 5 212 → 5 300 entries; 88 added, 0 removed, 22 moved** — 21 `stamp_parity`
+*compared* counts (the check's own widening, `diffs` still 0 everywhere) and `stamp_calls_per_piece`
+14.005 → 0.005, the number P1 exists to move. **`geometry_digest` did not move on a single case**,
+which is what §11.3's table required of P1. Suites: 89 cases / 5 300 checks / 0 failing, 284 unit
+tests OK, HDA checks 0 failing (2 new), 9 ladder rows 0 failing.

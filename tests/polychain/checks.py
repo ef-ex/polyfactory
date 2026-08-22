@@ -855,55 +855,78 @@ def band_datum(scene):
                   where or ("%d banded pieces" % seen))
 
 
+STAMP_PIECE_PRIMS = 3
+
+
 def stamp_parity(scene, place):
-    """D102's bulk stamp against the per-prim writer it replaced, re-proved
-    on THIS build rather than in a scratchpad that ran once.
+    """The BULK stamp the build runs against the per-prim writer it replaced,
+    re-proved on THIS build rather than in a scratchpad that ran once.
 
     The parity was measured when D102 landed - 83 cases, 163 115 prim
     attribute values, 0 differences - and then nothing in the repo re-asked
     it. Every other check reads a stamp from the FIRST prim of an element
-    (`elements` takes `_attrs` from the first prim it sees), so an edit to
-    `_stamp_geo`'s isinstance dispatch that corrupted prims 2..n of a
-    deformed piece would leave all 87 cases and the 9-row ladder green.
+    (`elements` takes `_attrs` from the first prim it sees), so a bulk writer
+    that corrupted prims 2..n of a deformed piece would leave every case and
+    the 9-row ladder green.
 
-    So: for every placement this case built, stamp a throwaway multi-prim
-    geometry BOTH ways and compare every prim's every attribute value. The
-    stamp is a pure function of the placement, so the throwaway geometry is
-    the honest test surface - and using every real placement is what makes a
-    newly added stamp value of a new type show up here.
+    ⚠️ REWRITTEN FOR 11.2 P1, AND THE SHAPE IS THE POINT. D102's writer
+    stamped ONE PIECE at a time, so this used to compare one piece's
+    geometry; P1's `_stamp_bulk` accumulates across the WHOLE OUTPUT and
+    writes one array per attribute at the end, and its named risk is exactly
+    that those arrays stop lining up with `out`'s prim numbering. So the
+    whole case is stamped in ONE `_stamp_bulk` call, every element given
+    `STAMP_PIECE_PRIMS` prims, and the per-prim writer fills a twin geometry
+    element by element. A column shifted by one element is then a difference
+    on nearly every prim; on the old per-piece shape it was invisible.
+
+    Comparison is over 3.4's whole name set plus every warn name in the case,
+    not over the names the element itself carries - an element that did NOT
+    warn has to read 0 where its neighbour reads 1, which is the half a
+    per-element comparison cannot ask.
     """
     plan = scene.report["plan"]
     if not plan:
         return _skip("stamp_parity", "nothing was built")
     warns = tuple(scene.report["warn_names"])
-    compared = diffs = 0
-    where = ""
+    rows, per_rows = [], []
     for p in plan:
         rec = scene.by_id.get(p.elem_id)
         if rec is None:
             continue
         zmode, deformed = rec["pc_zmode"], bool(rec["pc_deformed"])
         replaced = bool(rec.get("pc_replaced"))
-        bulk, per = hou.Geometry(), hou.Geometry()
-        for geo in (bulk, per):
-            for _ in range(3):
-                poly = geo.createPolygon()
-                for _v in range(3):
-                    poly.addVertex(geo.createPoint())
-            place._declare(geo, warns)
         # the element's OWN warnings, read back off the build, so the warn
         # half of the stamp is compared too rather than assumed empty.
         here = tuple(w for w in warns if rec.get(w))
-        place._stamp_geo(bulk, p, here, deformed, zmode, replaced)
-        for prim in per.prims():
-            place._stamp(prim, p, here, deformed, zmode, replaced)
-        for name, _value in place._stamp_values(p, here, deformed, zmode,
-                                                replaced):
-            for a, b in zip(bulk.prims(), per.prims()):
-                compared += 1
-                if a.attribValue(name) != b.attribValue(name):
-                    diffs += 1
-                    where = where or "%s/%s" % (p.elem_id, name)
+        values = place._stamp_values(p, here, deformed, zmode, replaced)
+        rows.append((STAMP_PIECE_PRIMS, values))
+        per_rows.append((p.elem_id, values))
+    if not rows:
+        return _skip("stamp_parity", "no element resolved")
+    bulk, per = hou.Geometry(), hou.Geometry()
+    for geo in (bulk, per):
+        for _ in range(len(rows) * STAMP_PIECE_PRIMS):
+            poly = geo.createPolygon()
+            for _v in range(3):
+                poly.addVertex(geo.createPoint())
+        place._declare(geo, warns)
+    place._stamp_bulk(bulk, rows, warns)
+    prims = per.prims()
+    for i, (_eid, values) in enumerate(per_rows):
+        for prim in prims[i * STAMP_PIECE_PRIMS:(i + 1) * STAMP_PIECE_PRIMS]:
+            for name, value in values:
+                prim.setAttribValue(name, value)
+    names = [n for n, _d in place.ELEM_PRIM_ATTRS] + list(warns)
+    compared = diffs = 0
+    where = ""
+    a_prims, b_prims = bulk.prims(), per.prims()
+    for name in names:
+        for i, (a, b) in enumerate(zip(a_prims, b_prims)):
+            compared += 1
+            if a.attribValue(name) != b.attribValue(name):
+                diffs += 1
+                where = where or "%s/%s" % (
+                    per_rows[i // STAMP_PIECE_PRIMS][0], name)
     return Result("stamp_parity", diffs == 0, [compared, diffs], where)
 
 
@@ -1541,6 +1564,64 @@ def plan_geometry(scene, place):
             track["remap"](section.s0 + placement.s0))[0]
         worst = max(worst, _dist(want, pt.position()))
     return Result("plan_points", worst <= TOL_M, n, "worst %.3e m" % worst)
+
+
+def plan_point_provenance(scene, place):
+    """Every one of 4.2's FIFTEEN plan-point values, read back against the
+    Placement it came from.
+
+    ⚠️ `plan_points` asserted TWO of them - `pc_elem_id` and the position -
+    and 11.2 P1 rewrites that writer into a bulk one. Found by mutation while
+    P1 landed: shifting the `pc_u` column by one point left the whole suite
+    green, which is standing finding (10) in a second writer. 5's
+    plan-preview-while-dragging draws these, and an override stream addresses
+    an element by them.
+
+    Derived from the `Placement` objects rather than from `plan_dicts`, so
+    this is a different expression reaching the same number - and note
+    `pc_section` on a PLAN POINT is the section KEY (3.1's material-id limit),
+    not the section index the prim stamp carries.
+
+    [worst float delta, mismatched string/int values].
+    """
+    if not scene.plan:
+        return _skip("plan_point_provenance", "nothing was planned")
+    geo = hou.Geometry()
+    try:
+        place.plan_points(geo, scene.report)
+    except Exception as exc:
+        return Result("plan_point_provenance", False, None,
+                      "%s: %s" % (type(exc).__name__, str(exc)[:120]))
+    pts = geo.points()
+    if len(pts) != len(scene.plan):
+        return Result("plan_point_provenance", False, None,
+                      "%d points, %d placements" % (len(pts), len(scene.plan)))
+    elem_key = place._plan.elem_key
+    worst, bad, where = 0.0, 0, ""
+    for pt, p in zip(pts, scene.plan):
+        want = {"pc_elem_id": p.elem_id, "pc_slot": p.slot,
+                "pc_module": p.module, "pc_variant": p.variant,
+                "pc_zmode": p.zmode, "pc_elem_key": elem_key(p.elem_id),
+                "pc_section": int(p.section_key), "pc_index": int(p.index),
+                "pc_deform": int(p.deform), "pc_plan": 1,
+                "pc_s0": p.s0, "pc_s1": p.s1, "pc_u": p.u, "pc_scale": p.scale,
+                "pc_slice_t": (-1.0 if p.slice_t is None
+                               else float(p.slice_t))}
+        for name, _default in place.PLAN_POINT_ATTRS:
+            got, exp = pt.attribValue(name), want[name]
+            if isinstance(exp, float):
+                # P and every float attribute is stored float32, so the floor
+                # scales with the coordinate - a 20 km `pc_s1` cannot be
+                # compared at an absolute 1e-9.
+                d = abs(float(got) - exp) / max(1.0, abs(exp))
+                if d > worst:
+                    worst, where = d, "%s %s" % (p.elem_id, name)
+            elif got != exp:
+                bad += 1
+                where = where or "%s %s: %r != %r" % (p.elem_id, name,
+                                                      got, exp)
+    ok = worst <= 1e-6 and not bad
+    return Result("plan_point_provenance", ok, [_round(worst, 9), bad], where)
 
 
 def horizontal_spacing(scene):
@@ -3307,12 +3388,18 @@ def stamp_provenance(scene):
 # expectation, and that flip is the proof.
 
 
-def stamp_calls_per_piece(build_fn, expect_max=15.0):
+def stamp_calls_per_piece(build_fn, expect_max=1.0):
     """HOM per-element attribute writes per placed piece - what P1 is for.
 
-    62 % of the real node cook is `hou.Prim.setAttribValue`, 14 calls per
+    62 % of the real node cook was `hou.Prim.setAttribValue`, 14 calls per
     packed piece (11.2 P1). Deterministic - a COUNT, not a timing - so it
     sits in the baseline without churning.
+
+    ⚠️ THE CEILING WAS 15.0 AND IS NOW 1.0. P1 landed: the stamp is
+    accumulated across the whole output and written once per attribute, so
+    this reads 0.005 (the one remaining call is `dress_caps` tagging a cap,
+    which is not a stamp). Restoring the per-piece writer puts it back at
+    14.005 and this goes red - which is what the ceiling is for.
     """
     calls = {"n": 0}
     real = hou.Prim.setAttribValue
