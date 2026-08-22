@@ -45,6 +45,23 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 3. Re-read this block's *Next up* row, then continue the §8 order. Do not restart completed stages.
 4. Update this block and the §10 build log before starting the next cycle.
 
+### ⚠️ LIVE BRIDGE IS WEDGED (2026-08-22, verified twice)
+
+`houdini_status` pings fine (answered off-thread) but **every main-thread HOM call times out at
+30 s** — the GUI's main thread is blocked (busy cook or a modal dialog). Confirmed independently by
+cycle 3v and again by the orchestrator.
+
+**Consequences, decided:**
+1. **Do not spend cycles on the live bridge.** Try `houdini_status` once; on any timeout, go
+   headless immediately and mark the gate `numerically green, image-verified headless, GUI
+   viewport pass owed`.
+2. **Headless image verification is the standing substitute** — cycle 3v's scratchpad rasteriser
+   worked and produced a real judgement ("clean 45° miter seam, unbroken outer arris"). Reuse it;
+   do not rebuild it.
+3. ⚠️ **`/obj/polychain_gate` may still be sitting in Hannes' session** — cycle 3v could not clear
+   it, and neither could the orchestrator. **Morning item for Hannes:** delete that subnet and
+   restart the bridge if a GUI viewport pass is wanted. Nothing was ever saved to the hip file.
+
 ### Two Houdinis — which one to use for what (updated 2026-08-21, mid-run)
 
 Hannes started the **live MCP bridge** on a clean Houdini 22.0.398 GUI session
