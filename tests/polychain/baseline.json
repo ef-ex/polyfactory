@@ -40178,6 +40178,16 @@
       "value": 801.0
     },
     {
+      "detail": "worst |dP| 4.441e-16 m on irregular at s=140.798064 (ceiling 1e-12 - it is ULP, not zero)",
+      "name": "path_read_direction_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        166,
+        2
+      ]
+    },
+    {
       "detail": "11 prims out, 10 built elements, prim 0 reads 'UPSTREAM'",
       "name": "build_out_keeps_upstream_stamps",
       "ok": true,
@@ -40188,7 +40198,7 @@
       ]
     },
     {
-      "detail": "warm 0.72 us at 10 verts, 1.00 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 6.5 us at 10, 14242.3 us at 20 001 (1.1x per vertex, O(n), expected O(n))",
+      "detail": "warm 0.94 us at 10 verts, 0.97 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 7.6 us at 10, 16777.7 us at 20 001 (1.1x per vertex, O(n), expected O(n))",
       "name": "curve_sample_scaling",
       "ok": true,
       "skipped": false,

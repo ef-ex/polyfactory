@@ -1139,7 +1139,9 @@ def _bend_deviation(proto, stations, path, s0_flat, scale, remap, at=None):
     7.1e-15 m. That is double-precision ULP on a segment endpoint - seven
     orders below `bend_tol` and below `bend_deviation_m`'s own `_round(dev,
     9)` - so the change is safe, but the two reads are NOT interchangeable and
-    a future agent must not treat them as such.
+    a future agent must not treat them as such. **`path_read_direction_m`**
+    (checks.py) is that measurement standing up as an assertion, ceiling
+    1e-12 m: ULP is fine, metres would be a dropped sub-EPS segment.
 
     What proves it on every case is that this is a WARNING, so `warn_summary`
     and `warnings` pin the per-case `pc_warn_bend_resolution` counts, and

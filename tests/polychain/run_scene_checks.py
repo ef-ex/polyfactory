@@ -498,6 +498,7 @@ def port_tripwires():
         C.station_share_hit_rate(cases.tripwire_deformed_run, cases.P,
                                  cases.CONFORM),
         C.stamp_bulk_peak_kb(cases.P),
+        C.path_read_direction_m(cases.P, cases.Curve),
         C.build_out_keeps_upstream_stamps(cases.tripwire_out_build, cases.P),
         C.curve_sample_scaling(cases.Curve, expect="O(1)", cold_expect="O(n)"),
         C.conform_cache_per_element(cases.tripwire_conformed_run,

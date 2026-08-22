@@ -3676,6 +3676,62 @@ def stamp_bulk_peak_kb(place_mod, pieces=1000, prims=34, expect_max=1200.0):
                   % (pieces, prims, len(names), expect_max))
 
 
+def path_read_direction_m(place_mod, curve_cls, expect_max=1e-12):
+    """How far apart `Path.sample(s)` and `Path.sample(s, forward=False)` land
+    AT A VERTEX - the number P3's docstring used to state as zero.
+
+    P3's one semantic change is that a station gap's END is now the next
+    station's FORWARD read where it used to be a BACKWARD one, and it was
+    written up as "bit-identical by construction... 0 differing, worst 0 m".
+    It is not. That measurement was taken on PC-G3's arc, which is
+    axis-aligned with round coordinates; in general the backward branch lands
+    on the PREVIOUS segment with t clamped to 1.0 and returns `a + d*1.0`,
+    which is float-exactly `pts[k]` only when the two endpoints are within a
+    factor of 2 (Sterbenz).
+
+    So the claim becomes a measurement: every vertex arclength of seven
+    curves - open, closed, diagonal, hairpin, climbing, sub-millimetre, and
+    one axis-aligned control - read both ways. Worst |dP| here is **4.4e-16 m**
+    (2 of 166 differing); an independent sweep of seven other curves read
+    7.1e-15 m. Both are double-precision ULP on a segment endpoint, seven
+    orders below `bend_tol` and below `bend_deviation_m`'s own `_round(dev, 9)`.
+    The ceiling is 1e-12 m: a REAL divergence - a dropped sub-EPS segment
+    picked differently by the two branches, say - is metres, not ULPs.
+
+    `[vertex arclengths read, how many differ]`, worst in `detail`.
+    """
+    made = {
+        "axis": [(2.0 * i, 0.0, 0.0) for i in range(40)],
+        "irregular": [(i * 3.1 + 0.37 * math.sin(i), 0.13 * i * i % 7.3 - 3.1,
+                       -1.7 * i + 0.9 * math.cos(i * 1.7)) for i in range(60)],
+        "diagonal": [(i * 1.7320508, i * 0.5772, i * 2.71828)
+                     for i in range(30)],
+        "sub_mm": [(0.0, 0.0, 0.0), (1e-3, 2e-3, 3e-3), (0.5, -0.25, 0.125)],
+        "hairpin": [(0.0, 0.0, 0.0), (10.0, 0.0, 0.0), (0.0, 0.0, 1e-6)],
+        "climb": [(i * 2.0, i * 0.37, i * 0.11) for i in range(25)],
+        "closed": [(0.0, 0.0, 0.0), (10.0, 0.0, 0.0), (10.0, 0.0, 10.0),
+                   (0.0, 0.0, 10.0)],
+    }
+    total = differ = 0
+    worst, where = 0.0, ""
+    for name, pts in sorted(made.items()):
+        curve = curve_cls(name, pts)
+        curve.closed = name == "closed"
+        path = place_mod.Path(curve)
+        for sv in path.vertex_s:
+            f = path.sample(sv)[0]
+            b = path.sample(sv, forward=False)[0]
+            d = math.sqrt(sum((f[i] - b[i]) ** 2 for i in range(3)))
+            total += 1
+            differ += 1 if d else 0
+            if d > worst:
+                worst, where = d, "%s at s=%.6f" % (name, sv)
+    return Result("path_read_direction_m", worst <= expect_max,
+                  [total, differ],
+                  "worst |dP| %.3e m %s (ceiling %.0e - it is ULP, not zero)"
+                  % (worst, where and "on " + where, expect_max))
+
+
 def build_out_keeps_upstream_stamps(build_fn, place_mod):
     """`build(out=...)`'s `base` machinery, exercised - dev-loop Rule 0.
 
