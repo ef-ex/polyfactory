@@ -7219,7 +7219,7 @@ still builds exactly what it built before the rebuild — but now that is a stat
 
 ### 15.1 Parity — the numbers, all of them
 
-`hython tests/polychain/run_native_checks.py` — **30 checks, 0 failing.** Every stage is cooked as
+`hython tests/polychain/run_native_checks.py` — **31 checks, 0 failing.** Every stage is cooked as
 real SOP nodes on the *same* `hou.Geometry` the reference was handed, in one process (§13.8 rule 1).
 `tests/polychain/native.py` builds those nodes and the HDA build script calls the same helpers, so
 the network the checks measure IS the network the asset ships.
@@ -7245,6 +7245,7 @@ because **0 of the 89 has a point in more than one primitive** and citygen's own
 | `native_intermediates_are_64bit` | **0.0 / 0.0** — a 20 km value written by a 64-bit wrangle and read by the NEXT node | exact |
 | `native_branch_cooks_on_output` | **7 of 7** on-path nodes cook on the Output stage; the 3 debug-branch nodes stay idle | 0 asleep |
 | `native_branch_is_load_bearing` | shifting `pc_arclength`'s metre by 0.25 m **moves the shipped output** | must move |
+| `union_matches_the_python_path` | the BUILT asset vs `place.build` on raw geometry, **1 548 prims** over 4 corner-heavy shapes × bend/miter, every point | **0.000e+00 m** |
 | `instances_do_not_fork_the_network` | 20 untouched instances: **0 children, 0 forked** | 0 / 0 |
 
 **⚠️ Two of these checks used to be incapable of failing, and that is the finding, not a footnote.**
@@ -7276,6 +7277,24 @@ float64 ULP apart and the frame built on it inherits that. 2.220e-16 relative is
 20000.0004883 reads back 20000.0 before any wrangle has run, so a curve cannot even *carry* the
 number R2 is about. That floor is unchanged and it is where the reference already lives too, which
 is exactly what `frames_arithmetic_position_parity` measures.
+
+**The safety property D166 could have broken quietly, measured.** `resolve_corners` now returns
+the wrangle's `pc_turn_deg`, which is `acos` ULP away from the Python's, and `included_angle` is
+thresholded against `min_included_angle_deg` before every miter — a knife-edge case could flip a
+corner from miter to bend and move a whole leg. `union_matches_the_python_path` runs the built
+asset against `place.build` on raw geometry (no native tables, so the pure Python path) on an
+L, a zigzag, a slope and a hairpin in both corner modes: **1 548 prims, identical element ids and
+bit-identical `P`**. End to end on the target input — a 3×3 fused street grid, 12 junction points
+each in two primitives — the native corner count matches the reference on both a straight grid
+(0 and 0) and a bent one (6 and 6), and the asset builds 334 / 556 prims with no warning and no
+error. Rendered and looked at: the fence follows every run of the fused grid, junctions closed.
+
+**⚠️ A warning on a child node does NOT reach the parent programmatically.** Probed on a throwaway
+subnet: `child.warnings()` returns the message and `parent.warnings()` returns `()`. So D160's new
+"N of M pieces were dropped" warning lives on `pc_plan_bridge`, which is where every other
+polyChain warning already lives (`kernel`) — and `stage_menu_reaches_every_stage` asserts it is
+there by refusing any stage that cooks to nothing without something, anywhere in the asset, saying
+why.
 
 **Mutation, per landed node** — because a node whose corruption leaves the suite green is untested:
 a 1e-7 *relative* error in `pc_frames`' module scale turns the 3×3 red (1.000e-07, which must clear

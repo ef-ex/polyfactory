@@ -1047,6 +1047,65 @@ def config_payload_parity(root):
     payload.destroy()
 
 
+def union_parity(root):
+    """D166's safety property: the fence does not change when the VEX answers.
+
+    ⚠️ THE ONE THING THAT COULD HAVE GONE WRONG QUIETLY. `resolve_corners` now
+    returns the wrangle's `pc_turn_deg`, which is `acos` ULP away from the
+    Python's (2.842e-14 deg), and `Corner.included_angle` is thresholded
+    against `min_included_angle_deg` before every miter. A knife-edge case
+    could flip a corner from miter to bend and move a whole leg.
+
+    So: the BUILT ASSET (native path) against `place.build` on the raw
+    geometry (pure Python path, no native tables present), on corner-heavy
+    shapes in both corner modes - the elements and every point of them.
+    """
+    shapes = (("L", [(0, 0, 0), (12, 0, 0), (12, 0, 8)]),
+              ("zigzag", [(0, 0, 0), (6, 0, 0), (9, 0, 5), (15, 0, 5),
+                          (18, 0, 0), (26, 0, 0)]),
+              ("slope", [(0, 0, 0), (10, 2, 0), (20, 0, 6), (30, 4, 6)]),
+              ("hairpin", [(0, 0, 0), (10, 0, 0), (10.2, 0, 0.4),
+                           (0.4, 0, 0.6)]))
+    bad = []
+    n_prims = 0
+    worst = 0.0
+    for label, pts in shapes:
+        spline = root.createNode("python", "union_" + label)
+        spline.parm("python").set(
+            "geo = hou.pwd().geometry()\n"
+            "poly = geo.createPolygon(False)\n"
+            "for p in %r:\n"
+            "    pt = geo.createPoint()\n"
+            "    pt.setPosition(p)\n"
+            "    poly.addVertex(pt)\n" % (pts,))
+        for mode in ("bend", "miter"):
+            node = root.createNode("pf_polychain", "u_%s_%s" % (label, mode))
+            node.setInput(0, spline)
+            node.parm("corner_mode").set(mode)
+            got = node.geometry()
+            style = H.style_from_parms(node)
+            out, _r = P.build(spline.geometry(), H.kit_geometry(node), style,
+                              params=style.params)
+            ids_a = sorted(p.attribValue("pc_elem_id") for p in got.prims())
+            ids_b = sorted(p.attribValue("pc_elem_id") for p in out.prims())
+            pos_a = got.pointFloatAttribValues("P")
+            pos_b = out.pointFloatAttribValues("P")
+            n_prims += len(ids_a)
+            if ids_a != ids_b or len(pos_a) != len(pos_b):
+                bad.append((label, mode, len(ids_a), len(ids_b)))
+            else:
+                for a, b in zip(pos_a, pos_b):
+                    worst = max(worst, abs(a - b))
+            node.destroy()
+        spline.destroy()
+    check("union_matches_the_python_path", not bad and worst == 0.0,
+          "%.3e m" % worst,
+          "the BUILT asset (VEX decompose) vs place.build on raw geometry "
+          "(pure Python), %d prims over 4 corner-heavy shapes x bend/miter; "
+          "ceiling 0.0 - the acos ULP in pc_turn_deg must not reach the "
+          "miter threshold. %s" % (n_prims, bad[:2] or "identical"))
+
+
 def main():
     if not os.path.exists(HDA_PATH):
         print("no HDA at %s - run devScripts/create_pf_polychain_hda.py"
@@ -1110,6 +1169,7 @@ def main():
     sixty_four_bit(root)
     worldscale_transport(root)
     config_payload_parity(root)
+    union_parity(root)
 
     print("\n=== 4. the mutation test ===")
     mutation(root, built)
