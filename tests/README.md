@@ -55,6 +55,15 @@ hython tests/polychain/facade_bench.py --reps 5 --json out.json
 # `pc_cell` so the 5 x 5 role table is visible as a pattern
 hython tests/polychain/facade_images.py [outdir]
 
+# polyChain's NATIVE stages vs the Python reference, in ONE process - the only
+# suite that can see whether a stage ported to VEX still answers the same
+# question as the Python it replaced. 92 cases (89 + 3 topology fixtures the
+# scene suite structurally cannot hold), the mutation battery, the graph's own
+# readability rules, and `asset_decompose_matches_the_rig` - which diffs the
+# SHIPPED asset's wrangles against the rig's, because they are two independent
+# declarations of one chain and an audit caught them drifting silently. ~9 s
+hython tests/polychain/run_native_checks.py
+
 # polyChain's HDA, cooked as a node - the only thing that can see a mis-wired
 # input, a parm that reads nothing, or a style payload that does not override
 hython tests/polychain/run_hda_checks.py

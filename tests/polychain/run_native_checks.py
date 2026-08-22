@@ -676,6 +676,46 @@ def readability(root):
           "every stage under %d parm states; empty AND wordless: %s"
           % (len(states), ", ".join(silent) or "none"))
 
+    # ⚠️ THE RIG AND THE ASSET ARE TWO INDEPENDENT DECLARATIONS OF ONE CHAIN,
+    # and until this check they were only asserted to share their .vfl bodies.
+    # `native.stage_decompose` wires the rig; `create_pf_polychain_hda.py`'s
+    # own `DECOMPOSE` tuple wires the asset. §15.1 claimed "the network the
+    # checks measure IS the network the asset ships" - it was not true, and an
+    # audit proved it by BYPASSING `pc_unshare` in the shipped asset: all four
+    # suites stayed green, because `mutation_pc_unshare` bypasses the RIG's
+    # copy. Bypassing the `pc_frames_valid` blast was invisible the same way.
+    # So every property that decides what a stage COMPUTES is compared here,
+    # and nothing in the asset is allowed to ship bypassed.
+    sub = root.createNode("subnet", "rig_vs_asset")
+    probe = hou.Geometry()
+    cases.polyline(probe, [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0)], curve_id="A")
+    _last, rig = native.stage_decompose(
+        sub, native.feed(sub, probe, "IN"), native.config_stub(sub, DEFAULTS))
+    drift = []
+    for rig_name, rig_node in sorted(rig.items()):
+        mine = node.node(rig_name)
+        if mine is None:
+            drift.append("%s: absent from the asset" % rig_name)
+            continue
+        if mine.type().name() != rig_node.type().name():
+            drift.append("%s: %s vs rig %s"
+                         % (rig_name, mine.type().name(),
+                            rig_node.type().name()))
+        for parm in ("class", "vex_precision", "snippet"):
+            a, b = mine.parm(parm), rig_node.parm(parm)
+            if (a is None) != (b is None):
+                drift.append("%s.%s: one side has it" % (rig_name, parm))
+            elif a is not None and a.eval() != b.eval():
+                drift.append("%s.%s differs" % (rig_name, parm))
+    bypassed = sorted(c.name() for c in node.children() if c.isBypassed())
+    drift += ["%s(bypassed)" % n for n in bypassed]
+    sub.destroy()
+    check("asset_decompose_matches_the_rig", not drift,
+          "%d nodes / %d bypassed" % (len(rig), len(bypassed)),
+          "class, VEX precision, snippet and node type of every stage the "
+          "parity rig measures, read back off the SHIPPED asset, plus every "
+          "bypassed node in it: %s" % (", ".join(drift) or "none"))
+
     # 13.7 rule 5 - a group-name collision between two stages silently
     # corrupts one of them, so every working group carries the prefix.
     node.parm("stage").set("sections")

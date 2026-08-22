@@ -29,6 +29,7 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
 | Last completed | **CYCLE P2-3V — INDEPENDENT VERIFICATION OF P2-3R (2026-08-22). DEV-LOOP RULE 0 IS DISCHARGED: P2-3R is AUDITED, not merely implemented.** A fresh agent that wrote none of it ran every suite from clean, re-derived both baseline diffs key by key, ran **17 mutations**, and judged PC-G5 on images regenerated from this build. **All 22 of P2-3R's fixes are real and present** — each was reproduced by reverting it and watching something go red. **But SIX of them had no assertion anywhere and could be deleted with the whole suite green**: D139's `pc_warn_row_overflow`/`pc_warn_row_kit_gap` (neither string appeared in a single test file or run log); `clip_stamp`, whose `ok = area or n == 0` made it **unfailable on exactly the area builds it was written for**; the alias-collision drop; `marker:<id>`'s five Y classes (the silent stand-in PC-G5 condition 5 counts at 0); the `extra_roles` slot-pair filter; and `rows_unbuilt` + `pc_warn_row_clipped_out`, which were **dead code** — `FM_area_taper` does not exercise them, its 1.6e-9 m span is still a span and `cell_grid` catches that hole by its own solved-vs-built difference. **D147 closes all six**: cases `FT_row_overflow`, `FU_row_kit_gap` (whose `geometry_digest` is `FC_rect`'s, so the only difference is the warning) and `FV_area_short`, the new `rows_clipped_out` check, `clip_stamp` re-written to assert the TRANSFER from row curve to element, and four `hou`-free unit tests. **All six mutations now go red.** Suites: **22 phase-2 cases / 683 rows**, 90 phase-1 cases / 5 559 rows, `run_hda_checks`, `scale_gate` (9 rows), `gate_images`, **350 unit tests — 0 failing, and the phase-2 baseline diff is ADDITIONS ONLY (not one recorded value moved).** ⚠️ Two numbers in P2-3R's write-up were wrong and are corrected in place: the suite is **346** unit tests, not 386, and `prims_wrappers_built_2d_rows` was **78 148**, not 78 132. One unreported baseline movement: `FC_rect/corner_seam_m` 0.0 → 1e-06, D141's reversed traversal, 1 micron against a 2e-3 tolerance. Read §12's P2-3V entry before touching anything. |
+| Native rebuild (§13/§15) | **CYCLE N-1V — INDEPENDENT VERIFICATION OF THE NATIVE REBUILD (2026-08-22). DEV-LOOP RULE 0 IS DISCHARGED for the rebuild lane: §15 is AUDITED, not merely implemented.** A fresh agent that wrote none of it ran every suite from clean, re-derived the phase-1 baseline key by key and ran **10 mutations**. The rebuild is REAL: the HDA is **21 nodes** — 9 nulls, **6 VEX wrangles all at `vex_precision = 64`**, 3 native (`splitpoints`/`blast`/`switch`) and **3 Python SOPs**, in 5 titled network boxes, locked, regenerable byte-for-byte-behaviour from `devScripts/create_pf_polychain_hda.py`. **The DECOMPOSE box is load-bearing and that was proved by mutation, not by reading**: forcing `place._native_tables` to return `None` — the exact 'silent fallback to the Python reference' that would make the whole rebuild cosmetic — turns `native_branch_is_load_bearing` RED; so does rewiring `kernel` back to `IN_SPLINE`. **BUT TWO CHECKS WERE PRETENDING**: `mutation_pc_unshare` bypasses the node in the PARITY RIG, not in the asset, so **bypassing `pc_unshare` in the SHIPPED HDA left all five suites green**, and so did bypassing `pc_frames_valid`. Root cause: `native.py` and `create_pf_polychain_hda.py` are **two independent declarations of one chain** — §15.1's claim that they are the same network was false; they share only the `.vfl` bodies. **Closed by `asset_decompose_matches_the_rig`** (node type, class, `vex_precision`, snippet and every bypassed node, read off the shipped asset), which goes red on all three. ⚠️ **What still ships the geometry is Python**: `kernel` is `stage_switch` input 0, so §4.2's solve, §4.3 corners, §4.4 place/deform, §4.5 conform and §4.6 finalize are all still the reference. **`pc_frames` (VEX) is NOT on the shipped output path** — breaking its 3×3 reddens exactly one rig-side parity check and nothing artist-facing. Suites: `run_native_checks` **32/32**, `run_scene_checks` **89 cases + tripwires / 5 559 baselined rows, 0 failing, NOT ONE VALUE MOVED**, `run_hda_checks` 29/29, `scale_gate` 9 rows, `run_2d_checks` 633, `tests/hda/run_attrib_checks.py` **no baseline change**, **346 unit tests**. citygen is untouched by the four commits and imports nothing from `polychain`. Read §15.8 before touching anything. |
 | Next up | **Cycle P2-4 then P2-5** (§7.10) — the payload half from input 3, then the Y fit's `aligned` mode (D122) and `pc_extend` as a parm. ⚠️ **GATE PC-G5 HAS BEEN JUDGED AND IT DOES NOT PASS** — not because the facade is wrong but because two of its seven conditions have nothing behind them. **Conditions 1, 2, 5, 6, 7 PASS and are mutation-proved**, and condition 1 was verified NON-VACUOUS (`_corner_caps` yields **24 groups, 24 paired and measured** — the 6 x 4 the gate asks for, probed rather than read off the label; `corner_seam_m` 0.0). **Condition 4 is TRUE but UNASSERTED** — 0 of 176 placements carry a `slice_t` and no check says so; **write that one line on the way past, it is the cheapest untested truth in the tool.** **Condition 3 needs a FIXTURE as well as a mode**: every row of the L uses the same kit over the same leg lengths, so `aligned` and `free` are indistinguishable on it however `aligned` is implemented — P2-5 must ship unequal leg lengths or a per-row kit with it. **The images were looked at**: the plan is a closed ring with no holes or overlaps and a 45° bisector cut at all five convex vertices and the reflex one; the corner column runs unbroken ground-to-cornice with the cornice band turning round it; bend mode correctly has no corner post. Still owed and unchanged: P2-7's real clipping (per-module `pc_clip`, sub-spline independence, even-odd nesting, `slice`, i.e. all of PC-G6), P2-8, P2-9, §7.7's kit slicer — and phase 1's own GUI viewport pass on PC-G1/PC-G2, the streets acceptance and standing finding (11). Run `hython tests/polychain/run_2d_checks.py` and `python tests/unit/test_polychain_array2d.py` before and after every change. |
 | Gates | **ALL FOUR RE-CONFIRMED BY P5cV (2026-08-22) — PC-G1 and PC-G2 through the parm face and judged on images, PC-G3 on the 9-row ladder under both z-modes, PC-G4 mutation-proved (reverting D91 reports `moved: padding`). All four still owe the GUI viewport pass and nothing else changed.** PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** — the closed rectangle and the L close in both corner modes, all four fill modes, the gate on its marker (1.8e-7 m), convex and reflex corners; the bend corner's butt wedge is MEASURED and baselined as the accepted limit (D36 extended), and cycle 6's mutation of it fails by 1.10e-02 m on `CJ_bend_butt_120`. Cycle 8 closed the last hole in its parm face: the **marker slot is authorable on the page** (D88), so PC-G1's gate-on-a-marker no longer needs a payload, and an unread marker warns. **Cycle 9 rebuilt the whole figure THROUGH THE PARM FACE and looked at it** (`HC_{miter,bend}_{top,iso}.png`, `HG1_*.png`): the miter's two legs terminate into a corner post with the 45° bisector cut clean across it and the tops flush; the bend turns through the elbow as one continuous top arris with no corner post (D36's ring weld) and only the accepted butt notch; all four Fit Methods close flush on the spline; and the gate authored with **Piece at Markers + Marker Id and NO payload** lands at **x 7.200000..8.800000, centre 8.000000, error 1.788e-07 m**, with the unread-marker warning firing beforehand. PC-G1 no longer owes its parm face — only the GUI viewport pass · **PC-G2 numerically complete + IMAGE-VERIFIED (headless), INCLUDING the curving-spline variant it used to owe; GUI viewport pass still owed** — cycle 6 built the gate's own wording: a 24 m spline that **turns in plan (±3.6 m S-curve) and climbs 2.4 m**, resampled at 0.25 m, over a 2D terrain (`1.1 sin(2πx/13) + 0.8 cos(2πz/9) + 0.06x`), conform ON. All four modes pass **50 of 50** suite checks with **0 failures and nothing baselined**: `plumb_deg` **0.0** over 14 vertical pieces, `flat_stepped_m` **0.0** over **240 stepped posts, 240/240 still PACKED**, `bank_deg` **27.15°** adaptive, camber ON halving the residual to the surface normal (`camber_deg` 37.31° → **17.20°**), `conform_contact_m` **0.0**, `conform_misses` **0**, `inward_faces` **0**, no warnings. Judged on `VG2P_{vertical,stepped,adaptive}.png` and `VG2C_camber_cu.png`: the pickets' ribs are dead vertical while the run's foot follows the ground line, the adaptive rail's ribs lean perpendicular to the drape, the posts' tops make a clean sawtooth over a smooth ground line, and the cambered rail is visibly rolled onto the cross-fall. The **riser under each stepped piece is there and is expected** — it IS stepped mode — and it measures **0.061 m** on this hill; §4.4's flatten-under is BUILT as of cycle 10 (D98) and takes the AIR under each piece (`stepped_float_m` 0.054818/0.061280) to **0.0** with all 240 pieces still packed, leaving that riser where it is. **Cycle 9 re-rendered all of it through the HDA's parm page** with the terrain on input 4 (`HG2_*.png`): the pickets' ribs are plumb while the run's foot tracks the ground line, the stepped posts stand plumb with feet on the ground and tops stepping over it, the adaptive rail's ribs rake perpendicular to the drape, Tilt to Surface visibly rolls the rail onto the cross-fall, and the whole 24 m S-curve reads as a fence on a hill. Only the GUI viewport pass is owed · **PC-G3 numerically MEASURED at scale, and narrower than its headline** — 20 km, 10 005 × 2 m bendable panels: **10 005 packed, 0 deformed, one shared `geometryid`, 10 005 real points, +12.1 MB RSS, 0.42 s** as a two-point spline and **the same numbers at 0.55 s** as a **20 011-vertex resampled polyline** — independently reproduced in cycle 6, and D69 is what buys it (reverting D69 takes the resampled form to 0 packed / 10 005 deformed / 360 180 points / **21.9 s**). ⚠️ ~~The gate holds for a STRAIGHT resampled run only~~ — **CLOSED by D75 in cycle 7**: `hython tests/polychain/scale_gate.py` is the harness now, and R = 12 000 / 2 000 / 80 m all read **10 000 packed / 0 deformed / 10 000 points / +5.1 MB / ~0.60 s**, while R = 10 m (five times the budget) still deforms all 10 000 at 10.8 s. ⚠️ **CYCLE 9 RE-MEASURED THIS AFTER D87 AND THE TERMS ARE NARROWER AGAIN.** Those three rows are green because the starter kit's `panel` is **yaw-only** (`pc_zmode = vertical`), so the budget was spent on `rz` = 0.03 m and D87's off-spine term was switched almost all the way off — and `scale_gate.py` was still deciding pass/fail from `4/(8R)`, **the spine sagitta D87 retired**. Re-run under `zmode = adaptive`, where the panel's full 0.90 m height rides the frame: **R = 12 000 m and R = 2 000 m stay 10 000 packed / 10 000 points / ~0.6 s**, but **R = 80 m is 0 packed / 10 000 deformed / 360 000 points / 11.0 s / +34.7 MB** — `0.90 x 0.025 = 0.0225 m`, 2.25x `bend_tol`, so unpacking is CORRECT. D97 put the expectation on each ladder row with its reason and runs the ladder under both z-modes: **9 rows, 0 failing**, and mutating the budget 50x now fails 2 rows where it failed none. **PC-G3 passes on its own terms** — 10 005-piece packed instancing at 20 km, one `geometryid`, sub-second, +12 MB — and those terms are: a straight or gently-turning-IN-PLAN run, or any run whose module is yaw-only. A TALL module on an R = 80 m arc, or ANY module on a climbing run (D65's shear), costs the 11 s / 360 k-point deform path. The FLOOR rides the suite: `A_straight`, `CE_all_packed`, `CA_swap_module`, `CF_resampled_straight` and `CG_resampled_bendable` are asserted 100 % packed and `over_unpacked` proves nothing unpacks without a reason. ~~Owed: the deform path's VEX rewrite~~ — **DONE, cycle 10c (D102/D103)**: profiled first, the cost was the per-prim STAMP (9.023 s of 14.136 s, 4 758 096 `Prim.setAttribValue` calls) and not the deform loop (0.201 s, 1.4 %); through `hou.Geometry`'s bulk array setters the two deformed rows go **11.159 → 1.548 s (7.21x)** and **11.181 → 1.597 s (7.00x)**, bit-identical on all 83 cases, and VEX is measured and declined · **PC-G4 ✅ PASSES — as of cycle 12 (D107); before that its sweep was pretending** (§10 cycle 7): the same fence driven entirely by a style payload on input 3 with the parms at defaults, asserted in `tests/polychain/run_hda_checks.py` — the payload replaces the modules, the styleId and the ids, matches the kernel built from the `Style` object directly, and **the parms are provably inert while it is wired** — cycle 8 turned that from two parms into a SWEEP of the whole page (`swept 36 parms; moved: none`, ids AND rounded positions, exempting only `display`/`show_warnings`/`kitfile` by name), which is what caught `padding` still being live under a payload (D91). The generic-loop rule is audited by construction: `polychain/style.py` contains no style name and no branch per name, and `style_round_trip` re-proves it on all 73 cases. **Cycle 9 re-measured PC-G4 independently, in §2.1's own stronger wording — the SAME fence**: the parm face's own `Style` written out through `style.write` and wired back into input 3 of a second node with the parms at defaults produces output **identical on element ids, module names, rounded point positions AND every packed prim's full transform** across all **8 fill x corner combinations** (adaptive/scale/evenly/count x miter/bend, 35 to 137 prims). The page swept under that payload: **32 parms nudged, 0 moved the geometry**. A style the code has never heard of — `a_style_nobody_wrote_code_for`, carrying a `marker:42` slot — built **52 prims, 4 modules, 0 warnings** with no code change. The branch-per-name grep over the whole kernel returns nothing but `style_from_parms`' DEFAULT VALUE `"pf_polychain"`; the names that do appear in conditionals (`corner`, `default`, `start`, `end`) are §3.3's fixed slot vocabulary — the kernel's own schema, not any style's — and a slot outside it is dispatched generically. ⚠️ **CYCLE 12 MUTATION-TESTED THIS AND FOUND IT BLIND.** Reverting D91 - the `padding` parm applied unconditionally, so a wired payload feels it again - left the whole HDA suite **green**, `parms_inert_under_payload … moved: none`, with a debug print proving `_padded` really ran at 0.37 under the payload. The fixture was the cause, not the sweep: its `Params(fill="scale")` fence does not move for ANY `pc_pad` - `gate.pad` 0.0 -> 0.185 -> 0.400 with the output stuck at 44 prims, 12 elements and an identical point sum. **The fixture is `adaptive` now (D107)** and the same revert reports **`moved: padding`**; the shipped code reports `moved: none`. `scale` coverage is not lost - cycle 9 sweeps all 8 fill x corner combinations separately. GUI viewport pass owed like the others |
 
@@ -3565,6 +3566,47 @@ wanted. Nothing was ever saved to the hip file.
 
 ---
 
+## Cycle N-1V — the independent audit of the native rebuild (2026-08-22)
+
+**A fresh agent that wrote none of §15 ran every suite from clean, re-derived the baseline, ran
+10 mutations and judged all four gates.** The full write-up is [§15.8](#158-the-audit--cycle-n-1v-by-an-agent-that-built-none-of-it);
+this entry is the §10 index line so the phase-1 log does not go quiet on it.
+
+**The verdict:** the rebuild is real, and the one claim it all hangs on survived the one mutation
+that could have exposed it as cosmetic. Forcing `place._native_tables` to return `None` — a silent
+fallback to the Python reference on every curve — turns `native_branch_is_load_bearing` **RED**, and
+so does rewiring `kernel` back to `IN_SPLINE`. The DECOMPOSE box is on the artist's cook path and
+carries the geometry.
+
+**Two checks were pretending, and the cause was structural.** `native.py`'s `stage_decompose` and
+`create_pf_polychain_hda.py`'s `DECOMPOSE` tuple are two independent declarations of one chain
+sharing only their `.vfl` bodies — so `mutation_pc_unshare` bypasses the **rig's** copy, and
+**bypassing `pc_unshare` in the shipped HDA left all five suites green.** Bypassing
+`pc_frames_valid` was invisible the same way, and a 32-bit `vex_precision` on the asset's
+`pc_arclength` passed `native_intermediates_are_64bit` *while it printed "32-bit wrangles: none"*.
+Closed by **`asset_decompose_matches_the_rig`**, which reads node type, `class`, `vex_precision`,
+snippet text and every bypassed node **off the built asset**; it reddens on all three.
+§15.1's sentence *"the network the checks measure IS the network the asset ships"* was false and is
+corrected in place.
+
+**Said plainly, because the write-up did not:** `pc_frames` is **behind the Stage switch and
+reaches no artist**. Breaking its 3×3 by 1e-7 reddens exactly one rig-side parity check and nothing
+else. **One of five kernel stages (§4.1 decompose) is native and shipping; `kernel` still builds
+every fence.**
+
+**Gates:** PC-G1 ✅ (both corner modes through the parm face, 40 checks, images looked at) ·
+PC-G2 ✅ (four modes, conform ON, judged on `VG2_vertical_side.png` / `VG2_adaptive_side.png`) ·
+PC-G3 ✅ (9 rows both z-modes, mutation-proved at 50× the budget) · PC-G4 ✅ (40-parm sweep,
+mutation-proved — reverting D91 reports `moved: padding`). All eleven gate PNGs regenerated from
+this build are **byte-identical** to the committed ones. All four still owe the GUI viewport pass.
+
+**Suites:** `run_native_checks` **32/32** · `run_scene_checks` 3 665 assertions over 89 cases,
+**not one of 5 559 baselined values moved** · `run_hda_checks` 29/29 · `scale_gate` 9 rows ·
+`run_2d_checks` 633 · `tests/hda/run_attrib_checks.py` no baseline change · **346 unit tests**.
+citygen untouched, and it imports nothing from `polychain`.
+
+---
+
 ## 11 Native/VEX/OpenCL port plan
 
 **Status:** written 2026-08-22 from two independent audits (a profile audit and a native-SOP
@@ -6617,6 +6659,8 @@ mutation-test, commit, then an independent audit before any completion claim** (
 | **N9** | **The HDA rebuild** — layout, network boxes, comments, colours, the `Stage` parm, unlocked contents, help. The parm face is unchanged but for one parm. | The readability deliverable. It is the *point* of the exercise, and it is cheap once the stages exist. | LOW |
 | **N10** | **Decide the reference's fate** — kernel path retired from the cook, `polychain/*.py` kept as the oracle. | A decision to take with the numbers in hand, not now. | LOW |
 
+✅❌ **WHERE THIS STANDS TODAY — N1, N3 and N9 are DONE and audited; N2 is next; N4 is half.** The item-by-item status table lives in [§15.8.6](#1586-what-the-next-cycle-must-port--139-with-todays-status) so there is one copy of it, not two.
+
 **The risks, named:**
 
 - **R1 — no int64 in VEX.** Probed. `_splitmix` has no direct expression; the limb implementation
@@ -7221,8 +7265,14 @@ still builds exactly what it built before the rebuild — but now that is a stat
 
 `hython tests/polychain/run_native_checks.py` — **31 checks, 0 failing.** Every stage is cooked as
 real SOP nodes on the *same* `hou.Geometry` the reference was handed, in one process (§13.8 rule 1).
-`tests/polychain/native.py` builds those nodes and the HDA build script calls the same helpers, so
-the network the checks measure IS the network the asset ships.
+⚠️ **THIS PARAGRAPH USED TO SAY "the HDA build script calls the same helpers, so the network the
+checks measure IS the network the asset ships". IT WAS FALSE AND AN AUDIT PROVED IT** (§15.8).
+`tests/polychain/native.py`'s `stage_decompose` and `create_pf_polychain_hda.py`'s `DECOMPOSE`
+tuple are **two independent declarations of one chain**; they share only the `.vfl` bodies that
+`polychain.vexsrc` inlines. Bypassing `pc_unshare` in the *shipped asset* left every suite green,
+because `mutation_pc_unshare` bypasses the *rig's* copy. `asset_decompose_matches_the_rig` is what
+makes the sentence true now: it reads node type, `class`, `vex_precision`, the snippet text and
+every bypassed node back off the built asset and diffs them against the rig.
 
 The case set is **92**: `cases.build_all()`'s 89, plus `cases.topology_cases()`' three, which exist
 because **0 of the 89 has a point in more than one primitive** and citygen's own pipeline ends in
@@ -7646,5 +7696,145 @@ reviewers refuted, with a control test, and §15.4 now carries the correction.
 | minor | §15.6 and the sticky note omitted `kit.box_mesh` and `hda._padded` | both listed; `_padded` fixed |
 | minor | `report["frames"]` built 4.96 MB per cook for a key only the rig reads | D171 — opt-in |
 
-**Still true after all of it (dev-loop rule 0):** no independent audit has run *on this build*, so
-the honest words remain *implemented, measured, unverified*.
+~~**Still true after all of it (dev-loop rule 0):** no independent audit has run *on this build*.~~
+**✅ DISCHARGED — the audit is §15.8, below.**
+
+
+---
+
+### 15.8 The audit — cycle N-1V, by an agent that built none of it
+
+**Ran 2026-08-22 on commit `4be6743`.** Dev-loop rule 0 is discharged for the rebuild lane: the
+words for §15 are now *implemented, measured, **audited*** — with the two named exceptions in
+§15.8.7.
+
+#### 15.8.1 Every suite, from clean
+
+| Suite | Result |
+|---|---|
+| `python tests/unit/test_{citygen,plan,polychain,polychain_corner,polychain_plan,polychain_array2d}.py` | 22 / 49 / 61 / 63 / 91 / 60 = **346 OK** at HEAD (350 with the concurrent phase-2 lane's uncommitted additions). *The write-up's "328" is every unit test except `test_citygen.py`, counted against the dirty tree.* |
+| `hython tests/polychain/run_native_checks.py` | **32 checks, 0 failing** (31 shipped + `asset_decompose_matches_the_rig`, added by this audit) |
+| `hython tests/polychain/run_scene_checks.py` | 89 cases + `ZZ_port_tripwires`, **3 665 assertions, 0 failing**, and **not one of the 5 559 baselined values moved** |
+| `hython tests/polychain/run_hda_checks.py` | **29 checks, 0 failing** |
+| `hython tests/polychain/scale_gate.py` | **9 rows, 0 failing** |
+| `hython tests/polychain/run_2d_checks.py` | 633 assertions, 0 failing (phase-2 lane, unaffected) |
+| `hython tests/hda/run_attrib_checks.py` | 0 failing, **0 unreviewed baseline changes** — the six new wrangles publish nothing that moved the attribute baseline |
+
+**Baseline movement, re-derived key by key.** `tests/polychain/baseline.json` does not appear in
+`git diff --stat 338a3ca 4be6743`, and a clean run prints **no `moved since baseline` section at
+all** — so every one of the 5 559 recorded values still *reproduces*, which is a stronger statement
+than the file being unchanged. The detector was itself mutation-tested (perturb one value → it
+prints `AA_reflex_miter/element_count: __MUT__ -> 17`). ⚠️ **It prints and does not fail**:
+`run_scene_checks.py` exits 0 on a baseline move, so an agent reading only the exit code would miss
+one. `tests/README.md`'s "a baseline move FAILS the run" is true of `tests/hda/run_attrib_checks.py`
+and **not** of this runner. Unchanged by this cycle; recorded so it is not rediscovered.
+
+**citygen: untouched.** No citygen path appears in the four commits' diff, and
+`grep -rl polychain polyfactory/scripts/python/polyfactory/citygen/` returns nothing — the two
+packages share no import. (`tests/hda/baseline.json` did move 293 lines, in `ff32929`, the
+*conventions* cycle interleaved between these commits — not this lane.)
+
+#### 15.8.2 The node tree, as Hannes will open it
+
+`pf_polychain` — **21 nodes**, contents **LOCKED** on every new instance, 5 titled network boxes,
+1 sticky note. Regenerated from `devScripts/create_pf_polychain_hda.py` and re-verified green, so
+the shipped binary is reproducible from the script.
+
+| Kind | Count | Nodes |
+|---|---|---|
+| **VEX** (`attribwrangle`, **all `vex_precision = 64`**, all commented) | **6** | `pc_curveid` (prim) · `pc_curve_index` (detail) · `pc_arclength` (prim) · `pc_corners` (point) · `pc_markers` (point) · `pc_frames` (point) |
+| **native compiled SOPs** | **3** | `pc_unshare` [splitpoints] · `pc_frames_valid` [blast] · `stage_switch` [switch] |
+| **nulls** (4 inputs, 4 stage outputs, 1 output) | **9** | `IN_SPLINE` `IN_KIT` `IN_STYLE` `IN_SURFACE` · `OUT_sections` `OUT_plan` `OUT_frames` `OUT_reference` · `OUT` |
+| **OpenCL** | **0** | — |
+| **Python SOP** | **3** | `config` · `pc_plan_bridge` · `kernel` |
+
+**The three Python SOPs, named and judged against Hannes' rule** (*"everything geometry related
+should be either native nodes, vex or opencl; Python can be used for ui or processing data which is
+not possible to process with the other 3"*):
+
+| Node | Verdict | Why |
+|---|---|---|
+| `config` | **✅ JUSTIFIED, permanent.** | Resolves the parameter page against the style payload on input 3 and writes one `pc_cfg` detail dict. N = the parm count; it touches no geometry. This is the "ui / marshalling" half of the rule, exactly. The wrapper tripwires are pointed at it so it cannot grow a loop. |
+| `pc_plan_bridge` | **⚠️ NOT JUSTIFIED — declared scaffolding.** | Lifts what the reference already solved onto real points so the VEX `pc_frames` has something to read. Its own comment says *"13.9 N2 DELETES THIS NODE"*. It exists because §4.2's solve has not been ported. |
+| `kernel` | **❌ NOT JUSTIFIED — this is the unported tool.** | ~6 000 lines, and it is `stage_switch` **input 0**, i.e. what an artist gets. §4.2 fitting solve, §4.3 corners/mitre/cap, §4.4 place + deform + stamp, §4.5 conform and §4.6 finalize all still run here, in Python, on every cook. |
+
+**Also still Python, outside the SOPs**, each named rather than implied:
+`place.read_curves`' bulk harvest (**justified** — whole-array `pointFloatAttribValues` reads plus
+one slice per curve, no `hou.Point` in a loop, and the standing tripwires enforce it);
+`kit.box_mesh` (**not justified but defended and unscheduled** — `geo.createPoint()` per box corner,
+N = 4 modules at authoring time, kept explicit because the Box SOP's division mode emits 24
+two-point polygons that can be neither sliced nor capped, measured on 22.0.398 — see §15.6).
+
+#### 15.8.3 What the VEX actually reaches
+
+- **DECOMPOSE is on the shipped cook path and load-bearing.** All 7 upstream nodes cook on an
+  Output cook (`native_branch_cooks_on_output` 7/7), and corrupting `pc_arclength` moves the
+  shipped geometry.
+- **`pc_frames` is NOT.** It hangs off `OUT_plan` behind `stage_switch`, so nothing an artist
+  builds passes through it. Mutation-proved: a 1e-7 relative error in its 3×3 reddens exactly one
+  check (`frames_arithmetic_linear_parity`, measured on the *rig*) and nothing else in any suite.
+  That is the honest scope of the port today — **one stage of five is in the artist's hands.**
+
+#### 15.8.4 The mutation battery — 10 mutations, 2 survivors
+
+Every source file was restored with `git checkout --` on a **named path**, and
+`polyfactory/otls/pf_polychain.hda` is back at its committed sha `d1b0dec…`.
+
+| # | Mutation | Verdict |
+|---|---|---|
+| MUT-4a | **`place._native_tables` returns `None`** — the whole network silently falls back to the Python reference | ✅ **RED** — `native_branch_is_load_bearing`. *The single most important result in this audit: a silent fallback fails the suite, so the rebuild is not cosmetic.* The scene and HDA suites stay green (byte-identical output **by design**, D166), which is why this one tripwire carries the whole claim. |
+| MUT-4b | `kernel.setInput(0, IN_SPLINE)` — the pre-D166 defect restored | ✅ **RED** ×2 — `native_branch_cooks_on_output` 0/7 and `native_branch_is_load_bearing` |
+| MUT-1 | `pc_frames.vfl`: `d * scale * 1.0000001` | ✅ **RED** — `frames_arithmetic_linear_parity` 1.000e-07 (rig only; see §15.8.3) |
+| MUT-2a | `vex_precision = 32` on `pc_arclength` **in the rig** | ✅ **RED** ×6 — arclength 1.261e-05 m, curve length, the frames 3×3, frames P (1 730 ULP), the 20 km trial, and `native_intermediates_are_64bit` naming the node |
+| MUT-2b | `vex_precision = 32` on `pc_arclength` **in the shipped asset only** | ✅ **RED** ×2 — `plan_span_transport_at_20km` 1.273e-02 m and `union_matches_the_python_path` 1.300 m. ⚠️ `native_intermediates_are_64bit` stayed green *and printed "32-bit wrangles: none"* while the asset shipped one — it scans the rig. Now also covered by `asset_decompose_matches_the_rig`. |
+| MUT-3a | **bypass `pc_unshare` in the SHIPPED asset** | ❌ **SURVIVOR** — native, scene, HDA and scale suites all green. Root cause below. **Closed.** |
+| MUT-3b | **bypass `pc_frames_valid` in the SHIPPED asset** | ❌ **SURVIVOR** — all suites green. **Closed.** |
+| MUT-G4 | revert D91 in `hda.cook` (padding applied under a wired payload) | ✅ **RED** — `parms_inert_under_payload … moved: padding`. *(Reverting the same lines in `cook_plan_bridge` is invisible — the bridge is behind the Stage switch. Same root cause as MUT-3b, no shipped-output consequence.)* |
+| MUT-G3 | `bend_tol` 0.01 → 0.50 (50× the curvature budget) | ✅ **RED** ×2 rows — `arc_10/kit` and `arc_80/adaptive`. PC-G3's ladder is not vacuous. |
+| MUT-B | perturb one value in `tests/polychain/baseline.json` | ✅ **printed** — but exit 0; see §15.8.1 |
+
+**Root cause of both survivors, and the fix.** `native.py`'s `stage_decompose` and
+`create_pf_polychain_hda.py`'s `DECOMPOSE` tuple are **two independent declarations of the same
+chain** that share only their `.vfl` bodies. Every mutation check in §4 of `run_native_checks.py`
+mutates the *rig*, so an asset that drifted — a bypassed node, a changed precision, a re-ordered
+input — shipped silently. **`asset_decompose_matches_the_rig`** (§5 of the runner) now reads node
+type, `class`, `vex_precision`, snippet text and every bypassed node **back off the built asset**
+and diffs them against the rig. Re-run under MUT-3a / MUT-3b / MUT-2b it reports
+`pc_unshare(bypassed)` / `pc_frames_valid(bypassed)` / `pc_arclength.vex_precision differs`.
+
+#### 15.8.5 Gate by gate
+
+| Gate | Verdict | Evidence from this build |
+|---|---|---|
+| **PC-G1** — the fence | **✅ PASSES** (headless; GUI viewport pass still owed) | `gate_images.py` drove the closed rectangle and the L through **the parm face** in **both corner modes**: 40 checks, 0 failing. Miter — `corner_seam_m` **0.0**, `corner_abut_m` **0.0**, four 90° corners each resolved `miter`, `corner_breach_m` **0.0**. Bend — no corner post, `corner_breach_m` **0.042426** at exactly 0.00e+00 m over the accepted butt wedge. `exact_fill_m` ≤ 1.1e-07, `inward_faces` 0. **Looked at:** `VG1_closeup_miter_top.png` shows the corner post with the 45° bisector cut across it; `VG1_closeup_bend_top.png` shows the elbow turning as one continuous run with no post. |
+| **PC-G2** — the hill | **✅ PASSES, judged on images** (GUI viewport pass still owed) | All four modes through the parm face, conform ON, 0 failing: `conform_contact_m` **0.0** in every mode, `plumb_deg` **0.0** over 26 vertical pieces, `flat_stepped_m` **9.7e-08**, `bank_deg` **32.79°** adaptive, `inward_faces` 0, **no warnings**. **Looked at:** in `VG2_vertical_side.png` the ribs are dead plumb while the run's foot tracks the green ground line through the full S-curve; in `VG2_adaptive_side.png` the same ribs visibly rake perpendicular to the drape. It reads as a fence on a hill. |
+| **PC-G3** — scale | **✅ PASSES on its own (narrower) terms** | `scale_gate.py`: **9 rows, 0 failing, under both z-modes.** 10 000 packed / 0 deformed / 10 000 points / one `geometryid` / ~0.4 s on `two_point`, `resampled`, `arc_12000`, `arc_2000`, `arc_80` (kit) and `arc_12000`, `arc_2000` (adaptive); `arc_10` (kit) and `arc_80` (adaptive) correctly unpack. Mutation-proved (MUT-G3). |
+| **PC-G4** — payload-only | **✅ PASSES, mutation-proved** | `run_hda_checks.py` §4: the payload replaces modules and styleId, `payload_matches_kernel` 64 vs 64, and **`parms_inert_under_payload` sweeps 40 parms — moved: none**. Non-vacuous: MUT-G4 reverts D91 and it reports `moved: padding`. New this cycle and independently re-run: `config_reads_the_payload` (77.0° / 3.0°, 0 disagreeing keys) and `payload_thresholds_reach_the_corners` prove the payload now reaches the **VEX** thresholds too. |
+
+All eleven gate PNGs regenerated from this build are **byte-identical** to the committed
+`tests/polychain/gate_images/` — the rebuild moved no gate geometry at all.
+
+#### 15.8.6 What the next cycle must port — §13.9, with today's status
+
+| §13.9 item | Stage | Status |
+|---|---|---|
+| **N1** parity rig | — | **✅ DONE** — `tests/polychain/native.py` + `run_native_checks.py`, 32 checks |
+| **N3** §4.1 decompose | `pc_unshare` → `pc_markers` | **✅ DONE NATIVELY, on the shipped path, load-bearing, at 0.0 m parity on 92 cases** |
+| **N9** the HDA rebuild | layout, boxes, comments, `Stage` | **✅ DONE** — 21 nodes, locked, 5 boxes, every wrangle commented, no absolute paths |
+| **N2** §4.2 the fitting solve | `pc_plan_bridge` | ❌ **NOT PORTED** — still Python, and **it is the next thing.** Deletes the second Python SOP. R1 (no int64 in VEX / splitmix64 bit-exactness) is still unprobed and is the gating risk. |
+| **N4** §4.4 packed branch | `pc_frames` → `copytopoints(pack=1)` | ⚠️ **HALF** — the frame is in VEX and at bit parity, but it is **behind the Stage switch and reaches no artist**. The `copytopoints` half is unbuilt, and until it is, `pc_frames` is a measured prototype, not a port. |
+| **N5** §4.4 deformed branch | `pc_stations` + `pc_deform` | ❌ not started |
+| **N6** §4.5 conform | `ray` as a node | ❌ not started — and it is why `pc_frames_valid` exists |
+| **N7** §4.6 finalize | stamp, caps, overrides, warnings | ❌ not started |
+| **N8** §4.3 corners | planes / boolean | ❌ not started |
+| **N10** the reference's fate | `kernel` | ❌ not decided — `kernel` is still `stage_switch` input 0 |
+
+**In one line for the next agent:** *one of five kernel stages is native and in the artist's hands;
+`kernel` still builds every fence that ships; N2 is next and R1 must be probed first.*
+
+#### 15.8.7 Two things this audit did NOT do
+
+1. **The GUI viewport pass.** Everything here is headless. All four gates have owed a live-viewport
+   look since phase 1 and still do.
+2. **Judge `pc_frames` on geometry an artist can see.** It cannot be judged that way until N4 wires
+   `copytopoints` behind it; today the only evidence for it is rig-side arithmetic parity.
