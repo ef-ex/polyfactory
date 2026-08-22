@@ -338,6 +338,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -711,6 +721,16 @@
       "value": [
         0.0,
         0.202389627
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
       ]
     },
     {
@@ -1103,6 +1123,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -1486,6 +1516,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -1859,6 +1899,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -2238,6 +2288,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -2609,6 +2669,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -2989,6 +3059,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -3383,6 +3463,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -3794,6 +3884,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -4193,6 +4293,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -4564,6 +4674,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -4943,6 +5063,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -5318,6 +5448,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -5689,6 +5829,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -6091,6 +6241,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -6469,6 +6629,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -6855,6 +7025,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -7228,6 +7408,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -7596,6 +7786,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -7629,6 +7829,17 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "",
+      "name": "style_payload_degrades",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4,
+        14,
+        167
+      ]
     },
     {
       "detail": "10 ids on 2+ prims, 20 elements warned",
@@ -7970,6 +8181,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -8342,6 +8563,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -8706,6 +8937,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -9078,6 +9319,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -9442,6 +9693,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -9823,6 +10084,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -10194,6 +10465,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -10558,6 +10839,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -10931,6 +11222,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -11312,6 +11613,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -11680,6 +11991,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -12044,6 +12365,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -12417,6 +12748,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -12800,6 +13141,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -13167,6 +13518,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -13554,6 +13915,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -13920,6 +14291,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -14292,6 +14673,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -14691,6 +15082,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "expected [0, 1, 0]",
       "name": "override_round_trip",
       "ok": true,
@@ -15077,6 +15478,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -15445,6 +15856,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -15809,6 +16230,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -16186,6 +16617,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "",
       "name": "override_round_trip",
       "ok": true,
@@ -16556,6 +16997,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -16944,6 +17395,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -17309,6 +17770,16 @@
       "value": [
         4.1668e-05,
         4.1668e-05
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
       ]
     },
     {
@@ -17680,6 +18151,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -18045,6 +18526,16 @@
       "value": [
         0.006250125,
         0.006250125
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
       ]
     },
     {
@@ -18416,6 +18907,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -18780,6 +19281,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -19159,6 +19670,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -19534,6 +20055,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -19899,6 +20430,16 @@
       "value": [
         0.0,
         0.016576032
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
       ]
     },
     {
@@ -20270,6 +20811,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -20635,6 +21186,16 @@
       "value": [
         0.0,
         0.011061017
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
       ]
     },
     {
@@ -21017,6 +21578,16 @@
       "value": [
         0.0,
         0.011653408
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
       ]
     },
     {
@@ -21407,6 +21978,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -21782,6 +22363,16 @@
       ]
     },
     {
+      "detail": "1 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -22148,6 +22739,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -22520,6 +23121,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -22884,6 +23495,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -23275,6 +23896,16 @@
       ]
     },
     {
+      "detail": "5 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -23650,6 +24281,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -24021,6 +24662,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -24400,6 +25051,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -24766,6 +25427,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -25141,6 +25812,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -25512,6 +26193,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -25909,6 +26600,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -26280,6 +26981,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },
@@ -26659,6 +27370,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -27034,6 +27755,16 @@
       ]
     },
     {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "no overrides",
       "name": "override_round_trip",
       "ok": true,
@@ -27405,6 +28136,16 @@
       "skipped": false,
       "value": [
         0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
         0.0
       ]
     },

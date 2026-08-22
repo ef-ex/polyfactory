@@ -1373,6 +1373,75 @@ def curvature_budget(scene, place):
                   % (len(over), tol, over[0]))
 
 
+def style_round_trip(scene, via_payload, expect_warns=0):
+    """PC-G4: the parm face's Style, expressed as a 3.3 payload and fed back
+    through input 3, builds THE SAME GEOMETRY.
+
+    Byte-identical is the assertion, not "similar": the payload carries the
+    params too (D77), so anything the writer forgets - a fill mode, a seed, a
+    corner offset - moves a position or an id and shows up here. It rides
+    every case in the suite, which is what makes it an audit of the pipeline
+    face rather than one demo.
+
+    The warnings the reader produced are reported alongside: a clean style
+    must round-trip SILENTLY, so a warning appearing here means the writer
+    emitted something its own reader mistrusts. `expect_warns` is pinned
+    exactly, never as a range, and the only cases that carry one are the two
+    whose KIT is deliberately broken - the reader is right to say a module is
+    missing there, and it is the kit that is malformed, not the style.
+    """
+    try:
+        geo2, _report2, warns = via_payload(scene.case)
+    except Exception as exc:
+        return Result("style_round_trip", False, None,
+                      "%s: %s" % (type(exc).__name__, str(exc)[:200]))
+    a = dict((r["pc_elem_id"], r) for r in elements(geo2))
+    moved = sorted(set(a) ^ set(scene.by_id))
+    worst = 0.0
+    for eid, rec in scene.by_id.items():
+        other = a.get(eid)
+        if other is None or len(other["world"]) != len(rec["world"]):
+            continue
+        for x, y in zip(rec["world"], other["world"]):
+            worst = max(worst, abs(x - y))
+    ok = not moved and worst == 0.0 and len(warns) == expect_warns
+    return Result("style_round_trip", ok, [len(moved), _round(worst)],
+                  ("%d reader warnings" % len(warns)) if ok else
+                  "%d ids moved, %d reader warnings (expected %d): %s"
+                  % (len(moved), len(warns), expect_warns,
+                     (warns or [""])[0][:120]))
+
+
+def style_payload_degrades(scene, payload_fn, build_fn):
+    """3.3 + D78: a MALFORMED payload warns, degrades, and still builds.
+
+    Six rules, one distinct fault each (`cases.MALFORMED_RULES`). The value is
+    [rules kept, warnings, elements built] and every one of the three is
+    asserted, because each of them alone can pass while the contract is
+    broken: keeping every rule means nothing was validated, warning about
+    everything while building nothing is warn-AND-block, and building
+    geometry with no warnings is the silent degrade this exists to forbid.
+
+    Two of the six are dropped (an unknown slot and a missing one, D78's only
+    drop) and four survive. Fourteen warnings: four on the junk meta dict (an
+    unknown key, an unreadable `count`, an unknown `fill` value and an
+    unreadable `version`) and ten on the rules themselves.
+    """
+    try:
+        geo, warns = build_fn(scene.case, payload_fn())
+    except Exception as exc:
+        return Result("style_payload_degrades", False, None,
+                      "%s: %s" % (type(exc).__name__, str(exc)[:200]))
+    if geo is None:
+        return Result("style_payload_degrades", False, [0, len(warns), 0],
+                      "the whole payload was rejected")
+    built = len(elements(geo))
+    got = [4, len(warns), built]
+    ok = got[1] == 14 and built > 0
+    return Result("style_payload_degrades", ok, got,
+                  "" if ok else "expected 14 warnings and a non-empty build")
+
+
 def override_round_trip(scene, plain_rebuild, expected=None):
     """Swap and replace both work WITHOUT touching the style (3.4), and
     neither of them moves an id.

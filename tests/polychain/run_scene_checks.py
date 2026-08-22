@@ -109,6 +109,12 @@ EXPECTED_WARNS = {
 # a detector, which is the thing worth seeing.
 EXPECTED_KIT_WARNS = {"K_broken_kit": 9, "O_no_kit": 1}
 
+# ...and how many warnings the 3.3 READER is allowed on the same cases. Both
+# of them are "this kit has no such module", which is true - the style names
+# a module the broken/absent kit cannot supply, and 3.4's stand-in box is what
+# gets built. Everything else in the suite must round-trip in silence.
+EXPECTED_STYLE_WARNS = {"K_broken_kit": 1, "O_no_kit": 5}
+
 # 4.3 item C, derived from the parm and the geometry rather than read off a
 # run. D39 (revised): the offset does NOT move the cut plane - it slides both
 # copies along their own legs, so the two faces stay mirror images and the
@@ -367,6 +373,10 @@ def run_case(name, case):
         # everything).
         C.over_unpacked(scene),
         C.curvature_budget(scene, cases.P),
+        # 3.3 / PC-G4, on EVERY case: the same style, expressed as a payload
+        # and read back through input 3, must build the same geometry.
+        C.style_round_trip(scene, cases.via_payload,
+                           EXPECTED_STYLE_WARNS.get(name, 0)),
         C.override_round_trip(scene, cases.rebuild_plain,
                               expected=OVERRIDES.get(name)),
         C.elem_ids_survive_upstream(scene, cases.with_extra_curve),
@@ -385,6 +395,10 @@ def run_case(name, case):
             scene, expected=(2.0, 2.0, 0.4)
             if name == "CC_replace_hero" else None))
     if name == "A_straight":
+        # 3.3's warn-and-degrade contract, cooked by the check: the payload is
+        # the thing under test, so it is wired to exactly one case.
+        out.append(C.style_payload_degrades(scene, cases.malformed_payload,
+                                            cases.build_with_payload))
         # D74's control build, cooked by the check because colliding ids are
         # the condition under test and every id-keyed check above would read
         # a merged scene and report nonsense on it. It does not depend on the
