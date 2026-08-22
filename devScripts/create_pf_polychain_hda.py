@@ -22,15 +22,26 @@ not possible to process with the other 3 mentioned options."*
 So the body is being rebuilt as named, visible, DISPLAYABLE stages, 13.9's
 build order at a time.  What this script builds today:
 
-    pf_polychain
-      IN_SPLINE IN_KIT IN_STYLE IN_SURFACE      [null x4]
-      [0 CONFIG]     config                     [python]  <- parm/payload only
-      [1 DECOMPOSE]  pc_curveid pc_curve_index pc_arclength pc_corners
-                     pc_markers OUT_sections    ALL VEX/native, at parity
-      [2 PLAN]       pc_plan_bridge OUT_plan    [python]  <- SCAFFOLDING (N2)
-      [4 PLACE]      pc_frames copy_packed OUT_place      pc_frames is VEX
+    pf_polychain                          36 nodes: 12 VEX (all at 64),
+      IN_SPLINE IN_KIT IN_STYLE IN_SURFACE      9 native SOPs, 11 nulls,
+      [0 CONFIG]     config     [python]        4 Python SOPs
+      [1 DECOMPOSE]  pc_unshare pc_curveid pc_curve_index pc_arclength
+                     pc_corners pc_markers OUT_sections   VEX + native (N3)
+      [2 PLAN]       pc_plan_bridge OUT_plan    [python] SCAFFOLDING (N5)
+                     pc_sections pc_sec_only pc_plan_clean pc_plan_solve
+                     pc_plan_emit pc_plan_only OUT_plan_native      4.2 (N2)
+      [4 PLACE]      pc_frames pc_frames_valid OUT_frames
+                     kit_starter pc_kit_id kit_unpack pc_proto
+                     pc_frames_native pc_place_valid copy_packed
+                     OUT_place_native            the PACKED branch (N4)
       [R REFERENCE]  kernel OUT_reference       [python]  <- the shipped path
       stage_switch -> OUT
+
+⚠️ `Stage` DEFAULTS TO `output`, WHICH IS `kernel`, AND THAT IS DELIBERATE
+(D180).  4.3, 4.5 and 4.6 are still the reference, so a native output would
+be a fence with no corner assemblies, no conform and no overrides.  The
+native stages are reachable as `Stage = plan_native` and `place_native`, at
+the parity `tests/polychain/run_native_checks.py` measures.
 
 The VEX bodies are real files under `polyfactory/vex/polychain/*.vfl`, INLINED
 here at build time (`polychain.vexsrc`) so the shipped asset needs no
@@ -89,7 +100,11 @@ if os.path.exists(HDA_PATH):
     os.remove(HDA_PATH)
     print("removed existing: " + HDA_PATH)
 
-# --- the three Python SOP bodies -------------------------------------------
+# --- the four Python SOP bodies --------------------------------------------
+# ⚠️ THE BODIES LIVE IN `native.sop_body`, BESIDE THE NODE DECLARATIONS, for
+# the reason 15.8.4 paid for: this script and `tests/polychain/native.py` were
+# two independent declarations of one chain, and two mutations of the shipped
+# asset survived every suite because the checks mutated the rig's copy.
 # The bootstrap is warn-never-block wiring, not logic: a session that already
 # has the package on its path skips it entirely.  Every body is ONE call of
 # its own plus that bootstrap, because the code belongs in the package where
@@ -532,37 +547,53 @@ box(net, "stageR_reference", "R - THE REFERENCE (13.6) - the oracle",
 
 note = net.createStickyNote("what_is_left")
 note.setText(
-    "STILL INSIDE `kernel`, and where it goes (13.9's build order):\n"
+    "WHERE THIS TOOL ACTUALLY IS (13.9's build order, cycle N-2):\n"
     "\n"
-    "  4.2  the fitting solve       N2  HIGH    solve/expand/read in VEX,\n"
-    "                                           and splitmix64 in limbs\n"
-    "  4.4  copytopoints + deform   N4 N5       needs the kit-module\n"
-    "                                           plumbing, and R8\n"
-    "  4.5  conform                 N6  LOW     `ray` as a node\n"
-    "  4.6  finalize + the guards   N7  MEDIUM  D153\n"
-    "  4.3  corners                 N8  HIGH    boolean, or foreach+clip\n"
+    "  4.1  decompose            N3  DONE, on the shipped cook path\n"
+    "  4.2  the fitting solve    N2  DONE, EXACT on 92 cases + a\n"
+    "                                170-build stress matrix. R1 was\n"
+    "                                dissolved: VEX's int IS int64 at\n"
+    "                                vex_precision = 64 and shrz is the\n"
+    "                                unsigned shift, so splitmix64 and\n"
+    "                                MT19937 are both native.\n"
+    "  4.4  the PACKED branch    N4  DONE, 0.0 m against the reference's\n"
+    "                                own packed prims. R8 closed: the\n"
+    "                                uniform scale DOES survive\n"
+    "                                packedfulltransform.\n"
+    "  4.4  the DEFORM gate      N5  NOT STARTED - so every piece on the\n"
+    "                                native branch is PACKED, whether or\n"
+    "                                not D87's budget would unpack it.\n"
+    "  4.5  conform              N6  NOT STARTED - `ray` as a node\n"
+    "  4.6  finalize + guards    N7  NOT STARTED - D153\n"
+    "  4.3  corners              N8  NOT STARTED - so a run with corners\n"
+    "                                shows no corner assembly and no\n"
+    "                                reserve on the native branch.\n"
     "\n"
-    "PYTHON GEOMETRY OUTSIDE THOSE FIVE STAGES - this half of the list\n"
-    "was MISSING, so both of these read as already native:\n"
+    "STAGE STILL DEFAULTS TO `output`, WHICH IS `kernel`. That is the\n"
+    "switch doing its job, not an oversight: 4.3, 4.5 and 4.6 are still\n"
+    "the reference, so a native output would be a fence with no corner\n"
+    "assemblies, no conform and no overrides (D180).\n"
     "\n"
-    "  kit.box_mesh          kit.py       a createPoint() per box corner,\n"
-    "                                     on every cook with input 2\n"
-    "                                     unwired. 13.6 sends it to native\n"
-    "                                     box SOPs (13.3.6). NOT scheduled\n"
-    "                                     on 13.9's list yet.\n"
-    "  hda._padded           hda.py       FIXED - it iterated hou.Point\n"
-    "                                     wrappers, which 11.9 rule 1\n"
-    "                                     forbids. Two bulk calls now.\n"
+    "THE PYTHON THAT IS LEFT, and what each one is:\n"
     "\n"
-    "PERMANENTLY PYTHON, and allowed to be: `config` (parm/payload\n"
-    "marshalling, no geometry) and place.read_curves' bulk read of this\n"
-    "box's own output (D166).\n"
+    "  config           parm/payload marshalling. PERMANENT, and it is\n"
+    "                   the half of Hannes' rule Python keeps.\n"
+    "  kit_starter      6's standalone floor. It MOVES Python onto a\n"
+    "                   node rather than adding it - kit_geometry always\n"
+    "                   ran inside `kernel`. D154 replaces the body with\n"
+    "                   native box SOPs.\n"
+    "  pc_plan_bridge   SCAFFOLDING. N5 deletes it: it exists only to\n"
+    "                   feed pc_frames, whose deform half is N5's.\n"
+    "  kernel           THE UNPORTED TOOL, and still what ships.\n"
     "\n"
-    "Nothing above is 'done'. Stage 1 is at parity on 92 cases, this box\n"
-    "is ON the shipped cook path (D166), and every number is MEASURED in\n"
+    "⚠️ EVERY WRANGLE HERE NEEDS vex_precision = 64. pc_rand.h and\n"
+    "pc_plan.h both COMPILE at 32 and both answer WRONGLY.\n"
+    "\n"
+    "Nothing above is 'done' in the dev-loop sense - no independent\n"
+    "audit has run on this build. Every number is MEASURED in\n"
     "tests/polychain/run_native_checks.py, not asserted here.")
-note.setPosition(hou.Vector2(28.0, -13.0))
-note.setSize(hou.Vector2(13.0, 11.0))
+note.setPosition(hou.Vector2(36.0, -13.0))
+note.setSize(hou.Vector2(15.0, 16.0))
 note.setColor(hou.Color((0.85, 0.80, 0.55)))
 
 

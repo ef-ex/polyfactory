@@ -29,8 +29,9 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
 | Last completed | **CYCLE P2-3V — INDEPENDENT VERIFICATION OF P2-3R (2026-08-22). DEV-LOOP RULE 0 IS DISCHARGED: P2-3R is AUDITED, not merely implemented.** A fresh agent that wrote none of it ran every suite from clean, re-derived both baseline diffs key by key, ran **17 mutations**, and judged PC-G5 on images regenerated from this build. **All 22 of P2-3R's fixes are real and present** — each was reproduced by reverting it and watching something go red. **But SIX of them had no assertion anywhere and could be deleted with the whole suite green**: D139's `pc_warn_row_overflow`/`pc_warn_row_kit_gap` (neither string appeared in a single test file or run log); `clip_stamp`, whose `ok = area or n == 0` made it **unfailable on exactly the area builds it was written for**; the alias-collision drop; `marker:<id>`'s five Y classes (the silent stand-in PC-G5 condition 5 counts at 0); the `extra_roles` slot-pair filter; and `rows_unbuilt` + `pc_warn_row_clipped_out`, which were **dead code** — `FM_area_taper` does not exercise them, its 1.6e-9 m span is still a span and `cell_grid` catches that hole by its own solved-vs-built difference. **D147 closes all six**: cases `FT_row_overflow`, `FU_row_kit_gap` (whose `geometry_digest` is `FC_rect`'s, so the only difference is the warning) and `FV_area_short`, the new `rows_clipped_out` check, `clip_stamp` re-written to assert the TRANSFER from row curve to element, and four `hou`-free unit tests. **All six mutations now go red.** Suites: **22 phase-2 cases / 683 rows**, 90 phase-1 cases / 5 559 rows, `run_hda_checks`, `scale_gate` (9 rows), `gate_images`, **350 unit tests — 0 failing, and the phase-2 baseline diff is ADDITIONS ONLY (not one recorded value moved).** ⚠️ Two numbers in P2-3R's write-up were wrong and are corrected in place: the suite is **346** unit tests, not 386, and `prims_wrappers_built_2d_rows` was **78 148**, not 78 132. One unreported baseline movement: `FC_rect/corner_seam_m` 0.0 → 1e-06, D141's reversed traversal, 1 micron against a 2e-3 tolerance. Read §12's P2-3V entry before touching anything. |
-| Native rebuild (§13/§15) | **CYCLE N-1V — INDEPENDENT VERIFICATION OF THE NATIVE REBUILD (2026-08-22). DEV-LOOP RULE 0 IS DISCHARGED for the rebuild lane: §15 is AUDITED, not merely implemented.** A fresh agent that wrote none of it ran every suite from clean, re-derived the phase-1 baseline key by key and ran **10 mutations**. The rebuild is REAL: the HDA is **21 nodes** — 9 nulls, **6 VEX wrangles all at `vex_precision = 64`**, 3 native (`splitpoints`/`blast`/`switch`) and **3 Python SOPs**, in 5 titled network boxes, locked, regenerable byte-for-byte-behaviour from `devScripts/create_pf_polychain_hda.py`. **The DECOMPOSE box is load-bearing and that was proved by mutation, not by reading**: forcing `place._native_tables` to return `None` — the exact 'silent fallback to the Python reference' that would make the whole rebuild cosmetic — turns `native_branch_is_load_bearing` RED; so does rewiring `kernel` back to `IN_SPLINE`. **BUT TWO CHECKS WERE PRETENDING**: `mutation_pc_unshare` bypasses the node in the PARITY RIG, not in the asset, so **bypassing `pc_unshare` in the SHIPPED HDA left all five suites green**, and so did bypassing `pc_frames_valid`. Root cause: `native.py` and `create_pf_polychain_hda.py` are **two independent declarations of one chain** — §15.1's claim that they are the same network was false; they share only the `.vfl` bodies. **Closed by `asset_decompose_matches_the_rig`** (node type, class, `vex_precision`, snippet and every bypassed node, read off the shipped asset), which goes red on all three. ⚠️ **What still ships the geometry is Python**: `kernel` is `stage_switch` input 0, so §4.2's solve, §4.3 corners, §4.4 place/deform, §4.5 conform and §4.6 finalize are all still the reference. **`pc_frames` (VEX) is NOT on the shipped output path** — breaking its 3×3 reddens exactly one rig-side parity check and nothing artist-facing. Suites: `run_native_checks` **32/32**, `run_scene_checks` **89 cases + tripwires / 5 559 baselined rows, 0 failing, NOT ONE VALUE MOVED**, `run_hda_checks` 29/29, `scale_gate` 9 rows, `run_2d_checks` 633, `tests/hda/run_attrib_checks.py` **no baseline change**, **346 unit tests**. citygen is untouched by the four commits and imports nothing from `polychain`. Read §15.8 before touching anything. |
-| Next up | **Cycle P2-4 then P2-5** (§7.10) — the payload half from input 3, then the Y fit's `aligned` mode (D122) and `pc_extend` as a parm. ⚠️ **GATE PC-G5 HAS BEEN JUDGED AND IT DOES NOT PASS** — not because the facade is wrong but because two of its seven conditions have nothing behind them. **Conditions 1, 2, 5, 6, 7 PASS and are mutation-proved**, and condition 1 was verified NON-VACUOUS (`_corner_caps` yields **24 groups, 24 paired and measured** — the 6 x 4 the gate asks for, probed rather than read off the label; `corner_seam_m` 0.0). **Condition 4 is TRUE but UNASSERTED** — 0 of 176 placements carry a `slice_t` and no check says so; **write that one line on the way past, it is the cheapest untested truth in the tool.** **Condition 3 needs a FIXTURE as well as a mode**: every row of the L uses the same kit over the same leg lengths, so `aligned` and `free` are indistinguishable on it however `aligned` is implemented — P2-5 must ship unequal leg lengths or a per-row kit with it. **The images were looked at**: the plan is a closed ring with no holes or overlaps and a 45° bisector cut at all five convex vertices and the reflex one; the corner column runs unbroken ground-to-cornice with the cornice band turning round it; bend mode correctly has no corner post. Still owed and unchanged: P2-7's real clipping (per-module `pc_clip`, sub-spline independence, even-odd nesting, `slice`, i.e. all of PC-G6), P2-8, P2-9, §7.7's kit slicer — and phase 1's own GUI viewport pass on PC-G1/PC-G2, the streets acceptance and standing finding (11). Run `hython tests/polychain/run_2d_checks.py` and `python tests/unit/test_polychain_array2d.py` before and after every change. |
+| Native rebuild (§13/§15/§16) | **CYCLE N-2 — §13.9 N2 (THE FITTING SOLVE) AND N4's PACKED HALF ARE BUILT AND AT EXACT PARITY. NO INDEPENDENT AUDIT HAS RUN ON THIS BUILD, so the honest words are *implemented, measured, unverified*.** The HDA is **36 nodes** — **12 VEX wrangles, every one at `vex_precision = 64`**, 9 native compiled SOPs, 11 nulls and **4 Python SOPs** (`config`, `kit_starter`, `pc_plan_bridge`, `kernel`) — in 5 titled boxes, locked, regenerable from `devScripts/create_pf_polychain_hda.py`. **`Stage = place_native` is a chain with NO PYTHON IN IT**: spline → VEX decompose → VEX plan → VEX frames → a native `copytopoints`. **§4.2 is EXACT against `plan.plan_sections`** — 92 cases / 2 478 pieces and a **170-build stress matrix** (all four selectors, all four correlation scopes, every conditional operator, the three justifications, adjust-to-end, negative and unit-cancelling padding, the tile fallback, D13's overflow, on five shapes including D113's three trials), **0 mismatches on address, module, variant, zmode, deform, warnings, elem_id, elem_key, s0, s1, u, scale and slice_t at 1e-12 relative with no absolute slack**. The packed branch is **0.000e+00 m** on both `P` and world bounds against the reference's own packed prims (471 prims, 21 cases; the 71 skipped are each a named unported stage and the list prints every run). **R1 IS DISSOLVED** — §13.2's "VEX has no int64 and no unsigned shift" came from probing a type name (`long`) and an operator (`>>>`) that do not exist; VEX's `int` **is** int64 at `vex_precision = 64` and **`shrz`** is the unsigned shift, so `_splitmix` is six lines and MT19937 ports with it (358 strings, 0 mismatches). **R8 IS CLOSED** — the uniform scale survives `packedfulltransform` to 5.551e-17 and §11.1's declined `copytopoints` is retired. Determinism proved four ways: three re-cooks, **reversed input order**, a **shuffled payload**, and `PYTHONHASHSEED` 0/1/12345/99991 in four processes — one sha256. ⚠️ **Three findings the 89 scene cases structurally could not see, all fixed:** the KIT crossed into VEX at **32 bits** (`hou.Geometry` has no float64 array — a 0.35 m module arrived as 0.34999999403953552; every float column is `repr(v)` + `atof` now); the artist's float32 `pc_u` on the MARKER CLOUD shadowed the plan's own (`pc_plan_clean`); and `pointgenerate` is **quadratic in pieces per section** — 38.6 s at 10 000 pieces against a linear 0.55 s solve — so it is replaced by `pc_plan_emit`, a detail wrangle (D175 amends D150, which is still right about multithreaded `addpoint`). 38.6 s → 3.4 s. ⚠️ **AND IT IS STILL 8.5x SLOWER THAN THE REFERENCE** on that shape (3.38 s vs `place.build`'s 0.40 s, ~2 s of it inside `copytopoints`) — the bench carries its comparand and its caveat, and establishing whether that is inherent is **N5's first job**. **NO DEFAULT WAS FLIPPED** (D180): `Stage` still defaults to `output`, because §4.3, §4.5 and §4.6 are still the reference and a native output would be a fence with no corner assemblies, no conform and no overrides. Suites: `run_native_checks` **64 checks / 0 failing** (14 mutations, 0 survivors — two of them proved nothing until they were moved to a fixture that HAS a marker and a fixture that TURNS), `run_scene_checks` 0 failing and **not one baselined value moved**, `run_hda_checks` 0, `scale_gate` 0, `run_2d_checks` 0, `run_attrib_checks` **0 unreviewed baseline changes**, all unit suites OK. Read **§16** before touching anything. |
+| Next up (native lane) | **§13.9 N5 — the deform gate and the deformed branch.** Its first job is §16.5's open number: is the 8.5x inherent to `copytopoints` or a parameter? Then N6 (`ray` as a node), N7 (finalize + D153's guards), N8 (corners — the last and the least certain), N10 (the reference's fate). ⚠️ **`pc_plan_bridge` cannot be deleted until N5**: it feeds `pc_frames`, whose deform half is N5's. ⚠️ **Every new wrangle needs `vex_precision = 64`** — `pc_rand.h` and `pc_plan.h` both answer WRONGLY at 32 and both still COMPILE. |
+| Next up (phase 2 lane) | **Cycle P2-4 then P2-5** (§7.10) — the payload half from input 3, then the Y fit's `aligned` mode (D122) and `pc_extend` as a parm. ⚠️ **GATE PC-G5 HAS BEEN JUDGED AND IT DOES NOT PASS** — not because the facade is wrong but because two of its seven conditions have nothing behind them. **Conditions 1, 2, 5, 6, 7 PASS and are mutation-proved**, and condition 1 was verified NON-VACUOUS (`_corner_caps` yields **24 groups, 24 paired and measured** — the 6 x 4 the gate asks for, probed rather than read off the label; `corner_seam_m` 0.0). **Condition 4 is TRUE but UNASSERTED** — 0 of 176 placements carry a `slice_t` and no check says so; **write that one line on the way past, it is the cheapest untested truth in the tool.** **Condition 3 needs a FIXTURE as well as a mode**: every row of the L uses the same kit over the same leg lengths, so `aligned` and `free` are indistinguishable on it however `aligned` is implemented — P2-5 must ship unequal leg lengths or a per-row kit with it. **The images were looked at**: the plan is a closed ring with no holes or overlaps and a 45° bisector cut at all five convex vertices and the reflex one; the corner column runs unbroken ground-to-cornice with the cornice band turning round it; bend mode correctly has no corner post. Still owed and unchanged: P2-7's real clipping (per-module `pc_clip`, sub-spline independence, even-odd nesting, `slice`, i.e. all of PC-G6), P2-8, P2-9, §7.7's kit slicer — and phase 1's own GUI viewport pass on PC-G1/PC-G2, the streets acceptance and standing finding (11). Run `hython tests/polychain/run_2d_checks.py` and `python tests/unit/test_polychain_array2d.py` before and after every change. |
 | Gates | **ALL FOUR RE-CONFIRMED BY P5cV (2026-08-22) — PC-G1 and PC-G2 through the parm face and judged on images, PC-G3 on the 9-row ladder under both z-modes, PC-G4 mutation-proved (reverting D91 reports `moved: padding`). All four still owe the GUI viewport pass and nothing else changed.** PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** — the closed rectangle and the L close in both corner modes, all four fill modes, the gate on its marker (1.8e-7 m), convex and reflex corners; the bend corner's butt wedge is MEASURED and baselined as the accepted limit (D36 extended), and cycle 6's mutation of it fails by 1.10e-02 m on `CJ_bend_butt_120`. Cycle 8 closed the last hole in its parm face: the **marker slot is authorable on the page** (D88), so PC-G1's gate-on-a-marker no longer needs a payload, and an unread marker warns. **Cycle 9 rebuilt the whole figure THROUGH THE PARM FACE and looked at it** (`HC_{miter,bend}_{top,iso}.png`, `HG1_*.png`): the miter's two legs terminate into a corner post with the 45° bisector cut clean across it and the tops flush; the bend turns through the elbow as one continuous top arris with no corner post (D36's ring weld) and only the accepted butt notch; all four Fit Methods close flush on the spline; and the gate authored with **Piece at Markers + Marker Id and NO payload** lands at **x 7.200000..8.800000, centre 8.000000, error 1.788e-07 m**, with the unread-marker warning firing beforehand. PC-G1 no longer owes its parm face — only the GUI viewport pass · **PC-G2 numerically complete + IMAGE-VERIFIED (headless), INCLUDING the curving-spline variant it used to owe; GUI viewport pass still owed** — cycle 6 built the gate's own wording: a 24 m spline that **turns in plan (±3.6 m S-curve) and climbs 2.4 m**, resampled at 0.25 m, over a 2D terrain (`1.1 sin(2πx/13) + 0.8 cos(2πz/9) + 0.06x`), conform ON. All four modes pass **50 of 50** suite checks with **0 failures and nothing baselined**: `plumb_deg` **0.0** over 14 vertical pieces, `flat_stepped_m` **0.0** over **240 stepped posts, 240/240 still PACKED**, `bank_deg` **27.15°** adaptive, camber ON halving the residual to the surface normal (`camber_deg` 37.31° → **17.20°**), `conform_contact_m` **0.0**, `conform_misses` **0**, `inward_faces` **0**, no warnings. Judged on `VG2P_{vertical,stepped,adaptive}.png` and `VG2C_camber_cu.png`: the pickets' ribs are dead vertical while the run's foot follows the ground line, the adaptive rail's ribs lean perpendicular to the drape, the posts' tops make a clean sawtooth over a smooth ground line, and the cambered rail is visibly rolled onto the cross-fall. The **riser under each stepped piece is there and is expected** — it IS stepped mode — and it measures **0.061 m** on this hill; §4.4's flatten-under is BUILT as of cycle 10 (D98) and takes the AIR under each piece (`stepped_float_m` 0.054818/0.061280) to **0.0** with all 240 pieces still packed, leaving that riser where it is. **Cycle 9 re-rendered all of it through the HDA's parm page** with the terrain on input 4 (`HG2_*.png`): the pickets' ribs are plumb while the run's foot tracks the ground line, the stepped posts stand plumb with feet on the ground and tops stepping over it, the adaptive rail's ribs rake perpendicular to the drape, Tilt to Surface visibly rolls the rail onto the cross-fall, and the whole 24 m S-curve reads as a fence on a hill. Only the GUI viewport pass is owed · **PC-G3 numerically MEASURED at scale, and narrower than its headline** — 20 km, 10 005 × 2 m bendable panels: **10 005 packed, 0 deformed, one shared `geometryid`, 10 005 real points, +12.1 MB RSS, 0.42 s** as a two-point spline and **the same numbers at 0.55 s** as a **20 011-vertex resampled polyline** — independently reproduced in cycle 6, and D69 is what buys it (reverting D69 takes the resampled form to 0 packed / 10 005 deformed / 360 180 points / **21.9 s**). ⚠️ ~~The gate holds for a STRAIGHT resampled run only~~ — **CLOSED by D75 in cycle 7**: `hython tests/polychain/scale_gate.py` is the harness now, and R = 12 000 / 2 000 / 80 m all read **10 000 packed / 0 deformed / 10 000 points / +5.1 MB / ~0.60 s**, while R = 10 m (five times the budget) still deforms all 10 000 at 10.8 s. ⚠️ **CYCLE 9 RE-MEASURED THIS AFTER D87 AND THE TERMS ARE NARROWER AGAIN.** Those three rows are green because the starter kit's `panel` is **yaw-only** (`pc_zmode = vertical`), so the budget was spent on `rz` = 0.03 m and D87's off-spine term was switched almost all the way off — and `scale_gate.py` was still deciding pass/fail from `4/(8R)`, **the spine sagitta D87 retired**. Re-run under `zmode = adaptive`, where the panel's full 0.90 m height rides the frame: **R = 12 000 m and R = 2 000 m stay 10 000 packed / 10 000 points / ~0.6 s**, but **R = 80 m is 0 packed / 10 000 deformed / 360 000 points / 11.0 s / +34.7 MB** — `0.90 x 0.025 = 0.0225 m`, 2.25x `bend_tol`, so unpacking is CORRECT. D97 put the expectation on each ladder row with its reason and runs the ladder under both z-modes: **9 rows, 0 failing**, and mutating the budget 50x now fails 2 rows where it failed none. **PC-G3 passes on its own terms** — 10 005-piece packed instancing at 20 km, one `geometryid`, sub-second, +12 MB — and those terms are: a straight or gently-turning-IN-PLAN run, or any run whose module is yaw-only. A TALL module on an R = 80 m arc, or ANY module on a climbing run (D65's shear), costs the 11 s / 360 k-point deform path. The FLOOR rides the suite: `A_straight`, `CE_all_packed`, `CA_swap_module`, `CF_resampled_straight` and `CG_resampled_bendable` are asserted 100 % packed and `over_unpacked` proves nothing unpacks without a reason. ~~Owed: the deform path's VEX rewrite~~ — **DONE, cycle 10c (D102/D103)**: profiled first, the cost was the per-prim STAMP (9.023 s of 14.136 s, 4 758 096 `Prim.setAttribValue` calls) and not the deform loop (0.201 s, 1.4 %); through `hou.Geometry`'s bulk array setters the two deformed rows go **11.159 → 1.548 s (7.21x)** and **11.181 → 1.597 s (7.00x)**, bit-identical on all 83 cases, and VEX is measured and declined · **PC-G4 ✅ PASSES — as of cycle 12 (D107); before that its sweep was pretending** (§10 cycle 7): the same fence driven entirely by a style payload on input 3 with the parms at defaults, asserted in `tests/polychain/run_hda_checks.py` — the payload replaces the modules, the styleId and the ids, matches the kernel built from the `Style` object directly, and **the parms are provably inert while it is wired** — cycle 8 turned that from two parms into a SWEEP of the whole page (`swept 36 parms; moved: none`, ids AND rounded positions, exempting only `display`/`show_warnings`/`kitfile` by name), which is what caught `padding` still being live under a payload (D91). The generic-loop rule is audited by construction: `polychain/style.py` contains no style name and no branch per name, and `style_round_trip` re-proves it on all 73 cases. **Cycle 9 re-measured PC-G4 independently, in §2.1's own stronger wording — the SAME fence**: the parm face's own `Style` written out through `style.write` and wired back into input 3 of a second node with the parms at defaults produces output **identical on element ids, module names, rounded point positions AND every packed prim's full transform** across all **8 fill x corner combinations** (adaptive/scale/evenly/count x miter/bend, 35 to 137 prims). The page swept under that payload: **32 parms nudged, 0 moved the geometry**. A style the code has never heard of — `a_style_nobody_wrote_code_for`, carrying a `marker:42` slot — built **52 prims, 4 modules, 0 warnings** with no code change. The branch-per-name grep over the whole kernel returns nothing but `style_from_parms`' DEFAULT VALUE `"pf_polychain"`; the names that do appear in conditionals (`corner`, `default`, `start`, `end`) are §3.3's fixed slot vocabulary — the kernel's own schema, not any style's — and a slot outside it is dispatched generically. ⚠️ **CYCLE 12 MUTATION-TESTED THIS AND FOUND IT BLIND.** Reverting D91 - the `padding` parm applied unconditionally, so a wired payload feels it again - left the whole HDA suite **green**, `parms_inert_under_payload … moved: none`, with a debug print proving `_padded` really ran at 0.37 under the payload. The fixture was the cause, not the sweep: its `Params(fill="scale")` fence does not move for ANY `pc_pad` - `gate.pad` 0.0 -> 0.185 -> 0.400 with the output stuck at 44 prims, 12 elements and an identical point sum. **The fixture is `adaptive` now (D107)** and the same revert reports **`moved: padding`**; the shipped code reports `moved: none`. `scale` coverage is not lost - cycle 9 sweeps all 8 fill x corner combinations separately. GUI viewport pass owed like the others |
 
 **⚠️ NEW 2026-08-22, after phase 1 closed: [§11](#11-nativevexopencl-port-plan) is the ordered
@@ -6659,31 +6660,44 @@ mutation-test, commit, then an independent audit before any completion claim** (
 | **N9** | **The HDA rebuild** — layout, network boxes, comments, colours, the `Stage` parm, unlocked contents, help. The parm face is unchanged but for one parm. | The readability deliverable. It is the *point* of the exercise, and it is cheap once the stages exist. | LOW |
 | **N10** | **Decide the reference's fate** — kernel path retired from the cook, `polychain/*.py` kept as the oracle. | A decision to take with the numbers in hand, not now. | LOW |
 
-✅❌ **WHERE THIS STANDS TODAY — N1, N3 and N9 are DONE and audited; N2 is next; N4 is half.** The item-by-item status table lives in [§15.8.6](#1586-what-the-next-cycle-must-port--139-with-todays-status) so there is one copy of it, not two.
+✅❌ **WHERE THIS STANDS TODAY — N1, N2, N3 and N9 are DONE, N4's PACKED HALF is done, and N5/N6/N7/N8/N10 are not started.** The item-by-item table lives in [§15.8.6](#1586-what-the-next-cycle-must-port--139-with-todays-status), updated by cycle N-2; [§16](#16-native-network-build-log--cycle-n-2-139-n2-and-n4) is that cycle's log. ⚠️ **R1 IS DISSOLVED AND R8 IS ANSWERED** — see §16.0 and §16.4; the risk list below is corrected in place.
 
 **The risks, named:**
 
-- **R1 — no int64 in VEX.** Probed. `_splitmix` has no direct expression; the limb implementation
-  is unproven. Blocks every `random`-selection baseline. **N2, first thing.**
+- ~~**R1 — no int64 in VEX.**~~ **CLOSED, AND THE PROBE THAT RAISED IT WAS WRONG (D172, §16.0).**
+  VEX has no shift OPERATORS at all (`1 << 4` is a syntax error) — it has `shl`/`shr`/**`shrz`**,
+  and under `vex_precision = 64` its `int` **is** int64. `_splitmix` is six lines, MT19937 ports
+  with it, and `random` selection is native end to end: 358 strings, 0 mismatches. The one trap
+  left is that a hex literal wider than INT64_MAX is **clamped, not wrapped**.
 - **R2 — float32 at world scale.** A packed point at 20 km stores as 20000.0 (probed). Unchanged
   from today, but **every new intermediate must stay 64-bit or the tool gets worse than it is**.
   The mitigation is a design rule (§13.8) and `attribcast` is the lever.
-- **R3 — element ORDER.** `pointgenerate`'s order is believed to match the reference's
-  section-major/index-minor order. **Verified on a 4-section fixture, not on 90 cases.**
-  `geometry_digest` is the pin and it will be the first thing to move if this is wrong.
+- ~~**R3 — element ORDER.**~~ **CLOSED, and `pointgenerate` is not what closed it (D175, §16.5).**
+  The expander turned out to be **quadratic in pieces per section** — 38.6 s at 10 000 pieces
+  against a linear 0.55 s solve — so it is replaced by `pc_plan_emit`, a DETAIL wrangle, whose one
+  thread makes the emission order the loop's order. The order is
+  **`(curve_id, section_index, prim)`** and it is verified on **92 cases**, under reversed input
+  order, under a shuffled payload and under four `PYTHONHASHSEED`s.
 - **R4 — warn-never-block regresses.** A node errors where a verb wrapper degraded. Guards are
   designed in at N7 but every stage before it can introduce an ungarded failure. Add the
   degenerate-input case with the first guarded node, not at the end.
 - **R5 — the corner cut mechanism is unmeasured.** The probe's foreach fixture failed to build, so
   neither candidate has a number. Two candidates, a written decision procedure, and it is last in
   the order for exactly that reason.
-- **R6 — `plan.py`'s 89 `hou`-free unit tests** stop covering the shipped path. Mitigated by
-  keeping them on the reference and adding `plan_parity`; stated so nobody discovers it later.
+- **R6 — `plan.py`'s 89 `hou`-free unit tests** stop covering the shipped path. Mitigated as
+  promised: the 91 tests still run against the reference unchanged, and `plan_solve_parity` (92
+  cases) plus `plan_stress_parity` (170 builds) cover the VEX. ⚠️ **And the stress matrix is not
+  optional** — exactly ONE of the 89 scene cases carries a `random` rule and it names a single
+  module, so the whole MT19937 chain could have been wrong with every case green (§16.2).
 - **R7 — per-NODE fixed cost on many short curves.** §11.9 rule 2 in a new costume: 300 streets
   cook the graph 300 times' worth of fixed overhead that one 20 km fence never shows.
   `streets_300` is benched from N1.
-- **R8 — the packed `transform` intrinsic's scale component** did not appear in the probe's
-  `bounds` reading. Re-check against `packedfulltransform` before N4 relies on it.
+- ~~**R8 — the packed `transform` intrinsic's scale component.**~~ **CLOSED (§16.4).** Asked of
+  `packedfulltransform` rather than of `bounds`, the uniform scale survives to **5.551e-17**, and
+  `copytopoints(pack=1)` reproduces the reference's own packed prims at **0.0 m** on both `P` and
+  world bounds over 471 prims — so **§11.1's declined 4.34e-07 m is retired too**. What the probe
+  did NOT know: the kit ships its manifest on the packed prim's POINT, so `useidattrib` needs
+  `pc_kit_id` to publish a PRIM `pc_module`, and `pivot` must be `origin`.
 - **R9 — OpenCL is unmeasured**, not measured-and-rejected. §13.5 records the criterion so the
   next agent does not reopen it without a workload, and does not cite a number that does not exist.
 
@@ -7821,8 +7835,8 @@ All eleven gate PNGs regenerated from this build are **byte-identical** to the c
 | **N1** parity rig | — | **✅ DONE** — `tests/polychain/native.py` + `run_native_checks.py`, 32 checks |
 | **N3** §4.1 decompose | `pc_unshare` → `pc_markers` | **✅ DONE NATIVELY, on the shipped path, load-bearing, at 0.0 m parity on 92 cases** |
 | **N9** the HDA rebuild | layout, boxes, comments, `Stage` | **✅ DONE** — 21 nodes, locked, 5 boxes, every wrangle commented, no absolute paths |
-| **N2** §4.2 the fitting solve | `pc_plan_bridge` | ❌ **NOT PORTED** — still Python, and **it is the next thing.** Deletes the second Python SOP. R1 (no int64 in VEX / splitmix64 bit-exactness) is still unprobed and is the gating risk. |
-| **N4** §4.4 packed branch | `pc_frames` → `copytopoints(pack=1)` | ⚠️ **HALF** — the frame is in VEX and at bit parity, but it is **behind the Stage switch and reaches no artist**. The `copytopoints` half is unbuilt, and until it is, `pc_frames` is a measured prototype, not a port. |
+| **N2** §4.2 the fitting solve | `pc_sections` → `pc_plan_solve` → `pc_plan_emit` | **✅ DONE (cycle N-2, §16)** — EXACT parity on 92 cases / 2 478 pieces and on a 170-build stress matrix that reaches every branch the scene cases do not. R1 dissolved (D172). ⚠️ `pc_plan_bridge` still exists: it feeds `pc_frames`, which N5 needs. |
+| **N4** §4.4 packed branch | `pc_proto` → `copy_packed` | ⚠️ **PACKED HALF DONE (cycle N-2, §16.4)** — `copytopoints(pack=1)` at **0.0 m** against the reference's own packed prims, R8 closed, §11.1's objection retired, and `Stage = place_native` is a chain with **no Python in it**. The **deform gate is N5**, so every piece on this branch is packed whether or not the curvature budget would unpack it. |
 | **N5** §4.4 deformed branch | `pc_stations` + `pc_deform` | ❌ not started |
 | **N6** §4.5 conform | `ray` as a node | ❌ not started — and it is why `pc_frames_valid` exists |
 | **N7** §4.6 finalize | stamp, caps, overrides, warnings | ❌ not started |
@@ -7832,9 +7846,341 @@ All eleven gate PNGs regenerated from this build are **byte-identical** to the c
 **In one line for the next agent:** *one of five kernel stages is native and in the artist's hands;
 `kernel` still builds every fence that ships; N2 is next and R1 must be probed first.*
 
+⚠️ **UPDATED BY CYCLE N-2 (2026-08-23):** **N2 IS DONE AND N4's PACKED HALF IS DONE** — see
+[§16](#16-native-network-build-log--cycle-n-2-139-n2-and-n4). R1 was probed and **dissolved**; R8
+was measured and **closed**. `kernel` still builds every fence that ships and no default was
+flipped. **N5 is next**, and its first job is to find out whether the 8.5x in §16.5 is inherent to
+`copytopoints` or is a parameter.
+
 #### 15.8.7 Two things this audit did NOT do
 
 1. **The GUI viewport pass.** Everything here is headless. All four gates have owed a live-viewport
    look since phase 1 and still do.
 2. **Judge `pc_frames` on geometry an artist can see.** It cannot be judged that way until N4 wires
    `copytopoints` behind it; today the only evidence for it is rig-side arithmetic parity.
+
+
+---
+
+## 16. Native network build log — cycle N-2 (§13.9 N2 and N4)
+
+**Status:** written 2026-08-23. §15 was cycle N-1 (the parity rig, §4.1 decompose, the HDA
+rebuild). This cycle is **§13.9 N2 — the fitting solve — and N4's packed branch**, plus the
+closing of **risk R1** and the answering of **risk R8**. **No independent audit has run on this
+build** (dev-loop rule 0), so the honest words for everything below are *implemented, measured,
+unverified*.
+
+Commits on `polychain`, not pushed: `2b80f15` R1, `e30e17e` the solve, `1768d94` the packed
+branch, `2e1c6fb` the two performance findings.
+
+### 16.0 R1 IS DISSOLVED — §13.2 was wrong about VEX, and the correction is worth more than the code
+
+§13.2 probed `long x = 5;` (invalid), `>>>` (a parse error) and concluded **"VEX has no int64 and
+no unsigned shift"**. That made `_splitmix` the one algorithm with no VEX expression, put a
+four-limb re-implementation at the head of §13.9's build order, reserved a Python fallback for it
+(§13.3.2 option 2) and listed it as **R1, the gating risk of the whole port**.
+
+Both probes were right and the conclusion was wrong. Measured on 22.0.398:
+
+| Probe | Result |
+|---|---|
+| `1 << 4` | **syntax error — VEX has no shift OPERATORS at all** |
+| `shl(1, 4)` / `shr(-1, 8)` / `shrz(-1, 8)` | 16 / −1 / **72057594037927935** |
+| `shl(1, 62)` at `vex_precision = 64` | 4611686018427387904 |
+| `1812433253 * 1812433253` at 64 | 3284914296580162009 — **the exact 64-bit product** |
+| the same three at `vex_precision = 32` | −2147483648 / 16777215 / 0 |
+
+So **VEX's `int` IS int64 under `vex_precision = 64`**, and **`shrz` IS the unsigned shift**.
+`_splitmix` is six lines. The only trap left is the literal: ⚠️ **a hex constant wider than
+INT64_MAX is CLAMPED, not wrapped** — `0x9E3779B97F4A7C15` reads back as 9223372036854775807 and
+every value downstream is silently wrong — so the three constants are written as signed decimals
+with the hex beside them.
+
+`polyfactory/vex/polychain/pc_rand.h` carries splitmix64, zlib's crc32 (table-free), §3.4's
+`pc_elem_key`, and **MT19937** — `init_by_array` over the seed's 32-bit words plus
+`genrand_res53` — because `plan.choose`'s weighted pick is `random.Random(seed).random()` and
+reproducing the *selection* means reproducing that number. Proved on **358 strings** (300 random
+ASCII, the exact `seed_for` shape for all four §3.3 scopes, 40 real `elem_id`s): **crc32 0
+mismatches, elem_key 0, splitmix64 0, `random()` 0**.
+
+⚠️ **And one more §13.2 note is wrong: `split(s, "")` does NOT return a string's characters.** It
+returns the whole string as one token (`split("ab c|d", "")` → `('ab c|d',)`), so a crc built on
+it hashes `ord(first character)` once and agrees with zlib on 1-character strings and nothing
+else — **333 of 358 wrong, 25 right**, which is exactly how it first shipped here. **String
+INDEXING is the answer** (`"abcd"[2]` → `"c"`) with `strlen` for the count.
+
+### 16.1 What exists now — 36 nodes, and one branch with no Python in it
+
+```
+pf_polychain                      [4 inputs, contents LOCKED]
+  IN_SPLINE  IN_KIT  IN_STYLE  IN_SURFACE          [null x4]
+  +-- 0 CONFIG
+      config           [python]   <- IN_KIT, IN_STYLE, IN_SURFACE
+  +-- 1 DECOMPOSE (4.1) - on the shipped cook path
+      pc_unshare pc_curveid pc_curve_index pc_arclength pc_corners pc_markers
+      OUT_sections     [null]
+  +-- 2 PLAN (4.2)
+      pc_plan_bridge   [python]   SCAFFOLDING - still feeds pc_frames (N4's other half)
+      OUT_plan         [null]
+      pc_sections      [attribwrangle detail 64]   <- OUT_sections, config
+      pc_sec_only      [blast]
+      pc_plan_clean    [attribdelete]
+      pc_plan_solve    [attribwrangle point  64]   <- pc_plan_clean, config
+      pc_plan_emit     [attribwrangle detail 64]   <- pc_plan_solve, config
+      pc_plan_only     [blast]
+      OUT_plan_native  [null]
+  +-- 4 PLACE + DEFORM (4.4)
+      pc_frames        [attribwrangle point 64]    <- OUT_plan (the bridge)
+      pc_frames_valid  [blast] · OUT_frames [null]
+      kit_starter      [python]                    <- IN_KIT
+      pc_kit_id        [attribwrangle prim  64]
+      kit_unpack       [unpack]
+      pc_proto         [attribwrangle point 64]    <- OUT_plan_native, config, pc_kit_id
+      pc_frames_native [attribwrangle point 64]    <- pc_proto, config, OUT_sections
+      pc_place_valid   [blast]
+      copy_packed      [copytopoints::2.0]         <- kit_unpack, pc_place_valid
+      OUT_place_native [null]
+  +-- R THE REFERENCE (13.6)
+      kernel           [python]  <- OUT_sections   ·  OUT_reference [null]
+  stage_switch [switch] -> OUT [null]
+```
+
+| Kind | Count |
+|---|---|
+| **VEX** (`attribwrangle`, **every one at `vex_precision = 64`**, every one commented) | **12** |
+| **native compiled SOPs** (`splitpoints` `attribdelete` `blast` x4 `unpack` `copytopoints::2.0` `switch`) | **9** |
+| **nulls** (4 in, 6 stage outs, 1 out) | **11** |
+| **Python SOPs** | **4** — `config`, `kit_starter`, `pc_plan_bridge`, `kernel` |
+| OpenCL | 0 |
+
+New `.vfl` files: `pc_rand.h`, `pc_plan.h`, `pc_sections.vfl`, `pc_plan_solve.vfl`,
+`pc_plan_emit.vfl`, `pc_proto.vfl`, `pc_kit_id.vfl`.
+
+**The two new Python SOPs, judged against Hannes' rule.** `kit_starter` **MOVES Python, it does
+not add it** — §6's standalone floor says a curve and nothing else must make a fence, so
+`kit_geometry` already ran inside `kernel` on every cook with input 2 unwired, and §15.6 lists
+`kit.box_mesh` as unported and unscheduled. Putting it on a node makes the fallback visible in the
+graph and gives D154's native `box` SOPs somewhere to land. `pc_plan_bridge` is unchanged
+scaffolding: it feeds `pc_frames`, which N4's *other* half (the deform gate, §13.9 N5) still needs.
+
+### 16.2 §4.2 in VEX — the parity, and it is EXACT
+
+`hython tests/polychain/run_native_checks.py` — **64 checks, 0 failing.**
+
+| Check | Measured | Ceiling |
+|---|---|---|
+| `plan_solve_parity` | **92 cases / 2 478 pieces, 0 mismatches** on address, module, variant, zmode, deform, warnings, `elem_id`, `elem_key`, `s0`, `s1`, `u`, `scale`, `slice_t` | 1e-12 relative, **no absolute slack** (§13.8) |
+| `plan_stress_parity` | **170 builds / 3 270 pieces, 0 mismatches** | the same |
+| `seed_{crc32,elem_key,splitmix64,random01}_parity` | **358 texts, 0 mismatches each** | bit-exact |
+| `place_packed_parity` | **21 cases / 471 prims**, worst \|ΔP\| **0.0 m**, worst \|Δ world bounds\| **0.0 m** | exact |
+| `r8_packed_scale_survives` | **5.551e-17** | 1e-9 |
+
+**`plan_stress_parity` exists because of dev-loop rule 0's second check — "exercise every branch
+you add" — and it earned its keep twice.** Measured on the shipped suite: **exactly ONE of the 89
+scene cases carries a `random` rule, and it names a single module**, so the weighted pick returns
+`pool[0]` whatever the RNG says and the entire MT19937 chain could have been wrong with every case
+green. The matrix is 34 style/kit rows × 5 shapes: all four selectors, **all four correlation
+scopes**, every conditional operator including the type-mismatch and unknown-op paths, the three
+justifications, `adjust_to_end`, `evenly_count`, negative and unit-cancelling padding, the tile
+rigid-piece fallback, the kit-gap stand-in, `pc_vexpr`'s warning and D13's overflow — on a plain
+fence, a sub-module fence, **and D113's three trials** (an irrational slope, 20 km, an asymmetric
+four-leg shape).
+
+**The two defects it found that the 89 cases structurally could not:**
+
+1. ⚠️ **THE KIT CROSSED INTO VEX AT 32 BITS.** `hou.Geometry` has no float64 array (D170 found the
+   same for scalars), so `pc_k_len` was float32 storage and a 0.35 m module reached the solve as
+   **0.34999999403953552** — the plan came back **2.7e-9** out, which §13.8 calls a defect and not
+   float noise. Measured three ways: a float **array** attribute 0.34999999403953552, a **dict**
+   attribute 0.34999999999999998, `atof(repr(0.35))` 0.34999999999999998. Every float column now
+   crosses as `repr(v)` and is read with `atof` — exact **and** still readable in the spreadsheet.
+   The 89 cases missed it because every length in the starter kit (0.12, 2.0, 1.6, 0.9) is
+   float32-exact. **A dict attribute is the other exact channel and is worth knowing about.**
+2. ⚠️ **A HOUDINI ATTRIBUTE IS GEOMETRY-WIDE, AND §3.1 PUTS `pc_u` ON THE MARKER CLOUD.** So the
+   artist's float32 `pc_u` was already on the stream when the plan wrote §3.4's own `pc_u`, and a
+   64-bit wrangle writing into an existing float32 attribute **keeps float32**. The plan's `u` was
+   3e-9 off on both marker cases. `pc_plan_clean` (an `attribdelete`) is the fix, and it is a
+   precision fix rather than tidying. ⚠️ **Its mutation was GREEN until it was moved onto a case
+   that HAS a marker** — on `A_straight` there is no `pc_u` to shadow.
+
+### 16.3 Determinism — proved four ways, not asserted
+
+| Claim | Evidence |
+|---|---|
+| thread scheduling does not reach the answer | three forced re-cooks, digested on `elem_id` + three float64 spans: **identical** |
+| **input ORDER** does not reach the answer | the same three curves fed in **reversed primitive order**: **identical** (2 200-character digest) |
+| **payload order** does not reach the answer | the same kit with its modules **shuffled**: **identical** — `choose` sorts its random pool by `(name, variant)` and that is now asserted in the VEX, not only in `plan.py` |
+| **`PYTHONHASHSEED`** does not reach the answer | four separate processes, seeds 0 / 1 / 12345 / 99991: **one sha256, `f0ab9739…`** |
+
+The section emission order is **`(curve_id, section_index, prim)`** and every term is
+load-bearing: `decompose_all` sorts curves by `str(curve_id)` and then re-sorts sections by
+`(curve_id, index)`, and **Python's sort is stable**, so two primitives sharing one id do not stay
+in curve blocks — their sections **interleave** (A0, B0, A1, B1). Sorting by the triple reproduces
+that without needing a stable sort.
+
+### 16.4 R8 answered, and §11.1's declined `copytopoints` retired
+
+**(a) Does the packed `transform` intrinsic carry the uniform scale?** §13.2 wrote a 3×3, read
+`bounds` back, found no scale and recorded R8. Asked of **`packedfulltransform`** — which §13.9
+said to re-check against — the scale survives **exactly**: asked for 1.0 / 2.5 / 0.37, measured to
+**5.551e-17**.
+
+**(b) §11.1 declined `copytopoints(pack=1)`** because "routing the transform through a float32
+point attribute moved the result by 4.34e-07 m against a suite asserting `marker_offset_m` at
+1.788e-07 m". A 64-bit wrangle writes a float64 attribute, and against the reference's **own**
+packed prims matched on `pc_elem_id`: **worst \|ΔP\| 0.000e+00 m, worst \|Δ world bounds\|
+0.000e+00 m, 471 prims over 21 cases.** **The objection is retired.**
+
+The 71 skipped cases are each an unported stage, **named, and printed on every run**: §4.3 corners
+(26) and fillet (1), §4.5 conform (10), §4.6 overrides (5), D98 flatten-under (3), D169's
+duplicated id (1), no kit (1). A scope that quietly shrinks until the check is green is the
+unfailable pattern cycle P2-3V found six times; this one says out loud what it is not asking.
+
+**Four things measured that the design had wrong or missing:**
+
+1. **`pc_kit_id` has to exist.** §13.2's probe recorded "`useidattrib` with a STRING `pc_module`
+   attribute picks the right kit module per point" — true, and it needs that attribute on the
+   **PRIM**. §3.2 / D22 puts the whole manifest on the packed prim's own **POINT**, so a real kit
+   has no `pc_module` anywhere and `useidattrib` matched nothing: **every target point received
+   the ENTIRE KIT** and a 0.124 m post came out 2.07 m wide, no error, no warning.
+2. **`kit_unpack` has to exist.** `copytopoints(pack=1)` over a **packed** source nests the packs.
+   The world result is still exact — the parity was 0.0 *with* the nesting — but
+   `getEmbeddedGeometry()` then returns one packed prim instead of polygons, so `Stage =
+   place_native` drew 34 single vertices. The reference packs the module's **raw** geometry.
+3. **`has_surface` read 1.0 with nothing wired.** Every stage node is wired to the IN_SURFACE
+   *null*, which exists whether or not the HDA's input 4 is connected, so
+   `_input_geo(node, 3) is not None` is always true. The whole native PLACE branch declared itself
+   unanswerable and shipped **zero prims, silently**. The test is whether there are primitives.
+4. ⚠️ **`pivot` WAS MEASURED WRONG THE FIRST TIME AND THE CORRECTION IS IN THE NODE COMMENT.** It
+   read 1.25 m; that was (1)'s missing `pc_module` copying the whole kit and taking the **whole
+   kit's** centroid. In isolation, on three rotated and scaled pieces, `pivot = centroid` moves
+   the world result by **9.54e-07 m** — still wrong, still worth setting to `origin`, and
+   sub-micron rather than a module length. **`useimplicitn` is a measured NO-OP** with an explicit
+   `transform` present (exactly 0.0); it is set for determinism and the suite records the 0.0
+   rather than crediting it with a fix.
+
+### 16.5 Performance — the expander was quadratic, and the solve resolved the kit per piece
+
+§13.8 asks for `streets_300` from N1 onward, and §15.6 named the number to watch: *"N2's
+per-section arrays will hit the same wall `pc_seg_*` hit."* They did.
+
+**(1) `pointgenerate` is quadratic in pieces per section.** It copies the SECTION's attributes onto
+every point it generates, and the plan is **twelve arrays of one element per piece** — so one
+section of N pieces copies 12 × N elements N times, and the read then binds all twelve on every one
+of those points again.
+
+| pieces (one section, 20 km fence) | solve | expand + read | total |
+|---|---|---|---|
+| 2 000 | 0.113 s | 1.9 s | 2.1 s |
+| 10 000 | 0.55 s | **38.0 s** | **38.6 s** |
+
+The **solve is linear** (0.113 / 0.229 / 0.469 / 0.956 s as the piece count doubles) — everything
+above it was the copy. **`pc_plan_emit`, a DETAIL wrangle, reads each section's arrays ONCE and
+emits from them**, which is linear.
+
+**(2) The solve was resolving the kit once per piece.** A VEX function inside a snippet **cannot
+see a snippet local**, so every `pc_m_*` accessor reads its detail **array**, which copies it — and
+`pc_choose` was being asked per piece even under `first`, whose answer cannot depend on anything
+that changes inside a run. The unit's numbers are hoisted and only `random` and `conditional`
+re-select: **1.94 s → 0.51 s** on the 10 000-piece section.
+
+Together: **38.6 s → 3.4 s, 11x.**
+
+⚠️ **AND IT IS STILL 8.5x SLOWER THAN THE REFERENCE.** `place.build` on the *same* 20 km input with
+the *same* style is **0.40 s** against the native chain's **3.38 s**, and roughly two of those
+three seconds are `copytopoints` itself. §15.2 had to withdraw a timing for having no comparand;
+`bench_plan_long_curve` carries its comparand and its caveat — the chain is **half ported** (no
+deform gate, no corners, no conform), so the ratio is a recorded *before* and not a verdict. On
+the citygen shape (300 short curves) it is **0.075 s against 0.155 s**, and those two are **not
+comparable either**: the reference builds 14 700 prims there where the native branch builds 4 800,
+because §4.3's corner assemblies are N8.
+
+### 16.6 Mutation — 14 mutations, 0 survivors
+
+Every one was run on this build and every one goes red. The two that had to be **moved to a
+different fixture before they meant anything** are named, because a green mutation that proves
+nothing is the failure mode P2-3V found six times:
+
+| Mutation | Verdict |
+|---|---|
+| `shrz` → `shr` in splitmix (compiles; wrong shift) | **RED** — 358 / 358 seeds wrong |
+| 4.2's add-one-more threshold broken | **RED** — the piece count moves |
+| `pc_plan_emit`'s loop bound − 1 | **RED** |
+| the solve at `vex_precision = 32` (it still COMPILES) | **RED** |
+| bypass `pc_plan_clean` | **RED** — ⚠️ *green on `A_straight`, which has no marker and therefore no float32 `pc_u` to shadow; moved to `N_marker_mixed`* |
+| `copy_packed` `pivot = centroid` | **RED** at 9.54e-07 m — ⚠️ *green on `A_straight`, which never turns; moved to `B_rect_closed`* |
+| `copy_packed` `useidattrib = 0` | **RED** — 1.77 m |
+| bypass `pc_kit_id` | **RED** — the branch ships nothing |
+| the five §15 mutations (`pc_frames`, `pc_arclength`, `pc_unshare`, `place._native_tables`, `kernel`'s input) | **RED**, unchanged |
+
+`asset_stages_match_the_rig` now covers **19 nodes** instead of 6 — `native.stage_plan` and
+`native.stage_place` build the chain for **both** the rig and the asset, and the Python SOP bodies
+moved beside them as `native.sop_body`, so §15.8.4's "two independent declarations of one chain"
+has one fewer place to happen. It caught a **stale asset three times** while this cycle was being
+written.
+
+### 16.7 Decisions
+
+- **D172 — R1 is closed and `_splitmix` does NOT stay Python.** §13.6's one concession is
+  withdrawn. VEX's `int` is int64 at `vex_precision = 64` and `shrz` is the unsigned shift; §13.2's
+  contrary finding came from probing a type name (`long`) and an operator (`>>>`) that do not
+  exist rather than the functions that do. MT19937 ports with it, so `random` selection is native
+  end to end. ⚠️ **Every function in `pc_rand.h` and `pc_plan.h` REQUIRES `vex_precision = 64`; at
+  32 they all still compile and all answer wrongly**, which is what `mutation_plan_precision_32`
+  is for.
+- **D173 — every FLOAT column of the kit and rule tables crosses into VEX as a DECIMAL STRING.**
+  `hou.Geometry` has no float64 array, so a 0.35 m module arrived as 0.34999999403953552 and the
+  plan was 2.7e-9 out. `repr(v)` + `atof` is exact and stays readable; a **dict** attribute is the
+  other exact channel (measured) and was declined only because a dict read copies the whole table
+  where an array read copies one column.
+- **D174 — `pc_sections` is a DETAIL wrangle, not §13.3.1's "prim wrangle plus a sort SOP, which
+  is not optional".** One thread means the emission order IS the loop's order, so the determinism
+  property is by construction instead of by a downstream node nobody may delete. The parallel work
+  (the arclength scan, the turn angle) already happened upstream.
+- **D175 — `pointgenerate` is replaced by `pc_plan_emit`, and D150 is AMENDED, not overturned.**
+  D150's objection — `addpoint` from a **multithreaded** wrangle emits in thread-completion order —
+  is still right and does not apply to a detail wrangle. What D150 did not know is that the
+  expander's attribute copy is **quadratic in pieces per section**: 38.6 s at 10 000 pieces against
+  a linear 0.55 s solve. Measured, fixed, 11x.
+- **D176 — `pc_plan_clean` deletes the spline-side point attributes before the solve, and that is
+  a PRECISION requirement.** A Houdini attribute is geometry-wide and §3.1 puts a float32 `pc_u` on
+  the marker cloud; a 64-bit wrangle writing into an existing float32 attribute keeps float32.
+- **D177 — the native PLACE branch declares what it cannot answer instead of guessing it.**
+  `pc_proto` sets `pc_frame_valid = 0` when the build has a surface, a fillet, a slope flatten or
+  D98's flatten-under, because D55's camber up-vector and D98's datum come from §4.5. This is D160
+  restated for a new stage, and `pc_place_valid` is where it takes effect.
+- **D178 — `kit_starter` MOVES Python onto a node rather than adding it.** §6's standalone floor
+  already ran `kit_geometry` inside `kernel`; making it a node is what lets the VEX branch reach
+  the same kit and gives D154's native `box` SOPs a place to land.
+- **D179 — `copy_packed` needs `pivot = origin` and `useidattrib` on a PRIM attribute the kit does
+  not ship.** The first is a 9.54e-07 m correction (measured in isolation after the first reading
+  of 1.25 m was traced to the second); the second needs `pc_kit_id`, without which every point
+  receives the whole kit. `useimplicitn` is a measured no-op and is set anyway, for determinism.
+- **D180 — NO STAGE DEFAULT IS FLIPPED THIS CYCLE, and that is the switch doing its job.** `Stage`
+  still defaults to `output` and `stage_switch` input 0 is still `OUT_reference`. §4.2 alone builds
+  no geometry, and §4.3, §4.5 and §4.6 are still the reference — a native output would be a fence
+  with no corner assemblies, no conform and no overrides. The native stages are reachable as
+  `Stage = plan_native` and `Stage = place_native`, at the parity the checks measure.
+
+### 16.8 What is NOT done
+
+**Still entirely inside `kernel`**, in §13.9's order: **N5** the deform gate and the deformed
+branch (so *every* piece on the native branch is packed, including ones the curvature budget would
+unpack); **N6** §4.5 conform; **N7** §4.6 finalize and D153's guard switches; **N8** §4.3 corners
+(so a run with corners shows no corner assembly and no reserve, and `pc_trim_a`/`pc_trim_b` are 0
+— which is exactly `plan_sections`' own `trim=(0, 0)`); **N10** the reference's fate.
+
+**Still Python outside the stages:** `kit.box_mesh` (now behind `kit_starter`, D154 unscheduled),
+`place.read_curves`' bulk harvest (justified, D166 point 4), `hda.cook_config` and the new
+`hda.kit_table` / `hda.rule_table` (parameter and payload marshalling — the half of Hannes' rule
+Python keeps), and `pc_plan_bridge`, which N5 deletes when `pc_frames` no longer needs it.
+
+**Three things this cycle did NOT do:**
+
+1. **No independent audit.** Dev-loop rule 0 is **not** discharged for this cycle.
+2. **No GUI viewport pass.** Everything is headless; the branch was looked at through
+   `gate_images`' rasteriser on a four-leg zigzag and reads as the same fence as the reference,
+   with square butt joints where the reference welds the elbow.
+3. **The 8.5x.** The native packed branch is slower than the Python it replaces on the 10 000-piece
+   shape, and roughly two thirds of that is inside `copytopoints`. Whether that is inherent or a
+   parameter is unmeasured, and it is the first thing N5 should establish.
