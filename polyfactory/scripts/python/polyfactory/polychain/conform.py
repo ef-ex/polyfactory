@@ -232,10 +232,25 @@ class Surface(object):
         reconstructs the whole answer from the second. Measured on 22.0.398
         against `Surface.drop`, over 60 queries on an irrational-slope ramp:
 
-        | reading | ramp at x < 24 | the same ramp at x = 20 000 |
+        | reading (max over x/y/z) | ramp at x < 24 | the same ramp at x = 20 000 |
         |---|---|---|
-        | position | 2.384e-07 m | 6.104e-05 m |
+        | position | 9.172e-07 m | 9.746e-04 m |
         | **distance** | **0.0** | **0.0** |
+
+        (Re-measured by the P5cV audit on the committed `dirty_ramp` /
+        `dirty_ramp_20km` trial data. The y COMPONENT alone reads 2.384e-07 m
+        on the ramp and 0.0 at 20 km - the 20 km divergence is entirely in
+        x/z, where the float32 ray origin is up to an ulp of 20 000 away from
+        the double query. The earlier "6.104e-05 m at x = 20 000" in this
+        table did not reproduce against this fixture and is replaced.)
+
+        ⚠️ AND PARITY IS NOT ACCURACY, WHICH NOTHING ELSE HERE SAYS. At
+        x = 20 000 BOTH readings sit 8.569e-04 m from the analytic surface,
+        because `hou.Geometry.intersect` is itself float32 at world magnitude
+        - the reference this class is measured against quantises the drop at
+        the ulp of the COORDINATE, not of the drop. That is pre-existing and
+        identical pre-port; what `drop_many` guarantees is that the batch
+        reproduces the reference exactly, not that the reference is exact.
 
         ⚠️ AND THE FIRST COLUMN IS WHY THE FIXTURES COULD NOT SEE IT. Read off
         the POSITION, this is bit-identical only when the true answer happens

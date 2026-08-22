@@ -4036,6 +4036,10 @@ def ray_verb_semantics(conform_mod, cases_mod):
     The eight, each of which a naive port gets wrong in a different way:
       * D70's bridge deck - ground at y=-2 with a deck at y=+2 over part of
         the run. A `first hit` port puts the road on the deck.
+      * ...and the same deck at an UNEQUAL standoff (ground -2, deck +3),
+        because the first two are equidistant and therefore cannot see
+        `bidirectionalresult` at all (D113 - an audit mutation flipped it to
+        `farthest` and all ten original trials stayed at exactly 0.0).
       * An EXACT TIE - two sheets at y=+/-2 with the query between them. D70
         says the tie goes DOWN-axis because the stage is a drop.
       * D52's reversed winding, and a query from BELOW the surface - facing is
@@ -4055,6 +4059,25 @@ def ray_verb_semantics(conform_mod, cases_mod):
         g = S(lambda x, z: -2.0, x0=-2.0, x1=24.0, z0=-4.0, z1=4.0,
               nx=26, nz=4)
         g.merge(S(lambda x, z: 2.0, x0=4.0, x1=12.0, z0=-4.0, z1=4.0,
+                  nx=8, nz=4))
+        return g
+
+    def deck_offcentre():
+        """The deck at a DIFFERENT standoff from the ground, which `deck()`
+        is not - and that is the whole point of this trial (D113).
+
+        `deck()` puts the ground at y = -2 and the deck at y = +2 with the
+        query at y = 0, so the two hits are EQUIDISTANT: `closest` and
+        `farthest` return the same point and the trial cannot see the parm
+        that chooses between them. Mutation-tested: flipping
+        `bidirectionalresult` to `farthest` left all ten original trials at
+        exactly 0.0 and was caught only by `conform_parity` on one scene case.
+        Here the deck is at +3 against ground at -2, so nearest is the ground
+        and farthest is the deck, 5 m apart.
+        """
+        g = S(lambda x, z: -2.0, x0=-2.0, x1=24.0, z0=-4.0, z1=4.0,
+              nx=26, nz=4)
+        g.merge(S(lambda x, z: 3.0, x0=4.0, x1=12.0, z0=-4.0, z1=4.0,
                   nx=8, nz=4))
         return g
 
@@ -4089,6 +4112,7 @@ def ray_verb_semantics(conform_mod, cases_mod):
         ("dirty_ramp", dirty(), dirty_q()),
         ("dirty_ramp_20km", dirty(20000.0), dirty_q(20000.0, 5100.0)),
         ("bridge_deck", deck(), row(0.0, 49)),
+        ("deck_offcentre", deck_offcentre(), row(0.0, 49)),
         ("exact_tie", tie(), [(1.0, 0.0, 0.0), (5.5, 0.0, 0.0),
                               (11.25, 0.0, 0.0), (20.0, 0.0, 0.0)]),
         ("flipped_winding", S(cases_mod.ramp_x, flip=True), row(3.0, 20, 1.0)),
