@@ -97,25 +97,67 @@ def png(path, w, h, pix):
         fh.write(chunk(b"IEND", b""))
 
 
-def rasterise(path, geo, axes=("x", "z"), w=1200, h=680, extra=()):
+def unpack(geo):
+    """A flat copy with every PACKED prim expanded, for the rasteriser.
+
+    ⚠️ A PACKED PRIM HAS ONE VERTEX, so the wireframe drawn straight off a
+    polyChain output is EMPTY - which is what a 4.6-instanced build is, and
+    exactly the case phase 2 wants to look at. `checks.elements` already
+    unpacks, but it returns records rather than geometry, so this is the same
+    two lines against a `hou.Geometry` and it keeps ONE unpacking rule in the
+    file (11.9's own "reuse it; do not rebuild it").
+    """
+    out = hou.Geometry()
+    for prim in geo.prims():
+        if prim.type() != hou.primType.PackedGeometry:
+            continue
+        piece = hou.Geometry()
+        piece.merge(prim.getEmbeddedGeometry())
+        piece.transform(prim.fullTransform())
+        out.merge(piece)
+    if out.intrinsicValue("primitivecount") == 0:
+        return geo
+    for prim in geo.prims():
+        if prim.type() == hou.primType.PackedGeometry:
+            continue
+        piece = hou.Geometry()
+        piece.merge(geo)                      # cheap: only the deformed half
+        out.merge(piece)
+        break
+    return out
+
+
+def project(axes, p):
+    """(right, up) for one world point. `axes` is a pair of world axis names,
+    or "iso" - the three-quarter view PC-G5 asks to be judged on, which no
+    pair of world axes can give."""
+    if axes == "iso":
+        return ((p[0] - p[2]) * 0.8660254, p[1] + (p[0] + p[2]) * 0.4330127)
+    idx = {"x": 0, "y": 1, "z": 2}
+    return (p[idx[axes[0]]], p[idx[axes[1]]])
+
+
+def rasterise(path, geo, axes=("x", "z"), w=1200, h=680, extra=(),
+              colour_of=None):
     """Orthographic wireframe of every polygon, fitted to the frame.
 
-    `axes` picks the two world axes drawn as (right, up); `extra` is
+    `axes` picks the two world axes drawn as (right, up), or "iso"; `extra` is
     `(colour, [world points])` polylines drawn on top - the input spline, the
     ground line - so the image shows what the fence was asked to follow.
+    `colour_of(prim)` colours each polygon, which is how a facade is judged on
+    its 7.2 CELL PATTERN rather than on its silhouette.
     """
-    idx = {"x": 0, "y": 1, "z": 2}
-    ax, ay = idx[axes[0]], idx[axes[1]]
     segs = []
     for prim in geo.prims():
         pts = [p.point().position() for p in prim.vertices()]
+        col = (185, 195, 212) if colour_of is None else colour_of(prim)
         for i in range(len(pts)):
             a, b = pts[i], pts[(i + 1) % len(pts)]
-            segs.append(((185, 195, 212), (a[ax], a[ay]), (b[ax], b[ay])))
+            segs.append((col, project(axes, a), project(axes, b)))
     for colour, poly in extra:
         for i in range(len(poly) - 1):
-            a, b = poly[i], poly[i + 1]
-            segs.append((colour, (a[ax], a[ay]), (b[ax], b[ay])))
+            segs.append((colour, project(axes, poly[i]),
+                         project(axes, poly[i + 1])))
     if not segs:
         return
     xs = [p[0] for _c, p, q in segs] + [q[0] for _c, p, q in segs]
@@ -311,4 +353,9 @@ def main():
     sys.exit(1 if FAIL else 0)
 
 
-main()
+# ...under a guard, so the RASTERISER can be imported. Without it, `import
+# gate_images` ran both gates and called `sys.exit` - which is how a phase-2
+# image script that reuses this file (7.8's "extend it, do not rebuild it")
+# would otherwise have been forced to rebuild it after all.
+if __name__ == "__main__":
+    main()
