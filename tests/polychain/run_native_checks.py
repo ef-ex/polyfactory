@@ -2159,6 +2159,100 @@ def plan_benches(root, built):
         sub.destroy()
 
 
+def sections_mutation(root, built):
+    """`pc_sections` has no parity check of its own, so it gets a MUTATION.
+
+    4.1's section list is not compared directly anywhere: `plan_solve_parity`
+    asks the reference for `plan_sections(decompose_all(...))` and the native
+    side runs `pc_sections` -> solve, so a wrong section list moves the plan
+    and the check sees it.  That is coverage BY CONSTRUCTION, which is the
+    weakest kind of claim - it is true only if the section list can actually
+    move the plan.  These two mutations prove it can.
+    """
+    from polyfactory.polychain import kit as KIT
+    from polyfactory.polychain import vexsrc
+
+    for case_name, target, replacement, label in (
+            ("T_lshape_bend",
+             "if (corner && (closed || (i > 0 && i < n - 1))) isbreak[i] = 1;",
+             "if (0) isbreak[i] = 1;",
+             "a CORNER stops breaking the curve"),
+            ("A_straight",
+             "if (!closed) {\n            // D18 - a spline END is a cap and never a corner.\n            if (i0 == 0)     { start_cap = 1; angle = 0.0; }\n            if (i1 == n - 1) { end_cap = 1; }\n        }",
+             "if (0) {\n            if (i0 == 0)     { start_cap = 1; angle = 0.0; }\n            if (i1 == n - 1) { end_cap = 1; }\n        }",
+             "D18's spline-end cap stops being a cap")):
+        case = built[case_name]
+        style = case["style"]
+        params = style.params if style is not None else DEFAULTS
+        kit = KIT.read(case["kit"])[0]
+        ref = plan_reference(case, params, style, kit)
+        body = vexsrc.source("pc_sections")
+        present = target in body
+        sub = root.createNode("subnet", "secmut_%s" % case_name)
+        read, _cfg, nodes = plan_chain(sub, case, params, style, kit,
+                                       "sm_%s" % case_name)
+        nodes["pc_sections"].parm("snippet").set(
+            body.replace(target, replacement))
+        try:
+            read.cook(force=True)
+            got = None if any(n.errors() for n in nodes.values()) \
+                else plan_rows(read.geometry())
+        except Exception:
+            got = None
+        sub.destroy()
+        moved = got is None or plan_diff(got, ref)
+        check("mutation_pc_sections_%s" % case_name.split("_")[0].lower(),
+              present and moved, "%s / %s" % ("target present" if present
+                                              else "TARGET GONE",
+                                              "red" if moved else "GREEN"),
+              "%s, and the plan parity has to see it - `pc_sections` has no "
+              "parity check of its own, so this is what makes its coverage "
+              "real rather than structural" % label)
+
+
+def native_reach(root):
+    """WHICH native nodes an artist who never opens the Stage menu runs.
+
+    ⚠️ THIS IS THE CHECK THAT KEEPS §16's SCOPE HONEST.  The claim "the plan
+    and the packed branch are ported" is worth exactly as much as the claim
+    "and they reach no artist yet", and the second half is a MEASUREMENT here
+    rather than a sentence in a build log that will age.  The day 13.9 N10
+    retires `kernel`, this check has to be edited on the same commit - which
+    is the ladder device §11.2 already uses.
+    """
+    node = root.createNode("pf_polychain", "reach")
+    geo = hou.Geometry()
+    cases.polyline(geo, [(0.0, 0.0, 0.0), (9.0, 0.0, 0.0), (9.0, 0.0, 7.0)],
+                   curve_id="R")
+    node.setInput(0, native.feed(root, geo, "REACH"))
+    node.allowEditingOfContents()
+    watched = ("pc_sections", "pc_plan_solve", "pc_plan_emit", "pc_proto",
+               "pc_frames_native", "copy_packed", "pc_frames",
+               "pc_plan_bridge")
+    before = {}
+    node.parm("stage").set("output")
+    node.cook(force=True)
+    for name in watched:
+        child = node.node(name)
+        before[name] = child.cookCount() if child is not None else -1
+    # a real re-cook of the Output stage, forced through the input
+    node.parm("corner_angle_deg").set(31.0)
+    node.cook(force=True)
+    node.parm("corner_angle_deg").set(30.0)
+    node.cook(force=True)
+    cooked = sorted(n for n in watched
+                    if node.node(n) is not None
+                    and node.node(n).cookCount() > before[n])
+    check("native_plan_and_place_reach_no_artist", not cooked,
+          "%d of %d idle" % (len(watched) - len(cooked), len(watched)),
+          "nodes that cooked on `Stage = output`: %s. This is the HONEST "
+          "half of 13.9 N2/N4 - the solve and the packed branch are at "
+          "parity and they are behind the Stage switch, because 4.3, 4.5 and "
+          "4.6 are still the reference (D180). N10 edits this check."
+          % (", ".join(cooked) or "none"))
+    node.destroy()
+
+
 def union_parity(root):
     """D166's safety property: the fence does not change when the VEX answers.
 
@@ -2299,11 +2393,13 @@ def main():
     mutation(root, built)
     seeding_mutation(root)
     plan_mutation(root, built)
+    sections_mutation(root, built)
     place_mutation(root, built)
     kit_id_mutation(root, built)
 
     print("\n=== 5. 13.7 - the graph is readable, on the built asset ===")
     node = readability(root)
+    native_reach(root)
 
     print("\n=== 6. cook count and the two benches ===")
     benches(root, node)
