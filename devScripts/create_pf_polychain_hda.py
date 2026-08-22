@@ -133,13 +133,16 @@ def _toggle(name, label, default, help_text):
 def _slot(name, label, default, help_text):
     """A module list with the kit's own manifest as its menu (5).
 
-    `StringReplace` rather than a fixed menu: the value is a SPACE-SEPARATED
-    list (D76), so the menu offers what the kit has and the field still
-    accepts two names typed side by side.
+    `StringToggle`, NOT `StringReplace`: the value is a SPACE-SEPARATED list
+    (D76) and the help sells patterns ("post panel" is a picket fence), but a
+    Replace menu overwrites the whole field - an artist with "post panel" who
+    picks `picket_panel` off the menu loses the post rhythm and cannot build a
+    two-name pattern from the menu at all. Toggle appends and removes tokens,
+    which is what a list field wants, and typing two names still works.
     """
     parm = hou.StringParmTemplate(
         name, label, 1, default_value=(default,),
-        menu_type=hou.menuType.StringReplace,
+        menu_type=hou.menuType.StringToggle,
         item_generator_script_language=hou.scriptLanguage.Python,
         item_generator_script=(
             "from polyfactory.polychain import hda as _h\n"
@@ -188,6 +191,16 @@ ptg.append(_slot("slot_evenly", "Evenly Spaced Piece", "",
                  "Evenly Spacing) regardless of the fill - lamps on a "
                  "railing, bollards on a kerb."))
 
+ptg.append(_slot("slot_marker", "Piece at Markers", "",
+                 "Module placed on every marker point merged into input 1 "
+                 "that carries Marker Id - a gate in a fence, a bus stop on a "
+                 "kerb. Empty means markers are ignored (the node warns when "
+                 "markers arrive and nothing reads them)."))
+ptg.append(_int("marker_id", "Marker Id", 1, 0, 64,
+                "Which markers 'Piece at Markers' answers to: the pc_marker_id "
+                "the upstream points carry. One id per node; a style payload "
+                "on input 3 can address several at once."))
+
 ptg.append(_menu("fill", "Fit Method",
                  [("adaptive", "Adaptive - whole pieces, evenly stretched"),
                   ("tile", "Tile - whole pieces, remainder cut"),
@@ -198,12 +211,12 @@ ptg.append(_menu("fill", "Fit Method",
                  "default because it never cuts a piece: it uses whole "
                  "modules and stretches them all by the same small amount. "
                  "Tile cuts the leftover (only where the kit allows it)."))
-ptg.append(_float("padding", "Gap Between Pieces", 0.0, -0.5, 2.0,
+ptg.append(_float("padding", "Gap Between Pieces (m)", 0.0, -0.5, 2.0,
                   "Metres of space added between neighbouring pieces, on top "
                   "of whatever the kit's own padding says. NEGATIVE overlaps "
                   "them, which is how lapped boards are built. The gap moves "
                   "the neighbours; it never stretches the piece."))
-ptg.append(_float("evenly_spacing", "Evenly Spacing", 0.0, 0.0, 50.0,
+ptg.append(_float("evenly_spacing", "Evenly Spacing (m)", 0.0, 0.0, 50.0,
                   "Metres between 'Evenly Spaced Piece' anchors. 0 turns the "
                   "evenly pass off (or set Evenly Count in Advanced "
                   "instead)."))
@@ -216,7 +229,7 @@ ptg.append(_menu("corner_mode", "Corner Treatment",
                  "piece around the vertex, which suits rails and hedges; "
                  "MITER cuts a corner module on the angle bisector, which "
                  "suits kerbs, walls and anything with a hard edge."))
-ptg.append(_float("fillet_radius", "Corner Rounding", 0.0, 0.0, 10.0,
+ptg.append(_float("fillet_radius", "Corner Rounding (m)", 0.0, 0.0, 10.0,
                   "Metres of radius to round the PATH by before any piece is "
                   "placed. 0 leaves the corner sharp. A radius wider than "
                   "the legs allow is clamped and says so."))
@@ -273,7 +286,7 @@ adv.addParmTemplate(_menu(
     "Where the leftover goes when the evenly anchors do not divide the "
     "section exactly."))
 adv.addParmTemplate(_float(
-    "adjust_to_end", "Adjust to End", 0.0, 0.0, 5.0,
+    "adjust_to_end", "Adjust to End (m)", 0.0, 0.0, 5.0,
     "Metres. When the trailing leftover is at or under this, the evenly "
     "spacing is stretched so the last anchor lands exactly on the section "
     "end. 0 never adjusts."))
@@ -292,11 +305,11 @@ adv.addParmTemplate(_float(
     "own legs. Positive pulls them back from the vertex, negative pushes "
     "them through it. The cut plane does not move, so the seam stays shut."))
 adv.addParmTemplate(_float(
-    "corner_angle_deg", "Corner Angle", 30.0, 0.0, 180.0,
+    "corner_angle_deg", "Corner Angle (deg)", 30.0, 0.0, 180.0,
     "Degrees of TURN (deviation from straight) at which a spline vertex "
     "counts as a corner. Below it the run just bends through."))
 adv.addParmTemplate(_float(
-    "min_included_angle_deg", "Narrow Corner Angle", 15.0, 0.0, 90.0,
+    "min_included_angle_deg", "Narrow Corner Angle (deg)", 15.0, 0.0, 90.0,
     "Degrees of INCLUDED angle between the two legs below which a corner is "
     "too sharp to miter. It falls back to a bend and says so."))
 adv.addParmTemplate(_int(
@@ -322,7 +335,7 @@ adv.addParmTemplate(_toggle(
     "veto this."))
 
 adv.addParmTemplate(_float(
-    "bend_tol", "Bend Tolerance", 0.01, 0.0, 1.0,
+    "bend_tol", "Bend Tolerance (m)", 0.01, 0.0, 1.0,
     "Metres of error allowed before a piece is unpacked and bent. This is "
     "also the instancing control: a piece stays a lightweight instance while "
     "following the curve would move it less than this, so a gently curving "

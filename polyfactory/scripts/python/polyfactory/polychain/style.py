@@ -49,6 +49,15 @@ DECISIONS TAKEN HERE (recorded in polychain.md 10):
       rides the element, plus a warning here. The ONE case that is dropped is
       a rule with no usable slot, because a slot nothing reads is a rule that
       cannot degrade into anything - and it is warned by name.
+  D92 A PAYLOAD THAT LOSES EVERY RULE DEGRADES *WITHIN* THE PIPELINE FACE.
+      `read` used to return None there, which is D34's "input 3 is unwired"
+      answer - and a WIRED input that lost its rules is not an unwired one.
+      It returns a rule-less `Style` carrying the payload's own styleId, seed
+      and params instead, so the node builds nothing and says so rather than
+      building a convincing parm-face fence under the pipeline's nose.
+  D93 A MARKER SLOT'S ID IS PARSED, NOT JUST PREFIX-MATCHED. `marker:gate`
+      used to validate clean and place nothing; it is kept (warn-never-block)
+      and named.
   D79 The conditional is NOT re-implemented here. `pc_cond` is read as the
       `{subject, op, value}` dict `plan.evaluate_cond` already takes, and this
       file only VALIDATES it - unknown subject and unknown op are exactly the
@@ -203,7 +212,20 @@ def _modules(pt):
 
 
 def _check_slot(slot, warns, index):
-    if slot in SLOTS or slot.startswith("marker:"):
+    if slot.startswith("marker:"):
+        # D93: the kernel only ever emits `marker:%d` (`plan.plan_section`),
+        # so `marker:gate` - an author who reached for the module name where
+        # an id belongs - matches nothing and places nothing. Kept, because
+        # warn-never-block, and named, because a rule that can never fire is
+        # exactly what D78's contract says must not be silent.
+        try:
+            int(slot[7:])
+        except ValueError:
+            warns.append("rule %d: pc_slot %r - a marker id is an INTEGER "
+                         "(pc_marker_id), so this rule can never fire"
+                         % (index, slot))
+        return True
+    if slot in SLOTS:
         return True
     if not slot:
         warns.append("rule %d: no pc_slot - rule dropped" % index)
@@ -320,8 +342,20 @@ def read(geo, kit=None):
                           weights, vexpr))
 
     if not rules:
-        warns.append("style payload carries no usable rule - input 3 ignored")
-        return (None, warns)
+        # D92: DEGRADE WITHIN THE PIPELINE FACE, never across to the other
+        # one. Returning None here sent the caller back to the PARM face, so
+        # a generator that misspelled every `pc_slot` got a plausible
+        # parm-built fence with parm-derived ids and the parm `styleId` -
+        # convincing, wrong, and keyed to nothing a downstream override map
+        # would match. An empty rule list keeps the payload's own meta and
+        # trips `cook`'s "no modules assigned" instead, so the output is
+        # visibly empty rather than quietly someone else's.
+        warns.append("style payload carries no usable rule - the node builds "
+                     "nothing (it does NOT fall back to the parms)")
+        return (Style(str(meta.get("styleId", "")),
+                      _int(meta.get("version"), 1, "version", warns),
+                      _int(meta.get("seed"), 0, "seed", warns), [], params),
+                warns)
     return (Style(str(meta.get("styleId", "")), _int(meta.get("version"), 1, "version", warns),
                   _int(meta.get("seed"), 0, "seed", warns), rules, params),
             warns)

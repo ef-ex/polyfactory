@@ -51,9 +51,31 @@ DECISIONS TAKEN HERE (recorded in polychain.md 10):
       first/in turn/random and the pipeline face carries conditionals. This is
       2.1 working as designed rather than a gap - the escape hatch is the
       other face, not a text field.
+  D88 A MARKER SLOT IS *NOT* PAYLOAD-ONLY. D85's sibling question, answered
+      the other way: `marker:<id>` is a slot whose name carries a number, and
+      PC-G1's own bullet is "a gate placed by a marker" - so an int and a
+      module field put it on the page, inside the SAME `SLOT_PARMS` loop. And
+      markers that arrive with no rule to read them now WARN, in either face:
+      a silent no-op was the part that could not survive.
+  D89 THE RANDOMNESS SCOPE IS PAYLOAD-ONLY. `style_from_parms` used to read a
+      `scope` parm that the page never had, so every parm-face rule was
+      `segment` with a dead read dressing it up as a choice. `segment` is
+      passed literally now; per-section/per-spline randomness is a payload
+      feature, like the conditional.
+  D90 THE DRAG-TIME LOD SWITCH IS MANUAL, AND THE NODE SAYS SO. 5 asked for a
+      plan preview while dragging and a full recook on release; a Python SOP
+      cannot see a drag (there is no begin/end notification in a cook), so
+      D81/D82 answered with a menu instead. What was missing was the pointer
+      to it: a `full` cook over `SLOW_COOK_S` now warns, naming the proxy.
+  D91 PADDING IS A PARM-FACE CONTROL (amends D84, and D77 is why). `_padded`
+      used to run unconditionally, so a wired payload still felt the `padding`
+      parm - measured, the same payload built 6 prims at 0.0 and 5 at 0.8, and
+      D77's whole rationale is that one payload must build one fence on any
+      node. The kit's own `pc_pad` is the pipeline face's padding.
 """
 
 import os
+import time
 
 import hou
 
@@ -68,7 +90,14 @@ SLOT_PARMS = (("default", "slot_default"), ("start", "slot_start"),
               ("end", "slot_end"), ("corner", "slot_corner"),
               ("evenly", "slot_evenly"))
 
+MARKER_PARM = "slot_marker"        # D88 - `marker:<id>`, id from `marker_id`
+
 DISPLAY_MODES = ("full", "proxy", "plan")
+
+# D90 - seconds of FULL cook above which the node says "use the proxy". Set
+# just under artist_ui 6's abandonment latency, and measured: a 20 km R = 40 m
+# arc of 10 000 panels cooks in ~11 s at `full` and 0.6-0.8 s at `proxy`.
+SLOW_COOK_S = 2.0
 
 WARN_COLOUR = (1.0, 0.25, 0.1)
 
@@ -193,12 +222,22 @@ def style_from_parms(node):
     if select not in SELECTORS:
         select = "first"
     rules = []
-    for slot, parm in SLOT_PARMS:
+    # D88: the marker slot joins the SAME loop rather than growing a branch.
+    # `marker:<id>` is a slot whose name carries a number, so the pair (an int
+    # parm and a module field) is all the page needs to reach it.
+    slots = list(SLOT_PARMS)
+    if node.parm(MARKER_PARM) is not None:
+        slots.append(("marker:%d" % int(node.evalParm("marker_id")
+                                        if node.parm("marker_id") else 1),
+                      MARKER_PARM))
+    for slot, parm in slots:
         modules = _parm_str(node, parm).split()
         if not modules:
             continue
+        # D89: `segment` literally - the randomness SCOPE is payload-only,
+        # like the conditional (D85). There is no `scope` parm on the page.
         rules.append(Rule(slot, select if slot == "default" else "first",
-                          modules, None, _parm_str(node, "scope", "segment")))
+                          modules, None, "segment"))
     return Style(_parm_str(node, "style_id", "pf_polychain"), 1,
                  int(node.evalParm("seed") if node.parm("seed") else 0),
                  rules, params_from_parms(node))
@@ -223,7 +262,10 @@ def slot_menu(node):
         for role in module.roles:
             if role not in roles:
                 roles.append(role)
+    names = set(m.name for m in kit.modules if m.name)
     for role in roles:
+        if role in names:
+            continue        # one token, one row: a role named after a module
         items.extend([role, "%s  (role)" % role])
     return items
 
@@ -250,6 +292,44 @@ def colour_warnings(geo, warn_names):
     return hit
 
 
+def _warn_unread_markers(node, curve_geo, style, from_payload):
+    """D88 - markers arrived and NOTHING reads them. Say so.
+
+    3.1 lets a generator merge marker points into input 1, and `plan` places a
+    module for them only where a `marker:<id>` rule exists. Without this the
+    whole feature is a silent no-op: the points cook to nothing, no warning
+    fires, and PC-G1's "gate placed by marker" looks broken rather than
+    unauthored.
+    """
+    if curve_geo is None or curve_geo.findPointAttrib("pc_marker") is None:
+        return
+    ids = set()
+    for pt in curve_geo.points():
+        try:
+            if int(pt.attribValue("pc_marker")) == 1:
+                ids.add(int(pt.attribValue("pc_marker_id")
+                            if curve_geo.findPointAttrib("pc_marker_id")
+                            else 0))
+        except (TypeError, ValueError):
+            continue
+    if not ids:
+        return
+    read = set()
+    for rule in style.rules:
+        if str(rule.slot).startswith("marker:"):
+            try:
+                read.add(int(str(rule.slot)[7:]))
+            except ValueError:
+                continue
+    unread = sorted(ids - read)
+    if unread:
+        node.addWarning(
+            "input 1 carries markers with id %s and no rule reads them - %s"
+            % (", ".join(str(i) for i in unread),
+               "add a marker:<id> rule to the style payload" if from_payload
+               else "set Marker Id and Piece at Marker"))
+
+
 # --- the cook ---------------------------------------------------------------
 
 def cook(node):
@@ -267,22 +347,38 @@ def cook(node):
                                kit=_kit.read(kit_geo)[0])
     for warn in warns:
         node.addWarning(warn)
+    from_payload = style is not None
     if style is None:
         style = style_from_parms(parms)
+        # D91, amending D84: the gap is a PARM-FACE control. Applying it
+        # under a wired payload broke D77's own guarantee - measured, a 12 m
+        # spline with the same payload built 6 prims at padding 0 and 5 at
+        # 0.8, so one payload made two different fences on two nodes. A
+        # pipeline consumer pads with the kit's own `pc_pad`, which is the
+        # mechanism this parm rides anyway.
+        kit_geo = _padded(kit_geo, parms.evalParm("padding")
+                          if parms.parm("padding") else 0.0)
     if not style.rules:
         node.addWarning("no modules assigned - fill at least Repeating Pieces")
+    _warn_unread_markers(node, curve_geo, style, from_payload)
 
-    kit_geo = _padded(kit_geo, parms.evalParm("padding")
-                      if parms.parm("padding") else 0.0)
     display = _parm_str(parms, "display", "full")
     if display not in DISPLAY_MODES:
         display = "full"
     if display != "full":
         kit_geo = proxy_kit(kit_geo)                          # D82
 
+    t0 = time.time()
     out, report = _place.build(curve_geo, kit_geo, style,
                                params=style.params,
                                surface_geo=_input_geo(node, 3))
+    cook_s = time.time() - t0
+    if display == "full" and cook_s > SLOW_COOK_S:
+        # D90: the LOD switch is MANUAL, so the artist has to be told the
+        # menu is there. A full cook this long is one freeze per slider tick.
+        node.addWarning("this build took %.1f s - set Display to 'Proxy "
+                        "Boxes' while dragging (it is exact, just boxes)"
+                        % cook_s)
     if display == "plan":                                     # D81
         _place.plan_points(geo, report)
     else:

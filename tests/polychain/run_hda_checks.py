@@ -44,6 +44,45 @@ HDA_PATH = os.path.join(REPO, "polyfactory", "otls",
 
 RESULTS = []
 
+# The parms a style payload does NOT own, and why: `display` and
+# `show_warnings` are viewing decisions (D81/D82), `kitfile` is the KIT lane -
+# input 2's fallback - and a payload carries rules and params, never a kit.
+PARM_LANE_EXEMPT = ("display", "show_warnings", "kitfile")
+
+
+def _fingerprint(node):
+    """(element ids, rounded point positions) - what may not move."""
+    geo = node.geometry()
+    ids = sorted(p.attribValue("pc_elem_id") for p in geo.prims())
+    pos = sorted((round(v, 5) for v in geo.pointFloatAttribValues("P")))
+    return (ids, pos)
+
+
+def _nudge(parm):
+    """Move `parm` to a DIFFERENT value. False when there is nowhere to go."""
+    tpl = parm.parmTemplate()
+    if isinstance(tpl, hou.ToggleParmTemplate):
+        parm.set(0 if parm.eval() else 1)
+        return True
+    if isinstance(tpl, hou.IntParmTemplate):
+        parm.set(int(parm.eval()) + 1)
+        return True
+    if isinstance(tpl, hou.FloatParmTemplate):
+        parm.set(parm.eval() + 0.37)
+        return True
+    if isinstance(tpl, hou.StringParmTemplate):
+        items = list(tpl.menuItems())
+        if items:
+            cur = parm.evalAsString()
+            for item in items:
+                if item != cur:
+                    parm.set(item)
+                    return True
+            return False
+        parm.set((parm.evalAsString() + " gate").strip())
+        return True
+    return False
+
 
 def check(name, ok, value="", detail=""):
     RESULTS.append((name, bool(ok), value, detail))
@@ -185,15 +224,88 @@ def main():
     ids_b = sorted(p.attribValue("pc_elem_id") for p in direct2.prims())
     check("payload_matches_kernel", ids_a == ids_b, len(ids_a),
           "vs %d built from the Style object" % len(ids_b))
-    # ...and the parms are not consulted AT ALL while it is wired (D77)
-    node.parm("fill").set("tile")
-    node.parm("seed").set(99)
-    after = sorted(p.attribValue("pc_elem_id") for p in node.geometry().prims())
-    check("parms_inert_under_payload", after == ids_a, len(after),
-          "fill and seed moved on the node and nothing moved in the output")
-    node.parm("fill").set("adaptive")
-    node.parm("seed").set(3)
+    # ...and the parms are not consulted AT ALL while it is wired (D77).
+    # ⚠️ EVERY PARM ON THE PAGE, and both the ids AND the POSITIONS. The first
+    # version of this moved `fill` and `seed` only and compared sorted ids, so
+    # it missed `padding` entirely: the gap parm was applied to the kit
+    # unconditionally, and the same payload built 6 prims at 0.0 and 5 at 0.8
+    # on the same node. One payload, two fences - which is the exact property
+    # D77 says the pipeline face exists to guarantee (fixed by D91).
+    base_ids, base_pos = _fingerprint(node)
+    moved = []
+    for parm in sorted(node.parms(), key=lambda q: q.name()):
+        if parm.name() in PARM_LANE_EXEMPT:
+            continue
+        was = parm.eval()
+        if not _nudge(parm):
+            continue
+        got_ids, got_pos = _fingerprint(node)
+        if got_ids != base_ids or got_pos != base_pos:
+            moved.append(parm.name())
+        parm.set(was)
+    check("parms_inert_under_payload", not moved, len(base_ids),
+          "swept %d parms; moved: %s" % (len(node.parms()),
+                                         ",".join(moved) or "none"))
     node.setInput(2, None)
+
+    # ---- 4b. a payload whose rules ALL drop stays in the PIPELINE face -----
+    print("\n=== 4b. a payload with no usable rule degrades in place (D92) ===")
+    junk = geo_node.createNode("python", "style_junk")
+    junk.parm("python").set(
+        "import hou\n"
+        "from polyfactory.polychain import Params, Rule, Style\n"
+        "from polyfactory.polychain import style as S\n"
+        "st = Style('pipeline_junk', 1, 4,\n"
+        "           rules=[Rule('defualt', 'first', ['gate'])])\n"
+        "S.write(hou.pwd().geometry(), st)\n")
+    node.setInput(2, junk)
+    junk_geo = node.geometry()
+    inner = node.node("kernel").warnings()
+    check("junk_payload_builds_nothing", len(junk_geo.prims()) == 0,
+          len(junk_geo.prims()),
+          "%d warnings: %s" % (len(inner), (inner or ("",))[0][:70]))
+    node.setInput(2, None)
+
+    # ---- 4c. D88 - the marker slot is reachable from the PARM face ---------
+    print("\n=== 4c. a gate on a marker, authored on the page (PC-G1) ===")
+    marked = geo_node.createNode("python", "marked_spline")
+    marked.parm("python").set(
+        "import hou\n"
+        "geo = hou.pwd().geometry()\n"
+        "poly = geo.createPolygon(False)\n"
+        "for p in [(0,0,0), (20,0,0)]:\n"
+        "    pt = geo.createPoint()\n"
+        "    pt.setPosition(p)\n"
+        "    poly.addVertex(pt)\n"
+        "geo.addAttrib(hou.attribType.Point, 'pc_marker', 0)\n"
+        "geo.addAttrib(hou.attribType.Point, 'pc_marker_id', 0)\n"
+        "geo.addAttrib(hou.attribType.Point, 'pc_u', 0.0)\n"
+        "geo.addAttrib(hou.attribType.Point, 'pc_curve', '')\n"
+        "geo.addAttrib(hou.attribType.Prim, 'pc_curve_id', '')\n"
+        "poly.setAttribValue('pc_curve_id', 'M')\n"
+        "m = geo.createPoint()\n"
+        "m.setPosition((9.0, 0.0, 0.0))\n"
+        "m.setAttribValue('pc_marker', 1)\n"
+        "m.setAttribValue('pc_marker_id', 1)\n"
+        "m.setAttribValue('pc_u', 0.45)\n"
+        "m.setAttribValue('pc_curve', 'M')\n")
+    mk = geo_node.createNode("pf_polychain", "chain_marker")
+    mk.setInput(0, marked)
+    mk.cook(force=True)
+    silent = mk.node("kernel").warnings()
+    check("unread_marker_warns",
+          any("marker" in w for w in silent), len(silent),
+          (silent or ("",))[0][:80])
+    mk.parm("slot_marker").set("gate")
+    mk.parm("marker_id").set(1)
+    mods = sorted(set(p.attribValue("pc_module") for p in mk.geometry().prims()))
+    gates = [p for p in mk.geometry().prims()
+             if p.attribValue("pc_module") == "gate"]
+    check("marker_slot_on_the_page", "gate" in mods, ",".join(mods),
+          "%d gate element(s) at the marker" % len(gates))
+    check("marker_read_is_silent",
+          not any("marker" in w for w in mk.node("kernel").warnings()),
+          len(mk.node("kernel").warnings()), "the warning stops once read")
 
     # ---- 5. the proxy LOD, at 10k pieces ---------------------------------
     print("\n=== 5. proxy LOD at scale (5's acceptance criterion) ===")
