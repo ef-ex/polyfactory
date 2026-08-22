@@ -21,7 +21,8 @@ What it asserts, in order:
   5. the proxy LOD keeps a 10k-piece run interactive (5's own acceptance
      criterion, in seconds);
   6. the plan display draws one point per piece;
-  7. a malformed kit file and an empty spline warn instead of erroring.
+  7. a malformed kit file and an empty spline warn instead of erroring;
+  8. artist_ui 6's BINDING UX LAW, on the built asset (D96).
 """
 
 import os
@@ -388,6 +389,54 @@ def main():
           len(bad_kit.geometry().prims()),
           "fell back to the starter kit; %d warnings: %s"
           % (len(bad_warns), (bad_warns or ("",))[0][:60]))
+
+    # ---- 8. artist_ui 6's UX law, asserted (D96) --------------------------
+    # ⚠️ THIS SECTION EXISTS BECAUSE IT WAS MISSING. An independent verifier
+    # stripped the help text, the ranges and the unit suffixes off all nine
+    # float parms, rebuilt the asset, and every one of the 22 checks above,
+    # all 76 scene cases and all 279 unit tests stayed GREEN. artist_ui 6 is
+    # binding on every parameter decision here, and until now nothing
+    # enforced a word of it - so the sweep that proves a payload overrides
+    # the parms could not tell a documented page from a bare one.
+    print("\n=== 8. artist_ui 6 - the UX law, on the built asset (D96) ===")
+
+    def _walk(group, folder=""):
+        for tpl in group.parmTemplates():
+            if isinstance(tpl, hou.FolderParmTemplate):
+                for row in _walk(tpl, "%s/%s" % (folder, tpl.label())
+                                 if folder else tpl.label()):
+                    yield row
+            else:
+                yield (folder, tpl)
+
+    rows = list(_walk(node.type().definition().parmTemplateGroup()))
+    nohelp = [t.name() for f, t in rows if not (t.help() or "").strip()]
+    check("every_parm_has_help", not nohelp, len(rows),
+          "no help on: %s" % (",".join(nohelp) or "none"))
+    # TWO disclosure levels maximum: the main page and ONE Advanced folder.
+    depth = max([f.count("/") + 1 for f, t in rows if f] or [0])
+    check("two_disclosure_levels", depth <= 1, depth,
+          "folders: %s" % ",".join(sorted(set(f for f, t in rows if f))))
+    # A number an artist types needs a range to drag inside. `hou`'s own
+    # default is 0..10 on every numeric template, so "untouched" is the
+    # failure this looks for, not "narrow".
+    numeric = [(f, t) for f, t in rows
+               if isinstance(t, (hou.FloatParmTemplate, hou.IntParmTemplate))]
+    norange = [t.name() for f, t in numeric
+               if (t.minValue(), t.maxValue()) == (0, 10)]
+    check("every_number_has_a_range", not norange, len(numeric),
+          "default 0..10 on: %s" % (",".join(norange) or "none"))
+    # ...and a number in metres/degrees/percent says so IN THE LABEL, because
+    # the label is the only thing visible without hovering.
+    UNITED = {"padding": "m", "evenly_spacing": "m", "fillet_radius": "m",
+              "adjust_to_end": "m", "bend_tol": "m", "corner_angle_deg": "deg",
+              "min_included_angle_deg": "deg", "adaptive_pct": "%",
+              "corner_offset_pct": "%"}
+    byname = dict((t.name(), t) for f, t in rows)
+    nounit = [n for n, u in sorted(UNITED.items())
+              if n in byname and ("(%s)" % u) not in byname[n].label()]
+    check("units_in_the_label", not nounit, len(UNITED),
+          "no unit on: %s" % (",".join(nounit) or "none"))
 
     failed = [r for r in RESULTS if not r[1]]
     print("\n%d failing checks" % len(failed))

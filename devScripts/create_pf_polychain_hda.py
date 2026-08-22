@@ -229,7 +229,13 @@ ptg.append(_menu("corner_mode", "Corner Treatment",
                  "piece around the vertex, which suits rails and hedges; "
                  "MITER cuts a corner module on the angle bisector, which "
                  "suits kerbs, walls and anything with a hard edge."))
-ptg.append(_float("fillet_radius", "Corner Rounding (m)", 0.0, 0.0, 10.0,
+# D96: 5 m, not the 10 m this shipped with. The slider is soft
+# (`max_is_strict=False`, so a bigger number is still typeable), and 10 m of
+# rounding swallows a whole leg of PC-G1's own 12x8 m rectangle - the help
+# below says as much. 0..10 is also `hou`'s UNTOUCHED default on every numeric
+# template, so leaving it there makes "this parm never got a range" and "this
+# parm was given exactly that range" indistinguishable to the UX check.
+ptg.append(_float("fillet_radius", "Corner Rounding (m)", 0.0, 0.0, 5.0,
                   "Metres of radius to round the PATH by before any piece is "
                   "placed. 0 leaves the corner sharp. A radius wider than "
                   "the legs allow is clamped and says so."))

@@ -20,10 +20,22 @@ THE LADDER. One 20 km run of 2 m BENDABLE panels, authored five ways:
                     2 m span, which is BELOW `over_unpacked`'s own 1e-4 m
                     tolerance, so unpacking it is measurably pointless.
   * `arc_2000`    - 2.5e-04 m. Still an order of magnitude under `bend_tol`.
-  * `arc_80`      - 6.2e-03 m, just inside the budget: the last radius that
-                    stays packed at the default tolerance.
+  * `arc_80`      - 6.2e-03 m of SPINE sagitta, just inside the budget.
   * `arc_10`      - 5.0e-02 m, five times the budget. This one MUST unpack,
                     and it is what keeps the budget from being vacuous.
+
+D97 - AND THE LADDER IS RUN TWICE, ONCE PER Z-MODE, BECAUSE THE BUDGET IS NOT
+THE SAGITTA ANY MORE. The starter kit's `panel` carries `pc_zmode = vertical`,
+and a yaw-only mode measures the curvature budget on the module's Z reach only
+(`_needs_deform` passes `proto.rz` = 0.03 m) - so every row above was measured
+with D87's off-spine term switched almost all the way off, and the pass/fail
+rule below was the SPINE formula D87 replaced. Under `adaptive`, where the
+panel's full 0.90 m height rides the frame, R = 80 m genuinely moves the top
+edge 0.0225 m - 2.25x `bend_tol` - and 10 000 pieces correctly unpack:
+measured 360 000 points, 11.1 s, +139 MB against 10 000 points / 0.66 s
+packed. That is D87 working, not a regression, but it is the number PC-G3's
+row has to state. So each row now carries its OWN expectation with the reason
+on the line, instead of deriving one from a formula the kernel stopped using.
 
 Memory is RSS delta around the build, read through `hou.hmemory` (Houdini's
 own counter; no psutil in hython).
@@ -93,7 +105,7 @@ def _curve(kind, radius):
     return geo
 
 
-def _run(kind, radius, kit_geo, style):
+def _run(kind, radius, kit_geo, style, zmode=""):
     geo = _curve(kind, radius)
     before = _rss_mb()
     t0 = time.time()
@@ -101,6 +113,7 @@ def _run(kind, radius, kit_geo, style):
     dt = time.time() - t0
     row = {
         "case": kind,
+        "zmode": zmode or "kit",
         "radius_m": radius,
         "sagitta_m": (None if radius is None
                       else round(4.0 / (8.0 * radius), 9)),
@@ -116,40 +129,61 @@ def _run(kind, radius, kit_geo, style):
     return row
 
 
+# (kind, radius, zmode, expect_all_packed, why). `zmode=""` is the kit's own
+# value - `vertical` for the starter panel, so its off-spine reach is
+# `rz` = 0.03 m. `adaptive` rolls the panel's full 0.90 m height with the
+# frame, which is what D87 measures and what moves the boundary.
+LADDER = (
+    ("two_point", None, "", True, "the floor: a straight line, two points"),
+    ("resampled", None, "", True, "D69 - 20 011 vertices, still no movement"),
+    ("arc_12000", 12000.0, "", True, "4.2e-05 m, under `over_unpacked` itself"),
+    ("arc_2000", 2000.0, "", True, "2.5e-04 m, 40x under `bend_tol`"),
+    ("arc_80", 80.0, "", True, "6.2e-03 m of spine, and rz = 0.03 m of roll"),
+    ("arc_10", 10.0, "", False, "5.0e-02 m, 5x the budget - MUST unpack"),
+    # D97 - the same ladder with the panel's 0.90 m height on the frame.
+    ("arc_12000", 12000.0, "adaptive", True, "0.90 m x 1.7e-04 rad = 1.5e-04 m"),
+    ("arc_2000", 2000.0, "adaptive", True, "0.90 m x 1.0e-03 rad = 9.0e-04 m"),
+    ("arc_80", 80.0, "adaptive", False,
+     "0.90 m x 0.025 rad = 0.0225 m, 2.25x `bend_tol` - THE ROW D87 MOVED"),
+)
+
+
 def main():
     kit_geo = K.starter_kit()
-    style = Style("scale", 1, 3, rules=[Rule("default", "first", ["panel"])],
-                  params=Params(fill="adaptive"))
-    ladder = (("two_point", None), ("resampled", None), ("arc_12000", 12000.0),
-              ("arc_2000", 2000.0), ("arc_80", 80.0), ("arc_10", 10.0))
     rows = []
-    print("%-12s %10s %8s %9s %9s %5s %8s %8s"
-          % ("case", "sagitta", "packed", "deformed", "points", "gids",
-             "seconds", "dRSS MB"))
-    for kind, radius in ladder:
-        row = _run(kind, radius, kit_geo, style)
+    print("%-12s %9s %10s %8s %9s %9s %5s %8s %8s"
+          % ("case", "zmode", "sagitta", "packed", "deformed", "points",
+             "gids", "seconds", "dRSS MB"))
+    for kind, radius, zmode, expect, why in LADDER:
+        style = Style("scale", 1, 3,
+                      rules=[Rule("default", "first", ["panel"])],
+                      params=Params(fill="adaptive", zmode=zmode))
+        row = _run(kind, radius, kit_geo, style, zmode)
+        row["expect_all_packed"] = expect
+        row["why"] = why
         rows.append(row)
-        print("%-12s %10s %8d %9d %9d %5d %8.3f %8.1f"
-              % (row["case"],
+        print("%-12s %9s %10s %8d %9d %9d %5d %8.3f %8.1f"
+              % (row["case"], row["zmode"],
                  "-" if row["sagitta_m"] is None else "%.2e" % row["sagitta_m"],
                  row["packed"], row["deformed"], row["points"],
                  row["geometryids"], row["seconds"], row["rss_delta_mb"]))
     if "--json" in sys.argv:
         with open(sys.argv[sys.argv.index("--json") + 1], "w") as fh:
             json.dump(rows, fh, indent=2, sort_keys=True)
-    # The gate, asserted rather than merely printed: every radius inside the
-    # budget must be 100 % packed and the one outside it must be 0 % packed.
+    # The gate, asserted rather than merely printed. The expectation is on the
+    # LADDER's own line now: deriving it from the sagitta re-implemented the
+    # measure D87 retired, so the harness agreed with a budget the kernel had
+    # already stopped spending (D97).
     bad = []
     for row in rows:
-        sag = row["sagitta_m"]
         total = row["packed"] + row["deformed"]
-        if sag is None or sag <= 0.01:
-            if row["packed"] != total:
-                bad.append("%s: %d of %d packed" % (row["case"], row["packed"],
-                                                    total))
-        elif row["packed"]:
-            bad.append("%s: %d packed, expected 0" % (row["case"],
-                                                      row["packed"]))
+        if row["expect_all_packed"] and row["packed"] != total:
+            bad.append("%s/%s: %d of %d packed - %s"
+                       % (row["case"], row["zmode"], row["packed"], total,
+                          row["why"]))
+        elif not row["expect_all_packed"] and row["packed"]:
+            bad.append("%s/%s: %d packed, expected 0 - %s"
+                       % (row["case"], row["zmode"], row["packed"], row["why"]))
     for b in bad:
         print("FAIL " + b)
     print("\n%d failing rows" % len(bad))

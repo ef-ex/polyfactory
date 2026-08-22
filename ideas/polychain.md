@@ -28,9 +28,9 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | **cycle 8** — the three-reviewer pass over cycle 7, worked through: **13 findings, every one reproduced first, 12 confirmed and fixed** (two were the same defect). The big one is **D87 — the curvature budget was measured on the SPINE**, so a 1.2 m tall bendable rail on an R = 55 m climbing arc stayed **15 of 15 PACKED** on a 0.0091 m spine reading while its top corner had really moved **0.0327 m (3.3x `bend_tol`)**; `span_deviation` now takes the module's off-spine radius. It also closed three pre-existing bend-corner defects (`AS` 0.0424 m, `T` 0.0424 m, `CJ` 0.060 m) and **shrank the bend butt wedge 0.0009 -> 0.000193 m²**. Then **D91** (the Gap parm was live under a wired payload — one payload, two fences), **D94** (`attr:<name>` read exactly two names, so streets' own hook declined everything in silence), **D88** (the marker slot was unreachable from the parm face — PC-G1's own bullet), and D89/D90/D92/D93/D95 plus the artist-UX set (units in seven labels, `StringToggle` slot menus, de-duplicated menu, a slow-cook warning naming the proxy). Suite: **76 scene cases / 0 failing**, **22 HDA checks**, **145 unit tests**, `scale_gate` 0 failing rows, three mutations run and all three red. Before it: **cycle 7**, the curvature budget, §3.3's reader, §5's parm face and §6's starter kit
-| Next up | **Gates PC-G1 and PC-G2's GUI viewport pass** (the only thing they still owe, and it needs the wedged bridge or Hannes), then **the deform path's VEX rewrite** — the 11.0 s R = 10 m row of `scale_gate.py` is what that number is about — and **§4.4's flatten-under**. Then the deferred acceptance: streets consuming polyChain. **Open findings still standing:** (1) ~~the binary kink test~~ — **CLOSED, D75**; (2) a **corner assembly in BEND mode** on a steep pitch inherits §4.4's deferred flatten-under (0.074 m on a 37° leg) — the *butt wedge* half of this got materially smaller in cycle 8 (D87: 0.0009 → 0.000193 m² on `AS`), the flatten-under half is untouched; (3) a `vertical` piece on a uniform slope is a **pure shear** and could stay packed, but does not, deliberately (D65); (4) a 3D (unflattened) bevel's cut plane is **not** dropped onto the conform surface — harmless while the plane is vertical, which is every case in the suite; (5) **the good-looking default is a board fence, not a picket fence** — making `picket_panel` the default means re-deriving `corner_face_mate` / `corner_breach` / `corner_wedge` for a voided module (D86), a cycle not a patch; (6) ~~`plan_points`' stale docstring~~ — **the camber's own off-spine rotation is NOT in the D87 budget**: a packed piece takes the MIDPOINT surface normal (`_packed_transform`) while the deformed one takes a normal PER STATION, and D87 measures the path's turn only. Unreachable in the suite as it stands — measured this cycle, all 15 conform cases keep **zero** bendable pieces packed, because `Surface.deviates` unpacks them first — so it is a gap in the budget rather than a defect in the output. ⚠️ `/obj/polychain_gate` **may still be sitting in Hannes' GUI session** — the bridge was not touched this cycle either
-| Gates | PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** — the closed rectangle and the L close in both corner modes, all four fill modes, the gate on its marker (1.8e-7 m), convex and reflex corners; the bend corner's butt wedge is MEASURED and baselined as the accepted limit (D36 extended), and cycle 6's mutation of it fails by 1.10e-02 m on `CJ_bend_butt_120`. Cycle 8 closed the last hole in its parm face: the **marker slot is authorable on the page** (D88), so PC-G1's gate-on-a-marker no longer needs a payload, and an unread marker warns · **PC-G2 numerically complete + IMAGE-VERIFIED (headless), INCLUDING the curving-spline variant it used to owe; GUI viewport pass still owed** — cycle 6 built the gate's own wording: a 24 m spline that **turns in plan (±3.6 m S-curve) and climbs 2.4 m**, resampled at 0.25 m, over a 2D terrain (`1.1 sin(2πx/13) + 0.8 cos(2πz/9) + 0.06x`), conform ON. All four modes pass **50 of 50** suite checks with **0 failures and nothing baselined**: `plumb_deg` **0.0** over 14 vertical pieces, `flat_stepped_m` **0.0** over **240 stepped posts, 240/240 still PACKED**, `bank_deg` **27.15°** adaptive, camber ON halving the residual to the surface normal (`camber_deg` 37.31° → **17.20°**), `conform_contact_m` **0.0**, `conform_misses` **0**, `inward_faces` **0**, no warnings. Judged on `VG2P_{vertical,stepped,adaptive}.png` and `VG2C_camber_cu.png`: the pickets' ribs are dead vertical while the run's foot follows the ground line, the adaptive rail's ribs lean perpendicular to the drape, the posts' tops make a clean sawtooth over a smooth ground line, and the cambered rail is visibly rolled onto the cross-fall. The **riser under each stepped piece is there and is expected** — §4.4's flatten-under is deliberately not built — and it measures **0.061 m** on this hill · **PC-G3 numerically MEASURED at scale, and narrower than its headline** — 20 km, 10 005 × 2 m bendable panels: **10 005 packed, 0 deformed, one shared `geometryid`, 10 005 real points, +12.1 MB RSS, 0.42 s** as a two-point spline and **the same numbers at 0.55 s** as a **20 011-vertex resampled polyline** — independently reproduced in cycle 6, and D69 is what buys it (reverting D69 takes the resampled form to 0 packed / 10 005 deformed / 360 180 points / **21.9 s**). ⚠️ ~~The gate holds for a STRAIGHT resampled run only~~ — **CLOSED by D75 in cycle 7**: `hython tests/polychain/scale_gate.py` is the harness now, and R = 12 000 / 2 000 / 80 m all read **10 000 packed / 0 deformed / 10 000 points / +5.1 MB / ~0.60 s**, while R = 10 m (five times the budget) still deforms all 10 000 at 10.8 s. The FLOOR rides the suite: `A_straight`, `CE_all_packed`, `CA_swap_module`, `CF_resampled_straight` and `CG_resampled_bendable` are asserted 100 % packed and `over_unpacked` proves nothing unpacks without a reason. Owed: the deform path's VEX rewrite, which is what the 18.9 s number is about · **PC-G4 ✅ PASSES, measured headlessly** (§10 cycle 7): the same fence driven entirely by a style payload on input 3 with the parms at defaults, asserted in `tests/polychain/run_hda_checks.py` — the payload replaces the modules, the styleId and the ids, matches the kernel built from the `Style` object directly, and **the parms are provably inert while it is wired** — cycle 8 turned that from two parms into a SWEEP of the whole page (`swept 36 parms; moved: none`, ids AND rounded positions, exempting only `display`/`show_warnings`/`kitfile` by name), which is what caught `padding` still being live under a payload (D91). The generic-loop rule is audited by construction: `polychain/style.py` contains no style name and no branch per name, and `style_round_trip` re-proves it on all 73 cases. GUI viewport pass owed like the others |
+| Last completed | **cycle 9** — the independent verification pass over cycle 8, by a fresh agent that wrote none of it. Suite re-run from clean: **279 unit tests / 9 625 subtests**, **76 scene cases / 0 failing**, **0 failing HDA checks**, `scale_gate` 0 failing rows, **no baseline movement** (the tree stayed clean after every scene run) and **citygen untouched** across the whole branch. Four mutations run: the curvature budget widened 50x went red on **29 checks**, a silently-ignored payload on **5**, a broken `attr:` conditional dispatch on 2 unit tests plus a scene check — and **one SURVIVED**: stripping the help text, the ranges and the unit suffixes off all nine float parms left the ENTIRE suite green, because `artist_ui.md` §6 was called binding law and nothing enforced a word of it (**D96**, now four checks on the built asset; the stripping mutation fails 3 of them, and the check found `fillet_radius` sitting at `hou`'s untouched 0..10 range on its first run — narrowed to 0..5 m). Second finding: **`scale_gate.py` decided pass/fail from the SPINE sagitta D87 retired**, and its `arc_80` row was green only because the starter panel is yaw-only (`rz` = 0.03 m, not `radius` = 0.90 m) — under `adaptive` that row is **0 packed / 10 000 deformed / 360 000 points / 11.0 s**, which is D87 working and the number PC-G3 has to state (**D97**, expectations now per-row and the ladder run under both z-modes). **PC-G4 re-measured in §2.1's own wording** — the SAME fence from a payload, byte-identical on ids, modules, positions and packed transforms across all 8 fill×corner combinations, 32 parms swept and none moved it, an invented style with a `marker:42` slot built with zero code changes. **PC-G1 and PC-G2 rebuilt and re-judged THROUGH THE PARM FACE** for the first time (`H*.png` in the scratchpad). Before it: **cycle 8**, the three-reviewer pass over cycle 7 — D87's worst-point curvature budget (a 1.2 m rail stayed 15/15 packed on a 0.0091 m spine reading while its top corner had moved 0.0327 m), D91, D94, D88 and D89/D90/D92/D93/D95
+| Next up | **Gates PC-G1 and PC-G2's GUI viewport pass** — the ONLY thing either still owes; cycle 9 rebuilt and re-judged both through the HDA's parm face headlessly, so what is left is Hannes' own eyes in a viewport and it needs the wedged bridge or him. Then **the deform path's VEX rewrite** — the 11.0 s R = 10 m row of `scale_gate.py` is what that number is about — and **§4.4's flatten-under**. Then the deferred acceptance: streets consuming polyChain. **Open findings still standing:** (1) ~~the binary kink test~~ — **CLOSED, D75**; (2) a **corner assembly in BEND mode** on a steep pitch inherits §4.4's deferred flatten-under (0.074 m on a 37° leg) — the *butt wedge* half of this got materially smaller in cycle 8 (D87: 0.0009 → 0.000193 m² on `AS`), the flatten-under half is untouched; (3) a `vertical` piece on a uniform slope is a **pure shear** and could stay packed, but does not, deliberately (D65); (4) a 3D (unflattened) bevel's cut plane is **not** dropped onto the conform surface — harmless while the plane is vertical, which is every case in the suite; (5) **the good-looking default is a board fence, not a picket fence** — making `picket_panel` the default means re-deriving `corner_face_mate` / `corner_breach` / `corner_wedge` for a voided module (D86), a cycle not a patch; (6) ~~`plan_points`' stale docstring~~ — **the camber's own off-spine rotation is NOT in the D87 budget**: a packed piece takes the MIDPOINT surface normal (`_packed_transform`) while the deformed one takes a normal PER STATION, and D87 measures the path's turn only. Unreachable in the suite as it stands — measured this cycle, all 15 conform cases keep **zero** bendable pieces packed, because `Surface.deviates` unpacks them first — so it is a gap in the budget rather than a defect in the output; (7) **cycle 9** — a run that CLIMBS deforms under the starter `panel` at ANY radius, R = 12 000 m included, because `vertical` on a slope is a pure shear: that is finding (3) (D65) seen at PC-G3 scale, and it is why the scale ladder's arcs turn in PLAN. Not a defect, but it is what a consumer dressing a graded street will hit first. ⚠️ `/obj/polychain_gate` **may still be sitting in Hannes' GUI session** — the bridge was not touched this cycle either
+| Gates | PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** — the closed rectangle and the L close in both corner modes, all four fill modes, the gate on its marker (1.8e-7 m), convex and reflex corners; the bend corner's butt wedge is MEASURED and baselined as the accepted limit (D36 extended), and cycle 6's mutation of it fails by 1.10e-02 m on `CJ_bend_butt_120`. Cycle 8 closed the last hole in its parm face: the **marker slot is authorable on the page** (D88), so PC-G1's gate-on-a-marker no longer needs a payload, and an unread marker warns. **Cycle 9 rebuilt the whole figure THROUGH THE PARM FACE and looked at it** (`HC_{miter,bend}_{top,iso}.png`, `HG1_*.png`): the miter's two legs terminate into a corner post with the 45° bisector cut clean across it and the tops flush; the bend turns through the elbow as one continuous top arris with no corner post (D36's ring weld) and only the accepted butt notch; all four Fit Methods close flush on the spline; and the gate authored with **Piece at Markers + Marker Id and NO payload** lands at **x 7.200000..8.800000, centre 8.000000, error 1.788e-07 m**, with the unread-marker warning firing beforehand. PC-G1 no longer owes its parm face — only the GUI viewport pass · **PC-G2 numerically complete + IMAGE-VERIFIED (headless), INCLUDING the curving-spline variant it used to owe; GUI viewport pass still owed** — cycle 6 built the gate's own wording: a 24 m spline that **turns in plan (±3.6 m S-curve) and climbs 2.4 m**, resampled at 0.25 m, over a 2D terrain (`1.1 sin(2πx/13) + 0.8 cos(2πz/9) + 0.06x`), conform ON. All four modes pass **50 of 50** suite checks with **0 failures and nothing baselined**: `plumb_deg` **0.0** over 14 vertical pieces, `flat_stepped_m` **0.0** over **240 stepped posts, 240/240 still PACKED**, `bank_deg` **27.15°** adaptive, camber ON halving the residual to the surface normal (`camber_deg` 37.31° → **17.20°**), `conform_contact_m` **0.0**, `conform_misses` **0**, `inward_faces` **0**, no warnings. Judged on `VG2P_{vertical,stepped,adaptive}.png` and `VG2C_camber_cu.png`: the pickets' ribs are dead vertical while the run's foot follows the ground line, the adaptive rail's ribs lean perpendicular to the drape, the posts' tops make a clean sawtooth over a smooth ground line, and the cambered rail is visibly rolled onto the cross-fall. The **riser under each stepped piece is there and is expected** — §4.4's flatten-under is deliberately not built — and it measures **0.061 m** on this hill. **Cycle 9 re-rendered all of it through the HDA's parm page** with the terrain on input 4 (`HG2_*.png`): the pickets' ribs are plumb while the run's foot tracks the ground line, the stepped posts stand plumb with feet on the ground and tops stepping over it, the adaptive rail's ribs rake perpendicular to the drape, Tilt to Surface visibly rolls the rail onto the cross-fall, and the whole 24 m S-curve reads as a fence on a hill. Only the GUI viewport pass is owed · **PC-G3 numerically MEASURED at scale, and narrower than its headline** — 20 km, 10 005 × 2 m bendable panels: **10 005 packed, 0 deformed, one shared `geometryid`, 10 005 real points, +12.1 MB RSS, 0.42 s** as a two-point spline and **the same numbers at 0.55 s** as a **20 011-vertex resampled polyline** — independently reproduced in cycle 6, and D69 is what buys it (reverting D69 takes the resampled form to 0 packed / 10 005 deformed / 360 180 points / **21.9 s**). ⚠️ ~~The gate holds for a STRAIGHT resampled run only~~ — **CLOSED by D75 in cycle 7**: `hython tests/polychain/scale_gate.py` is the harness now, and R = 12 000 / 2 000 / 80 m all read **10 000 packed / 0 deformed / 10 000 points / +5.1 MB / ~0.60 s**, while R = 10 m (five times the budget) still deforms all 10 000 at 10.8 s. ⚠️ **CYCLE 9 RE-MEASURED THIS AFTER D87 AND THE TERMS ARE NARROWER AGAIN.** Those three rows are green because the starter kit's `panel` is **yaw-only** (`pc_zmode = vertical`), so the budget was spent on `rz` = 0.03 m and D87's off-spine term was switched almost all the way off — and `scale_gate.py` was still deciding pass/fail from `4/(8R)`, **the spine sagitta D87 retired**. Re-run under `zmode = adaptive`, where the panel's full 0.90 m height rides the frame: **R = 12 000 m and R = 2 000 m stay 10 000 packed / 10 000 points / ~0.6 s**, but **R = 80 m is 0 packed / 10 000 deformed / 360 000 points / 11.0 s / +34.7 MB** — `0.90 x 0.025 = 0.0225 m`, 2.25x `bend_tol`, so unpacking is CORRECT. D97 put the expectation on each ladder row with its reason and runs the ladder under both z-modes: **9 rows, 0 failing**, and mutating the budget 50x now fails 2 rows where it failed none. **PC-G3 passes on its own terms** — 10 005-piece packed instancing at 20 km, one `geometryid`, sub-second, +12 MB — and those terms are: a straight or gently-turning-IN-PLAN run, or any run whose module is yaw-only. A TALL module on an R = 80 m arc, or ANY module on a climbing run (D65's shear), costs the 11 s / 360 k-point deform path. The FLOOR rides the suite: `A_straight`, `CE_all_packed`, `CA_swap_module`, `CF_resampled_straight` and `CG_resampled_bendable` are asserted 100 % packed and `over_unpacked` proves nothing unpacks without a reason. Owed: the deform path's VEX rewrite, which is what the 18.9 s number is about · **PC-G4 ✅ PASSES, measured headlessly** (§10 cycle 7): the same fence driven entirely by a style payload on input 3 with the parms at defaults, asserted in `tests/polychain/run_hda_checks.py` — the payload replaces the modules, the styleId and the ids, matches the kernel built from the `Style` object directly, and **the parms are provably inert while it is wired** — cycle 8 turned that from two parms into a SWEEP of the whole page (`swept 36 parms; moved: none`, ids AND rounded positions, exempting only `display`/`show_warnings`/`kitfile` by name), which is what caught `padding` still being live under a payload (D91). The generic-loop rule is audited by construction: `polychain/style.py` contains no style name and no branch per name, and `style_round_trip` re-proves it on all 73 cases. **Cycle 9 re-measured PC-G4 independently, in §2.1's own stronger wording — the SAME fence**: the parm face's own `Style` written out through `style.write` and wired back into input 3 of a second node with the parms at defaults produces output **identical on element ids, module names, rounded point positions AND every packed prim's full transform** across all **8 fill x corner combinations** (adaptive/scale/evenly/count x miter/bend, 35 to 137 prims). The page swept under that payload: **32 parms nudged, 0 moved the geometry**. A style the code has never heard of — `a_style_nobody_wrote_code_for`, carrying a `marker:42` slot — built **52 prims, 4 modules, 0 warnings** with no code change. The branch-per-name grep over the whole kernel returns nothing but `style_from_parms`' DEFAULT VALUE `"pf_polychain"`; the names that do appear in conditionals (`corner`, `default`, `start`, `end`) are §3.3's fixed slot vocabulary — the kernel's own schema, not any style's — and a slot outside it is dispatched generically. GUI viewport pass owed like the others |
 
 **To resume the autonomous run**, re-arm the loop with exactly this:
 
@@ -2007,3 +2007,174 @@ failing** · `run_hda_checks.py` **22 checks, 0 failing** ·
 | D93 | **A marker slot's id is parsed, not just prefix-matched.** `marker:gate` is kept and named rather than validating clean and placing nothing |
 | D94 | **`attr:<name>` reads the spline prim's OWN attributes**, as §3.3 always said. They are harvested by the adapter, carried on `Section` through the corner weld, and merged under the kernel's own `pc_section`/`pc_style` |
 | D95 | **The kit gallery front door is deferred** until a kit corpus beyond the starter kit exists — one kit needs no browser. `kitfile` is the interim picker; recorded so the deviation from §5 is a decision rather than an omission |
+
+### Cycle 9 — independent verification of cycle 8 (2026-08-22)
+
+A fresh agent that wrote none of cycle 8, told to trust nothing and measure
+everything. Everything below is a number this cycle produced, not a number it
+read. **Two survivors were found and both are now closed**, and the gate
+figures were rebuilt for the first time through the HDA's parameter page
+rather than through `place.build`.
+
+#### 1. The suite, re-run from clean
+
+| Runner | Result |
+|---|---|
+| `python -m pytest tests/unit -q` | **279 passed, 9 625 subtests** in 0.77 s |
+| `hython tests/polychain/run_scene_checks.py` | **76 cases, 0 failing checks** |
+| `hython tests/polychain/run_hda_checks.py` | **0 failing checks** |
+| `hython tests/polychain/scale_gate.py` | **0 failing rows** |
+
+**No baseline movement**: `git status` was clean after every scene run, so
+`tests/polychain/baseline.json` was not rewritten by any of them.
+**citygen is untouched** — `git diff` over `tests/citygen/`,
+`tests/unit/test_citygen.py`, `tests/unit/test_plan.py`,
+`polyfactory/scripts/python/polyfactory/citygen/` and `pf_citygen_*.hda`
+across the whole branch (`git merge-base HEAD cityGen`..HEAD) is **empty**.
+
+#### 2. Mutation testing — four mutations, one survivor
+
+| Mutation | Where | Result |
+|---|---|---|
+| Curvature budget widened 50x | `place._needs_deform`, `> tol` becomes `> tol * 50` | **RED — 29 failing checks.** `curvature_budget_m` and `packed_true_dev_m` fire on 8 cases; `CN_arc_tight` and `CP_elev_arc_tall` flip to 100 % packed against their asserted 0 %; `axis_on_curve_m` reads 0.196 m and 0.349 m |
+| Payload silently ignored | `hda.cook`, `style = None` after `style.read` | **RED — 5 failing checks**, including `parms_inert_under_payload` naming the six parms that came back to life (`corner_mode, fillet_radius, padding, slot_default, style_id, variety`) |
+| `pc_cond` subject dispatch broken | `plan.cond_subject`, the `attr:` branch deleted | **RED** — 2 unit tests plus the scene check `modules_by_curve` (`CRa=panel` where `gate` was expected) |
+| **Help text, ranges and unit suffixes stripped from every float parm** | `create_pf_polychain_hda._float` | **SURVIVED.** 9 parms lost their help, their range and their `(m)`/`(deg)`/`(%)` suffix, the asset was rebuilt, and **279 unit tests, 76 scene cases and 22 HDA checks all stayed green** |
+
+That survivor is the finding: `artist_ui.md` §6 is called **binding law** at the
+top of the builder and **nothing enforced a word of it**. Cycle 8's own UX
+items (units in seven labels, the `StringToggle` menus) were verified by a
+human reading the printed list once — which is exactly the kind of check that
+rots. Closed by **D96**.
+
+#### 3. Gate PC-G4 — re-measured in the spec's own wording, PASSES
+
+The existing check proves a payload *overrides* the parms. §2.1's sentence is
+stronger — *the same fence*, driven entirely by a payload, parms at defaults —
+so that was measured directly: the parm face's own `Style` written out through
+`style.write`, wired into input 3 of a second node, and the two nodes compared
+on **element ids, module names, rounded point positions and every packed
+prim's full transform**.
+
+| fill | corner | parm face | payload | identical |
+|---|---|---|---|---|
+| adaptive | miter / bend | 80 / 137 prims | 80 / 137 | **yes / yes** |
+| scale | miter / bend | 48 / 35 | 48 / 35 | **yes / yes** |
+| evenly | miter / bend | 80 / 137 | 80 / 137 | **yes / yes** |
+| count | miter / bend | 48 / 35 | 48 / 35 | **yes / yes** |
+
+Then the whole page swept under the wired payload: **32 parms nudged, 0 moved
+the geometry** (exempting `display`/`show_warnings`/`kitfile` by name). And a
+style the code has never heard of — `styleId = a_style_nobody_wrote_code_for`,
+carrying a `marker:42` slot — built **52 prims, 4 modules, 0 warnings**, with
+no code change anywhere.
+
+**The generic-loop rule holds.** `grep` over the whole kernel for a style name
+in a conditional returns **nothing**: the only occurrence of a style
+identifier is `style_from_parms`' default value `"pf_polychain"`, which is a
+default, not a branch. The names that *do* appear in conditionals are `corner`,
+`default`, `start` and `end` — §3.3's own fixed slot vocabulary, the kernel's
+schema rather than any style's — and a slot outside it (`marker:42`) is
+dispatched generically, as the run above proves.
+
+#### 4. PC-G3 re-measured after D87 — and its terms are narrower than stated
+
+Re-run at 10 000 pieces over 20 km, straight and on arcs:
+
+| case | zmode | packed | deformed | points | gids | seconds | dRSS |
+|---|---|---|---|---|---|---|---|
+| two-point straight | kit (`vertical`) | 10 000 | 0 | 10 000 | 1 | 0.47 s | +15.6 MB |
+| resampled straight (20 011 verts) | kit | 10 000 | 0 | 10 000 | 1 | 0.62 s | +9.4 MB |
+| R = 12 000 m | kit | 10 000 | 0 | 10 000 | 1 | 0.65 s | +6.0 MB |
+| R = 2 000 m | kit | 10 000 | 0 | 10 000 | 1 | 0.66 s | +5.2 MB |
+| R = 80 m | kit | 10 000 | 0 | 10 000 | 1 | 0.66 s | +4.0 MB |
+| R = 10 m | kit | 0 | 9 996 | 359 856 | 0 | 10.92 s | +158.8 MB |
+| R = 12 000 m | **adaptive** | 10 000 | 0 | 10 000 | 1 | 0.60 s | +2.1 MB |
+| R = 2 000 m | **adaptive** | 10 000 | 0 | 10 000 | 1 | 0.61 s | +3.0 MB |
+| **R = 80 m** | **adaptive** | **0** | **10 000** | **360 000** | 0 | **10.98 s** | +34.7 MB |
+
+**The `arc_80` row was passing for a reason nobody had written down.** The
+starter kit's `panel` carries `pc_zmode = vertical`, and a yaw-only mode spends
+the curvature budget on the module's Z reach alone (`_needs_deform` passes
+`proto.rz` = 0.03 m). D87's off-spine term was therefore switched almost all
+the way off in every row of the ladder — and `scale_gate.py` still decided
+pass/fail from `4/(8R)`, **the spine sagitta D87 replaced**. Under `adaptive`,
+where the panel's full 0.90 m height rides the frame, R = 80 m moves the top
+edge `0.90 x 0.025 = 0.0225 m`, **2.25x `bend_tol`**, and unpacking all 10 000
+is correct. This is D87 working, not a regression — but the gate's own harness
+could not see the term the budget now spends. Closed by **D97**.
+
+Separately measured and **not** a defect: a run that *climbs* deforms under
+the starter panel at any radius (R = 12 000 m included) because `vertical` is a
+pure shear on a slope — that is D65, standing open finding (3), reconfirmed
+rather than newly found.
+
+#### 5. PC-G1 and PC-G2 rebuilt through the PARM FACE and looked at
+
+Both gates were image-verified before the parm face existed, and PC-G1
+explicitly still owed *"the parm face + style payload"*. Cycle 3v's rasteriser
+was reused unchanged; what is new is the **source**: a cooked `pf_polychain`
+node with its parameters set and its inputs wired, never `place.build`.
+Images in the scratchpad: `HC_{miter,bend}_{top,iso}.png`,
+`HG1_rect_{bend,miter}_{wide,corner}.png`, `HG1_L_{bend,miter}.png`,
+`HG1_fillmodes.png`, `HG1_gate_marker.png`, `HG2_{vertical,stepped,adaptive}.png`,
+`HG2_camber_{off,on}.png`, `HG2_run_wide.png`.
+
+**What the images show.** *Miter, plan and iso:* the two legs of the 12 x 8 m
+rectangle terminate into a corner post standing on the elbow, tops flush at one
+height, and the 45° bisector cut is visible as a clean diagonal across the
+corner assembly — no gap, no overlap. *Bend, plan and iso:* no corner post at
+all (D36's ring weld), the panel turns through the elbow as one continuous top
+arris, and the only interruption is the small notch at the outer corner that is
+the accepted butt wedge. *Fill modes:* four runs of a 12.3 m spline with
+visibly different piece rhythms, every one closing flush at both ends on the
+spline. *Gate on a marker, authored on the page* (`Piece at Markers = gate`,
+`Marker Id = 1`, no payload anywhere): the wider gate module sits mid-run
+between two posts, measured at **x 7.200000 … 8.800000, centre 8.000000, error
+1.788e-07 m** against `pc_dist = 8.0`; before the two parms were filled the
+node warned *"input 1 carries markers with id 1 and no rule reads them"*.
+*PC-G2 vertical:* every rib between pickets is dead plumb while the run's foot
+tracks the terrain line. *Stepped:* the posts stand plumb with their feet on
+the ground line and their tops stepping over it. *Adaptive:* the same run with
+the ribs visibly raked perpendicular to the drape — the difference between the
+two images is the mode doing what its label says. *Camber off to on:* the rail
+rolls onto the cross-fall, the panel faces swinging from edge-on to fully lit.
+*Whole run:* 24 m of S-curve climbing 2.4 m reads as a fence on a hill, foot on
+the ground the whole way.
+
+**GUI viewport pass is still owed on both** — the live bridge was not touched
+this cycle either.
+
+#### 6. What changed in the tree
+
+* `tests/polychain/run_hda_checks.py` — new section 8, `artist_ui` §6 asserted
+  on the built asset (**D96**): `every_parm_has_help` (33 parms, 0 without),
+  `two_disclosure_levels` (depth 1, one `Advanced` folder),
+  `every_number_has_a_range` (15 numerics, 0 left at `hou`'s untouched 0..10),
+  `units_in_the_label` (9 united parms, 0 missing their suffix). Re-running the
+  stripping mutation against it now gives **3 failing checks**.
+* `devScripts/create_pf_polychain_hda.py` — `fillet_radius` range **0..10 m to
+  0..5 m**. The check above found it on its first run: 0..10 is also `hou`'s
+  default on every numeric template, so a deliberate 0..10 and a parm that
+  never got a range are indistinguishable. 5 m is the better slider anyway —
+  10 m of rounding swallows a whole leg of PC-G1's own rectangle — and the
+  slider is soft, so a larger number is still typeable.
+* `tests/polychain/scale_gate.py` — **D97**: the ladder carries its own
+  expectation per row with the reason on the line, instead of deriving one from
+  the retired spine formula, and runs three extra rows under `zmode=adaptive`.
+  9 rows, 0 failing. Mutating the budget 50x now fails **2 rows**
+  (`arc_10/kit` and `arc_80/adaptive`) where it failed none before.
+
+#### Final state
+
+`python -m pytest tests/unit -q` **279 passed** · `run_scene_checks.py`
+**76 cases, 0 failing** · `run_hda_checks.py` **0 failing** (26 checks) ·
+`scale_gate.py` **9 rows, 0 failing**. Five mutations run this cycle; four
+were red before the cycle's edits, the fifth is red after them.
+
+#### Decisions taken
+
+| # | Decision |
+|---|---|
+| D96 | **The UX law is asserted, not merely obeyed.** `artist_ui.md` §6 is called binding at the top of the HDA builder, and a mutation that stripped the help text, the ranges and the unit suffixes off all nine float parms left the entire suite green. Four checks now read the built asset's own parameter templates: help on every parm, at most two disclosure levels, no numeric left at `hou`'s untouched 0..10 range, and a unit suffix in the label of every parm measured in metres, degrees or percent. A UX rule nothing checks is a UX rule that will be gone in two cycles |
+| D97 | **The scale gate's expectation is stated per row, not derived from the sagitta.** `scale_gate.py` decided pass/fail from `4/(8R)` — the SPINE measure D87 retired — so the harness guarding the curvature budget could not see the term the budget now spends, and its `arc_80` row was green only because the starter panel is yaw-only (`rz` = 0.03 m instead of `radius` = 0.90 m). Each row now carries its own expectation with the reason beside it, and the ladder is run a second time under `zmode = adaptive`, where R = 80 m correctly unpacks all 10 000 pieces |
