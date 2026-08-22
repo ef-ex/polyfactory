@@ -331,6 +331,8 @@ def run_case(name, case):
         C.stepped_riser(scene),
         C.stepped_float(scene),
         C.band_hybrid(scene),
+        C.band_datum(scene),
+        C.stamp_parity(scene, cases.P),
         C.plumb_vertical(scene),
         C.flat_stepped(scene),
         # ⚠️ BA IS IN HERE FOR THE SAME REASON E IS, and it was added because a
@@ -409,6 +411,12 @@ def run_case(name, case):
     out.append(C.corner_seam(scene, expected=CORNER_SEAM.get(name, 0.0)))
     if name in ("C_tile_slice", "H_tile_slope_free", "I_tile_slope_fixed"):
         out.append(C.cap_tagged(scene, expect=1))
+    if name == "DJ_flatten_hero":
+        # the hero is the post's own 0.12 m footprint at 1.5 m instead of
+        # 1.20 m, so its bbox is the proof the replacement actually happened
+        # and `stepped_float_m` is the proof it was planted (D98 on the D58
+        # path). Recorded rather than asserted: the fit scales x.
+        out.append(C.replaced_geometry(scene, expected=None))
     if name in ("CC_replace_hero", "CD_replace_bent"):
         # the hero is a 2.0 x 2.0 x 0.4 m slab and no kit module is anything
         # like it, so its own world bbox is the proof it arrived. CD's piece

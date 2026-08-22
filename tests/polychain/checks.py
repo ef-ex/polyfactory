@@ -33,6 +33,10 @@ WHAT THE NUMBERS MEAN
                      This is the mode working, not a gap - so it is recorded
                      as its own number and excluded from `max_gap_m` rather
                      than quietly tolerated inside it.
+  band_datum_m       WHAT elevation that level half levelled to - D105. The
+                     one question `band_hybrid_m` cannot ask.
+  stamp_parity       [attribute values compared, differing] between the D102
+                     BULK stamp and the per-prim writer it replaced.
   plumb_deg          worst tilt of a vertical-mode piece's up axis away from
                      world up. Must be 0.
   flat_stepped_m     worst spread of (world y - local y) inside a stepped
@@ -688,7 +692,14 @@ def stepped_float(scene):
                     where = "%s %s[%d]" % (p.module, p.slot, p.index)
     if not seen:
         return _skip("stepped_float_m", "no stepped pieces on a path")
-    return Result("stepped_float_m", True, _round(worst, 6),
+    # ASSERTED once the flatten is on, and only then: off is RailClone's own
+    # start-anchored behaviour and this number is then the recorded size of
+    # the defect (D98's own "before"). It was recorded-only, and a mutation
+    # proved that too weak - dropping the datum from the D58 HERO path moved
+    # it 0.0 -> 0.029089 m with every check in the suite still green.
+    ok = worst <= TOL_M if getattr(scene.params, "flatten_stepped",
+                                   False) else True
+    return Result("stepped_float_m", ok, _round(worst, 6),
                   where or ("%d stepped pieces" % seen))
 
 
@@ -767,6 +778,132 @@ def band_hybrid(scene):
     return Result("band_hybrid_m", ok,
                   [_round(flat_worst), _round(follow_worst)],
                   "%d pieces, band %s %.3f m" % (seen, side, size))
+
+
+def band_datum(scene):
+    """D105 - how far a D99 LEVEL BAND sits from the extremum of the ground
+    under its OWN piece, in metres.
+
+    `band_hybrid_m` proves two things about a band and neither of them is
+    this one: that the level half is level, and that the following half
+    actually moved. WHAT elevation the level half levelled to was nobody's
+    number, and the answer was "whatever the ground happened to be where the
+    walk started" - so on the suite's own hill the same fence drawn backwards
+    put every level top rail 0.490874 m elsewhere, and `flatten_stepped`, the
+    parm whose whole promise is that the fence comes out the same whichever
+    way the spline was drawn, did not reach the band at all.
+
+    A datum taken as an EXTREMUM over the piece's own span cannot depend on
+    which end the walk started at, which is why this number goes to 0 with
+    the flatten on and stays there reversed. Which extremum is the band's own
+    side: a level TOP band is a rail held over the piece, so it takes the
+    highest ground and never dips into the body it caps; a level bottom band
+    is D98's flatten-under and takes the lowest.
+
+    Only asserted when `flatten_stepped` is on - off is RailClone's own
+    start-anchored behaviour (D105), and the number is then the recorded
+    size of the direction dependence rather than a failure.
+    """
+    if not _band_case(scene):
+        return _skip("band_datum_m", "no band on this case")
+    side = scene.params.flat_band
+    size = float(scene.params.flat_band_m)
+    worst, where, seen = 0.0, "", 0
+    for track, section, group in _groups(scene):
+        path, remap = track["path"], track["remap"]
+        for p in group:
+            if p.zmode not in ("vertical", "stepped") or p.anchor is not None:
+                continue
+            rec = scene.by_id.get(p.elem_id)
+            src = None if rec is None else scene.sources.get(rec["pc_module"])
+            if src is None:
+                continue
+            bb = src.boundingBox()
+            y0, y1 = bb.minvec()[1], bb.maxvec()[1]
+            lo, hi = ((y1 - size, y1 + 1.0) if side == "top"
+                      else (y0 - 1.0, y0 + size))
+            loc, wrl = rec["local"], rec["world"]
+            xs = loc[0::3]
+            if not xs:
+                continue
+            # the LEVEL half is the band on a plumb piece and everything but
+            # the band on a flat one - `place._follows` read backwards.
+            level = [wrl[i + 1] - loc[i + 1] for i in range(0, len(loc), 3)
+                     if (lo <= loc[i + 1] <= hi)
+                     == (p.zmode == "vertical")]
+            if not level:
+                continue
+            # `min` for the level BOTTOM of a plumb piece and for a flat
+            # piece (D98); `max` for a level top rail (D105).
+            pick = max if (side == "top" and p.zmode == "vertical") else min
+            x0, x1 = min(xs), max(xs)
+            s0 = remap(section.s0 + p.s0)
+            s1 = remap(section.s0 + p.s1)
+            ground = [path.sample(s0 + f * (s1 - s0))[0][1]
+                      for f in (sorted(set((x - x0) / (x1 - x0)
+                                           for x in xs))
+                                if x1 - x0 > 1e-9 else [0.0])]
+            seen += 1
+            d = abs(sum(level) / len(level) - pick(ground))
+            if d > worst:
+                worst, where = d, "%s %s[%d]" % (p.module, p.slot, p.index)
+    if not seen:
+        return _skip("band_datum_m", "no banded piece had a level half")
+    ok = worst <= TOL_M if getattr(scene.params, "flatten_stepped", False)         else True
+    return Result("band_datum_m", ok, _round(worst, 6),
+                  where or ("%d banded pieces" % seen))
+
+
+def stamp_parity(scene, place):
+    """D102's bulk stamp against the per-prim writer it replaced, re-proved
+    on THIS build rather than in a scratchpad that ran once.
+
+    The parity was measured when D102 landed - 83 cases, 163 115 prim
+    attribute values, 0 differences - and then nothing in the repo re-asked
+    it. Every other check reads a stamp from the FIRST prim of an element
+    (`elements` takes `_attrs` from the first prim it sees), so an edit to
+    `_stamp_geo`'s isinstance dispatch that corrupted prims 2..n of a
+    deformed piece would leave all 87 cases and the 9-row ladder green.
+
+    So: for every placement this case built, stamp a throwaway multi-prim
+    geometry BOTH ways and compare every prim's every attribute value. The
+    stamp is a pure function of the placement, so the throwaway geometry is
+    the honest test surface - and using every real placement is what makes a
+    newly added stamp value of a new type show up here.
+    """
+    plan = scene.report["plan"]
+    if not plan:
+        return _skip("stamp_parity", "nothing was built")
+    warns = tuple(scene.report["warn_names"])
+    compared = diffs = 0
+    where = ""
+    for p in plan:
+        rec = scene.by_id.get(p.elem_id)
+        if rec is None:
+            continue
+        zmode, deformed = rec["pc_zmode"], bool(rec["pc_deformed"])
+        replaced = bool(rec.get("pc_replaced"))
+        bulk, per = hou.Geometry(), hou.Geometry()
+        for geo in (bulk, per):
+            for _ in range(3):
+                poly = geo.createPolygon()
+                for _v in range(3):
+                    poly.addVertex(geo.createPoint())
+            place._declare(geo, warns)
+        # the element's OWN warnings, read back off the build, so the warn
+        # half of the stamp is compared too rather than assumed empty.
+        here = tuple(w for w in warns if rec.get(w))
+        place._stamp_geo(bulk, p, here, deformed, zmode, replaced)
+        for prim in per.prims():
+            place._stamp(prim, p, here, deformed, zmode, replaced)
+        for name, _value in place._stamp_values(p, here, deformed, zmode,
+                                                replaced):
+            for a, b in zip(bulk.prims(), per.prims()):
+                compared += 1
+                if a.attribValue(name) != b.attribValue(name):
+                    diffs += 1
+                    where = where or "%s/%s" % (p.elem_id, name)
+    return Result("stamp_parity", diffs == 0, [compared, diffs], where)
 
 
 def bank_adaptive(scene, require_bank=False):

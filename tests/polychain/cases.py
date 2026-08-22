@@ -487,6 +487,44 @@ def build_all():
             params=Params(fill="adaptive", zmode=zmode, flat_band=band,
                           flat_band_m=0.25)))
 
+    # DH/DI - D105. DD above is the band with the flatten OFF, and its level
+    # top rail takes its one elevation from the piece's START: `band_datum_m`
+    # reads 0.490874 m on it, the drop across a piece, so the SAME curve drawn
+    # backwards puts every rail somewhere else. These two are that pair with
+    # the flatten ON - the forward hill and the reversed one - and the datum
+    # is an extremum over the piece's own span, so the number is 0 on both.
+    # A single case cannot see this: 0.490874 m passes any check that only
+    # asks whether the band is level, which is what `band_hybrid_m` asks.
+    for name, pts in (("DH_band_flat_datum", hill_points()),
+                      ("DI_band_flat_datum_rev", list(reversed(hill_points())))):
+        g = hou.Geometry()
+        polyline(g, pts, curve_id="H")
+        built[name] = _case(g, kit_geo, Style(
+            "banded", 1, 4, rules=[Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive", zmode="vertical", flat_band="top",
+                          flat_band_m=0.25, flatten_stepped=True)))
+
+    # DJ - D98's datum on a REPLACED piece. DA proves the flatten plants a
+    # stepped piece; this proves the D58 hero path reads the same datum,
+    # because it did not: hero geometry lands packed at "the transform this
+    # element would have had", and that transform was built without the datum,
+    # so a replaced post floated 0.490874 m above its planted neighbours (one
+    # full piece-drop) with no warning and nothing in the suite combining the
+    # two. Reversed, because that is the direction the float shows in.
+    # the hero keeps the post's own 0.12 m footprint and is 1.5 m tall
+    # instead of 1.2 m, so it is unmistakably NOT the kit module while
+    # `module_fidelity_m` and `max_gap_m` still measure what they measure.
+    hero_post = hou.Geometry()
+    K.box_mesh(hero_post, 0.0, 0.12, 0.0, 1.5, -0.06, 0.06, 1)
+    ov4 = hou.Geometry()
+    P.write_override(ov4, elem_id="H|0|default|135|flat_under", hero=hero_post)
+    g = hou.Geometry()
+    polyline(g, list(reversed(hill_points())), curve_id="H")
+    built["DJ_flatten_hero"] = _case(g, kit_geo, Style(
+        "flat_under", 1, 4, rules=[Rule("default", "first", ["post"])],
+        params=Params(fill="adaptive", zmode="stepped",
+                      flatten_stepped=True)), overrides=ov4)
+
     # DF/DG - D100's CAMBER OFF-SPINE BUDGET GAP, as a pair.
     #
     # The surface is `y = k*x*z` and the run is straight along +X at z = 0, so
@@ -512,6 +550,27 @@ def build_all():
             surface_geo=surface(lambda x, z, _k=k: _k * x * z,
                                 x0=-2.0, x1=22.0, z0=-6.0, z1=6.0,
                                 nx=48, nz=24))
+
+    # DK - D104, and it is DF's own defect one level down. DF's cross-fall
+    # grows MONOTONICALLY, so reading the camber at the span's two ends and
+    # its kinks catches it. This one is a superelevation TRANSITION,
+    # `y = 0.2 sin(pi x) z`: the roll is exactly ZERO at every 2 m piece
+    # boundary AND at every midpoint, and it reaches +/-11.3 degrees at the
+    # quarter-span in between. Measured before D104: 10 of 10 panels stayed
+    # PACKED at 0.197164 m of true deviation, 19.7x `bend_tol` - the same
+    # magnitude D100's own mutation test treats as the gate failing - and a
+    # 1 m-resampled spline was defeated identically (the ripple's period puts
+    # a zero-roll vertex on every kink), so a dense street polyline is not
+    # automatically safe. `deform_gate_m`'s middle number is what keeps this
+    # case honest: 10 pieces over budget, 0 of them packed.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20.0, 0, 0)], curve_id="CB")
+    built["DK_camber_ripple"] = _case(g, kit_geo, Style(
+        "crossfall", 1, 3, rules=[Rule("default", "first", ["panel"])],
+        params=Params(fill="adaptive", zmode="adaptive", conform_tilt=True)),
+        surface_geo=surface(
+            lambda x, z: 0.2 * math.sin(math.pi * x) * z,
+            x0=-2.0, x1=22.0, z0=-6.0, z1=6.0, nx=240, nz=48))
 
     # H and I - slope fixing (D26), as a PAIR, because one of them alone
     # proves nothing.

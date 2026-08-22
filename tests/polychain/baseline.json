@@ -81,6 +81,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        714,
+        0
+      ]
+    },
+    {
       "detail": "11 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -502,6 +519,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        588,
+        0
+      ]
     },
     {
       "detail": "12 pieces",
@@ -931,6 +965,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        336,
+        0
+      ]
+    },
+    {
       "detail": "6 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -1356,6 +1407,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        168,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -1776,6 +1844,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        504,
+        0
+      ]
+    },
+    {
       "detail": "12 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -2191,6 +2276,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        504,
+        0
+      ]
     },
     {
       "detail": "12 pieces",
@@ -2610,6 +2712,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        588,
+        0
+      ]
+    },
+    {
       "detail": "14 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -3025,6 +3144,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
+      ]
     },
     {
       "detail": "12 pieces",
@@ -3449,6 +3585,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        378,
+        0
+      ]
     },
     {
       "detail": "3 pieces",
@@ -3881,6 +4034,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1344,
+        0
+      ]
     },
     {
       "detail": "20 pieces",
@@ -4330,6 +4500,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1050,
+        0
+      ]
+    },
+    {
       "detail": "15 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -4771,6 +4958,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        504,
+        0
+      ]
+    },
+    {
       "detail": "8 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -5186,6 +5390,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        504,
+        0
+      ]
     },
     {
       "detail": "8 pieces",
@@ -5605,6 +5826,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
+      ]
+    },
+    {
       "detail": "16 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -6022,6 +6260,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        504,
+        0
+      ]
+    },
+    {
       "detail": "12 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -6437,6 +6692,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        840,
+        0
+      ]
     },
     {
       "detail": "12 pieces",
@@ -6881,6 +7153,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        378,
+        0
+      ]
+    },
+    {
       "detail": "5 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -7303,6 +7592,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
+      ]
     },
     {
       "detail": "12 pieces",
@@ -7729,6 +8035,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        840,
+        0
+      ]
+    },
+    {
       "detail": "20 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -8140,6 +8463,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        840,
+        0
+      ]
     },
     {
       "detail": "9 pieces",
@@ -8573,6 +8913,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -8981,6 +9338,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
     },
     {
       "detail": "10 pieces",
@@ -9393,6 +9767,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        7014,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -9797,6 +10188,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
     },
     {
       "detail": "no vertical-mode pieces",
@@ -10209,6 +10617,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -10617,6 +11042,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
     },
     {
       "detail": "10 pieces",
@@ -11041,6 +11483,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
       "detail": "10 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -11451,6 +11910,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
       "detail": "10 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -11859,6 +12335,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
     },
     {
       "detail": "10 pieces",
@@ -12278,6 +12771,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        588,
+        0
+      ]
+    },
+    {
       "detail": "10 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -12695,6 +13205,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
       "detail": "10 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -13105,6 +13632,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        84,
+        0
+      ]
+    },
+    {
       "detail": "2 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -13513,6 +14057,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
     },
     {
       "detail": "10 pieces",
@@ -13930,6 +14491,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
     },
     {
       "detail": "10 pieces",
@@ -14354,6 +14932,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        7014,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -14765,6 +15360,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1596,
+        0
+      ]
     },
     {
       "detail": "19 pieces",
@@ -15187,6 +15799,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
       "detail": "10 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -15599,6 +16228,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
     },
     {
       "detail": "10 pieces",
@@ -16024,6 +16670,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        546,
+        0
+      ]
     },
     {
       "detail": "11 pieces",
@@ -16466,6 +17129,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -16872,6 +17552,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -17276,6 +17973,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
     },
     {
       "detail": "10 pieces",
@@ -17686,6 +18400,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        168,
+        0
+      ]
     },
     {
       "detail": "no vertical-mode pieces",
@@ -18103,6 +18834,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        210,
+        0
+      ]
     },
     {
       "detail": "no vertical-mode pieces",
@@ -18524,6 +19272,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        252,
+        0
+      ]
+    },
+    {
       "detail": "4 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -18937,6 +19702,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
       "detail": "10 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -19345,6 +20127,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
     },
     {
       "detail": "10 pieces",
@@ -19757,6 +20556,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
       "detail": "10 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -20165,6 +20981,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
     },
     {
       "detail": "10 pieces",
@@ -20577,6 +21410,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        630,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -20987,6 +21837,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        630,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -21395,6 +22262,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        546,
+        0
+      ]
     },
     {
       "detail": "13 pieces",
@@ -21817,6 +22701,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        210,
+        0
+      ]
+    },
+    {
       "detail": "5 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -22234,6 +23135,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        11340,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -22638,6 +23556,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        11340,
+        0
+      ]
     },
     {
       "detail": "no vertical-mode pieces",
@@ -23046,6 +23981,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        11340,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -23452,6 +24404,23 @@
       "value": [
         0.0,
         0.49087429
+      ]
+    },
+    {
+      "detail": "panel default[14]",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.490874
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
       ]
     },
     {
@@ -23868,6 +24837,23 @@
       ]
     },
     {
+      "detail": "panel default[15]",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -24276,6 +25262,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
     },
     {
       "detail": "no vertical-mode pieces",
@@ -24688,6 +25691,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -25016,6 +26036,1731 @@
       "value": 0
     }
   ],
+  "DH_band_flat_datum": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 16
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "H[0]",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "H[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "16 pieces, band top 0.250 m",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.49087429
+      ]
+    },
+    {
+      "detail": "panel default[15]",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
+      ]
+    },
+    {
+      "detail": "16 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.750",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 9.3e-07
+    },
+    {
+      "detail": "panel want 0.0600 got 0.0600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.884e-06
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 16",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "16 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.963077,
+        1.963138
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.000",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 0.999861
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.254718577
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.037436905
+    },
+    {
+      "detail": "worst 8.922e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 16
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "976d5f4b0749c896"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.1227 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.016576032
+      ]
+    },
+    {
+      "detail": "16 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        16,
+        0
+      ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "16 ids, 24 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "DI_band_flat_datum_rev": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 16
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "H[0] start",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "16 pieces, band top 0.250 m",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.49087429
+      ]
+    },
+    {
+      "detail": "panel default[0]",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
+      ]
+    },
+    {
+      "detail": "16 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.250",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 9.3e-07
+    },
+    {
+      "detail": "panel want 0.0600 got 0.0600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.884e-06
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 16",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "16 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.963077,
+        1.963138
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.250",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 0.999861
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.254718577
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.037436905
+    },
+    {
+      "detail": "worst 8.922e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 16
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "9ea0127f85539dee"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.1227 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.016576032
+      ]
+    },
+    {
+      "detail": "16 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        16,
+        0
+      ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "16 ids, 24 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "DJ_flatten_hero": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 270
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "H[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2e-09
+    },
+    {
+      "detail": "post -> post",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.864e-06
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.029089
+    },
+    {
+      "detail": "post default[90]",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        11340,
+        0
+      ]
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "270 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no bendable pieces",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post want 0.1200 got 0.1200",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 270",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 270
+    },
+    {
+      "detail": "270 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.11635,
+        0.116354
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "post @ x=0.120",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.116349997
+    },
+    {
+      "detail": "worst 1.036e-06 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 270
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "94edcb86925ada37"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "detail": "270 ids, 403 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "H|0|default|135|flat_under",
+      "name": "replaced_bbox_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.16077,
+        1.5,
+        0.1621
+      ]
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "DK_camber_ripple": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 11.30993
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.250",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2e-09
+    },
+    {
+      "detail": "panel want 0.0600 got 0.0600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.4e-08
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 10",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "10 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.250",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 0.987161
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.25
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.0
+    },
+    {
+      "detail": "worst 0.000e+00 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "c6b831a18fbed9b8"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "panel (adaptive)",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "worst real deform 0.1689 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        10,
+        0
+      ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 ids, 18 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
   "D_marker_gate": [
     {
       "detail": "",
@@ -25096,6 +27841,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        462,
+        0
+      ]
     },
     {
       "detail": "11 pieces",
@@ -25515,6 +28277,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -25923,6 +28702,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
+      ]
     },
     {
       "detail": "16 pieces",
@@ -26335,6 +29131,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -26743,6 +29556,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        882,
+        0
+      ]
     },
     {
       "detail": "21 pieces",
@@ -27169,6 +29999,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        840,
+        0
+      ]
+    },
+    {
       "detail": "20 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -27593,6 +30440,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        126,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -28010,6 +30874,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        252,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -28423,6 +31304,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        252,
+        0
+      ]
+    },
+    {
       "detail": "6 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -28833,6 +31731,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        126,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -29237,6 +32152,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
     },
     {
       "detail": "10 pieces",
@@ -29663,6 +32595,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        336,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -30074,6 +33023,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        126,
+        0
+      ]
     },
     {
       "detail": "no vertical-mode pieces",
@@ -30493,6 +33459,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1050,
+        0
+      ]
+    },
+    {
       "detail": "no vertical-mode pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -30904,6 +33887,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        42,
+        0
+      ]
     },
     {
       "detail": "no vertical-mode pieces",
@@ -31319,6 +34319,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
       "detail": "10 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -31727,6 +34744,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        588,
+        0
+      ]
     },
     {
       "detail": "12 pieces",
@@ -32140,6 +35174,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
+      ]
     },
     {
       "detail": "12 pieces",
@@ -32557,6 +35608,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1176,
+        0
+      ]
     },
     {
       "detail": "20 pieces",
@@ -32994,6 +36062,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
+      ]
+    },
+    {
       "detail": "12 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -33409,6 +36494,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        672,
+        0
+      ]
     },
     {
       "detail": "12 pieces",
@@ -33828,6 +36930,23 @@
       "value": null
     },
     {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        588,
+        0
+      ]
+    },
+    {
       "detail": "10 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -34243,6 +37362,23 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        588,
+        0
+      ]
     },
     {
       "detail": "11 pieces",

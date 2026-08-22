@@ -329,7 +329,10 @@ adv.addParmTemplate(_toggle(
     "from its uphill end - so going downhill the whole run hangs in the air, "
     "and drawing the same spline the other way buries it instead. ON it "
     "takes the LOWEST ground under itself, so nothing floats and the fence "
-    "comes out the same whichever way the spline was drawn."))
+    "comes out the same whichever way the spline was drawn. This also "
+    "settles the Level Band below, which has the same one height and took "
+    "it from the same end: ON, a level top rail sits at the HIGHEST ground "
+    "under its piece so it never dips into the piece it caps."))
 adv.addParmTemplate(_menu(
     "flat_band", "Level Band",
     [("", "Off - the whole piece follows its Upright Behaviour"),

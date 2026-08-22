@@ -849,7 +849,7 @@ def _follows(y, band, stepped):
     return inside == stepped
 
 
-def _stepped_base(path, sa, sb, fracs, flatten):
+def _stepped_base(path, sa, sb, fracs, flatten, pick=min):
     """D98 - the ONE elevation a `stepped` piece sits flat at.
 
     OFF (RailClone's default, and every baseline before D98) it is the
@@ -862,14 +862,22 @@ def _stepped_base(path, sa, sb, fracs, flatten):
     4.4 names: the underside touches at its low point and nothing hangs in
     the air, and because a minimum does not care which end it started from,
     the same fence comes out of a reversed spline.
+
+    D105 - `pick` is which extremum, because a D99 LEVEL BAND on a plumb
+    piece is the same question asked upside down. A stepped piece is planted
+    UNDER itself, so it takes the minimum; a level TOP band is a rail held
+    over the piece, so it takes the maximum and never dips below the body it
+    caps. Either way it is an extremum over the piece's own span, which is
+    what makes it independent of the direction the spline was drawn - the
+    whole reason D98 exists.
     """
     y = path.sample(sa)[0][1]
     if not flatten:
         return y
     span = sb - sa
     for f in (fracs or (0.0, 0.5, 1.0)):
-        y = min(y, path.sample(sa + f * span)[0][1])
-    return min(y, path.sample(sb, forward=False)[0][1])
+        y = pick(y, path.sample(sa + f * span)[0][1])
+    return pick(y, path.sample(sb, forward=False)[0][1])
 
 
 def _y_varies(path, sa, sb, fracs):
@@ -883,7 +891,7 @@ def _y_varies(path, sa, sb, fracs):
 
 
 def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive",
-                   normal_at=None):
+                   normal_at=None, fracs=None):
     """D75 + D87 - how far the DEFORMED piece would sit from the PACKED
     one, in metres, measured at its WORST POINT.
 
@@ -939,6 +947,22 @@ def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive",
     once together rather than added twice - and the tangent-only reading is
     what it degrades to when there is no camber, which is every case that
     was measured before this.
+
+    D104 - AND IT IS SAMPLED WHERE THE DEFORM REBUILDS THE FRAME, NOT ONLY AT
+    THE SPLINE'S KINKS. D100 read the camber only at [sa, interior vertices,
+    sb]; `_deform_positions` rebuilds a frame at every MODULE STATION (D71,
+    D31), so a cross-fall whose roll inflects BETWEEN those samples was
+    invisible. Measured: a surface `y = 0.2 sin(pi x) z` - a superelevation
+    transition whose roll is zero at every 2 m piece boundary and at every
+    midpoint - left 10 of 10 panels PACKED at 0.197164 m of true deviation,
+    19.7x `bend_tol`, and a 1 m-resampled spline was defeated identically
+    because the ripple's own period put a zero-roll vertex on every kink. So
+    `fracs` (the module's own stations as fractions of the fit, `_Proto.fracs`)
+    are folded into BOTH walks - the spine one and the frame-rotation one.
+    They are folded only when `normal_at` is given, which keeps the whole
+    no-camber path, and therefore every pre-D104 baseline, byte-identical:
+    on a polyline the spine term is linear between vertices, so the extra
+    stations can only find what the camber roll put there.
     """
     span = sb - sa
     if abs(span) <= EPS:
@@ -946,6 +970,17 @@ def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive",
     verts = path.interior_vertices(sa, sb)
     if not verts and radius <= EPS:
         return 0.0                       # the chord IS the arc (D66/D69)
+    if normal_at is not None and fracs and radius > EPS:
+        # D104 - the deform's own stations, merged in arc order and deduped
+        # against the kinks so a station landing on a vertex is not counted
+        # twice (which would pair a frame with a zero-width span).
+        merged = sorted(list(verts)
+                        + [sa + f * span for f in fracs if f > 0.0])
+        verts, last = [], sa
+        for sv in merged:
+            if sv - last > EPS and sb - sv > EPS:
+                verts.append(sv)
+                last = sv
     a = path.sample(sa)[0]
     b = path.sample(sb, forward=False)[0]
     ab = _sub(b, a)
@@ -1033,8 +1068,8 @@ def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01,
     # no cross-section, which is the spine-only measure D75 shipped.
     if span_deviation(path, sa, sb,
                       proto.radius if zmode == "adaptive" else proto.rz,
-                      zmode, normal_at) > tol:
-        return True                                     # D75, D87, D100
+                      zmode, normal_at, proto.fracs) > tol:
+        return True                              # D75, D87, D100, D104
     # 4.5: A DEAD-STRAIGHT SPLINE OVER A RIDGE HAS NO INTERIOR VERTEX, so
     # without this the test above says "nothing to follow" and a bendable rail
     # crosses the hill as one rigid chord with its two ends on the ground.
@@ -1618,18 +1653,35 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             if hero is not None and deformed and WARN_REPLACED not in warns:
                 warns.append(WARN_REPLACED)             # D58
             # D98 - the flatten-under datum, decided once per piece and used
-            # by BOTH materialisation paths, so a stepped piece sits at the
-            # same elevation whether or not something else unpacked it.
+            # by ALL THREE materialisation paths - packed, deformed, and the
+            # D58 HERO REPLACEMENT, which was reading the spline's own
+            # elevation and floating a replaced piece one full piece-drop
+            # above its planted neighbours (0.490874 m on the suite's hill).
             # Anchored pieces are excluded on purpose: 4.3 gives ONE datum to
             # a whole corner assembly (D72), and a per-half minimum would
             # reopen the 0.02 m step at the seam PC-G1 asks to be gapless.
-            base_y = None
-            if zmode == "stepped" and p.anchor is None                     and getattr(params, "flatten_stepped", False):
-                base_y = _stepped_base(path, s0r, s1r, proto.fracs, True)
+            # D105 - and it reaches the D99 LEVEL BAND of a PLUMB piece too.
+            # Without this the band took its one elevation from the piece's
+            # START (`_deform_positions`' own default), so a "level top rail"
+            # moved by the drop across a piece when the spline was drawn the
+            # other way - 0.490874 m on the suite's own hill - and the parm
+            # that promises direction independence did not reach it.
+            # `packed_y` is the datum a RIGID piece takes: `stepped` only,
+            # because a banded piece has no one elevation to place by.
+            base_y = packed_y = None
+            if p.anchor is None                     and getattr(params, "flatten_stepped", False):
+                if zmode == "stepped":
+                    base_y = packed_y = _stepped_base(
+                        path, s0r, s1r, proto.fracs, True)
+                elif band is not None:
+                    base_y = _stepped_base(
+                        path, s0r, s1r, proto.fracs, True,
+                        max if getattr(params, "flat_band", "") == "top"
+                        else min)
             jobs.append({"p": p, "proto": proto, "path": path, "hero": hero,
                          "s0f": s0f, "s0r": s0r, "s1r": s1r,
                          "zmode": zmode, "scale": scale, "band": band,
-                         "base_y": base_y,
+                         "base_y": base_y, "packed_y": packed_y,
                          "deformed": deformed, "warns": tuple(warns),
                          "remap": remap, "tilt": tilt})
 
@@ -1663,7 +1715,8 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                                        up_ref)
                      if p.anchor is not None
                      else _packed_transform(proto, path, job["s0r"],
-                                            job["s1r"], zmode, up_ref))
+                                            job["s1r"], zmode, up_ref,
+                                            job["packed_y"]))
             prim = out.createPackedGeometry(job["hero"])
             prim.setTransform(xform)
             _stamp(prim, p, warns, False, zmode, replaced=True)
@@ -1683,7 +1736,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             else:
                 xform = _packed_transform(proto, path, job["s0r"],
                                           job["s1r"], zmode, up_ref,
-                                          job["base_y"])
+                                          job["packed_y"])
             prim = out.createPackedGeometry(proto.source)
             prim.setTransform(xform)
             _stamp(prim, p, warns, False, zmode)
