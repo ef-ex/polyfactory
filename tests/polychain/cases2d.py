@@ -320,6 +320,27 @@ def tripwire_one_tower(storeys=40, bays=60):
                    array_id="TOWER")
 
 
+def district(n=100, storeys=8):
+    """100 building footprints on a 10 x 10 grid, plus their kit and style.
+
+    ⚠️ ONE DESCRIPTION OF THE FIXTURE, USED BY BOTH HALVES OF THE BENCH. It
+    used to hand-assemble the loops and call `place.build` directly, so the
+    "ONE call" row measured a code path the shipped adapter could not reach:
+    `facade.build` took one footprint and made one `place.build`, i.e. the
+    100-call column. `facade.build_many` is the entry point now and this
+    returns its arguments.
+    """
+    fps = []
+    for i in range(n):
+        r, c = divmod(i, 10)
+        ox, oz = c * 30.0, r * 30.0
+        fps.append([(ox, 0, oz), (ox + 12, 0, oz), (ox + 12, 0, oz + 9),
+                    (ox, 0, oz + 9)])
+    return (fps, facade_kit(), facade_style(),
+            GROUND_Y + CORNICE_Y + (storeys - 2) * BAY_Y,
+            ["B%03d" % i for i in range(n)])
+
+
 def tripwire_many_buildings(n=100, storeys=8, surface_geo=None):
     """100 buildings x 8 storeys = 800 SHORT rows, through ONE build call.
 
@@ -328,19 +349,13 @@ def tripwire_many_buildings(n=100, storeys=8, surface_geo=None):
     outermost loop over ALL curves (D112), so 800 rows in one call take one
     `ray` execution and 800 rows in 100 calls take 100.
     """
-    kit_geo = facade_kit()
-    style = facade_style()
+    fps, kit_geo, style, height, ids = district(n, storeys)
     kit, _s, _w = K.read(kit_geo)
     _x, y_style = A.split_style(style, None)
     kit_geo2, _fb, _col = F.close_kit(kit_geo, "x", ["default", "corner"])
-    height = GROUND_Y + CORNICE_Y + (storeys - 2) * BAY_Y
     loops = []
-    for i in range(n):
-        r, c = divmod(i, 10)
-        ox, oz = c * 30.0, r * 30.0
-        fp = [(ox, 0, oz), (ox + 12, 0, oz), (ox + 12, 0, oz + 9),
-              (ox, 0, oz + 9)]
-        rows = A.plan_rows(height, kit, y_style, None, "B%03d" % i)
+    for fp, aid in zip(fps, ids):
+        rows = A.plan_rows(height, kit, y_style, None, aid)
         loops.extend(A.row_loops(fp, rows))
     return (loops, kit_geo2, style, surface_geo)
 
@@ -361,38 +376,54 @@ def tripwire_row_emission():
     return F.rows_geometry(_ROWS_CACHE["loops"])
 
 
-def build_many_buildings(one_call=True, surface_geo=None):
-    """The 800-row row stack, in ONE `place.build` call or in `n` of them.
+def build_many_buildings(one_call=True, surface_geo=None, accumulate=False):
+    """The 800-row row stack, in ONE `facade.build_many` or in 100 `build`s.
 
     Both halves live here so PC-G7's "one call is not slower than 100 calls"
     is measured on one description of the fixture rather than on two.
+
+    ⚠️ THE TWO HALVES MUST DO IDENTICAL WORK OR THE RATIO IS AN ARTEFACT, and
+    it was: the many-call half passed one shared `out` through all 100 calls,
+    so `place._stamp_bulk` re-read and re-wrote the whole prim attribute
+    column on every call - O(n^2), 51 % of that half's own runtime - and the
+    one-call half paid it once. Measured fairly (fresh geometry per call, the
+    merge into one geometry added back so both produce the same prim count)
+    the one-call win is much smaller than the 2.95x/3.98x that was recorded,
+    which is D115 restated from what it actually measures. `accumulate=True`
+    keeps the old `out=` shape so the O(n^2) fix has a fixture too.
     """
-    loops, kit_geo2, style, surface = tripwire_many_buildings(
-        surface_geo=surface_geo)
-    x_style, _y = A.split_style(style, None)
+    fps, kit_geo, style, height, ids = district()
     if one_call:
-        return P.build(F.rows_geometry(loops), kit_geo2, x_style,
-                       surface_geo=surface)
+        return F.build_many(fps, kit_geo, style, height=height,
+                            array_ids=ids, surface_geo=surface_geo)
     out = hou.Geometry()
-    per = {}
-    for loop in loops:
-        per.setdefault(loop[2]["pc_curve_id"].split("#")[0], []).append(loop)
-    # the report is ACCUMULATED, not the last call's: a bench row that
-    # reported 176 elements for a 17 600-element build would have made the
-    # one-call/many-call comparison read as though the two did different work.
     total = {"curves": 0, "packed": 0, "deformed": 0, "plan": [],
              "warn_counts": {}, "kit_warnings": []}
-    for key in sorted(per):
-        _g, report = P.build(F.rows_geometry(per[key]), kit_geo2, x_style,
-                             out=out, surface_geo=surface)
+    for fp, aid in zip(fps, ids):
+        g, report = F.build(fp, kit_geo, style, height=height, array_id=aid,
+                            out=out if accumulate else None,
+                            surface_geo=surface_geo)
+        if not accumulate:
+            out.merge(g)
         for field in ("curves", "packed", "deformed"):
             total[field] += report[field]
         total["plan"].extend(report["plan"])
     return (out, total)
 
 
-def terrain(cell=10.0, amp=2.0, wave=120.0, x0=-10.0, x1=320.0,
+def terrain(cell=2.34, amp=2.0, wave=120.0, x0=-10.0, x1=320.0,
             z0=-10.0, z1=320.0):
-    """The district's ground - `cases.heightfield` at 2D fixture size."""
+    """The district's ground - `cases.heightfield` at 2D fixture size.
+
+    ⚠️ THE CELL SIZE IS THE MEASUREMENT. `ray` rebuilds its surface input on
+    every execution and that fixed cost scales with the SURFACE: 11.8 P5c
+    measured 0.34 ms at 5 022 terrain prims, 0.71 ms at 20 088 and 2.25 ms at
+    80 352. At the 10 m cell this fixture shipped with, the ground is 1 089
+    prims - 4.6x SMALLER than the cheapest surface that number was ever
+    measured on - so 99 saved `ray` executions were worth about 34 ms against
+    a 4 s row and the batch could not possibly show its value. 2.34 m gives
+    19 881 prims, i.e. P5c's middle rung, which is the size the one-call rule
+    should be argued from.
+    """
     import cases
     return cases.heightfield(cell, amp, wave, x0, x1, z0, z1)

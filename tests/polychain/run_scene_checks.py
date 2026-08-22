@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 import cases                                                     # noqa: E402
 import checks as C                                               # noqa: E402
 import hou                                                       # noqa: E402
+from polyfactory.polychain import place as P                      # noqa: E402
 
 BASELINE = os.path.join(HERE, "baseline.json")
 
@@ -548,18 +549,31 @@ def port_tripwires():
                                 name="points_wrappers_built_streets"),
         C.prims_wrappers_built(cases.tripwire_deformed_run, hou,
                                name="prims_wrappers_built_deformed"),
-        # ⚠️ THE MITER ROW'S CEILING IS 11.2 P7's SHAPE, not zero, and it
-        # is a LADDER: `clip_plane`'s cap tagging and `dress_caps` are
-        # REAL per-prim loops (they read and write per-prim values), not
-        # a `len()` in disguise - 280 wrappers each on this fixture. P7
-        # is the item that bulk-reads them, and landing it lowers this
-        # number. What the row is here for is the FOURTH `len(.prims())`
-        # site: `clip_plane`'s own, which no other fixture reaches
-        # because the packed, deformed and conformed runs have no
-        # corners at all - restoring it reads 843 against this 600.
+        # ⚠️ THE MITER ROW WAS 11.2 P7's SHAPE, AND P7 HAS NOW LANDED.
+        # `clip_plane`'s cap tagging and `dress_caps`' cap search were
+        # REAL per-prim loops - 280 wrappers each on this fixture, 571
+        # in total against a 600 ceiling, and 156 000 on a phase-2
+        # district. Both read in bulk now (`polyfill` appends its
+        # patches at the tail, and `pc_cap` is an int column), so the
+        # row is at the class boundary a genuine regression would have
+        # to cross rather than 5 % above the value.
         C.prims_wrappers_built(cases.tripwire_mitered_run, hou,
-                               expect_max=600,
+                               expect_max=200,
                                name="prims_wrappers_built_mitered"),
+        # 11.9 rule 1's counter, for reads THROUGH a wrapper - the class
+        # the four counters above cannot see, and the one phase 2 grew
+        # 1 676x while every committed tripwire stayed green.
+        C.wrapper_reads(cases.tripwire_mitered_run, hou, expect_max=4000,
+                        name="wrapper_reads_mitered"),
+        C.wrapper_reads(cases.tripwire_streets_conformed, hou,
+                        expect_max=2000, name="wrapper_reads_streets"),
+        # `clip` and `polyfill` pinned the way `ray` is: each rebuilds its
+        # own input on every execution, and nothing counted them.
+        C.verb_executions_per_build(cases.tripwire_mitered_run, P,
+                                    expect_max=64,
+                                    name="verb_executions_per_build_mitered"),
+        # ...and the verb property the bulk cap tag rests on, re-probed.
+        C.polyfill_appends_its_patches(P, hou),
         C.ray_verb_semantics(cases.CONFORM, cases),
     ]
 

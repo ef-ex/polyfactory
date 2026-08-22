@@ -15,9 +15,33 @@ the same trap is bigger here and the fixture that can see it is:
   MANY BUILDINGS     100 buildings x 8 storeys = 800 SHORT rows, over terrain.
 
 and the row that matters is the SECOND one measured BOTH WAYS: 800 rows
-through one `place.build` call against the same 800 rows through 100 calls.
-The ratio is the whole return on D115, and if it ever drops below 1.0 the
-batch has moved into the wrong loop - the fix is the loop, not the language.
+through one `facade.build_many` call against the same 800 rows through 100
+`facade.build` calls. The ratio is the whole return on D115, and if it ever
+drops below 1.0 the batch has moved into the wrong loop - the fix is the loop,
+not the language.
+
+⚠️ TWO CORRECTIONS, BOTH FOUND BY AUDIT, AND THE HEADLINE MOVED (D144).
+
+1. **The comparand was doing extra work.** The many-call half passed ONE
+   shared `out` through all 100 calls, and `place._stamp_bulk` has to hand
+   `setPrim*AttribValues` the whole column - so every call re-read and
+   re-wrote every prim every earlier call had written. O(n^2), 51 % of that
+   half's own runtime, measured 5.210 s against 2.040 s for the identical
+   work once `place.build` was given a staging geometry. The recorded
+   **2.95x / 3.98x was that defect, not the batch.**
+2. **The terrain was too small to test the thing it was there for.** `ray`'s
+   per-execution rebuild scales with the SURFACE (11.8 P5c: 0.34 ms at 5 022
+   prims, 0.71 ms at 20 088, 2.25 ms at 80 352) and this fixture's ground was
+   1 089 prims, so 99 saved executions were worth ~34 ms against a 4 s row.
+   It is 19 881 prims now.
+
+Measured honestly on this build: **1.14x with no terrain and 1.00x over a
+19 881-prim one, at 1 `ray` execution against 100** (and 1.12x over an
+80 089-prim terrain, i.e. the saving grows with the surface exactly as P5c's
+per-execution numbers say it must). So the one-call rule is **insurance, not a
+speed-up**: what it buys is that the conform cost is O(1) in the number of
+rows instead of O(N), which is why the COUNT is the assertion
+(`ray_executions_per_build == 1`) and the seconds are only the sanity check.
 
 Memory is the process PEAK working set, the same counter `scale_gate.py` and
 `conform_bench.py` read, because 11.8's own headline is that the memory column
@@ -147,12 +171,18 @@ def main():
     terrain = cases2d.terrain()
     rows = []
     print(HEAD)
+    print("terrain: %d prims" % terrain.intrinsicValue("primitivecount"))
     for name, fn in (
             ("one_tower_40x30", lambda: cases2d.tripwire_one_tower(40, 30)),
             ("many_800rows_1call",
              lambda: cases2d.build_many_buildings(True)),
             ("many_800rows_100calls",
              lambda: cases2d.build_many_buildings(False)),
+            # the O(n^2) `build(out=...)` accumulation path, kept as its own
+            # row: it used to BE the comparand, which made the one-call ratio
+            # an artefact of the comparand rather than a property of the batch.
+            ("many_800rows_100calls_accum",
+             lambda: cases2d.build_many_buildings(False, accumulate=True)),
             ("many_800rows_1call_terrain",
              lambda: cases2d.build_many_buildings(True, terrain)),
             ("many_800rows_100calls_terrain",

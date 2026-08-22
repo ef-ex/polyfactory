@@ -4234,6 +4234,87 @@ def ray_executions_per_build(build_fn, hou_mod, expect_max=1, name=None):
                   % (calls[0], expect_max))
 
 
+def verb_executions_per_build(build_fn, place_mod, expect_max, name=None):
+    """How many COMPILED SOP EXECUTIONS one build takes, per verb name.
+
+    `ray_executions_per_build` pins the conform batch because P5 proved a
+    per-execute fixed cost can invert a batch's sign. `clip` and `polyfill`
+    carry the same kind of cost - each rebuilds its own input - and nothing
+    counted them, so phase 2 multiplied them by the ROW COUNT unwatched: a
+    phase-1 rectangle is 4 corners x 2 halves = 8 mitered pieces, a
+    100-building district is 100 x 4 x 8 rows x 2 = 6 400, i.e. 12 800
+    executions against the 100 `ray` calls the cycle went to war over.
+
+    The value is a sorted [name, count] list so a new verb appearing in the
+    kernel is visible as a NAME (11.9: "the only compiled SOPs it reaches are
+    three verbs"), not as a total that happens to match.
+    """
+    import hou as _hou
+    real = _hou.SopVerb.execute
+    counts = {}
+    live = {}
+
+    def spy(self, *a, **k):
+        key = live.get(id(self))
+        counts[key or "?"] = counts.get(key or "?", 0) + 1
+        return real(self, *a, **k)
+    for vname, verb in getattr(place_mod, "_VERBS", {}).items():
+        live[id(verb)] = vname
+    _hou.SopVerb.execute = spy
+    try:
+        build_fn()
+        # verbs are cached lazily, so a name first reached during the build
+        # would otherwise be counted as "?" - relabel and re-key once.
+        for vname, verb in getattr(place_mod, "_VERBS", {}).items():
+            live.setdefault(id(verb), vname)
+    finally:
+        _hou.SopVerb.execute = real
+    got = [[k, counts[k]] for k in sorted(counts)]
+    total = sum(counts.values())
+    return Result(name or "verb_executions_per_build", total <= expect_max,
+                  got, "%d compiled SOP executions in one build (ceiling %d)"
+                  % (total, expect_max))
+
+
+def polyfill_appends_its_patches(place_mod, hou_mod):
+    """THE VERB PROPERTY `clip_plane`'s BULK CAP TAG RESTS ON.
+
+    P7's fix replaced a per-prim, per-point plane test with "the caps are the
+    tail", which is true because `polyfill` appends the primitives it creates
+    contiguously after the ones it was given. That was probed on this build
+    rather than recalled - and a probe that is not committed is a probe that
+    silently stops being true, so this re-runs it: three disjoint boxes cut by
+    one plane, the tail range compared against the ORIGINAL plane test.
+    """
+    from polyfactory.polychain import kit as _kit
+    cat = hou_mod.sopNodeTypeCategory()
+    src = hou_mod.Geometry()
+    for z in (0.0, 5.0, 10.0):
+        box = hou_mod.Geometry()
+        _kit.box_mesh(box, 0.0, 3.0, z, z + 3.2, -0.15, 0.15, 2)
+        src.merge(box)
+    cut = hou_mod.Geometry()
+    clip = cat.nodeVerb("clip")
+    clip.setParms({"origin": (1.7, 0.0, 0.0), "dir": (1.0, 0.0, 0.0),
+                   "clipop": 1})
+    clip.execute(cut, [src])
+    n_cut = cut.intrinsicValue("primitivecount")
+    filled = hou_mod.Geometry()
+    pfill = cat.nodeVerb("polyfill")
+    pfill.setParms({"fillmode": 0})
+    pfill.execute(filled, [cut])
+    n_all = filled.intrinsicValue("primitivecount")
+    tail = list(range(n_cut, n_all))
+    plane = [prim.number() for prim in filled.prims()
+             if prim.points() and all(abs(p.position()[0] - 1.7) <= 1e-5
+                                      for p in prim.points())]
+    ok = bool(tail) and sorted(plane) == tail
+    return Result("polyfill_appends_its_patches", ok, [len(tail), len(plane)],
+                  "%d patches at the tail, %d found by the plane test%s"
+                  % (len(tail), len(plane),
+                     "" if ok else " - THE BULK CAP TAG IS NOW WRONG"))
+
+
 def points_wrappers_built(build_fn, hou_mod, expect_max=8, name=None):
     """The same question for `hou.Point`, because the same defect came back.
 
@@ -4277,6 +4358,63 @@ def points_wrappers_built(build_fn, hou_mod, expect_max=8, name=None):
     return Result(name or "points_wrappers_built", built[0] <= expect_max,
                   built[0], "%d `hou.Point` wrappers materialised in one "
                   "build (ceiling %d)" % (built[0], expect_max))
+
+
+def wrapper_reads(build_fn, hou_mod, expect_max, name=None):
+    """THE HOLE THE OTHER FOUR TRIPWIRES LEFT: reads through a `hou.Prim`.
+
+    `prims_wrappers_built` and `points_wrappers_built` count wrappers
+    MATERIALISED through `hou.Geometry` / `hou.PointGroup`, and
+    `stamp_calls_per_piece` / `rows_wrappers_built` count wrapper WRITES.
+    A read through a wrapper is neither, so `points_wrappers_built` read 0
+    (PASS, ceiling 8) on a phase-2 district that materialised 159 242
+    `hou.Point` objects through `hou.Prim.points` and called
+    `Point.position` 220 488 times - i.e. 11.9 rule 1's instruction "if a
+    phase-2 row is slow, COUNT WRAPPERS" was unanswerable with the counters
+    that existed. This is that number: `Prim.points` (by length),
+    `Point.position`, `Point.attribValue` and `Prim.attribValue`.
+
+    The ceiling is a CLASS boundary, not a floor - three legitimate wrapper
+    loops remain (kit validation, kit read, `read_curves`) and they are
+    bounded by the kit and the input.
+    """
+    real_pp = hou_mod.Prim.points
+    real_pos = hou_mod.Point.position
+    real_pav = hou_mod.Point.attribValue
+    real_rav = hou_mod.Prim.attribValue
+    got = [0]
+
+    def spy_pp(self, *a, **k):
+        out = real_pp(self, *a, **k)
+        got[0] += len(out)
+        return out
+
+    def spy_pos(self, *a, **k):
+        got[0] += 1
+        return real_pos(self, *a, **k)
+
+    def spy_pav(self, *a, **k):
+        got[0] += 1
+        return real_pav(self, *a, **k)
+
+    def spy_rav(self, *a, **k):
+        got[0] += 1
+        return real_rav(self, *a, **k)
+    hou_mod.Prim.points = spy_pp
+    hou_mod.Point.position = spy_pos
+    hou_mod.Point.attribValue = spy_pav
+    hou_mod.Prim.attribValue = spy_rav
+    try:
+        build_fn()
+    finally:
+        hou_mod.Prim.points = real_pp
+        hou_mod.Point.position = real_pos
+        hou_mod.Point.attribValue = real_pav
+        hou_mod.Prim.attribValue = real_rav
+    return Result(name or "wrapper_reads", got[0] <= expect_max, got[0],
+                  "%d wrapper reads (`Prim.points` + `Point.position` + "
+                  "`*.attribValue`) in one build (ceiling %d)"
+                  % (got[0], expect_max))
 
 
 # ---------------------------------------------------------------------------

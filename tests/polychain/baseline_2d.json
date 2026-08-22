@@ -5438,11 +5438,11 @@
       "value": 0
     },
     {
-      "detail": "78132 `hou.Prim` wrappers materialised in one build (ceiling 80000)",
+      "detail": "836 `hou.Prim` wrappers materialised in one build (ceiling 5000)",
       "name": "prims_wrappers_built_2d_rows",
       "ok": true,
       "skipped": false,
-      "value": 78132
+      "value": 836
     },
     {
       "detail": "0 `hou.Point` wrappers materialised in one build (ceiling 8)",
@@ -5450,6 +5450,39 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "65816 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 100000)",
+      "name": "wrapper_reads_2d_rows",
+      "ok": true,
+      "skipped": false,
+      "value": 65816
+    },
+    {
+      "detail": "12800 compiled SOP executions in one build (ceiling 20000)",
+      "name": "verb_executions_per_build_2d_rows",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "clip",
+          6400
+        ],
+        [
+          "polyfill",
+          6400
+        ]
+      ]
+    },
+    {
+      "detail": "3 patches at the tail, 3 found by the plane test",
+      "name": "polyfill_appends_its_patches",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3,
+        3
+      ]
     }
   ]
 }

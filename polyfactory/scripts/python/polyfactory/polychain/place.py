@@ -718,8 +718,12 @@ def dress_caps(geo, module_name="", texel=1.0, local_attr=None):
     """
     if geo.findPrimAttrib(CAP_ATTR) is None:
         return geo
-    caps = [prim for prim in geo.prims()
-            if int(prim.attribValue(CAP_ATTR)) == 1]
+    # the FLAGS in bulk, then a wrapper for the handful of prims that are
+    # caps - never one per prim to ask a question an array answers. On the
+    # 100-building district this loop built 18 880 `hou.Prim` wrappers to find
+    # 6 400 caps (11.9 rule 1, and the same P7 as `clip_plane`'s cap test).
+    flags = geo.primIntAttribValues(CAP_ATTR)
+    caps = [i for i, v in enumerate(flags) if v == 1]
     if not caps:
         return geo
     if geo.findPrimAttrib(CAP_MATERIAL_ATTR) is None:
@@ -727,9 +731,13 @@ def dress_caps(geo, module_name="", texel=1.0, local_attr=None):
     if geo.findVertexAttrib("uv") is None:
         geo.addAttrib(hou.attribType.Vertex, "uv", (0.0, 0.0, 0.0))
     inv = 1.0 / texel if texel > EPS else 1.0
-    for prim in caps:
-        prim.setAttribValue(CAP_MATERIAL_ATTR, "%s_cap" % module_name
-                            if module_name else "pc_cap")
+    name = "%s_cap" % module_name if module_name else "pc_cap"
+    col = list(geo.primStringAttribValues(CAP_MATERIAL_ATTR))
+    for i in caps:
+        col[i] = name
+    geo.setPrimStringAttribValues(CAP_MATERIAL_ATTR, col)
+    for i in caps:
+        prim = geo.prim(i)
         for vtx in prim.vertices():
             pt = vtx.point()
             local = pt.position()
@@ -1313,17 +1321,41 @@ def clip_plane(geo, origin, normal, keep_sign, module_name="", texel=1.0):
     clip.execute(cut, [geo])
     if not cut.intrinsicValue("primitivecount"):
         return cut
+    n_cut = cut.intrinsicValue("primitivecount")
     filled = hou.Geometry()
     pfill = _verb("polyfill")
     pfill.setParms({"fillmode": 0})
     pfill.execute(filled, [cut])
     if filled.findPrimAttrib("pc_cap") is None:
         filled.addAttrib(hou.attribType.Prim, "pc_cap", 0)
-    for prim in filled.prims():
-        pts = prim.points()
-        if pts and all(abs(sum((p.position()[k] - origin[k]) * normal[k]
-                               for k in range(3))) <= 1e-5 for p in pts):
-            prim.setAttribValue("pc_cap", 1)
+    # ⚠️ 11's UNATTEMPTED P7, AND AT FACADE SCALE IT IS THE BIGGEST ITEM IN
+    # THE ROW. This used to be `for prim in filled.prims(): pts =
+    # prim.points(); ... p.position() ...` - a plane test on every point of
+    # every prim through wrappers. Phase 1 pays it 8 times per rectangle;
+    # phase 2 pays it per vertex PER ROW, so a 100-building district reached
+    # 156 000 `hou.Prim` wrappers and 198 408 `Point.position` calls here
+    # alone - 46 % of the whole build, and invisible to
+    # `points_wrappers_built`, which spies `hou.Geometry.points` and never
+    # sees a read through `hou.Prim`.
+    #
+    # `polyfill` APPENDS its patches contiguously at the tail - PROBED, not
+    # assumed (`polyfill_appends_its_patches` is the standing check, and it
+    # compares the tail against this very plane test on a three-hole cut), so
+    # the caps are exactly `[n_cut:]` and the tag is one bulk write of a list
+    # nobody had to look at any geometry to build.
+    #
+    # ⚠️ AND IT IS AN **OR**, NOT AN ASSIGNMENT. A default piece is cut at
+    # BOTH ends as soon as a leg is shorter than twice the miter overhang (a
+    # 1.5 m equilateral triangle does it), and the first cut's `pc_cap` rides
+    # through the second `clip` on the verb's own attribute promotion. The
+    # old per-prim loop only ever SET the flag, so overwriting the column
+    # cleared the first cap - `corner_face_mate_m` on `AI_triangle` went from
+    # 1.29e-07 to 0.0352 m, which is what that check is for.
+    n_all = filled.intrinsicValue("primitivecount")
+    if n_all > n_cut:
+        col = list(filled.primIntAttribValues("pc_cap"))
+        col[n_cut:] = [1] * (n_all - n_cut)
+        filled.setPrimIntAttribValues("pc_cap", col)
     # the miter cap is in WORLD space, so its box UV is read off `pc_local`,
     # which rode through the clip on the verb's own attribute promotion.
     dress_caps(filled, module_name, texel,
@@ -1986,6 +2018,18 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             if w not in warn_names:
                 warn_names.append(w)
     warn_names.sort()
+    # ⚠️ WHEN THE CALLER ACCUMULATES, DO NOT BUILD ON TOP OF ITS HEAD.
+    # `_stamp_bulk` has to hand `setPrim*AttribValues` the WHOLE column, so
+    # `build(out=...)` made every call re-read and re-write every prim every
+    # earlier call had written - O(n^2) on the documented accumulation path,
+    # and 51 % of a 100-building district (5.20 s against 1.81 s for the same
+    # work). This call's pieces go into a staging geometry, are stamped once
+    # at base 0, and are merged into the caller's geometry as one block.
+    # An EMPTY `out` - every caller in the tree and every committed case -
+    # takes the identical path it always took, so no baseline value can move.
+    target = out
+    if out.intrinsicValue("primitivecount"):
+        out = hou.Geometry()
     _declare(out, warn_names, cells=any(j["p"].cell for j in jobs))
 
     # --- pass B: materialise -----------------------------------------------
@@ -2093,6 +2137,9 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         n_deformed += 1
 
     _stamp_bulk(out, stamp_rows, warn_names, stamp_base)
+    if out is not target:
+        target.merge(out)
+        out = target
     _kit_warnings(out, kit_warns)
     counts = _collate_warnings(out, jobs)
     report = {

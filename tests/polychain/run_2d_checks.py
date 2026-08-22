@@ -31,6 +31,7 @@ import cases2d                                                   # noqa: E402
 import checks as C                                               # noqa: E402
 import hou                                                       # noqa: E402
 import run_scene_checks as R                                     # noqa: E402
+from polyfactory.polychain import place as P                      # noqa: E402
 
 BASELINE = os.path.join(HERE, "baseline_2d.json")
 
@@ -315,11 +316,29 @@ def tripwires():
         # would lower it; nothing phase 2 added is in this number, and the row
         # exists so that stops being true visibly rather than silently.
         C.prims_wrappers_built(lambda: cases2d.build_many_buildings(True),
-                               hou, expect_max=80000,
+                               hou, expect_max=5000,
                                name="prims_wrappers_built_2d_rows"),
         C.points_wrappers_built(lambda: cases2d.build_many_buildings(True),
                                 hou, expect_max=8,
                                 name="points_wrappers_built_2d_rows"),
+        # ⚠️ THE COUNTER THE OTHER FOUR COULD NOT REACH. `Prim.points` +
+        # `Point.position` + `*.attribValue` - reads through a wrapper, which
+        # is neither a wrapper materialised through `hou.Geometry` nor a
+        # wrapper WRITE. It read 159 242 + 220 488 + 19 150 + 44 256 on this
+        # fixture while `points_wrappers_built_2d_rows` said 0 (ceiling 8),
+        # which is 11.9 rule 1's own instruction being unanswerable. P7's two
+        # bulk rewrites (`clip_plane`'s cap tag, `dress_caps`' cap search) are
+        # what the number is now.
+        C.wrapper_reads(lambda: cases2d.build_many_buildings(True), hou,
+                        expect_max=100000, name="wrapper_reads_2d_rows"),
+        # `clip` + `polyfill`, pinned the way `ray` is: 6 400 mitered pieces
+        # take 2 executions each and each one rebuilds its own input. A fourth
+        # verb name appearing here is 11.9's "three verbs" quietly becoming
+        # four.
+        C.verb_executions_per_build(
+            lambda: cases2d.build_many_buildings(True), P, expect_max=20000,
+            name="verb_executions_per_build_2d_rows"),
+        C.polyfill_appends_its_patches(P, hou),
     ]
 
 

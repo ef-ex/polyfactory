@@ -106,12 +106,19 @@ def rows_geometry(loops, corner_flags=None, geo=None):
         geo.setPrimFloatAttribValues(name, [float(a.get(name, 0.0))
                                             for a in attrs])
     if corner_flags:
+        # either ONE flag list for the whole stream, or one PER LOOP - which
+        # is what a district of differently-authored footprints needs, and the
+        # reason the flags are indexed by loop rather than by point: this
+        # function reorders the stream (closed rows first, open spans after)
+        # and a flat per-point column could not follow it.
+        per_loop = isinstance(corner_flags[0], (list, tuple))
         _ensure(geo, hou.attribType.Point, "pc_corner", 0)
         col = []
         for i in order:
             pts = loops[i][0]
-            col.extend([int(corner_flags[j % len(corner_flags)])
-                        for j in range(len(pts))])
+            fl = corner_flags[i] if per_loop else corner_flags
+            col.extend([int(fl[j % len(fl)]) for j in range(len(pts))] if fl
+                       else [0] * len(pts))
         geo.setPointIntAttribValues("pc_corner", col)
     return geo
 
@@ -196,6 +203,47 @@ def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
 
     The report is `place.build`'s, plus `rows` (the Y solve, as dicts),
     `role_fallbacks` (7.2.2's walk, per cell) and `array_id`.
+
+    This is `build_many` with one footprint, and that is not a refactor for
+    tidiness: D115's one-call property was only ever exercised by a bench
+    fixture that hand-assembled loops and called `place.build` itself, while
+    the only shipped entry point took ONE footprint and therefore ONE
+    `place.build` per building - i.e. exactly the 100-call column the bench
+    labelled the loser. One body, so the fixture and the API cannot diverge.
+    """
+    return build_many([footprint], kit_geo, style, height=height,
+                      profile=profile, array_ids=[array_id],
+                      y_params=y_params, extend=extend, closed=closed,
+                      corner_flags=corner_flags, area=area,
+                      clip_mode=clip_mode, auto_align=auto_align,
+                      expand=expand, out=out, surface_geo=surface_geo,
+                      overrides=overrides)
+
+
+def build_many(footprints, kit_geo, style, height=None, heights=None,
+               profile=None, array_ids=None, y_params=None, extend="x",
+               closed=True, corner_flags=None, area=False,
+               clip_mode="remove", auto_align="to_spline", expand=0.0,
+               out=None, surface_geo=None, overrides=None):
+    """N footprints -> ONE `place.build`. D115 / PC-G7's one-call rule, shipped.
+
+    ⚠️ THIS IS THE ENTRY POINT THE ONE-CALL RULE IS ABOUT, and until it
+    existed there was no caller that could reach it. `place.build` hoists the
+    conform batch to the outermost loop over ALL curves (D112) and takes one
+    `ray` execution per build, so a district of 100 buildings driven one
+    `facade.build` at a time took 100 `ray` executions and 300 `kit.read`
+    calls - the shape 11.9 rule 2 exists to warn about - while
+    `ray_executions_per_build == 1` was asserted on a fixture with no caller.
+
+    `heights` / `array_ids` are optional parallel sequences; `corner_flags` is
+    either one flag list shared by every footprint or one per footprint. The
+    kit is read and closed ONCE for the whole district, which is the other
+    per-call cost a per-building loop paid.
+
+    Returns (geometry, report). The report is `place.build`'s plus `arrays` -
+    one entry per footprint carrying its rows, frame and unbuilt rows - and,
+    when there is exactly one footprint, that entry's fields hoisted to the
+    top level so `build`'s report shape is unchanged.
     """
     kit, _sources, _kw = _kit.read(kit_geo)
     x_style, y_style = _array2d.split_style(style, _y_params(style, y_params))
@@ -203,30 +251,50 @@ def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
             [r.slot for r in style.rules]
     kit_geo2, fallbacks, collisions = close_kit(kit_geo, extend, named)
 
-    frame = None
-    unbuilt = []
-    if area:
-        frame = _array2d.area_frame(footprint, auto_align, expand)
-        rows = _array2d.plan_rows(profile if profile is not None
-                                  else (height if height is not None
-                                        else frame.height),
-                                  kit, y_style, y_params, array_id)
-        loops = _array2d.area_rows(frame, rows, clip_mode, unbuilt)
-    else:
-        rows = _array2d.plan_rows(profile if profile is not None else height,
-                                  kit, y_style, y_params, array_id)
-        loops = _array2d.row_loops(footprint, rows, closed)
-        corner_flags = canonical_flags(footprint, corner_flags, closed)
+    per_flags = bool(corner_flags) and isinstance(corner_flags[0],
+                                                  (list, tuple))
+    loops, arrays, flag_col = [], [], []
+    for i, footprint in enumerate(footprints):
+        array_id = (array_ids[i] if array_ids is not None
+                    else ("A" if len(footprints) == 1 else "A%03d" % i))
+        h = heights[i] if heights is not None else height
+        flags = corner_flags[i] if per_flags else corner_flags
+        frame, unbuilt = None, []
+        if area:
+            frame = _array2d.area_frame(footprint, auto_align, expand)
+            rows = _array2d.plan_rows(
+                profile if profile is not None
+                else (h if h is not None else frame.height),
+                kit, y_style, y_params, array_id)
+            mine = _array2d.area_rows(frame, rows, clip_mode, unbuilt)
+        else:
+            rows = _array2d.plan_rows(profile if profile is not None else h,
+                                      kit, y_style, y_params, array_id)
+            mine = _array2d.row_loops(footprint, rows, closed)
+            flags = canonical_flags(footprint, flags, closed)
+        loops.extend(mine)
+        # one flag list PER LOOP, because `rows_geometry` reorders the stream
+        # (closed rows first) and a flat column could not follow it.
+        flag_col.extend([flags] * len(mine))
+        arrays.append({"array_id": array_id, "frame": frame,
+                       "rows_unbuilt": list(unbuilt),
+                       "rows": [dict(r.as_dict(),
+                                     built=0 if r.index in unbuilt else 1)
+                                for r in rows]})
 
-    geo, report = _place.build(rows_geometry(loops, corner_flags), kit_geo2,
-                               x_style, params=x_style.params, out=out,
-                               surface_geo=surface_geo, overrides=overrides)
-    report["rows"] = [dict(r.as_dict(), built=0 if r.index in unbuilt else 1)
-                      for r in rows]
-    report["rows_unbuilt"] = list(unbuilt)
+    geo, report = _place.build(
+        rows_geometry(loops, flag_col if any(flag_col) else None), kit_geo2,
+        x_style, params=x_style.params, out=out, surface_geo=surface_geo,
+        overrides=overrides)
+    report["arrays"] = arrays
+    one = arrays[0] if len(arrays) == 1 else None
+    report["rows"] = one["rows"] if one else [r for a in arrays
+                                              for r in a["rows"]]
+    report["rows_unbuilt"] = one["rows_unbuilt"] if one else []
+    report["array_id"] = one["array_id"] if one else ""
+    report["frame"] = one["frame"] if one else None
+    unbuilt = [(a["array_id"], i) for a in arrays for i in a["rows_unbuilt"]]
     report["role_fallbacks"] = fallbacks
-    report["array_id"] = array_id
-    report["frame"] = frame
     # the kit the KERNEL actually read (D136's closed copy), so a check
     # resolves the same roles the builder did instead of the ones the caller
     # authored.
@@ -235,8 +303,8 @@ def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
     # happened, and this says which one, once per (role, kit).
     report["kit_warnings"] = list(report.get("kit_warnings", [])) + \
         list(collisions) + \
-        ["%s: row %d has no span left inside the clip boundary - not built"
-         % (_ROW_CLIPPED, i) for i in unbuilt] + \
+        ["%s: array %s row %d has no span left inside the clip boundary - "
+         "not built" % (_ROW_CLIPPED, a, i) for a, i in unbuilt] + \
         _array2d.fallback_lines(dict((k, v) for k, v in fallbacks.items()
                                      if _used(k, report)))
     return (geo, report)
