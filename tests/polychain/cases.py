@@ -827,7 +827,80 @@ def build_all():
                                        surface_geo=surface(ramp_x, z0=-2.0,
                                                            z1=12.0, nz=14))
 
+    # ---- 4.6 FINALIZE: the override cascade, and the instancing floor.
+
+    # CA - SWAP. The style says `panel` and never stops saying it; an override
+    # point re-points every panel to `gate` WITHOUT the style being touched
+    # (3.4's own requirement). The ids must be identical to CB's - that is
+    # what "round-trip" means here, and D1 is why it is even possible: the
+    # module is not part of the address, and `override_round_trip` cooks the
+    # control itself rather than needing a twin case here.
+    ov = hou.Geometry()
+    P.write_override(ov, module="panel", to_module="gate")
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="CA")
+    built["CA_swap_module"] = _case(g, kit_geo, panel_style(), overrides=ov)
+
+    # CC - REPLACE. One element, keyed by its own `pc_elem_id`, becomes hero
+    # geometry: a 2 m x 2 m x 0.4 m slab that no kit contains, so "did the
+    # hero actually arrive" is a question the built bbox answers rather than
+    # the attribute.
+    hero = hou.Geometry()
+    K.box_mesh(hero, 0.0, 2.0, 0.0, 2.0, -0.2, 0.2, 1)
+    ov2 = hou.Geometry()
+    P.write_override(ov2, elem_id="CC|0|default|3|rail", hero=hero)
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="CC")
+    built["CC_replace_hero"] = _case(g, kit_geo, panel_style(), overrides=ov2)
+
+    # CD - A REPLACE ON A DEFORMED PIECE. Hero geometry cannot follow a bend
+    # (D58), so this is the case that must WARN rather than silently
+    # straighten the run - the same figure as T_lshape_bend, with the piece
+    # that wraps the elbow replaced.
+    ov3 = hou.Geometry()
+    P.write_override(ov3, elem_id="CD|0|default|5|corner", hero=hero)
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (12, 0, 0), (12, 0, 11)], curve_id="CD")
+    built["CD_replace_bent"] = _case(g, kit_geo, corner_style("bend"),
+                                     overrides=ov3)
+
+    # CE - THE INSTANCING FLOOR: a straight run of RIGID modules must be
+    # 100 % packed. PC-G3's whole claim in one case, and the one number that
+    # a builder which unpacked everything would fail while staying
+    # geometrically perfect.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (25, 0, 0)], curve_id="CE")
+    built["CE_all_packed"] = _case(g, rigid_kit(), Style(
+        "rigid", 1, 6, rules=[Rule("default", "first", ["beam"])],
+        params=Params(fill="adaptive")))
+
     return built
+
+
+def with_extra_curve(case):
+    """The same case with an UNRELATED curve merged into input 1.
+
+    3.4's id rule is that `pc_elem_id` is a structural address and not cook
+    order, so adding a second spline upstream must not renumber the first
+    one's elements. Nothing else in the suite can see that: `determinism`
+    cooks the SAME inputs twice, which a cook-order id would also survive.
+    """
+    g = hou.Geometry()
+    g.merge(case["curve"])
+    polyline(g, [(0, -50, 40), (9, -50, 40), (9, -50, 47)],
+             curve_id="ZZ_unrelated")
+    out, report = P.build(g, case["kit"], case["style"],
+                          surface_geo=case.get("surface"),
+                          overrides=case.get("overrides"))
+    return (out, report)
+
+
+def rebuild_plain(case):
+    """The same case with the OVERRIDE input unwired - the control the swap
+    and replace round-trips are measured against."""
+    out, report = P.build(case["curve"], case["kit"], case["style"],
+                          surface_geo=case.get("surface"))
+    return (out, report)
 
 
 def rebuild(case):

@@ -55,6 +55,10 @@ EXPECTED_WARNS = {
     # `corner_wedge_m2`, not warned about (D36: it is inherent, miter is the
     # fix).
     "AS_rect_bend_butt": (),
+    # D58: hero geometry cannot follow a bend, and the piece this replaces is
+    # the one that wraps the elbow. The warning IS the feature.
+    "CD_replace_bent": ("pc_warn_bend_resolution",
+                        "pc_warn_replace_deformed"),
     # 4.5's own two. BE leaves the terrain twice by construction (a hole and
     # an edge), which is D53's warning and nothing else; the two
     # `bend_resolution` pieces are the ones STRADDLING those boundaries, where
@@ -199,6 +203,20 @@ CONFORM_MISSES = {"BE_conform_holes": 5}
 
 BANKS = ("E_hill_adaptive", "BA_conform_adaptive")
 
+# 4.6's instancing floor, asserted rather than recorded: a straight run of
+# rigid modules has nothing to deform, so anything less than 100 % packed is a
+# defect that no other check would call one.
+ALL_PACKED = ("A_straight", "CE_all_packed", "CA_swap_module")
+
+# [swapped, replaced, ids that moved] per override case, derived from the
+# override stream and not from a run: CA re-points all ten panels, CC and CD
+# replace exactly one element each, and NOTHING may move an id.
+OVERRIDES = {
+    "CA_swap_module": [10, 0, 0],
+    "CC_replace_hero": [0, 1, 0],
+    "CD_replace_bent": [0, 1, 0],
+}
+
 
 class Scene(object):
     """One case, read once - so a check never re-derives what another already
@@ -266,7 +284,7 @@ def run_case(name, case):
         C.module_fidelity(scene),
         C.rigid_never_deformed(scene),
         C.deformed_flag_matches_geometry(scene),
-        C.instancing_split(scene),
+        C.instancing_split(scene, expect_all=(name in ALL_PACKED)),
         C.horizontal_spacing(scene),
         C.module_winding(scene),
         C.frame_continuity(scene),
@@ -299,10 +317,29 @@ def run_case(name, case):
         C.conform_drape(scene),
         C.conform_camber(scene, expected=CAMBER_DEG.get(name)),
         C.conform_misses(scene, expected=CONFORM_MISSES.get(name)),
+        # --- 4.6, on every case for the same reason: an override or a
+        # replaced element appearing where none was wired is a value, not
+        # silence, and `over_unpacked` is only meaningful across the whole
+        # suite (it is the check that a build cannot pass by unpacking
+        # everything).
+        C.over_unpacked(scene),
+        C.override_round_trip(scene, cases.rebuild_plain,
+                              expected=OVERRIDES.get(name)),
+        C.elem_ids_survive_upstream(scene, cases.with_extra_curve),
+        C.cap_dressing(scene),
+        C.warning_summary(scene),
     ]
     out.append(C.corner_seam(scene, expected=CORNER_SEAM.get(name, 0.0)))
     if name in ("C_tile_slice", "H_tile_slope_free", "I_tile_slope_fixed"):
         out.append(C.cap_tagged(scene, expect=1))
+    if name in ("CC_replace_hero", "CD_replace_bent"):
+        # the hero is a 2.0 x 2.0 x 0.4 m slab and no kit module is anything
+        # like it, so its own world bbox is the proof it arrived. CD's piece
+        # spans a 90 degree elbow, so its bbox is the slab's diagonal there
+        # and is recorded rather than asserted.
+        out.append(C.replaced_geometry(
+            scene, expected=(2.0, 2.0, 0.4)
+            if name == "CC_replace_hero" else None))
     if name == "D_marker_gate":
         out.append(C.marker_offset(scene, 7, (10.0, 0.0, 0.0)))
     # D26's two halves, derived from the grade rather than copied off a run:

@@ -97,7 +97,7 @@ import hou
 from . import (DEFAULTS, EPS, WARN_BEND_RESOLUTION, WARN_CORNER_DEGENERATE,
                WARN_DEGENERATE_FRAME, WARN_KIT_GAP, Curve, Marker, Z_MODES,
                elem_key, stand_in)
-from . import WARN_CONFORM_MISS
+from . import WARN_CONFORM_MISS, WARN_REPLACED
 from . import conform as _conform
 from . import corner as _corner
 from . import decompose as _decompose
@@ -112,6 +112,15 @@ ELEM_PRIM_ATTRS = (
     ("pc_elem_id", ""), ("pc_elem_key", 0), ("pc_slot", ""), ("pc_module", ""),
     ("pc_variant", ""), ("pc_section", 0), ("pc_u", 0.0), ("pc_zmode", ""),
     ("pc_generated", 0), ("pc_deformed", 0), ("pc_corner_cut", 0),
+    # D60 - 3.4's stamp, completed. `pc_elem_id` is a STRUCTURAL ADDRESS whose
+    # curve half is a string (D1), and until these two existed the only way to
+    # ask "which curve did this come from" downstream was to parse the id -
+    # which is exactly the kind of string surgery the attribute convention
+    # exists to avoid. `pc_style` closes the same gap for the payload that
+    # produced the element, which is what a multi-style stream needs to split
+    # on and what the swap/replace cascade keys against when two styles share
+    # one kit.
+    ("pc_curve_id", ""), ("pc_style", ""), ("pc_replaced", 0),
 )
 
 _VERBS = {}
@@ -211,7 +220,16 @@ class Path(object):
         return ((a[0] + d[0] * t, a[1] + d[1] * t, a[2] + d[2] * t), _unit(d))
 
     def interior_vertices(self, s0, s1, tol=1e-7):
-        """Vertex arclengths strictly inside (s0, s1). Wraps on closed."""
+        """Vertex arclengths strictly inside (s0, s1). Wraps on closed.
+
+        ⚠️ AN OPEN CURVE'S TWO END VERTICES ARE NOT KINKS (D66). D30
+        extrapolates past either end ALONG THE END SEGMENT'S OWN DIRECTION, so
+        nothing bends there - but a piece that legitimately overhangs the end
+        contains that vertex strictly inside its span, and reading it as a
+        kink unpacked the piece for a deformation that does not exist. The
+        gate at 19.7 m of a 20.006 m curve was real geometry whose points fit
+        a rigid transform to 1e-7 m; `over_unpacked` is what found it.
+        """
         out = []
         total = self.total
         reps = (0.0,) if not (self.closed and total > EPS) else (0.0, total,
@@ -219,6 +237,8 @@ class Path(object):
         for base in reps:
             for v in self.vertex_s:
                 sv = v + base
+                if not self.closed and (sv <= tol or sv >= total - tol):
+                    continue
                 if s0 + tol < sv < s1 - tol:
                     out.append(sv)
         out.sort()
@@ -276,6 +296,11 @@ def _prattr(prim, name, default=None):
         return default
 
 
+def _blank_to_none(value):
+    return None if (value is None
+                    or (isinstance(value, str) and not value.strip())) else value
+
+
 def read_curves(geo):
     """([Curve], [Marker]) off input 1. Marker points never become curves."""
     markers = []
@@ -325,9 +350,16 @@ def read_curves(geo):
             continue
         if any(p.number() in marker_pts for p in pts):
             continue
-        cid = _prattr(prim, "pc_curve_id", None)
+        # D29, and its EMPTY-STRING hole (D64): a Houdini attribute is
+        # geometry-wide, so the moment ANY prim upstream carries
+        # `pc_curve_id`, every other prim carries it too - with the default
+        # "". Reading that as an id gave every unlabelled curve in the stream
+        # the SAME id "", which collapses their `pc_elem_id`s onto each other
+        # and is exactly the "unrelated upstream change" 3.4's id rule
+        # forbids. A blank id is an ABSENT id.
+        cid = _blank_to_none(_prattr(prim, "pc_curve_id", None))
         if cid is None:
-            cid = _prattr(prim, "edge_id", None)          # D29, streets id
+            cid = _blank_to_none(_prattr(prim, "edge_id", None))
         if cid is None:
             cid = prim.number()
         flags = [int(_pattr(p, "pc_corner", 0) or 0) for p in pts] \
@@ -347,6 +379,122 @@ def read_curves(geo):
                             section_ids=sections,
                             style_key=str(_prattr(prim, "pc_style", "") or "")))
     return (curves, markers)
+
+
+# --- 4.6: the override cascade (swap and replace) ---------------------------
+#
+# 3.4, verbatim: "Swap = re-point `pc_module`/`pc_variant` via an override
+# wired upstream of finalize; replace = hero geometry keyed by `pc_elem_id`
+# swapped in at finalize. Both must work WITHOUT touching the style."
+#
+# So both are ONE geometry stream of override points, and neither is a parm:
+# a style is a rule set and an override is an exception to it, and mixing the
+# two is how a one-off hero prop ends up rewriting a rule that fifty other
+# elements depend on. The stream is attributes, not JSON (the citygen
+# contract), and one point does both jobs - what it does depends on which
+# fields are filled, so there is no `kind` enum to keep in step:
+#
+#   MATCH   `pc_elem_id` / `pc_module` / `pc_variant` - each blank = "any"
+#   SWAP    `pc_swap_module` and/or `pc_swap_variant` -> re-points the element
+#   REPLACE a PACKED PRIM on the same point -> that geometry, at the element's
+#           own transform
+#
+# DECISIONS:
+#   D57 A SWAP KEEPS THE FIT. The plan solved a span for the old module and
+#       the new one is scaled into that same span, which is RailClone's own
+#       segment-swap behaviour and the only one that leaves the run intact -
+#       re-solving would move every other piece on the section and make an
+#       override a global edit. `pc_elem_id` therefore does NOT change (D1: it
+#       is a structural address, and the module is not part of the address),
+#       which is what lets a swap round-trip.
+#   D58 A REPLACE LANDS PACKED, at the transform the piece would have had.
+#       Hero geometry is authored to the module's own fit, so bending it round
+#       a corner would be inventing a deformation nobody authored. On a piece
+#       that WAS deformed the hero cannot follow the curve, so it says
+#       `pc_warn_replace_deformed` - warn, never block, never silently
+#       straighten a bent run.
+#   D63 FIRST MATCH WINS, in payload order - the same rule 3.3 uses for
+#       `rules_for`. Overrides are read once and applied in order, so a
+#       narrow `pc_elem_id` rule placed before a broad `pc_module` one is how
+#       an artist says "all of these, except that one".
+
+OVERRIDE_ATTRS = (("pc_elem_id", ""), ("pc_module", ""), ("pc_variant", ""),
+                  ("pc_swap_module", ""), ("pc_swap_variant", ""))
+
+
+class Override(object):
+    __slots__ = ("elem_id", "module", "variant", "to_module", "to_variant",
+                 "hero")
+
+    def __init__(self, elem_id="", module="", variant="", to_module="",
+                 to_variant="", hero=None):
+        self.elem_id = elem_id
+        self.module = module
+        self.variant = variant
+        self.to_module = to_module
+        self.to_variant = to_variant
+        self.hero = hero
+
+    def matches(self, placement, module_name):
+        if self.elem_id and self.elem_id != placement.elem_id:
+            return False
+        if self.module and self.module != module_name:
+            return False
+        if self.variant and self.variant != placement.variant:
+            return False
+        return True
+
+
+def write_override(geo, elem_id="", module="", variant="", to_module="",
+                   to_variant="", hero=None):
+    """Author one override point. The HDA's override input and the tests use
+    THIS, so the format has exactly one writer and cannot drift."""
+    for name, default in OVERRIDE_ATTRS:
+        if geo.findPointAttrib(name) is None:
+            geo.addAttrib(hou.attribType.Point, name, default)
+    if hero is not None:
+        prim = geo.createPackedGeometry(hero)
+        pt = prim.points()[0]
+    else:
+        pt = geo.createPoint()
+    for name, value in (("pc_elem_id", elem_id), ("pc_module", module),
+                        ("pc_variant", variant),
+                        ("pc_swap_module", to_module),
+                        ("pc_swap_variant", to_variant)):
+        pt.setAttribValue(name, str(value))
+    return pt
+
+
+def read_overrides(geo):
+    """[Override] off the override input, in payload order (D63).
+
+    An unconnected input is an empty list, never an error (D34).
+    """
+    if geo is None:
+        return []
+    heroes = {}
+    for prim in geo.prims():
+        if prim.type() == hou.primType.PackedGeometry:
+            heroes[prim.points()[0].number()] = prim.getEmbeddedGeometry()
+    out = []
+    for pt in geo.points():
+        row = dict((name, str(_pattr(pt, name, default) or default))
+                   for name, default in OVERRIDE_ATTRS)
+        hero = heroes.get(pt.number())
+        if hero is None and not row["pc_swap_module"] \
+                and not row["pc_swap_variant"]:
+            continue                       # an override that overrides nothing
+        out.append(Override(row["pc_elem_id"], row["pc_module"],
+                            row["pc_variant"], row["pc_swap_module"],
+                            row["pc_swap_variant"], hero))
+    return out
+
+
+def _override_for(overrides, placement, module_name):
+    for ov in overrides:
+        if ov.matches(placement, module_name):
+            return ov
+    return None
 
 
 # --- module geometry preparation --------------------------------------------
@@ -400,9 +548,83 @@ class _Proto(object):
             pts = prim.points()
             if pts and all(abs(p.position()[0] - xcut) <= 1e-5 for p in pts):
                 prim.setAttribValue("pc_cap", 1)
+        dress_caps(filled, self.module.name, _texel(self.source))
         out = (filled, _stations(filled, self.ax))
         self._sliced[key] = out
         return out
+
+
+# --- 4.6: the cap, dressed --------------------------------------------------
+
+CAP_ATTR = "pc_cap"
+CAP_MATERIAL_ATTR = "pc_cap_material"
+
+
+def _texel(source):
+    """Metres per UV unit of a module's OWN mapping, or 1.0 when it has none.
+
+    4.6 says the cap is box-mapped "from the module's mapping", which is a
+    statement about DENSITY: a cap whose texels are twice the size of the
+    walls beside it reads as a different material, and that is the defect this
+    number exists to avoid. Measured off the source rather than declared -
+    the ratio of its UV extent to its geometric extent - so a kit that halves
+    its texel size needs no manifest edit.
+    """
+    if source is None:
+        return 1.0
+    attrib = source.findVertexAttrib("uv") or source.findPointAttrib("uv")
+    if attrib is None:
+        return 1.0
+    try:
+        uvs = (source.vertexFloatAttribValues("uv")
+               if source.findVertexAttrib("uv") is not None
+               else source.pointFloatAttribValues("uv"))
+    except hou.OperationFailed:
+        return 1.0
+    if not uvs:
+        return 1.0
+    du = max(uvs[0::3]) - min(uvs[0::3])
+    bb = source.boundingBox()
+    dx = bb.sizevec()[0]
+    if du <= EPS or dx <= EPS:
+        return 1.0
+    return dx / du
+
+
+def dress_caps(geo, module_name="", texel=1.0, local_attr=None):
+    """Box-UV every `pc_cap` prim and tag it with the cap material (D59).
+
+    The cap plane is perpendicular to the module's own +X (D20), so the box
+    projection for it is (local z, local y) - no axis choice to get wrong and
+    no seam, because a cap is one planar polygon. `local_attr` names the point
+    attribute holding module-local coordinates: `_Proto.sliced` still IS in
+    local space and passes None, while a world-space miter cut carries
+    `pc_local` through the clip and passes that.
+    """
+    if geo.findPrimAttrib(CAP_ATTR) is None:
+        return geo
+    caps = [prim for prim in geo.prims()
+            if int(prim.attribValue(CAP_ATTR)) == 1]
+    if not caps:
+        return geo
+    if geo.findPrimAttrib(CAP_MATERIAL_ATTR) is None:
+        geo.addAttrib(hou.attribType.Prim, CAP_MATERIAL_ATTR, "")
+    if geo.findVertexAttrib("uv") is None:
+        geo.addAttrib(hou.attribType.Vertex, "uv", (0.0, 0.0, 0.0))
+    inv = 1.0 / texel if texel > EPS else 1.0
+    for prim in caps:
+        prim.setAttribValue(CAP_MATERIAL_ATTR, "%s_cap" % module_name
+                            if module_name else "pc_cap")
+        for vtx in prim.vertices():
+            pt = vtx.point()
+            local = pt.position()
+            if local_attr is not None:
+                try:
+                    local = pt.attribValue(local_attr)
+                except hou.OperationFailed:
+                    pass
+            vtx.setAttribValue("uv", (local[2] * inv, local[1] * inv, 0.0))
+    return geo
 
 
 # --- the frames -------------------------------------------------------------
@@ -612,7 +834,7 @@ def _anchor_len(placement):
     return placement.length
 
 
-def clip_plane(geo, origin, normal, keep_sign):
+def clip_plane(geo, origin, normal, keep_sign, module_name="", texel=1.0):
     """Cut `geo` on a WORLD half-space and cap the hole. Returns new geometry.
 
     D28's machinery, lifted out of module-local space. The `clip` verb keeps
@@ -641,6 +863,11 @@ def clip_plane(geo, origin, normal, keep_sign):
         if pts and all(abs(sum((p.position()[k] - origin[k]) * normal[k]
                                for k in range(3))) <= 1e-5 for p in pts):
             prim.setAttribValue("pc_cap", 1)
+    # the miter cap is in WORLD space, so its box UV is read off `pc_local`,
+    # which rode through the clip on the verb's own attribute promotion.
+    dress_caps(filled, module_name, texel,
+               local_attr="pc_local"
+               if filled.findPointAttrib("pc_local") is not None else None)
     return filled
 
 
@@ -696,6 +923,31 @@ PLAN_POINT_ATTRS = (
     ("pc_deform", 0), ("pc_plan", 1), ("pc_s0", 0.0), ("pc_s1", 0.0),
     ("pc_u", 0.0), ("pc_scale", 1.0), ("pc_slice_t", -1.0),
 )
+
+
+WARN_SUMMARY_ATTR = "pc_warnings"
+
+
+def _collate_warnings(geo, jobs):
+    """D61 - 4.6's "collate warnings", as a detail array of "name:count".
+
+    The per-element attributes are the truth and stay exactly as they were;
+    what they could not answer is "did this cook warn about anything, and how
+    much" without walking every prim of a 10k-element run. One middle click
+    now says `pc_warn_bend_resolution:3`, which is the whole point of
+    persisting warnings rather than printing them.
+    """
+    counts = {}
+    for job in jobs:
+        for w in job["warns"]:
+            counts[w] = counts.get(w, 0) + 1
+    if geo.findGlobalAttrib(WARN_SUMMARY_ATTR) is None:
+        geo.addArrayAttrib(hou.attribType.Global, WARN_SUMMARY_ATTR,
+                           hou.attribData.String)
+    geo.setGlobalAttribValue(WARN_SUMMARY_ATTR,
+                             tuple("%s:%d" % (k, counts[k])
+                                   for k in sorted(counts)))
+    return counts
 
 
 def _kit_warnings(geo, warns):
@@ -757,7 +1009,7 @@ def _declare(geo, warn_names):
             geo.addAttrib(hou.attribType.Prim, name, 0)
 
 
-def _stamp(prim, placement, warns, deformed, zmode):
+def _stamp(prim, placement, warns, deformed, zmode, replaced=False):
     eid = placement.elem_id
     prim.setAttribValue("pc_elem_id", eid)
     prim.setAttribValue("pc_elem_key", elem_key(eid))
@@ -770,6 +1022,9 @@ def _stamp(prim, placement, warns, deformed, zmode):
     prim.setAttribValue("pc_generated", 1)
     prim.setAttribValue("pc_deformed", 1 if deformed else 0)
     prim.setAttribValue("pc_corner_cut", 1 if placement.cuts else 0)
+    prim.setAttribValue("pc_curve_id", str(placement.curve_id))
+    prim.setAttribValue("pc_style", str(placement.style_id))
+    prim.setAttribValue("pc_replaced", 1 if replaced else 0)
     for w in warns:
         prim.setAttribValue(w, 1)
 
@@ -853,6 +1108,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
     out = out if out is not None else hou.Geometry()
     kit, sources, kit_warns = _kit.read(kit_geo)
     curves, markers = read_curves(curve_geo)
+    overrides = read_overrides(overrides)
 
     protos = {}
 
@@ -882,6 +1138,15 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             section = by_section.get(p.section_index)
             if section is None:
                 continue
+            # D57: the SWAP happens here, before anything is measured or
+            # built, so the new module's own deform class, length and zmode
+            # are what the rest of the pass reasons about - and `pc_module`
+            # stamps the module that is actually in the output.
+            ov = _override_for(overrides, p, p.module)
+            if ov is not None and ov.to_module:
+                p.module = ov.to_module
+            if ov is not None and ov.to_variant:
+                p.variant = ov.to_variant
             module = kit.by_name(p.module) or stand_in(p.module)
             proto = proto_for(module)
             zmode = _resolve_zmode(p)
@@ -920,7 +1185,10 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                 if _bend_deviation(proto, stations, path, s0f, scale,
                                    remap) > params.bend_tol:
                     warns.append(WARN_BEND_RESOLUTION)
-            jobs.append({"p": p, "proto": proto, "path": path,
+            hero = ov.hero if (ov is not None and ov.hero is not None) else None
+            if hero is not None and deformed and WARN_REPLACED not in warns:
+                warns.append(WARN_REPLACED)             # D58
+            jobs.append({"p": p, "proto": proto, "path": path, "hero": hero,
                          "s0f": s0f, "s0r": s0r, "s1r": s1r,
                          "zmode": zmode, "scale": scale,
                          "deformed": deformed, "warns": tuple(warns),
@@ -937,7 +1205,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
     _declare(out, warn_names)
 
     # --- pass B: materialise -----------------------------------------------
-    n_packed = n_deformed = n_cut = 0
+    n_packed = n_deformed = n_cut = n_replaced = 0
     for job in jobs:
         p, proto, path = job["p"], job["proto"], job["path"]
         zmode, warns = job["zmode"], job["warns"]
@@ -948,6 +1216,23 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             # different facets, and rolling to one end's facet tips the far
             # end into the ground.
             up_ref = normal_at(0.5 * (job["s0r"] + job["s1r"]))
+        if job["hero"] is not None:
+            # D58: hero geometry lands PACKED at the transform this element
+            # would have had - the same 4x4 a rigid piece gets, so a replaced
+            # gate sits exactly where the gate sat. A piece that WAS deformed
+            # has no single transform, so it takes the chord's and says so.
+            xform = (_anchor_transform(proto, _drop_anchor(path, p.anchor[0]),
+                                       p.anchor[1], _anchor_len(p), zmode,
+                                       up_ref)
+                     if p.anchor is not None
+                     else _packed_transform(proto, path, job["s0r"],
+                                            job["s1r"], zmode, up_ref))
+            prim = out.createPackedGeometry(job["hero"])
+            prim.setTransform(xform)
+            _stamp(prim, p, warns, False, zmode, replaced=True)
+            n_packed += 1
+            n_replaced += 1
+            continue
         if not job["deformed"]:
             if p.anchor is not None:
                 # 4.3 lays a corner assembly out on the SPLINE's own vertex, so
@@ -996,7 +1281,8 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             # clip on the verb's own attribute promotion, so the checks can
             # still recover the piece's frame from the mitered half.
             for (origin, normal, keep) in p.cuts:
-                piece = clip_plane(piece, origin, normal, keep)
+                piece = clip_plane(piece, origin, normal, keep,
+                                   proto.module.name, _texel(proto.source))
             n_cut += 1
         _declare(piece, warn_names)
         for prim in piece.prims():
@@ -1005,7 +1291,11 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         n_deformed += 1
 
     _kit_warnings(out, kit_warns)
+    counts = _collate_warnings(out, jobs)
     report = {
+        "warn_counts": counts,
+        "replaced": n_replaced,
+        "overrides": len(overrides),
         "plan": [j["p"] for j in jobs],
         "plan_pos": [j["path"].sample(j["s0r"])[0] for j in jobs],
         "kit_warnings": kit_warns,

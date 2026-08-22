@@ -78,8 +78,10 @@ def _round(x, n=9):
 
 # --- element extraction -----------------------------------------------------
 
-ELEM_STRINGS = ("pc_elem_id", "pc_slot", "pc_module", "pc_variant", "pc_zmode")
-ELEM_INTS = ("pc_elem_key", "pc_section", "pc_generated", "pc_deformed")
+ELEM_STRINGS = ("pc_elem_id", "pc_slot", "pc_module", "pc_variant",
+                "pc_zmode", "pc_curve_id", "pc_style")
+ELEM_INTS = ("pc_elem_key", "pc_section", "pc_generated", "pc_deformed",
+             "pc_replaced")
 
 
 def _attrs(prim):
@@ -687,13 +689,24 @@ def warnings(scene, expected=()):
                   "" if ok else "expected %s" % (sorted(expected),))
 
 
-def instancing_split(scene):
+def instancing_split(scene, expect_all=False):
     """4.6's segregation, measured: how many pieces stayed packed. A build
     that unpacked everything would still be geometrically correct and would
-    still be a defect."""
+    still be a defect.
+
+    `expect_all` is the INSTANCING FLOOR, asserted on the cases that have no
+    excuse: a straight run of rigid modules must be 100 % packed. Every other
+    case records the count and lets the baseline catch a drift, because what
+    the right fraction IS depends on the figure - which is what
+    `over_unpacked` measures instead.
+    """
     packed = scene.report["packed"]
     total = packed + scene.report["deformed"]
-    return Result("packed_pieces", True, packed, "of %d" % total)
+    ok = (packed == total) if expect_all else True
+    return Result("packed_pieces", ok, packed,
+                  "of %d" % total if ok
+                  else "of %d - a straight rigid run must be all packed"
+                  % total)
 
 
 def slice_caps_closed(scene):
@@ -1175,6 +1188,263 @@ def horizontal_spacing(scene):
     return Result("horizontal_span_m", True,
                   [_round(min(spans), 6), _round(max(spans), 6)],
                   "%d pieces" % len(spans))
+
+
+# --- 4.6 FINALIZE: instancing, overrides, ids --------------------------------
+
+def _affine_residual(rec):
+    """How far this element is from being AN AFFINE IMAGE of its own module.
+
+    4.6's segregation rule is "a piece whose result is a transform x scale of
+    its kit module stays a PACKED PRIM", so the honest test of an unpacked
+    piece is whether that sentence is true of it: fit
+    `world = O + M * local` over every point (centred, so `O` divides out and
+    the linear part is one 3x3 solve) and take the worst residual. A bent,
+    sheared or draped piece cannot be fitted; a piece that was unpacked for no
+    reason fits to float noise, and that is the defect - it costs memory and
+    kills instancing while looking perfect in the viewport.
+    """
+    loc, wrl = rec["local"], rec["world"]
+    n = len(loc) // 3
+    if n < 4:
+        return None
+    lc = [sum(loc[k::3]) / n for k in range(3)]
+    wc = [sum(wrl[k::3]) / n for k in range(3)]
+    m = [[0.0] * 3 for _ in range(3)]
+    rhs = [[0.0] * 3 for _ in range(3)]
+    for i in range(0, len(loc), 3):
+        l = (loc[i] - lc[0], loc[i + 1] - lc[1], loc[i + 2] - lc[2])
+        w = (wrl[i] - wc[0], wrl[i + 1] - wc[1], wrl[i + 2] - wc[2])
+        for a in range(3):
+            for b in range(3):
+                m[a][b] += l[a] * l[b]
+            for k in range(3):
+                rhs[a][k] += l[a] * w[k]
+    inv = _inv3(m)
+    if inv is None:
+        return None                     # a degenerate point cloud proves nothing
+    fit = [[sum(inv[a][b] * rhs[b][k] for b in range(3)) for k in range(3)]
+           for a in range(3)]
+    worst = 0.0
+    for i in range(0, len(loc), 3):
+        l = (loc[i] - lc[0], loc[i + 1] - lc[1], loc[i + 2] - lc[2])
+        for k in range(3):
+            got = wc[k] + sum(l[a] * fit[a][k] for a in range(3))
+            worst = max(worst, abs(got - wrl[i + k]))
+    # ...and whether that affine is a TRANSFORM x AXIS SCALE, which is 4.6's
+    # own wording, or a SHEAR, which is not. The three image vectors of the
+    # local axes must be mutually perpendicular; a `vertical` piece on a
+    # uniform slope fits an affine perfectly and is a pure shear (D65).
+    skew = 0.0
+    for a in range(3):
+        for b in range(a + 1, 3):
+            na = math.sqrt(sum(v * v for v in fit[a]))
+            nb = math.sqrt(sum(v * v for v in fit[b]))
+            if na < 1e-9 or nb < 1e-9:
+                continue
+            skew = max(skew, abs(_dot3(fit[a], fit[b])) / (na * nb))
+    return (worst, skew)
+
+
+def over_unpacked(scene, tol=1e-4):
+    """4.6: NOTHING unpacks that did not have to.
+
+    `instancing_split` counts what stayed packed and `deformed_flag_mismatch`
+    proves the flag agrees with the prim type - but both of them are happy
+    with a build that unpacks every piece and deforms none of them, which is
+    geometrically perfect and is the exact defect 4.6 exists to prevent. This
+    is the missing half: an unpacked piece that IS an affine image of its
+    module was unpacked for nothing. Sliced and mitered pieces are exempt by
+    construction (their geometry differs from the module by the CUT), and so
+    is a replaced one (D58 - it is hero geometry, not the module at all).
+
+    D65: A SHEAR IS A REAL DEFORMATION HERE, even though a packed prim's 4x4
+    could carry one. `vertical` on a uniform slope is exactly a shear - the
+    piece rises with the span while its verticals stay vertical - and 10 of
+    10 pieces on the conformed ramp fit an affine to float noise. They are
+    NOT counted as over-unpacked, because 4.6's own sentence is "transform x
+    uniform-or-axis scale" and because a USD PointInstancer stores an
+    orientation and a scale and cannot express a shear at all - so packing
+    them would trade a memory win for a substrate that citygen 7 has not
+    chosen yet. The count rides in the detail so the size of that prize stays
+    visible.
+    """
+    bad, worst_ok, sheared = [], 0.0, 0
+    for eid, rec in scene.by_id.items():
+        if not rec["pc_deformed"]:
+            continue
+        placement = scene.plan_by_id.get(eid)
+        if placement is None or placement.cuts or placement.slice_t is not None:
+            continue
+        fit = _affine_residual(rec)
+        if fit is None:
+            continue
+        res, skew = fit
+        if res <= tol and skew <= 1e-6:
+            bad.append(eid)
+        elif res > tol:
+            worst_ok = max(worst_ok, res)
+        else:
+            sheared += 1
+    return Result("over_unpacked", not bad, len(bad),
+                  bad[0] if bad else
+                  "worst real deform %.4f m, %d sheared (D65)"
+                  % (worst_ok, sheared))
+
+
+def override_round_trip(scene, plain_rebuild, expected=None):
+    """Swap and replace both work WITHOUT touching the style (3.4), and
+    neither of them moves an id.
+
+    The control is the SAME case cooked with the override input unwired, so
+    the comparison is against the run the artist would have had - not against
+    a second opinion of the same override. Value is
+    [swapped, replaced, ids that moved]; the third must be 0 on every case,
+    which is what makes "round-trip" a measurement.
+    """
+    if not scene.case.get("overrides"):
+        return _skip("override_round_trip", "no overrides")
+    try:
+        geo2, report2 = plain_rebuild(scene.case)
+    except Exception as exc:
+        return Result("override_round_trip", False, None,
+                      "%s: %s" % (type(exc).__name__, str(exc)[:120]))
+    plain = dict((r["pc_elem_id"], r) for r in elements(geo2))
+    moved = sorted(set(plain) ^ set(scene.by_id))
+    swapped = replaced = 0
+    for eid, rec in scene.by_id.items():
+        base = plain.get(eid)
+        if base is None:
+            continue
+        if base["pc_module"] != rec["pc_module"] \
+                or base["pc_variant"] != rec["pc_variant"]:
+            swapped += 1
+        if rec.get("pc_replaced"):
+            replaced += 1
+    got = [swapped, replaced, len(moved)]
+    # ⚠️ THE COUNTS ARE ASSERTED, not merely recorded, and that is because a
+    # mutation survived without it: making the swap a no-op left every check
+    # green - `module_fidelity_m` compares the geometry against whatever
+    # `pc_module` SAYS, so a swap that changes neither still agrees with
+    # itself.
+    ok = (not moved) and (expected is None or got == list(expected))
+    return Result("override_round_trip", ok, got,
+                  moved[0] if moved else
+                  ("" if expected is None else "expected %s" % (expected,)))
+
+
+def replaced_geometry(scene, elem_id=None, expected=None, tol=2e-3):
+    """The hero actually ARRIVED: the world bbox of the replaced element.
+
+    Read off the geometry, because `pc_replaced = 1` on a prim that still
+    holds the old module would pass every other check on this list. The hero
+    is a size no kit module has, so the number identifies it.
+    """
+    replaced = [(eid, rec) for eid, rec in scene.by_id.items()
+                if rec.get("pc_replaced")]
+    if not replaced:
+        return _skip("replaced_bbox_m", "no replaced elements")
+    if elem_id is not None:
+        replaced = [(e, r) for e, r in replaced if e == elem_id] or replaced
+    eid, rec = replaced[0]
+    w = rec["world"]
+    size = [max(w[k::3]) - min(w[k::3]) for k in range(3)]
+    ok = expected is None or all(abs(size[k] - expected[k]) <= tol
+                                 for k in range(3))
+    return Result("replaced_bbox_m", ok, [_round(v, 5) for v in size],
+                  eid if expected is None else "expected %s" % (expected,))
+
+
+def elem_ids_survive_upstream(scene, rebuild_with_extra):
+    """3.4: `pc_elem_id` is a STRUCTURAL ADDRESS, never cook order.
+
+    ⚠️ `determinism` cannot see this and never could: it cooks the SAME inputs
+    twice, and an id derived from cook order survives that perfectly. This
+    merges an UNRELATED third curve into input 1 - the ordinary thing an
+    artist does upstream - and requires every id of the original curves to be
+    untouched. It is also what caught D64: one prim carrying `pc_curve_id`
+    gives EVERY prim the attribute, blank, and reading a blank as an id
+    collapsed two curves onto one address.
+    """
+    try:
+        _geo2, report2 = rebuild_with_extra(scene.case)
+    except Exception as exc:
+        return Result("elem_ids_upstream", False, None,
+                      "%s: %s" % (type(exc).__name__, str(exc)[:120]))
+    before = set(p.elem_id for p in scene.plan)
+    after = set(p.elem_id for p in report2["plan"])
+    lost = sorted(before - after)
+    return Result("elem_ids_upstream", not lost, len(lost),
+                  lost[0] if lost else "%d ids, %d after the merge"
+                  % (len(before), len(after)))
+
+
+def cap_dressing(scene):
+    """D59 - every slice cap carries box UVs and a cap material tag.
+
+    The UV is MEASURED against the module's own local box projection (D20 puts
+    the cap plane perpendicular to local +X, so the projection is local z, y),
+    not merely found present: an attribute full of zeroes is present too, and
+    the real failure mode for a MITER cap - which lives in world space and
+    recovers its local coordinates through `pc_local` - is a uv taken off
+    world P, which on a corner post at x = 12 is off by 12.
+
+    ⚠️ AND IT IS COMPARED TO THE PROJECTION, NOT TO THE FACE'S OWN METRIC
+    SIZE. A box projection of an OBLIQUE face compresses it, which is what box
+    mapping is: the mitered corner post's cut face measures 0.2263 m across in
+    world and 0.16 m in the projection, and demanding they agree failed 11
+    cases while measuring nothing but the 45 degrees.
+    """
+    geo = scene.geo
+    if geo.findPrimAttrib("pc_cap") is None:
+        return _skip("cap_uv_m", "no caps")
+    caps = [prim for prim in geo.prims()
+            if prim.type() != hou.primType.PackedGeometry
+            and int(prim.attribValue("pc_cap")) == 1]
+    if not caps:
+        return _skip("cap_uv_m", "no caps")
+    if geo.findVertexAttrib("uv") is None             or geo.findPrimAttrib("pc_cap_material") is None:
+        return Result("cap_uv_m", False, None, "no uv / pc_cap_material")
+    worst, untagged, flat = 0.0, 0, 0
+    for prim in caps:
+        if not prim.attribValue("pc_cap_material"):
+            untagged += 1
+        spread = 0.0
+        for vtx in prim.vertices():
+            pt = vtx.point()
+            try:
+                local = pt.attribValue("pc_local")
+            except hou.OperationFailed:
+                local = pt.position()
+            uv = vtx.attribValue("uv")
+            worst = max(worst, abs(uv[0] - local[2]), abs(uv[1] - local[1]))
+            spread = max(spread, abs(uv[0]) + abs(uv[1]))
+        if spread <= 1e-9:
+            flat += 1                      # a cap whose uv is all zeroes
+    ok = untagged == 0 and flat == 0 and worst <= 1e-5
+    return Result("cap_uv_m", ok, _round(worst, 8),
+                  "%d caps, %d untagged, %d degenerate"
+                  % (len(caps), untagged, flat))
+
+
+def warning_summary(scene):
+    """D61: the collated detail array agrees with the per-element attributes.
+
+    Two records of the same fact drift; this is the assertion that they have
+    not. The value is the summary itself, so the baseline carries it.
+    """
+    geo = scene.geo
+    if geo.findGlobalAttrib("pc_warnings") is None:
+        return Result("warn_summary", False, None, "pc_warnings not written")
+    rows = list(geo.attribValue("pc_warnings"))
+    counts = {}
+    for name in scene.report["warn_names"]:
+        n = sum(1 for w in scene.warns.values() if w.get(name))
+        if n:
+            counts[name] = n
+    want = ["%s:%d" % (k, counts[k]) for k in sorted(counts)]
+    return Result("warn_summary", rows == want, rows,
+                  "" if rows == want else "elements say %s" % want)
 
 
 # --- 4.5 SURFACE CONFORM -----------------------------------------------------
@@ -1721,7 +1991,15 @@ def _reach_of(scene):
             for i in range(0, len(w), 3):
                 t = sign * _dot3(_sub3((w[i], w[i + 1], w[i + 2]), bevel.v),
                                  axis)
-                key = (id(bevel), side)
+                # ⚠️ KEYED ON THE VERTEX, NOT ON `id(bevel)` (D67). `id()` is a
+                # MEMORY ADDRESS: `corner_reach`'s no-expectation branch
+                # reports `sorted(reaches.items())[0]`, so which corner of a
+                # four-corner figure got recorded depended on where Python
+                # happened to allocate its Bevels. AP_narrow_rect flapped
+                # between 0.06 m and 0.08 m across runs of IDENTICAL code -
+                # a baseline value that moves on its own is worse than no
+                # baseline value.
+                key = (tuple(round(c, 6) for c in bevel.v), side)
                 if t > out.get(key, (0.0, bevel, side))[0]:
                     out[key] = (t, bevel, side)
     return out
