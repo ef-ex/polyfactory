@@ -70,7 +70,7 @@ import math
 
 from . import (DEFAULTS, EPS, MAX_UNITS, WARN_DEGENERATE_PAD, WARN_KIT_GAP,
                WARN_OVERFLOW, WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, elem_id,
-               elem_key, rng_for)
+               elem_key, rng_for, role_2d)
 
 
 class Placement(object):
@@ -95,6 +95,11 @@ class Placement(object):
         self.deform = int(deform)
         self.zmode = zmode
         self.style_id = style_id
+        # 7.3.3 - the 2D half of the address. Blank on every 1D placement, and
+        # NOT part of `elem_id` (D133): `pc_curve_id` already carries the row,
+        # so the address is unique without it and `elem_id()` stays untouched.
+        self.yclass = ""
+        self.cell = ""
         self.warns = tuple(warns)
         # 4.3. `anchor` = ((ox,oy,oz), (dx,dy,dz)) - build this piece on a
         # STRAIGHT line instead of on the curve, which is what a mitered corner
@@ -298,19 +303,37 @@ def evaluate_cond(cond, ctx):
         return False                             # warn-never-block
 
 
-def candidates(rule, kit):
-    """The rule's module list as real modules: name, then role, then stand-in."""
+def cell_role(ctx, slot=None):
+    """E1's tail - the 2D cell this piece is, or its plain X slot in 1D.
+
+    `yclass` reaches here from the ROW PRIM through `Section.attrs` (D94) and
+    `plan_section`'s ctx, so a 2D build resolves `corner_end` where a 1D build
+    resolves `corner`, with no branch anywhere: 7.2's role name IS the role
+    the kit is asked for, and E3's closure has already made sure the kit can
+    answer it (D118).
+    """
+    slot = ctx.get("slot", "") if slot is None else slot
+    y = ctx.get("yclass") or ""
+    return role_2d(slot, y) if y else slot
+
+
+def candidates(rule, kit, role=None):
+    """The rule's module list as real modules: name, then role, then stand-in.
+
+    `role` is the CELL role (7.2) when the caller knows it and the rule's own
+    slot otherwise - which is the 1D case and every phase-1 call.
+    """
     out = []
     for name in rule.modules:
         out.extend(kit.resolve(name))
     if not out:
-        out.extend(kit.resolve(rule.slot))
+        out.extend(kit.resolve(role or rule.slot))
     return out
 
 
 def choose(rule, kit, ctx, style):
     """One module for one piece, or None when a conditional rule declines."""
-    cand = candidates(rule, kit)
+    cand = candidates(rule, kit, cell_role(ctx, ctx.get("slot", rule.slot)))
     if not cand:
         return None
     if rule.select == "sequence":
@@ -338,8 +361,14 @@ def choose(rule, kit, ctx, style):
 
 
 def pick(style, slot, ctx, kit):
-    """(rule, module) for `slot`: payload order, first rule that yields wins."""
-    for rule in style.rules_for(slot):
+    """(rule, module) for `slot`: payload order, first rule that yields wins.
+
+    D119 - with a row class in `ctx` the rule list is SCOPED first and generic
+    second, so the rule-level chain (this row class -> any row) and the
+    kit-level chain (the role lattice -> the stand-in box) are two independent
+    ordered walks and neither has to know about the other.
+    """
+    for rule in style.rules_for(slot, ctx.get("yclass") or None):
         m = choose(rule, kit, dict(ctx, slot=slot), style)
         if m is not None:
             return (rule, m)
@@ -546,6 +575,12 @@ def plan_section(section, kit, style, params=None, trim=(0.0, 0.0)):
                               pc_section=section.section_key,
                               pc_style=section.style_key),
                 "marker_data": {}}
+    # E1 - the ROW's own class, straight off the row prim (D94 harvests it
+    # onto `Section.attrs`, so there is no adapter change). Blank on every 1D
+    # curve, and blank is what makes `cell_role` the identity and
+    # `rules_for(slot, None)` the phase-1 call.
+    yclass = str(ctx_base["attrs"].get("pc_yclass", "") or "")
+    ctx_base["yclass"] = yclass
 
     # --- mandatory start / end, and D13's overflow policy -------------------
     ends = []

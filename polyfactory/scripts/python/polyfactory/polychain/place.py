@@ -108,6 +108,8 @@ from . import (DEFAULTS, EPS, WARN_BEND_RESOLUTION, WARN_CORNER_DEGENERATE,
 from . import (WARN_CONFORM_MISS, WARN_CURVE_ID_DUP, WARN_REPLACED,
                WARN_TILE_FALLBACK)
 from . import conform as _conform
+from . import array2d as _array2d
+from . import array2d as _array2d
 from . import corner as _corner
 from . import decompose as _decompose
 from . import kit as _kit
@@ -366,12 +368,23 @@ def _blank_to_none(value):
 _ATTR_SKIP = ("P", "N", "Cd", "uv", "v")
 
 
+# 7.1's per-row contract. ⚠️ 7.1 claims these "are already harvested onto
+# `Section.attrs` by D94"; they are NOT - D94 skips every `pc_` name on
+# purpose, because the kernel's own attributes are not the spline's. So the
+# row's six are named here, and only here, which is also what makes
+# `attr:pc_yclass` a usable conditional subject. Nothing moves in phase 1: a
+# curve that does not carry the attribute never gains it.
+ROW_ATTRS_2D = ("pc_yclass", "pc_row", "pc_row_y0", "pc_row_y1",
+                "pc_row_scale")
+
+
 def _prim_attrs(geo, prim):
     """{name: value} for one prim's own attributes, for `attr:<name>` (D94)."""
     out = {}
     for attrib in geo.primAttribs():
         name = attrib.name()
-        if name in _ATTR_SKIP or name.startswith("pc_"):
+        if name in _ATTR_SKIP or (name.startswith("pc_")
+                                  and name not in ROW_ATTRS_2D):
             continue
         try:
             out[name] = prim.attribValue(name)
@@ -1178,12 +1191,19 @@ def _bend_deviation(proto, stations, path, s0_flat, scale, remap, at=None):
 # --- building one piece -----------------------------------------------------
 
 def _packed_transform(proto, path, sa, sb, zmode, up_ref=UP, base_y=None,
-                      ends=None):
+                      ends=None, yscale=1.0):
     """The 4x4 that maps module local space onto the chord A->B (D21).
 
     `base_y` is D98's flatten-under: a `stepped` piece is horizontal, so its
     whole elevation is one number and overriding it here moves the piece
     without touching the fit, the frame or the chord it was measured on.
+
+    `yscale` is E2 / D121 - the ROW's band height over the module's nominal
+    height, applied to the frame's UP axis. 4.6's instancing rule is
+    "transform x uniform-or-axis scale of the kit module stays a packed prim",
+    and an axis scale is on the allowed side of that sentence by its own
+    wording, so **a scaled storey stays packed** and PC-G3's property survives
+    into 2D. It is 1.0 on every 1D build, where this is the identity.
     """
     (a, ta), (b, _tb) = span_ends(path, sa, sb, ends)
     chord = _sub(b, a)
@@ -1209,12 +1229,13 @@ def _packed_transform(proto, path, sa, sb, zmode, up_ref=UP, base_y=None,
     ay = a[1] if base_y is None else base_y
     return hou.Matrix4([
         [d[0] * scale, d[1] * scale, d[2] * scale, 0.0],
-        [up[0], up[1], up[2], 0.0],
+        [up[0] * yscale, up[1] * yscale, up[2] * yscale, 0.0],
         [across[0], across[1], across[2], 0.0],
         [a[0] - d[0] * ox, ay - d[1] * ox, a[2] - d[2] * ox, 1.0]])
 
 
-def _anchor_transform(proto, origin, direction, length, zmode, up_ref=UP):
+def _anchor_transform(proto, origin, direction, length, zmode, up_ref=UP,
+                      yscale=1.0):
     """4.3 - the 4x4 for a piece built on a STRAIGHT leg instead of on the path.
 
     A mitered corner piece does not ride the curve: it rides the leg, extended
@@ -1227,7 +1248,7 @@ def _anchor_transform(proto, origin, direction, length, zmode, up_ref=UP):
     ox = proto.ax * scale
     return hou.Matrix4([
         [d[0] * scale, d[1] * scale, d[2] * scale, 0.0],
-        [up[0], up[1], up[2], 0.0],
+        [up[0] * yscale, up[1] * yscale, up[2] * yscale, 0.0],
         [across[0], across[1], across[2], 0.0],
         [origin[0] - d[0] * ox, origin[1] - d[1] * ox,
          origin[2] - d[2] * ox, 1.0]])
@@ -1314,7 +1335,8 @@ def clip_plane(geo, origin, normal, keep_sign, module_name="", texel=1.0):
 
 
 def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap,
-                      tilt=False, base_y=None, band=None, samples=None):
+                      tilt=False, base_y=None, band=None, samples=None,
+                      yscale=1.0):
     """Every point of `src` re-read at its own arc position. Returns
     (flat world positions, flat local positions).
 
@@ -1358,14 +1380,18 @@ def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap,
     for i in range(0, len(local), 3):
         x, y, z = local[i], local[i + 1], local[i + 2]
         pos, (d, across, up) = frames[x]
+        # E2 - the band scale rides the LOCAL y only, so D99's band test still
+        # asks the module's own question in the module's own metres and the
+        # geometry still fills the row's band exactly.
+        sy = y * yscale
         if zmode == "adaptive":
-            out[i] = pos[0] + across[0] * z + up[0] * y
-            out[i + 1] = pos[1] + across[1] * z + up[1] * y
-            out[i + 2] = pos[2] + across[2] * z + up[2] * y
+            out[i] = pos[0] + across[0] * z + up[0] * sy
+            out[i + 1] = pos[1] + across[1] * z + up[1] * sy
+            out[i + 2] = pos[2] + across[2] * z + up[2] * sy
         else:
             py = pos[1] if _follows(y, band, stepped) else base_y
             out[i] = pos[0] + across[0] * z
-            out[i + 1] = py + y
+            out[i + 1] = py + sy
             out[i + 2] = pos[2] + across[2] * z
     return (out, local)
 
@@ -1483,8 +1509,14 @@ def plan_points(geo, report):
     return geo
 
 
-def _declare(geo, warn_names):
-    for name, default in ELEM_PRIM_ATTRS:
+# 7.3.3's new stamps. Declared ONLY when a 2D build produced a cell, so a
+# phase-1 output keeps exactly the schema `output_schema` has always pinned.
+ELEM_2D_ATTRS = (("pc_cell", ""), ("pc_yclass", ""), ("pc_array", ""),
+                 ("pc_row", -1))
+
+
+def _declare(geo, warn_names, cells=False):
+    for name, default in ELEM_PRIM_ATTRS + (ELEM_2D_ATTRS if cells else ()):
         if geo.findPrimAttrib(name) is None:
             geo.addAttrib(hou.attribType.Prim, name, default)
     for name in warn_names:
@@ -1522,7 +1554,24 @@ def _stamp_values(placement, warns, deformed, zmode, replaced=False):
         ("pc_curve_id", str(placement.curve_id)),
         ("pc_style", str(placement.style_id)),
         ("pc_replaced", 1 if replaced else 0),
-    ) + tuple((w, 1) for w in warns)
+    ) + _stamp_2d(placement) + tuple((w, 1) for w in warns)
+
+
+def _stamp_2d(placement):
+    """7.3.3 - volume / storey / face / bay, by ADDRESS COMPOSITION (D123).
+
+    `pc_elem_id` does not change shape and `elem_id()` is not touched: the two
+    halves of `pc_curve_id` are the volume and the storey, `pc_section` is the
+    face (on a closed footprint a section IS a facade leg) and the index is
+    the bay. These four are the READABLE form of that, and they are absent -
+    not blank - on a 1D build.
+    """
+    if not placement.cell:
+        return ()
+    array, _sep, row = str(placement.curve_id).partition("#")
+    row = row.split(".")[0]
+    return (("pc_cell", placement.cell), ("pc_yclass", placement.yclass),
+            ("pc_array", array), ("pc_row", int(row) if row.isdigit() else -1))
 
 
 def _stamp(prim, placement, warns, deformed, zmode, replaced=False):
@@ -1725,6 +1774,14 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         # each section the span the corners left it.
         placements, curve_bevels, sections = _corner.plan_curve(
             kcurve, sections, kit, style, params)
+        # 7.1 - the ROW's own two numbers, off the row prim. `yclass` has
+        # already reached the fitting solve through `Section.attrs` (D94); this
+        # is where every placement of the row - the corner assembly's included,
+        # which never passes through `plan._module_warns` - gets its `pc_cell`
+        # and D118's fallback warning. Blank on every 1D curve.
+        yclass = str(curve.attrs.get("pc_yclass", "") or "")
+        yscale = float(curve.attrs.get("pc_row_scale", 1.0) or 1.0)
+        _array2d.classify(placements, kit, yclass)
         bevels.extend(curve_bevels)
         all_sections.extend(sections)
         by_section = dict((sec.index, sec) for sec in sections)
@@ -1742,14 +1799,15 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                               remap(section.s0 + p.s1),
                               proto_for(module).fracs))
         plans.append((path, remap, placements, by_section, fillet_warns,
-                      spans))
+                      spans, yscale))
 
     # ...and the batch, once, before ANY placement asks anything. It is a
     # cache fill and nothing else - every key it misses is served by the
     # per-query Python path exactly as before, so this is additive.
     _conform.prefetch_all([(pl[0], pl[5]) for pl in plans if pl[5]])
 
-    for (path, remap, placements, by_section, fillet_warns, _spans) in plans:
+    for (path, remap, placements, by_section, fillet_warns, _spans,
+         yscale) in plans:
         for p in placements:
             section = by_section.get(p.section_index)
             if section is None:
@@ -1892,6 +1950,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                         max if getattr(params, "flat_band", "") == "top"
                         else min)
             jobs.append({"p": p, "proto": proto, "path": path, "hero": hero,
+                         "yscale": yscale,
                          "s0f": s0f, "s0r": s0r, "s1r": s1r,
                          "zmode": zmode, "scale": scale, "band": band,
                          "base_y": base_y, "packed_y": packed_y,
@@ -1911,7 +1970,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             if w not in warn_names:
                 warn_names.append(w)
     warn_names.sort()
-    _declare(out, warn_names)
+    _declare(out, warn_names, cells=any(j["p"].cell for j in jobs))
 
     # --- pass B: materialise -----------------------------------------------
     # 11.2 P1: the stamp is ACCUMULATED here and written once at the end -
@@ -1944,11 +2003,12 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             # has no single transform, so it takes the chord's and says so.
             xform = (_anchor_transform(proto, _drop_anchor(path, p.anchor),
                                        p.anchor[1], _anchor_len(p), zmode,
-                                       up_ref)
+                                       up_ref, job["yscale"])
                      if p.anchor is not None
                      else _packed_transform(proto, path, job["s0r"],
                                             job["s1r"], zmode, up_ref,
-                                            job["packed_y"], ends))
+                                            job["packed_y"], ends,
+                                            job["yscale"]))
             prim = out.createPackedGeometry(job["hero"])
             prim.setTransform(xform)
             stamp_rows.append(
@@ -1965,11 +2025,12 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                 # because an anchored piece is rigid on its leg by definition.
                 xform = _anchor_transform(proto, _drop_anchor(path, p.anchor),
                                           p.anchor[1], _anchor_len(p), zmode,
-                                          up_ref)
+                                          up_ref, job["yscale"])
             else:
                 xform = _packed_transform(proto, path, job["s0r"],
                                           job["s1r"], zmode, up_ref,
-                                          job["packed_y"], ends)
+                                          job["packed_y"], ends,
+                                          job["yscale"])
             prim = out.createPackedGeometry(proto.source)
             prim.setTransform(xform)
             stamp_rows.append((1, _stamp_values(p, warns, False, zmode)))
@@ -1987,7 +2048,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             local = list(src.pointFloatAttribValues("P"))
             piece.transform(_anchor_transform(
                 proto, _drop_anchor(path, p.anchor), p.anchor[1],
-                _anchor_len(p), zmode, up_ref))
+                _anchor_len(p), zmode, up_ref, job["yscale"]))
             # AFTER the transform, never before: `hou.Geometry.transform`
             # carries any attribute Houdini reads as a vector along with P, and
             # a rotated `pc_local` would make every local-frame check measure
@@ -1998,7 +2059,8 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                                              job["scale"], zmode,
                                              job["remap"], job["tilt"],
                                              job["base_y"], job["band"],
-                                             job.pop("stations", None))
+                                             job.pop("stations", None),
+                                             job["yscale"])
             piece.setPointFloatAttribValues("P", world)
             piece.setPointFloatAttribValues("pc_local", local)
         if p.cuts:

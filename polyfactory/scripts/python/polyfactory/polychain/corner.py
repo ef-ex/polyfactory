@@ -761,7 +761,12 @@ def _default_module(kit, style, section, params):
            "cornerAngle": section.corner_angle, "u": section.u0, "index": 0,
            "attrs": dict(getattr(section, "attrs", None) or {},
                          pc_section=section.section_key,
-                         pc_style=section.style_key),          # D94
+                         pc_style=section.style_key),
+           # E1 - the row class reaches the CORNER slot too, or a corner
+           # column on the top row resolves `corner` where the kit has
+           # `corner_end` (the PC-G5 case).
+           "yclass": str((getattr(section, "attrs", None) or {})
+                         .get("pc_yclass", "") or ""),          # D94
            "marker_data": {}}
     _rule, mod = _plan.pick(style, "default", ctx, kit)
     return mod
@@ -774,7 +779,12 @@ def _corner_rule(style, kit, section):
            "cornerAngle": section.corner_angle, "u": section.u0, "index": 0,
            "attrs": dict(getattr(section, "attrs", None) or {},
                          pc_section=section.section_key,
-                         pc_style=section.style_key),          # D94
+                         pc_style=section.style_key),
+           # E1 - the row class reaches the CORNER slot too, or a corner
+           # column on the top row resolves `corner` where the kit has
+           # `corner_end` (the PC-G5 case).
+           "yclass": str((getattr(section, "attrs", None) or {})
+                         .get("pc_yclass", "") or ""),          # D94
            "marker_data": {}}
     for rule in style.rules_for("corner"):
         if compose_modules(rule, kit, dict(ctx, slot="corner"), style):

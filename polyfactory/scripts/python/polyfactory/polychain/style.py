@@ -83,6 +83,12 @@ RULE_ATTRS = (
     ("pc_scope", "segment"),
     ("pc_weights", {}),
     ("pc_vexpr", ""),
+    # 7.3.2 / D120 - ONE payload, two axes, and one rule scoped to one row
+    # class. Both default to "the payload did not say", so every phase-1
+    # payload round-trips unchanged and reads as an X payload matching every
+    # row.
+    ("pc_axis", "x"),
+    ("pc_yclass", ""),
 )
 
 # Every `Params` field, derived from the object rather than listed - a parm
@@ -167,11 +173,13 @@ def _ensure(geo, cls, name, default):
 def write(geo, style):
     """`style` as a 3.3 payload on `geo`. The inverse of `read`."""
     _ensure(geo, hou.attribType.Global, STYLE_DETAIL, {})
-    geo.setGlobalAttribValue(STYLE_DETAIL, {
+    meta = dict(getattr(style, "meta", None) or {})
+    meta.update({
         "styleId": str(style.style_id),
         "version": int(style.version),
         "seed": int(style.seed),
         "params": params_to_dict(style.params or DEFAULTS)})
+    geo.setGlobalAttribValue(STYLE_DETAIL, meta)
     for name, default in RULE_ATTRS:
         _ensure(geo, hou.attribType.Point, name, default)
     for rule in style.rules:
@@ -183,6 +191,8 @@ def write(geo, style):
         pt.setAttribValue("pc_scope", str(rule.scope))
         pt.setAttribValue("pc_weights", dict(rule.weights or {}))
         pt.setAttribValue("pc_vexpr", str(rule.vexpr or ""))
+        pt.setAttribValue("pc_axis", str(getattr(rule, "axis", "x")))
+        pt.setAttribValue("pc_yclass", str(getattr(rule, "yclass", "")))
     return geo
 
 
@@ -337,9 +347,16 @@ def read(geo, kit=None):
                     warns.append("rule %d (%s): kit %r has no module or role "
                                  "%r - a stand-in box will be built"
                                  % (index, slot, kit.kit_id, name))
+        yclass = str(_sattr(pt, "pc_yclass", ""))
+        if yclass and yclass not in SLOTS and not yclass.startswith("marker:"):
+            warns.append("rule %d (%s): unknown pc_yclass %r - the rule is "
+                         "scoped to a row class no solve can produce (known: "
+                         "%s, marker:<id>)" % (index, slot, yclass,
+                                               ", ".join(SLOTS)))
         rules.append(Rule(slot, select, modules, cond or None,
                           str(_sattr(pt, "pc_scope", "segment")) or "segment",
-                          weights, vexpr))
+                          weights, vexpr, yclass,
+                          str(_sattr(pt, "pc_axis", "x")) or "x"))
 
     if not rules:
         # D92: DEGRADE WITHIN THE PIPELINE FACE, never across to the other
@@ -354,8 +371,10 @@ def read(geo, kit=None):
                      "nothing (it does NOT fall back to the parms)")
         return (Style(str(meta.get("styleId", "")),
                       _int(meta.get("version"), 1, "version", warns),
-                      _int(meta.get("seed"), 0, "seed", warns), [], params),
+                      _int(meta.get("seed"), 0, "seed", warns), [], params,
+                      meta),
                 warns)
     return (Style(str(meta.get("styleId", "")), _int(meta.get("version"), 1, "version", warns),
-                  _int(meta.get("seed"), 0, "seed", warns), rules, params),
+                  _int(meta.get("seed"), 0, "seed", warns), rules, params,
+                  meta),
             warns)

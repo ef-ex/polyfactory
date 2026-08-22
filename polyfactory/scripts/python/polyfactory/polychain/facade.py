@@ -1,0 +1,210 @@
+"""polyChain 7 FACADE - the 2D adapter. Rows in, ONE `place.build`, out.
+
+This is the only file in phase 2 that imports `hou`, and it is deliberately
+thin: `array2d.py` decides everything (the Y solve, the row list, the role
+closure, the canonical footprint, the clipped area's frame and spans) and this
+turns those decisions into one geometry and one kernel call.
+
+TWO RULES FROM 11.9 ARE THE WHOLE DESIGN OF THIS FILE
+
+  1. **Never touch a `hou.Prim`/`hou.Point` wrapper in a loop.** Row emission
+     is `createPoints` + `createPolygons` + `setPrim*AttribValues` - one call
+     per attribute over the whole stream, never one per row. The
+     `rows_wrappers_built` tripwire counts wrapper attribute writes here and
+     its ceiling is 0.
+  2. **All N rows go through ONE `place.build` call** (D115). `place.build`
+     already hoists the conform batch to the outermost loop over ALL curves
+     (D112) and takes exactly one `ray` execution per build; feeding it N rows
+     in one call inherits that for free and feeding it N times throws it away.
+     `ray_executions_per_build` must read 1 on BOTH phase-2 fixtures, and the
+     many-short-rows one (100 buildings x 8 storeys = 800 short rows) is the
+     one that can fail.
+
+DECISIONS TAKEN HERE (recorded in polychain.md 12):
+
+  D136 THE ROLE CLOSURE IS WRITTEN BACK ONTO THE KIT PAYLOAD, not passed into
+       the kernel as an object. `place.build` reads its own kit from input 2
+       (D77's two-face rule), so a closure computed beside it would have been
+       thrown away; expressed as `pc_role` on a COPY of the kit geometry plus
+       a `role_fallbacks` entry in the manifest, it is data on the payload -
+       inspectable by the artist, read by the kernel's existing reader, and
+       needing no new argument anywhere.
+"""
+
+import hou
+
+from . import DEFAULTS, Params
+from . import array2d as _array2d
+from . import kit as _kit
+from . import place as _place
+from . import style as _style
+
+def _ensure(geo, cls, name, default):
+    found = (geo.findGlobalAttrib(name) if cls == hou.attribType.Global
+             else geo.findPointAttrib(name) if cls == hou.attribType.Point
+             else geo.findPrimAttrib(name))
+    return found or geo.addAttrib(cls, name, default)
+
+
+ROW_STR_ATTRS = ("pc_curve_id", "pc_yclass")
+ROW_INT_ATTRS = ("pc_row",)
+ROW_FLT_ATTRS = ("pc_row_y0", "pc_row_y1", "pc_row_scale")
+
+
+# --- row emission (11.9 rule 1) ---------------------------------------------
+
+def rows_geometry(loops, corner_flags=None, geo=None):
+    """[(points, closed, attrs)] -> ONE `hou.Geometry` of row curves.
+
+    Written with bulk array setters end to end: the point positions go in with
+    one `createPoints`, the polylines with one `createPolygons`, and each of
+    the six prim attributes with one `setPrim*AttribValues` over the whole
+    stream. Nothing here is per-row except building the lists themselves.
+
+    `corner_flags` is 7.5's "vertex type is data": a per-footprint-vertex
+    `pc_corner`, repeated for every row. Left None, the auto-turn test
+    (`corner_angle_deg`) decides, which is what a rectangle wants.
+    """
+    geo = geo if geo is not None else hou.Geometry()
+    if not loops:
+        return geo
+    positions, polys, base = [], [], 0
+    for pts, closed, _attrs in loops:
+        positions.extend(pts)
+        polys.append((tuple(range(base, base + len(pts))), bool(closed)))
+        base += len(pts)
+    geo.createPoints(positions)
+    # `createPolygons` takes ONE closed flag for the whole batch, so the two
+    # kinds of row - a closed footprint and an open span across a clipped area
+    # - are two calls at most, never one per row.
+    for closed in (True, False):
+        group = [p for p, c in polys if c == closed]
+        if group:
+            geo.createPolygons(tuple(group), closed)
+    order = [i for i, (_p, c) in enumerate(polys) if c] + \
+            [i for i, (_p, c) in enumerate(polys) if not c]
+    attrs = [loops[i][2] for i in order]
+    for name in ROW_STR_ATTRS:
+        _ensure(geo, hou.attribType.Prim, name, "")
+        geo.setPrimStringAttribValues(name, [str(a.get(name, "")) for a in attrs])
+    for name in ROW_INT_ATTRS:
+        _ensure(geo, hou.attribType.Prim, name, -1)
+        geo.setPrimIntAttribValues(name, [int(a.get(name, -1)) for a in attrs])
+    for name in ROW_FLT_ATTRS:
+        _ensure(geo, hou.attribType.Prim, name, 0.0)
+        geo.setPrimFloatAttribValues(name, [float(a.get(name, 0.0))
+                                            for a in attrs])
+    if corner_flags:
+        _ensure(geo, hou.attribType.Point, "pc_corner", 0)
+        col = []
+        for i in order:
+            pts = loops[i][0]
+            col.extend([int(corner_flags[j % len(corner_flags)])
+                        for j in range(len(pts))])
+        geo.setPointIntAttribValues("pc_corner", col)
+    return geo
+
+
+# --- the kit, with 7.2.2's lattice closed onto it (D136) --------------------
+
+def close_kit(kit_geo, extend="x", extra_roles=()):
+    """(kit geometry with every 2D cell role resolved, {asked: supplied}).
+
+    A COPY: closing the roles rewrites `pc_role`, and a build must not edit the
+    kit its caller handed it.
+    """
+    kit, _sources, _warns = _kit.read(kit_geo)
+    kit2, fallbacks = _array2d.close_roles(kit, extend, extra_roles)
+    geo = hou.Geometry()
+    geo.merge(kit_geo)
+    by_name = dict((m.name, m) for m in kit2.modules)
+    if geo.findPointAttrib("pc_name") is not None:
+        _ensure(geo, hou.attribType.Point, "pc_role", "default")
+        names = list(geo.pointStringAttribValues("pc_name"))
+        roles = list(geo.pointStringAttribValues("pc_role"))
+        geo.setPointStringAttribValues("pc_role", [
+            " ".join(by_name[n].roles) if n in by_name else r
+            for n, r in zip(names, roles)])
+    meta = {}
+    if geo.findGlobalAttrib(_kit.KIT_DETAIL) is not None:
+        try:
+            meta = dict(geo.attribValue(_kit.KIT_DETAIL))
+        except Exception:
+            meta = {}
+    meta["role_fallbacks"] = dict(fallbacks)
+    _ensure(geo, hou.attribType.Global, _kit.KIT_DETAIL, {})
+    geo.setGlobalAttribValue(_kit.KIT_DETAIL, meta)
+    return (geo, fallbacks)
+
+
+def _y_params(style, y_params):
+    """7.3.2's `pc_style_meta["y_params"]`, read by the SAME `params_from_dict`.
+
+    `y_fill`, `y_count`, `y_evenly_spacing`... are not new parms: they are the
+    same `Params` fields on the other axis, so an explicit argument wins, then
+    the payload's own dict, then the X params.
+    """
+    if y_params is not None:
+        return y_params
+    data = (getattr(style, "meta", None) or {}).get("y_params")
+    if not data:
+        return None
+    return _style.params_from_dict(dict(data))
+
+
+# --- the build (D115: one call) ---------------------------------------------
+
+def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
+          y_params=None, extend="x", closed=True, corner_flags=None,
+          area=False, clip_mode="remove", auto_align="to_spline", expand=0.0,
+          out=None, surface_geo=None, overrides=None):
+    """One footprint + a height -> a facade. Returns (geometry, report).
+
+    `footprint` is a list of world-space points (the closed plan) or, with
+    `area=True`, a closed PLANAR sub-spline that both defines and trims the
+    array (7.6): its own plane gives the local frame, its bounding box in that
+    frame gives the extents, and every row is a straight span across it.
+
+    The report is `place.build`'s, plus `rows` (the Y solve, as dicts),
+    `role_fallbacks` (7.2.2's walk, per cell) and `array_id`.
+    """
+    kit, _sources, _kw = _kit.read(kit_geo)
+    x_style, y_style = _array2d.split_style(style, _y_params(style, y_params))
+    named = [m for r in style.rules for m in r.modules] + \
+            [r.slot for r in style.rules]
+    kit_geo2, fallbacks = close_kit(kit_geo, extend, named)
+
+    if area:
+        frame = _array2d.area_frame(footprint, auto_align, expand)
+        rows = _array2d.plan_rows(profile if profile is not None
+                                  else (height if height is not None
+                                        else frame.height),
+                                  kit, y_style, y_params, array_id)
+        loops = _array2d.area_rows(frame, rows, clip_mode)
+    else:
+        rows = _array2d.plan_rows(profile if profile is not None else height,
+                                  kit, y_style, y_params, array_id)
+        loops = _array2d.row_loops(footprint, rows, closed)
+
+    geo, report = _place.build(rows_geometry(loops, corner_flags), kit_geo2,
+                               x_style, params=x_style.params, out=out,
+                               surface_geo=surface_geo, overrides=overrides)
+    report["rows"] = [r.as_dict() for r in rows]
+    report["role_fallbacks"] = fallbacks
+    report["array_id"] = array_id
+    # 7.2.2's "naming both roles" - the per-element attribute says a fallback
+    # happened, and this says which one, once per (role, kit).
+    report["kit_warnings"] = list(report.get("kit_warnings", [])) + \
+        _array2d.fallback_lines(dict((k, v) for k, v in fallbacks.items()
+                                     if _used(k, report)))
+    return (geo, report)
+
+
+def _used(role, report):
+    """Only name a fallback a CELL ACTUALLY ASKED FOR. The lattice has 25
+    entries and a facade uses a handful; listing the rest would bury the one
+    that matters."""
+    for p in report.get("plan", ()):
+        if p.cell == role:
+            return True
+    return False

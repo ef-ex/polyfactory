@@ -55,6 +55,83 @@ import zlib
 # --- vocabularies. single owner, the JUNCTION_TYPE_VOCAB precedent ---------
 
 SLOTS = ("default", "start", "end", "corner", "evenly")   # + "marker:<id>"
+
+# --- 7.2: the 2D cell inventory. ONE vocabulary, used twice ------------------
+#
+# D116. RC Slice's 20 auto-generated pieces are not an enumeration - they are a
+# 5 x 4 product table whose fifth column RailClone omitted (it has a Y Corner
+# generator slot but never slices a Y-corner piece). A cell has exactly one X
+# class and one Y class, both drawn from `SLOTS` above and NOT from a second
+# vocabulary, so the inventory is the ordered pair `<x_slot>_<y_slot>` and the
+# Y-`default` column collapses to the phase-1 name - which is why a phase-1
+# kit is a valid phase-2 kit for the middle rows with no edit at all.
+#
+# `marker:<id>` is a slot on either axis by GRAMMAR, so `marker:7_default`
+# (an authored bay) and `default_marker:2` (an authored storey) parse and work
+# without being in the 25 - they are unbounded, and a vocabulary is not.
+
+
+def role_2d(x_slot, y_slot="default"):
+    """`<x>_<y>`, with the Y-`default` column written as the phase-1 name."""
+    return x_slot if y_slot in ("", "default") else "%s_%s" % (x_slot, y_slot)
+
+
+def split_role(role):
+    """`<x>_<y>` -> (x slot, y slot). A phase-1 name is its own X half.
+
+    Split on the LAST underscore, because a marker id can carry neither: the
+    grammar is `<x>_<y>` where each half is a `SLOTS` member or `marker:<int>`,
+    so `default_marker:7` splits cleanly and `corner` has no split at all. A
+    string whose halves are not slots is NOT a role - it is a name the artist
+    invented, and it is returned whole so a rule can still name it.
+    """
+    if "_" not in role:
+        return (role, "default")
+    x, _sep, y = role.rpartition("_")
+    if _is_slot(x) and _is_slot(y):
+        return (x, y)
+    return (role, "default")
+
+
+def _is_slot(name):
+    return name in SLOTS or (name.startswith("marker:")
+                             and name[7:].isdigit())
+
+
+ROLES_2D = tuple(role_2d(x, y) for y in SLOTS for x in SLOTS)
+
+# The words the industry writes, normalised at kit read - D4's `moduleRole`
+# pattern, one table instead of a branch. The RC Slice piece names are in here
+# verbatim (`start_top`, `x_corner_bottom`, `y_evenly_corner`, ...) so a kit
+# authored against RailClone's own inventory reads without renaming, and
+# `test_polychain_array2d` asserts that those 20 map onto exactly the 20 roles
+# with `y_slot != "corner"` - bijectively, no leftovers on either side.
+ROLE_ALIASES = {
+    "bottom": "default_start", "top": "default_end",
+    "left": "start", "right": "end",
+    "lt": "start_end", "left_top": "start_end",
+    "rt": "end_end", "right_top": "end_end",
+    "lb": "start_start", "left_bottom": "start_start",
+    "rb": "end_start", "right_bottom": "end_start",
+    "x_corner": "corner", "x_evenly": "evenly",
+    "y_evenly": "default_evenly", "xy_evenly": "evenly_evenly",
+    "start_top": "start_end", "end_top": "end_end",
+    "start_bottom": "start_start", "end_bottom": "end_start",
+    "x_corner_top": "corner_end", "x_corner_bottom": "corner_start",
+    "x_evenly_top": "evenly_end", "x_evenly_bottom": "evenly_start",
+    "y_evenly_start": "start_evenly", "y_evenly_end": "end_evenly",
+    "y_evenly_corner": "corner_evenly",
+}
+
+
+def canonical_role(name):
+    """An authored role name -> the 7.2 vocabulary. Unknown names survive."""
+    name = str(name).strip()
+    if name in ROLE_ALIASES:
+        return ROLE_ALIASES[name]
+    x, y = split_role(name)
+    return role_2d(x, y)
+
 FILL_MODES = ("tile", "scale", "adaptive", "count")
 Z_MODES = ("adaptive", "vertical", "stepped")
 SCOPES = ("segment", "section", "spline", "generator")
@@ -93,10 +170,17 @@ WARN_REPLACED = "pc_warn_replace_deformed"        # D58 - a hero over a bend
 # block - the ids are left exactly as authored, because renaming them here
 # would move addresses that a style or an override may already reference.
 WARN_CURVE_ID_DUP = "pc_warn_curve_id_dup"
+# D118 - 7.2.2's lattice walk took a step. The role the cell ASKED for was not
+# in the kit and a more general one stood in for it (or, at the end of the
+# chain, 3.4's blank box did). A silent stand-in is the defect PC-G5 condition
+# 5 counts, so every degrade says so on every element that took it, and the
+# pair of role names is persisted in `pc_kit_warnings`.
+WARN_ROLE_FALLBACK = "pc_warn_role_fallback"
 WARN_VOCAB = (WARN_KIT_GAP, WARN_CORNER_DEGENERATE, WARN_OVERFLOW,
               WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD,
               WARN_BEND_RESOLUTION, WARN_DEGENERATE_FRAME, WARN_FILLET_CLAMPED,
-              WARN_CONFORM_MISS, WARN_REPLACED, WARN_CURVE_ID_DUP)
+              WARN_CONFORM_MISS, WARN_REPLACED, WARN_CURVE_ID_DUP,
+              WARN_ROLE_FALLBACK)
 
 # 3.1 / 3.4 attribute names, so the adapter and the checks read one list.
 CURVE_ATTRS = ("pc_corner", "pc_section", "pc_style", "pc_marker")
@@ -373,7 +457,7 @@ class Module(object):
 
     def __init__(self, name, size, pad=(0.0, 0.0), deform=DEFORM_RIGID,
                  zmode="adaptive", roles=("default",), variant="", weight=1.0,
-                 missing=False, tilt=-1):
+                 missing=False, tilt=-1, extend=-1):
         if hasattr(size, "__len__"):
             self.size = (float(size[0]), float(size[1]), float(size[2]))
         else:
@@ -390,6 +474,11 @@ class Module(object):
         # 0 = never tilt this module, 1 = always. A kerb stone that must stay
         # level inside a cambered road is the case for the middle state.
         self.tilt = int(tilt)
+        # 7.2.1's Extend To Side, D6's three-state pattern once more: -1 = the
+        # generator decides, 1 = this class extends to the side and its
+        # fallback keeps X, 0 = it stops at the other axis' band and its
+        # fallback keeps Y. It is a tie-break for ABSENCE, never for presence.
+        self.extend = int(extend)
 
     @property
     def length(self):
@@ -415,11 +504,17 @@ def stand_in(name="", nominal=(1.0, 1.0, 1.0)):
 
 class Kit(object):
     def __init__(self, kit_id="", version=1, modules=(),
-                 human_scale_reference=0.0):
+                 human_scale_reference=0.0, role_fallbacks=None):
         self.kit_id = kit_id
         self.version = int(version)
         self.modules = list(modules)
         self.human_scale_reference = float(human_scale_reference)
+        # D118 - {role asked: role supplied}, filled by `array2d.close_roles`
+        # and EMPTY on every 1D kit. A role in here was served by a walk on
+        # the 5 x 5 lattice, so every element that took it says
+        # WARN_ROLE_FALLBACK; a value of "" means the walk ran out and 3.4's
+        # stand-in box is what arrives.
+        self.role_fallbacks = dict(role_fallbacks or {})
         self._by_name = dict((m.name, m) for m in self.modules)
 
     def by_name(self, name):
@@ -456,17 +551,32 @@ def kit_from_records(records, kit_id="", version=1, human_scale_reference=0.0):
             roles=r.get("pc_role", r.get("moduleRole", "default")),
             variant=r.get("pc_variant", r.get("variant", "")),
             weight=r.get("pc_weight", r.get("weight", 1.0)),
-            tilt=r.get("pc_tilt", r.get("tilt", -1))))
+            tilt=r.get("pc_tilt", r.get("tilt", -1)),
+            extend=r.get("pc_extend", r.get("extend", -1))))
     return Kit(kit_id, version, mods, human_scale_reference)
 
 
 # --- style -----------------------------------------------------------------
 
 class Rule(object):
-    """One 3.3 rule point."""
+    """One 3.3 rule point.
+
+    D119 (E1) - `yclass` scopes the rule to ONE row class of the 2D array.
+    Blank matches every row, so every phase-1 payload is a phase-2 X payload
+    unchanged. It is its own field rather than a `conditional` on
+    `attr:pc_yclass` because that encoding consumes `pc_select`, and a
+    row-class-scoped rule that cannot also be `random` or `sequence` is half a
+    rule (7.3.2).
+    """
 
     def __init__(self, slot, select="first", modules=(), cond=None,
-                 scope="segment", weights=None, vexpr=""):
+                 scope="segment", weights=None, vexpr="", yclass="",
+                 axis="x"):
+        self.yclass = str(yclass or "")
+        # D120 - ONE payload, two axes. `y` rules drive the row stack, every
+        # other rule drives the fill, and a payload that says nothing about an
+        # axis is an X payload - which is every phase-1 payload there is.
+        self.axis = "y" if str(axis).lower() == "y" else "x"
         self.slot = slot
         self.select = select if select in SELECTORS else "first"
         self.modules = list(modules)
@@ -477,16 +587,33 @@ class Rule(object):
 
 
 class Style(object):
-    def __init__(self, style_id="", version=1, seed=0, rules=(), params=None):
+    def __init__(self, style_id="", version=1, seed=0, rules=(), params=None,
+                 meta=None):
         self.style_id = style_id
         self.version = int(version)
         self.seed = int(seed)
         self.rules = list(rules)
         self.params = params or DEFAULTS
+        # 7.3.2 - the payload's own `pc_style_meta`, kept whole so `y_params`,
+        # `y_mode` and `clip` reach the 2D stage without a second reader. It
+        # is {} on every parm-built style and on every phase-1 payload.
+        self.meta = dict(meta or {})
 
-    def rules_for(self, slot):
-        """Payload order preserved: the first rule that yields wins."""
-        return [r for r in self.rules if r.slot == slot]
+    def rules_for(self, slot, yclass=None):
+        """Payload order preserved: the first rule that yields wins.
+
+        D119 - with a row class, the SCOPED rules come first and the blank
+        ones after, so rule-level fallback (this row class -> any row) is the
+        same ordered chain the kit-level role lattice is (7.2.2), and a
+        payload says "random brick everywhere, but the ground floor is this
+        shopfront" with two rules and no conditional. `yclass=None` is the
+        1D caller and returns exactly what it always returned.
+        """
+        matched = [r for r in self.rules if r.slot == slot]
+        if yclass is None:
+            return matched
+        return ([r for r in matched if r.yclass == yclass]
+                + [r for r in matched if not r.yclass])
 
     def slots(self):
         out = []

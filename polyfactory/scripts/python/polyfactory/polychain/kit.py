@@ -119,7 +119,7 @@ def _ensure(geo, cls, name, default):
 
 def add_module(geo, name, source, size=None, pad=(0.0, 0.0),
                deform=DEFORM_RIGID, zmode="adaptive", roles="default",
-               variant="", weight=1.0, tilt=-1):
+               variant="", weight=1.0, tilt=-1, extend=-1):
     """Pack `source` into `geo` as one module and write its manifest point."""
     for attr, default, _kind in MODULE_ATTRS:
         _ensure(geo, hou.attribType.Point, attr, default)
@@ -138,6 +138,9 @@ def add_module(geo, name, source, size=None, pad=(0.0, 0.0),
     pt.setAttribValue("pc_variant", str(variant))
     pt.setAttribValue("pc_weight", float(weight))
     pt.setAttribValue("pc_tilt", int(tilt))
+    if int(extend) >= 0:            # 7.3.1, and only when it is authored: a
+        _ensure(geo, hou.attribType.Point, "pc_extend", -1)   # phase-1 kit
+        pt.setAttribValue("pc_extend", int(extend))           # gains nothing
     return prim
 
 
@@ -286,11 +289,21 @@ def read(geo):
             roles=_sattr(pt, "pc_role", "default"),
             variant=_sattr(pt, "pc_variant", ""),
             weight=max(_fattr(pt, "pc_weight", 1.0), 0.0),
-            tilt=_iattr(pt, "pc_tilt", -1)))
+            tilt=_iattr(pt, "pc_tilt", -1),
+            # 7.3.1 - Extend To Side, read OPTIONALLY (it is not in
+            # MODULE_ATTRS, so a phase-1 kit neither carries it nor warns
+            # about not carrying it) and D6's three-state default: -1 is
+            # "the generator decides".
+            extend=_iattr(pt, "pc_extend", -1)))
         sources[name] = src
     kit = Kit(str(manifest.get("kitId", "")),
               int(manifest.get("version", 1) or 1), modules,
-              float(manifest.get("human_scale_reference", 0.0) or 0.0))
+              float(manifest.get("human_scale_reference", 0.0) or 0.0),
+              # D118 - the role closure is DATA on the kit payload, so the
+              # kernel reads it like everything else and `facade.close_kit`
+              # is the only thing that has to know how it was computed. {} on
+              # every phase-1 kit.
+              manifest.get("role_fallbacks") or {})
     return (kit, sources, warns)
 
 

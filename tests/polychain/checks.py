@@ -3637,13 +3637,14 @@ def station_share_hit_rate(build_fn, place_mod, conform_mod,
         reals.append((conform_mod.ConformPath, conform_mod.ConformPath.sample))
 
     def wrapped(src, proto, path, s0_flat, scale, zmode, remap,
-                tilt=False, base_y=None, band=None, samples=None):
+                tilt=False, base_y=None, band=None, samples=None,
+                yscale=1.0):
         state["pieces"] += 1
         state["offered"] += len(samples or ())
         state["depth"] += 1
         try:
             return real_dp(src, proto, path, s0_flat, scale, zmode, remap,
-                           tilt, base_y, band, samples)
+                           tilt, base_y, band, samples, yscale)
         finally:
             state["depth"] -= 1
 
