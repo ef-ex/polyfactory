@@ -1467,6 +1467,36 @@ def tripwire_packed_run():
         params=Params(fill="adaptive")))
 
 
+def tripwire_deformed_run():
+    """The same panels on a 10 m-radius arc - 100 % DEFORMED, the branch
+    `tripwire_packed_run` cannot reach.
+
+    `scale_gate`'s `arc_10` in miniature: 5.0e-02 m of sagitta per 2 m span,
+    five times `bend_tol`, so every piece unpacks. It exists because the
+    deformed branch is where a per-prim stamp costs 14 x THE PIECE'S PRIM
+    COUNT rather than 14 - restoring the D102-era writer there was an 8.4x
+    wall-clock regression (arc_10 2.361 -> 19.854 s) that the packed tripwire
+    read as 0.005 either way, with every suite green.
+    """
+    g = hou.Geometry()
+    r, n = 10.0, 60
+    polyline(g, [(r * math.sin(i / r), 0.0, r * (1.0 - math.cos(i / r)))
+                 for i in range(n + 1)], curve_id="TWD")
+    return P.build(g, K.starter_kit(), Style(
+        "tripwire", 1, 3, rules=[Rule("default", "first", ["panel"])],
+        params=Params(fill="adaptive", zmode="adaptive")))
+
+
+def tripwire_out_build(out):
+    """`tripwire_packed_run`'s fence, built INTO a caller-supplied geometry -
+    `build`'s `out=` parameter, which nothing else in the tree passes."""
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="TW")
+    return P.build(g, K.starter_kit(), Style(
+        "tripwire", 1, 3, rules=[Rule("default", "first", ["panel"])],
+        params=Params(fill="adaptive")), out=out)
+
+
 def tripwire_conformed_run():
     """The same run draped over a surface - one `ConformPath`, so its memo
     cache is measurable per placed element."""

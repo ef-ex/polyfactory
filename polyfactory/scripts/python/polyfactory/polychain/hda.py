@@ -288,7 +288,10 @@ def colour_warnings(geo, warn_names):
     if geo.findPrimAttrib("Cd") is None:
         geo.addAttrib(hou.attribType.Prim, "Cd", (1.0, 1.0, 1.0))
     present = [n for n in warn_names if geo.findPrimAttrib(n) is not None]
-    n = len(geo.prims())
+    # the COUNT, not the wrappers - this runs on the 340 000-prim display path
+    # and `len(geo.prims())` builds a tuple of that many `hou.Prim` objects to
+    # answer a question `intrinsicValue` already holds.
+    n = geo.intrinsicValue("primitivecount")
     if not present or not n:
         return 0
     # 11.2 P1: read every warn column and write `Cd` once, instead of one

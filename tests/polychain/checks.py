@@ -3376,7 +3376,15 @@ def stamp_provenance(scene):
 
     [worst |du|, pc_section wrong, pc_variant wrong].
     """
-    worst, bad_sec, bad_var, where = 0.0, 0, 0, ""
+    worst, bad_sec, bad_var = 0.0, 0, 0
+    # THREE SLOTS, NOT ONE. `where` used to be shared, and the `pc_u` branch
+    # set it unconditionally while the other two only filled it when it was
+    # still empty - so the one run in which this check has ever fired (20
+    # elements with a wrong `pc_variant`, reported by the third review round)
+    # recorded the detail `DL|0|default|15|variant pc_u`, byte-identical to a
+    # passing run's, and named none of the elements that actually failed. A
+    # check's detail is the only artifact a failure leaves behind.
+    at = {"u": "", "sec": "", "var": ""}
     for p in scene.plan:
         rec = scene.by_id.get(p.elem_id)
         if rec is None:
@@ -3385,16 +3393,19 @@ def stamp_provenance(scene):
         if section is not None:
             du = abs(float(rec["pc_u"]) - section.u_at(p.s0))
             if du > worst:
-                worst, where = du, "%s pc_u" % p.elem_id
+                worst, at["u"] = du, "%s pc_u" % p.elem_id
         if int(rec["pc_section"]) != int(p.section_index):
             bad_sec += 1
-            where = where or "%s pc_section" % p.elem_id
+            at["sec"] = at["sec"] or "%s pc_section %s != %s" % (
+                p.elem_id, rec["pc_section"], p.section_index)
         if str(rec["pc_variant"]) != str(p.variant):
             bad_var += 1
-            where = where or "%s pc_variant" % p.elem_id
+            at["var"] = at["var"] or "%s pc_variant %r != %r" % (
+                p.elem_id, str(rec["pc_variant"]), str(p.variant))
     ok = worst <= 2e-6 and not bad_sec and not bad_var
     return Result("stamp_provenance", ok,
-                  [_round(worst, 9), bad_sec, bad_var], where)
+                  [_round(worst, 9), bad_sec, bad_var],
+                  " | ".join(v for v in (at["u"], at["sec"], at["var"]) if v))
 
 
 # --- 11.2's own tripwires ---------------------------------------------------
@@ -3411,8 +3422,17 @@ def stamp_provenance(scene):
 # expectation, and that flip is the proof.
 
 
-def stamp_calls_per_piece(build_fn, expect_max=1.0):
+def stamp_calls_per_piece(build_fn, expect_max=1.0, name=None):
     """HOM per-element attribute writes per placed piece - what P1 is for.
+
+    RUN IT ON BOTH BRANCHES. Until the third review round this had ONE row, on
+    a 100 % packed fixture, and the deformed branch is where the per-prim
+    stamp costs 14 x the piece's PRIM COUNT rather than 14: restoring the
+    D102-era writer there took `scale_gate` arc_10 from 2.361 s to 19.854 s
+    (8.4x) with the scene suite, the unit tests, the HDA suite and the ladder
+    ALL green, because `tripwire_packed_run` reports `deformed == 0` and this
+    number read 0.005 either way. `name` is what lets the two rows share one
+    baseline.
 
     62 % of the real node cook was `hou.Prim.setAttribValue`, 14 calls per
     packed piece (11.2 P1). Deterministic - a COUNT, not a timing - so it
@@ -3439,12 +3459,14 @@ def stamp_calls_per_piece(build_fn, expect_max=1.0):
     if not pieces:
         return _skip("stamp_calls_per_piece", "nothing was built")
     per = calls["n"] / float(pieces)
-    return Result("stamp_calls_per_piece", per <= expect_max,
-                  _round(per, 3), "%d calls, %d pieces (ceiling %.1f)"
-                  % (calls["n"], pieces, expect_max))
+    return Result(name or "stamp_calls_per_piece", per <= expect_max,
+                  _round(per, 3), "%d calls, %d pieces (%d deformed, "
+                  "ceiling %.1f)" % (calls["n"], pieces, report["deformed"],
+                                     expect_max))
 
 
-def curve_sample_scaling(curve_cls, expect="O(n)", samples=200):
+def curve_sample_scaling(curve_cls, expect="O(n)", samples=200,
+                         cold_expect=None):
     """Does `Curve.sample` cost depend on the curve's VERTEX COUNT - P2.
 
     `__init__.py`'s sampler rebuilds its whole per-segment table on every
@@ -3456,21 +3478,51 @@ def curve_sample_scaling(curve_cls, expect="O(n)", samples=200):
     every port commit has to read; a two-valued label moves exactly once, in
     the commit that earns it. The raw numbers ride in `detail`, which the
     runner records but does not diff.
+
+    AND THE SECOND READING IS THE COLD ONE, which this check did not have.
+    Warming the cache before timing measures only the path a MANY-SAMPLES
+    curve takes. The shape citygen actually hands the tool is the opposite -
+    hundreds of separate short polylines with `Curve.sample` called exactly
+    twice per section - so what it pays is table CONSTRUCTION, once per curve,
+    and P2 made that first call ~9 % SLOWER rather than faster (it now builds
+    `his` alongside `segs`). Construction cannot be O(1) - an arclength table
+    is linear in vertices by definition - so the cold expectation is `O(n)`
+    and what it pins is that it stays LINEAR: a rebuild-per-segment regression
+    reads quadratic here and goes red, where the warm reading cannot see it at
+    all. `cold_expect=None` keeps the old one-value shape.
     """
-    us = {}
+    us, cold = {}, {}
     for n in (10, 20001):
         step = 20000.0 / n
-        c = curve_cls("m", [(i * step, 0.0, 0.0) for i in range(n)])
+        pts = [(i * step, 0.0, 0.0) for i in range(n)]
+        c = curve_cls("m", pts)
         c.sample(1.0)                            # warm `_cumulative`
         t0 = time.time()
         for i in range(samples):
             c.sample(20000.0 * i / float(samples))
         us[n] = (time.time() - t0) / samples * 1e6
+        reps = 40 if n > 1000 else samples
+        t0 = time.time()
+        for i in range(reps):
+            curve_cls("m", pts).sample(20000.0 * i / float(reps))
+        cold[n] = (time.time() - t0) / reps * 1e6
     ratio = us[20001] / max(us[10], 1e-9)
     got = "O(1)" if ratio <= 5.0 else "O(n)"
-    return Result("curve_sample_scaling", got == expect, got,
-                  "%.2f us at 10 verts, %.2f us at 20 001 (%.0fx), expected %s"
-                  % (us[10], us[20001], ratio, expect))
+    # PER VERTEX, so linear construction reads flat and quadratic reads 2 000x
+    per = (cold[20001] / 20001.0) / max(cold[10] / 10.0, 1e-12)
+    got_cold = "O(n)" if per <= 5.0 else "O(n^2)"
+    if cold_expect is None:
+        return Result("curve_sample_scaling", got == expect, got,
+                      "%.2f us at 10 verts, %.2f us at 20 001 (%.0fx), "
+                      "expected %s" % (us[10], us[20001], ratio, expect))
+    return Result("curve_sample_scaling",
+                  got == expect and got_cold == cold_expect,
+                  [got, got_cold],
+                  "warm %.2f us at 10 verts, %.2f us at 20 001 (%.0fx, %s, "
+                  "expected %s); COLD construct+1 sample %.1f us at 10, "
+                  "%.1f us at 20 001 (%.1fx per vertex, %s, expected %s)"
+                  % (us[10], us[20001], ratio, got, expect,
+                     cold[10], cold[20001], per, got_cold, cold_expect))
 
 
 def conform_cache_per_element(build_fn, conform_mod, expect_max=30.0):
@@ -3502,3 +3554,174 @@ def conform_cache_per_element(build_fn, conform_mod, expect_max=30.0):
     return Result("conform_cache_per_element", per <= expect_max,
                   _round(per, 3), "%d entries over %d elements on %d paths "
                   "(ceiling %.0f)" % (entries, pieces, len(made), expect_max))
+
+
+def station_share_hit_rate(build_fn, place_mod, conform_mod,
+                           expect_max_misses=0.0):
+    """Does P3's station cache actually get HIT - and would a miss be seen?
+
+    P3's safety argument is "a miss just samples, so it is slower and never
+    wrong", and the third review round instrumented it: 2 691 hits, 0 misses,
+    0 wrong hits across all 88 cases. The fallback branch is therefore DEAD as
+    tested, which cuts both ways - it is never wrong, and nobody would notice
+    if it started being taken. A key drifting by one ULP (a different `remap`
+    composition order, a resample of `proto.stations`, a float32 round trip of
+    module P) sends EVERY station through a fresh sample: still correct, and
+    P3's whole win silently gone.
+
+    Counted, not timed: every `sample` call made from inside
+    `_deform_positions` is a miss, because a hit reads the dict pass A filled.
+    `[stations offered, misses per piece]` - the first is the liveness the
+    second cannot report, so a build that stopped populating the cache at all
+    fails here instead of quietly reading `0 misses` off an empty dict.
+    """
+    state = {"depth": 0, "offered": 0, "miss": 0, "pieces": 0}
+    real_dp = place_mod._deform_positions
+    reals = [(place_mod.Path, place_mod.Path.sample)]
+    if conform_mod is not None:
+        reals.append((conform_mod.ConformPath, conform_mod.ConformPath.sample))
+
+    def wrapped(src, proto, path, s0_flat, scale, zmode, remap,
+                tilt=False, base_y=None, band=None, samples=None):
+        state["pieces"] += 1
+        state["offered"] += len(samples or ())
+        state["depth"] += 1
+        try:
+            return real_dp(src, proto, path, s0_flat, scale, zmode, remap,
+                           tilt, base_y, band, samples)
+        finally:
+            state["depth"] -= 1
+
+    def counted(real):
+        def sample(self, s, forward=True):
+            if state["depth"]:
+                state["miss"] += 1
+            return real(self, s, forward)
+        return sample
+
+    place_mod._deform_positions = wrapped
+    for cls, real in reals:
+        cls.sample = counted(real)
+    try:
+        _out, _report = build_fn()
+    finally:
+        place_mod._deform_positions = real_dp
+        for cls, real in reals:
+            cls.sample = real
+    if not state["pieces"]:
+        return _skip("station_share_hit_rate", "nothing deformed")
+    per = state["miss"] / float(state["pieces"])
+    return Result("station_share_hit_rate",
+                  per <= expect_max_misses and state["offered"] > 0,
+                  [state["offered"], _round(per, 3)],
+                  "%d stations offered over %d deformed pieces, %d misses "
+                  "(ceiling %.1f per piece)"
+                  % (state["offered"], state["pieces"], state["miss"],
+                     expect_max_misses))
+
+
+_PEAK_ROW = (("pc_elem_id", ""), ("pc_module", "panel"), ("pc_variant", ""),
+             ("pc_section", 0), ("pc_index", 0), ("pc_u", 0.0),
+             ("pc_s0", 0.0), ("pc_s1", 0.0), ("pc_zmode", "vertical"),
+             ("pc_generated", 1), ("pc_deformed", 1), ("pc_corner_cut", 0),
+             ("pc_curve_id", "TW"), ("pc_style", "tripwire"))
+
+
+def stamp_bulk_peak_kb(place_mod, pieces=1000, prims=34, expect_max=1200.0):
+    """Python bytes `_stamp_bulk` holds live at its peak - P1's memory cost.
+
+    P1 traded memory for the 2x: it accumulates the whole output's stamp and
+    writes it at the end. Materialising ALL FIFTEEN columns before writing any
+    of them cost **+97 MB of peak working set (61 %)** on the 340 000-prim
+    deformed row, and nothing measured it - `scale_gate` prints a dRSS column
+    but asserts only packed counts, and `baseline.json` carries no memory
+    value at all, so the gate's own number moved unseen. Measured directly on
+    the writer: 49.5 MB of Python peak for one `arc_10` build, against 7.6 MB
+    once the columns are expanded one at a time.
+
+    `tracemalloc` counts PYTHON allocations exactly, so this is deterministic
+    for the same input - a number, not a timing, and it baselines the way
+    `stamp_calls_per_piece` does. The fixture is synthetic on purpose: it is
+    the writer's own shape (pieces x prims-per-piece x the 3.4 name set), so
+    it cannot drift with the kit.
+    """
+    import tracemalloc
+    n = pieces * prims
+    geo = hou.Geometry()
+    geo.createPoints([(float(i), 0.0, 0.0) for i in range(3 * n)])
+    geo.createPolygons(tuple((3 * i, 3 * i + 1, 3 * i + 2) for i in range(n)),
+                       True)
+    warn = "pc_warn_bend_resolution"
+    rows, names = [], list(dict(_PEAK_ROW)) + [warn]
+    for i in range(pieces):
+        vals = (("pc_elem_id", "E|%d" % i), ("pc_module", "panel"),
+                ("pc_variant", ""), ("pc_section", i % 7), ("pc_index", i),
+                ("pc_u", i / float(pieces)), ("pc_s0", i * 2.0),
+                ("pc_s1", i * 2.0 + 2.0), ("pc_zmode", "vertical"),
+                ("pc_generated", 1), ("pc_deformed", 1), ("pc_corner_cut", 0),
+                ("pc_curve_id", "TW"), ("pc_style", "tripwire"))
+        # only SOME pieces warn - the shape that makes the writer fill blanks
+        rows.append((prims, vals + (((warn, 1),) if i % 3 else ())))
+    for name, default in tuple(_PEAK_ROW) + ((warn, 0),):
+        geo.addAttrib(hou.attribType.Prim, name, default)
+    tracemalloc.start()
+    tracemalloc.reset_peak()
+    before, _p = tracemalloc.get_traced_memory()
+    place_mod._stamp_bulk(geo, rows, [warn])
+    _cur, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    kb = (peak - before) / 1024.0
+    return Result("stamp_bulk_peak_kb", kb <= expect_max, _round(kb, 0),
+                  "%d pieces x %d prims x %d attrs, ceiling %.0f kB"
+                  % (pieces, prims, len(names), expect_max))
+
+
+def build_out_keeps_upstream_stamps(build_fn, place_mod):
+    """`build(out=...)`'s `base` machinery, exercised - dev-loop Rule 0.
+
+    `_stamp_bulk`'s `base` argument and `plan_points`' twin exist so a
+    CALLER-SUPPLIED `out` keeps the stamps it already carried, and no caller
+    in the package or in the suite passes `out=` - so both branches were dead
+    as tested and a later item could have blanked the head with the whole
+    suite green. One build into a pre-populated geometry, and the upstream
+    prim's own stamp read back afterwards.
+
+    ⚠️ HOM TRAP FOUND WHILE MUTATION-TESTING THIS:
+    `hou.Geometry.setPrimStringAttribValues` treats `""` as LEAVE UNCHANGED -
+    writing `("", "NEW")` over `("KEEP", "ALSO")` yields `("KEEP", "NEW")`,
+    not `("", "NEW")`. So a mutation that blanks the string head is invisible,
+    and a string column can never clear a value a caller-supplied `out`
+    already carried. Harmless here (`build`'s own `out` is fresh, so every
+    default is already `""`), and it is why the mutation that proves this
+    check corrupts the head rather than blanking it. Houdini catches the other
+    half itself: dropping the head outright is a length mismatch and
+    `setPrimStringAttribValues` raises `Incorrect attribute value sequence
+    size`.
+
+    `[upstream prims kept, new prims stamped]`.
+    """
+    pre = hou.Geometry()
+    pre.createPoints([(0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 1.0)])
+    pre.createPolygons(((0, 1, 2),), True)
+    for name, default in place_mod.ELEM_PRIM_ATTRS:
+        pre.addAttrib(hou.attribType.Prim, name, default)
+    up = pre.prims()[0]
+    up.setAttribValue("pc_elem_id", "UPSTREAM")
+    up.setAttribValue("pc_module", "mine")
+    try:
+        out, report = build_fn(pre)
+    except Exception as exc:                     # nothing in here may raise
+        return Result("build_out_keeps_upstream_stamps", False, [0, 0],
+                      "build(out=...) raised %s: %s" % (type(exc).__name__,
+                                                        exc))
+    prims = out.prims()
+    kept = 1 if (str(prims[0].attribValue("pc_elem_id")) == "UPSTREAM"
+                 and str(prims[0].attribValue("pc_module")) == "mine") else 0
+    stamped = sum(1 for pr in prims[1:]
+                  if str(pr.attribValue("pc_elem_id")) not in ("", "UPSTREAM"))
+    built = report["packed"] + report["deformed"]
+    return Result("build_out_keeps_upstream_stamps",
+                  bool(kept and built and stamped == len(prims) - 1),
+                  [kept, stamped],
+                  "%d prims out, %d built elements, prim 0 reads %r"
+                  % (len(prims), built, str(prims[0].attribValue("pc_elem_id"))))

@@ -167,12 +167,20 @@ def _cross(a, b):
 class Path(object):
     """A fast arclength sampler over one polyline.
 
-    `Curve.sample` rebuilds its segment table on EVERY call, which is fine for
-    a kernel that samples twice per section and quadratic for a builder that
-    samples once per point of every piece. This caches the table and bisects
-    it, and it is built from `Curve._cumulative()` so the two cannot disagree
-    about where a metre is. `sampler_matches_kernel` in the scene checks
-    asserts exactly that, at 400 positions per case.
+    ⚠️ THIS DESCRIBED A DIFFERENCE THAT NO LONGER EXISTS. It used to say
+    `Curve.sample` rebuilds its segment table on every call; **11.2 P2 cached
+    and bisected the kernel's sampler too** (6f1eb00), so both are now built
+    once and searched with `bisect`, and a reader deciding whether a later
+    item may reuse `Curve.sample` was being handed a cost model three commits
+    out of date.
+
+    What still separates them is END BEHAVIOUR, and only that: this one
+    EXTRAPOLATES past an open curve's ends (D30 - there is a measured defect
+    behind it, a 1.6 m gate crushed to a 1.11 m zero-thickness plane) where
+    `Curve.sample` clamps. They are not interchangeable for that reason, not
+    for speed. The table is built from `Curve._cumulative()` so the two cannot
+    disagree about where a metre is; `sampler_matches_kernel` asserts exactly
+    that, at 400 positions per case.
     """
 
     def __init__(self, curve):
@@ -771,7 +779,27 @@ def _transport(frame, prev_across):
             (-up[0], -up[1], -up[2]))
 
 
-def _flat_ratio(path, sa, sb, zmode):
+def span_ends(path, sa, sb, ends=None):
+    """The two reads every span-shaped question in this file starts with.
+
+    A span is asked about six times per piece - `_flat_ratio`, `_chord_ratio`,
+    `span_deviation`, `_needs_deform`'s shear test, `_packed_transform` and
+    the plan position - and each of them opened with the SAME forward hit at
+    `sa` and backward hit at `sb`. Measured on the 20 km / 10 000-piece packed
+    row (PC-G3's own shape and the citygen street shape): **130 000
+    `Path.sample` calls, 13.00 per piece, at exactly two distinct arguments**.
+    Pass A now takes the pair once and threads it, which is P3's idea applied
+    to the branch P3 did not reach - bounded, no cache, nothing retained.
+
+    `ends is None` samples, so every out-of-tree caller (the checks call four
+    of these directly) keeps working and is only slower.
+    """
+    if ends is not None:
+        return ends
+    return (path.sample(sa), path.sample(sb, forward=False))
+
+
+def _flat_ratio(path, sa, sb, zmode, ends=None):
     """D32 - how much of a planned span survives yaw-flattening, 0..1.
 
     A yaw-only z-mode measures the piece along the horizontal, so a vertical
@@ -783,12 +811,11 @@ def _flat_ratio(path, sa, sb, zmode):
     span = abs(sb - sa)
     if zmode == "adaptive" or span <= EPS:
         return 1.0
-    a = path.sample(sa)[0]
-    b = path.sample(sb, forward=False)[0]
+    (a, _ta), (b, _tb) = span_ends(path, sa, sb, ends)
     return math.hypot(b[0] - a[0], b[2] - a[2]) / span
 
 
-def _chord_ratio(path, sa, sb):
+def _chord_ratio(path, sa, sb, ends=None):
     """How much of a planned span the straight chord across it covers.
 
     A rigid piece cuts every corner by design, but a SUPPRESSED HAIRPIN turns
@@ -801,8 +828,7 @@ def _chord_ratio(path, sa, sb):
     span = abs(sb - sa)
     if span <= EPS:
         return 1.0
-    a = path.sample(sa)[0]
-    b = path.sample(sb, forward=False)[0]
+    (a, _ta), (b, _tb) = span_ends(path, sa, sb, ends)
     return _len(_sub(b, a)) / span
 
 
@@ -891,7 +917,7 @@ def _y_varies(path, sa, sb, fracs):
 
 
 def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive",
-                   normal_at=None, fracs=None):
+                   normal_at=None, fracs=None, ends=None):
     """D75 + D87 - how far the DEFORMED piece would sit from the PACKED
     one, in metres, measured at its WORST POINT.
 
@@ -981,8 +1007,7 @@ def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive",
             if sv - last > EPS and sb - sv > EPS:
                 verts.append(sv)
                 last = sv
-    a = path.sample(sa)[0]
-    b = path.sample(sb, forward=False)[0]
+    (a, ta), (b, _tb) = span_ends(path, sa, sb, ends)
     ab = _sub(b, a)
     # THE SPINE TERM, at every kink - extremal there because the polyline and
     # the chord it is measured against are both linear in between. The two
@@ -1021,7 +1046,9 @@ def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive",
                         normal_at(0.5 * (sa + sb)))
     samples = [sa] + list(verts) + [sb]
     for k, s in enumerate(samples):
-        t = path.sample(s)[1]
+        # `samples[0]` IS `sa`, read forward - the tangent the pair above
+        # already carries, so this is the same call with the same argument.
+        t = ta if k == 0 else path.sample(s)[1]
         t = _unit((t[0], 0.0, t[2]) if flat else t)
         if _len(t) < EPS:
             continue
@@ -1046,7 +1073,7 @@ def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive",
 
 
 def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01,
-                  band=None, normal_at=None):
+                  band=None, normal_at=None, ends=None):
     """4.4 + the streets float32 lesson: rebuild ONLY when it changes something."""
     if placement.slice_t is not None or placement.cuts:
         return True                                     # D41 - a miter unpacks
@@ -1068,7 +1095,7 @@ def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01,
     # no cross-section, which is the spine-only measure D75 shipped.
     if span_deviation(path, sa, sb,
                       proto.radius if zmode == "adaptive" else proto.rz,
-                      zmode, normal_at, proto.fracs) > tol:
+                      zmode, normal_at, proto.fracs, ends) > tol:
         return True                              # D75, D87, D100, D104
     # 4.5: A DEAD-STRAIGHT SPLINE OVER A RIDGE HAS NO INTERIOR VERTEX, so
     # without this the test above says "nothing to follow" and a bendable rail
@@ -1081,9 +1108,8 @@ def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01,
     if zmode != "stepped" and getattr(path, "deviates", None) is not None             and path.deviates(sa, sb, tol, fracs=proto.fracs):
         return True
     if zmode == "vertical":
-        ya = path.sample(sa)[0][1]
-        yb = path.sample(sb, forward=False)[0][1]
-        return abs(yb - ya) > 1e-6                      # a sheared span
+        (a, _ta), (b, _tb) = span_ends(path, sa, sb, ends)
+        return abs(b[1] - a[1]) > 1e-6                  # a sheared span
     return False
 
 
@@ -1099,12 +1125,25 @@ def _bend_deviation(proto, stations, path, s0_flat, scale, remap, at=None):
     ⚠️ ONE SEMANTIC CHANGE, AND IT IS THE RISK IN THIS ITEM: the gap's END
     used to be read BACKWARD (`forward=False`) and is now the next station's
     FORWARD read. The two differ only at a vertex, and only in the TANGENT -
-    which this function never asks for. The positions were measured
-    bit-identical over 8 000 samples on PC-G3's own arc, 4 000 of them landing
-    exactly on a vertex: 0 differing, worst 0 m. What proves it on every case
-    is that this is a WARNING, so `warn_summary` and `warnings` pin the
-    per-case `pc_warn_bend_resolution` counts, and `curvature_budget_m` pins
-    the number itself.
+    which this function never asks for.
+
+    ⚠️ AND THE POSITIONS ARE NOT BIT-IDENTICAL, WHICH THIS USED TO CLAIM. The
+    measurement it claimed it from was taken on PC-G3's arc, which is
+    axis-aligned with round coordinates and happens to be exact; on general
+    geometry the backward branch lands on the PREVIOUS segment with t clamped
+    to 1.0 and returns `a + d*1.0`, which is only float-exactly `pts[k]` when
+    the two endpoints are within a factor of 2 (Sterbenz). Re-measured over
+    the vertex arclengths of seven curves - open, closed, diagonal, hairpin,
+    climbing, sub-millimetre: **166 arclengths, 2 differing, worst |dP|
+    4.4e-16 m**; an independent sweep of seven other curves read 344 / 74 /
+    7.1e-15 m. That is double-precision ULP on a segment endpoint - seven
+    orders below `bend_tol` and below `bend_deviation_m`'s own `_round(dev,
+    9)` - so the change is safe, but the two reads are NOT interchangeable and
+    a future agent must not treat them as such.
+
+    What proves it on every case is that this is a WARNING, so `warn_summary`
+    and `warnings` pin the per-case `pc_warn_bend_resolution` counts, and
+    **`bend_deviation_m`** (checks.py) pins the number itself.
 
     `at` is an optional dict the caller passes to COLLECT the station samples
     (`{s: (pos, tan)}`) so the deform pass can read them back instead of
@@ -1136,15 +1175,15 @@ def _bend_deviation(proto, stations, path, s0_flat, scale, remap, at=None):
 
 # --- building one piece -----------------------------------------------------
 
-def _packed_transform(proto, path, sa, sb, zmode, up_ref=UP, base_y=None):
+def _packed_transform(proto, path, sa, sb, zmode, up_ref=UP, base_y=None,
+                      ends=None):
     """The 4x4 that maps module local space onto the chord A->B (D21).
 
     `base_y` is D98's flatten-under: a `stepped` piece is horizontal, so its
     whole elevation is one number and overriding it here moves the piece
     without touching the fit, the frame or the chord it was measured on.
     """
-    a, ta = path.sample(sa)
-    b, _tb = path.sample(sb, forward=False)
+    (a, ta), (b, _tb) = span_ends(path, sa, sb, ends)
     chord = _sub(b, a)
     clen = _len(chord)
     if zmode != "adaptive":
@@ -1406,7 +1445,7 @@ def plan_points(geo, report):
     # 1.55 s against the 0.93 s full build it previews, which is the whole
     # reason. Built the way `_stamp_bulk` builds the prim stamp: one column
     # per attribute, one call each.
-    base = len(geo.iterPoints())
+    base = geo.intrinsicValue("pointcount")
     geo.createPoints([tuple(float(v) for v in p) for p in pos[:len(rows)]])
     for name, default in PLAN_POINT_ATTRS:
         src = {"pc_index": "index", "pc_s0": "s0", "pc_s1": "s1",
@@ -1423,15 +1462,22 @@ def plan_points(geo, report):
             col = [int(row.get(src, default)) for row in rows]
         else:
             col = [float(row.get(src, default)) for row in rows]
+        # The `if base` guard `_stamp_bulk` has, for its reason: with an
+        # empty `geo` - which is every caller - the read pulled a whole column
+        # through HOM only to slice it to `[]`, and the `+` copied the new one
+        # again.
         if isinstance(default, str):
-            head = list(geo.pointStringAttribValues(name))[:base]
-            geo.setPointStringAttribValues(name, head + col)
+            if base:
+                col = list(geo.pointStringAttribValues(name))[:base] + col
+            geo.setPointStringAttribValues(name, col)
         elif isinstance(default, int):
-            head = list(geo.pointIntAttribValues(name))[:base]
-            geo.setPointIntAttribValues(name, head + col)
+            if base:
+                col = list(geo.pointIntAttribValues(name))[:base] + col
+            geo.setPointIntAttribValues(name, col)
         else:
-            head = list(geo.pointFloatAttribValues(name))[:base]
-            geo.setPointFloatAttribValues(name, head + col)
+            if base:
+                col = list(geo.pointFloatAttribValues(name))[:base] + col
+            geo.setPointFloatAttribValues(name, col)
     return geo
 
 
@@ -1523,20 +1569,35 @@ def _stamp_bulk(geo, rows, warn_names, base=0):
         if name not in kind:
             names.append(name)
             kind[name] = "i"
-    cols = dict((name, []) for name in names)
-    for n, values in rows:
-        row = dict(values)
-        for name in names:
-            cols[name].extend([row.get(name, _BLANK[kind[name]])] * n)
     get = {"s": geo.primStringAttribValues, "i": geo.primIntAttribValues,
            "f": geo.primFloatAttribValues}
     put = {"s": geo.setPrimStringAttribValues,
            "i": geo.setPrimIntAttribValues,
            "f": geo.setPrimFloatAttribValues}
+    # ⚠️ ONE COLUMN LIVE AT A TIME. Accumulating across the whole output is
+    # what makes this 2x faster than the per-prim writer, but materialising
+    # all fifteen columns at once and only then writing them cost **+97 MB of
+    # peak working set (61 %)** on the 340 000-prim deformed row - a real
+    # regression that nothing measured, since the ONLY consumer of a column is
+    # its own `put`. `rows` is the compact form (one piece, one (name, value)
+    # tuple list, ~10 000 of them), so expanding per name keeps a single
+    # 339 864-entry list live instead of fifteen. `stamp_bulk_peak_kb` pins it.
+    rows = [(n, dict(values)) for n, values in rows]
     for name in names:
         k = kind[name]
-        head = list(get[k](name))[:base]
-        put[k](name, head + cols[name])
+        blank = _BLANK[k]
+        col = []
+        for n, values in rows:
+            col.extend([values.get(name, blank)] * n)
+        # `base` is 0 for every caller in the tree, and neither the read nor
+        # the concatenation is free: unguarded, the read pulled ~15 full
+        # columns of 339 864 values through HOM and sliced every one to `[]`
+        # (0.062 s of a 1.40 s row) and the `+` copied the column again. The
+        # docstring's reason for the read is preserved exactly - when there is
+        # no head there is nothing to keep.
+        if base:
+            col = list(get[k](name))[:base] + col
+        put[k](name, col)
 
 
 # --- the pipeline -----------------------------------------------------------
@@ -1701,6 +1762,13 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             # is built on. They differ only under fix_slope (D26).
             s0f, s1f = section.s0 + p.s0, section.s0 + p.s1
             s0r, s1r = remap(s0f), remap(s1f)
+            # `span_ends`, taken ONCE for this piece. Anchored pieces are
+            # excluded because not one consumer of the pair runs for them
+            # (D72 lays a corner assembly out on its own vertex), and asking
+            # a `ConformPath` for a drop nothing needed would grow the memo
+            # `conform_cache_per_element` pins.
+            ends = None if p.anchor is not None else (
+                path.sample(s0r), path.sample(s1r, forward=False))
             warns = list(p.warns)
             for w in swap_warns:
                 if w not in warns:
@@ -1718,7 +1786,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             deformed = _needs_deform(p, proto, path, s0r, s1r, zmode,
                                      params.bend_tol, band,
                                      getattr(path, "normal", None)
-                                     if tilt else None)
+                                     if tilt else None, ends)
             # 4.5 / D53: a ray that finds nothing keeps the spline elevation
             # and SAYS SO. Probed on the piece's own span rather than on the
             # whole run, so a fence that leaves the terrain at one end reports
@@ -1729,11 +1797,11 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                 warns.append(WARN_CONFORM_MISS)
             scale = 1.0 if p.slice_t is not None else (
                 ((s1f - s0f) / proto.length) if proto.length > EPS else 1.0)
-            if p.anchor is None and _flat_ratio(path, s0r, s1r,
-                                                zmode) < FLAT_RATIO:
+            if p.anchor is None and _flat_ratio(path, s0r, s1r, zmode,
+                                                ends) < FLAT_RATIO:
                 warns.append(WARN_DEGENERATE_FRAME)          # D32
             if p.anchor is None and not deformed \
-                    and _chord_ratio(path, s0r, s1r) < COLLAPSE_RATIO \
+                    and _chord_ratio(path, s0r, s1r, ends) < COLLAPSE_RATIO \
                     and WARN_CORNER_DEGENERATE not in warns:
                 warns.append(WARN_CORNER_DEGENERATE)         # D32, rigid
             # 11.2 P3: the warning pass's station samples are kept for the
@@ -1749,8 +1817,10 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                                       remap, station_hits)
                 # D25's number, not just its verdict. Found by mutation while
                 # 11.2 P3 landed: moving the deviation probe 1 mm changed NOT
-                # ONE value in the whole suite, because only the boolean it
-                # feeds was ever recorded and 1 mm does not cross `bend_tol`.
+                # ONE value in the whole suite - `curvature_budget_m` and
+                # `deform_gate_m` record the BOOLEAN's consequences, not this -
+                # because only the boolean it feeds was ever recorded and 1 mm
+                # does not cross `bend_tol`.
                 # A warning whose measurement nothing pins is a warning any
                 # refactor can quietly re-aim. `bend_deviation_m` reads it.
                 bend_worst = max(bend_worst, dev)
@@ -1790,7 +1860,13 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                          "zmode": zmode, "scale": scale, "band": band,
                          "base_y": base_y, "packed_y": packed_y,
                          "deformed": deformed, "warns": tuple(warns),
-                         "remap": remap, "tilt": tilt,
+                         "remap": remap, "tilt": tilt, "ends": ends,
+                         # the plan position, taken off the pair now so pass B
+                         # can drop the pair itself the moment it is consumed
+                         # - `stamp_rows` is already the build's memory high
+                         # water mark and `ends` would sit beside it.
+                         "pos0": (ends[0][0] if ends is not None
+                                  else path.sample(s0r)[0]),
                          "stations": station_hits})
 
     warn_names = []
@@ -1807,10 +1883,17 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
     # with `out`'s own prim numbering after every merge.
     n_packed = n_deformed = n_cut = n_replaced = 0
     stamp_rows = []
-    stamp_base = len(out.prims())
+    # the COUNT, not the wrappers: `len(geo.prims())` materialises a tuple of
+    # `hou.Prim` objects, and on the deformed branch it ran once per piece -
+    # 0.090 s of a 1.40 s row, 6.4 %, the 3rd-largest built-in in the profile,
+    # for a number `intrinsicValue` hands over for free (measured 24x cheaper
+    # on the real 34-prim piece). `stamp_parity` and `output_schema` pin that
+    # the two agree.
+    stamp_base = out.intrinsicValue("primitivecount")
     for job in jobs:
         p, proto, path = job["p"], job["proto"], job["path"]
         zmode, warns = job["zmode"], job["warns"]
+        ends = job.pop("ends", None)            # consumed here, not retained
         up_ref = UP
         normal_at = getattr(path, "normal", None) if job["tilt"] else None
         if normal_at is not None:
@@ -1829,7 +1912,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                      if p.anchor is not None
                      else _packed_transform(proto, path, job["s0r"],
                                             job["s1r"], zmode, up_ref,
-                                            job["packed_y"]))
+                                            job["packed_y"], ends))
             prim = out.createPackedGeometry(job["hero"])
             prim.setTransform(xform)
             stamp_rows.append(
@@ -1850,7 +1933,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             else:
                 xform = _packed_transform(proto, path, job["s0r"],
                                           job["s1r"], zmode, up_ref,
-                                          job["packed_y"])
+                                          job["packed_y"], ends)
             prim = out.createPackedGeometry(proto.source)
             prim.setTransform(xform)
             stamp_rows.append((1, _stamp_values(p, warns, False, zmode)))
@@ -1890,7 +1973,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                 piece = clip_plane(piece, origin, normal, keep,
                                    proto.module.name, _texel(proto.source))
             n_cut += 1
-        stamp_rows.append((len(piece.prims()),
+        stamp_rows.append((piece.intrinsicValue("primitivecount"),
                            _stamp_values(p, warns, True, zmode)))
         out.merge(piece)
         n_deformed += 1
@@ -1903,7 +1986,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         "replaced": n_replaced,
         "overrides": len(overrides),
         "plan": [j["p"] for j in jobs],
-        "plan_pos": [j["path"].sample(j["s0r"])[0] for j in jobs],
+        "plan_pos": [j["pos0"] for j in jobs],
         "kit_warnings": kit_warns,
         "curves": len(curves),
         "markers": len(markers),

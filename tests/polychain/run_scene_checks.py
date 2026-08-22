@@ -488,7 +488,18 @@ def run_case(name, case):
 def port_tripwires():
     return [
         C.stamp_calls_per_piece(cases.tripwire_packed_run, expect_max=1.0),
-        C.curve_sample_scaling(cases.Curve, expect="O(1)"),
+        # ⚠️ AND THE DEFORMED ROW. The packed fixture reports `deformed == 0`,
+        # so the one branch where a per-prim stamp costs 14 x the piece's PRIM
+        # COUNT was the branch the tripwire could not reach: the D102-era
+        # writer restored there is an 8.4x regression on `scale_gate` arc_10
+        # (2.361 -> 19.854 s) with every suite green and this row unmoved.
+        C.stamp_calls_per_piece(cases.tripwire_deformed_run, expect_max=1.0,
+                                name="stamp_calls_per_piece_deformed"),
+        C.station_share_hit_rate(cases.tripwire_deformed_run, cases.P,
+                                 cases.CONFORM),
+        C.stamp_bulk_peak_kb(cases.P),
+        C.build_out_keeps_upstream_stamps(cases.tripwire_out_build, cases.P),
+        C.curve_sample_scaling(cases.Curve, expect="O(1)", cold_expect="O(n)"),
         C.conform_cache_per_element(cases.tripwire_conformed_run,
                                     cases.CONFORM, expect_max=30.0),
     ]

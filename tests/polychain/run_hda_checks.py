@@ -415,15 +415,20 @@ def main():
     g_on = warned.geometry()
     warn_attrs = [a.name() for a in g_on.primAttribs()
                   if a.name().startswith("pc_warn_")]
-    red = lit = 0
+    red = lit = stray = 0
     for prim in g_on.prims():
+        is_red = (tuple(round(v, 4) for v in prim.attribValue("Cd"))
+                  == tuple(round(v, 4) for v in H.WARN_COLOUR))
         if any(prim.attribValue(a) for a in warn_attrs):
             lit += 1
-            if tuple(round(v, 4) for v in prim.attribValue("Cd"))                     == tuple(round(v, 4) for v in H.WARN_COLOUR):
-                red += 1
+            red += 1 if is_red else 0
+        else:
+            stray += 1 if is_red else 0
     check("warned_elements_are_coloured",
-          bool(warn_attrs) and lit > 0 and red == lit, [lit, red],
-          "%d warned prims, %d at %s" % (lit, red, str(H.WARN_COLOUR)))
+          bool(warn_attrs) and lit > 0 and red == lit and stray == 0,
+          [lit, red, stray],
+          "%d warned prims, %d at %s, %d red without a warning"
+          % (lit, red, str(H.WARN_COLOUR), stray))
     warned.parm("show_warnings").set(0)
     g_off = warned.geometry()
     off_red = sum(1 for prim in g_off.prims()
@@ -433,6 +438,41 @@ def main():
     check("show_warnings_off_paints_nothing", off_red == 0, off_red,
           "the toggle is the control - without it the check above could pass "
           "on a builder that painted everything red unconditionally")
+
+    # ⚠️ AND THE CONTROL WAS NOT ENOUGH. `colour_warnings` painting EVERY prim
+    # unconditionally (`if any(...)` -> `if True`) left both rows above green
+    # and all three suites green with it: the fixture warns on every element,
+    # so "red == lit" cannot see an over-painted prim, and the toggle row only
+    # proves the write is gated - not that the SELECTION is right. On a
+    # 200-element street where 3 elements warn the artist would get 200 red
+    # prims and no way to find the 3, which is 2.2's advisory validation
+    # defeated. The writer's own contract - "the UNWARNED prims keep whatever
+    # `Cd` they already had, because a kit module may ship its own colour" -
+    # was unasserted anywhere too. One mixed geometry answers both, plus the
+    # return value nothing read.
+    mixed = hou.Geometry()
+    mixed.createPoints([(float(i), 0.0, 0.0) for i in range(30)])
+    mixed.createPolygons(tuple((3 * i, 3 * i + 1, 3 * i + 2)
+                               for i in range(10)), True)
+    KIT_CD = (0.2, 0.6, 0.9)
+    mixed.addAttrib(hou.attribType.Prim, "Cd", KIT_CD)
+    mixed.addAttrib(hou.attribType.Prim, "pc_warn_kit_gap", 0)
+    want = (1, 4, 7)
+    for i in want:
+        mixed.prims()[i].setAttribValue("pc_warn_kit_gap", 1)
+    hit = H.colour_warnings(mixed, ["pc_warn_kit_gap"])
+    cd = [tuple(round(v, 4) for v in pr.attribValue("Cd"))
+          for pr in mixed.prims()]
+    warn_rgb = tuple(round(v, 4) for v in H.WARN_COLOUR)
+    kit_rgb = tuple(round(v, 4) for v in KIT_CD)
+    painted = sum(1 for i, c in enumerate(cd) if c == warn_rgb and i in want)
+    over = sum(1 for i, c in enumerate(cd) if c == warn_rgb and i not in want)
+    kept = sum(1 for i, c in enumerate(cd) if c == kit_rgb and i not in want)
+    check("only_the_warned_prims_are_coloured",
+          hit == len(want) and painted == len(want) and over == 0
+          and kept == 10 - len(want), [hit, painted, over, kept],
+          "3 of 10 warned: %d returned, %d painted, %d over-painted, "
+          "%d kept the kit's own %s" % (hit, painted, over, kept, str(KIT_CD)))
 
     # ---- 8. artist_ui 6's UX law, asserted (D96) --------------------------
     # ⚠️ THIS SECTION EXISTS BECAUSE IT WAS MISSING. An independent verifier
