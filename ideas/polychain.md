@@ -28,8 +28,8 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | **CYCLE P2-3R — THE THREE-REVIEWER PASS OVER P2-1..P2-3, WORKED THROUGH (2026-08-22). Implemented, UNVERIFIED (no independent audit has run on THIS build).** Twenty-two findings, every one reproduced against the shipped build before it was touched, and every geometric one now a standing scene check. **Six were holes in a facade**: `plan._unit`'s `sequence` path asked for the bare X slot instead of the 2D cell, so a ground floor silently filled with the 3.2 m bay stretched into a 4.0 m band; `corner._corner_rule` AND `plan.plan_section`'s default fill both ignored the row class, so D119's scoping never reached the `corner` or `default` slots; `close_roles` took module NAMES for cell roles (`by_role("cornice")` returned `bay`), never closed `marker:<id>` cells (a SILENT stand-in - the one thing PC-G5 condition 5 asserts at 0), and pooled colliding alias claims. **D141 — the canonical winding was the opposite sign from §7.3.3's own parenthetical**: the (x, z) shoelace's normal is -Y, so `across` pointed INTO the building and every asymmetric bay would have faced the courtyard, with every number green. **D124 permuted the points and left `pc_corner` in authored order** (64 ids differed on a re-authored L; FJ/FK pass no flags, so the only identity check ran on the one input where the two orders coincide). **D139 — every warning the Y solve raised was computed onto `Row.warns` and dropped**: a one-storey building lost its cornice at `warn_counts == {}`, and §7.3.3's `pc_warn_row_overflow` did not exist in the code at all. **D142 — `cell_grid` read its rows off the OUTPUT**, so `FM_area_taper` had lost the whole top band of its roof panel at "0 empty". `preserve` bridged every concave notch (three bays built 2 m inside a hole). ⚠️ **D144 CORRECTS D115's HEADLINE: the 2.95x/3.98x was the comparand's own O(n^2)** — the many-call half shared one `out` and `_stamp_bulk` re-wrote the whole prim column every call (5.210 s against 2.040 s for byte-identical output). Measured fairly, over a terrain big enough to test it (19 881 prims, not 1 089): **1.14x with no terrain, 1.00x over 19 881, 1.12x over 80 089, at 1 `ray` execution against 100** — the one-call rule is INSURANCE (conform cost O(1) in rows, not O(N)), and the COUNT is the assertion. **D143** — and until this cycle no shipped code path could reach it: `facade.build` took ONE footprint, so `facade.build_many` is the entry point now and `build` is it with one footprint. **D145 — §11's unattempted P7 landed**, because phase 2 made `clip_plane`'s per-prim cap test 46 % of the district: `polyfill` appends its patches at the tail (probed, and re-probed by a committed check), so `prims_wrappers_built_mitered` is **571 → 11** and `prims_wrappers_built_2d_rows` is **78 132 → 836**, output bit-identical. **D146** adds the two tripwires the other four could not see (`wrapper_reads`, `verb_executions_per_build`). Phase 1: 90 scene cases, `run_hda_checks`, `scale_gate`, `gate_images`, 386 unit tests — 0 failing, **one baseline value moved and it is P7**. Phase 2: **19 cases** (FN/FO/FP/FQ/FR/FS are new), 0 failing. Read §12's P2-3R entry before touching anything. |
-| Next up | **Cycle P2-4/P2-5 — the payload half from input 3, then the Y fit's `aligned` mode (D122) and `pc_extend` as a parm** (§7.10). Those two together close PC-G5 conditions **3** (bay alignment under `aligned` — not covered, because `aligned` does not exist yet: every row currently solves its own length, i.e. `free`) and **4** (zero slices, currently implied by adaptive never slicing rather than asserted as `slice_t is None`). Conditions 1, 2, 5, 6 and 7 already have checks and pass. ⚠️ **Read §12's P2-1..P2-3 entry before touching anything** — it records two places where §7 is WRONG (D94 does not harvest `pc_` names, so the row attrs needed `ROW_ATTRS_2D`; and the E1–E3 line estimate excludes their plumbing), four defects the suite found on its first run, and one the IMAGE found that no number could. Run `hython tests/polychain/run_2d_checks.py` and `python tests/unit/test_polychain_array2d.py` before and after every change; `hython tests/polychain/facade_bench.py` is the one-call/many-call ladder. ⚠️ **DEV-LOOP RULE 0: this cycle owes an INDEPENDENT AUDIT.** Phase 1's own owed work is unchanged and is not phase 2's to absorb: the GUI viewport pass on PC-G1/PC-G2, the streets acceptance, standing finding (11), and §11's P7 — whose cost is now visible at facade scale as `prims_wrappers_built_2d_rows` = 78 148. | ⚠️ **P2-3R (§12) reworked the row-warn channel, the winding, the corner-flag permutation and the bench**: re-read `run_2d_checks.py`'s `CELLS`/`CELL_MODULES`/`UNBUILT`/`CLIP_TOL`/`BENT` tables before adding a case, and `facade_bench.py`'s header before quoting a ratio. Still owed and unchanged: PC-G5 conditions 3 and 4, P2-7's real clipping (per-module `pc_clip`, sub-spline independence, even-odd nesting, `slice`), P2-8, P2-9 — and DEV-LOOP RULE 0, an INDEPENDENT AUDIT of P2-3R itself. |
+| Last completed | **CYCLE P2-3V — INDEPENDENT VERIFICATION OF P2-3R (2026-08-22). DEV-LOOP RULE 0 IS DISCHARGED: P2-3R is AUDITED, not merely implemented.** A fresh agent that wrote none of it ran every suite from clean, re-derived both baseline diffs key by key, ran **17 mutations**, and judged PC-G5 on images regenerated from this build. **All 22 of P2-3R's fixes are real and present** — each was reproduced by reverting it and watching something go red. **But SIX of them had no assertion anywhere and could be deleted with the whole suite green**: D139's `pc_warn_row_overflow`/`pc_warn_row_kit_gap` (neither string appeared in a single test file or run log); `clip_stamp`, whose `ok = area or n == 0` made it **unfailable on exactly the area builds it was written for**; the alias-collision drop; `marker:<id>`'s five Y classes (the silent stand-in PC-G5 condition 5 counts at 0); the `extra_roles` slot-pair filter; and `rows_unbuilt` + `pc_warn_row_clipped_out`, which were **dead code** — `FM_area_taper` does not exercise them, its 1.6e-9 m span is still a span and `cell_grid` catches that hole by its own solved-vs-built difference. **D147 closes all six**: cases `FT_row_overflow`, `FU_row_kit_gap` (whose `geometry_digest` is `FC_rect`'s, so the only difference is the warning) and `FV_area_short`, the new `rows_clipped_out` check, `clip_stamp` re-written to assert the TRANSFER from row curve to element, and four `hou`-free unit tests. **All six mutations now go red.** Suites: **22 phase-2 cases / 683 rows**, 90 phase-1 cases / 5 559 rows, `run_hda_checks`, `scale_gate` (9 rows), `gate_images`, **350 unit tests — 0 failing, and the phase-2 baseline diff is ADDITIONS ONLY (not one recorded value moved).** ⚠️ Two numbers in P2-3R's write-up were wrong and are corrected in place: the suite is **346** unit tests, not 386, and `prims_wrappers_built_2d_rows` was **78 148**, not 78 132. One unreported baseline movement: `FC_rect/corner_seam_m` 0.0 → 1e-06, D141's reversed traversal, 1 micron against a 2e-3 tolerance. Read §12's P2-3V entry before touching anything. |
+| Next up | **Cycle P2-4 then P2-5** (§7.10) — the payload half from input 3, then the Y fit's `aligned` mode (D122) and `pc_extend` as a parm. ⚠️ **GATE PC-G5 HAS BEEN JUDGED AND IT DOES NOT PASS** — not because the facade is wrong but because two of its seven conditions have nothing behind them. **Conditions 1, 2, 5, 6, 7 PASS and are mutation-proved**, and condition 1 was verified NON-VACUOUS (`_corner_caps` yields **24 groups, 24 paired and measured** — the 6 x 4 the gate asks for, probed rather than read off the label; `corner_seam_m` 0.0). **Condition 4 is TRUE but UNASSERTED** — 0 of 176 placements carry a `slice_t` and no check says so; **write that one line on the way past, it is the cheapest untested truth in the tool.** **Condition 3 needs a FIXTURE as well as a mode**: every row of the L uses the same kit over the same leg lengths, so `aligned` and `free` are indistinguishable on it however `aligned` is implemented — P2-5 must ship unequal leg lengths or a per-row kit with it. **The images were looked at**: the plan is a closed ring with no holes or overlaps and a 45° bisector cut at all five convex vertices and the reflex one; the corner column runs unbroken ground-to-cornice with the cornice band turning round it; bend mode correctly has no corner post. Still owed and unchanged: P2-7's real clipping (per-module `pc_clip`, sub-spline independence, even-odd nesting, `slice`, i.e. all of PC-G6), P2-8, P2-9, §7.7's kit slicer — and phase 1's own GUI viewport pass on PC-G1/PC-G2, the streets acceptance and standing finding (11). Run `hython tests/polychain/run_2d_checks.py` and `python tests/unit/test_polychain_array2d.py` before and after every change. |
 | Gates | **ALL FOUR RE-CONFIRMED BY P5cV (2026-08-22) — PC-G1 and PC-G2 through the parm face and judged on images, PC-G3 on the 9-row ladder under both z-modes, PC-G4 mutation-proved (reverting D91 reports `moved: padding`). All four still owe the GUI viewport pass and nothing else changed.** PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** — the closed rectangle and the L close in both corner modes, all four fill modes, the gate on its marker (1.8e-7 m), convex and reflex corners; the bend corner's butt wedge is MEASURED and baselined as the accepted limit (D36 extended), and cycle 6's mutation of it fails by 1.10e-02 m on `CJ_bend_butt_120`. Cycle 8 closed the last hole in its parm face: the **marker slot is authorable on the page** (D88), so PC-G1's gate-on-a-marker no longer needs a payload, and an unread marker warns. **Cycle 9 rebuilt the whole figure THROUGH THE PARM FACE and looked at it** (`HC_{miter,bend}_{top,iso}.png`, `HG1_*.png`): the miter's two legs terminate into a corner post with the 45° bisector cut clean across it and the tops flush; the bend turns through the elbow as one continuous top arris with no corner post (D36's ring weld) and only the accepted butt notch; all four Fit Methods close flush on the spline; and the gate authored with **Piece at Markers + Marker Id and NO payload** lands at **x 7.200000..8.800000, centre 8.000000, error 1.788e-07 m**, with the unread-marker warning firing beforehand. PC-G1 no longer owes its parm face — only the GUI viewport pass · **PC-G2 numerically complete + IMAGE-VERIFIED (headless), INCLUDING the curving-spline variant it used to owe; GUI viewport pass still owed** — cycle 6 built the gate's own wording: a 24 m spline that **turns in plan (±3.6 m S-curve) and climbs 2.4 m**, resampled at 0.25 m, over a 2D terrain (`1.1 sin(2πx/13) + 0.8 cos(2πz/9) + 0.06x`), conform ON. All four modes pass **50 of 50** suite checks with **0 failures and nothing baselined**: `plumb_deg` **0.0** over 14 vertical pieces, `flat_stepped_m` **0.0** over **240 stepped posts, 240/240 still PACKED**, `bank_deg` **27.15°** adaptive, camber ON halving the residual to the surface normal (`camber_deg` 37.31° → **17.20°**), `conform_contact_m` **0.0**, `conform_misses` **0**, `inward_faces` **0**, no warnings. Judged on `VG2P_{vertical,stepped,adaptive}.png` and `VG2C_camber_cu.png`: the pickets' ribs are dead vertical while the run's foot follows the ground line, the adaptive rail's ribs lean perpendicular to the drape, the posts' tops make a clean sawtooth over a smooth ground line, and the cambered rail is visibly rolled onto the cross-fall. The **riser under each stepped piece is there and is expected** — it IS stepped mode — and it measures **0.061 m** on this hill; §4.4's flatten-under is BUILT as of cycle 10 (D98) and takes the AIR under each piece (`stepped_float_m` 0.054818/0.061280) to **0.0** with all 240 pieces still packed, leaving that riser where it is. **Cycle 9 re-rendered all of it through the HDA's parm page** with the terrain on input 4 (`HG2_*.png`): the pickets' ribs are plumb while the run's foot tracks the ground line, the stepped posts stand plumb with feet on the ground and tops stepping over it, the adaptive rail's ribs rake perpendicular to the drape, Tilt to Surface visibly rolls the rail onto the cross-fall, and the whole 24 m S-curve reads as a fence on a hill. Only the GUI viewport pass is owed · **PC-G3 numerically MEASURED at scale, and narrower than its headline** — 20 km, 10 005 × 2 m bendable panels: **10 005 packed, 0 deformed, one shared `geometryid`, 10 005 real points, +12.1 MB RSS, 0.42 s** as a two-point spline and **the same numbers at 0.55 s** as a **20 011-vertex resampled polyline** — independently reproduced in cycle 6, and D69 is what buys it (reverting D69 takes the resampled form to 0 packed / 10 005 deformed / 360 180 points / **21.9 s**). ⚠️ ~~The gate holds for a STRAIGHT resampled run only~~ — **CLOSED by D75 in cycle 7**: `hython tests/polychain/scale_gate.py` is the harness now, and R = 12 000 / 2 000 / 80 m all read **10 000 packed / 0 deformed / 10 000 points / +5.1 MB / ~0.60 s**, while R = 10 m (five times the budget) still deforms all 10 000 at 10.8 s. ⚠️ **CYCLE 9 RE-MEASURED THIS AFTER D87 AND THE TERMS ARE NARROWER AGAIN.** Those three rows are green because the starter kit's `panel` is **yaw-only** (`pc_zmode = vertical`), so the budget was spent on `rz` = 0.03 m and D87's off-spine term was switched almost all the way off — and `scale_gate.py` was still deciding pass/fail from `4/(8R)`, **the spine sagitta D87 retired**. Re-run under `zmode = adaptive`, where the panel's full 0.90 m height rides the frame: **R = 12 000 m and R = 2 000 m stay 10 000 packed / 10 000 points / ~0.6 s**, but **R = 80 m is 0 packed / 10 000 deformed / 360 000 points / 11.0 s / +34.7 MB** — `0.90 x 0.025 = 0.0225 m`, 2.25x `bend_tol`, so unpacking is CORRECT. D97 put the expectation on each ladder row with its reason and runs the ladder under both z-modes: **9 rows, 0 failing**, and mutating the budget 50x now fails 2 rows where it failed none. **PC-G3 passes on its own terms** — 10 005-piece packed instancing at 20 km, one `geometryid`, sub-second, +12 MB — and those terms are: a straight or gently-turning-IN-PLAN run, or any run whose module is yaw-only. A TALL module on an R = 80 m arc, or ANY module on a climbing run (D65's shear), costs the 11 s / 360 k-point deform path. The FLOOR rides the suite: `A_straight`, `CE_all_packed`, `CA_swap_module`, `CF_resampled_straight` and `CG_resampled_bendable` are asserted 100 % packed and `over_unpacked` proves nothing unpacks without a reason. ~~Owed: the deform path's VEX rewrite~~ — **DONE, cycle 10c (D102/D103)**: profiled first, the cost was the per-prim STAMP (9.023 s of 14.136 s, 4 758 096 `Prim.setAttribValue` calls) and not the deform loop (0.201 s, 1.4 %); through `hou.Geometry`'s bulk array setters the two deformed rows go **11.159 → 1.548 s (7.21x)** and **11.181 → 1.597 s (7.00x)**, bit-identical on all 83 cases, and VEX is measured and declined · **PC-G4 ✅ PASSES — as of cycle 12 (D107); before that its sweep was pretending** (§10 cycle 7): the same fence driven entirely by a style payload on input 3 with the parms at defaults, asserted in `tests/polychain/run_hda_checks.py` — the payload replaces the modules, the styleId and the ids, matches the kernel built from the `Style` object directly, and **the parms are provably inert while it is wired** — cycle 8 turned that from two parms into a SWEEP of the whole page (`swept 36 parms; moved: none`, ids AND rounded positions, exempting only `display`/`show_warnings`/`kitfile` by name), which is what caught `padding` still being live under a payload (D91). The generic-loop rule is audited by construction: `polychain/style.py` contains no style name and no branch per name, and `style_round_trip` re-proves it on all 73 cases. **Cycle 9 re-measured PC-G4 independently, in §2.1's own stronger wording — the SAME fence**: the parm face's own `Style` written out through `style.write` and wired back into input 3 of a second node with the parms at defaults produces output **identical on element ids, module names, rounded point positions AND every packed prim's full transform** across all **8 fill x corner combinations** (adaptive/scale/evenly/count x miter/bend, 35 to 137 prims). The page swept under that payload: **32 parms nudged, 0 moved the geometry**. A style the code has never heard of — `a_style_nobody_wrote_code_for`, carrying a `marker:42` slot — built **52 prims, 4 modules, 0 warnings** with no code change. The branch-per-name grep over the whole kernel returns nothing but `style_from_parms`' DEFAULT VALUE `"pf_polychain"`; the names that do appear in conditionals (`corner`, `default`, `start`, `end`) are §3.3's fixed slot vocabulary — the kernel's own schema, not any style's — and a slot outside it is dispatched generically. ⚠️ **CYCLE 12 MUTATION-TESTED THIS AND FOUND IT BLIND.** Reverting D91 - the `padding` parm applied unconditionally, so a wired payload feels it again - left the whole HDA suite **green**, `parms_inert_under_payload … moved: none`, with a debug print proving `_padded` really ran at 0.37 under the payload. The fixture was the cause, not the sweep: its `Params(fill="scale")` fence does not move for ANY `pc_pad` - `gate.pad` 0.0 -> 0.185 -> 0.400 with the output stuck at 44 prims, 12 elements and an identical point sum. **The fixture is `adaptive` now (D107)** and the same revert reports **`moved: padding`**; the shipped code reports `moved: none`. `scale` coverage is not lost - cycle 9 sweeps all 8 fill x corner combinations separately. GUI viewport pass owed like the others |
 
 **⚠️ NEW 2026-08-22, after phase 1 closed: [§11](#11-nativevexopencl-port-plan) is the ordered
@@ -129,6 +129,10 @@ closed), do NOT block: continue the build on hython, mark affected gates
 4. Deviations from this spec are fine when the geometry argues for them — record them in this
    file (this repo's convention: the doc is the build log's contract, see
    [`citygen_streets.md`](citygen_streets.md)).
+
+**Data conventions:** [`conventions.md`](conventions.md) — suite-wide attribute naming (`pf_`
+prefix) and node hygiene (`_*` internal, deleted before output). Binding here; §3 renames `pc_*`
+to `pf_*` after the §12 rebuild reaches parity, and the `_*` rule applies to the rebuild now.
 
 ## 1. Scope and non-goals
 
@@ -231,6 +235,41 @@ attrs, plus a detail dict `pc_kit` (kitId, version, sources/provenance, `human_s
 This deliberately matches buildings §12.9 (`moduleRole`, nominal bay size) so building kits and
 polyChain kits converge on one manifest convention — reconcile names with the buildings agent
 when B-stages start; buildings' `*_cut_*` opening convention composes on top.
+
+### 3.2b Prototype identity — reuse `pf::merge_enum`, and keep it distinct from element identity
+
+Hannes, 2026-08-22, pointing at an existing polyfactory node: **`pf::merge_enum::1.0.0`** ("PF Merge
+Enum") is the house workflow for instancing prototype setup — written pre-USD. 500 inputs, a
+for-each over them, and one point wrangle:
+
+```c
+int iteration = detail(1, 'iteration', 0);
+setpointattrib(0, chs("attrib"), @ptnum, iteration);
+```
+
+Every input's geometry carries its **input index** under `enum_attr` (default `enum`), with an
+optional pack. Merge a pile of assets, keep each identifiable by integer.
+
+**Two consequences for polyChain:**
+
+1. **Emit the house `enum` for prototypes.** §3.2 identifies modules by `pc_module`, a *string*.
+   A **USD PointInstancer addresses prototypes by `protoIndices` — an integer array**, so the
+   integer is what the instancing path actually wants and the string has to be mapped anyway.
+   The kit builder should either reuse `pf::merge_enum` outright or follow its convention, and the
+   kit manifest records the index→module mapping so the number is meaningful. This keeps
+   [`citygen.md`](citygen.md) §7 item 1 (instancing substrate: PointInstancer vs instanceable prims
+   vs primvar-keyed ids) OPEN rather than quietly foreclosing it.
+2. ⚠️ **`enum` must NEVER be used as element identity.** It is input-ORDER dependent — insert an
+   asset in the middle and every later number shifts. That is fine for prototype setup, where the
+   order is fixed at kit-build time; it is fatal for `pc_elem_id`, which is deliberately a
+   STRUCTURAL address (§3.4) so the override cascade survives regeneration. **Two distinct
+   concepts, both needed:** `enum` = *which prototype*, stable per kit build; `pc_elem_id` =
+   *which instance*, stable per recook. Do not conflate them; do not derive one from the other.
+
+**And note the style argument.** `pf_merge_enum.hda` is a ~10-node network — for-each, wrangle,
+merge, pack, switch — doing its job idiomatically in VEX, sitting in the same `otls/` directory as
+the Python monolith §12 exists to replace. It is the house pattern, and a better brief for the
+rebuild than prose.
 
 ### 3.3 Style payload
 
@@ -342,6 +381,37 @@ warning visualization toggle.
 **Proxy LOD is an acceptance criterion, not polish** (artist_ui rule 7): box/point display mode
 must stay interactive at 10k+ segments; the plan stage (§4.2) is cheap — recook full geometry
 only on release, plan-preview while dragging.
+
+### 5.1 HDA metadata — REQUIRED, not polish (Hannes, 2026-08-22, looking at the built node)
+
+Two defects found on the shipped asset. Both are **acceptance criteria for any rebuild** — an
+artist meets the tool through these before they ever touch a parameter.
+
+**a) It is not in the TAB menu where it belongs.** The asset has **no `Tools.shelf` section at
+all**, so it lands wherever Houdini defaults it. Every other polyfactory asset declares one — the
+house convention, read off the shipped `.hda` files:
+
+| | |
+|---|---|
+| Submenu | `Poly Factory/Modeling` (what `pf_citygen_*`, `pf::pf_kitbash`, `pf::advanced_tube` all use; `Poly Factory/Utils` is for helpers, which this is not) |
+| Context | SOP |
+| Icon | **not** the default `SOP_subnet`. Either a Houdini built-in that reads at a glance (e.g. `SOP_copytopoints`, `SOP_orientalongcurve`) or `$POLYFACTORY/icons/<name>.svg` — both patterns are in use (`pf::box` ships an svg, `pf::fast_clip` uses `SOP_clip`) |
+
+**b) The inputs and the output are unlabelled.** A four-input SOP whose inputs say nothing is
+guesswork. Label them, and mark which are optional — this is the §2.2 port table, in artist words:
+
+| Input | Label | Notes |
+|---|---|---|
+| 1 | `Curves` | the path(s) to build along — required |
+| 2 | `Kit` | the modules to build from — required |
+| 3 | `Style Payload` | optional; **when wired it overrides the parameters** (the §2.1 pipeline face) |
+| 4 | `Surface` | optional; the ground to conform to |
+
+Output 0: label it for what it is (the built geometry). Set input labels via the HDA definition's
+input-label API, not by hand-editing the dialog script.
+
+⚠️ Verify by INSPECTING THE BUILT ASSET (read back `Tools.shelf`, the icon and the labels from the
+`.hda`), never by trusting the build script — the build script is what got this wrong.
 
 ## 6. Phase-1 gates and acceptance
 
@@ -971,6 +1041,8 @@ gates PC-G1–G4. Phase-1 estimate for a senior TD: **weeks, not months, dominat
 ## 10. Build log
 
 ⚠️ **§10 is the PHASE 1 record. Phase 2's cycles are logged in §12, after the port plan.**
+
+⚠️ **The OpenCL decision (D158–D160) is recorded in [§14.10](#1410-the-audit-of-14--what-survived-what-had-to-be-corrected-and-the-verdict), with the measurement in §14 and the cycle entry in §12 (`Cycle P2-OCL`).** It spans both phases, so it lives with the numbers rather than in either build log: **OpenCL is declined everywhere in polyChain, audited and measured on both workload shapes.**
 
 Append one subsection per cycle: what was built, what the reviewers found, what the numbers were,
 and every decision taken on an open question. This is the streets convention
@@ -5765,19 +5837,19 @@ Output bit-identical on all 109 cases.
 | D142 | **`cell_grid` takes its row set from the SOLVE, not from the output.** A row that was solved and never built cannot read as a hole otherwise, and `FM_area_taper` lost the whole top band of its roof panel at "2 rows x 1 faces, 0 empty". A row the clip legitimately empties is named per case with its reason (`UNBUILT`), the way `BENT` names bend mode's unpacked pieces |
 | D143 | **`facade.build_many` is the 2D entry point, and `facade.build` is it with one footprint.** D115's one-call property was unreachable from the shipped API — the only public entry took one footprint and therefore one `place.build`, so a district cost 100 builds, 100 `ray` executions and 300 kit reads, while `ray_executions_per_build == 1` was asserted on a bench fixture that bypassed the adapter. One body, so the fixture and the API cannot diverge |
 | D144 | ⚠️ **A CORRECTION TO D115's HEADLINE. The 2.95x / 3.98x was the comparand's own O(n^2), not the batch.** The many-call half shared one `out`, and `_stamp_bulk` must write the whole prim column, so every call re-wrote every earlier call's prims (5.210 s against 2.040 s for byte-identical output). `place.build` stages into a fresh geometry when `out` is non-empty and merges once. Re-measured fairly and over a terrain big enough to test the thing (19 881 prims, not 1 089): **1.14x with no terrain, 1.00x over 19 881, 1.12x over 80 089, at 1 `ray` execution against 100**. The one-call rule is insurance — conform cost O(1) in rows instead of O(N) — and the COUNT, not the ratio, is what PC-G7 asserts |
-| D145 | **§11's P7 is done, and `polyfill` appending its patches at the tail is what buys it.** `clip_plane`'s cap tag was a per-prim, per-point plane test through wrappers — 46 % of the 800-row district — and `dress_caps` walked every prim to find the caps. Probed, not recalled: `polyfill` appends the primitives it creates contiguously after the ones it was given, so the caps are the tail and the tag is one bulk write; `polyfill_appends_its_patches` is the standing re-probe. ⚠️ It is an **OR**, because a piece cut at both ends carries the first cut's flag through the second `clip`. 571 to 11 wrappers on the phase-1 miter fixture, 78 132 to 836 on the district, output bit-identical |
+| D145 | **§11's P7 is done, and `polyfill` appending its patches at the tail is what buys it.** `clip_plane`'s cap tag was a per-prim, per-point plane test through wrappers — 46 % of the 800-row district — and `dress_caps` walked every prim to find the caps. Probed, not recalled: `polyfill` appends the primitives it creates contiguously after the ones it was given, so the caps are the tail and the tag is one bulk write; `polyfill_appends_its_patches` is the standing re-probe. ⚠️ It is an **OR**, because a piece cut at both ends carries the first cut's flag through the second `clip`. 571 to 11 wrappers on the phase-1 miter fixture, 78 148 to 836 on the district, output bit-identical |
 | D146 | **A wrapper READ is a defect class the four existing tripwires cannot see.** They count wrappers materialised through `hou.Geometry`/`hou.PointGroup` and wrapper writes; a read through `hou.Prim` is neither, so `points_wrappers_built_2d_rows` read 0 against a ceiling of 8 on a build doing 443 136 of them. `wrapper_reads` is that counter and `verb_executions_per_build` is the same idea for compiled SOP executions (`clip`/`polyfill`, per verb name). Both wrapper ceilings are class boundaries, not values plus 2 % |
 
 #### Cycle P2-3R — final state
 
 **Phase 1 untouched and green:** 90 scene cases, `run_hda_checks.py`, `scale_gate.py` (9 rows),
-`gate_images.py`, 386 unit tests — 0 failing. **One phase-1 baseline value moved and it is P7:**
+`gate_images.py`, 346 unit tests (P2-3R wrote 386; corrected by P2-3V) — 0 failing. **One phase-1 baseline value moved and it is P7:**
 `prims_wrappers_built_mitered` 571 to 11.
 
 **Phase 2:** 19 cases (13 + FN/FO/FP/FQ/FR/FS), 0 failing. Baseline movement, all explained above:
 `geometry_digest` on every closed-footprint case (D141's winding), `cell_grid` gaining a fourth
 number, `FH_y_corner`'s inventory gaining the column it never built, and
-`prims_wrappers_built_2d_rows` 78 132 to 836.
+`prims_wrappers_built_2d_rows` 78 148 to 836 (P2-3R wrote 78 132; the baseline says 78 148).
 
 **Judged on the image** (`facade_images.py`, rasteriser extended not rebuilt): the reflex corner
 reads ground-to-cornice with the corner column continuous and the cornice band turning round it, and
@@ -5791,6 +5863,181 @@ sub-spline independence, even-odd nesting, `slice`), P2-8 and P2-9.
 **Next up: cycle P2-4/P2-5** — unchanged.
 
 ---
+
+### Cycle P2-3V — independent verification of P2-3R (2026-08-22)
+
+**Dev-loop rule 0, discharged.** A fresh agent that wrote none of P2-3R ran every suite from
+clean, re-derived the baseline movement key by key, mutation-tested phase 2, and judged PC-G5
+on images. **All 22 of P2-3R's reported fixes are real and present in the shipped build** — every
+one of them was reproduced here by reverting it and watching something go red, *except six, which
+went red nowhere at all.* Those six are the finding of this cycle.
+
+#### 1. Suites, from clean
+
+| Suite | Result |
+|---|---|
+| Unit tests | **346 OK** (61 + 60 + 63 + 91 + 49 + 22), 0 failing |
+| `run_scene_checks.py` (phase 1) | **90 cases / 5 559 check rows / 0 failing**, and **no baseline movement** |
+| `run_2d_checks.py` (phase 2) | **19 cases / 571 rows / 0 failing**, no baseline movement |
+| `run_hda_checks.py` | 0 failing |
+| `scale_gate.py` | 9 rows, 0 failing |
+| `gate_images.py` | 0 failing gate checks |
+| `facade_bench.py` | reproduced: **1 `ray` vs 100**, 836 vs 4 400 prim wrappers, **1.08x / 1.00x** — D144's "insurance, not a speed-up" reading is honest |
+
+`git diff 4f1b0c2..a4a2488` touches no citygen file. The phase-1 baseline diff is exactly P7 plus
+four added tripwires, as claimed.
+
+⚠️ **Two numbers in P2-3R's write-up are wrong, and both are the write-up's and not the build's.**
+**The suite is 346 unit tests, not 386** (P2-1..P2-3 counted 345; D141 added one). And
+`prims_wrappers_built_2d_rows` went **78 148 → 836**, not 78 132 — 78 148 is the value in the
+committed baseline, and §0.0 already had it right.
+
+⚠️ **One baseline movement went unreported: `FC_rect/corner_seam_m` 0.0 → 1e-06.** It is D141's
+doing (reverting the winding sign puts it back to exactly 0.0), it is 1 micron against a 2e-3
+tolerance, and it is the reversed traversal order accumulating differently. Not a defect —
+but "movement: `geometry_digest`, `cell_grid`, `FH_y_corner`, `prims_wrappers_built_2d_rows`" was
+not the whole list, and the whole list is the point of reading a baseline diff.
+
+#### 2. Mutation test — 17 mutations, and **SIX SURVIVED**
+
+Every mutation was applied to the shipped source, run against the full phase-2 suite **and** the
+unit tests, then reverted by file copy — never a tree-wide git command, per §11.2's own warning.
+The tree was verified byte-clean afterwards.
+
+**Caught, as they should be** — the eleven that prove the suite is not decorative:
+
+| Mutation | Caught by |
+|---|---|
+| a cell role deleted from the kit at close time | `cell_modules`, `fallback_map`, `warnings` — 12 red + 2 unit |
+| the 2D cell address assembled `y_x` instead of `x_y` | 9 red + 1 unit |
+| **7.2.2's "Y sheds first" inverted** | `cell_modules`, `fallback_map` — 5 red + 4 unit, **and both `extend` branches** |
+| a missing role recorded no fallback (the silent stand-in) | `role_fallbacks` **[24, 360]** — PC-G5 condition 5, working |
+| `preserve` bridging a concave notch again | `clip_inside_m` 2.0 m + `clip_hole_elements` 3 |
+| `canonical_flags` reverted to the identity | `structural_ids` — 32/64 ids differ, 104 moved |
+| a row silently dropped from the curve stream | 37 red, `cell_grid` leading |
+| `_corner_rule` unscoped from the row class | `cell_modules` |
+| `sequence` asking for the bare X slot | `cell_modules` |
+| an inert per-prim wrapper loop in the 2D clip path | `prims_wrappers_built_2d_rows` **39 484** and `wrapper_reads_2d_rows` **221 608** — *the tripwires do catch a wrapper loop that changes no output* |
+| `build_many` looping per footprint | `ray_executions_per_build_2d_rows` 1 → 2 |
+| D145's cap tag at the wrong end / as an assignment | 60 red / `corner_face_mate_m` on `AI_triangle` 1.29e-07 → 0.0352 — exactly the trap P2-3R named |
+| the winding sign reverted (D141) | 2 unit tests. **Nothing in the scene suite** — the digest moves, and that is all |
+
+**THE SIX SURVIVORS.** Each is a P2-3R fix whose "final actual output" was measured by hand in the
+fix pass and **never committed**, so the whole fix could be deleted and 19 cases, 5 400 rows and
+346 unit tests stayed green. This is dev-loop's compounding rule not being applied, and it is the
+same shape every previous verification cycle found.
+
+| # | The fix that had no assertion | The mutation that survived |
+|---|---|---|
+| S1 | **D139's row warnings** — `WARN_ROW_OVERFLOW` / `WARN_ROW_KIT_GAP` | `extra = ()` in `plan.classify`. **Neither string appeared in a single test file, `EXPECTED_WARNS` entry, unit test or run log.** The channel that stops a truncated building shipping silent was itself silent |
+| S2 | **`clip_stamp` could not fail on an area build** — `ok = area or n == 0`, so on the only builds where `pc_clipped` can legitimately be 1 the check was `True` unconditionally | `p.clipped = 0` for every placement: **0 failing checks**, two baseline lines. P2-3R's "`pc_clipped` is now stamped **and asserted**" was half true |
+| S3 | **the alias-collision drop** (finding 8) | re-pooling colliding aliases — green everywhere |
+| S4 | **`marker:<id>`'s five Y classes** (finding 5) | deleting the expansion — green everywhere. This is *precisely* the silent stand-in PC-G5 condition 5 counts at 0 |
+| S5 | **`extra_roles` filtered to real slot pairs** (finding 15/19) | letting module names become cell roles — green everywhere |
+| S6 | **`rows_unbuilt` + `pc_warn_row_clipped_out` were DEAD CODE** | zero references in the suite, zero occurrences in any run. `FM_area_taper` is *not* what exercises them: its top band leaves 1.6e-9 m, which is still a span, so `area_rows` records nothing and `cell_grid` catches the hole by its own solved-vs-built difference. D142's artist-facing channel had never once fired |
+
+#### 3. The six, closed — D147
+
+| ID | Decision |
+|---|---|
+| D147 | **A warning with no case is a warning that can be deleted by accident.** Three cases and one check now stand behind the four channels that had none. **`FT_row_overflow`** — 3.2 m of height cannot hold a 4.0 m ground floor *and* a 1.0 m cornice, so D13's cascade drops the mandatory `end`: `pc_warn_row_overflow` x 26, and `CELLS` asserts the whole `end` column is gone so the warning cannot be a lie. **`FU_row_kit_gap`** — the Y style names a module the kit has not got: `pc_warn_row_kit_gap` x 26, and its `geometry_digest` is `FC_rect`'s, i.e. the *only* difference is the warning. **`FV_area_short`** — a 13 m stack over a 9 m plate, the only case in which `rows_unbuilt` is non-empty, with the new **`rows_clipped_out`** check asserting that the count and the `pc_warn_row_clipped_out` lines agree. **`clip_stamp` now asserts the TRANSFER** — the row curve's `pc_clipped` against every element of that row — instead of returning `True` for every area build. And four `hou`-free unit tests cover S3/S4/S5. **All six mutations now go red.** |
+
+**Baseline: additions only.** 22 phase-2 cases / 683 rows; the three new cases and the new
+`rows_clipped_out` row on all nineteen old ones are added, and **not one previously recorded value
+moved.** Phase 1 untouched. 350 unit tests.
+
+#### 4. GATE PC-G5 — judged, and it does NOT pass
+
+Judged on images regenerated from *this* build with the committed rasteriser
+(`facade_images.py`), plus four extra views rendered in the scratchpad that the committed set does
+not cover: the **bend-mode** corner, the **plan**, and both a convex and the reflex corner cropped
+tighter. §7.8's fixture names both corner modes and only miter had an image.
+
+**What I actually see.** The plan view of the miter L is a closed ring of cells with **no holes and
+no overlaps** anywhere on the boundary; all five convex vertices *and* the reflex vertex carry a
+corner piece with a visible 45° bisector cut. In the reflex close-up the corner column runs
+**unbroken from the ground band to the cornice**, red (`corner_start`) → orange (`corner`) →
+yellow (`corner_end`), and the cornice band turns round it with its outer edge continuous through
+the apex — the failure §7.8 says no number catches (*"a corner that closes numerically while the
+cornice returns the wrong way round it"*) **is not present**. The convex corner at (0,0) reads the
+same. Every band boundary closes at the apex at the same height on both legs. In **bend** mode
+there is correctly **no corner post at all** and the bands turn through the elbow as continuous
+surfaces. The front elevation shows four bands whose boundaries are straight, continuous lines
+across the whole width. `FE_stand_in` renders almost entirely red, which is right: that kit has
+only a column, and warn-never-block fills the rest with §3.4 boxes that say so.
+
+⚠️ One honest limitation of the picture, not of the build: the "front" elevation is an orthographic
+projection of a *closed* footprint, so all six legs superimpose. It reads the BANDS correctly and
+it cannot read §7.8's "role table visible as a pattern". A per-leg elevation is what that line
+actually wants.
+
+**Condition by condition, and two of them are not there:**
+
+| # | Condition | Verdict |
+|---|---|---|
+| 1 | corner closure per storey, 6 x 4 = 24 joints | ✅ **PASS, and verified non-vacuous**: `_corner_caps` yields **24 groups, 24 of them paired and measured** — probed directly, not read off the label. `corner_seam_m` **0.0**, `corner_abut_m` 1e-06, `corner_breach_m` 0.0 on FA |
+| 2 | row closure | ✅ **PASS** — `row_closure_m` 0.0, `row_fill_y_m` 0.0 on FA and FB |
+| 3 | bay alignment under `y_mode = aligned` | ❌ **NOT PRESENT.** `aligned` does not exist (D122, unbuilt), so every row solves `free`. And the inverted `free` form §7.8 offers cannot be run either: every row of the L uses the same kit over the same leg lengths, so the fixture cannot distinguish the two modes even in principle. **This condition needs a fixture as well as a mode** |
+| 4 | no sliced windows, `slice_t is None` on 100 % | ⚠️ **TRUE BUT UNASSERTED.** Measured here: **0 of 176 placements** on FA carry a `slice_t`. No committed check says so; nothing would notice if it changed |
+| 5 | no silent stand-ins | ✅ **PASS** — `role_fallbacks` [0, 0] on FA, and mutation-proved: making a missing role fail silently reports **[24, 360]**. The `marker:` half of it had no assertion until D147 |
+| 6 | identity is structural | ✅ **PASS** — `structural_ids` 0 on FJ/FK and on FN/FO/FP *with flags*; reverting `canonical_flags` reports 64 ids differ / 104 moved |
+| 7 | instancing survives 2D | ✅ **PASS** — `row_scale_packed` [88, 24, 0] miter and [64, 0, 12] bend, `pc_row_scale != 1` unpacking nothing |
+
+**PC-G5 VERDICT: DOES NOT PASS.** Five of seven conditions pass and are mutation-proved; condition
+**4** is factually satisfied on the fixture but has no check; condition **3** has neither a mode nor
+a fixture that can exercise it. The picture is clean and the corner closure is real — the gate is
+short two conditions, not short a facade.
+
+#### 5. What phase 2 still owes
+
+Unchanged from P2-3R except that S1–S6 are closed and PC-G5 now has a measured verdict rather than
+a claim:
+
+1. **P2-5 — the `aligned` Y mode (D122) and `pc_extend` as a parm.** Closes PC-G5 condition 3, and
+   it needs a **fixture with unequal leg lengths or a per-row kit**, or `aligned` and `free` remain
+   indistinguishable however the mode is implemented.
+2. **PC-G5 condition 4** — one line: assert `slice_t is None` on every non-clip placement. It is
+   true today; nothing is watching it.
+3. **P2-4 — the payload half from input 3.**
+4. **P2-7 — the real clipping**: per-module `pc_clip` (§7.3.1), sub-spline independence, even–odd
+   nesting, and `slice`. `pc_clipped` is D137's span flag and nothing more; PC-G6 is unbuilt.
+5. **P2-8, P2-9**, and §7.7's kit slicer `pf_polychain_slice`.
+6. **Phase 1's own unchanged debts**: the GUI viewport pass on PC-G1/PC-G2 (bridge still wedged),
+   the streets acceptance, and standing finding (11).
+
+**The next cycle should build P2-4 then P2-5**, and should write PC-G5 condition 4's one-line check
+on the way past, because it is free and it is currently the cheapest untested truth in the tool.
+
+---
+
+### Cycle P2-OCL — OpenCL benchmarked, then audited, then declined (2026-08-22)
+
+**Measurement-only cycle. No production file and no HDA was touched.** Hannes' question was
+*"which processes could use OpenCL, and check whether it is actually faster"*. Three candidates
+were implemented three ways each (Python / VEX-64 / OpenCL, verb **and** node) and measured on both
+of polyChain's real workload shapes; a second pass then audited that benchmark and re-ran every
+headline comparison. **The measurement is [§14](#14-opencl-benchmarked--three-candidates-three-implementations-each-both-shapes);
+the audited verdict and the corrections are
+[§14.10](#1410-the-audit-of-14--what-survived-what-had-to-be-corrected-and-the-verdict).**
+
+**The answer is no, everywhere, and it is measured rather than assumed.** The deform point
+transform loses to VEX at every size on both shapes up to 2×10⁷ points (360 000 pts: VEX 0.00122 s
+vs OpenCL 0.00242 s). The deform gate is the one place OpenCL wins — by 163–215 µs on one big
+execution — and the same candidate is a **6.1× loss** on `streets_300`, the shape citygen actually
+produces, against a ~0.1 s first-cook compile and a ~120 MiB VRAM floor. Everything else is either
+a sequential prefix solve, small-N branching, zero-arithmetic attribute writes, or already inside a
+native verb.
+
+**Decisions: D158** (OpenCL declined, audited; the reopen criterion becomes four conditions, and
+§13's native rebuild carries no OpenCL node), **D159** (64-bit mandatory, justified by baseline
+movement — fp64 reproduces the shipped answer exactly, fp32 moves it 5.4e-04 m at 20 km — and
+§14.0's `marker_offset_m` framing withdrawn), **D160** (§14.4's "`attribvop` is single-threaded
+below ~5 000 elements" downgraded to an unexplained anomaly; `vex_threadjobsize` is not its cause).
+
+**What the study actually points at, and it is not a language:** one execution per build instead of
+one per piece is worth **55×** to VEX and **407×** to OpenCL, and skipping it makes an OpenCL port
+**6.6× slower than the Python it replaces**. Then Python → VEX-64 on the gate, 84×. Then stop.
+
 
 ## 13. Native network architecture — the rebuild brief
 
@@ -6420,3 +6667,473 @@ mutation-test, commit, then an independent audit before any completion claim** (
 - **D155 — one parm is added to §5 and no more: `Stage`**, a Debug-folder menu over the stage
   output nulls. It is the artist-visible form of §1c's "toggle nodes off to see what each does".
 
+
+---
+
+## 14. OpenCL, benchmarked — three candidates, three implementations each, both shapes
+
+**Status:** measurement only, 2026-08-22, Houdini 22.0.398 / hython, branch `polychain`. **No
+production file and no HDA was touched by this cycle** — every script lives in the scratchpad
+(`pcbench.py`, `candA*.py`, `candB*.py`, `candC*.py`, `cand_extras.py`, `vexbump.py`,
+`gpumem.py`). This section owns the *measurement*; §11.1's "OpenCL, anywhere — NO" row and
+§13.5's reopen criterion (D149) own the *decision*, and both survive. What was missing from them
+was numbers, and the numbers are here.
+
+Hannes' question was **"which processes could use OpenCL, and is it actually faster?"** The answer
+has three parts and only one of them is a yes.
+
+### 14.0 The answer in five lines
+
+1. **Candidate A (the deform point loop, ~10 FLOP/point): OpenCL LOSES to VEX at every size, on
+   every shape, up to 20 000 000 points** — a flat 2.6× loss at fp64, 1.4× at fp32. There is no
+   crossover to find; the kernel is transfer-bound and fp64 doubles the transfer.
+2. **Candidate B (the deform gate, ~55 FLOP/station): OpenCL WINS — by 215 microseconds.** At
+   polyChain's real size (9 996 pieces / 89 964 stations, one execution) VEX-64 is 492 µs and
+   OpenCL-64 is 277 µs. The kernel's own **compile is 93 ms**, so the first cook of a session pays
+   back over **433 cooks**. This is a win that is real, reproducible, and not worth having.
+3. **The shape decides the sign, exactly as §11's architecture rule 2 says.** On `streets_300` —
+   300 short curves — OpenCL is a **6.1× LOSS** on the same candidate B (0.0306 s vs VEX's
+   0.0050 s), and it does not turn positive until ~666 pieces *per execution*, ~20× more than
+   citygen hands the tool.
+4. **The worst number in the study: keep today's per-piece call structure and swap Python for
+   OpenCL and the stage gets 6.6× SLOWER.** 9 996 executions of 36 points: Python 0.158 s, VEX
+   0.071 s, **OpenCL 1.043 s**. One execution of the same 359 856 points: Python 0.162 s, VEX
+   0.00129 s, OpenCL 0.00256 s. Batching is worth 400× to OpenCL and 55× to VEX; the *language*
+   is worth −2×.
+5. **32-bit is inadmissible and that is now measured, not asserted.** Candidate A at 32 bits is
+   **1.526e-05 m** off a Python/VEX-64 answer that is bit-identical, on an 8 km run — 85× the
+   `marker_offset_m` tolerance (1.788e-07 m) the suite already asserts. Candidate B at 32 bits
+   moves the curvature budget by **1.035e-04 m**, 1 % of `bend_tol`. So every OpenCL number below
+   that matters is the fp64 one, and fp64 is where OpenCL is weakest on consumer silicon.
+
+**Verdict, plainly: OpenCL is not warranted anywhere in polyChain today.** VEX-64 is the correct
+member of the trio for the deform, and the gate's OpenCL win is 0.2 ms against a 1.36 s row. §13's
+native rebuild should not carry an OpenCL node.
+
+### 14.1 What was measured, and how
+
+Three implementations of each candidate over **identical data**, parity checked before any timing:
+
+| | Candidate A — `_deform_positions` | Candidate B — the deform gate |
+|---|---|---|
+| the kernel | `out = pos[s] + across[s]*z + up[s]*y` per point, station frames given | `span_deviation`'s spine walk + D87's off-spine chord term, reduced to a max per piece |
+| arithmetic | ~10 FLOP/point (6 mul, 6 add) | ~55 FLOP/station: sqrt, acos, sin, 9 stations per piece |
+| parallel over | points (the station loop above it is `_transport`, a sequential sign-carry — NOT ported) | pieces |
+| (a) Python | the shipped loop shape, frames dict keyed by local x | the shipped `normal_at = None` path |
+| (b) VEX | `attribvop` verb **and** a real `attribwrangle` node, `vex_precision 64` | same |
+| (c) OpenCL | `opencl` verb **and** a real OpenCL SOP node, `precision` 32 and 64 | same |
+
+Method, following §11's P5R rules: implementations **interleaved** (rep 0 of every implementation,
+then rep 1, …, so a thermal or scheduler excursion hits all of them), **best-of-5** for the sweeps
+and **best-of-25** for the crossover hunts, verb `setParms` **hoisted out of the timed region**,
+kernel compile reported **separately**, and a memory column on every table. Node cooks are timed
+by dirtying an upstream O(1) **detail** attribute; a `null` on the same input is cooked the same
+way as the control and is printed, never subtracted.
+
+**Hardware / device:** AMD Ryzen 7 9700X (8C/16T), 125.6 GiB RAM, **NVIDIA GeForce RTX 5060 Ti**
+(OpenCL 3.0 CUDA 13.3.44, 36 CUs, `MAX_MEM_ALLOC_SIZE` 4.276 GB, `cl_khr_fp64` present but
+`NATIVE_VECTOR_WIDTH_DOUBLE = 1`), stock configuration — **no `HOUDINI_OCL_*` variables set**. The
+device selection is established by measurement, not by a HOM call: forcing
+`HOUDINI_OCL_DEVICETYPE=CPU` changes every number (§14.5), so the default is the discrete GPU.
+
+### 14.2 PARITY — measured first, because a fast wrong kernel is worthless
+
+| candidate | implementation | max abs diff vs Python (fp64) | verdict |
+|---|---|---|---|
+| A (8 km world coords) | **VEX-64** (verb and node) | **0.000e+00** | bit-identical |
+| A | **OpenCL-64** (verb and node) | **0.000e+00** | bit-identical |
+| A | VEX-32 | 1.526e-05 m | 85× `marker_offset_m` — **inadmissible** |
+| A | OpenCL-32 | 1.526e-05 m | **inadmissible** |
+| B (2 000 pieces) | **VEX-64** | **0.000e+00** | bit-identical |
+| B | **OpenCL-64** | **0.000e+00** | bit-identical |
+| B | OpenCL-32 | 1.035e-04 m | 1 % of `bend_tol`; 0 / 2 000 gate decisions flipped on this fixture, but the budget moves |
+| C | OpenCL `runover = worksets` vs plain | **0.000e+00** | the workset dispatch is exact |
+
+The gate fired on 1 711 of 2 000 pieces on the parity fixture, so the branch under test was
+genuinely exercised rather than short-circuited.
+
+### 14.3 CANDIDATE A — the deform point transform. OpenCL loses everywhere.
+
+`precision 64`, VEX 64, best of 5, interleaved. `null_nd` is the forced-cook floor of the network,
+printed and not subtracted. Peak WS is the **process** peak (kernel32), so only the first rows read
+as deltas.
+
+| shape | N total | N / exec | execs | Python | py_loop | vex64 verb | ocl64 verb | vex64 node | ocl64 node | null node | winner | peak WS |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| one | 1 008 | 1 008 | 1 | 0.00039 | 0.00030 | **0.00004** | 0.00012 | 0.00007 | 0.00014 | 0.00004 | **VEX** | 579 MB |
+| one | 10 008 | 10 008 | 1 | 0.00444 | 0.00332 | **0.00024** | 0.00041 | 0.00023 | 0.00033 | 0.00011 | **VEX** | 609 MB |
+| one | 100 008 | 100 008 | 1 | 0.04418 | 0.03265 | **0.00066** | 0.00104 | 0.00047 | 0.00096 | 0.00025 | **VEX** | 719 MB |
+| one | **360 000** | 360 000 | 1 | 0.16478 | 0.12432 | **0.00123** | 0.00253 | 0.00109 | 0.00230 | 0.00025 | **VEX** | 965 MB |
+| one | 1 000 008 | 1 000 008 | 1 | 0.46875 | 0.35505 | **0.00284** | 0.00671 | 0.00278 | 0.00645 | 0.00031 | **VEX** | 1 512 MB |
+| **s300** | 100 008 | 324 | 300 | 0.03829 | 0.03060 | **0.00426** | 0.03465 | 0.01066 | 0.04455 | 0.00399 | **VEX** | 1 512 MB |
+| **s300** | 360 000 | 1 188 | 300 | 0.14286 | 0.11893 | **0.01112** | 0.04435 | 0.01822 | 0.06022 | 0.00468 | **VEX** | 1 512 MB |
+| **s300** | 1 000 008 | 3 312 | 300 | 0.41355 | 0.34452 | **0.02601** | 0.05794 | 0.03281 | 0.07150 | 0.00402 | **VEX** | 1 512 MB |
+
+At 32-bit OpenCL — which parity has already ruled out — the loss narrows but never closes: 0.00157 s
+vs VEX-64's 0.00122 s at 360 000 points.
+
+**The crossover hunt, pushed 55× past anything polyChain can produce** (its largest measured
+single-cook point set is 359 856), one execution, best of 5:
+
+| N | vex64 | ocl64 | ocl/vex | ocl32 | ocl32/vex | winner | peak WS | device mem |
+|---|---|---|---|---|---|---|---|---|
+| 1 000 008 | 0.0028 | 0.0068 | **2.44** | 0.0035 | 1.32 | VEX | 812 MB | — |
+| 4 000 032 | 0.0107 | 0.0284 | **2.65** | 0.0164 | 1.49 | VEX | 2 088 MB | +335 MiB |
+| 10 000 008 | 0.0285 | 0.0754 | **2.65** | 0.0418 | 1.44 | VEX | 4 267 MB | — |
+| 20 000 016 | 0.0581 | 0.1534 | **2.64** | 0.0838 | 1.44 | VEX | 7 915 MB | +1 295 MiB |
+
+**There is no crossover N for candidate A.** The ratio is flat at 2.6× from 10⁶ to 2×10⁷, which is
+the signature of a bandwidth-bound kernel: at fp64 a 20 M-point pass moves ~950 MB of buffers for
+10 FLOPs of work per point. §13.5's reopen criterion — "a single deform cook exceeding 50 ms,
+i.e. > 2.5e7 points" — is now **measured and refuted for this kernel**: at 2×10⁷ points the cook is
+58 ms and OpenCL is still 2.6× behind. **D156.**
+
+**Device memory, actually measured** (nvidia-smi polled between executions inside a 3 s loop, idle
+baseline 8 769 MiB): 360 000 points → **+139 MiB** against 17 MB of computed fp64 buffers;
+20 000 016 points → **+1 295 MiB** against 954 MB computed. So OpenCL costs roughly **~120 MiB of
+VRAM just to exist**, plus ~1.35× the raw buffer bytes. At polyChain's real size the buffers are
+irrelevant and the fixed footprint is 7× larger than the data.
+
+### 14.4 CANDIDATE B — the deform gate. OpenCL wins, and the win is 215 microseconds.
+
+Same method. 9 stations per piece (D71). `precision 64`.
+
+| shape | pieces | pieces / exec | station evals | execs | Python | py_loop | vex64 verb | ocl64 verb | vex64 node | ocl64 node | null node | winner |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| one | 1 000 | 1 000 | 9 000 | 1 | 0.00586 | 0.00542 | 0.00026 | **0.00019** | 0.00029 | 0.00020 | 0.00007 | **OpenCL** |
+| one | **9 996** | 9 996 | 89 964 | 1 | 0.06124 | 0.05452 | 0.00073 | **0.00057** | 0.00060 | 0.00047 | 0.00023 | **OpenCL** |
+| one | 100 000 | 100 000 | 900 000 | 1 | 0.65951 | 0.57907 | 0.00281 | **0.00141** | 0.00288 | 0.00137 | 0.00026 | **OpenCL** |
+| one | 1 000 000 | 1 000 000 | 9 000 000 | 1 | 6.74555 | 5.83276 | 0.02810 | **0.00900** | 0.02780 | 0.00887 | 0.00028 | **OpenCL** |
+| **s300** | 1 000 | 3 | 9 000 | 300 | 0.00652 | 0.00488 | **0.00254** | 0.03028 | 0.01038 | 0.04037 | 0.00393 | **VEX (ocl 11.9× worse)** |
+| **s300** | **9 996** | 33 | 89 964 | 300 | 0.06373 | 0.05653 | **0.00501** | 0.03061 | 0.01270 | 0.04038 | 0.00396 | **VEX (ocl 6.1× worse)** |
+| **s300** | 100 000 | 333 | 900 000 | 300 | 0.64571 | 0.58595 | **0.02581** | 0.03842 | 0.03435 | 0.05027 | 0.00403 | **VEX (ocl 1.5× worse)** |
+| **s300** | 1 000 000 | 3 333 | 9 000 000 | 300 | 6.53177 | 6.04936 | 0.22968 | **0.05310** | 0.24249 | 0.06929 | 0.00424 | **OpenCL 4.3×** |
+
+Peak WS 588 MB at 1 000 pieces rising to 6 638 MB at 1 000 000 — the Python column's lists, not
+the kernels'. The 1 000 000-piece rows are crossover hunting only: polyChain's real maximum is
+~10 000 pieces.
+
+**The fine sweep that locates the crossover** (best of **25**, interleaved, one execution):
+
+| pieces | station evals | vex64 µs | ocl64 µs |
+|---|---|---|---|
+| 500 | 4 500 | **118.7** | 203.4 |
+| 1 000 | 9 000 | 221.4 | **127.2** |
+| 2 000 | 18 000 | 603.5 | **173.5** |
+| 4 000 | 36 000 | 1 179.6 | **179.7** |
+| 6 000 | 54 000 | 480.1 | **196.5** |
+| **9 996** | **89 964** | **492.1** | **276.6** |
+| 20 000 | 180 000 | 818.4 | **358.7** |
+
+**Crossover: ~700 pieces / ~6 300 station evaluations, in ONE execution.** Above it OpenCL wins by
+1.4–6.6×.
+
+**And an `attribvop` behaviour worth writing down: VEX has a threading cliff at ~5 000 elements.**
+The VEX column rises linearly 500 → 4 000 (119 → 1 180 µs) and then **falls** at 6 000 (480 µs).
+Reproduced over 25 reps in three separate processes. It is not noise, and it means a VEX stage
+sized between 1 000 and 5 000 elements is running single-threaded — which is exactly where the
+gate would sit on a short street. That is a **VEX** tuning finding, and it is worth more than the
+OpenCL question: batching the gate across curves gets it over the cliff.
+
+**What the win is actually worth.** At the real size the OpenCL advantage is
+492 − 277 = **215 µs**, against a `deform_20km` row of 1.3618 s — **0.016 % of the row.** The
+kernel's cold compile is **93 ms**, so the first cook of a session pays back after **433 cooks**.
+And the portable arithmetic is only part of the stage: the shipped `_needs_deform` +
+`_bend_deviation` cost 0.4366 s on `deform_20km`, of which this kernel's Python equivalent is
+0.0612 s — the other 0.375 s is `path.sample`, the dict plumbing and the per-piece call overhead,
+none of which any language change touches.
+
+**So candidate B's honest reading is: Python → VEX-64 is 84× (0.0612 → 0.00073 s) and worth doing;
+VEX → OpenCL is 1.8× of a number that is already sub-millisecond, costs a second language, a 93 ms
+compile and a 120 MiB VRAM floor, and reverses to a 6.1× loss on the citygen shape.**
+
+### 14.5 CANDIDATE C — the batch-shape control. The floor, the device, and worksets.
+
+**(1) The per-execution floor** (best of 25, `setParms` outside the timer, one execution):
+
+| pieces | ocl64 µs | vex64 µs | ocl/vex |
+|---|---|---|---|
+| 1 | 93.9 | 10.1 | 9.30 |
+| 10 | 92.3 | 11.7 | 7.89 |
+| 100 | 96.5 | 31.1 | 3.10 |
+| 300 | 119.0 | 72.8 | 1.63 |
+
+**OpenCL's floor is ~92 µs per execution; VEX's is ~10 µs.** (§11's earlier 300 µs / 100 µs
+reading was taken with `setParms` inside the timer and on a different kernel; with parms hoisted
+the floors are 92 µs and 10 µs, and the *ratio* — 9× — is what matters and is unchanged.)
+
+**(2) The floor is PART transfer, not all binding layer — this corrects the prior cycle.** Forcing
+`HOUDINI_OCL_DEVICETYPE=CPU` (Intel OpenCL runtime on the Ryzen, `HOST_UNIFIED_MEMORY = 1`, no
+PCIe) drops the floor from **93.9 µs to 37.9 µs** at N = 1 and from 96.5 µs to 53.5 µs at N = 100.
+So ~55 µs of the GPU's floor is the transfer/queue and ~38 µs is Houdini's binding layer — and
+**38 µs is still 4× VEX's 9 µs**, so no device choice removes the penalty. (The CPU device also
+*beats* the GPU up to ~30 000 pieces on this kernel and loses above 100 000: 1 367 µs vs 1 039 µs.)
+
+**(3) `runover = worksets` recovers a third of the loss and is still the wrong answer.** One
+execution over 300 worksets, bit-identical to the plain dispatch:
+
+| total pieces | 300 separate executions | ONE execution, 300 worksets | ONE plain execution | VEX 300× | VEX 1× |
+|---|---|---|---|---|---|
+| 9 000 | 0.02932 | **0.00896** | **0.00029** | 0.00480 | 0.00063 |
+| 9 900 | 0.02920 | 0.00888 | 0.00035 | 0.00499 | 0.00071 |
+| 99 900 | 0.04349 | 0.01687 | 0.00105 | 0.03586 | 0.00296 |
+| 999 900 | 0.05236 | 0.01913 | 0.00810 | 0.23089 | 0.02743 |
+
+Worksets are **3.3× better than 300 host executions and still 31× worse than one plain execution**
+— the internal dispatch costs ~29 µs per workset. The prediction that worksets are "the only way
+an OpenCL port survives `streets_300`" is **half right and beside the point**: they do recover most
+of the launch cost, and they are still beaten by simply doing one execution, in either language.
+
+**(4) The s300 crossover for candidate B** (300 executions, best of 5): VEX wins at 333 pieces per
+execution (0.0356 vs 0.0413) and OpenCL wins from 666 (0.0660 vs 0.0426). `streets_300` hands the
+tool **30** pieces per curve.
+
+### 14.6 The batch shape is worth more than the language — the number that says it
+
+Candidate A, 359 856 points, the same arithmetic, only the call structure changed:
+
+| call structure | Python | VEX-64 | OpenCL-64 |
+|---|---|---|---|
+| **1 call × 359 856 points** | 0.16196 | **0.00129** | 0.00256 |
+| **9 996 calls × 36 points** (what `place.py` does today) | 0.15771 | 0.07088 | **1.04293** |
+
+Batching is worth **55× to VEX and 407× to OpenCL**; the language is worth **−2×**. And in the
+shape the tool currently has, **OpenCL is 6.6× slower than the Python it would replace.** This is
+§11's architecture rule 2 in its most extreme form and it is the single most useful number in this
+section: **any port that keeps a per-piece call is a regression regardless of language.**
+
+### 14.7 Compile time, stated separately (P5R rule 5)
+
+| kernel | cold, first execution in a fresh process | warm execution | compile | across sessions? |
+|---|---|---|---|---|
+| Candidate A, OpenCL | 0.1414 s (never-seen text) | 0.00042 s | **0.1409 s** | partially disk-cached: same text in a new process 0.1313 → **0.0919 → 0.0924 s** |
+| Candidate B, OpenCL | 0.0932 s | 0.00032 s | **0.0929 s** | same behaviour |
+| Candidate A, VEX | 0.0730 s (first VEX verb in the process) | 0.00018 s | 0.0728 s | **no** — 0.0700 / 0.0654 / 0.0690 across three processes |
+| Candidate B, VEX | 0.0116 s (VEX runtime already up) | 0.00032 s | **0.0112 s** | n/a |
+
+Within one process a **second** verb object with the same kernel text is already warm (0.00043 s),
+so compile is once per distinct kernel text per session. **A ~0.09–0.14 s OpenCL compile is 28–41 %
+of the entire `packed_20km` cook (0.338 s) and 45–67 % of `streets_300` (0.209 s)** — an OpenCL
+stage makes the first cook of a session visibly worse to make later cooks imperceptibly better.
+VEX's compile, once the runtime is up, is **8× cheaper**.
+
+### 14.8 Two Houdini behaviours found while doing this, both worth not rediscovering
+
+**(a) The `opencl` verb cannot change `precision` twice in one process.** 32-then-64 and
+64-then-32 both raise `Invalid attribute 'P'`; the same precision twice is fine, and the OpenCL
+**node** switches cleanly. Every sweep here therefore runs **one precision per process**.
+
+**(b) A mismatched integer binding precision silently destroys the OpenCL context.** With node
+`precision = 64` the generated signature's `exint` is 64-bit; leaving an int binding at 32 does not
+error — it writes past the buffer, and the *session* then fails with
+`clFinish -36 CL_INVALID_COMMAND_QUEUE` followed by `CL_OUT_OF_RESOURCES` on **every later kernel,
+including ones that worked a moment earlier**. Bisected to a single binding. It cost an hour and it
+looks exactly like "the GPU is out of memory". Set every binding to the node's precision.
+
+*(Also: `houdini_validate_opencl` in the MCP validates **COP/Copernicus** kernels — it demands
+`src`/`dst` layer bindings and rejects a valid SOP kernel with "No output matching runover mode
+provided". SOP OpenCL is validated by executing the verb, which is what was done here.)*
+
+### 14.9 What this changes, and what it does not
+
+- **§11.1's "OpenCL, anywhere in phase 1 — NO" stands, now with numbers.** It said the deformed
+  branch's 360 000 points are done by VEX in 0.089 s and a GPU transfer is cost without payoff.
+  Measured: the point pass is **0.00123 s** in VEX and **0.00253 s** in OpenCL. The conclusion was
+  right and the reasoning was right.
+- **§13.5's D149 criterion is refuted for the deform kernel and should be restated.** "> 2.5e7
+  points in one cook" does not make OpenCL win: at 2×10⁷ points it is still 2.6× behind, because
+  the limit is arithmetic intensity, not N. **The correct criterion is per-element work, not
+  element count: OpenCL becomes worth measuring when a single stage does more than roughly
+  50 FLOP per element AND runs as ONE execution of more than ~1 000 elements.** Candidate B is the
+  first stage in the tool to satisfy both, and it satisfies them by 1.8× on a 0.5 ms stage. **D157.**
+- **D149's architectural preparation was still right and should be kept.** `pc_deform` written as
+  one self-contained kernel over (piece index, local xyz, station arrays) is exactly what made
+  candidate A a 40-line transliteration in both languages, and it is what makes the VEX version
+  fast. The constraint costs nothing; only the OpenCL conclusion changes.
+- **The real optimisation this study points at is not a language.** In descending order of measured
+  payoff: (1) **one execution per build instead of one per piece** — 55× to VEX, 407× to OpenCL,
+  and a 6.6× *regression* if skipped; (2) **Python → VEX-64 on the gate** — 84× on the portable
+  arithmetic; (3) **batching the gate across curves to clear `attribvop`'s ~5 000-element
+  threading cliff**; (4) OpenCL — 215 µs, minus a 93 ms compile.
+
+**One sentence for Hannes: the geometry work does belong in native nodes, VEX or OpenCL, and on
+this workload the right member of that trio is native verbs first and VEX-64 second — OpenCL is
+measurably slower for the deform at every size up to 20 million points, measurably faster for the
+gate by 0.2 ms, and a 6.1× loss on the 300-short-curves shape citygen actually produces.**
+
+---
+
+### 14.10 The audit of §14 — what survived, what had to be corrected, and the VERDICT
+
+**Status:** independent audit of §14, 2026-08-22, same machine and build (Houdini 22.0.398 /
+hython, RTX 5060 Ti, Ryzen 7 9700X, stock `HOUDINI_OCL_*`). Every headline comparison in §14 was
+**re-run from scratch** rather than read; the audit scripts are `audit_parity.py`,
+`audit_B_vex.py`, `audit_jobsize.py`, `audit_extra.py`, `audit_compile.py`, `audit_compile2.py`,
+`audit_vexprec.py` in the same scratchpad. **No production file and no HDA was touched.**
+
+*(The brief for this pass asked for the verdict as "§12.x". §12 became the phase-2 build log and
+§14 is the section that owns the OpenCL measurement, so the verdict lives here and §12's
+`Cycle P2-OCL` entry points at it — one owner per topic, per the doc convention.)*
+
+#### 14.10.1 What reproduced — the load-bearing numbers all held
+
+| claim | §14 | re-measured | verdict |
+|---|---|---|---|
+| A, one exec, 360 000 pts | vex 0.00123 / ocl 0.00253 | vex **0.00122** / ocl **0.00242** | reproduced |
+| A, one exec, 1 000 008 pts | vex 0.00284 / ocl 0.00671 | vex **0.00292** / ocl **0.02356** | sign reproduced; ocl noisier than quoted |
+| A, s300, 360 000 pts | vex 0.01112 / ocl 0.04435 | vex **0.01604** / ocl **0.05044** | reproduced |
+| B, one exec, 9 996 pieces | vex 0.00073 / ocl 0.00057 | vex **0.00083** / ocl **0.00052** | reproduced |
+| B, one exec, 100 000 pieces | vex 0.00281 / ocl 0.00141 | vex **0.00285** / ocl **0.00134** | reproduced |
+| **B, s300, 9 996 pieces** | vex 0.00501 / ocl 0.03061 | vex **0.00486** / ocl **0.02959** | **6.1× loss confirmed** |
+| B, s300, 1 000 000 pieces | vex 0.22968 / ocl 0.05310 | vex **0.23088** / ocl **0.05798** | reproduced |
+| per-execution floor, N = 1 | ocl 93.9 µs / vex 10.1 µs | ocl **93.8 µs** / vex **9.7 µs** | reproduced to 1 % |
+
+**Candidate A's result is not fragile.** VEX beat OpenCL in every row of both shapes on the re-run,
+as it did in §14. **Candidate B's inversion between the two shapes is not fragile either** — it is
+the same 6× loss on the citygen shape and the same ~1.6× win the other way on one big execution.
+
+#### 14.10.2 Seven things that had to be corrected
+
+1. **§14.2's OpenCL-64 parity row could not have been produced by the script that reports it.**
+   `candA_parity.py` runs `ocl32` and then `ocl64` in one process — which §14.8(a) itself documents
+   as impossible. Re-run today it raises `Invalid attribute 'P'` on the ocl64 row. Re-measured one
+   precision per process, **the claim is true**: ocl64 matches the Python reference exactly. The
+   conclusion stands; the evidence for it was broken.
+2. **The parity fixture is a 225 m run, not "~8 km world coords".** `candA.make(3600)` is 100
+   pieces / 900 stations at 0.25 m spacing — `max|coord| = 224.7 m`, measured. Every parity number
+   in §14.2 is a 225 m number wearing an 8 km label.
+3. **"Bit-identical, 0.000e+00" means identical *after* 32-bit storage rounding.** `P` on a
+   `hou.Geometry` is a 32-bit float attribute, so every implementation — including both fp64 ones —
+   is quantised on write. Measured against a Python fp64 result that never went through a geometry:
+
+   | fixture | max coord | fp32 **storage** floor | vex32 vs raw fp64 | vex64 vs raw fp64 |
+   |---|---|---|---|---|
+   | §14.2's fixture | 224.7 m | 7.624e-06 m | 1.428e-05 m | **7.624e-06 m** |
+   | 320 004 pts, R = 8 km | 14 409 m | 4.883e-04 m | 9.714e-04 m | **4.883e-04 m** |
+   | 320 004 pts, 20 km run | 19 992 m | 9.765e-04 m | 1.513e-03 m | **9.765e-04 m** |
+
+   fp64 compute lands **exactly on the storage floor** — it reproduces what the shipped Python
+   already produces, bit for bit. fp32 compute lands **1.55× beyond it**.
+4. **So §14.0's "85× `marker_offset_m`" argument is not a discriminator and should not be quoted.**
+   At 20 km the fp32 *storage* of `P` alone is 9.765e-04 m — 5 500× that tolerance — and the tool
+   ships with it today. **The correct statement of the same conclusion is stronger:** an fp64
+   kernel moves the shipped answer by **0.000e+00**, an fp32 kernel moves it by **5.4e-04 m at
+   20 km**, and §11.1 declined `copytopoints` for a baseline movement of 4.34e-07 m. fp32 is
+   inadmissible by three orders of magnitude, for the reason "it moves the baseline", not for the
+   reason §14.0 gives.
+5. **Candidate B's VEX baseline was mildly handicapped, and the win survives it.** The shipped VEX
+   kernel calls `resize(spine, K)` — a heap-allocated VEX array per element — while the OpenCL
+   kernel uses a fixed private `fpreal spine[9]`. An array-free unrolled VEX (parity identical) is
+   10–40 % faster, best of 25:
+
+   | pieces | vex shipped µs | **vex unrolled µs** | ocl64 µs | unrolled/ocl |
+   |---|---|---|---|---|
+   | 500 | 122.8 | **89.3** | 136.0 | **0.66 — VEX wins** |
+   | 1 000 | 216.8 | 169.4 | **127.1** | 1.33 |
+   | 2 000 | 587.8 | 447.8 | **178.9** | 2.50 |
+   | 4 000 | 1 115.2 | 666.4 | **189.1** | 3.52 |
+   | **9 996** | 496.6 | **444.3** | **281.4** | **1.58** |
+   | 20 000 | 854.4 | 715.9 | **370.8** | 1.93 |
+   | 100 000 | 2 688.5 | 2 165.0 | **1 139.4** | 1.90 |
+
+   OpenCL's advantage at the real size falls from **215 µs to 163 µs**. It does not vanish.
+6. **The "VEX threading cliff" is real but its stated mechanism is unsupported.** `attribvop` does
+   expose `vex_threadjobsize` (default **1024**) and `vex_multithread`, which would explain a
+   thread-starved pass below ~16 000 elements — but driving it 1024 → 256 → 64 → 16 changes
+   nothing (at 9 996 pieces: 518.5 / 493.2 / 515.2 / 533.4 µs, best of 25, parity identical). The
+   non-monotonic shape (4 000 slower than 6 000 and 9 996) reproduces across every job size and
+   across processes. **It is a reproducible `attribvop` anomaly with an unknown cause; §14.4's
+   "a VEX stage sized 1 000–5 000 runs single-threaded" is a hypothesis, not a measurement.**
+7. **"VEX's compile is 8× cheaper" is a marginal cost, not a first-cook cost.** Both are true and
+   §14.7 quotes only one:
+
+   | | first kernel in a fresh process | each additional distinct kernel |
+   |---|---|---|
+   | OpenCL | **0.1013–0.1774 s** (0.101 disk-cached, 0.167 never-seen text) | **0.0563–0.0576 s** |
+   | VEX | **0.0690–0.0760 s** | **0.0081–0.0082 s** |
+
+   The first pass in either language costs ~0.07–0.17 s because the *runtime* comes up; the
+   language difference at the margin is 7×. An HDA that carries one OpenCL node pays ~0.1 s on the
+   session's first cook — 30 % of `packed_20km`, 48 % of `streets_300` — and ~0.056 s for every
+   further kernel it carries.
+
+#### 14.10.3 The ceiling §14 never applied to candidate B — and it decides the case
+
+Candidate B's kernel does not read a geometry today; the gate runs in Python over station arrays.
+To hand those arrays to *either* language they must first exist as a `hou.Geometry`. Measured at
+9 996 pieces / 89 964 stations, best of 5:
+
+| | seconds |
+|---|---|
+| build the station geometry that feeds the kernel (`createPoints` + one vector attribute) | **0.02704** |
+| VEX-64 kernel | 0.00044 |
+| OpenCL-64 kernel | 0.00028 |
+| **the device advantage** | **0.00015** |
+
+**Feeding the kernel costs 180× what choosing the device is worth.** If §13's rebuild does not put
+the stations in a geometry, OpenCL's win is 0.55 % of the price of the data it consumes; if it
+does, the win is 0.016 % of the row it sits in. There is no arrangement in which it is visible.
+
+#### 14.10.4 DOUBLE PRECISION — what 64-bit costs on this device, and whether it flips anything
+
+polyChain needs 64-bit at world scale (§11.0b; 14.10.2(3)–(4) above now measure *why*: fp64 is the
+only precision that reproduces the shipped answer exactly). The cost, both languages, candidate B's
+kernel, best of 25 — OpenCL's two precisions measured in **separate processes**, because the verb
+cannot switch precision (§14.8a):
+
+| pieces | vex32 µs | vex64 µs | **VEX fp64 tax** | ocl32 µs | ocl64 µs | **OpenCL fp64 tax** |
+|---|---|---|---|---|---|---|
+| 1 000 | 160.7 | 218.5 | 1.36× | 120 | 160 | 1.33× |
+| **9 996** | 403.4 | 530.1 | **1.31×** | 440 | 520 | **1.18×** |
+| 100 000 | 2 314.0 | 3 021.6 | 1.31× | 790 | 1 340 | **1.70×** |
+| 1 000 000 | 21 094.6 | 27 318.3 | 1.30× | 3 110 | 8 520 | **2.74×** |
+
+**The honest reading, which is not the one §14 implies:** at polyChain's real size fp64 costs VEX
+slightly *more* than it costs OpenCL (1.31× vs 1.18×), so requiring 64-bit does **not** flip
+candidate B — it flips only above ~10⁵ elements, where the GPU's `NATIVE_VECTOR_WIDTH_DOUBLE = 1`
+bites and the tax climbs to 2.74×. For candidate A the fp64 tax is what makes the loss permanent:
+it doubles the traffic on a kernel that was already transfer-bound, and the ocl/vex ratio sits flat
+at 2.6× from 10⁶ to 2×10⁷ points. **64-bit does not change the verdict on either candidate; it
+removes any reason to look at the 32-bit numbers at all.**
+
+#### 14.10.5 THE VERDICT, per candidate and per shape
+
+**No OpenCL anywhere in polyChain. Not now, and not at any size this tool or citygen produces.**
+
+| candidate | one long run (20 km, 1 cook) | **citygen shape (300 short curves)** | is OpenCL worth it? |
+|---|---|---|---|
+| **A — deform point transform** (~10 FLOP/pt, 359 856 pts) | VEX **0.00122** s, OpenCL **0.00242** s | VEX **0.01604** s, OpenCL **0.05044** s | **NO — at every size, on both shapes, up to 2×10⁷ points.** There is no crossover to wait for. |
+| **B — the deform gate** (~55 FLOP/station, 9 996 pieces) | VEX **0.00083** s, OpenCL **0.00052** s → OpenCL by **163–215 µs** | VEX **0.00486** s, OpenCL **0.02959** s → **6.1× LOSS** | **NO.** The win is real, reproducible, and worth 0.016 % of the row it lives in — against a ~0.1 s first-cook compile (payback ~500 cooks), a ~120 MiB VRAM floor, a second language in the HDA, and a 6× regression on the shape the first consumer actually produces. |
+| **everything else** (plan, corners, stamp, conform ray-cast, sampler) | — | — | **NO, and not close.** Sequential prefix solves, N = 199 branching combinatorics, string attribute writes with zero arithmetic, and a native `ray` verb already running at 0.32 µs/query. |
+
+**The conditions under which this would change, stated so nobody reopens it without one.** All four
+must hold: a stage doing **> ~50 FLOP per element**; dispatched as **ONE execution over > ~1 000
+elements**; over data **already resident in a geometry**, so the 0.027 s marshalling is not charged
+to it; in a row long enough that a ~0.1 s first-cook compile is invisible. Candidate B satisfies
+the first two and fails the last two. Nothing in phase 1 or the phase-2 row stack satisfies all
+four.
+
+**And the number that actually matters is not about OpenCL at all.** Candidate A, 359 856 points,
+identical arithmetic, only the call structure changed: one execution — Python 0.16196, VEX
+**0.00129**, OpenCL 0.00256; 9 996 executions of 36 points, which is what `place.py` does today —
+Python 0.15771, VEX 0.07088, OpenCL **1.04293**. **Batching is worth 55× to VEX and 407× to
+OpenCL; the language is worth −2×.** In today's per-piece shape OpenCL is 6.6× slower than the
+Python it would replace. Fix the call structure, then use VEX-64, and stop there.
+
+#### 14.10.6 Decisions
+
+- **D158 — OpenCL is DECLINED for polyChain, audited, and the reopen criterion is now four
+  conditions rather than one.** §11.1's row and §13.5's D149 both stand. D149's "> 2.5e7 points" is
+  withdrawn (D156 already refuted it); D157's "> 50 FLOP/element in one execution of > 1 000
+  elements" is **necessary but not sufficient** — add "data already in a geometry" and "a row long
+  enough to hide a ~0.1 s first-cook compile". **§13's native rebuild carries no OpenCL node.**
+- **D159 — 64-bit is mandatory for any ported kernel, and the reason is baseline movement, not a
+  tolerance ratio.** An fp64 kernel reproduces the shipped Python answer with max |dP| =
+  **0.000e+00**; an fp32 kernel moves it by **5.4e-04 m at 20 km**. §14.0's "85× `marker_offset_m`"
+  framing is withdrawn — `P`'s own 32-bit storage exceeds that tolerance by 5 500× and always has.
+  fp64 costs VEX a flat 1.30–1.36× on this CPU; that is the price of not moving the baseline, and
+  it is paid.
+- **D160 — §14.4's "`attribvop` runs single-threaded below ~5 000 elements" is downgraded to an
+  unexplained anomaly.** The non-monotonic timing reproduces; `vex_threadjobsize` (default 1024) is
+  **not** its cause — 1024 → 16 changes nothing. Do not size a VEX stage around this claim until
+  the mechanism is known.
