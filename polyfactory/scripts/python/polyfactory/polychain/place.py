@@ -1087,16 +1087,46 @@ def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01,
     return False
 
 
-def _bend_deviation(proto, stations, path, s0_flat, scale, remap):
-    """D25 - how far the built piece cuts the corner, in metres."""
+def _bend_deviation(proto, stations, path, s0_flat, scale, remap, at=None):
+    """D25 - how far the built piece cuts the corner, in metres.
+
+    11.2 P3. This sampled the path THREE TIMES PER GAP - 24 per piece against
+    the deform's own 10 - and two of the three were the same two station
+    positions read twice: gap i's end is gap i+1's start. So each station is
+    sampled ONCE and the gaps share it: 2n-1 samples instead of 3n-3, and n
+    `remap` calls instead of 2n-2.
+
+    ⚠️ ONE SEMANTIC CHANGE, AND IT IS THE RISK IN THIS ITEM: the gap's END
+    used to be read BACKWARD (`forward=False`) and is now the next station's
+    FORWARD read. The two differ only at a vertex, and only in the TANGENT -
+    which this function never asks for. The positions were measured
+    bit-identical over 8 000 samples on PC-G3's own arc, 4 000 of them landing
+    exactly on a vertex: 0 differing, worst 0 m. What proves it on every case
+    is that this is a WARNING, so `warn_summary` and `warnings` pin the
+    per-case `pc_warn_bend_resolution` counts, and `curvature_budget_m` pins
+    the number itself.
+
+    `at` is an optional dict the caller passes to COLLECT the station samples
+    (`{s: (pos, tan)}`) so the deform pass can read them back instead of
+    re-deriving the same expression - the other half of P3.
+    """
+    n = len(stations)
+    if n < 2:
+        return 0.0
+    ss = [remap(s0_flat + st * scale) for st in stations]
+    ps = [None] * n
     worst = 0.0
-    for i in range(len(stations) - 1):
-        s_a = remap(s0_flat + stations[i] * scale)
-        s_b = remap(s0_flat + stations[i + 1] * scale)
+    for i in range(n - 1):
+        s_a, s_b = ss[i], ss[i + 1]
         if s_b - s_a <= EPS:
             continue
-        pa = path.sample(s_a)[0]
-        pb = path.sample(s_b, forward=False)[0]
+        for j in (i, i + 1):
+            if ps[j] is None:
+                hit = path.sample(ss[j])
+                ps[j] = hit[0]
+                if at is not None:
+                    at[ss[j]] = hit
+        pa, pb = ps[i], ps[i + 1]
         pm = path.sample(0.5 * (s_a + s_b))[0]
         mid = (0.5 * (pa[0] + pb[0]), 0.5 * (pa[1] + pb[1]),
                0.5 * (pa[2] + pb[2]))
@@ -1243,18 +1273,28 @@ def clip_plane(geo, origin, normal, keep_sign, module_name="", texel=1.0):
 
 
 def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap,
-                      tilt=False, base_y=None, band=None):
+                      tilt=False, base_y=None, band=None, samples=None):
     """Every point of `src` re-read at its own arc position. Returns
     (flat world positions, flat local positions).
 
     `base_y` (D98) is the flat elevation a `stepped` point sits at, and
     `band` (D99) is the module-local Y interval that takes the OTHER mode.
     Both default to exactly what this did before they existed.
+
+    11.2 P3's other half: `samples` is the `{s: (pos, tan)}` the WARNING pass
+    already built for this piece (`_bend_deviation`, pass A). Its stations are
+    the module's own, which is where this reads too, so the hits are the same
+    `path.sample(s)` call with the same argument - bit-identical by
+    construction, not by tolerance. A MISS just samples, so a piece whose
+    warning pass did not run (a rigid module never reaches it) is slower and
+    never wrong.
     """
     local = src.pointFloatAttribValues("P")
     out = [0.0] * len(local)
+    hit = samples.get(remap(s0_flat)) if samples else None
     if base_y is None:
-        base_y = path.sample(remap(s0_flat))[0][1]
+        base_y = (hit[0][1] if hit is not None
+                  else path.sample(remap(s0_flat))[0][1])
     stepped = zmode == "stepped"
     ax = proto.ax
     # D31: one frame per STATION, transported along the piece in x order, then
@@ -1265,7 +1305,8 @@ def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap,
     normal_at = getattr(path, "normal", None) if tilt else None
     for x in sorted(set(local[0::3])):
         s_x = remap(s0_flat + (x - ax) * scale)
-        pos, tan = path.sample(s_x)
+        hit = samples.get(s_x) if samples else None
+        pos, tan = hit if hit is not None else path.sample(s_x)
         prev_across = None if prev is None else prev[1]
         # D55: the camber is read PER STATION, so a bent rail rolls along the
         # surface instead of taking one roll from its start.
@@ -1591,6 +1632,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
     jobs = []
     bevels = []
     all_sections = []
+    bend_worst = 0.0
     # D74: two curves with one id share every `pc_elem_id` they produce. The
     # ids are left alone (renaming would move an address an override may
     # already name); what changes is that it is no longer silent.
@@ -1694,11 +1736,25 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                     and _chord_ratio(path, s0r, s1r) < COLLAPSE_RATIO \
                     and WARN_CORNER_DEGENERATE not in warns:
                 warns.append(WARN_CORNER_DEGENERATE)         # D32, rigid
+            # 11.2 P3: the warning pass's station samples are kept for the
+            # DEFORM pass, which asks the same sampler the same question at
+            # the same arclengths. Only for a piece that will actually be
+            # deformed and unanchored - i.e. only where pass B has a consumer.
+            station_hits = None
             if p.anchor is None and deformed and module.deform > 0:
                 stations = (proto.sliced(p.slice_t)[1]
                             if p.slice_t is not None else proto.stations)
-                if _bend_deviation(proto, stations, path, s0f, scale,
-                                   remap) > params.bend_tol:
+                station_hits = {}
+                dev = _bend_deviation(proto, stations, path, s0f, scale,
+                                      remap, station_hits)
+                # D25's number, not just its verdict. Found by mutation while
+                # 11.2 P3 landed: moving the deviation probe 1 mm changed NOT
+                # ONE value in the whole suite, because only the boolean it
+                # feeds was ever recorded and 1 mm does not cross `bend_tol`.
+                # A warning whose measurement nothing pins is a warning any
+                # refactor can quietly re-aim. `bend_deviation_m` reads it.
+                bend_worst = max(bend_worst, dev)
+                if dev > params.bend_tol:
                     warns.append(WARN_BEND_RESOLUTION)
             hero = ov.hero if (ov is not None and ov.hero is not None) else None
             if hero is not None and deformed and WARN_REPLACED not in warns:
@@ -1734,7 +1790,8 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                          "zmode": zmode, "scale": scale, "band": band,
                          "base_y": base_y, "packed_y": packed_y,
                          "deformed": deformed, "warns": tuple(warns),
-                         "remap": remap, "tilt": tilt})
+                         "remap": remap, "tilt": tilt,
+                         "stations": station_hits})
 
     warn_names = []
     for job in jobs:
@@ -1821,7 +1878,8 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             world, local = _deform_positions(piece, proto, path, job["s0f"],
                                              job["scale"], zmode,
                                              job["remap"], job["tilt"],
-                                             job["base_y"], job["band"])
+                                             job["base_y"], job["band"],
+                                             job.pop("stations", None))
             piece.setPointFloatAttribValues("P", world)
             piece.setPointFloatAttribValues("pc_local", local)
         if p.cuts:
@@ -1855,5 +1913,6 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         "bevels": bevels,
         "sections": all_sections,
         "warn_names": warn_names,
+        "bend_deviation": bend_worst,
     }
     return (out, report)

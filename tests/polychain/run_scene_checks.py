@@ -358,6 +358,7 @@ def run_case(name, case):
         C.piece_extent(scene),
         C.plan_geometry(scene, cases.P),
         C.plan_point_provenance(scene, cases.P),
+        C.bend_deviation(scene),
         C.warnings(scene, EXPECTED_WARNS.get(name, ())),
         C.determinism(scene, cases.rebuild),
         C.geometry_digest(scene),

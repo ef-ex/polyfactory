@@ -1624,6 +1624,29 @@ def plan_point_provenance(scene, place):
     return Result("plan_point_provenance", ok, [_round(worst, 9), bad], where)
 
 
+def bend_deviation(scene):
+    """D25's MEASUREMENT, not just its verdict - the worst distance any bent
+    piece cuts its own corner by, in metres.
+
+    ⚠️ ADDED BY MUTATION, NOT BY REASONING (11.2 P3). Moving the deviation
+    probe 1 mm off its midpoint moved NOT ONE value in the whole suite: only
+    the boolean `pc_warn_bend_resolution` was ever recorded, and 1 mm does not
+    cross `bend_tol` on any case, so `warnings`, `warn_summary`,
+    `curvature_budget_m` and `deform_gate_m` all stayed exactly where they
+    were. §11.2 P3's own risk line says it - "it is a WARNING, so a silent
+    change is invisible in geometry checks" - and it was right.
+
+    Recorded, not asserted: what the number should BE is the geometry's
+    business and `geometry_digest` already pins that. What this owns is that
+    the number cannot change without anyone seeing it.
+    """
+    dev = scene.report.get("bend_deviation")
+    if dev is None:
+        return _skip("bend_deviation_m", "not reported")
+    return Result("bend_deviation_m", True, _round(dev, 9),
+                  "tol %.4f m" % scene.params.bend_tol)
+
+
 def horizontal_spacing(scene):
     """D26's own number: the spread of the pieces' HORIZONTAL lengths. Slope
     fixing on a constant grade makes them equal to the source length; off,

@@ -3588,3 +3588,74 @@ whole geometry suite cannot see it. It is pinned by the unit parity test and by 
 expectation flip this tripwire was written for. `geometry_digest` did not move on any case, nor did
 `sampler_matches_kernel`. Suites: 89 cases / 5 300 checks / 0 failing, 286 unit tests OK, HDA
 checks 0 failing, 9 ladder rows 0 failing.
+
+#### P3 — the bend-resolution warning stops sampling the path three times a gap (2026-08-22)
+
+Two halves, both bit-identical by construction rather than by tolerance:
+
+1. **`_bend_deviation` samples each station once.** It read three positions per station gap and
+   two of them were the same station twice — gap *i*'s end is gap *i+1*'s start. Now `2n-1`
+   samples instead of `3n-3`, and `n` `remap` calls instead of `2n-2`.
+2. **The deform pass reads those samples back.** Pass A hands the `{s: (pos, tan)}` it built to
+   `job["stations"]`; `_deform_positions` looks up the same `s` it would have computed and only
+   samples on a miss. A miss is slow, never wrong — a rigid module, which never reaches the
+   warning pass, simply pays as before.
+
+**Measured, this build:** `Path.sample` calls on the `arc_10` row **449 834 → 279 902 (−37.8 %)`;
+`_bend_deviation` cum 0.639 → 0.500 s; `_deform_positions` out of the profile's top four.
+`scale_gate` **arc_10 1.494 → 1.345 s (−10.0 %)**, `arc_80/adaptive` 1.506 → 1.382 s, bench
+`deformed_10` 1.483 → 1.351 s (−8.9 %). §11.2 predicted "8–10 % of the deformed row, stated
+conservatively on purpose" — that is exactly where it landed. **The packed rows do not move at
+all**, which is right: they never deform.
+
+**A second, unbudgeted win:** `conform_cache_per_element` **23.85 → 17.55 (−26 %)**. The backward
+reads at stations are gone, and `ConformPath._cache` is keyed on `(s, forward)` — so a quarter of
+P5's 24 MB memo was the warning pass asking for the same point from the other side.
+
+⚠️ **ONE SEMANTIC CHANGE, and it is the item's whole risk.** A gap's END used to be read
+BACKWARD; it is now the next station's FORWARD read. The two differ only at a vertex and only in
+the TANGENT, which `_bend_deviation` never asks for. Measured before writing the change: **8 000
+samples on PC-G3's own arc, 4 000 of them landing exactly on a vertex — 0 differing, worst 0 m**,
+and `proto.stations == sorted(set(local x)) - ax` exactly, which is what makes half 2 a lookup
+rather than an approximation.
+
+**§11.2's ordering warning is now stale, and the reason matters.** It says the bend warning is
+decided in pass A "because `warn_names` is collated and `_declare`d before pass B runs". **After
+P1 that is no longer true** — nothing in pass B touches a stamp attribute, the whole stamp is
+written after it. Sharing was still done as "share the samples, not move the pass", because moving
+it buys ~34 MB of retained station dicts and nothing else; **measured, the retention costs
+nothing** — peak RSS on the 10 k-piece deformed row is **238.9 MB with it and 239.9 MB without**,
+because the dicts are popped as pass B consumes them and the 360 k-point geometry dominates.
+A future P6 can drop the retention for free.
+
+**SIX MUTATIONS, four red — and BOTH survivors were pre-existing holes, one of them the exact risk
+§11.2 P3 names.**
+
+| mutation | verdict |
+|---|---|
+| the gap end reused as its own start | RED — 30 checks, `warnings` |
+| the shared cache serving the piece's START for every station | RED — 216 checks |
+| the deform pass reading the shared TANGENT off by a station | RED — 4 checks, `over_unpacked` |
+| the deviation short-circuited to zero (nothing ever warns) | RED — 10 checks |
+| **the midpoint probe moved 1 mm** | **GREEN, and it moved ONE value in the whole suite** |
+| `base_y` taken from the last station instead of the first | GREEN — 0 failing, but **6 values moved including 3 `geometry_digest`** |
+
+⚠️ **§11.2 P3's risk line said "it is a WARNING, so a silent change is invisible in geometry
+checks", and it was literally right: moving D25's probe 1 mm changed NOTHING.** `warnings`,
+`warn_summary`, `curvature_budget_m` and `deform_gate_m` all record the BOOLEAN's consequences and
+1 mm does not cross the 0.01 m `bend_tol` on any case, so the measurement behind the warning could
+be re-aimed by any refactor with the suite fully green. **`bend_deviation_m`** records it now — the
+worst deviation `build` actually computed, per case — and the same mutation moves **40** values.
+Recorded rather than asserted: what the number should BE is the geometry's business and
+`geometry_digest` owns that; what this owns is that it cannot change unseen.
+
+The `base_y` survivor is pre-existing (that line predates P3; P3 only added a cache read past it)
+and it is **caught by the baseline diff rather than by an assertion** — 3 `geometry_digest` hashes,
+`band_datum_m` on two cases and `stepped_float_m` 0.1 → 0.590874 all move. That is the mechanism
+§11.3 rule 5 and §11.4 both require every port commit to use, so it is recorded here as such rather
+than papered over with a new assertion.
+
+**Baseline: 5 300 → 5 388 entries; 88 added (`bend_deviation_m`), 0 removed, ONE moved** —
+`conform_cache_per_element` 23.85 → 17.55. `geometry_digest` did not move on a single case. Suites:
+89 cases / 5 388 checks / 0 failing, 286 unit tests OK, HDA checks 0 failing, 9 ladder rows 0
+failing.
