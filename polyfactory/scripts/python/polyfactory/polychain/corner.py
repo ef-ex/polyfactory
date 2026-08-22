@@ -558,7 +558,8 @@ def _weld(run, closed):
         start_frame=first.start_frame, end_frame=last.end_frame,
         markers=markers, closed=whole,
         start_cap=False if whole else first.start_cap,
-        end_cap=False if whole else last.end_cap)
+        end_cap=False if whole else last.end_cap,
+        attrs=getattr(first, "attrs", None))
     out.welds = welds
     return out
 
@@ -758,7 +759,10 @@ def _default_module(kit, style, section, params):
            "sectionLength": section.length,
            "splineLength": section.curve_length,
            "cornerAngle": section.corner_angle, "u": section.u0, "index": 0,
-           "attrs": {}, "marker_data": {}}
+           "attrs": dict(getattr(section, "attrs", None) or {},
+                         pc_section=section.section_key,
+                         pc_style=section.style_key),          # D94
+           "marker_data": {}}
     _rule, mod = _plan.pick(style, "default", ctx, kit)
     return mod
 
@@ -768,7 +772,10 @@ def _corner_rule(style, kit, section):
            "sectionLength": section.length,
            "splineLength": section.curve_length,
            "cornerAngle": section.corner_angle, "u": section.u0, "index": 0,
-           "attrs": {}, "marker_data": {}}
+           "attrs": dict(getattr(section, "attrs", None) or {},
+                         pc_section=section.section_key,
+                         pc_style=section.style_key),          # D94
+           "marker_data": {}}
     for rule in style.rules_for("corner"):
         if compose_modules(rule, kit, dict(ctx, slot="corner"), style):
             return (rule, ctx)

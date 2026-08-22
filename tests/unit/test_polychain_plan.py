@@ -745,6 +745,31 @@ class TestSelection(unittest.TestCase):
         self.assertEqual(plan.cond_subject("markerData:w", ctx), 2.0)
         self.assertEqual(plan.cond_subject("attr:pc_section", ctx), 4)
 
+    def test_a_custom_prim_attr_reaches_a_conditional(self):
+        """D94 - 3.3 says `attr:<name>` reads ANY spline prim attr.
+
+        Until this it read exactly two names, because the geometry adapter
+        never harvested the prim's attributes and `plan_section` hardcoded
+        `pc_section`/`pc_style`. `road_width` IS the first consumer's hook
+        (streets, selecting off the stream's own edge data), and it declined
+        every piece in silence.
+        """
+        section = dc.Section("c", 0, 0.0, 12.0, 12.0,
+                             attrs={"road_width": 9.0})
+        style = pc.Style("s", 1, 1, rules=[
+            pc.Rule("default", "conditional", ["gate", "panel"],
+                    cond={"subject": "attr:road_width", "op": "gt",
+                          "value": 1.0})])
+        got = plan.plan_section(section, KIT, style)
+        self.assertTrue(got)
+        self.assertEqual(set(p.module for p in got), {"gate"})
+        # ...and the kernel's own two are still there beside it
+        narrow = dc.Section("c", 0, 0.0, 12.0, 12.0,
+                            attrs={"road_width": 0.5})
+        self.assertEqual(
+            set(p.module for p in plan.plan_section(narrow, KIT, style)),
+            {"panel"})
+
     def test_every_operator_works_and_a_bad_one_is_False_not_an_exception(self):
         ctx = {"segIndex": 3}
         c = lambda op, v: plan.evaluate_cond(

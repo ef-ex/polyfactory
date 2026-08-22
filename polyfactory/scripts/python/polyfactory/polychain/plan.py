@@ -538,8 +538,13 @@ def plan_section(section, kit, style, params=None, trim=(0.0, 0.0)):
                 "splineLength": section.curve_length,
                 "cornerAngle": section.corner_angle,
                 "u": section.u0,
-                "attrs": {"pc_section": section.section_key,
-                          "pc_style": section.style_key},
+                # D94: the SPLINE PRIM'S OWN attributes first, then the two
+                # the kernel names itself - so `attr:pc_section` keeps its
+                # meaning and `attr:road_width` (the streets hook; 3.3's own
+                # wording is "reads any spline prim attr") finally has a value.
+                "attrs": dict(getattr(section, "attrs", None) or {},
+                              pc_section=section.section_key,
+                              pc_style=section.style_key),
                 "marker_data": {}}
 
     # --- mandatory start / end, and D13's overflow policy -------------------

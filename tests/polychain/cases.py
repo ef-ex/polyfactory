@@ -1129,6 +1129,27 @@ def build_all():
     # case that reads it; CQ is the same figure with the SAME rail on a plan
     # arc, where `across` barely turns and the pieces are allowed to stay
     # packed - without it a fix could simply unpack everything and pass.
+    # ---- cycle 8 / D94: A CONDITIONAL KEYED ON THE SPLINE'S OWN ATTRIBUTE.
+    # 3.3 says `attr:<name>` "reads any spline prim attr" and it read exactly
+    # two, because nothing harvested them - so the hook the first consumer
+    # (streets, selecting off edge data) reaches for declined every piece in
+    # silence. Two curves in one stream carrying different `road_width`s, one
+    # rule: the wide one gets gates, the narrow one panels. Two curves rather
+    # than one, so the attribute is proved to be read PER PRIM.
+    g = hou.Geometry()
+    g.addAttrib(hou.attribType.Prim, "road_width", 0.0)
+    wide = polyline(g, [(0, 0, 0), (12, 0, 0)], curve_id="CRa")
+    narrow = polyline(g, [(0, 0, 6), (12, 0, 6)], curve_id="CRb")
+    wide.setAttribValue("road_width", 9.0)
+    narrow.setAttribValue("road_width", 0.5)
+    built["CR_attr_conditional"] = _case(g, kit_geo, Style(
+        "attrcond", 1, 2,
+        rules=[Rule("default", "conditional", ["gate"],
+                    cond={"subject": "attr:road_width", "op": "gt",
+                          "value": 1.0}),
+               Rule("default", "first", ["panel"])],
+        params=Params(fill="adaptive")))
+
     tall = tall_kit()
     g = hou.Geometry()
     polyline(g, elevation_arc_points(55.0), curve_id="CP")

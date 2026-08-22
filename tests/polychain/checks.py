@@ -1436,6 +1436,27 @@ def curvature_budget(scene, place):
                   % (len(over), tol, over[0]))
 
 
+def modules_by_curve(scene, expected):
+    """Which modules landed on which CURVE - {curve_id: [module, ...]}.
+
+    Written for D94: a conditional keyed on `attr:road_width` is only proved
+    by two curves in one stream that carry different values and get different
+    modules. Asserting the pair rather than "a gate exists somewhere" is what
+    keeps it from passing on a rule that ignores the attribute entirely.
+    """
+    got = {}
+    for eid, rec in scene.by_id.items():
+        placement = scene.plan_by_id.get(eid)
+        if placement is None:
+            continue
+        got.setdefault(str(placement.curve_id), set()).add(rec["pc_module"])
+    got = dict((k, sorted(v)) for k, v in got.items())
+    want = dict((k, sorted(v)) for k, v in expected.items())
+    return Result("modules_by_curve", got == want,
+                  ["%s=%s" % (k, "+".join(got[k])) for k in sorted(got)],
+                  "" if got == want else "expected %s" % want)
+
+
 def packed_true_deviation(scene, place):
     """D87 - the deviation a PACKED piece really carries, at its WORST POINT.
 

@@ -262,6 +262,12 @@ ALL_PACKED = ("A_straight", "CE_all_packed", "CA_swap_module",
 # really moves 0.0327 m, so not one of them may stay packed.
 NONE_PACKED = ("CN_arc_tight", "CP_elev_arc_tall")
 
+# D94: the conditional keyed on the SPLINE'S OWN prim attribute. Two
+# curves, one rule, two answers - the assertion is the pair, because
+# "a gate exists" would also pass on a rule that ignores the attribute.
+MODULES_BY_CURVE = {"CR_attr_conditional": {"CRa": ["gate"],
+                                            "CRb": ["panel"]}}
+
 # [swapped, replaced, ids that moved] per override case, derived from the
 # override stream and not from a run: CA re-points all ten panels, CC and CD
 # replace exactly one element each, and NOTHING may move an id.
@@ -383,6 +389,10 @@ def run_case(name, case):
         C.over_unpacked(scene),
         C.curvature_budget(scene, cases.P),
         C.packed_true_deviation(scene, cases.P),
+    ]
+    if name in MODULES_BY_CURVE:
+        out.append(C.modules_by_curve(scene, MODULES_BY_CURVE[name]))
+    out += [
         # 3.3 / PC-G4, on EVERY case: the same style, expressed as a payload
         # and read back through input 3, must build the same geometry.
         C.style_round_trip(scene, cases.via_payload,

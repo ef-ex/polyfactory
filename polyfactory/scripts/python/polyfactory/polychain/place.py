@@ -342,6 +342,28 @@ def _blank_to_none(value):
                     or (isinstance(value, str) and not value.strip())) else value
 
 
+# 3.3's `attr:<name>` reads the spline's OWN prim attributes, so they have to
+# be harvested (D94). The `pc_` ones are excluded because the kernel already
+# reads each of them by name and a second copy under `attr:` would be a second
+# contract for the same value - `plan` puts `pc_section`/`pc_style` back
+# deliberately, which is the pair the spec names.
+_ATTR_SKIP = ("P", "N", "Cd", "uv", "v")
+
+
+def _prim_attrs(geo, prim):
+    """{name: value} for one prim's own attributes, for `attr:<name>` (D94)."""
+    out = {}
+    for attrib in geo.primAttribs():
+        name = attrib.name()
+        if name in _ATTR_SKIP or name.startswith("pc_"):
+            continue
+        try:
+            out[name] = prim.attribValue(name)
+        except (hou.OperationFailed, TypeError):
+            continue
+    return out
+
+
 def read_curves(geo):
     """([Curve], [Marker]) off input 1. Marker points never become curves."""
     markers = []
@@ -418,7 +440,8 @@ def read_curves(geo):
         curves.append(Curve(str(cid), [p.position() for p in pts],
                             closed=closed, corner_flags=flags,
                             section_ids=sections,
-                            style_key=str(_prattr(prim, "pc_style", "") or "")))
+                            style_key=str(_prattr(prim, "pc_style", "") or ""),
+                            attrs=_prim_attrs(geo, prim)))
     return (curves, markers)
 
 

@@ -87,7 +87,7 @@ class Section(object):
     def __init__(self, curve_id, index, s0, s1, curve_length, section_key=0,
                  style_key="", start_corner=None, end_corner=None,
                  start_frame=None, end_frame=None, markers=(), closed=False,
-                 start_cap=None, end_cap=None):
+                 start_cap=None, end_cap=None, attrs=None):
         self.curve_id = curve_id
         self.index = int(index)
         self.s0 = float(s0)
@@ -100,6 +100,11 @@ class Section(object):
         self.start_frame = start_frame or ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
         self.end_frame = end_frame or ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
         self.markers = list(markers)
+        # D94 - the parent prim's OWN attributes, for 3.3's `attr:<name>`
+        # conditional subject. The spec says "reads any spline prim attr";
+        # until this they were never harvested, so every `attr:` condition but
+        # `pc_section`/`pc_style` evaluated None and declined every piece.
+        self.attrs = dict(attrs or {})
         self.closed = bool(closed)
         # D18: a boundary earns a start/end module only when it is a real END
         # of the run - a spline end or a `pc_section` limit - never a corner.
@@ -331,7 +336,8 @@ def decompose(curve, markers=(), params=DEFAULTS):
             end_frame=curve.sample(s1, forward=False),
             markers=sec_markers,
             closed=curve.closed and not breaks,
-            start_cap=start_cap, end_cap=end_cap))
+            start_cap=start_cap, end_cap=end_cap,
+            attrs=getattr(curve, "attrs", None)))
     return out
 
 
