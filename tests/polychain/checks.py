@@ -4036,3 +4036,38 @@ def ray_verb_semantics(conform_mod, cases_mod):
                   [_round(worst_p, 12), mism, _round(worst_n, 12)],
                   where or "%d points over %d surfaces, bit-identical"
                   % (sum(len(t[2]) for t in trials), len(trials)))
+
+
+def prims_wrappers_built(build_fn, hou_mod, expect_max=64, name=None):
+    """How many `hou.Prim` WRAPPERS a build materialises through `geo.prims()`.
+
+    `geo.prims()` builds a tuple of one wrapper per primitive, so the cost is
+    the geometry's size and not the call. P5R cut three `len(geo.prims())`
+    sites that only wanted a NUMBER and the fourth survived because nothing
+    counted them: `conform.Surface.__init__` runs once per CURVE, on the
+    SURFACE, and on 300 conformed streets over a 7 712-prim terrain it built
+    300 x 7 712 = 2.3 M wrappers - **0.530 s of a 3.46 s row, 15 %, the
+    largest single entry in that profile** - to ask whether the geometry was
+    empty. `intrinsicValue("primitivecount")` answers that for free.
+
+    ⚠️ THE VALUE IS WRAPPERS, NOT CALLS, and that is the whole point: three
+    legitimate `for prim in geo.prims()` loops remain (kit validation, kit
+    read, `read_curves`) and they are bounded by the KIT and the INPUT, which
+    is what a ceiling can be set against. A count of calls would read 3 on a
+    one-curve fixture whether the surface was being wrapped or not.
+    """
+    real = hou_mod.Geometry.prims
+    built = [0]
+
+    def spy(self, *a, **k):
+        got = real(self, *a, **k)
+        built[0] += len(got)
+        return got
+    hou_mod.Geometry.prims = spy
+    try:
+        build_fn()
+    finally:
+        hou_mod.Geometry.prims = real
+    return Result(name or "prims_wrappers_built", built[0] <= expect_max,
+                  built[0], "%d `hou.Prim` wrappers materialised in one build "
+                  "(ceiling %d)" % (built[0], expect_max))

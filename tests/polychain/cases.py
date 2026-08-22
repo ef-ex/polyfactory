@@ -1511,6 +1511,21 @@ def tripwire_out_build(out):
         params=Params(fill="adaptive")), out=out)
 
 
+def tripwire_mitered_run():
+    """A closed rectangle in MITER mode - every corner is a `clip` cut, which
+    is the only branch that reaches `clip_plane`. It exists so
+    `prims_wrappers_built` can see that site: the packed, deformed and
+    conformed fixtures all have zero corners, so `len(cut.prims())` there was
+    unreachable by every tripwire in the file.
+    """
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (12, 0, 0), (12, 0, 8), (0, 0, 8)],
+             closed=True, curve_id="TWM")
+    return P.build(g, K.starter_kit(), Style(
+        "tripwire", 1, 3, rules=[Rule("default", "first", ["panel"])],
+        params=Params(fill="adaptive", corner_mode="miter")))
+
+
 def tripwire_conformed_run():
     """The same run draped over a surface - one `ConformPath`, so its memo
     cache is measurable per placed element."""

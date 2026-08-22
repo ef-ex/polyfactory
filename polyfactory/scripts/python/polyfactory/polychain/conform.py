@@ -139,7 +139,14 @@ class Surface(object):
     """
 
     def __init__(self, geo, axis=(0.0, -1.0, 0.0)):
-        self.geo = geo if (geo is not None and len(geo.prims())) else None
+        # `intrinsicValue`, not `len(geo.prims())`: P5R cut three of these
+        # and missed this one, which is the worst of the four because it
+        # runs ONCE PER CURVE on the SURFACE. On 300 conformed streets over
+        # a 7 712-prim terrain it built 300 tuples of 7 712 `hou.Prim`
+        # wrappers - 0.530 s of a 3.46 s row, 15 %, the largest single entry
+        # in that profile - to ask whether the geometry is empty.
+        self.geo = geo if (geo is not None
+                           and geo.intrinsicValue("primitivecount")) else None
         self.axis = _unit(axis, (0.0, -1.0, 0.0))
         self.centre = (0.0, 0.0, 0.0)
         self.radius = 1.0

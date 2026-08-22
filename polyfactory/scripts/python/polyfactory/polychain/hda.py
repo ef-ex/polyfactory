@@ -146,7 +146,7 @@ def kit_geometry(node, parms=None):
     """
     parms = parms if parms is not None else parm_owner(node)
     geo = _input_geo(node, 1)
-    if geo is not None and len(geo.prims()):
+    if geo is not None and geo.intrinsicValue("primitivecount"):
         return geo
     path = hou.text.expandString(_parm_str(parms, "kitfile")).strip()
     if path:
@@ -355,7 +355,7 @@ def cook(node):
     geo = node.geometry()
     geo.clear()
     curve_geo = _input_geo(node, 0)
-    if curve_geo is None or not len(curve_geo.prims()):
+    if curve_geo is None or not curve_geo.intrinsicValue("primitivecount"):
         node.addWarning("no spline on input 1 - nothing to dress")
         return
 

@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 import cases                                                     # noqa: E402
 import checks as C                                               # noqa: E402
+import hou                                                       # noqa: E402
 
 BASELINE = os.path.join(HERE, "baseline.json")
 
@@ -515,6 +516,21 @@ def port_tripwires():
                                     cases.CONFORM, expect_max=30.0),
         C.conform_prefetch_hit_rate(cases.tripwire_conformed_run,
                                     cases.CONFORM),
+        C.prims_wrappers_built(cases.tripwire_conformed_run, hou),
+        C.prims_wrappers_built(cases.tripwire_deformed_run, hou,
+                               name="prims_wrappers_built_deformed"),
+        # ⚠️ THE MITER ROW'S CEILING IS 11.2 P7's SHAPE, not zero, and it
+        # is a LADDER: `clip_plane`'s cap tagging and `dress_caps` are
+        # REAL per-prim loops (they read and write per-prim values), not
+        # a `len()` in disguise - 280 wrappers each on this fixture. P7
+        # is the item that bulk-reads them, and landing it lowers this
+        # number. What the row is here for is the FOURTH `len(.prims())`
+        # site: `clip_plane`'s own, which no other fixture reaches
+        # because the packed, deformed and conformed runs have no
+        # corners at all - restoring it reads 843 against this 600.
+        C.prims_wrappers_built(cases.tripwire_mitered_run, hou,
+                               expect_max=600,
+                               name="prims_wrappers_built_mitered"),
         C.ray_verb_semantics(cases.CONFORM, cases),
     ]
 

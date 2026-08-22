@@ -1292,7 +1292,7 @@ def clip_plane(geo, origin, normal, keep_sign, module_name="", texel=1.0):
     clip.setParms({"origin": tuple(float(v) for v in origin),
                    "dir": tuple(float(v) for v in away), "clipop": 1})
     clip.execute(cut, [geo])
-    if not len(cut.prims()):
+    if not cut.intrinsicValue("primitivecount"):
         return cut
     filled = hou.Geometry()
     pfill = _verb("polyfill")
