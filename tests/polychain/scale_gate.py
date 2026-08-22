@@ -123,8 +123,6 @@ def main():
     ladder = (("two_point", None), ("resampled", None), ("arc_12000", 12000.0),
               ("arc_2000", 2000.0), ("arc_80", 80.0), ("arc_10", 10.0))
     rows = []
-    hdr = ("case", "sagitta_m", "packed", "deformed", "points", "geometryids",
-           "seconds", "rss_delta_mb")
     print("%-12s %10s %8s %9s %9s %5s %8s %8s"
           % ("case", "sagitta", "packed", "deformed", "points", "gids",
              "seconds", "dRSS MB"))
@@ -156,7 +154,6 @@ def main():
         print("FAIL " + b)
     print("\n%d failing rows" % len(bad))
     sys.exit(1 if bad else 0)
-    assert hdr
 
 
 if __name__ == "__main__":
