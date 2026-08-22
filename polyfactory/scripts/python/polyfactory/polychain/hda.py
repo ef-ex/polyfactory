@@ -95,8 +95,12 @@ MARKER_PARM = "slot_marker"        # D88 - `marker:<id>`, id from `marker_id`
 DISPLAY_MODES = ("full", "proxy", "plan")
 
 # D90 - seconds of FULL cook above which the node says "use the proxy". Set
-# just under artist_ui 6's abandonment latency, and measured: a 20 km R = 40 m
-# arc of 10 000 panels cooks in ~11 s at `full` and 0.6-0.8 s at `proxy`.
+# just under artist_ui 6's abandonment latency. The measurement it was chosen
+# against was a 20 km R = 40 m arc of 10 000 panels at ~11 s full against
+# 0.6-0.8 s proxy; D102 took the full side of that to **1.86 s**, so the same
+# run now sits just UNDER this threshold and no longer warns - which is the
+# threshold doing its job, not a stale number. It stays at the latency, not
+# at whatever the current build happens to cost.
 SLOW_COOK_S = 2.0
 
 WARN_COLOUR = (1.0, 0.25, 0.1)

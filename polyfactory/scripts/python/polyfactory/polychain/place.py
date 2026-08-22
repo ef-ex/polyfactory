@@ -84,6 +84,14 @@ DECISIONS TAKEN HERE (recorded in polychain.md 10):
   D35 `pc_u` vs `pc_dist` is resolved PER MARKER (see `read_curves`), because
       a Houdini attribute is per-geometry and a merged marker cloud otherwise
       hands every u-authored marker a default `pc_dist` of 0.
+  D102 The stamp is written through `hou.Geometry`'s BULK array setters on a
+      deformed piece, not one `Prim.setAttribValue` per attribute per prim.
+      Profiled on `scale_gate`'s heaviest row (9 996 deformed pieces, 359 856
+      points): 4 758 096 `Prim.setAttribValue` calls, 9.0 s of a 14.1 s
+      build. `_stamp_values` is the single description both writers read, so
+      they cannot drift; parity is bit-identical across all 83 cases.
+  D103 THE DEFORM'S INNER LOOP STAYS IN PYTHON, and it is measured rather
+      than assumed - see polychain.md 10 cycle 10c.
   D29 Curve identity: `pc_curve_id`, else `edge_id` (the streets id, which
       3.1 says feeds `pc_elem_id`), else the primitive number - always
       normalised to a string, because `pc_elem_id` is a string address (D1).
@@ -1345,24 +1353,63 @@ def _declare(geo, warn_names):
             geo.addAttrib(hou.attribType.Prim, name, 0)
 
 
-def _stamp(prim, placement, warns, deformed, zmode, replaced=False):
+def _stamp_values(placement, warns, deformed, zmode, replaced=False):
+    """3.4's stamp as (name, value) pairs - one description, two writers.
+
+    D102: the per-prim writer below and the BULK writer are the same list, so
+    a stamp added to one cannot go missing from the other. `_stamp` is what a
+    packed piece takes (one prim, 14 calls); `_stamp_geo` is what a DEFORMED
+    piece takes, and that is the difference between 14 calls and 14 x the
+    piece's prim count - measured, 4 758 096 `Prim.setAttribValue` calls and
+    9.0 s of a 14.1 s build on the `arc_10` row.
+    """
     eid = placement.elem_id
-    prim.setAttribValue("pc_elem_id", eid)
-    prim.setAttribValue("pc_elem_key", elem_key(eid))
-    prim.setAttribValue("pc_slot", placement.slot)
-    prim.setAttribValue("pc_module", placement.module)
-    prim.setAttribValue("pc_variant", placement.variant)
-    prim.setAttribValue("pc_section", int(placement.section_index))
-    prim.setAttribValue("pc_u", float(placement.u))
-    prim.setAttribValue("pc_zmode", zmode)
-    prim.setAttribValue("pc_generated", 1)
-    prim.setAttribValue("pc_deformed", 1 if deformed else 0)
-    prim.setAttribValue("pc_corner_cut", 1 if placement.cuts else 0)
-    prim.setAttribValue("pc_curve_id", str(placement.curve_id))
-    prim.setAttribValue("pc_style", str(placement.style_id))
-    prim.setAttribValue("pc_replaced", 1 if replaced else 0)
-    for w in warns:
-        prim.setAttribValue(w, 1)
+    return (
+        ("pc_elem_id", eid),
+        ("pc_elem_key", elem_key(eid)),
+        ("pc_slot", placement.slot),
+        ("pc_module", placement.module),
+        ("pc_variant", placement.variant),
+        ("pc_section", int(placement.section_index)),
+        ("pc_u", float(placement.u)),
+        ("pc_zmode", zmode),
+        ("pc_generated", 1),
+        ("pc_deformed", 1 if deformed else 0),
+        ("pc_corner_cut", 1 if placement.cuts else 0),
+        ("pc_curve_id", str(placement.curve_id)),
+        ("pc_style", str(placement.style_id)),
+        ("pc_replaced", 1 if replaced else 0),
+    ) + tuple((w, 1) for w in warns)
+
+
+def _stamp_geo(geo, placement, warns, deformed, zmode, replaced=False):
+    """D102 - the whole piece stamped through the BULK array setters.
+
+    `hou.Geometry` already has C++-side array writers for exactly this, so
+    the loop that mattered needed no new language: one call per attribute
+    instead of one per attribute PER PRIM. The values are constant across the
+    piece (it is one element), so each array is a repeat.
+    """
+    n = len(geo.prims())
+    if n == 0:
+        return
+    if n == 1:
+        _stamp(geo.prims()[0], placement, warns, deformed, zmode, replaced)
+        return
+    for name, value in _stamp_values(placement, warns, deformed, zmode,
+                                     replaced):
+        if isinstance(value, str):
+            geo.setPrimStringAttribValues(name, [value] * n)
+        elif isinstance(value, int):
+            geo.setPrimIntAttribValues(name, [value] * n)
+        else:
+            geo.setPrimFloatAttribValues(name, [value] * n)
+
+
+def _stamp(prim, placement, warns, deformed, zmode, replaced=False):
+    for name, value in _stamp_values(placement, warns, deformed, zmode,
+                                     replaced):
+        prim.setAttribValue(name, value)
 
 
 # --- the pipeline -----------------------------------------------------------
@@ -1676,8 +1723,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                                    proto.module.name, _texel(proto.source))
             n_cut += 1
         _declare(piece, warn_names)
-        for prim in piece.prims():
-            _stamp(prim, p, warns, True, zmode)
+        _stamp_geo(piece, p, warns, True, zmode)       # D102 - bulk, not per prim
         out.merge(piece)
         n_deformed += 1
 

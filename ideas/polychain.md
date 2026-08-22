@@ -2427,3 +2427,125 @@ default, so PC-G3's ladder is untouched).
 |---|---|
 | D100 | **The camber's own rotation is part of the curvature budget, measured as the FULL frame rotation.** D87 put the piece's worst POINT into the budget but measured only the tangent's turn, so 4.5's camber - a roll the packed piece takes once at its midpoint and the deformed one takes per station - was spent by nobody. It is not a second term added to D87's: `span_deviation` now compares the two FRAMES when a normal is available (trace of the relative rotation), which counts the tangent turn and the camber roll together exactly once, and degrades to D87's tangent-only reading when there is no camber - so no pre-camber number moved. The gate bites at `bend_tol` to the digit: 0.005457 m stays packed, 0.010913 m unpacks |
 | D101 | **A check that goes silent when the bug is fixed is not a standing check.** `packed_true_dev_m` can only see pieces that STAYED packed, so the case built to prove D100 reads `skip` the moment D100 works. `deform_gate_m` reports `[worst deviation left packed, pieces over budget, of those still packed]`: the last number is the assertion (the direction that ships), and the middle one is the liveness - a case that stopped exercising the gate shows a 0 there and reads as vacuous instead of as green. It runs on all 44 cases that have a bendable piece on a path, so it guards D87 and D75 as well as D100 |
+
+---
+
+### Cycle 10c - the deform path's rewrite, profiled first (2026-08-22)
+
+The task was "rewrite the per-point deform inner loop in VEX". **The profiler
+says the inner loop was never the cost**, so what shipped is the fix the
+measurement pointed at, and the VEX decision is recorded with the numbers that
+made it.
+
+#### 1. Where the 11 s actually went
+
+`cProfile` over `scale_gate`'s heaviest row - `arc_10`, 9 996 deformed pieces,
+359 856 points:
+
+| | tottime | calls | share |
+|---|---|---|---|
+| **`_hou.Prim_setAttribValue`** | **9.023 s** | **4 758 096** | **64 %** |
+| `_stamp` (the Python around it) | 1.139 s | 339 864 | 8 % |
+| `hou.py:setAttribValue` wrapper | 0.811 s | 4 758 096 | 6 % |
+| `Path.sample` | 0.475 s | 449 834 | 3 % |
+| **`_deform_positions`** - the loop the task named | **0.201 s** | 9 996 | **1.4 %** |
+| everything else | | | |
+| **total** | **14.136 s** | 21 073 358 | |
+
+339 864 prims x 14 attributes. **The stamp, not the maths.** A perfect VEX
+inner loop would have taken 1.4 % off this row.
+
+#### 2. What shipped instead (D102)
+
+`hou.Geometry` already has C++-side ARRAY writers -
+`setPrimStringAttribValues` / `setPrimIntAttribValues` /
+`setPrimFloatAttribValues` - so a deformed piece is stamped in **14 calls
+instead of 14 x its prim count**. Both writers read one list,
+`_stamp_values`, so they cannot drift; a packed piece (one prim) still takes
+the per-prim path, where bulk would only add overhead.
+
+#### 3. The ladder, before and after - both runs in ONE process
+
+Same session, same curves, the two writers swapped between runs, and the
+packed/deformed/point counts asserted equal on every row:
+
+| case | zmode | packed | deformed | points | per-prim s | **bulk s** | speedup |
+|---|---|---|---|---|---|---|---|
+| two_point | kit | 10 000 | 0 | 10 000 | 0.483 | 0.478 | 1.01x |
+| resampled | kit | 10 000 | 0 | 10 000 | 0.602 | 0.624 | 0.96x |
+| arc_12000 | kit | 10 000 | 0 | 10 000 | 0.663 | 0.668 | 0.99x |
+| arc_2000 | kit | 10 000 | 0 | 10 000 | 0.675 | 0.675 | 1.00x |
+| arc_80 | kit | 10 000 | 0 | 10 000 | 0.648 | 0.646 | 1.00x |
+| **arc_10** | kit | 0 | 9 996 | 359 856 | **11.159** | **1.548** | **7.21x** |
+| arc_12000 | adaptive | 10 000 | 0 | 10 000 | 0.637 | 0.643 | 0.99x |
+| arc_2000 | adaptive | 10 000 | 0 | 10 000 | 0.645 | 0.629 | 1.03x |
+| **arc_80** | adaptive | 0 | 10 000 | 360 000 | **11.181** | **1.597** | **7.00x** |
+
+The packed rows are unchanged to the noise floor, which is the control: they
+stamp one prim per piece and had nothing to gain. **The 11.0 s row PC-G3 owed
+is 1.56 s.** The HDA's own measurement moved with it:
+`proxy_beats_full_on_a_curve` **[0.648, 11.185] -> [0.649, 1.86]**.
+
+#### 4. Parity - bit-identical, on every case in the suite
+
+The reference implementation is the per-prim `_stamp` loop the build used
+before this cycle. Every case built twice in one process and compared on
+point positions, every prim attribute value, and every packed prim's full
+4x4:
+
+| | |
+|---|---|
+| cases compared | **83** |
+| points compared | **11 800** |
+| prim attribute values compared | **163 115** |
+| worst `|dP|` | **0** |
+| worst `|d packed transform|` | **0** |
+| prim attribute values differing | **0** |
+| structural differences | **0** |
+
+**PARITY: EXACT (bit-identical)** - not "within float precision", identical.
+Plus `run_scene_checks.py` 0 failing with **0 baseline values moved**, and
+`run_hda_checks.py` 0 failing.
+
+#### 5. Why NOT VEX or OpenCL, measured
+
+Three numbers and one architectural fact:
+
+1. **The share is too small.** After D102 the whole `arc_10` row is 1.548 s
+   and `_deform_positions` costs **0.214 s of it (13.7 %)** across all 9 996
+   pieces - and **0.063 s of that 0.214 s is `Path.sample`**, which VEX
+   cannot take without reimplementing the path, the conform drape, D26's
+   remap and D31's transport as well. So the arithmetic actually available to
+   VEX is ~0.15 s, **under 10 % of the row**.
+2. **The irreducible per-piece overhead is 0.041 s** for all 9 996 pieces
+   (`hou.Geometry` + `merge` + `setPointFloatAttribValues`) - a fifth of the
+   loop's own cost, and every design pays it.
+3. **There is no VEX verb.** On 22.0.398 `hou.SopNodeTypeCategory.nodeVerb`
+   returns `None` for `attribwrangle`, `attribwranglecore`, `vex`,
+   `pointwrangle`, `deformationwrangle` and `volumewrangle`; the only one
+   that exists is `attribvop`, which needs a VOP network **node**. And
+   `place.build` is geometry-in / geometry-out with **no node network at
+   all** - that is what lets every headless check and `pf_polychain_core`
+   share one kernel. A VEX path would force a node network into it.
+
+So the honest cost/benefit is: under 10 % of one row, in exchange for a
+second implementation of `Path.sample`, `_Remap`, the conform drape,
+`_transport`, D98's datum and D99's bands that has to be held in parity
+forever. **Python stays**, and that is recorded rather than quietly skipped.
+
+#### 6. Files
+
+* `polychain/place.py` - `_stamp_values` (the single description),
+  `_stamp_geo` (the bulk writer), `_stamp` (the per-prim one, now a loop over
+  the same list). D102 and D103 in the file's own decision list.
+* `polychain/hda.py` - `SLOW_COOK_S`'s measurement note updated: the 20 km
+  curving run it was chosen against now cooks in 1.86 s, i.e. just under the
+  2.0 s threshold, so it no longer warns. The threshold stays at the artist's
+  latency rather than following the build.
+
+#### Decisions taken
+
+| # | Decision |
+|---|---|
+| D102 | **The stamp is written in BULK, and that is the deform path's rewrite.** 3.4's stamp was one `Prim.setAttribValue` per attribute per prim, which on a deformed run is 14 x the piece's prim count - profiled at 4 758 096 calls and **9.0 s of a 14.1 s** build, 64 % of the row, against `_deform_positions`' own 1.4 %. `hou.Geometry`'s array setters are the same C++ the wrangle would have called, need no second language, no node network and no second implementation to keep in parity. One `_stamp_values` list feeds both writers so they cannot drift, and the result is bit-identical across all 83 cases. **7.21x on `arc_10`, 7.00x on `arc_80/adaptive`; 11.0 s -> 1.56 s** |
+| D103 | **The deform's inner loop stays in Python, measured rather than assumed.** After D102 it is 0.214 s of a 1.548 s row (13.7 %), and 0.063 s of that is `Path.sample` - so under 10 % of the row is actually reachable from VEX. Against that: `hou.SopNodeTypeCategory.nodeVerb` has **no VEX verb at all** on 22.0.398 (`attribwrangle`, `attribwranglecore`, `vex`, `pointwrangle`, `deformationwrangle`, `volumewrangle` all return `None`; only `attribvop` exists, and it needs a VOP network node), while `place.build` is deliberately node-free so that the headless checks and `pf_polychain_core` share one kernel. A VEX path would mean a node network in the kernel plus a permanent second implementation of the sampler, the remap, the drape, the transport, D98's datum and D99's bands. The house rule is VEX over Python **in hot paths**; this one is measured not to be the hot path, and the hot path it actually had is now gone |
