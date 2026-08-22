@@ -28,9 +28,9 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | **cycle 3r** (the §4.3 REVIEW, 14 findings worked through - see §10 "Cycle 3r"). Suite: **44 scene cases / 1 725 values (1 371 pass, 354 skip) / 0 failing**, **196 polyChain unit tests**, **8 mutations / 8 killed**. New decisions **D48** (yaw-flattened bevel for plumb pieces), **D49** (the offset/overhang clamp), **D50** (the run abutting a corner assembly is cut too); **D39, D40 and D44 revised**. Before it: **cycle 3** - **§4.3 CORNERS**, the stage §8 budgets the most time for. `corner.py` (bend/miter, compose symmetry, offset, displacement policy, fillet, degenerate fallbacks) + `Placement.anchor`/`.cuts` + a world-space clip in `place.py`. Suite: **33 scene cases / 1 230 values (947 pass, 283 skip) / 0 failing** in ~2 s, **177 polyChain unit tests / 8 700 subtests** in 0.67 s, **10 mutations / 10 killed**. Only 2 of the 19 pre-existing cases moved and both are D36. Corner closure measured: cut faces coplanar to **1.2e-6 m**, mating to **8e-7 m**, seam **1e-6 m**; outside face **0.160000 m**; compose symmetry **0.0 / 1.200 m**; fillet clearance **0.621320 m** against its own analytic value |
-| Next up | §8 build order: **§4.5 conform** (input 4) → **§4.6 finalize/instancing** (partly landed) → **§5 parm face + the §3.3 style-payload reader** → gates PC-G1-G4. Still deferred and named so it is not forgotten: **§4.4's flatten-under** (PC-G2 will see a 0.49 m riser gap under every stepped piece, by design for now), **a corner module in bend mode** (D37 makes it unreachable), and **PC-G3's VEX rewrite**. ⚠️ **`/obj/polychain_gate` may still be sitting in Hannes' GUI session** - delete it before the next live pass |
-| Gates | PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete, visually unconfirmed** - the closed rectangle and the L-shape close in BOTH corner modes, all four fill modes, the gate on its marker, convex and reflex corners (§10 cycle 3); the parm face and the style payload it also asks for are §5 · PC-G2 ⬜ · PC-G3 ⬜ · PC-G4 ⬜. **Every polyChain number to date is headless** - three cycles in, nothing has been LOOKED at |
+| Last completed | **cycle 3v** - the INDEPENDENT VERIFICATION of cycle 3 / 3r by an agent that wrote none of it (§10 "Cycle 3v"). Every claimed number reproduced exactly (44 cases / 1 725 values / 0 failing; 196 unit tests; citygen 27 failing and **no baseline movement**, structurally guaranteed - the branch touches no citygen file). **6 fresh corner mutations: 4 killed, 2 proved to be unreachable code** (`Bevel`'s own degenerate branch - 40 bevels built across the suite, 0 degenerate; the real D46 fallback is `_joinable`). **PC-G1 was LOOKED at for the first time**, headless (the live bridge is wedged): miter closes clean in every image, gate centred on its marker to **1.8e-7 m**, no inside-out geometry anywhere. **One open finding: `corner_breach_m` skips every BEND case, and a bend butt corner interpenetrates by 0.015 m over ~0.0009 m².** Before it: **cycle 3r** (the §4.3 REVIEW, 14 findings worked through - see §10 "Cycle 3r"). Suite: **44 scene cases / 1 725 values (1 371 pass, 354 skip) / 0 failing**, **196 polyChain unit tests**, **8 mutations / 8 killed**. New decisions **D48** (yaw-flattened bevel for plumb pieces), **D49** (the offset/overhang clamp), **D50** (the run abutting a corner assembly is cut too); **D39, D40 and D44 revised**. Before it: **cycle 3** - **§4.3 CORNERS**, the stage §8 budgets the most time for. `corner.py` (bend/miter, compose symmetry, offset, displacement policy, fillet, degenerate fallbacks) + `Placement.anchor`/`.cuts` + a world-space clip in `place.py`. Suite: **33 scene cases / 1 230 values (947 pass, 283 skip) / 0 failing** in ~2 s, **177 polyChain unit tests / 8 700 subtests** in 0.67 s, **10 mutations / 10 killed**. Only 2 of the 19 pre-existing cases moved and both are D36. Corner closure measured: cut faces coplanar to **1.2e-6 m**, mating to **8e-7 m**, seam **1e-6 m**; outside face **0.160000 m**; compose symmetry **0.0 / 1.200 m**; fillet clearance **0.621320 m** against its own analytic value |
+| Next up | **First, cycle 3v's one open finding: give `corner_breach_m` a BEND branch.** It filters `mode == "miter"` and therefore SKIPs every bend case, while a bend butt corner is doubly solid inside by **0.015 m over ~0.0009 m²** (repro and the four measured areas are in §10 cycle 3v). Walk the dissolved vertex instead of the bevel plane, baseline those numbers as the accepted butt-joint wedge, and say so in D36. Then §8 build order: **§4.5 conform** (input 4) → **§4.6 finalize/instancing** (partly landed) → **§5 parm face + the §3.3 style-payload reader** → gates PC-G2-G4. Cheap tidy-up while in `corner.py`: `Bevel.degenerate` / `Bevel.warns` / the `mode = "bend" if degenerate` line are **unreachable** (cycle 3v instrumented it) - delete or annotate, they read as the hairpin guard and are not. Still deferred and named so it is not forgotten: **§4.4's flatten-under** (PC-G2 will see a 0.49 m riser gap under every stepped piece, by design for now), **a corner module in bend mode** (D37 makes it unreachable), and **PC-G3's VEX rewrite**. ⚠️ **`/obj/polychain_gate` may still be sitting in Hannes' GUI session** - cycle 3v could NOT clear it: the bridge pings but every main-thread HOM call times out at 30 s, so the session was left untouched. Delete it before the next live pass |
+| Gates | PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** - the closed rectangle and the L-shape close in BOTH corner modes, all four fill modes, the gate on its marker (centre error **1.8e-7 m**), convex and reflex corners (§10 cycle 3), and as of cycle 3v the corners, the fill modes and the gate have been **rendered and looked at**: clean 45° miter seam, unbroken outer arris, no gaps, no inside-out modules. Judged on a scratchpad rasteriser, NOT on `houdini_render_view` - the live bridge was unreachable in practice. Two things still stand between this and a ✅: the **GUI viewport confirmation**, and the parm face + style payload PC-G1 also asks for, which are §5. Known limit, not a blocker: the bend butt corner's inside wedge (Next up) · PC-G2 ⬜ · PC-G3 ⬜ · PC-G4 ⬜ |
 
 **To resume the autonomous run**, re-arm the loop with exactly this:
 
@@ -1022,3 +1022,137 @@ perpendicular cut and the corner module is duplicated into two full copies back 
 (`AL_crest_corner`: `corner_reach_m` 0.16 m per side, 0.32 m of post in total). It closes,
 it mates to 0.0 and it warns nothing, but whether a doubled post reads as right at a crest
 is a judgement no number here can make.
+
+### Cycle 3v — independent verification of cycle 3 / 3r (2026-08-22)
+
+A fresh agent that wrote none of §4.3, told to trust nothing. Three things were asked
+for: re-run everything, mutation-test the corner checks specifically, and **judge PC-G1
+on the image**. All three ran; the third had to take an unplanned route.
+
+**Every claimed number reproduced, exactly.**
+
+| Claim in cycle 3 / 3r | Re-measured here |
+|---|---|
+| 44 scene cases / 1 725 values (1 371 pass, 354 skip) / 0 failing | **44 / 1 371 PASS + 354 SKIP = 1 725 / 0 failing** ✅ |
+| 196 polyChain unit tests | **196 passed, 8 700 subtests, 0.67 s** ✅ (267 / 9 625 over all of `tests/unit`) |
+| no citygen regression | `tests/unit/test_citygen.py` + `test_plan.py` **71 passed / 925 subtests**; `hython tests/citygen/run_scene_checks.py` → **27 failing, NO "moved since baseline" block** ✅ |
+| no polyChain baseline movement | polyChain run prints **no "moved since baseline" block** ✅ |
+
+**The citygen non-regression is structural, not just observational.**
+`git diff --stat $(git merge-base cityGen polychain)..polychain -- . ':!ideas'` touches
+`polychain/*.py`, `tests/polychain/*`, `tests/unit/test_polychain*.py`, `tests/README.md`
+— and `graphify-out/` — and **not one citygen source or test file**. The 27 failures are
+therefore the streets-V1 work-in-progress this branch was cut on top of, by construction.
+
+**Mutation test of the corner machinery — 6 mutations, 4 killed, 2 proved to be no-ops.**
+Each was applied to a clean tree, run against all 44 cases, and reverted; `git status` was
+verified empty afterwards and the suite re-run green.
+
+| # | Mutation | Result |
+|---|---|---|
+| M1 | the bevel normal is the INCOMING TANGENT, not `unit(tin+tout)` | **KILLED** — 49 red, 177 moved |
+| M2 | the clip keeps the wrong side of the plane (both `plane_in`/`plane_out` signs flipped) | **KILLED** — 47 red, 166 moved (`corner_breach_m`, `corner_symmetry_m`, `element_count`, `unresolved_elem_ids`, `warnings`) |
+| M3 | the "out" half of the mitered pair is never built | **KILLED** — 23 red, 175 moved (`corner_face_mate_m`, `corner_symmetry_m`, `corner_abut_m`) |
+| M4 | `Bevel.mode` no longer falls back to bend when degenerate | **SURVIVED — and it is a NO-OP, not a coverage hole.** See below |
+| M5 | `_joinable` ignores `corner.degenerate`, so miter mode never welds a hairpin | **KILLED** — `warnings` red, 12 moved |
+| M6 | `Bevel.degenerate` forced False | **SURVIVED — no-op, same reason** |
+
+⚠️ **M4 and M6 survive because Bevel's own degenerate branch is unreachable code.**
+This was not argued, it was instrumented: `Bevel.__init__` was wrapped over the whole
+suite and **40 bevels are constructed across the 44 cases, of which 0 are degenerate**.
+`merge_bend_sections` welds every degenerate corner away *before* a bevel is ever built
+(`_joinable` reads `Corner.degenerate` straight off decompose, whose test at
+`decompose.py:216` is the identical `(180 − turn) < min_included_angle_deg`), so
+`Bevel.degenerate`, `Bevel.warns` and `self.mode = "bend" if self.degenerate` never fire.
+**The real D46 fallback is `_joinable`, and M5 kills it.** The dead branch is harmless but
+it is also a decoy: a reviewer reading `corner.py` would reasonably believe it is what
+protects a hairpin. Worth deleting, or worth a comment saying it is a belt on top of
+braces — recorded rather than changed, because a verification pass does not edit the code
+it is verifying.
+
+**PC-G1 was judged on images — rendered headless, because the live bridge is wedged.**
+`houdini_status` pings fine, `import hou` returns, `result = 1+1` returns — and **every
+call that needs Houdini's main thread (`hou.hipFile.path()`, enumerating `/obj`,
+`houdini_get_errors`) times out at 30 s**, repeatedly and after a 90 s wait. The GUI
+session is blocked on something; it was left alone rather than fought, so
+`/obj/polychain_gate` was **never created this cycle** and the ⚠️ in §0.0 about a leftover
+from cycle 3 **still stands and could not be cleared**.
+
+So the gate was rendered another way: a ~130-line orthographic rasteriser in the
+scratchpad (`gate_render.py`) that walks the built `hou.Geometry`, expands packed prims
+through `fullTransform()`, sorts by depth and paints with a flat lambert — **drawing any
+backfacing polygon RED, so an inside-out module cannot hide.** It found its own bug first
+and that is worth recording: Houdini winds **clockwise-from-front**, so `prim.normal()` is
+the **negated** Newell normal — the first render came out uniformly red until a control
+test on `K.box_mesh` (`hou prim.normal() outward: 6 of 6`) settled the sign. Reference
+before memory, and it cost one wrong picture.
+
+Images (scratchpad `.../421208db-9a0d-4d26-9c40-1453b001be19/scratchpad/`):
+`G1_rect_{bend,miter}_wide.png`, `G1_{bend,miter}_c{0..3}_{top,iso}.png`,
+`G1_corner_{bend,miter}_{top,tight,tightiso}.png`, `G1_fill_{tile,scale,adaptive,count}.png`,
+`G1_fillmodes.png`, `G1_gate_marker.png`.
+
+**What is actually in the pictures**, not what was expected to be:
+
+* **miter, closed rectangle** — the corner post carries **one clean 45° seam running
+  corner-to-corner in plan**, and from outside the post's outer arris is a **single
+  unbroken edge**: both halves keep full length on the outside, no notch, no step. The
+  runs abut the post square on both legs. **Zero red polygons anywhere** — nothing
+  inside-out. The **wrap corner (0,0) of the closed spline is indistinguishable from the
+  other three**, which is D45 confirmed in the image rather than in a number.
+* **bend, closed rectangle** — from outside, the fence turns as one continuous surface
+  with a clean vertical crease; no gap, no red. Inside the corner, the top view shows the
+  butt joint the log already names.
+* **four fill modes** — `scale` is visibly one 11.377 m stretched panel between two posts
+  (4 pieces); `tile`, `adaptive` and `count` are **byte-identical** here, and that is
+  D11 working, not a defect: the starter panel is `deform = 1`, so tile cannot slice, the
+  whole run falls back to adaptive and **every piece carries `pc_warn_tile_fallback`**
+  (confirmed on the prim attribute and in `report["warn_names"]`).
+* **gate on its marker** — visible as the one low bay in the run, and measured:
+  **world x 7.200000 … 8.800000, centre 8.000000, length 1.600000 m** against a marker at
+  `pc_dist = 8.0` — **centre error 1.8e-7 m**, at full nominal length. PC-G1's "gate
+  exactly at its marker" holds, on the centred reading.
+
+**One real finding, and it is a coverage gap rather than a wrong number.**
+
+⚠️ **A bend corner is never tested for interpenetration, and it interpenetrates.**
+`corner_breach_m` — cycle 3r's own interpenetration detector — starts with
+`[b for b in _bevels(scene) if b.mode == "miter"]`, so it reports **SKIP "no mitered
+corners"** on *every* bend case: `B_rect_closed`, `T_lshape_bend`, `AB_fillet`,
+`AC_degenerate_corner`. Measured on PC-G1's own figure (a 12 × 8 m closed rectangle,
+`corner_style("bend")`, sampled at post height on a 5 mm grid, pieces grouped by
+`pc_elem_id` — repro: scratchpad `measure2.py`):
+
+| | bend | miter |
+|---|---|---|
+| doubly-covered area at (0,0) / (12,0) / (12,8) / (0,8) | **0.00090 / 0.00075 / 0.00063 / 0.00075 m²** | **0.0 / 0.0 / 0.0 / 0.0 m²** |
+| worst interpenetration depth | **0.015000 m** — exactly half the 0.03 m panel half-width | **0.000000 m** |
+| the overlapping pair | elements `default|0` and `default|19` of the ring, both `panel` | — |
+
+**This is the butt joint, seen from the inside.** On this figure twenty 2.00 m panels fit
+a 40 m ring exactly, so all four corners land on a piece *boundary* and no piece wraps
+anything — the same condition `corner_welds` records as `[4, 0]`. Two square-ended 0.06 m
+panels meeting at 90° must leave a wedge of doubly-solid geometry inside and the matching
+notch outside; it is inherent, RailClone behaves the same way, and **miter is the fix**.
+Cycle 3's log names **only the outside notch**. The inside half was never stated and is
+measured by nothing, and `max_gap_m` cannot see it — it walks one run along its axis,
+where the two pieces meet exactly.
+
+**Not closed here, deliberately.** A verification pass should not invent a check for the
+code it is auditing, and the honest fix is a decision (is the wedge accepted as inherent,
+or does bend get a corner treatment?) rather than an assertion. The numbers and the repro
+above are what makes the next cycle cheap. **Next cycle's first job on §4.3: give
+`corner_breach_m` a bend branch that walks the dissolved vertex instead of the bevel
+plane, baseline these four numbers as the accepted butt-joint wedge, and say so in D36.**
+
+**Two things in this pass were the verifier's error, recorded so they are not re-found:**
+a bare `marker` rule silently builds nothing (the slot is `marker:<id>`, `SLOTS` in
+`__init__.py:56` says so), and the build report's key is **`warn_names`**, not
+`warnings` — reading the wrong key made four correctly-warning runs look silent.
+
+**Verdict.** §4.3's numbers hold up under a stranger; the corner checks are strong enough
+that four of six mutations die loudly and the two survivors are provably dead code, not
+blind spots. **PC-G1: the corners, the four fill modes and the gate-on-its-marker have now
+been LOOKED at** — headless, not in the GUI viewport — and the miter closes cleanly in
+every image. It is marked **image-verified (headless)**, with the GUI viewport pass still
+owed, and with the bend butt-joint wedge named above as the one open item.
