@@ -497,6 +497,15 @@ def port_tripwires():
                                 name="stamp_calls_per_piece_deformed"),
         C.station_share_hit_rate(cases.tripwire_deformed_run, cases.P,
                                  cases.CONFORM),
+        # P5R's `span_ends` had no tripwire at all: forcing the threaded pair
+        # to `None` left all three suites AND the baseline green while the
+        # packed fixture went 3.0 -> 13.0 calls per piece. Both branches, the
+        # way `stamp_calls_per_piece` learned to run on both.
+        C.path_sample_calls_per_piece(cases.tripwire_packed_run, cases.P,
+                                      expect_max=4.0),
+        C.path_sample_calls_per_piece(cases.tripwire_deformed_run, cases.P,
+                                      expect_max=24.0,
+                                      name="path_sample_calls_per_piece_deformed"),
         C.stamp_bulk_peak_kb(cases.P),
         C.path_read_direction_m(cases.P, cases.Curve),
         C.build_out_keeps_upstream_stamps(cases.tripwire_out_build, cases.P),

@@ -3465,6 +3465,50 @@ def stamp_calls_per_piece(build_fn, expect_max=1.0, name=None):
                                      expect_max))
 
 
+def path_sample_calls_per_piece(build_fn, place_mod, expect_max=4.0,
+                                name=None):
+    """`Path.sample` calls per placed piece - what P5R's `span_ends` is for.
+
+    ⚠️ THIS EXISTS BECAUSE THE PORT'S LARGEST PACKED-BRANCH FIX WAS PINNED BY
+    NOTHING. P5R threaded one forward/backward pair through `_flat_ratio`,
+    `_chord_ratio`, `span_deviation`, `_needs_deform`, `_packed_transform` and
+    `plan_pos` instead of letting each re-ask the sampler, and measured
+    169 232 -> 69 232 calls on the 20 km packed row. `span_ends(..., ends)` is
+    a pure cache - a miss re-samples and returns the identical value - so
+    dropping the threading is invisible to every geometry assertion: with
+    `ends` forced to `None` the whole scene suite, the HDA suite, the unit
+    tests AND the baseline diff stay completely green while the packed
+    fixture goes from **3.0 to 13.0 calls per piece (4.33x)**.
+
+    That is exactly the shape `stamp_calls_per_piece` was written for one
+    item earlier and `station_share_hit_rate` one item after it, and P5R
+    added neither for its own fix. A COUNT, so it sits in the baseline
+    without churning.
+
+    Both fixtures are surface-free, so `place.Path` is the only sampler in
+    play; a conformed run would need `ConformPath.sample` counted too.
+    """
+    real = place_mod.Path.sample
+    calls = {"n": 0}
+
+    def counting(self, *a, **k):
+        calls["n"] += 1
+        return real(self, *a, **k)
+    place_mod.Path.sample = counting
+    try:
+        _out, report = build_fn()
+    finally:
+        place_mod.Path.sample = real
+    pieces = report["packed"] + report["deformed"]
+    if not pieces:
+        return _skip(name or "path_sample_calls_per_piece", "nothing was built")
+    per = calls["n"] / float(pieces)
+    return Result(name or "path_sample_calls_per_piece", per <= expect_max,
+                  _round(per, 3), "%d calls, %d pieces (%d deformed, "
+                  "ceiling %.1f)" % (calls["n"], pieces, report["deformed"],
+                                     expect_max))
+
+
 def curve_sample_scaling(curve_cls, expect="O(n)", samples=200,
                          cold_expect=None):
     """Does `Curve.sample` cost depend on the curve's VERTEX COUNT - P2.

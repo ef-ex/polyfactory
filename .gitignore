@@ -149,3 +149,6 @@ graphify-out/.graphify_*
 graphify-out/cache/
 graphify-out/manifest.json
 graphify-out/cost.json
+
+# polyChain gate renders - regenerate with `hython tests/polychain/gate_images.py`
+tests/polychain/gate_images/

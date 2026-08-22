@@ -40171,6 +40171,20 @@
       ]
     },
     {
+      "detail": "600 calls, 200 pieces (0 deformed, ceiling 4.0)",
+      "name": "path_sample_calls_per_piece",
+      "ok": true,
+      "skipped": false,
+      "value": 3.0
+    },
+    {
+      "detail": "698 calls, 30 pieces (30 deformed, ceiling 24.0)",
+      "name": "path_sample_calls_per_piece_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 23.267
+    },
+    {
       "detail": "1000 pieces x 34 prims x 15 attrs, ceiling 1200 kB",
       "name": "stamp_bulk_peak_kb",
       "ok": true,
@@ -40198,7 +40212,7 @@
       ]
     },
     {
-      "detail": "warm 0.94 us at 10 verts, 0.97 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 7.6 us at 10, 16777.7 us at 20 001 (1.1x per vertex, O(n), expected O(n))",
+      "detail": "warm 0.98 us at 10 verts, 1.31 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 6.8 us at 10, 14478.3 us at 20 001 (1.1x per vertex, O(n), expected O(n))",
       "name": "curve_sample_scaling",
       "ok": true,
       "skipped": false,
