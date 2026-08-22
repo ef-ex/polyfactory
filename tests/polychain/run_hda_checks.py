@@ -14,8 +14,10 @@ What it asserts, in order:
      into input 1 and NOTHING else, no kit, no style, no surface);
   2. the node agrees with the kernel called directly on the same style;
   3. every input is wired to the index 2.2 says it is (kit, style, surface);
-  4. PC-G4 - a STYLE PAYLOAD on input 3 overrides the parms entirely, and the
-     parms it contradicts are the ones that move;
+  4. PC-G4 - a STYLE PAYLOAD on input 3 overrides the parms entirely, proved
+     by SWEEPING every parm on the page while it is wired (ids and positions
+     both), plus (4b) a payload that loses every rule degrading inside the
+     pipeline face and (4c) D88 s marker slot authored on the page;
   5. the proxy LOD keeps a 10k-piece run interactive (5's own acceptance
      criterion, in seconds);
   6. the plan display draws one point per piece;
