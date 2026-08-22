@@ -32,6 +32,15 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 | Next up | **Gates PC-G1 and PC-G2's GUI viewport pass** - still the only thing either owes, and it needs Hannes' own eyes or an unwedged bridge. Then the deferred acceptance: **streets consuming polyChain**. **Open findings still standing:** (1) ~~the binary kink test~~ - CLOSED, D75; (2) ~~a corner assembly in BEND mode on a steep pitch inherits §4.4's deferred flatten-under (0.074 m on a 37° leg)~~ - **CLOSED, cycle 10**: §4.4's flatten-under is built (D98) and the repro is stale - re-run on this build it produces no corner assembly at all in bend mode (D36 welds the vertex) and a post sitting on the vertex at `corner_abut_m` = 0.002105 m in miter mode; (3) a `vertical` piece on a uniform slope is a **pure shear** and could stay packed, but does not, deliberately (D65); (4) a 3D (unflattened) bevel's cut plane is **not** dropped onto the conform surface - harmless while the plane is vertical, which is every case in the suite; (5) **the good-looking default is a board fence, not a picket fence** - making `picket_panel` the default means re-deriving `corner_face_mate` / `corner_breach` / `corner_wedge` for a voided module (D86), a cycle not a patch; (6) ~~the camber's own off-spine rotation is NOT in the D87 budget~~ - **CLOSED, D100/D101**; (7) a run that CLIMBS deforms under the starter `panel` at ANY radius, because `vertical` on a slope is a pure shear - that is finding (3) seen at PC-G3 scale, not a defect, but it is what a consumer dressing a graded street hits first; (10) **NEW, cycle 12** - three of the fourteen 3.4 stamp attributes - **`pc_u`, `pc_section`, `pc_variant`** - are asserted by NOTHING: corrupt any of them in both writers (`pc_u` + 0.25, `pc_section` + 1, `pc_variant` blanked) and the suite reports 87 cases, 0 failing, 0 baseline values moved. `stamp_parity` proves the two writers agree, not that either is right; the `pc_deformed` control is red on 264 checks, so the hole is these three names, not the mechanism. `pc_u` is how a consumer varies material along a run. (9) **cycle 11** - `flat_band` on an `adaptive` piece is a no-op by construction (`_band` returns None: an adaptive piece rides the full frame and has no flat half to hold), which is correct but silent - it warns about nothing. (8) **cycle 10** - a RIGID module cannot express a D99 band at all (D27 short-circuits the deform gate before the band is read), so the starter kit's `post` ignores Level Band. Stated in `DE_band_stepped_foot`'s own comment rather than hidden, and the honest fix is a bendable post rather than a kernel change. ⚠️ `/obj/polychain_gate` **may still be sitting in Hannes' GUI session** - the bridge was not touched this cycle either |
 | Gates | PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** — the closed rectangle and the L close in both corner modes, all four fill modes, the gate on its marker (1.8e-7 m), convex and reflex corners; the bend corner's butt wedge is MEASURED and baselined as the accepted limit (D36 extended), and cycle 6's mutation of it fails by 1.10e-02 m on `CJ_bend_butt_120`. Cycle 8 closed the last hole in its parm face: the **marker slot is authorable on the page** (D88), so PC-G1's gate-on-a-marker no longer needs a payload, and an unread marker warns. **Cycle 9 rebuilt the whole figure THROUGH THE PARM FACE and looked at it** (`HC_{miter,bend}_{top,iso}.png`, `HG1_*.png`): the miter's two legs terminate into a corner post with the 45° bisector cut clean across it and the tops flush; the bend turns through the elbow as one continuous top arris with no corner post (D36's ring weld) and only the accepted butt notch; all four Fit Methods close flush on the spline; and the gate authored with **Piece at Markers + Marker Id and NO payload** lands at **x 7.200000..8.800000, centre 8.000000, error 1.788e-07 m**, with the unread-marker warning firing beforehand. PC-G1 no longer owes its parm face — only the GUI viewport pass · **PC-G2 numerically complete + IMAGE-VERIFIED (headless), INCLUDING the curving-spline variant it used to owe; GUI viewport pass still owed** — cycle 6 built the gate's own wording: a 24 m spline that **turns in plan (±3.6 m S-curve) and climbs 2.4 m**, resampled at 0.25 m, over a 2D terrain (`1.1 sin(2πx/13) + 0.8 cos(2πz/9) + 0.06x`), conform ON. All four modes pass **50 of 50** suite checks with **0 failures and nothing baselined**: `plumb_deg` **0.0** over 14 vertical pieces, `flat_stepped_m` **0.0** over **240 stepped posts, 240/240 still PACKED**, `bank_deg` **27.15°** adaptive, camber ON halving the residual to the surface normal (`camber_deg` 37.31° → **17.20°**), `conform_contact_m` **0.0**, `conform_misses` **0**, `inward_faces` **0**, no warnings. Judged on `VG2P_{vertical,stepped,adaptive}.png` and `VG2C_camber_cu.png`: the pickets' ribs are dead vertical while the run's foot follows the ground line, the adaptive rail's ribs lean perpendicular to the drape, the posts' tops make a clean sawtooth over a smooth ground line, and the cambered rail is visibly rolled onto the cross-fall. The **riser under each stepped piece is there and is expected** — it IS stepped mode — and it measures **0.061 m** on this hill; §4.4's flatten-under is BUILT as of cycle 10 (D98) and takes the AIR under each piece (`stepped_float_m` 0.054818/0.061280) to **0.0** with all 240 pieces still packed, leaving that riser where it is. **Cycle 9 re-rendered all of it through the HDA's parm page** with the terrain on input 4 (`HG2_*.png`): the pickets' ribs are plumb while the run's foot tracks the ground line, the stepped posts stand plumb with feet on the ground and tops stepping over it, the adaptive rail's ribs rake perpendicular to the drape, Tilt to Surface visibly rolls the rail onto the cross-fall, and the whole 24 m S-curve reads as a fence on a hill. Only the GUI viewport pass is owed · **PC-G3 numerically MEASURED at scale, and narrower than its headline** — 20 km, 10 005 × 2 m bendable panels: **10 005 packed, 0 deformed, one shared `geometryid`, 10 005 real points, +12.1 MB RSS, 0.42 s** as a two-point spline and **the same numbers at 0.55 s** as a **20 011-vertex resampled polyline** — independently reproduced in cycle 6, and D69 is what buys it (reverting D69 takes the resampled form to 0 packed / 10 005 deformed / 360 180 points / **21.9 s**). ⚠️ ~~The gate holds for a STRAIGHT resampled run only~~ — **CLOSED by D75 in cycle 7**: `hython tests/polychain/scale_gate.py` is the harness now, and R = 12 000 / 2 000 / 80 m all read **10 000 packed / 0 deformed / 10 000 points / +5.1 MB / ~0.60 s**, while R = 10 m (five times the budget) still deforms all 10 000 at 10.8 s. ⚠️ **CYCLE 9 RE-MEASURED THIS AFTER D87 AND THE TERMS ARE NARROWER AGAIN.** Those three rows are green because the starter kit's `panel` is **yaw-only** (`pc_zmode = vertical`), so the budget was spent on `rz` = 0.03 m and D87's off-spine term was switched almost all the way off — and `scale_gate.py` was still deciding pass/fail from `4/(8R)`, **the spine sagitta D87 retired**. Re-run under `zmode = adaptive`, where the panel's full 0.90 m height rides the frame: **R = 12 000 m and R = 2 000 m stay 10 000 packed / 10 000 points / ~0.6 s**, but **R = 80 m is 0 packed / 10 000 deformed / 360 000 points / 11.0 s / +34.7 MB** — `0.90 x 0.025 = 0.0225 m`, 2.25x `bend_tol`, so unpacking is CORRECT. D97 put the expectation on each ladder row with its reason and runs the ladder under both z-modes: **9 rows, 0 failing**, and mutating the budget 50x now fails 2 rows where it failed none. **PC-G3 passes on its own terms** — 10 005-piece packed instancing at 20 km, one `geometryid`, sub-second, +12 MB — and those terms are: a straight or gently-turning-IN-PLAN run, or any run whose module is yaw-only. A TALL module on an R = 80 m arc, or ANY module on a climbing run (D65's shear), costs the 11 s / 360 k-point deform path. The FLOOR rides the suite: `A_straight`, `CE_all_packed`, `CA_swap_module`, `CF_resampled_straight` and `CG_resampled_bendable` are asserted 100 % packed and `over_unpacked` proves nothing unpacks without a reason. ~~Owed: the deform path's VEX rewrite~~ — **DONE, cycle 10c (D102/D103)**: profiled first, the cost was the per-prim STAMP (9.023 s of 14.136 s, 4 758 096 `Prim.setAttribValue` calls) and not the deform loop (0.201 s, 1.4 %); through `hou.Geometry`'s bulk array setters the two deformed rows go **11.159 → 1.548 s (7.21x)** and **11.181 → 1.597 s (7.00x)**, bit-identical on all 83 cases, and VEX is measured and declined · **PC-G4 ✅ PASSES — as of cycle 12 (D107); before that its sweep was pretending** (§10 cycle 7): the same fence driven entirely by a style payload on input 3 with the parms at defaults, asserted in `tests/polychain/run_hda_checks.py` — the payload replaces the modules, the styleId and the ids, matches the kernel built from the `Style` object directly, and **the parms are provably inert while it is wired** — cycle 8 turned that from two parms into a SWEEP of the whole page (`swept 36 parms; moved: none`, ids AND rounded positions, exempting only `display`/`show_warnings`/`kitfile` by name), which is what caught `padding` still being live under a payload (D91). The generic-loop rule is audited by construction: `polychain/style.py` contains no style name and no branch per name, and `style_round_trip` re-proves it on all 73 cases. **Cycle 9 re-measured PC-G4 independently, in §2.1's own stronger wording — the SAME fence**: the parm face's own `Style` written out through `style.write` and wired back into input 3 of a second node with the parms at defaults produces output **identical on element ids, module names, rounded point positions AND every packed prim's full transform** across all **8 fill x corner combinations** (adaptive/scale/evenly/count x miter/bend, 35 to 137 prims). The page swept under that payload: **32 parms nudged, 0 moved the geometry**. A style the code has never heard of — `a_style_nobody_wrote_code_for`, carrying a `marker:42` slot — built **52 prims, 4 modules, 0 warnings** with no code change. The branch-per-name grep over the whole kernel returns nothing but `style_from_parms`' DEFAULT VALUE `"pf_polychain"`; the names that do appear in conditionals (`corner`, `default`, `start`, `end`) are §3.3's fixed slot vocabulary — the kernel's own schema, not any style's — and a slot outside it is dispatched generically. ⚠️ **CYCLE 12 MUTATION-TESTED THIS AND FOUND IT BLIND.** Reverting D91 - the `padding` parm applied unconditionally, so a wired payload feels it again - left the whole HDA suite **green**, `parms_inert_under_payload … moved: none`, with a debug print proving `_padded` really ran at 0.37 under the payload. The fixture was the cause, not the sweep: its `Params(fill="scale")` fence does not move for ANY `pc_pad` - `gate.pad` 0.0 -> 0.185 -> 0.400 with the output stuck at 44 prims, 12 elements and an identical point sum. **The fixture is `adaptive` now (D107)** and the same revert reports **`moved: padding`**; the shipped code reports `moved: none`. `scale` coverage is not lost - cycle 9 sweeps all 8 fill x corner combinations separately. GUI viewport pass owed like the others |
 
+**⚠️ NEW 2026-08-22, after phase 1 closed: [§11](#11-nativevexopencl-port-plan) is the ordered
+Native/VEX/OpenCL port plan**, synthesised from two independent audits. Read it before optimising
+anything. Two of its findings retire recorded conclusions: **D103 is retracted** (`attribvop`'s
+`vexsrc="snippet"` gives arbitrary 64-bit VEX from a verb, with no VOP network - verified twice on
+this build), and **PC-G0's "fork the Chain SOP" decision should be retired** (Chain builds
+12 011 652 points where polyChain builds 10 000 packed prims, and it has no verb). The port's own
+headline: **62 % of the real node cook is 14 `hou.Prim.setAttribValue` calls per packed piece** -
+D102's fix, never applied to the packed writer. Nothing in §11 is implemented.
+
 **To resume the autonomous run**, re-arm the loop with exactly this:
 
 ```
@@ -2908,3 +2917,473 @@ wanted. Nothing was ever saved to the hip file.
 3. The standing findings list in §0.0 — (3), (4), (5), (7), (8), (9), (10).
    None of them blocks a gate; (5) (a picket-panel default) is the one an artist
    would notice first, and it is a cycle, not a patch.
+
+---
+
+## 11 Native/VEX/OpenCL port plan
+
+**Status:** written 2026-08-22 from two independent audits (a profile audit and a native-SOP
+inventory audit), both measured on Houdini 22.0.398 / hython, branch `polychain`, phase 1 closed
+and all four gates green. **Nothing in this section has been implemented.** It is the ordered
+brief for the agents that will do the porting, and it is deliberately honest about which items
+are worth doing and which are not.
+
+**The premise it was written against was wrong in two places, and both corrections change the
+plan.** Read §11.0 before §11.2.
+
+### 11.0 Two corrections, and one trap
+
+**(a) The kernel is not "zero native SOP reuse". It is verb-only by design.** `place.py:138
+_verb` already reaches two compiled SOPs through `hou.sopNodeTypeCategory().nodeVerb` - `clip`
+(`_Proto.sliced` :629, `clip_plane` :1220) and `polyfill` (:634, :1227). D28 records this. What
+the kernel has zero of is `createNode`, which is a different and more useful fact: **there is no
+node network inside the builder, and every port below must keep it that way.** A verb executes
+inside the Python SOP that already cooks; a node does not.
+
+**(b) D103 IS RETRACTED. VEX is reachable from a verb, and 64-bit VEX is reachable too.** D103
+(place.py's docstring, §0.0, cycle 10c) records *"`nodeVerb` has NO VEX verb at all on 22.0.398
+(only `attribvop`, which needs a VOP network node)"*. That is false on this build. `attribvop`'s
+`vexsrc` menu has `snippet` as its 4th entry with a `vexsnippet` string parm - arbitrary VEX, no
+VOP network, executed through the verb. **Re-probed independently while writing this section:**
+
+```python
+v = hou.sopNodeTypeCategory().nodeVerb("attribvop")
+v.setParms({"vexsrc": 3, "bindclass": 2, "vex_precision": "64",
+            "vexsnippet": "@P.y = sin(@P.x*3.0); f@newattr = @P.x*2.0;"})
+v.execute(out, [src])
+```
+
+Measured here: 40 000 points, **0.0805 s**, and it creates `newattr` as well as writing `P`, so
+it is a full read/write pass and not just an edit. The inventory audit measured the same recipe
+over 360 000 points at **0.0889 s** for a full frame rebuild and 0.0175 s arithmetic-only.
+`vex_precision="64"` works through the verb and is **mandatory for this tool**: at 32 bits a
+20 km arclength expression returns `0` where the answer is `-4.983e-04`.
+
+**So both of D103's objections fall.** VEX is available, and using it does *not* mean putting a
+node network back into a deliberately node-free builder. D103's *conclusion* - that porting
+`_deform_positions` alone was not worth it after D102 - still stands on its own numbers (§11.2
+P6 re-derives it); its *blocker* does not, and everything downstream of that blocker needs
+re-deriving rather than citing.
+
+**(c) The trap that produced (b): `nodeVerb` returns `None` for a verbless node, it does not
+raise.** Probing with `try: cat.nodeVerb(n) except: ...` reports every node as having a verb.
+The reliable probe is `v = cat.nodeVerb(n); v is not None`, and then an actual `execute`. Verified
+this session: `chain`, `attribwrangle`, `copytocurves`, `pathdeform` all return `None` (they fail
+later at `setParms` with `'NoneType' object has no attribute 'setParms'`); `attribvop`,
+`copytopoints`, `ray`, `polyframe`, `clip`, `polyfill`, `attribcreate::2.0`, `resample`, `measure`,
+`pack`, `blast`, `fuse`, `normal`, `boolean::2.0`, `polybevel::3.0`, `polysplit::2.0` all return
+real verbs.
+
+### 11.1 The verdict, per module and per kernel stage
+
+The procedural-modeling skill's hierarchy applied literally: **native node first, then VEX, then
+OpenCL only where the data is genuinely large and parallel, and Python only for small-N
+orchestration, I/O adapters and the reference implementation.** The honest finding is that this
+kernel's hot path is mostly the *fourth* thing the hierarchy does not name - per-element HOM API
+calls - and that the biggest wins need no new language at all.
+
+| File | Lines | Verdict | Reason |
+|---|---|---|---|
+| `__init__.py` | 527 | **KEEP PYTHON, fix one cache** | Contracts, `Curve`, `Marker`, kit schema. `Curve.sample` rebuilds its whole segment table per call - 8.2 ms at 20 001 verts against `place.Path.sample`'s cached 0.80 us. That is a caching bug, not a language problem (§11.2 P2). |
+| `decompose.py` | 350 | **KEEP PYTHON** | Per-vertex but linear and cheap: `_clean` is 0.030 s on 20 001 verts, 2-5 % of any profiled row. Its cost is entirely its caller `Curve.sample` (2 calls per section, decompose.py:335/336). Nothing native fits - `resample` unshares points and interpolates point attributes (dev-loop trap list) so it cannot derive arclength on a curve whose topology is contractual, and `measure` is per-prim perimeter, not a per-vertex cumulative. |
+| `plan.py` | 707 | **KEEP PYTHON - do not port** | This is the fitting *solve*, not per-element geometry: 5.4 % of the packed row, 4.5 % of the 300-street row, 10 000 pieces planned in 0.0003 s in the inventory audit's prototype. Native has no equivalent for exact-fill adaptive/tile/scale/count with `pc_pad` neighbour displacement, marker slots and compose rules. It runs with **no Houdini imported** (`tests/unit/test_polychain_plan.py`, 89 tests) - a property worth more than the microseconds. |
+| `corner.py` | 1169 | **KEEP PYTHON - do not port** | 3.4 % of the corner-heavy case, < 0.4 % everywhere else. Small-N combinatorics per corner, and it is where the tool's correctness lives. The corner-heavy case is slow because of `Curve.sample` and the cut *glue*, not because of `corner.py`. |
+| `kit.py` | 375 | **KEEP PYTHON** | Kit authoring and validation, once per cook at kit size, not per piece. `kit.box_mesh`'s hand-built boxes stay explicit construction (procedural-modeling rule 5). |
+| `style.py` | 361 | **KEEP PYTHON** | The payload I/O adapter - exactly what the hierarchy reserves Python for. `style_round_trip` runs it on all 87 cases and it never shows up in a profile. |
+| `hda.py` | 412 | **KEEP PYTHON, two bulk-write fixes** | Parm face + cook orchestration; measured HDA wrapper overhead over `place.build` is **~0 %** (0.933 s node cook vs 0.916 s direct call). But `colour_warnings` loops `prim.setAttribValue("Cd", ...)` over every prim, and `display = "plan"` cooks **1.55 s against the 0.93 s full build it is supposed to preview** (§11.2 P1). |
+| `conform.py` | 317 | **PORT TO A NATIVE NODE (`ray` verb) + one VEX line** | `Surface.drop`/`_cast` is a Python loop over `hou.Geometry.intersect`. Conform is **90 % of a conformed build** (0.544 s of 0.607 s); `hou.Geometry.intersect` itself is only 4.9 % of it - the rest is glue (192 011 `hou.Vector3` constructions in `_cast` alone, 0.176 s). The `ray` verb reproduces it at **52-94x** with 0 hit-flag mismatches. |
+| `place.py` | 1801 | **SPLIT** | The stamp and the per-piece geometry plumbing are API-bound and go to bulk writers (no new language). The deformed branch's materialisation is the one genuine **native-node + VEX** target (`copytopoints` + one `attribvop` snippet). `Path.sample` and the deform gate stay Python. |
+
+Per kernel stage:
+
+| Stage | Verdict | What actually changes |
+|---|---|---|
+| **§4.1 Decompose** | **Python**, with `Curve.sample` cached | Arclength table, corners, markers, sections. Keep. The sampler gets a memoised segment table and a `bisect` (P2). `polyframe` (0.0023 s on 20 001 pts) is *not* adopted: the tool needs a cumulative arclength table and per-side tangents at kinks, which it does not give. |
+| **§4.2 Plan** | **Python. Do not port.** | Nothing. |
+| **§4.3 Corners** | **Python** for the solve; bulk reads for the cut glue | `clip` + `polyfill` verbs stay (they are 6 % of the corner-heavy case; the Python around them is 6x that). `dress_caps`' per-vertex UV write is a VEX candidate but low priority - caps only exist on sliced/mitered pieces and `n_cut` is single digits across the suite. |
+| **§4.4 Place + deform, packed branch** | **Bulk API writes; native `copytopoints` DECLINED** | The stamp goes bulk (P1). `copytopoints(pack=1)` measured 5.2x on the *materialisation* (0.0437 -> 0.0084 s) - but after P1 that materialisation is ~9 % of a packed row, and routing the transform through a float32 point attribute moves it by 4.34e-07 m, against a suite that asserts `marker_offset_m` at 1.788e-07 m. **Not worth the baseline movement. Declined, with the number, so nobody re-derives it.** |
+| **§4.4 Place + deform, deformed branch** | **Native `copytopoints(pack=0)` + one `attribvop` VEX(64) pass** | The one place where the hierarchy's answer and the measurement agree: end-to-end prototype of the `arc_10` row, **0.2767 s vs the shipped 1.6559 s = 5.98x**, and it deletes the per-piece `hou.Geometry()` / `merge` / 149 954 `addAttrib` churn with it. The frame construction itself stays ours - nothing native expresses `vertical`/`stepped`, D98's flatten-under datum or D99's bands; the port moves that code from Python into VEX, it does not delegate it. |
+| **§4.5 Conform** | **Native `ray` verb**, two-phase | See P5. Also deletes the unbounded `ConformPath._cache` (measured at **53 861 entries ~ 24 MB for one 2 km curve**). |
+| **§4.6 Finalize** | **Bulk API writes** | One geometry-wide stamp instead of 14 calls per piece (packed) or 14 array writes per piece (deformed); `_declare` once instead of once per throwaway piece geometry. `polyfill` stays - `polycap` has **no verb** and is unreachable from a verb-only kernel. |
+| **OpenCL, anywhere** | **NO - not in phase 1** | The largest parallel workload in the tool is the deformed branch's 360 000 points, which VEX does in **0.089 s**. Adding a GPU transfer and a second language to a sub-0.1 s stage is cost without payoff, and the per-piece work above it is small-N with data-dependent branching, which is the shape OpenCL is worst at. Revisit only for phase 2 (§7, the 2D array - N rows through the same kernel) or a consumer driving > 1e7 points. **Recorded as a decision so the next agent does not re-open it without a workload that justifies it.** |
+
+### 11.2 The ordered work list
+
+Ordered by **measured** payoff over risk. Each item names the checks that pin it. Numbers come
+from the two audits; where the two disagree (the stamp bench: 39x vs 16.7x) both are given -
+they measured slightly different things and neither is wrong.
+
+---
+
+**P0 - Close the three unasserted stamps, and commit the port's own tripwires. No speedup.**
+*(Prerequisite. Do this before touching a writer.)*
+
+- **What changes:** (i) §0.0 standing finding (10) - `pc_u`, `pc_section` and `pc_variant` are
+  asserted by **nothing**; corrupt any of them in *both* writers and the suite reports 87 cases,
+  0 failing, 0 baseline moves. **Every item below rewrites a stamp writer.** Porting a writer
+  while 3 of its 14 values are unasserted is porting blind. One per-case check that reads each of
+  the three back against the plan the piece came from. (ii) Three measurements from the audits
+  become standing checks, per `tests/README.md`'s compounding rule: `stamp_calls_per_piece` (count
+  HOM attribute-write calls per piece - the thing P1 is *for*), a `Curve.sample` cost-vs-vertex-count
+  assertion (P2's whole point; it must be O(1) per call, not O(n)), and a bound on
+  `ConformPath._cache` size (P5 deletes the cache; nothing currently notices it growing).
+- **Payoff:** none in seconds. It is what makes every later item provable.
+- **Risk:** LOW. New checks only, no production code.
+- **Pinned by:** itself. Mutation-test each new check the way cycles 11/12 did - corrupt the value
+  in both writers and confirm the new check goes red.
+
+---
+
+**P1 - Bulk-write every surviving per-element stamp. The biggest single win in the tool.**
+
+- **What changes:** `place._stamp` (place.py:1444) writes 14 attributes one `hou.Prim.setAttribValue`
+  at a time, once per packed piece - **2.19 us per call x 14 x N**. D102 fixed exactly this for the
+  *deformed* writer (`_stamp_geo`) and the packed branch, which is what PC-G3's headline row and
+  every citygen shape actually runs, was never converted. Replace with an accumulate-then-write
+  pass: collect the 14 (+ warn) value arrays across the whole output during pass B, then one
+  `setPrim{String,Int,Float}AttribValues` per attribute at the end. `_stamp_values` is already the
+  single source of truth for both writers, so this adds no third description. Same fix, same pass,
+  for `place.plan_points` (15 point attributes per piece, one call each) and `hda.colour_warnings`
+  (per-prim `Cd`).
+- **Payoff, measured:** the stamp is **62 % of the packed 20 km row, 59 % of the 300-street row,
+  and 62 % of the real HDA node cook**. Isolated: 10 000 prims x 14 attrs, **0.3063 s -> 0.0079 s
+  (39x)** with identical values; the inventory audit's variant measured 0.3008 -> 0.0180 s (16.7x).
+  On the real node: **0.933 s -> ~0.40 s expected**. `Display = Plan` - the interactive preview -
+  currently cooks **1.55 s against the 0.93 s full build it previews**; this is the whole reason.
+  D82's proxy LOD is also nearly worthless today (0.87 s vs 0.93 s, ~7 %) precisely because the
+  cost is the stamp and not the geometry - P1 is what makes the LOD mean something.
+- **Risk:** **LOW, and it is the only item with zero expected baseline movement.** No geometry is
+  touched, no maths, no float format. Two things to get right: prim ordering (the accumulated
+  arrays must line up with `out`'s prim numbering after every `merge`, so accumulate *lengths* as
+  you go rather than assuming), and `_declare` must still run before the first write so warn
+  attributes exist.
+- **Pinned by:** `stamp_parity` (all 87 - it exists to prove the two writers agree),
+  `output_schema` (87), `warn_summary` (87), `warnings` (87), `kit_warnings` (87), P0's new
+  `pc_u`/`pc_section`/`pc_variant` check, `plan_points` (87), `determinism` (87), and
+  **`geometry_digest` (87), which must NOT move.** In the HDA suite: `run_hda_checks.py`'s
+  display-mode and warning-colour rows.
+
+---
+
+**P2 - Memoise `Curve.sample`'s segment table.**
+
+- **What changes:** `__init__.py:269` builds `segs` - the full per-segment table - on **every
+  call**, then linear-scans it. `place.Path` is the cached twin that already exists in this repo
+  (built once in `__init__`, then `bisect`). Cache the table on `Curve` the same way `_cumulative`
+  is already cached, and switch the scan to `bisect`.
+  WARNING: **do NOT "just point `decompose` at `place.Path`"** (the profile audit offers this as an
+  alternative). The two samplers are deliberately not identical: `Path.sample` **extrapolates**
+  past an open curve's ends (D30, and there is a measured defect behind it - a 1.6 m gate crushed
+  to a 1.11 m zero-thickness plane), while `Curve.sample` clamps. Swapping them changes end
+  behaviour on every section frame. Cache in place; keep the semantics.
+- **Payoff, measured:** 3.2 us at 10 verts -> **8 218 us at 20 001 verts**, against `Path.sample`'s
+  flat **0.80 us** - 10 241x at PC-G3's own input. It is **83 % of the cumulative time** of the
+  20 km-resampled + 200-corner run, which at **4.322 s is the worst case either audit found** and
+  is the real citygen shape. 200 corners on that run cost **+3.67 s** over the same run with none.
+  Expected after: ~4.32 s -> ~0.65 s.
+- **Risk:** **LOW-MEDIUM.** The cache assumes `Curve.points` is not mutated after the first sample -
+  which `_cumulative` already assumes, so this adds no new assumption, but say so in the docstring.
+- **Pinned by:** **`sampler_matches_kernel` (all 87)** - it exists to assert that the cached
+  sampler and the kernel's own agree about where a metre is, which is precisely this change;
+  plus `section_coverage_m`, `exact_fill_m`, `corner_turns`, `corner_abut_m`, `corner_seam_m`,
+  `geometry_digest` (must not move), and `tests/unit/test_polychain.py`'s decompose tests.
+
+---
+
+**P3 - Stop sampling the path twice for the bend-resolution warning.**
+
+- **What changes:** `place._bend_deviation` (place.py:1090) samples the path **24 times per piece**
+  to produce a number used only to raise `pc_warn_bend_resolution` - more sampling than the deform
+  itself does (10 per piece). Its `pa`/`pb` per station gap are the *same* stations
+  `_deform_positions` rebuilds; only the midpoint `pm` is extra. Compute the station positions
+  once per job and let both consumers read them.
+  WARNING - ordering constraint: the warning is decided in **pass A** because `warn_names` is
+  collated and `_declare`d before pass B runs. So this is "share the samples", not "move the
+  pass" - sample the stations once into the job dict in pass A and have pass B reuse them. (If P6
+  lands, the deviation folds into its VEX pass instead and this item disappears.)
+- **Payoff, measured:** `_bend_deviation` is **cum 20 % of the deformed row profiled, ~15 % clean**.
+  Sharing removes the 2-of-3 samples that are duplicates; **expect 8-10 % of the deformed row**,
+  not 15. Stated conservatively on purpose.
+- **Risk:** **MEDIUM.** The warning must fire on exactly the same pieces it fires on today. It is
+  a *warning*, so a silent change is invisible in geometry checks.
+- **Pinned by:** `warn_summary` (87) and `warnings` (87) - `pc_warn_bend_resolution` counts are in
+  the baseline per case, so a changed trigger moves a recorded value; plus `curvature_budget_m`,
+  `deform_gate_m`, `packed_true_dev_m`.
+
+---
+
+**P4 - One output geometry for the deformed branch; declare attributes once.**
+
+- **What changes:** the deformed branch builds `hou.Geometry()` + `merge(src)` + `_declare` +
+  `out.merge(piece)` **per piece** - **150 014 `addAttrib` calls for 10 000 pieces**, re-declaring
+  the same 14 attributes on 10 000 throwaway geometries. Build all deformed pieces into one
+  geometry with attributes declared once. Pieces that take a corner **cut** keep their own
+  geometry (the `clip` verb operates on a whole geometry), so this is a hybrid, not a blanket rule.
+- **Payoff, measured:** **21 % of the deformed row, 33.6 us/piece**; `_declare` alone is 0.325 s
+  cum on the `arc_10` row. It also makes P1's whole-output stamp free on this branch (14 calls
+  total instead of 14 per piece - `_stamp_geo` is still **36 % of the deformed row, 57.1 us/piece**,
+  of which 7 string writes at 4.26 us dominate).
+- **Risk:** **MEDIUM.** Prim/point numbering and `pc_local` must survive the change; the cut branch
+  must stay separate.
+- **Pinned by:** `element_count`, `duplicate_elem_ids`, `deformed_flag_mismatch`, `open_edges`,
+  `slice_caps_closed`/`cap_prims`, `cap_uv_m`, `module_fidelity_m`, `geometry_digest` (must not
+  move), `determinism`, plus the corner suite (`corner_wedge_m2`, `corner_breach_m`, `corner_welds`).
+
+---
+
+**P5 - Replace `Surface.drop` with the `ray` SOP verb, batched.**
+
+- **What changes:** `conform._cast` casts one `hou.Geometry.intersect` per query in Python, twice
+  (down-axis then back-axis) with 2 `hou.Vector3` constructions each, memoised into an unbounded
+  dict keyed on `(round(s,9), forward)`. Replace with **one `ray` verb execution over a batched
+  point cloud**: `method=project`, `dirmethod`/`dir` from `Params.conform_axis`,
+  `reverserays=bidirectional`, `bidirectionalresult=closest`, `putnml=1`, `newgrp=1` (the hit
+  flag), `rtolerance=1e-6`.
+  **This needs a two-phase refactor, and the shape of it matters:** `ConformPath` is a *lazy*
+  sampler queried from inside plan/place decisions. The safe form is a **prefetch**: after the plan
+  exists, enumerate every arclength that will be asked for (each piece's `proto.fracs` stations
+  across its span, the +/-`delta` finite-difference partners, the `deviates`/`missed` probes, the
+  anchor drops), run one `ray.execute`, fill `_cache` from the result, and **leave the existing
+  per-query Python path in place as the fallback for any key the prefetch missed.** That makes the
+  port additive: a missed key is slow, never wrong - and it puts both implementations in one
+  process, which is where the parity check gets to ask both (§11.3 rule 4).
+- **Payoff, measured:** 20 000 drops **0.1045 s -> 0.0020 s (52x)**; the profile audit's 54 000-point
+  variant **0.2755 s -> 0.0029 s (94x)**. Conform is **90 % of a conformed build** and `drop` alone
+  is **40 % of the 2 km fence case's clean wall clock**. It also deletes the **24 MB** memo cache
+  (53 861 entries on one 2 km curve) - a 300-street conformed citygen run, the obvious next
+  consumer, would otherwise carry several hundred MB of it.
+- **Risk:** **HIGH - the highest of any item here, and the first one that WILL move baselines.**
+  Three named differences: (i) agreement with `hou.Geometry.intersect` is **9.5e-07 m max |dP|**
+  over every drop a real PC-G2-shaped case makes (862 drops x 3 z-modes, 0 hit-flag mismatches) -
+  float32 storage noise, not a wrong answer, but `conform_contact_m` currently baselines at
+  **exactly 0.0** and `geometry_digest` hashes positions at **`%.6f`**, so **both will move on
+  every conformed case**; (ii) **the `ray` verb does not do D52's normal flip** - max |dN| **1.935**,
+  a sign flip; on `abs` it agrees to 1.25e-07. The flip must be re-added as one VEX line (or one
+  bulk Python pass) or every camber on a back-facing polygon rolls upside down; (iii) D70's
+  tie-breaking ("a tie goes down-axis, because the stage is a drop") and D53's miss semantics
+  ("a miss keeps the unprojected position") must be re-derived on the verb's `bidirectionalresult`
+  rather than assumed. **Decide the baseline movement explicitly before starting, and record the
+  decision.** The defensible position: accept movement <= 1e-6 m as float32 noise, re-baseline the
+  conformed cases in a commit that does nothing else, and require every *metric* check to stay
+  green at its own tolerance while doing it.
+- **Pinned by:** `conform_contact_m` (87, tol 2e-3, baselined 0.0), `conform_drape_m` (87),
+  `conform_misses` (87), `camber_deg` (87), `warn_summary` (`pc_warn_conform_miss` counts),
+  `stepped_float_m` (87), `band_datum_m` (87), `deform_gate_m` (87), `geometry_digest` (87 - will
+  move on conformed cases), and D70's bridge-deck case (ground y=-2, deck y=+2), which the audit
+  re-ran at 8 probes and which is the one case a naive `first hit` port gets wrong.
+
+---
+
+**P6 - The deformed branch: `copytopoints(pack=0)` + one `attribvop` VEX(64) pass.**
+
+- **What changes:** the whole of pass B's deformed path. Emit one target point per piece carrying
+  its solve (arclength span, scale, z-mode, band, datum, tilt), `copytopoints` the module geometry
+  onto them unpacked, then **one `attribvop` snippet in 64-bit** rebuilds every point's position
+  from the per-station frame - the same maths `_deform_positions` (place.py:1245) does, moved from
+  Python into VEX - followed by one VEX prim-promote for the stamp. This **absorbs P3 and P4**.
+- **Payoff, measured:** end-to-end prototype of the `arc_10` row producing the same output size,
+  **0.2767 s vs the shipped 1.6559 s = 5.98x** (359 820 vs 359 856 points, 339 830 vs 339 864
+  prims - *not* the same output, see risk). Split: plan 0.0003 / target points 0.021 /
+  `copytopoints` 0.126 / **VEX deform 0.089** / VEX stamp 0.031.
+- **Risk:** **HIGH, and it is a cycle, not a patch.** (i) `vex_precision="64"` is **mandatory** -
+  at 32 bits a 20 km arclength expression returns 0. (ii) The prototype's point and prim counts
+  differ from the shipped build by 36 and 34 - small, but **not zero, and nobody has explained
+  them**; that must be understood before it lands, not after. (iii) The three z-modes, D98's
+  flatten-under datum and D99's bands are our own frame construction and must be transcribed into
+  VEX exactly; the deformed branch is where `plumb_deg`, `flat_stepped_m`, `band_hybrid_m` and
+  `band_datum_m` all live, and each of those has a cycle-11/12 defect behind it. (iv) Corner-cut
+  pieces still need the `clip` verb per piece, so they stay on the old path. (v) `Path.sample`
+  stays in Python for the gate; the VEX pass should be handed the station frames it needs rather
+  than re-deriving arclength in VEX - if it re-derives, **the two samplers must be proven to agree**
+  and that is a second parity problem nobody asked for.
+- **Honest ceiling, so this is not oversold:** the deformed branch is **1.58 s of a suite whose
+  headline case is 0.49 s**, and PC-G3's own row is 100 % packed. This item is worth ~1.3 s on the
+  *deformed* workloads and **nothing at all** on PC-G3, the citygen street case, or any packed run.
+  D103's original judgement - that the per-point deform is a small share - is re-confirmed by the
+  profile audit independently (`_deform_positions` is **18 % of the deformed row, 0.81 us/point**,
+  and 26 % of *that* is its own `Path.sample` calls). What makes P6 worth doing is not the deform;
+  it is that `copytopoints` deletes the per-piece geometry churn (P4) and the bulk stamp lands for
+  free. **Do P1-P5 first and re-measure before starting P6.**
+- **Pinned by:** everything P4 is pinned by, plus `plumb_deg`, `flat_stepped_m`, `bank_deg`,
+  `band_hybrid_m`, `band_datum_m`, `stepped_riser_m`, `stepped_float_m`, `axis_on_curve_m`,
+  `cross_section_m`, `frame_dot_min`, `station_spacing_m`, `min_piece_span_m`, `rigid_deformed`,
+  `over_unpacked`, and the scale ladder (`scale_gate.py`, 9 rows under both z-modes).
+
+---
+
+**P7 - Bulk-read the miter glue and `dress_caps`. Low priority.**
+
+- **What changes:** `clip_plane` + `dress_caps` are **40 % of the corner-heavy case**, of which the
+  native `clip` + `polyfill` verbs are **6 %** - the surrounding Python (`Prim.points()`,
+  `Point.position()`, per-vertex `setAttribValue`) is 6x the verbs' cost. Bulk attribute reads and
+  writes, or one `attribvop` UV pass. **Not** `uvproject`: it would fight the `pc_local`
+  box-mapping D59 needs.
+- **Payoff:** meaningful only on corner-dense runs, and P2 already takes that case from 4.32 s to
+  ~0.65 s. Do it last or not at all.
+- **Risk:** MEDIUM (winding and cap tagging).
+- **Pinned by:** `cap_uv_m`, `cap_prims`, `slice_caps_closed`, `corner_plane_dev_m`,
+  `corner_face_mate_m`, `corner_wedge_m2`, `inward_faces`.
+
+---
+
+**Explicitly declined, with the numbers, so they are not re-derived:**
+
+| Declined | Measured reason |
+|---|---|
+| `copytopoints(pack=1)` for the **packed** branch | 5.2x on the materialisation (0.0437 -> 0.0084 s), but that is ~9 % of a packed row **after P1**, and the transform routes through a float32 point attribute (4.34e-07 m) against `marker_offset_m` baselined at 1.788e-07 m. Cost in baseline movement exceeds the payoff. |
+| `polycap` instead of `polyfill` | **No verb.** Unreachable from a verb-only kernel. `polyfill` is already the right node. |
+| `boolean::2.0` instead of `clip` | A bisector is a half-space; `clip` is the exact primitive and two inputs cheaper. Keep `boolean::2.0` in mind only if a non-planar cut ever appears. |
+| `resample` / `measure` for the arclength table | `resample` **unshares points and interpolates point attributes**; the topology is contractual here. `measure` is per-prim perimeter, not a per-vertex cumulative. The Python table is 0.0090 s for 20 001 points - cost was never the problem. |
+| `polyframe` for the frames | Gives `tangentu` + `N` in 0.0023 s, but not per-side tangents at a kink, which decompose's section frames require. |
+| OpenCL, anywhere in phase 1 | The largest parallel stage is 360 k points at 0.089 s in VEX. |
+| `pathdeform`, `copytocurves`, `bend`, `chain` | **All verbless** - see §11.6. |
+
+### 11.3 Parity strategy - how each port is proven equivalent
+
+**The Python stays. It is the reference implementation, and that is a permanent decision, not a
+transition arrangement.** Every item above replaces a *call site*, not a description: the
+description (`_stamp_values`, `_deform_positions`, `Surface.drop`) remains importable, testable
+without Houdini where it already is, and runnable as the fallback path.
+
+Five rules, in the order a porting agent applies them:
+
+1. **Two writers, one description - the D102 pattern, reused.** `_stamp_values` is already the
+   single source of truth for the per-prim and the bulk stamp, which is why `stamp_parity` can
+   prove them equal on all 87 cases. Every port follows that shape: the ported path and the Python
+   path derive from one description, and a per-case check compares their outputs. `stamp_parity` is
+   the template; write `conform_parity` and `deform_parity` the same way.
+2. **Parity is asserted per case, in the committed suite, not in a scratchpad.** Cycle 11 finding
+   (D) is the precedent: D102's bulk-stamp parity proof *was* a scratchpad run, every check read a
+   stamp from an element's **first** prim, and corruption on prims 2..n was invisible until
+   `stamp_parity` was committed. A parity run that is not in `tests/polychain/checks.py` did not
+   happen.
+3. **Mutation-test every parity check before trusting it.** Corrupt the ported path by the
+   tolerance you claim to detect (1e-6 on every element, and separately on elements 2..n only)
+   and confirm the check goes red. Cycle 12 did exactly this and found `stamp_parity`'s blind spot
+   and PC-G4's blind fixture. A parity check that cannot fail is decoration.
+4. **The fallback is the parity harness.** P5's prefetch design (batched `ray` fills the cache,
+   Python `intersect` serves anything the prefetch missed) means both implementations are live in
+   one process, so parity can be asserted by *asking both* rather than by diffing two runs. Prefer
+   that shape wherever it is available.
+5. **Every port lands in its own commit, with the baseline diff read line by line.** Never a port
+   and a re-baseline in the same commit as anything else.
+
+**Where float32-vs-float64 divergence is expected, and what tolerance is defensible:**
+
+| Port | Expected divergence | Defensible tolerance | Why |
+|---|---|---|---|
+| P1 bulk stamp | **exactly 0** | 0 - assert bit-identical | Same values, same types, different call shape. D102 achieved bit-identical on all 83 cases doing this to the other writer. |
+| P2 `Curve.sample` cache | **exactly 0** | 0 - assert bit-identical | Same arithmetic, same order; only the table's lifetime changes. |
+| P3 shared stations | **exactly 0** on geometry | 0 on geometry; warning counts must match exactly | It reuses the same samples. |
+| P4 one geometry | **exactly 0** | 0 | Container change only. |
+| P5 `ray` verb | **<= 9.5e-07 m** on position; hit flags identical (0 mismatches over 862 real drops x 3 z-modes); normals identical on `abs` to 1.25e-07 after the D52 flip is re-added | **1e-6 m**, and say so | float32 storage floor at these coordinates. It sits *inside* the suite's `TOL_M = 1e-4` but **outside** `geometry_digest`'s `%.6f` and outside `conform_contact_m`'s baselined 0.0 - so metric checks stay green while recorded values move, and that must be stated in the commit rather than discovered in the diff. |
+| P6 `copytopoints` + VEX(64) | position parity **not yet measured** (the prototype produced a different point count); frame maths in 64-bit should agree to ~1e-9, the float32 *storage* of `P` floors it at ~1e-7 | **1e-6 m**, provisional - re-derive it on the real port | 64-bit VEX is mandatory (32-bit returns 0 for a 20 km arclength expression). The unexplained 36-point / 34-prim delta must be resolved before any tolerance is agreed. |
+
+**The honest sentence about `geometry_digest`:** it hashes world positions at `%.6f`, so it is a
+1 um tripwire. P1-P4 must not move it at all. P5 and P6 will move it on every affected case, and
+"0 baseline values moved" is not available for them - claiming otherwise would be the failure mode
+this section exists to prevent.
+
+### 11.4 What must NOT change
+
+| Invariant | What would catch a regression |
+|---|---|
+| **The 87 scene cases / 5 063 baselined values** | `hython tests/polychain/run_scene_checks.py`. Read the movement list; **never** `--update-baseline` in the same commit as a code change unless the commit does nothing else and every moved number is explained (P5/P6 only). |
+| **§3.1 input schema** (`pc_corner`, `pc_section`, `pc_style`, markers) | `modules_by_curve`, `marker_offset_m` (1.788e-07 m), `duplicate_curve_id_warn`, `run_hda_checks.py`'s input wiring rows. |
+| **§3.2 kit format** | `kit_warnings` (87), `module_fidelity_m` (87), `cross_section_m` (87), `tests/unit/test_polychain.py`. |
+| **§3.3 style payload** | `style_round_trip` (87), `style_payload_degrades`, and `run_hda_checks.py`'s `parms_inert_under_payload` sweep - **which is `adaptive` since D107 and must stay so**; a `scale` fixture made that sweep blind for a whole cycle. |
+| **§3.4 output stamp - all 14 names** | `output_schema` (87), `stamp_parity` (87), `zmode_stamp`, and **P0's new check for `pc_u`/`pc_section`/`pc_variant`, which is why P0 is first.** |
+| **The two-face principle (§2.1)** | `style_round_trip` on all 87 + the PC-G4 sweep. A port must not introduce a branch that reads a style *name*: `polychain/style.py` contains no style name and no branch per name, and the grep over the kernel is part of the gate. |
+| **Determinism** | `determinism` (87 - same inputs twice, identical positions *and* ids) and `geometry_digest` (87 - the cross-session half, the `PYTHONHASHSEED` class of defect). **A batched port is a reordering**, so this pair is the check that matters most for P5/P6: never let a hit order or a merge order reach a value. |
+| **Warn-never-block** | `warnings` (87), `warn_summary` (87), `kit_warnings` (87). No verb may be allowed to raise into the cook: `hou.Geometry.intersect` never raised on a degenerate surface; a verb can, and one exception replaces the whole fence with nothing. **Wrap every new verb call.** |
+| **PC-G1 the fence** | `exact_fill_m`, `max_gap_m`, the 12 `corner_*` checks, `marker_offset_m`, all four fill modes x both corner modes. |
+| **PC-G2 the hill** | `plumb_deg` (0.0), `flat_stepped_m` (0.0), `bank_deg` (non-zero), `conform_contact_m`, `conform_misses`, `camber_deg`, `stepped_float_m`, `band_datum_m`. |
+| **PC-G3 at scale** | `hython tests/polychain/scale_gate.py` - 9 rows under both z-modes, plus `packed_pieces`, `over_unpacked`, `deform_gate_m`, `packed_true_dev_m`, `curvature_budget_m`, and `A_straight` / `CE_all_packed` / `CF_resampled_straight` / `CG_resampled_bendable` asserted 100 % packed. **One shared `geometryid` is the property; a port that quietly stopped sharing the source geometry would pass every metric check.** Add that assertion if it is not already there. |
+| **PC-G4 the pipeline face** | `run_hda_checks.py` in full. |
+| **The verb-only kernel** | No `createNode` anywhere in `polychain/`. Grep it in the gate. |
+
+Run order after every port step, no exceptions:
+`python tests/unit/test_polychain*.py` -> `hython tests/polychain/run_scene_checks.py` ->
+`hython tests/polychain/run_hda_checks.py` -> `hython tests/polychain/scale_gate.py`.
+
+### 11.5 Honest risks
+
+1. **Precision is the live risk, not a footnote.** The suite asserts to 1.788e-07 m in one place
+   and hashes to 1e-6 m in 87. `copytopoints` routes transforms through a float32 attribute
+   (4.34e-07 m); the `ray` verb disagrees with `hou.Geometry.intersect` at 9.5e-07 m. Both are
+   float32 noise at these coordinates, not wrong answers - but **"0 baseline values moved" will not
+   survive P5 or P6**, and any plan that promises it is lying.
+2. **`ray` does not reproduce D52's normal flip.** Max |dN| = 1.935 - a sign flip. Camber rides
+   the normal; a missed flip rolls modules upside down on any back-facing polygon, and the suite's
+   camber check (`camber_deg`, tol 0.05) is loose enough that a *partial* miss could hide.
+3. **Batching is reordering, and reordering is where determinism dies.** P5 and P6 both replace
+   per-query / per-piece work with one bulk call. Any place where a result's *index* is used as an
+   identity, or where a dict iteration order reaches a value, becomes a cross-session defect that
+   only `geometry_digest` can see. Cycle 1 already killed one `PYTHONHASHSEED` defect in this
+   kernel.
+4. **A verb can raise where the HOM call did not.** Warn-never-block is a contract (D24, D34, D53).
+   Degenerate input - an empty surface, a zero-length span, a single-point curve, a NaN in the kit -
+   must reach a warning, not a traceback. Every new verb call gets a try/except that degrades to the
+   Python path.
+5. **`polyfill`'s new prims inherit neighbour attribute values** (D28's plane-test cap tagging
+   exists because of it). Any change to how prims are stamped (P1, P4, P6) must keep the cap tagging
+   correct - `cap_prims` and `cap_uv_m` are the pins, and they only exist on 3 cases.
+6. **The prototype in the inventory audit is not the port.** It produced 359 820 points where the
+   shipped build produces 359 856, and 339 830 prims where the shipped build produces 339 864.
+   Nobody has explained the 36/34. It is small enough to look like a rounding difference and large
+   enough to be a dropped piece. **Resolve it before P6 lands.**
+7. **The two audits disagree on the stamp's speedup (39x vs 16.7x).** They benched slightly
+   different things. Do not quote either as *the* number in a commit message - re-measure on the
+   real node cook, which is the figure that matters (0.933 s today).
+8. **`Curve.sample`'s cache assumes immutability.** So does `_cumulative`, so this is not new, but
+   a future feature that mutates a `Curve` in place would silently serve stale geometry.
+9. **The 11 s case in the old notes is stale.** Post-D102 the R = 10 m row is **1.58 s**, not 11 s.
+   Anyone planning from the older number will over-value P6 by a factor of seven.
+10. **Scope creep is the biggest project risk here, not any single port.** P1 + P2 are two small,
+    low-risk diffs that between them take the dominant packed workload from 0.49 s to ~0.19 s and
+    the worst-case citygen run from 4.32 s to ~0.65 s, with zero expected baseline movement. P5 and
+    P6 are cycles with baseline consequences. **The tool's actual owed work is the GUI viewport pass
+    and the streets acceptance, not this port.** Land P0-P2, re-measure, and only then decide
+    whether the rest is worth a cycle.
+
+### 11.6 The Chain SOP question - PC-G0's fork decision should be RETIRED
+
+**Recommendation: mark PC-G0's "fork the network" resolution superseded in §2.3 and §6, and record
+that the kernel will not fork Chain - now or later.** The build ignored the decision (grep: **zero
+references to `chain` anywhere in the kernel**) and the measurements say it was right to.
+
+- **Chain never produces packed prims.** Same 20 km run: Chain gives **12 011 652 points /
+  11 344 338 prims in 3.421 s**; polyChain gives **10 000 packed prims, one `geometryid`, 0.55 s**.
+  A 1 200x point-count difference. **PC-G3's entire headline is unreachable through Chain.**
+- **It emits no attributes at all** (`point attribs: ['P']`, `prim attribs: []`) - nothing for
+  §3.4's 14-name stamp to ride.
+- **Its default fit does not fill exactly** - bbox x -0.362..24.324 on a 24.881 m curve, against a
+  suite that asserts exact fill to 1e-9 m in all four modes.
+- **It has no verb** (`nodeVerb("chain")` returns `None`, verified this session), so forking it
+  forces the whole kernel into a node network - giving up the property that makes P1-P6 possible
+  in the first place.
+
+What survives of PC-G0 is what §2.3 actually says is load-bearing: **Chain's *parameter model***
+- piece patterns, fit modes, rigidity, boundary behaviours - **remains the base-layer spec the
+kernel extends.** Its *network* is the wrong seed. Same verdict, same reasons, for the other two
+RailClone-shaped natives: **Copy to Curves** (no verb; carries `upvectorattrib`,
+`transformbyattribs` and a `pack` toggle - a native camber carrier, worth a second look *only* if
+the HDA is ever restructured into a network, and then only for `adaptive`) and **Path Deform** (no
+verb; `usepiece`/`pieceattrib`/`posoffsetattrib` would deform many pieces in one cook). Neither
+expresses `vertical`/`stepped`, D98's flatten-under datum or D99's bands.
+
+### 11.7 The one-paragraph summary for whoever implements this
+
+The kernel's hot path was never the geometry maths, and porting the maths to VEX is the *last*
+thing worth doing, not the first. **Sixty-two percent of the real HDA node cook is 14
+`hou.Prim.setAttribValue` calls per packed piece** - the fix D102 already applied to the other
+writer and never applied here - and it is a bulk-array diff with zero expected baseline movement
+(P1). **The second-biggest cost is a caching bug**: `Curve.sample` rebuilds its whole segment
+table on every call, which is 83 % of the worst case either audit found (P2). Those two are half a
+day each and they are the whole story for PC-G3 and citygen. After them, the `ray` verb is a
+genuine 52-94x on the conform stage (P5) and `copytopoints` + a 64-bit `attribvop` snippet is a
+genuine 6x on the deformed branch (P6) - both real, both cycles, both moving baselines by ~1e-6 m,
+and **neither of them touching the packed workload PC-G3 is measured on.** `plan.py` and
+`corner.py` stay Python, permanently. OpenCL is not warranted anywhere in phase 1. **And D103 is
+retracted: `attribvop`'s `vexsrc="snippet"` gives arbitrary VEX from a verb, in 64-bit, with no
+node network - verified twice, on this build.**
