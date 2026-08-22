@@ -201,7 +201,7 @@ def main():
     payload_style = Style("pipeline", 1, 11, rules=[
         Rule("default", "first", ["gate"]),
         Rule("corner", "first", ["corner_post"])],
-        params=Params(fill="scale", corner_mode="miter"))
+        params=Params(fill="adaptive", corner_mode="miter"))
     payload = geo_node.createNode("python", "style_in")
     payload.parm("python").set(
         "import hou\n"
@@ -210,7 +210,7 @@ def main():
         "st = Style('pipeline', 1, 11, rules=[\n"
         "    Rule('default', 'first', ['gate']),\n"
         "    Rule('corner', 'first', ['corner_post'])],\n"
-        "    params=Params(fill='scale', corner_mode='miter'))\n"
+        "    params=Params(fill='adaptive', corner_mode='miter'))\n"
         "S.write(hou.pwd().geometry(), st)\n")
     node.setInput(2, payload)
     with_payload = node.geometry()
@@ -234,6 +234,14 @@ def main():
     # unconditionally, and the same payload built 6 prims at 0.0 and 5 at 0.8
     # on the same node. One payload, two fences - which is the exact property
     # D77 says the pipeline face exists to guarantee (fixed by D91).
+    # ⚠ D107 - AND THE FIXTURE ABOVE IS WHY THIS SWEEP CAN SEE IT. Under
+    # `fill="scale"` the payload's fence does not move for ANY `pc_pad`:
+    # measured on this build, `gate.pad` goes 0.0 -> 0.185 -> 0.4 while the
+    # output stays 44 prims, 12 elements and an IDENTICAL point sum, so with
+    # D91 reverted the sweep still reported `moved: none`. The one word
+    # `adaptive` is what makes the D91 class of defect reachable: the same
+    # revert then reports `moved: padding`. A fill mode that cannot express
+    # a gap cannot test a gap parm.
     base_ids, base_pos = _fingerprint(node)
     moved = []
     for parm in sorted(node.parms(), key=lambda q: q.name()):
