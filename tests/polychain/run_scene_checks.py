@@ -514,9 +514,38 @@ def port_tripwires():
         C.curve_sample_scaling(cases.Curve, expect="O(1)", cold_expect="O(n)"),
         C.conform_cache_per_element(cases.tripwire_conformed_run,
                                     cases.CONFORM, expect_max=30.0),
+        # ⚠️ TWO ROWS, AND THE CEILING IS THE FIXTURE'S OWN. The fallback
+        # keys are the gap midpoints of whatever fraction of the run
+        # DEFORMS, so the 100 %-deformed single curve reads 0.69 and the
+        # 87 %-packed street row reads 0.11 - and the `used` floor is 1.0
+        # on both, which is the direction the first version of this check
+        # structurally could not test (it read `fallback / batched`, which
+        # is 0.0 by construction when the batch over-fetches).
+        # ⚠️ AND THE `used` FLOOR IS 0.99 ON THIS ROW AND 1.0 ON THE OTHER,
+        # for ONE named key: `s = 20.001`, the forward `delta` partner of the
+        # last station of the last piece of an OPEN run. Nothing reads it,
+        # because the end of a run is read BACKWARD (`span_ends`). It is one
+        # key per open curve at worst; the street row reads exactly 1.0.
         C.conform_prefetch_hit_rate(cases.tripwire_conformed_run,
-                                    cases.CONFORM),
+                                    cases.CONFORM, expect_max_fallback=0.8,
+                                    expect_min_used=0.99),
+        # ...and the MANY-SHORT-CURVE row, because `ray`'s fixed cost is per
+        # EXECUTION: batching once per curve was 0.94x - slower than not
+        # batching - on 300 conformed streets and invisible on one fence.
+        C.conform_prefetch_hit_rate(cases.tripwire_streets_conformed,
+                                    cases.CONFORM, expect_max_fallback=0.2,
+                                    name="conform_prefetch_hit_rate_streets"),
+        C.conform_cache_per_element(cases.tripwire_streets_conformed,
+                                    cases.CONFORM, expect_max=30.0,
+                                    name="conform_cache_per_element_streets"),
+        C.ray_executions_per_build(cases.tripwire_streets_conformed, hou),
         C.prims_wrappers_built(cases.tripwire_conformed_run, hou),
+        # the same defect one object down: `drop_many`'s hit test used to
+        # build one `hou.Point` wrapper per query - 5x the verb execution
+        # it decorated, and 306 600 of them on the conformed street row.
+        C.points_wrappers_built(cases.tripwire_conformed_run, hou),
+        C.points_wrappers_built(cases.tripwire_streets_conformed, hou,
+                                name="points_wrappers_built_streets"),
         C.prims_wrappers_built(cases.tripwire_deformed_run, hou,
                                name="prims_wrappers_built_deformed"),
         # ⚠️ THE MITER ROW'S CEILING IS 11.2 P7's SHAPE, not zero, and it

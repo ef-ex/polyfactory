@@ -10594,7 +10594,7 @@
       "value": null
     },
     {
-      "detail": "1004 drops over 1 paths, bit-identical",
+      "detail": "670 drops over 1 paths, bit-identical",
       "name": "conform_parity",
       "ok": true,
       "skipped": false,
@@ -11056,7 +11056,7 @@
       "value": 0.0
     },
     {
-      "detail": "342 drops over 1 paths, bit-identical",
+      "detail": "182 drops over 1 paths, bit-identical",
       "name": "conform_parity",
       "ok": true,
       "skipped": false,
@@ -11522,7 +11522,7 @@
       "value": 14.03624
     },
     {
-      "detail": "342 drops over 1 paths, bit-identical",
+      "detail": "182 drops over 1 paths, bit-identical",
       "name": "conform_parity",
       "ok": true,
       "skipped": false,
@@ -11988,7 +11988,7 @@
       "value": null
     },
     {
-      "detail": "342 drops over 1 paths, bit-identical",
+      "detail": "294 drops over 1 paths, bit-identical",
       "name": "conform_parity",
       "ok": true,
       "skipped": false,
@@ -13871,7 +13871,7 @@
       "value": null
     },
     {
-      "detail": "360 drops over 1 paths, bit-identical",
+      "detail": "290 drops over 1 paths, bit-identical",
       "name": "conform_parity",
       "ok": true,
       "skipped": false,
@@ -14344,7 +14344,7 @@
       "value": null
     },
     {
-      "detail": "342 drops over 1 paths, bit-identical",
+      "detail": "182 drops over 1 paths, bit-identical",
       "name": "conform_parity",
       "ok": true,
       "skipped": false,
@@ -14679,6 +14679,468 @@
       "value": 0
     }
   ],
+  "BJ_tilted_axis": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "BJ|0|default|6|tilted pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "BJ[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 6.56e-07
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        420,
+        0
+      ]
+    },
+    {
+      "detail": "10 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "a tilted `conform_axis` is not batched (D111) - the per-query path is the only implementation here",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.250",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 8.05e-07
+    },
+    {
+      "detail": "panel want 0.0600 got 0.0600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3.5e-08
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 10",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "10 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.905767,
+        1.905768
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.750",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.245543978
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.964359108
+    },
+    {
+      "detail": "worst 7.067e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "BJ|0|default|6|tilted pc_u",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0
+      ]
+    },
+    {
+      "detail": "tol 0.0100 m",
+      "name": "bend_deviation_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.77e-07
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "953c63781507529d"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "panel (vertical)",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "panel (vertical)",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "panel",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 14.0362
+    },
+    {
+      "detail": "",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 10 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        10,
+        0
+      ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 ids, 18 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
   "BK_conform_far": [
     {
       "detail": "",
@@ -14810,7 +15272,7 @@
       "value": null
     },
     {
-      "detail": "70 drops over 1 paths, bit-identical",
+      "detail": "38 drops over 1 paths, bit-identical",
       "name": "conform_parity",
       "ok": true,
       "skipped": false,
@@ -15276,7 +15738,7 @@
       "value": null
     },
     {
-      "detail": "342 drops over 1 paths, bit-identical",
+      "detail": "198 drops over 1 paths, bit-identical",
       "name": "conform_parity",
       "ok": true,
       "skipped": false,
@@ -16227,7 +16689,7 @@
       "value": null
     },
     {
-      "detail": "1004 drops over 1 paths, bit-identical",
+      "detail": "670 drops over 1 paths, bit-identical",
       "name": "conform_parity",
       "ok": true,
       "skipped": false,
@@ -27869,7 +28331,7 @@
       "value": 5.42681
     },
     {
-      "detail": "342 drops over 1 paths, bit-identical",
+      "detail": "182 drops over 1 paths, bit-identical",
       "name": "conform_parity",
       "ok": true,
       "skipped": false,
@@ -40893,7 +41355,7 @@
       ]
     },
     {
-      "detail": "warm 0.80 us at 10 verts, 0.96 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 6.5 us at 10, 14060.1 us at 20 001 (1.1x per vertex, O(n), expected O(n))",
+      "detail": "warm 0.73 us at 10 verts, 0.97 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 7.2 us at 10, 14317.1 us at 20 001 (1.0x per vertex, O(n), expected O(n))",
       "name": "curve_sample_scaling",
       "ok": true,
       "skipped": false,
@@ -40903,22 +41365,47 @@
       ]
     },
     {
-      "detail": "374 entries over 20 elements on 1 paths (ceiling 30)",
+      "detail": "352 entries over 20 elements on 1 paths (ceiling 30)",
       "name": "conform_cache_per_element",
       "ok": true,
       "skipped": false,
-      "value": 18.7
+      "value": 17.6
     },
     {
-      "detail": "0 fallback keys against 374 batched (ceiling 0.20)",
+      "detail": "207 of 208 batched keys used (floor 0.99), 144 fallback keys (ceiling 0.80)",
       "name": "conform_prefetch_hit_rate",
       "ok": true,
       "skipped": false,
       "value": [
-        0.0,
-        0,
-        374
+        0.9952,
+        0.6923,
+        208
       ]
+    },
+    {
+      "detail": "7280 of 7280 batched keys used (floor 1.00), 816 fallback keys (ceiling 0.20)",
+      "name": "conform_prefetch_hit_rate_streets",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.0,
+        0.1121,
+        7280
+      ]
+    },
+    {
+      "detail": "8096 entries over 400 elements on 40 paths (ceiling 30)",
+      "name": "conform_cache_per_element_streets",
+      "ok": true,
+      "skipped": false,
+      "value": 20.24
+    },
+    {
+      "detail": "1 `ray` executions in one build (ceiling 1)",
+      "name": "ray_executions_per_build",
+      "ok": true,
+      "skipped": false,
+      "value": 1
     },
     {
       "detail": "11 `hou.Prim` wrappers materialised in one build (ceiling 64)",
@@ -40926,6 +41413,20 @@
       "ok": true,
       "skipped": false,
       "value": 11
+    },
+    {
+      "detail": "0 `hou.Point` wrappers materialised in one build (ceiling 8)",
+      "name": "points_wrappers_built",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "0 `hou.Point` wrappers materialised in one build (ceiling 8)",
+      "name": "points_wrappers_built_streets",
+      "ok": true,
+      "skipped": false,
+      "value": 0
     },
     {
       "detail": "11 `hou.Prim` wrappers materialised in one build (ceiling 64)",
@@ -40942,7 +41443,7 @@
       "value": 571
     },
     {
-      "detail": "385 points over 8 surfaces, bit-identical",
+      "detail": "505 points over 10 surfaces, bit-identical; a tilted axis declines",
       "name": "ray_verb_semantics",
       "ok": true,
       "skipped": false,

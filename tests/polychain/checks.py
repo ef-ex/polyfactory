@@ -3570,13 +3570,22 @@ def curve_sample_scaling(curve_cls, expect="O(n)", samples=200,
                      cold[10], cold[20001], per, got_cold, cold_expect))
 
 
-def conform_cache_per_element(build_fn, conform_mod, expect_max=30.0):
+def conform_cache_per_element(build_fn, conform_mod, expect_max=30.0,
+                              name=None):
     """Entries `ConformPath._cache` holds per placed element - P5's cost.
 
     The memo is unbounded and keyed on `(round(s,9), forward)`: 53 861
     entries / 24 MB on one 2 km curve (11.2 P5), and a 300-street conformed
-    citygen run would carry several hundred MB of it. Nothing currently
-    notices it growing. P5 deletes the cache, at which point this reads 0.
+    citygen run carries several hundred MB of it.
+
+    ⚠️ P5 DID NOT DELETE THE CACHE, WHICH THIS DOCSTRING USED TO PROMISE AND
+    11.2 P5 STILL DOES. It kept it, made it the batch's destination and filled
+    it EAGERLY - which took this reading UP, 17.55 -> 18.7, and took the peak
+    working set of the conformed street row up with it. Dropping the gap
+    midpoints from the enumeration is what brings it back down (18.7 -> 17.6
+    here, and -191 MB of peak working set on 300 conformed streets); the
+    ceiling stays where it was because what it guards is the memo growing
+    without anyone noticing, not the exact figure.
     """
     made = []
     real = conform_mod.ConformPath.__init__
@@ -3589,14 +3598,15 @@ def conform_cache_per_element(build_fn, conform_mod, expect_max=30.0):
         _out, report = build_fn()
     finally:
         conform_mod.ConformPath.__init__ = real
+    nm = name or "conform_cache_per_element"
     if not made:
-        return _skip("conform_cache_per_element", "no surface")
+        return _skip(nm, "no surface")
     entries = sum(len(p._cache) for p in made)
     pieces = report["packed"] + report["deformed"]
     if not pieces:
-        return _skip("conform_cache_per_element", "nothing was built")
+        return _skip(nm, "nothing was built")
     per = entries / float(pieces)
-    return Result("conform_cache_per_element", per <= expect_max,
+    return Result(nm, per <= expect_max,
                   _round(per, 3), "%d entries over %d elements on %d paths "
                   "(ceiling %.0f)" % (entries, pieces, len(made), expect_max))
 
@@ -3839,24 +3849,34 @@ def conform_parity(scene, tol_m=1e-9, tol_n=1e-9):
     answers are compared. A key the prefetch missed compares exactly 0.0 - it
     IS the Python path - so what this reports is the batch's own divergence.
 
-    ⚠️ WHAT DIVERGES AND WHY, MEASURED BEFORE THE PORT WAS WRITTEN. The verb
-    and `intersect` are the same intersector - `ray_verb_semantics` asserts
-    that on the eight surfaces that could tell them apart, at exactly 0. What
-    differs is the WIDTH OF THE NUMBER: the verb's ray origins and its hits
-    both live in a point cloud, i.e. float32, while `hou.Vector3` is double
-    (probed - it round-trips 2000.1234567890123 exactly). The verb's answer is
-    exactly `Surface.drop(float32(p))` rounded to float32, which is
-    coordinate-scaled: 5.5e-07 m under 20 m, 2.3e-05 m at 2 km.
+    ⚠️ WHAT DIVERGES AND WHY. The verb and `intersect` are the same
+    intersector - `ray_verb_semantics` asserts that on the surfaces that could
+    tell them apart, at exactly 0. What differs is the WIDTH OF THE NUMBER:
+    the verb's ray origins and its answer both live in a point cloud, i.e.
+    float32, while `hou.Vector3` is double (probed - it round-trips
+    2000.1234567890123 exactly). `drop_many` therefore reads the verb's
+    DISTANCE and not its POSITION, and rebuilds the drop as `q + axis*dist`
+    from the double query - one float32 rounding at the magnitude of a DROP
+    instead of one at the magnitude of a WORLD COORDINATE (D111).
 
-    ⚠️ SO `drop_many` DOES NOT USE THE VERB'S POSITION - it takes only the
-    ALONG-AXIS component and rebuilds the other two from the double query,
-    which is what a drop is (see its docstring). That takes this reading to
-    **0.0 on all 89 cases** and takes the whole port to zero geometric
-    baseline movement, so the tolerance here is 1e-09 m - ULP headroom - and
-    NOT 11.3's declared 1e-06. The looser number is what the item was allowed;
-    this is what it achieved, and asserting the allowance would have made the
-    check unable to see the difference: leaving the hit in float32 is 9.5e-07,
-    green at 1e-06, and 22 moved baseline values.
+    ⚠️ AND THE 0.0 THIS READS IS NOW A PROPERTY OF THE CODE, WHICH IT WAS NOT
+    BEFORE. P5 read the POSITION, and that is bit-identical only when the true
+    answer happens to be exactly representable in float32 - which every
+    committed conform case is, because their surfaces are `y = 0.25x` and
+    their stations are multiples of 0.25 m. On an irrational-slope ramp the
+    position route reads 2.4e-07 m at x < 24 and 6.1e-05 m at x = 20 000,
+    against 0.0 for the distance route at both. So this check read 0.0 as a
+    property of the SCENES; `ray_verb_semantics`' `dirty_ramp` and
+    `dirty_ramp_20km` trials are what tell those two apart, and they are the
+    reason the tolerance can honestly stay at 1e-09 m rather than at 11.3's
+    declared 1e-06.
+
+    ⚠️ A TILTED `conform_axis` IS NOT BATCHED AT ALL (D111) and this reports
+    it as a skip: the float32 ray origin does not lie on the double ray, the
+    divergence is ALONG the ray and the reconstruction cannot remove it
+    (1.9e-06 m on the same ramp, 1.5e-05 m at 20 km), so `drop_many` declines
+    and the per-query path - the reference - is the only implementation
+    running. `BJ_tilted_axis` is the case that builds in that configuration.
 
     Reported as `[max |dP| m, hit-flag mismatches, max |dN| after D52's flip]`.
     """
@@ -3879,6 +3899,10 @@ def conform_parity(scene, tol_m=1e-9, tol_n=1e-9):
               for (s, forward) in sorted(path._cache)]
         batched = surf.drop_many(qs)
         if batched is None:
+            if not surf.batchable:
+                return _skip("conform_parity", "a tilted `conform_axis` is "
+                             "not batched (D111) - the per-query path is the "
+                             "only implementation here")
             return Result("conform_parity", False, None,
                           "the `ray` verb declined on this case")
         total += len(qs)
@@ -3901,50 +3925,102 @@ def conform_parity(scene, tol_m=1e-9, tol_n=1e-9):
                   % (total, len(live)))
 
 
-def conform_prefetch_hit_rate(build_fn, conform_mod, expect_max_fallback=0.2):
-    """11.2 P5's tripwire: is the batch actually SERVING the drops?
+def conform_prefetch_hit_rate(build_fn, conform_mod, expect_max_fallback=0.2,
+                              expect_min_used=1.0, name=None):
+    """11.2 P5's tripwire, in BOTH directions: is the batch serving the drops,
+    and is it fetching drops nobody wants?
 
     P5's safety argument is P3's - "a key the prefetch missed is slow, never
     wrong" - and P5V's X1 is the lesson that goes with it: a pure cache whose
     fill is silently disabled leaves every suite green and every number
-    unmoved while the work goes back to where it was. Forcing `prefetch` to
-    return early, or letting the enumeration drift off the keys the plan
-    actually asks for, is exactly that mutation.
+    unmoved while the work goes back to where it was.
 
-    Reported as `[fallback keys / batched keys, fallback, batched]`. The
-    remaining fallbacks are real and named: `span_deviation`'s interior curve
-    vertices and `_drop_anchor`'s corner drops are not enumerable from the
-    span alone.
+    ⚠️ AND THE FIRST VERSION OF THIS CHECK COULD ONLY SEE ONE OF THE TWO WAYS
+    TO GET IT WRONG. It reported `fallback / batched`, which is 0.0 BY
+    CONSTRUCTION when the batch over-fetches - so a prefetch enumerating
+    thousands of keys nothing asks for read as a perfect score. It did: over
+    the whole conformed ladder the gap midpoints were **0 % consumed on a 2 km
+    fence and 9 % on 300 conformed streets**, 47 % of every batch and 47 % of
+    the memo it fills. They are not enumerated any more (they are only ever
+    read for a piece that DEFORMS, which the enumeration cannot know), and
+    `used / batched` is the number that says so.
+
+    Reported as `[used/batched, fallback/batched, batched]`, both ceilings on
+    the call - `scale_gate.py`'s LADDER device - because the second one is a
+    property of the FIXTURE: it is the gap midpoints of whatever fraction of
+    that fixture's pieces deform, near 1.0 on a 100 %-deformed run and near
+    0.1 on the packed-dominant street row.
+
+    `used` needs the keys `_at` was actually asked for, so `_at` is wrapped -
+    which is why this is a check and not something the kernel counts.
     """
     made = []
+    asked = set()
     real = conform_mod.ConformPath.__init__
+    real_at = conform_mod.ConformPath._at
 
     def spy(self, *a, **k):
         real(self, *a, **k)
         made.append(self)
+
+    def spy_at(self, s, forward=True):
+        asked.add((id(self), round(float(s), 9), bool(forward)))
+        return real_at(self, s, forward)
     conform_mod.ConformPath.__init__ = spy
+    conform_mod.ConformPath._at = spy_at
     try:
         build_fn()
     finally:
         conform_mod.ConformPath.__init__ = real
+        conform_mod.ConformPath._at = real_at
+    nm = name or "conform_prefetch_hit_rate"
     if not made:
-        return _skip("conform_prefetch_hit_rate", "no surface")
+        return _skip(nm, "no surface")
     batched = sum(p.batched for p in made)
     fell = sum(p.fallback for p in made)
     if not batched:
-        return Result("conform_prefetch_hit_rate", False, [-1.0, fell, 0],
+        return Result(nm, False, [-1.0, -1.0, 0],
                       "the prefetch filled NOTHING; %d keys went to the "
                       "per-query path" % fell)
-    ratio = fell / float(batched)
-    return Result("conform_prefetch_hit_rate", ratio <= expect_max_fallback,
-                  [_round(ratio, 4), fell, batched],
-                  "%d fallback keys against %d batched (ceiling %.2f)"
-                  % (fell, batched, expect_max_fallback))
+    # a batched key is USED when `_at` was asked for it; `fallback` counts the
+    # keys `_at` had to drop itself, so `asked - fallback` is what the batch
+    # actually served.
+    used = len(asked) - fell
+    ratio_used = used / float(batched)
+    ratio_fell = fell / float(batched)
+    return Result(nm, ratio_used >= expect_min_used
+                  and ratio_fell <= expect_max_fallback,
+                  [_round(ratio_used, 4), _round(ratio_fell, 4), batched],
+                  "%d of %d batched keys used (floor %.2f), %d fallback keys "
+                  "(ceiling %.2f)"
+                  % (used, batched, expect_min_used, fell,
+                     expect_max_fallback))
 
 
 def ray_verb_semantics(conform_mod, cases_mod):
     """The `ray` verb IS `hou.Geometry.intersect`, on the eight surfaces that
     could tell them apart. 11.2 P5's load-bearing measurement, standing up.
+
+    ⚠️ AND THE EIGHT WERE NOT ENOUGH, WHICH IS THE LESSON THIS CHECK CARRIES.
+    Every one of them is an ANALYTIC surface with a round slope, sampled at
+    round stations under 25 m, so its true answer is exactly representable in
+    float32 - and a reading taken off the verb's POSITION attribute is
+    bit-identical there whether or not it is bit-identical anywhere else. It
+    is not: on an irrational-slope ramp the position route reads 2.4e-07 m,
+    and at x = 20 000 m it reads 6.1e-05 m. Reading the verb's DISTANCE
+    instead is 0.0 on both (D111). `dirty_ramp` and `dirty_ramp_20km` are
+    those two trials, and they are the only rows here that can tell the two
+    readings apart - restore the position route and they go red at 2.4e-07 /
+    6.1e-05 while all eight originals stay at exactly 0.
+
+    ⚠️ AND `tilted_axis_declines` IS AN ASSERTION ABOUT THE GATE, not about a
+    drop. `Params.conform_axis` is a free direction vector (D51), and on a
+    tilted axis the float32 ray origin no longer lies on the double ray: the
+    divergence is ALONG the ray, the reconstruction cannot remove it, and it
+    is 1.9e-06 m on the dirty ramp and 1.5e-05 m at 20 km - 1 000x this
+    check's own tolerance and above `conform_parity`'s. `Surface.batchable`
+    therefore declines it and the per-query path serves that configuration
+    alone, which is what this row asserts.
 
     Everything P5 rests on is that the batched verb answers the same question
     the per-query HOM call does. 11.2 P5 predicted three named differences and
@@ -3994,8 +4070,24 @@ def ray_verb_semantics(conform_mod, cases_mod):
         g.merge(S(cases_mod.ramp_x))
         return g
 
+    def dirty_h(x, z):
+        """An IRRATIONAL slope, so the drop is not a float32 number."""
+        return 0.2718281828 * x + 0.0314159 * z
+
+    def dirty(at=0.0):
+        g = S(lambda x, z, _a=at: dirty_h(x - _a, z),
+              x0=at - 3.1, x1=at + 23.7, z0=-5.3, z1=6.1, nx=27, nz=11)
+        return g
+
+    def dirty_q(at=0.0, y=7.0):
+        """...and DIRTY stations, so the query is not one either."""
+        return [(at + 0.1234567 + k * 0.3719, y, 0.0517 * math.sin(k))
+                for k in range(60)]
+
     row = lambda y, n=48, step=0.5: [(k * step, y, 0.0) for k in range(n)]
     trials = (
+        ("dirty_ramp", dirty(), dirty_q()),
+        ("dirty_ramp_20km", dirty(20000.0), dirty_q(20000.0, 5100.0)),
         ("bridge_deck", deck(), row(0.0, 49)),
         ("exact_tie", tie(), [(1.0, 0.0, 0.0), (5.5, 0.0, 0.0),
                               (11.25, 0.0, 0.0), (20.0, 0.0, 0.0)]),
@@ -4031,10 +4123,17 @@ def ray_verb_semantics(conform_mod, cases_mod):
                     where = "%s: |dP| %.3e |dN| %.3e at %r" % (label, dp,
                                                                dn, p)
             worst_p, worst_n = max(worst_p, dp), max(worst_n, dn)
+    # ...and the gate itself: a tilted axis must DECLINE rather than answer.
+    tilted = conform_mod.Surface(dirty(), (0.2, -1.0, 0.13))
+    declined = (not tilted.batchable) and tilted.drop_many(dirty_q()) is None
+    if not declined and not where:
+        where = ("a tilted `conform_axis` was BATCHED - D111 says it cannot "
+                 "be, at 1.9e-06 m on this very surface")
     return Result("ray_verb_semantics",
-                  worst_p == 0.0 and worst_n == 0.0 and mism == 0,
+                  worst_p == 0.0 and worst_n == 0.0 and mism == 0 and declined,
                   [_round(worst_p, 12), mism, _round(worst_n, 12)],
-                  where or "%d points over %d surfaces, bit-identical"
+                  where or "%d points over %d surfaces, bit-identical; a "
+                  "tilted axis declines"
                   % (sum(len(t[2]) for t in trials), len(trials)))
 
 
@@ -4071,3 +4170,85 @@ def prims_wrappers_built(build_fn, hou_mod, expect_max=64, name=None):
     return Result(name or "prims_wrappers_built", built[0] <= expect_max,
                   built[0], "%d `hou.Prim` wrappers materialised in one build "
                   "(ceiling %d)" % (built[0], expect_max))
+
+
+def ray_executions_per_build(build_fn, hou_mod, expect_max=1, name=None):
+    """How many `ray` verb EXECUTIONS one build takes. 11.2 P5, corrected.
+
+    ⚠️ THE VERB'S COST IS NOT ALL MARGINAL, AND THAT IS WHAT THIS PINS. `ray`
+    rebuilds its second input on every execution, so each call carries a fixed
+    cost that scales with the SURFACE and not with the query count - measured
+    on this build, minimum of five calls on one warm `Surface`: **0.34 ms at
+    5 022 terrain prims, 0.71 ms at 20 088, 2.25 ms at 80 352**, against a
+    marginal ~2 us per query. P5 paid it once per CURVE, which is free on the
+    one-curve fence it was measured on and is a LOSS on the many-curve shape
+    it was aimed at: 300 x 60 m conformed streets read **0.94-0.99x** with the
+    batch on - slower than not batching at all - and 1.20-1.39x once the batch
+    is taken once for the whole build.
+
+    A count, not a time, and P5R's rule 3 applies: a call count is evidence of
+    a call count. What makes it worth asserting is that the count is the thing
+    that changed sign, and that `conform_bench.py` carries the wall clock.
+
+    Counted through `Surface.drop_many`, which is one execution by definition.
+    """
+    from polyfactory.polychain import conform as _conform
+    real = _conform.Surface.drop_many
+    calls = [0]
+
+    def spy(self, pts):
+        calls[0] += 1
+        return real(self, pts)
+    _conform.Surface.drop_many = spy
+    try:
+        build_fn()
+    finally:
+        _conform.Surface.drop_many = real
+    return Result(name or "ray_executions_per_build", calls[0] <= expect_max,
+                  calls[0], "%d `ray` executions in one build (ceiling %d)"
+                  % (calls[0], expect_max))
+
+
+def points_wrappers_built(build_fn, hou_mod, expect_max=8, name=None):
+    """The same question for `hou.Point`, because the same defect came back.
+
+    P5b closed `len(geo.prims())`; P5 had ALREADY reopened it one object down.
+    `drop_many`'s hit test read the `ray` verb's output point GROUP -
+    `set(pt.number() for pt in grp.points())` - which builds one `hou.Point`
+    wrapper per query. Timed on 34 002 queries against a 3 481-prim grid:
+    `verb.execute` 0.0016 s, the group read **0.0081 s** - five times the work
+    it was decorating - and 306 600 wrappers on the conformed street row.
+    `prims_wrappers_built` could not see it: it counts prims.
+
+    The verb answers it for free instead. `useprimnumattrib` writes `hitprim`,
+    -1 on a miss and the primitive number on a hit; measured against the group
+    over three surfaces including 40 ZERO-DISTANCE hits they disagree on 0
+    points. (`putdist` + `dist != 0` is NOT a substitute - it calls all 40 of
+    those a miss.)
+
+    Both sources are counted, because the group read never touched
+    `hou.Geometry.points` at all.
+    """
+    real_g = hou_mod.Geometry.points
+    real_p = hou_mod.PointGroup.points
+    built = [0]
+
+    def spy_g(self, *a, **k):
+        got = real_g(self, *a, **k)
+        built[0] += len(got)
+        return got
+
+    def spy_p(self, *a, **k):
+        got = real_p(self, *a, **k)
+        built[0] += len(got)
+        return got
+    hou_mod.Geometry.points = spy_g
+    hou_mod.PointGroup.points = spy_p
+    try:
+        build_fn()
+    finally:
+        hou_mod.Geometry.points = real_g
+        hou_mod.PointGroup.points = real_p
+    return Result(name or "points_wrappers_built", built[0] <= expect_max,
+                  built[0], "%d `hou.Point` wrappers materialised in one "
+                  "build (ceiling %d)" % (built[0], expect_max))

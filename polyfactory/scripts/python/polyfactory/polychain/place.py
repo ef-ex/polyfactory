@@ -1612,7 +1612,7 @@ def _resolve_zmode(placement):
     return placement.zmode if placement.zmode in Z_MODES else "adaptive"
 
 
-def _prepare(curve, params, surface_geo=None):
+def _prepare(curve, params, surface_geo=None, surface=None):
     """(kernel curve, Path on the REAL curve, flat->real remap, fillet warns).
 
     4.5 wraps the Path and nothing else (D54): every stage below this one asks
@@ -1627,7 +1627,7 @@ def _prepare(curve, params, surface_geo=None):
     actually sit on.
     """
     curve, fillet_warns = _corner.fillet(curve, params)
-    path, _surface = _conform.wrap(Path(curve), surface_geo, params)
+    path, _surface = _conform.wrap(Path(curve), surface_geo, params, surface)
     if not params.fix_slope:
         return (curve, curve, path, _identity_remap(), fillet_warns)
     flat = Curve(curve.curve_id,
@@ -1702,9 +1702,21 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
     id_count = {}
     for c in curves:
         id_count[str(c.curve_id)] = id_count.get(str(c.curve_id), 0) + 1
+    # ONE `Surface` for the whole build, not one per curve: its constructor
+    # reads the terrain's bounding box, and 300 conformed streets read the
+    # same 80 352-prim box 300 times. `wrap` takes it or makes its own.
+    shared_surface = _conform.Surface(
+        surface_geo, getattr(params, "conform_axis", (0.0, -1.0, 0.0)))
+    # 11.2 P5, corrected: pass A is split in two so the conform batch can be
+    # taken ONCE FOR THE BUILD instead of once per curve. `ray` rebuilds its
+    # surface input on every execution (0.34 ms at 5 022 prims, 2.25 ms at
+    # 80 352), so per-curve batching made the citygen row SLOWER than not
+    # batching at all - see `conform.prefetch_all`.
+    plans = []
     for curve in sorted(curves, key=lambda c: str(c.curve_id)):
         kcurve, _real, path, remap, fillet_warns = _prepare(curve, params,
-                                                            surface_geo)
+                                                            surface_geo,
+                                                            shared_surface)
         if id_count.get(str(curve.curve_id), 0) > 1:
             fillet_warns = tuple(fillet_warns) + (WARN_CURVE_ID_DUP,)
         sections = _decompose.decompose(kcurve, markers, params)
@@ -1716,14 +1728,8 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         bevels.extend(curve_bevels)
         all_sections.extend(sections)
         by_section = dict((sec.index, sec) for sec in sections)
-        # 11.2 P5: ONE `ray` execution fills the conform memo for this whole
-        # curve, before a single placement asks it anything. It is a cache
-        # fill and nothing else - every key it misses is served by the
-        # per-query Python path exactly as before, so this is additive.
-        # Measured post-port: `Surface.drop` is 39-49 % of the wall clock of
-        # every conformed row, and the verb answers 34 002 of them in 1.8 ms.
-        if getattr(path, "prefetch", None) is not None:
-            spans = []
+        spans = []
+        if getattr(path, "plan_keys", None) is not None:
             for p in placements:
                 section = by_section.get(p.section_index)
                 if section is None:
@@ -1735,7 +1741,15 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                 spans.append((remap(section.s0 + p.s0),
                               remap(section.s0 + p.s1),
                               proto_for(module).fracs))
-            path.prefetch(spans)
+        plans.append((path, remap, placements, by_section, fillet_warns,
+                      spans))
+
+    # ...and the batch, once, before ANY placement asks anything. It is a
+    # cache fill and nothing else - every key it misses is served by the
+    # per-query Python path exactly as before, so this is additive.
+    _conform.prefetch_all([(pl[0], pl[5]) for pl in plans if pl[5]])
+
+    for (path, remap, placements, by_section, fillet_warns, _spans) in plans:
         for p in placements:
             section = by_section.get(p.section_index)
             if section is None:

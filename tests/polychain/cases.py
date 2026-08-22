@@ -1068,6 +1068,24 @@ def build_all():
                                        surface_geo=surface(ramp_x, z0=-2.0,
                                                            z1=12.0, nz=14))
 
+    # BJ - A TILTED `conform_axis` (D51, D111). The axis is a free direction
+    # vector and every conformed case above casts straight down, so the whole
+    # suite ran ONE configuration of it. It is also the configuration where
+    # the batched `ray` and the per-query path stop agreeing: on a tilted axis
+    # the float32 ray origin does not lie on the double ray, the divergence is
+    # ALONG the ray (1.9e-06 m at 20 m, 1.5e-05 m at 20 km) and no
+    # reconstruction removes it - so `Surface.batchable` declines the batch
+    # and the reference serves this case alone. What is asserted here is that
+    # the drape still HAPPENS: the run lands on the ramp, offset up-slope by
+    # the tilt, and `conform_parity` reports the declined batch as a skip
+    # rather than as agreement it never tested.
+    built["BJ_tilted_axis"] = _case(
+        conform_line("BJ"), kit_geo, Style(
+            "tilted", 1, 3, rules=[Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive", zmode="vertical",
+                          conform_axis=(0.2, -1.0, 0.13))),
+        surface_geo=surface(ramp_x, z0=-8.0, z1=8.0, nz=16))
+
     # ---- 4.6 FINALIZE: the override cascade, and the instancing floor.
 
     # CA - SWAP. The style says `panel` and never stops saying it; an override
@@ -1533,3 +1551,55 @@ def tripwire_conformed_run():
     polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="TW")
     return P.build(g, K.starter_kit(), fence_style(),
                    surface_geo=surface(ramp_x))
+
+
+def heightfield(cell, amp, wave, x0, x1, z0, z1):
+    """A quad heightfield, `cell` m per quad, `y = amp*sin(kx)*sin(kz)`. The
+    conformed bench's terrain (`conform_bench.terrain`) at fixture size."""
+    geo = hou.Geometry()
+    nx = int(round((x1 - x0) / cell))
+    nz = int(round((z1 - z0) / cell))
+    k = 2.0 * math.pi / wave
+    pts = {}
+    for i in range(nx + 1):
+        x = x0 + cell * i
+        for j in range(nz + 1):
+            z = z0 + cell * j
+            pt = geo.createPoint()
+            pt.setPosition((x, amp * math.sin(k * x) * math.sin(k * z), z))
+            pts[(i, j)] = pt
+    for i in range(nx):
+        for j in range(nz):
+            poly = geo.createPolygon()
+            for pt in (pts[(i, j)], pts[(i, j + 1)],
+                       pts[(i + 1, j + 1)], pts[(i + 1, j)]):
+                poly.addVertex(pt)
+    return geo
+
+
+def tripwire_streets_conformed():
+    """40 x 20 m conformed runs - MANY SHORT CURVES over one gentle terrain,
+    which is the citygen shape and the one shape `tripwire_conformed_run`
+    cannot stand in for.
+
+    It exists because two facts about the conform batch are properties of the
+    ROW and are invisible on a single long curve:
+
+      * `ray` rebuilds its surface input on every execution, so a batch taken
+        once per CURVE pays that fixed cost 40 times here and once on the
+        fence. Measured on 300 x 60 m streets, per-curve batching was 0.94x -
+        SLOWER than not batching at all - and per-build is 1.20-1.39x.
+      * this run is **87 % PACKED**, so the gap midpoints a deformed piece
+        needs are dead weight on it. 11.8 P6's "the citygen street case is
+        100 % deformed the moment a terrain is connected" is a property of one
+        rough terrain, not of connecting one.
+    """
+    g = hou.Geometry()
+    for i in range(40):
+        r, c = divmod(i, 8)
+        polyline(g, [(c * 22.0, 40.0, r * 6.0), (c * 22.0 + 20.0, 40.0, r * 6.0)],
+                 curve_id="TWS%02d" % i)
+    return P.build(g, K.starter_kit(), Style(
+        "tripwire", 1, 3, rules=[Rule("default", "first", ["panel"])],
+        params=Params(fill="adaptive", zmode="adaptive")),
+        surface_geo=heightfield(10.0, 2.0, 120.0, -10.0, 190.0, -10.0, 40.0))

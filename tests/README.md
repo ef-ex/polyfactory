@@ -30,6 +30,13 @@ hython tests/polychain/run_hda_checks.py
 hython tests/polychain/scale_gate.py
 hython tests/polychain/scale_gate.py --json out.json
 
+# what a CONFORMED build costs, laddered over the two variables that decide
+# it - the terrain's prim count and its roughness. `--ab` toggles the `ray`
+# batch, which is a pure cache fill, so the output is identical either way.
+# ~1 min / ~3 min with --ab
+hython tests/polychain/conform_bench.py
+hython tests/polychain/conform_bench.py --reps 5 --ab --json out.json
+
 # PC-G1 and PC-G2 driven THROUGH THE HDA's parm page, with PNGs to judge them
 # on - the headless substitute for the wedged live bridge. ~40 s
 hython tests/polychain/gate_images.py [outdir]
@@ -100,6 +107,8 @@ tests/
     scale_gate.py        PC-G3's ladder, both z-modes, with its own expectations
     run_hda_checks.py    the ASSET: wiring, the parm face, PC-G4's payload sweep
     gate_images.py       PC-G1/PC-G2 through the parm page + a PNG rasteriser
+    conform_bench.py     the conformed ladder: prim count x roughness, with
+                         the packed/deformed split and the peak working set
 ```
 
 ## The planner's calibration is a baseline too
