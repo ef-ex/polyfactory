@@ -689,8 +689,13 @@ def readability(root):
     sub = root.createNode("subnet", "rig_vs_asset")
     probe = hou.Geometry()
     cases.polyline(probe, [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0)], curve_id="A")
+    cfg_stub = native.config_stub(sub, DEFAULTS)
     _last, rig = native.stage_decompose(
-        sub, native.feed(sub, probe, "IN"), native.config_stub(sub, DEFAULTS))
+        sub, native.feed(sub, probe, "IN"), cfg_stub)
+    # 13.9 N2 - and the PLAN chain, for exactly the same reason.
+    _plast, plan_rig = native.stage_plan(sub, _last, cfg_stub, "_rig")
+    for _n, _node in plan_rig.items():
+        rig[_n] = _node
     drift = []
     for rig_name, rig_node in sorted(rig.items()):
         mine = node.node(rig_name)
@@ -701,7 +706,13 @@ def readability(root):
             drift.append("%s: %s vs rig %s"
                          % (rig_name, mine.type().name(),
                             rig_node.type().name()))
-        for parm in ("class", "vex_precision", "snippet"):
+        # `nptsperpt` and `ptsperpt` are on the list because 13.2 measured
+        # that the count attribute MULTIPLIES `nptsperpt` - an asset shipping
+        # the default 10 would plan ten fences and nothing else would notice.
+        for parm in ("class", "vex_precision", "snippet", "ptdel", "group",
+                     "grouptype", "negate", "ptsperpt", "nptsperpt",
+                     "doattrib", "attrib", "spointnum", "spointidx",
+                     "docopyattribs", "attribstocopy"):
             a, b = mine.parm(parm), rig_node.parm(parm)
             if (a is None) != (b is None):
                 drift.append("%s.%s: one side has it" % (rig_name, parm))
@@ -710,9 +721,10 @@ def readability(root):
     bypassed = sorted(c.name() for c in node.children() if c.isBypassed())
     drift += ["%s(bypassed)" % n for n in bypassed]
     sub.destroy()
-    check("asset_decompose_matches_the_rig", not drift,
+    check("asset_stages_match_the_rig", not drift,
           "%d nodes / %d bypassed" % (len(rig), len(bypassed)),
-          "class, VEX precision, snippet and node type of every stage the "
+          "class, VEX precision, snippet, node type and the parameters that "
+          "decide what it computes, for every stage the "
           "parity rig measures, read back off the SHIPPED asset, plus every "
           "bypassed node in it: %s" % (", ".join(drift) or "none"))
 
@@ -1235,6 +1247,499 @@ def seeding_mutation(root):
           "shrz -> shr in splitmix breaks it on most inputs")
 
 
+# --- 13.9 N2: 4.2's fitting solve, in VEX -----------------------------------
+
+
+def plan_chain(parent, case, params, style, kit, tag):
+    """The whole native plan, cooked on ONE case.  -> (read node, config)."""
+    cfg = native.config_full(parent, params, style, kit, "config_%s" % tag)
+    src = native.feed(parent, case["curve"], "IN_%s" % tag)
+    last, _dec = native.stage_decompose(parent, src, cfg)
+    read, nodes = native.stage_plan(parent, last, cfg, "_%s" % tag)
+    return (read, cfg, nodes)
+
+
+def plan_rows(geo):
+    """The native plan as plain dicts, in point order."""
+    out = []
+    for pt in geo.points():
+        out.append({
+            "curve_id": str(pt.attribValue("pc_curve_id")),
+            "section": pt.attribValue("pc_sec_index"),
+            "slot": pt.attribValue("pc_slot"),
+            "index": pt.attribValue("pc_index"),
+            "module": pt.attribValue("pc_module"),
+            "variant": pt.attribValue("pc_variant"),
+            "zmode": pt.attribValue("pc_zmode"),
+            "deform": pt.attribValue("pc_deform"),
+            "warns": pt.attribValue("pc_warns"),
+            "elem_id": pt.attribValue("pc_elem_id"),
+            "elem_key": pt.attribValue("pc_elem_key"),
+            "s0": pt.attribValue("pc_s0"), "s1": pt.attribValue("pc_s1"),
+            "u": pt.attribValue("pc_u"), "scale": pt.attribValue("pc_scale"),
+            "slice": pt.attribValue("pc_slice_t")})
+    return out
+
+
+def plan_diff(got, ref):
+    """[(row, what)] - the first disagreement per row, or []."""
+    if len(got) != len(ref):
+        return [(-1, "count %d != %d" % (len(got), len(ref)))]
+    from polyfactory.polychain import elem_key as _ekey
+    bad = []
+    for i, (g, r) in enumerate(zip(got, ref)):
+        if (g["curve_id"] != str(r.curve_id) or g["section"] != r.section_index
+                or g["slot"] != r.slot or g["index"] != r.index):
+            bad.append((i, "address %s|%d|%s|%d != %s|%d|%s|%d"
+                        % (g["curve_id"], g["section"], g["slot"], g["index"],
+                           r.curve_id, r.section_index, r.slot, r.index)))
+            continue
+        for key, rv in (("module", r.module), ("variant", r.variant),
+                        ("zmode", r.zmode), ("elem_id", r.elem_id)):
+            if g[key] != rv:
+                bad.append((i, "%s %r != %r" % (key, g[key], rv)))
+        if int(g["deform"]) != int(r.deform):
+            bad.append((i, "deform %s != %s" % (g["deform"], r.deform)))
+        if int(g["elem_key"]) != _ekey(r.elem_id):
+            bad.append((i, "elem_key %s != %s"
+                        % (g["elem_key"], _ekey(r.elem_id))))
+        if sorted(g["warns"].split()) != sorted(r.warns):
+            bad.append((i, "warns %r != %r" % (g["warns"], list(r.warns))))
+        rslice = -1.0 if r.slice_t is None else r.slice_t
+        for key, rv in (("s0", r.s0), ("s1", r.s1), ("u", r.u),
+                        ("scale", r.scale), ("slice", rslice)):
+            # EXACT, relative. 13.8: "the fitting solve must not need a
+            # tolerance; if it does, the accumulation order differs and that
+            # is a defect, not float noise."
+            if abs(g[key] - rv) / max(abs(rv), 1.0) > 1e-12:
+                bad.append((i, "%s %.17g != %.17g" % (key, g[key], rv)))
+    return bad
+
+
+def plan_reference(case, params, style, kit):
+    from polyfactory.polychain import decompose as D
+    from polyfactory.polychain import plan as PLAN
+    curves, markers = P.read_curves(case["curve"])
+    return PLAN.plan_sections(D.decompose_all(curves, markers, params),
+                              kit, style, params)
+
+
+def plan_parity(root, built):
+    """4.2 in VEX against `plan.plan_sections`, every case, EXACT.
+
+    ⚠️ WHAT THIS DOES AND DOES NOT COVER.  It is the whole fitting solve -
+    the four fill modes with padding packing, evenly anchors with justify and
+    adjust-to-end, markers, start/end reservation with D13's overflow policy,
+    the compose rules and all four selectors - measured against the reference
+    on the SAME decomposed spline, in one process (13.8 rule 1).  It is NOT
+    4.3's corner reserve: `pc_trim_a`/`pc_trim_b` are 0 until 13.9 N8, and 0
+    is exactly `plan_sections`' own `trim=(0, 0)`, which is the call this
+    compares against.
+    """
+    from polyfactory.polychain import kit as KIT
+    worst = 0.0
+    bad = []
+    ncase = npiece = nsec = 0
+    for name in sorted(built):
+        case = built[name]
+        style = case["style"]
+        params = style.params if style is not None else DEFAULTS
+        kit = KIT.read(case["kit"])[0]
+        ref = plan_reference(case, params, style, kit)
+        sub = root.createNode("subnet", "plan_%s" % name)
+        read, _cfg, nodes = plan_chain(sub, case, params, style, kit, name)
+        try:
+            read.cook(force=True)
+        except Exception:
+            pass
+        errs = [(n.name(), n.errors()[0].replace("\n", " ")[:160])
+                for n in nodes.values() if n.errors()]
+        if errs:
+            bad.append((name, "%s: %s" % errs[0]))
+            sub.destroy()
+            continue
+        nsec += len(nodes["pc_plan_solve"].geometry().points())
+        got = plan_rows(read.geometry())
+        rows = plan_diff(got, ref)
+        ncase += 1
+        npiece += len(ref)
+        if rows:
+            bad.append((name, "row %d %s" % rows[0]))
+        sub.destroy()
+    check("plan_solve_parity", not bad, "%d cases / %d pieces" % (ncase, npiece),
+          "4.2 in VEX vs plan.plan_sections - address, module, variant, "
+          "zmode, deform, warnings, elem_id, elem_key, s0, s1, u, scale and "
+          "slice_t, at 1e-12 RELATIVE and no absolute slack (13.8). "
+          "Mismatches: %s" % ("; ".join("%s %s" % b for b in bad[:3]) or "none"))
+    check("plan_sections_emitted", nsec > 0, nsec,
+          "section points the solve actually ran over - a chain that emitted "
+          "none would make the check above vacuously green")
+    return worst
+
+
+def stress_cases():
+    """The branches the 89 scene cases do not reach.
+
+    ⚠️ THIS EXISTS BECAUSE OF DEV-LOOP RULE 0's SECOND CHECK - "exercise every
+    branch you add".  Measured on the shipped suite: exactly ONE of the 89
+    cases carries a `random` rule, and it names a single module, so the
+    weighted pick returns `pool[0]` whatever the RNG says and the whole
+    MT19937 chain could have been wrong with every case green.  `sequence`
+    over a mixed unit, all four correlation scopes, every conditional
+    operator, `evenly` under all three justifications and `adjust_to_end`,
+    negative and unit-cancelling padding, and `tile`'s rigid-piece fallback
+    are all in the same position.  Each row here is (name, kit, style).
+    """
+    from polyfactory.polychain import Module, Params, Rule, Style
+    kit = [Module("post", (0.12, 1.0, 0.12), pad=(0.0, 0.0), deform=0,
+                  roles="default start end"),
+           Module("panel", (2.0, 0.9, 0.05), pad=(0.0, 0.0), deform=1,
+                  roles="default"),
+           Module("gate", (1.6, 1.2, 0.06), pad=(0.1, 0.1), deform=2,
+                  roles="default evenly", variant="wide", weight=3.0),
+           Module("brick", (0.35, 0.2, 0.1), pad=(-0.02, -0.02), deform=2,
+                  roles="default", variant="a", weight=0.5)]
+    out = []
+    for scope in ("generator", "spline", "section", "segment"):
+        out.append(("random_%s" % scope, kit, Style(
+            "st_%s" % scope, 1, 7,
+            rules=[Rule("default", "random", ["post", "panel", "gate", "brick"],
+                        scope=scope)],
+            params=Params(fill="adaptive"))))
+    out.append(("random_weighted", kit, Style(
+        "wt", 1, 3, rules=[Rule("default", "random", ["post", "panel", "gate"],
+                                weights={"panel": 9.0, "post": 0.0})],
+        params=Params(fill="adaptive"))))
+    out.append(("random_zero_total", kit, Style(
+        "wz", 1, 3, rules=[Rule("default", "random", ["post", "panel"],
+                                weights={"panel": 0.0, "post": 0.0})],
+        params=Params(fill="adaptive"))))
+    out.append(("sequence_mixed", kit, Style(
+        "sq", 1, 1, rules=[Rule("default", "sequence", ["post", "panel", "post"])],
+        params=Params(fill="adaptive"))))
+    out.append(("sequence_by_role", kit, Style(
+        "sqr", 1, 1, rules=[Rule("default", "sequence", [])],
+        params=Params(fill="adaptive"))))
+    for op, value in (("lt", 12.0), ("le", 12.0), ("gt", 12.0), ("ge", 12.0),
+                      ("eq", 20.0), ("ne", 20.0), ("in", [1.0, 20.0]),
+                      ("eq", "twenty"), ("nonsense", 1.0)):
+        out.append(("cond_%s_%s" % (op, value), kit, Style(
+            "c", 1, 2,
+            rules=[Rule("default", "conditional", ["gate", "panel"],
+                        cond={"subject": "sectionLength", "op": op,
+                              "value": value}),
+                   Rule("default", "first", ["post"])],
+            params=Params(fill="adaptive"))))
+    out.append(("cond_unknown_subject", kit, Style(
+        "cu", 1, 2, rules=[Rule("default", "conditional", ["gate"],
+                                cond={"subject": "weather", "op": "eq",
+                                      "value": 1})],
+        params=Params(fill="adaptive"))))
+    out.append(("cond_u_declines_alone", kit, Style(
+        "cd", 1, 2, rules=[Rule("default", "conditional", ["gate"],
+                                cond={"subject": "u", "op": "gt",
+                                      "value": 0.5})],
+        params=Params(fill="adaptive"))))
+    for justify in ("start", "center", "end"):
+        out.append(("evenly_%s" % justify, kit, Style(
+            "e", 1, 1, rules=[Rule("default", "first", ["panel"]),
+                              Rule("evenly", "first", ["post"]),
+                              Rule("start", "first", ["post"]),
+                              Rule("end", "first", ["post"])],
+            params=Params(fill="adaptive", evenly_spacing=3.7,
+                          justify=justify))))
+    out.append(("evenly_adjust", kit, Style(
+        "ea", 1, 1, rules=[Rule("default", "first", ["panel"]),
+                           Rule("evenly", "first", ["post"])],
+        params=Params(fill="adaptive", evenly_spacing=3.7,
+                      adjust_to_end=1.0))))
+    out.append(("evenly_count", kit, Style(
+        "ec", 1, 1, rules=[Rule("default", "first", ["panel"]),
+                           Rule("evenly", "sequence", ["post", "gate"])],
+        params=Params(fill="adaptive", evenly_count=4))))
+    for mode in ("adaptive", "scale", "tile", "count"):
+        out.append(("fill_%s" % mode, kit, Style(
+            "f", 1, 1, rules=[Rule("default", "first", ["gate"])],
+            params=Params(fill=mode, count=7, adaptive_pct=35.0))))
+    out.append(("tile_rigid_fallback", kit, Style(
+        "tf", 1, 1, rules=[Rule("default", "sequence", ["gate", "panel"])],
+        params=Params(fill="tile"))))
+    out.append(("pad_negative", kit, Style(
+        "pn", 1, 1, rules=[Rule("default", "sequence", ["brick", "brick"])],
+        params=Params(fill="adaptive"))))
+    out.append(("pad_cancels_unit", [Module("thin", (0.2, 1.0, 0.1),
+                                            pad=(-0.1, -0.1), deform=0,
+                                            roles="default")], Style(
+        "pc", 1, 1, rules=[Rule("default", "first", ["thin"])],
+        params=Params(fill="adaptive"))))
+    out.append(("kit_gap_standin", kit, Style(
+        "kg", 1, 1, rules=[Rule("default", "first", ["nothing_named_this"])],
+        params=Params(fill="adaptive"))))
+    out.append(("vexpr_warns", kit, Style(
+        "vx", 1, 1, rules=[Rule("default", "first", ["panel"],
+                                vexpr="@u > 0.5")],
+        params=Params(fill="adaptive"))))
+    out.append(("overflow_both_caps", kit, Style(
+        "of", 1, 1, rules=[Rule("start", "first", ["panel"]),
+                           Rule("end", "first", ["panel"]),
+                           Rule("default", "first", ["post"])],
+        params=Params(fill="adaptive"))))
+    return out
+
+
+def stress_geometry(closed=False, length=20.0):
+    geo = hou.Geometry()
+    cases.polyline(geo, [(0.0, 0.0, 0.0), (length, 0.0, 0.0)], curve_id="S")
+    return geo
+
+
+def plan_stress_parity(root):
+    """The stress matrix, and the D113 trials, against the reference."""
+    from polyfactory.polychain import Kit
+    rows = stress_cases()
+    shapes = [("plain", stress_geometry()),
+              ("short", stress_geometry(length=0.9)),
+              # D113's three trials: an IRRATIONAL slope, 20 km, and an
+              # ASYMMETRIC shape. A parity check green at 0.0 on symmetric
+              # fixtures is a claim about the fixtures.
+              ("irrational", None), ("far", None), ("asymmetric", None)]
+    import math
+    g = hou.Geometry()
+    cases.polyline(g, [(0.0, 0.0, 0.0), (10.0, 10.0 * math.sqrt(2.0), 0.0)],
+                   curve_id="S")
+    shapes[2] = ("irrational", g)
+    g = hou.Geometry()
+    cases.polyline(g, [(20000.0, 0.0, 0.0), (20017.0, 0.0, 0.0)], curve_id="S")
+    shapes[3] = ("far", g)
+    g = hou.Geometry()
+    cases.polyline(g, [(0.0, 0.0, 0.0), (7.3, 0.0, 0.0), (7.3, 0.0, 19.1),
+                       (1.05, 0.0, 19.1)], curve_id="S")
+    shapes[4] = ("asymmetric", g)
+
+    bad = []
+    nrun = npiece = 0
+    for shape_name, geo in shapes:
+        for name, mods, style in rows:
+            case = {"curve": geo, "kit": None}
+            kit = Kit("stress", 1, mods)
+            params = style.params
+            ref = plan_reference(case, params, style, kit)
+            tag = "%s_%s" % (shape_name, name.replace(".", "_")
+                             .replace("[", "").replace("]", "")
+                             .replace(",", "").replace(" ", "").replace("-", "_"))
+            sub = root.createNode("subnet", "stress_%s" % tag)
+            read, _cfg, nodes = plan_chain(sub, case, params, style, kit, tag)
+            try:
+                read.cook(force=True)
+            except Exception:
+                pass
+            errs = [(n.name(), n.errors()[0].replace("\n", " ")[:200])
+                    for n in nodes.values() if n.errors()]
+            if errs:
+                bad.append((tag, "%s: %s" % errs[0]))
+                sub.destroy()
+                continue
+            diff = plan_diff(plan_rows(read.geometry()), ref)
+            nrun += 1
+            npiece += len(ref)
+            if diff:
+                bad.append((tag, "row %d %s" % diff[0]))
+            sub.destroy()
+    check("plan_stress_parity", not bad, "%d builds / %d pieces" % (nrun, npiece),
+          "every branch of 4.2 the 89 scene cases do not reach - all four "
+          "selectors, all four correlation SCOPES, every conditional "
+          "operator, the three justifications, adjust-to-end, negative and "
+          "unit-cancelling padding, the tile fallback and D13's overflow - "
+          "on five shapes including D113's three trials. Mismatches: %s"
+          % ("; ".join("%s %s" % b for b in bad[:3]) or "none"))
+
+
+def plan_determinism(root, built):
+    """Same input, same answer - across cooks, and across INPUT ORDER.
+
+    Three separate claims, because they can fail independently:
+      1. a forced re-cook of the same chain is bit-identical (thread
+         scheduling);
+      2. the same curves fed in REVERSED PRIMITIVE ORDER give the same plan
+         (the emission order is (curve_id, section, prim), not cook order);
+      3. `PYTHONHASHSEED` does not reach the answer - `seed_for` never
+         touches builtin `hash()`, and now neither does the VEX.
+    """
+    from polyfactory.polychain import Kit, Params, Rule, Style
+    mods = stress_cases()[0][1]
+    style = Style("det", 1, 11,
+                  rules=[Rule("default", "random",
+                              ["post", "panel", "gate", "brick"],
+                              scope="segment"),
+                         Rule("evenly", "first", ["gate"])],
+                  params=Params(fill="adaptive", evenly_spacing=6.0))
+    kit = Kit("det", 1, mods)
+
+    def digest(geo):
+        rows = plan_rows(geo)
+        return "|".join("%s@%.17g/%.17g/%.17g" % (r["elem_id"], r["s0"],
+                                                  r["s1"], r["scale"])
+                        for r in rows)
+
+    def build(order):
+        geo = hou.Geometry()
+        legs = [([(0.0, 0.0, 0.0), (13.0, 0.0, 0.0)], "A"),
+                ([(0.0, 0.0, 5.0), (9.5, 0.0, 5.0), (9.5, 0.0, 14.0)], "B"),
+                ([(0.0, 0.0, 9.0), (21.0, 0.0, 9.0)], "C")]
+            # the SAME three curves, in the other primitive order
+        for pts, cid in (legs if order else list(reversed(legs))):
+            cases.polyline(geo, pts, curve_id=cid)
+        sub = root.createNode("subnet", "det_%d" % order)
+        read, _cfg, nodes = plan_chain(sub, {"curve": geo}, style.params,
+                                       style, kit, "det%d" % order)
+        read.cook(force=True)
+        first = digest(read.geometry())
+        again = []
+        for _ in range(3):
+            nodes["pc_plan_solve"].cook(force=True)
+            read.cook(force=True)
+            again.append(digest(read.geometry()))
+        sub.destroy()
+        return (first, again)
+
+    fwd, fwd_again = build(1)
+    rev, _rev_again = build(0)
+    # the SHUFFLED payload: `choose`'s random branch sorts its pool by
+    # (name, variant) precisely so the order the payload lists its modules in
+    # cannot reach the answer, and that property has to be asserted where the
+    # sort is - in the VEX - and not only in `plan.py`.
+    import random as _rnd
+    shuffled = list(mods)
+    _rnd.Random(5).shuffle(shuffled)
+    kit_shuffled = Kit("det", 1, shuffled)
+    geo = hou.Geometry()
+    for pts, cid in (([(0.0, 0.0, 0.0), (13.0, 0.0, 0.0)], "A"),
+                     ([(0.0, 0.0, 5.0), (9.5, 0.0, 5.0), (9.5, 0.0, 14.0)], "B"),
+                     ([(0.0, 0.0, 9.0), (21.0, 0.0, 9.0)], "C")):
+        cases.polyline(geo, pts, curve_id=cid)
+    sub = root.createNode("subnet", "det_shuffled")
+    read, _cfg, _n = plan_chain(sub, {"curve": geo}, style.params, style,
+                                kit_shuffled, "detsh")
+    read.cook(force=True)
+    shuf = digest(read.geometry())
+    sub.destroy()
+    check("plan_ignores_payload_order", shuf == fwd, "%d modules" % len(mods),
+          "the SAME kit with its modules listed in a different order plans "
+          "identically - `choose` sorts the random pool by (name, variant), "
+          "and that is asserted here in the VEX and not only in plan.py")
+    check("plan_recook_is_identical", all(d == fwd for d in fwd_again),
+          "%d cooks" % (len(fwd_again) + 1),
+          "three forced re-cooks of the same chain, digested on elem_id and "
+          "the three float64 spans: %s"
+          % ("identical" if all(d == fwd for d in fwd_again) else "MOVED"))
+    check("plan_is_input_order_free", fwd == rev, "%d chars" % len(fwd),
+          "the same three curves fed in REVERSED primitive order plan "
+          "identically - D150's point: nothing in the chain depends on cook "
+          "order, and the section emission order is (curve_id, section, prim)")
+    check("plan_digest_is_not_empty", len(fwd) > 200, len(fwd),
+          "the determinism digest is non-trivial, so the two checks above "
+          "are not comparing two empty strings")
+
+
+def plan_mutation(root, built):
+    """Corrupt the solve and confirm the parity goes red."""
+    from polyfactory.polychain import kit as KIT
+    from polyfactory.polychain import vexsrc
+
+    case = built["A_straight"]
+    style = case["style"]
+    params = style.params
+    kit = KIT.read(case["kit"])[0]
+    ref = plan_reference(case, params, style, kit)
+
+    def run(mutate):
+        sub = root.createNode("subnet", "planmut")
+        read, _cfg, nodes = plan_chain(sub, case, params, style, kit, "mut")
+        if mutate:
+            mutate(nodes)
+        try:
+            read.cook(force=True)
+        except Exception:
+            sub.destroy()
+            return None
+        if any(n.errors() for n in nodes.values()):
+            sub.destroy()
+            return None
+        rows = plan_rows(read.geometry())
+        sub.destroy()
+        return rows
+
+    sound = run(None)
+    check("plan_mutation_baseline", not plan_diff(sound, ref), len(sound),
+          "the un-mutated chain is at parity, so a red below is the mutation")
+
+    # (a) the ADD-ONE-MORE threshold. 4.2's `adaptivePct` is one comparison in
+    # `fit`, and getting it backwards changes the piece COUNT, not a rounding.
+    body = vexsrc.source("pc_plan_solve")
+    target = ">= pc_cfg_f(\"adaptive_pct\", 50.0) - PC_PEPS"
+    hdr = vexsrc.source("pc_plan.h")
+    has_target = target in hdr
+    got = run(lambda n: n["pc_plan_solve"].parm("snippet").set(
+        body.replace(target, "> 200.0 +")))
+    check("mutation_plan_adaptive_threshold",
+          has_target and (got is None or plan_diff(got, ref)),
+          "%s" % ("red" if (got is None or plan_diff(got, ref)) else "GREEN"),
+          "breaking 4.2's add-one-more threshold changes the piece count and "
+          "the parity must see it (target line present: %s)" % has_target)
+
+    # (b) the EXPANDER's count attribute. 13.2 measured that the attribute
+    # MULTIPLIES `nptsperpt`, so a 10 there plans ten fences - the check has
+    # to be able to see that too.
+    got = run(lambda n: n["pc_plan_expand"].parm("nptsperpt").set(2))
+    check("mutation_plan_expand_count", got is None or plan_diff(got, ref),
+          "%s" % ("red" if (got is None or plan_diff(got, ref)) else "GREEN"),
+          "nptsperpt = 2 doubles every section's piece count")
+
+    # (c) the PRECISION rule. Every function in pc_plan.h needs int64 and
+    # float64; at 32 bits they all still COMPILE.
+    got = run(lambda n: n["pc_plan_solve"].parm("vex_precision").set("32"))
+    check("mutation_plan_precision_32", got is None or plan_diff(got, ref),
+          "%s" % ("red" if (got is None or plan_diff(got, ref)) else "GREEN"),
+          "the solve at vex_precision = 32 compiles and answers differently")
+
+    # (d) the CLEAN node, which is the float32 `pc_u` shadow.
+    # ⚠️ IT HAS TO RUN ON A CASE THAT CARRIES A MARKER.  Bypassed on
+    # `A_straight` this mutation is GREEN and says nothing: 3.1 puts `pc_u` on
+    # the MARKER CLOUD, so a fence with no markers has no float32 `pc_u` to
+    # shadow the plan's own with. Measured - the first version of this check
+    # passed while proving nothing.
+    mcase = built["N_marker_mixed"]
+    mstyle = mcase["style"]
+    mkit = KIT.read(mcase["kit"])[0]
+    mref = plan_reference(mcase, mstyle.params, mstyle, mkit)
+
+    def run_marker(mutate):
+        sub = root.createNode("subnet", "planmut_mk")
+        read, _cfg, nodes = plan_chain(sub, mcase, mstyle.params, mstyle,
+                                       mkit, "mutmk")
+        if mutate:
+            mutate(nodes)
+        try:
+            read.cook(force=True)
+        except Exception:
+            sub.destroy()
+            return None
+        if any(n.errors() for n in nodes.values()):
+            sub.destroy()
+            return None
+        rows = plan_rows(read.geometry())
+        sub.destroy()
+        return rows
+
+    check("plan_mutation_marker_baseline", not plan_diff(run_marker(None), mref),
+          len(mref), "the marker case is at parity before the mutation below")
+    got = run_marker(lambda n: n["pc_plan_clean"].bypass(True))
+    check("mutation_plan_clean_bypassed", got is None or plan_diff(got, mref),
+          "%s" % ("red" if (got is None or plan_diff(got, mref)) else "GREEN"),
+          "bypassing pc_plan_clean lets the artist's float32 pc_u shadow the "
+          "plan's own, and u comes back 3e-9 off on a marker case")
+
+
 def union_parity(root):
     """D166's safety property: the fence does not change when the VEX answers.
 
@@ -1362,9 +1867,15 @@ def main():
     print("\n=== 3b. R1 - 3.3's seeding chain, in VEX ===")
     seeding_parity(root)
 
+    print("\n=== 3c. 13.9 N2 - 4.2's fitting solve, in VEX ===")
+    plan_parity(root, built)
+    plan_stress_parity(root)
+    plan_determinism(root, built)
+
     print("\n=== 4. the mutation test ===")
     mutation(root, built)
     seeding_mutation(root)
+    plan_mutation(root, built)
 
     print("\n=== 5. 13.7 - the graph is readable, on the built asset ===")
     node = readability(root)

@@ -1,0 +1,338 @@
+// STAGE 2 - PLAN (spec 4.2), THE FITTING SOLVE.  POINT wrangle, precision 64.
+//   input 0  the SECTION stream (one point per section, from pc_sections)
+//   input 1  CONFIG (pc_cfg + the kit table + the rule table)
+//
+// `plan.plan_section` ported.  ONE SECTION PER THREAD, and the sequential
+// accumulation stays sequential INSIDE that thread - which is the data
+// dependency the solve actually has.  It ADDS NO POINTS: the answer leaves as
+// PER-SECTION ARRAYS plus `pc_npieces`, and `pc_plan_expand` (a
+// `pointgenerate`) turns that into one point per piece.
+//
+// ⚠️ THAT SHAPE IS D150 AND IT IS NOT A STYLE CHOICE.  `addpoint` from a
+// multithreaded wrangle emits points in THREAD-COMPLETION order, so
+// `determinism` and `geometry_digest` - pinned on all 89 cases - would become
+// a lottery.  `pointgenerate` expands deterministically and index k is then a
+// pure function of (section, k) with no ordering in it at all.
+//
+// ⚠️ AND IT IS A POINT WRANGLE, NOT A DETAIL ONE.  A detail wrangle would run
+// every section of the build through one thread, which is the shape that made
+// the Python slow in the first place.
+//
+// 4.3's corner reserve arrives as `pc_trim_a` / `pc_trim_b`, which are 0
+// until 13.9 N8 lands - and 0 is exactly `plan_sections`' own `trim=(0, 0)`.
+
+#include "pc_plan.h"
+
+// ---- the section -----------------------------------------------------------
+string CURVE_ID = s@pc_curve_id;
+int    SEC_IX   = i@pc_sec_index;
+float  SEC_S0   = f@pc_sec_s0;
+float  SEC_S1   = f@pc_sec_s1;
+float  CURVE_L  = f@pc_curve_len;
+int    CLOSED   = i@pc_sec_closed;
+int    SCAP     = i@pc_start_cap;
+int    ECAP     = i@pc_end_cap;
+float  ANGLE    = f@pc_corner_angle;
+string YCLASS   = s@pc_yclass;
+float  TRIM_A   = f@pc_trim_a;
+float  TRIM_B   = f@pc_trim_b;
+
+float L = SEC_S1 - SEC_S0;
+
+// the output plan, as parallel arrays
+string o_slot[], o_module[], o_variant[], o_zmode[], o_warns[];
+int o_index[], o_deform[];
+float o_s0[], o_s1[], o_u[], o_scale[], o_slice[];
+
+i@pc_npieces = 0;
+if (L <= PC_PEPS) {
+    s[]@pc_p_slot = o_slot; s[]@pc_p_module = o_module;
+    s[]@pc_p_variant = o_variant; s[]@pc_p_zmode = o_zmode;
+    s[]@pc_p_warns = o_warns; i[]@pc_p_index = o_index;
+    i[]@pc_p_deform = o_deform; f[]@pc_p_s0 = o_s0; f[]@pc_p_s1 = o_s1;
+    f[]@pc_p_u = o_u; f[]@pc_p_scale = o_scale; f[]@pc_p_slice = o_slice;
+    return;                                     // D8: a curve, but no span
+}
+
+// ---- ctx_base: 3.3's subject bag, split by type ---------------------------
+// `cond_subject` reads one bag; VEX dict slots are typed, so it is two here
+// and `pc_cond_subject` tries the numeric one first.  The `attr:` and
+// `markerData:` prefixes are part of the KEY, exactly as 3.3 writes them.
+float U0 = (CURVE_L <= PC_PEPS) ? 0.0 : SEC_S0 / CURVE_L;
+dict CF, CS;
+CF["sectionLength"] = L;
+CF["splineLength"]  = CURVE_L;
+CF["cornerAngle"]   = ANGLE;
+CF["u"]             = U0;
+dict af = d@pc_attr_f, as_ = d@pc_attr_s;
+foreach (string k; keys(af)) { float v = af[k]; CF[sprintf("attr:%s", k)] = v; }
+foreach (string k; keys(as_)) { string v = as_[k]; CS[sprintf("attr:%s", k)] = v; }
+
+// ---- mandatory start / end, and D13's overflow policy ----------------------
+// D18: caps end a RUN, not a section - true at a spline end and at a
+// `pc_section` limit, false at a corner.
+string e_slot[];
+int e_rule[], e_mod[];
+string e_name[];
+for (int side = 0; side < 2; side++) {
+    if (side == 0 ? !SCAP : !ECAP) continue;
+    string slot = side ? "end" : "start";
+    dict cf0 = CF; cf0["index"] = 0.0; cf0["segIndex"] = 0.0;
+    int rr, mi; string mn;
+    pc_pick(slot, cf0, CS, 0, CURVE_ID, SEC_IX, YCLASS, rr, mi, mn);
+    if (rr < 0) continue;
+    push(e_slot, slot); push(e_rule, rr); push(e_mod, mi); push(e_name, mn);
+}
+
+int overflow = 0;
+while (len(e_slot) > 1) {
+    float tot = 0.0;
+    for (int k = 0; k < len(e_mod); k++) tot += pc_m_len(e_mod[k]);
+    for (int k = 0; k < len(e_mod) - 1; k++)
+        tot += pc_m_pad(e_mod[k], 1) + pc_m_pad(e_mod[k + 1], 0);
+    if (tot <= L + PC_PEPS) break;
+    pop(e_slot); pop(e_rule); pop(e_mod); pop(e_name);   // drop `end` first
+    overflow = 1;
+}
+float squeeze = 1.0;
+if (len(e_slot)) {
+    float tot = 0.0;
+    for (int k = 0; k < len(e_mod); k++) tot += pc_m_len(e_mod[k]);
+    for (int k = 0; k < len(e_mod) - 1; k++)
+        tot += pc_m_pad(e_mod[k], 1) + pc_m_pad(e_mod[k + 1], 0);
+    if (tot > L + PC_PEPS) {
+        squeeze = L / pc_m_len(e_mod[0]);       // scale the survivor onto L
+        overflow = 1;
+    }
+}
+
+string warn_end = overflow ? PC_W_OVERFLOW : "";
+int has_head = 0, has_tail = 0, head_mod = -1, tail_mod = -1;
+float head_s1 = 0.0, tail_s0 = 0.0;
+for (int k = 0; k < len(e_slot); k++) {
+    float mlen = pc_m_len(e_mod[k]) * squeeze;
+    float a, b;
+    if (e_slot[k] == "start") { a = 0.0; b = mlen; has_head = 1;
+                                head_mod = e_mod[k]; head_s1 = b; }
+    else                      { a = L - mlen; b = L; has_tail = 1;
+                                tail_mod = e_mod[k]; tail_s0 = a; }
+    push(o_slot, e_slot[k]);
+    push(o_index, 0);
+    push(o_module, e_name[k]);
+    push(o_variant, pc_m_variant(e_mod[k]));
+    push(o_s0, a);
+    push(o_s1, b);
+    push(o_u, pc_u_at(SEC_S0, CURVE_L, a));
+    push(o_scale, squeeze);
+    push(o_slice, -1.0);
+    push(o_deform, pc_m_deform(e_mod[k]));
+    push(o_zmode, pc_zmode(e_mod[k]));
+    push(o_warns, pc_warn_join(warn_end, pc_module_warns(e_mod[k], e_rule[k])));
+}
+
+float free_a = has_head ? head_s1 : TRIM_A;
+float free_b = has_tail ? tail_s0 : (L - TRIM_B);
+float lead_pad  = has_head ? pc_m_pad(head_mod, 1) : 0.0;
+float trail_pad = has_tail ? pc_m_pad(tail_mod, 0) : 0.0;
+
+// ---- the anchors: evenly, then markers (D15) -------------------------------
+string a_slot[], a_module[], a_variant[], a_zmode[], a_warns[];
+int a_index[], a_deform[];
+float a_s0[], a_s1[], a_u[];
+
+{
+    dict cf0 = CF; cf0["index"] = 0.0; cf0["segIndex"] = 0.0;
+    int rr, mi; string mn;
+    pc_pick("evenly", cf0, CS, 0, CURVE_ID, SEC_IX, YCLASS, rr, mi, mn);
+    if (rr >= 0) {
+        // D15, corrected: the anchor divides the free span but the PIECE is
+        // centred on it, so half a module comes off each GUARDED end -
+        // subtracting only the padding lets the last evenly post grow through
+        // the end cap.
+        float half = pc_m_len(mi) * 0.5;
+        float base = free_a + lead_pad
+                     + (has_head ? (pc_m_pad(mi, 0) + half) : 0.0);
+        float top = free_b - trail_pad
+                    - (has_tail ? (pc_m_pad(mi, 1) + half) : 0.0);
+        float ats[];
+        pc_evenly(max(top - base, 0.0), ats);
+        for (int i = 0; i < len(ats); i++) {
+            float at = ats[i] + base;
+            // the rule is re-read AT THE ANCHOR: 3.3 lists `u` as a
+            // per-candidate subject and a sequence must walk per anchor
+            dict cfi = CF;
+            cfi["index"] = (float)i; cfi["segIndex"] = (float)i;
+            cfi["u"] = pc_u_at(SEC_S0, CURVE_L, at);
+            int ar, ami; string amn;
+            pc_pick("evenly", cfi, CS, i, CURVE_ID, SEC_IX, YCLASS, ar, ami, amn);
+            if (ar < 0) continue;
+            float ahalf = pc_m_len(ami) * 0.5;
+            push(a_slot, "evenly"); push(a_index, i);
+            push(a_module, amn); push(a_variant, pc_m_variant(ami));
+            push(a_s0, at - ahalf); push(a_s1, at + ahalf);
+            push(a_u, pc_u_at(SEC_S0, CURVE_L, at - ahalf));
+            push(a_deform, pc_m_deform(ami)); push(a_zmode, pc_zmode(ami));
+            push(a_warns, pc_module_warns(ami, ar));
+        }
+    }
+}
+
+int mk_id[] = i[]@pc_mk_id;
+float mk_s[] = f[]@pc_mk_s, mk_u[] = f[]@pc_mk_u;
+dict mk_data[] = d[]@pc_mk_data;
+dict m_index;
+for (int j = 0; j < len(mk_id); j++) {
+    string slot = sprintf("marker:%d", mk_id[j]);
+    int seen = m_index[slot];
+    dict cfi = CF, csi = CS;
+    cfi["index"] = (float)seen; cfi["segIndex"] = (float)seen;
+    // the marker's OWN u, not the section start: a conditional marker rule
+    // on `u` otherwise tests a position the marker is not at
+    cfi["u"] = mk_u[j];
+    if (j < len(mk_data)) {
+        dict md = mk_data[j];
+        foreach (string k; keys(md)) {
+            string key = sprintf("markerData:%s", k);
+            // ⚠️ VEX HAS NO `dicttype` (probed, along with `typeid`, which is
+            // ambiguous on a dict slot), so the type is inferred by reading:
+            // a cross-type read answers "" or 0.0.  A marker datum whose
+            // value is the EMPTY STRING is therefore indistinguishable from
+            // a numeric 0 and is read as numeric - the one case this cannot
+            // tell apart, and it is named rather than hidden.
+            string sv = md[k];
+            if (sv != "") csi[key] = sv;
+            else { float v = md[k]; cfi[key] = v; }
+        }
+    }
+    int rr, mi; string mn;
+    pc_pick(slot, cfi, csi, seen, CURVE_ID, SEC_IX, YCLASS, rr, mi, mn);
+    if (rr < 0) continue;
+    m_index[slot] = seen + 1;
+    float half = pc_m_len(mi) * 0.5, at = mk_s[j];
+    push(a_slot, slot); push(a_index, seen);
+    push(a_module, mn); push(a_variant, pc_m_variant(mi));
+    push(a_s0, at - half); push(a_s1, at + half);
+    push(a_u, pc_u_at(SEC_S0, CURVE_L, at - half));
+    push(a_deform, pc_m_deform(mi)); push(a_zmode, pc_zmode(mi));
+    push(a_warns, pc_module_warns(mi, rr));
+}
+
+// `anchors.sort(key=(s0, slot, index))` - insertion, N is the gate count
+int na = len(a_slot);
+int aord[];
+for (int i = 0; i < na; i++) {
+    push(aord, i);
+    int j = i;
+    while (j > 0) {
+        int x = aord[j - 1], y = aord[j];
+        int swap = 0;
+        if (a_s0[x] > a_s0[y]) swap = 1;
+        else if (a_s0[x] == a_s0[y]) {
+            if (a_slot[x] > a_slot[y]) swap = 1;
+            else if (a_slot[x] == a_slot[y] && a_index[x] > a_index[y]) swap = 1;
+        }
+        if (!swap) break;
+        aord[j - 1] = y; aord[j] = x;
+        j--;
+    }
+}
+foreach (int i; aord) {
+    push(o_slot, a_slot[i]); push(o_index, a_index[i]);
+    push(o_module, a_module[i]); push(o_variant, a_variant[i]);
+    push(o_s0, a_s0[i]); push(o_s1, a_s1[i]); push(o_u, a_u[i]);
+    push(o_scale, 1.0); push(o_slice, -1.0);
+    push(o_deform, a_deform[i]); push(o_zmode, a_zmode[i]);
+    push(o_warns, a_warns[i]);
+}
+
+// ---- the default fill, in the gaps the anchors leave -----------------------
+// D119 - the default rule is picked HERE rather than through `pick`, so
+// without a row class a `yclass`-scoped default rule leaked onto every row.
+int d_rules[];
+pc_rules_for("default", YCLASS, d_rules);
+if (len(d_rules)) {
+    int rule = -1;
+    foreach (int r; d_rules) {
+        int gi, ok; string gn;
+        dict cf0 = CF; cf0["index"] = 0.0; cf0["segIndex"] = 0.0;
+        pc_choose(r, cf0, CS, "default", 0, CURVE_ID, SEC_IX, YCLASS, gi, gn, ok);
+        if (ok) { rule = r; break; }
+    }
+    int idx = 0;
+    float a = free_a, lead = lead_pad;
+    int has_lead = has_head;
+    // D19: only a closed section with NOTHING else on it wraps as one run.
+    int cyclic = CLOSED && !na && !len(e_slot);
+    for (int k = 0; k <= na; k++) {
+        int last = (k == na);
+        int ai = last ? -1 : aord[k];
+        float b = last ? free_b : a_s0[ai];
+        // the anchor's own pad pushes its neighbours, this run included
+        float trail = last ? trail_pad : pc_m_pad(pc_kit_by_name(a_module[ai]), 0);
+        int has_trail = last ? has_tail : 1;
+        idx = pc_fill(a, b, rule, CF, CS, CURVE_ID, SEC_IX, SEC_S0, CURVE_L,
+                      YCLASS, idx, lead, has_lead, trail, has_trail,
+                      "", "", cyclic,
+                      o_slot, o_index, o_module, o_variant, o_s0, o_s1, o_u,
+                      o_scale, o_slice, o_deform, o_zmode, o_warns);
+        if (last) break;
+        a = a_s1[ai];
+        lead = pc_m_pad(pc_kit_by_name(a_module[ai]), 1);
+        has_lead = 1;
+    }
+}
+
+// ---- `out.sort(key=(s0, slot, index))` -------------------------------------
+int n = len(o_slot);
+int ord[], buf[];
+resize(ord, n); resize(buf, n);
+for (int i = 0; i < n; i++) ord[i] = i;
+int width = 1;
+while (width < n) {
+    for (int lo = 0; lo < n; lo += 2 * width) {
+        int mid = min(lo + width, n), hi = min(lo + 2 * width, n);
+        int x = lo, y = mid, o = lo;
+        while (x < mid || y < hi) {
+            int take;
+            if (x >= mid)     take = 0;
+            else if (y >= hi) take = 1;
+            else {
+                int p = ord[x], q = ord[y];
+                if (o_s0[p] != o_s0[q])            take = (o_s0[p] < o_s0[q]);
+                else if (o_slot[p] != o_slot[q])   take = (o_slot[p] < o_slot[q]);
+                else                               take = (o_index[p] <= o_index[q]);
+            }
+            buf[o] = take ? ord[x++] : ord[y++];
+            o++;
+        }
+    }
+    for (int i = 0; i < n; i++) ord[i] = buf[i];
+    width *= 2;
+}
+
+string p_slot[], p_module[], p_variant[], p_zmode[], p_warns[];
+int p_index[], p_deform[];
+float p_s0[], p_s1[], p_u[], p_scale[], p_slice[];
+foreach (int i; ord) {
+    push(p_slot, o_slot[i]); push(p_index, o_index[i]);
+    push(p_module, o_module[i]); push(p_variant, o_variant[i]);
+    push(p_s0, o_s0[i]); push(p_s1, o_s1[i]); push(p_u, o_u[i]);
+    push(p_scale, o_scale[i]); push(p_slice, o_slice[i]);
+    push(p_deform, o_deform[i]); push(p_zmode, o_zmode[i]);
+    push(p_warns, o_warns[i]);
+}
+
+s[]@pc_p_slot = p_slot;
+s[]@pc_p_module = p_module;
+s[]@pc_p_variant = p_variant;
+s[]@pc_p_zmode = p_zmode;
+s[]@pc_p_warns = p_warns;
+i[]@pc_p_index = p_index;
+i[]@pc_p_deform = p_deform;
+f[]@pc_p_s0 = p_s0;
+f[]@pc_p_s1 = p_s1;
+f[]@pc_p_u = p_u;
+f[]@pc_p_scale = p_scale;
+f[]@pc_p_slice = p_slice;
+i@pc_npieces = n;
+f@pc_sec_length = L;

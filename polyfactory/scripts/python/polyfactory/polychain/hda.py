@@ -463,14 +463,34 @@ def config_dict(node):
     downstream reads a parm, which is what keeps the graph generic and PC-G4
     passing by construction.
     """
+    return config_resolved(node)[0]
+
+
+def config_resolved(node):
+    """(`pc_cfg`, the resolved Style, the resolved Kit).
+
+    13.9 N2 - the CONFIG SOP now publishes the kit and the rule table beside
+    the scalars, and all three have to come from ONE resolution or the arrays
+    would describe a different style than the dict does.  `config_dict` is the
+    same function with two of the three thrown away.
+
+    ⚠️ THE STYLE IS NEVER None HERE.  `config_dict` used to leave it None when
+    no payload was wired and read the parameters instead; the rule TABLE has
+    no such fallback available to it, so the parm page's own `Style` (2.1's
+    other face) is built explicitly.  That is what makes `Stage = plan` answer
+    about the same rules the artist sees on the page.
+    """
     parms = parm_owner(node)
     # ⚠️ THE KIT GOES IN TOO. `cook` and `cook_plan_bridge` both hand
     # `style.read` the kit so a payload naming a module the kit does not have
     # warns; without it this node resolved the same payload against a
     # different world and its warnings disagreed with the kernel's.
-    style, _warns = _style.read(_input_geo(node, 2),
-                                kit=_kit.read(kit_geometry(node, parms))[0])
+    kit = _kit.read(kit_geometry(node, parms))[0]
+    style, _warns = _style.read(_input_geo(node, 2), kit=kit)
     params = style.params if style is not None else params_from_parms(parms)
+    from_payload = style is not None
+    if style is None:
+        style = style_from_parms(node)
     out = {}
     for key in CONFIG_KEYS:
         value = getattr(params, key, None)
@@ -479,24 +499,242 @@ def config_dict(node):
         out[key] = float(value) if isinstance(value, bool) else value
     out["style_id"] = str(getattr(style, "style_id", "")
                           or _parm_str(parms, "style_id", "pf_polychain"))
-    out["seed"] = float(getattr(style, "seed", 0) if style is not None
-                        else (parms.evalParm("seed") if parms.parm("seed")
-                              else 0))
-    out["from_payload"] = 1.0 if style is not None else 0.0
+    out["seed"] = float(getattr(style, "seed", 0))
+    out["from_payload"] = 1.0 if from_payload else 0.0
+    return (out, style, kit)
+
+
+# --- 13.9 N2: the KIT and the RULE TABLE, flattened for VEX ------------------
+#
+# 4.2's fitting solve reads a kit and a 3.3 rule list.  Neither is geometry
+# and neither can be looked up from VEX in the shape Python holds it in - a
+# `Kit` is objects with properties, a `Rule` has a nested `cond` dict whose
+# `value` is any JSON type - so the CONFIG SOP publishes both as FLAT PARALLEL
+# ARRAYS on the same detail the `pc_cfg` dict already rides on.
+#
+# This is the second half of Hannes' rule ("processing data which is not
+# possible to process with the other 3"), not a loophole: N is the module
+# count plus the rule count, it runs once per cook, and it touches no
+# geometry.  What it must NOT do is decide anything - every ordering,
+# fallback and default below is the one `polychain.Kit` / `polychain.Style`
+# already made, transcribed.
+#
+# ⚠️ PAYLOAD ORDER IS LOAD-BEARING ON BOTH TABLES.  `Kit.by_role` is
+# documented "payload order preserved - deterministic, never set iteration",
+# and `Style.rules_for` is "payload order preserved: the first rule that
+# yields wins".  A flattening that sorted either one would be a different
+# tool.
+
+KIT_TABLE = (
+    ("pc_k_name", "name", ""), ("pc_k_variant", "variant", ""),
+    ("pc_k_zmode", "zmode", "adaptive"),
+    ("pc_k_len", "length", 0.0), ("pc_k_weight", "weight", 1.0),
+    ("pc_k_deform", "deform", 0), ("pc_k_missing", "missing", 0),
+    ("pc_k_tilt", "tilt", -1), ("pc_k_extend", "extend", -1),
+)
+
+# ⚠️ EVERY FLOAT COLUMN CROSSES AS A DECIMAL STRING, AND THAT IS R2, NOT
+# FUSSINESS.  Measured this cycle on 22.0.398, writing 0.35 from Python and
+# reading it back in a `vex_precision = 64` wrangle:
+#
+#     a FLOAT ARRAY attribute  ->  0.34999999403953552   (float32 storage)
+#     a DICT attribute         ->  0.34999999999999998   (float64, exact)
+#     `atof(repr(0.35))`       ->  0.34999999999999998   (float64, exact)
+#
+# `hou.Geometry` has no 64-bit float array (D170 found the same thing for
+# scalars), so a kit whose module is 0.35 m long reached the solve at 32 bits
+# and the plan came back 2.7e-9 out - which 13.8 calls a defect, not float
+# noise.  The 89 scene cases could not see it: every length in the starter kit
+# (0.12, 2.0, 1.6, 0.9) is exactly representable in float32, and it took the
+# stress matrix's own kit to expose it.
+#
+# `repr` rather than `%.17g` because it round-trips exactly AND stays readable
+# in the geometry spreadsheet: `0.35`, not `0.34999999999999998`.  A DICT
+# would also have been exact, but a dict read copies the whole table on every
+# accessor call where an array read copies one column.
+KIT_FLOAT_COLUMNS = ("pc_k_len", "pc_k_pad0", "pc_k_pad1", "pc_k_weight")
+RULE_FLOAT_COLUMNS = ("pc_r_cnum", "pc_r_clnum", "pc_r_wval")
+
+
+def _exact(value):
+    """A float as the decimal string VEX's `atof` reads back bit for bit."""
+    return repr(float(value))
+
+# 3.3's `pc_cond` value is any JSON type, and VEX has no such thing.  The KIND
+# says which of the three columns beside it carries the value, and it is what
+# lets `pc_plan.h` reproduce `evaluate_cond`'s "anything unreadable is False"
+# without a type system: 0 = no condition, 1 = number, 2 = string,
+# 3 = list (the `in` operator's right-hand side), 4 = unreadable.
+COND_NONE, COND_NUM, COND_STR, COND_LIST, COND_BAD = 0, 1, 2, 3, 4
+
+
+def _cond_columns(cond):
+    """One 3.3 condition as (kind, number, string, [(kind, num, str)]).
+
+    The LIST keeps a per-item kind, because `in` is type-sensitive in Python
+    and flattening `[1, 3, 5]` to strings would make `segIndex in [1, 3, 5]`
+    false for every piece - `1 in ["1"]` is False.
+    """
+    if not cond:
+        return (COND_NONE, 0.0, "", [])
+    value = cond.get("value")
+    if isinstance(value, bool):
+        return (COND_NUM, 1.0 if value else 0.0, "", [])
+    if isinstance(value, (int, float)):
+        return (COND_NUM, float(value), "", [])
+    if isinstance(value, str):
+        return (COND_STR, 0.0, value, [])
+    if isinstance(value, (list, tuple)):
+        items = []
+        for v in value:
+            if isinstance(v, bool):
+                items.append((COND_NUM, 1.0 if v else 0.0, ""))
+            elif isinstance(v, (int, float)):
+                items.append((COND_NUM, float(v), ""))
+            elif isinstance(v, str):
+                items.append((COND_STR, 0.0, v))
+            else:
+                items.append((COND_BAD, 0.0, ""))
+        return (COND_LIST, 0.0, "", items)
+    return (COND_BAD, 0.0, "", [])
+
+
+def kit_table(kit):
+    """`Kit` -> the flat arrays `pc_plan.h` binds.  Payload order, unsorted."""
+    mods = list(getattr(kit, "modules", ()) or ())
+    out = dict((name, []) for name, _f, _d in KIT_TABLE)
+    out["pc_k_roles"] = []
+    out["pc_k_pad0"] = []
+    out["pc_k_pad1"] = []
+    for module in mods:
+        for name, field, default in KIT_TABLE:
+            value = getattr(module, field, default)
+            if isinstance(default, str):
+                out[name].append(str(value))
+            elif isinstance(default, float):
+                out[name].append(float(value))
+            else:
+                out[name].append(int(value))
+        # `Module.roles` is already normalised to a tuple by `_roles`; the
+        # space join is only a transport, and `pc_kit_role` splits it back.
+        out["pc_k_roles"].append(" ".join(str(r) for r in module.roles))
+        out["pc_k_pad0"].append(float(module.pad[0]))
+        out["pc_k_pad1"].append(float(module.pad[1]))
+    for name in KIT_FLOAT_COLUMNS:
+        out[name] = [_exact(v) for v in out[name]]
     return out
+
+
+def rule_table(style):
+    """`Style` -> the flat arrays `pc_plan.h` binds.  Payload order, unsorted.
+
+    `modules`, `weights` and a list-valued `cond` are ragged, so each is a
+    FLAT array plus a (start, count) pair per rule - the same shape
+    `pc_arclength` already uses for its per-curve segment tables.
+    """
+    rules = list(getattr(style, "rules", ()) or ())
+    out = {"pc_r_slot": [], "pc_r_select": [], "pc_r_scope": [],
+           "pc_r_yclass": [], "pc_r_axis": [], "pc_r_vexpr": [],
+           "pc_r_mod0": [], "pc_r_modn": [], "pc_r_mods": [],
+           "pc_r_w0": [], "pc_r_wn": [], "pc_r_wkey": [], "pc_r_wval": [],
+           "pc_r_ckind": [], "pc_r_csubj": [], "pc_r_cop": [],
+           "pc_r_cnum": [], "pc_r_cstr": [],
+           "pc_r_cl0": [], "pc_r_cln": [], "pc_r_clist": [],
+           "pc_r_clnum": [], "pc_r_clkind": []}
+    for rule in rules:
+        out["pc_r_slot"].append(str(rule.slot))
+        out["pc_r_select"].append(str(rule.select))
+        out["pc_r_scope"].append(str(rule.scope))
+        out["pc_r_yclass"].append(str(getattr(rule, "yclass", "") or ""))
+        out["pc_r_axis"].append(str(getattr(rule, "axis", "x")))
+        out["pc_r_vexpr"].append(str(rule.vexpr or ""))
+        out["pc_r_mod0"].append(len(out["pc_r_mods"]))
+        out["pc_r_modn"].append(len(rule.modules))
+        out["pc_r_mods"].extend(str(m) for m in rule.modules)
+        # sorted, because `choose`'s random branch sorts the POOL and reads
+        # `rule.weights` by name - a dict has no order to preserve here, and
+        # sorting it makes the table itself reproducible
+        weights = dict(rule.weights or {})
+        out["pc_r_w0"].append(len(out["pc_r_wkey"]))
+        out["pc_r_wn"].append(len(weights))
+        for key in sorted(weights):
+            out["pc_r_wkey"].append(str(key))
+            out["pc_r_wval"].append(float(weights[key]))
+        cond = dict(rule.cond or {})
+        kind, num, text, items = _cond_columns(cond)
+        out["pc_r_ckind"].append(kind)
+        out["pc_r_csubj"].append(str(cond.get("subject", "")))
+        out["pc_r_cop"].append(str(cond.get("op", "eq")) if cond else "")
+        out["pc_r_cnum"].append(num)
+        out["pc_r_cstr"].append(text)
+        out["pc_r_cl0"].append(len(out["pc_r_clist"]))
+        out["pc_r_cln"].append(len(items))
+        for ikind, inum, itext in items:
+            out["pc_r_clkind"].append(ikind)
+            out["pc_r_clnum"].append(inum)
+            out["pc_r_clist"].append(itext)
+    # ⚠️ WHICH SPLINE PRIM ATTRIBUTES `pc_sections` MUST HARVEST.  VEX cannot
+    # enumerate attribute names - there is no `primattribs()` on 22.0.398,
+    # four spellings probed - so the names have to be named.  Every `attr:`
+    # subject in the payload, and nothing else: `place._prim_attrs` harvests
+    # every non-`pc_` prim attribute, but the only thing that ever READS the
+    # bag is an `attr:<name>` condition, so the shorter list answers exactly
+    # the same questions.
+    names = sorted(set(
+        str(r.cond["subject"])[5:] for r in rules
+        if r.cond and str(r.cond.get("subject", "")).startswith("attr:")))
+    out["pc_attr_names"] = names
+    for name in RULE_FLOAT_COLUMNS:
+        out[name] = [_exact(v) for v in out[name]]
+    return out
+
+
+_ARRAY_DEFAULTS = dict(
+    [(name, "") for name in ("pc_attr_names", "pc_k_name", "pc_k_variant",
+                             "pc_k_zmode", "pc_k_roles", "pc_r_slot",
+                             "pc_r_select", "pc_r_scope", "pc_r_yclass",
+                             "pc_r_axis", "pc_r_vexpr", "pc_r_mods",
+                             "pc_r_wkey", "pc_r_csubj", "pc_r_cop",
+                             "pc_r_cstr", "pc_r_clist")]
+    + [(name, "") for name in KIT_FLOAT_COLUMNS + RULE_FLOAT_COLUMNS])
+
+
+def write_tables(geo, tables):
+    """The flat arrays onto `geo` as DETAIL attributes, typed by their first
+    element - or by `_ARRAY_DEFAULTS` when the table is empty, because an
+    empty kit and an empty rule list are both legal and VEX still has to bind
+    the name.
+    """
+    for name in sorted(tables):
+        values = tables[name]
+        if values:
+            sample = values[0]
+        else:
+            sample = _ARRAY_DEFAULTS.get(name, 0.0)
+        if isinstance(sample, str):
+            kind = hou.attribData.String
+        elif isinstance(sample, float):
+            kind = hou.attribData.Float
+        else:
+            kind = hou.attribData.Int
+        geo.addArrayAttrib(hou.attribType.Global, name, kind)
+        geo.setGlobalAttribValue(name, list(values))
 
 
 def cook_config(node):
     """The CONFIG stream: one point carrying `pc_cfg`. Never raises."""
     geo = node.geometry()
     geo.clear()
+    cfg, style, kit = {}, None, None
     try:
-        cfg = config_dict(node)
+        cfg, style, kit = config_resolved(node)
     except Exception as exc:                                # warn-never-block
         node.addWarning("config: %s" % exc)
-        cfg = {}
     geo.addAttrib(hou.attribType.Global, "pc_cfg", {})
     geo.setGlobalAttribValue("pc_cfg", cfg)
+    tables = kit_table(kit)
+    tables.update(rule_table(style))
+    write_tables(geo, tables)
     geo.createPoint()
     return cfg
 

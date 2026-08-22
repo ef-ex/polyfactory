@@ -70,6 +70,18 @@ if os.path.isdir(_PKG) and _PKG not in sys.path:
 HDA_PATH = os.path.join(POLYFACTORY, "otls",
                         "pf_polychain.hda").replace("\\", "/")
 
+# ⚠️ ONE DECLARATION OF THE PLAN CHAIN, NOT TWO.  15.8.4's root cause was that
+# `tests/polychain/native.py` and this script were two independent
+# declarations of the DECOMPOSE chain: two mutations of the shipped asset
+# survived every suite because the checks mutated the rig's copy.  The plan
+# chain is built by `native.stage_plan` in BOTH, so there is one.
+_TESTS = os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "..", "tests", "polychain")).replace("\\", "/")
+if _TESTS not in sys.path:
+    sys.path.insert(0, _TESTS)
+import native as native_rig                                      # noqa: E402
+
 if hou.isUIAvailable() is False:
     hou.hipFile.clear(suppress_save_prompt=True)
 
@@ -116,6 +128,8 @@ STAGES = (
     ("sections", "OUT_sections",
      "1 - Decompose (4.1 - arclength, corners, markers)"),
     ("plan", "OUT_plan", "2 - Plan (4.2 - one point per piece)"),
+    ("plan_native", "OUT_plan_native",
+     "2 - Plan, NATIVE (4.2 - the VEX fitting solve)"),
     ("frames", "OUT_frames", "4 - Frames (4.4 - the transform per piece)"),
 )
 
@@ -309,6 +323,55 @@ out_plan = net.createNode("null", "OUT_plan")
 out_plan.setInput(0, plan)
 out_plan.setPosition(hou.Vector2(16.0, -2.0))
 
+# ---- 2 PLAN, NATIVE (13.9 N2) - the fitting solve, in VEX --------------------
+# ⚠️ THIS DOES NOT REPLACE `pc_plan_bridge` YET AND THE WIRING SAYS SO.  The
+# bridge exists to feed `pc_frames` the module geometry the reference measured
+# (`pc_proto_*`, `pc_basey`, `pc_yscale`), and that half is 13.9 N4's, not
+# N2's.  What IS ported is 4.2 itself: sections, the solve, the expansion and
+# the read, at EXACT parity with `plan.plan_sections` on all 92 cases.
+# `Stage = plan_native` is how an artist looks at it, and `plan_native_parity`
+# in run_native_checks.py is what proves it.
+_plan_last, _plan_nodes = native_rig.stage_plan(net, out_sections, config)
+plan_native_nodes = []
+_PLAN_COMMENTS = {
+    "pc_sections":
+        "4.1 - THE SECTION LIST. One point per section, and the stream 4.2\n"
+        "runs over. A DETAIL wrangle, so the emission order is the loop's\n"
+        "order - 13.3.1 wanted a prim wrangle plus a sort SOP, and a sort\n"
+        "nobody may delete is a determinism property waiting to be lost.",
+    "pc_sec_only":
+        "The spline away, the sections kept. Everything below runs over\n"
+        "SECTIONS, not vertices.",
+    "pc_plan_clean":
+        "The spline-side attributes off, before the solve. Not tidying: a\n"
+        "Houdini attribute is geometry-wide, so the artist's float32 pc_u on\n"
+        "the MARKER CLOUD was still there when the plan wrote 3.4's own pc_u\n"
+        "- and a 64-bit wrangle writing into an existing float32 attribute\n"
+        "keeps float32. The plan's u was 3e-9 off on both marker cases.",
+    "pc_plan_solve":
+        "4.2 - THE FITTING SOLVE. One section per thread, the accumulation\n"
+        "sequential inside it. It ADDS NO POINTS: the answer leaves as\n"
+        "per-section arrays plus pc_npieces, because addpoint from a\n"
+        "multithreaded wrangle emits in thread-completion order (D150).",
+    "pc_plan_expand":
+        "pc_npieces points per section, deterministically. nptsperpt MUST\n"
+        "stay 1 - the attribute MULTIPLIES it.",
+    "pc_plan_read":
+        "Element k of the arrays, and 3.4's stamp: pc_elem_id by sprintf,\n"
+        "pc_elem_key by the crc32 in pc_rand.h. Order-free by construction.",
+}
+for _name, _node in _plan_nodes.items():
+    _node.setComment(_PLAN_COMMENTS[_name])
+    _node.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+    plan_native_nodes.append(_node)
+for _i, _name in enumerate(("pc_sections", "pc_sec_only", "pc_plan_clean",
+                            "pc_plan_solve", "pc_plan_expand", "pc_plan_read")):
+    _plan_nodes[_name].setPosition(hou.Vector2(16.0, -5.0 - 2.0 * _i))
+out_plan_native = net.createNode("null", "OUT_plan_native")
+out_plan_native.setInput(0, _plan_last)
+out_plan_native.setPosition(hou.Vector2(16.0, -17.0))
+plan_native_nodes.append(out_plan_native)
+
 # ---- 4 PLACE + DEFORM (4.4) - the frame, in VEX ------------------------------
 frames = wrangle(
     net, "pc_frames", "point",
@@ -388,8 +451,10 @@ out_null.setRenderFlag(True)
 box(net, "stage0_config", "0 - CONFIG (13.3.0)", (0.55, 0.55, 0.58), [config])
 box(net, "stage1_decompose", "1 - DECOMPOSE (4.1) - VEX + native",
     (0.29, 0.42, 0.68), dec_nodes)
-box(net, "stage2_plan", "2 - PLAN (4.2) - still Python, and 13.9 N2 is where it goes",
-    (0.35, 0.60, 0.38), [plan, out_plan])
+box(net, "stage2_plan",
+    "2 - PLAN (4.2) - the VEX solve, and the bridge N4 still needs",
+    (0.35, 0.60, 0.38),
+    [plan, out_plan] + plan_native_nodes)
 box(net, "stage4_frames", "4 - PLACE + DEFORM (4.4) - the frame, in VEX",
     (0.70, 0.35, 0.32), [frames, valid, out_frames])
 box(net, "stageR_reference", "R - THE REFERENCE (13.6) - the oracle",

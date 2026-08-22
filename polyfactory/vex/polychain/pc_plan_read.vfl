@@ -1,0 +1,82 @@
+// STAGE 2 - PLAN (spec 4.2), THE READ.  POINT wrangle, precision 64.
+//   input 0  the EXPANDED stream - one point per piece, from pc_plan_expand
+//   input 1  CONFIG
+//
+// `pc_plan_solve` wrote the answer as per-section arrays and `pointgenerate`
+// copied those arrays onto `pc_npieces` points per section, stamping which
+// section each came from (`pc_secpt`) and its index within it (`pc_pindex`).
+// This reads element k and deletes the arrays, so what leaves is 4.2's
+// inspectable PLAN: one point per piece, no array attribute in sight.
+//
+// ⚠️ NOTHING HERE DEPENDS ON POINT ORDER.  Element k is a pure function of
+// (section, k) - which is the whole reason D150 chose `pointgenerate` over
+// `addpoint` - so this wrangle is order-free and thread-free by construction.
+
+#include "pc_plan.h"
+
+int k = i@pc_pindex;
+
+string p_slot[] = s[]@pc_p_slot, p_module[] = s[]@pc_p_module;
+string p_variant[] = s[]@pc_p_variant, p_zmode[] = s[]@pc_p_zmode;
+string p_warns[] = s[]@pc_p_warns;
+int p_index[] = i[]@pc_p_index, p_deform[] = i[]@pc_p_deform;
+float p_s0[] = f[]@pc_p_s0, p_s1[] = f[]@pc_p_s1, p_u[] = f[]@pc_p_u;
+float p_scale[] = f[]@pc_p_scale, p_slice[] = f[]@pc_p_slice;
+
+if (k < 0 || k >= len(p_slot)) {
+    // `pointgenerate` cannot produce this - the count IS the array length -
+    // so if it ever happens the piece says so instead of reading past the end
+    i@pc_warn_plan_range = 1;
+    return;
+}
+
+s@pc_slot    = p_slot[k];
+i@pc_index   = p_index[k];
+s@pc_module  = p_module[k];
+s@pc_variant = p_variant[k];
+s@pc_zmode   = p_zmode[k];
+i@pc_deform  = p_deform[k];
+f@pc_scale   = p_scale[k];
+f@pc_u       = p_u[k];
+
+// SECTION-LOCAL metres are the truth for everything inside 4.2 (D16); the
+// world station is the section's own start plus them, in 64 bits.
+float s0 = p_s0[k], s1 = p_s1[k];
+f@pc_s0 = s0;
+f@pc_s1 = s1;
+f@pc_len = s1 - s0;
+f@pc_ws0 = f@pc_sec_s0 + s0;
+f@pc_ws1 = f@pc_sec_s0 + s1;
+
+// -1 is Python's `slice_t = None`: this piece was not cut.
+f@pc_slice_t = p_slice[k];
+i@pc_sliced = (p_slice[k] >= 0.0);
+
+// 3.4's structural address.  `sprintf` reproduces `__init__.elem_id` exactly
+// (13.2 probed it on every tested tuple) and `pc_elem_key` is its crc32.
+string eid = sprintf("%s|%d|%s|%d|%s", s@pc_curve_id, i@pc_sec_index,
+                     p_slot[k], p_index[k], pc_cfg_s("style_id", ""));
+s@pc_elem_id = eid;
+i@pc_elem_key = pc_elem_key(eid);
+if (!pc_is_ascii(eid)) i@pc_warn_elem_key_utf8 = 1;
+
+// Every warning the solve raised, as its own int attribute - which is the
+// shape `place`/`hda` already publish and `colour_warnings` already reads.
+foreach (string w; split(p_warns[k])) setpointattrib(0, w, @ptnum, 1);
+s@pc_warns = p_warns[k];
+
+// The arrays have done their job; nothing downstream may read them, and
+// conventions.md's `_*` rule is about names, not about leaving working state
+// on the output.
+removepointattrib(0, "pc_p_slot");
+removepointattrib(0, "pc_p_module");
+removepointattrib(0, "pc_p_variant");
+removepointattrib(0, "pc_p_zmode");
+removepointattrib(0, "pc_p_warns");
+removepointattrib(0, "pc_p_index");
+removepointattrib(0, "pc_p_deform");
+removepointattrib(0, "pc_p_s0");
+removepointattrib(0, "pc_p_s1");
+removepointattrib(0, "pc_p_u");
+removepointattrib(0, "pc_p_scale");
+removepointattrib(0, "pc_p_slice");

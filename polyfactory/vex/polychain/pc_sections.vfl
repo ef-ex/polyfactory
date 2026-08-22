@@ -1,0 +1,367 @@
+// STAGE 1 - DECOMPOSE (spec 4.1), THE SECTION LIST.  DETAIL wrangle.
+//   input 0  the spline stream, after pc_markers
+//   input 1  CONFIG
+//
+// `decompose.decompose` + `decompose.decompose_all` ported.  It emits ONE
+// POINT PER SECTION - the stream 4.2's fitting solve runs over - and nothing
+// else; `pc_sec_only` downstream blasts the spline away.
+//
+// ⚠️ WHY THIS IS A DETAIL WRANGLE AND NOT A PRIMITIVE ONE.  13.3.1 specified
+// "a primitive wrangle emitting one point per section" plus "a sort SOP,
+// which is not optional", because `addpoint` from a multithreaded wrangle
+// produces points in THREAD-COMPLETION order.  A detail wrangle has one
+// thread, so the emission order is the loop's order and there is nothing to
+// re-sort - and the loop is over SECTIONS, not over points, so the parallel
+// work (the arclength scan, the turn angle) has already happened upstream.
+// One node instead of two, and a determinism property by construction instead
+// of by a downstream node nobody may delete.
+//
+// ⚠️ THE EMISSION ORDER IS (curve_id, section_index, prim) AND EVERY TERM IS
+// LOAD-BEARING.  `decompose_all` sorts curves by `str(curve_id)` and then
+// re-sorts the sections by `(str(curve_id), index)`; `plan_sections` sorts
+// again by the same key.  Python's sort is STABLE, so two primitives sharing
+// one id do not stay in curve blocks - their sections INTERLEAVE by index
+// (A0, B0, A1, B1).  Sorting by the triple reproduces that without needing a
+// stable sort, because the prim number breaks every remaining tie.
+
+#include "pc_path.h"
+
+int nprim = nprimitives(0);
+int npt = npoints(0);
+
+// ---- which prim attributes a rule can ask about ---------------------------
+// D94's `attr:<name>` subject.  VEX HAS NO WAY TO ENUMERATE ATTRIBUTE NAMES -
+// there is no `primattribs()`, `attribnames()` or `nprimitiveattribs()` on
+// 22.0.398 (four spellings probed) - so the CONFIG SOP publishes the names
+// the RULE TABLE actually asks for, which is a shorter list than
+// `place._prim_attrs` harvests and answers exactly the same questions.  Two
+// dicts rather than one because a VEX dict slot has a type and `attr:` can
+// name either a number or a string; `evaluate_cond`'s "anything unreadable is
+// False" is what makes the miss harmless.
+string want[] = detail(1, "pc_attr_names");
+push(want, "pc_section");
+push(want, "pc_style");
+
+// ---- the marker cloud, once ------------------------------------------------
+// Small N (a marker is a stand-alone point, never a curve vertex), so one
+// pass here beats re-scanning per curve.  `pc_curveprim` is `pc_markers`'
+// binding and it is -1 on an unbound marker - D169's duplicated id binds to
+// the FIRST prim claiming it and warns rather than fanning out, so this reads
+// the same answer the marker stage already published.
+int mk_pt[], mk_prim[], mk_id[];
+float mk_s[];
+int has_marker = haspointattrib(0, "pc_marker");
+if (has_marker) {
+    for (int p = 0; p < npt; p++) {
+        int is_marker = point(0, "pc_marker", p);
+        if (is_marker != 1) continue;
+        int pr = point(0, "pc_curveprim", p);
+        if (pr < 0) continue;
+        // ⚠️ A TYPED LOCAL BEFORE EVERY `point()` - the return is untyped and
+        // `push` is ambiguous without one (recorded trap, hit five times in
+        // one session before it was written down).
+        int mid = 0;
+        if (haspointattrib(0, "pc_marker_id")) mid = point(0, "pc_marker_id", p);
+        float ms = point(0, "pc_s", p);
+        push(mk_pt, p);
+        push(mk_prim, pr);
+        push(mk_id, mid);
+        push(mk_s, ms);
+    }
+}
+int nmk = len(mk_pt);
+// `resolve_markers` sorts by (s, marker_id) - insertion, because nmk is the
+// number of gates on a fence and this list is usually already in order.
+int mk_ord[];
+for (int i = 0; i < nmk; i++) {
+    int j = i;
+    push(mk_ord, i);
+    while (j > 0) {
+        int a = mk_ord[j - 1], b = mk_ord[j];
+        if (mk_s[a] < mk_s[b]
+            || (mk_s[a] == mk_s[b] && mk_id[a] <= mk_id[b])) break;
+        mk_ord[j - 1] = b; mk_ord[j] = a;
+        j--;
+    }
+}
+
+// ---- every section of every curve, unordered -------------------------------
+string r_cid[], r_stylekey[];
+int r_prim[], r_index[], r_closed[], r_scap[], r_ecap[], r_seckey_kind[];
+float r_s0[], r_s1[], r_total[], r_angle[], r_seckey_num[];
+string r_seckey_str[];
+int r_mk0[], r_mkn[];
+int flat_mk[];                          // marker POINT numbers, section-major
+float flat_mk_s[];                      // and each one's s_local
+
+int pt_sec = haspointattrib(0, "pc_section");
+int prim_sec_t = pt_sec ? -1 : primattribtype(0, "pc_section");
+int has_corner_flag = haspointattrib(0, "pc_corner");
+
+for (int pr = 0; pr < nprim; pr++) {
+    int iscurve = prim(0, "pc_iscurve", pr);
+    if (!iscurve) continue;
+    int pts[] = primpoints(0, pr);
+    int np = len(pts);
+    int nclean = prim(0, "pc_nclean", pr);
+    int np_unused = 0;
+    if (nclean < 2) continue;           // D8: nothing to place on
+    int closed = prim(0, "pc_closed", pr);
+    float total = prim(0, "pc_total", pr);
+    string cid = prim(0, "pc_curve_id_r", pr);
+
+    // `_clean`'s (idx, cum): the surviving vertices in order.  `idx[k]` is a
+    // VERTEX SLOT, which is what `corner_flags[original_index]` indexes and
+    // what `section_ids[idx[i]]` indexes - not a point number.
+    int idx[], cpt[];
+    float cum[];
+    resize(idx, nclean); resize(cpt, nclean); resize(cum, nclean);
+    for (int v = 0; v < np; v++) {
+        int k = point(0, "pc_cleanidx", pts[v]);
+        if (k < 0 || k >= nclean) continue;
+        idx[k] = v;
+        cpt[k] = pts[v];
+        cum[k] = point(0, "pc_s", pts[v]);
+    }
+    int n = nclean;
+
+    // ---- the break set: corners (4.1) plus `pc_section` changes (D7) ------
+    int isbreak[];
+    float seckey_num[];
+    string seckey_str[];
+    int is_secbreak[];
+    resize(isbreak, n); resize(is_secbreak, n);
+    resize(seckey_num, n); resize(seckey_str, n);
+    for (int i = 0; i < n; i++) { isbreak[i] = 0; is_secbreak[i] = 0;
+                                  seckey_num[i] = 0; seckey_str[i] = ""; }
+
+    // D7 - a per-POINT `pc_section` breaks the curve, a per-PRIM one is the
+    // whole-curve key and never breaks anything.
+    int keykind = 0;                    // 0 none/num, 2 string
+    if (pt_sec) {
+        for (int i = 0; i < n; i++) {
+            float k = point(0, "pc_section", cpt[i]);
+            seckey_num[i] = k;
+        }
+        int lo = closed ? 0 : 1;
+        int hi = closed ? n : n - 1;
+        for (int i = lo; i < hi; i++)
+            if (seckey_num[i] != seckey_num[(i - 1 + n) % n]) is_secbreak[i] = 1;
+    } else if (prim_sec_t == 2) {
+        keykind = 2;
+        string sk = prim(0, "pc_section", pr);
+        for (int i = 0; i < n; i++) seckey_str[i] = sk;
+    } else if (prim_sec_t >= 0) {
+        float sk = prim(0, "pc_section", pr);
+        for (int i = 0; i < n; i++) seckey_num[i] = sk;
+    }
+
+    for (int i = 0; i < n; i++) {
+        if (is_secbreak[i]) isbreak[i] = 1;
+        int corner = point(0, "pc_iscorner", cpt[i]);
+        if (corner && (closed || (i > 0 && i < n - 1))) isbreak[i] = 1;
+    }
+
+
+    // ---- the spans -------------------------------------------------------
+    int ends[];
+    for (int i = 0; i < n; i++) if (isbreak[i]) push(ends, i);
+    int span_a[], span_b[];
+    if (closed) {
+        if (!len(ends)) { push(span_a, 0); push(span_b, n); }   // D10
+        else {
+            int ne = len(ends);
+            for (int k = 0; k < ne; k++) {
+                push(span_a, ends[k]);
+                push(span_b, ends[(k + 1) % ne] + ((k == ne - 1) ? n : 0));
+            }
+        }
+    } else {
+        int cuts[];
+        push(cuts, 0);
+        foreach (int e; ends) push(cuts, e);
+        push(cuts, n - 1);
+        for (int k = 0; k < len(cuts) - 1; k++) {
+            push(span_a, cuts[k]);
+            push(span_b, cuts[k + 1]);
+        }
+    }
+    int anybreak = len(ends) > 0;
+
+    // ---- this curve's markers, in (s, marker_id) order --------------------
+    int my_mk[];
+    float my_s[];
+    foreach (int o; mk_ord) {
+        if (mk_prim[o] != pr) continue;
+        push(my_mk, mk_pt[o]);
+        push(my_s, mk_s[o]);
+    }
+    int taken[];
+    resize(taken, len(my_mk));
+    for (int i = 0; i < len(taken); i++) taken[i] = 0;
+
+    // ---- one record per span ---------------------------------------------
+    for (int k = 0; k < len(span_a); k++) {
+        int i0 = span_a[k], i1 = span_b[k];
+        float s0 = cum[i0];
+        float s1 = (i1 < n) ? cum[i1] : total + cum[i1 - n];
+        int start_cap = is_secbreak[i0 % n];
+        int end_cap   = is_secbreak[i1 % n];
+        int cpt0 = cpt[i0 % n];
+        int is_corner0 = point(0, "pc_iscorner", cpt0);
+        float angle = 0.0;
+        if (is_corner0) { float t = point(0, "pc_turn_deg", cpt0); angle = t; }
+        if (!closed) {
+            // D18 - a spline END is a cap and never a corner.
+            if (i0 == 0)     { start_cap = 1; angle = 0.0; }
+            if (i1 == n - 1) { end_cap = 1; }
+        }
+
+        push(r_cid, cid);
+        push(r_prim, pr);
+        push(r_index, k);
+        push(r_s0, s0);
+        push(r_s1, s1);
+        push(r_total, total);
+        push(r_angle, angle);
+        push(r_closed, closed && !anybreak);        // D10
+        push(r_scap, start_cap);
+        push(r_ecap, end_cap);
+        push(r_seckey_kind, keykind);
+        push(r_seckey_num, seckey_num[i0]);
+        push(r_seckey_str, seckey_str[i0]);
+        string skey = "";
+        if (hasprimattrib(0, "pc_style")) skey = prim(0, "pc_style", pr);
+        push(r_stylekey, skey);
+
+        // A marker on a boundary belongs to exactly ONE section - the first
+        // that can hold it - so a gate is never placed twice.
+        push(r_mk0, len(flat_mk));
+        int count = 0;
+        for (int j = 0; j < len(my_mk); j++) {
+            if (taken[j]) continue;
+            float s = my_s[j];
+            if (!(s0 - PC_EPS <= s && s <= s1 + PC_EPS) && closed) s += total;
+            if (s0 - PC_EPS <= s && s <= s1 + PC_EPS) {
+                taken[j] = 1;
+                push(flat_mk, my_mk[j]);
+                push(flat_mk_s, s - s0);
+                count++;
+            }
+        }
+        push(r_mkn, count);
+    }
+}
+
+// ---- the emission order: (curve_id, section_index, prim) -------------------
+// A merge sort on an index permutation: O(n log n), and the comparator is a
+// total order, so no stability is required of it.
+int nsec = len(r_cid);
+int ord[];
+resize(ord, nsec);
+for (int i = 0; i < nsec; i++) ord[i] = i;
+int width = 1;
+int buf[];
+resize(buf, nsec);
+while (width < nsec) {
+    for (int lo = 0; lo < nsec; lo += 2 * width) {
+        int mid = min(lo + width, nsec), hi = min(lo + 2 * width, nsec);
+        int a = lo, b = mid, o = lo;
+        while (a < mid || b < hi) {
+            int take_a;
+            if (a >= mid)      take_a = 0;
+            else if (b >= hi)  take_a = 1;
+            else {
+                int x = ord[a], y = ord[b];
+                if (r_cid[x] != r_cid[y])           take_a = (r_cid[x] < r_cid[y]);
+                else if (r_index[x] != r_index[y])  take_a = (r_index[x] < r_index[y]);
+                else                                take_a = (r_prim[x] <= r_prim[y]);
+            }
+            buf[o] = take_a ? ord[a++] : ord[b++];
+            o++;
+        }
+    }
+    for (int i = 0; i < nsec; i++) ord[i] = buf[i];
+    width *= 2;
+}
+
+// ---- the section points ----------------------------------------------------
+foreach (int i; ord) {
+    int pr = r_prim[i];
+    int p = addpoint(0, set(r_s0[i], 0.0, 0.0));
+    setpointattrib(0, "pc_is_section", p, 1);
+    setpointattrib(0, "pc_curve_id",   p, r_cid[i]);
+    setpointattrib(0, "pc_curveprim",  p, pr);
+    setpointattrib(0, "pc_sec_index",  p, r_index[i]);
+    setpointattrib(0, "pc_sec_s0",     p, r_s0[i]);
+    setpointattrib(0, "pc_sec_s1",     p, r_s1[i]);
+    setpointattrib(0, "pc_curve_len",  p, r_total[i]);
+    setpointattrib(0, "pc_sec_closed", p, r_closed[i]);
+    setpointattrib(0, "pc_start_cap",  p, r_scap[i]);
+    setpointattrib(0, "pc_end_cap",    p, r_ecap[i]);
+    setpointattrib(0, "pc_corner_angle", p, r_angle[i]);
+    setpointattrib(0, "pc_style_key",  p, r_stylekey[i]);
+    setpointattrib(0, "pc_sec_key",    p, r_seckey_num[i]);
+    setpointattrib(0, "pc_sec_key_s",  p, r_seckey_str[i]);
+    setpointattrib(0, "pc_sec_key_kind", p, r_seckey_kind[i]);
+
+    // 4.3's reserve, which the CORNER stage writes.  It is 0 until 13.9 N8
+    // lands: a native plan with no corner stage in front of it fits the whole
+    // section, which is exactly `plan.plan_sections`' own `trim=(0, 0)`.
+    setpointattrib(0, "pc_trim_a", p, 0.0);
+    setpointattrib(0, "pc_trim_b", p, 0.0);
+
+    // the markers, as parallel arrays on the section point
+    int ids[]; float slocal[], us[];
+    dict mdata[];
+    for (int j = 0; j < r_mkn[i]; j++) {
+        int mp = flat_mk[r_mk0[i] + j];
+        int mid = 0;
+        if (haspointattrib(0, "pc_marker_id")) mid = point(0, "pc_marker_id", mp);
+        float mu = 0.0;
+        if (haspointattrib(0, "pc_u")) mu = point(0, "pc_u", mp);
+        push(ids, mid);
+        push(slocal, flat_mk_s[r_mk0[i] + j]);
+        push(us, mu);
+        dict d;
+        if (haspointattrib(0, "pc_marker_data")) {
+            dict md = point(0, "pc_marker_data", mp);
+            d = md;
+        }
+        push(mdata, d);
+    }
+    setpointattrib(0, "pc_mk_id", p, ids);
+    setpointattrib(0, "pc_mk_s", p, slocal);
+    setpointattrib(0, "pc_mk_u", p, us);
+    setpointattrib(0, "pc_mk_data", p, mdata);
+
+    // D94's `attr:<name>` bag, restricted to the names a rule asks for.
+    dict af, as_;
+    foreach (string name; want) {
+        int t = primattribtype(0, name);
+        if (t < 0) continue;
+        if (t == 2) { string v = prim(0, name, pr); as_[name] = v; }
+        else        { float v = prim(0, name, pr); af[name] = v; }
+    }
+    // ⚠️ THE KERNEL'S OWN TWO OVERRIDE THE HARVEST, exactly as `ctx_base`
+    // does: `attr:pc_section` means the SECTION's key (which a per-point
+    // `pc_section` makes different from the prim's) and `attr:pc_style` the
+    // curve's style key.
+    if (r_seckey_kind[i] == 2) { string v = r_seckey_str[i]; as_["pc_section"] = v; }
+    else                       { float v = r_seckey_num[i]; af["pc_section"] = v; }
+    string sk = r_stylekey[i];
+    as_["pc_style"] = sk;
+    setpointattrib(0, "pc_attr_f", p, af);
+    setpointattrib(0, "pc_attr_s", p, as_);
+
+    // E1's row class - blank on every 1D curve, which is what makes
+    // `cell_role` the identity and `rules_for(slot, None)` the phase-1 call.
+    string yclass = "";
+    if (primattribtype(0, "pc_yclass") == 2) {
+        string yc = prim(0, "pc_yclass", pr);
+        yclass = yc;
+    }
+    setpointattrib(0, "pc_yclass", p, yclass);
+}
+
+i@pc_nsections = nsec;
