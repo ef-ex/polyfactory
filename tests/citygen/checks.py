@@ -2437,6 +2437,13 @@ def no_scratch_attribs(geo, prim_allowed=(), point_allowed=("P",),
     already corrupted a stage here once (see `no_scratch_groups`); the same
     hazard applies to attribute names.
 
+    ⚠️ Two of the names in that list are gone as of 2026-08-22: `keep_component`
+    and `restlength` (and `class` alongside them) were the SEGMENTER's own
+    working attributes and are now `_keep_component` / `_restlength` /
+    `_class`, deleted before its output. This check's allow-lists never named
+    them, so it does not move; `tests/hda/run_attrib_checks.py` is what stops
+    the next one. See `ideas/conventions.md` §2.
+
     ⚠️ `lot_reject` WAS counted as leakage here; that call was reversed on
     2026-08-11 and it is now allow-listed. It is a published output by design:
     `citygen.md` §2.2 says a validation warning is "persisted as an

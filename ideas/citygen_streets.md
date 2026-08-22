@@ -3985,6 +3985,14 @@ useful range. The printed `(no perturbation listed for …)` line is the warning
   recomputes it. Impact today is **zero** because nothing reads it — but it is exactly the class
   of bug that §S3's connector fix above was written for (`streetWidth` diluted by a
   length-weighted average), so it should be inherited the next time that code is opened.
+
+  **Update 2026-08-22 — it no longer ships.** `restlength`, together with `class` and
+  `keep_component`, was a working attribute of the SEGMENTER that leaked all the way onto
+  `mesh.out0` (the city) and `mesh.out3` (the graph). All three are now `_restlength`, `_class`,
+  `_keep_component` and are removed by `repair_scratch`
+  ([`conventions.md`](conventions.md) §2 and §8). The inheritance question above is unchanged and
+  still open — it is now a question about an INTERNAL attribute, which is strictly easier: fixing
+  it can no longer alter what the asset publishes.
 - **`every_block_is_subdivided` is inert on E, F and G.** They close no block, so `blocks == 0`
   and the assertion degrades to `len(lots) >= 0`. On the cases where it does run it asserts only
   **≥ 1 parcel per block**, and it locates parcels by **centroid-in-polygon** — so a neighbour's

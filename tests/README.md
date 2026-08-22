@@ -16,6 +16,14 @@ python tests/unit/test_polychain_array2d.py   # phase 2's row stack + the 25
 # tests/unit/test_plan.py calibrates against)
 hython tests/citygen/dump_trims.py
 
+# attribute hygiene — EVERY polyfactory HDA cooked in a throwaway session.
+# Asserts conventions.md §2 (no output name begins with `_`) and diffs every
+# published attribute name against tests/hda/baseline.json, because the `_*`
+# law alone catches only leaks honest enough to be named `_*` — measured: on
+# the pre-migration HDAs it reported zero while eight attributes were leaking.
+hython tests/hda/run_attrib_checks.py
+hython tests/hda/run_attrib_checks.py --update-baseline
+
 # geometry — throwaway Houdini session, never saves a .hip
 hython tests/citygen/run_scene_checks.py
 hython tests/citygen/run_scene_checks.py --update-baseline
