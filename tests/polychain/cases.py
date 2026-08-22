@@ -38,10 +38,11 @@ def setup_env():
 setup_env()
 
 import hou                                                       # noqa: E402
-from polyfactory.polychain import Params, Rule, Style             # noqa: E402
+from polyfactory.polychain import Params, Rule, Style, Curve      # noqa: E402
 from polyfactory.polychain import kit as K                        # noqa: E402
 from polyfactory.polychain import place as P                      # noqa: E402
 from polyfactory.polychain import style as S                      # noqa: E402
+from polyfactory.polychain import conform as CONFORM              # noqa: E402
 
 
 # --- input construction -----------------------------------------------------
@@ -290,6 +291,32 @@ def rigid_kit():
     K.add_module(geo, "beam", beam, size=(2.5, 0.2, 0.1),
                  deform=0, zmode="adaptive", roles="default")
     K.write_manifest(geo, "pf_rigid", 1, sources=("cases.rigid_kit",),
+                     human_scale_reference=1.8)
+    return geo
+
+
+def variant_kit():
+    """The starter kit's two workhorses, each authored with a `pc_variant`.
+
+    ⚠️ NOTHING IN THE 87-CASE SUITE AUTHORED ONE. Found while closing standing
+    finding (10) by mutation: `pc_variant` was not merely unasserted, it was
+    never EXERCISED - every module of every kit carries "", so blanking the
+    stamp in BOTH writers changed no value anywhere and no check could have
+    caught it however it was written. 3.2's variant group is what 3.4's swap
+    re-points, so a suite that never sets one leaves the whole column vacuous.
+    (tests/README.md: adding a value means adding a case.)
+    """
+    geo = hou.Geometry()
+    post = hou.Geometry()
+    K.box_mesh(post, 0.0, 0.12, 0.0, 1.20, -0.06, 0.06, 1)
+    K.add_module(geo, "post", post, size=(0.12, 1.20, 0.12), deform=0,
+                 zmode="stepped", roles="default start end post",
+                 variant="oak")
+    panel = hou.Geometry()
+    K.box_mesh(panel, 0.0, 2.00, 0.10, 1.00, -0.03, 0.03, 8)
+    K.add_module(geo, "panel", panel, size=(2.00, 0.90, 0.06), deform=1,
+                 zmode="vertical", roles="default panel", variant="oak_long")
+    K.write_manifest(geo, "pf_variant", 1, sources=("cases.variant_kit",),
                      human_scale_reference=1.8)
     return geo
 
@@ -1286,6 +1313,18 @@ def build_all():
     polyline(g, arc_points(2000.0, 1.0, 30.0), curve_id="CQ")
     built["CQ_plan_arc_tall"] = _case(g, tall, rail_style())
 
+    # DL - the only case in the suite whose modules carry a `pc_variant`.
+    # Standing finding (10) again: `stamp_provenance` can only assert
+    # `pc_variant` where one exists, and until this nothing authored one.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="DL")
+    built["DL_variant_kit"] = _case(g, variant_kit(), Style(
+        "variant", 1, 7,
+        rules=[Rule("default", "sequence", ["post", "panel"]),
+               Rule("start", "first", ["post"]),
+               Rule("end", "first", ["post"])],
+        params=Params(fill="adaptive")))
+
     return built
 
 
@@ -1409,3 +1448,29 @@ def rebuild(case):
                           surface_geo=case.get("surface"),
                           overrides=case.get("overrides"))
     return (out, report)
+
+
+# --- 11.2's tripwire fixtures ----------------------------------------------
+#
+# Not scene cases: they carry no geometry assertion, only the port plan's own
+# measurements (checks.py, "11.2's own tripwires"). Built here so the numbers
+# are re-derived from one description rather than from a scratchpad.
+
+def tripwire_packed_run():
+    """200 x 2 m panels on a 400 m straight - PC-G3's shape, small enough to
+    run inside the scene suite. 100 % packed, so the stamp is the packed
+    writer's 14 `Prim.setAttribValue` calls per piece and nothing else."""
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (400, 0, 0)], curve_id="TW")
+    return P.build(g, K.starter_kit(), Style(
+        "tripwire", 1, 3, rules=[Rule("default", "first", ["panel"])],
+        params=Params(fill="adaptive")))
+
+
+def tripwire_conformed_run():
+    """The same run draped over a surface - one `ConformPath`, so its memo
+    cache is measurable per placed element."""
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="TW")
+    return P.build(g, K.starter_kit(), fence_style(),
+                   surface_geo=surface(ramp_x))

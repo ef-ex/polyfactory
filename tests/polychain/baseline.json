@@ -22,6 +22,17 @@
       "value": 0
     },
     {
+      "detail": "A|2|default|0|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.6e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -460,6 +471,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "B|0|default|10|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.7e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -906,6 +928,17 @@
       "value": 0
     },
     {
+      "detail": "C|0|end|0|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.5e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -1348,6 +1381,17 @@
       "value": 0
     },
     {
+      "detail": "D|1|corner|4|short pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.2e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -1785,6 +1829,17 @@
       "value": 0
     },
     {
+      "detail": "AE|1|default|1|displace pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -2217,6 +2272,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "AF|1|default|1|displace pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.7e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -2653,6 +2719,17 @@
       "value": 0
     },
     {
+      "detail": "AG|1|default|1|displace pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.6e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -3085,6 +3162,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "AH|1|default|4|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.7e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -3526,6 +3614,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "AI|2|corner|0|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.8e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -3975,6 +4074,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "AJ|5|default|2|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.9e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -4441,6 +4551,17 @@
       "value": 0
     },
     {
+      "detail": "AK|4|corner|1|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.8e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -4899,6 +5020,17 @@
       "value": 0
     },
     {
+      "detail": "AL|1|default|2|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.6e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -5331,6 +5463,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "AM|1|default|1|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.9e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -5767,6 +5910,17 @@
       "value": 0
     },
     {
+      "detail": "AN|1|default|0|tilesym pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.7e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -6201,6 +6355,17 @@
       "value": 0
     },
     {
+      "detail": "AO|1|default|1|dispoff pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.1e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -6633,6 +6798,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "AP|2|default|0|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.1e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -7094,6 +7270,17 @@
       "value": 0
     },
     {
+      "detail": "AQ|1|corner|2|asym pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.1e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -7533,6 +7720,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "AR|1|default|4|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.7e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -7976,6 +8174,17 @@
       "value": 0
     },
     {
+      "detail": "AS|0|default|12|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -8404,6 +8613,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "A|0|default|15|fence pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -8854,6 +9074,17 @@
       "value": 0
     },
     {
+      "detail": "BA|0|default|6|conform pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -9279,6 +9510,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "BB|0|default|6|conform pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -9708,6 +9950,17 @@
       "value": 0
     },
     {
+      "detail": "BC|0|default|101|conform pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -10129,6 +10382,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "BD|0|default|6|camber pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -10558,6 +10822,17 @@
       "value": 0
     },
     {
+      "detail": "BD|0|default|6|camber pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -10983,6 +11258,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "BE|0|default|6|holed pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -11424,6 +11710,17 @@
       "value": 0
     },
     {
+      "detail": "BF|0|default|6|flipped pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -11851,6 +12148,17 @@
       "value": 0
     },
     {
+      "detail": "BF|0|default|6|flipped pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -12276,6 +12584,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "BH|0|default|6|crease pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -12712,6 +13031,17 @@
       "value": 0
     },
     {
+      "detail": "BI|1|default|0|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.8e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -13146,6 +13476,17 @@
       "value": 0
     },
     {
+      "detail": "BJ|0|default|6|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -13574,6 +13915,17 @@
     },
     {
       "detail": "",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
       "name": "output_schema",
       "ok": true,
       "skipped": false,
@@ -13998,6 +14350,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "BL|0|default|6|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -14432,6 +14795,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "BM|0|default|6|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -14873,6 +15247,17 @@
       "value": 0
     },
     {
+      "detail": "BN|0|default|101|overhead pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -15301,6 +15686,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "B|0|default|30|fence pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.8e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -15740,6 +16136,17 @@
       "value": 0
     },
     {
+      "detail": "CA|0|default|6|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -16169,6 +16576,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "CC|0|default|6|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -16611,6 +17029,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "CD|0|default|7|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.8e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -17070,6 +17499,17 @@
       "value": 0
     },
     {
+      "detail": "CE|0|default|6|rigid pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -17493,6 +17933,17 @@
       "value": 0
     },
     {
+      "detail": "CF|0|default|6|rigid pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -17914,6 +18365,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "CG|0|default|6|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -18341,6 +18803,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "CH|0|default|2|tile pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -18775,6 +19248,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "CI|0|default|3|swapz pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -19213,6 +19697,17 @@
       "value": 0
     },
     {
+      "detail": "CJ|0|end|0|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -19643,6 +20138,17 @@
       "value": 0
     },
     {
+      "detail": "CK|0|default|6|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -20068,6 +20574,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "CL|0|default|9|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -20497,6 +21014,17 @@
       "value": 0
     },
     {
+      "detail": "CM|0|default|6|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -20922,6 +21450,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "CN|0|default|6|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -21351,6 +21890,17 @@
       "value": 0
     },
     {
+      "detail": "CP|0|default|8|tall pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.8e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -21778,6 +22328,17 @@
       "value": 0
     },
     {
+      "detail": "CQ|0|default|8|tall pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.8e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -22203,6 +22764,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "CRa|0|default|4|attrcond pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.6e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -22642,6 +23214,17 @@
       "value": 0
     },
     {
+      "detail": "C|0|default|3|tiled pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        9e-09,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -23076,6 +23659,17 @@
       "value": 0
     },
     {
+      "detail": "H|0|default|224|flat_under pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -23497,6 +24091,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "H|0|default|224|flat_under pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -23922,6 +24527,17 @@
       "value": 0
     },
     {
+      "detail": "H|0|default|224|flat_under pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -24343,6 +24959,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "H|0|default|15|banded pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -24775,6 +25402,17 @@
       "value": 0
     },
     {
+      "detail": "H|0|default|15|banded pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -25205,6 +25843,17 @@
       "value": 0
     },
     {
+      "detail": "CB|0|default|6|crossfall pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -25632,6 +26281,17 @@
       "value": 0
     },
     {
+      "detail": "CB|0|default|6|crossfall pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -26057,6 +26717,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "H|0|default|15|banded pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -26489,6 +27160,17 @@
       "value": 0
     },
     {
+      "detail": "H|0|default|13|banded pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -26917,6 +27599,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "H|0|default|224|flat_under pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -27357,6 +28050,17 @@
       "value": 0
     },
     {
+      "detail": "CB|0|default|6|crossfall pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -27761,6 +28465,444 @@
       "value": 0
     }
   ],
+  "DL_variant_kit": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 20
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "DL|0|default|15|variant pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "DL[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 8.42e-07
+    },
+    {
+      "detail": "panel -> post",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.211e-06
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "11 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        840,
+        0
+      ]
+    },
+    {
+      "detail": "9 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "11 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.250",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3.69e-07
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 20",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 20
+    },
+    {
+      "detail": "20 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.12,
+        2.071279
+      ]
+    },
+    {
+      "detail": "of 40, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.119999997
+    },
+    {
+      "detail": "worst 8.419e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 20
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "e1ea4eff62df7952"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "9 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "worst on DL|0|default|9|variant",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "20 ids, 36 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
   "D_marker_gate": [
     {
       "detail": "",
@@ -27782,6 +28924,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "D|0|default|6|gated pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.9e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -28218,6 +29371,17 @@
       "value": 0
     },
     {
+      "detail": "H|0|default|15|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -28643,6 +29807,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "H|0|default|15|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -29072,6 +30247,17 @@
       "value": 0
     },
     {
+      "detail": "H|0|default|15|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -29497,6 +30683,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "H|0|default|13|tiled_hill pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.5e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -29940,6 +31137,17 @@
       "value": 0
     },
     {
+      "detail": "H|0|default|17|tiled_hill pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.8e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -30381,6 +31589,17 @@
       "value": 0
     },
     {
+      "detail": "J|0|default|2|coarse pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -30815,6 +32034,17 @@
       "value": 0
     },
     {
+      "detail": "K|0|default|3|broken pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -31245,6 +32475,17 @@
       "value": 0
     },
     {
+      "detail": "L|0|default|5|rail pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -31672,6 +32913,17 @@
       "value": 0
     },
     {
+      "detail": "M|0|default|2|rigid pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -32093,6 +33345,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "N|0|marker:8|0|mixed pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.1e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -32537,6 +33800,17 @@
     },
     {
       "detail": "",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
       "name": "output_schema",
       "ok": true,
       "skipped": false,
@@ -32964,6 +34238,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "P|0|default|2|crest pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -33400,6 +34685,17 @@
       "value": 0
     },
     {
+      "detail": "Q|0|default|18|vert pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.9e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -33828,6 +35124,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -34260,6 +35567,17 @@
       "value": 0
     },
     {
+      "detail": "S|0|marker:7|0|overhang pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.5e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -34685,6 +36003,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "T|0|default|11|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.4e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -35115,6 +36444,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "U|1|default|4|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.2e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -35549,6 +36889,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "V|2|default|0|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.6e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -36003,6 +37354,17 @@
       "value": 0
     },
     {
+      "detail": "W|1|default|1|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.3e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -36435,6 +37797,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "X|1|corner|0|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5e-09,
+        0,
+        0
+      ]
     },
     {
       "detail": "",
@@ -36871,6 +38244,17 @@
       "value": 0
     },
     {
+      "detail": "Y|1|default|1|compose pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.9e-08,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "output_schema",
       "ok": true,
@@ -37282,6 +38666,29 @@
       "value": 0
     }
   ],
+  "ZZ_port_tripwires": [
+    {
+      "detail": "2801 calls, 200 pieces (ceiling 15.0)",
+      "name": "stamp_calls_per_piece",
+      "ok": true,
+      "skipped": false,
+      "value": 14.005
+    },
+    {
+      "detail": "3.15 us at 10 verts, 8165.21 us at 20 001 (2592x), expected O(n)",
+      "name": "curve_sample_scaling",
+      "ok": true,
+      "skipped": false,
+      "value": "O(n)"
+    },
+    {
+      "detail": "477 entries over 20 elements on 1 paths (ceiling 30)",
+      "name": "conform_cache_per_element",
+      "ok": true,
+      "skipped": false,
+      "value": 23.85
+    }
+  ],
   "Z_compose_even": [
     {
       "detail": "",
@@ -37303,6 +38710,17 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "Z|1|default|1|compose pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.9e-08,
+        0,
+        0
+      ]
     },
     {
       "detail": "",

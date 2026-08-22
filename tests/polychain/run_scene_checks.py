@@ -323,6 +323,7 @@ def run_case(name, case):
         C.element_count(scene),
         C.unique_elem_ids(scene),
         C.element_resolution(scene),
+        C.stamp_provenance(scene),
         C.output_schema(scene),
         C.sampler_matches_kernel(scene),
         C.section_coverage(scene),
@@ -470,6 +471,25 @@ def run_case(name, case):
     return out
 
 
+# 11.2's tripwires - the port plan's own measurements, standing up as
+# assertions (tests/README.md's compounding rule). They belong to no scene
+# case, so they run once under their own pseudo-case and land in the baseline
+# beside everything else.
+#
+# ⚠️ TWO OF THE THREE EXPECTATIONS DESCRIBE A DEFECT ON PURPOSE. `O(n)` is
+# what 11.2 P2 exists to fix and 14 calls/piece is what P1 exists to fix, so
+# green here means "still the shape the audit measured". The commit that lands
+# the port flips the expectation on the line below, and that flip IS the proof
+# - the same device `scale_gate.py`'s LADDER uses.
+def port_tripwires():
+    return [
+        C.stamp_calls_per_piece(cases.tripwire_packed_run, expect_max=15.0),
+        C.curve_sample_scaling(cases.Curve, expect="O(n)"),
+        C.conform_cache_per_element(cases.tripwire_conformed_run,
+                                    cases.CONFORM, expect_max=30.0),
+    ]
+
+
 def main():
     update = "--update-baseline" in sys.argv
     json_out = None
@@ -486,6 +506,14 @@ def main():
             print("  %r" % r)
             if not r.ok and not r.skipped:
                 failures += 1
+
+    res = port_tripwires()
+    results["ZZ_port_tripwires"] = [r.as_dict() for r in res]
+    print("\n=== ZZ_port_tripwires ===")
+    for r in res:
+        print("  %r" % r)
+        if not r.ok and not r.skipped:
+            failures += 1
 
     base = {}
     if os.path.exists(BASELINE):

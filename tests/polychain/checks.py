@@ -48,6 +48,7 @@ WHAT THE NUMBERS MEAN
 """
 
 import math
+import time
 
 import hou
 
@@ -3247,3 +3248,147 @@ def element_resolution(scene):
     missing = [p.elem_id for p in scene.plan if p.elem_id not in scene.by_id]
     return Result("unresolved_elem_ids", not missing, len(missing),
                   missing[0] if missing else "")
+
+
+def stamp_provenance(scene):
+    """3.4's THREE UNASSERTED STAMPS, read back against the plan the piece
+    came from - standing finding (10), cycle 12, closed here.
+
+    `pc_u`, `pc_section` and `pc_variant` were asserted by NOTHING: corrupt
+    any of them in BOTH writers (`pc_u` + 0.25, `pc_section` + 1, `pc_variant`
+    blanked) and the suite reported 87 cases, 0 failing, 0 baseline moves.
+    `stamp_parity` proves the two writers AGREE; it never asks whether either
+    is right, and `output_schema` only asks whether the names exist.
+
+    It is a prerequisite for 11.2's port, not housekeeping: P1, P3, P4 and P6
+    each rewrite a stamp writer, and three of its fourteen values were
+    unpinned.
+
+    `pc_u` is re-derived rather than re-read: `_stamp_values` writes
+    `placement.u`, so this recomputes `section.u_at(placement.s0)` from the
+    section list the builder actually used (`scene.section_of`), which is a
+    different expression reaching the same number. Reported in U UNITS, whose
+    float32 storage floor at 0..1 is ~6e-08.
+
+    [worst |du|, pc_section wrong, pc_variant wrong].
+    """
+    worst, bad_sec, bad_var, where = 0.0, 0, 0, ""
+    for p in scene.plan:
+        rec = scene.by_id.get(p.elem_id)
+        if rec is None:
+            continue
+        section = scene.section_of.get((str(p.curve_id), p.section_index))
+        if section is not None:
+            du = abs(float(rec["pc_u"]) - section.u_at(p.s0))
+            if du > worst:
+                worst, where = du, "%s pc_u" % p.elem_id
+        if int(rec["pc_section"]) != int(p.section_index):
+            bad_sec += 1
+            where = where or "%s pc_section" % p.elem_id
+        if str(rec["pc_variant"]) != str(p.variant):
+            bad_var += 1
+            where = where or "%s pc_variant" % p.elem_id
+    ok = worst <= 2e-6 and not bad_sec and not bad_var
+    return Result("stamp_provenance", ok,
+                  [_round(worst, 9), bad_sec, bad_var], where)
+
+
+# --- 11.2's own tripwires ---------------------------------------------------
+#
+# tests/README.md's compounding rule, applied to the port plan: each of these
+# is a number an audit measured once in a scratchpad, standing up as an
+# assertion so the next agent re-runs it instead of re-deriving it. They do
+# not belong to a scene case, so `run_scene_checks.py` runs them once, under
+# their own pseudo-case.
+#
+# ⚠️ EACH CARRIES ITS EXPECTATION ON THE CALL, `scale_gate.py`'s LADDER shape.
+# Two of them describe a defect the port is FOR, so "green" today means "still
+# the shape the audit measured"; the commit that fixes one flips its
+# expectation, and that flip is the proof.
+
+
+def stamp_calls_per_piece(build_fn, expect_max=15.0):
+    """HOM per-element attribute writes per placed piece - what P1 is for.
+
+    62 % of the real node cook is `hou.Prim.setAttribValue`, 14 calls per
+    packed piece (11.2 P1). Deterministic - a COUNT, not a timing - so it
+    sits in the baseline without churning.
+    """
+    calls = {"n": 0}
+    real = hou.Prim.setAttribValue
+
+    def counting(self, *a, **k):
+        calls["n"] += 1
+        return real(self, *a, **k)
+    hou.Prim.setAttribValue = counting
+    try:
+        _out, report = build_fn()
+    finally:
+        hou.Prim.setAttribValue = real
+    pieces = report["packed"] + report["deformed"]
+    if not pieces:
+        return _skip("stamp_calls_per_piece", "nothing was built")
+    per = calls["n"] / float(pieces)
+    return Result("stamp_calls_per_piece", per <= expect_max,
+                  _round(per, 3), "%d calls, %d pieces (ceiling %.1f)"
+                  % (calls["n"], pieces, expect_max))
+
+
+def curve_sample_scaling(curve_cls, expect="O(n)", samples=200):
+    """Does `Curve.sample` cost depend on the curve's VERTEX COUNT - P2.
+
+    `__init__.py`'s sampler rebuilds its whole per-segment table on every
+    call, so it is O(n) per call: 3.2 us at 10 verts against 8 218 us at
+    20 001 (11.2 P2), 83 % of the worst case either audit found.
+
+    ⚠️ THE VALUE IS THE CLASS, NOT THE MICROSECONDS. A timing in
+    `baseline.json` would move on every run and drown the movement list that
+    every port commit has to read; a two-valued label moves exactly once, in
+    the commit that earns it. The raw numbers ride in `detail`, which the
+    runner records but does not diff.
+    """
+    us = {}
+    for n in (10, 20001):
+        step = 20000.0 / n
+        c = curve_cls("m", [(i * step, 0.0, 0.0) for i in range(n)])
+        c.sample(1.0)                            # warm `_cumulative`
+        t0 = time.time()
+        for i in range(samples):
+            c.sample(20000.0 * i / float(samples))
+        us[n] = (time.time() - t0) / samples * 1e6
+    ratio = us[20001] / max(us[10], 1e-9)
+    got = "O(1)" if ratio <= 5.0 else "O(n)"
+    return Result("curve_sample_scaling", got == expect, got,
+                  "%.2f us at 10 verts, %.2f us at 20 001 (%.0fx), expected %s"
+                  % (us[10], us[20001], ratio, expect))
+
+
+def conform_cache_per_element(build_fn, conform_mod, expect_max=30.0):
+    """Entries `ConformPath._cache` holds per placed element - P5's cost.
+
+    The memo is unbounded and keyed on `(round(s,9), forward)`: 53 861
+    entries / 24 MB on one 2 km curve (11.2 P5), and a 300-street conformed
+    citygen run would carry several hundred MB of it. Nothing currently
+    notices it growing. P5 deletes the cache, at which point this reads 0.
+    """
+    made = []
+    real = conform_mod.ConformPath.__init__
+
+    def spy(self, *a, **k):
+        real(self, *a, **k)
+        made.append(self)
+    conform_mod.ConformPath.__init__ = spy
+    try:
+        _out, report = build_fn()
+    finally:
+        conform_mod.ConformPath.__init__ = real
+    if not made:
+        return _skip("conform_cache_per_element", "no surface")
+    entries = sum(len(p._cache) for p in made)
+    pieces = report["packed"] + report["deformed"]
+    if not pieces:
+        return _skip("conform_cache_per_element", "nothing was built")
+    per = entries / float(pieces)
+    return Result("conform_cache_per_element", per <= expect_max,
+                  _round(per, 3), "%d entries over %d elements on %d paths "
+                  "(ceiling %.0f)" % (entries, pieces, len(made), expect_max))
