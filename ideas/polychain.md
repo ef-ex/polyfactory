@@ -6041,9 +6041,10 @@ one per piece is worth **55×** to VEX and **407×** to OpenCL, and skipping it 
 
 ## 13. Native network architecture — the rebuild brief
 
-> **§14 is the build log for the first cycle against this brief** — what was built, the
+> **§15 is the build log for the first cycle against this brief** — what was built, the
 > parity numbers, and the three places this section turned out to be wrong (chiefly
-> §13.2's arclength timing, and §13.7 rule 3's Debug folder).
+> §13.2's arclength timing, and §13.7 rule 3's Debug folder). §14, written the same
+> day by a concurrent cycle, is the OpenCL benchmark §13.5 asked for a criterion on.
 
 **Status:** written 2026-08-22. **No production code in this cycle.** Every mechanism below was
 probed live in headless `hython` on Houdini 22.0.398 before it was written down; §13.2 is the
@@ -7144,7 +7145,7 @@ Python it would replace. Fix the call structure, then use VEX-64, and stop there
 
 ---
 
-## 14. Native network build log — cycle N-1
+## 15. Native network build log — cycle N-1
 
 **Status:** written 2026-08-22, same day as [§13](#13-native-network-architecture--the-rebuild-brief).
 §13 was design; this is what was built, what it measures, and the three places §13 was wrong.
@@ -7154,7 +7155,7 @@ for every stage below are *implemented, measured, unverified*.
 Commits on `polychain`, not pushed:
 `1c144b4` the network, `0a2b741` the parity rig.
 
-### 14.0 What actually exists now
+### 15.0 What actually exists now
 
 `hython devScripts/create_pf_polychain_hda.py` builds this, and
 `tests/polychain/run_native_checks.py` asserts its shape on the built asset:
@@ -7200,7 +7201,7 @@ is `output`, whose input is `OUT_reference`, so **a node nobody has touched buil
 built before this rebuild** — which is why all four gates are still green with the body replaced
 underneath them.
 
-### 14.1 Parity — the numbers, all of them
+### 15.1 Parity — the numbers, all of them
 
 `hython tests/polychain/run_native_checks.py` — **24 checks, 0 failing.** Every stage is cooked as
 real SOP nodes on the *same* `hou.Geometry` the reference was handed, in one process (§13.8 rule 1).
@@ -7247,7 +7248,7 @@ a 1e-7 *relative* error in `pc_frames`' module scale turns the 3×3 red (1.003e-
 `[0, 1, 2, 3]`. The `pc_arclength` mutation asserts its own target line still exists, so a future
 edit cannot silently turn the mutation into a no-op.
 
-### 14.2 §13 was wrong about the speed, and here is the measurement
+### 15.2 §13 was wrong about the speed, and here is the measurement
 
 **§13.2 recorded "cumulative arclength … 0.0037 s (64-bit) on a 20 001-vertex 20 km line" against
 the reference's 0.030 s. That is not a comparable number and the stage is not a speedup.**
@@ -7291,7 +7292,7 @@ defect §13.2 threw its own OpenCL timing away for, reproduced one section later
 dirties the chain through a spare int the wrangle actually reads and **asserts** `cookCount`
 advanced once per pass. *If a timing is not accompanied by a cook count, it is not a measurement.*
 
-### 14.3 `sop_cooks_per_build` — the new tripwire, and what it pins
+### 15.3 `sop_cooks_per_build` — the new tripwire, and what it pins
 
 On the `output` stage, **0 of the native nodes cook** (measured without `force`, by reading
 `.geometry()` the way an artist's cook does). Set `Stage = sections` and **5 of them cook**. Both
@@ -7299,7 +7300,7 @@ halves are asserted, because the first alone would pass on a graph whose native 
 disconnected. A Switch SOP cooks only its selected input, so **the rebuild is free until you look
 at it** — which is the property that has to survive nine more build-order items.
 
-### 14.4 Two Houdini traps found this cycle, both silent
+### 15.4 Two Houdini traps found this cycle, both silent
 
 **T1 — `defn.save(template_node=…)` and `updateFromNode()` BOTH drop every network box and sticky
 note, unless the definition's options carry `setUnlockNewInstances(True)`.** Measured on a
@@ -7316,7 +7317,7 @@ the **next** `createNode` of the asset raises *"Failed to match node type defini
 save failed"* — naming neither the box nor the character, one build later, in a different script.
 Bisected: `"`, backtick, `$`, `#`, `{}`, `,` and `()` all survive. `box()` now asserts.
 
-### 14.5 Decisions
+### 15.5 Decisions
 
 - **D156 — the VEX lives in `.vfl` FILES and is INLINED at build time.** Not `#include`d at cook
   time (hython sets no `HOUDINI_VEX_PATH`, a recorded trap, and a shipped asset must not depend on
@@ -7366,7 +7367,7 @@ Bisected: `"`, backtick, `$`, `#`, `{}`, `,` and `()` all survive. `box()` now a
   `bench_*_really_cooked` is a check, not a comment. §13.2 discarded its OpenCL number for this and
   the same mistake was made again three hours later; the rule is now mechanical.
 
-### 14.6 What is NOT done
+### 15.6 What is NOT done
 
 Still entirely inside `kernel`, in §13.9's order: **4.2 the fitting solve (N2)** — and with it
 `pc_plan_bridge`, which exists only to feed the native frames and is deleted the day the VEX solve
