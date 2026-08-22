@@ -696,6 +696,13 @@ def readability(root):
     _plast, plan_rig = native.stage_plan(sub, _last, cfg_stub, "_rig")
     for _n, _node in plan_rig.items():
         rig[_n] = _node
+    # 13.9 N4 - and the PLACE branch. `kit_code` is the asset's own
+    # `kit_starter` body, so the comparison includes that node too.
+    _qlast, place_rig = native.stage_place(
+        sub, _plast, cfg_stub, native.feed(sub, hou.Geometry(), "KITIN"),
+        _last, "_rig", kit_code=native.sop_body("cook_kit"))
+    for _n, _node in place_rig.items():
+        rig[_n] = _node
     drift = []
     for rig_name, rig_node in sorted(rig.items()):
         mine = node.node(rig_name)
@@ -1687,13 +1694,18 @@ def plan_mutation(root, built):
           "breaking 4.2's add-one-more threshold changes the piece count and "
           "the parity must see it (target line present: %s)" % has_target)
 
-    # (b) the EXPANDER's count attribute. 13.2 measured that the attribute
-    # MULTIPLIES `nptsperpt`, so a 10 there plans ten fences - the check has
-    # to be able to see that too.
-    got = run(lambda n: n["pc_plan_expand"].parm("nptsperpt").set(2))
-    check("mutation_plan_expand_count", got is None or plan_diff(got, ref),
+    # (b) the EMITTER's piece count. `pc_plan_emit` reads `pc_npieces` and
+    # loops it; miscounting is the failure mode 13.2 warned about in the
+    # `pointgenerate` shape ("the attribute MULTIPLIES nptsperpt") and it
+    # survives the change of mechanism.
+    emit_body = vexsrc.source("pc_plan_emit")
+    got = run(lambda n: n["pc_plan_emit"].parm("snippet").set(
+        emit_body.replace("int n = min(npieces, len(p_slot));",
+                          "int n = min(npieces, len(p_slot)) - 1;")))
+    check("mutation_plan_emit_count", got is None or plan_diff(got, ref),
           "%s" % ("red" if (got is None or plan_diff(got, ref)) else "GREEN"),
-          "nptsperpt = 2 doubles every section's piece count")
+          "dropping ONE piece per section reddens the parity - the emitter's "
+          "own loop bound is asserted, not assumed")
 
     # (c) the PRECISION rule. Every function in pc_plan.h needs int64 and
     # float64; at 32 bits they all still COMPILE.
@@ -2047,6 +2059,106 @@ def kit_id_mutation(root, built):
           "different answer from the sound build's widest piece")
 
 
+def plan_benches(root, built):
+    """What 4.2 and 4.4 COST, on the two shapes 11.9 rule 2 says decide it.
+
+    ⚠️ D164 - A TIMING WITHOUT A COOK COUNT IS NOT A MEASUREMENT, and this
+    check enforces it rather than commenting on it: the first version of this
+    bench reported 0.0000 s for a 10 000-piece chain because
+    `cook(force=True)` on an HDA instance is a no-op when nothing upstream
+    changed.  The chain is dirtied through a spare int the CONFIG stub
+    actually reads, and every timed node's `cookCount` must advance once per
+    pass or the row fails.
+
+    15.6 named the number to watch: "N2's per-section arrays will hit the same
+    wall `pc_seg_*` hit - the fitting solve writes twelve arrays per section,
+    and `pointgenerate`'s `docopyattribs` carries them through AGAIN."  A
+    ten-thousand-piece single section is the shape that shows it; 300 short
+    curves is the shape 11.9 rule 2 says an implementer's own fixture never
+    does.
+    """
+    from polyfactory.polychain import Kit, Params, Rule, Style
+    from polyfactory.polychain import kit as KIT
+
+    kit_geo = KIT.starter_kit()
+    kit = KIT.read(kit_geo)[0]
+    style = Style("bench", 1, 1, rules=[Rule("default", "first", ["panel"])],
+                  params=Params(fill="adaptive"))
+
+    long_curve = hou.Geometry()
+    cases.polyline(long_curve, cases.arc_points(20000.0, 1.0, 20000.0),
+                   curve_id="LONG")
+    streets = hou.Geometry()
+    for i in range(300):
+        x = (i % 20) * 30.0
+        z = (i // 20) * 25.0
+        cases.polyline(streets, [(x, 0.0, z), (x + 18.0, 0.0, z),
+                                 (x + 18.0, 0.0, z + 14.0)],
+                       curve_id="S%03d" % i)
+
+    for label, geo in (("long_curve", long_curve), ("streets_300", streets)):
+        sub = root.createNode("subnet", "planbench_" + label)
+        src = native.feed(sub, geo, "IN")
+        dirt = sub.createNode("attribwrangle", "bench_dirty")
+        dirt.parm("class").set(0)
+        group = dirt.parmTemplateGroup()
+        group.append(hou.IntParmTemplate("nudge", "Nudge", 1))
+        dirt.setParmTemplateGroup(group)
+        dirt.parm("snippet").set('i@pc_bench = chi("nudge");')
+        dirt.setInput(0, src)
+        cfg = native.config_full(sub, style.params, style, kit, "config")
+        last, dec = native.stage_decompose(sub, dirt, cfg)
+        plan, pnodes = native.stage_plan(sub, last, cfg)
+        place, qnodes = native.stage_place(
+            sub, plan, cfg, native.feed(sub, kit_geo, "KIT"), last)
+        timed = dict(pnodes)
+        timed.update(qnodes)
+        # The KIT side is not downstream of the spline, so nudging the spline
+        # correctly does NOT re-cook it - asserting that it does would be
+        # asserting a cache miss. It is excluded by name rather than by
+        # loosening the rule, so D164 still bites on everything on the path.
+        for off_path in ("kit_starter", "pc_kit_id", "kit_unpack"):
+            timed.pop(off_path, None)
+        place.cook(force=True)
+        pieces = len(plan.geometry().points())
+        prims = len(place.geometry().prims())
+        before = dict((n, node.cookCount()) for n, node in timed.items())
+        passes = 4
+        best = None
+        for i in range(passes):
+            dirt.parm("nudge").set(i + 2)
+            start = time.time()
+            place.cook()
+            elapsed = time.time() - start
+            best = elapsed if best is None else min(best, elapsed)
+        stale = sorted(n for n, node in timed.items()
+                       if node.cookCount() - before[n] != passes)
+        check("bench_plan_%s_really_cooked" % label, not stale, passes,
+              "nodes whose cookCount did not advance once per timed pass: %s"
+              % (", ".join(stale) or "none"))
+        # ⚠️ AND THE COMPARAND, BECAUSE 15.2 HAD TO WITHDRAW A NUMBER FOR
+        # NOT HAVING ONE. `place.build` on the SAME geometry with the SAME
+        # style is what the native branch has to beat, and on the long curve
+        # it does not: it is roughly 8x slower, and the row says so rather
+        # than reporting a bare second count that reads like a win.
+        ref_best = None
+        for _ in range(3):
+            out = hou.Geometry()
+            start = time.time()
+            res, _rep = P.build(geo, kit_geo, style, out=out)
+            elapsed = time.time() - start
+            ref_best = elapsed if ref_best is None else min(ref_best, elapsed)
+        ref_prims = len(res.prims())
+        check("bench_plan_%s" % label, best is not None and best < 30.0,
+              "%.4f s vs %.4f s" % (best, ref_best),
+              "4.1 + 4.2 + 4.4 as nodes (%d pieces, %d packed prims) against "
+              "place.build on the same input (%d prims) - %.1fx. NO CEILING "
+              "is asserted: this is a HALF-ported chain (no deform gate, no "
+              "corners, no conform), so the ratio is a recorded before, not "
+              "a verdict" % (pieces, prims, ref_prims, best / max(ref_best, 1e-9)))
+        sub.destroy()
+
+
 def union_parity(root):
     """D166's safety property: the fence does not change when the VEX answers.
 
@@ -2195,6 +2307,7 @@ def main():
 
     print("\n=== 6. cook count and the two benches ===")
     benches(root, node)
+    plan_benches(root, built)
 
     native.cleanup()
     failed = [r for r in RESULTS if not r[1]]

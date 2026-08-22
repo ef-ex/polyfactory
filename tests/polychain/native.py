@@ -114,27 +114,128 @@ def stage_plan(parent, sections, config, suffix=""):
     solve.setInput(1, config)
     nodes["pc_plan_solve"] = solve
 
-    gen = parent.createNode("pointgenerate", "pc_plan_expand" + suffix)
-    gen.setInput(0, solve)
-    # ⚠️ `nptsperpt` MUST BE 1: the attribute MULTIPLIES it, so a default of 10
-    # silently plans ten times the fence (13.2 probed this).
-    gen.parm("ptsperpt").set(True)
-    gen.parm("nptsperpt").set(1)
-    gen.parm("doattrib").set(True)
-    gen.parm("attrib").set("pc_npieces")
-    gen.parm("dopointnum").set(True)
-    gen.parm("spointnum").set("pc_secpt")
-    gen.parm("dopointidx").set(True)
-    gen.parm("spointidx").set("pc_pindex")
-    gen.parm("docopyattribs").set(True)
-    gen.parm("attribstocopy").set("*")
-    nodes["pc_plan_expand"] = gen
+    # ⚠️ 13.3.2's `pointgenerate` EXPANDER IS GONE, AND A MEASUREMENT IS WHY.
+    # It copies the SECTION's attributes onto every point it generates, and
+    # the plan is twelve ARRAYS of one element per piece - so one section of
+    # N pieces copies 12 x N elements N times.  Measured on the 20 km fence:
+    # 2 000 pieces 2.1 s, 10 000 pieces 38.6 s, while the SOLVE itself is
+    # linear (0.113 / 0.229 / 0.469 / 0.956 s as the count doubles).  D150's
+    # reason for choosing it - `addpoint` from a MULTITHREADED wrangle emits
+    # in thread-completion order - is still right and does not apply to a
+    # DETAIL wrangle, which has one thread and therefore one order.
+    emit = wrangle(parent, "pc_plan_emit" + suffix, "detail", "pc_plan_emit")
+    emit.setInput(0, solve)
+    emit.setInput(1, config)
+    nodes["pc_plan_emit"] = emit
 
-    read = wrangle(parent, "pc_plan_read" + suffix, "point", "pc_plan_read")
-    read.setInput(0, gen)
-    read.setInput(1, config)
-    nodes["pc_plan_read"] = read
-    return read, nodes
+    only = parent.createNode("blast", "pc_plan_only" + suffix)
+    only.setInput(0, emit)
+    only.parm("group").set("@pc_is_section==1")
+    only.parm("grouptype").set(3)
+    nodes["pc_plan_only"] = only
+    return only, nodes
+
+
+# 13.9 N4.  The PACKED branch, in one declaration for the same reason the plan
+# chain is: two independent copies is how two mutations of the shipped asset
+# survived every suite in cycle N-1V.
+COPY_ATTRIBS = ("pc_elem_id pc_elem_key pc_module pc_slot pc_index pc_section "
+                "pc_u pc_variant pc_curve_id pc_deform pc_zmode pc_scale")
+
+# The body every Python SOP in the asset runs.  ⚠️ IT LIVES HERE, BESIDE THE
+# CHAIN, for the reason 15.8.4 gives: `create_pf_polychain_hda.py` imports
+# this module for the node declarations, so a second copy of the bodies would
+# be a second thing that can drift.  The bootstrap is warn-never-block wiring,
+# not logic - a session that already has the package on its path skips it.
+BOOTSTRAP = """import os
+import sys
+
+import hou
+
+_root = hou.text.expandString("$POLYFACTORY")
+if _root:
+    _pkg = _root.replace(chr(92), "/").rstrip("/") + "/scripts/python"
+    if os.path.isdir(_pkg) and _pkg not in sys.path:
+        sys.path.append(_pkg)
+
+from polyfactory.polychain import hda as _hda
+
+_hda.%s(hou.pwd())
+"""
+
+
+def sop_body(func):
+    """The Python SOP body that calls `polychain.hda.<func>` on this node."""
+    return BOOTSTRAP % func
+
+
+def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
+    """4.4's packed half: the kit's copy id, the module's numbers, the frame,
+    and ONE `copytopoints`.  Returns (last, {name: node}).
+
+    `kit_code` is the `kit_starter` Python SOP's body; the rig passes None and
+    wires the kit straight in, because a check that already has a kit does not
+    need 6's standalone fallback.
+    """
+    nodes = {}
+    src = kit
+    if kit_code is not None:
+        starter = parent.createNode("python", "kit_starter" + suffix)
+        starter.parm("python").set(kit_code)
+        starter.setInput(0, kit)
+        nodes["kit_starter"] = starter
+        src = starter
+
+    kit_id = wrangle(parent, "pc_kit_id" + suffix, "primitive", "pc_kit_id")
+    kit_id.setInput(0, src)
+    nodes["pc_kit_id"] = kit_id
+
+    # ⚠️ THE KIT IS UNPACKED BEFORE IT IS COPIED.  3.2 / D22 ships one PACKED
+    # prim per module and `copytopoints(pack=1)` over a packed source NESTS
+    # the packs: exact in world space - the parity was 0.0 with the nesting -
+    # and unviewable, because `getEmbeddedGeometry()` then hands back one
+    # packed prim instead of polygons.
+    unpack = parent.createNode("unpack", "kit_unpack" + suffix)
+    unpack.setInput(0, kit_id)
+    unpack.parm("transfer_attributes").set("pc_module")
+    nodes["kit_unpack"] = unpack
+
+    proto = wrangle(parent, "pc_proto" + suffix, "point", "pc_proto")
+    proto.setInput(0, plan)
+    proto.setInput(1, config)
+    proto.setInput(2, kit_id)
+    nodes["pc_proto"] = proto
+
+    frames = wrangle(parent, "pc_frames_native" + suffix, "point", "pc_frames")
+    frames.setInput(0, proto)
+    frames.setInput(1, config)
+    frames.setInput(2, sections)
+    nodes["pc_frames_native"] = frames
+
+    valid = parent.createNode("blast", "pc_place_valid" + suffix)
+    valid.parm("group").set("@pc_frame_valid==0")
+    valid.parm("grouptype").set(3)
+    valid.setInput(0, frames)
+    nodes["pc_place_valid"] = valid
+
+    copy = parent.createNode("copytopoints::2.0", "copy_packed" + suffix)
+    copy.setInput(0, unpack)
+    copy.setInput(1, valid)
+    copy.parm("pack").set(True)
+    # `pivot` defaults to CENTROID and this needs ORIGIN: `_packed_transform`
+    # maps the module's OWN local space.  Measured in isolation, `centroid`
+    # moves the world result by 9.54e-07 m.
+    copy.parm("pivot").set("origin")
+    # a measured NO-OP with an explicit `transform` present (exactly 0.0);
+    # set so the branch does not depend on which one Houdini prefers
+    copy.parm("useimplicitn").set(False)
+    copy.parm("useidattrib").set(True)
+    copy.parm("idattrib").set("pc_module")
+    copy.parm("targetattribs").set(1)
+    copy.parm("applyto1").set("prims")
+    copy.parm("applyattribs1").set(COPY_ATTRIBS)
+    nodes["copy_packed"] = copy
+    return copy, nodes
 
 
 # --- the rig ---------------------------------------------------------------

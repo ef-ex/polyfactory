@@ -1,0 +1,120 @@
+// STAGE 2 - PLAN (spec 4.2), THE MATERIALISATION.  DETAIL wrangle, 64.
+//   input 0  the SOLVE output - one point per section, carrying the plan as
+//            per-section arrays
+//   input 1  CONFIG
+//
+// One point per piece, plus 3.4's stamp.
+//
+// ⚠️ THIS NODE REPLACES 13.3.2's `pointgenerate` + read PAIR, AND THE REASON
+// IS A MEASUREMENT, NOT A PREFERENCE.  D150 chose `pointgenerate` because
+// `addpoint` from a MULTITHREADED wrangle emits in thread-completion order,
+// which would make `determinism` and `geometry_digest` a lottery.  That
+// reasoning is still right and it does not apply here: a DETAIL wrangle has
+// ONE thread, so the emission order is the loop's order, exactly as
+// `pc_sections` already relies on.
+//
+// What `pointgenerate` costs is quadratic.  It copies the SECTION's
+// attributes onto every point it generates, and the plan is twelve ARRAYS of
+// one element per piece - so a section of N pieces copies 12 x N elements N
+// times, and the read then binds all twelve on every one of those points
+// again.  Measured on the 20 km fence, one section:
+//
+//     pieces   solve      expand + read     total
+//      2 000   0.113 s      1.9 s            2.1 s
+//     10 000   0.55  s     38.0 s           38.6 s
+//
+// The SOLVE is linear (0.113 / 0.229 / 0.469 / 0.956 s as the piece count
+// doubles); everything above it was the copy.  Reading each section's arrays
+// ONCE and emitting from them is linear, and it is what 15.6 predicted when
+// it wrote "N2's per-section arrays will hit the same wall `pc_seg_*` hit".
+//
+// The section points stay in the stream carrying `pc_is_section = 1`;
+// `pc_plan_only` blasts them, so nothing downstream sees an array attribute.
+
+#include "pc_plan.h"
+
+int nsec = npoints(0);
+for (int sp = 0; sp < nsec; sp++) {
+    int npieces = point(0, "pc_npieces", sp);
+    if (npieces <= 0) continue;
+
+    // ⚠️ ONCE PER SECTION.  Hoisting these twelve reads out of the piece loop
+    // IS the fix - an array read copies the whole array, so doing it per
+    // piece is the quadratic the `pointgenerate` version paid.
+    string p_slot[]    = point(0, "pc_p_slot", sp);
+    string p_module[]  = point(0, "pc_p_module", sp);
+    string p_variant[] = point(0, "pc_p_variant", sp);
+    string p_zmode[]   = point(0, "pc_p_zmode", sp);
+    string p_warns[]   = point(0, "pc_p_warns", sp);
+    int    p_index[]   = point(0, "pc_p_index", sp);
+    int    p_deform[]  = point(0, "pc_p_deform", sp);
+    float  p_s0[]      = point(0, "pc_p_s0", sp);
+    float  p_s1[]      = point(0, "pc_p_s1", sp);
+    float  p_u[]       = point(0, "pc_p_u", sp);
+    float  p_scale[]   = point(0, "pc_p_scale", sp);
+    float  p_slice[]   = point(0, "pc_p_slice", sp);
+
+    string curve_id = point(0, "pc_curve_id", sp);
+    int    sec_ix   = point(0, "pc_sec_index", sp);
+    float  sec_s0   = point(0, "pc_sec_s0", sp);
+    float  curve_l  = point(0, "pc_curve_len", sp);
+    int    curveprim = point(0, "pc_curveprim", sp);
+    float  sec_key  = point(0, "pc_sec_key", sp);
+    string style_key = point(0, "pc_style_key", sp);
+    string yclass   = point(0, "pc_yclass", sp);
+    string style_id = pc_cfg_s("style_id", "");
+
+    int n = min(npieces, len(p_slot));
+    for (int k = 0; k < n; k++) {
+        float s0 = p_s0[k], s1 = p_s1[k];
+        int pt = addpoint(0, set(sec_s0 + s0, 0.0, 0.0));
+
+        setpointattrib(0, "pc_curve_id",  pt, curve_id);
+        setpointattrib(0, "pc_sec_index", pt, sec_ix);
+        setpointattrib(0, "pc_sec_s0",    pt, sec_s0);
+        setpointattrib(0, "pc_curve_len", pt, curve_l);
+        setpointattrib(0, "pc_curveprim", pt, curveprim);
+        setpointattrib(0, "pc_section",   pt, sec_key);
+        setpointattrib(0, "pc_style",     pt, style_key);
+        setpointattrib(0, "pc_yclass",    pt, yclass);
+
+        setpointattrib(0, "pc_slot",    pt, p_slot[k]);
+        setpointattrib(0, "pc_index",   pt, p_index[k]);
+        setpointattrib(0, "pc_module",  pt, p_module[k]);
+        setpointattrib(0, "pc_variant", pt, p_variant[k]);
+        setpointattrib(0, "pc_zmode",   pt, p_zmode[k]);
+        setpointattrib(0, "pc_deform",  pt, p_deform[k]);
+        setpointattrib(0, "pc_scale",   pt, p_scale[k]);
+        setpointattrib(0, "pc_u",       pt, p_u[k]);
+
+        // SECTION-LOCAL metres are the truth for everything inside 4.2 (D16);
+        // the world station is the section's own start plus them, in 64 bits -
+        // which is what deletes D170's float32 head-plus-residual pair here.
+        setpointattrib(0, "pc_s0",  pt, s0);
+        setpointattrib(0, "pc_s1",  pt, s1);
+        setpointattrib(0, "pc_len", pt, s1 - s0);
+        setpointattrib(0, "pc_ws0", pt, sec_s0 + s0);
+        setpointattrib(0, "pc_ws1", pt, sec_s0 + s1);
+
+        // -1 is Python's `slice_t = None`: this piece was not cut.
+        setpointattrib(0, "pc_slice_t", pt, p_slice[k]);
+        setpointattrib(0, "pc_sliced",  pt, (p_slice[k] >= 0.0) ? 1 : 0);
+
+        // 3.4's structural address.  `sprintf` reproduces `elem_id` exactly
+        // (13.2 probed it on every tested tuple) and `pc_elem_key` is its
+        // crc32, hand-written in `pc_rand.h` and asserted bit-exact against
+        // `zlib.crc32` on 358 strings.
+        string eid = sprintf("%s|%d|%s|%d|%s", curve_id, sec_ix,
+                             p_slot[k], p_index[k], style_id);
+        setpointattrib(0, "pc_elem_id",  pt, eid);
+        setpointattrib(0, "pc_elem_key", pt, pc_elem_key(eid));
+        if (!pc_is_ascii(eid))
+            setpointattrib(0, "pc_warn_elem_key_utf8", pt, 1);
+
+        // every warning the solve raised, as its own int attribute - the
+        // shape `place` / `hda` already publish and `colour_warnings` reads
+        setpointattrib(0, "pc_warns", pt, p_warns[k]);
+        foreach (string w; split(p_warns[k]))
+            setpointattrib(0, w, pt, 1);
+    }
+}

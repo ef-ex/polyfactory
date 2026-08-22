@@ -96,26 +96,10 @@ if os.path.exists(HDA_PATH):
 # it is version-controlled and importable by the headless checks - a fix is a
 # commit, not a re-saved binary.
 
-BOOTSTRAP = """import os
-import sys
-
-import hou
-
-_root = hou.text.expandString("$POLYFACTORY")
-if _root:
-    _pkg = _root.replace(chr(92), "/").rstrip("/") + "/scripts/python"
-    if os.path.isdir(_pkg) and _pkg not in sys.path:
-        sys.path.append(_pkg)
-
-from polyfactory.polychain import hda as _hda
-
-_hda.%s(hou.pwd())
-"""
-
-KERNEL_CODE = BOOTSTRAP % "cook"
-CONFIG_CODE = BOOTSTRAP % "cook_config"
-PLAN_CODE = BOOTSTRAP % "cook_plan_bridge"
-KIT_CODE = BOOTSTRAP % "cook_kit"
+KERNEL_CODE = native_rig.sop_body("cook")
+CONFIG_CODE = native_rig.sop_body("cook_config")
+PLAN_CODE = native_rig.sop_body("cook_plan_bridge")
+KIT_CODE = native_rig.sop_body("cook_kit")
 
 # --- the stages, as data ----------------------------------------------------
 # 13.7 rule 3: `Stage` is a menu over the stage output NULLS.  This tuple is
@@ -364,19 +348,23 @@ _PLAN_COMMENTS = {
         "sequential inside it. It ADDS NO POINTS: the answer leaves as\n"
         "per-section arrays plus pc_npieces, because addpoint from a\n"
         "multithreaded wrangle emits in thread-completion order (D150).",
-    "pc_plan_expand":
-        "pc_npieces points per section, deterministically. nptsperpt MUST\n"
-        "stay 1 - the attribute MULTIPLIES it.",
-    "pc_plan_read":
-        "Element k of the arrays, and 3.4's stamp: pc_elem_id by sprintf,\n"
-        "pc_elem_key by the crc32 in pc_rand.h. Order-free by construction.",
+    "pc_plan_emit":
+        "One point per piece, and 3.4's stamp: pc_elem_id by sprintf,\n"
+        "pc_elem_key by the crc32 in pc_rand.h. It replaces 13.3.2's\n"
+        "pointgenerate, which copies each SECTION's twelve plan ARRAYS onto\n"
+        "every point it generates - quadratic: 2 000 pieces 2.1 s, 10 000\n"
+        "pieces 38.6 s, while the solve above is linear. A DETAIL wrangle\n"
+        "has one thread, so D150's addpoint objection does not apply.",
+    "pc_plan_only":
+        "The section points away, the pieces kept. Nothing downstream sees\n"
+        "an array attribute.",
 }
 for _name, _node in _plan_nodes.items():
     _node.setComment(_PLAN_COMMENTS[_name])
     _node.setGenericFlag(hou.nodeFlag.DisplayComment, True)
     plan_native_nodes.append(_node)
 for _i, _name in enumerate(("pc_sections", "pc_sec_only", "pc_plan_clean",
-                            "pc_plan_solve", "pc_plan_expand", "pc_plan_read")):
+                            "pc_plan_solve", "pc_plan_emit", "pc_plan_only")):
     _plan_nodes[_name].setPosition(hou.Vector2(16.0, -5.0 - 2.0 * _i))
 out_plan_native = net.createNode("null", "OUT_plan_native")
 out_plan_native.setInput(0, _plan_last)
@@ -425,128 +413,63 @@ out_frames.setPosition(hou.Vector2(22.0, -4.0))
 # unpacked is drawn as a chord. And there is no 4.3 (N8), so a run with
 # corners shows no corner assembly and no reserve. `Stage = output` is
 # untouched, which is what the switch is for.
-kit_starter = python_sop(
-    net, "kit_starter", KIT_CODE,
-    "The kit stream, and it MOVES Python rather than adding it. 6's\n"
-    "standalone floor says a curve and nothing else must make a fence, so\n"
-    "kit_geometry already ran inside `kernel` on every cook with input 2\n"
-    "unwired - 15.6 lists kit.box_mesh as unported and unscheduled. Here\n"
-    "the fallback is VISIBLE in the graph, and D154's native box SOPs are\n"
-    "a replacement for this body rather than a new node.")
-kit_starter.setInput(0, ins[1])
-kit_starter.setPosition(hou.Vector2(28.0, -6.0))
-
-kit_id = wrangle(
-    net, "pc_kit_id", "primitive",
-    "4.4 - the copy id, and it is not optional. 13.2's copytopoints probe\n"
-    "assumed a STRING pc_module on the kit PRIMS; 3.2 / D22 put the whole\n"
-    "manifest on the packed prim's own POINT, so useidattrib matched\n"
-    "nothing and every target point received the ENTIRE KIT - measured, a\n"
-    "0.124 m post came out 2.07 m wide with no error and no warning.")
-kit_id.setInput(0, kit_starter)
-kit_id.setPosition(hou.Vector2(28.0, -8.0))
-
-# ⚠️ AND THE KIT HAS TO BE UNPACKED BEFORE IT IS COPIED, or the result is a
-# packed prim INSIDE a packed prim. 3.2 / D22 ships one PACKED prim per
-# module, and `copytopoints(pack=1)` over a packed source nests them: the
-# world positions and bounds are still exact - `place_packed_parity` was
-# 0.0 with the nesting - but `getEmbeddedGeometry()` then hands back one
-# packed prim instead of polygons, so `Stage = place_native` drew 34 single
-# vertices and nothing else. The reference packs the module's RAW geometry
-# (`Proto.source`), so this branch does too.
-kit_unpack = net.createNode("unpack", "kit_unpack")
-kit_unpack.setInput(0, kit_id)
-kit_unpack.parm("transfer_attributes").set("pc_module")
-kit_unpack.setPosition(hou.Vector2(28.0, -7.0))
-kit_unpack.setComment(
-    "3.2 ships one PACKED prim per module. copytopoints(pack=1) over a\n"
-    "packed source nests the packs - exact, and unviewable: the stage drew\n"
-    "one vertex per piece. The reference packs the module's RAW geometry,\n"
-    "so this does too, carrying pc_module through.")
-kit_unpack.setGenericFlag(hou.nodeFlag.DisplayComment, True)
-
-proto = wrangle(
-    net, "pc_proto", "point",
-    "4.4 - place.Proto's two load-bearing fields, read off the KIT: the\n"
-    "module's nominal fitted length and its local origin (D20 - the fitted\n"
-    "size is not the bounding box). Without them pc_frames had to be fed by\n"
-    "pc_plan_bridge, which is the Python N2 exists to delete.\n"
-    "It also declares what it CANNOT answer: a build with a surface, a\n"
-    "fillet, a slope flatten or D98's flatten-under needs numbers only 4.5\n"
-    "has, so the piece is dropped rather than drawn in the wrong place.")
-proto.setInput(0, out_plan_native)
-proto.setInput(1, config)
-proto.setInput(2, kit_id)
-proto.setPosition(hou.Vector2(22.0, -8.0))
-
-frames_n = wrangle(
-    net, "pc_frames_native", "point",
-    "4.4 - THE SAME pc_frames.vfl as the node above, on the NATIVE plan.\n"
-    "One source file, two instances: D170's float32 head-plus-residual is\n"
-    "only read where a PYTHON SOP wrote the span, and this branch reads\n"
-    "pc_ws0 / pc_ws1 straight - a 64-bit wrangle writes float64 storage, so\n"
-    "the metre crosses whole and 15.6's 'N2 deletes both attributes' is\n"
-    "discharged on the branch that has the solve.",
-    vfl="pc_frames")
-frames_n.setInput(0, proto)
-frames_n.setInput(1, config)
-frames_n.setInput(2, out_sections)
-frames_n.setPosition(hou.Vector2(22.0, -10.0))
-
-valid_n = net.createNode("blast", "pc_place_valid")
-valid_n.parm("group").set("@pc_frame_valid==0")
-valid_n.parm("grouptype").set(3)
-valid_n.setInput(0, frames_n)
-valid_n.setPosition(hou.Vector2(22.0, -12.0))
-valid_n.setComment(
-    "The pieces this branch is ANSWERABLE for. Warn-never-block while N5,\n"
-    "N6 and N8 are still ahead: a piece whose frame needs 4.5's surface\n"
-    "normal is dropped, not guessed.")
-valid_n.setGenericFlag(hou.nodeFlag.DisplayComment, True)
-
-copy_packed = net.createNode("copytopoints::2.0", "copy_packed")
-copy_packed.setInput(0, kit_unpack)
-copy_packed.setInput(1, valid_n)
-copy_packed.parm("pack").set(True)
-# `pivot` DEFAULTS TO CENTROID and this branch needs ORIGIN, because
-# `_packed_transform` maps the module's OWN local space. ⚠️ AND THE FIRST
-# MEASUREMENT OF THAT WAS WRONG AND IS CORRECTED HERE: it read 1.25 m, which
-# was the missing `pc_module` copying the WHOLE KIT and taking the whole
-# kit's centroid, not the pivot. Re-measured in isolation on three rotated,
-# scaled pieces: `centroid` moves the world result by 9.54e-07 m - real,
-# under 13.8's 1e-6 m viewport tolerance, and still not what the reference
-# does. `mutation_copy_pivot` asserts that number.
-copy_packed.parm("pivot").set("origin")
-# ⚠️ AND `useimplicitn` IS A MEASURED NO-OP HERE, kept because it is one, not
-# because it fixes anything: with an explicit `transform` point attribute
-# present the matrix wins outright, and toggling this moves the world result
-# by EXACTLY 0.0 (three rotated pieces, one carrying an `N`). It is set so
-# the branch does not depend on which of the two Houdini prefers, and the
-# suite records the 0.0 rather than claiming a fix.
-copy_packed.parm("useimplicitn").set(False)
-copy_packed.parm("useidattrib").set(True)
-copy_packed.parm("idattrib").set("pc_module")
-copy_packed.parm("targetattribs").set(1)
-copy_packed.parm("applyto1").set("prims")
-copy_packed.parm("applyattribs1").set(
-    "pc_elem_id pc_elem_key pc_module pc_slot pc_index pc_section pc_u "
-    "pc_variant pc_curve_id pc_deform pc_zmode pc_scale")
-copy_packed.setPosition(hou.Vector2(28.0, -10.0))
-copy_packed.setComment(
-    "4.4's materialisation, in ONE native node. The 3x3 pc_frames wrote is\n"
-    "honoured as a per-point transform and the kit module is picked per\n"
-    "point by the string pc_module - which is what makes 4.4 a copy and not\n"
-    "a Python loop. R8, measured: the uniform scale DOES reach\n"
-    "packedfulltransform (1.0 / 2.5 / 0.37 exactly), and a 64-bit transform\n"
-    "attribute reproduces the reference's packed prims bit for bit -\n"
-    "11.1's declined 4.34e-07 m is retired.")
-copy_packed.setGenericFlag(hou.nodeFlag.DisplayComment, True)
-
+_place_last, _place_nodes = native_rig.stage_place(
+    net, out_plan_native, config, ins[1], out_sections, kit_code=KIT_CODE)
+place_native_nodes = []
+_PLACE_COMMENTS = {
+    "kit_starter":
+        "The kit stream, and it MOVES Python rather than adding it. 6's\n"
+        "standalone floor says a curve and nothing else must make a fence,\n"
+        "so kit_geometry already ran inside `kernel` on every cook with\n"
+        "input 2 unwired - 15.6 lists kit.box_mesh as unported. Here the\n"
+        "fallback is VISIBLE, and D154's native box SOPs replace this body.",
+    "pc_kit_id":
+        "4.4 - the copy id, and it is not optional. 13.2's copytopoints\n"
+        "probe assumed a STRING pc_module on the kit PRIMS; 3.2 / D22 puts\n"
+        "the whole manifest on the packed prim's own POINT, so useidattrib\n"
+        "matched nothing and every target point received the ENTIRE KIT -\n"
+        "measured, a 0.124 m post came out 2.07 m wide with no warning.",
+    "kit_unpack":
+        "copytopoints(pack=1) over a PACKED source nests the packs. Exact\n"
+        "in world space - the parity was 0.0 with the nesting - and\n"
+        "unviewable: getEmbeddedGeometry() then returns one packed prim\n"
+        "instead of polygons, so the stage drew one vertex per piece.",
+    "pc_proto":
+        "4.4 - place.Proto's two load-bearing fields, read off the KIT: the\n"
+        "module's nominal fitted length and its local origin (D20 - the\n"
+        "fitted size is not the bounding box). Without them pc_frames had\n"
+        "to be fed by pc_plan_bridge, which is the Python N2 deletes.\n"
+        "It also declares what it CANNOT answer: a surface, a fillet, a\n"
+        "slope flatten or D98's flatten-under need numbers only 4.5 has.",
+    "pc_frames_native":
+        "4.4 - THE SAME pc_frames.vfl as the node above, on the NATIVE\n"
+        "plan. One source file, two instances: D170's float32 head-plus-\n"
+        "residual is read only where a PYTHON SOP wrote the span, and this\n"
+        "branch reads pc_ws0 / pc_ws1 straight - a 64-bit wrangle writes\n"
+        "float64 storage, so 15.6's 'N2 deletes both' is discharged here.",
+    "pc_place_valid":
+        "The pieces this branch is ANSWERABLE for. Warn-never-block while\n"
+        "N5, N6 and N8 are ahead: a piece whose frame needs 4.5's surface\n"
+        "normal is dropped, not guessed.",
+    "copy_packed":
+        "4.4's materialisation, in ONE native node. R8, measured: the\n"
+        "uniform scale DOES reach packedfulltransform (1.0 / 2.5 / 0.37\n"
+        "exactly), and a 64-bit transform attribute reproduces the\n"
+        "reference's packed prims bit for bit - 11.1's declined 4.34e-07 m\n"
+        "is retired. pivot must be ORIGIN (centroid moves it 9.5e-07 m).",
+}
+_PLACE_ORDER = ("kit_starter", "pc_kit_id", "kit_unpack", "pc_proto",
+                "pc_frames_native", "pc_place_valid", "copy_packed")
+for _i, _name in enumerate(_PLACE_ORDER):
+    _node = _place_nodes[_name]
+    _node.setComment(_PLACE_COMMENTS[_name])
+    _node.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+    _node.setPosition(hou.Vector2(22.0 + 6.0 * (_i > 2), -6.0 - 2.0 * _i))
+    place_native_nodes.append(_node)
 out_place_native = net.createNode("null", "OUT_place_native")
-out_place_native.setInput(0, copy_packed)
-out_place_native.setPosition(hou.Vector2(28.0, -12.0))
-place_native_nodes = [kit_starter, kit_id, kit_unpack, proto, frames_n,
-                      valid_n, copy_packed, out_place_native]
+out_place_native.setInput(0, _place_last)
+out_place_native.setPosition(hou.Vector2(28.0, -21.0))
+place_native_nodes.append(out_place_native)
 
 # ---- R REFERENCE - the shipped cook path ------------------------------------
 kernel = python_sop(

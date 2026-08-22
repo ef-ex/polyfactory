@@ -573,12 +573,30 @@ int pc_fill(const float a; const float b; const int r;
         float L = span_b - span_a;
         if (L <= PC_PEPS) return index0;
 
+        // ⚠️ THE UNIT'S OWN NUMBERS, ONCE.  Every `pc_m_*` accessor reads a
+        // detail ARRAY, which copies it - a VEX function inside a snippet
+        // cannot see a snippet local, so the read is inside the function.
+        // Calling them per PIECE is what made a 10 000-piece section cost
+        // 1.94 s in the solve alone; the unit is the same object for the
+        // whole run, so its numbers are hoisted here.
+        float u_len[], u_pad0[], u_pad1[];
+        int u_deform[];
+        string u_zmode[], u_variant[], u_warn[];
+        for (int j = 0; j < nu; j++) {
+            push(u_len, pc_m_len(umi[j]));
+            push(u_pad0, pc_m_pad(umi[j], 0));
+            push(u_pad1, pc_m_pad(umi[j], 1));
+            push(u_deform, pc_m_deform(umi[j]));
+            push(u_zmode, pc_zmode(umi[j]));
+            push(u_variant, pc_m_variant(umi[j]));
+            push(u_warn, pc_module_warns(umi[j], r));
+        }
+
         // `_unit_metrics`
         float s = 0.0, fixed = 0.0;
-        for (int j = 0; j < nu; j++) s += pc_m_len(umi[j]);
-        for (int j = 0; j < nu - 1; j++)
-            fixed += pc_m_pad(umi[j], 1) + pc_m_pad(umi[j + 1], 0);
-        float gap = pc_m_pad(umi[nu - 1], 1) + pc_m_pad(umi[0], 0);
+        for (int j = 0; j < nu; j++) s += u_len[j];
+        for (int j = 0; j < nu - 1; j++) fixed += u_pad1[j] + u_pad0[j + 1];
+        float gap = u_pad1[nu - 1] + u_pad0[0];
 
         if (mode == "") mode = pc_cfg_s("fill", "adaptive");
         float lead = 0.0;
@@ -591,24 +609,43 @@ int pc_fill(const float a; const float b; const int r;
         string warns = pc_warn_join(extra, fwarns);
         int clipping = pc_warn_has(warns, PC_W_PAD);
 
+        // ⚠️ AND ONLY `random` AND `conditional` RE-SELECT PER PIECE.  D14
+        // says a run is fitted on its unit and a per-piece re-selection is
+        // scaled into the slot the unit laid out; `plan.choose` under
+        // `first` reads nothing from the ctx that changes inside a run (the
+        // slot is "default" throughout, the yclass is the row's), so its
+        // answer is the unit's own module and asking again 10 000 times is
+        // 10 000 kit resolutions for one answer.
+        int reselects = (selects[r] == "random" || selects[r] == "conditional");
+
         float cursor = span_a + lead;
         int redo = 0;
         for (int u = 0; u < count; u++) {
             if (u > 0) cursor += gap;
             for (int j = 0; j < nu; j++) {
-                if (j > 0) cursor += pc_m_pad(umi[j - 1], 1) + pc_m_pad(umi[j], 0);
-                float target = pc_m_len(umi[j]) * scale;
+                if (j > 0) cursor += u_pad1[j - 1] + u_pad0[j];
+                float target = u_len[j] * scale;
                 int mi = umi[j]; string mn = umn[j];
-                if (selects[r] != "sequence") {
+                float mlen = u_len[j];
+                string mzmode = u_zmode[j], mvariant = u_variant[j];
+                string mwarn = u_warn[j];
+                int mdeform = u_deform[j];
+                if (reselects) {
                     dict cfi = cf;
                     cfi["index"] = (float)idx; cfi["segIndex"] = (float)idx;
                     cfi["u"] = pc_u_at(sec_s0, curve_len, cursor);
                     int gi, ok; string gn;
                     pc_choose(r, cfi, cs, "default", idx, curve_id, sec_index,
                               yclass, gi, gn, ok);
-                    if (ok) { mi = gi; mn = gn; }
+                    if (ok) {
+                        mi = gi; mn = gn;
+                        mlen = pc_m_len(mi);
+                        mzmode = pc_zmode(mi);
+                        mvariant = pc_m_variant(mi);
+                        mwarn = pc_module_warns(mi, r);
+                        mdeform = pc_m_deform(mi);
+                    }
                 }
-                float mlen = pc_m_len(mi);
                 float p0 = cursor, p1 = cursor + target;
                 if (clipping) {
                     // degenerate padding walks the cursor out of the span, and
@@ -617,13 +654,13 @@ int pc_fill(const float a; const float b; const int r;
                     p1 = min(max(p1, span_a), span_b);
                 }
                 push(o_slot, "default"); push(o_index, idx);
-                push(o_module, mn); push(o_variant, pc_m_variant(mi));
+                push(o_module, mn); push(o_variant, mvariant);
                 push(o_s0, p0); push(o_s1, p1);
                 push(o_u, pc_u_at(sec_s0, curve_len, cursor));
                 push(o_scale, (mlen > PC_PEPS) ? (target / mlen) : 1.0);
                 push(o_slice, -1.0);
-                push(o_deform, pc_m_deform(mi)); push(o_zmode, pc_zmode(mi));
-                push(o_warns, pc_warn_join(warns, pc_module_warns(mi, r)));
+                push(o_deform, mdeform); push(o_zmode, mzmode);
+                push(o_warns, pc_warn_join(warns, mwarn));
                 cursor += target;
                 idx++;
             }
@@ -638,11 +675,11 @@ int pc_fill(const float a; const float b; const int r;
             float stop = cursor + remainder;
             int prev = -2;
             for (int j = 0; j < nu; j++) {
-                if (prev != -2) cursor += pc_m_pad(prev, 1) + pc_m_pad(umi[j], 0);
+                if (prev != -2) cursor += pc_m_pad(prev, 1) + u_pad0[j];
                 float avail = stop - cursor;
                 if (avail <= PC_PEPS) break;
                 int mi = umi[j]; string mn = umn[j];
-                if (selects[r] != "sequence") {
+                if (reselects) {
                     dict cfi = cf;
                     cfi["index"] = (float)idx; cfi["segIndex"] = (float)idx;
                     cfi["u"] = pc_u_at(sec_s0, curve_len, cursor);
