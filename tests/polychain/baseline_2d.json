@@ -274,6 +274,16 @@
       "value": null
     },
     {
+      "detail": "0 of 176 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        176
+      ]
+    },
+    {
       "detail": "",
       "name": "cell_set",
       "ok": true,
@@ -538,6 +548,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 128 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        128
+      ]
     },
     {
       "detail": "",
@@ -824,6 +844,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 104 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        104
+      ]
     },
     {
       "detail": "",
@@ -1135,6 +1165,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 176 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        176
+      ]
     },
     {
       "detail": "",
@@ -1458,6 +1498,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 408 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        408
+      ]
     }
   ],
   "FF_extend_x": [
@@ -1751,6 +1801,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 176 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        176
+      ]
     }
   ],
   "FG_extend_y": [
@@ -2044,6 +2104,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 164 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        164
+      ]
     }
   ],
   "FH_y_corner": [
@@ -2361,6 +2431,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 220 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        220
+      ]
     },
     {
       "detail": "",
@@ -2686,6 +2766,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 220 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        220
+      ]
     }
   ],
   "FJ_reversed": [
@@ -2961,6 +3051,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 176 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        176
+      ]
     }
   ],
   "FK_rotated": [
@@ -3236,6 +3336,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 176 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        176
+      ]
     }
   ],
   "FL_area_rect": [
@@ -3481,6 +3591,16 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "0 of 12 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        12
+      ]
     }
   ],
   "FM_area_taper": [
@@ -3716,6 +3836,16 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "4 of 4 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4,
+        4
+      ]
     }
   ],
   "FN_flags": [
@@ -3991,6 +4121,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 168 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        168
+      ]
     },
     {
       "detail": "",
@@ -4289,6 +4429,16 @@
       "value": null
     },
     {
+      "detail": "0 of 168 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        168
+      ]
+    },
+    {
       "detail": "",
       "name": "cell_set",
       "ok": true,
@@ -4578,6 +4728,16 @@
       "value": null
     },
     {
+      "detail": "0 of 168 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        168
+      ]
+    },
+    {
       "detail": "",
       "name": "cell_set",
       "ok": true,
@@ -4835,6 +4995,16 @@
       "ok": true,
       "skipped": false,
       "value": 0
+    },
+    {
+      "detail": "6 of 9 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        6,
+        9
+      ]
     }
   ],
   "FR_rule_scoped": [
@@ -5110,6 +5280,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 104 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        104
+      ]
     },
     {
       "detail": "",
@@ -5399,6 +5579,16 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "0 of 104 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        104
+      ]
     },
     {
       "detail": "",

@@ -270,6 +270,7 @@ def run_case(name, case, scenes):
         C.fallback_map(scene, FALLBACKS.get(name)),
         C.clip_inside(scene, CLIP_TOL.get(name, 1e-6)),
         C.clip_hole_elements(scene),
+        C.clip_stamp(scene),
     ]
     if cells is not None:
         out.append(C.Result("cell_set", set(_inv(scene)) == cells,

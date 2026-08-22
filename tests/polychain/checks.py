@@ -4731,6 +4731,28 @@ def clip_inside(scene, tol=1e-6):
                   "worst distance outside the boundary (ceiling %g)" % tol)
 
 
+def clip_stamp(scene):
+    """7.3.3's `pc_clipped` (0/1), which the first cut of 7.6 never stamped.
+
+    [elements on a clipped row, elements total]. Under D137 the clip is a SPAN
+    rather than a cull, so "clipped" means "this piece sits on a row whose
+    span the boundary trimmed" - the rectangle case reads 0 because a
+    rectangle is the identity, the taper and the U read every element.
+    ⚠️ NOT the per-module `pc_clip` policy of 7.3.1 (remove/preserve/slice per
+    module): that arrives with real slicing in P2-7 and does not exist yet.
+    """
+    recs = _cells(scene.geo)
+    if not recs:
+        return _skip("clip_stamp", "no pc_cell - a 1D build")
+    n = sum(1 for r in recs if r.get("pc_clipped") == 1)
+    area = scene.frame is not None
+    ok = area or n == 0
+    return Result("clip_stamp", ok, [n, len(recs)],
+                  "%d of %d elements on a clipped row%s"
+                  % (n, len(recs),
+                     "" if ok else " - but this is not an area build"))
+
+
 def clip_hole_elements(scene):
     """PC-G6's OTHER half: "the hole contains 0 elements".
 
