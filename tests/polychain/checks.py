@@ -871,6 +871,26 @@ def cross_section_width(scene):
     return Result("cross_section_m", worst <= TOL_M, _round(worst), where)
 
 
+def stepped_riser_is(scene, expected, tol=1e-3):
+    """`stepped_riser_m` as an ASSERTION, for the one case that needs it.
+
+    ⚠️ ADDED AFTER A MUTATION SURVIVED. D70's drop looks BOTH ways along the
+    axis and the NEAREST hit wins; cutting that down to "look up-axis only
+    when nothing was found down-axis" moved not one number in the suite,
+    because the up-axis cast won 12 405 times and every one of those was for
+    want of anything below. `BN_conform_overhead` is the case where both
+    directions hit, and the riser at the deck's edge is the answer: 3.4 m if
+    the middle of the run climbed onto the deck 0.4 m up, 0 if it stayed on
+    the ground 3.0 m down. `stepped_riser` itself records rather than asserts
+    (it is a shape report on every case), so the assertion lives here.
+    """
+    r = stepped_riser(scene)
+    if r.skipped:
+        return r
+    return Result("stepped_riser_is_m", abs(r.value - expected) <= tol,
+                  r.value, "expected %.4f" % expected)
+
+
 def horizontal_span_is(scene, expected, tol=2e-3):
     """The widest piece reaches exactly this far horizontally.
 

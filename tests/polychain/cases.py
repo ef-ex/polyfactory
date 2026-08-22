@@ -1012,6 +1012,46 @@ def build_all():
         g, kit_geo, panel_style(zmode="vertical"),
         surface_geo=surface(ramp_x, x0=-1.0, x1=21.0, nx=nx, holes=holed))
 
+    # BN - A SURFACE OVERHEAD, AND NEARER THAN THE ONE BELOW (D70). Ground at
+    # y = -3, a deck at y = +0.4 over the middle of the run, spline at y = 0:
+    # the deck is 0.4 m up and the ground 3 m down, so "the NEAREST hit along
+    # the axis" puts the middle of the fence ON THE DECK.
+    #
+    # ⚠️ WRITTEN BECAUSE A MUTATION SURVIVED. `BJ_conform_deck` looks like it
+    # covers this and does not: its deck and its ground are EQUIDISTANT, so
+    # the tie-break (down-axis) decides and the comparison never runs. Cutting
+    # `drop`'s nearest test down to "use the up-axis hit only when there is no
+    # down-axis hit" moved not one number in the whole suite - the up-axis
+    # cast won 12 405 times across the suite and every single one of those was
+    # because nothing was found below. This case is the one where both
+    # directions hit and the nearer one has to win.
+    # STEPPED POSTS, so the answer is a NUMBER and not a warning:
+    # `stepped_riser_m` records the 3.4 m step at the deck edge, which exists
+    # only if the run climbed onto the deck at all.
+    both = hou.Geometry()
+    both.merge(surface(lambda x, z: -3.0, x0=-4.0, x1=24.0, nx=28))
+    both.merge(surface(lambda x, z: 0.4, x0=6.0, x1=14.0, nx=8))
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="BN")
+    built["BN_conform_overhead"] = _case(
+        g, kit_geo,
+        Style("overhead", 1, 3, rules=[Rule("default", "first", ["post"])],
+              params=Params(fill="adaptive", zmode="stepped")),
+        surface_geo=both)
+
+    # CG - A RESAMPLED STRAIGHT LINE, BENDABLE MODULE (D69). CF is the same
+    # geometry with a RIGID beam, and rigid short-circuits `_needs_deform` at
+    # D27 before the vertex test is ever consulted - so CF cannot see D69 at
+    # all. Measured: putting every interior vertex back into `kink_s` left CF
+    # green and the whole 67-case suite at 0 failures, while the same revert
+    # took PC-G3's resampled 20 km run from 10 005 packed / 0.60 s to
+    # 0 packed / 10 005 deformed / 360 180 points / 21.9 s. This case uses the
+    # starter kit's BENDABLE panel, which is the path D69 actually fixed, and
+    # it is in ALL_PACKED.
+    g = hou.Geometry()
+    polyline(g, [(float(x), 0.0, 0.0) for x in range(21)], curve_id="CG")
+    built["CG_resampled_bendable"] = _case(g, kit_geo, panel_style())
+
     return built
 
 

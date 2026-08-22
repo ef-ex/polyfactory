@@ -228,7 +228,12 @@ BANKS = ("E_hill_adaptive", "BA_conform_adaptive")
 ALL_PACKED = ("A_straight", "CE_all_packed", "CA_swap_module",
               # D69: a straight line authored at 1 m spacing is still a
               # straight line. Before the kink test this built 0 % packed.
-              "CF_resampled_straight")
+              "CF_resampled_straight",
+              # ...and the same line with a BENDABLE module, which is the
+              # path D69 actually fixed - CF's rigid beam short-circuits
+              # `_needs_deform` at D27 before the vertex test is reached, so
+              # CF alone left the fix unguarded (a mutation survived it).
+              "CG_resampled_bendable")
 
 # [swapped, replaced, ids that moved] per override case, derived from the
 # override stream and not from a run: CA re-points all ten panels, CC and CD
@@ -371,6 +376,11 @@ def run_case(name, case):
         # a merged scene and report nonsense on it. It does not depend on the
         # case it is wired to, so it is wired to exactly one.
         out.append(C.duplicate_curve_id_warns(scene, cases.duplicate_curve_ids))
+    if name == "BN_conform_overhead":
+        # D70's NEAREST test, which nothing else in the suite exercises: the
+        # deck is 0.4 m up and the ground 3.0 m down, so the middle of the run
+        # is on the deck and its edge is a 3.4 m riser.
+        out.append(C.stepped_riser_is(scene, 3.4))
     if name == "CI_swap_zmode":
         # D73: the post's own manifest default, not the panel's `vertical`.
         out.append(C.zmode_stamp(scene, "stepped"))
