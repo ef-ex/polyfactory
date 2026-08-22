@@ -477,15 +477,17 @@ def run_case(name, case):
 # case, so they run once under their own pseudo-case and land in the baseline
 # beside everything else.
 #
-# ⚠️ TWO OF THE THREE EXPECTATIONS DESCRIBE A DEFECT ON PURPOSE. `O(n)` is
-# what 11.2 P2 exists to fix and 14 calls/piece is what P1 exists to fix, so
-# green here means "still the shape the audit measured". The commit that lands
-# the port flips the expectation on the line below, and that flip IS the proof
-# - the same device `scale_gate.py`'s LADDER uses.
+# ⚠️ THE EXPECTATION LIVES ON THE CALL, `scale_gate.py`'s LADDER device: when
+# an expectation still describes a DEFECT, green here means "still the shape
+# the audit measured", and the commit that lands the port flips it - the flip
+# IS the proof. Two have flipped so far: P1 took `stamp_calls_per_piece`'s
+# ceiling from 15.0 to 1.0 (14.005 -> 0.005) and P2 took
+# `curve_sample_scaling` from `O(n)` to `O(1)` (2 339x -> ~1x). Restoring
+# either implementation turns its own row red.
 def port_tripwires():
     return [
         C.stamp_calls_per_piece(cases.tripwire_packed_run, expect_max=1.0),
-        C.curve_sample_scaling(cases.Curve, expect="O(n)"),
+        C.curve_sample_scaling(cases.Curve, expect="O(1)"),
         C.conform_cache_per_element(cases.tripwire_conformed_run,
                                     cases.CONFORM, expect_max=30.0),
     ]

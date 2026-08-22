@@ -513,5 +513,129 @@ class TestFlattenUnderAndBands(unittest.TestCase):
             self.assertIn(name, keys)
 
 
+class TestSamplerCacheParity(unittest.TestCase):
+    """11.2 P2: `Curve.sample` caches its per-segment table and bisects it.
+
+    §11.3's parity table demands "exactly 0 - assert bit-identical" for this
+    port, and the description it must stay identical to is the linear scan it
+    replaced - which lives here, in the test, as the REFERENCE
+    implementation (§11.3 rule 1). If `sample` is ever changed again, this is
+    what says whether the change was a speed-up or a new answer.
+
+    The `s` battery is deliberately unkind: past both ends, exactly on every
+    vertex arclength and +/- EPS and +/- 1 ULP around each, and both
+    directions - because the two branches differ only at a vertex and only by
+    which side of the comparison is strict. That is exactly what a
+    `bisect_left`/`bisect_right` mix-up gets wrong.
+    """
+
+    @staticmethod
+    def _linear(curve, s, forward=True):
+        pts = curve.points
+        if not pts:
+            return ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
+        if len(pts) == 1:
+            return (pts[0], (0.0, 0.0, 0.0))
+        total = curve.length
+        if curve.closed and total > pc.EPS:
+            asked = s
+            s = math.fmod(s, total)
+            if s < 0.0:
+                s += total
+            if not forward and s <= pc.EPS and asked > pc.EPS:
+                s = total
+        cum = curve._cumulative()
+        s = min(max(s, 0.0), cum[-1])
+        segs = []
+        for i in range(len(cum) - 1):
+            a = pts[i]
+            d = pc._sub(pts[(i + 1) % len(pts)], a)
+            if pc._norm(d) >= pc.EPS:
+                segs.append((cum[i], cum[i + 1], a, d))
+        if not segs:
+            return (pts[0], (0.0, 0.0, 0.0))
+        hit = segs[-1]
+        for lo, hi, a, d in segs:
+            if (hi > s + pc.EPS) if forward else (hi >= s - pc.EPS):
+                hit = (lo, hi, a, d)
+                break
+        lo, hi, a, d = hit
+        t = 0.0 if hi - lo < pc.EPS else min(
+            max((s - lo) / (hi - lo), 0.0), 1.0)
+        return ((a[0] + d[0] * t, a[1] + d[1] * t, a[2] + d[2] * t),
+                pc._unit(d))
+
+    def _curves(self):
+        return [
+            ("straight2", pc.Curve("a", line(0, 20))),
+            ("L", pc.Curve("b", [(0, 0, 0), (12, 0, 0), (12, 0, 12)])),
+            ("rect_closed", pc.Curve("c", square(12.0), closed=True)),
+            # duplicate points are SKIPPED segments, so the cached table is
+            # shorter than `cum` and the bisect indexes the table, not `cum`
+            ("dupes", pc.Curve("d", [(0, 0, 0), (0, 0, 0), (5, 0, 0),
+                                     (5, 0, 0), (5, 0, 0), (9, 0, 3)])),
+            ("hairpin", pc.Curve("e", [(0, 0, 0), (10, 0, 0),
+                                       (0.02, 0, 0.05)])),
+            ("zigzag", pc.Curve("f", [(0, 0, 0), (8, 0, 0), (12, 0, 4),
+                                      (20, 0, 4)])),
+            ("climb", pc.Curve("g", [(0, 0, 0), (5, 1.2, 0), (10, 0.4, 3)])),
+            ("single", pc.Curve("h", [(3, 1, 2)])),
+            ("empty", pc.Curve("i", [])),
+            ("resampled", pc.Curve("j", line(*[i * 10.0
+                                               for i in range(2001)]))),
+            ("arc", pc.Curve("k", [(80.0 * math.sin(i / 80.0), 0.0,
+                                    80.0 * (1 - math.cos(i / 80.0)))
+                                   for i in range(600)])),
+        ]
+
+    def test_bit_identical_to_the_linear_scan(self):
+        compared, bad = 0, []
+        for name, curve in self._curves():
+            total = curve.length
+            ss = [-3.0, -1e-12, 0.0, 1e-12, pc.EPS * 0.5, pc.EPS,
+                  pc.EPS * 2.0]
+            ss += [total * k / 97.0 for k in range(98)]
+            ss += [total, total + 1e-12, total + 1e-9, total + 3.0,
+                   total * 1.5, total * 2.0 + 0.7]
+            # every vertex on a small curve; a spread of 40 on a long one -
+            # the REFERENCE is the O(n) scan, so an exhaustive sweep of a
+            # 2 001-vertex curve costs 12 s in a file that must stay in
+            # hundredths, and the 41st vertex of a straight line proves
+            # nothing the 3rd did not.
+            n = len(curve.points)
+            step = max(1, n // 40)
+            for v in range(0, n, step):
+                a = curve.arclen(v)
+                ss += [a - pc.EPS, a - 1e-12, a, a + 1e-12, a + pc.EPS]
+            for s in ss:
+                for forward in (True, False):
+                    compared += 1
+                    a = self._linear(curve, s, forward)
+                    b = curve.sample(s, forward)
+                    if a != b and len(bad) < 8:
+                        bad.append("%s s=%r forward=%s: %r != %r"
+                                   % (name, s, forward, a, b))
+        # collected rather than `subTest`-wrapped: 28 712 subTests cost 12.8 s
+        # in a file whose whole point is that it runs in hundredths.
+        self.assertEqual(bad, [], "\n".join(bad))
+        self.assertGreater(compared, 2000)
+
+    def test_the_table_is_built_once(self):
+        # the cache itself, so "it got fast" is asserted and not just felt:
+        # the table object is identical across calls, and it holds one entry
+        # per REAL segment (the duplicate points are not segments).
+        curve = pc.Curve("d", [(0, 0, 0), (0, 0, 0), (5, 0, 0), (5, 0, 0),
+                               (5, 0, 0), (9, 0, 3)])
+        curve.sample(1.0)
+        first = curve._segs
+        curve.sample(7.0, forward=False)
+        self.assertIs(curve._segs, first)
+        segs, his = first
+        self.assertEqual(len(segs), 2)
+        self.assertEqual(his, [g[1] for g in segs])
+        self.assertEqual(his, sorted(his))
+
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

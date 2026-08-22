@@ -47,6 +47,7 @@ DECISIONS TAKEN IN THIS FILE (spec 9 open questions and ambiguities):
       documented feature, so the input cannot simply be rejected.
 """
 
+import bisect
 import math
 import random
 import zlib
@@ -243,6 +244,7 @@ class Curve(object):
         self.style_key = style_key
         self.attrs = dict(attrs or {})
         self._cum = None
+        self._segs = None
 
     def _cumulative(self):
         if self._cum is None:
@@ -256,6 +258,25 @@ class Curve(object):
                 cum.append(total)
             self._cum = cum
         return self._cum
+
+    def _segments(self):
+        """([(lo, hi, start, delta)], [hi...]) - the per-segment table, built
+        once (11.2 P2).
+
+        ⚠️ CACHED, so it assumes `points` is not mutated after the first
+        sample - which `_cumulative` above has always assumed, so this adds
+        no new constraint, but a future feature that edits a `Curve` in place
+        would silently serve stale geometry from both.
+        """
+        if self._segs is None:
+            cum, pts, segs = self._cumulative(), self.points, []
+            for i in range(len(cum) - 1):
+                a = pts[i]
+                d = _sub(pts[(i + 1) % len(pts)], a)
+                if _norm(d) >= EPS:         # duplicate point: not a segment
+                    segs.append((cum[i], cum[i + 1], a, d))
+            self._segs = (segs, [g[1] for g in segs])
+        return self._segs
 
     @property
     def length(self):
@@ -297,20 +318,20 @@ class Curve(object):
                 s = total                   # the arriving side of the seam
         cum = self._cumulative()
         s = min(max(s, 0.0), cum[-1])
-        segs = []
-        for i in range(len(cum) - 1):
-            a = pts[i]
-            d = _sub(pts[(i + 1) % len(pts)], a)
-            if _norm(d) >= EPS:             # duplicate point: not a segment
-                segs.append((cum[i], cum[i + 1], a, d))
+        segs, his = self._segments()
         if not segs:
             return (pts[0], (0.0, 0.0, 0.0))
-        hit = segs[-1]
-        for lo, hi, a, d in segs:
-            if (hi > s + EPS) if forward else (hi >= s - EPS):
-                hit = (lo, hi, a, d)
-                break
-        lo, hi, a, d = hit
+        # 11.2 P2. This used to rebuild `segs` on EVERY call and then scan it
+        # linearly: 3.2 us at 10 verts against 8 218 us at 20 001, which was
+        # 83 % of the worst case either port audit found. The table is cached
+        # exactly like `_cumulative` above, and the scan is the same predicate
+        # expressed as a bisect - `his` is strictly increasing (a segment is
+        # only kept when its length is >= EPS), so "the first `hi` strictly
+        # past s" is `bisect_right` and "the first `hi` at or past s" is
+        # `bisect_left`, which is what the two branches asked for literally.
+        i = (bisect.bisect_right(his, s + EPS) if forward
+             else bisect.bisect_left(his, s - EPS))
+        lo, hi, a, d = segs[i if i < len(segs) else -1]
         t = 0.0 if hi - lo < EPS else min(max((s - lo) / (hi - lo), 0.0), 1.0)
         return ((a[0] + d[0] * t, a[1] + d[1] * t, a[2] + d[2] * t), _unit(d))
 

@@ -3530,3 +3530,61 @@ at 14.005 and the check goes red.
 14.005 → 0.005, the number P1 exists to move. **`geometry_digest` did not move on a single case**,
 which is what §11.3's table required of P1. Suites: 89 cases / 5 300 checks / 0 failing, 284 unit
 tests OK, HDA checks 0 failing (2 new), 9 ladder rows 0 failing.
+
+#### P2 — `Curve.sample`'s segment table cached and bisected (2026-08-22)
+
+**One cache and one `bisect`.** `__init__.py`'s sampler rebuilt the full per-segment table on
+**every call** and then linear-scanned it. `_segments()` builds it once — exactly the way
+`_cumulative` above it already did — and the scan is the same predicate written as a bisect:
+`his` is strictly increasing (a segment is only kept when its length is ≥ `EPS`), so "the first
+`hi` strictly past s" is `bisect_right` and "the first `hi` at or past s" is `bisect_left`, which
+is what the forward/backward branches asked for literally.
+
+**Measured, this build:**
+
+| | before | after | × |
+|---|---|---|---|
+| `Curve.sample` @ 10 verts | 3.09 µs | **0.71 µs** | 4.4 |
+| `Curve.sample` @ 2 001 verts | 570.99 µs | **0.78 µs** | 732 |
+| `Curve.sample` @ **20 001 verts** | **7 966 µs** | **0.95 µs** | **8 385** |
+| bench **`corners_200`** (20 km resampled + 200 real kinks, miter) | **11.10 s** | **1.11 s** | **10.0** |
+| bench `packed_20km` | 0.490 s | 0.479 s | 1.02 |
+| `scale_gate` resampled | 0.402 s | 0.392 s | 1.03 |
+
+§11.2 predicted "8 218 µs → ~1 µs" and "4.32 s → ~0.65 s"; the per-call figure lands at 0.95 µs —
+`place.Path`'s own flat 0.80 µs, which is what it should converge on — and the corner-heavy row is
+10× on this harness's own fixture. **The packed and deformed ladders barely move**, and that is
+expected: `place.Path` was already cached, so what P2 buys is the corner and decompose work, which
+is where citygen's 300-street-with-junctions shape actually lives.
+
+**Parity is BIT-IDENTICAL, and the reference implementation is committed rather than described.**
+`TestSamplerCacheParity._linear` in `tests/unit/test_polychain.py` is the pre-P2 body verbatim, and
+the test compares `==` on the raw floats (§11.3's table demands "exactly 0" here, not a tolerance)
+over 11 curves — open, closed, duplicate points, hairpin, 2 001-vertex resample, 600-vertex arc —
+sampled past both ends, on every vertex arclength and at ±EPS and ±1 ULP around each, in both
+directions. **0 differing of 3 802**, and `test_the_table_is_built_once` asserts the cache is one
+object and that `his` really is the sorted upper bound of the kept segments.
+
+⚠️ The vertex sweep is capped at 40 per curve **because the reference is the O(n) scan**: an
+exhaustive sweep of the 2 001-vertex curve took the whole unit file from 0.09 s to 12.4 s, and the
+41st vertex of a straight line proves nothing the 3rd did not.
+
+**FIVE MUTATIONS, five red** — and the first one is why the unit test had to exist:
+
+| mutation | unit | scene suite |
+|---|---|---|
+| `bisect_left`/`bisect_right` **swapped** | RED | **GREEN — 0 failing** |
+| the `EPS` dropped from both bisect keys | RED | 1 failing |
+| forward and backward collapsed to one branch | RED | 69 failing |
+| the table shared between curves of equal vertex count (a stale cache) | RED | 86 failing |
+| `his` built from `lo` instead of `hi` | RED | 109 failing |
+
+⚠️ **Swapping the two bisect sides leaves all 89 scene cases green.** That branch decides which
+tangent a frame reads AT a vertex — the thing `Curve.sample`'s own docstring warns about — and the
+whole geometry suite cannot see it. It is pinned by the unit parity test and by nothing else.
+
+**Baseline: 89 cases, 5 300 entries, 0 added, 0 removed, ONE moved** —
+`curve_sample_scaling: O(n) -> O(1)` (0.75 µs at 10 verts, 0.86 µs at 20 001, **1×**), the
+expectation flip this tripwire was written for. `geometry_digest` did not move on any case, nor did
+`sampler_matches_kernel`. Suites: 89 cases / 5 300 checks / 0 failing, 286 unit tests OK, HDA
+checks 0 failing, 9 ladder rows 0 failing.
