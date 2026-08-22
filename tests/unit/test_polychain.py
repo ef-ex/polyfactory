@@ -475,5 +475,43 @@ class TestConformContract(unittest.TestCase):
         self.assertTrue(always.tilts(pc.Params(conform_tilt=False)))
 
 
+class TestFlattenUnderAndBands(unittest.TestCase):
+    """4.4's flatten-under and its two hybrid bands, as a CONTRACT (D98/D99).
+
+    The geometry half is measured in `tests/polychain` (`stepped_float_m`,
+    `band_hybrid_m` on CK/CL/CM/CN/CO); what belongs here is the part that is
+    pure data: the defaults every baseline in the suite was measured under,
+    and the degradation a junk payload has to survive.
+    """
+
+    def test_both_are_off_by_default(self):
+        # Every baseline in the suite predates D98/D99 and none of them moved,
+        # which is only true while these two default to doing nothing.
+        self.assertFalse(pc.DEFAULTS.flatten_stepped)
+        self.assertEqual(pc.DEFAULTS.flat_band, "")
+        self.assertEqual(pc.DEFAULTS.flat_band_m, 0.0)
+
+    def test_an_unknown_band_side_degrades_to_no_band(self):
+        # D6's landing, applied again: a case-slipped or invented side must
+        # not silently pick one of the two real ones.
+        for junk in ("Top", "left", "middle", None, 3):
+            self.assertEqual(pc.Params(flat_band=junk).flat_band, "")
+
+    def test_a_negative_band_is_no_band(self):
+        self.assertEqual(pc.Params(flat_band_m=-1.0).flat_band_m, 0.0)
+
+    def test_the_two_real_sides_survive(self):
+        self.assertEqual(pc.Params(flat_band="top").flat_band, "top")
+        self.assertEqual(pc.Params(flat_band="bottom").flat_band, "bottom")
+
+    def test_they_are_style_payload_fields(self):
+        # 3.3 carries the params in the payload, and `style.PARAM_KEYS` is
+        # derived from `Params` itself so a new parm cannot be left behind on
+        # the node. Asserted on `vars` because `style.py` needs a licence.
+        keys = set(vars(pc.DEFAULTS))
+        for name in ("flatten_stepped", "flat_band", "flat_band_m"):
+            self.assertIn(name, keys)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

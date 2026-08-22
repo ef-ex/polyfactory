@@ -324,6 +324,29 @@ adv.addParmTemplate(_int(
     "an even number so the arc always has a midpoint vertex."))
 
 adv.addParmTemplate(_toggle(
+    "flatten_stepped", "Plant Flat Pieces on the Ground", False,
+    "A piece set to SIT FLAT has one height, and OFF it takes that height "
+    "from its uphill end - so going downhill the whole run hangs in the air, "
+    "and drawing the same spline the other way buries it instead. ON it "
+    "takes the LOWEST ground under itself, so nothing floats and the fence "
+    "comes out the same whichever way the spline was drawn."))
+adv.addParmTemplate(_menu(
+    "flat_band", "Level Band",
+    [("", "Off - the whole piece follows its Upright Behaviour"),
+     ("top", "Top of the piece behaves the other way"),
+     ("bottom", "Bottom of the piece behaves the other way")], "",
+    "The hybrid post/picket band. On a STAY PLUMB run the named band is held "
+    "dead level - a picket fence with a straight top rail over bumpy ground. "
+    "On a SIT FLAT run it is the other way round: the named band follows the "
+    "ground while the rest stays flat - a stepped panel whose foot hugs the "
+    "terrain. Off leaves every piece wholly in its Upright Behaviour."))
+adv.addParmTemplate(_float(
+    "flat_band_m", "Level Band Height (m)", 0.0, 0.0, 2.0,
+    "Metres of the piece's own height the Level Band covers, measured from "
+    "its top or its bottom. 0 switches the band off. Bigger than the piece "
+    "makes the whole piece behave the other way."))
+
+adv.addParmTemplate(_toggle(
     "fix_slope", "Measure Widths Horizontally", False,
     "ON measures every piece's width on the horizontal, so a fence keeps its "
     "post spacing seen from above as it climbs. OFF measures along the path "

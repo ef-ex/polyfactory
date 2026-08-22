@@ -329,6 +329,8 @@ def run_case(name, case):
         C.exact_fill(scene),
         C.no_gaps_or_overlaps(scene),
         C.stepped_riser(scene),
+        C.stepped_float(scene),
+        C.band_hybrid(scene),
         C.plumb_vertical(scene),
         C.flat_stepped(scene),
         # ⚠️ BA IS IN HERE FOR THE SAME REASON E IS, and it was added because a

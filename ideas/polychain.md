@@ -2178,3 +2178,140 @@ were red before the cycle's edits, the fifth is red after them.
 |---|---|
 | D96 | **The UX law is asserted, not merely obeyed.** `artist_ui.md` §6 is called binding at the top of the HDA builder, and a mutation that stripped the help text, the ranges and the unit suffixes off all nine float parms left the entire suite green. Four checks now read the built asset's own parameter templates: help on every parm, at most two disclosure levels, no numeric left at `hou`'s untouched 0..10 range, and a unit suffix in the label of every parm measured in metres, degrees or percent. A UX rule nothing checks is a UX rule that will be gone in two cycles |
 | D97 | **The scale gate's expectation is stated per row, not derived from the sagitta.** `scale_gate.py` decided pass/fail from `4/(8R)` — the SPINE measure D87 retired — so the harness guarding the curvature budget could not see the term the budget now spends, and its `arc_80` row was green only because the starter panel is yaw-only (`rz` = 0.03 m instead of `radius` = 0.90 m). Each row now carries its own expectation with the reason beside it, and the ladder is run a second time under `zmode = adaptive`, where R = 80 m correctly unpacks all 10 000 pieces |
+
+---
+
+### Cycle 10 - §4.4's flatten-under and its two hybrid bands (2026-08-22)
+
+**The last unimplemented sentence of §4.4's kernel**, deferred with eyes open
+since cycle 2 and named in three standing findings: "stepped (yaw-only,
+constant Z, **optional flatten-under**)". Built here, with the flat-top /
+flat-bottom bands RailClone documents beside it.
+
+#### 1. What RailClone actually does (read, not recalled)
+
+`docs.itoosoft.com` returns 403 to the fetcher, so the two behaviours were
+read out of iToo's own indexed text rather than from memory:
+
+* **Flatten Stepped** (generator-side) "automatically flattens the path in
+  positions where RailClone uses segments in Stepped mode... used to fix
+  alignment issues that may appear with railings and sloped paths".
+* **Flat Top / Flat Bottom** (segment-side) "enable the top or bottom of a
+  segment to deform and follow the spline, leaving the middle area
+  stepped... the value defines an area of influence, represented as a
+  distance in world units from the top or bottom of the segment's height" -
+  the two hybrid modes that combine the Vertical and Stepped algorithms.
+
+#### 2. The defect, measured before the fix
+
+A `stepped` piece is flat at ONE elevation and that elevation was its own
+START. Two consequences, both real: going downhill the whole underside hangs
+in the air by the drop across the piece, and the same fence drawn the other
+way is BURIED by the same amount instead - so the result depended on which
+way the artist drew the spline.
+
+Numbers, on **PC-G2's own gate scene rebuilt** (24 m spline turning ±3.6 m
+in plan and climbing 2.4 m, resampled at 0.25 m, over
+`y = 1.1 sin(2πx/13) + 0.8 cos(2πz/9) + 0.06x`, conform ON) and measured
+through the suite's own checks:
+
+| PC-G2 hill, stepped posts | `stepped_float_m` | `stepped_riser_m` | packed |
+|---|---|---|---|
+| flatten OFF (**before**) | **0.054818** | 0.061280 | 240 / 240 |
+| flatten ON (**after**) | **0.0** | 0.061280 | 240 / 240 |
+| spline REVERSED, OFF | **0.061280** | 0.061280 | 240 / 240 |
+| spline REVERSED, ON | **0.0** | 0.061280 | 240 / 240 |
+
+`0.06128` is the 0.061 m §0.0 has carried since cycle 6, reproduced exactly.
+**`stepped_riser_m` does not move and must not**: the step between two flat
+pieces IS stepped mode, and removing it would remove the mode. What the
+flatten removes is the AIR under each piece, which is the other half of the
+same geometry and which nothing measured until now (`stepped_float_m`, new).
+**Nothing unpacked**: 240 of 240 pieces are still packed prims, so the fix is
+free at PC-G3 scale.
+
+On a 2 m `panel` driven `stepped` the same hill reads **0.98154 -> 0.1 m**
+(0.1 is the panel module's own ground clearance - its local y0 is 0.1 - so
+0.1 is this module's zero).
+
+#### 3. The bands, measured
+
+`band_hybrid_m` is a PAIR, because the mechanism is two claims and one number
+cannot carry both: `[the half that must be level, the half that must have
+moved]`. The second is the anti-vacuity half and is asserted non-zero.
+
+| PC-G2 hill | `band_hybrid_m` | `stepped_riser_m` |
+|---|---|---|
+| `vertical` panel, flat top 0.25 m | **[0.0, 0.96046]** | - |
+| `stepped` panel, foot band 0.25 m | **[0.0, 0.96046]** | 0.96046 -> **0.106718** |
+
+The stepped panel's riser collapses by 9x because its feet now follow the
+ground while its body stays flat - which is the second of iToo's two hybrids,
+and the one that reads as a stepped fence sitting ON a hill rather than over
+it.
+
+#### 4. The corner-assembly half of standing finding (2), re-measured
+
+Cycle 4's four-line repro - `(0,0,0) -> (8,6,0) -> (0.4,12,0.2)`,
+`corner_post` plus a `vertical` default, the leg pitched 37° - **does not
+reproduce on this build**, in either corner mode:
+
+* **bend**: no corner assembly is built at all (D36 welds the vertex), so
+  there is nothing to leave a gap under.
+* **miter**: one corner post, world y `[6.0000 .. 7.3000]`, i.e. its foot
+  exactly on the vertex, and `corner_abut_m` = **0.002105 m**, inside its own
+  2 mm budget.
+
+So the 0.074 m figure §0.0 has carried is **stale**, and the anchored half of
+the flatten is deliberately NOT built (D98's own exclusion, for D72's reason).
+
+#### 5. Files
+
+* `polychain/__init__.py` - `Params.flatten_stepped`, `Params.flat_band`,
+  `Params.flat_band_m`, vocabulary `FLAT_BANDS`. All default to off, which is
+  why no baseline moved.
+* `polychain/place.py` - `_band`, `_follows`, `_stepped_base`, `_y_varies`;
+  `_Proto.y0/.y1`; `base_y` on `_packed_transform` and `_deform_positions`;
+  the band in `_needs_deform`; the datum decided once per piece in `build`.
+* `devScripts/create_pf_polychain_hda.py` + `polyfactory/otls/pf_polychain.hda`
+  - three parms in the Advanced folder, phrased as decisions ("Plant Flat
+  Pieces on the Ground", "Level Band", "Level Band Height (m)"), and
+  `flat_band_m` added to D96's units-in-the-label list so the UX law binds on
+  it too.
+* `tests/polychain/checks.py` - `stepped_float`, `band_hybrid`, `_band_case`,
+  `_flat_in_y`; the three along-the-chain checks compare a banded piece in XZ
+  for the same reason they already do a stepped one.
+* `tests/polychain/cases.py` - `CK_hill_flatten`, `CL_hill_flatten_rev`,
+  `CO_hill_rev_plain` (the before), `CM_band_flat_top`,
+  `CN_band_stepped_foot`.
+* `tests/unit/test_polychain.py` - `TestFlattenUnderAndBands`, the hou-free
+  contract.
+
+#### 6. The suite
+
+`test_polychain.py` **59** · `test_polychain_plan.py` **91** ·
+`test_polychain_corner.py` **63** · `test_citygen.py` and `test_plan.py` OK ·
+`run_scene_checks.py` **81 cases, 0 failing** · `run_hda_checks.py`
+**0 failing** · `scale_gate.py` **9 rows, 0 failing**.
+**No baseline movement** - `tests/polychain/baseline.json` was not rewritten
+by any run. (`tests/citygen/run_scene_checks.py` reports 27 failing checks
+**both with and without this cycle's diff** - verified by `git stash`; it is
+a pre-existing citygen state on this branch, not a regression.)
+
+Suite-carried before/after, from `run_scene_checks.py`:
+
+| case | `stepped_float_m` | `stepped_riser_m` |
+|---|---|---|
+| `CO_hill_rev_plain` (flatten OFF, downhill) | **0.029089** | 0.029089 |
+| `CK_hill_flatten` (ON, uphill) | **0.0** | 0.029089 |
+| `CL_hill_flatten_rev` (ON, downhill) | **0.0** | 0.029089 |
+
+CK and CL are the SAME curve drawn both ways and they agree to the digit,
+which is the direction-independence claim, asserted.
+
+#### Decisions taken
+
+| # | Decision |
+|---|---|
+| D98 | **§4.4's FLATTEN-UNDER is a datum choice, not a path edit.** A `stepped` piece has exactly one elevation, so the whole feature is *which* elevation: OFF it is the piece's own start (§4.4's "constant Z", and every baseline before this), ON it is the LOWEST ground under the piece's own span, sampled at the module's own stations so the flatten and the deform read the same ground (D71). That is RailClone's generator-side "Flatten Stepped" expressed on the piece instead of on the path, and it buys the two things the path edit buys - nothing floats, and a minimum does not care which end it started from, so a reversed spline builds the identical fence. It costs NOTHING at scale: the piece stays a packed prim, only its 4x4 changes. **OFF by default** - it is an option in RailClone too, and turning it on would have moved every stepped baseline in the suite. **ANCHORED pieces are excluded on purpose**: §4.3 gives ONE datum to a whole corner assembly (D72) and a per-half minimum would reopen the 0.02 m step at a seam PC-G1 asks to be gapless - and the corner case that motivated it no longer reproduces (§4 above) |
+| D99 | **The two hybrid bands are ONE rule: the band is the exception to the z-mode.** iToo describes them from both ends - "flatten a Z-band from the top or bottom" for Vertical and "enable the top or bottom of a segment to deform and follow the spline, leaving the middle area stepped" for Stepped - and those are the same sentence seen from the two modes. So `_follows(y, band, stepped)` is `inside == stepped`, one expression, and with no band it is byte-for-byte what §4.4 did before. `adaptive` gets no band: it rides the full frame and has no flat half to hold. A band forces the piece onto the deform path (a packed prim is one 4x4 and a band is a per-point rule), which is why `CN` is 0/16 packed - and why a RIGID module cannot express a band at all (D27), the honest limit, stated in the case rather than hidden |

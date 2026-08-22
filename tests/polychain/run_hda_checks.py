@@ -429,7 +429,8 @@ def main():
     # ...and a number in metres/degrees/percent says so IN THE LABEL, because
     # the label is the only thing visible without hovering.
     UNITED = {"padding": "m", "evenly_spacing": "m", "fillet_radius": "m",
-              "adjust_to_end": "m", "bend_tol": "m", "corner_angle_deg": "deg",
+              "adjust_to_end": "m", "bend_tol": "m", "flat_band_m": "m",
+              "corner_angle_deg": "deg",
               "min_included_angle_deg": "deg", "adaptive_pct": "%",
               "corner_offset_pct": "%"}
     byname = dict((t.name(), t) for f, t in rows)

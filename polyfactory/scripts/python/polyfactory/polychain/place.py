@@ -594,6 +594,12 @@ class _Proto(object):
         # fit while the bbox is the geometry that will actually move.
         self.rz = max(abs(bb.minvec()[2]), abs(bb.maxvec()[2]))
         self.ry = max(abs(bb.minvec()[1]), abs(bb.maxvec()[1]))
+        # D99 - the module's own local-Y extent, which is what a top/bottom
+        # BAND is measured from. Off the SOURCE bbox for the same reason `rz`
+        # is: the band has to name the geometry that will actually move, not
+        # the nominal fitted size.
+        self.y0 = bb.minvec()[1]
+        self.y1 = bb.maxvec()[1]
         # `adaptive` rolls y AND z with the frame; a yaw-only mode keeps y
         # world-vertical (`_frame`), so there only z rides it.
         self.radius = math.hypot(self.ry, self.rz)
@@ -796,6 +802,78 @@ COLLAPSE_RATIO = 0.5        # chord vs planned span, for a RIGID piece
 FLAT_RATIO = 0.01           # horizontal reach vs planned span, yaw-only modes
 
 
+def _band(proto, zmode, params):
+    """D99 - the module-local Y interval that is the flat-top/bottom BAND.
+
+    None when there is no band to apply, which is every case the suite
+    measured before this existed: no side chosen, a zero height, an
+    `adaptive` piece (it rides the full frame, so it has no flat half to
+    hold), or a band that reaches neither into the module nor across it.
+
+    The interval is returned in the module's OWN local Y, which is also world
+    metres: the fit scales a piece along x only, so a band named in metres is
+    the same band before and after the solve.
+    """
+    side = getattr(params, "flat_band", "")
+    size = float(getattr(params, "flat_band_m", 0.0) or 0.0)
+    if side not in ("top", "bottom") or size <= EPS or zmode == "adaptive":
+        return None
+    if size >= (proto.y1 - proto.y0) + EPS:
+        # the band swallows the module: the piece is simply the other mode,
+        # which is what "all of it" means. Still a band, so the caller's
+        # deform gate sees it.
+        return (proto.y0 - 1.0, proto.y1 + 1.0)
+    if side == "top":
+        return (proto.y1 - size, proto.y1 + 1.0)
+    return (proto.y0 - 1.0, proto.y0 + size)
+
+
+def _follows(y, band, stepped):
+    """Does the point at local height `y` FOLLOW the ground? (D99)
+
+    One expression for both of iToo's hybrids, because they are the same
+    rule seen from the two z-modes: the band is the exception. Outside a
+    band, `vertical` follows and `stepped` does not - which is byte-for-byte
+    what this file did before D99, since `band` is None on every path that
+    has no band.
+    """
+    inside = band is not None and band[0] <= y <= band[1]
+    return inside == stepped
+
+
+def _stepped_base(path, sa, sb, fracs, flatten):
+    """D98 - the ONE elevation a `stepped` piece sits flat at.
+
+    OFF (RailClone's default, and every baseline before D98) it is the
+    elevation at the piece's own start, which is what "constant Z" meant in
+    4.4 and what leaves the downhill end of every piece floating.
+
+    ON it is the LOWEST ground under the piece's own span, sampled at the
+    module's own stations - the places the deform already samples (D71), so
+    the flatten and the deform read the same ground. That is the flatten-under
+    4.4 names: the underside touches at its low point and nothing hangs in
+    the air, and because a minimum does not care which end it started from,
+    the same fence comes out of a reversed spline.
+    """
+    y = path.sample(sa)[0][1]
+    if not flatten:
+        return y
+    span = sb - sa
+    for f in (fracs or (0.0, 0.5, 1.0)):
+        y = min(y, path.sample(sa + f * span)[0][1])
+    return min(y, path.sample(sb, forward=False)[0][1])
+
+
+def _y_varies(path, sa, sb, fracs):
+    """Does the ground move under this span at all? Metres of range."""
+    lo = hi = path.sample(sa)[0][1]
+    span = sb - sa
+    for f in (tuple(fracs or ()) + (1.0,)):
+        y = path.sample(sa + f * span)[0][1]
+        lo, hi = min(lo, y), max(hi, y)
+    return hi - lo
+
+
 def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive"):
     """D75 + D87 - how far the DEFORMED piece would sit from the PACKED
     one, in metres, measured at its WORST POINT.
@@ -889,7 +967,8 @@ def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive"):
     return worst
 
 
-def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01):
+def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01,
+                  band=None):
     """4.4 + the streets float32 lesson: rebuild ONLY when it changes something."""
     if placement.slice_t is not None or placement.cuts:
         return True                                     # D41 - a miter unpacks
@@ -897,6 +976,14 @@ def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01):
         return False                                    # a straight leg piece
     if proto.module.deform <= 0:
         return False                                    # D27
+    # D99: a BAND is a per-point rule - half the piece flat, half of it
+    # following - and a packed prim is one 4x4, so a band that has ground to
+    # bite on is a deform by construction. `stepped` is the case this exists
+    # for: without it a stepped piece with a deforming foot stayed packed and
+    # the band did nothing. `vertical` reaches the same answer one test lower
+    # (its own shear test), so this only makes the reason explicit.
+    if band is not None and _y_varies(path, sa, sb, proto.fracs) > 1e-6:
+        return True
     # D87: the budget is spent by the piece's WORST POINT, not by its spine.
     # `radius` is how far this module reaches off the spine onto the frame
     # that `_deform_positions` rebuilds per station; it is 0 for a module with
@@ -941,8 +1028,13 @@ def _bend_deviation(proto, stations, path, s0_flat, scale, remap):
 
 # --- building one piece -----------------------------------------------------
 
-def _packed_transform(proto, path, sa, sb, zmode, up_ref=UP):
-    """The 4x4 that maps module local space onto the chord A->B (D21)."""
+def _packed_transform(proto, path, sa, sb, zmode, up_ref=UP, base_y=None):
+    """The 4x4 that maps module local space onto the chord A->B (D21).
+
+    `base_y` is D98's flatten-under: a `stepped` piece is horizontal, so its
+    whole elevation is one number and overriding it here moves the piece
+    without touching the fit, the frame or the chord it was measured on.
+    """
     a, ta = path.sample(sa)
     b, _tb = path.sample(sb, forward=False)
     chord = _sub(b, a)
@@ -965,11 +1057,12 @@ def _packed_transform(proto, path, sa, sb, zmode, up_ref=UP):
         d, across, up = _frame(chord, zmode, up_ref)
     scale = max(clen / proto.length, 1e-9)
     ox = proto.ax * scale
+    ay = a[1] if base_y is None else base_y
     return hou.Matrix4([
         [d[0] * scale, d[1] * scale, d[2] * scale, 0.0],
         [up[0], up[1], up[2], 0.0],
         [across[0], across[1], across[2], 0.0],
-        [a[0] - d[0] * ox, a[1] - d[1] * ox, a[2] - d[2] * ox, 1.0]])
+        [a[0] - d[0] * ox, ay - d[1] * ox, a[2] - d[2] * ox, 1.0]])
 
 
 def _anchor_transform(proto, origin, direction, length, zmode, up_ref=UP):
@@ -1072,12 +1165,19 @@ def clip_plane(geo, origin, normal, keep_sign, module_name="", texel=1.0):
 
 
 def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap,
-                      tilt=False):
+                      tilt=False, base_y=None, band=None):
     """Every point of `src` re-read at its own arc position. Returns
-    (flat world positions, flat local positions)."""
+    (flat world positions, flat local positions).
+
+    `base_y` (D98) is the flat elevation a `stepped` point sits at, and
+    `band` (D99) is the module-local Y interval that takes the OTHER mode.
+    Both default to exactly what this did before they existed.
+    """
     local = src.pointFloatAttribValues("P")
     out = [0.0] * len(local)
-    base_y = path.sample(remap(s0_flat))[0][1]
+    if base_y is None:
+        base_y = path.sample(remap(s0_flat))[0][1]
+    stepped = zmode == "stepped"
     ax = proto.ax
     # D31: one frame per STATION, transported along the piece in x order, then
     # looked up per point. Deriving it per point independently is what let it
@@ -1103,7 +1203,7 @@ def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap,
             out[i + 1] = pos[1] + across[1] * z + up[1] * y
             out[i + 2] = pos[2] + across[2] * z + up[2] * y
         else:
-            py = base_y if zmode == "stepped" else pos[1]
+            py = pos[1] if _follows(y, band, stepped) else base_y
             out[i] = pos[0] + across[0] * z
             out[i + 1] = py + y
             out[i + 2] = pos[2] + across[2] * z
@@ -1400,8 +1500,9 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                     warns.append(w)
             if module.missing and WARN_KIT_GAP not in warns:
                 warns.append(WARN_KIT_GAP)
+            band = _band(proto, zmode, params)
             deformed = _needs_deform(p, proto, path, s0r, s1r, zmode,
-                                     params.bend_tol)
+                                     params.bend_tol, band)
             # 4.5 / D53: a ray that finds nothing keeps the spline elevation
             # and SAYS SO. Probed on the piece's own span rather than on the
             # whole run, so a fence that leaves the terrain at one end reports
@@ -1428,9 +1529,19 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             hero = ov.hero if (ov is not None and ov.hero is not None) else None
             if hero is not None and deformed and WARN_REPLACED not in warns:
                 warns.append(WARN_REPLACED)             # D58
+            # D98 - the flatten-under datum, decided once per piece and used
+            # by BOTH materialisation paths, so a stepped piece sits at the
+            # same elevation whether or not something else unpacked it.
+            # Anchored pieces are excluded on purpose: 4.3 gives ONE datum to
+            # a whole corner assembly (D72), and a per-half minimum would
+            # reopen the 0.02 m step at the seam PC-G1 asks to be gapless.
+            base_y = None
+            if zmode == "stepped" and p.anchor is None                     and getattr(params, "flatten_stepped", False):
+                base_y = _stepped_base(path, s0r, s1r, proto.fracs, True)
             jobs.append({"p": p, "proto": proto, "path": path, "hero": hero,
                          "s0f": s0f, "s0r": s0r, "s1r": s1r,
-                         "zmode": zmode, "scale": scale,
+                         "zmode": zmode, "scale": scale, "band": band,
+                         "base_y": base_y,
                          "deformed": deformed, "warns": tuple(warns),
                          "remap": remap,
                          "tilt": (module.tilts(params)
@@ -1485,7 +1596,8 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                                           up_ref)
             else:
                 xform = _packed_transform(proto, path, job["s0r"],
-                                          job["s1r"], zmode, up_ref)
+                                          job["s1r"], zmode, up_ref,
+                                          job["base_y"])
             prim = out.createPackedGeometry(proto.source)
             prim.setTransform(xform)
             _stamp(prim, p, warns, False, zmode)
@@ -1512,7 +1624,8 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         else:
             world, local = _deform_positions(piece, proto, path, job["s0f"],
                                              job["scale"], zmode,
-                                             job["remap"], job["tilt"])
+                                             job["remap"], job["tilt"],
+                                             job["base_y"], job["band"])
             piece.setPointFloatAttribValues("P", world)
             piece.setPointFloatAttribValues("pc_local", local)
         if p.cuts:

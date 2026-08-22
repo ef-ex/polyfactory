@@ -63,6 +63,9 @@ CORNER_MODES = ("bend", "miter")
 # 4.3's displacement policy for the DEFAULT pieces meeting a mitered corner.
 # RailClone's own three (docs, "How to Fine Tune Corners", quoted in D40).
 CORNER_DISPLACEMENTS = ("reset", "extend", "symmetric")
+# 4.4's hybrid post/picket bands (D98). "" = no band; the band is measured
+# from the module's own TOP or BOTTOM in metres of local height.
+FLAT_BANDS = ("", "top", "bottom")
 
 DEFORM_RIGID, DEFORM_BEND, DEFORM_SLICE = 0, 1, 2
 
@@ -127,7 +130,8 @@ class Params(object):
                  corner_displacement="reset", fillet_radius=0.0,
                  fillet_segments=4, zmode="", bend_tol=0.01,
                  fix_slope=False, conform_axis=(0.0, -1.0, 0.0),
-                 conform_tilt=False):
+                 conform_tilt=False, flatten_stepped=False,
+                 flat_band="", flat_band_m=0.0):
         self.corner_angle_deg = float(corner_angle_deg)
         self.min_included_angle_deg = float(min_included_angle_deg)
         self.fill = fill if fill in FILL_MODES else "adaptive"
@@ -176,6 +180,28 @@ class Params(object):
         # D55 - camber. Off by default: a road wants it, a fence does not, and
         # a default that tilts every module is a default that surprises.
         self.conform_tilt = bool(conform_tilt)
+        # D98 - 4.4's FLATTEN-UNDER (RailClone's generator-side "Flatten
+        # Stepped", which "automatically flattens the path in positions where
+        # RailClone uses segments in Stepped mode"). A `stepped` piece is flat
+        # by definition, and it used to take its one elevation from its
+        # UPHILL end, so on a descending run its whole underside floated over
+        # the ground - 0.061 m on PC-G2's hill - and reversing the spline
+        # changed the fence. ON it takes the LOWEST ground under its own span
+        # instead, so nothing floats and the result no longer depends on
+        # which way the curve was drawn. OFF by default: it is an option in
+        # RailClone too, and every baseline in the suite was measured without
+        # it.
+        self.flatten_stepped = bool(flatten_stepped)
+        # D99 - the flat-top / flat-bottom BANDS, iToo's two hybrid modes.
+        # One rule covers both halves of their own description: the named
+        # band is treated as the OPPOSITE of the piece's z-mode, so a
+        # `vertical` piece holds the band level ("flatten a Z-band from top
+        # or bottom") and a `stepped` piece lets the band follow the ground
+        # ("enable the top or bottom of a segment to deform and follow the
+        # spline, leaving the middle area stepped"). `adaptive` has no band -
+        # it rides the full frame and there is no flat half to hold.
+        self.flat_band = flat_band if flat_band in FLAT_BANDS else ""
+        self.flat_band_m = max(float(flat_band_m), 0.0)
 
 
 DEFAULTS = Params()

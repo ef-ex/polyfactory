@@ -26,6 +26,8 @@ WHAT THE NUMBERS MEAN
                      CONSTRUCTION (D21: consecutive pieces are built from the
                      same curve sample), so any drift is a real defect.
   stepped_riser_m    the vertical step between consecutive STEPPED pieces.
+  stepped_float_m    the AIR under a stepped piece - 4.4's flatten-under.
+  band_hybrid_m      [level half, following half] of a D99 top/bottom band.
                      This is the mode working, not a gap - so it is recorded
                      as its own number and excluded from `max_gap_m` rather
                      than quietly tolerated inside it.
@@ -388,6 +390,27 @@ def collect_warns(geo, names):
     return out
 
 
+def _band_case(scene):
+    """D99 - this case carries a top/bottom BAND, so every yaw-only piece in
+    it is a hybrid: half of it flat, half of it following the ground.
+
+    Its end faces therefore do not sit on the curve in Y - exactly as a
+    `stepped` piece's do not, and for the same reason - so the three
+    along-the-chain checks compare it in XZ, which is the exemption they
+    already grant stepped mode. `adaptive` is untouched: it has no flat half,
+    so `_band` hands it no band and its axis must still land on the curve.
+    """
+    p = getattr(scene, "params", None)
+    return bool(getattr(p, "flat_band", ""))         and float(getattr(p, "flat_band_m", 0.0) or 0.0) > 0.0
+
+
+def _flat_in_y(scene, *zmodes):
+    """Should these pieces' axes be compared in XZ only? (stepped, or D99.)"""
+    if "stepped" in zmodes:
+        return True
+    return _band_case(scene) and any(z != "adaptive" for z in zmodes)
+
+
 def _groups(scene):
     """[(track, section, [placements in build order])] - the unit every
     along-the-chain check measures over."""
@@ -556,8 +579,8 @@ def exact_fill(scene):
             # A stepped piece is FLAT by definition, so its ends sit at its own
             # base height and not on the curve. That is the mode, not an error:
             # it is measured in XZ here and as `stepped_riser_m` below.
-            d = (_dist_xz(want, got) if placement.zmode == "stepped"
-                 else _dist(want, got))
+            d = (_dist_xz(want, got)
+                 if _flat_in_y(scene, placement.zmode) else _dist(want, got))
             if d > worst:
                 worst, where = d, "%s[%d] %s" % (group[0].curve_id,
                                                  section.index, tag)
@@ -582,7 +605,7 @@ def no_gaps_or_overlaps(scene):
             end_a, start_b = axis_points(ra)[1], axis_points(rb)[0]
             if end_a is None or start_b is None:
                 continue
-            stepped = "stepped" in (a.zmode, b.zmode)
+            stepped = _flat_in_y(scene, a.zmode, b.zmode)
             d = _dist_xz(end_a, start_b) if stepped else _dist(end_a, start_b)
             if d > worst:
                 worst, where = d, "%s -> %s" % (a.module, b.module)
@@ -614,6 +637,59 @@ def stepped_riser(scene):
     return Result("stepped_riser_m", True, _round(worst, 6))
 
 
+def stepped_float(scene):
+    """D98 - the AIR under a stepped piece, in metres, at its worst point.
+
+    `stepped_riser_m` measures the step BETWEEN two flat pieces, which is the
+    mode's own signature and never goes away. This measures the other half of
+    the same geometry - how far the piece's own underside sits ABOVE the
+    ground beneath it - which is 4.4's flatten-under, and which does.
+
+    A stepped piece is flat at ONE elevation. With the flatten off that
+    elevation is its uphill end (4.4's "constant Z"), so on a descending run
+    its whole underside floats and the fence hangs in the air by the drop
+    across each piece; reversing the spline buries it by the same amount
+    instead. With `flatten_stepped` on the elevation is the LOWEST ground
+    under the piece, so this number goes to zero and stays there in both
+    directions. Positive is air; a buried piece reads 0, because a fence post
+    in the ground is not a defect.
+
+    Measured on the piece's OWN bottom points against the path they sit over
+    - the same path the builder placed them on, conform included - so the
+    number is the builder's, not a re-derivation of the terrain.
+    """
+    worst, where, seen = 0.0, "", 0
+    for track, section, group in _groups(scene):
+        path, remap = track["path"], track["remap"]
+        for p in group:
+            if p.zmode != "stepped" or p.anchor is not None:
+                continue
+            rec = scene.by_id.get(p.elem_id)
+            if rec is None:
+                continue
+            loc, wrl = rec["local"], rec["world"]
+            xs = loc[0::3]
+            if not xs:
+                continue
+            x0, x1 = min(xs), max(xs)
+            ylo = min(loc[1::3])
+            s0 = remap(section.s0 + p.s0)
+            s1 = remap(section.s0 + p.s1)
+            seen += 1
+            for i in range(0, len(loc), 3):
+                if loc[i + 1] > ylo + LOCAL_TOL:
+                    continue                 # not on the underside
+                f = 0.0 if x1 - x0 <= 1e-9 else (loc[i] - x0) / (x1 - x0)
+                gy = path.sample(s0 + f * (s1 - s0))[0][1]
+                if wrl[i + 1] - gy > worst:
+                    worst = wrl[i + 1] - gy
+                    where = "%s %s[%d]" % (p.module, p.slot, p.index)
+    if not seen:
+        return _skip("stepped_float_m", "no stepped pieces on a path")
+    return Result("stepped_float_m", True, _round(worst, 6),
+                  where or ("%d stepped pieces" % seen))
+
+
 def _by_zmode(scene, zmode):
     return [r for r in scene.by_id.values() if r["pc_zmode"] == zmode]
 
@@ -631,9 +707,64 @@ def flat_stepped(scene):
     recs = _by_zmode(scene, "stepped")
     if not recs:
         return _skip("flat_stepped_m", "no stepped pieces")
+    if _band_case(scene):
+        # D99: a banded stepped piece is flat everywhere EXCEPT its band, so
+        # "all of it flat" is the wrong assertion here. `band_hybrid_m`
+        # asserts both halves separately instead - and asserts that the band
+        # actually moved, which this check could never see.
+        return _skip("flat_stepped_m", "banded - see band_hybrid_m (D99)")
     worst = max(flatness_m(r) for r in recs)
     return Result("flat_stepped_m", worst <= TOL_M, _round(worst),
                   "%d pieces" % len(recs))
+
+
+def band_hybrid(scene):
+    """D99 - [flat half's spread, following half's spread], in metres.
+
+    The band mechanism is TWO claims and one number cannot carry both: the
+    half of the piece that should be level has to be level, AND the half that
+    should follow the ground has to have actually moved. A band that silently
+    did nothing would leave the first number at 0 and pass any check that
+    only asked the first question - so the second number is the anti-vacuity
+    half, and it is asserted to be non-zero on a slope.
+
+    Both are measured as the spread of (world y - local y) within one piece,
+    which is `flatness_m`'s own measure restricted to a set of points: 0 for
+    a level set, the ground's own range for a following one.
+    """
+    if not _band_case(scene):
+        return _skip("band_hybrid_m", "no band on this case")
+    side = scene.params.flat_band
+    size = float(scene.params.flat_band_m)
+    flat_worst, follow_worst, seen = 0.0, 0.0, 0
+    for eid, rec in scene.by_id.items():
+        zmode = rec["pc_zmode"]
+        if zmode not in ("vertical", "stepped"):
+            continue
+        src = scene.sources.get(rec["pc_module"])
+        if src is None:
+            continue
+        bb = src.boundingBox()
+        y0, y1 = bb.minvec()[1], bb.maxvec()[1]
+        lo, hi = ((y1 - size, y1 + 1.0) if side == "top"
+                  else (y0 - 1.0, y0 + size))
+        loc, wrl = rec["local"], rec["world"]
+        flat, follow = [], []
+        for i in range(0, len(loc), 3):
+            inside = lo <= loc[i + 1] <= hi
+            (follow if inside == (zmode == "stepped") else flat).append(
+                wrl[i + 1] - loc[i + 1])
+        if not flat or not follow:
+            continue
+        seen += 1
+        flat_worst = max(flat_worst, max(flat) - min(flat))
+        follow_worst = max(follow_worst, max(follow) - min(follow))
+    if not seen:
+        return _skip("band_hybrid_m", "no banded piece had both halves")
+    ok = flat_worst <= TOL_M and follow_worst > TOL_M
+    return Result("band_hybrid_m", ok,
+                  [_round(flat_worst), _round(follow_worst)],
+                  "%d pieces, band %s %.3f m" % (seen, side, size))
 
 
 def bank_adaptive(scene, require_bank=False):
@@ -841,8 +972,8 @@ def axis_follows_curve(scene):
                 continue
             s_flat = section.s0 + placement.s0 + (x - ax) * scale
             want = track["path"].sample(track["remap"](s_flat))[0]
-            d = (_dist_xz(want, got) if placement.zmode == "stepped"
-                 else _dist(want, got))
+            d = (_dist_xz(want, got)
+                 if _flat_in_y(scene, placement.zmode) else _dist(want, got))
             seen += 1
             if d > limit:
                 bad.append(eid)
