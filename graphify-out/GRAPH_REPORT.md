@@ -5,7 +5,7 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4004 nodes · 6388 edges · 239 communities (227 shown, 12 thin omitted)
+- 4004 nodes · 6388 edges · 241 communities (227 shown, 14 thin omitted)
 - Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 352 edges (avg confidence: 0.69)
 - Token cost: 0 input · 0 output
 
@@ -221,6 +221,7 @@
 - [[_COMMUNITY_Community 207|Community 207]]
 - [[_COMMUNITY_Community 208|Community 208]]
 - [[_COMMUNITY_Community 209|Community 209]]
+- [[_COMMUNITY_Community 210|Community 210]]
 - [[_COMMUNITY_Community 211|Community 211]]
 - [[_COMMUNITY_Community 212|Community 212]]
 - [[_COMMUNITY_Community 213|Community 213]]
@@ -228,6 +229,7 @@
 - [[_COMMUNITY_Community 215|Community 215]]
 - [[_COMMUNITY_Community 216|Community 216]]
 - [[_COMMUNITY_Community 217|Community 217]]
+- [[_COMMUNITY_Community 218|Community 218]]
 - [[_COMMUNITY_Community 219|Community 219]]
 - [[_COMMUNITY_Community 220|Community 220]]
 - [[_COMMUNITY_Community 221|Community 221]]
@@ -288,7 +290,7 @@
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 4-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 
-## Communities (239 total, 12 thin omitted)
+## Communities (241 total, 14 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.10
@@ -315,12 +317,12 @@ Cohesion: 0.14
 Nodes (14): 12.0 How to pick this up, 12.10 Prototype gates — in order, before any B-stage build, 12.11 v1 acceptance, 12.12 Open questions carried into the build, 12.1 Scope and non-goals, 12.2 Inherited constraints — binding, with sources, 12.3 Architecture, 12.4 B0 — the site contract (+6 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.09
-Nodes (8): PyCircularProgress, _ToolTip, _ToolTip, PyTitleButton, _ToolTip, QColor, QLabel, Set background color for expression state.
+Cohesion: 0.13
+Nodes (7): PyCircularProgress, _ToolTip, _ToolTip, _ToolTip, QColor, QLabel, Set background color for expression state.
 
 ### Community 7 - "Community 7"
 Cohesion: 0.06
-Nodes (31): attribute_schema(), connections_are_never_refused(), dead_ends(), every_block_is_subdivided(), graph_is_planar(), junction_boundary_is_simple(), no_downward_faces(), no_duplicate_lot_footprints() (+23 more)
+Nodes (29): attribute_schema(), connections_are_never_refused(), dead_ends(), every_block_is_subdivided(), graph_is_planar(), junction_boundary_is_simple(), no_downward_faces(), no_duplicate_lot_footprints() (+21 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.12
@@ -567,8 +569,8 @@ Cohesion: 0.24
 Nodes (11): _blobs(), city_is_fully_paved(), lots_clear_of_junctions(), lots_clear_of_roads(), _raster_grid(), _rasterise(), Even-odd fill of every polygon in `geo` onto a boolean XZ grid., Connected components of a boolean mask as (area, cx, cz), largest first.      Ru (+3 more)
 
 ### Community 72 - "Community 72"
-Cohesion: 0.09
-Nodes (8): Ui_RightColumn, Functions, Settings, object, Ui_MainPages, PyTitleBar, PyWindow, Styles
+Cohesion: 0.08
+Nodes (9): Ui_RightColumn, Settings, object, Ui_MainPages, PyDiv, PyTitleBar, PyWindow, Styles (+1 more)
 
 ### Community 73 - "Community 73"
 Cohesion: 0.33
@@ -631,8 +633,8 @@ Cohesion: 0.50
 Nodes (4): merged_city_self_intersections(), Intersection Analysis reports 0 for a valid box, grid and kerb step —     verifi, THE gap. Roads and junction patches interpenetrate at every junction and     the, self_intersections()
 
 ### Community 89 - "Community 89"
-Cohesion: 0.17
-Nodes (15): _attrib_values(), hou_vec3(), input0_reaches_an_output(), lot_clip_control_rig(), lots_are_simple_polygons(), _orient_xz(), CityGen geometry checks — the assertions, in one place.  Every check here caught, Every value of one attribute, in element order.      Bulk-read where the type al (+7 more)
+Cohesion: 0.11
+Nodes (24): _area_xz(), _expected_reject(), hou_vec3(), lot_aspect_ratio(), lot_clip_control_rig(), lots_are_simple_polygons(), _obb(), _orient_xz() (+16 more)
 
 ### Community 90 - "Community 90"
 Cohesion: 0.14
@@ -791,8 +793,8 @@ Cohesion: 0.09
 Nodes (9): D12, verified against iToo's wording rather than assumed: "Scale         stretch, The reason it is the default mode. Swept, not spot-checked., 3.5 m of a 3 m module is 16.7% of a second one: added at a 10%         threshold, D17. Negative padding is a documented feature ("negative =         overlap"), so, 99.99% overlap plans tens of thousands of pieces on a 10 m run.         That is, The drop loop stops at n = 1, so a UNIT whose own internal padding         is lo, A 2 m gap between 1 m pieces in a 3 m span cannot hold three of         them; th, The maths on its own, before any slot or selection can confuse it. (+1 more)
 
 ### Community 132 - "Community 132"
-Cohesion: 0.11
-Nodes (4): PyDiv, PyLeftMenu, PyDiv, Polyfactory UI Framework =========================  Modern Qt widget library
+Cohesion: 0.09
+Nodes (3): PyDiv, PyLeftMenuButton, PyLeftMenu
 
 ### Community 134 - "Community 134"
 Cohesion: 0.25
@@ -1000,7 +1002,7 @@ Nodes (7): _curve(), main(), _PMC, PC-G3 at scale, and D75's curvature budget me
 
 ### Community 187 - "Community 187"
 Cohesion: 0.13
-Nodes (15): 10. Build log, 1. D75 — THE CURVATURE BUDGET (cycle 6's standing open finding (1), closed), 2. §3.3 — the style-payload reader (`polychain/style.py`), 3. §5 — the parm face, `pf_polychain`, 4. §6 — the starter kit, and one thing measured and reverted, Cycle 1 — §4.1 decompose + §4.2 plan (2026-08-21), Cycle 1b — the review pass over cycle 1 (2026-08-21), Cycle 2 — §3.2 kit format + §4.4 place/deform + the scene-check harness (2026-08-21) (+7 more)
+Nodes (15): 10. Build log, 1. The suites, re-run, 2. Mutation testing - ten mutations, TWO SURVIVORS, 3. PC-G2 - the hill, on the curving spline the gate actually asks for, 4. PC-G3 - instancing at scale, re-measured with memory, 5. What this cycle did NOT verify, Cycle 1 — §4.1 decompose + §4.2 plan (2026-08-21), Cycle 1b — the review pass over cycle 1 (2026-08-21) (+7 more)
 
 ### Community 188 - "Community 188"
 Cohesion: 0.22
@@ -1023,28 +1025,24 @@ Cohesion: 0.29
 Nodes (7): A. The bend corner is measured (cycle 3v's open finding, closed), B. §4.5 SURFACE CONFORM — input 4, Baseline movement, and why each is an improvement, C. §4.6 FINALIZE — the override cascade, the cap, the stamp, Cycle 4 — the bend butt joint, §4.5 conform, §4.6 finalize (2026-08-22), Mutations — 11 run, 11 killed, The "unreachable" hairpin guard is reachable, and cycle 3v's two survivors die
 
 ### Community 194 - "Community 194"
-Cohesion: 0.08
-Nodes (6): Themes, MainFunctions, SetupMainWindow, UI_MainWindow, PyTableWidget, QTableWidget
+Cohesion: 0.10
+Nodes (5): Functions, Themes, MainFunctions, SetupMainWindow, UI_MainWindow
 
 ### Community 195 - "Community 195"
 Cohesion: 0.10
 Nodes (9): _inside_xz(), polyChain 7 ARRAY2D - the row stack and the cell lattice. No Houdini.      pyt, 7.2.2 - the lattice walk, and why Y sheds first., D124 - ids survive re-authoring, or 12.7's identity rule is a wish., D141 - THE SIGN, MEASURED AS THE THING IT DECIDES.          `place._frame` bui, Even-odd point-in-polygon in the plan, for the winding assertion., TestCanonicalFootprint, TestFallbackChain (+1 more)
 
-### Community 197 - "Community 197"
-Cohesion: 0.18
-Nodes (11): _area_xz(), _expected_reject(), lot_aspect_ratio(), _obb(), Point-segment distance on (x, z) tuples. Plain arithmetic on purpose:     this i, `pfsl_street_edge` and `pfsl_frontage`, re-derived here in Python.      ⚠️ This, The S8 ladder, recomputed from the evidence and the node's thresholds.      Retu, Ribbons, not rectangles — and whether S8 both SAYS SO and SHOWS ITS WORK.      ⚠ (+3 more)
-
 ### Community 198 - "Community 198"
 Cohesion: 0.33
-Nodes (6): 1. The suites, re-run, 2. Mutation testing - ten mutations, TWO SURVIVORS, 3. PC-G2 - the hill, on the curving spline the gate actually asks for, 4. PC-G3 - instancing at scale, re-measured with memory, 5. What this cycle did NOT verify, Cycle 6 - independent verification of cycles 4 and 4b (2026-08-22)
+Nodes (6): 1. D75 — THE CURVATURE BUDGET (cycle 6's standing open finding (1), closed), 2. §3.3 — the style-payload reader (`polychain/style.py`), 3. §5 — the parm face, `pf_polychain`, 4. §6 — the starter kit, and one thing measured and reverted, Cycle 7 — the curvature budget, §3.3's reader, §5's parm face, and the kit (2026-08-22), Decisions taken
 
 ### Community 200 - "Community 200"
 Cohesion: 0.22
 Nodes (9): 1. Where the 11 s actually went, 2. What shipped instead (D102), 3. The ladder, before and after - both runs in ONE process, 4. Parity - bit-identical, on every case in the suite, 5. Why NOT VEX or OpenCL, measured, 6. Files, Cycle 10 - final state, Cycle 10c - the deform path's rewrite, profiled first (2026-08-22) (+1 more)
 
 ### Community 201 - "Community 201"
-Cohesion: 0.09
-Nodes (6): Ui_LeftColumn, PyCredits, PyIcon, PyLeftColumn, PySlider, QSlider
+Cohesion: 0.10
+Nodes (5): Ui_LeftColumn, PyCredits, PyLeftColumn, PySlider, QSlider
 
 ### Community 202 - "Community 202"
 Cohesion: 0.18
@@ -1101,6 +1099,10 @@ Nodes (16): cell_grid(), cell_inventory(), cell_modules(), _cells(), fallback_ma
 ### Community 216 - "Community 216"
 Cohesion: 0.25
 Nodes (8): clip_hole_elements(), clip_inside(), clip_stamp(), _outside(), 7.6 - no piece is built outside the boundary.      The plan-side test the cull, 7.3.3's `pc_clipped` (0/1), which the first cut of 7.6 never stamped.      [el, PC-G6's OTHER half: "the hole contains 0 elements".      ⚠️ `clip_inside_m` CA, 0 inside, else the distance to the nearest boundary edge.
+
+### Community 218 - "Community 218"
+Cohesion: 0.50
+Nodes (4): _attrib_values(), input0_reaches_an_output(), Every value of one attribute, in element order.      Bulk-read where the type al, `pf_citygen_mesh` input 0 must actually reach something published.      Written
 
 ### Community 219 - "Community 219"
 Cohesion: 0.27
@@ -1185,7 +1187,7 @@ Nodes (5): _identity_remap(), _prepare(), (kernel curve, Path on the REAL curve,
 ## Knowledge Gaps
 - **801 isolated node(s):** `Project Overview`, `Package Structure`, `Environment Variables`, `Temporary / One-Off Scripts`, `Houdini Bridge - AI Agent Integration` (+796 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **14 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
