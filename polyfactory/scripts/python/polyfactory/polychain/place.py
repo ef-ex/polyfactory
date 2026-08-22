@@ -1780,7 +1780,19 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         # which never passes through `plan._module_warns` - gets its `pc_cell`
         # and D118's fallback warning. Blank on every 1D curve.
         yclass = str(curve.attrs.get("pc_yclass", "") or "")
-        yscale = float(curve.attrs.get("pc_row_scale", 1.0) or 1.0)
+        # D138 - the row carries its BAND and the piece scales its own nominal
+        # height into it. `pc_row_scale` is the ROW's number (band / the height
+        # of the module the Y solve chose) and it is right only while the cell
+        # is filled by that same module - which stops being true the moment
+        # D118's lattice walk puts a 3.2 m bay in a 1.0 m cornice band, and
+        # then the cornice row overshoots the roof by 2.2 m with every other
+        # number in the suite still green (measured, `row_fill_y_m`). The band
+        # is the truth; `pc_row_scale` is the fallback for a module that
+        # declares no height at all.
+        row_band = (float(curve.attrs.get("pc_row_y1", 0.0) or 0.0)
+                - float(curve.attrs.get("pc_row_y0", 0.0) or 0.0)) \
+            if "pc_row_y1" in curve.attrs else 0.0
+        row_scale = float(curve.attrs.get("pc_row_scale", 1.0) or 1.0)
         _array2d.classify(placements, kit, yclass)
         bevels.extend(curve_bevels)
         all_sections.extend(sections)
@@ -1799,7 +1811,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                               remap(section.s0 + p.s1),
                               proto_for(module).fracs))
         plans.append((path, remap, placements, by_section, fillet_warns,
-                      spans, yscale))
+                      spans, row_band, row_scale))
 
     # ...and the batch, once, before ANY placement asks anything. It is a
     # cache fill and nothing else - every key it misses is served by the
@@ -1807,7 +1819,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
     _conform.prefetch_all([(pl[0], pl[5]) for pl in plans if pl[5]])
 
     for (path, remap, placements, by_section, fillet_warns, _spans,
-         yscale) in plans:
+         row_band, row_scale) in plans:
         for p in placements:
             section = by_section.get(p.section_index)
             if section is None:
@@ -1851,6 +1863,9 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                     p.slice_t = None
                     swap_warns.append(WARN_TILE_FALLBACK)
             proto = proto_for(module)
+            yscale = (row_band / module.size[1]
+                      if row_band > EPS and module.size[1] > EPS
+                      else row_scale)
             zmode = _resolve_zmode(p)
             # flat = the space the kernel planned in; real = the curve it
             # is built on. They differ only under fix_slope (D26).

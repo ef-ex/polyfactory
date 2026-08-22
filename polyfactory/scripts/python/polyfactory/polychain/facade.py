@@ -174,6 +174,7 @@ def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
             [r.slot for r in style.rules]
     kit_geo2, fallbacks = close_kit(kit_geo, extend, named)
 
+    frame = None
     if area:
         frame = _array2d.area_frame(footprint, auto_align, expand)
         rows = _array2d.plan_rows(profile if profile is not None
@@ -192,6 +193,11 @@ def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
     report["rows"] = [r.as_dict() for r in rows]
     report["role_fallbacks"] = fallbacks
     report["array_id"] = array_id
+    report["frame"] = frame
+    # the kit the KERNEL actually read (D136's closed copy), so a check
+    # resolves the same roles the builder did instead of the ones the caller
+    # authored.
+    report["kit_geo"] = kit_geo2
     # 7.2.2's "naming both roles" - the per-element attribute says a fallback
     # happened, and this says which one, once per (role, kit).
     report["kit_warnings"] = list(report.get("kit_warnings", [])) + \

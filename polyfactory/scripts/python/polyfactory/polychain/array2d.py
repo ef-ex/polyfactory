@@ -156,13 +156,20 @@ def close_roles(kit, extend="x", extra_roles=(), extend_by_slot=None):
         return (kit, {})
     mods = []
     for m in kit.modules:
-        extra = add.get(m.name)
-        if not extra:
+        # ⚠️ THE MODULE'S OWN ROLES ARE REWRITTEN CANONICAL, not just read
+        # canonical. `Kit.by_role` is a membership test on this tuple, so a
+        # module authored `bottom` would normalise for the WALK and then be
+        # invisible to the lookup - the alias table has to reach the data, not
+        # only the decision. (D4's `moduleRole` does the same thing one level
+        # up.)
+        roles = tuple(canonical_role(r) for r in m.roles)
+        extra = tuple(r for r in sorted(set(add.get(m.name, ())))
+                      if r not in roles)
+        if roles == tuple(m.roles) and not extra:
             mods.append(m)
             continue
         mods.append(Module(m.name, m.size, pad=m.pad, deform=m.deform,
-                           zmode=m.zmode,
-                           roles=tuple(m.roles) + tuple(sorted(set(extra))),
+                           zmode=m.zmode, roles=roles + extra,
                            variant=m.variant, weight=m.weight, tilt=m.tilt,
                            extend=m.extend))
     out = Kit(kit.kit_id, kit.version, mods, kit.human_scale_reference,

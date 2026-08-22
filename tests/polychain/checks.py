@@ -4277,3 +4277,366 @@ def points_wrappers_built(build_fn, hou_mod, expect_max=8, name=None):
     return Result(name or "points_wrappers_built", built[0] <= expect_max,
                   built[0], "%d `hou.Point` wrappers materialised in one "
                   "build (ceiling %d)" % (built[0], expect_max))
+
+
+# ---------------------------------------------------------------------------
+# 7 - THE 2D ARRAY. Same contract as everything above: a number, never a bare
+# pass/fail, and a check that cannot run reports SKIP so a 1D case carries the
+# 2D rows as silence rather than as noise.
+#
+# ⚠️ THE 2D ATTRIBUTES ARE READ LOCALLY AND NOT ADDED TO `ELEM_STRINGS`. A
+# phase-1 element does not carry `pc_cell` at all (7.3.3: absent, not blank),
+# and widening the shared record would have put four empty columns on all 90
+# phase-1 cases and moved every schema number in the baseline to say nothing.
+# ---------------------------------------------------------------------------
+
+CELL_STRINGS = ("pc_cell", "pc_yclass", "pc_array")
+
+
+def _cells(geo):
+    """[{pc_cell, pc_yclass, pc_array, pc_row, pc_elem_id, ...}] per element."""
+    out, order = {}, []
+    if geo.findPrimAttrib("pc_cell") is None:
+        return []
+    for prim in geo.prims():
+        try:
+            eid = prim.attribValue("pc_elem_id")
+        except hou.OperationFailed:
+            continue
+        if eid in out:
+            continue
+        rec = {"pc_elem_id": eid}
+        for name in CELL_STRINGS:
+            try:
+                rec[name] = prim.attribValue(name)
+            except hou.OperationFailed:
+                rec[name] = ""
+        for name in ("pc_row", "pc_section", "pc_corner_cut", "pc_deformed"):
+            try:
+                rec[name] = int(prim.attribValue(name))
+            except (hou.OperationFailed, TypeError, ValueError):
+                rec[name] = -1
+        try:
+            rec["pc_module"] = prim.attribValue("pc_module")
+        except hou.OperationFailed:
+            rec["pc_module"] = ""
+        out[eid] = rec
+        order.append(eid)
+    return [out[e] for e in order]
+
+
+def cell_inventory(scene, expected=None):
+    """WHICH 2D CELLS THE FIGURE PRODUCED, and how many of each.
+
+    The headline 7.2 number: a facade with corners, sides, a top and a bottom
+    must show the corresponding cells of the 5 x 5 table and no others. It is
+    an inventory rather than a count so a cell that appears where none should
+    (or vanishes) is visible as a NAME, not as a total that happens to match.
+    """
+    recs = _cells(scene.geo)
+    if not recs:
+        return _skip("cell_inventory", "no pc_cell - a 1D build")
+    inv = {}
+    for r in recs:
+        inv[r["pc_cell"]] = inv.get(r["pc_cell"], 0) + 1
+    got = [[c, n] for c, n in sorted(inv.items())]
+    ok = expected is None or got == [[c, n] for c, n in sorted(expected)]
+    return Result("cell_inventory", ok, got,
+                  "" if ok else "expected %s" % (sorted(expected),))
+
+
+def cell_modules(scene, expected=None):
+    """...and WHICH MODULE each cell was filled with.
+
+    `cell_inventory` alone passes on a build where every cell resolved to the
+    same module - which is exactly what a broken lattice looks like. This is
+    the half that can see it.
+    """
+    recs = _cells(scene.geo)
+    if not recs:
+        return _skip("cell_modules", "no pc_cell - a 1D build")
+    by = {}
+    for r in recs:
+        by.setdefault(r["pc_cell"], set()).add(r["pc_module"])
+    got = [[c, sorted(m)] for c, m in sorted(by.items())]
+    want = None if expected is None else [
+        [c, sorted(m)] for c, m in sorted(dict(expected).items())]
+    ok = want is None or got == want
+    return Result("cell_modules", ok, got,
+                  "" if ok else "expected %s" % (want,))
+
+
+def cell_grid(scene):
+    """Every (row, face) pair the array claims is actually occupied.
+
+    7.3.3's address, measured: `pc_row` x `pc_section` is the storey x facade
+    leg grid, and a hole in it is a facade with a missing storey on one leg -
+    the failure PC-G5 condition 1 exists for, seen from the plan side and
+    cheap enough to ride every case.
+    """
+    recs = _cells(scene.geo)
+    if not recs:
+        return _skip("cell_grid", "no pc_cell - a 1D build")
+    rows = sorted(set(r["pc_row"] for r in recs))
+    faces = sorted(set(r["pc_section"] for r in recs))
+    have = set((r["pc_row"], r["pc_section"]) for r in recs)
+    holes = [(y, f) for y in rows for f in faces if (y, f) not in have]
+    return Result("cell_grid", not holes, [len(rows), len(faces), len(holes)],
+                  "%d rows x %d faces, %d empty" % (len(rows), len(faces),
+                                                    len(holes)))
+
+
+def row_closure(scene, tol=1e-6):
+    """PC-G5 condition 2 - the bands meet, and the stack spans the height.
+
+    |row_i.y1 - row_{i+1}.y0| over every vertically adjacent pair, plus the
+    distance from the bottom of the stack to 0 and from its top to the
+    requested height. EXACT FILL ON THE Y AXIS, measured on the build rather
+    than on the solve.
+    """
+    rows = scene.report.get("rows")
+    if not rows:
+        return _skip("row_closure_m", "no row stack")
+    rows = sorted(rows, key=lambda r: r["pc_row_y0"])
+    worst = abs(rows[0]["pc_row_y0"])
+    for a, b in zip(rows, rows[1:]):
+        worst = max(worst, abs(a["pc_row_y1"] - b["pc_row_y0"]))
+    return Result("row_closure_m", worst <= tol, _round(worst),
+                  "%d rows, worst band joint" % len(rows))
+
+
+def row_fill_y(scene, tol=2e-3):
+    """The GEOMETRY fills its band - E2 / D121, end to end.
+
+    `row_closure_m` proves the bands tile the height; this proves the pieces
+    tile the bands. Worst |piece top - row top| and |piece bottom - row
+    bottom| over every element, which is the Y twin of `exact_fill_m` and the
+    number that goes wrong the moment `pc_row_scale` is dropped on any of the
+    three materialisation paths (packed, deformed, replaced).
+    """
+    rows = scene.report.get("rows")
+    recs = _cells(scene.geo)
+    if not rows or not recs:
+        return _skip("row_fill_y_m", "no row stack")
+    band = dict((r["pc_row"], (r["pc_row_y0"], r["pc_row_y1"])) for r in rows)
+    tops, bots = {}, {}
+    for rec in recs:
+        el = scene.by_id.get(rec["pc_elem_id"])
+        if el is None or not el["world"]:
+            continue
+        ys = el["world"][1::3]
+        key = rec["pc_row"]
+        tops[key] = max(tops.get(key, -1e30), max(ys))
+        bots[key] = min(bots.get(key, 1e30), min(ys))
+    worst = 0.0
+    for key in sorted(tops):
+        y0, y1 = band.get(key, (0.0, 0.0))
+        worst = max(worst, abs(tops[key] - y1), abs(bots[key] - y0))
+    return Result("row_fill_y_m", worst <= tol, _round(worst),
+                  "%d rows, worst band under/overshoot" % len(tops))
+
+
+def row_scale_stays_packed(scene, expect_bent=0):
+    """D121's own claim: an axis scale is a TRANSFORM, so a scaled storey is
+    still an instance. 4.6's instancing rule allows it by its own wording and
+    PC-G5 condition 7 asserts it - without this the Y fit could be paid for in
+    unpacked geometry and every other number would still be green."""
+    rows = scene.report.get("rows")
+    recs = _cells(scene.geo)
+    if not rows or not recs:
+        return _skip("row_scale_packed", "no row stack")
+    scaled = set(r["pc_row"] for r in rows
+                 if abs(r["pc_row_scale"] - 1.0) > 1e-9)
+    if not scaled:
+        return _skip("row_scale_packed", "no row is scaled")
+    total = cut = bad = 0
+    for rec in recs:
+        if rec["pc_row"] not in scaled:
+            continue
+        el = scene.by_id.get(rec["pc_elem_id"])
+        if el is None:
+            continue
+        total += 1
+        if not el["pc_deformed"]:
+            continue
+        # PC-G5 condition 7's own wording: "packed fraction = 1.0 EXCEPT
+        # pieces genuinely cut by a miter or a clip boundary". A mitered
+        # corner piece carries a world-space half-space cut and can never be
+        # a packed prim (4.3); counting it here would make the check assert
+        # that miter mode does not work.
+        if rec.get("pc_corner_cut") > 0:
+            cut += 1
+        else:
+            bad += 1
+    return Result("row_scale_packed", bad == expect_bent, [total, cut, bad],
+                  "%d elements on scaled rows, %d cut by a miter, %d bent "
+                  "(expected %d)" % (total, cut, bad, expect_bent))
+
+
+def role_fallbacks(scene, expected=None):
+    """7.2.2 / PC-G5 condition 5 - NO SILENT STAND-IN.
+
+    [elements that took a lattice walk, stand-in elements that did NOT say so].
+    The second number is the assertion and it must be 0: a cell filled by
+    3.4's blank box while claiming to be a cornice is the defect this whole
+    warning exists for.
+    """
+    recs = _cells(scene.geo)
+    if not recs:
+        return _skip("role_fallbacks", "no pc_cell - a 1D build")
+    # ⚠️ `scene.warns` is {elem_id: {warn: 1}}, NOT {warn: elem ids} - reading
+    # it the other way round made this check report 0 degrades on a case whose
+    # `warnings` row said 1 194 of them, i.e. PC-G5's condition 5 was passing
+    # vacuously. Found by reading the two rows side by side.
+    fell = set(e for e, w in scene.warns.items() if "pc_warn_role_fallback" in w)
+    gaps = set(e for e, w in scene.warns.items() if "pc_warn_kit_gap" in w)
+    silent = sorted(gaps - fell)
+    n = len(fell)
+    ok = not silent and (expected is None or n == expected)
+    return Result("role_fallbacks", ok, [n, len(silent)],
+                  "%d elements degraded, %d silent stand-ins%s"
+                  % (n, len(silent),
+                     "" if expected is None else " (expected %d)" % expected))
+
+
+def fallback_map(scene, expected=None):
+    """WHICH cell fell back to WHICH role - 7.2.2's "naming both roles".
+
+    The per-element attribute says a walk happened; this says where it went,
+    and it is the number that separates D117's two `pc_extend` answers (a
+    corner column that cuts the cornice from one that stops at it).
+    """
+    fb = scene.report.get("role_fallbacks")
+    if fb is None:
+        return _skip("fallback_map", "no 2D build")
+    cells = set(r["pc_cell"] for r in _cells(scene.geo))
+    got = [[k, v] for k, v in sorted(fb.items()) if k in cells]
+    ok = expected is None or got == [[k, v] for k, v in sorted(expected)]
+    return Result("fallback_map", ok, got,
+                  "" if ok else "expected %s" % (sorted(expected),))
+
+
+def structural_ids(scene, others, ):
+    """D124 / PC-G5 condition 6 - THE STRONGEST IDENTITY ASSERTION IN THE TOOL.
+
+    The same footprint re-authored (reversed, and started at a different
+    vertex) must produce the IDENTICAL `pc_elem_id` set, and every element's
+    (cell, rounded position) pair must be identical too. Phase 1 numbers
+    sections from point 0 in the authored direction, so without D124's
+    canonicalisation rotating one vertex renames every face and moves every
+    id - which is precisely what citygen_buildings 12.7 forbids.
+
+    `others` is [(name, scene)]; the value is the worst id-set difference.
+    """
+    if not others:
+        return _skip("structural_ids", "no re-authored build to compare")
+    mine = set(scene.by_id)
+    mine_pos = dict((k, tuple(round(v, 4) for v in
+                              (min(r["world"][0::3]), min(r["world"][1::3]),
+                               min(r["world"][2::3]))))
+                    for k, r in scene.by_id.items() if r["world"])
+    worst, detail = 0, []
+    for name, other in others:
+        diff = len(mine ^ set(other.by_id))
+        moved = 0
+        for k, pos in mine_pos.items():
+            rec = other.by_id.get(k)
+            if rec is None or not rec["world"]:
+                continue
+            got = (round(min(rec["world"][0::3]), 4),
+                   round(min(rec["world"][1::3]), 4),
+                   round(min(rec["world"][2::3]), 4))
+            if got != pos:
+                moved += 1
+        worst = max(worst, diff + moved)
+        detail.append("%s: %d ids differ, %d moved" % (name, diff, moved))
+    return Result("structural_ids", worst == 0, worst, "; ".join(detail))
+
+
+def clip_inside(scene, tol=1e-6):
+    """7.6 - no piece is built outside the boundary.
+
+    The plan-side test the cull is actually made of, re-asked of the BUILT
+    geometry in the array's own frame: every element's footprint corners must
+    be inside the closed sub-spline. `remove` decides this on the row's span
+    before geometry exists (D137), so a failure here means the span and the
+    boundary disagree, which no unit test on either alone can see.
+    """
+    frame = scene.frame
+    if frame is None:
+        return _skip("clip_inside_m", "not a clipped-area build")
+    worst = 0.0
+    for rec in scene.by_id.values():
+        if not rec["world"]:
+            continue
+        w = rec["world"]
+        for i in range(0, len(w), 3):
+            x, y = frame.local((w[i], w[i + 1], w[i + 2]))
+            worst = max(worst, _outside(frame.poly, x, y))
+    return Result("clip_inside_m", worst <= tol, _round(worst),
+                  "worst distance outside the boundary")
+
+
+def _outside(poly, x, y):
+    """0 inside, else the distance to the nearest boundary edge."""
+    inside = False
+    n = len(poly)
+    for i in range(n):
+        (ax, ay), (bx, by) = poly[i], poly[(i + 1) % n]
+        if (ay > y) != (by > y):
+            xx = ax + (bx - ax) * (y - ay) / (by - ay)
+            if x < xx:
+                inside = not inside
+    if inside:
+        return 0.0
+    best = 1e30
+    for i in range(n):
+        (ax, ay), (bx, by) = poly[i], poly[(i + 1) % n]
+        dx, dy = bx - ax, by - ay
+        L2 = dx * dx + dy * dy
+        t = 0.0 if L2 <= 0 else max(0.0, min(1.0, ((x - ax) * dx +
+                                                   (y - ay) * dy) / L2))
+        best = min(best, math.hypot(x - (ax + dx * t), y - (ay + dy * t)))
+    return best
+
+
+def rows_wrappers_built(build_fn, hou_mod, expect_max=0, name=None):
+    """11.9 RULE 1, ON THE ROW EMITTER - the one new loop phase 2 adds.
+
+    `prims_wrappers_built` counts wrappers MATERIALISED; this counts wrappers
+    TOUCHED, which is the defect class rule 1 actually names: one
+    `Prim.setAttribValue` per row is what a straightforward emitter writes,
+    and it is invisible to a wrapper COUNT because `createPoints` returns the
+    same tuple either way. The ceiling is 0 and it is meant to stay 0: every
+    row attribute goes in as one `setPrim*AttribValues` over the whole stream.
+    """
+    real_p = hou_mod.Prim.setAttribValue
+    real_pt = hou_mod.Point.setAttribValue
+    calls = [0]
+
+    def spy_p(self, *a, **k):
+        calls[0] += 1
+        return real_p(self, *a, **k)
+
+    def spy_pt(self, *a, **k):
+        calls[0] += 1
+        return real_pt(self, *a, **k)
+    hou_mod.Prim.setAttribValue = spy_p
+    hou_mod.Point.setAttribValue = spy_pt
+    try:
+        build_fn()
+    finally:
+        hou_mod.Prim.setAttribValue = real_p
+        hou_mod.Point.setAttribValue = real_pt
+    return Result(name or "rows_wrappers_built", calls[0] <= expect_max,
+                  calls[0], "%d wrapper attribute writes during row emission "
+                  "(ceiling %d)" % (calls[0], expect_max))
+
+
+# ⚠️ THE ONE-CALL/MANY-CALL RATIO IS NOT A CHECK, AND THAT IS 11.2 P5's OWN
+# RULE APPLIED AGAIN: "a count, not a time... what makes the count worth
+# asserting is that the count is the thing that changed sign, and
+# `conform_bench.py` carries the wall clock". The COUNT here is
+# `ray_executions_per_build`, asserted at 1 on both phase-2 fixtures; the
+# seconds live in `facade_bench.py`, which measures 800 short rows through one
+# `place.build` call against the same 800 through 100 of them.

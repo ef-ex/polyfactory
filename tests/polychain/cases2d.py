@@ -64,10 +64,13 @@ def _box(x, y, z=0.30, divx=1):
 def facade_kit(roles=None, kit_id="pf_facade"):
     """The PC-G5 starter facade kit: 6 of the 25 cells, authored by role.
 
-    `roles` drops modules by role name, which is how the kit-gap cases are
-    built - `facade_kit(("default", "corner"))` is a kit that knows the middle
-    of the facade and nothing about its ground floor or its cornice, and every
-    one of those cells then takes the lattice walk.
+    `roles` keeps only the named roles. ⚠️ IT DEMOTES THE OTHER MODULES, IT
+    DOES NOT DELETE THEM: the Y solve reads a module by NAME for its nominal
+    storey height (D132), so deleting the shopfront to test a missing
+    `default_start` CELL would also change the row stack, and the case would
+    then be measuring two variables at once. Demoted modules keep their
+    geometry and their height and lose only their claim on a cell, which is
+    exactly the one variable the kit-gap cases are for.
     """
     spec = (
         # name          x       y           deform zmode       role
@@ -81,7 +84,7 @@ def facade_kit(roles=None, kit_id="pf_facade"):
     geo = hou.Geometry()
     for name, x, y, deform, zmode, role in spec:
         if roles is not None and role not in roles:
-            continue
+            role = "spare"          # a role no cell of the 5 x 5 table names
         K.add_module(geo, name, _box(x, y, divx=4 if deform else 1),
                      size=(x, y, 0.30), deform=deform, zmode=zmode,
                      roles=role)
@@ -113,7 +116,10 @@ def case(footprint, kit_geo, style, height=TOWER_H, array_id="A", **kw):
                           array_id=array_id, **kw)
     return {"curve": F.rows_geometry(_loops(footprint, kit_geo, style, height,
                                             array_id, kw)),
-            "kit": kw.get("_kit_geo", kit_geo), "style": style,
+            # the CLOSED kit, which is what the kernel read (D136) - a check
+            # that re-read the authored kit would resolve a different set of
+            # roles from the builder and report the difference as a defect.
+            "kit": report["kit_geo"], "kit_src": kit_geo, "style": style,
             "out": out, "report": report, "surface": kw.get("surface_geo"),
             "overrides": None, "paths": [],
             "footprint": footprint, "height": height, "array_id": array_id,
@@ -128,19 +134,30 @@ def _loops(footprint, kit_geo, style, height, array_id, kw):
     """
     kit, _s, _w = K.read(kit_geo)
     _x, y_style = A.split_style(style, kw.get("y_params"))
-    rows = A.plan_rows(kw.get("profile", height), kit, y_style,
-                       kw.get("y_params"), array_id)
     if kw.get("area"):
         frame = A.area_frame(footprint, kw.get("auto_align", "to_spline"),
                              kw.get("expand", 0.0))
+        rows = A.plan_rows(kw.get("profile") if kw.get("profile") is not None
+                           else (height if height is not None else
+                                 frame.height),
+                           kit, y_style, kw.get("y_params"), array_id)
         return A.area_rows(frame, rows, kw.get("clip_mode", "remove"))
+    rows = A.plan_rows(kw.get("profile", height), kit, y_style,
+                       kw.get("y_params"), array_id)
     return A.row_loops(footprint, rows, kw.get("closed", True))
 
 
 def rebuild(c):
-    """Cook the same inputs again into fresh geometry - the determinism check."""
-    return F.build(c["footprint"], c["kit"], c["style"], height=c["height"],
-                   array_id=c["array_id"], **c["kw"])
+    """Cook the same inputs again into fresh geometry - the determinism check.
+
+    ⚠️ FROM THE AUTHORED KIT (`kit_src`), not from the closed copy the checks
+    read. Re-closing an already-closed kit finds every role declared, so the
+    fallback map comes back EMPTY and the rebuild is a different build - which
+    is a real property worth knowing (the closure is idempotent on geometry
+    and not on warnings) and is not what determinism is asking about.
+    """
+    return F.build(c["footprint"], c["kit_src"], c["style"],
+                   height=c["height"], array_id=c["array_id"], **c["kw"])
 
 
 def build_all():
@@ -269,6 +286,22 @@ def tripwire_many_buildings(n=100, storeys=8, surface_geo=None):
     return (loops, kit_geo2, style, surface_geo)
 
 
+_ROWS_CACHE = {}
+
+
+def tripwire_row_emission():
+    """JUST the emitter, over 800 rows - `rows_wrappers_built`'s subject.
+
+    The loops are prepared ONCE and cached, because the fixture also builds a
+    kit and `K.add_module` legitimately writes attributes through wrappers -
+    counting those would make the tripwire read 54 on a perfect emitter and
+    measure nothing at all.
+    """
+    if "loops" not in _ROWS_CACHE:
+        _ROWS_CACHE["loops"] = tripwire_many_buildings()[0]
+    return F.rows_geometry(_ROWS_CACHE["loops"])
+
+
 def build_many_buildings(one_call=True, surface_geo=None):
     """The 800-row row stack, in ONE `place.build` call or in `n` of them.
 
@@ -282,14 +315,21 @@ def build_many_buildings(one_call=True, surface_geo=None):
         return P.build(F.rows_geometry(loops), kit_geo2, x_style,
                        surface_geo=surface)
     out = hou.Geometry()
-    report = None
     per = {}
     for loop in loops:
         per.setdefault(loop[2]["pc_curve_id"].split("#")[0], []).append(loop)
+    # the report is ACCUMULATED, not the last call's: a bench row that
+    # reported 176 elements for a 17 600-element build would have made the
+    # one-call/many-call comparison read as though the two did different work.
+    total = {"curves": 0, "packed": 0, "deformed": 0, "plan": [],
+             "warn_counts": {}, "kit_warnings": []}
     for key in sorted(per):
         _g, report = P.build(F.rows_geometry(per[key]), kit_geo2, x_style,
                              out=out, surface_geo=surface)
-    return (out, report)
+        for field in ("curves", "packed", "deformed"):
+            total[field] += report[field]
+        total["plan"].extend(report["plan"])
+    return (out, total)
 
 
 def terrain(cell=10.0, amp=2.0, wave=120.0, x0=-10.0, x1=320.0,
