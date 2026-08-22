@@ -444,48 +444,74 @@ def build_all():
         polyline(g, hill_points(), curve_id="H")
         built[name] = _case(g, kit_geo, panel_style(zmode=zmode))
 
-    # CK/CL/CM/CN - 4.4's FLATTEN-UNDER and its two hybrid BANDS (D98, D99),
+    # DA/DB/DC/DD/DE - 4.4's FLATTEN-UNDER and its two hybrid BANDS (D98, D99),
     # every one of them read against G_hill_stepped, which is the same hill,
     # the same style and the same kit with the new parms off.
     #
-    #  * CK is the flatten alone: `stepped_float_m` is the number it moves and
+    #  * DA is the flatten alone: `stepped_float_m` is the number it moves and
     #    `stepped_riser_m` is the number it must NOT, because the step between
     #    two flat pieces IS stepped mode and removing it would remove the mode.
-    #  * CL is the SAME curve drawn BACKWARDS. Taking the datum from the
+    #  * DB is the SAME curve drawn BACKWARDS. Taking the datum from the
     #    piece's start makes a fence that depends on which way the artist drew
     #    the spline; taking it from the low point cannot, and the pair is the
     #    only way to see that.
-    #  * CM is iToo's picket hybrid - a `vertical` panel whose TOP band is
+    #  * DD is iToo's picket hybrid - a `vertical` panel whose TOP band is
     #    held level while the rest follows the ground.
-    #  * CN is the other one - a `stepped` panel whose BOTTOM band follows the
+    #  * DE is the other one - a `stepped` panel whose BOTTOM band follows the
     #    ground while the rest stays flat. The module is `panel` rather than
     #    `post` because a rigid module cannot express a band at all (D27), and
     #    that is the honest limit rather than a hidden one.
-    #  * CO is the BEFORE, and it is the reversed curve rather than the
+    #  * DC is the BEFORE, and it is the reversed curve rather than the
     #    forward one because the defect only shows going DOWNHILL: taking the
     #    datum from the piece's start buries the run on a climb (where
-    #    G_hill_stepped reads it) and floats it on a descent. CO is the
-    #    number CK and CL take to zero.
+    #    G_hill_stepped reads it) and floats it on a descent. DC is the
+    #    number DA and DB take to zero.
     for name, pts, kw in (
-            ("CK_hill_flatten", hill_points(),
+            ("DA_hill_flatten", hill_points(),
              dict(flatten_stepped=True)),
-            ("CL_hill_flatten_rev", list(reversed(hill_points())),
+            ("DB_hill_flatten_rev", list(reversed(hill_points())),
              dict(flatten_stepped=True)),
-            ("CO_hill_rev_plain", list(reversed(hill_points())),
+            ("DC_hill_rev_plain", list(reversed(hill_points())),
              dict(flatten_stepped=False))):
         g = hou.Geometry()
         polyline(g, pts, curve_id="H")
         built[name] = _case(g, kit_geo, Style(
             "flat_under", 1, 4, rules=[Rule("default", "first", ["post"])],
             params=Params(fill="adaptive", zmode="stepped", **kw)))
-    for name, zmode, band in (("CM_band_flat_top", "vertical", "top"),
-                              ("CN_band_stepped_foot", "stepped", "bottom")):
+    for name, zmode, band in (("DD_band_flat_top", "vertical", "top"),
+                              ("DE_band_stepped_foot", "stepped", "bottom")):
         g = hou.Geometry()
         polyline(g, hill_points(), curve_id="H")
         built[name] = _case(g, kit_geo, Style(
             "banded", 1, 4, rules=[Rule("default", "first", ["panel"])],
             params=Params(fill="adaptive", zmode=zmode, flat_band=band,
                           flat_band_m=0.25)))
+
+    # DF/DG - D100's CAMBER OFF-SPINE BUDGET GAP, as a pair.
+    #
+    # The surface is `y = k*x*z` and the run is straight along +X at z = 0, so
+    # ALONG THE SPINE it is dead flat: `Surface.deviates` reads zero, D87's
+    # spine term reads zero, and nothing in the pre-D100 budget could see
+    # anything at all. What DOES move is the cross-fall, and with it the
+    # surface normal the camber rolls onto - atan(k*x) - which a packed piece
+    # takes ONCE at its midpoint and a deformed one takes per station.
+    #
+    #  * DF is the worst case, k = 0.2: before D100 all 10 panels stayed
+    #    packed at 0.2126 m of true deviation, 21x `bend_tol`.
+    #  * DG is k = 0.005, deliberately INSIDE the budget (0.0055 m): it is
+    #    the anti-vacuity half, because a budget that simply unpacked every
+    #    cambered piece would pass DF and cost PC-G3 everything.
+    for name, k in (("DF_camber_crossfall", 0.2),
+                    ("DG_camber_gentle", 0.005)):
+        g = hou.Geometry()
+        polyline(g, [(0, 0, 0), (20.0, 0, 0)], curve_id="CB")
+        built[name] = _case(g, kit_geo, Style(
+            "crossfall", 1, 3, rules=[Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive", zmode="adaptive",
+                          conform_tilt=True)),
+            surface_geo=surface(lambda x, z, _k=k: _k * x * z,
+                                x0=-2.0, x1=22.0, z0=-6.0, z1=6.0,
+                                nx=48, nz=24))
 
     # H and I - slope fixing (D26), as a PAIR, because one of them alone
     # proves nothing.

@@ -390,6 +390,7 @@ def run_case(name, case):
         # everything).
         C.over_unpacked(scene),
         C.curvature_budget(scene, cases.P),
+        C.deform_gate(scene, cases.P),
         C.packed_true_deviation(scene, cases.P),
     ]
     if name in MODULES_BY_CURVE:

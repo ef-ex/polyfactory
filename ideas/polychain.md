@@ -2281,9 +2281,9 @@ the flatten is deliberately NOT built (D98's own exclusion, for D72's reason).
 * `tests/polychain/checks.py` - `stepped_float`, `band_hybrid`, `_band_case`,
   `_flat_in_y`; the three along-the-chain checks compare a banded piece in XZ
   for the same reason they already do a stepped one.
-* `tests/polychain/cases.py` - `CK_hill_flatten`, `CL_hill_flatten_rev`,
-  `CO_hill_rev_plain` (the before), `CM_band_flat_top`,
-  `CN_band_stepped_foot`.
+* `tests/polychain/cases.py` - `DA_hill_flatten`, `DB_hill_flatten_rev`,
+  `DC_hill_rev_plain` (the before), `DD_band_flat_top`,
+  `DE_band_stepped_foot`.
 * `tests/unit/test_polychain.py` - `TestFlattenUnderAndBands`, the hou-free
   contract.
 
@@ -2302,11 +2302,11 @@ Suite-carried before/after, from `run_scene_checks.py`:
 
 | case | `stepped_float_m` | `stepped_riser_m` |
 |---|---|---|
-| `CO_hill_rev_plain` (flatten OFF, downhill) | **0.029089** | 0.029089 |
-| `CK_hill_flatten` (ON, uphill) | **0.0** | 0.029089 |
-| `CL_hill_flatten_rev` (ON, downhill) | **0.0** | 0.029089 |
+| `DC_hill_rev_plain` (flatten OFF, downhill) | **0.029089** | 0.029089 |
+| `DA_hill_flatten` (ON, uphill) | **0.0** | 0.029089 |
+| `DB_hill_flatten_rev` (ON, downhill) | **0.0** | 0.029089 |
 
-CK and CL are the SAME curve drawn both ways and they agree to the digit,
+DA and DB are the SAME curve drawn both ways and they agree to the digit,
 which is the direction-independence claim, asserted.
 
 #### Decisions taken
@@ -2314,4 +2314,116 @@ which is the direction-independence claim, asserted.
 | # | Decision |
 |---|---|
 | D98 | **§4.4's FLATTEN-UNDER is a datum choice, not a path edit.** A `stepped` piece has exactly one elevation, so the whole feature is *which* elevation: OFF it is the piece's own start (§4.4's "constant Z", and every baseline before this), ON it is the LOWEST ground under the piece's own span, sampled at the module's own stations so the flatten and the deform read the same ground (D71). That is RailClone's generator-side "Flatten Stepped" expressed on the piece instead of on the path, and it buys the two things the path edit buys - nothing floats, and a minimum does not care which end it started from, so a reversed spline builds the identical fence. It costs NOTHING at scale: the piece stays a packed prim, only its 4x4 changes. **OFF by default** - it is an option in RailClone too, and turning it on would have moved every stepped baseline in the suite. **ANCHORED pieces are excluded on purpose**: §4.3 gives ONE datum to a whole corner assembly (D72) and a per-half minimum would reopen the 0.02 m step at a seam PC-G1 asks to be gapless - and the corner case that motivated it no longer reproduces (§4 above) |
-| D99 | **The two hybrid bands are ONE rule: the band is the exception to the z-mode.** iToo describes them from both ends - "flatten a Z-band from the top or bottom" for Vertical and "enable the top or bottom of a segment to deform and follow the spline, leaving the middle area stepped" for Stepped - and those are the same sentence seen from the two modes. So `_follows(y, band, stepped)` is `inside == stepped`, one expression, and with no band it is byte-for-byte what §4.4 did before. `adaptive` gets no band: it rides the full frame and has no flat half to hold. A band forces the piece onto the deform path (a packed prim is one 4x4 and a band is a per-point rule), which is why `CN` is 0/16 packed - and why a RIGID module cannot express a band at all (D27), the honest limit, stated in the case rather than hidden |
+| D99 | **The two hybrid bands are ONE rule: the band is the exception to the z-mode.** iToo describes them from both ends - "flatten a Z-band from the top or bottom" for Vertical and "enable the top or bottom of a segment to deform and follow the spline, leaving the middle area stepped" for Stepped - and those are the same sentence seen from the two modes. So `_follows(y, band, stepped)` is `inside == stepped`, one expression, and with no band it is byte-for-byte what §4.4 did before. `adaptive` gets no band: it rides the full frame and has no flat half to hold. A band forces the piece onto the deform path (a packed prim is one 4x4 and a band is a per-point rule), which is why `DE` is 0/16 packed - and why a RIGID module cannot express a band at all (D27), the honest limit, stated in the case rather than hidden |
+
+---
+
+### Cycle 10b - the camber's off-spine rotation, brought into the budget (2026-08-22)
+
+Standing finding (6), and the one that could ship visibly wrong geometry: a
+packed piece takes the **midpoint** surface normal for its camber roll
+(`_packed_transform`) while a deformed one takes a normal **per station**
+(`_deform_positions`), and D87's budget measured the PATH's turn only. So a
+piece whose two ends want materially different camber could stay packed while
+its true deviation was many times `bend_tol`. Cycle 8 called it "unreachable
+in the suite as it stands". It is reachable.
+
+#### 1. The shape that reaches it
+
+`y = k * x * z`, with the run straight along **+X at z = 0**. Along the spine
+that surface is DEAD FLAT and DEAD STRAIGHT, so `Surface.deviates` reads zero,
+D87's spine term reads zero, and every pre-existing reason to unpack is
+switched off. What moves is the CROSS-FALL: the surface normal rolls by
+`atan(k*x)`, which is exactly the rotation the packed piece was not paying
+for. That is why the 15 conform cases could not see this - every one of them
+bends the spine too, so `deviates` unpacked the piece before the gap could
+show.
+
+#### 2. The sweep, before the fix
+
+20 m run, ten 2 m `panel` pieces (0.90 m off-spine radius), `conform_tilt` ON,
+`bend_tol` = 0.01 m. `packed_true_dev_m` builds both answers and reports the
+worst real distance between them:
+
+| cross-fall gradient `k` | roll over one panel | packed | deformed | `packed_true_dev_m` | |
+|---|---|---|---|---|---|
+| 0.000 | 0.00° | 10 | 0 | - | ok |
+| 0.002 | 0.23° | 10 | 0 | 0.003274 | ok |
+| 0.005 | 0.57° | 10 | 0 | 0.005457 | ok |
+| **0.010** | 1.13° | **10** | 0 | **0.010913** | **OVER BUDGET** |
+| 0.020 | 2.19° | **10** | 0 | **0.021822** | **OVER BUDGET** |
+| 0.050 | 4.40° | **10** | 0 | **0.071623** | **OVER BUDGET** |
+| 0.100 | 5.19° | **10** | 0 | **0.108408** | **OVER BUDGET** |
+| 0.200 | 3.94° | **10** | 0 | **0.212598** | **OVER BUDGET** |
+
+It bites at a cross-fall changing by **1 % per metre of run** - a perfectly
+ordinary graded road - and at 20 % per metre it kept all ten panels packed at
+**21x** the budget.
+
+#### 3. The sweep, after the fix
+
+| `k` | packed | deformed | verdict |
+|---|---|---|---|
+| 0.000 / 0.002 / 0.005 | **10** | 0 | inside the budget, still packed |
+| 0.010 / 0.020 / 0.050 / 0.100 / 0.200 | **0** | **10** | unpacked, correctly |
+
+The threshold lands exactly on `bend_tol`: 0.005457 m stays, 0.010913 m goes.
+Nothing over-unpacks - `k` = 0.005 keeps all ten packed, which is the half
+that stops "fix" meaning "unpack every cambered piece".
+
+#### 4. Proving the dangerous direction is closed
+
+Being wrong in the *stayed packed but should not have* direction is the one
+that ships, so it is now asserted on every case rather than on the camber
+ones: **`deform_gate_m`** is a triple - `[worst deviation left PACKED, pieces
+over budget, of those still packed]` - and the last number is asserted zero.
+It is read on **44 cases**; the middle number proves the case is still live,
+which is what `packed_true_dev_m` cannot do (it goes silent the moment the
+gate works, and a silent check proves nothing).
+
+**Mutation, run:** reverting D100 - handing `_needs_deform` a `None` normal -
+turns `DF_camber_crossfall` red on **two** checks,
+`deform_gate_m` **[0.197163897, 10, 10]** and `packed_true_dev_m`
+**0.197163897 (10 packed over bend_tol 0.01)**, and the rest of the suite
+stays green. Restoring it returns 0 failing checks.
+
+#### 5. Files
+
+* `polychain/place.py` - `span_deviation(..., normal_at=None)`: when the
+  camber is on, the off-spine term is the **full frame rotation** between the
+  deformed station's frame and the packed piece's one, taken from the trace of
+  the relative rotation (`tr(R) = 1 + 2 cos theta`), so the tangent turn and
+  the camber roll are measured once together instead of added twice. With
+  `normal_at = None` it is byte-for-byte D87's tangent-only reading, which is
+  every case measured before this. `_needs_deform` carries the normal, which
+  meant deciding `tilt` **before** the deform gate rather than after it.
+* `tests/polychain/checks.py` - `deform_gate`.
+* `tests/polychain/cases.py` - `DF_camber_crossfall` (k = 0.2, the worst) and
+  `DG_camber_gentle` (k = 0.005, deliberately inside the budget).
+* Cycle 10's cases renamed off the `C*` prefixes they collided with:
+  `DA_hill_flatten`, `DB_hill_flatten_rev`, `DC_hill_rev_plain`,
+  `DD_band_flat_top`, `DE_band_stepped_foot`.
+
+#### 6. The baseline, moved deliberately and audited
+
+`run_scene_checks.py --update-baseline` was run once, for the first time this
+cycle, and the result was diffed key by key against `HEAD`'s copy:
+
+* **added cases (7)**: `DA_hill_flatten`, `DB_hill_flatten_rev`,
+  `DC_hill_rev_plain`, `DD_band_flat_top`, `DE_band_stepped_foot`,
+  `DF_camber_crossfall`, `DG_camber_gentle`
+* **removed cases**: none
+* **new check names (3)**: `band_hybrid_m`, `deform_gate_m`,
+  `stepped_float_m`
+* **MOVED VALUES: 0**
+
+Nothing that existed before this cycle changed value. `run_hda_checks.py`
+**0 failing**, `scale_gate.py` **9 rows, 0 failing** (the camber is off by
+default, so PC-G3's ladder is untouched).
+
+#### Decisions taken
+
+| # | Decision |
+|---|---|
+| D100 | **The camber's own rotation is part of the curvature budget, measured as the FULL frame rotation.** D87 put the piece's worst POINT into the budget but measured only the tangent's turn, so 4.5's camber - a roll the packed piece takes once at its midpoint and the deformed one takes per station - was spent by nobody. It is not a second term added to D87's: `span_deviation` now compares the two FRAMES when a normal is available (trace of the relative rotation), which counts the tangent turn and the camber roll together exactly once, and degrades to D87's tangent-only reading when there is no camber - so no pre-camber number moved. The gate bites at `bend_tol` to the digit: 0.005457 m stays packed, 0.010913 m unpacks |
+| D101 | **A check that goes silent when the bug is fixed is not a standing check.** `packed_true_dev_m` can only see pieces that STAYED packed, so the case built to prove D100 reads `skip` the moment D100 works. `deform_gate_m` reports `[worst deviation left packed, pieces over budget, of those still packed]`: the last number is the assertion (the direction that ships), and the middle one is the liveness - a case that stopped exercising the gate shows a 0 there and reads as vacuous instead of as green. It runs on all 44 cases that have a bendable piece on a path, so it guards D87 and D75 as well as D100 |

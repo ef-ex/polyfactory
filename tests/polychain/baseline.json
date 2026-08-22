@@ -67,6 +67,20 @@
       "value": 0.0
     },
     {
+      "detail": "2 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "11 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -338,6 +352,17 @@
       ]
     },
     {
+      "detail": "11 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on A|2|default|2|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -463,6 +488,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "2 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "12 pieces",
@@ -731,6 +770,17 @@
       ]
     },
     {
+      "detail": "12 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        2,
+        0
+      ]
+    },
+    {
       "detail": "worst on B|0|default|9|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -865,6 +915,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "2 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "6 pieces",
@@ -1137,6 +1201,17 @@
       ]
     },
     {
+      "detail": "6 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        1,
+        0
+      ]
+    },
+    {
       "detail": "worst on C|0|default|4|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -1265,6 +1340,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "no vertical-mode pieces",
@@ -1537,6 +1626,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -1661,6 +1757,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -1931,6 +2041,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -2053,6 +2174,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -2323,6 +2458,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on AF|1|default|1|displace",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -2445,6 +2591,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -2715,6 +2875,17 @@
       ]
     },
     {
+      "detail": "12 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on AG|1|default|1|displace",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -2840,6 +3011,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "2 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "12 pieces",
@@ -3112,6 +3297,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on AH|1|default|1|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -3239,6 +3435,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "3 pieces",
@@ -3523,6 +3733,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -3650,6 +3867,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "20 pieces",
@@ -3947,6 +4178,17 @@
       ]
     },
     {
+      "detail": "20 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on AJ|5|default|1|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -4072,6 +4314,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "15 pieces",
@@ -4363,6 +4619,17 @@
       ]
     },
     {
+      "detail": "15 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on AK|2|default|2|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -4488,6 +4755,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.058298
+    },
+    {
+      "detail": "post end[0]",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.041081
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "8 pieces",
@@ -4755,6 +5036,17 @@
       ]
     },
     {
+      "detail": "8 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        8,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -4880,6 +5172,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.029104
+    },
+    {
+      "detail": "post end[0]",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "8 pieces",
@@ -5147,6 +5453,17 @@
       ]
     },
     {
+      "detail": "8 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        8,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -5269,6 +5586,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -5539,6 +5870,17 @@
       ]
     },
     {
+      "detail": "12 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -5661,6 +6003,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -5931,6 +6287,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on AO|1|default|1|dispoff",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -6056,6 +6423,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "12 pieces",
@@ -6346,6 +6727,17 @@
       ]
     },
     {
+      "detail": "12 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on AP|0|default|3|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -6473,6 +6865,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "5 pieces",
@@ -6745,6 +7151,17 @@
       ]
     },
     {
+      "detail": "5 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on AQ|0|default|3|asym",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -6872,6 +7289,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "2 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "12 pieces",
@@ -7144,6 +7575,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on AR|1|default|2|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -7268,6 +7710,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -7534,6 +7990,17 @@
       ]
     },
     {
+      "detail": "20 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        4,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -7659,6 +8126,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "11 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "9 pieces",
@@ -7919,6 +8400,17 @@
       ]
     },
     {
+      "detail": "9 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on A|0|default|9|fence",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -8062,6 +8554,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -8325,6 +8831,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        10,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -8447,6 +8964,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -8710,6 +9241,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        10,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -8835,6 +9377,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.067747
+    },
+    {
+      "detail": "post default[33]",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.067747
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "no vertical-mode pieces",
@@ -9095,6 +9651,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -9217,6 +9780,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -9480,6 +10057,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -9602,6 +10190,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -9865,6 +10467,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -9987,6 +10600,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -10259,6 +10886,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        7,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -10389,6 +11027,20 @@
       "value": null
     },
     {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "10 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -10644,6 +11296,17 @@
       "value": [
         0.0,
         0.0
+      ]
+    },
+    {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        10,
+        0
       ]
     },
     {
@@ -10774,6 +11437,20 @@
       "value": null
     },
     {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "10 pieces",
       "name": "plumb_deg",
       "ok": true,
@@ -11032,6 +11709,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        10,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -11154,6 +11842,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -11422,6 +12124,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        10,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -11549,6 +12262,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.03
+    },
+    {
+      "detail": "2 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "10 pieces",
@@ -11816,6 +12543,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        6,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -11938,6 +12676,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -12201,6 +12953,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -12323,6 +13086,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -12586,6 +13363,17 @@
       ]
     },
     {
+      "detail": "2 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -12708,6 +13496,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -12976,6 +13778,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        1,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -13100,6 +13913,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -13372,6 +14199,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        10,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -13500,6 +14338,20 @@
       "ok": true,
       "skipped": false,
       "value": 3.4
+    },
+    {
+      "detail": "post default[116]",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3.4
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "no vertical-mode pieces",
@@ -13760,6 +14612,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -13892,6 +14751,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "19 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "19 pieces",
@@ -14160,6 +15033,17 @@
       ]
     },
     {
+      "detail": "19 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        3,
+        0
+      ]
+    },
+    {
       "detail": "worst on B|0|default|33|fence",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -14284,6 +15168,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -14547,6 +15445,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -14673,6 +15582,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -14936,6 +15859,17 @@
       ]
     },
     {
+      "detail": "9 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -15076,6 +16010,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "2 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "11 pieces",
@@ -15348,6 +16296,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on CD|0|default|7|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -15488,6 +16447,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -15751,6 +16724,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -15873,6 +16853,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -16136,6 +17130,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -16258,6 +17259,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -16521,6 +17536,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -16646,6 +17672,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "4 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "no vertical-mode pieces",
@@ -16911,6 +17951,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -17042,6 +18089,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.5
+    },
+    {
+      "detail": "post default[4]",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "no vertical-mode pieces",
@@ -17302,6 +18363,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -17440,6 +18508,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "2 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "4 pieces",
@@ -17703,6 +18785,17 @@
       ]
     },
     {
+      "detail": "4 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        1,
+        0
+      ]
+    },
+    {
       "detail": "worst on CJ|0|default|3|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -17825,6 +18918,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -18088,6 +19195,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.1687e-05,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on CK|0|default|9|rail",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -18210,6 +19328,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -18473,6 +19605,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.000250121,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on CL|0|default|8|rail",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -18595,6 +19738,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -18858,6 +20015,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.006253516,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on CM|0|default|9|rail",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -18980,6 +20148,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -19243,6 +20425,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        10,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -19365,6 +20558,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -19628,6 +20835,17 @@
       ]
     },
     {
+      "detail": "15 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        15,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -19750,6 +20968,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -20013,6 +21245,17 @@
       ]
     },
     {
+      "detail": "15 bendable, tol 0.0100 m - worst packed on rail",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.000250124,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on CQ|0|default|14|tall",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -20135,6 +21378,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -20398,6 +21655,17 @@
       ]
     },
     {
+      "detail": "13 bendable, tol 0.0100 m - worst packed on gate",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on CRa|0|default|3|attrcond",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -20530,6 +21798,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -20793,6 +22075,17 @@
       ]
     },
     {
+      "detail": "4 bendable, tol 0.0100 m - worst packed on gate",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on C|0|default|2|tiled",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -20850,6 +22143,2870 @@
       "ok": true,
       "skipped": false,
       "value": 1
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "DA_hill_flatten": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 270
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "H[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 9.67e-07
+    },
+    {
+      "detail": "post -> post",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.864e-06
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.029089
+    },
+    {
+      "detail": "post default[179]",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "270 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no bendable pieces",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post want 0.1200 got 0.1200",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 270",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 270
+    },
+    {
+      "detail": "270 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.11635,
+        0.116354
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "post @ x=0.120",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.116349997
+    },
+    {
+      "detail": "worst 1.036e-06 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 270
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "540a0a92c9aa2985"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "270 ids, 403 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "DB_hill_flatten_rev": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 270
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "H[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2e-09
+    },
+    {
+      "detail": "post -> post",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.864e-06
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.029089
+    },
+    {
+      "detail": "post default[90]",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "270 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no bendable pieces",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post want 0.1200 got 0.1200",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 270",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 270
+    },
+    {
+      "detail": "270 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.11635,
+        0.116354
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "post @ x=0.120",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.116349997
+    },
+    {
+      "detail": "worst 1.036e-06 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 270
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "1448bf2ef0a22102"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "270 ids, 403 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "DC_hill_rev_plain": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 270
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "H[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2e-09
+    },
+    {
+      "detail": "post -> post",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.864e-06
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.029089
+    },
+    {
+      "detail": "post default[63]",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.029089
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "270 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no bendable pieces",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post want 0.1200 got 0.1200",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 270",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 270
+    },
+    {
+      "detail": "270 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.11635,
+        0.116354
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "post @ x=0.120",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.116349997
+    },
+    {
+      "detail": "worst 1.036e-06 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 270
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "e1f6fd1167c6ba1b"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "270 ids, 403 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "DD_band_flat_top": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 16
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "H[0]",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "H[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "16 pieces, band top 0.250 m",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.49087429
+      ]
+    },
+    {
+      "detail": "16 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.750",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 9.3e-07
+    },
+    {
+      "detail": "panel want 0.0600 got 0.0600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.884e-06
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 16",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "16 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.963077,
+        1.963138
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.000",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 0.999861
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.254718577
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.037436905
+    },
+    {
+      "detail": "worst 8.922e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 16
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "ec53e143e0b2731a"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.1227 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.016576032
+      ]
+    },
+    {
+      "detail": "16 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        16,
+        0
+      ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "16 ids, 24 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "DE_band_stepped_foot": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 16
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "H[0]",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "H[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.054542
+    },
+    {
+      "detail": "panel default[14]",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.1
+    },
+    {
+      "detail": "16 pieces, band bottom 0.250 m",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.49087429
+      ]
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "banded - see band_hybrid_m (D99)",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.750",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 9.3e-07
+    },
+    {
+      "detail": "panel want 0.0600 got 0.0600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.884e-06
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 16",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "16 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.963077,
+        1.963138
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.000",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 0.999861
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.254718577
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.037436905
+    },
+    {
+      "detail": "worst 8.922e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 16
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "ec53e143e0b2731a"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.1227 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.016576032
+      ]
+    },
+    {
+      "detail": "16 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        16,
+        0
+      ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "16 ids, 24 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "DF_camber_crossfall": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "CB[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3e-09
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 76.29304
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.500",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 5e-09
+    },
+    {
+      "detail": "panel want 0.0600 got 0.0600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.9e-08
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 10",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "10 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.250",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 0.995037
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.25
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.0
+    },
+    {
+      "detail": "worst 0.000e+00 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "75b7576170692ba7"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "panel (adaptive)",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "panel",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 17.5484
+    },
+    {
+      "detail": "",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "worst real deform 0.0972 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        10,
+        0
+      ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 ids, 18 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "DG_camber_gentle": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "CB[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "panel -> panel",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 5.42681
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.000",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "panel want 0.0600 got 0.0600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 10",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "10 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.250",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.0
+    },
+    {
+      "detail": "worst 0.000e+00 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "afc5862ba53312d5"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "panel (adaptive)",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "panel (adaptive)",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "panel",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.2025
+    },
+    {
+      "detail": "",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "10 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.005002203,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "worst on CB|0|default|0|crossfall",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.005002203
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 ids, 18 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "",
@@ -20922,6 +25079,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -21185,6 +25356,17 @@
       ]
     },
     {
+      "detail": "11 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on D|0|default|5|gated",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -21314,6 +25496,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -21577,6 +25773,17 @@
       ]
     },
     {
+      "detail": "16 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        16,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -21699,6 +25906,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -21962,6 +26183,17 @@
       ]
     },
     {
+      "detail": "16 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        16,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -22087,6 +26319,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.490874
+    },
+    {
+      "detail": "panel default[14]",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.1
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "no vertical-mode pieces",
@@ -22347,6 +26593,17 @@
       ]
     },
     {
+      "detail": "16 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        16,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -22469,6 +26726,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -22732,6 +27003,17 @@
       ]
     },
     {
+      "detail": "20 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        20,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -22868,6 +27150,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -23131,6 +27427,17 @@
       ]
     },
     {
+      "detail": "19 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        19,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -23267,6 +27574,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -23535,6 +27856,17 @@
       ]
     },
     {
+      "detail": "3 bendable, tol 0.0100 m - worst packed on rail2",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on J|0|default|2|coarse",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -23659,6 +27991,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -23927,6 +28273,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -24051,6 +28404,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -24314,6 +28681,17 @@
       ]
     },
     {
+      "detail": "6 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        6,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -24436,6 +28814,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -24699,6 +29091,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -24821,6 +29220,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -25084,6 +29497,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -25220,6 +29644,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -25488,6 +29926,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -25612,6 +30057,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -25880,6 +30339,17 @@
       ]
     },
     {
+      "detail": "3 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        1,
+        0
+      ]
+    },
+    {
       "detail": "worst on P|0|default|2|crest",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -26007,6 +30477,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.12
+    },
+    {
+      "detail": "post default[24]",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "no vertical-mode pieces",
@@ -26272,6 +30756,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -26396,6 +30887,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -26664,6 +31169,13 @@
       ]
     },
     {
+      "detail": "no bendable pieces on a path",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -26788,6 +31300,20 @@
     {
       "detail": "no consecutive stepped pieces",
       "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -27051,6 +31577,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on S|0|default|6|overhang",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -27176,6 +31713,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "2 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "12 pieces",
@@ -27439,6 +31990,17 @@
       ]
     },
     {
+      "detail": "12 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        1,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -27564,6 +32126,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "2 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "12 pieces",
@@ -27831,6 +32407,17 @@
       ]
     },
     {
+      "detail": "12 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on U|1|default|2|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -27956,6 +32543,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "20 pieces",
@@ -28241,6 +32842,17 @@
       ]
     },
     {
+      "detail": "20 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on V|0|default|3|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -28366,6 +32978,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "2 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "12 pieces",
@@ -28633,6 +33259,17 @@
       ]
     },
     {
+      "detail": "12 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "no packed bendable pieces",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -28758,6 +33395,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "2 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "12 pieces",
@@ -29025,6 +33676,17 @@
       ]
     },
     {
+      "detail": "12 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on X|1|default|2|corner",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -29150,6 +33812,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "10 pieces",
@@ -29417,6 +34093,17 @@
       ]
     },
     {
+      "detail": "10 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
       "detail": "worst on Y|1|default|1|compose",
       "name": "packed_true_dev_m",
       "ok": true,
@@ -29542,6 +34229,20 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces on a path",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "11 pieces",
@@ -29806,6 +34507,17 @@
       "value": [
         0.0,
         0.0
+      ]
+    },
+    {
+      "detail": "11 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
       ]
     },
     {

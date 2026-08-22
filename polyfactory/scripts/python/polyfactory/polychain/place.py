@@ -874,7 +874,8 @@ def _y_varies(path, sa, sb, fracs):
     return hi - lo
 
 
-def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive"):
+def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive",
+                   normal_at=None):
     """D75 + D87 - how far the DEFORMED piece would sit from the PACKED
     one, in metres, measured at its WORST POINT.
 
@@ -914,6 +915,22 @@ def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive"):
     Note this is measured on the PATH the piece is built on, conform included
     when there is one - a `ConformPath` samples the drape - so the ridge case
     that `Surface.deviates` exists for is not weakened by it.
+
+    D100 - AND THE CAMBER'S OWN ROTATION IS IN IT NOW. `normal_at` is 4.5's
+    per-station surface normal (D55), i.e. exactly what `_deform_positions`
+    reads when the camber is on; the packed piece takes ONE normal, the
+    span's midpoint (`_packed_transform`). Everything above measures the
+    PATH's turn, so a run whose path is dead straight and dead flat while the
+    cross-fall UNDER it rolls - `y = k*x*z` along z = 0 is the clean form -
+    spent nothing, stayed packed, and was wrong by whatever the roll times
+    the radius came to: swept, a cross-fall changing by 1 % per metre kept
+    10 of 10 panels packed at 0.0109 m of true deviation, 1.1x `bend_tol`,
+    and 20 % per metre kept them packed at 0.2126 m, 21x. With `normal_at`
+    the term is the FULL frame rotation between the two - trace of the
+    relative rotation, so the tangent turn and the camber roll are measured
+    once together rather than added twice - and the tangent-only reading is
+    what it degrades to when there is no camber, which is every case that
+    was measured before this.
     """
     span = sb - sa
     if abs(span) <= EPS:
@@ -952,23 +969,41 @@ def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive"):
     ref = _unit((ab[0], 0.0, ab[2]) if flat else ab)
     if _len(ref) < EPS:
         return worst
+    # D100 - the frame the PACKED piece is built on, camber included. `None`
+    # keeps every pre-camber reading byte-identical: the loop then compares
+    # tangent directions exactly as D87 did.
+    packed = None
+    if normal_at is not None:
+        packed = _frame(ab if not flat else (ab[0], 0.0, ab[2]), zmode,
+                        normal_at(0.5 * (sa + sb)))
     samples = [sa] + list(verts) + [sb]
     for k, s in enumerate(samples):
         t = path.sample(s)[1]
         t = _unit((t[0], 0.0, t[2]) if flat else t)
         if _len(t) < EPS:
             continue
-        dot = max(-1.0, min(1.0, ref[0] * t[0] + ref[1] * t[1] + ref[2] * t[2]))
+        if packed is None:
+            dot = max(-1.0, min(1.0, ref[0] * t[0] + ref[1] * t[1]
+                                + ref[2] * t[2]))
+            ang = math.acos(dot)
+        else:
+            # the FULL rotation between the deformed station's frame and the
+            # packed piece's one, from the trace of the relative rotation:
+            # tr(R) = 1 + 2 cos(theta) for a rotation of orthonormal triads.
+            here = _frame(t, zmode, normal_at(s))
+            tr = sum(here[j][c] * packed[j][c]
+                     for j in range(3) for c in range(3))
+            ang = math.acos(max(-1.0, min(1.0, 0.5 * (tr - 1.0))))
         # this frame holds from its own sample to the next one, so the spine
         # term it rides is the larger of that interval's two ends
         near = max(spine[k], spine[k + 1]) if k + 1 < len(spine) else spine[k]
         worst = max(worst, near
-                    + 2.0 * radius * math.sin(0.5 * math.acos(dot)))
+                    + 2.0 * radius * math.sin(0.5 * ang))
     return worst
 
 
 def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01,
-                  band=None):
+                  band=None, normal_at=None):
     """4.4 + the streets float32 lesson: rebuild ONLY when it changes something."""
     if placement.slice_t is not None or placement.cuts:
         return True                                     # D41 - a miter unpacks
@@ -990,8 +1025,8 @@ def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01,
     # no cross-section, which is the spine-only measure D75 shipped.
     if span_deviation(path, sa, sb,
                       proto.radius if zmode == "adaptive" else proto.rz,
-                      zmode) > tol:
-        return True                                     # D75, D87
+                      zmode, normal_at) > tol:
+        return True                                     # D75, D87, D100
     # 4.5: A DEAD-STRAIGHT SPLINE OVER A RIDGE HAS NO INTERIOR VERTEX, so
     # without this the test above says "nothing to follow" and a bendable rail
     # crosses the hill as one rigid chord with its two ends on the ground.
@@ -1501,8 +1536,14 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             if module.missing and WARN_KIT_GAP not in warns:
                 warns.append(WARN_KIT_GAP)
             band = _band(proto, zmode, params)
+            # D100: the camber's own rotation is part of the budget, so the
+            # per-station normal has to reach `_needs_deform` - which means
+            # deciding the tilt BEFORE the deform gate rather than after it.
+            tilt = bool(module.tilts(params) and zmode == "adaptive")
             deformed = _needs_deform(p, proto, path, s0r, s1r, zmode,
-                                     params.bend_tol, band)
+                                     params.bend_tol, band,
+                                     getattr(path, "normal", None)
+                                     if tilt else None)
             # 4.5 / D53: a ray that finds nothing keeps the spline elevation
             # and SAYS SO. Probed on the piece's own span rather than on the
             # whole run, so a fence that leaves the terrain at one end reports
@@ -1543,9 +1584,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                          "zmode": zmode, "scale": scale, "band": band,
                          "base_y": base_y,
                          "deformed": deformed, "warns": tuple(warns),
-                         "remap": remap,
-                         "tilt": (module.tilts(params)
-                                  and zmode == "adaptive")})
+                         "remap": remap, "tilt": tilt})
 
     warn_names = []
     for job in jobs:

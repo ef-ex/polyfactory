@@ -27,6 +27,8 @@ WHAT THE NUMBERS MEAN
                      same curve sample), so any drift is a real defect.
   stepped_riser_m    the vertical step between consecutive STEPPED pieces.
   stepped_float_m    the AIR under a stepped piece - 4.4's flatten-under.
+  deform_gate_m      [worst deviation left packed, over budget, of those
+                     still packed] - D100's dangerous direction, as a triple.
   band_hybrid_m      [level half, following half] of a D99 top/bottom band.
                      This is the mode working, not a gap - so it is recorded
                      as its own number and excluded from `max_gap_m` rather
@@ -1586,6 +1588,74 @@ def modules_by_curve(scene, expected):
     return Result("modules_by_curve", got == want,
                   ["%s=%s" % (k, "+".join(got[k])) for k in sorted(got)],
                   "" if got == want else "expected %s" % want)
+
+
+def deform_gate(scene, place):
+    """D100 - [worst deviation left PACKED, pieces over budget, of those
+    still packed]. The last number is the one that may not move off zero.
+
+    `packed_true_dev_m` measures the same defect and goes SILENT the moment
+    the gate starts working: with nothing packed there is nothing to report,
+    so a case built to prove a budget term reads `skip` once the term is
+    added and proves nothing ever again. This one is never silent, because
+    the MIDDLE number says how many pieces the case actually put over the
+    budget - a case that stopped exercising anything shows a 0 there and is
+    visible as vacuous rather than as green.
+
+    The assertion is the dangerous direction only: a piece may unpack for
+    reasons the budget never measured (4.5's drape, D65's shear), and
+    over-unpacking costs a deform, but a piece that stayed PACKED while its
+    own geometry disagrees with its transform SHIPS. That is D87's elevation
+    arc and D100's rolling cross-fall, and it is what this closes.
+    """
+    tol = scene.params.bend_tol
+    worst, where, over, over_packed, seen = 0.0, "", 0, 0, 0
+    for eid, rec in scene.by_id.items():
+        placement = scene.plan_by_id.get(eid)
+        module = scene.kit.by_name(rec["pc_module"])
+        if placement is None or module is None or module.deform < 1:
+            continue
+        if placement.anchor is not None or placement.cuts                 or placement.slice_t is not None or rec.get("pc_replaced"):
+            continue
+        src = scene.sources.get(rec["pc_module"])
+        track = scene.track_of.get(str(placement.curve_id))
+        section = scene.section_of.get((str(placement.curve_id),
+                                        placement.section_index))
+        if src is None or track is None or section is None:
+            continue
+        proto = place._Proto(module, src)
+        path, remap = track["path"], track["remap"]
+        s0f, s1f = section.s0 + placement.s0, section.s0 + placement.s1
+        s0r, s1r = remap(s0f), remap(s1f)
+        scale = ((s1f - s0f) / proto.length) if proto.length > 1e-9 else 1.0
+        zmode = rec["pc_zmode"] or module.zmode
+        tilt = bool(module.tilts(scene.params) and zmode == "adaptive")
+        normal_at = getattr(path, "normal", None) if tilt else None
+        up_ref = place.UP if normal_at is None             else normal_at(0.5 * (s0r + s1r))
+        xform = place._packed_transform(proto, path, s0r, s1r, zmode, up_ref)
+        world, local = place._deform_positions(src, proto, path, s0f, scale,
+                                               zmode, remap, tilt)
+        truth = 0.0
+        for i in range(0, len(local), 3):
+            q = hou.Vector3(local[i], local[i + 1], local[i + 2]) * xform
+            truth = max(truth, math.sqrt((q[0] - world[i]) ** 2
+                                         + (q[1] - world[i + 1]) ** 2
+                                         + (q[2] - world[i + 2]) ** 2))
+        seen += 1
+        packed = not rec["pc_deformed"]
+        if truth > tol + 1e-9:
+            over += 1
+            if packed:
+                over_packed += 1
+        if packed and truth > worst:
+            worst, where = truth, rec["pc_module"]
+    if not seen:
+        return _skip("deform_gate_m", "no bendable pieces on a path")
+    return Result("deform_gate_m", over_packed == 0,
+                  [_round(worst), over, over_packed],
+                  "%d bendable, tol %.4f m%s"
+                  % (seen, tol, (" - worst packed on %s" % where)
+                     if where else ""))
 
 
 def packed_true_deviation(scene, place):
