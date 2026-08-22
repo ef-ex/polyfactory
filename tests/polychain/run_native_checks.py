@@ -1087,6 +1087,154 @@ def config_payload_parity(root):
     payload.destroy()
 
 
+# --- R1: 3.3's seeding chain, in VEX ---------------------------------------
+
+SEED_TEXTS = None
+
+
+def _seed_texts():
+    """The strings the seeding chain is asked about, ~360 of them.
+
+    Three families on purpose: RANDOM ASCII (which is what caught the
+    `split(s, "")` defect - it agreed with zlib on every 1-character string
+    and on nothing else), the exact `seed_for` shape for all four 3.3 scopes,
+    and 40 real `elem_id`s, because `pc_elem_key` and `pc_seed_for` are two
+    different callers of the same crc.
+    """
+    global SEED_TEXTS
+    if SEED_TEXTS is not None:
+        return SEED_TEXTS
+    import random as _r
+    from polyfactory.polychain import elem_id as _eid
+    rnd = _r.Random(11)
+    alpha = "abcdefghijklmnopqrstuvwxyzABCZ0123456789|_:. -"
+    out = ["".join(rnd.choice(alpha) for _ in range(rnd.randint(0, 24)))
+           for _ in range(300)]
+    for scope in ("generator", "spline", "section", "segment"):
+        for key in ("A", "curve_7", "", "A|0|default|3"):
+            out.append("%d\x1f%s\x1f%s\x1f%s" % (4, "fence", scope, key))
+    out.append("%d\x1f%s\x1f%s\x1f%s" % (0, "", "segment", "A|0|default|3"))
+    out.append("%d\x1f%s\x1f%s\x1f%s" % (2 ** 31 - 1, "sty", "spline", "X"))
+    out.extend(_eid("curve%d" % i, i, "default", i * 7, "sty")
+               for i in range(40))
+    SEED_TEXTS = out
+    return out
+
+
+def vex_string_literal(text):
+    """`text` as a VEX string literal.  ONE site - the plan solve needs it too."""
+    out = text.replace("\\", "\\\\").replace('"', '\\"')
+    return '"' + out.replace("\x1f", "\\x1f") + '"'
+
+
+def seeding_vex(root, header_src=None):
+    """Cook `pc_rand.h` over `_seed_texts()`; -> {name: [values]}."""
+    from polyfactory.polychain import vexsrc
+    add = root.createNode("add")
+    add.parm("points").set(1)
+    node = native.wrangle(root, "pc_seed_probe", "detail", "pc_rand.h")
+    node.setInput(0, add)
+    body = vexsrc.source("pc_rand.h") if header_src is None else header_src
+    node.parm("snippet").set(body + """
+string PC_TXT[] = array(%s);
+int crcs[], seeds[], keys[], ascii[];
+float rs[];
+foreach (string t; PC_TXT) {
+    push(crcs, pc_crc32(t));
+    int sd = pc_seed_for(t);
+    push(seeds, sd);
+    push(keys, pc_elem_key(t));
+    push(ascii, pc_is_ascii(t));
+    push(rs, pc_random01(sd));
+}
+i[]@crc = crcs; i[]@seed = seeds; i[]@key = keys; i[]@ascii = ascii;
+f[]@r = rs;
+""" % ", ".join(vex_string_literal(t) for t in _seed_texts()))
+    geo = node.geometry()
+    out = dict((name, list(geo.intListAttribValue(name)))
+               for name in ("crc", "seed", "key", "ascii"))
+    out["r"] = list(geo.floatListAttribValue("r"))
+    node.destroy()
+    add.destroy()
+    return out
+
+
+def s64(value):
+    """A Python uint64 as the signed int VEX stores and hou reads back."""
+    return value - (1 << 64) if value >= (1 << 63) else value
+
+
+def seeding_parity(root):
+    """13.9 R1, CLOSED: crc32, splitmix64, elem_key and `random()` in VEX.
+
+    R1 said `_splitmix` had no VEX expression because 13.2 probed `long` (an
+    invalid type name) and `>>>` (a parse error).  Both probes were right and
+    the conclusion was wrong: VEX has no shift OPERATORS at all - `1 << 4` is
+    a syntax error - it has `shl` / `shr` / `shrz`, and under
+    `vex_precision = 64` its `int` IS int64.  `shrz` is the unsigned shift.
+    So splitmix64 is six lines and the Python fallback 13.3.2 reserved for it
+    is not needed.
+    """
+    import random as _rand
+    import zlib as _zlib
+    from polyfactory.polychain import _splitmix
+
+    texts = _seed_texts()
+    got = seeding_vex(root)
+    bad = dict(crc=0, elem_key=0, splitmix=0, random=0)
+    for i, text in enumerate(texts):
+        pcrc = _zlib.crc32(text.encode("utf-8")) & 0xFFFFFFFF
+        if got["crc"][i] != pcrc:
+            bad["crc"] += 1
+        if got["key"][i] != (pcrc & 0x7FFFFFFF):
+            bad["elem_key"] += 1
+        mixed = _splitmix(pcrc)
+        if got["seed"][i] != s64(mixed):
+            bad["splitmix"] += 1
+        if got["r"][i] != _rand.Random(mixed).random():
+            bad["random"] += 1
+    n = len(texts)
+    check("seed_crc32_parity", bad["crc"] == 0, "%d texts" % n,
+          "zlib.crc32 vs pc_crc32, bit for bit; mismatches: %d" % bad["crc"])
+    check("seed_elem_key_parity", bad["elem_key"] == 0, "%d texts" % n,
+          "3.4's pc_elem_key (crc32 & 0x7FFFFFFF); mismatches: %d"
+          % bad["elem_key"])
+    check("seed_splitmix64_parity", bad["splitmix"] == 0, "%d texts" % n,
+          "R1 CLOSED - _splitmix is 6 lines of VEX, no limbs; mismatches: %d"
+          % bad["splitmix"])
+    check("seed_random01_parity", bad["random"] == 0, "%d texts" % n,
+          "random.Random(seed).random() - MT19937 init_by_array plus "
+          "genrand_res53, in VEX; mismatches: %d" % bad["random"])
+    check("seed_ascii_guard", all(got["ascii"]), "%d texts" % n,
+          "pc_is_ascii - the crc is answerable for ASCII only, and this is "
+          "how a caller finds out instead of shipping a wrong key")
+
+
+def seeding_mutation(root):
+    """Swap the LOGICAL shift for the ARITHMETIC one and confirm it reddens.
+
+    `shr` compiles, and it is the shift 13.2 assumed was the only one there
+    is.  If this mutation left the parity green, the parity would not be
+    testing the shift at all.
+    """
+    import zlib as _zlib
+    from polyfactory.polychain import _splitmix, vexsrc
+
+    body = vexsrc.source("pc_rand.h")
+    target = "z ^ shrz(z, 30)"
+    check("seed_mutation_target_exists", target in body, target,
+          "the logical shift the parity rests on is still in pc_rand.h, so "
+          "the mutation below cannot silently become a no-op")
+    texts = _seed_texts()
+    got = seeding_vex(root, header_src=body.replace(target, "z ^ shr(z, 30)"))
+    moved = sum(1 for i, t in enumerate(texts)
+                if got["seed"][i] != s64(_splitmix(
+                    _zlib.crc32(t.encode("utf-8")) & 0xFFFFFFFF)))
+    check("mutation_pc_splitmix_shift", moved > len(texts) // 2,
+          "%d / %d wrong" % (moved, len(texts)),
+          "shrz -> shr in splitmix breaks it on most inputs")
+
+
 def union_parity(root):
     """D166's safety property: the fence does not change when the VEX answers.
 
@@ -1211,8 +1359,12 @@ def main():
     config_payload_parity(root)
     union_parity(root)
 
+    print("\n=== 3b. R1 - 3.3's seeding chain, in VEX ===")
+    seeding_parity(root)
+
     print("\n=== 4. the mutation test ===")
     mutation(root, built)
+    seeding_mutation(root)
 
     print("\n=== 5. 13.7 - the graph is readable, on the built asset ===")
     node = readability(root)

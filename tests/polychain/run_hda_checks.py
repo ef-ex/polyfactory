@@ -50,11 +50,7 @@ RESULTS = []
 # The parms a style payload does NOT own, and why: `display` and
 # `show_warnings` are viewing decisions (D81/D82), `kitfile` is the KIT lane -
 # input 2's fallback - and a payload carries rules and params, never a kit.
-# D155's `stage` joins them for the same reason as `display`: it decides which
-# STAGE of the network you are looking at, so of course moving it moves the
-# output. It is not a lane violation, it is the debug menu working. Its own
-# check is `stage_menu_reaches_every_stage` in section 9.
-PARM_LANE_EXEMPT = ("display", "show_warnings", "kitfile", "stage")
+PARM_LANE_EXEMPT = ("display", "show_warnings", "kitfile")
 
 
 def _fingerprint(node):
