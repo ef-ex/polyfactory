@@ -1,17 +1,46 @@
-"""Create `pf_polychain` - polyChain's artist-facing SOP HDA (spec 5).
+"""Create `pf_polychain` - polyChain's artist-facing SOP HDA (spec 5 + 13).
 
     hython devScripts/create_pf_polychain_hda.py
 
-Inner network (deliberately three nodes - the work is in the package, not in
-the asset, so a fix is a commit rather than a re-saved binary):
+⚠️ THIS SCRIPT USED TO BUILD TWO NODES.  It now builds a NETWORK, and that is
+the whole point of the exercise.  What was here before was:
 
-    input 1 spline(s) ┐
-    input 2 kit       ├─> kernel (Python SOP) ─> OUT (null)
-    input 3 style     │
-    input 4 surface   ┘
+    pf_polychain
+      |- kernel   [python]      <- ~6 000 lines; the ENTIRE tool
+      |- OUT      [null]
 
-The Python SOP does nothing but bootstrap the package and call
-`polyfactory.polychain.hda.cook(node)`.
+which violates the project's own law - `artist_ui.md` 6 rule 10, "the graph
+stays reachable - unlocked HDAs, macros as the middle tier", and 1c's finding
+that artists learn a tool by opening it and toggling nodes off to see what
+each one does.  A tool whose entire body is one Python SOP cannot be learned
+that way and cannot be steered by anyone who did not write it.
+
+Hannes' rule, verbatim: *"everything geometry related should be either native
+nodes, vex or opencl.  Python can be used for ui or processing data which is
+not possible to process with the other 3 mentioned options."*
+
+So the body is being rebuilt as named, visible, DISPLAYABLE stages, 13.9's
+build order at a time.  What this script builds today:
+
+    pf_polychain
+      IN_SPLINE IN_KIT IN_STYLE IN_SURFACE      [null x4]
+      [0 CONFIG]     config                     [python]  <- parm/payload only
+      [1 DECOMPOSE]  pc_curveid pc_curve_index pc_arclength pc_corners
+                     pc_markers OUT_sections    ALL VEX/native, at parity
+      [2 PLAN]       pc_plan_bridge OUT_plan    [python]  <- SCAFFOLDING (N2)
+      [4 PLACE]      pc_frames copy_packed OUT_place      pc_frames is VEX
+      [R REFERENCE]  kernel OUT_reference       [python]  <- the shipped path
+      stage_switch -> OUT
+
+The VEX bodies are real files under `polyfactory/vex/polychain/*.vfl`, INLINED
+here at build time (`polychain.vexsrc`) so the shipped asset needs no
+`HOUDINI_VEX_PATH` - hython does not set one, which is a recorded trap.
+
+Every stage begins and ends in a NAMED NULL so an artist can drop a display
+flag on any of them (13.7 rule 1), every wrangle carries a one-sentence
+comment displayed in the network (rule 2), and one parm was added - `Stage`
+(D155) - which is the artist-visible form of "toggle nodes off to see what
+each does".
 
 THE PARAMETER PAGE IS artist_ui.md 6 APPLIED, AND IT IS LAW HERE:
   * two disclosure levels, no more - one main page and one Advanced folder;
@@ -27,11 +56,17 @@ the label is the artist's face, the name is the kernel's.
 """
 
 import os
+import sys
 
 import hou
 
 POLYFACTORY = os.environ.get("POLYFACTORY",
                              "F:/projects/polyfactory/polyfactory")
+# hython does not load the package (recorded trap), and this script now READS
+# the .vfl sources through `polychain.vexsrc` instead of carrying VEX inline.
+_PKG = os.path.join(POLYFACTORY, "scripts", "python").replace("\\", "/")
+if os.path.isdir(_PKG) and _PKG not in sys.path:
+    sys.path.insert(0, _PKG)
 HDA_PATH = os.path.join(POLYFACTORY, "otls",
                         "pf_polychain.hda").replace("\\", "/")
 
@@ -42,10 +77,14 @@ if os.path.exists(HDA_PATH):
     os.remove(HDA_PATH)
     print("removed existing: " + HDA_PATH)
 
-# --- the Python SOP's whole body --------------------------------------------
+# --- the three Python SOP bodies -------------------------------------------
 # The bootstrap is warn-never-block wiring, not logic: a session that already
-# has the package on its path skips it entirely.
-KERNEL_CODE = '''import os
+# has the package on its path skips it entirely.  Every body is ONE call of
+# its own plus that bootstrap, because the code belongs in the package where
+# it is version-controlled and importable by the headless checks - a fix is a
+# commit, not a re-saved binary.
+
+BOOTSTRAP = """import os
 import sys
 
 import hou
@@ -58,20 +97,106 @@ if _root:
 
 from polyfactory.polychain import hda as _hda
 
-_hda.cook(hou.pwd())
-'''
+_hda.%s(hou.pwd())
+"""
+
+KERNEL_CODE = BOOTSTRAP % "cook"
+CONFIG_CODE = BOOTSTRAP % "cook_config"
+PLAN_CODE = BOOTSTRAP % "cook_plan_bridge"
+
+# --- the stages, as data ----------------------------------------------------
+# 13.7 rule 3: `Stage` is a menu over the stage output NULLS.  This tuple is
+# the ONE place the order lives - the menu, the switch's inputs and the
+# HDA-wiring check all read it, so a stage cannot be added to one and not the
+# others.  It GROWS as 13.9's build order lands; a stage that cannot cook does
+# not appear on it.
+STAGES = (
+    ("output", "OUT_reference", "Output - the finished run"),
+    ("config", "config", "0 - Config (the resolved parameters)"),
+    ("sections", "OUT_sections",
+     "1 - Decompose (4.1 - arclength, corners, markers)"),
+    ("plan", "OUT_plan", "2 - Plan (4.2 - one point per piece)"),
+    ("frames", "OUT_frames", "4 - Frames (4.4 - the transform per piece)"),
+)
+
+# (node name, wrangle class, the input CONFIG is wired to or None, comment).
+# The node name IS the .vfl name - one string, so a wrangle cannot be wired to
+# a snippet that belongs to a different stage.
+DECOMPOSE = (
+    ("pc_curveid", "primitive", None,
+     "4.1 - the curve id: pc_curve_id, else edge_id, else the prim number.\n"
+     "A BLANK id is an ABSENT id (D29/D64)."),
+    ("pc_curve_index", "detail", None,
+     "4.1 - the id table, one entry per prim, so a marker finds its curve\n"
+     "with an array lookup instead of a scan of the whole stream."),
+    ("pc_arclength", "primitive", None,
+     "4.1 - cumulative metres per point, plus the per-curve SAMPLER table.\n"
+     "One curve per thread, the scan sequential inside it. 64-bit, because\n"
+     "this is the 20 km expression that returns 0 at 32."),
+    ("pc_corners", "point", 1,
+     "4.1 - turn angle per vertex, the pc_cornerpt group and the narrow-\n"
+     "corner flag. pc_corner: -1 suppress, 0 auto, 1 force."),
+    ("pc_markers", "point", 1,
+     "4.1 - each marker's metre along its own curve, clamped, with D35's\n"
+     "zero-dist rule."),
+)
+
+
+def vex(name):
+    """The .vfl of that name, its includes inlined (`polychain.vexsrc`)."""
+    from polyfactory.polychain import vexsrc
+    return vexsrc.source(name)
+
+
+def wrangle(parent, name, cls, comment, precision="64"):
+    node = parent.createNode("attribwrangle", name)
+    node.parm("class").set({"detail": 0, "primitive": 1,
+                            "point": 2, "vertex": 3}[cls])
+    node.parm("snippet").set(vex(name))
+    node.parm("vex_precision").set(precision)
+    node.setComment(comment)
+    node.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+    return node
+
+
+def python_sop(parent, name, code, comment):
+    node = parent.createNode("python", name)
+    node.parm("python").set(code)
+    node.setComment(comment)
+    node.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+    return node
+
+
+def box(parent, name, title, colour, nodes):
+    """13.7 rule 2 - every stage is a network box with a title.
+
+    ⚠️ A NETWORK BOX COMMENT MAY NOT CONTAIN `;` OR A NEWLINE. Houdini writes
+    the box file in a semicolon-terminated hscript format, and either one
+    corrupts it: `defn.save` returns cleanly, the .hda is written, and the
+    NEXT `createNode` of the asset raises "Failed to match node type
+    definition / Network box save failed". Characterised this cycle by
+    bisection - `"`, backtick, `$`, `#`, `{}`, `,` and `()` all survive; those
+    two do not. The assert is here because the failure surfaces one build
+    later, in a different script, with a message that names neither the box
+    nor the character.
+    """
+    assert ";" not in title and chr(10) not in title, (
+        "network box comment may not contain ';' or a newline: %r" % title)
+    nbox = parent.createNetworkBox(name)
+    nbox.setComment(title)
+    nbox.setColor(hou.Color(colour))
+    for node in nodes:
+        nbox.addNode(node)
+    nbox.fitAroundContents()
+    return nbox
+
 
 # --- build context ----------------------------------------------------------
 
 obj = hou.node("/obj")
 build_geo = obj.createNode("geo", "_build_pf_polychain")
 subnet = build_geo.createNode("subnet", "pf_polychain")
-
-kernel = subnet.createNode("python", "kernel")
-out_null = subnet.createNode("null", "OUT")
-out_null.setInput(0, kernel)
-out_null.setDisplayFlag(True)
-out_null.setRenderFlag(True)
+subnet.createNode("null", "OUT").setDisplayFlag(True)
 
 hda_node = subnet.createDigitalAsset(
     name="pf_polychain",
@@ -81,16 +206,165 @@ hda_node = subnet.createDigitalAsset(
     max_num_inputs=4,
     version="1.0")
 hda_node.allowEditingOfContents()
-
-inner = dict((n.name(), n) for n in hda_node.children())
-for i in range(4):
-    inner["kernel"].setInput(i, hda_node.indirectInputs()[i])
-inner["OUT"].setInput(0, inner["kernel"])
-inner["kernel"].parm("python").set(KERNEL_CODE)
-
 defn = hda_node.type().definition()
 defn.setMinNumInputs(0)
 defn.setMaxNumInputs(4)
+
+net = hda_node
+out_null = net.node("OUT")
+
+# ---- the four inputs, each behind a NAMED NULL ------------------------------
+# 13.7 rule 1 applied at the other end: an artist who wants to know what
+# actually arrived on input 3 drops a display flag on IN_STYLE.
+IN_NAMES = ("IN_SPLINE", "IN_KIT", "IN_STYLE", "IN_SURFACE")
+ins = []
+for _i, _name in enumerate(IN_NAMES):
+    _node = net.createNode("null", _name)
+    _node.setInput(0, net.indirectInputs()[_i])
+    _node.setPosition(hou.Vector2(0.0, -2.0 * _i))
+    ins.append(_node)
+
+# ---- 0 CONFIG ---------------------------------------------------------------
+config = python_sop(
+    net, "config", CONFIG_CODE,
+    "13.3.0 - THE ONLY PYTHON SOP THAT BELONGS IN THE COOK PATH.\n"
+    "It resolves the parameter page against the style payload on input 3\n"
+    "(the payload wins whole, D77) and writes the result as the pc_cfg\n"
+    "detail dict, which VEX reads natively. No geometry; N = the parm\n"
+    "count. It must never grow a geometry loop - the wrapper tripwires\n"
+    "are pointed at it.")
+config.setInput(0, ins[2])
+config.setInput(1, ins[1])
+config.setPosition(hou.Vector2(5.0, -3.0))
+
+# ---- 1 DECOMPOSE (4.1) - VEX and native, no Python --------------------------
+_prev = ins[0]
+dec_nodes = []
+for _i, (_name, _cls, _second, _comment) in enumerate(DECOMPOSE):
+    _node = wrangle(net, _name, _cls, _comment)
+    _node.setInput(0, _prev)
+    if _second is not None:
+        _node.setInput(_second, config)
+    _node.setPosition(hou.Vector2(10.0, 2.0 - 2.0 * _i))
+    dec_nodes.append(_node)
+    _prev = _node
+out_sections = net.createNode("null", "OUT_sections")
+out_sections.setInput(0, _prev)
+out_sections.setPosition(hou.Vector2(10.0, 2.0 - 2.0 * len(DECOMPOSE)))
+dec_nodes.append(out_sections)
+
+# ---- 2 PLAN (4.2) - still the reference, and the network says so ------------
+plan = python_sop(
+    net, "pc_plan_bridge", PLAN_CODE,
+    "SCAFFOLDING - 13.9 N2 DELETES THIS NODE.\n"
+    "4.2's fitting solve is still the reference Python. This only lifts\n"
+    "what the reference already computed onto real points, so the NATIVE\n"
+    "pc_frames below has something to read: pc_s0r / pc_s1r / pc_proto_* /\n"
+    "pc_basey / pc_upref, and pc_frame_valid - 0 where the piece rides a\n"
+    "filleted or conformed polyline the native arclength table cannot\n"
+    "answer for.")
+for _i in range(4):
+    plan.setInput(_i, ins[_i])
+plan.setPosition(hou.Vector2(16.0, 0.0))
+out_plan = net.createNode("null", "OUT_plan")
+out_plan.setInput(0, plan)
+out_plan.setPosition(hou.Vector2(16.0, -2.0))
+
+# ---- 4 PLACE + DEFORM (4.4) - the frame, in VEX ------------------------------
+frames = wrangle(
+    net, "pc_frames", "point",
+    "4.4 - place._packed_transform, in VEX. The 3x3 that maps module local\n"
+    "space onto the chord A->B (D21), with the three z-modes, D98's\n"
+    "flatten-under datum and D55's camber up-vector.\n"
+    "Measured against the reference on 1 650 real calls drawn from all 89\n"
+    "cases: the 3x3 agrees BIT FOR BIT, and P agrees exactly with the\n"
+    "reference rounded to float32 P storage.\n"
+    "Nothing in it random-accesses a point outside the per-curve segment\n"
+    "arrays - 13.5's OpenCL transliterability constraint (D149).")
+frames.setInput(0, out_plan)
+frames.setInput(1, config)
+frames.setInput(2, out_sections)
+frames.setPosition(hou.Vector2(22.0, 0.0))
+
+valid = net.createNode("blast", "pc_frames_valid")
+valid.parm("group").set("@pc_frame_valid==0")
+valid.parm("grouptype").set(3)
+valid.setInput(0, frames)
+valid.setPosition(hou.Vector2(22.0, -2.0))
+valid.setComment(
+    "The pieces the native frame is ANSWERABLE for. A piece on a filleted\n"
+    "or conformed path is dropped here rather than handed a wrong frame -\n"
+    "warn-never-block, while 13.9 N6 and N8 are still ahead.")
+valid.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+
+out_frames = net.createNode("null", "OUT_frames")
+out_frames.setInput(0, valid)
+out_frames.setPosition(hou.Vector2(22.0, -4.0))
+
+# ---- R REFERENCE - the shipped cook path ------------------------------------
+kernel = python_sop(
+    net, "kernel", KERNEL_CODE,
+    "THE REFERENCE IMPLEMENTATION (13.6) - ~6 000 lines of Python, and\n"
+    "still the whole tool. Every stage above is measured against it, and\n"
+    "it is retired one 13.9 item at a time. It is never deleted: it is the\n"
+    "oracle the parity checks ask.")
+for _i in range(4):
+    kernel.setInput(_i, ins[_i])
+kernel.setPosition(hou.Vector2(28.0, 4.0))
+out_reference = net.createNode("null", "OUT_reference")
+out_reference.setInput(0, kernel)
+out_reference.setPosition(hou.Vector2(28.0, 2.0))
+
+# ---- the stage switch and the output ----------------------------------------
+stage_switch = net.createNode("switch", "stage_switch")
+for _i, (_token, _node_name, _label) in enumerate(STAGES):
+    stage_switch.setInput(_i, net.node(_node_name))
+stage_switch.parm("input").setExpression(
+    "{%s}.get(hou.pwd().parent().evalParm('stage'), 0)"
+    % ", ".join("'%s': %d" % (t[0], i) for i, t in enumerate(STAGES)),
+    hou.exprLanguage.Python)
+stage_switch.setPosition(hou.Vector2(34.0, 0.0))
+stage_switch.setComment(
+    "D155 - the Stage parm, wired. Input 0 is the finished run, so a node\n"
+    "nobody has touched builds exactly what it built before this rebuild.\n"
+    "A switch cooks only its selected input, so a stage you are not\n"
+    "looking at costs nothing.")
+stage_switch.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+
+out_null.setInput(0, stage_switch)
+out_null.setPosition(hou.Vector2(34.0, -2.0))
+out_null.setDisplayFlag(True)
+out_null.setRenderFlag(True)
+
+# ---- the network boxes (13.7 rule 2) ----------------------------------------
+box(net, "stage0_config", "0 - CONFIG (13.3.0)", (0.55, 0.55, 0.58), [config])
+box(net, "stage1_decompose", "1 - DECOMPOSE (4.1) - VEX + native",
+    (0.29, 0.42, 0.68), dec_nodes)
+box(net, "stage2_plan", "2 - PLAN (4.2) - still Python, and 13.9 N2 is where it goes",
+    (0.35, 0.60, 0.38), [plan, out_plan])
+box(net, "stage4_frames", "4 - PLACE + DEFORM (4.4) - the frame, in VEX",
+    (0.70, 0.35, 0.32), [frames, valid, out_frames])
+box(net, "stageR_reference", "R - THE REFERENCE (13.6) - the oracle",
+    (0.45, 0.38, 0.55), [kernel, out_reference])
+
+note = net.createStickyNote("what_is_left")
+note.setText(
+    "STILL INSIDE `kernel`, and where it goes (13.9's build order):\n"
+    "\n"
+    "  4.2  the fitting solve       N2  HIGH    solve/expand/read in VEX,\n"
+    "                                           and splitmix64 in limbs\n"
+    "  4.4  copytopoints + deform   N4 N5       needs the kit-module\n"
+    "                                           plumbing, and R8\n"
+    "  4.5  conform                 N6  LOW     `ray` as a node\n"
+    "  4.6  finalize + the guards   N7  MEDIUM  D153\n"
+    "  4.3  corners                 N8  HIGH    boolean, or foreach+clip\n"
+    "\n"
+    "Nothing above is 'done'. Stage 1 is at parity on all 89 cases and\n"
+    "pc_frames is bit-exact on 1 650 real calls - both are MEASURED in\n"
+    "tests/polychain/run_native_checks.py, not asserted here.")
+note.setPosition(hou.Vector2(28.0, -9.0))
+note.setSize(hou.Vector2(11.0, 6.5))
+note.setColor(hou.Color((0.85, 0.80, 0.55)))
 
 
 # --- parameter page ---------------------------------------------------------
@@ -383,10 +657,46 @@ adv.addParmTemplate(hou.StringParmTemplate(
           "seed. Give two polyChains different names when they share a kit "
           "and must not repeat the same pattern.")))
 
+# D155, amended - the ONE parm this rebuild adds, and it lives in ADVANCED
+# rather than in a new Debug folder.  13.7 rule 3 asked for a Debug folder;
+# artist_ui 6's UX law allows exactly TWO disclosure levels and the built
+# asset is audited for it (`two_disclosure_levels`), so a third folder would
+# have broken a law to satisfy a layout preference.  Advanced is where the
+# other technical knobs already live.
+#
+# It is NOT a second `display`. `display` is an art-direction control (D81/
+# D82) that changes what is BUILT; this changes which stage of the build you
+# are LOOKING at, and every value but the default shows an intermediate that
+# was never meant to be rendered.
+adv.addParmTemplate(_menu(
+    "stage", "Stage (debug)",
+    [(token, label) for token, _node, label in STAGES], STAGES[0][0],
+    "Which stage of the network to output. This is 1c's 'open it up and "
+    "toggle nodes off to see what each one does', as one menu: the run "
+    "itself, the resolved parameters, the decomposed spline, the fit plan, "
+    "or the per-piece frames. Leave it on Output for anything but "
+    "debugging - the other entries are intermediates, not geometry."))
+
 ptg.append(adv)
 defn.setParmTemplateGroup(ptg)
 
 defn.setExtraFileOption("polychain/source", __file__.replace("\\", "/"))
+
+# 13.7 - THE ASSET SHIPS UNLOCKED, and this one option is what does it.
+# ⚠️ AND IT IS ALSO THE ONLY WAY THE NETWORK BOXES SURVIVE THE SAVE. Measured
+# this cycle on a three-node throwaway asset: with the default options,
+# `defn.save(..., template_node=...)` and `defn.updateFromNode()` BOTH write
+# the nodes and silently drop every network box and sticky note - a new
+# instance came back with `networkBoxes() == []` and no error anywhere. Worse,
+# force-cooking such an instance then failed with "Network box save failed",
+# which is the only sign Houdini gives that anything went wrong. With
+# `unlockNewInstances` the boxes, the comments and the sticky note all arrive
+# on a fresh instance and the cook is clean.
+# So the readability deliverable (`artist_ui.md` 6 rule 10) and the asset
+# being editable are the SAME switch, not two.
+_opts = defn.options()
+_opts.setUnlockNewInstances(True)
+defn.setOptions(_opts)
 defn.save(HDA_PATH, template_node=hda_node)
 
 hda_node.destroy()

@@ -424,3 +424,163 @@ def build_starter_kit_file(path=None):
     if folder and not os.path.isdir(folder):
         os.makedirs(folder)
     return _kit.write_kit_file(path)
+
+
+# --- 13.3 THE NODE NETWORK: the two Python SOPs the graph still contains ----
+#
+# Hannes' rule: "everything geometry related should be either native nodes,
+# vex or opencl. Python can be used for ui or processing data which is not
+# possible to process with the other 3 mentioned options."
+#
+# `cook_config` is the FIRST of those two and it is the permanent one: it is
+# parameter and payload marshalling, its N is the size of the parameter page,
+# it touches no geometry, and its output is a dict VEX reads natively.
+# `cook_plan_bridge` is the SECOND and it is SCAFFOLDING - 13.9 N2 deletes it
+# the day the fitting solve lands in VEX.  It is labelled as such in the
+# network and in its own docstring so nobody mistakes it for a fixture.
+
+CONFIG_KEYS = ("corner_angle_deg", "min_included_angle_deg", "fillet_radius",
+               "fillet_segments", "corner_mode", "corner_displacement",
+               "corner_offset_pct", "fill", "adaptive_pct", "count",
+               "evenly_spacing", "evenly_count", "justify", "adjust_to_end",
+               "zmode", "flatten_stepped", "flat_band", "flat_band_m",
+               "fix_slope", "bend_tol", "conform_tilt")
+
+
+def config_dict(node):
+    """13.3.0's `pc_cfg` - the resolved parameters, payload precedence applied.
+
+    ONE function, both faces (2.1): `style.read` on input 3 wins whole (D77),
+    and the parameter page answers when there is no payload.  Nothing
+    downstream reads a parm, which is what keeps the graph generic and PC-G4
+    passing by construction.
+    """
+    parms = parm_owner(node)
+    style, _warns = _style.read(_input_geo(node, 2))
+    params = style.params if style is not None else params_from_parms(parms)
+    out = {}
+    for key in CONFIG_KEYS:
+        value = getattr(params, key, None)
+        if value is None:
+            continue
+        out[key] = float(value) if isinstance(value, bool) else value
+    out["style_id"] = str(getattr(style, "style_id", "")
+                          or _parm_str(parms, "style_id", "pf_polychain"))
+    out["seed"] = float(getattr(style, "seed", 0) if style is not None
+                        else (parms.evalParm("seed") if parms.parm("seed")
+                              else 0))
+    out["from_payload"] = 1.0 if style is not None else 0.0
+    return out
+
+
+def cook_config(node):
+    """The CONFIG stream: one point carrying `pc_cfg`. Never raises."""
+    geo = node.geometry()
+    geo.clear()
+    try:
+        cfg = config_dict(node)
+    except Exception as exc:                                # warn-never-block
+        node.addWarning("config: %s" % exc)
+        cfg = {}
+    geo.addAttrib(hou.attribType.Global, "pc_cfg", {})
+    geo.setGlobalAttribValue("pc_cfg", cfg)
+    geo.createPoint()
+    return cfg
+
+
+# 13.3.4's frame inputs, as point attributes. The names are the ones
+# `pc_frames.vfl` binds; changing one means changing both.
+FRAME_POINT_ATTRS = (
+    ("pc_s0r", 0.0), ("pc_s1r", 0.0), ("pc_proto_len", 1.0),
+    ("pc_proto_ax", 0.0), ("pc_basey", 0.0), ("pc_yscale", 1.0),
+    ("pc_has_basey", 0), ("pc_curveprim", -1), ("pc_frame_valid", 0),
+)
+
+
+def curve_prim_index(curve_geo):
+    """{curve id: primitive number} using `pc_curveid.vfl`'s OWN id rule.
+
+    D29 + D64: `pc_curve_id`, else `edge_id`, else the primitive number, and a
+    BLANK id is an ABSENT id.  Written twice - once here, once in VEX - and
+    `native_id_parity` asserts the two agree on every case, because an id rule
+    that drifts silently re-addresses every element in the build.
+    """
+    out = {}
+    if curve_geo is None:
+        return out
+    for prim in curve_geo.prims():
+        cid = _place._blank_to_none(_place._prattr(prim, "pc_curve_id", None))
+        if cid is None:
+            cid = _place._blank_to_none(_place._prattr(prim, "edge_id", None))
+        if cid is None:
+            cid = prim.number()
+        out.setdefault(str(cid), prim.number())
+    return out
+
+
+def plan_geometry(geo, report, curve_geo):
+    """`plan_points` PLUS 13.3.4's frame inputs - the PLAN stage's output.
+
+    ⚠️ SCAFFOLDING (13.9 N2).  The plan itself is still the reference's; this
+    only lifts what the reference already computed onto real points so the
+    NATIVE `pc_frames` downstream has something to read.  When the VEX solve
+    lands, this node is deleted and `pc_plan_read` writes these same names.
+
+    `pc_frame_valid` is the honest half: a piece whose `Path` is a filleted,
+    slope-flattened or conformed polyline is NOT on the input spline, so the
+    native arclength table cannot answer for it and the flag says 0 rather
+    than the wrangle answering about a curve that does not exist.
+    """
+    _place.plan_points(geo, report)
+    rows = report.get("frames") or []
+    for name, default in FRAME_POINT_ATTRS:
+        if geo.findPointAttrib(name) is None:
+            geo.addAttrib(hou.attribType.Point, name, default)
+    if geo.findPointAttrib("pc_upref") is None:
+        geo.addAttrib(hou.attribType.Point, "pc_upref", (0.0, 1.0, 0.0))
+    if not rows or geo.intrinsicValue("pointcount") != len(rows):
+        return geo
+    index = curve_prim_index(curve_geo)
+    prim = [index.get(str(r["curve_id"]), -1) for r in rows]
+    valid = [1 if (r["raw"] and not r["anchored"] and prim[i] >= 0) else 0
+             for i, r in enumerate(rows)]
+    geo.setPointIntAttribValues("pc_curveprim", prim)
+    geo.setPointIntAttribValues("pc_frame_valid", valid)
+    geo.setPointIntAttribValues(
+        "pc_has_basey", [0 if r["base_y"] is None else 1 for r in rows])
+    geo.setPointFloatAttribValues("pc_s0r", [r["s0r"] for r in rows])
+    geo.setPointFloatAttribValues("pc_s1r", [r["s1r"] for r in rows])
+    geo.setPointFloatAttribValues("pc_proto_len", [r["proto_len"] for r in rows])
+    geo.setPointFloatAttribValues("pc_proto_ax", [r["proto_ax"] for r in rows])
+    geo.setPointFloatAttribValues(
+        "pc_basey", [0.0 if r["base_y"] is None else r["base_y"] for r in rows])
+    geo.setPointFloatAttribValues("pc_yscale", [r["yscale"] for r in rows])
+    up = []
+    for r in rows:
+        up.extend(r["up_ref"])
+    geo.setPointFloatAttribValues("pc_upref", up)
+    return geo
+
+
+def cook_plan_bridge(node):
+    """The PLAN stage's output, until 13.9 N2's VEX solve replaces it."""
+    geo = node.geometry()
+    geo.clear()
+    curve_geo = _input_geo(node, 0)
+    if curve_geo is None or not curve_geo.intrinsicValue("primitivecount"):
+        node.addWarning("no spline on input 1 - nothing to plan")
+        return
+    parms = parm_owner(node)
+    kit_geo = kit_geometry(node, parms)
+    style, warns = _style.read(_input_geo(node, 2), kit=_kit.read(kit_geo)[0])
+    for warn in warns:
+        node.addWarning(warn)
+    if style is None:
+        style = style_from_parms(parms)
+        kit_geo = _padded(kit_geo, parms.evalParm("padding")
+                          if parms.parm("padding") else 0.0)
+    _out, report = _place.build(curve_geo, kit_geo, style,
+                                params=style.params,
+                                surface_geo=_input_geo(node, 3))
+    plan_geometry(geo, report, curve_geo)
+    return report

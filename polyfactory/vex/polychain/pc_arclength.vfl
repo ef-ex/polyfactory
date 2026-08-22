@@ -1,0 +1,109 @@
+// STAGE 1 - DECOMPOSE (spec 4.1).  PRIMITIVE wrangle, VEX precision 64.
+//
+// One curve per thread; the cumulative scan is sequential INSIDE that thread.
+// That is the decomposition the data actually has, and it measured 0.0037 s on
+// a 20 001-vertex 20 km line against the reference's 0.030 s.
+//
+// 64-BIT IS MANDATORY HERE.  This is the 20 km expression 11.0 measured
+// returning 0 at 32 bits; `vex_precision = 64` stores the result as a FLOAT64
+// attribute, so the value reaches the next node undamaged.
+//
+// It writes TWO tables, because the reference has two and they are not the
+// same table:
+//   * the SAMPLER table (`pc_seg_*`, `pc_total`, `pc_closed`, `pc_first`) is
+//     `place.Path`: raw vertices, zero-length segments dropped at 1e-9, the
+//     closing segment appended for a closed curve.
+//   * the CLEAN table (`pc_s` per point, `pc_seclen` per prim) is
+//     `decompose._clean`: coincident vertices merged at 1e-6, and a closed
+//     curve's repeated final vertex dropped.
+// Collapsing them would be wrong by 1e-6 m in the places it matters most.
+
+#include "pc_path.h"
+
+int pts[] = primpoints(0, @primnum);
+int np = len(pts);
+int closed = primintrinsic(0, "closed", @primnum);
+
+// ---- the SAMPLER table: place.Curve._cumulative + Curve._segments ----------
+vector P[];
+resize(P, np);
+for (int i = 0; i < np; i++) P[i] = point(0, "P", pts[i]);
+
+float cum[];
+append(cum, 0.0);
+float total = 0.0;
+for (int i = 1; i < np; i++) {
+    total += length(P[i] - P[i - 1]);
+    append(cum, total);
+}
+if (closed && np > 1) {
+    total += length(P[0] - P[np - 1]);
+    append(cum, total);
+}
+
+float seg_lo[], seg_hi[];
+vector seg_a[], seg_d[];
+for (int i = 0; i < len(cum) - 1; i++) {
+    vector a = P[i];
+    vector d = P[(i + 1) % np] - a;
+    if (length(d) >= PC_EPS) {          // a duplicated point is not a segment
+        append(seg_lo, cum[i]);
+        append(seg_hi, cum[i + 1]);
+        append(seg_a, a);
+        append(seg_d, d);
+    }
+}
+
+f[]@pc_seg_lo = seg_lo;
+f[]@pc_seg_hi = seg_hi;
+v[]@pc_seg_a  = seg_a;
+v[]@pc_seg_d  = seg_d;
+f@pc_total    = (len(cum) ? cum[len(cum) - 1] : 0.0);
+i@pc_closed   = closed;
+v@pc_first    = (np ? P[0] : set(0.0, 0.0, 0.0));
+
+// ---- the CLEAN table: decompose._clean -------------------------------------
+// `keep[k]` is the k-th surviving VERTEX SLOT (an index into `pts`), which is
+// what `_clean` calls its "kept original indices".
+int keep[];
+for (int i = 0; i < np; i++) {
+    if (len(keep) && length(P[i] - P[keep[-1]]) <= PC_POS_EPS) continue;
+    append(keep, i);
+}
+if (closed && len(keep) > 1
+        && length(P[keep[0]] - P[keep[-1]]) <= PC_POS_EPS) {
+    pop(keep);                          // the closing vertex, not a second one
+}
+int nk = len(keep);
+
+// A vertex the clean pass merged away carries -1 and its predecessor's metre,
+// so a downstream read of `pc_s` on ANY point is still a metre on this curve.
+// ⚠️ ONE pass, not two: a `setpointattrib` written earlier in the same wrangle
+// is NOT guaranteed readable back, so the running metre is carried in a local.
+int kpos[];
+resize(kpos, np);
+for (int i = 0; i < np; i++) kpos[i] = -1;
+for (int k = 0; k < nk; k++) kpos[keep[k]] = k;
+
+float ccum = 0.0, held = 0.0;
+for (int i = 0; i < np; i++) {
+    int k = kpos[i];
+    if (k < 0) {
+        setpointattrib(0, "pc_s",        pts[i], held);
+        setpointattrib(0, "pc_cleanidx", pts[i], -1);
+        setpointattrib(0, "pc_prev",     pts[i], -1);
+        setpointattrib(0, "pc_next",     pts[i], -1);
+        continue;
+    }
+    if (k) ccum += length(P[i] - P[keep[k - 1]]);
+    held = ccum;
+    setpointattrib(0, "pc_s",        pts[i], ccum);
+    setpointattrib(0, "pc_cleanidx", pts[i], k);
+    setpointattrib(0, "pc_prev", pts[i],
+                   (closed || k > 0)      ? pts[keep[(k - 1 + nk) % nk]] : -1);
+    setpointattrib(0, "pc_next", pts[i],
+                   (closed || k < nk - 1) ? pts[keep[(k + 1) % nk]] : -1);
+}
+
+f@pc_seclen = ccum;                      // the CLEANED length (4.1's section)
+i@pc_nclean = nk;

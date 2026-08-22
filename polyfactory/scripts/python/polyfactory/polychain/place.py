@@ -1797,6 +1797,19 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         kcurve, _real, path, remap, fillet_warns = _prepare(curve, params,
                                                             surface_geo,
                                                             shared_surface)
+        # 13.8 rule 1 - the NATIVE stage and the reference must be asked the
+        # same question in the SAME process, so the report has to say which
+        # curve each `Path` is on and whether that curve is still the one the
+        # artist wired in. A filleted, slope-flattened or conformed path is a
+        # DIFFERENT polyline, and a native wrangle reading the input spline's
+        # arclength table would be answering about a curve that does not
+        # exist. `pc_raw` is that flag; `frames_parity` refuses to compare
+        # where it is False rather than comparing something else.
+        path.pc_curve_id = str(curve.curve_id)
+        path.pc_raw = bool(
+            not isinstance(path, _conform.ConformPath)
+            and _real.closed == curve.closed
+            and _real.points == curve.points)
         if id_count.get(str(curve.curve_id), 0) > 1:
             fillet_warns = tuple(fillet_warns) + (WARN_CURVE_ID_DUP,)
         sections = _decompose.decompose(kcurve, markers, params)
@@ -2056,6 +2069,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             # different facets, and rolling to one end's facet tips the far
             # end into the ground.
             up_ref = normal_at(0.5 * (job["s0r"] + job["s1r"]))
+        job["up_ref"] = up_ref          # 13.8 - pass B's own answer, recorded
         if job["hero"] is not None:
             # D58: hero geometry lands PACKED at the transform this element
             # would have had - the same 4x4 a rigid piece gets, so a replaced
@@ -2148,6 +2162,18 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         "overrides": len(overrides),
         "plan": [j["p"] for j in jobs],
         "plan_pos": [j["pos0"] for j in jobs],
+        # 13.3.4's frame inputs, as the reference actually computed them.
+        # ADDITIVE and read-only: nothing in the build consults it, and its
+        # only consumer is `frames_parity`, which feeds these exact numbers to
+        # `pc_frames.vfl` and asserts the two 3x3s agree bit for bit.
+        "frames": [{"s0r": j["s0r"], "s1r": j["s1r"], "zmode": j["zmode"],
+                    "proto_len": j["proto"].length, "proto_ax": j["proto"].ax,
+                    "base_y": j["packed_y"], "yscale": j["yscale"],
+                    "up_ref": tuple(j.get("up_ref", UP)),
+                    "curve_id": getattr(j["path"], "pc_curve_id", None),
+                    "raw": bool(getattr(j["path"], "pc_raw", False)),
+                    "anchored": j["p"].anchor is not None}
+                   for j in jobs],
         "kit_warnings": kit_warns,
         "curves": len(curves),
         "markers": len(markers),

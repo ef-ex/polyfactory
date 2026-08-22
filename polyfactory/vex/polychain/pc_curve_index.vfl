@@ -1,0 +1,10 @@
+// STAGE 1 - DECOMPOSE.  DETAIL wrangle: the curve id table, one entry per
+// primitive, in primitive order.  It exists so a marker can find its curve
+// with an array lookup instead of a scan over the whole stream - the same
+// "hoist the batch to the outermost loop" rule 11.9 wrote for the Python.
+
+string ids[];
+int n = nprimitives(0);
+resize(ids, n);
+for (int i = 0; i < n; i++) ids[i] = prim(0, "pc_curve_id_r", i);
+s[]@pc_curve_ids = ids;

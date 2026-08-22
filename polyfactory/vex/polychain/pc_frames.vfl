@@ -1,0 +1,72 @@
+// STAGE 4 - PLACE + DEFORM (spec 4.4).  POINT wrangle over PLAN POINTS,
+// VEX precision 64.
+//   input 0  the plan (one point per piece)
+//   input 1  CONFIG
+//   input 2  the DECOMPOSED spline (carries `pc_seg_*` - the sampler table)
+//
+// `place._packed_transform` ported: the 4x4 that maps module local space onto
+// the chord A->B (D21).  It is the single hottest per-piece computation in the
+// tool, it is pure arithmetic on (span, module, z-mode, camber), and it is
+// exactly the work Hannes' rule reclassifies out of Python.
+//
+// It writes a 3x3 `transform` + `P`, which is what `copytopoints::2.0` reads
+// (probed: a per-point 3x3 `transform` attribute IS honoured, and the kit
+// module is picked per point by a STRING `pc_module`).  So 4.4's
+// materialisation is this node plus one native copy - no VOP net, no Python.
+//
+// ⚠️ NOTHING in this file random-accesses a point or a primitive outside the
+// per-curve segment arrays.  That is 13.5's OpenCL transliterability
+// constraint (D149), and honouring it costs nothing today.
+
+#include "pc_path.h"
+
+#define PC_FLAT_RATIO   0.01    // horizontal reach vs planned span, yaw-only
+
+int   pr     = i@pc_curveprim;
+float sa     = f@pc_s0r;
+float sb     = f@pc_s1r;
+string zmode = s@pc_zmode;
+float plen   = f@pc_proto_len;          // the module's nominal fitted length
+float pax    = f@pc_proto_ax;           // its bbox min x - the local origin
+float yscale = (haspointattrib(0, "pc_yscale")) ? f@pc_yscale : 1.0;
+vector up_ref = (haspointattrib(0, "pc_upref")) ? v@pc_upref
+                                                : set(0.0, 1.0, 0.0);
+
+vector a, ta, b, tb;
+pc_span_ends(2, pr, sa, sb, a, ta, b, tb);
+
+vector chord = b - a;
+float clen = length(chord);
+
+if (zmode != "adaptive") {
+    // D32: when yaw-flattening leaves less than FLAT_RATIO of the 3D chord
+    // there is nothing left to scale by, and scaling by it produced a 1e-9
+    // sliver - invisible geometry no check could see.  Keep the 3D length so
+    // the piece stays VISIBLE; the warning is stamped elsewhere.
+    vector flat = set(chord.x, 0.0, chord.z);
+    float flen = length(flat);
+    chord = flat;
+    clen = (flen >= PC_FLAT_RATIO * clen) ? flen : clen;
+}
+
+vector d, across, up;
+if (clen < PC_EPS) {                    // a zero-length span still gets a frame
+    pc_frame(ta, zmode, up_ref, d, across, up);
+    clen = 0.0;
+} else {
+    pc_frame(chord, zmode, up_ref, d, across, up);
+}
+
+float scale = max(clen / plen, 1e-9);
+float ox = pax * scale;
+// D98's flatten-under: a `stepped` piece is horizontal, so its whole elevation
+// is ONE number, and overriding it here moves the piece without touching the
+// fit, the frame or the chord it was measured on.
+float ay = (i@pc_has_basey) ? f@pc_basey : a.y;
+
+matrix3 m = set(d * scale, up * yscale, across);
+3@transform = m;
+v@P = set(a.x - d.x * ox, ay - d.y * ox, a.z - d.z * ox);
+
+f@pc_chordlen  = clen;
+f@pc_fitscale  = scale;

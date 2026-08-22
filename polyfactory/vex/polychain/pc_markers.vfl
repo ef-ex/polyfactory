@@ -1,0 +1,40 @@
+// STAGE 1 - DECOMPOSE (spec 4.1), markers.  POINT wrangle.
+//   input 0  the spline stream (marker points AND curve prims live here)
+//   input 1  CONFIG
+//
+// `Marker.distance_on` ported, with its two easily-lost details:
+//   * the total is the RAW cumulative length (`pc_total`, closing segment
+//     included), not `_clean`'s length - they differ by up to 1e-6 m per
+//     merged vertex and the marker check asserts at 1e-9;
+//   * D35 - a zero `pc_dist` beside a real `pc_u` is the geometry-wide
+//     DEFAULT, not an authored 0.  Reading it as authored built a
+//     0.75-of-the-curve gate at s = 0, silently.
+// Out-of-range values are CLAMPED, which is `distance_on`'s last line.
+
+#include "pc_path.h"
+
+if (!i@pc_marker) return;
+
+string cid = s@pc_curve;
+string ids[] = detail(0, "pc_curve_ids");
+int pr = -1;
+for (int i = 0; i < len(ids); i++) if (ids[i] == cid) { pr = i; break; }
+if (pr < 0) { i@pc_warn_marker_unbound = 1; return; }
+
+float total = prim(0, "pc_total", pr);
+
+int has_u    = haspointattrib(0, "pc_u");
+int has_dist = haspointattrib(0, "pc_dist");
+float u    = has_u    ? point(0, "pc_u", @ptnum)    : 0.0;
+float dist = has_dist ? point(0, "pc_dist", @ptnum) : 0.0;
+if (has_dist && has_u && abs(dist) <= 0.0) has_dist = 0;      // D35
+
+float s;
+if (has_dist)   s = (dist >= 0.0) ? dist : total + dist;
+else if (has_u) s = u * total;
+else            s = 0.0;
+s = clamp(s, 0.0, total);
+
+f@pc_s         = s;
+f@pc_u         = (total <= PC_EPS) ? 0.0 : s / total;
+i@pc_curveprim = pr;

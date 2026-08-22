@@ -1,0 +1,13 @@
+// STAGE 1 - DECOMPOSE (spec 4.1), the curve id.  PRIMITIVE wrangle.
+//
+// `place.read_curves`' id rule, D29 + D64 included: `pc_curve_id`, else
+// `edge_id`, else the primitive number - and a BLANK id is an ABSENT id, not
+// a shared one.  A Houdini attribute is geometry-wide, so the moment any prim
+// upstream carries `pc_curve_id` every other prim carries "" - and reading
+// that as an id collapses every unlabelled curve onto the same `pc_elem_id`.
+
+string cid = "";
+if (hasprimattrib(0, "pc_curve_id")) cid = prim(0, "pc_curve_id", @primnum);
+if (cid == "" && hasprimattrib(0, "edge_id")) cid = prim(0, "edge_id", @primnum);
+if (cid == "") cid = sprintf("%d", @primnum);
+s@pc_curve_id_r = cid;

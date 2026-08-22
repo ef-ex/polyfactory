@@ -1,0 +1,55 @@
+// STAGE 1 - DECOMPOSE (spec 4.1), corner resolution.  POINT wrangle.
+// (input 0 = spline stream, input 1 = CONFIG)
+//
+// `decompose.resolve_corners` ported.  It is a pure point wrangle ONLY because
+// `pc_arclength` already wrote each point's CLEANED neighbours - deriving them
+// here would mean walking the curve once per point.
+//
+// `pc_corner` on the incoming point is the artist's override and it keeps its
+// three meanings exactly: -1 suppress, 0 auto (turn > cornerAngle), 1 force.
+
+#include "pc_path.h"
+
+int prev = i@pc_prev, next = i@pc_next;
+int clean = i@pc_cleanidx;
+// the curve this vertex belongs to.  `pc_nclean` is a PRIMITIVE attribute and
+// a point wrangle binding `i@pc_nclean` would read 0 on every point - which is
+// silent, and made every corner in the suite vanish.
+int prims[] = pointprims(0, @ptnum);
+int pr = len(prims) ? prims[0] : -1;
+int nclean = (pr < 0) ? 0 : prim(0, "pc_nclean", pr);
+
+f@pc_turn_deg = 0.0;
+i@pc_iscorner = 0;
+i@pc_corner_degen = 0;
+
+// A merged vertex, an end vertex of an open curve, or a curve too short to
+// have an interior at all: not a corner, and not a warning either.
+if (clean < 0 || prev < 0 || next < 0 || nclean < 3) return;
+
+int flag = 0;
+if (haspointattrib(0, "pc_corner")) flag = point(0, "pc_corner", @ptnum);
+if (flag < 0) return;                        // -1 suppress, before any maths
+
+vector a = point(0, "P", prev);
+vector c = point(0, "P", next);
+vector d0 = a - v@P, d1 = c - v@P;
+// `_turn_deg`: the deviation from straight, 0 = collinear.  Built from the two
+// EDGE directions, not from the two spokes, so the sign convention matches.
+vector e0 = v@P - a, e1 = c - v@P;
+if (length(e0) < PC_EPS || length(e1) < PC_EPS) return;
+float dot = clamp(dot(normalize(e0), normalize(e1)), -1.0, 1.0);
+float turn = degrees(acos(dot));
+f@pc_turn_deg = turn;
+
+dict cfg = detail(1, "pc_cfg");
+float corner_angle = cfg["corner_angle_deg"];
+float min_incl     = cfg["min_included_angle_deg"];
+
+if (flag <= 0 && turn <= corner_angle) return;
+
+i@pc_iscorner = 1;
+i@pc_corner_forced = (flag > 0);
+i@pc_corner_degen = ((180.0 - turn) < min_incl);
+f@pc_corner_s = f@pc_s;
+setpointgroup(0, "pc_cornerpt", @ptnum, 1);
