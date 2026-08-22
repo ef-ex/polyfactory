@@ -8,6 +8,9 @@ python tests/unit/test_citygen.py
 python tests/unit/test_plan.py            # the S5 planner, ~0.02s
 python tests/unit/test_polychain.py       # polyChain contracts + decompose
 python tests/unit/test_polychain_plan.py  # polyChain's fitting solve, ~0.2s
+python tests/unit/test_polychain_array2d.py   # phase 2's row stack + the 25
+                                              # cell roles; asserts `hou` was
+                                              # never imported
 
 # re-measure what the builder's plates actually consume (rewrites the fixture
 # tests/unit/test_plan.py calibrates against)
@@ -20,6 +23,26 @@ hython tests/citygen/run_scene_checks.py --update-baseline
 # polyChain geometry — throwaway session, no .hip, no node network, ~9 s
 hython tests/polychain/run_scene_checks.py
 hython tests/polychain/run_scene_checks.py --update-baseline
+
+# polyChain PHASE 2 - the 2D array, its own cases and its own baseline so a
+# phase-2 movement can never be confused with a phase-1 one. Most of the
+# checks in it are phase 1's own, run unchanged: a 2D array IS a phase-1 build
+# over row curves, and the reuse is the assertion that no second kernel
+# appeared (D130).
+hython tests/polychain/run_2d_checks.py
+hython tests/polychain/run_2d_checks.py --update-baseline
+
+# what the ROW STACK costs, on the two shapes that decide it: one large facade
+# and 100 buildings x 8 storeys = 800 SHORT rows, the second measured through
+# ONE `place.build` call and through 100 of them. 11.9 rule 2 says the fixture
+# an implementer writes first (one tall tower) cannot see this.
+hython tests/polychain/facade_bench.py
+hython tests/polychain/facade_bench.py --reps 5 --json out.json
+
+# PC-G5's images, on gate_images.py's rasteriser - the L in three-quarter
+# view, the reflex corner ground-to-cornice, and the facade coloured by
+# `pc_cell` so the 5 x 5 role table is visible as a pattern
+hython tests/polychain/facade_images.py [outdir]
 
 # polyChain's HDA, cooked as a node - the only thing that can see a mis-wired
 # input, a parm that reads nothing, or a style payload that does not override

@@ -28,8 +28,8 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | **PHASE 2's §7 IS NOW A BUILDABLE SPEC (cycle P2-0, 2026-08-22) — written, not built.** §7 was directional until this cycle; it is now nine numbered build cycles (§7.10), three gates (PC-G5 facade closure / PC-G6 clipped areas / PC-G7 the row stack at scale), and eighteen decisions **D114–D131** in the new **§12 phase-2 build log**. The two findings it turns on, both read from iToo's own docs on this build rather than recalled: (i) **RC Slice's 20 pieces are a 5×4 product table**, so our cell inventory is `<x_slot>_<y_slot>` over the phase-1 `SLOTS` vocabulary — **25 roles**, RailClone's 20 being our subset with `y_slot != "corner"`, and the table's bottom row being literally the phase-1 slot list (D116); (ii) **a row is a phase-1 `Curve` and the row list is a phase-1 plan run on the Y axis** (D114), so Y-evenly / explicit heights / a second spline are three `Params` on one existing solver and RailClone's documented X-only-adaptive wart does not survive. **N rows go through ONE `place.build` call** (D115, §11.9 rule 2), and the kernel is extended by exactly three named things totalling ~24 lines: `Rule.yclass` (E1/D119), `pc_row_scale` (E2/D121) and kit role closure (E3/D118). No fork, no second solve (D130). §11 is still complete and independently verified (§11.8 P5cV); P7 remains its only unattempted item. |
-| Next up | **Cycle P2-1 — `polychain/array2d.py`: the Y solve, `hou`-free, unit tests only** (§7.10). Read §11.9 first, then §7 in full. Three things the spec is emphatic about and an implementer will be tempted to skip: (a) the **many-short-rows fixture** (100 buildings × 8 storeys = 800 short rows) exists from **cycle P2-2**, not from PC-G7 — §11.9 rule 2's defect is invisible on the one-tall-tower fixture you would naturally write first; (b) `ray_executions_per_build == 1` and the wrapper counters are the FIRST measurement when a phase-2 row is slow, before anyone reaches for a new language (§11.9 rule 1); (c) **PC-G5 sits mid-order, not last** — it is the acceptance test, and the four cycles after it are wasted if it cannot pass. ⚠️ **Phase 1's own owed work is unchanged and is not phase 2's to absorb:** the GUI viewport pass on PC-G1/PC-G2 (bridge wedged since 2026-08-22), the streets acceptance, standing finding (11) (`_stepped_base` samples the drape at the module's own stations), and §11's P7. Do not re-open §11 and do not re-derive P4's, P6's or OpenCL's declines (D109, D110). |
+| Last completed | **PHASE 2'S 2D GENERATOR CORE IS BUILT (cycles P2-1..P2-3, 2026-08-22) — implemented, UNVERIFIED (no independent audit has run on this build).** The row stack drives the phase-1 kernel with no fitting maths written for phase 2 at all: `polychain/array2d.py` (`hou`-free) is `decompose` + `plan.plan_sections` on a vertical profile, and `polychain/facade.py` emits N rows with bulk array writes and makes **ONE** `place.build` call. The 25 cell roles are first-class and resolve BY ROLE (the facade style names no modules), with D118's lattice walk closed as data at kit read and `pc_warn_role_fallback` on every element that took it. Measured: 800 short rows through one call are **2.95x** faster with no terrain and **3.98x** over one, at **1 `ray` execution against 100** — D115 / §11.9 rule 2 on the many-short-rows fixture, which exists from this cycle exactly as §7.10 demanded. Seven decisions **D132–D138** in §12, one of which (**D138**) CORRECTS D121: `pc_row_scale` is the row's number and the cell may be filled by a different module, which hung a cornice 2.200000048 m over the roof with every other number green. Phase 1 untouched: 90 scene cases, 0 failing, **0 baseline values moved**. |
+| Next up | **Cycle P2-4/P2-5 — the payload half from input 3, then the Y fit's `aligned` mode (D122) and `pc_extend` as a parm** (§7.10). Those two together close PC-G5 conditions **3** (bay alignment under `aligned` — not covered, because `aligned` does not exist yet: every row currently solves its own length, i.e. `free`) and **4** (zero slices, currently implied by adaptive never slicing rather than asserted as `slice_t is None`). Conditions 1, 2, 5, 6 and 7 already have checks and pass. ⚠️ **Read §12's P2-1..P2-3 entry before touching anything** — it records two places where §7 is WRONG (D94 does not harvest `pc_` names, so the row attrs needed `ROW_ATTRS_2D`; and the E1–E3 line estimate excludes their plumbing), four defects the suite found on its first run, and one the IMAGE found that no number could. Run `hython tests/polychain/run_2d_checks.py` and `python tests/unit/test_polychain_array2d.py` before and after every change; `hython tests/polychain/facade_bench.py` is the one-call/many-call ladder. ⚠️ **DEV-LOOP RULE 0: this cycle owes an INDEPENDENT AUDIT.** Phase 1's own owed work is unchanged and is not phase 2's to absorb: the GUI viewport pass on PC-G1/PC-G2, the streets acceptance, standing finding (11), and §11's P7 — whose cost is now visible at facade scale as `prims_wrappers_built_2d_rows` = 78 148. |
 | Gates | **ALL FOUR RE-CONFIRMED BY P5cV (2026-08-22) — PC-G1 and PC-G2 through the parm face and judged on images, PC-G3 on the 9-row ladder under both z-modes, PC-G4 mutation-proved (reverting D91 reports `moved: padding`). All four still owe the GUI viewport pass and nothing else changed.** PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** — the closed rectangle and the L close in both corner modes, all four fill modes, the gate on its marker (1.8e-7 m), convex and reflex corners; the bend corner's butt wedge is MEASURED and baselined as the accepted limit (D36 extended), and cycle 6's mutation of it fails by 1.10e-02 m on `CJ_bend_butt_120`. Cycle 8 closed the last hole in its parm face: the **marker slot is authorable on the page** (D88), so PC-G1's gate-on-a-marker no longer needs a payload, and an unread marker warns. **Cycle 9 rebuilt the whole figure THROUGH THE PARM FACE and looked at it** (`HC_{miter,bend}_{top,iso}.png`, `HG1_*.png`): the miter's two legs terminate into a corner post with the 45° bisector cut clean across it and the tops flush; the bend turns through the elbow as one continuous top arris with no corner post (D36's ring weld) and only the accepted butt notch; all four Fit Methods close flush on the spline; and the gate authored with **Piece at Markers + Marker Id and NO payload** lands at **x 7.200000..8.800000, centre 8.000000, error 1.788e-07 m**, with the unread-marker warning firing beforehand. PC-G1 no longer owes its parm face — only the GUI viewport pass · **PC-G2 numerically complete + IMAGE-VERIFIED (headless), INCLUDING the curving-spline variant it used to owe; GUI viewport pass still owed** — cycle 6 built the gate's own wording: a 24 m spline that **turns in plan (±3.6 m S-curve) and climbs 2.4 m**, resampled at 0.25 m, over a 2D terrain (`1.1 sin(2πx/13) + 0.8 cos(2πz/9) + 0.06x`), conform ON. All four modes pass **50 of 50** suite checks with **0 failures and nothing baselined**: `plumb_deg` **0.0** over 14 vertical pieces, `flat_stepped_m` **0.0** over **240 stepped posts, 240/240 still PACKED**, `bank_deg` **27.15°** adaptive, camber ON halving the residual to the surface normal (`camber_deg` 37.31° → **17.20°**), `conform_contact_m` **0.0**, `conform_misses` **0**, `inward_faces` **0**, no warnings. Judged on `VG2P_{vertical,stepped,adaptive}.png` and `VG2C_camber_cu.png`: the pickets' ribs are dead vertical while the run's foot follows the ground line, the adaptive rail's ribs lean perpendicular to the drape, the posts' tops make a clean sawtooth over a smooth ground line, and the cambered rail is visibly rolled onto the cross-fall. The **riser under each stepped piece is there and is expected** — it IS stepped mode — and it measures **0.061 m** on this hill; §4.4's flatten-under is BUILT as of cycle 10 (D98) and takes the AIR under each piece (`stepped_float_m` 0.054818/0.061280) to **0.0** with all 240 pieces still packed, leaving that riser where it is. **Cycle 9 re-rendered all of it through the HDA's parm page** with the terrain on input 4 (`HG2_*.png`): the pickets' ribs are plumb while the run's foot tracks the ground line, the stepped posts stand plumb with feet on the ground and tops stepping over it, the adaptive rail's ribs rake perpendicular to the drape, Tilt to Surface visibly rolls the rail onto the cross-fall, and the whole 24 m S-curve reads as a fence on a hill. Only the GUI viewport pass is owed · **PC-G3 numerically MEASURED at scale, and narrower than its headline** — 20 km, 10 005 × 2 m bendable panels: **10 005 packed, 0 deformed, one shared `geometryid`, 10 005 real points, +12.1 MB RSS, 0.42 s** as a two-point spline and **the same numbers at 0.55 s** as a **20 011-vertex resampled polyline** — independently reproduced in cycle 6, and D69 is what buys it (reverting D69 takes the resampled form to 0 packed / 10 005 deformed / 360 180 points / **21.9 s**). ⚠️ ~~The gate holds for a STRAIGHT resampled run only~~ — **CLOSED by D75 in cycle 7**: `hython tests/polychain/scale_gate.py` is the harness now, and R = 12 000 / 2 000 / 80 m all read **10 000 packed / 0 deformed / 10 000 points / +5.1 MB / ~0.60 s**, while R = 10 m (five times the budget) still deforms all 10 000 at 10.8 s. ⚠️ **CYCLE 9 RE-MEASURED THIS AFTER D87 AND THE TERMS ARE NARROWER AGAIN.** Those three rows are green because the starter kit's `panel` is **yaw-only** (`pc_zmode = vertical`), so the budget was spent on `rz` = 0.03 m and D87's off-spine term was switched almost all the way off — and `scale_gate.py` was still deciding pass/fail from `4/(8R)`, **the spine sagitta D87 retired**. Re-run under `zmode = adaptive`, where the panel's full 0.90 m height rides the frame: **R = 12 000 m and R = 2 000 m stay 10 000 packed / 10 000 points / ~0.6 s**, but **R = 80 m is 0 packed / 10 000 deformed / 360 000 points / 11.0 s / +34.7 MB** — `0.90 x 0.025 = 0.0225 m`, 2.25x `bend_tol`, so unpacking is CORRECT. D97 put the expectation on each ladder row with its reason and runs the ladder under both z-modes: **9 rows, 0 failing**, and mutating the budget 50x now fails 2 rows where it failed none. **PC-G3 passes on its own terms** — 10 005-piece packed instancing at 20 km, one `geometryid`, sub-second, +12 MB — and those terms are: a straight or gently-turning-IN-PLAN run, or any run whose module is yaw-only. A TALL module on an R = 80 m arc, or ANY module on a climbing run (D65's shear), costs the 11 s / 360 k-point deform path. The FLOOR rides the suite: `A_straight`, `CE_all_packed`, `CA_swap_module`, `CF_resampled_straight` and `CG_resampled_bendable` are asserted 100 % packed and `over_unpacked` proves nothing unpacks without a reason. ~~Owed: the deform path's VEX rewrite~~ — **DONE, cycle 10c (D102/D103)**: profiled first, the cost was the per-prim STAMP (9.023 s of 14.136 s, 4 758 096 `Prim.setAttribValue` calls) and not the deform loop (0.201 s, 1.4 %); through `hou.Geometry`'s bulk array setters the two deformed rows go **11.159 → 1.548 s (7.21x)** and **11.181 → 1.597 s (7.00x)**, bit-identical on all 83 cases, and VEX is measured and declined · **PC-G4 ✅ PASSES — as of cycle 12 (D107); before that its sweep was pretending** (§10 cycle 7): the same fence driven entirely by a style payload on input 3 with the parms at defaults, asserted in `tests/polychain/run_hda_checks.py` — the payload replaces the modules, the styleId and the ids, matches the kernel built from the `Style` object directly, and **the parms are provably inert while it is wired** — cycle 8 turned that from two parms into a SWEEP of the whole page (`swept 36 parms; moved: none`, ids AND rounded positions, exempting only `display`/`show_warnings`/`kitfile` by name), which is what caught `padding` still being live under a payload (D91). The generic-loop rule is audited by construction: `polychain/style.py` contains no style name and no branch per name, and `style_round_trip` re-proves it on all 73 cases. **Cycle 9 re-measured PC-G4 independently, in §2.1's own stronger wording — the SAME fence**: the parm face's own `Style` written out through `style.write` and wired back into input 3 of a second node with the parms at defaults produces output **identical on element ids, module names, rounded point positions AND every packed prim's full transform** across all **8 fill x corner combinations** (adaptive/scale/evenly/count x miter/bend, 35 to 137 prims). The page swept under that payload: **32 parms nudged, 0 moved the geometry**. A style the code has never heard of — `a_style_nobody_wrote_code_for`, carrying a `marker:42` slot — built **52 prims, 4 modules, 0 warnings** with no code change. The branch-per-name grep over the whole kernel returns nothing but `style_from_parms`' DEFAULT VALUE `"pf_polychain"`; the names that do appear in conditionals (`corner`, `default`, `start`, `end`) are §3.3's fixed slot vocabulary — the kernel's own schema, not any style's — and a slot outside it is dispatched generically. ⚠️ **CYCLE 12 MUTATION-TESTED THIS AND FOUND IT BLIND.** Reverting D91 - the `padding` parm applied unconditionally, so a wired payload feels it again - left the whole HDA suite **green**, `parms_inert_under_payload … moved: none`, with a debug print proving `_padded` really ran at 0.37 under the payload. The fixture was the cause, not the sweep: its `Params(fill="scale")` fence does not move for ANY `pc_pad` - `gate.pad` 0.0 -> 0.185 -> 0.400 with the output stuck at 44 prims, 12 elements and an identical point sum. **The fixture is `adaptive` now (D107)** and the same revert reports **`moved: padding`**; the shipped code reports `moved: none`. `scale` coverage is not lost - cycle 9 sweeps all 8 fill x corner combinations separately. GUI viewport pass owed like the others |
 
 **⚠️ NEW 2026-08-22, after phase 1 closed: [§11](#11-nativevexopencl-port-plan) is the ordered
@@ -5445,3 +5445,126 @@ No code changed; the suites were not re-run because nothing they cover moved
 tests, 89 scene cases, `run_hda_checks.py`, `scale_gate.py`, gates PC-G0..PC-G4.
 
 **Next up: cycle P2-1** — `polychain/array2d.py`, the Y solve, `hou`-free, unit tests only.
+
+
+---
+
+### Cycle P2-1..P2-3 — the row stack, the 25 cells, and the four defects the suite found (2026-08-22)
+
+**Built:** §7.10's first three cycles in one pass, plus the 2D data contracts (§7.3) and enough of
+§7.6's clipped area to fill a rectangular facade panel. Commits `5ace508` (kernel + stage),
+`37631cb` (harness + the defects it found), `fbd3112` (the images).
+
+**What shipped**
+
+| File | What it is |
+|---|---|
+| `polychain/array2d.py` (new, **`hou`-free**) | the Y solve, the row list, 7.2.1's Y precedence, D124's canonical footprint, D118's role closure, and §7.6 reduced to a frame plus a per-row span |
+| `polychain/facade.py` (new, the adapter) | row emission through bulk array writes only, then **ONE** `place.build` call |
+| `polychain/__init__.py` | `role_2d` / `split_role` / `ROLES_2D` / `ROLE_ALIASES` / `canonical_role`, `WARN_ROLE_FALLBACK`, `Rule.yclass`, `Rule.axis`, `Style.meta`, `Style.rules_for(slot, yclass)`, `Kit.role_fallbacks`, `Module.extend` |
+| `plan.py` | E1's tail: `cell_role`, `candidates(rule, kit, role)`, `pick`'s scoped rule list, `ctx["yclass"]` |
+| `place.py` | E2's axis scale on three materialisation paths, `_stamp_2d`, `ROW_ATTRS_2D`, and the one `array2d.classify` call |
+| `kit.py` / `style.py` | `pc_extend`, `role_fallbacks` on the manifest; `pc_axis` / `pc_yclass` on the rule points |
+
+**The Y solve is a phase-1 plan and nothing else.** `plan_rows` is `decompose.decompose` +
+`plan.plan_sections` on a vertical profile — no fitting maths was written for phase 2 at all, which
+is D130 measured rather than asserted. `13.0 m` of shopfront + storeys + cornice comes back as five
+`Placement`s whose bands tile the height to 1e-9 m, at every height tried, with nothing sliced.
+
+**The 25 cells resolve by ROLE, not by rule.** The facade style names no modules at all
+(`Rule("default")`, `Rule("corner")`); `plan.candidates` resolves the cell role against the kit,
+and E3's closure has already made sure the kit can answer. On the L footprint that produces
+`default` 64, `corner` 24, `default_start` 32, `corner_start` 12, `default_end` 32, `corner_end`
+12 — six cells, six different modules, zero warnings, and the same figure in **bend** mode produces
+exactly the three `default_*` cells because D36 welds the ring and there is no corner slot to fill.
+
+**FOUR DECISIONS, and one of them is a correction to §7.**
+
+| # | Decision |
+|---|---|
+| D132 | **The Y solve runs on a TRANSPOSED kit** (`pc_size.x` ↔ `pc_size.y`). The 1D solver fits on `Module.length`, which is `pc_size.x`; a storey's nominal length is its HEIGHT. Data, not a fork — and `pc_row_scale` then falls out of the same solve. `pc_pad` is not swapped: §7.3.1 already says the same two numbers read as (left, right) on X and (bottom, top) on Y |
+| D133 | **The `<slot>` field of `pc_elem_id` stays the X SLOT; `pc_cell` is stamped beside it.** §7.3.3's table maps "cell role → `<slot>`", but D123's own sentence is "`elem_id()` is not touched", and the address is already unique without the Y half because `pc_curve_id` carries the row. Keeping the X slot also keeps an id stable when a row's Y class changes (adding a cornice band would otherwise move every top-row id) |
+| D134 | **A Y `corner` class is a PROFILE VERTEX, named on the plan.** §7.1 says a Y-spline corner vertex is a `corner` row, but 4.3's corner machinery places a corner MODULE at a vertex in world space and a string course is not that — it is the BAND that starts at the setback. So `y_class` names the row whose band starts on a profile corner, in the documented order (`start`/`end` > `corner` > `marker` > `evenly` > `default`), eight lines, no second solve |
+| D135 | **A row is never sliced.** A `tile` Y fill whose remainder would be cut gives a SCALED row instead: half a storey is a defect and a storey 4 % short is a choice — D11's own argument, on the other axis |
+| D136 | **The role closure is written back onto the KIT PAYLOAD**, not passed into the kernel as an object. `place.build` reads its own kit from input 2 (D77's two-face rule), so a closure computed beside it would be thrown away; expressed as `pc_role` on a copy of the kit geometry plus a `role_fallbacks` entry in the manifest, it is data — inspectable by the artist, read by the existing reader, needing no new argument |
+| D137 | **The clip is a SPAN, not a cull.** §7.6's cost discipline says the boundary test runs on the plan before geometry exists; taken literally that is better than culling pieces, because the ROW's own span can be trimmed to the boundary and the fill then exactly fills what is left. `remove` is the intersection of the band's two scanlines, `preserve` their union; a rectangle is the identity case and a taper narrows every row with nothing built outside the line. Slicing a piece ON the boundary is still P2-7 |
+| D138 | ⚠️ **A CORRECTION TO D121. `pc_row_scale` is the ROW's number — band ÷ the height of the module the Y solve chose — and it is right only while the cell is filled by that same module.** D118's lattice walk breaks that by design: a kit with no cornice puts a 3.2 m bay in a 1.0 m band, and the row then overshot the roof by **2.200000048 m** with `row_closure_m` at 0.0 and every other number green. The row carries its BAND (`pc_row_y0`/`y1`) and each piece scales its OWN nominal height into it; `pc_row_scale` remains the row's number and the fallback for a module that declares no height. Found by `row_fill_y_m`, which exists because "exact fill on both axes" has to be measured on the geometry and not on the solve |
+
+**Two things §7 got wrong, both found by building it.**
+
+1. §7.1 says the row's six prim attrs "are already harvested onto `Section.attrs` by D94, so they
+   reach the fill rules with **no adapter change**". They are not: `place._prim_attrs` skips every
+   `pc_` name on purpose, because the kernel's own attributes are not the spline's. `ROW_ATTRS_2D`
+   names the five that must come through. Nothing moves in phase 1 — a curve that does not carry
+   the attribute never gains it — and `attr:pc_yclass` becomes a usable conditional subject as a
+   side effect.
+2. §7.1's extension budget ("~24 lines, and no fourth") holds for E1–E3 themselves but not for
+   their plumbing: `cell_role` has to reach `plan.candidates` for the closure to bite at all, and
+   `corner.py`'s two ctx builders need `yclass` or a corner column on the top row resolves
+   `corner` where the kit has `corner_end` — the PC-G5 case. Still no fork, still no second solve;
+   just more call sites than the estimate.
+
+**The harness** (`tests/README.md` has the commands):
+
+* `tests/unit/test_polychain_array2d.py` — **59 tests, and it asserts `hou` was never imported**,
+  because that property is what lets the whole Y solve be tested without a licence and one
+  convenience import in a later cycle would take it away silently.
+* `tests/polychain/cases2d.py` + `run_2d_checks.py` + `baseline_2d.json` — 13 cases, 27 checks
+  each. **Most of those checks are phase 1's own, run unchanged** (`exact_fill_m`, `max_gap_m`,
+  `corner_seam_m`, `determinism`, `geometry_digest`): a 2D array IS a phase-1 build over row
+  curves, so the reuse is the assertion that no second kernel appeared, and a check that had to be
+  forked would have been the finding.
+* `tests/polychain/facade_bench.py` — the one-call/many-call ladder.
+* `tests/polychain/facade_images.py` — PC-G5's pictures, on `gate_images.py`'s rasteriser
+  **extended, not rebuilt** (§7.8 says so by name).
+
+**FOUR DEFECTS THE SUITE FOUND ON ITS FIRST RUN**, none visible in the smoke build: D138 above;
+`band` already being taken in the job loop (D99's flat band, `None` when there is none) so the
+second piece of every build read `None`; `role_fallbacks` reading `scene.warns` as `{warn: ids}`
+when it is `{id: {warn}}`, so **PC-G5 condition 5 was passing vacuously** at 0 degrades on a case
+whose `warnings` row said 1 194; and a fixture that deleted the shopfront MODULE to test a missing
+`default_start` CELL, which also removed the Y solve's height source and made the case measure two
+variables at once.
+
+**AND ONE THE IMAGE FOUND, which is exactly what §7.8 says the image is for.** The first render
+skipped every non-packed prim — and a mitered corner column carries a world-space cut, so it can
+never be packed (4.3). Every `corner` cell was absent from the picture that exists to judge the
+corner, and the reflex vertex drew as an open gap. Fixed; it now reads ground-to-cornice as
+`pier_base` → `pier` → `pier_cap` with the cornice band turning continuously round it.
+
+**MEASURED** (`hython tests/polychain/facade_bench.py`, best of 3, Houdini 22.0.398):
+
+| row | curves | elements | seconds | `ray` execs | prim wrappers | peak WS MB |
+|---|---|---|---|---|---|---|
+| `one_tower_40x30` (one large facade) | 42 | 2 856 | 0.1369 | 0 | 4 110 | 448.6 |
+| `many_800rows_1call` | 800 | 17 600 | **1.7928** | 0 | 78 148 | 636.0 |
+| `many_800rows_100calls` | 800 | 17 600 | 5.2907 | 0 | 79 336 | 636.0 |
+| `many_800rows_1call_terrain` | 800 | 17 600 | **4.1792** | **1** | 78 148 | 971.7 |
+| `many_800rows_100calls_terrain` | 800 | 17 600 | 16.6395 | **100** | 79 336 | 971.7 |
+
+**800 short rows through ONE `place.build` call are 2.95x faster with no terrain and 3.98x faster
+over one, at ONE `ray` execution against 100.** That is D115 / §11.9 rule 2, measured on the
+many-short-rows fixture rather than on the one tall tower — and the tower row is in the table to
+show why: it reads 0 `ray` executions and 0.14 s either way, so it could never have decided this.
+
+`rows_wrappers_built` = **0** (row emission touches no wrapper — §11.9 rule 1). The 78 148 prim
+wrappers are **§11's unattempted P7** — `clip_plane`'s cap tagging and `dress_caps` are real
+per-prim loops, and 100 buildings × 4 vertices × 8 rows × 2 halves is 6 400 mitered pieces — so
+that row is pinned as a LADDER with its reason, not as a floor. Nothing phase 2 added is in it.
+
+**Suites after this cycle:** 90 phase-1 scene cases / **0 failing / 0 baseline values moved**,
+13 phase-2 cases / 0 failing, **345 unit tests** OK (286 phase-1 + 59 new), `run_hda_checks.py`
+0 failing, `gate_images.py` 0 failing.
+
+**HONEST STATUS: implemented, UNVERIFIED.** Dev-loop rule 0 — no independent agent has audited
+this build, so it is not "done". What is *not* built from §7.10: P2-4's payload half is only
+partly exercised (`pc_axis`/`pc_yclass` round-trip through `style.write`/`read` but no scene case
+drives a facade from input 3), P2-5's **aligned** Y mode (D122) is absent — every row solves its
+own length, which is `free` — and `pc_extend` is honoured in the closure but not as a generator
+parm; PC-G5's seven conditions are partly covered (1 via `corner_seam_m`/`corner_abut_m`, 2, 5, 6
+and 7 directly; **3 is not, because `aligned` does not exist yet**, and 4 is implied by adaptive
+never slicing rather than asserted as `slice_t is None`); P2-7's real clipping (sub-spline
+independence, even–odd nesting, `slice`), P2-8 and P2-9 are untouched.
+
+**Next up: cycle P2-4/P2-5** — the payload half driven from input 3 as a scene case, then the Y fit's
+`aligned` mode (D122) and `pc_extend` as a parm, which together close PC-G5 conditions 3 and 4.
