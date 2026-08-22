@@ -568,6 +568,21 @@ def _anchor_transform(proto, origin, direction, length, zmode):
          origin[2] - d[2] * ox, 1.0]])
 
 
+def _anchor_len(placement):
+    """The anchored piece's own geometric length.
+
+    ⚠️ NOT `s1 - s0`. On a PITCHED leg 4.3 lays the corner assembly out in
+    yaw-flattened metres (D48) - that is the space a `stepped` or `vertical`
+    piece is built in - while `s` stays arc length, so the two differ by
+    `1/cos(pitch)`. The anchor carries the geometric number; a placement from
+    before the third field falls back to the span.
+    """
+    anchor = placement.anchor
+    if anchor is not None and len(anchor) > 2 and anchor[2] is not None:
+        return float(anchor[2])
+    return placement.length
+
+
 def clip_plane(geo, origin, normal, keep_sign):
     """Cut `geo` on a WORLD half-space and cap the hole. Returns new geometry.
 
@@ -874,7 +889,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
         zmode, warns = job["zmode"], job["warns"]
         if not job["deformed"]:
             xform = (_anchor_transform(proto, p.anchor[0], p.anchor[1],
-                                       p.length, zmode)
+                                       _anchor_len(p), zmode)
                      if p.anchor is not None
                      else _packed_transform(proto, path, job["s0r"],
                                             job["s1r"], zmode))
@@ -894,7 +909,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
             # the module's own and the transform is baked rather than sampled.
             local = list(src.pointFloatAttribValues("P"))
             piece.transform(_anchor_transform(proto, p.anchor[0], p.anchor[1],
-                                              p.length, zmode))
+                                              _anchor_len(p), zmode))
             # AFTER the transform, never before: `hou.Geometry.transform`
             # carries any attribute Houdini reads as a vector along with P, and
             # a rotated `pc_local` would make every local-frame check measure

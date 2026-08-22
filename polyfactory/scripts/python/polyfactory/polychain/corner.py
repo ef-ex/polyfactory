@@ -201,6 +201,15 @@ class Bevel(object):
         self.v = tuple(v)
         self.tin = _unit(tin)
         self.tout = _unit(tout)
+        self.params = params
+        self.flat = False
+        # D48: the 3D tangents and how much longer a metre of ARC is than a
+        # metre of the yaw-flattened leg the flattened bevel measures in. Both
+        # are identities until `flatten` runs.
+        self.tin3 = self.tin
+        self.tout3 = self.tout
+        self.arc_in = 1.0
+        self.arc_out = 1.0
         self.section_in = section_in
         self.section_out = section_out
         self.s_vertex = float(s_vertex)
@@ -233,13 +242,75 @@ class Bevel(object):
     def e_for(self, half_width):
         return abs(float(half_width)) * self.tan_half
 
+    def plane_origin(self):
+        """D39, REVISED: there is exactly ONE cut plane and it NEVER MOVES.
+
+        The first version gave each copy its own plane - `V - o*tin` and
+        `V + o*tout` - which parted them by `2*o*cos(t/2)`: measured, a 5.7 cm
+        hole at +25 % on the starter fence and, at -25 %, 5.7 cm of DOUBLY
+        SOLID interpenetrating geometry where the two planes crossed over.
+
+        Moving ONE shared plane along the bisector instead does not fix it,
+        and this was measured too before it was believed: the two legs'
+        centrelines meet ONLY at the vertex, so a plane anywhere else cuts the
+        two boxes at different lateral positions and the two cut faces come
+        out coplanar but slid apart along the cut line by `2*o*cos(t/2)` -
+        `corner_face_mate_m` read 0.056569 m, the same hole in a new shape.
+
+        The plane through the vertex is the only one that mates, so the OFFSET
+        MOVES THE PIECES ALONG THEIR OWN LEGS instead (`build_assembly`), which
+        is what iToo's "adjust this slice position" describes from the
+        module's point of view: the two copies stay MIRROR IMAGES about this
+        plane at every offset, so the joint never opens and never doubles, and
+        what the artist is dialling is how much of the corner module the miter
+        eats - 4.3's own "pull-in and slice".
+        """
+        return self.v
+
     def plane_in(self):
         """(origin, normal, keep_sign) for the piece arriving at the vertex."""
-        return (_add(self.v, _mul(self.tin, -self.offset)), self.n, -1.0)
+        return (self.plane_origin(), self.n, -1.0)
 
     def plane_out(self):
-        """...and for the piece leaving it. Positive offset parts the two."""
-        return (_add(self.v, _mul(self.tout, self.offset)), self.n, 1.0)
+        """...and for the piece leaving it. Same plane, opposite keep side."""
+        return (self.plane_origin(), self.n, 1.0)
+
+    def flatten(self):
+        """D48 - re-solve this corner on YAW-FLATTENED tangents.
+
+        A `vertical` or `stepped` piece is built PLUMB, on the horizontal
+        projection of its span (`place._frame`), so a bevel taken from the 3D
+        tangents cuts it on a tilted plane that has nothing to do with how it
+        was laid out. Measured, both halves of that: a 40 degree pitch kink at
+        a hill crest anchored its two copies 0.055 m apart in Y and mated the
+        cut faces to only 0.055 m (a flat L mates to 8e-7 m), and a 90
+        degree-in-plan corner on a 25 % grade sliced the plumb 1.30 m corner
+        post horizontally-obliquely, leaving a 0.345 m stump against a
+        full-height mate. Flattening makes the plane VERTICAL, measures the
+        overhang horizontally, and puts both anchors at the vertex elevation -
+        which is the same projection the pieces themselves are built in.
+        """
+        fin = (self.tin[0], 0.0, self.tin[2])
+        fout = (self.tout[0], 0.0, self.tout[2])
+        if _len(fin) < 1e-6 or _len(fout) < 1e-6:
+            return self               # a plumb leg has no yaw to flatten to
+        offset = self.offset
+        tin3, tout3 = self.tin, self.tout
+        lin, lout = _len(fin), _len(fout)
+        self.__init__(self.corner, self.v, fin, fout, self.params,
+                      self.section_in, self.section_out, self.s_vertex)
+        self.offset = offset
+        self.flat = True
+        # The assembly is laid out in FLATTENED leg metres (that is the space
+        # the piece is built in), but a section's `s` is ARC length and so is
+        # the reserve the default fill is trimmed by. One metre of flat leg is
+        # `1/cos(pitch)` metres of arc, and forgetting it left the corner post
+        # reaching 0.16 m horizontally where the run had given up 0.16 m of
+        # arc - a 0.010 m hole in plan at a 20 degree pitch.
+        self.tin3, self.tout3 = tin3, tout3
+        self.arc_in = 1.0 / lin
+        self.arc_out = 1.0 / lout
+        return self
 
     def as_dict(self):
         return {"v": list(self.v), "turn": self.turn, "side": self.side,
@@ -500,12 +571,21 @@ class Assembly(object):
     """The whole corner: its pieces, what each leg lends it, and its warnings."""
 
     def __init__(self, bevel, pieces=(), reserve_in=0.0, reserve_out=0.0,
-                 warns=()):
+                 warns=(), near_in=0.0, near_out=0.0, slot="corner"):
         self.bevel = bevel
         self.pieces = list(pieces)
         self.reserve_in = float(reserve_in)
         self.reserve_out = float(reserve_out)
         self.warns = tuple(warns)
+        # Where each leg's straddling copy REACHES PAST the vertex (negative).
+        # D44's squeeze scales the assembly about this contact and not about
+        # the vertex, so a squeezed module still reaches the cut plane.
+        self.near_in = float(near_in)
+        self.near_out = float(near_out)
+        # "corner" for a real corner module; "default" for the synthetic
+        # assembly D40's extend/symmetric policies build out of the DEFAULT
+        # module (it is a default piece - it just does not ride the path).
+        self.slot = slot
 
     @property
     def symmetry(self):
@@ -530,33 +610,62 @@ def compose_modules(rule, kit, ctx, style):
     return [m] if m is not None else []
 
 
-def build_assembly(bevel, mods, rule, params=DEFAULTS):
+def build_assembly(bevel, mods, rule, params=DEFAULTS, overhang=None):
     """D38's layout. `mods` in compose order; returns an `Assembly`.
 
     Leg coordinate `t` runs from the vertex OUTWARD along each leg, so a
     negative `t` is past the vertex - which is exactly where a mitered piece's
     outside face has to reach.
+
+    `overhang` overrides the miter overhang `e`. D40's `symmetric` policy is
+    the same layout with `e = L/2`, so the piece is centred ON the vertex
+    rather than reaching the plane with its outside face; passing the number
+    keeps one layout instead of two.
     """
     if not mods:
         return Assembly(bevel)
     n = len(mods)
     c = (n - 1) // 2                       # the straddler (D38)
     straddler = mods[c]
-    bevel.offset = (params.corner_offset_pct / 100.0) * straddler.length
     miter = bevel.mode == "miter"
-    e = bevel.e_for(_half_width(straddler)) if miter else 0.0
-    o = bevel.offset if miter else 0.0
+    e = (bevel.e_for(_half_width(straddler)) if overhang is None
+         else float(overhang)) if miter else 0.0
+    # D49 - THE OFFSET IS CLAMPED FROM BELOW, and the miter overhang rides the
+    # same clamp because they are the same number. The straddler's leg reserve
+    # is `L - e + o`, and when that reaches zero the module sits ENTIRELY past
+    # the vertex: the negative was handed to the default fill as a negative
+    # trim, so the run built through the corner uncut (inside-out, -0.103 m3,
+    # interpenetrating the other leg by 0.031 m at a 130 degree turn) and at
+    # -100 % offset the corner post was clipped out of existence and left a
+    # 23 cm hole - both with an EMPTY warning list. The module keeps at least
+    # a tenth of its length on its own leg, and says so. There is deliberately
+    # NO upper clamp: a positive offset that stops the piece short of the
+    # plane leaves a notch, which is exactly what the knob is for.
+    o_raw = (params.corner_offset_pct / 100.0) * straddler.length
+    o = max(o_raw, e - 0.9 * straddler.length) if miter else o_raw
+    clamped = miter and o > o_raw + 1e-12
+    bevel.offset = o
+    if not miter:
+        o = 0.0
 
     pieces = []
+    near_in = near_out = 0.0
     if miter:
         # "repeated on both sides of the corner, and sliced to maintain its
-        # full length on the outside": the outside edge reaches the plane, so
-        # the piece runs from `t = L - e + o` down to `t = -e + o`.
-        near = -e + o
-        far = near + straddler.length
-        pieces.append(CornerPiece(straddler, rule, far, near, "in", c, True))
-        pieces.append(CornerPiece(straddler, rule, far, near, "out", c, True))
-        base_in = base_out = far
+        # full length on the outside": the outside edge of the IN copy and the
+        # inside edge of the OUT copy both land on the plane, so each runs
+        # from `t = L - e` down to `t = -e`. D39 (revised) leaves that ONE
+        # plane on the vertex and slides BOTH copies by `o` along their own
+        # legs, which keeps them mirror images of each other about it: the
+        # joint never opens, and the offset reads as how deep the miter bites
+        # into the module.
+        near_in = near_out = -e + o
+        pieces.append(CornerPiece(straddler, rule, near_in + straddler.length,
+                                  near_in, "in", c, True))
+        pieces.append(CornerPiece(straddler, rule, near_out + straddler.length,
+                                  near_out, "out", c, True))
+        base_in = near_in + straddler.length
+        base_out = near_out + straddler.length
     else:
         # bend: one piece centred on the vertex, no slice, no duplicate. It is
         # placed on the INCOMING leg and simply spans the vertex; `place.py`
@@ -565,6 +674,7 @@ def build_assembly(bevel, mods, rule, params=DEFAULTS):
         half = straddler.length * 0.5
         pieces.append(CornerPiece(straddler, rule, half, -half, "in", c, False))
         base_in = base_out = half
+        near_in = near_out = -half
     for j in range(c - 1, -1, -1):
         m = mods[j]
         pieces.append(CornerPiece(m, rule, base_in + m.length, base_in, "in",
@@ -575,28 +685,53 @@ def build_assembly(bevel, mods, rule, params=DEFAULTS):
         pieces.append(CornerPiece(m, rule, base_out + m.length, base_out,
                                   "out", j, False))
         base_out += m.length
-    return Assembly(bevel, pieces, base_in, base_out, bevel.warns)
+    warns = list(bevel.warns)
+    if clamped and WARN_OVERFLOW not in warns:
+        warns.append(WARN_OVERFLOW)                      # D49
+    return Assembly(bevel, pieces, base_in, base_out, tuple(warns),
+                    near_in=near_in, near_out=near_out)
 
 
 # --- 4.3 item D: the displacement policy ------------------------------------
 
 def displacement(bevel, module, params=DEFAULTS):
-    """D40 - how far the DEFAULT run runs past the section boundary, metres.
+    """D40, REVISED - the OVERHANG of the default module's boundary piece.
 
-    Positive extends the run past the vertex (it is then cut by the plane);
-    negative pulls it back. The offset shifts all three, because the plane it
-    is cut against has moved.
+    The first version made this an EXTENSION of the fill span, handed to
+    `plan_section` as a negative trim. Three things were measured wrong with
+    that, all on the 12+12 m L with a 2 m panel:
+
+      * under `tile` the extension is TILED INTO, so `symmetric` planted a
+        whole new sliced half-panel entirely past the vertex (the clip then
+        annihilated it to a 3 cm wedge carrying its own `pc_elem_id`), and
+        `extend` planted a 0.03 m sliver instead of extending the last panel;
+      * under `adaptive` "symmetric" was only approximately symmetric - the
+        straddling piece came out centred at 12.07 m, not 12.00 m, off by
+        `(L_nominal - L_scaled)/2`;
+      * the piece past the vertex was DEFORMED AROUND THE WELDED KINK, because
+        a default piece has no anchor and therefore rides the path. At a 150
+        degree turn its cut faces stopped mating (0.055 m) and the survivor
+        was inside-out (volume -0.060 m3).
+
+    So the policy is now the same machinery the corner slot already uses: the
+    boundary piece is a ONE-MODULE ASSEMBLY of the default module, anchored on
+    the straight leg, duplicated both sides and cut on the plane. This
+    function returns only the number that assembly is laid out with -
+    `extend` puts the module's outside face on the plane (`e`), `symmetric`
+    centres the module on the vertex (`L/2`), `reset` builds no boundary piece
+    at all and the fill is simply sliced where it stops.
+
+    The corner OFFSET is no longer subtracted here: D39 (revised) moves the
+    single cut plane, and `build_assembly` shifts the two copies with it.
     """
-    if bevel.mode != "miter":
+    if bevel.mode != "miter" or module is None:
         return 0.0
     policy = params.corner_displacement
     if policy == "extend":
-        base = bevel.e_for(_half_width(module))
-    elif policy == "symmetric":
-        base = (module.length * 0.5) if module is not None else 0.0
-    else:                                        # reset
-        base = 0.0
-    return base - bevel.offset
+        return bevel.e_for(_half_width(module))
+    if policy == "symmetric":
+        return module.length * 0.5
+    return 0.0                                   # reset
 
 
 # --- the orchestrator -------------------------------------------------------
@@ -637,8 +772,23 @@ def _bevel_between(sec_in, sec_out, params):
     return Bevel(corner, v, tin, tout, params, sec_in, sec_out, sec_in.s1)
 
 
+def _yaw_only(mods, params):
+    """D48 - will every piece cut on this bevel be built PLUMB?
+
+    `place._frame` flattens the tangent for `vertical` and `stepped`, so those
+    pieces live in the horizontal projection and the plane that cuts them has
+    to live there too. `adaptive` banks with the path and wants the 3D
+    bisector. A mixed answer keeps the 3D plane, which is the conservative one:
+    it is the only plane that is right for at least one of them.
+    """
+    mods = [m for m in mods if m is not None]
+    if not mods:
+        return False
+    return all(_plan._zmode(m, params) != "adaptive" for m in mods)
+
+
 def solve_corners(sections, kit, style, params=DEFAULTS, closed=False):
-    """Every corner of one curve, solved. -> ([Assembly], {boundary: Assembly}).
+    """Every corner of one curve, solved. -> {boundary index: Assembly}.
 
     A boundary is keyed by the index of the section that STARTS at it, which
     is the same key `decompose` uses for `start_corner` - including the wrap
@@ -672,7 +822,24 @@ def solve_corners(sections, kit, style, params=DEFAULTS, closed=False):
         mods = []
         if bevel.mode == "miter":                        # D37
             mods = compose_modules(rule, kit, dict(ctx, slot="corner"), style)
-        asm = build_assembly(bevel, mods, rule, params)
+        module = _default_module(kit, style, sec_out, params)
+        if _yaw_only(mods or [module], params):
+            bevel.flatten()                              # D48
+        overhang, slot = None, "corner"
+        if not mods:
+            # D40's boundary piece, and F7's dead parm. `build_assembly` sets
+            # the offset off the STRADDLER, so with no corner module nothing
+            # ever set it: `corner_offset_pct` moved nothing at all on a
+            # displacement-policy fence, silently. Here the straddler is the
+            # default module, so the same rule ("% of module length") applies
+            # to the module that is actually being bevel-sliced.
+            bevel.offset = (params.corner_offset_pct / 100.0) * (
+                module.length if module is not None else 0.0)
+            d = displacement(bevel, module, params)
+            if d > EPS:
+                mods, rule, overhang, slot = [module], rule, d, "default"
+        asm = build_assembly(bevel, mods, rule, params, overhang=overhang)
+        asm.slot = slot
         out[key] = asm
     return out
 
@@ -689,17 +856,35 @@ def _squeeze(sections, assemblies, closed):
         head = assemblies.get(k)
         tail_key = (k + 1) % n if (closed or k + 1 < n) else None
         tail = assemblies.get(tail_key) if tail_key is not None else None
-        need = (head.reserve_out if head else 0.0) + \
-               (tail.reserve_in if tail else 0.0)
+        a_head = head.bevel.arc_out if head else 1.0
+        a_tail = tail.bevel.arc_in if tail else 1.0
+        need = ((head.reserve_out * a_head if head else 0.0)
+                + (tail.reserve_in * a_tail if tail else 0.0))
         if need > sec.length - EPS and need > EPS:
-            factors[k] = max(sec.length / need, 0.0)
+            # D44, CORRECTED: the squeeze is about the CUT PLANE, not about
+            # the vertex, so the fixed point is how far each copy reaches past
+            # it. Scaling `t_near` too pulled the squeezed copy's cut face
+            # back off the plane by `e*(1-f)` - measured as a 0.0283 m notch
+            # at every corner of a 12 x 0.12 m rectangle, and as a 1.20 m face
+            # mating against a 0.776 m one on a long-leg/short-leg corner.
+            n0 = ((head.near_out * a_head if head else 0.0)
+                  + (tail.near_in * a_tail if tail else 0.0))
+            denom = need - n0
+            factors[k] = (max((sec.length - n0) / denom, 0.0)
+                          if denom > EPS else 0.0)
     return factors
 
 
-def _piece_span(bevel, piece, factor):
-    """(t_far, t_near) after D44's squeeze. Scaling the reserve scales the
-    module with it, so the joint stays a joint."""
-    return (piece.t_far * factor, piece.t_near * factor)
+def _piece_span(asm, piece, factor):
+    """(t_far, t_near) after D44's squeeze, scaled about the PLANE CONTACT.
+
+    The straddler keeps its `t_near` - it still reaches the cut plane, so the
+    two copies still mate - and only its length shrinks; the flanks stacked
+    behind it follow, because they are measured in the same coordinate.
+    """
+    n0 = asm.near_in if piece.side == "in" else asm.near_out
+    return (n0 + (piece.t_far - n0) * factor,
+            n0 + (piece.t_near - n0) * factor)
 
 
 def _wrap_local(v, total, closed):
@@ -715,8 +900,14 @@ def _wrap_local(v, total, closed):
     return v
 
 
-def _assembly_placements(asm, sections, key, params, style, factors, closed):
-    """The corner slot's own `Placement`s, anchored on their legs (D38)."""
+def _assembly_placements(asm, sections, key, params, style, factors, closed,
+                         bases=None):
+    """The assembly's own `Placement`s, anchored on their legs (D38).
+
+    `bases` is {section index: first free `default` index on it}, used only by
+    D40's displacement assembly - its pieces ARE default pieces, so they
+    continue the run's numbering instead of colliding with it.
+    """
     bevel = asm.bevel
     n = len(sections)
     sec_out = sections[key]
@@ -729,18 +920,25 @@ def _assembly_placements(asm, sections, key, params, style, factors, closed):
         sec_index = section.index
         k_section = (key - 1) % n if piece.side == "in" else key
         factor = factors.get(k_section, 1.0)
-        t_far, t_near = _piece_span(bevel, piece, factor)
+        t_far, t_near = _piece_span(asm, piece, factor)
         length = max(t_far - t_near, 0.0)
+        # D48: `t` is a FLATTENED leg distance when the bevel was flattened,
+        # so the anchor rides the leg's real 3D line (`tin3` scaled by the arc
+        # factor, which puts the piece at the elevation the run hands it) and
+        # the section coordinates are the matching ARC metres. Off a flat
+        # curve every factor is 1 and every `*3` tangent is the tangent.
         if piece.side == "in":
-            origin = _add(bevel.v, _mul(bevel.tin, -t_far))
+            arc = bevel.arc_in
+            origin = _add(bevel.v, _mul(bevel.tin3, -t_far * arc))
             direction = bevel.tin
-            s1 = bevel.s_vertex - t_near
-            s0 = bevel.s_vertex - t_far
+            s1 = bevel.s_vertex - t_near * arc
+            s0 = bevel.s_vertex - t_far * arc
         else:
-            origin = _add(bevel.v, _mul(bevel.tout, t_near))
+            arc = bevel.arc_out
+            origin = _add(bevel.v, _mul(bevel.tout3, t_near * arc))
             direction = bevel.tout
-            s0 = bevel.s_vertex + t_near
-            s1 = bevel.s_vertex + t_far
+            s0 = bevel.s_vertex + t_near * arc
+            s1 = bevel.s_vertex + t_far * arc
         # The index has to be STRUCTURAL (D1), and a section can receive the
         # "in" half of the corner at its end AND the "out" half of the corner
         # at its start - both of which used to be index 0, so their two
@@ -748,9 +946,11 @@ def _assembly_placements(asm, sections, key, params, style, factors, closed):
         # opposite legs into one 5.7 m record. Two per compose slot, side
         # deciding the parity, and a collision is impossible by construction.
         idx = 2 * piece.compose_index + (1 if piece.side == "in" else 0)
+        if asm.slot != "corner":
+            idx += (bases or {}).get(k_section, 0)
         module = piece.module
-        warns = list(bevel.warns)
-        if factor < 1.0 - 1e-9:
+        warns = list(asm.warns)
+        if factor < 1.0 - 1e-9 and WARN_OVERFLOW not in warns:
             warns.append(WARN_OVERFLOW)                   # D44
         if module.missing:
             warns.append(WARN_KIT_GAP)
@@ -765,14 +965,14 @@ def _assembly_placements(asm, sections, key, params, style, factors, closed):
         # end of the run.
         local0 = _wrap_local(s0 - section.s0, section.curve_length, closed)
         out.append(_plan.Placement(
-            section.curve_id, sec_index, "corner", idx, module.name,
+            section.curve_id, sec_index, asm.slot, idx, module.name,
             local0, local0 + (s1 - s0),
             u=section.u_at(local0),
             scale=(length / module.length) if module.length > EPS else 1.0,
             deform=module.deform, zmode=_plan._zmode(module, params),
             variant=module.variant, section_key=section.section_key,
             style_id=style.style_id, warns=tuple(warns),
-            anchor=(origin, direction), cuts=cuts))
+            anchor=(origin, direction, length), cuts=cuts))
     return out
 
 
@@ -807,47 +1007,68 @@ def plan_curve(curve, sections, kit, style, params=None):
     n = len(sections)
 
     out = []
-    for key in sorted(assemblies):
-        asm = assemblies[key]
-        asm.bevel.assembly = asm
-        asm.bevel.squeeze = factors.get((key - 1) % n, 1.0)
-        out.extend(_assembly_placements(asm, sections, key,
-                                        params, style, factors, closed))
-
+    bases = {}
     for k, section in enumerate(sections):
         head = assemblies.get(k)
         tail_key = (k + 1) % n if (closed or k + 1 < n) else None
         tail = assemblies.get(tail_key) if tail_key is not None else None
         factor = factors.get(k, 1.0)
         module = _default_module(kit, style, section, params)
-        trim_head = trim_tail = 0.0
-        cut_head = cut_tail = None
-        if head is not None:
-            if head.pieces:
-                trim_head = head.reserve_out * factor
-            else:
-                trim_head = -displacement(head.bevel, module, params)
-                if head.bevel.mode == "miter":
-                    cut_head = head.bevel.plane_out()
-        if tail is not None:
-            if tail.pieces:
-                trim_tail = tail.reserve_in * factor
-            else:
-                trim_tail = -displacement(tail.bevel, module, params)
-                if tail.bevel.mode == "miter":
-                    cut_tail = tail.bevel.plane_in()
+        trim_head = _reserve(head, "out", factor)
+        trim_tail = _reserve(tail, "in", factor)
+        cut_head = head.bevel.plane_out() \
+            if head is not None and head.bevel.mode == "miter" else None
+        cut_tail = tail.bevel.plane_in() \
+            if tail is not None and tail.bevel.mode == "miter" else None
         section.fill_a = trim_head
         section.fill_b = section.length - trim_tail
         runs = _plan.plan_section(section, kit, style, params,
                                   trim=(trim_head, trim_tail))
-        if cut_head is not None or cut_tail is not None:
-            _apply_cuts(runs, section, module, cut_head, cut_tail,
-                        head, tail)
+        # ALWAYS, not only where the corner slot is empty. A default piece
+        # that stops at the assembly's reserve still reaches `e` across, so
+        # wherever the reserve is SHORTER than `e` the two legs' square ends
+        # cross inside the corner module's footprint: measured as a
+        # 0.000391 m3 boolean intersection per corner on a 1.5 m equilateral
+        # triangle (reserve 0.0215 m against a 0.03 m panel half-thickness),
+        # invisible from outside and unwarned. `_apply_cuts`' own across-reach
+        # test already expresses exactly that condition, so handing it the
+        # planes unconditionally is the whole fix.
+        _apply_cuts(runs, section, module, cut_head, cut_tail, head, tail)
         out.extend(runs)
+        bases[k] = 1 + max([p.index for p in runs
+                            if p.slot == "default"] or [-1])
+
+    for key in sorted(assemblies):
+        asm = assemblies[key]
+        asm.bevel.assembly = asm
+        asm.bevel.squeeze = factors.get((key - 1) % n, 1.0)
+        out.extend(_assembly_placements(asm, sections, key, params, style,
+                                        factors, closed, bases))
     if degenerate_s:
         _stamp_degenerate(out, sections, degenerate_s, curve.length, closed)
     out.sort(key=lambda p: (p.section_index, p.s0, p.slot, p.index))
     return (out, [assemblies[k].bevel for k in sorted(assemblies)], sections)
+
+
+def _reserve(asm, side, factor):
+    """Metres one corner assembly takes off one leg's default fill.
+
+    NEVER NEGATIVE. `L_c - e` goes negative as soon as the turn is sharp
+    enough that the corner module is shorter than its own miter overhang
+    (126.87 degrees for the starter kit's 0.16 m post), and the negative was
+    handed straight to `plan_section` as a negative trim: the default run then
+    ran through the vertex, was DEFORMED around the hard kink, and came out
+    inside-out (measured volume -0.103 m3 at a 130 degree turn) and
+    interpenetrating the other leg by 0.031 m, with an empty warning list.
+    Clamping here is half the fix; `build_assembly` stamps WARN_OVERFLOW and
+    `_apply_cuts` hands the run the plane, which is the other half.
+    """
+    if asm is None or not asm.pieces:
+        return 0.0
+    r = asm.reserve_out if side == "out" else asm.reserve_in
+    n0 = asm.near_out if side == "out" else asm.near_in
+    arc = asm.bevel.arc_out if side == "out" else asm.bevel.arc_in
+    return max((n0 + (r - n0) * factor) * arc, 0.0)
 
 
 def _stamp_degenerate(placements, sections, vertices, total, closed):
@@ -881,5 +1102,20 @@ def _apply_cuts(runs, section, module, cut_head, cut_tail, head, tail):
             continue
         if cut_head is not None and p.s0 - head.bevel.e_for(half) < 1e-9:
             p.cuts = p.cuts + (cut_head,)
-        if cut_tail is not None                 and p.s1 + tail.bevel.e_for(half) > section.length - 1e-9:
+            _overflow(p, head)
+        if cut_tail is not None \
+                and p.s1 + tail.bevel.e_for(half) > section.length - 1e-9:
             p.cuts = p.cuts + (cut_tail,)
+            _overflow(p, tail)
+
+
+def _overflow(placement, asm):
+    """A default piece cut by a corner it was supposed to stop short of.
+
+    With no corner module the slice at the vertex IS the `reset` policy and
+    says nothing; with one, the piece reaching across the plane means the
+    reserve was shorter than the piece's own across-reach - the corner module
+    does not have room, and warn-never-block wants that visible.
+    """
+    if asm is not None and asm.pieces and WARN_OVERFLOW not in placement.warns:
+        placement.warns = placement.warns + (WARN_OVERFLOW,)

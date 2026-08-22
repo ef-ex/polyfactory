@@ -167,24 +167,110 @@ def _frame_of(face):
         return (None, None, None)
     (l0, w0) = face[0]
     up, across = (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)
+    # ⚠ EACH PAIR MUST VARY IN ONE LOCAL AXIS ONLY. Taking the first
+    # y-varying pair whatever its z does folds an `across` component into `up`,
+    # and the recovered origin is then wrong by that much: on a clipped corner
+    # post whose point order interleaves z across y (which `clip` + `polyfill`
+    # produce), `corner_abut_m` reported a phantom 0.160 m gap on a corner that
+    # point-by-point is perfectly closed, and the same fragility can MASK a
+    # real gap. So: `up` off a pair sharing local z, `across` off a pair
+    # sharing local y - and only then the affine map is the one the builder
+    # actually used.
+    fit = _affine_fit(face)
+    if fit is not None:
+        return fit
+    got_up = got_across = False
     for (l1, w1) in face[1:]:
-        if abs(l1[1] - l0[1]) > LOCAL_TOL:
+        if abs(l1[1] - l0[1]) > LOCAL_TOL and abs(l1[2] - l0[2]) <= LOCAL_TOL:
             d = l1[1] - l0[1]
             up = ((w1[0] - w0[0]) / d, (w1[1] - w0[1]) / d,
                   (w1[2] - w0[2]) / d)
+            got_up = True
             break
     for (l2, w2) in face[1:]:
-        if abs(l2[2] - l0[2]) > LOCAL_TOL:
-            dy, dz = l2[1] - l0[1], l2[2] - l0[2]
-            across = ((w2[0] - w0[0] - up[0] * dy) / dz,
-                      (w2[1] - w0[1] - up[1] * dy) / dz,
-                      (w2[2] - w0[2] - up[2] * dy) / dz)
+        if abs(l2[2] - l0[2]) > LOCAL_TOL and abs(l2[1] - l0[1]) <= LOCAL_TOL:
+            dz = l2[2] - l0[2]
+            across = ((w2[0] - w0[0]) / dz, (w2[1] - w0[1]) / dz,
+                      (w2[2] - w0[2]) / dz)
+            got_across = True
             break
+    if not (got_up and got_across):
+        # ⚠️ NOT a silent default. A clip leaves faces that vary in ONE local
+        # axis - the outside edge of a mitered post is a single z column - and
+        # assuming world up/across there put the recovered axis point up to
+        # h*sqrt(2) away: a closed pentagon read a 0.129 m corner "gap" that
+        # its own points prove is 0. No recoverable frame means no
+        # measurement, and every caller already handles None.
+        return (None, None, None)
     origin = tuple(w0[k] - up[k] * l0[1] - across[k] * l0[2] for k in range(3))
     return (origin, up, across)
 
 
-def _axis_of(face):
+def _affine_fit(face):
+    """Least-squares (origin, up, across) over EVERY point of the face.
+
+    The pair-picking below is only a fallback now, because picking pairs is
+    what made the measurement fragile: a clipped corner post's point order
+    interleaves local z across local y, so the first y-varying pair also
+    varied in z and folded an `across` component into `up`. `corner_abut_m`
+    then reported a 0.160 m phantom gap on a closed reflex corner and a
+    0.129 m one on a closed pentagon - and the same fragility can equally MASK
+    a real gap. Fitting `world = A + up*y + across*z` over all points has no
+    pair to pick wrong, and on a face whose (y, z) spread is degenerate the
+    normal matrix is singular and this returns None.
+    """
+    if len(face) < 3:
+        return None
+    m = [[0.0] * 3 for _ in range(3)]
+    rhs = [[0.0] * 3 for _ in range(3)]
+    for (loc, wrl) in face:
+        basis = (1.0, loc[1], loc[2])
+        for i in range(3):
+            for j in range(3):
+                m[i][j] += basis[i] * basis[j]
+            for k in range(3):
+                rhs[i][k] += basis[i] * wrl[k]
+    inv = _inv3(m)
+    if inv is None:
+        return None
+    sol = [[sum(inv[i][j] * rhs[j][k] for j in range(3)) for k in range(3)]
+           for i in range(3)]
+    return (tuple(sol[0]), tuple(sol[1]), tuple(sol[2]))
+
+
+def _inv3(m):
+    """Inverse of a 3x3, or None when it is singular for this job."""
+    a, b, c = m[0]
+    d, e, f = m[1]
+    g, h, i = m[2]
+    co = [[e * i - f * h, c * h - b * i, b * f - c * e],
+          [f * g - d * i, a * i - c * g, c * d - a * f],
+          [d * h - e * g, b * g - a * h, a * e - b * d]]
+    det = a * co[0][0] + b * co[1][0] + c * co[2][0]
+    scale = max(abs(v) for row in m for v in row)
+    if scale <= 0.0 or abs(det) < 1e-12 * scale ** 3:
+        return None
+    return [[co[r][k] / det for k in range(3)] for r in range(3)]
+
+
+def _element_frame(rec):
+    """(up, across) recovered from whichever face of this element has both.
+
+    A mitered piece loses half of its end cross-section to the clip, so the
+    face at its outside tip varies in local y only and has no recoverable
+    `across` of its own. The piece is rigid and anchored, so its frame is the
+    same at every x - borrowing it from a face that does have one is exact,
+    and it is what keeps `piece_extent` and `station_spacing` measuring corner
+    pieces at all instead of skipping them.
+    """
+    for x in sorted(set(rec["local"][0::3])):
+        _o, up, across = _frame_of(_face(rec, x))
+        if up is not None and across is not None:
+            return (up, across)
+    return (None, None)
+
+
+def _axis_of(face, frame=None):
     """The world point at the face's local (x, 0, 0).
 
     ⚠️ THE OBVIOUS MEASUREMENT - the centroid of the face - IS WRONG, and was
@@ -195,7 +281,14 @@ def _axis_of(face):
     therefore one frame, so the face map is AFFINE - world = A + U*y + V*z -
     and the cross-section offsets divide out exactly from two point pairs.
     """
-    return _frame_of(face)[0]
+    origin = _frame_of(face)[0]
+    if origin is not None or frame is None or not face:
+        return origin
+    up, across = frame
+    if up is None or across is None:
+        return None
+    (l0, w0) = face[0]
+    return tuple(w0[k] - up[k] * l0[1] - across[k] * l0[2] for k in range(3))
 
 
 def axis_points(rec):
@@ -203,7 +296,9 @@ def axis_points(rec):
     xs = rec["local"][0::3]
     if not xs:
         return (None, None)
-    return (_axis_of(_face(rec, min(xs))), _axis_of(_face(rec, max(xs))))
+    frame = _element_frame(rec)
+    return (_axis_of(_face(rec, min(xs)), frame),
+            _axis_of(_face(rec, max(xs)), frame))
 
 
 def up_tilt_deg(rec):
@@ -353,7 +448,12 @@ def section_coverage(scene):
     short, over, where, empty = 0.0, 0.0, "", 0
     for _track, section, group in _groups(scene):
         a, b = _fill_span(section)
-        run = [p for p in group if p.slot != "corner"]
+        # D40's boundary piece is a `default` piece that does NOT ride the
+        # path: it is anchored on the leg and deliberately reaches past the
+        # section end, so counting it here measured the displacement policy
+        # as a 2.0 m coverage shortfall instead of the fill.
+        run = [p for p in group
+               if p.slot != "corner" and p.anchor is None]
         if not run:
             # D44 squeezed a corner assembly onto a section shorter than it,
             # so there is no default run left to cover anything. That case is
@@ -979,7 +1079,8 @@ def station_spacing(scene):
     for rec in scene.by_id.values():
         if not rec["pc_deformed"]:
             continue
-        pts = [_axis_of(_face(rec, x)) for x in _station_xs(rec)]
+        frame = _element_frame(rec)
+        pts = [_axis_of(_face(rec, x), frame) for x in _station_xs(rec)]
         pts = [p for p in pts if p is not None]
         for a, b in zip(pts, pts[1:]):
             seen += 1
@@ -1138,6 +1239,22 @@ def _centroid(rec):
     return tuple(sum(w[k::3]) / n for k in range(3))
 
 
+def _assembly_recs(scene):
+    """[(eid, rec)] for every piece 4.3 ANCHORED on a leg.
+
+    The corner slot, plus D40's displacement boundary piece - which is a
+    `default` piece made of the default module but laid out by exactly the
+    same assembly machinery, so the corner measurements apply to it verbatim.
+    """
+    out = []
+    for eid, rec in scene.by_id.items():
+        placement = scene.plan_by_id.get(eid)
+        if rec["pc_slot"] == "corner" or (placement is not None
+                                          and placement.anchor is not None):
+            out.append((eid, rec))
+    return out
+
+
 def _corner_sides(scene):
     """[(bevel, {"in": [(eid, rec)], "out": [...]})] over every mitered corner.
 
@@ -1164,22 +1281,65 @@ def _corner_sides(scene):
     return groups
 
 
+def _corner_caps(scene):
+    """[(bevel, {"in": [world pts], "out": [...]})] - every CUT-FACE POINT
+    filed under the corner that cut it.
+
+    Per POINT, not per element: once a default piece may be cut at BOTH of its
+    ends (which is what happens as soon as a leg is shorter than twice the
+    miter overhang - a 1.5 m equilateral triangle does it), filing the whole
+    element under its nearest vertex measured half its cap points against the
+    wrong corner's plane and scored a 0.73 m "plane deviation" on a piece that
+    is exactly on both of its own planes. The SIDE still comes from the
+    element's centroid, read against each bevel separately, so one piece is
+    legitimately "out" of one corner and "in" of the next.
+    """
+    bevels = [b for b in _bevels(scene) if b.mode == "miter"]
+    if not bevels:
+        return []
+    groups = dict((id(b), (b, {"in": [], "out": []})) for b in bevels)
+    caps = _caps_by_element(scene.geo)
+    for eid, pts in caps.items():
+        placement = scene.plan_by_id.get(eid)
+        if placement is None or not placement.cuts:
+            continue
+        rec = scene.by_id.get(eid)
+        cen = _centroid(rec) if rec is not None else None
+        # ⚠️ THE CANDIDATES ARE THE PIECE'S OWN CUT PLANES, not "the nearest
+        # vertex". On a figure narrower than its own fence - 12 m by 0.12 m -
+        # two vertices sit 0.12 m apart and a cap cut at one of them is nearer
+        # the other, which scored a 0.028 m "plane deviation" on a face that
+        # is exactly on the plane it was cut with.
+        mine = [groups[id(b)] for b in bevels
+                if any(cut[0] is b.plane_in()[0] or _dist(cut[0], b.v) < 1e-9
+                       for cut in placement.cuts)]
+        if not mine:
+            mine = list(groups.values())
+        for pt in pts:
+            group = min(mine, key=lambda g: abs(_dot3(
+                _sub3(pt, g[0].plane_in()[0]), g[0].n)))
+            bevel = group[0]
+            ref = cen if cen is not None else pt
+            side = "out" if _dot3(_sub3(ref, bevel.v), bevel.n) > 0.0 else "in"
+            group[1][side].append((pt, rec))
+    return list(groups.values())
+
+
 def corner_plane_dev(scene):
-    groups = _corner_sides(scene)
+    groups = _corner_caps(scene)
     if not groups:
         return _skip("corner_plane_dev_m", "no mitered corners")
-    caps = _caps_by_element(scene.geo)
     worst, where, seen = 0.0, "", 0
     for bevel, sides in groups:
         for side in ("in", "out"):
             origin = (bevel.plane_in() if side == "in"
                       else bevel.plane_out())[0]
-            for eid, rec in sides[side]:
-                for p in caps.get(eid, ()):
-                    seen += 1
-                    d = abs(_dot3(_sub3(p, origin), bevel.n))
-                    if d > worst:
-                        worst, where = d, "%s %s" % (rec["pc_module"], side)
+            for pt, rec in sides[side]:
+                seen += 1
+                d = abs(_dot3(_sub3(pt, origin), bevel.n))
+                if d > worst:
+                    worst, where = d, "%s %s" % (
+                        (rec or {}).get("pc_module", "?"), side)
     if not seen:
         return _skip("corner_plane_dev_m", "no cut faces")
     return Result("corner_plane_dev_m", worst <= TOL_M, _round(worst), where)
@@ -1193,18 +1353,15 @@ def corner_seam(scene, expected=None, tol=2e-3):
     from the solver, so a seam that drifts with the offset shows up as a
     failure rather than as the builder agreeing with itself.
     """
-    groups = _corner_sides(scene)
+    groups = _corner_caps(scene)
     if not groups:
         return _skip("corner_seam_m", "no mitered corners")
-    caps = _caps_by_element(scene.geo)
     worst, where, seen = 0.0, "", 0
     for bevel, sides in groups:
         proj = {}
         for side in ("in", "out"):
-            vals = []
-            for eid, _rec in sides[side]:
-                for p in caps.get(eid, ()):
-                    vals.append(_dot3(_sub3(p, bevel.v), bevel.n))
+            vals = [_dot3(_sub3(pt, bevel.v), bevel.n)
+                    for pt, _rec in sides[side]]
             if vals:
                 proj[side] = sum(vals) / len(vals)
         if len(proj) < 2:
@@ -1237,18 +1394,20 @@ def corner_face_mate(scene, expected=0.0, tol=TOL_M):
     RailClone's documented Reset, so the number is compared against the notch
     the policy asks for, and it is `extend` that has to come back 0.
     """
-    groups = _corner_sides(scene)
+    groups = _corner_caps(scene)
     if not groups:
         return _skip("corner_face_mate_m", "no mitered corners")
-    caps = _caps_by_element(scene.geo)
     worst, where, seen = 0.0, "", 0
     for bevel, sides in groups:
-        pts = {}
-        for side in ("in", "out"):
-            acc = []
-            for eid, _rec in sides[side]:
-                acc.extend(caps.get(eid, ()))
-            pts[side] = acc
+        pts = dict((side, [pt for pt, _rec in sides[side]])
+                   for side in ("in", "out"))
+        # Same reason `corner_abut_m` and `max_gap_m` do it: a `stepped` piece
+        # is flat at its own start elevation, so two of them meeting at a
+        # PITCHED corner step vertically by design (4.4's deferred
+        # flatten-under). The joint is judged in plan there.
+        stepped = any(rec is not None and rec["pc_zmode"] == "stepped"
+                      for side in ("in", "out") for _pt, rec in sides[side])
+        metric = _dist_xz if stepped else _dist
         if not pts["in"] or not pts["out"]:
             continue
         seen += 1
@@ -1261,7 +1420,7 @@ def corner_face_mate(scene, expected=0.0, tol=TOL_M):
         b = [flat(p) for p in pts["out"]]
         for src, dst in ((a, b), (b, a)):
             for p in src:
-                d = min(_dist(p, q) for q in dst)
+                d = min(metric(p, q) for q in dst)
                 if d > worst:
                     worst, where = d, "turn %.1f deg" % bevel.turn
     if not seen:
@@ -1305,7 +1464,15 @@ def corner_outside_length(scene, expected=None, tol=2e-3):
                     continue
                 seen += 1
                 got = max(outer) - min(outer)
-                want = expected if expected is not None else module.length
+                # The piece's OWN length, not the module's nominal one: D44
+                # may have squeezed this copy and not its mate (a 12 m leg
+                # meeting a 1.5 m one squeezes on the short side only), and
+                # comparing both against the nominal length asserted that the
+                # squeeze had not happened. `corner_reach_m` is what asserts
+                # the squeeze factor itself.
+                planned = module.length * (scene.plan_by_id[eid].scale
+                                           if eid in scene.plan_by_id else 1.0)
+                want = expected if expected is not None else planned
                 if abs(got - want) > worst:
                     worst = abs(got - want)
                     where = "%s %s" % (rec["pc_module"], side)
@@ -1326,8 +1493,7 @@ def corner_symmetry(scene, expected=None, tol=2e-3):
     if not bevels:
         return _skip("corner_symmetry_m", "no corner assemblies")
     worst, where = None, ""
-    corner_recs = [(eid, rec) for eid, rec in scene.by_id.items()
-                   if rec["pc_slot"] == "corner"]
+    corner_recs = _assembly_recs(scene)
     for bevel in bevels:
         reach = {"in": 0.0, "out": 0.0}
         seen = False
@@ -1361,6 +1527,125 @@ def corner_symmetry(scene, expected=None, tol=2e-3):
                            else " (expected %.4f)" % expected))
 
 
+def _reach_of(scene):
+    """{(bevel, side): metres the assembly reaches back down that leg}.
+
+    Read off the built points, so it is the geometry's answer and not the
+    solver's: `t` measured from the vertex OUTWARD along the leg.
+    """
+    bevels = [b for b in _bevels(scene) if getattr(b, "assembly", None)
+              and b.assembly.pieces]
+    out = {}
+    recs = _assembly_recs(scene)
+    for bevel in bevels:
+        for eid, rec in recs:
+            cen = _centroid(rec)
+            if cen is None:
+                continue
+            if min(bevels, key=lambda b: _dist(cen, b.v)) is not bevel:
+                continue
+            side = "out" if _dot3(_sub3(cen, bevel.v), bevel.n) > 0.0 else "in"
+            axis = bevel.tout if side == "out" else bevel.tin
+            sign = 1.0 if side == "out" else -1.0
+            w = rec["world"]
+            for i in range(0, len(w), 3):
+                t = sign * _dot3(_sub3((w[i], w[i + 1], w[i + 2]), bevel.v),
+                                 axis)
+                key = (id(bevel), side)
+                if t > out.get(key, (0.0, bevel, side))[0]:
+                    out[key] = (t, bevel, side)
+    return out
+
+
+def corner_reach(scene, expected=None, tol=2e-3):
+    """4.3 item C and item D as ONE distance: how far the corner assembly
+    reaches back down its leg, which is `L - e + o` for a corner module and
+    `L - d + o` for D40's boundary piece.
+
+    This is what the corner OFFSET actually moves now that D39 no longer moves
+    the cut plane (moving it opened a hole at +25 % and doubled the geometry at
+    -25 %), and it is also what makes `symmetric` symmetric: a panel centred on
+    the vertex reaches exactly `L/2`, where the first implementation - which
+    extended the fill SPAN instead - centred it at 12.07 m of a 12.00 m leg
+    and, under `tile`, planted a whole extra sliced piece past the vertex.
+    """
+    reaches = _reach_of(scene)
+    if not reaches:
+        return _skip("corner_reach_m", "no corner assemblies")
+    worst, got = 0.0, None
+    for _key, (t, bevel, side) in sorted(reaches.items()):
+        if got is None:
+            got = t
+        if expected is not None and abs(t - expected) > worst:
+            worst, got = abs(t - expected), t
+    ok = True if expected is None else worst <= tol
+    return Result("corner_reach_m", ok, _round(got or 0.0, 6),
+                  "" if expected is None
+                  else "expected %.4f, error %.2e m" % (expected, worst))
+
+
+def corner_breach(scene, tol=1e-4):
+    """NO PIECE CROSSES A CORNER'S CUT PLANE UNCUT.
+
+    ⚠️ THE INTERPENETRATION DETECTOR, and every corner check above it was
+    blind to this. Two ways to reach it were measured on the built geometry:
+
+      * the corner module SHORTER THAN ITS OWN MITER OVERHANG (`e >= L_c`,
+        which is any turn past 126.87 degrees for the starter kit's 0.16 m
+        post). The reserve went negative, the negative was handed to the fill
+        as a negative trim, and the two legs' panels ran through the vertex
+        UNCUT and into each other by 0.031 m - warning list empty.
+      * a leg SHORTER THAN TWICE THE OVERHANG (a 1.5 m equilateral triangle:
+        reserve 0.0215 m against a 0.03 m panel half-thickness), where the
+        default piece stops short of the vertex and still reaches across the
+        plane, so the two legs' square ends cross inside the corner post.
+
+    Both are invisible from outside the fence and invisible to `max_gap_m`,
+    which walks one run at a time. This walks the plane instead: a piece is
+    filed on the side its centroid is on, and every one of its points must
+    stay there. Pieces further than a couple of module lengths from the vertex
+    are out of scope - a bisector plane is infinite and a far leg may
+    legitimately straddle it.
+    """
+    bevels = [b for b in _bevels(scene) if b.mode == "miter"]
+    if not bevels:
+        return _skip("corner_breach_m", "no mitered corners")
+    worst, where, seen = 0.0, "", 0
+    for bevel in bevels:
+        legs = set()
+        for leg in (bevel.section_in, bevel.section_out):
+            if leg is not None:
+                legs.add((str(leg.curve_id), leg.index))
+        for eid, rec in scene.by_id.items():
+            placement = scene.plan_by_id.get(eid)
+            # ONLY the two legs that meet here. A bisector plane is infinite,
+            # and on a triangle or a rectangle the OPPOSITE side crosses it
+            # perfectly legitimately - scoring it scored a 0.73 m "breach" on
+            # a panel two corners away. Everything on the corner's own two
+            # legs is strictly on its own side of the plane except within the
+            # miter overhang of the vertex, which is the thing being measured.
+            if placement is None or (str(placement.curve_id),
+                                     placement.section_index) not in legs:
+                continue
+            w = rec["world"]
+            pts = [(w[i], w[i + 1], w[i + 2]) for i in range(0, len(w), 3)]
+            if not pts:
+                continue
+            cen = _centroid(rec)
+            if cen is None:
+                continue
+            sign = 1.0 if _dot3(_sub3(cen, bevel.v), bevel.n) > 0.0 else -1.0
+            breach = max(-sign * _dot3(_sub3(q, bevel.v), bevel.n)
+                         for q in pts)
+            seen += 1
+            if breach > worst:
+                worst, where = breach, "%s at turn %.1f deg" % (
+                    rec["pc_module"], bevel.turn)
+    if not seen:
+        return _skip("corner_breach_m", "no pieces near a corner")
+    return Result("corner_breach_m", worst <= tol, _round(worst, 6), where)
+
+
 def corner_clearance(scene, vertex, expected, tol=5e-3):
     """4.3 item E: the fillet moved the PATH, so the pieces keep their distance
     from the original sharp vertex.
@@ -1374,8 +1659,9 @@ def corner_clearance(scene, vertex, expected, tol=5e-3):
         # AXIS points, not every point: a panel's own 0.03 m half-width would
         # otherwise put the nearest vertex 0.03 m inside the path and make the
         # number a fact about the kit instead of about the fillet.
+        frame = _element_frame(rec)
         for x in _station_xs(rec):
-            p = _axis_of(_face(rec, x))
+            p = _axis_of(_face(rec, x), frame)
             if p is None:
                 continue
             d = math.hypot(p[0] - vertex[0], p[2] - vertex[2])
@@ -1405,24 +1691,36 @@ def corner_abut(scene):
     if not bevels:
         return _skip("corner_abut_m", "no corner assemblies")
     worst, where, seen = 0.0, "", 0
-    ends = []
+    anchored = set(eid for eid, _rec in _assembly_recs(scene))
+    ends = {}
     for eid, rec in scene.by_id.items():
-        if rec["pc_slot"] == "corner":
+        if eid in anchored:
             continue
+        placement = scene.plan_by_id.get(eid)
+        if placement is None:
+            continue
+        # ⚠️ PER SECTION. A corner between a long leg and a SQUEEZED short one
+        # leaves the short leg with no default run at all, and scanning every
+        # piece in the scene then measured the 1.5 m gap to the other leg's
+        # run as an abutment failure. A leg with nothing on it has no
+        # abutment; it has `pc_warn_overflow`.
+        key = (str(placement.curve_id), placement.section_index)
         a, b = axis_points(rec)
         for pt in (a, b):
             if pt is not None:
-                ends.append(pt)
+                ends.setdefault(key, []).append(pt)
     if not ends:
         return _skip("corner_abut_m", "no default pieces")
     for bevel in bevels:
         for side in ("in", "out"):
             axis = bevel.tin if side == "in" else bevel.tout
             sign = -1.0 if side == "in" else 1.0
-            far, far_t = None, None
-            for eid, rec in scene.by_id.items():
-                if rec["pc_slot"] != "corner":
-                    continue
+            leg = bevel.section_in if side == "in" else bevel.section_out
+            here = ends.get((str(leg.curve_id), leg.index)) if leg else None
+            if not here:
+                continue
+            far, far_t, far_stepped = None, None, False
+            for eid, rec in _assembly_recs(scene):
                 cen = _centroid(rec)
                 # ...of THIS corner. A closed rectangle has four assemblies of
                 # the same module on the same legs, and scanning all of them
@@ -1431,8 +1729,9 @@ def corner_abut(scene):
                 if cen is None or min(bevels,
                                       key=lambda b: _dist(cen, b.v)) is not bevel:
                     continue
+                frame = _element_frame(rec)
                 for x in _station_xs(rec):
-                    pt = _axis_of(_face(rec, x))
+                    pt = _axis_of(_face(rec, x), frame)
                     if pt is None:
                         continue
                     t = sign * _dot3(_sub3(pt, bevel.v), axis)
@@ -1440,10 +1739,16 @@ def corner_abut(scene):
                         continue
                     if far_t is None or t > far_t:
                         far_t, far = t, pt
+                        far_stepped = (rec["pc_zmode"] == "stepped")
             if far is None:
                 continue
             seen += 1
-            d = min(_dist(far, e) for e in ends)
+            # A `stepped` piece is FLAT at its own start elevation, so two of
+            # them meeting on a PITCHED leg step vertically by design (D24's
+            # riser, and 4.4's deferred flatten-under). Measured in XZ, like
+            # `max_gap_m` and `exact_fill_m` already do for the same reason.
+            metric = _dist_xz if far_stepped else _dist
+            d = min(metric(far, e) for e in here)
             if d > worst:
                 worst, where = d, "%s leg, %.3f m out" % (side, far_t)
     if not seen:

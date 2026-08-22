@@ -49,12 +49,27 @@ EXPECTED_WARNS = {
     "AC_degenerate_corner": ("pc_warn_bend_resolution",
                              "pc_warn_corner_degenerate"),
     "AD_short_legs": ("pc_warn_overflow",),
-    # `extend` and `symmetric` push a panel THROUGH the vertex on purpose
-    # (D40), so the piece that straddles it cannot resolve the right angle -
-    # the same D25 measurement as the bend corner, arriving for the same
-    # reason. `reset` does not, and stays clean, which is the difference.
-    "AF_displace_extend": ("pc_warn_bend_resolution",),
-    "AG_displace_symmetric": ("pc_warn_bend_resolution",),
+    # The cycle-3 review cases. Every one of these overflows for a REASON the
+    # case name gives, and every one of them used to build silently:
+    # AH  a 140 degree turn is sharper than the 0.16 m post's own 0.2198 m
+    #     miter overhang, so D49 pulls the post back onto the vertex;
+    # AI  a 1.5 m triangle leaves 0.0215 m of reserve against a 0.03 m panel
+    #     half-thickness, so the run itself has to be cut on the plane;
+    # AP  a 12 x 0.12 m figure is narrower than one corner post (D44);
+    # AQ  a 1.5 m leg against a 12 m one, squeezed on the short side only;
+    # AR  a -100 % offset would push the post clean past the vertex (D49).
+    "AH_sharp_turn": ("pc_warn_overflow",),
+    "AI_triangle": ("pc_warn_overflow",),
+    "AP_narrow_rect": ("pc_warn_overflow",),
+    "AQ_asym_squeeze": ("pc_warn_overflow",),
+    "AR_offset_past": ("pc_warn_overflow",),
+    # ⚠️ AF/AG USED TO WARN `pc_warn_bend_resolution` HERE and no longer do.
+    # That was D40's first implementation extending the FILL SPAN past the
+    # vertex, so the straddling panel rode the welded kink and could not
+    # resolve a right angle with its own 0.25 m stations. The boundary piece
+    # is now ANCHORED on the straight leg like every other 4.3 piece, so
+    # there is no bend left to fail to resolve - a clean build is the
+    # assertion, and a returning warning means the anchor was lost.
 }
 
 # How many kit validation warnings each case is allowed to persist. Pinned
@@ -63,13 +78,37 @@ EXPECTED_WARNS = {
 EXPECTED_KIT_WARNS = {"K_broken_kit": 9, "O_no_kit": 1}
 
 # 4.3 item C, derived from the parm and the geometry rather than read off a
-# run: a corner offset of `pct` per cent of the corner module's length parts
-# the two bisector planes by 2*o*cos(turn/2). At the L-shape's 90 degree turn
-# that is 2 * 0.25 * 0.16 * cos(45) = 0.056569 m.
-_CORNER_OFF = 0.25 * cases.CORNER_POST_LENGTH * 2.0 * math.cos(math.pi / 4.0)
-CORNER_SEAM = {
-    "W_corner_offset_pos": _CORNER_OFF,
-    "X_corner_offset_neg": -_CORNER_OFF,
+# run. D39 (revised): the offset does NOT move the cut plane - it slides both
+# copies along their own legs, so the two faces stay mirror images and the
+# seam stays 0 AT EVERY OFFSET. That is the assertion, and it is the one the
+# first version failed: +25 % parted the two planes by 2*o*cos(45) = 0.0566 m
+# of open hole and -25 % crossed them over into 0.0566 m of doubly solid,
+# interpenetrating geometry, both baselined as correct.
+#
+# What the offset DOES move is measured instead:
+#   * `corner_reach_m` - how far the corner module reaches back down its leg,
+#     `L - e + o` (0.12 m at +25 %, 0.04 m at -25 %);
+#   * `corner_outside_m` - the outside face, which a NEGATIVE offset pushes
+#     past the plane and the miter then eats: `L + min(o, 0)`.
+_CORNER_O = 0.25 * cases.CORNER_POST_LENGTH             # 0.04 m
+_CORNER_E = 0.08 * math.tan(math.pi / 4.0)              # 0.08 m at 90 degrees
+CORNER_SEAM = {}
+CORNER_REACH = {
+    "U_lshape_miter": cases.CORNER_POST_LENGTH - _CORNER_E,
+    "V_rect_miter": cases.CORNER_POST_LENGTH - _CORNER_E,
+    "W_corner_offset_pos": cases.CORNER_POST_LENGTH - _CORNER_E + _CORNER_O,
+    "X_corner_offset_neg": cases.CORNER_POST_LENGTH - _CORNER_E - _CORNER_O,
+    # 4.3 item D as a distance. D40's boundary piece is one whole default
+    # module anchored on the leg, so `extend` reaches `L - e` back down it and
+    # `symmetric` reaches exactly `L/2` - which IS the centring the first
+    # implementation only approximated (12.07 m of a 12.00 m leg) and which
+    # `tile` broke outright by tiling into the extension.
+    "AF_displace_extend": 2.0 - 0.03,
+    "AG_displace_symmetric": 1.0,
+    "AN_tile_symmetric": cases.GATE_LENGTH * 0.5,
+    # ...and the offset the no-corner-module path used to ignore completely:
+    # -10 % of the 2 m panel, so `L - e + o`.
+    "AO_displace_offset": 2.0 - 0.03 - 0.2,
 }
 
 # 4.3 item B, the odd/even compose rule as a distance. An ODD count reaches
@@ -83,15 +122,39 @@ CORNER_SEAM = {
 # so their faces mate exactly and their expected mismatch is 0.
 CORNER_MATE = {
     "AE_displace_reset": 0.03 * math.sqrt(2.0),
+    # A figure NARROWER THAN ITS OWN FENCE. Each 0.12 m side must host two
+    # corner posts of 0.16 m, so D44 squeezes them to L*(0.12+2e)/(2L-... )
+    # - concretely (0.12 + 0.16)/(0.16 + 0.16) = 0.875 of 0.16 m = 0.14 m -
+    # and a 0.14 m module cannot span the 2e = 0.16 m mating diagonal. What is
+    # left over is exactly the shortfall, on the diagonal: (L - L*f)*sqrt(2).
+    # It is a squeeze artefact and it says `pc_warn_overflow`; it is here as a
+    # NUMBER so that a squeeze that gets worse cannot pass as this one.
+    "AP_narrow_rect": (cases.CORNER_POST_LENGTH
+                       * (1.0 - (0.12 + 0.16) / (0.16 + 0.16))
+                       * math.sqrt(2.0)),
 }
 
 # D44's squeeze, derived from the input rather than from the run: three 1.20 m
 # corner blocks reserve (1.20 - e) + 1.20 = 2.32 m of a 1.50 m leg, so every
 # corner module on that side is scaled by 1.50/2.32 and the outside face that
 # should have measured 1.20 m measures 0.7759 m - and says pc_warn_overflow.
+# D44, CORRECTED: the squeeze is about the CUT PLANE, so the fixed point is
+# the 0.08 m the straddler reaches PAST the vertex and only the rest scales -
+# the factor is (L_leg + e)/(reserve + e), not L_leg/reserve, and the squeezed
+# module still reaches the plane instead of leaving an e*(1-f) notch.
 _AD_RESERVE = (cases.CORNER_BLOCK_LENGTH - 0.08) + cases.CORNER_BLOCK_LENGTH
+_AD_FACTOR = (1.5 + 0.08) / (_AD_RESERVE + 0.08)
 CORNER_OUTSIDE = {
-    "AD_short_legs": cases.CORNER_BLOCK_LENGTH * (1.5 / _AD_RESERVE),
+    "AD_short_legs": cases.CORNER_BLOCK_LENGTH * _AD_FACTOR,
+    # A negative offset pushes the post PAST the plane and the miter eats the
+    # overhang off its outside face: L + o, read off the built face.
+    "X_corner_offset_neg": cases.CORNER_POST_LENGTH - _CORNER_O,
+    # D49's clamp, as a distance: -100 % is out of range, so the offset stops
+    # at `e - 0.9*L` and the outside face is `L + o` = 0.9*L - e + L... i.e.
+    # the post keeps a tenth of its length on its leg and the miter has eaten
+    # the rest of the overhang.
+    "AR_offset_past": (cases.CORNER_POST_LENGTH
+                       + (_CORNER_E - 0.9 * cases.CORNER_POST_LENGTH)),
 }
 
 CORNER_SYMMETRY = {
@@ -180,6 +243,8 @@ def run_case(name, case):
         C.corner_symmetry(scene, expected=CORNER_SYMMETRY.get(name)),
         C.corner_outside_length(scene,
                                 expected=CORNER_OUTSIDE.get(name)),
+        C.corner_reach(scene, expected=CORNER_REACH.get(name)),
+        C.corner_breach(scene),
     ]
     out.append(C.corner_seam(scene, expected=CORNER_SEAM.get(name, 0.0)))
     if name in ("C_tile_slice", "H_tile_slope_free", "I_tile_slope_fixed"):

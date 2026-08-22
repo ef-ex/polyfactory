@@ -536,6 +536,125 @@ def build_all():
             params=Params(fill="adaptive", corner_mode="miter",
                           corner_displacement=policy)))
 
+    # ---- the cycle-3 REVIEW cases. Every one of these was a measured defect
+    # before it was a case: they are here so the measurement that found it
+    # stays standing (tests/README.md's rule).
+
+    # AH - A TURN SHARPER THAN THE CORNER MODULE. At 140 degrees the 0.16 m
+    # post's own miter overhang is 0.2198 m, so `L_c - e` is NEGATIVE: the
+    # reserve used to go negative, the negative trim ran the default fill
+    # through the vertex, and `place` bent it around the kink into an
+    # inside-out panel interpenetrating the other leg by 0.031 m - silently.
+    # The reserve is clamped at 0 now, the run is cut on the plane, and
+    # `corner_breach_m` is what asserts the pieces stay on their own sides.
+    a = math.radians(140.0)
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (12, 0, 0),
+                 (12 + 12 * math.cos(a), 0, 12 * math.sin(a))], curve_id="AH")
+    built["AH_sharp_turn"] = _case(g, kit_geo, corner_style("miter"))
+
+    # AI - A LEG SHORTER THAN TWICE THE OVERHANG. All three turns of a 1.5 m
+    # equilateral triangle are 120 degrees, so the reserve is 0.0215 m against
+    # a 0.03 m panel half-thickness: the two legs' square panel ends crossed
+    # inside the corner post's footprint, hidden from every outside view.
+    _tri = 1.5
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (_tri, 0, 0),
+                 (_tri * 0.5, 0, _tri * math.sqrt(3.0) / 2.0)],
+             closed=True, curve_id="AI")
+    built["AI_triangle"] = _case(g, kit_geo, corner_style("miter"))
+
+    # AJ, AK - TWO CLOSED FIGURES THAT WERE ALWAYS CLEAN AND ALWAYS
+    # MISMEASURED. `_frame_of` recovered a face's affine map from the first
+    # y-varying point pair without requiring it to share local z, so on a
+    # clipped corner post it folded `across` into `up`: `corner_abut_m`
+    # reported a 0.160 m phantom gap on the reflex L and 0.129 m on the
+    # pentagon, on corners whose own points prove they are shut.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (10, 0, 0), (10, 0, 6), (4, 0, 6),
+                 (4, 0, 10), (0, 0, 10)], closed=True, curve_id="AJ")
+    built["AJ_reflex_closed"] = _case(g, kit_geo, corner_style("miter"))
+
+    _pent_r = 6.0 / (2.0 * math.sin(math.pi / 5.0))
+    g = hou.Geometry()
+    polyline(g, [(_pent_r * math.cos(2 * math.pi * i / 5.0), 0.0,
+                  _pent_r * math.sin(2 * math.pi * i / 5.0))
+                 for i in range(5)], closed=True, curve_id="AK")
+    built["AK_pentagon"] = _case(g, kit_geo, corner_style("miter"))
+
+    # AL, AM - NON-PLANAR CORNERS, which the starter kit meets with a
+    # `stepped` corner post - i.e. a piece built PLUMB, on the horizontal
+    # projection. A bevel taken from the 3D tangents cut it on a tilted plane:
+    # the crest kink anchored its two copies 0.055 m apart in Y and mated
+    # their faces to only 0.0548 m, and the graded corner sliced the 1.30 m
+    # post obliquely and left a 0.345 m stump beside a full-height mate.
+    # Neither warned. D48 flattens the bevel for yaw-only pieces.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (7.52, 2.74, 0), (15.04, 0, 0)], curve_id="AL")
+    built["AL_crest_corner"] = _case(g, kit_geo, corner_style("miter"))
+
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (8, 2, 0), (8, 4, 8)], curve_id="AM")
+    built["AM_graded_corner"] = _case(g, kit_geo, corner_style("miter"))
+
+    # AN - THE DISPLACEMENT POLICY UNDER `tile`, with a SLICEABLE default
+    # module so tile really does slice. D40's first implementation extended
+    # the FILL SPAN, so tile tiled INTO the extension: `symmetric` planted a
+    # whole new sliced piece entirely past the vertex (the clip then
+    # annihilated it to a 3 cm wedge with its own `pc_elem_id`) and `extend` a
+    # 0.03 m sliver. The boundary piece is one anchored module now, so the
+    # policy reads the same in every fill mode.
+    g = hou.Geometry()
+    polyline(g, L_SHAPE, curve_id="AN")
+    built["AN_tile_symmetric"] = _case(g, kit_geo, Style(
+        "tilesym", 1, 4, rules=[Rule("default", "first", ["gate"])],
+        params=Params(fill="tile", corner_mode="miter",
+                      corner_displacement="symmetric")))
+
+    # AO - THE CORNER OFFSET ON A STYLE WITH NO CORNER MODULE. It was
+    # provably dead: `build_assembly` set `bevel.offset` only after the
+    # empty-mods early return, so 0 %, 25 % and 50 % built byte-identical
+    # geometry. It moves D40's boundary piece now, and AO differs from
+    # AF_displace_extend by nothing but the parm.
+    g = hou.Geometry()
+    polyline(g, L_SHAPE, curve_id="AO")
+    built["AO_displace_offset"] = _case(g, kit_geo, Style(
+        "dispoff", 1, 4, rules=[Rule("default", "first", ["panel"])],
+        params=Params(fill="adaptive", corner_mode="miter",
+                      corner_displacement="extend", corner_offset_pct=-10.0)))
+
+    # AP - A FIGURE NARROWER THAN ITS OWN FENCE: 12 m by 0.12 m, so both
+    # 0.12 m sides are shorter than one corner post and D44 squeezes all four
+    # corners. The squeeze used to scale about the VERTEX, which pulled the
+    # squeezed copy's cut face back off the plane and left an e*(1-f) notch;
+    # it scales about the PLANE CONTACT now, so what is left over is only the
+    # part of the mating diagonal a shortened module cannot span.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (12, 0, 0), (12, 0, 0.12), (0, 0, 0.12)],
+             closed=True, curve_id="AP")
+    built["AP_narrow_rect"] = _case(g, kit_geo, corner_style("miter"))
+
+    # AQ - AN ASYMMETRICALLY SQUEEZED CORNER: a 12 m leg meets a 1.5 m one, so
+    # D44 squeezes ONE side only. That is the case AD_short_legs cannot see,
+    # because both of its legs squeeze equally - and it is where scaling about
+    # the vertex left a 1.20 m cut face mating against a 0.776 m one.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (12, 0, 0), (12, 0, 1.5)], curve_id="AQ")
+    built["AQ_asym_squeeze"] = _case(g, compose_kit(), Style(
+        "asym", 1, 3,
+        rules=[Rule("default", "first", ["panel"]),
+               Rule("corner", "sequence", ["corner_block", "corner_block",
+                                           "corner_block"])],
+        params=Params(fill="adaptive", corner_mode="miter")))
+
+    # AR - THE OFFSET DIALLED PAST THE CORNER MODULE. At -100 % the whole post
+    # sits past the vertex, so its reserve is negative: the run used to be
+    # handed that negative as a trim and the corner opened a 23 cm hole with
+    # an EMPTY warning list. Clamped and warned now.
+    g = hou.Geometry()
+    polyline(g, L_SHAPE, curve_id="AR")
+    built["AR_offset_past"] = _case(g, kit_geo,
+                                    corner_style("miter", offset=-100.0))
 
     return built
 

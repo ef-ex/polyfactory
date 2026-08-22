@@ -109,15 +109,53 @@ class TestBevel(unittest.TestCase):
         self.assertAlmostEqual(left.turn, right.turn, places=9)
         self.assertAlmostEqual(left.e_for(0.03), right.e_for(0.03), places=12)
 
-    def test_offset_parts_the_two_planes_by_2_o_cos_half(self):
+    def test_the_offset_never_moves_the_cut_plane(self):
+        """D39, revised. The first version gave each copy its own plane and
+        parted them by 2*o*cos(t/2): a 5.7 cm hole at +25 % and 5.7 cm of
+        doubly solid geometry at -25 %. Moving ONE shared plane instead was
+        measured too and is no better - the two legs' centrelines meet only at
+        the vertex, so any other plane cuts the two boxes at different lateral
+        positions and the faces come out coplanar but slid apart by the same
+        2*o*cos(t/2). The plane stays on the vertex; the PIECES move."""
         b = self.bevel((1.0, 0.0, 0.0), (0.0, 0.0, 1.0))
-        b.offset = 0.04
-        oin = b.plane_in()[0]
-        oout = b.plane_out()[0]
-        sep = C._dot(b.n, C._sub(oout, oin))
-        self.assertAlmostEqual(sep, 2 * 0.04 * math.cos(math.pi / 4), places=9)
+        for offset in (0.0, 0.04, -0.04, 5.0):
+            b.offset = offset
+            self.assertEqual(b.plane_in()[0], b.plane_out()[0])
+            self.assertEqual(tuple(b.plane_in()[0]), b.v)
         self.assertEqual(b.plane_in()[2], -1.0)     # keep sides are opposite
         self.assertEqual(b.plane_out()[2], 1.0)
+
+    def test_a_flattened_bevel_is_vertical_and_carries_its_arc_factor(self):
+        """D48. A `stepped` piece is built plumb on the horizontal projection,
+        so the plane that cuts it has to be vertical too - a 3D bisector
+        beheaded a 1.30 m corner post on a 25 % grade and left a 0.345 m
+        stump. Flattening also makes the leg coordinate HORIZONTAL, so the
+        arc factor is what converts it back for the section's own `s`."""
+        pitch = math.radians(30.0)
+        b = self.bevel((math.cos(pitch), math.sin(pitch), 0.0),
+                       (0.0, math.sin(pitch), math.cos(pitch)))
+        self.assertNotAlmostEqual(b.n[1], 0.0, places=3)
+        b.flatten()
+        self.assertTrue(b.flat)
+        self.assertAlmostEqual(b.n[1], 0.0, places=12)
+        self.assertAlmostEqual(b.turn, 90.0, places=9)
+        self.assertAlmostEqual(b.arc_in, 1.0 / math.cos(pitch), places=9)
+        self.assertAlmostEqual(b.arc_out, 1.0 / math.cos(pitch), places=9)
+        # ...and the 3D tangents survive, because the anchor still has to sit
+        # on the real leg or the piece floats off the run's elevation
+        self.assertAlmostEqual(b.tin3[1], math.sin(pitch), places=9)
+
+    def test_a_flat_corner_is_not_flattened_twice(self):
+        b = self.bevel((1.0, 0.0, 0.0), (0.0, 0.0, 1.0))
+        b.flatten()
+        self.assertAlmostEqual(b.arc_in, 1.0, places=12)
+        self.assertAlmostEqual(b.turn, 90.0, places=9)
+
+    def test_a_plumb_leg_has_no_yaw_to_flatten_to(self):
+        b = self.bevel((0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
+        b.flatten()
+        self.assertFalse(b.flat)                  # refused, never divided by 0
+        self.assertAlmostEqual(b.arc_in, 1.0, places=12)
 
     def test_hairpin_degenerates_and_never_divides_by_zero(self):
         b = self.bevel((1.0, 0.0, 0.0), (-1.0, 0.0, 0.0))
@@ -232,13 +270,24 @@ class TestDisplacement(unittest.TestCase):
                 C.displacement(self.bevel(mode="bend"), panel,
                                Params(corner_displacement=policy)), 0.0)
 
-    def test_offset_shifts_all_three(self):
+    def test_the_offset_is_no_longer_subtracted_here(self):
+        """D40, revised. The offset used to be folded into this number, back
+        when the policy was an EXTENSION of the fill span. It is a one-module
+        assembly now, so `build_assembly` shifts its two copies by the offset
+        exactly as it shifts a corner module's - and folding it in here as
+        well would apply it twice."""
         panel = fence_kit().by_name("panel")
         for policy in ("reset", "extend", "symmetric"):
             p = Params(corner_displacement=policy)
-            a = C.displacement(self.bevel(), panel, p)
-            b = C.displacement(self.bevel(offset=0.05), panel, p)
-            self.assertAlmostEqual(a - b, 0.05, places=12)
+            self.assertAlmostEqual(
+                C.displacement(self.bevel(), panel, p),
+                C.displacement(self.bevel(offset=0.05), panel, p), places=12)
+
+    def test_a_missing_default_module_displaces_nothing(self):
+        for policy in ("reset", "extend", "symmetric"):
+            self.assertEqual(
+                C.displacement(self.bevel(), None,
+                               Params(corner_displacement=policy)), 0.0)
 
     def test_an_unknown_policy_degrades_to_reset(self):
         self.assertEqual(Params(corner_displacement="Extend"
@@ -444,6 +493,194 @@ class TestPlanCurve(unittest.TestCase):
             if p.slot == "corner":
                 self.assertEqual(len(p.cuts), 1)
                 self.assertIsNotNone(p.anchor)
+
+
+class TestReviewFindings(unittest.TestCase):
+    """The cycle-3 review, as invariants. Every assertion here is a defect
+    that was measured on built geometry before it was a test."""
+
+    def bevel(self, turn_deg, params=DEFAULTS):
+        t = math.radians(turn_deg)
+        tin, tout = (1.0, 0.0, 0.0), (math.cos(t), 0.0, math.sin(t))
+        corner = D.Corner("c", 1, (0.0, 0.0, 0.0), turn_deg)
+        b = C.Bevel(corner, (0.0, 0.0, 0.0), tin, tout, params)
+        b.mode = "miter"
+        return b
+
+    def asm(self, names, turn=90.0, offset=0.0, overhang=None):
+        kit = fence_kit()
+        mods = [kit.by_name(n) for n in names]
+        return C.build_assembly(self.bevel(turn), mods, None,
+                                Params(corner_mode="miter",
+                                       corner_offset_pct=offset),
+                                overhang=overhang)
+
+    # --- D49: the reserve can never go negative -----------------------------
+
+    def test_a_turn_sharper_than_the_module_still_straddles(self):
+        """e = h*tan(t/2) passes the module length at 126.87 degrees for a
+        0.16 m post of half-width 0.08. Past that the reserve went NEGATIVE
+        and the negative was handed to the fill as a negative trim: the run
+        built through the vertex uncut and inside-out. D49 pulls the piece
+        back so a tenth of it stays on its leg, and warns."""
+        for turn in (130.0, 140.0, 150.0, 170.0):
+            a = self.asm(["post"], turn=turn)
+            self.assertGreater(a.reserve_in, 0.0, turn)
+            self.assertGreater(a.reserve_out, 0.0, turn)
+            self.assertLess(a.near_in, 0.0, turn)       # still reaches past V
+            self.assertIn(WARN_OVERFLOW, a.warns, turn)
+            self.assertAlmostEqual(a.reserve_in, 0.1 * 0.16, places=9)
+
+    def test_a_gentler_turn_is_untouched_and_unwarned(self):
+        a = self.asm(["post"], turn=120.0)
+        self.assertAlmostEqual(a.reserve_in, 0.16 - 0.08 * math.tan(
+            math.radians(60.0)), places=9)
+        self.assertNotIn(WARN_OVERFLOW, a.warns)
+
+    def test_an_out_of_range_offset_is_clamped_and_warned(self):
+        """-100 % pushed the whole post past the vertex: the clip then deleted
+        it outright (14 elements for a 16-piece plan) and left a 23 cm hole,
+        warning list EMPTY."""
+        a = self.asm(["post"], offset=-100.0)
+        self.assertIn(WARN_OVERFLOW, a.warns)
+        self.assertAlmostEqual(a.bevel.offset, 0.08 - 0.9 * 0.16, places=12)
+        self.assertGreater(a.reserve_in, 0.0)
+
+    def test_an_in_range_offset_is_not_clamped(self):
+        for pct in (25.0, -25.0, 100.0):
+            a = self.asm(["post"], offset=pct)
+            self.assertAlmostEqual(a.bevel.offset, pct / 100.0 * 0.16,
+                                   places=12)
+            self.assertNotIn(WARN_OVERFLOW, a.warns)
+
+    def test_the_offset_moves_both_copies_the_same_way(self):
+        """The mirror symmetry about the vertex plane is what keeps the two
+        cut faces mated at every offset."""
+        for pct in (0.0, 25.0, -25.0):
+            a = self.asm(["post"], offset=pct)
+            self.assertAlmostEqual(a.near_in, a.near_out, places=12)
+            self.assertAlmostEqual(a.near_in, -0.08 + pct / 100.0 * 0.16,
+                                   places=12)
+
+    # --- D44 corrected: the squeeze is about the plane ----------------------
+
+    def test_a_squeezed_copy_still_reaches_the_cut_plane(self):
+        """Scaling t_near with the length pulled the squeezed copy's cut face
+        back off the plane by e*(1-f) - a 0.0283 m notch at every corner of a
+        12 x 0.12 m rectangle, and a 1.20 m face mating against a 0.776 m one
+        on a long-leg/short-leg corner."""
+        a = self.asm(["block", "block", "block"])
+        for factor in (1.0, 0.75, 0.5, 0.1):
+            for piece in a.pieces:
+                if not piece.duplicate:
+                    continue
+                t_far, t_near = C._piece_span(a, piece, factor)
+                self.assertAlmostEqual(t_near, piece.t_near, places=12)
+                self.assertAlmostEqual(
+                    t_far - t_near,
+                    (piece.t_far - piece.t_near) * factor, places=12)
+
+    def test_a_squeeze_of_one_leaves_the_layout_alone(self):
+        a = self.asm(["post"])
+        for piece in a.pieces:
+            self.assertEqual(C._piece_span(a, piece, 1.0),
+                             (piece.t_far, piece.t_near))
+
+    # --- D40 revised: the boundary piece ------------------------------------
+
+    def test_symmetric_centres_one_module_on_the_vertex(self):
+        """Exactly, in EVERY fill mode. The first version extended the fill
+        SPAN, so adaptive centred the straddler at 12.07 m of a 12.00 m leg
+        and tile planted a whole extra sliced piece past the vertex."""
+        for fill in ("adaptive", "tile", "scale", "count"):
+            st = style(displacement="symmetric", corner=())
+            st.params.fill = fill
+            out, bevels, _s = run(L, st)
+            straddlers = [p for p in out if p.anchor is not None]
+            self.assertEqual(len(straddlers), 2, fill)
+            for p in straddlers:
+                self.assertAlmostEqual(p.length, 2.0, places=9)
+            self.assertAlmostEqual(bevels[0].assembly.reserve_in, 1.0,
+                                   places=9)
+            # nothing but the anchored boundary pieces may leave the section
+            for p in out:
+                if p.anchor is None:
+                    self.assertGreaterEqual(p.s0, -1e-9, fill)
+
+    def test_extend_puts_the_module_face_on_the_plane(self):
+        st = style(displacement="extend", corner=())
+        out, bevels, _s = run(L, st)
+        e = bevels[0].e_for(0.03)
+        self.assertAlmostEqual(bevels[0].assembly.reserve_in, 2.0 - e,
+                               places=9)
+        self.assertAlmostEqual(bevels[0].assembly.near_in, -e, places=9)
+
+    def test_reset_builds_no_boundary_piece(self):
+        out, bevels, _s = run(L, style(displacement="reset", corner=()))
+        self.assertEqual(bevels[0].assembly.pieces, [])
+        self.assertTrue(all(p.anchor is None for p in out))
+        # ...and the run is still cut at the vertex, which IS reset
+        self.assertTrue(any(p.cuts for p in out))
+
+    def test_the_boundary_piece_is_anchored_and_cut(self):
+        """It used to ride the path, so it was DEFORMED around the welded kink
+        and came out inside-out at a 150 degree turn."""
+        for policy in ("extend", "symmetric"):
+            out, _b, _s = run(L, style(displacement=policy, corner=()))
+            anchored = [p for p in out if p.anchor is not None]
+            self.assertEqual(len(anchored), 2, policy)
+            for p in anchored:
+                self.assertEqual(len(p.cuts), 1)
+                self.assertEqual(p.slot, "default")
+                self.assertEqual(len(p.anchor), 3)
+            self.assertEqual(len(set(p.elem_id for p in out)), len(out))
+
+    # --- F7: the offset was dead without a corner module --------------------
+
+    def test_the_offset_is_live_without_a_corner_module(self):
+        """0 %, 25 % and 50 % used to build byte-identical geometry: the
+        offset was only ever set AFTER build_assembly's empty-mods early
+        return."""
+        got = []
+        for pct in (0.0, -10.0, -25.0):
+            st = style(displacement="extend", corner=(), offset=pct)
+            out, bevels, _s = run(L, st)
+            got.append(round(bevels[0].assembly.reserve_in, 9))
+            self.assertAlmostEqual(bevels[0].offset, pct / 100.0 * 2.0,
+                                   places=12)
+        self.assertEqual(len(set(got)), 3)
+
+    def test_reset_scopes_the_offset_out_and_says_so(self):
+        """With reset there is no piece to move - RailClone's own wording is
+        "simply sliced at the corner vertex" - so the parm is a documented
+        no-op there rather than a silent one (D39)."""
+        for pct in (0.0, 50.0):
+            out, bevels, _s = run(L, style(displacement="reset", corner=(),
+                                           offset=pct))
+            self.assertEqual(bevels[0].assembly.pieces, [])
+            self.assertEqual(tuple(bevels[0].plane_in()[0]), bevels[0].v)
+
+    # --- F14: the run abutting a corner assembly is cut too -----------------
+
+    def test_a_short_leg_hands_the_run_the_plane(self):
+        """The reserve (0.0215 m on a 1.5 m equilateral triangle) is shorter
+        than the panel's own across-reach (0.03 m), so the two legs' square
+        ends crossed inside the corner post - invisible and unwarned."""
+        a = 1.5
+        pts = [(0.0, 0.0, 0.0), (a, 0.0, 0.0),
+               (a * 0.5, 0.0, a * math.sqrt(3.0) / 2.0)]
+        out, _b, _s = run(pts, style("miter"), closed=True)
+        cut = [p for p in out if p.slot == "default" and p.cuts]
+        self.assertTrue(cut)
+        for p in cut:
+            self.assertIn(WARN_OVERFLOW, p.warns)
+
+    def test_a_long_leg_leaves_the_run_alone(self):
+        out, _b, _s = run(L, style("miter"))
+        for p in out:
+            if p.slot == "default":
+                self.assertEqual(p.cuts, ())
+                self.assertNotIn(WARN_OVERFLOW, p.warns)
 
 
 if __name__ == "__main__":
