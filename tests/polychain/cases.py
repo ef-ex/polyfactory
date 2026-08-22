@@ -244,6 +244,42 @@ def coarse_kit():
     return geo
 
 
+def tall_kit(height=1.2, depth=0.06, length=2.0, zmode="adaptive"):
+    """A TALL bendable rail - the module the spine-only budget could not see.
+
+    D87: `span_deviation` measured the spine, so a module whose points sit far
+    off it spent a budget nobody was counting. Height is the whole point here;
+    the starter kit's panel is 0.05 m deep and rides `vertical`, which is
+    exactly the shape that made the spine measure look exact for a cycle.
+    """
+    geo = hou.Geometry()
+    rail = hou.Geometry()
+    K.box_mesh(rail, 0.0, length, 0.0, height, -0.5 * depth, 0.5 * depth, 8)
+    K.add_module(geo, "rail", rail, size=(length, height, depth),
+                 deform=1, zmode=zmode, roles="default")
+    K.write_manifest(geo, "pf_tall", 1, sources=("cases.tall_kit",),
+                     human_scale_reference=1.8)
+    return geo
+
+
+def elevation_arc_points(radius=55.0, spacing=1.0, length=30.0):
+    """An arc that climbs - curvature in ELEVATION, dead straight in plan.
+
+    `arc_points` turns in plan, where an `adaptive` frame's `across` barely
+    moves; this one turns in the vertical plane, where `up` swings by the full
+    turn and a tall piece's top corner pays for it.
+    """
+    n = int(round(length / spacing))
+    return [(radius * math.sin(spacing * i / radius),
+             radius * (1.0 - math.cos(spacing * i / radius)), 0.0)
+            for i in range(n + 1)]
+
+
+def rail_style(zmode=""):
+    return Style("tall", 1, 3, rules=[Rule("default", "first", ["rail"])],
+                 params=Params(fill="adaptive", zmode=zmode))
+
+
 def rigid_kit():
     """One long RIGID beam. Rigid pieces are the only ones allowed to stay
     packed across a bend, which makes them the only ones that can test what
@@ -1084,6 +1120,22 @@ def build_all():
         g = hou.Geometry()
         polyline(g, arc_points(radius), curve_id=cid.split("_")[0])
         built[cid] = _case(g, kit_geo, panel_style())
+
+    # ---- cycle 8 / D87: THE BUDGET IS SPENT BY POINTS, NOT BY THE SPINE.
+    # A 1.2 m tall bendable rail on an R = 55 m arc that climbs. The spine
+    # sagitta is 0.0091 m - inside `bend_tol` - so the D75 measure kept all
+    # 15 pieces PACKED while their top corners had really moved 0.0327 m,
+    # 3.3x the budget, leaving a visible wedge between neighbours. CP is the
+    # case that reads it; CQ is the same figure with the SAME rail on a plan
+    # arc, where `across` barely turns and the pieces are allowed to stay
+    # packed - without it a fix could simply unpack everything and pass.
+    tall = tall_kit()
+    g = hou.Geometry()
+    polyline(g, elevation_arc_points(55.0), curve_id="CP")
+    built["CP_elev_arc_tall"] = _case(g, tall, rail_style())
+    g = hou.Geometry()
+    polyline(g, arc_points(2000.0, 1.0, 30.0), curve_id="CQ")
+    built["CQ_plan_arc_tall"] = _case(g, tall, rail_style())
 
     return built
 

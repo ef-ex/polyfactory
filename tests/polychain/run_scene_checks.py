@@ -247,11 +247,20 @@ ALL_PACKED = ("A_straight", "CE_all_packed", "CA_swap_module",
               # `bend_tol`. CN_arc_tight is the control that keeps this from
               # being vacuous - 0.05 m, five times the budget, and it must
               # unpack all of them.
-              "CK_arc_12000", "CL_arc_2000", "CM_arc_80")
+              "CK_arc_12000", "CL_arc_2000", "CM_arc_80",
+              # D87's own control: the SAME 1.2 m tall rail on a plan arc,
+              # where `across` barely turns and `up` is world up - so the
+              # off-spine term is real but tiny and every piece may stay
+              # packed. Without it the D87 fix could simply unpack everything
+              # and pass CP.
+              "CQ_plan_arc_tall")
 
 # ...and the other side of D75: the tight arc may not keep a single piece
 # packed. Without this the budget could be widened until nothing ever bends.
-NONE_PACKED = ("CN_arc_tight",)
+# D87: a 1.2 m tall bendable rail on an R = 55 m ELEVATION arc. The spine
+# sagitta is 0.0091 m, inside `bend_tol` - and the piece's top corner
+# really moves 0.0327 m, so not one of them may stay packed.
+NONE_PACKED = ("CN_arc_tight", "CP_elev_arc_tall")
 
 # [swapped, replaced, ids that moved] per override case, derived from the
 # override stream and not from a run: CA re-points all ten panels, CC and CD
@@ -276,7 +285,7 @@ class Scene(object):
         self.by_id = dict((r["pc_elem_id"], r) for r in C.elements(self.geo))
         self.plan_by_id = dict((p.elem_id, p) for p in self.plan)
         self.warns = C.collect_warns(self.geo, self.report["warn_names"])
-        self.kit = cases.K.read(case["kit"])[0]
+        self.kit, self.sources, _kw = cases.K.read(case["kit"])
         # 4.3 lives between decompose and plan, so the tracks must be read
         # THROUGH it: in bend mode it welds sections (D36) and in miter mode
         # it reserves span for the corner assembly. Re-deriving the raw 4.1
@@ -373,6 +382,7 @@ def run_case(name, case):
         # everything).
         C.over_unpacked(scene),
         C.curvature_budget(scene, cases.P),
+        C.packed_true_deviation(scene, cases.P),
         # 3.3 / PC-G4, on EVERY case: the same style, expressed as a payload
         # and read back through input 3, must build the same geometry.
         C.style_round_trip(scene, cases.via_payload,

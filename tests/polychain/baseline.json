@@ -338,6 +338,13 @@
       ]
     },
     {
+      "detail": "worst on A|2|default|2|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -722,6 +729,13 @@
         0.0,
         0.202389627
       ]
+    },
+    {
+      "detail": "worst on B|0|default|9|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "0 reader warnings",
@@ -1123,6 +1137,13 @@
       ]
     },
     {
+      "detail": "worst on C|0|default|4|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -1516,6 +1537,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -1903,6 +1931,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -2288,6 +2323,13 @@
       ]
     },
     {
+      "detail": "worst on AF|1|default|1|displace",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -2671,6 +2713,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "worst on AG|1|default|1|displace",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "0 reader warnings",
@@ -3061,6 +3110,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "worst on AH|1|default|1|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "0 reader warnings",
@@ -3465,6 +3521,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -3884,6 +3947,13 @@
       ]
     },
     {
+      "detail": "worst on AJ|5|default|1|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -4293,6 +4363,13 @@
       ]
     },
     {
+      "detail": "worst on AK|2|default|2|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -4676,6 +4753,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -5063,6 +5147,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -5448,6 +5539,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -5831,6 +5929,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "worst on AO|1|default|1|dispoff",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "0 reader warnings",
@@ -6241,6 +6346,13 @@
       ]
     },
     {
+      "detail": "worst on AP|0|default|3|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -6631,6 +6743,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "worst on AQ|0|default|3|asym",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "0 reader warnings",
@@ -7025,6 +7144,13 @@
       ]
     },
     {
+      "detail": "worst on AR|1|default|2|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -7133,11 +7259,11 @@
       "value": 0.0
     },
     {
-      "detail": "",
+      "detail": "panel -> panel",
       "name": "max_gap_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": 2.38e-07
     },
     {
       "detail": "no consecutive stepped pieces",
@@ -7179,14 +7305,14 @@
       "name": "axis_on_curve_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": 2.38e-07
     },
     {
-      "detail": "",
+      "detail": "panel want 0.0600 got 0.0600",
       "name": "cross_section_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": 5.33e-07
     },
     {
       "detail": "",
@@ -7214,7 +7340,7 @@
       "name": "packed_pieces",
       "ok": true,
       "skipped": false,
-      "value": 20
+      "value": 16
     },
     {
       "detail": "20 pieces",
@@ -7234,25 +7360,25 @@
       "value": 0
     },
     {
-      "detail": "",
+      "detail": "panel @ x=2.000",
       "name": "frame_dot_min",
       "ok": true,
       "skipped": false,
-      "value": 1.0
+      "value": 0.0
     },
     {
-      "detail": "no deformed pieces",
+      "detail": "panel",
       "name": "station_spacing_m",
       "ok": true,
-      "skipped": true,
-      "value": null
+      "skipped": false,
+      "value": 0.249999762
     },
     {
       "detail": "panel",
       "name": "min_piece_span_m",
       "ok": true,
       "skipped": false,
-      "value": 2.0
+      "value": 1.999999762
     },
     {
       "detail": "worst 0.000e+00 m",
@@ -7280,7 +7406,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "66f2f85ebae2b0a9"
+      "value": "67d01a1c3d7dfa59"
     },
     {
       "detail": "no corner assemblies",
@@ -7356,11 +7482,11 @@
       "value": 0.021213
     },
     {
-      "detail": "panel|panel at (12.00, 8.00) (4 joints, 0 spanned)",
+      "detail": "panel|panel at (0.00, 8.00) (4 joints, 0 spanned)",
       "name": "corner_wedge_m2",
       "ok": true,
       "skipped": false,
-      "value": 0.0009
+      "value": 0.00019286
     },
     {
       "detail": "no surface",
@@ -7391,7 +7517,7 @@
       "value": null
     },
     {
-      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "detail": "worst real deform 0.0267 m, 0 sheared (D65)",
       "name": "over_unpacked",
       "ok": true,
       "skipped": false,
@@ -7406,6 +7532,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -7784,6 +7917,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "worst on A|0|default|9|fence",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "0 reader warnings",
@@ -8185,6 +8325,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -8561,6 +8708,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -8941,6 +9095,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -9319,6 +9480,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -9695,6 +9863,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -10084,6 +10259,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -10465,6 +10647,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -10841,6 +11030,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -11224,6 +11420,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -11613,6 +11816,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -11991,6 +12201,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -12367,6 +12584,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -12750,6 +12974,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -13141,6 +13372,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -13520,6 +13758,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -13915,6 +14160,13 @@
       ]
     },
     {
+      "detail": "worst on B|0|default|33|fence",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -14293,6 +14545,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -14675,6 +14934,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -15082,6 +15348,13 @@
       ]
     },
     {
+      "detail": "worst on CD|0|default|7|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -15478,6 +15751,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -15856,6 +16136,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -16232,6 +16519,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -16615,6 +16909,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -17001,6 +17302,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -17162,18 +17470,18 @@
       "value": 0
     },
     {
-      "detail": "panel @ x=2.000",
+      "detail": "panel @ x=1.250",
       "name": "axis_on_curve_m",
       "ok": true,
       "skipped": false,
-      "value": 4.2e-08
+      "value": 6.2e-08
     },
     {
       "detail": "panel want 0.0600 got 0.0600",
       "name": "cross_section_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": 1.2e-07
     },
     {
       "detail": "",
@@ -17201,7 +17509,7 @@
       "name": "packed_pieces",
       "ok": true,
       "skipped": false,
-      "value": 6
+      "value": 5
     },
     {
       "detail": "6 pieces",
@@ -17221,18 +17529,18 @@
       "value": 0
     },
     {
-      "detail": "panel @ x=1.000",
+      "detail": "panel @ x=0.250",
       "name": "frame_dot_min",
       "ok": true,
       "skipped": false,
-      "value": 1.0
+      "value": 0.499999
     },
     {
-      "detail": "no deformed pieces",
+      "detail": "panel",
       "name": "station_spacing_m",
       "ok": true,
-      "skipped": true,
-      "value": null
+      "skipped": false,
+      "value": 0.242499952
     },
     {
       "detail": "post",
@@ -17267,7 +17575,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "f6b4e496ff3dbe17"
+      "value": "c0cb3dafc2809d63"
     },
     {
       "detail": "no corner assemblies",
@@ -17347,7 +17655,7 @@
       "name": "corner_wedge_m2",
       "ok": true,
       "skipped": false,
-      "value": 0.00155884
+      "value": 0.00117778
     },
     {
       "detail": "no surface",
@@ -17378,7 +17686,7 @@
       "value": null
     },
     {
-      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "detail": "worst real deform 0.0231 m, 0 sheared (D65)",
       "name": "over_unpacked",
       "ok": true,
       "skipped": false,
@@ -17393,6 +17701,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "worst on CJ|0|default|3|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "0 reader warnings",
@@ -17773,6 +18088,13 @@
       ]
     },
     {
+      "detail": "worst on CK|0|default|9|rail",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.1687e-05
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -18149,6 +18471,13 @@
         0.000250008,
         0.000250008
       ]
+    },
+    {
+      "detail": "worst on CL|0|default|8|rail",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.000250121
     },
     {
       "detail": "0 reader warnings",
@@ -18529,6 +18858,13 @@
       ]
     },
     {
+      "detail": "worst on CM|0|default|9|rail",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.006253516
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -18907,6 +19243,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -18925,6 +19268,776 @@
     },
     {
       "detail": "10 ids, 18 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "CP_elev_arc_tall": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 15
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "CP[0] start",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 30.73139
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "rail @ x=2.000",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 8.96e-07
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 15",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "15 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.72827,
+        1.999559
+      ]
+    },
+    {
+      "detail": "of 34, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "rail",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.24999504
+    },
+    {
+      "detail": "rail",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.999889004
+    },
+    {
+      "detail": "worst 8.958e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 15
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "bc6196ce782d86b4"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0216 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.009091172
+      ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "15 ids, 23 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "CQ_plan_arc_tall": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 15
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "CQ[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 5.44e-07
+    },
+    {
+      "detail": "rail -> rail",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.077e-06
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "rail @ x=1.000",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.000250026
+    },
+    {
+      "detail": "rail want 0.0600 got 0.0600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 15",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 15
+    },
+    {
+      "detail": "15 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "detail": "of 34, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "rail",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.999999893
+    },
+    {
+      "detail": "worst 9.326e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 15
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "c42ec80d3850d1e2"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.000250011,
+        0.000250011
+      ]
+    },
+    {
+      "detail": "worst on CQ|0|default|14|tall",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.000250124
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "15 ids, 23 after the merge",
       "name": "elem_ids_upstream",
       "ok": true,
       "skipped": false,
@@ -19283,6 +20396,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "worst on C|0|default|2|tiled",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "0 reader warnings",
@@ -19670,6 +20790,13 @@
       ]
     },
     {
+      "detail": "worst on D|0|default|5|gated",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -20055,6 +21182,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -20431,6 +21565,13 @@
         0.0,
         0.016576032
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -20811,6 +21952,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -21187,6 +22335,13 @@
         0.0,
         0.011061017
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -21579,6 +22734,13 @@
         0.0,
         0.011653408
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -21978,6 +23140,13 @@
       ]
     },
     {
+      "detail": "worst on J|0|default|2|coarse",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -22363,6 +23532,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "1 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -22743,6 +23919,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -23121,6 +24304,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -23497,6 +24687,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -23896,6 +25093,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "5 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -24279,6 +25483,13 @@
         0.0,
         0.47644226
       ]
+    },
+    {
+      "detail": "worst on P|0|default|2|crest",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "0 reader warnings",
@@ -24666,6 +25877,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -25051,6 +26269,13 @@
       ]
     },
     {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -25431,6 +26656,13 @@
       ]
     },
     {
+      "detail": "worst on S|0|default|6|overhang",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -25586,11 +26818,11 @@
       "value": 4.58e-07
     },
     {
-      "detail": "",
+      "detail": "panel want 0.0600 got 0.0600",
       "name": "cross_section_m",
       "ok": true,
       "skipped": false,
-      "value": 0.0
+      "value": 5.33e-07
     },
     {
       "detail": "",
@@ -25618,7 +26850,7 @@
       "name": "packed_pieces",
       "ok": true,
       "skipped": false,
-      "value": 14
+      "value": 13
     },
     {
       "detail": "14 pieces",
@@ -25638,18 +26870,18 @@
       "value": 0
     },
     {
-      "detail": "",
+      "detail": "panel @ x=2.000",
       "name": "frame_dot_min",
       "ok": true,
       "skipped": false,
-      "value": 1.0
+      "value": 0.0
     },
     {
-      "detail": "no deformed pieces",
+      "detail": "panel",
       "name": "station_spacing_m",
       "ok": true,
-      "skipped": true,
-      "value": null
+      "skipped": false,
+      "value": 0.247499466
     },
     {
       "detail": "post",
@@ -25684,7 +26916,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "17a9a8a3a56ea568"
+      "value": "9b75dba239870f33"
     },
     {
       "detail": "no corner assemblies",
@@ -25753,18 +26985,18 @@
       "value": null
     },
     {
-      "detail": "panel butt in at (12.00, 0.00), 3.24e-07 m over the butt wedge",
+      "detail": "panel butt out at (12.00, 0.00), 0.00e+00 m over the butt wedge",
       "name": "corner_breach_m",
       "ok": true,
       "skipped": false,
-      "value": 0.021214
+      "value": 0.021213
     },
     {
       "detail": "panel|panel at (12.00, 0.00) (1 joints, 0 spanned)",
       "name": "corner_wedge_m2",
       "ok": true,
       "skipped": false,
-      "value": 0.00090001
+      "value": 0.00019459
     },
     {
       "detail": "no surface",
@@ -25795,7 +27027,7 @@
       "value": null
     },
     {
-      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "detail": "worst real deform 0.0267 m, 0 sheared (D65)",
       "name": "over_unpacked",
       "ok": true,
       "skipped": false,
@@ -25810,6 +27042,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -26195,6 +27434,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "worst on U|1|default|2|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "0 reader warnings",
@@ -26600,6 +27846,13 @@
       ]
     },
     {
+      "detail": "worst on V|0|default|3|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -26983,6 +28236,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "0 reader warnings",
@@ -27370,6 +28630,13 @@
       ]
     },
     {
+      "detail": "worst on X|1|default|2|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -27755,6 +29022,13 @@
       ]
     },
     {
+      "detail": "worst on Y|1|default|1|compose",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "0 reader warnings",
       "name": "style_round_trip",
       "ok": true,
@@ -28138,6 +29412,13 @@
         0.0,
         0.0
       ]
+    },
+    {
+      "detail": "worst on Z|0|default|4|compose",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "0 reader warnings",

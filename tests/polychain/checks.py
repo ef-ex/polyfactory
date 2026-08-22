@@ -1436,6 +1436,72 @@ def curvature_budget(scene, place):
                   % (len(over), tol, over[0]))
 
 
+def packed_true_deviation(scene, place):
+    """D87 - the deviation a PACKED piece really carries, at its WORST POINT.
+
+    `curvature_budget` asks `span_deviation` what a span is spending, which
+    makes it blind to anything `span_deviation` itself cannot see - and for a
+    whole cycle that was every point off the spine. This check never calls the
+    budget: it BUILDS both answers for every packed piece (the packed 4x4
+    applied to the module, and the positions `_deform_positions` would have
+    produced for the same piece) and reports the largest distance between
+    them. Over `bend_tol` means a piece stayed packed while its geometry was
+    visibly wrong - the direction that ships, and the one that shipped: a
+    1.2 m tall bendable rail on an R = 55 m elevation arc read 0.0091 m on the
+    spine and 0.0327 m at its top corner, 30 of 30 pieces packed.
+
+    Anchored, cut, sliced, rigid and replaced pieces are exempt for the same
+    reasons `over_unpacked` exempts them - they are not the module on the
+    path.
+    """
+    tol = scene.params.bend_tol
+    worst, worst_id, over = 0.0, None, []
+    for eid, rec in scene.by_id.items():
+        if rec["pc_deformed"] or rec.get("pc_replaced"):
+            continue
+        placement = scene.plan_by_id.get(eid)
+        module = scene.kit.by_name(rec["pc_module"])
+        if placement is None or module is None or module.deform < 1:
+            continue
+        if placement.anchor is not None or placement.cuts                 or placement.slice_t is not None:
+            continue
+        src = scene.sources.get(rec["pc_module"])
+        track = scene.track_of.get(str(placement.curve_id))
+        section = scene.section_of.get((str(placement.curve_id),
+                                        placement.section_index))
+        if src is None or track is None or section is None:
+            continue
+        proto = place._Proto(module, src)
+        path, remap = track["path"], track["remap"]
+        s0f, s1f = section.s0 + placement.s0, section.s0 + placement.s1
+        s0r, s1r = remap(s0f), remap(s1f)
+        scale = ((s1f - s0f) / proto.length) if proto.length > 1e-9 else 1.0
+        zmode = rec["pc_zmode"] or module.zmode
+        tilt = bool(module.tilts(scene.params) and zmode == "adaptive")
+        normal_at = getattr(path, "normal", None) if tilt else None
+        up_ref = place.UP if normal_at is None             else normal_at(0.5 * (s0r + s1r))
+        xform = place._packed_transform(proto, path, s0r, s1r, zmode, up_ref)
+        world, local = place._deform_positions(src, proto, path, s0f, scale,
+                                               zmode, remap, tilt)
+        worst_here = 0.0
+        for i in range(0, len(local), 3):
+            q = hou.Vector3(local[i], local[i + 1], local[i + 2]) * xform
+            worst_here = max(worst_here,
+                             math.sqrt((q[0] - world[i]) ** 2
+                                       + (q[1] - world[i + 1]) ** 2
+                                       + (q[2] - world[i + 2]) ** 2))
+        if worst_here > worst:
+            worst, worst_id = worst_here, eid
+        if worst_here > tol + 1e-9:
+            over.append(eid)
+    if worst_id is None:
+        return _skip("packed_true_dev_m", "no packed bendable pieces")
+    return Result("packed_true_dev_m", not over, _round(worst),
+                  ("%d packed over bend_tol %.4g, first %s"
+                   % (len(over), tol, over[0])) if over
+                  else "worst on %s" % worst_id)
+
+
 def style_round_trip(scene, via_payload, expect_warns=0):
     """PC-G4: the parm face's Style, expressed as a 3.3 payload and fed back
     through input 3, builds THE SAME GEOMETRY.

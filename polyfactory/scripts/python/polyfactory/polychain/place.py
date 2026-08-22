@@ -561,6 +561,19 @@ class _Proto(object):
         self.ax = bb.minvec()[0]
         self.length = module.length if module.length > EPS \
             else max(bb.sizevec()[0], EPS)
+        # D87 - HOW FAR THIS MODULE REACHES OFF THE SPINE, in metres. The
+        # curvature budget is spent by the piece's POINTS, and only the
+        # spine's sit at y = z = 0: every other point rides a frame that is
+        # rebuilt station by station (`_deform_positions`), so a tall piece
+        # deviates by its own radius times the frame's turn ON TOP OF the
+        # sagitta. Measured off the SOURCE's bounding box rather than off
+        # `pc_size`, because the nominal fitted size is a contract about the
+        # fit while the bbox is the geometry that will actually move.
+        self.rz = max(abs(bb.minvec()[2]), abs(bb.maxvec()[2]))
+        self.ry = max(abs(bb.minvec()[1]), abs(bb.maxvec()[1]))
+        # `adaptive` rolls y AND z with the frame; a yaw-only mode keeps y
+        # world-vertical (`_frame`), so there only z rides it.
+        self.radius = math.hypot(self.ry, self.rz)
         self.stations = _stations(source, self.ax)
         # the same stations as fractions of the fit length - what 4.5's two
         # probes sample on, so the conform gate and the conform deform read
@@ -760,8 +773,9 @@ COLLAPSE_RATIO = 0.5        # chord vs planned span, for a RIGID piece
 FLAT_RATIO = 0.01           # horizontal reach vs planned span, yaw-only modes
 
 
-def span_deviation(path, sa, sb):
-    """D75 - how far the DEFORMED piece would sit from the PACKED one, metres.
+def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive"):
+    """D75 + D87 - how far the DEFORMED piece would sit from the PACKED
+    one, in metres, measured at its WORST POINT.
 
     THE CURVATURE BUDGET. D69 fixed the exact-collinear case and said so; what
     it left standing is that the vertex test is BINARY. A resampled GENTLE ARC
@@ -785,6 +799,17 @@ def span_deviation(path, sa, sb):
     (`bend_tol` is the same parm D25's resolution warning is measured against)
     and the piece stays packed.
 
+    D87 - AND IT IS MEASURED AT THE PIECE'S WORST POINT, NOT ON ITS SPINE.
+    D75 shipped the sagitta only, which is the exact answer for a point at
+    y = z = 0 and an UNDER-COUNT for every other point in the module: the
+    deformed piece rotates a frame per station, so a point `radius` metres off
+    the spine also swings by the chord of that rotation. Measured on a 1.2 m
+    tall bendable rail over an R = 55 m elevation arc resampled at 1 m: all 30
+    of 30 pieces stayed PACKED on a 0.0091 m spine reading while their true
+    worst point had moved 0.0327 m - 3.3x `bend_tol`, adjacent pieces meeting
+    with a visible wedge at their top corners. `radius` is 0 by default, which
+    is exactly D75's measure, and `_needs_deform` passes the module's own.
+
     Note this is measured on the PATH the piece is built on, conform included
     when there is one - a `ConformPath` samples the drape - so the ridge case
     that `Surface.deviates` exists for is not weakened by it.
@@ -793,18 +818,51 @@ def span_deviation(path, sa, sb):
     if abs(span) <= EPS:
         return 0.0
     verts = path.interior_vertices(sa, sb)
-    if not verts:
+    if not verts and radius <= EPS:
         return 0.0                       # the chord IS the arc (D66/D69)
     a = path.sample(sa)[0]
     b = path.sample(sb, forward=False)[0]
     ab = _sub(b, a)
-    worst = 0.0
+    # THE SPINE TERM, at every kink - extremal there because the polyline and
+    # the chord it is measured against are both linear in between. The two
+    # ends sit ON the chord by construction, and they are in the list because
+    # the off-spine term below pairs each frame with the span it holds over.
+    spine = [0.0]
     for sv in verts:
         f = (sv - sa) / span
         p = path.sample(sv)[0]
-        worst = max(worst, _len((p[0] - a[0] - ab[0] * f,
-                                 p[1] - a[1] - ab[1] * f,
-                                 p[2] - a[2] - ab[2] * f)))
+        spine.append(_len((p[0] - a[0] - ab[0] * f,
+                           p[1] - a[1] - ab[1] * f,
+                           p[2] - a[2] - ab[2] * f)))
+    spine.append(0.0)
+    worst = max(spine)
+    if radius <= EPS:
+        return worst
+    # THE OFF-SPINE TERM (D87). `_deform_positions` builds its frame from the
+    # FORWARD tangent at each station and `_packed_transform` builds one from
+    # the chord, so a point `radius` metres off the spine is displaced by the
+    # chord of that rotation, 2*r*sin(theta/2). Sampled at the span's start,
+    # at every kink, and at its END - and the end is not decoration: at a
+    # piece boundary the forward tangent is the NEXT segment's, which is
+    # where the worst reading on the R = 55 m elevation arc came from
+    # (0.0327 m against a 0.0091 m sagitta, three times the budget, and all
+    # of it in this term).
+    flat = zmode != "adaptive"
+    ref = _unit((ab[0], 0.0, ab[2]) if flat else ab)
+    if _len(ref) < EPS:
+        return worst
+    samples = [sa] + list(verts) + [sb]
+    for k, s in enumerate(samples):
+        t = path.sample(s)[1]
+        t = _unit((t[0], 0.0, t[2]) if flat else t)
+        if _len(t) < EPS:
+            continue
+        dot = max(-1.0, min(1.0, ref[0] * t[0] + ref[1] * t[1] + ref[2] * t[2]))
+        # this frame holds from its own sample to the next one, so the spine
+        # term it rides is the larger of that interval's two ends
+        near = max(spine[k], spine[k + 1]) if k + 1 < len(spine) else spine[k]
+        worst = max(worst, near
+                    + 2.0 * radius * math.sin(0.5 * math.acos(dot)))
     return worst
 
 
@@ -816,8 +874,14 @@ def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01):
         return False                                    # a straight leg piece
     if proto.module.deform <= 0:
         return False                                    # D27
-    if span_deviation(path, sa, sb) > tol:
-        return True                                     # D75
+    # D87: the budget is spent by the piece's WORST POINT, not by its spine.
+    # `radius` is how far this module reaches off the spine onto the frame
+    # that `_deform_positions` rebuilds per station; it is 0 for a module with
+    # no cross-section, which is the spine-only measure D75 shipped.
+    if span_deviation(path, sa, sb,
+                      proto.radius if zmode == "adaptive" else proto.rz,
+                      zmode) > tol:
+        return True                                     # D75, D87
     # 4.5: A DEAD-STRAIGHT SPLINE OVER A RIDGE HAS NO INTERIOR VERTEX, so
     # without this the test above says "nothing to follow" and a bendable rail
     # crosses the hill as one rigid chord with its two ends on the ground.
