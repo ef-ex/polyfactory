@@ -160,6 +160,23 @@ def ramp_x(x, _z):
     return CONFORM_GRADE * x
 
 
+BUMP_CENTRE = 0.75              # between the five fixed probes the unpack
+BUMP_WIDTH = 0.3                # gate used to take, and ON a panel station
+BUMP_HEIGHT = 0.5
+
+
+def bump(x, _z):
+    """A ridge NARROWER THAN A QUARTER OF A PIECE, on flat ground at y = -1.
+
+    D71's case: the feature that a fixed five-sample gate cannot see and the
+    module's own 0.25 m stations resolve perfectly.
+    """
+    d = abs(x - BUMP_CENTRE)
+    if d >= BUMP_WIDTH / 2.0:
+        return -1.0
+    return -1.0 + BUMP_HEIGHT * (1.0 - d / (BUMP_WIDTH / 2.0))
+
+
 def camber_z(_x, z):
     """Cross-fall: the surface tilts ACROSS the run, which is what camber is.
     A run along +X on this reads a roll of atan(0.25) = 14.036 degrees."""
@@ -874,7 +891,146 @@ def build_all():
         "rigid", 1, 6, rules=[Rule("default", "first", ["beam"])],
         params=Params(fill="adaptive")))
 
+    # ---- cycle 5: every one of these is a review measurement turned into a
+    # standing assertion (tests/README.md's rule). Each names the defect it
+    # was written against, because a case whose reason is not written down is
+    # a case the next cycle deletes.
+
+    # CF - A RESAMPLED STRAIGHT LINE IS STILL A STRAIGHT LINE (D69). The same
+    # 25 m run as CE, authored at 1 m spacing - which is the shape citygen
+    # streets, this tool's first consumer, hands it. Every interior vertex is
+    # collinear, so nothing bends and nothing may unpack: measured before the
+    # fix, the identical line as two points built 1000/1000 packed and this
+    # one built 0/1000 packed and 1000 deformed. It is in ALL_PACKED.
+    g = hou.Geometry()
+    polyline(g, [(float(x), 0.0, 0.0) for x in range(26)], curve_id="CF")
+    built["CF_resampled_straight"] = _case(g, rigid_kit(), Style(
+        "rigid", 1, 6, rules=[Rule("default", "first", ["beam"])],
+        params=Params(fill="adaptive")))
+
+    # CH - A SWAP ONTO A TILE REMAINDER (D73). `tile` fills the 5 m run with
+    # three whole 1.6 m gates and cuts the last one at 0.125 of its length;
+    # the override then re-points every gate to the RIGID post. The old code
+    # kept the gate's slice fraction and cut the post at 0.125 of ITS 0.12 m,
+    # filling 0.015 m of a 0.2 m span - a silent 0.185 m hole at the end of
+    # the fence with `warn_counts` empty. The remainder now takes D11's other
+    # answer (the whole module scaled into the span) and says so, so this case
+    # asserts both `pc_warn_tile_fallback` and an intact run.
+    ov = hou.Geometry()
+    P.write_override(ov, module="gate", to_module="post")
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (5, 0, 0)], curve_id="CH")
+    built["CH_swap_tile_slice"] = _case(g, kit_geo, Style(
+        "tile", 1, 4, rules=[Rule("default", "first", ["gate"])],
+        params=Params(fill="tile")), overrides=ov)
+
+    # CI - A SWAP RE-DERIVES THE Z-MODE (D73). The style leaves `zmode` empty,
+    # so 3.2's per-module default decides; the panel's is `vertical` and the
+    # post's is `stepped`. Swapping panel -> post on a sloped curve used to
+    # build and stamp every post `vertical` - the module that is no longer
+    # there. `zmode_stamp` asserts the stamp, and the curve is on a SLOPE so
+    # that the wrong mode is a geometric difference and not only a label.
+    ov = hou.Geometry()
+    P.write_override(ov, module="panel", to_module="post")
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (10, 2.5, 0)], curve_id="CI")
+    built["CI_swap_zmode"] = _case(g, kit_geo, Style(
+        "swapz", 1, 4, rules=[Rule("default", "first", ["panel"])],
+        params=Params(fill="adaptive")), overrides=ov)
+
+    # CJ - A BEND BUTT JOINT THAT IS NOT 90 DEGREES. `corner_breach_m` allows
+    # a square-ended butt joint exactly `h*sin(turn/2)` of bisector crossing,
+    # and every other butt case in this suite turns 90 degrees - where sin and
+    # cos are equal and the wrong one of the two passes anyway. This turns
+    # 120, where the correct allowance is 0.025981 m and the old `cos` one was
+    # 0.015 m: a legitimate joint failed by 1.10e-02 m.
+    g = hou.Geometry()
+    ang = math.radians(120.0)
+    polyline(g, [(0, 0, 0), (4, 0, 0),
+                 (4 + 4 * math.cos(ang), 0, 4 * math.sin(ang))],
+             curve_id="CJ")
+    built["CJ_bend_butt_120"] = _case(g, kit_geo, corner_style("bend"))
+
+    # ---- and 4.5's four, all of them measured on the built fence.
+
+    # BJ - GROUND UNDER A BRIDGE DECK (D70). A ground sheet at y = -2 under
+    # the whole run and a deck sheet at y = +2 over its middle. The drop takes
+    # the NEAREST surface, and a tie goes down-axis, so the whole fence is on
+    # the ground; the first version cast from beyond the far side and took the
+    # FIRST hit, which is "topmost", and put six of ten pieces on top of the
+    # deck with two 3.9 m cliff pieces at its edges. `no_gaps_or_overlaps` and
+    # `conform_contact_m` are what see it.
+    both = hou.Geometry()
+    both.merge(surface(lambda x, z: -2.0, x0=-4.0, x1=24.0, nx=28))
+    both.merge(surface(lambda x, z: 2.0, x0=4.0, x1=16.0, nx=12))
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="BJ")
+    built["BJ_conform_deck"] = _case(g, kit_geo, panel_style(zmode="vertical"),
+                                     surface_geo=both)
+
+    # BK - A SMALL SURFACE FAR BELOW THE SPLINE (D70). The reach used to come
+    # from the surface's own bbox alone, so a 5 x 5 m prop (diagonal 7.07 m)
+    # could not be reached from 30 m up and the whole run reported
+    # `pc_warn_conform_miss` with the surface directly beneath it - the drape
+    # flipping on standoff distance and nothing else. `conform_misses` is
+    # pinned at 0 here and the run has to sit on the prop.
+    g = hou.Geometry()
+    polyline(g, [(1.0, 30.0, 0.0), (4.0, 30.0, 0.0)], curve_id="BK")
+    built["BK_conform_far"] = _case(
+        g, kit_geo, panel_style(zmode="vertical"),
+        surface_geo=surface(lambda x, z: 0.0, x0=0.0, x1=5.0, z0=-2.5, z1=2.5,
+                            nx=5, nz=5))
+
+    # BL - A BUMP NARROWER THAN THE OLD PROBE SPACING (D71). 0.3 m wide and
+    # 0.5 m tall, centred at x = 0.75 - between the five fixed samples the
+    # unpack gate used to take across a 2 m panel, and ON that panel's own
+    # 0.25 m station. The gate said "flat" and the panel shipped PACKED as a
+    # straight chord with the bump 0.400 m through its bottom edge, unwarned.
+    # `conform_drape_m` is the assertion: it scores every station of every
+    # deformable piece, so a panel that ignored the bump reads 0.4 m.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="BL")
+    built["BL_conform_bump"] = _case(g, kit_geo,
+                                     panel_style(zmode="vertical"),
+                                     surface_geo=surface(bump, x0=-1.0,
+                                                         x1=21.0, nx=440))
+
+    # BM - A HOLE ON A DEFORM STATION (D71). The 0.1 m hole at x = 0.70..0.80
+    # falls between the five fixed probes `missed()` used to take and squarely
+    # on the panel's own station at 0.75, so the built rail dipped to spline
+    # elevation - a 0.1875 m V-notch - while `pc_warn_conform_miss` stayed
+    # absent, which is D53's contract broken exactly where the drape stopped.
+    # The warning is the assertion; the notch itself is D53's documented
+    # behaviour and is what the warning is FOR.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="BM")
+    nx = 220
+    cell = 22.0 / nx
+    holed = set((i, j) for i in range(nx) for j in range(12)
+                if (-1.0 + (i + 1) * cell) > 0.70 and (-1.0 + i * cell) < 0.80)
+    built["BM_conform_station_hole"] = _case(
+        g, kit_geo, panel_style(zmode="vertical"),
+        surface_geo=surface(ramp_x, x0=-1.0, x1=21.0, nx=nx, holes=holed))
+
     return built
+
+
+def duplicate_curve_ids(case):
+    """TWO CURVES AUTHORED WITH ONE `pc_curve_id` - D74's control build.
+
+    ⚠️ NOT A SCENE CASE, ON PURPOSE. Colliding `pc_elem_id`s are the whole
+    point here, and every id-keyed check in the suite (element_count,
+    unique_elem_ids, exact_fill, max_gap, plan_geometry...) reads a merged
+    scene and reports nonsense on it - ten red checks describing one condition
+    the tool deliberately only WARNS about. So the case is cooked by the check
+    that needs it, the way `with_extra_curve` and `rebuild_plain` are, and
+    what is asserted is the warning plus the size of the collision.
+    """
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (8, 0, 0)], curve_id="dup")
+    polyline(g, [(0, 0, 10), (8, 0, 10)], curve_id="dup")
+    out, report = P.build(g, case["kit"], case["style"])
+    return (out, report)
 
 
 def with_extra_curve(case):

@@ -632,8 +632,27 @@ class TestReviewFindings(unittest.TestCase):
             for p in anchored:
                 self.assertEqual(len(p.cuts), 1)
                 self.assertEqual(p.slot, "default")
-                self.assertEqual(len(p.anchor), 3)
+                # (origin, direction, length, datum) - D72 added the datum,
+                # which is the corner vertex the WHOLE assembly is dropped on.
+                self.assertEqual(len(p.anchor), 4)
+                self.assertEqual(tuple(p.anchor[3]), (12.0, 0.0, 0.0))
             self.assertEqual(len(set(p.elem_id for p in out)), len(out))
+
+    def test_a_flattened_assembly_is_anchored_at_the_vertex_elevation(self):
+        """D48 says `flatten` "puts both anchors at the vertex elevation"; it
+        stepped down the leg's 3D line instead, so the two halves of ONE
+        corner post sat `t_far * tan(pitch)` apart in Y - 0.0583 m on the
+        suite's 20 degree crest corner, invisible to `corner_face_mate_m`
+        because that compares stepped pieces in plan only (D72)."""
+        crest = [(0.0, 0.0, 0.0), (7.52, 2.74, 0.0), (15.04, 0.0, 0.0)]
+        # a yaw-only Z-mode is what makes D48 flatten the bevel at all
+        yaw = Params(fill="adaptive", corner_mode="miter", zmode="stepped",
+                     corner_displacement="extend")
+        out, bevels, _s = run(crest, style(displacement="extend"), params=yaw)
+        self.assertTrue(bevels[0].flat)
+        ys = set(round(p.anchor[0][1], 9) for p in out if p.anchor is not None)
+        self.assertTrue(ys)
+        self.assertEqual(ys, set([round(bevels[0].v[1], 9)]))
 
     # --- F7: the offset was dead without a corner module --------------------
 

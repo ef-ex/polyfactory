@@ -68,6 +68,19 @@ EXPECTED_WARNS = {
     "BE_conform_holes": ("pc_warn_bend_resolution", "pc_warn_conform_miss"),
     # BH is the coarse surface: only the panel ON the crease cannot resolve it.
     "BH_conform_crease": ("pc_warn_bend_resolution",),
+    # ---- cycle 5's cases. Each warning here IS the assertion the case was
+    # written for; an empty tuple below is equally load-bearing.
+    # D73: a rigid post cannot take a sliceable gate's tile remainder, so the
+    # remainder falls back to the whole module scaled into the span (D11).
+    "CH_swap_tile_slice": ("pc_warn_tile_fallback",),
+    # D71: the 0.3 m bump is narrower than the panel's own 0.25 m station
+    # spacing, so D25/D56 is the correct answer once the piece unpacks - and
+    # the piece unpacking at all is what the case is for.
+    "BL_conform_bump": ("pc_warn_bend_resolution",),
+    # D71: the hole IS the case. The bend warning rides with it because the
+    # drape steps by the full ramp height inside one panel, exactly as on BE.
+    "BM_conform_station_hole": ("pc_warn_bend_resolution",
+                                "pc_warn_conform_miss"),
     # The cycle-3 review cases. Every one of these overflows for a REASON the
     # case name gives, and every one of them used to build silently:
     # AH  a 140 degree turn is sharper than the 0.16 m post's own 0.2198 m
@@ -198,7 +211,13 @@ CAMBER_DEG = {
 # BE is the only case built to miss: a hole one grid cell wide and a surface
 # that stops at x = 12 of a 20 m run. Pinned exactly - a miss count that grows
 # means the drape is finding less ground than it did.
-CONFORM_MISSES = {"BE_conform_holes": 5}
+CONFORM_MISSES = {"BE_conform_holes": 5,
+                  # D71: the hole sits on a deform station and between the
+                  # five fixed probes the old warning used - it was 0 here.
+                  "BM_conform_station_hole": 1,
+                  # D70: the prop IS under the run, 30 m down. This was the
+                  # whole run reporting a miss because of standoff distance.
+                  "BK_conform_far": 0}
 
 
 BANKS = ("E_hill_adaptive", "BA_conform_adaptive")
@@ -206,7 +225,10 @@ BANKS = ("E_hill_adaptive", "BA_conform_adaptive")
 # 4.6's instancing floor, asserted rather than recorded: a straight run of
 # rigid modules has nothing to deform, so anything less than 100 % packed is a
 # defect that no other check would call one.
-ALL_PACKED = ("A_straight", "CE_all_packed", "CA_swap_module")
+ALL_PACKED = ("A_straight", "CE_all_packed", "CA_swap_module",
+              # D69: a straight line authored at 1 m spacing is still a
+              # straight line. Before the kink test this built 0 % packed.
+              "CF_resampled_straight")
 
 # [swapped, replaced, ids that moved] per override case, derived from the
 # override stream and not from a run: CA re-points all ten panels, CC and CD
@@ -304,6 +326,9 @@ def run_case(name, case):
         C.corner_plane_dev(scene),
         C.corner_face_mate(scene, expected=CORNER_MATE.get(name, 0.0),
                            tol=2e-3),
+        # ...and the half `corner_face_mate_m` structurally cannot see,
+        # because its `stepped` escape drops it to a plan-only metric (D72).
+        C.corner_mate_axis(scene),
         C.corner_symmetry(scene, expected=CORNER_SYMMETRY.get(name)),
         C.corner_outside_length(scene,
                                 expected=CORNER_OUTSIDE.get(name)),
@@ -340,6 +365,15 @@ def run_case(name, case):
         out.append(C.replaced_geometry(
             scene, expected=(2.0, 2.0, 0.4)
             if name == "CC_replace_hero" else None))
+    if name == "A_straight":
+        # D74's control build, cooked by the check because colliding ids are
+        # the condition under test and every id-keyed check above would read
+        # a merged scene and report nonsense on it. It does not depend on the
+        # case it is wired to, so it is wired to exactly one.
+        out.append(C.duplicate_curve_id_warns(scene, cases.duplicate_curve_ids))
+    if name == "CI_swap_zmode":
+        # D73: the post's own manifest default, not the panel's `vertical`.
+        out.append(C.zmode_stamp(scene, "stepped"))
     if name == "D_marker_gate":
         out.append(C.marker_offset(scene, 7, (10.0, 0.0, 0.0)))
     # D26's two halves, derived from the grade rather than copied off a run:

@@ -1516,14 +1516,23 @@ def conform_contact(scene, tol=2e-3):
         # on itself - D53. Scoring it here would make the warning a failure.
         if scene.warns.get(eid, {}).get("pc_warn_conform_miss"):
             continue
-        gaps = [abs(g) for _x, p in _axis_stations(rec)
+        gaps = [g for _x, p in _axis_stations(rec)
                 for g in (_surface_gap(surf, p),) if g is not None]
         if not gaps:
             continue
         seen += 1
-        if min(gaps) > worst:
-            worst, where = min(gaps), "%s (%s)" % (rec["pc_module"],
-                                                   rec["pc_zmode"])
+        # ⚠️ A PIECE THAT STRADDLES THE SURFACE IS IN CONTACT WITH IT, and
+        # reading the gaps unsigned said otherwise. A rigid corner post sits
+        # FLAT at its assembly's own datum (D72), so on a 25 % grade its two
+        # ends are 0.02 m under and 0.02 m over the terrain and it passes
+        # through the surface between them - which is contact, and is the
+        # same "a stepped piece sits, it does not drape" that
+        # `stepped_riser_m` measures. Unsigned, that reads as a 0.02 m float.
+        best = 0.0 if (min(gaps) <= 0.0 <= max(gaps)) \
+            else min(abs(g) for g in gaps)
+        if best > worst:
+            worst, where = best, "%s (%s)" % (rec["pc_module"],
+                                              rec["pc_zmode"])
     if not seen:
         return _skip("conform_contact_m", "no pieces over the surface")
     return Result("conform_contact_m", worst <= tol, _round(worst, 6), where)
@@ -1556,6 +1565,94 @@ def conform_drape(scene, tol=2e-3):
     if not seen:
         return _skip("conform_drape_m", "no deformable pieces on the surface")
     return Result("conform_drape_m", worst <= tol, _round(worst, 6), where)
+
+
+def corner_mate_axis(scene, tol=1e-4):
+    """The two cut faces of ONE mitered corner sit at ONE elevation (D72).
+
+    ⚠️ THIS IS THE HALF `corner_face_mate_m` CANNOT SEE, and the reason it
+    cannot is written into it: a `stepped` piece at a pitched corner steps by
+    design, so that check drops to a plan-only metric the moment either side
+    is stepped - and a rigid corner post IS stepped (D27). So the whole
+    conformed-corner failure mode was structurally invisible: 4.5 dropped each
+    half of the assembly on its OWN anchor, the two anchors sit at different
+    places on their legs, and on the suite's own 25 % ramp the two faces came
+    out y[2.98..4.28] against y[3.00..4.30] while every corner check passed.
+    With a 1.2 m corner module the same construction shelves them 0.28 m
+    apart.
+
+    A corner assembly is ONE rigid object cut on the bisector, whatever its
+    Z-mode and whatever the ground does, so the two faces' extents along the
+    conform axis must agree exactly. That holds off a surface too, which is
+    why this rides every case rather than only the conformed ones.
+    """
+    groups = _corner_caps(scene)
+    if not groups:
+        return _skip("corner_mate_axis_m", "no mitered corners")
+    axis = (0.0, 1.0, 0.0)
+    surf = _surface_of(scene)
+    if surf is not None:
+        axis = tuple(-c for c in surf.axis)
+    worst, where, seen = 0.0, "", 0
+    for bevel, sides in groups:
+        proj = {}
+        for side in ("in", "out"):
+            vals = [_dot3(pt, axis) for pt, _rec in sides[side]]
+            proj[side] = (min(vals), max(vals)) if vals else None
+        if proj["in"] is None or proj["out"] is None:
+            continue
+        seen += 1
+        d = max(abs(proj["in"][0] - proj["out"][0]),
+                abs(proj["in"][1] - proj["out"][1]))
+        if d > worst:
+            worst, where = d, "turn %.1f deg" % bevel.turn
+    if not seen:
+        return _skip("corner_mate_axis_m", "no paired cut faces")
+    return Result("corner_mate_axis_m", worst <= tol, _round(worst, 6), where)
+
+
+def duplicate_curve_id_warns(scene, dup_build):
+    """D74 - two curves with one authored id COLLIDE, and say so.
+
+    `pc_elem_id` is "collision-free by construction" (D1) only while the curve
+    half of the address is unique, and nothing upstream enforces that: a
+    copy-pasted street prim hands two curves the same `pc_curve_id`. Measured
+    before the warning existed: 4 prims, 2 distinct ids, each stamped twice,
+    `warn_counts` empty - so an id-keyed override hit both curves and any
+    by-id map downstream dropped half the run, silently.
+
+    The ids are NOT renamed (that would move an address a style or an override
+    may already name), so what is asserted is that the collision is visible.
+    The collision size rides along as the recorded value: a build that stopped
+    colliding would move it, and that is worth seeing too.
+    """
+    try:
+        geo, report = dup_build(scene.case)
+    except Exception as exc:                                  # pragma: no cover
+        return Result("duplicate_curve_id_warn", False, None,
+                      "%s: %s" % (type(exc).__name__, str(exc)[:120]))
+    counts = {}
+    for prim in geo.prims():
+        eid = prim.attribValue("pc_elem_id")
+        counts[eid] = counts.get(eid, 0) + 1
+    collided = sum(1 for n in counts.values() if n > 1)
+    warned = int(report["warn_counts"].get("pc_warn_curve_id_dup", 0))
+    ok = collided > 0 and warned >= len(geo.prims())
+    return Result("duplicate_curve_id_warn", ok, [collided, warned],
+                  "%d ids on 2+ prims, %d elements warned" % (collided, warned))
+
+
+def zmode_stamp(scene, expected):
+    """Every element carries `expected` in `pc_zmode` (3.2, D6, D73).
+
+    A swap re-points the module, so the Z-mode the plan derived from the OLD
+    module has to be re-derived too: a panel -> post swap under an empty style
+    zmode used to stamp the panel's `vertical` on every post and build it that
+    way, which on a hillside is a rail that banks instead of sitting flat.
+    """
+    got = sorted(set(rec["pc_zmode"] for rec in scene.by_id.values()))
+    return Result("zmode_stamp", got == [expected], got,
+                  "expected %r" % expected)
 
 
 def conform_camber(scene, expected=None, tol=0.05):
@@ -2082,13 +2179,26 @@ def corner_breach(scene, tol=1e-4):
             seen += 1
             # ...AND WHAT IT IS ALLOWED TO BE, derived from the piece and the
             # turn rather than from the run: a square-ended piece of across
-            # half-extent `h` butting at a turn `t` must cross the bisector by
-            # exactly `h*cos(t/2)` - 0.021213 m for the starter panel at 90
+            # half-extent `h` butting at a turn `t` crosses the bisector by
+            # exactly `h*sin(t/2)` - 0.021213 m for the starter panel at 90
             # degrees, 0.042426 m for the fatter post. Anything MORE is a
             # piece running past the vertex uncut, which is the defect the
             # miter branch below hunts. So the recorded number is the physical
             # breach and the assertion is the excess over the butt geometry.
-            excess = max(excess, d - _half_across(rec) * cos_half)
+            #
+            # ⚠️ SIN, NOT COS, AND THE TWO AGREE ONLY AT 90 DEGREES - which is
+            # the turn every asserted butt case in this suite happens to make,
+            # so the first version of this line was right nowhere else. The
+            # end face is perpendicular to the arriving tangent and spans
+            # `+-h` ACROSS it, the bisector normal sits at `t/2` off that
+            # tangent, so the corner of the face projects onto the normal at
+            # `h*sin(t/2)`. Measured at four turns (30/60/90/120 deg) on a
+            # bend butt joint: the breach is `h*sin(t/2)` to six decimals
+            # every time, and `AB_fillet`'s own recorded 0.005853 is
+            # `0.03*sin(11.25 deg)`. Under `cos` a 120 degree butt joint
+            # failed by 1.10e-02 m for being a butt joint.
+            sin_half = math.sqrt(max(0.0, 1.0 - cos_half * cos_half))
+            excess = max(excess, d - _half_across(rec) * sin_half)
             if d > worst:
                 worst, where = d, "%s butt %s at (%.2f, %.2f)" % (
                     rec["pc_module"], side, v[0], v[2])

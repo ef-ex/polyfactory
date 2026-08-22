@@ -79,10 +79,20 @@ WARN_DEGENERATE_FRAME = "pc_warn_degenerate_frame"  # D32 - yaw frame collapsed
 WARN_FILLET_CLAMPED = "pc_warn_fillet_clamped"    # D43 - 4.3's fillet radius
 WARN_CONFORM_MISS = "pc_warn_conform_miss"        # D53 - 4.5 ray missed
 WARN_REPLACED = "pc_warn_replace_deformed"        # D58 - a hero over a bend
+# D74 - TWO CURVES CARRYING ONE ID. `pc_elem_id` is "collision-free by
+# construction" (D1) only while the curve half of the address is unique, and
+# nothing upstream enforces that: a copy-pasted street prim hands two separate
+# curves the same authored `pc_curve_id` and every element of the second one
+# lands on an address the first one already owns (measured: 4 prims, 2 ids,
+# each stamped twice, warn list empty). An id-keyed override then hits both
+# curves and any by-id map downstream silently drops half the run. Warn, never
+# block - the ids are left exactly as authored, because renaming them here
+# would move addresses that a style or an override may already reference.
+WARN_CURVE_ID_DUP = "pc_warn_curve_id_dup"
 WARN_VOCAB = (WARN_KIT_GAP, WARN_CORNER_DEGENERATE, WARN_OVERFLOW,
               WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD,
               WARN_BEND_RESOLUTION, WARN_DEGENERATE_FRAME, WARN_FILLET_CLAMPED,
-              WARN_CONFORM_MISS, WARN_REPLACED)
+              WARN_CONFORM_MISS, WARN_REPLACED, WARN_CURVE_ID_DUP)
 
 # 3.1 / 3.4 attribute names, so the adapter and the checks read one list.
 CURVE_ATTRS = ("pc_corner", "pc_section", "pc_style", "pc_marker")

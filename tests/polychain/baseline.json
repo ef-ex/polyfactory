@@ -251,6 +251,13 @@
       "value": 2.2e-07
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "in 0.1269 out 0.1269 (expected 0.0000)",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -610,6 +617,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -631,7 +645,7 @@
       "value": null
     },
     {
-      "detail": "panel butt in at (11.56, 0.44), 0.00e+00 m over the butt wedge",
+      "detail": "panel butt in at (11.56, 0.44), 2.87e-07 m over the butt wedge",
       "name": "corner_breach_m",
       "ok": true,
       "skipped": false,
@@ -977,6 +991,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -1348,6 +1369,13 @@
       "value": 1e-07
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "in 1.5000 out 1.5000",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -1708,6 +1736,13 @@
       "value": 0.042425566
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -2066,6 +2101,13 @@
       "value": 6.74e-07
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "in 1.9700 out 1.9700",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -2422,6 +2464,13 @@
       "ok": true,
       "skipped": false,
       "value": 1.326e-06
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "in 1.0000 out 1.0000",
@@ -2785,6 +2834,13 @@
       "ok": true,
       "skipped": false,
       "value": 1.67e-07
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "in 0.0160 out 0.0160",
@@ -3162,6 +3218,13 @@
       "ok": true,
       "skipped": false,
       "value": 1.29e-07
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "in 0.0214 out 0.0214",
@@ -3554,6 +3617,13 @@
       "value": 0.0
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "in 0.0800 out 0.0800",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -3936,6 +4006,13 @@
       "value": 4.9e-07
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "in 0.1019 out 0.1019",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -4249,7 +4326,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "33e8fd2a3cb7ba43"
+      "value": "104149a0a52e8242"
     },
     {
       "detail": "in leg, 0.160 m out",
@@ -4289,6 +4366,13 @@
     {
       "detail": "",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": false,
       "value": 0.0
@@ -4471,7 +4555,7 @@
       "name": "stepped_riser_m",
       "ok": true,
       "skipped": false,
-      "value": 0.04
+      "value": 0.029104
     },
     {
       "detail": "8 pieces",
@@ -4607,7 +4691,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "c75c71630133cddd"
+      "value": "8c8171490b4c7449"
     },
     {
       "detail": "out leg, 0.080 m out",
@@ -4647,6 +4731,13 @@
     {
       "detail": "",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": false,
       "value": 0.0
@@ -5010,6 +5101,13 @@
       "value": 1.95e-07
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "in 0.8000 out 0.8000",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -5366,6 +5464,13 @@
       "ok": true,
       "skipped": false,
       "value": 1.21e-06
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "in 1.7700 out 1.7700",
@@ -5749,6 +5854,13 @@
       "value": 0.028284592
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "in 0.0600 out 0.0800",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -6112,6 +6224,13 @@
       "ok": true,
       "skipped": false,
       "value": 1.1e-08
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "in 2.3200 out 1.5000",
@@ -6479,6 +6598,13 @@
       "value": 1.03e-06
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "in 0.0160 out 0.0160",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -6835,6 +6961,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -7186,6 +7319,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -7291,6 +7431,16 @@
       "value": null
     },
     {
+      "detail": "10 ids on 2+ prims, 20 elements warned",
+      "name": "duplicate_curve_id_warn",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        10,
+        20
+      ]
+    },
+    {
       "detail": "",
       "name": "kit_warnings",
       "ok": true,
@@ -7349,7 +7499,7 @@
       "name": "exact_fill_m",
       "ok": true,
       "skipped": false,
-      "value": 6.35e-07
+      "value": 8.49e-07
     },
     {
       "detail": "",
@@ -7384,7 +7534,7 @@
       "name": "bank_deg",
       "ok": true,
       "skipped": false,
-      "value": 29.61352
+      "value": 29.50626
     },
     {
       "detail": "",
@@ -7394,11 +7544,11 @@
       "value": 0
     },
     {
-      "detail": "panel @ x=1.500",
+      "detail": "panel @ x=2.000",
       "name": "axis_on_curve_m",
       "ok": true,
       "skipped": false,
-      "value": 1.061e-06
+      "value": 8.49e-07
     },
     {
       "detail": "",
@@ -7441,7 +7591,7 @@
       "ok": true,
       "skipped": false,
       "value": [
-        2.0,
+        1.999999,
         2.000001
       ]
     },
@@ -7464,17 +7614,17 @@
       "name": "station_spacing_m",
       "ok": true,
       "skipped": false,
-      "value": 0.256770774
+      "value": 0.256770398
     },
     {
       "detail": "panel",
       "name": "min_piece_span_m",
       "ok": true,
       "skipped": false,
-      "value": 2.154065249
+      "value": 2.154064537
     },
     {
-      "detail": "worst 2.153e-08 m",
+      "detail": "worst 0.000e+00 m",
       "name": "plan_points",
       "ok": true,
       "skipped": false,
@@ -7499,7 +7649,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "431d0add166360d3"
+      "value": "d8543da035ba5cfa"
     },
     {
       "detail": "no corner assemblies",
@@ -7532,6 +7682,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -7572,25 +7729,25 @@
       "value": null
     },
     {
-      "detail": "panel (adaptive)",
+      "detail": "",
       "name": "conform_contact_m",
       "ok": true,
       "skipped": false,
-      "value": 1e-06
+      "value": 0.0
     },
     {
       "detail": "panel (adaptive)",
       "name": "conform_drape_m",
       "ok": true,
       "skipped": false,
-      "value": 5e-06
+      "value": 0.0
     },
     {
       "detail": "panel",
       "name": "camber_deg",
       "ok": true,
       "skipped": false,
-      "value": 16.3968
+      "value": 16.3094
     },
     {
       "detail": "",
@@ -7600,7 +7757,7 @@
       "value": 0
     },
     {
-      "detail": "worst real deform 0.3592 m, 0 sheared (D65)",
+      "detail": "worst real deform 0.3594 m, 0 sheared (D65)",
       "name": "over_unpacked",
       "ok": true,
       "skipped": false,
@@ -7696,11 +7853,11 @@
       ]
     },
     {
-      "detail": "BB[0] start",
+      "detail": "BB[0] end",
       "name": "exact_fill_m",
       "ok": true,
       "skipped": false,
-      "value": 3e-09
+      "value": 0.0
     },
     {
       "detail": "",
@@ -7745,11 +7902,11 @@
       "value": 0
     },
     {
-      "detail": "panel @ x=1.250",
+      "detail": "panel @ x=2.000",
       "name": "axis_on_curve_m",
       "ok": true,
       "skipped": false,
-      "value": 3e-09
+      "value": 3.1e-08
     },
     {
       "detail": "",
@@ -7815,17 +7972,17 @@
       "name": "station_spacing_m",
       "ok": true,
       "skipped": false,
-      "value": 0.256771181
+      "value": 0.256771209
     },
     {
       "detail": "panel",
       "name": "min_piece_span_m",
       "ok": true,
       "skipped": false,
-      "value": 2.15406564
+      "value": 2.154065918
     },
     {
-      "detail": "worst 2.153e-08 m",
+      "detail": "worst 0.000e+00 m",
       "name": "plan_points",
       "ok": true,
       "skipped": false,
@@ -7850,7 +8007,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "642a7030a7e5e078"
+      "value": "72bd08b9f6f35680"
     },
     {
       "detail": "no corner assemblies",
@@ -7883,6 +8040,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -7923,18 +8087,18 @@
       "value": null
     },
     {
-      "detail": "panel (vertical)",
+      "detail": "",
       "name": "conform_contact_m",
       "ok": true,
       "skipped": false,
-      "value": 1e-06
+      "value": 0.0
     },
     {
       "detail": "panel (vertical)",
       "name": "conform_drape_m",
       "ok": true,
       "skipped": false,
-      "value": 1e-06
+      "value": 0.0
     },
     {
       "detail": "panel",
@@ -8065,7 +8229,7 @@
       "name": "stepped_riser_m",
       "ok": true,
       "skipped": false,
-      "value": 0.067749
+      "value": 0.067747
     },
     {
       "detail": "no vertical-mode pieces",
@@ -8201,7 +8365,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "0461eeeb5b5a68d9"
+      "value": "6bee6b3979ee5c88"
     },
     {
       "detail": "no corner assemblies",
@@ -8234,6 +8398,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -8278,7 +8449,7 @@
       "name": "conform_contact_m",
       "ok": true,
       "skipped": false,
-      "value": 1e-06
+      "value": 0.0
     },
     {
       "detail": "no deformable pieces on the surface",
@@ -8398,7 +8569,7 @@
       ]
     },
     {
-      "detail": "BD[0] start",
+      "detail": "",
       "name": "exact_fill_m",
       "ok": true,
       "skipped": false,
@@ -8527,7 +8698,7 @@
       "value": 2.0
     },
     {
-      "detail": "worst 2.132e-14 m",
+      "detail": "worst 0.000e+00 m",
       "name": "plan_points",
       "ok": true,
       "skipped": false,
@@ -8552,7 +8723,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "32b35fd47a83fb15"
+      "value": "ddc96754d3665a34"
     },
     {
       "detail": "no corner assemblies",
@@ -8585,6 +8756,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -8625,18 +8803,18 @@
       "value": null
     },
     {
-      "detail": "panel (adaptive)",
+      "detail": "",
       "name": "conform_contact_m",
       "ok": true,
       "skipped": false,
-      "value": 2e-06
+      "value": 0.0
     },
     {
-      "detail": "panel (adaptive)",
+      "detail": "",
       "name": "conform_drape_m",
       "ok": true,
       "skipped": false,
-      "value": 2e-06
+      "value": 0.0
     },
     {
       "detail": "panel, expected 14.0362",
@@ -8878,7 +9056,7 @@
       "value": 2.0
     },
     {
-      "detail": "worst 2.132e-14 m",
+      "detail": "worst 0.000e+00 m",
       "name": "plan_points",
       "ok": true,
       "skipped": false,
@@ -8903,7 +9081,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "162acda89720934b"
+      "value": "1a51cee6a142fbb3"
     },
     {
       "detail": "no corner assemblies",
@@ -8936,6 +9114,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -8976,18 +9161,18 @@
       "value": null
     },
     {
-      "detail": "panel (adaptive)",
+      "detail": "",
       "name": "conform_contact_m",
       "ok": true,
       "skipped": false,
-      "value": 2e-06
+      "value": 0.0
     },
     {
-      "detail": "panel (adaptive)",
+      "detail": "",
       "name": "conform_drape_m",
       "ok": true,
       "skipped": false,
-      "value": 2e-06
+      "value": 0.0
     },
     {
       "detail": ", expected 0.0000",
@@ -9100,7 +9285,7 @@
       ]
     },
     {
-      "detail": "BE[0] start",
+      "detail": "",
       "name": "exact_fill_m",
       "ok": true,
       "skipped": false,
@@ -9153,7 +9338,7 @@
       "name": "axis_on_curve_m",
       "ok": true,
       "skipped": false,
-      "value": 1.16e-07
+      "value": 1.08e-07
     },
     {
       "detail": "",
@@ -9229,7 +9414,7 @@
       "value": 2.0
     },
     {
-      "detail": "worst 7.942e-09 m",
+      "detail": "worst 0.000e+00 m",
       "name": "plan_points",
       "ok": true,
       "skipped": false,
@@ -9263,7 +9448,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "a15b43bb0537a553"
+      "value": "32105ad29f6eae31"
     },
     {
       "detail": "no corner assemblies",
@@ -9296,6 +9481,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -9336,18 +9528,18 @@
       "value": null
     },
     {
-      "detail": "panel (vertical)",
+      "detail": "",
       "name": "conform_contact_m",
       "ok": true,
       "skipped": false,
-      "value": 3e-06
+      "value": 0.0
     },
     {
       "detail": "panel (vertical)",
       "name": "conform_drape_m",
       "ok": true,
       "skipped": false,
-      "value": 3e-06
+      "value": 0.0
     },
     {
       "detail": "panel",
@@ -9467,7 +9659,7 @@
       "name": "exact_fill_m",
       "ok": true,
       "skipped": false,
-      "value": 3.2e-08
+      "value": 1.08e-07
     },
     {
       "detail": "",
@@ -9512,11 +9704,11 @@
       "value": 0
     },
     {
-      "detail": "panel @ x=0.750",
+      "detail": "panel @ x=1.250",
       "name": "axis_on_curve_m",
       "ok": true,
       "skipped": false,
-      "value": 3.2e-08
+      "value": 1.08e-07
     },
     {
       "detail": "",
@@ -9582,17 +9774,17 @@
       "name": "station_spacing_m",
       "ok": true,
       "skipped": false,
-      "value": 0.257694094
+      "value": 0.257694069
     },
     {
       "detail": "panel",
       "name": "min_piece_span_m",
       "ok": true,
       "skipped": false,
-      "value": 2.061552808
+      "value": 2.061552781
     },
     {
-      "detail": "worst 7.610e-08 m",
+      "detail": "worst 0.000e+00 m",
       "name": "plan_points",
       "ok": true,
       "skipped": false,
@@ -9617,7 +9809,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "c214fc56d4187466"
+      "value": "ea21991d8320af89"
     },
     {
       "detail": "no corner assemblies",
@@ -9650,6 +9842,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -9690,18 +9889,18 @@
       "value": null
     },
     {
-      "detail": "panel (vertical)",
+      "detail": "",
       "name": "conform_contact_m",
       "ok": true,
       "skipped": false,
-      "value": 2e-06
+      "value": 0.0
     },
     {
       "detail": "panel (vertical)",
       "name": "conform_drape_m",
       "ok": true,
       "skipped": false,
-      "value": 2e-06
+      "value": 0.0
     },
     {
       "detail": "panel",
@@ -9818,7 +10017,7 @@
       "name": "exact_fill_m",
       "ok": true,
       "skipped": false,
-      "value": 3.2e-08
+      "value": 1.08e-07
     },
     {
       "detail": "",
@@ -9863,11 +10062,11 @@
       "value": 0
     },
     {
-      "detail": "panel @ x=0.750",
+      "detail": "panel @ x=1.250",
       "name": "axis_on_curve_m",
       "ok": true,
       "skipped": false,
-      "value": 3.2e-08
+      "value": 1.08e-07
     },
     {
       "detail": "",
@@ -9933,17 +10132,17 @@
       "name": "station_spacing_m",
       "ok": true,
       "skipped": false,
-      "value": 0.257694094
+      "value": 0.257694069
     },
     {
       "detail": "panel",
       "name": "min_piece_span_m",
       "ok": true,
       "skipped": false,
-      "value": 2.061552808
+      "value": 2.061552781
     },
     {
-      "detail": "worst 7.610e-08 m",
+      "detail": "worst 0.000e+00 m",
       "name": "plan_points",
       "ok": true,
       "skipped": false,
@@ -9968,7 +10167,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "c214fc56d4187466"
+      "value": "ea21991d8320af89"
     },
     {
       "detail": "no corner assemblies",
@@ -10001,6 +10200,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -10041,18 +10247,18 @@
       "value": null
     },
     {
-      "detail": "panel (vertical)",
+      "detail": "",
       "name": "conform_contact_m",
       "ok": true,
       "skipped": false,
-      "value": 2e-06
+      "value": 0.0
     },
     {
       "detail": "panel (vertical)",
       "name": "conform_drape_m",
       "ok": true,
       "skipped": false,
-      "value": 2e-06
+      "value": 0.0
     },
     {
       "detail": "panel",
@@ -10214,11 +10420,11 @@
       "value": 0
     },
     {
-      "detail": "panel @ x=0.500",
+      "detail": "panel @ x=0.250",
       "name": "axis_on_curve_m",
       "ok": true,
       "skipped": false,
-      "value": 3.4e-08
+      "value": 1.34e-07
     },
     {
       "detail": "",
@@ -10284,17 +10490,17 @@
       "name": "station_spacing_m",
       "ok": true,
       "skipped": false,
-      "value": 0.254017392
+      "value": 0.254017683
     },
     {
       "detail": "panel",
       "name": "min_piece_span_m",
       "ok": true,
       "skipped": false,
-      "value": 2.056793514
+      "value": 2.056793626
     },
     {
-      "detail": "worst 7.359e-08 m",
+      "detail": "worst 0.000e+00 m",
       "name": "plan_points",
       "ok": true,
       "skipped": false,
@@ -10324,7 +10530,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "ff85a5c5c7d8b272"
+      "value": "1042c86e2b97e045"
     },
     {
       "detail": "no corner assemblies",
@@ -10357,6 +10563,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -10397,7 +10610,7 @@
       "value": null
     },
     {
-      "detail": "panel (vertical)",
+      "detail": "",
       "name": "conform_contact_m",
       "ok": true,
       "skipped": false,
@@ -10408,7 +10621,7 @@
       "name": "conform_drape_m",
       "ok": true,
       "skipped": false,
-      "value": 3e-06
+      "value": 0.0
     },
     {
       "detail": "panel",
@@ -10527,7 +10740,7 @@
       "name": "exact_fill_m",
       "ok": true,
       "skipped": false,
-      "value": 1.21e-07
+      "value": 1.31e-07
     },
     {
       "detail": "panel -> post",
@@ -10541,7 +10754,7 @@
       "name": "stepped_riser_m",
       "ok": true,
       "skipped": false,
-      "value": 0.029999
+      "value": 0.03
     },
     {
       "detail": "10 pieces",
@@ -10576,7 +10789,7 @@
       "name": "axis_on_curve_m",
       "ok": true,
       "skipped": false,
-      "value": 4.67e-07
+      "value": 4.69e-07
     },
     {
       "detail": "corner_post want 0.1600 got 0.1600",
@@ -10652,7 +10865,7 @@
       "value": 0.119999997
     },
     {
-      "detail": "worst 4.336e-07 m",
+      "detail": "worst 4.334e-07 m",
       "name": "plan_points",
       "ok": true,
       "skipped": false,
@@ -10677,7 +10890,7 @@
       "name": "geometry_digest",
       "ok": true,
       "skipped": false,
-      "value": "204a52a0a90109ce"
+      "value": "81c20a443cb47c89"
     },
     {
       "detail": "out leg, 0.080 m out",
@@ -10722,6 +10935,13 @@
       "value": 0.0
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "in 0.0800 out 0.0800",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -10757,7 +10977,7 @@
       "value": null
     },
     {
-      "detail": "panel (vertical)",
+      "detail": "",
       "name": "conform_contact_m",
       "ok": true,
       "skipped": false,
@@ -10768,7 +10988,7 @@
       "name": "conform_drape_m",
       "ok": true,
       "skipped": false,
-      "value": 7e-06
+      "value": 0.0
     },
     {
       "detail": "panel",
@@ -10825,6 +11045,1457 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "BJ_conform_deck": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.250",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 10",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "10 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.0
+    },
+    {
+      "detail": "worst 0.000e+00 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "d25a0ec6be009084"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 ids, 18 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "BK_conform_far": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 2
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "2 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.750",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 2",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 2
+    },
+    {
+      "detail": "2 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.5
+    },
+    {
+      "detail": "worst 0.000e+00 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 2
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "e5f5c990d6cba838"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "expected 0",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "2 ids, 10 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "BL_conform_bump": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "BL[0] start",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.5e-08
+    },
+    {
+      "detail": "panel -> panel",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.5e-08
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.500",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.5e-08
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 10",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 9
+    },
+    {
+      "detail": "10 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.25
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.0
+    },
+    {
+      "detail": "worst 0.000e+00 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "pc_warn_bend_resolution",
+          1
+        ]
+      ]
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "c6ab20f679165cf1"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "worst real deform 0.4361 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 ids, 18 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        "pc_warn_bend_resolution:1"
+      ]
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "BM_conform_station_hole": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "BM[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.08e-07
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.250",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.08e-07
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 10",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "10 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "panel",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.257694069
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.061552781
+    },
+    {
+      "detail": "worst 0.000e+00 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "pc_warn_bend_resolution",
+          1
+        ],
+        [
+          "pc_warn_conform_miss",
+          1
+        ]
+      ]
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "6c76fe5301a5bf5f"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "panel (vertical)",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "panel",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 14.0362
+    },
+    {
+      "detail": "expected 1",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": false,
+      "value": 1
+    },
+    {
+      "detail": "worst real deform 0.1635 m, 9 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 ids, 18 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        "pc_warn_bend_resolution:1",
+        "pc_warn_conform_miss:1"
+      ]
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "",
@@ -11076,6 +12747,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -11434,6 +13112,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -11784,6 +13469,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -12167,6 +13859,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -12536,6 +14235,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -12614,6 +14320,1465 @@
     },
     {
       "detail": "10 ids, 16 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "CF_resampled_straight": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no bendable pieces",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 10",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "10 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.5,
+        2.5
+      ]
+    },
+    {
+      "detail": "of 6",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "beam",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.5
+    },
+    {
+      "detail": "worst 0.000e+00 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 10
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "81e24e0b11847a8b"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "10 ids, 16 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "CH_swap_tile_slice": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 4
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "CH[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.19e-07
+    },
+    {
+      "detail": "post -> post",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.19e-07
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "4 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no bendable pieces",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 4",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 4
+    },
+    {
+      "detail": "4 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.2,
+        1.6
+      ]
+    },
+    {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.199999928
+    },
+    {
+      "detail": "worst 1.192e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 4
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "pc_warn_tile_fallback",
+          1
+        ]
+      ]
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "299b4f104753023e"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "4 ids, 14 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        "pc_warn_tile_fallback:1"
+      ]
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "CI_swap_zmode": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 5
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "CI[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "post -> post",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.5
+    },
+    {
+      "detail": "no vertical-mode pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "5 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no bendable pieces",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 5",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 5
+    },
+    {
+      "detail": "5 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.0
+    },
+    {
+      "detail": "worst 9.155e-16 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 5
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "5e9c7bf645433a13"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "5 ids, 13 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no caps",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "expected 'stepped'",
+      "name": "zmode_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        "stepped"
+      ]
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "CJ_bend_butt_120": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 6
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "CJ[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 6.8e-08
+    },
+    {
+      "detail": "panel -> panel",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 6.9e-08
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "4 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "2 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=2.000",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.2e-08
+    },
+    {
+      "detail": "panel want 0.0600 got 0.0600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 6",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 6
+    },
+    {
+      "detail": "6 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.12,
+        1.94
+      ]
+    },
+    {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.000",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.119999997
+    },
+    {
+      "detail": "worst 6.752e-08 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 6
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "f6b4e496ff3dbe17"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 of 1 spanned by one piece",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1,
+        0
+      ]
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "panel butt out at (4.00, 0.00), 0.00e+00 m over the butt wedge",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.025981
+    },
+    {
+      "detail": "panel|panel at (4.00, 0.00) (1 joints, 0 spanned)",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": false,
+      "value": 0.00155884
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "6 ids, 16 after the merge",
       "name": "elem_ids_upstream",
       "ok": true,
       "skipped": false,
@@ -12882,6 +16047,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -13245,6 +16417,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -13603,6 +16782,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -13949,6 +17135,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -14305,6 +17498,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -14651,6 +17851,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -15016,6 +18223,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -15391,6 +18605,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -15749,6 +18970,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -16097,6 +19325,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -16453,6 +19688,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -16799,6 +20041,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -17174,6 +20423,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -17527,6 +20783,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -17890,6 +21153,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -18248,6 +21518,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -18596,6 +21873,13 @@
     {
       "detail": "no mitered corners",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -18955,6 +22239,13 @@
       "value": null
     },
     {
+      "detail": "no mitered corners",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no corner assemblies",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -19308,6 +22599,13 @@
     {
       "detail": "",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": false,
       "value": 0.0
@@ -19689,6 +22987,13 @@
       "value": 0.0
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "in 0.0800 out 0.0800 (expected 0.0000)",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -20045,6 +23350,13 @@
       "ok": true,
       "skipped": false,
       "value": 4.2e-08
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "in 0.1200 out 0.1200",
@@ -20405,6 +23717,13 @@
       "value": 4.2e-08
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "in 0.0400 out 0.0400",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -20763,6 +24082,13 @@
       "value": 9e-08
     },
     {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "in 1.2800 out 1.2800 (expected 0.0000)",
       "name": "corner_symmetry_m",
       "ok": true,
@@ -21116,6 +24442,13 @@
     {
       "detail": "",
       "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
       "ok": true,
       "skipped": false,
       "value": 0.0

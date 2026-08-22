@@ -97,7 +97,8 @@ import hou
 from . import (DEFAULTS, EPS, WARN_BEND_RESOLUTION, WARN_CORNER_DEGENERATE,
                WARN_DEGENERATE_FRAME, WARN_KIT_GAP, Curve, Marker, Z_MODES,
                elem_key, stand_in)
-from . import WARN_CONFORM_MISS, WARN_REPLACED
+from . import (WARN_CONFORM_MISS, WARN_CURVE_ID_DUP, WARN_REPLACED,
+               WARN_TILE_FALLBACK)
 from . import conform as _conform
 from . import corner as _corner
 from . import decompose as _decompose
@@ -182,6 +183,34 @@ class Path(object):
         self.segs = segs
         self.ends = [s[1] for s in segs]
         self.first = pts[0] if pts else (0.0, 0.0, 0.0)
+        self.kink_s = self._kinks(segs, self.closed)
+
+    @staticmethod
+    def _kinks(segs, closed, tol=1e-9):
+        """Arclengths where the direction ACTUALLY changes (D69).
+
+        ⚠️ A RESAMPLED STRAIGHT LINE IS STILL A STRAIGHT LINE. This is D66's
+        end-vertex lesson applied to the interior: `interior_vertices` used to
+        report every vertex in the span, so a dead-straight 2000 m run
+        authored at 1 m spacing - which is exactly the shape citygen streets
+        hands this tool - built 1000 DEFORMED pieces where the same line as
+        two points builds 1000 packed ones (measured: 1.19 s and 360k real
+        points versus instant and one shared geometryid). Zero-length
+        segments are already dropped above, so a duplicated point is absorbed
+        here for free. The tolerance is exact-collinearity, not a curvature
+        budget: a 5000 m-radius arc resampled at 1 m still turns 2e-4 rad per
+        vertex and still unpacks, which is what keeps every baseline still.
+        """
+        out = []
+        n = len(segs)
+        # the seam of a CLOSED curve is a vertex like any other: segs[-1]
+        # arrives at it and segs[0] leaves it.
+        for i in range(n if (closed and n > 1) else max(n - 1, 0)):
+            a = _unit(segs[i][3])
+            b = _unit(segs[(i + 1) % n][3])
+            if _len(_sub(a, b)) > tol:
+                out.append(segs[i][1])
+        return out
 
     def sample(self, s, forward=True):
         """(position, unit tangent) at `s` metres. Mirrors `Curve.sample`."""
@@ -229,13 +258,17 @@ class Path(object):
         kink unpacked the piece for a deformation that does not exist. The
         gate at 19.7 m of a 20.006 m curve was real geometry whose points fit
         a rigid transform to 1e-7 m; `over_unpacked` is what found it.
+
+        ⚠️ AND NEITHER IS A COLLINEAR ONE (D69) - the same lesson, one vertex
+        further in. `kink_s` is the vertices where the direction actually
+        changes, so a resampled straight run stays packed.
         """
         out = []
         total = self.total
         reps = (0.0,) if not (self.closed and total > EPS) else (0.0, total,
                                                                 -total)
         for base in reps:
-            for v in self.vertex_s:
+            for v in self.kink_s:
                 sv = v + base
                 if not self.closed and (sv <= tol or sv >= total - tol):
                     continue
@@ -521,6 +554,11 @@ class _Proto(object):
         self.length = module.length if module.length > EPS \
             else max(bb.sizevec()[0], EPS)
         self.stations = _stations(source, self.ax)
+        # the same stations as fractions of the fit length - what 4.5's two
+        # probes sample on, so the conform gate and the conform deform read
+        # the same places (D71).
+        self.fracs = tuple(s / self.length for s in self.stations) \
+            if self.length > EPS else ()
         self._sliced = {}
 
     def sliced(self, slice_t):
@@ -732,7 +770,7 @@ def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01):
     # is 4.6's segregation surviving the conform rather than being defeated by
     # it. `stepped` is excluded because sitting flat is the mode (4.5's own
     # "stepped sits on it").
-    if zmode != "stepped" and getattr(path, "deviates", None) is not None             and path.deviates(sa, sb, tol):
+    if zmode != "stepped" and getattr(path, "deviates", None) is not None             and path.deviates(sa, sb, tol, fracs=proto.fracs):
         return True
     if zmode == "vertical":
         ya = path.sample(sa)[0][1]
@@ -810,13 +848,32 @@ def _anchor_transform(proto, origin, direction, length, zmode, up_ref=UP):
          origin[2] - d[2] * ox, 1.0]])
 
 
-def _drop_anchor(path, origin):
+def _drop_anchor(path, anchor):
     """4.5: a 4.3 anchor is a SPLINE vertex, so it is dropped like everything
-    else. Off a conformed path this is the identity."""
+    else. Off a conformed path this is the identity.
+
+    ⚠️ ONE DATUM PER ASSEMBLY, AND IT IS THE CORNER VERTEX (D72). Dropping
+    each half's OWN anchor put the two halves of one mitered corner post on
+    different elevations, because they start at different places on their
+    legs - the in half `t_far` back down the arriving leg, the out half at the
+    vertex. On the suite's own 25 % ramp the two cut faces came out
+    y[2.98..4.28] against y[3.00..4.30], a 0.02 m step at a seam PC-G1 asks
+    to be gapless; with a 1.2 m corner module the same construction shelves
+    them 0.28 m apart. The assembly is ONE rigid object cut in two, so it
+    gets ONE drop - which is the same thing D48's `flatten` already does in
+    the other axis by putting both anchors at the vertex elevation.
+    """
     surface = getattr(path, "surface", None)
+    origin = anchor[0]
     if surface is None or not surface.active:
         return origin
-    return surface.drop(origin)[0]
+    datum = anchor[3] if len(anchor) > 3 and anchor[3] is not None else origin
+    dropped, _n, ok = surface.drop(datum)
+    if not ok:
+        return origin
+    return (origin[0] + dropped[0] - datum[0],
+            origin[1] + dropped[1] - datum[1],
+            origin[2] + dropped[2] - datum[2])
 
 
 def _anchor_len(placement):
@@ -1122,9 +1179,17 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
     jobs = []
     bevels = []
     all_sections = []
+    # D74: two curves with one id share every `pc_elem_id` they produce. The
+    # ids are left alone (renaming would move an address an override may
+    # already name); what changes is that it is no longer silent.
+    id_count = {}
+    for c in curves:
+        id_count[str(c.curve_id)] = id_count.get(str(c.curve_id), 0) + 1
     for curve in sorted(curves, key=lambda c: str(c.curve_id)):
         kcurve, _real, path, remap, fillet_warns = _prepare(curve, params,
                                                             surface_geo)
+        if id_count.get(str(curve.curve_id), 0) > 1:
+            fillet_warns = tuple(fillet_warns) + (WARN_CURVE_ID_DUP,)
         sections = _decompose.decompose(kcurve, markers, params)
         # 4.3 owns everything between the section list and the fill: it welds
         # what bend must not break (D36), places the corner slot, and hands
@@ -1143,11 +1208,39 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             # are what the rest of the pass reasons about - and `pc_module`
             # stamps the module that is actually in the output.
             ov = _override_for(overrides, p, p.module)
-            if ov is not None and ov.to_module:
+            swapped = ov is not None and bool(ov.to_module)
+            if swapped:
                 p.module = ov.to_module
             if ov is not None and ov.to_variant:
                 p.variant = ov.to_variant
             module = kit.by_name(p.module) or stand_in(p.module)
+            swap_warns = []
+            if swapped:
+                # ...WHICH MEANS RE-DERIVING WHAT THE PLAN DERIVED FROM THE
+                # OLD MODULE (D73), because two of those survived the
+                # re-pointing and described a module that is no longer there:
+                #
+                #  * the Z-MODE. `plan._zmode` is D6's cascade - the style
+                #    wins, else the module's own manifest default - and it ran
+                #    against the OLD module, so a panel->post swap under an
+                #    empty style zmode built and stamped every post
+                #    `vertical`, the panel's mode. Re-run the same cascade, so
+                #    an UNSWAPPED placement is byte-identical and a swapped
+                #    one obeys 3.2's "per-module default, style-overridable".
+                #  * the SLICE. 4.2 cuts a tile remainder only when the module
+                #    allows it (`pc_deform == 2`); the fraction is a fraction
+                #    of THAT module's length. Swapping a 1.6 m sliceable gate
+                #    to a rigid 0.12 m post kept `slice_t = 0.125` and cut the
+                #    post at 0.125 of 0.12 m, filling 0.015 m of a 0.2 m span
+                #    and leaving a silent 0.185 m hole at the end of the run.
+                #    The run cannot be re-solved (D57 - a swap is an exception
+                #    to a rule, not a global edit), so the placement takes
+                #    D11's OTHER answer instead: the whole module is scaled
+                #    into the span it was given, and it says WARN_TILE_FALLBACK.
+                p.zmode = _plan._zmode(module, params)
+                if p.slice_t is not None and module.deform < 2:
+                    p.slice_t = None
+                    swap_warns.append(WARN_TILE_FALLBACK)
             proto = proto_for(module)
             zmode = _resolve_zmode(p)
             # flat = the space the kernel planned in; real = the curve it
@@ -1155,6 +1248,9 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             s0f, s1f = section.s0 + p.s0, section.s0 + p.s1
             s0r, s1r = remap(s0f), remap(s1f)
             warns = list(p.warns)
+            for w in swap_warns:
+                if w not in warns:
+                    warns.append(w)
             for w in fillet_warns:
                 if w not in warns:
                     warns.append(w)
@@ -1167,7 +1263,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             # whole run, so a fence that leaves the terrain at one end reports
             # exactly the pieces that hang in the air.
             if getattr(path, "missed", None) is not None \
-                    and path.missed(s0r, s1r) \
+                    and path.missed(s0r, s1r, fracs=proto.fracs) \
                     and WARN_CONFORM_MISS not in warns:
                 warns.append(WARN_CONFORM_MISS)
             scale = 1.0 if p.slice_t is not None else (
@@ -1221,7 +1317,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             # would have had - the same 4x4 a rigid piece gets, so a replaced
             # gate sits exactly where the gate sat. A piece that WAS deformed
             # has no single transform, so it takes the chord's and says so.
-            xform = (_anchor_transform(proto, _drop_anchor(path, p.anchor[0]),
+            xform = (_anchor_transform(proto, _drop_anchor(path, p.anchor),
                                        p.anchor[1], _anchor_len(p), zmode,
                                        up_ref)
                      if p.anchor is not None
@@ -1240,8 +1336,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                 # spline elevation while every piece beside it sits on the
                 # terrain. The anchor is dropped; its direction is left alone,
                 # because an anchored piece is rigid on its leg by definition.
-                xform = _anchor_transform(proto, _drop_anchor(path,
-                                                              p.anchor[0]),
+                xform = _anchor_transform(proto, _drop_anchor(path, p.anchor),
                                           p.anchor[1], _anchor_len(p), zmode,
                                           up_ref)
             else:
@@ -1263,7 +1358,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             # the module's own and the transform is baked rather than sampled.
             local = list(src.pointFloatAttribValues("P"))
             piece.transform(_anchor_transform(
-                proto, _drop_anchor(path, p.anchor[0]), p.anchor[1],
+                proto, _drop_anchor(path, p.anchor), p.anchor[1],
                 _anchor_len(p), zmode, up_ref))
             # AFTER the transform, never before: `hou.Geometry.transform`
             # carries any attribute Houdini reads as a vector along with P, and

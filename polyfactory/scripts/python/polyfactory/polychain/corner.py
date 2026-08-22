@@ -938,19 +938,34 @@ def _assembly_placements(asm, sections, key, params, style, factors, closed,
         t_far, t_near = _piece_span(asm, piece, factor)
         length = max(t_far - t_near, 0.0)
         # D48: `t` is a FLATTENED leg distance when the bevel was flattened,
-        # so the anchor rides the leg's real 3D line (`tin3` scaled by the arc
-        # factor, which puts the piece at the elevation the run hands it) and
-        # the section coordinates are the matching ARC metres. Off a flat
+        # and the section coordinates are the matching ARC metres. Off a flat
         # curve every factor is 1 and every `*3` tangent is the tangent.
+        #
+        # ⚠️ A FLATTENED ASSEMBLY IS ANCHORED ON THE FLAT TANGENT, WHICH IS
+        # WHAT `flatten` SAYS IT DOES ("puts both anchors at the vertex
+        # elevation") AND WHAT THE CODE DID NOT DO (D72). Stepping down the
+        # 3D line instead moved the two halves of ONE corner post apart in Y
+        # by `t_far * tan(pitch)`: measured on the 20 degree crest corner,
+        # 0.0583 m of vertical shelf inside a single post - the very number
+        # `flatten`'s docstring records as the defect it was written to remove.
+        # It survived because `corner_face_mate_m` compares STEPPED pieces in
+        # plan only (4.4's deferred flatten-under), so nothing looked at Y;
+        # `corner_mate_axis_m` is the check that does. Only the elevation
+        # changes: `tin3 * arc` has exactly `tin`'s horizontal reach, so the
+        # plan position, the spans and every corner number stay put, and the
+        # step becomes an ordinary riser BETWEEN pieces, which is what
+        # `stepped_riser_m` measures and what stepped mode is.
         if piece.side == "in":
             arc = bevel.arc_in
-            origin = _add(bevel.v, _mul(bevel.tin3, -t_far * arc))
+            step = bevel.tin if bevel.flat else _mul(bevel.tin3, arc)
+            origin = _add(bevel.v, _mul(step, -t_far))
             direction = bevel.tin
             s1 = bevel.s_vertex - t_near * arc
             s0 = bevel.s_vertex - t_far * arc
         else:
             arc = bevel.arc_out
-            origin = _add(bevel.v, _mul(bevel.tout3, t_near * arc))
+            step = bevel.tout if bevel.flat else _mul(bevel.tout3, arc)
+            origin = _add(bevel.v, _mul(step, t_near))
             direction = bevel.tout
             s0 = bevel.s_vertex + t_near * arc
             s1 = bevel.s_vertex + t_far * arc
@@ -987,7 +1002,7 @@ def _assembly_placements(asm, sections, key, params, style, factors, closed,
             deform=module.deform, zmode=_plan._zmode(module, params),
             variant=module.variant, section_key=section.section_key,
             style_id=style.style_id, warns=tuple(warns),
-            anchor=(origin, direction, length), cuts=cuts))
+            anchor=(origin, direction, length, bevel.v), cuts=cuts))
     return out
 
 

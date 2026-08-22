@@ -28,9 +28,9 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | **cycle 4** — cycle 3v's open finding closed, then **§4.5 CONFORM** and **§4.6 FINALIZE** (§10 "Cycle 4"). Suite: **59 scene cases / 2 902 values (2 021 pass, 881 skip) / 0 failing** in ~3.6 s, **206 polyChain unit tests**, **11 mutations / 11 killed** (two of them only after the checks were strengthened, and both strengthenings are in the suite). New files: `conform.py`. New decisions **D51–D68**. Measured this cycle: the bend butt joint crosses its own bisector by **0.021213 m** and leaves **0.00090 m²** of doubly solid footprint — cycle 3v's raster number, reproduced to five decimals by an independent method; conform contact **3e-6 m**, drape **7e-6 m**, camber **14.0362° off / 0.0° on** (= atan 0.25 exactly), **5** conform misses on the holed case, a back-facing surface conforming to a **byte-identical digest**; swap **10 re-pointed / 0 ids moved**, replace **hero bbox 2.0 × 2.0 × 0.4 m**, **0 over-unpacked pieces across all 59 cases**. Before it: **cycle 3v**, the independent verification of §4.3 (44 cases / 1 725 values; 6 corner mutations, 4 killed; PC-G1 image-verified headless) |
-| Next up | **§5 the parm face + the §3.3 style-payload reader**, which is the last kernel-side item in §8's order and the half PC-G1 and PC-G4 are still waiting on: the kernel reads a `Style` object today and nothing builds one from geometry, so the pipeline face does not exist yet. Then the starter-kit deliverable and gates PC-G1–G4. **Open findings from this cycle, all small, all named so they are not lost:** (1) a **corner assembly in BEND mode** is now reachable — `flatten` can degenerate a mild 3D corner into a plan hairpin (D68) — and on a steep pitch it inherits §4.4's deferred flatten-under, measured as a **0.074 m** gap on a 37° leg; the case was pulled from the suite rather than baselined, and the repro is in §10. (2) A `vertical` piece on a uniform slope is a **pure shear** and could stay packed; it does not, deliberately (D65), and the count rides in `over_unpacked`'s detail so the size of that prize stays visible. (3) A 3D (unflattened) bevel's cut plane is **not** dropped onto the conform surface — harmless while the plane is vertical, which is every case in the suite. Still deferred and named so it is not forgotten: **§4.4's flatten-under** (PC-G2 shows the riser under every stepped piece, by design for now) and **PC-G3's VEX rewrite**. ⚠️ `/obj/polychain_gate` **may still be sitting in Hannes' GUI session** — the bridge was not touched this cycle either; delete it before the next live pass |
-| Gates | PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** — the closed rectangle and the L close in both corner modes, all four fill modes, the gate on its marker (1.8e-7 m), convex and reflex corners; the bend corner's butt wedge is now MEASURED and baselined as the accepted limit rather than unknown (D36 extended). What is still missing is the parm face + style payload, i.e. §5 · **PC-G2 numerically complete + IMAGE-VERIFIED (headless)** — the fence on a conformed surface in all three Z-modes, judged on `G2_{adaptive,vertical,stepped,camber,holes}.png`: pickets plumb with their feet on the ridge, 167 of 167 stepped posts flat AND still packed, the cambered panel perpendicular to its cross-fall, no inside-out geometry anywhere. Owed: the GUI viewport pass, and the terrain-under-a-CURVING-spline variant PC-G2's own wording asks for (the suite conforms straight splines, so the surface is the only source of shape — deliberate, and narrower than the gate) · PC-G3 ⬜ (the instancing FLOOR is asserted now: a straight rigid run is 100 % packed, and `over_unpacked` proves nothing unpacks without a reason — what is left is the 10k-scale measurement itself) · PC-G4 ⬜ |
+| Last completed | **cycle 5** — the **13 cycle-4 review findings, applied** (§10 "Cycle 5"): every one reproduced first, every one fixed, and every geometric one turned into a standing scene case. Suite: **66 scene cases / 3 363 values / 0 failing**, **278 polyChain unit tests**. New decisions **D69–D74**. The two with the widest blast radius: a **resampled straight line lost instancing entirely** (1000/1000 packed as two points, 0/1000 resampled — the exact shape citygen streets hands this tool), and the bend butt-joint allowance used **cos** where the breach is **sin**, so it was right only at the 90° every asserted butt case in the suite turns. Also fixed: the conform drop took the **topmost** surface rather than the nearest and could not reach a surface further than its own bbox; the unpack gate and the miss warning probed **5 fixed stations** where the deform uses the module's own; the two halves of a mitered corner were dropped on **different datums** (0.02 m on the suite's ramp, 0.0583 m on the crest corner with no surface at all); a **swap** kept the old module's zmode and slice fraction (a silent 0.185 m hole); two curves sharing a `pc_curve_id` collided **silently**. Before it: **cycle 4** — cycle 3v's open finding closed, then §4.5 CONFORM and §4.6 FINALIZE |
+| Next up | **§5 the parm face + the §3.3 style-payload reader**, which is the last kernel-side item in §8's order and the half PC-G1 and PC-G4 are still waiting on: the kernel reads a `Style` object today and nothing builds one from geometry, so the pipeline face does not exist yet. Then the starter-kit deliverable and gates PC-G1–G4. **Open findings still standing, all small, all named so they are not lost:** (1) a **corner assembly in BEND mode** is now reachable — `flatten` can degenerate a mild 3D corner into a plan hairpin (D68) — and on a steep pitch it inherits §4.4's deferred flatten-under, measured as a **0.074 m** gap on a 37° leg; the case was pulled from the suite rather than baselined, and the repro is in §10. (2) A `vertical` piece on a uniform slope is a **pure shear** and could stay packed; it does not, deliberately (D65), and the count rides in `over_unpacked`'s detail so the size of that prize stays visible. (3) A 3D (unflattened) bevel's cut plane is **not** dropped onto the conform surface — harmless while the plane is vertical, which is every case in the suite. Still deferred and named so it is not forgotten: **§4.4's flatten-under** (PC-G2 shows the riser under every stepped piece, by design for now) and **PC-G3's VEX rewrite**. ⚠️ `/obj/polychain_gate` **may still be sitting in Hannes' GUI session** — the bridge was not touched this cycle either; delete it before the next live pass |
+| Gates | PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** — the closed rectangle and the L close in both corner modes, all four fill modes, the gate on its marker (1.8e-7 m), convex and reflex corners; the bend corner's butt wedge is now MEASURED and baselined as the accepted limit rather than unknown (D36 extended). What is still missing is the parm face + style payload, i.e. §5 · **PC-G2 numerically complete + IMAGE-VERIFIED (headless)** — the fence on a conformed surface in all three Z-modes, judged on `G2_{adaptive,vertical,stepped,camber,holes}.png`: pickets plumb with their feet on the ridge, 167 of 167 stepped posts flat AND still packed, the cambered panel perpendicular to its cross-fall, no inside-out geometry anywhere. Owed: the GUI viewport pass, and the terrain-under-a-CURVING-spline variant PC-G2's own wording asks for (the suite conforms straight splines, so the surface is the only source of shape — deliberate, and narrower than the gate) · **PC-G3 numerically MEASURED at scale** — 10 005 pieces on a 20 km run: **10 005 packed, 0 deformed, one shared `geometryid`, 10 005 real points, 0.60 s**, and the same numbers whether the spline is two points or **20 010 collinear vertices** (D69 — before it, the resampled form built 10 005 DEFORMED pieces, 360 353 points, ~16 s). The FLOOR rides the suite too: `A_straight`, `CE_all_packed`, `CA_swap_module` and `CF_resampled_straight` are asserted 100 % packed and `over_unpacked` proves nothing unpacks without a reason. Owed: the deform path's VEX rewrite, which is what the 16 s number is about · PC-G4 ⬜ |
 
 **To resume the autonomous run**, re-arm the loop with exactly this:
 
@@ -1410,3 +1410,111 @@ cycle's scope):
    PLANE keeps the spline vertex. Harmless while the plane is vertical —
    which D48 guarantees for every yaw-only corner, i.e. every case in the
    suite — and wrong for an `adaptive` corner module on a conformed slope.
+
+---
+
+### Cycle 5 — the cycle-4 review findings, applied (2026-08-22)
+
+Thirteen findings from three independent review lenses (spec conformance,
+conform geometry, instancing/determinism), every one demonstrated with numbers
+by its reviewer, none of them applied before the session ran out. **All 13
+reproduced first and all 13 fixed**; each geometric one is now a standing
+scene case. **Suite at the end: 66 scene cases / 3 363 values / 0 failing;
+278 unit tests.** New decisions **D69–D74**. No citygen file is touched.
+
+#### The two with the widest blast radius
+
+**A resampled straight line lost instancing entirely (D69).** `_needs_deform`
+unpacked on ANY interior curve vertex, and a street handed to this tool is a
+resampled polyline. Reproduced: a dead-straight 2 000 m line as two points
+builds **1000/1000 packed**; the identical line at 1 m spacing built
+**0/1000 packed, 1000 deformed**. `Path` now precomputes the vertices where
+the direction actually changes. **PC-G3 re-measured on the shape citygen
+authors** — 20 010 collinear vertices, 10 005 pieces: **10 005 packed, one
+shared `geometryid`, 10 005 real points, 0.60 s**, against 10 005 deformed /
+360 353 points / ~16 s before. That is the difference between the gate being
+meaningful and being a statement about two-point splines. `CF_resampled_straight`
+is in `ALL_PACKED` so it cannot regress.
+
+**The bend butt-joint allowance used the wrong trig function.** The breach of
+a square-ended piece at the bisector is `h·sin(turn/2)`, not `h·cos(turn/2)`;
+they agree **only at 90°**, which is the turn every asserted butt case in the
+suite happens to make. Measured at four turns on a 4 m + 4 m bend joint: the
+physical breach is `h·sin(t/2)` to six decimals every time (0.007765 / 0.015 /
+0.021213 / 0.025981 at 30/60/90/120°), and under `cos` a legitimate 120° butt
+joint FAILED by **1.10e-02 m** while a 60° one could overrun the vertex by
+~0.013 m unnoticed. `AB_fillet`'s own recorded 0.005853 = `0.03·sin(11.25°)`
+was the counter-evidence sitting in the baseline. **No baselined value moved**
+— at 90° the two are identical — and `CJ_bend_butt_120` now pins a turn where
+they are not.
+
+#### 4.5, the four conform findings
+
+* **Topmost, not nearest (D70).** Ground under a bridge deck put six of ten
+  pieces on the deck. `BJ_conform_deck` asserts the whole run on the ground.
+* **Reach from the surface's bbox alone (D70).** A 5 × 5 m prop 30 m under the
+  spline reported `pc_warn_conform_miss` on the whole run. `BK_conform_far`
+  pins `conform_misses = 0`.
+* **A five-sample gate over a nine-station piece (D71).** A 0.3 m bump between
+  the samples shipped a panel packed with the bump **0.400 m** through it.
+  `BL_conform_bump` asserts `conform_drape_m` (which scores every station).
+* **The same five samples warning about holes (D71).** A hole ON a deform
+  station gave a **0.1875 m** V-notch with no warning. `BM_conform_station_hole`
+  pins `conform_misses = 1` and the warning.
+
+#### The corner assembly's datum (D72), and what hid it
+
+4.5 dropped each half of a mitered corner on its OWN anchor, so on a ramp the
+two cut faces of one post sat **0.02 m** apart (0.28 m with a 1.2 m corner
+module). Writing the check the reviewer asked for found a **second** instance
+of the same bug with no surface involved at all: on the 20° crest corner the
+flattened assembly stepped **0.0583 m** down the leg's 3D line, which is
+precisely the defect `flatten`'s docstring claims to have removed. One datum
+per assembly fixes both. `corner_mate_axis_m` rides every case, and it exists
+because `corner_face_mate_m` structurally cannot see this: its `stepped`
+escape drops it to a plan-only metric, and a rigid corner post IS stepped
+(D27). `conform_contact_m` also learned that a piece **straddling** the
+surface is in contact with it — read unsigned, a post sitting flat at its
+datum on a 25 % grade reads as a 0.02 m float.
+
+#### 4.6, the override cascade
+
+A swap re-derives the Z-mode and re-checks the slice (D73): `CI_swap_zmode`
+asserts the post's own `stepped` stamp, `CH_swap_tile_slice` asserts the
+0.185 m hole is gone (`max_gap_m` 1.19e-07) and that it says
+`pc_warn_tile_fallback`. Two curves sharing an authored `pc_curve_id` now warn
+(D74) — checked by a control build rather than a scene case, because colliding
+ids are the condition under test and every id-keyed check in the suite reads a
+merged scene and reports nonsense on it.
+
+#### Baseline movement, all of it explained
+
+* Every `B*` conform digest, and `conform_contact_m` / `conform_drape_m` from
+  1e-6–7e-6 **to 0.0**: the ray is cast from the query point now instead of
+  from ~14 m away, so the hit is exact instead of carrying float32 error. The
+  analytic anchor did NOT move: `BD_camber_off` is still `atan(0.25)` to four
+  decimals. `BA`'s `bank_deg` 29.6135 → 29.5063 and `camber_deg` 16.3968 →
+  16.3094 are the same cause amplified: the conformed tangent is a finite
+  difference over 1e-3 m, so 6e-7 m of position error was ~0.07° of angle.
+* `AL_crest_corner` / `AM_graded_corner` digests, and `AM`'s `stepped_riser_m`
+  0.04 → 0.029104: D72's datum. The step that was INSIDE one corner post is
+  now an ordinary riser between pieces, which is what stepped mode is.
+* `BI_conform_corner`'s `stepped_riser_m` 0.029999 → 0.03 — the same, at the
+  conformed corner, and now exactly the grade times the post's own reach.
+
+#### Still open, and still named
+
+Both of cycle 4's open findings stand (the reachable bend-mode corner
+assembly, and the 3D bevel cut plane that is not dropped), and so do §4.4's
+deferred flatten-under and the GUI viewport pass every gate still owes.
+
+**Decisions taken.**
+
+| # | Question | Decision |
+|---|---|---|
+| D69 | Is a COLLINEAR interior vertex a kink? | **No** — D66's end-vertex lesson, one vertex further in. `Path.interior_vertices` reported every vertex in a span, so a dead-straight run authored at 1 m spacing — **exactly what citygen streets, this tool's first consumer, hands it** — unpacked every piece for a deformation that does not exist. Measured: the same 2 000 m line built **1000/1000 packed** as two points and **0/1000 packed, 1000 deformed** resampled. `Path.kink_s` is precomputed from the adjacent unit tangents at exact-collinearity tolerance (1e-9), which also absorbs a duplicated point for free and leaves the gentle-arc case (2e-4 rad per vertex) unpacking as before |
+| D70 | Which surface does a drop land on? | **The NEAREST one along the axis, and a tie goes down-axis** — the ray is cast from the point itself, both ways. It used to start beyond the far side of the surface and take the FIRST hit, which is not "nearest", it is **"topmost"**: with a ground sheet under a run and a bridge-deck sheet over its middle, six of ten pieces sat **on top of the deck**, a 4 m jump with two 3.9 m cliff pieces at its edges, unwarned. The reach is per POINT (`\|p − centre\| + radius`) and not the surface's own bbox: a 5 × 5 m prop under a spline 30 m up used to report a MISS with the surface directly beneath it — the drape flipping on standoff distance alone. Casting from the point is also **more accurate**: the same drops now land on 0.0 exactly where the long ray left 6.4e-7 m of float32 error |
+| D71 | How many stations does the conform gate probe? | **The piece's own** (`_Proto.fracs`), not a fixed five. `deviates` GATES a deform that uses exactly those stations, and `missed` warns about a drape that samples exactly those stations, so five fixed probes made both strictly coarser than the thing they describe. Measured: a 0.3 m bump between the probes left a bendable panel PACKED with the bump **0.400 m** through it and no warning; a 0.1 m hole on a station punched a **0.1875 m** V-notch into a rail with `pc_warn_conform_miss` absent — D53's own contract broken exactly where the drape stopped. `ConformPath._cache` dedupes the drops, so the flat case is nearly free |
+| D72 | ONE corner assembly, ONE datum | A mitered corner post is one rigid object cut on the bisector, so both halves are placed off the **corner vertex** — dropped once onto the surface, and stepped along the **flattened** tangent when the bevel was flattened. Each half used to take its own anchor: on the suite's 25 % ramp the two cut faces came out y[2.98..4.28] against y[3.00..4.30] (**0.02 m**, and 0.28 m with a 1.2 m corner module), and on the 20° crest corner the flattened assembly shelved by **0.0583 m** — which is the exact defect D48's own docstring says `flatten` removes ("puts both anchors at the vertex elevation"), still there because the code stepped down `tin3`. Both were invisible: `corner_face_mate_m` compares STEPPED pieces in plan only (4.4's deferred flatten-under), so nothing looked along the axis. `corner_mate_axis_m` is the check that does, and it rides every case |
+| D73 | What does a SWAP re-derive? | **The Z-mode and the slice**, because both were derived from the module that is no longer there. D6's cascade ran against the old module, so a `panel → post` swap under an empty style zmode built and stamped every post `vertical` — the panel's mode, which on a hillside banks a rail that should sit flat. And the tile remainder kept the gate's `slice_t = 0.125` and cut the RIGID post at 0.125 of ITS 0.12 m, filling 0.015 m of a 0.2 m span: **a silent 0.185 m hole at the end of the fence**. The run cannot be re-solved (D57 — a swap is an exception to a rule, not a global edit), so a non-sliceable swap takes D11's OTHER answer: the whole module scaled into the span it was given, plus `pc_warn_tile_fallback`. Everything else a swap touches is unchanged, so an UNSWAPPED placement stays byte-identical |
+| D74 | Two curves authored with ONE `pc_curve_id` | **Warn, never rename.** D1's "collision-free by construction" holds only while the curve half of the address is unique and nothing upstream enforces that — a copy-pasted street prim is how it happens. Measured: 4 prims, **2 distinct ids each stamped twice**, `warn_counts` empty, so an id-keyed override hit both curves and any by-id map downstream dropped half the run. `pc_warn_curve_id_dup` on every element of a repeated id. Renaming was rejected: it would move an address a style or an override may already name, and the point is to make the artist fix the input |
