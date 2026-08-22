@@ -4560,7 +4560,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "citygen_plan_node",
-      "community": 42,
+      "community": 37,
       "norm_label": "node"
     },
     {
@@ -4570,7 +4570,7 @@
       "source_location": "L167",
       "_origin": "ast",
       "id": "citygen_plan_node_init",
-      "community": 42,
+      "community": 37,
       "norm_label": ".__init__()"
     },
     {
@@ -7980,7 +7980,7 @@
       "source_location": "L186",
       "_origin": "ast",
       "id": "polychain_hda_proxy_kit",
-      "community": 8,
+      "community": 242,
       "norm_label": "proxy_kit()"
     },
     {
@@ -8020,7 +8020,7 @@
       "source_location": "L287",
       "_origin": "ast",
       "id": "polychain_hda_colour_warnings",
-      "community": 242,
+      "community": 8,
       "norm_label": "colour_warnings()"
     },
     {
@@ -8170,7 +8170,7 @@
       "source_location": "L187",
       "_origin": "ast",
       "id": "polychain_hda_rationale_187",
-      "community": 8,
+      "community": 242,
       "norm_label": "d82 - the same manifest, every module a rigid box at its nominal size.      rigi"
     },
     {
@@ -8210,7 +8210,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "polychain_hda_rationale_288",
-      "community": 242,
+      "community": 8,
       "norm_label": "every element carrying a warning turned red, and how many there were.      2.2's"
     },
     {
@@ -13270,7 +13270,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_init",
-      "community": 42,
+      "community": 37,
       "norm_label": ".__init__()"
     },
     {
@@ -13410,7 +13410,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_27",
-      "community": 42,
+      "community": 37,
       "norm_label": "initialize binding manager for a node.                  args:             nod"
     },
     {
@@ -13800,7 +13800,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel",
-      "community": 35,
+      "community": 37,
       "norm_label": "parm_panel.py"
     },
     {
@@ -13810,7 +13810,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_floating_parm_panel",
-      "community": 35,
+      "community": 37,
       "norm_label": "show_floating_parm_panel()"
     },
     {
@@ -13820,7 +13820,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_selected_node_parms",
-      "community": 35,
+      "community": 37,
       "norm_label": "show_selected_node_parms()"
     },
     {
@@ -13830,7 +13830,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_1",
-      "community": 35,
+      "community": 37,
       "norm_label": "parameter panel utilities - helper functions for creating floating parameter win"
     },
     {
@@ -13840,7 +13840,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_11",
-      "community": 35,
+      "community": 37,
       "norm_label": "open a floating parameter panel for a node using houdini's native api."
     },
     {
@@ -13850,7 +13850,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_50",
-      "community": 35,
+      "community": 37,
       "norm_label": "show floating parameter panel for currently selected node.          useful for"
     },
     {
@@ -15580,7 +15580,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring",
-      "community": 20,
+      "community": 35,
       "norm_label": "parmstring"
     },
     {
@@ -15600,7 +15600,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 20,
+      "community": 35,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -15610,7 +15610,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_on_changed",
-      "community": 20,
+      "community": 35,
       "norm_label": "._on_changed()"
     },
     {
@@ -15620,7 +15620,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_widget_value",
-      "community": 37,
+      "community": 168,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -15630,7 +15630,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_expression_style",
-      "community": 20,
+      "community": 35,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -15670,7 +15670,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_widget_value",
-      "community": 37,
+      "community": 168,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -15740,7 +15740,7 @@
       "source_location": "L322",
       "_origin": "ast",
       "id": "widgets_widgets_parmmenu_update_widget_value",
-      "community": 37,
+      "community": 168,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -15780,7 +15780,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor",
-      "community": 37,
+      "community": 35,
       "norm_label": "parmcolor"
     },
     {
@@ -15790,7 +15790,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_init",
-      "community": 37,
+      "community": 51,
       "norm_label": ".__init__()"
     },
     {
@@ -15800,7 +15800,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "parmtuple",
-      "community": 37,
+      "community": 51,
       "norm_label": "parmtuple"
     },
     {
@@ -15810,7 +15810,7 @@
       "source_location": "L449",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_on_color_changed",
-      "community": 37,
+      "community": 35,
       "norm_label": "._on_color_changed()"
     },
     {
@@ -15820,7 +15820,7 @@
       "source_location": "L462",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_get_parm_value",
-      "community": 37,
+      "community": 35,
       "norm_label": "._get_parm_value()"
     },
     {
@@ -15830,7 +15830,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_widget_value",
-      "community": 37,
+      "community": 168,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -15840,7 +15840,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_expression_style",
-      "community": 37,
+      "community": 168,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -15850,7 +15850,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_reset_to_default",
-      "community": 37,
+      "community": 35,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -15890,7 +15890,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_28",
-      "community": 20,
+      "community": 35,
       "norm_label": "string input widget with enhanced label."
     },
     {
@@ -15900,7 +15900,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 20,
+      "community": 35,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -15910,7 +15910,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_101",
-      "community": 20,
+      "community": 35,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -15990,7 +15990,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_409",
-      "community": 37,
+      "community": 35,
       "norm_label": "color picker widget using houdini's native colorfield."
     },
     {
@@ -16000,7 +16000,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_450",
-      "community": 37,
+      "community": 35,
       "norm_label": "handle color change from colorfield."
     },
     {
@@ -16010,7 +16010,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_467",
-      "community": 37,
+      "community": 168,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -16020,7 +16020,7 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_480",
-      "community": 37,
+      "community": 168,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -16030,7 +16030,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_493",
-      "community": 37,
+      "community": 35,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -39497,7 +39497,7 @@
       "label": "15.3 The load-bearing tripwire \u2014 inverted, and why",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L7362",
+      "source_location": "L7368",
       "_origin": "ast",
       "id": "ideas_polychain_15_3_the_load_bearing_tripwire_inverted_and_why",
       "community": 23,
@@ -39507,7 +39507,7 @@
       "label": "15.4 Three Houdini behaviours found this cycle \u2014 and one of them was a misdiagnosis",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L7388",
+      "source_location": "L7394",
       "_origin": "ast",
       "id": "ideas_polychain_15_4_three_houdini_behaviours_found_this_cycle_and_one_of_them_was_a_misdiagnosis",
       "community": 23,
@@ -39517,7 +39517,7 @@
       "label": "15.5 Decisions",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L7436",
+      "source_location": "L7442",
       "_origin": "ast",
       "id": "ideas_polychain_15_5_decisions",
       "community": 23,
@@ -39527,7 +39527,7 @@
       "label": "15.6 What is NOT done \u2014 the complete Python inventory, not just the stages",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L7578",
+      "source_location": "L7584",
       "_origin": "ast",
       "id": "ideas_polychain_15_6_what_is_not_done_the_complete_python_inventory_not_just_the_stages",
       "community": 23,
@@ -39537,7 +39537,7 @@
       "label": "15.7 The audit \u2014 seventeen findings, and what each one cost",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L7620",
+      "source_location": "L7626",
       "_origin": "ast",
       "id": "ideas_polychain_15_7_the_audit_seventeen_findings_and_what_each_one_cost",
       "community": 23,
@@ -40465,7 +40465,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 20,
+      "community": 35,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -86251,9 +86251,9 @@
       "source_file": "tests/polychain/run_native_checks.py",
       "source_location": "L1050",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_native_checks",
-      "target": "polychain_run_native_checks_union_parity",
-      "confidence_score": 1.0
+      "target": "polychain_run_native_checks_union_parity"
     },
     {
       "relation": "contains",
@@ -86370,9 +86370,9 @@
       "source_file": "tests/polychain/run_native_checks.py",
       "source_location": "L1101",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_native_checks_union_parity",
-      "target": "polychain_run_native_checks_check",
-      "confidence_score": 1.0
+      "target": "polychain_run_native_checks_check"
     },
     {
       "relation": "calls",
@@ -86751,9 +86751,9 @@
       "source_file": "tests/polychain/run_native_checks.py",
       "source_location": "L1172",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_native_checks_main",
-      "target": "polychain_run_native_checks_union_parity",
-      "confidence_score": 1.0
+      "target": "polychain_run_native_checks_union_parity"
     },
     {
       "relation": "rationale_for",
@@ -86761,9 +86761,9 @@
       "source_file": "tests/polychain/run_native_checks.py",
       "source_location": "L1051",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_native_checks_rationale_1051",
-      "target": "polychain_run_native_checks_union_parity",
-      "confidence_score": 1.0
+      "target": "polychain_run_native_checks_union_parity"
     },
     {
       "relation": "contains",
@@ -107427,5 +107427,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "158e323b8690609b7462dd688c80fe4051d2e7a1"
+  "built_at_commit": "da45a415d98f205e48db57ac89707fba2d2a86e2"
 }

@@ -7320,13 +7320,19 @@ number on its own:
 
 | Fixture | native chain | reference without its geometry read | reference with it | ratio |
 |---|---|---|---|---|
-| one 20 km curve, 20 001 vertices | **0.0690 s** | 0.0658 s | 0.1167 s | **0.95x – 1.69x** |
-| 300 short streets (900 points, 300 prims) | **0.0013 s** | 0.0021 s | 0.0094 s | **1.62x – 7.19x** |
+| one 20 km curve, 20 001 vertices | **0.048 – 0.069 s** | 0.037 – 0.066 s | 0.073 – 0.117 s | **0.78x – 1.69x** |
+| 300 short streets (900 points, 300 prims) | **0.0012 – 0.0013 s** | 0.0013 – 0.0021 s | 0.0064 – 0.0094 s | **1.07x – 7.19x** |
+
+⚠️ **Those are two-run envelopes, not single readings, and the run-to-run spread is comparable to
+the effect.** Best-of-4 on a machine doing other work moved the long-curve pair from 0.0690 s /
+0.0658 s to 0.0477 s / 0.0373 s between two consecutive runs of the same build. The check prints
+the live numbers every time; do not quote this table as a measurement of a change.
 
 Charging 100 % of `read_curves` to stage 1 is not right either — the reference amortises it across
 plan, place and conform — which is why the ceiling stays on the pessimistic end (1.5× the lower
 bound) and why "the stage is not a speedup" has been withdrawn as a conclusion. **On the citygen
-shape it is a speedup on any reading; on one very long curve it is a wash.**
+shape it is a speedup on any reading; on one very long curve it is a wash, and which side of 1.0x
+it lands on depends on what else the machine is doing.**
 
 Breaking the 20 km cook down by deleting one piece at a time:
 
