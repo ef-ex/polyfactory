@@ -1,0 +1,1038 @@
+{
+ "PF::split_poly::1.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "citygen/field": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "angle",
+    "falloff",
+    "field_src",
+    "field_type",
+    "weight"
+   ],
+   "prim": [],
+   "vertex": []
+  }
+ },
+ "citygen/mesh": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "Cd",
+    "P",
+    "after_corner",
+    "capc",
+    "corner_r",
+    "curveu",
+    "drivable",
+    "elem_index",
+    "elem_type",
+    "height",
+    "is_cap",
+    "is_node",
+    "node_class",
+    "node_degree",
+    "sw",
+    "u_cross",
+    "walkable",
+    "width"
+   ],
+   "prim": [
+    "Cd",
+    "block_id",
+    "connectionEnd",
+    "connectionStart",
+    "culdesac_r",
+    "culdesac_trim",
+    "edge_id",
+    "edge_len",
+    "elem_type",
+    "is_culdesac",
+    "is_junction",
+    "is_junction_patch",
+    "junction_id",
+    "junction_pt",
+    "land_use",
+    "laneWidth",
+    "layer",
+    "lot_area",
+    "lot_aspect",
+    "lot_frontage",
+    "lot_id",
+    "lot_reject",
+    "lot_street_edge",
+    "lot_type",
+    "lot_viable",
+    "lot_width",
+    "region_id",
+    "sidewalkWidthLeft",
+    "sidewalkWidthRight",
+    "source_node",
+    "src_id",
+    "streetWidth",
+    "street_class",
+    "street_template",
+    "template_name",
+    "trim_end",
+    "trim_start",
+    "turn_clamp_converged",
+    "turn_clamp_ratio",
+    "turn_clamp_sweeps",
+    "turn_smooth_ratio",
+    "variant"
+   ],
+   "vertex": []
+  },
+  "1": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P"
+   ],
+   "prim": [
+    "area",
+    "block_id",
+    "centre",
+    "is_block",
+    "is_outer",
+    "land_use",
+    "perimeter",
+    "region_id",
+    "source_node"
+   ],
+   "vertex": []
+  },
+  "2": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P"
+   ],
+   "prim": [
+    "block_id",
+    "land_use",
+    "lot_area",
+    "lot_aspect",
+    "lot_frontage",
+    "lot_id",
+    "lot_reject",
+    "lot_street_edge",
+    "lot_type",
+    "lot_viable",
+    "lot_width",
+    "region_id",
+    "source_node"
+   ],
+   "vertex": []
+  },
+  "3": {
+   "detail": [
+    "orphan_edges_dropped",
+    "repair_converged",
+    "repair_iterations",
+    "repair_killed_late",
+    "repair_killed_pass0",
+    "repair_merge_infeasible",
+    "repair_merge_shape",
+    "repair_merge_subband",
+    "repair_merged",
+    "repair_orphan_late",
+    "repair_orphan_pass0",
+    "repair_prune_late",
+    "repair_prune_pass0",
+    "repair_residual_m",
+    "repair_reversed",
+    "repair_stub_late",
+    "repair_stub_pass0",
+    "repair_tongue_late",
+    "repair_tongue_pass0"
+   ],
+   "group": [],
+   "point": [
+    "P",
+    "is_node",
+    "junction_type",
+    "node_class",
+    "node_degree"
+   ],
+   "prim": [
+    "connectionEnd",
+    "connectionStart",
+    "edge_id",
+    "edge_len",
+    "land_use",
+    "laneWidth",
+    "layer",
+    "principal_end",
+    "principal_start",
+    "region_id",
+    "sidewalkWidthLeft",
+    "sidewalkWidthRight",
+    "source_node",
+    "src_id",
+    "streetWidth",
+    "street_class",
+    "street_template",
+    "turn_clamp_converged",
+    "turn_clamp_ratio",
+    "turn_clamp_sweeps",
+    "turn_smooth_ratio"
+   ],
+   "vertex": []
+  }
+ },
+ "citygen/segmenter": {
+  "0": {
+   "detail": [
+    "orphan_edges_dropped",
+    "repair_converged",
+    "repair_iterations",
+    "repair_killed_late",
+    "repair_killed_pass0",
+    "repair_merge_infeasible",
+    "repair_merge_shape",
+    "repair_merge_subband",
+    "repair_merged",
+    "repair_orphan_late",
+    "repair_orphan_pass0",
+    "repair_prune_late",
+    "repair_prune_pass0",
+    "repair_residual_m",
+    "repair_reversed",
+    "repair_stub_late",
+    "repair_stub_pass0",
+    "repair_tongue_late",
+    "repair_tongue_pass0"
+   ],
+   "group": [],
+   "point": [
+    "P",
+    "is_node",
+    "junction_type",
+    "node_class",
+    "node_degree"
+   ],
+   "prim": [
+    "connectionEnd",
+    "connectionStart",
+    "edge_id",
+    "edge_len",
+    "land_use",
+    "laneWidth",
+    "layer",
+    "principal_end",
+    "principal_start",
+    "region_id",
+    "sidewalkWidthLeft",
+    "sidewalkWidthRight",
+    "source_node",
+    "src_id",
+    "streetWidth",
+    "street_class",
+    "street_template",
+    "turn_clamp_converged",
+    "turn_clamp_ratio",
+    "turn_clamp_sweeps",
+    "turn_smooth_ratio"
+   ],
+   "vertex": []
+  }
+ },
+ "citygen/solver": {
+  "0": {
+   "detail": [
+    "orphan_edges_dropped",
+    "repair_converged",
+    "repair_iterations",
+    "repair_killed_late",
+    "repair_killed_pass0",
+    "repair_merge_infeasible",
+    "repair_merge_shape",
+    "repair_merge_subband",
+    "repair_merged",
+    "repair_orphan_late",
+    "repair_orphan_pass0",
+    "repair_prune_late",
+    "repair_prune_pass0",
+    "repair_residual_m",
+    "repair_reversed",
+    "repair_stub_late",
+    "repair_stub_pass0",
+    "repair_tongue_late",
+    "repair_tongue_pass0"
+   ],
+   "group": [],
+   "point": [
+    "P",
+    "is_node",
+    "junction_type",
+    "node_class",
+    "node_degree"
+   ],
+   "prim": [
+    "connectionEnd",
+    "connectionStart",
+    "edge_id",
+    "edge_len",
+    "land_use",
+    "laneWidth",
+    "layer",
+    "principal_end",
+    "principal_start",
+    "region_id",
+    "sidewalkWidthLeft",
+    "sidewalkWidthRight",
+    "source_node",
+    "src_id",
+    "streetWidth",
+    "street_class",
+    "street_template",
+    "turn_clamp_converged",
+    "turn_clamp_ratio",
+    "turn_clamp_sweeps",
+    "turn_smooth_ratio"
+   ],
+   "vertex": []
+  },
+  "1": {
+   "detail": [
+    "orphan_edges_dropped",
+    "repair_converged",
+    "repair_iterations",
+    "repair_killed_late",
+    "repair_killed_pass0",
+    "repair_merge_infeasible",
+    "repair_merge_shape",
+    "repair_merge_subband",
+    "repair_merged",
+    "repair_orphan_late",
+    "repair_orphan_pass0",
+    "repair_prune_late",
+    "repair_prune_pass0",
+    "repair_residual_m",
+    "repair_reversed",
+    "repair_stub_late",
+    "repair_stub_pass0",
+    "repair_tongue_late",
+    "repair_tongue_pass0"
+   ],
+   "group": [],
+   "point": [
+    "P",
+    "after_corner",
+    "capc",
+    "corner_r",
+    "curveu",
+    "is_cap",
+    "is_node",
+    "junction_type",
+    "node_class",
+    "node_degree",
+    "sw"
+   ],
+   "prim": [
+    "connectionEnd",
+    "connectionStart",
+    "culdesac_r",
+    "culdesac_trim",
+    "edge_id",
+    "edge_len",
+    "is_culdesac",
+    "is_junction_patch",
+    "junction_pt",
+    "land_use",
+    "laneWidth",
+    "layer",
+    "principal_end",
+    "principal_start",
+    "region_id",
+    "sidewalkWidthLeft",
+    "sidewalkWidthRight",
+    "source_node",
+    "src_id",
+    "streetWidth",
+    "street_class",
+    "street_template",
+    "trim_end",
+    "trim_start",
+    "turn_clamp_converged",
+    "turn_clamp_ratio",
+    "turn_clamp_sweeps",
+    "turn_smooth_ratio"
+   ],
+   "vertex": []
+  }
+ },
+ "citygen/tracer": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P"
+   ],
+   "prim": [
+    "layer",
+    "src_id",
+    "street_class"
+   ],
+   "vertex": []
+  }
+ },
+ "efex::normalizemesh::1.0.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "efex::scale_to_one::1.0.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::advanced_tube::1.0": {
+  "0": {
+   "detail": [],
+   "group": [
+    "pf_bottomedge",
+    "pf_bottomface",
+    "pf_tempgroup",
+    "pf_topedge",
+    "pf_topface"
+   ],
+   "point": [
+    "P"
+   ],
+   "prim": [],
+   "vertex": [
+    "N"
+   ]
+  }
+ },
+ "pf::axis_gizmo::1.0": {
+  "0": {
+   "detail": [
+    "gl_lit"
+   ],
+   "group": [],
+   "point": [
+    "P"
+   ],
+   "prim": [
+    "Cd"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::axis_mask::1.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_axis_mask",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::bend_to_radius::1.0.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::connectivity_plus::1.0.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::curve_vector::1.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "N",
+    "P",
+    "out",
+    "pf_enum",
+    "up"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::fast_clip::1.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::fast_mirror::1.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::geoimporter::1.0.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P"
+   ],
+   "prim": [],
+   "vertex": []
+  }
+ },
+ "pf::group_by_topology::1.0": {
+  "0": {
+   "detail": [],
+   "group": [
+    "pf_toposelect"
+   ],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::group_by_topology::1.0[grouptype=point]": {
+  "0": {
+   "detail": [],
+   "group": [
+    "pf_toposelect"
+   ],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::merge_enum::1.0.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::mesh_view::1.0.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P"
+   ],
+   "prim": [
+    "name",
+    "pf_enum"
+   ],
+   "vertex": [
+    "N"
+   ]
+  }
+ },
+ "pf::pf_asset_place::1.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": [
+    "N",
+    "uv"
+   ]
+  }
+ },
+ "pf::pf_asset_tag::1.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "Cd",
+    "category",
+    "file",
+    "name",
+    "tag"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::pf_kitbash::1.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::point_prim::1.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "N",
+    "P",
+    "up"
+   ],
+   "prim": [],
+   "vertex": []
+  }
+ },
+ "pf::polysplit::1.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::prepare_mesh::1.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::prim_cross::1.0": {
+  "0": {
+   "detail": [],
+   "group": [
+    "splitPathGroup"
+   ],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::primneighbouredge::1.0": {
+  "0": {
+   "detail": [],
+   "group": [
+    "edges"
+   ],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf::ramp_curve::1.0.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P"
+   ],
+   "prim": [],
+   "vertex": []
+  }
+ },
+ "pf::ramp_sweep::1.0.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": [
+    "N",
+    "uv"
+   ]
+  }
+ },
+ "pf::ramp_tube::1.0.0": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_column",
+    "pf_row"
+   ],
+   "prim": [
+    "pf_column",
+    "pf_row"
+   ],
+   "vertex": [
+    "uv"
+   ]
+  }
+ },
+ "pf_citygen_field_grid": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "angle",
+    "falloff",
+    "field_src",
+    "field_type",
+    "pf_enum",
+    "weight"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf_citygen_field_radial": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "angle",
+    "degenerate",
+    "falloff",
+    "field_src",
+    "field_type",
+    "pf_enum",
+    "plaza_radius",
+    "weight"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf_citygen_junction": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "after_corner",
+    "capc",
+    "corner_r",
+    "curveu",
+    "is_cap",
+    "pf_enum",
+    "sw"
+   ],
+   "prim": [
+    "is_junction_patch",
+    "junction_pt",
+    "layer",
+    "name",
+    "trim_end",
+    "trim_start"
+   ],
+   "vertex": []
+  }
+ },
+ "pf_citygen_mesh": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "Cd",
+    "P",
+    "drivable",
+    "elem_index",
+    "elem_type",
+    "height",
+    "pf_enum",
+    "u_cross",
+    "walkable",
+    "width"
+   ],
+   "prim": [
+    "Cd",
+    "block_id",
+    "elem_type",
+    "lot_area",
+    "lot_aspect",
+    "lot_id",
+    "lot_reject",
+    "lot_street_edge",
+    "lot_type",
+    "lot_viable",
+    "lot_width",
+    "name",
+    "template_name",
+    "variant"
+   ],
+   "vertex": []
+  },
+  "1": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P"
+   ],
+   "prim": [
+    "area",
+    "block_id",
+    "centre",
+    "is_block",
+    "is_outer",
+    "land_use",
+    "perimeter",
+    "region_id",
+    "source_node"
+   ],
+   "vertex": []
+  },
+  "2": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P"
+   ],
+   "prim": [
+    "block_id",
+    "lot_area",
+    "lot_aspect",
+    "lot_id",
+    "lot_reject",
+    "lot_street_edge",
+    "lot_type",
+    "lot_viable",
+    "lot_width"
+   ],
+   "vertex": []
+  },
+  "3": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  }
+ },
+ "pf_citygen_segmenter": {
+  "0": {
+   "detail": [
+    "orphan_edges_dropped",
+    "repair_converged",
+    "repair_iterations",
+    "repair_killed_late",
+    "repair_killed_pass0",
+    "repair_merge_infeasible",
+    "repair_merge_shape",
+    "repair_merge_subband",
+    "repair_merged",
+    "repair_orphan_late",
+    "repair_orphan_pass0",
+    "repair_residual_m",
+    "repair_reversed",
+    "repair_stub_late",
+    "repair_stub_pass0"
+   ],
+   "group": [],
+   "point": [
+    "P",
+    "is_node",
+    "junction_type",
+    "node_class",
+    "node_degree"
+   ],
+   "prim": [
+    "connectionEnd",
+    "connectionStart",
+    "edge_id",
+    "edge_len",
+    "land_use",
+    "laneWidth",
+    "layer",
+    "principal_end",
+    "principal_start",
+    "region_id",
+    "sidewalkWidthLeft",
+    "sidewalkWidthRight",
+    "source_node",
+    "streetWidth",
+    "street_class",
+    "street_template"
+   ],
+   "vertex": []
+  }
+ },
+ "pf_citygen_solver": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "pf_enum"
+   ],
+   "prim": [
+    "name"
+   ],
+   "vertex": []
+  },
+  "1": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P",
+    "after_corner",
+    "capc",
+    "corner_r",
+    "curveu",
+    "is_cap",
+    "pf_enum",
+    "sw"
+   ],
+   "prim": [
+    "is_junction_patch",
+    "junction_pt",
+    "layer",
+    "name",
+    "trim_end",
+    "trim_start"
+   ],
+   "vertex": []
+  }
+ },
+ "pf_citygen_tracer": {
+  "0": {
+   "detail": [],
+   "group": [],
+   "point": [
+    "P"
+   ],
+   "prim": [
+    "layer",
+    "src_id",
+    "street_class"
+   ],
+   "vertex": []
+  }
+ }
+}
