@@ -308,10 +308,11 @@ def source_for(sources, module, nominal_y=1.0):
 # --- the starter kit (6, "one fence/railing kit ... shipped with the HDA") ---
 
 def starter_kit():
-    """post / panel / corner_post / gate - the PC-G1 and PC-G2 fence kit.
+    """post / panel / picket_panel / corner_post / gate - 6's starter kit.
 
-    Metric metres, and every module obeys D20: base at y = 0, running from
-    x = 0 to x = pc_size.x, centred across Z.
+    The PC-G1 and PC-G2 fence, and the thing that makes the HDA usable with
+    nothing wired but a curve. Metric metres, and every module obeys D20:
+    base at y = 0, running from x = 0 to x = pc_size.x, centred across Z.
     """
     geo = hou.Geometry()
 
@@ -320,10 +321,37 @@ def starter_kit():
     add_module(geo, "post", post, size=(0.12, 1.20, 0.12),
                deform=0, zmode="stepped", roles="default start end post")
 
+    # ⚠️ THE DEFAULT PANEL IS SOLID, AND THAT IS A REQUIREMENT (D86).
+    # A picket panel was built, rendered and REVERTED here: it looks better -
+    # judged on the image, the slab reads as a grey wall with an occasional
+    # post in it - but a module with VOIDS along its span cannot mate at a
+    # mitered corner, and PC-G1's corner gate is measured on this module.
+    # Measured on the picket version: `corner_face_mate_m` went 0.0424 ->
+    # 0.1849 m on V_rect_miter, because the bisector plane cut through a gap
+    # between two pickets and there was no face there to mate with. The
+    # picket panel ships as `picket_panel` below instead, one menu pick away,
+    # so the kit is a fence AND a railing kit without the default losing its
+    # corners.
     panel = hou.Geometry()
     box_mesh(panel, 0.0, 2.00, 0.10, 1.00, -0.03, 0.03, 8)
     add_module(geo, "panel", panel, size=(2.00, 0.90, 0.06),
                deform=1, zmode="vertical", roles="default panel")
+
+    # The railing half of "one fence/railing kit" (6). Two rails and four
+    # pickets on the SAME 0.25 m station ladder as the solid panel, so it
+    # bends, conforms and instances identically; only the look differs. It is
+    # NOT tagged `default`, so nothing picks it up unless an artist asks.
+    picket = hou.Geometry()
+    for y0, y1 in ((0.25, 0.35), (0.72, 0.82)):
+        rail = hou.Geometry()
+        box_mesh(rail, 0.0, 2.00, y0, y1, -0.02, 0.02, 8)
+        picket.merge(rail)
+    for i in range(4):
+        slat = hou.Geometry()
+        box_mesh(slat, i * 0.5, i * 0.5 + 0.25, 0.10, 1.00, -0.03, 0.03, 1)
+        picket.merge(slat)
+    add_module(geo, "picket_panel", picket, size=(2.00, 0.90, 0.06),
+               deform=1, zmode="vertical", roles="picket railing")
 
     corner = hou.Geometry()
     box_mesh(corner, 0.0, 0.16, 0.0, 1.30, -0.08, 0.08, 1)

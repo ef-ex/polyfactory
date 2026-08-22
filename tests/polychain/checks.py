@@ -1030,6 +1030,56 @@ def _station_xs(rec):
     return out
 
 
+def _component_centres(geo):
+    """({point number: the centre of ITS OWN connected shell}, {point: faces}).
+
+    ⚠️ THE BBOX CENTRE OF THE WHOLE MODULE IS THE WRONG REFERENCE the moment a
+    module is more than one box. A picket panel is two rails and four slats,
+    and the slats' inward-facing sides point straight at the module centre
+    while being perfectly correct - measured, 19 of 122 faces scored inward on
+    geometry the box verb itself produced. The shell each face belongs to is
+    the reference; a genuinely inside-out module still fails, because ALL of
+    its faces point at its own shell centre.
+    """
+    parent = {}
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    for pt in geo.points():
+        parent[pt.number()] = pt.number()
+    for prim in geo.prims():
+        nums = [p.number() for p in prim.points()]
+        for n in nums[1:]:
+            ra, rb = find(nums[0]), find(n)
+            if ra != rb:
+                parent[rb] = ra
+    acc = {}
+    for pt in geo.points():
+        root = find(pt.number())
+        pos = pt.position()
+        cur = acc.setdefault(root, [0.0, 0.0, 0.0, 0])
+        for k in range(3):
+            cur[k] += pos[k]
+        cur[3] += 1
+    faces = {}
+    for prim in geo.prims():
+        pts = prim.points()
+        if pts:
+            root = find(pts[0].number())
+            faces[root] = faces.get(root, 0) + 1
+    centres = dict((pt.number(),
+                    tuple(acc[find(pt.number())][k] / acc[find(pt.number())][3]
+                          for k in range(3)))
+                   for pt in geo.points())
+    sizes = dict((pt.number(), faces.get(find(pt.number()), 0))
+                 for pt in geo.points())
+    return (centres, sizes)
+
+
 def module_winding(scene):
     """Every face of every kit module points OUT (D33).
 
@@ -1044,17 +1094,29 @@ def module_winding(scene):
     kit_geo = scene.case.get("kit")
     if kit_geo is None:
         return _skip("inward_faces", "no kit geometry")
-    inward, total = 0, 0
+    inward, total, unjudged = 0, 0, 0
     for prim in kit_geo.prims():
         if prim.type() != hou.primType.PackedGeometry:
             continue
         src = prim.getEmbeddedGeometry()
-        centre = src.boundingBox().center()
+        centres, sizes = _component_centres(src)
         for face in src.prims():
             pts = face.points()
             if len(pts) < 3:
                 continue
             total += 1
+            root = pts[0].number()
+            # ⚠️ AND AN UNWELDED SHELL IS NOT A PASS, IT IS AN UNKNOWN. When
+            # every polygon owns its own points, each one is its own component
+            # and its centre IS its centroid - the dot product is then zero for
+            # every face and this check silently measures nothing. Found by
+            # mutation: a flipped module went on passing because the mutation
+            # harness had unwelded it. Fewer than four faces cannot enclose a
+            # volume, so those faces are counted and the check fails on them.
+            if sizes.get(root, 0) < 4:
+                unjudged += 1
+                continue
+            centre = centres.get(root, src.boundingBox().center())
             cen = [sum(p.position()[k] for p in pts) / len(pts)
                    for k in range(3)]
             nrm = face.normal()
@@ -1062,7 +1124,8 @@ def module_winding(scene):
                 inward += 1
     if not total:
         return _skip("inward_faces", "no module faces")
-    return Result("inward_faces", inward == 0, inward, "of %d" % total)
+    return Result("inward_faces", inward == 0 and unjudged == 0, inward,
+                  "of %d, %d unjudged" % (total, unjudged))
 
 
 def frame_continuity(scene):
