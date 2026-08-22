@@ -407,11 +407,27 @@ note.setText(
     "  4.6  finalize + the guards   N7  MEDIUM  D153\n"
     "  4.3  corners                 N8  HIGH    boolean, or foreach+clip\n"
     "\n"
-    "Nothing above is 'done'. Stage 1 is at parity on all 89 cases and\n"
-    "pc_frames is bit-exact on 1 650 real calls - both are MEASURED in\n"
+    "PYTHON GEOMETRY OUTSIDE THOSE FIVE STAGES - this half of the list\n"
+    "was MISSING, so both of these read as already native:\n"
+    "\n"
+    "  kit.box_mesh          kit.py       a createPoint() per box corner,\n"
+    "                                     on every cook with input 2\n"
+    "                                     unwired. 13.6 sends it to native\n"
+    "                                     box SOPs (13.3.6). NOT scheduled\n"
+    "                                     on 13.9's list yet.\n"
+    "  hda._padded           hda.py       FIXED - it iterated hou.Point\n"
+    "                                     wrappers, which 11.9 rule 1\n"
+    "                                     forbids. Two bulk calls now.\n"
+    "\n"
+    "PERMANENTLY PYTHON, and allowed to be: `config` (parm/payload\n"
+    "marshalling, no geometry) and place.read_curves' bulk read of this\n"
+    "box's own output (D166).\n"
+    "\n"
+    "Nothing above is 'done'. Stage 1 is at parity on 92 cases, this box\n"
+    "is ON the shipped cook path (D166), and every number is MEASURED in\n"
     "tests/polychain/run_native_checks.py, not asserted here.")
-note.setPosition(hou.Vector2(28.0, -9.0))
-note.setSize(hou.Vector2(11.0, 6.5))
+note.setPosition(hou.Vector2(28.0, -13.0))
+note.setSize(hou.Vector2(13.0, 11.0))
 note.setColor(hou.Color((0.85, 0.80, 0.55)))
 
 

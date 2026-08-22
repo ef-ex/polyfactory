@@ -1044,6 +1044,8 @@ gates PC-G1–G4. Phase-1 estimate for a senior TD: **weeks, not months, dominat
 
 ⚠️ **The OpenCL decision (D158–D160) is recorded in [§14.10](#1410-the-audit-of-14--what-survived-what-had-to-be-corrected-and-the-verdict), with the measurement in §14 and the cycle entry in §12 (`Cycle P2-OCL`).** It spans both phases, so it lives with the numbers rather than in either build log: **OpenCL is declined everywhere in polyChain, audited and measured on both workload shapes.**
 
+⚠️ **The NATIVE NETWORK decisions (D156–D171) are recorded in [§15.5](#155-decisions), with the measurements in §15.0–§15.4 and the audit response in [§15.7](#157-the-audit--seventeen-findings-and-what-each-one-cost).** They are properties of the graph, not of the kernel, so they live with the build log that measured them.
+
 Append one subsection per cycle: what was built, what the reviewers found, what the numbers were,
 and every decision taken on an open question. This is the streets convention
 ([`citygen_streets.md`](citygen_streets.md)) — the doc is the build's memory, so a context loss
@@ -7153,7 +7155,7 @@ Python it would replace. Fix the call structure, then use VEX-64, and stop there
 for every stage below are *implemented, measured, unverified*.
 
 Commits on `polychain`, not pushed:
-`1c144b4` the network, `0a2b741` the parity rig.
+`1c144b4` the network, `0a2b741` the parity rig, `22d17c9` the audit response (§15.7).
 
 ### 15.0 What actually exists now
 
@@ -7161,29 +7163,30 @@ Commits on `polychain`, not pushed:
 `tests/polychain/run_native_checks.py` asserts its shape on the built asset:
 
 ```
-pf_polychain                      [4 inputs, contents UNLOCKED on every new instance]
+pf_polychain                      [4 inputs, contents LOCKED on every new instance]
   IN_SPLINE     [null]  <- input 0
   IN_KIT        [null]  <- input 1
   IN_STYLE      [null]  <- input 2
   IN_SURFACE    [null]  <- input 3
   +-- 0 - CONFIG (13.3.0)
-      config           [python]         <- IN_STYLE, IN_KIT
-  +-- 1 - DECOMPOSE (4.1) - VEX + native
-      pc_curveid       [attribwrangle prim   64]  <- IN_SPLINE
-      pc_curve_index   [attribwrangle detail 64]  <- pc_curveid
+      config           [python]         <- IN_KIT on 1, IN_STYLE on 2
+  +-- 1 - DECOMPOSE (4.1) - VEX + native, and ON THE SHIPPED COOK PATH
+      pc_unshare       [splitpoints]              <- IN_SPLINE
+      pc_curveid       [attribwrangle prim   64]  <- pc_unshare
+      pc_curve_index   [attribwrangle detail 64]  <- pc_curveid, config
       pc_arclength     [attribwrangle prim   64]  <- pc_curve_index
       pc_corners       [attribwrangle point  64]  <- pc_arclength, config
       pc_markers       [attribwrangle point  64]  <- pc_corners,   config
       OUT_sections     [null]
   +-- 2 - PLAN (4.2) - still Python, and 13.9 N2 is where it goes
-      pc_plan_bridge   [python]         <- all four inputs
+      pc_plan_bridge   [python]         <- OUT_sections, IN_KIT, IN_STYLE, IN_SURFACE
       OUT_plan         [null]
   +-- 4 - PLACE + DEFORM (4.4) - the frame, in VEX
       pc_frames        [attribwrangle point 64]  <- OUT_plan, config, OUT_sections
       pc_frames_valid  [blast]
       OUT_frames       [null]
-  +-- R - THE REFERENCE (13.6) - the oracle
-      kernel           [python]         <- all four inputs
+  +-- R - THE REFERENCE (13.6) - the oracle, AND the shipped output
+      kernel           [python]         <- OUT_sections, IN_KIT, IN_STYLE, IN_SURFACE
       OUT_reference    [null]
   stage_switch [switch]  <- OUT_reference, config, OUT_sections, OUT_plan, OUT_frames
   OUT          [null]
@@ -7191,78 +7194,122 @@ pf_polychain                      [4 inputs, contents UNLOCKED on every new inst
 ```
 
 Six wrangles, every one at `vex_precision = 64`, every one carrying a `setComment` +
-`DisplayComment` sentence saying what it computes. Five titled network boxes. The VEX bodies are
-real files at `polyfactory/vex/polychain/*.vfl` (`pc_path.h`, `pc_arclength`, `pc_curveid`,
-`pc_curve_index`, `pc_corners`, `pc_markers`, `pc_frames`), **inlined** into the snippet parms at
-build time by `polychain.vexsrc` so the asset carries no `HOUDINI_VEX_PATH` dependency.
+`DisplayComment` sentence saying what it computes, plus one native `splitpoints`. Five titled
+network boxes. The VEX bodies are real files at `polyfactory/vex/polychain/*.vfl` (`pc_path.h`,
+`pc_arclength`, `pc_curveid`, `pc_curve_index`, `pc_corners`, `pc_markers`, `pc_frames`),
+**inlined** into the snippet parms at build time by `polychain.vexsrc` so the asset carries no
+`HOUDINI_VEX_PATH` dependency.
 
-`Stage` (D155) is a five-entry menu on the **Advanced** folder driving `stage_switch`. Its default
-is `output`, whose input is `OUT_reference`, so **a node nobody has touched builds exactly what it
-built before this rebuild** — which is why all four gates are still green with the body replaced
-underneath them.
+**⚠️ THE ONE WIRE THAT CHANGES WHAT THIS SECTION MEANS.** `kernel`'s input 0 is `OUT_sections`, not
+`IN_SPLINE` (D166). Until an audit pointed at it, it was `IN_SPLINE` — and the consequence, which
+this section used to describe as a feature, was that **the entire DECOMPOSE box sat beside the tool
+rather than inside it**. Measured on that build with a 4-point spline and the starter kit: all six
+new nodes reported `cookCount == 0` after an Output cook; bypassing all six left the output hash
+byte-identical; **destroying** all six left it byte-identical. `sop_cooks_per_build` printed
+`0/20 — native nodes that cooked on the Output stage: none` and that was read as "the rebuild is
+free" when what it actually said was "the rebuild has not happened". An artist toggling
+`pc_corners` off saw nothing change, because the geometry never passed through it.
+
+Behind `OUT_sections`, `place.read_curves` picks up `pc_s`, `pc_cleanidx` and the corners the
+64-bit wrangles computed, and `decompose._clean` / `decompose.resolve_corners` return them instead
+of re-deriving them (D166). So the 89 scene cases, the HDA gate and the scale gate now exercise the
+VEX rather than walking past it. `Stage` still defaults to `output` and a node nobody has touched
+still builds exactly what it built before the rebuild — but now that is a statement about the
+*answer*, not about which code produced it.
 
 ### 15.1 Parity — the numbers, all of them
 
-`hython tests/polychain/run_native_checks.py` — **24 checks, 0 failing.** Every stage is cooked as
+`hython tests/polychain/run_native_checks.py` — **30 checks, 0 failing.** Every stage is cooked as
 real SOP nodes on the *same* `hou.Geometry` the reference was handed, in one process (§13.8 rule 1).
 `tests/polychain/native.py` builds those nodes and the HDA build script calls the same helpers, so
 the network the checks measure IS the network the asset ships.
 
+The case set is **92**: `cases.build_all()`'s 89, plus `cases.topology_cases()`' three, which exist
+because **0 of the 89 has a point in more than one primitive** and citygen's own pipeline ends in
+`graph_fuse` — so the target input was a shape the parity rig structurally could not contain.
+
 | Check | Measured | Ceiling |
 |---|---|---|
-| `native_id_parity` | the VEX id rule agrees with `hda.curve_prim_index` on **every prim of 90 curves** | 0 mismatches |
-| `decompose_arclength_parity` | **0.000e+00 m** worst \|Δ`pc_s`\|, 90 curves, all 89 cases | exact |
+| `native_id_and_curve_set_parity` | the VEX id rule AND the curve SET agree with `place.read_curves` on **every prim of 94 curves + 1 declined prim** | 0 mismatches |
+| `decompose_arclength_parity` | **0.000e+00 m** worst \|Δ`pc_s`\|, 94 curves, all 92 cases | exact |
 | `decompose_length_parity` | **0.000e+00 m** worst \|Δ curve length\| | exact |
-| `decompose_corner_parity` | **0** mismatches over **54 corners** — identical sets, identical `forced`/`degenerate` | 0 |
+| `decompose_corner_parity` | **0** mismatches over **55 corners** — identical sets, identical `forced`/`degenerate` | 0 |
 | `decompose_turn_parity` | **2.842e-14 deg** worst \|Δ turn angle\| | 1e-10 (it is `acos` ULP, not zero) |
-| `decompose_marker_parity` | **0.000e+00 m** over 4 markers, counts identical | exact |
-| `frames_linear_parity` | **0.000e+00** worst \|Δ 3×3\| over **1 650 real `_packed_transform` calls**, z-modes adaptive / vertical / stepped | exact |
-| `frames_position_parity` | **1 of 4 950** P components not bit-identical to `f32(reference)`, worst **1.00 float32 ULP** | 1.0 ULP |
+| `decompose_marker_parity` | **0.000e+00 m** over 5 markers on 94 prims, 2 of them under a duplicated id | exact |
+| `frames_arithmetic_linear_parity` | **2.220e-16 relative** worst \|Δ 3×3\| over **1 733 real `_packed_transform` calls**, z-modes adaptive / vertical / stepped | 4.5e-16 (2 float64 ULP — it is FMA) |
+| `frames_arithmetic_position_parity` | **2 of 5 199** P components not bit-identical to `f32(reference)`, worst **1.00 float32 ULP** | 1.0 ULP |
+| `plan_span_transport_at_20km` | **2.910e-11 m** worst \|transported s − reference s\| over 18 870 pieces, read back off `Stage = plan` | 1e-4 m (`checks.TOL_M`) |
+| `config_reads_the_payload` | `pc_cfg` on the BUILT asset == `style.read(payload).params` (77.0° / 3.0°) | 0 disagreeing keys |
+| `payload_thresholds_reach_the_corners` | **1** corner break at 77°, where the parm page's 30° gives 2 | == 1 |
 | `trials_irrational_20km_asymmetric` | **0.000e+00 m** on all three D113 trials | exact |
 | `native_intermediates_are_64bit` | **0.0 / 0.0** — a 20 km value written by a 64-bit wrangle and read by the NEXT node | exact |
+| `native_branch_cooks_on_output` | **7 of 7** on-path nodes cook on the Output stage; the 3 debug-branch nodes stay idle | 0 asleep |
+| `native_branch_is_load_bearing` | shifting `pc_arclength`'s metre by 0.25 m **moves the shipped output** | must move |
+| `instances_do_not_fork_the_network` | 20 untouched instances: **0 children, 0 forked** | 0 / 0 |
 
-**The one non-exact number, named rather than smoothed.** `AB_fillet`, one span, `pax = 0` — so
-the `- d * ox` term is zero and the difference is inside the sampler's own `a + d * t`. VEX fuses
-that multiply-add and Python does not, so the two round the last bit differently on exactly one
-span in the whole suite. The ceiling is **one float32 ULP** because that is the smallest unit the
-storage has; a tighter one would be a claim that float32 arithmetic is associative. And the check
-is written as `native == f32(reference)` rather than as `|native - reference| < 1e-6`, because an
-equality on storage cannot be satisfied by two different bugs cancelling.
+**⚠️ Two of these checks used to be incapable of failing, and that is the finding, not a footnote.**
 
-**Why the frame parity is measured with the span rounded to float32 on BOTH sides.** The rig
-carries the plan to the wrangle through a `.bgeo` point attribute, which is float32 storage.
-Asking the reference in float64 and the wrangle in float32 measures the transport, not the
-arithmetic. Rounding both isolates the arithmetic — and the transport is covered separately by
-`native_intermediates_are_64bit`, which proves a 64-bit wrangle's output reaches the next node
-undamaged. In the shipped network the plan will come out of a 64-bit wrangle (N2), so the float32
-hop is the rig's, not the graph's.
+* **`native_id_parity` compared two copies of one rule.** It asked `hda.curve_prim_index`, which
+  re-implemented D29/D64 and applied *none* of `read_curves`' filters — packed prims, prims with
+  fewer than two points, prims containing a marker point, duplicate ids. So the two sides could
+  agree with each other while both disagreed with the curve set the builder actually plans on.
+  Measured: a 3-point polyline whose middle point carries `pc_marker` gave the reference **0
+  curves** and the VEX a full sampler table plus a marker at s = 0 on a curve that does not exist.
+  `curve_prim_index` now *reads* `read_curves`, so there is one rule, and the check asks the
+  builder's own answer prim by prim including the prims it declined (D167).
+* **`frames_*_parity` rounded the span to float32 on both sides**, which excluded the one thing the
+  network genuinely does differently from the reference — carrying the span through a point
+  attribute. They are renamed `frames_arithmetic_*` so the scope is on their face, and the
+  transport is measured, unrounded, by `plan_span_transport_at_20km`.
+
+**Why `frames_arithmetic_*` still rounds both sides, and why its ceiling moved from 0.0.** The rig
+carries the plan to the wrangle through point attributes, which are float32 storage; asking the
+reference in float64 and the wrangle in float32 would measure the transport instead of the maths.
+Both sides therefore go through D170's *real* transport — the float32 head plus the float32
+residual — which is what the asset does. That pair carries ~48 significant bits where the single
+float32 carried 24, and the extra bits un-mask the difference the position check has always named:
+**VEX fuses `a + d * t` into an FMA and Python does not**, so the sampled position can round one
+float64 ULP apart and the frame built on it inherits that. 2.220e-16 relative is exactly 1 ULP at
+1.0. Trading 1e-16 of agreement here for 9.765e-4 m of agreement at 20 km is the point of D170.
 
 **⚠️ And this cannot be tested through `P`.** `P` is float32 storage: a vertex authored at
 20000.0004883 reads back 20000.0 before any wrangle has run, so a curve cannot even *carry* the
 number R2 is about. That floor is unchanged and it is where the reference already lives too, which
-is exactly what `frames_position_parity` measures.
+is exactly what `frames_arithmetic_position_parity` measures.
 
 **Mutation, per landed node** — because a node whose corruption leaves the suite green is untested:
-a 1e-7 *relative* error in `pc_frames`' module scale turns the 3×3 red (1.003e-07); removing
-`pc_arclength`'s coincident-vertex merge moves the cleaned index table from `[0, 1, -1, 2]` to
-`[0, 1, 2, 3]`. The `pc_arclength` mutation asserts its own target line still exists, so a future
-edit cannot silently turn the mutation into a no-op.
+a 1e-7 *relative* error in `pc_frames`' module scale turns the 3×3 red (1.000e-07, which must clear
+the 4.5e-16 FMA floor); removing `pc_arclength`'s coincident-vertex merge moves the cleaned index
+table from `[0, 1, -1, 2]` to `[0, 1, 2, 3]`; **bypassing `pc_unshare` on a fused junction loses the
+corner the reference finds** (1 → 0). The `pc_arclength` mutation asserts its own target line still
+exists, so a future edit cannot silently turn the mutation into a no-op.
 
-### 15.2 §13 was wrong about the speed, and here is the measurement
+### 15.2 §13 was wrong about the speed — and so was §15.2's first answer
 
 **§13.2 recorded "cumulative arclength … 0.0037 s (64-bit) on a 20 001-vertex 20 km line" against
-the reference's 0.030 s. That is not a comparable number and the stage is not a speedup.**
+the reference's 0.030 s. That is not a comparable number.** §13.2's probe timed a wrangle that
+wrote **one point attribute**; the shipped stage additionally builds the 20 000-element sampler
+table that `pc_frames` reads.
 
-With `cookCount` asserted to advance once per timed pass (`bench_*_really_cooked`):
+**And the correction this section first published was itself measured against the wrong
+comparand.** It timed the reference as `_clean` + `resolve_corners` + `resolve_markers` with
+`P.read_curves` hoisted *out* of the timed loop — but `read_curves` is the geometry read the
+reference cannot avoid to reach those answers, and the native chain does not need it. Measured:
+`read_curves` is **48 %** of the reference's real cost on the 20 km curve and **79 %** on 300
+streets. So the ratio is a **range**, both ends are printed on every run, and neither end is the
+number on its own:
 
-| Fixture | native chain | reference, same three answers | ratio |
-|---|---|---|---|
-| one 20 km curve, 20 001 vertices | **0.0469 s** | 0.0383 s | **0.82x** |
-| 300 short streets (900 points, 300 prims) | **0.0011 s** | 0.0012 s | **1.08x** |
+| Fixture | native chain | reference without its geometry read | reference with it | ratio |
+|---|---|---|---|---|
+| one 20 km curve, 20 001 vertices | **0.0690 s** | 0.0658 s | 0.1167 s | **0.95x – 1.69x** |
+| 300 short streets (900 points, 300 prims) | **0.0013 s** | 0.0021 s | 0.0094 s | **1.62x – 7.19x** |
 
-§13.2's probe timed a wrangle that wrote **one point attribute**. The shipped stage additionally
-builds the 20 000-element sampler table that `pc_frames` reads. Breaking the 20 km cook down by
-deleting one piece at a time:
+Charging 100 % of `read_curves` to stage 1 is not right either — the reference amortises it across
+plan, place and conform — which is why the ceiling stays on the pessimistic end (1.5× the lower
+bound) and why "the stage is not a speedup" has been withdrawn as a conclusion. **On the citygen
+shape it is a speedup on any reading; on one very long curve it is a wash.**
+
+Breaking the 20 km cook down by deleting one piece at a time:
 
 | Part of `pc_arclength` | Cost at 20 001 vertices |
 |---|---|
@@ -7274,17 +7321,18 @@ deleting one piece at a time:
 
 **Preallocating instead of appending** (`resize` once, index, `resize` back — for `cum`, the four
 segment arrays and `keep`) took the 2 km row from 0.0044 s to 0.0028 s and left the 20 km row
-essentially unchanged. So `append`'s reallocation was real but small: **the table itself is the
-cost**, and it is inherent to the sampler design, not to the way it was written.
+essentially unchanged (0.0442 s → 0.0428 s). So `append`'s reallocation was real but small: **the
+table itself is the cost**, and it is inherent to the sampler design, not to the way it was written.
+That pair of numbers is now in the .vfl header, where a stale 8× speedup claim used to be.
 
-**R7 is therefore confirmed, not refuted** — but note which way. The per-node fixed cost is *not*
-what hurts: 300 short curves through five nodes cost 0.0011 s and beat the reference. What hurts is
-**one very long curve**, where the stage is sequential by nature and pays for a 20 000-element
-table the reference never materialises. That is the opposite of what §13.9's R7 predicted, and it
-is worth knowing before N2 designs its own per-section arrays.
+**R7, restated honestly.** The per-node fixed cost is *not* what hurts: 300 short curves through six
+nodes cost 0.0013 s and beat the reference on both readings. What is expensive is **one very long
+curve**, where the stage is sequential by nature and materialises a 20 000-element table the
+reference never builds. That is the opposite of what §13.9's R7 predicted, and it is worth knowing
+before N2 designs its own per-section arrays.
 
-The bench's ceiling is deliberately "within 1.5x of the reference", not "faster", and the ratio
-prints on every run. **A check that certified a win nobody measured would be worse than no check.**
+The bench's ceiling is deliberately "within 1.5× of the lower bound", not "faster", and both ratios
+print on every run. **A check that certified a win nobody measured would be worse than no check.**
 
 **⚠️ The first version of that bench reported 0.00002 s for the 20 001-vertex chain**, because
 `cook(force=True)` on a node whose inputs have not changed can be a no-op. That is precisely the
@@ -7292,30 +7340,79 @@ defect §13.2 threw its own OpenCL timing away for, reproduced one section later
 dirties the chain through a spare int the wrangle actually reads and **asserts** `cookCount`
 advanced once per pass. *If a timing is not accompanied by a cook count, it is not a measurement.*
 
-### 15.3 `sop_cooks_per_build` — the new tripwire, and what it pins
+### 15.3 The load-bearing tripwire — inverted, and why
 
-On the `output` stage, **0 of the native nodes cook** (measured without `force`, by reading
-`.geometry()` the way an artist's cook does). Set `Stage = sections` and **5 of them cook**. Both
-halves are asserted, because the first alone would pass on a graph whose native branch was simply
-disconnected. A Switch SOP cooks only its selected input, so **the rebuild is free until you look
-at it** — which is the property that has to survive nine more build-order items.
+This section used to describe `sop_cooks_per_build`: *on the `output` stage, 0 of the native nodes
+cook; set `Stage = sections` and 5 of them do; a Switch SOP cooks only its selected input, so the
+rebuild is free until you look at it.* **Every clause of that was true and the conclusion was
+wrong.** The nodes cost nothing on the Output stage because the Output stage did not go through
+them — `kernel` took `IN_SPLINE`. The check was certifying that the port had not happened.
 
-### 15.4 Two Houdini traps found this cycle, both silent
+Since D166 the DECOMPOSE box is upstream of `kernel`, and the two checks that replaced it say the
+opposite thing on purpose:
 
-**T1 — `defn.save(template_node=…)` and `updateFromNode()` BOTH drop every network box and sticky
-note, unless the definition's options carry `setUnlockNewInstances(True)`.** Measured on a
-three-node throwaway asset: boxes and notes present on the node, `defn.save` returns cleanly, the
-.hda is written, and a fresh instance comes back with `networkBoxes() == []` and no error anywhere.
-Force-cooking such an instance then fails with **"Network box save failed"**, which is the only
-sign Houdini gives. With `unlockNewInstances` the boxes, the comments and the note all arrive and
-the cook is clean. **So `artist_ui.md` §6 rule 10's two halves — the graph stays readable, and the
-asset is editable — are one switch, not two.**
+* **`native_branch_cooks_on_output`** — the seven on-path nodes (`config` and the six DECOMPOSE
+  nodes) must ALL cook on a plain Output cook, measured without `force` by reading `.geometry()`
+  the way an artist's cook does; and the three debug-branch nodes (`pc_plan_bridge`, `pc_frames`,
+  `pc_frames_valid`) must all stay at zero, because they sit behind the Stage switch.
+* **`native_branch_is_load_bearing`** — corrupt `pc_arclength` on a live instance so every metre
+  moves 0.25 m, and the **shipped output** must move. This is deliberately *not* "bypassing the
+  branch changes the output": D166's fallback means a curve with no native tables is answered by
+  the Python, so a bypass is byte-identical **by design**. The only honest proof that the VEX
+  answer reaches the artist is to corrupt it and watch the geometry follow.
+
+The cost the rebuild now does carry, stated rather than hidden: an Output cook pays for the whole
+DECOMPOSE box, including the `pc_seg_*` sampler table that only the Frames stage reads. On the
+citygen shape that is a win on any reading of §15.2's range; on a single 20 km curve it is roughly a
+wash. The scale gate is unmoved.
+
+### 15.4 Three Houdini behaviours found this cycle — and one of them was a misdiagnosis
+
+**T1 — A LOCKED HDA LOADS ITS CONTENTS LAZILY. That is all the empty `networkBoxes()` ever meant.**
+This entry used to read *"`defn.save(template_node=…)` and `updateFromNode()` BOTH drop every
+network box and sticky note unless the options carry `setUnlockNewInstances(True)`"*, and that
+misdiagnosis is why the asset shipped unlocked. Control test, one throwaway two-node asset with one
+box and one sticky, saved twice with the flag as the only difference:
+
+| | fresh instance | after one `n.node("OUT")` | `cook(force=True)` | `matchesCurrentDefinition()` |
+|---|---|---|---|---|
+| locked | children 0, boxes 0, notes 0 | children 2, **boxes 1, notes 1**, comment intact | clean | **True** |
+| unlocked | children 2, boxes 1, notes 1 | same | clean | **False** |
+
+Nothing is dropped. `children()`, `networkBoxes()` and `stickyNotes()` are simply empty until
+something touches the contents — probe them *after* a child access, not before. T1's second half,
+*"force-cooking such an instance then fails with Network box save failed"*, did not reproduce on
+either asset; that message belongs to **T2**, which carries the identical error string. So
+`artist_ui.md` §6 rule 10's two halves — the graph stays readable, and the asset is editable — are
+**not** one switch. Readability is free; editability is the flag.
+
+**And the flag is not free.** Measured at citygen scale, 300 `pf_polychain` nodes in one scene:
+
+| | unlocked | locked |
+|---|---|---|
+| create 300 instances | 2.056 s | **0.096 s** (21×) |
+| child nodes materialised | 6 000 | **0** |
+| `hipFile.save` size | 20 710 531 B | **720 008 B** (29×) |
+| `matchesCurrentDefinition()` on a fresh instance | **False** | True |
+
+The last row is worse than the other three: an unlocked instance is a private copy from the moment
+it is created, so **every scene an artist saves during the rebuild forks the half-built graph and
+never receives the rest of it** — with N2, N4/N5, N6, N7 and N8 still ahead. The asset ships locked
+(D165's sibling decision, recorded below), `instances_do_not_fork_the_network` keeps it that way,
+and an artist who genuinely wants to edit one instance still has Allow Editing of Contents.
 
 **T2 — a network box comment may not contain `;` or a newline.** Houdini writes the box file in a
 semicolon-terminated hscript format; either character corrupts it, `defn.save` returns cleanly, and
 the **next** `createNode` of the asset raises *"Failed to match node type definition / Network box
 save failed"* — naming neither the box nor the character, one build later, in a different script.
 Bisected: `"`, backtick, `$`, `#`, `{}`, `,` and `()` all survive. `box()` now asserts.
+
+**T3 — `hou.Geometry.addAttrib` has no precision argument, so a Python SOP cannot create a 64-bit
+float attribute.** Probed: the signature is
+`addAttrib(type, name, default_value, transform_as_normal=False, create_local_variable=False)` and a
+float default gives float32 storage; `20000.0004883` written and read back is `20000.0`. That is
+the whole reason D170 exists — the boundary between a Python SOP and a wrangle is 32 bits wide and
+there is no flag that widens it.
 
 ### 15.5 Decisions
 
@@ -7367,21 +7464,162 @@ Bisected: `"`, backtick, `$`, `#`, `{}`, `,` and `()` all survive. `box()` now a
   `bench_*_really_cooked` is a check, not a comment. §13.2 discarded its OpenCL number for this and
   the same mistake was made again three hours later; the rule is now mechanical.
 
-### 15.6 What is NOT done
+- **D165 — the DECOMPOSE box starts with a native `splitpoints`, and that is INPUT NORMALISATION,
+  not a workaround.** `pc_arclength` keeps a per-(curve, vertex) walk — `pc_s`, `pc_cleanidx`,
+  `pc_prev`, `pc_next` — in POINT storage, which is only sound while a point belongs to exactly one
+  primitive. citygen's documented pipeline is `graph_resample → graph_stitch → graph_fuse →
+  graph_polypath`, so a street network arrives **welded at every junction**, and the dev-loop trap
+  list already records that a fused junction point cannot hold the parametrisations of every edge
+  sharing it. Measured before the node existed, on two polylines sharing one vertex where A turns
+  90°: the reference reports A's corner at s = 10.0, turn 90.000°; the native stage reported **zero
+  corners in both primitive orders**, and the junction's `pc_s` flipped 0.000 ↔ 10.000 with the
+  order alone. `splitpoints` is Houdini's own answer (procedural-modeling rule 3 — convert the
+  input into the space the tool operates in), it leaves prim attributes, detail attributes and
+  stand-alone marker points untouched, and it measured 0.00008 s on the 20 001-vertex fixture where
+  nothing needs splitting. The alternative — moving the tables to VERTEX attributes — is more
+  faithful to what the data is keyed by, and it was declined because a native node is higher on the
+  ladder than a rewrite of two wrangles, a group class and the parity rig, and because the
+  reference has no concept of a shared point either (`read_curves` builds one Curve per prim from
+  that prim's own points). `mutation_pc_unshare` bypasses the node and asserts the corner
+  disappears, so the justification is a check rather than a paragraph.
+- **D166 — `kernel` is wired BEHIND `OUT_sections`, and the reference reads 4.1's answers off the
+  geometry instead of recomputing them.** This is the decision that makes the rebuild real; §15.0
+  carries the measurement of what it was before. `place.read_curves` harvests `pc_s`,
+  `pc_cleanidx`, `pc_iscorner`, `pc_turn_deg`, `pc_corner_degen` and `pc_corner_forced` as **bulk**
+  attribute arrays, slices them per curve, and hands each `Curve` a `native` payload;
+  `decompose._clean` and `decompose.resolve_corners` return it. Four properties make it safe:
+  1. **It is opt-in by presence.** `pc_nclean` is the sentinel. A raw spline — a check calling
+     `build` directly, a node wired straight to a curve SOP, `run_scene_checks` — has none of these
+     and every caller falls through to the Python. The reference never stops being runnable alone.
+  2. **It falls back on a config mismatch.** `pc_curve_index` stamps `pc_cfg` onto the sections
+     stream; `resolve_corners` compares `corner_angle_deg` and `min_included_angle_deg` against the
+     `params` it was called with and re-derives in Python if they differ. `analyse()` with explicit
+     parameters, or a check sweeping the angle, gets the thresholds it asked for.
+  3. **It falls back on a derived curve.** The fillet and the slope flatten build new `Curve`
+     objects, which carry no `native`, so a filleted path is decomposed by the Python — which is
+     correct, because the native tables describe the *input* spline and a filleted path is a
+     different polyline (D160 is the same fact stated for the frames).
+  4. **The read is Python and Hannes' rule allows exactly that.** What moved to VEX is the
+     per-element geometry work — the cumulative scan, the coincident merge, the turn angle, the
+     corner threshold, all over N points. What is left is a handful of bulk attribute reads and one
+     slice per curve: marshalling data between a node and a caller. Nothing in it touches a
+     `hou.Point` for anything but its number, and the standing wrapper tripwires are unmoved
+     (`wrapper_reads_streets` 330 of a 2 000 ceiling).
+- **D167 — `pc_curveid` decides the curve SET, not only the curve id, and it decides it the way
+  `read_curves` does.** Three kinds of primitive are declined: fewer than two points (which covers
+  every packed prim, since a packed prim has exactly one), and any prim containing a point carrying
+  `pc_marker`. A declined prim keeps a **blank** `pc_curve_id_r`, which no marker can match, and
+  `pc_arclength` returns before writing it any table. Measured before this: a 3-point line whose
+  middle point carried `pc_marker` gave `read_curves` **0 curves and 1 marker**, while the VEX
+  published `pc_curve_id_r = "M"`, a full sampler table and a marker at s = 0 — a curve the
+  reference refuses to build on. `hda.curve_prim_index` is now derived from `read_curves` rather
+  than being a second copy of the rule, so there is one rule and the parity check compares against
+  it.
+- **D168 — `pc_curve_index` publishes a DICT, because it was promising a lookup and doing a scan.**
+  Its comment said it existed "so a marker can find its curve with an array lookup instead of a
+  scan over the whole stream", and `pc_markers` then ran `for (i…) if (ids[i] == cid)` — an
+  O(nprimitives) string compare per marker, 300 × 300 = 90 000 comparisons on the citygen shape.
+  It now writes `pc_curve_prim`, a VEX dict keyed by id — the same mechanism `pc_cfg` already uses.
+  The stored value is **prim + 1**, because a dict read of an absent key answers 0 and "prim 0" and
+  "no such curve" must not be the same number. The string array stays for readability at
+  `OUT_sections`.
+- **D169 — a DUPLICATED curve id warns rather than quietly answering for one of the curves.**
+  `resolve_markers` filters by id, not by prim, so the reference places a marker on **every** curve
+  sharing its id: two prims tagged `DUP` (10 m and 40 m) with one `pc_u = 0.5` marker give rows at
+  s = 5.0 *and* s = 20.0. A point wrangle can only move the point it is on. `pc_markers` therefore
+  binds to the first prim claiming the id and sets `pc_warn_marker_dup`; `decompose_marker_parity`
+  asserts exactly that — the first prim keeps the reference's row, the others get none, and the
+  warning must be there. D74 already warns about the duplicate id itself. `pc_curveprim` is
+  initialised to **-1** on every marker for the same class of reason as D168's `+1`: the attribute
+  default is 0, and 0 is a real primitive.
+- **D170 — the fitted span crosses to `pc_frames` as a float32 HEAD plus a float32 RESIDUAL.**
+  T3 above: `hou.Geometry` has no 64-bit float storage, so `plan_geometry`'s `pc_s0r`/`pc_s1r`
+  quantised at 1.95 mm at 20 km. Measured on `cases.arc_points(20000, 1, 20000)` through the built
+  asset: worst \|stored − reference\| **9.762e-04 m**, ten times `checks.TOL_M`, with every stored
+  value equal to its own float32 round-trip and 18 868 of 18 870 reference values not float32-exact.
+  Two neighbouring pieces snapped to the same station inside that grid. `plan_geometry` now stores
+  `f32(s)` in `pc_s0r` and `f32(s − f32(s))` in `pc_s0r_lo`; `pc_frames` adds the pair in 64-bit
+  VEX and gets **2.910e-11 m**. `plan_span_transport_at_20km` reads it back off `Stage = plan` and
+  asserts it, and prints the head-alone error beside it so the reason the residual exists is on
+  every run. **13.9 N2 deletes both attributes** the day the solve computes the span inside the
+  wrangle. The irony worth recording: `native_intermediates_are_64bit` guarded the VEX→VEX boundary
+  from the start while the Python→VEX boundary in the shipped wiring was 32 bits wide and unguarded.
+- **D171 — `report["frames"]` is OPT-IN, amending D161.** D161 called it "additive and read-only",
+  which it is, and did not count it. Measured on the packed 10k fixture: 10 000 dicts of 11 keys,
+  **4.96 MB** by recursive `getsizeof` and **0.0031 s of a 0.2239 s build** — 1.4 %, allocated and
+  thrown away on every cook of a node nobody has put on the Plan stage. Its only consumers are
+  `cook_plan_bridge` and the parity rig, so `build(…, report_frames=True)` asks for it. The
+  wall-clock half of that measurement is at the noise floor and only the megabytes and the
+  milliseconds are solid — but it is instrumentation riding in the artist's cook and it grows with
+  N4/N5.
+- **The asset ships LOCKED** (`setUnlockNewInstances(False)`), for the four numbers and the
+  non-propagation behaviour in §15.4's T1. Readability does not need the flag; a locked instance
+  loads its contents the moment anything touches them.
 
-Still entirely inside `kernel`, in §13.9's order: **4.2 the fitting solve (N2)** — and with it
-`pc_plan_bridge`, which exists only to feed the native frames and is deleted the day the VEX solve
-lands; **4.4's `copytopoints` and the deform (N4/N5)**, which need the kit-module plumbing and R8's
-packed-`transform` scale question; **4.5 conform (N6)**; **4.6 finalize and D153's guard switches
-(N7)**; **4.3 corners (N8)**. The sticky note inside the asset says the same thing, so the graph
-tells the truth about its own state to whoever opens it.
+### 15.6 What is NOT done — the complete Python inventory, not just the stages
 
-Two things a next cycle should carry forward from the numbers above:
+**⚠️ THIS LIST USED TO NAME ONLY THE FIVE KERNEL STAGES, and so did the sticky note inside the
+asset.** Two pieces of Python geometry construction that run in the default cook path were on
+neither, so an artist reading the note would conclude they were already native and a future agent
+working §13.9's list would never schedule them. Both are named here now.
+
+**Still entirely inside `kernel`, in §13.9's order:**
+
+| What | §13.9 item | Note |
+|---|---|---|
+| 4.2 the fitting solve | **N2** | and with it `pc_plan_bridge`, which exists only to feed the native frames and is deleted the day the VEX solve lands — along with D170's `pc_s0r_lo`/`pc_s1r_lo` |
+| 4.4's `copytopoints` and the deform | **N4 / N5** | needs the kit-module plumbing and R8's packed-`transform` scale question |
+| 4.5 conform | **N6** | `ray` as a node |
+| 4.6 finalize and D153's guard switches | **N7** | |
+| 4.3 corners | **N8** | boolean, or foreach + clip |
+
+**Python geometry OUTSIDE the five stages, which the old list omitted:**
+
+| What | Where | Status |
+|---|---|---|
+| `kit.box_mesh` — a `geo.createPoint()` per box corner | `kit.py:72-100` | **still Python.** §13.6 says it "leaves Python and becomes native box SOPs (§13.3.6)". It runs on every cook where input 2 is unwired, via `kit_geometry → starter_kit`. Its N is the module count (4), not the point count, which is why it has never shown up in a number — but it is unscheduled work, and it is scheduled now. |
+| `hda._padded` — iterated `hou.Point` wrappers | `hda.py` | **fixed this cycle.** It read and wrote `pc_pad` one point at a time whenever the gap parm was non-zero: the exact pattern §11.9 rule 1 forbids and the standing tripwires watch for. It is two bulk calls now. |
+| `place.read_curves`' native harvest | `place.py` | **Python by design (D166 point 4)** — bulk attribute reads and one slice per curve, marshalling data between a node and a caller. Named here so it is never mistaken for unfinished porting. |
+| `hda.cook_config` | `hda.py` | **Python permanently.** Parameter and payload marshalling; its N is the size of the parameter page; it touches no geometry. This is the half of Hannes' rule that reads "processing data which is not possible to process with the other 3". |
+
+The sticky note inside the asset carries the same two tables, so the graph tells the truth about
+its own state to whoever opens it.
+
+Three things a next cycle should carry forward from the numbers above:
 
 1. **N2's per-section arrays will hit the same wall `pc_seg_*` hit.** 0.0171 s to write four
    20 000-element arrays is the single largest cost in the stage. The fitting solve writes six
    arrays per section; at 10 000 sections that is the number to watch, and `pointgenerate`'s
    `docopyattribs` carries them through *again*.
 2. **The long-curve row is the one to bench, not the streets row.** 300 short curves already beat
-   the reference at 1.08x; one 20 km curve is at 0.82x. §13.9's R7 predicted the opposite, and
-   benching only the citygen shape would have shown a win that is not the whole story.
+   the reference on both readings of §15.2's range; one 20 km curve is a wash. §13.9's R7 predicted
+   the opposite, and benching only the citygen shape would have shown a win that is not the whole
+   story.
+3. **N2 should compute `s0r`/`s1r` inside the 64-bit wrangle and delete D170's residual pair.**
+   The split is correct and it is a workaround for a boundary that N2 removes.
+
+### 15.7 The audit — seventeen findings, and what each one cost
+
+Three independent reviewers (parity, idiom/reachability, performance) read the build above. **Every
+finding reproduced.** None was refuted; one — T1 — was a claim *this document* made that the
+reviewers refuted, with a control test, and §15.4 now carries the correction.
+
+| Severity | Finding | Outcome |
+|---|---|---|
+| critical | the native branch was disconnected from the shipped output | D166 — `kernel` behind `OUT_sections`; two inverted tripwires |
+| critical | `setUnlockNewInstances(True)` cost 19× node creation, 27× .hip size, and broke fix propagation | shipped locked; §15.4 T1 corrected; `instances_do_not_fork_the_network` |
+| major | a point shared by two prims had its arclength and neighbours overwritten (×2 reviewers) | D165 — `pc_unshare`, plus a fused-junction fixture and a bypass mutation |
+| major | the `config` SOP read an unwired input for the style payload | one input convention; `config_reads_the_payload` on the built asset |
+| major | `frames_parity` rounded away the one thing the network does differently | renamed `frames_arithmetic_*`; `plan_span_transport_at_20km` added |
+| major | `plan_geometry` created float32 attributes, losing 9.765e-4 m at 20 km | D170 — head + residual, now 2.910e-11 m |
+| major | the wall-clock comparand hoisted `read_curves` out of the timed loop | both bounds printed; §15.2's "not a speedup" withdrawn |
+| minor | `native_id_parity` compared two copies of one rule, neither filtered | D167 — one rule; the check asks `read_curves` |
+| minor | `pc_frames_valid` deleted every piece in silence | warned; the stage menu is swept under three parm states |
+| minor | `pc_curve_index` promised a lookup and did a scan | D168 — a real dict |
+| minor | the stale 0.0037 s claim in `pc_arclength`'s header | replaced by what the suite measures |
+| minor | two dead locals in `pc_corners` one line above the vectors actually used | deleted |
+| minor | §15.6 and the sticky note omitted `kit.box_mesh` and `hda._padded` | both listed; `_padded` fixed |
+| minor | `report["frames"]` built 4.96 MB per cook for a key only the rig reads | D171 — opt-in |
+
+**Still true after all of it (dev-loop rule 0):** no independent audit has run *on this build*, so
+the honest words remain *implemented, measured, unverified*.
