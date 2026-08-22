@@ -28,9 +28,9 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | **cycle 3v** - the INDEPENDENT VERIFICATION of cycle 3 / 3r by an agent that wrote none of it (§10 "Cycle 3v"). Every claimed number reproduced exactly (44 cases / 1 725 values / 0 failing; 196 unit tests; citygen 27 failing and **no baseline movement**, structurally guaranteed - the branch touches no citygen file). **6 fresh corner mutations: 4 killed, 2 proved to be unreachable code** (`Bevel`'s own degenerate branch - 40 bevels built across the suite, 0 degenerate; the real D46 fallback is `_joinable`). **PC-G1 was LOOKED at for the first time**, headless (the live bridge is wedged): miter closes clean in every image, gate centred on its marker to **1.8e-7 m**, no inside-out geometry anywhere. **One open finding: `corner_breach_m` skips every BEND case, and a bend butt corner interpenetrates by 0.015 m over ~0.0009 m².** Before it: **cycle 3r** (the §4.3 REVIEW, 14 findings worked through - see §10 "Cycle 3r"). Suite: **44 scene cases / 1 725 values (1 371 pass, 354 skip) / 0 failing**, **196 polyChain unit tests**, **8 mutations / 8 killed**. New decisions **D48** (yaw-flattened bevel for plumb pieces), **D49** (the offset/overhang clamp), **D50** (the run abutting a corner assembly is cut too); **D39, D40 and D44 revised**. Before it: **cycle 3** - **§4.3 CORNERS**, the stage §8 budgets the most time for. `corner.py` (bend/miter, compose symmetry, offset, displacement policy, fillet, degenerate fallbacks) + `Placement.anchor`/`.cuts` + a world-space clip in `place.py`. Suite: **33 scene cases / 1 230 values (947 pass, 283 skip) / 0 failing** in ~2 s, **177 polyChain unit tests / 8 700 subtests** in 0.67 s, **10 mutations / 10 killed**. Only 2 of the 19 pre-existing cases moved and both are D36. Corner closure measured: cut faces coplanar to **1.2e-6 m**, mating to **8e-7 m**, seam **1e-6 m**; outside face **0.160000 m**; compose symmetry **0.0 / 1.200 m**; fillet clearance **0.621320 m** against its own analytic value |
-| Next up | **First, cycle 3v's one open finding: give `corner_breach_m` a BEND branch.** It filters `mode == "miter"` and therefore SKIPs every bend case, while a bend butt corner is doubly solid inside by **0.015 m over ~0.0009 m²** (repro and the four measured areas are in §10 cycle 3v). Walk the dissolved vertex instead of the bevel plane, baseline those numbers as the accepted butt-joint wedge, and say so in D36. Then §8 build order: **§4.5 conform** (input 4) → **§4.6 finalize/instancing** (partly landed) → **§5 parm face + the §3.3 style-payload reader** → gates PC-G2-G4. Cheap tidy-up while in `corner.py`: `Bevel.degenerate` / `Bevel.warns` / the `mode = "bend" if degenerate` line are **unreachable** (cycle 3v instrumented it) - delete or annotate, they read as the hairpin guard and are not. Still deferred and named so it is not forgotten: **§4.4's flatten-under** (PC-G2 will see a 0.49 m riser gap under every stepped piece, by design for now), **a corner module in bend mode** (D37 makes it unreachable), and **PC-G3's VEX rewrite**. ⚠️ **`/obj/polychain_gate` may still be sitting in Hannes' GUI session** - cycle 3v could NOT clear it: the bridge pings but every main-thread HOM call times out at 30 s, so the session was left untouched. Delete it before the next live pass |
-| Gates | PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** - the closed rectangle and the L-shape close in BOTH corner modes, all four fill modes, the gate on its marker (centre error **1.8e-7 m**), convex and reflex corners (§10 cycle 3), and as of cycle 3v the corners, the fill modes and the gate have been **rendered and looked at**: clean 45° miter seam, unbroken outer arris, no gaps, no inside-out modules. Judged on a scratchpad rasteriser, NOT on `houdini_render_view` - the live bridge was unreachable in practice. Two things still stand between this and a ✅: the **GUI viewport confirmation**, and the parm face + style payload PC-G1 also asks for, which are §5. Known limit, not a blocker: the bend butt corner's inside wedge (Next up) · PC-G2 ⬜ · PC-G3 ⬜ · PC-G4 ⬜ |
+| Last completed | **cycle 4** — cycle 3v's open finding closed, then **§4.5 CONFORM** and **§4.6 FINALIZE** (§10 "Cycle 4"). Suite: **59 scene cases / 2 902 values (2 021 pass, 881 skip) / 0 failing** in ~3.6 s, **206 polyChain unit tests**, **11 mutations / 11 killed** (two of them only after the checks were strengthened, and both strengthenings are in the suite). New files: `conform.py`. New decisions **D51–D68**. Measured this cycle: the bend butt joint crosses its own bisector by **0.021213 m** and leaves **0.00090 m²** of doubly solid footprint — cycle 3v's raster number, reproduced to five decimals by an independent method; conform contact **3e-6 m**, drape **7e-6 m**, camber **14.0362° off / 0.0° on** (= atan 0.25 exactly), **5** conform misses on the holed case, a back-facing surface conforming to a **byte-identical digest**; swap **10 re-pointed / 0 ids moved**, replace **hero bbox 2.0 × 2.0 × 0.4 m**, **0 over-unpacked pieces across all 59 cases**. Before it: **cycle 3v**, the independent verification of §4.3 (44 cases / 1 725 values; 6 corner mutations, 4 killed; PC-G1 image-verified headless) |
+| Next up | **§5 the parm face + the §3.3 style-payload reader**, which is the last kernel-side item in §8's order and the half PC-G1 and PC-G4 are still waiting on: the kernel reads a `Style` object today and nothing builds one from geometry, so the pipeline face does not exist yet. Then the starter-kit deliverable and gates PC-G1–G4. **Open findings from this cycle, all small, all named so they are not lost:** (1) a **corner assembly in BEND mode** is now reachable — `flatten` can degenerate a mild 3D corner into a plan hairpin (D68) — and on a steep pitch it inherits §4.4's deferred flatten-under, measured as a **0.074 m** gap on a 37° leg; the case was pulled from the suite rather than baselined, and the repro is in §10. (2) A `vertical` piece on a uniform slope is a **pure shear** and could stay packed; it does not, deliberately (D65), and the count rides in `over_unpacked`'s detail so the size of that prize stays visible. (3) A 3D (unflattened) bevel's cut plane is **not** dropped onto the conform surface — harmless while the plane is vertical, which is every case in the suite. Still deferred and named so it is not forgotten: **§4.4's flatten-under** (PC-G2 shows the riser under every stepped piece, by design for now) and **PC-G3's VEX rewrite**. ⚠️ `/obj/polychain_gate` **may still be sitting in Hannes' GUI session** — the bridge was not touched this cycle either; delete it before the next live pass |
+| Gates | PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** — the closed rectangle and the L close in both corner modes, all four fill modes, the gate on its marker (1.8e-7 m), convex and reflex corners; the bend corner's butt wedge is now MEASURED and baselined as the accepted limit rather than unknown (D36 extended). What is still missing is the parm face + style payload, i.e. §5 · **PC-G2 numerically complete + IMAGE-VERIFIED (headless)** — the fence on a conformed surface in all three Z-modes, judged on `G2_{adaptive,vertical,stepped,camber,holes}.png`: pickets plumb with their feet on the ridge, 167 of 167 stepped posts flat AND still packed, the cambered panel perpendicular to its cross-fall, no inside-out geometry anywhere. Owed: the GUI viewport pass, and the terrain-under-a-CURVING-spline variant PC-G2's own wording asks for (the suite conforms straight splines, so the surface is the only source of shape — deliberate, and narrower than the gate) · PC-G3 ⬜ (the instancing FLOOR is asserted now: a straight rigid run is 100 % packed, and `over_unpacked` proves nothing unpacks without a reason — what is left is the 10k-scale measurement itself) · PC-G4 ⬜ |
 
 **To resume the autonomous run**, re-arm the loop with exactly this:
 
@@ -889,7 +889,7 @@ existing check had to be corrected by 4.3 rather than satisfied by it:
 
 | # | Ambiguity | Decision |
 |---|---|---|
-| D36 | §4.3 says bend is "the default piece **deforms across the vertex**", but §4.1 breaks a section at every corner — a broken run has no piece to deform across anything | **Bend does not break the run.** The sections either side of a corner are welded and the fill is solved once across the vertex; §4.4's existing interior-vertex test then bends whatever straddles it. RailClone's own wording agrees — *"Bevel Mode should be set to None to prevent the Default segments from continuing through to the corner"*, i.e. by default they DO continue through. A `pc_section` limit is never welded (D18) and neither is a spline end. **Deviation from §4.1's wording, not from its meaning:** decompose still emits the section list; §4.3 decides what to do with the boundaries |
+| D36 | §4.3 says bend is "the default piece **deforms across the vertex**", but §4.1 breaks a section at every corner — a broken run has no piece to deform across anything | **Bend does not break the run.** The sections either side of a corner are welded and the fill is solved once across the vertex; §4.4's existing interior-vertex test then bends whatever straddles it. RailClone's own wording agrees — *"Bevel Mode should be set to None to prevent the Default segments from continuing through to the corner"*, i.e. by default they DO continue through. A `pc_section` limit is never welded (D18) and neither is a spline end. **Deviation from §4.1's wording, not from its meaning:** decompose still emits the section list; §4.3 decides what to do with the boundaries. **EXTENDED IN CYCLE 4, with the number it was missing:** where the welded run's pieces land on a piece BOUNDARY at the vertex instead of spanning it, the joint is a butt joint, and two square-ended pieces meeting at an angle leave a wedge of doubly-solid geometry inside and the matching notch outside. That is inherent — RailClone's bend corner does the same, and **miter is the fix** — so it is measured and baselined as the ACCEPTED LIMIT rather than asserted to be zero: `corner_breach_m`'s bend branch walks the dissolved vertex and scores every butt piece against `h·cos(t/2)`, the value the butt geometry itself demands (excess **3.2e-7 m** over the suite), and `corner_wedge_m2` measures the solid it leaves — **0.00090 m²** per corner on the starter panel at 90°, **0.0018 m²** where the fatter post arrives. What the pair protects against is the number GROWING |
 | D37 | Does the `corner` slot fill in bend mode too? | **No — the corner slot is a miter feature.** A welded run has no joint to fill. `fence_style` therefore uses `corner_post` only when the artist asks for miter, which is exactly how RailClone is used |
 | D38 | §4.3's compose rule names odd/even symmetry and does not say what is laid where | Module `floor((N−1)/2)` **straddles** the vertex; earlier modules run back down the incoming leg, later ones out along the outgoing one. The straddler is the one "repeated on both sides", duplicated and sliced, each copy keeping its outside face at full length — so **N = 1 is the same rule with empty flanks**. The reserve per leg is `(L_c − e) + Σ flank`, which makes odd symmetric and even asymmetric by **arithmetic rather than by special case**: measured 0.000 m and 1.200 m |
 | D39 | §4.3's "± percentage of corner-module length" — of what, and moving what | **REVISED by the cycle-3 review.** `o = pct/100 · L_straddler`, and it moves **the pieces along their own legs**; the cut plane stays on the vertex. The first answer gave each copy its own plane (`V − o·tin`, `V + o·tout`), which parts them by `2·o·cos(t/2)`: **measured, a 0.056569 m open hole at +25 % and 0.056569 m of DOUBLY SOLID interpenetrating geometry at −25 %**, both baselined as correct. Moving ONE shared plane along the bisector was tried and measured too — it is no better, because the two legs' centrelines meet **only** at the vertex, so any other plane cuts the two boxes at different lateral positions and the faces come out coplanar but slid apart by the same `2·o·cos(t/2)` (`corner_face_mate_m` 0.056569 m). The vertex plane is the only one that mates, so `near_in = near_out = −e + o` keeps the two copies **mirror images about it at every offset**: no hole, no double cover, and what the artist dials is how deep the miter bites into the module — §4.3's own "pull-in and slice". Measured by `corner_reach_m` (`L − e + o`: 0.12 m at +25 %, 0.04 m at −25 %) and by `corner_outside_m` (`L + min(o, 0)`: 0.12 m at −25 %). **Under `reset` with no corner module the parm is a documented no-op** — there is no piece to move, and RailClone's Reset is "simply sliced at the corner vertex" |
@@ -1173,3 +1173,240 @@ blind spots. **PC-G1: the corners, the four fill modes and the gate-on-its-marke
 been LOOKED at** — headless, not in the GUI viewport — and the miter closes cleanly in
 every image. It is marked **image-verified (headless)**, with the GUI viewport pass still
 owed, and with the bend butt-joint wedge named above as the one open item.
+
+### Cycle 4 — the bend butt joint, §4.5 conform, §4.6 finalize (2026-08-22)
+
+Three items in one cycle: close cycle 3v's open finding, then the two stages
+§8 has left before the parm face. **Suite at the end: 59 scene cases /
+2 902 values (2 021 pass, 881 skip) / 0 failing in ~3.6 s; 206 polyChain unit
+tests; 11 mutations, 11 killed.** `tests/unit/test_citygen.py`,
+`test_plan.py` and `hython tests/citygen/run_scene_checks.py` are unchanged
+(27 failing, **no baseline movement**) — this branch still touches no citygen
+file.
+
+#### A. The bend corner is measured (cycle 3v's open finding, closed)
+
+`corner_breach_m` opened with `[b for b in _bevels(scene) if b.mode ==
+"miter"]` and there ARE no bevels in bend mode — `merge_bend_sections` welds
+the two sections before `solve_corners` sees the boundary — so it reported
+SKIP on every bend case while a butt joint sat inside the corner. It walks the
+**dissolved vertex** now (`Section.welds`, D36), rebuilds the bisector there
+from the path's own arriving/leaving tangents, and scores every piece that
+ends or starts on it.
+
+* **T_lshape_bend** — breach **0.021213 m**, wedge **0.00090001 m²**.
+  Cycle 3v measured 0.0009 m² on a 5 mm raster with point-in-solid tests;
+  this is a convex-hull intersection in XZ, a completely different method,
+  and the two agree **to five decimals**.
+* **AS_rect_bend_butt** (new, and it is 3v's own figure: 12 × 8 m closed, a
+  panel-only default, so twenty 2 m panels fit the 40 m ring exactly and
+  `corner_welds` reads **[4, 0]** — all four corners are joints) — breach
+  **0.021213 m**, wedge **0.0009 m²** at every corner.
+* **B_rect_closed** — breach **0.042426 m**, wedge **0.0018 m²**: the same
+  geometry with the fatter 0.12 m post arriving at the seam instead of a
+  panel.
+* **AB_fillet** — **0.005853 m**: a rounded corner's own per-segment turn,
+  which is the fillet working.
+
+⚠️ **The number is NOT asserted against a constant.** A square-ended piece of
+across half-extent `h` butting at a turn `t` must cross the bisector by
+exactly `h·cos(t/2)`, so that is what it is compared with — derived from the
+kit and the turn, never read off a run. **The measured excess over the butt
+geometry is 3.2e-7 m across the whole suite**, i.e. the wedge is the joint and
+nothing more. Multiplying the packed transform's scale by 1.03 puts it
+**4.2e-2 m over**, on three cases.
+
+**And the `id(bevel)` flap, found on the way.** `corner_reach_m` with no
+expectation reports `sorted(reaches.items())[0]`, and `_reach_of` keyed its
+dict on **`id(bevel)` — a memory address**. `AP_narrow_rect` moved between
+0.06 m and 0.08 m across runs of *identical code*. Keyed on the vertex now
+(D67); three consecutive runs agree.
+
+#### The "unreachable" hairpin guard is reachable, and cycle 3v's two survivors die
+
+Cycle 3v instrumented `Bevel.__init__` over the whole suite — 40 bevels, 0
+degenerate — and concluded that `Bevel.degenerate`, `Bevel.warns` and the
+`mode = "bend" if degenerate` line were dead code on top of `_joinable`. They
+are dead **at first construction**, for exactly the reason that pass gives.
+The route nobody looked at is **`flatten`**, which re-runs the constructor on
+the yaw-flattened tangents (D48) — and yaw-flattening changes the turn:
+
+```
+path (0,0,0) → (8,6,0) → (0.4,12,0.2), vertical default, miter
+    bevel as built : turn 104.837°, degenerate False, mode miter
+    after flatten(): turn 178.493°, degenerate True,  mode bend, warns
+                     (pc_warn_corner_degenerate)
+```
+
+`decompose` reads the **3D** tangents and can never see that hairpin, so this
+is the only place it can be caught — and D48 is what made catching it
+necessary. So the lines are **annotated, not deleted**, and pinned by
+`TestFlattenDegenerate` (4 tests). **3v's M4 and M6, which both survived 44
+scene cases, now both fail.** A third mutation is pinned with them: a
+degenerate bevel's warning only ever reached an element through
+`build_assembly`, so a style with **no corner module** dropped it entirely
+(D68).
+
+#### B. §4.5 SURFACE CONFORM — input 4
+
+**The whole stage is a sampler (D54).** `conform.ConformPath` wraps
+`place.Path` and answers the same two questions with the answer dropped onto
+the surface; the tangent is a one-sided finite difference of *dropped*
+positions, which is what makes an adaptive piece bank onto a hill the spline
+knows nothing about. Nothing downstream needed a new branch — the three
+Z-modes compose exactly as RailClone documents them because `_frame` and
+`_deform_positions` were already written against that interface.
+
+| what 4.5 asks for | measured |
+|---|---|
+| projected pieces touch the surface | `conform_contact_m` **≤ 3e-6 m** on every conformed case |
+| adaptive / vertical **deform to** the surface | `conform_drape_m` **≤ 7e-6 m** at every station of every bendable piece |
+| plumb-ness preserved **on a slope** | `plumb_deg` **0.0** on `BB_conform_vertical` (a flat spline over a ridge — every bit of the shape comes from the surface) |
+| stepped **sits on** it, still flat | `flat_stepped_m` **0.0**, `stepped_riser_m` 0.0677 m, and **167 of 167 posts still PACKED** |
+| camber tilt matches the surface normal | `camber_deg` **0.0000** with the tilt on and **14.0362** with it off, against atan(0.25) = 14.0362° |
+| rays that miss | `conform_misses` **5** on `BE_conform_holes` (a hole one cell wide, plus a surface that stops at x = 12 of a 20 m run); the pieces keep spline elevation, nothing raises |
+| back-facing polygons | `BF_conform_flipped` and `BG_conform_facing` produce a **byte-identical `geometry_digest` (c214fc56d4187466)** |
+| a surface coarser than the pieces | `BH_conform_crease`: two 14 m facets, and only the panel straddling the crease says `pc_warn_bend_resolution` |
+| a piece straddling a crease | the same case — and the crease sits at **10.2 m** on purpose, because at 10 m it lands on a piece boundary and at 11 m on a station, and in both of those the drape is resolved exactly and nothing warns |
+
+⚠️ **Two things the checks got wrong first, both recorded because they are the
+shape of the trap.** `Scene` did not pass the surface into `analyse`, so
+`axis_on_curve_m` and `plan_points` measured built geometry against the
+**undraped** spline and read **0.800 m** — which is the ridge amplitude, i.e.
+the conform working, reported as a failure. And `sampler_matches_kernel`
+compares `place.Path` with `Curve.sample`; it must do that on the **base**
+path, because the drape is *supposed* to disagree with the spline.
+
+⚠️ **A mutation survived here and the fix is a case, not an argument.** Making
+`ConformPath.sample` return the SPLINE's tangent instead of the drape's moved
+**not one number** in the whole suite: `bank_deg` was only asserted on the
+hill, whose banking comes from the curve. `BA_conform_adaptive` — a dead-flat
+spline over a ridge — is in `BANKS` now, and the mutation dies with
+`bank_deg 0.0  adaptive pieces did not bank on a slope`.
+
+**PC-G2, rendered headless and looked at** (cycle 3v's rasteriser, reused
+unchanged; the live bridge was not touched): `G2_adaptive.png`,
+`G2_vertical.png`, `G2_stepped.png`, `G2_camber.png`,
+`G2_camber_end_{on,off}.png`, `G2_holes.png` in the scratchpad. The pickets
+stand plumb with their feet on the ridge and their tops following it; the 167
+stepped posts each sit flat on their own patch of ground; looking straight
+down the run, the cambered panel is perpendicular to a ground plane that is
+visibly tilted. **No red anywhere** — nothing inside-out.
+
+#### C. §4.6 FINALIZE — the override cascade, the cap, the stamp
+
+Instancing segregation was already automatic (cycle 2's `_needs_deform`), so
+this cycle added the rest of §4.6 and then **checked the segregation itself**,
+which nothing had:
+
+* **`over_unpacked`** fits every unpacked piece against `world = O + M·local`
+  and asks whether `M` is a transform × axis scale. **0 across all 59 cases**
+  — and it found two real over-unpackings on the way. `S_overhang_gate`'s gate
+  was real geometry that fitted a rigid transform to **1e-7 m**, because an
+  open curve's **end vertex** was being read as an interior kink when a piece
+  legitimately overhangs it (D30 extrapolates there — nothing bends) — D66.
+  Mutating `_needs_deform` to unpack everything now fails on this check **and**
+  on the instancing floor.
+* **The instancing floor is asserted**, not recorded: `A_straight`,
+  `CE_all_packed` (a straight run of rigid beams) and `CA_swap_module` must be
+  **100 % packed**.
+* **Swap and replace are one override stream** of attribute points wired
+  upstream of finalize, and neither is a parm (3.4: "both must work WITHOUT
+  touching the style"). `CA_swap_module` re-points all ten panels to gates:
+  `override_round_trip` reads **[10 swapped, 0 replaced, 0 ids moved]**
+  against a control cooked with the override input unwired.
+  `CC_replace_hero` swaps one element for a slab no kit contains and its world
+  bbox reads **[2.0, 2.0, 0.4]** exactly. `CD_replace_bent` replaces the piece
+  that wraps an elbow and says **`pc_warn_replace_deformed`** (D58).
+* **`elem_ids_survive_upstream`** merges an unrelated third curve into input 1
+  — the ordinary thing an artist does — and requires every existing id to
+  survive. `determinism` never could see this: it cooks the same inputs twice,
+  which a cook-order id survives perfectly. It immediately found **D64**: a
+  Houdini attribute is geometry-wide, so one prim carrying `pc_curve_id` gives
+  every other prim a **blank** one, and reading a blank as an id collapses two
+  curves onto the same address. Mutating the id to carry `prim.number()`
+  fails **261** checks.
+* **Slice caps** are box-UV'd from the module's own local frame at the
+  module's own texel density and tagged `<module>_cap` (D59). ⚠️ The first
+  version of the check compared the cap's uv diagonal with its **world**
+  diagonal and failed 11 cases: a box projection of an OBLIQUE face compresses
+  it — the mitered post's cut face is 0.2263 m across in world and 0.16 m in
+  projection — which is what box mapping *is*. It measures against the
+  projection now, which is what catches the real failure (a uv taken off world
+  P, off by 12 on a corner post at x = 12).
+* The **§3.4 stamp is complete**: `pc_curve_id`, `pc_style` and `pc_replaced`
+  join the eleven that were there (D60), and the warnings are **collated**
+  onto one detail array `pc_warnings` of `name:count` (D61), asserted against
+  the per-element attributes so the two records cannot drift.
+
+#### Mutations — 11 run, 11 killed
+
+| # | Mutation | Result |
+|---|---|---|
+| 1 | the packed transform's scale × 1.03 | **KILLED** — `corner_breach_m` 4.2e-2 m over the butt wedge, 3 cases |
+| 2 | `Bevel.degenerate` forced False (3v's M6, which survived) | **KILLED** — 5 unit tests |
+| 3 | `mode = "bend" if degenerate` deleted (3v's M4, which survived) | **KILLED** — 1 unit test |
+| 4 | the flattened-hairpin warning stamp removed | **KILLED** — 1 unit test |
+| 5 | the surface normal is not flipped to oppose the axis | **KILLED** — `camber_deg` **165.9638** (a module rolled upside down by a back-facing polygon) |
+| 6 | `ConformPath.sample` returns the spline's tangent | **SURVIVED, then killed** by adding `BA_conform_adaptive` to `BANKS` |
+| 7 | the conform never asks for a deform | **KILLED** — `conform_drape_m` **0.165687 m**, `axis_on_curve_m` 0.1657 m |
+| 8 | `_needs_deform` returns True always | **KILLED** — `over_unpacked` 10, the instancing floor, and four others |
+| 9 | the swap does not re-point `pc_module` | **SURVIVED, then killed** by asserting the counts (`module_fidelity_m` compares geometry against whatever `pc_module` SAYS, so a swap that changes neither still agrees with itself) |
+| 10 | a replace packs the module instead of the hero | **KILLED** — `replaced_bbox_m` [2.0, 0.9, 0.06] |
+| 11 | `pc_elem_id` carries `prim.number()` | **KILLED** — 261 checks |
+
+#### Baseline movement, and why each is an improvement
+
+Eleven values moved across the three commits. `AB_fillet`, `B_rect_closed`
+and `T_lshape_bend`'s `corner_breach_m` went from **SKIP to a number** (the
+bend branch — the whole point). `S_overhang_gate` moved five values because
+its gate is **packed** now (D66): `packed_pieces` 9 → 10, `station_spacing_m`
+→ None (no deformed pieces left), and `horizontal_span_m` 1.599998 → **1.6**
+with `min_piece_span_m` 1.599998 → **1.600000** — the packed transform does
+not round-trip through float32 point positions, so the numbers got *more*
+exact. `AK_pentagon/corner_reach_m` moved by 1e-6 because a different (and
+now *deterministic*) corner of the pentagon is recorded (D67).
+
+**Decisions taken.**
+
+| # | Ambiguity | Decision |
+|---|---|---|
+| D51 | §4.5's conform axis is "−Z", and Houdini is Y-up | `Params.conform_axis`, a **direction vector** defaulting to **(0, −1, 0)** — the same Max-to-Houdini translation D20 already makes for the module frame. A direction rather than an axis menu, so a wall-mounted run conforms sideways with the same parm and no new mode; a zero vector degrades to the default rather than casting rays into nothing |
+| D52 | Back-facing polygons, and closed solids seen from inside | **Facing is ignored for the HIT and decisive for the NORMAL.** A terrain whose winding is flipped still conforms — warn-never-block does not stop at the artist's winding, and the measurement is that `BF_conform_flipped` and `BG_conform_facing` produce a byte-identical digest. The normal is flipped to oppose the axis before anything tilts by it, because unflipped a back-facing polygon rolls a module **165.96°** — measured, as a mutation |
+| D53 | A ray that finds nothing (a hole, an edge, no surface at all) | **Keep the unprojected position and say `pc_warn_conform_miss`** — the tenth warning name. One behaviour for all three ways to miss. Dropping the piece or clamping it to the nearest edge both invent geometry nobody authored; the fence carries on at spline elevation and the warning says where it stopped being draped |
+| D54 | How the conform composes with the three Z-modes | **It does not compose — it is a SAMPLER, and the Z-modes are already written against the sampler.** `ConformPath` wraps `place.Path`, so adaptive banks and stretches over the drape, vertical keeps its feet on the ground while staying plumb, and stepped sits flat at its own start elevation, with **no new branch anywhere downstream**. The fit still runs on the SPLINE's arc length: the spline is what the artist laid out and the projection is what the terrain does to it |
+| D55 | "per-module optional Y-tilt to the surface normal" — which modules, and who decides | **Camber tilts `adaptive` pieces only**, because a picket that leans with the cross-fall is not plumb and plumb is the mode's definition (D27's precedent, and no warning for the same reason). The switch is `Params.conform_tilt` (off by default — a road wants it, a fence does not) with a per-module `pc_tilt` override in D6's three-state form: −1 = the style decides, 0 = never, 1 = always. The tilt is read **per station** on a deformed piece, so a bent rail rolls along the surface instead of taking one roll from its start |
+| D56 | A surface coarser than the pieces | **No new detector.** A piece whose own stations cannot follow the facets under it is exactly D25's condition measured against the conformed path, so `_bend_deviation` already reports `pc_warn_bend_resolution` — the same number, the same name, nothing extra to keep in step |
+| D57 | What a SWAP does to the fit | **A swap keeps the fit.** The plan solved a span for the old module and the new one is scaled into that same span — RailClone's own segment-swap behaviour, and the only one that leaves the run intact, because re-solving would move every other piece on the section and make an override a global edit. `pc_elem_id` therefore does not change (D1: the module is not part of the address), which is what lets a swap round-trip |
+| D58 | What a REPLACE does to a piece that was deformed | **A replace lands PACKED**, at the transform the piece would have had. Hero geometry is authored to the module's own fit, so bending it round a corner would be inventing a deformation nobody authored. On a piece that WAS deformed it takes the chord's transform and says **`pc_warn_replace_deformed`** — the eleventh warning name. Warn, never block, never silently straighten a bent run |
+| D59 | "slice caps polyfilled with box UVs from the module's mapping + cap material tag" | The cap plane is perpendicular to the module's own +X (D20), so the box projection is **(local z, local y)** — no axis choice to get wrong and no seam, a cap being one planar polygon. "From the module's mapping" is a statement about **density**: the texel size is measured off the source's own UV extent versus its geometric extent, so a kit that halves its texel size needs no manifest edit. The tag is `pc_cap_material = "<module>_cap"` on the prim, beside the `pc_cap = 1` that was already there |
+| D60 | §3.4's stamp, completed | `pc_curve_id`, `pc_style` and `pc_replaced` join the list. Until they existed, the only way to ask "which curve did this come from" downstream was to **parse `pc_elem_id`** — exactly the string surgery the attribute convention exists to avoid |
+| D61 | §4.6's "collate warnings" | A detail array `pc_warnings` of `"name:count"`, alongside the per-element attributes that stay exactly as they were. The per-element ones are the truth; what they could not answer is "did this cook warn, and how much" without walking every prim of a 10k run. `warn_summary` asserts the two agree, because two records of one fact drift |
+| D63 | Which override wins when two match | **First match wins, in payload order** — the same rule §3.3 uses for `rules_for`. A narrow `pc_elem_id` rule placed before a broad `pc_module` one is how an artist says "all of these, except that one" |
+| D64 | An empty `pc_curve_id` | **A blank id is an ABSENT id**, and it falls through to `edge_id` and then to the prim number (D29's ladder). A Houdini attribute is geometry-wide, so the moment ANY prim upstream carries `pc_curve_id` every other prim carries it too, with the default `""` — reading that as an id gave every unlabelled curve in the stream the SAME id and collapsed their `pc_elem_id`s onto each other. Found by `elem_ids_survive_upstream`, which is the check written for exactly this class of upstream change |
+| D65 | Is a SHEAR packable? | **No, deliberately.** A `vertical` piece on a uniform slope is a pure shear — its verticals stay vertical while its ends follow the grade — and 10 of 10 pieces on the conformed ramp fit an affine to float noise, so a packed prim's 4x4 could carry them. They stay unpacked because §4.6's own sentence is "transform × **uniform-or-axis** scale", and because a USD PointInstancer stores an orientation and a scale and **cannot express a shear at all** — packing them would trade a memory win against a substrate citygen §7 has not chosen yet. The count rides in `over_unpacked`'s detail so the size of the prize stays visible |
+| D66 | Is an open curve's END vertex an interior kink? | **No.** D30 extrapolates past either end along the end segment's own direction, so nothing bends there — but a piece that legitimately overhangs the end contains that vertex strictly inside its span, and reading it as a kink unpacked the piece for a deformation that does not exist. Measured: `S_overhang_gate`'s gate was real geometry whose points fit a rigid transform to **1e-7 m** |
+| D67 | `_reach_of` keyed its dict on `id(bevel)` | **Keyed on the vertex.** `id()` is a memory address, and `corner_reach_m`'s no-expectation branch reports `sorted(...)[0]`, so which corner of a four-corner figure got recorded depended on where Python allocated its `Bevel`s: `AP_narrow_rect` flapped between 0.06 m and 0.08 m across runs of identical code. A baseline value that moves on its own is worse than no baseline value |
+| D68 | Cycle 3v's "unreachable" `Bevel.degenerate` | **Not unreachable — `flatten` reaches it**, and it is annotated rather than deleted. `decompose` scores degeneracy on the **3D** tangents and D48's `flatten` re-runs the constructor on the **yaw-flattened** ones, where a 104.837° corner becomes a 178.493° hairpin. That is the only place a plan-hairpin can be caught, and D48 is what made catching it necessary. Its warning also had to be routed: `Bevel.warns` only ever reached an element through `build_assembly`, so a style with no corner module dropped it silently — the vertex is added to `plan_curve`'s degenerate list now, and `_stamp_degenerate`'s inclusive bounds catch the pieces that merely END on it |
+
+**Two open findings, recorded rather than fixed** (both cheap, neither in this
+cycle's scope):
+
+1. **A corner assembly in BEND mode is now reachable.** §0.0 has carried "a
+   corner module in bend mode — D37 makes it unreachable" since cycle 3;
+   D68's flatten route makes it reachable after all, and `build_assembly`'s
+   bend branch (one piece centred on the vertex, no duplicate, no cut) then
+   runs for the first time. On the repro path
+   `(0,0,0) → (8,6,0) → (0.4,12,0.2)` with a `corner_post` and a `vertical`
+   default it builds, warns correctly, and leaves a **0.074 m** gap between
+   the corner piece and the run — which is §4.4's **deferred flatten-under**
+   on a 37° pitch (the same riser PC-G2 shows under every stepped piece), not
+   a new defect. The scene case was written and then **pulled**, because
+   baselining it would baseline the deferred item; the four-line repro is
+   here instead.
+2. **A 3D bevel's cut plane is not dropped onto the conform surface.** 4.3
+   anchors are dropped (`_drop_anchor`, without which the corner post of a
+   conformed fence is the one piece still at spline elevation) but the cut
+   PLANE keeps the spline vertex. Harmless while the plane is vertical —
+   which D48 guarantees for every yaw-only corner, i.e. every case in the
+   suite — and wrong for an `adaptive` corner module on a conformed slope.

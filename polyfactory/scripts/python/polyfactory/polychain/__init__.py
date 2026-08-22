@@ -78,7 +78,7 @@ WARN_BEND_RESOLUTION = "pc_warn_bend_resolution"  # D25 - 4.4 "no auto-subdiv"
 WARN_DEGENERATE_FRAME = "pc_warn_degenerate_frame"  # D32 - yaw frame collapsed
 WARN_FILLET_CLAMPED = "pc_warn_fillet_clamped"    # D43 - 4.3's fillet radius
 WARN_CONFORM_MISS = "pc_warn_conform_miss"        # D53 - 4.5 ray missed
-WARN_REPLACED = "pc_warn_replace_deformed"        # D62 - a hero over a bend
+WARN_REPLACED = "pc_warn_replace_deformed"        # D58 - a hero over a bend
 WARN_VOCAB = (WARN_KIT_GAP, WARN_CORNER_DEGENERATE, WARN_OVERFLOW,
               WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD,
               WARN_BEND_RESOLUTION, WARN_DEGENERATE_FRAME, WARN_FILLET_CLAMPED,

@@ -684,7 +684,7 @@ class TestReviewFindings(unittest.TestCase):
 
 
 class TestFlattenDegenerate(unittest.TestCase):
-    """D50 - `Bevel.degenerate` is reachable, and `flatten` is what reaches it.
+    """D68 - `Bevel.degenerate` is reachable, and `flatten` is what reaches it.
 
     Cycle 3v mutated `Bevel.degenerate` to False and mutated away the
     `mode = "bend" if degenerate` fallback; both mutations SURVIVED all 44

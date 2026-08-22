@@ -225,7 +225,7 @@ class Bevel(object):
         self.side = 1.0 if _dot(self.tout, self.across) >= 0.0 else -1.0
         summed = _add(self.tin, self.tout)
         # ⚠️ THIS TEST IS NOT DEAD, AND THE ONE THING THAT REACHES IT IS
-        # `flatten` (D50, measured). Cycle 3v instrumented `__init__` over the
+        # `flatten` (D68, measured). Cycle 3v instrumented `__init__` over the
         # whole suite - 40 bevels built, 0 degenerate - and concluded these
         # three lines were unreachable decoration on top of `_joinable`. They
         # are unreachable AT FIRST CONSTRUCTION, and for the reason that pass
@@ -1059,7 +1059,7 @@ def plan_curve(curve, sections, kit, style, params=None):
         asm.bevel.squeeze = factors.get((key - 1) % n, 1.0)
         out.extend(_assembly_placements(asm, sections, key, params, style,
                                         factors, closed, bases))
-    # D50 - AND THE CORNERS THAT ONLY DEGENERATE ONCE THEY ARE FLATTENED.
+    # D68 - AND THE CORNERS THAT ONLY DEGENERATE ONCE THEY ARE FLATTENED.
     # `degenerate_s` above reads `decompose`, which works on the 3D tangents;
     # `Bevel.flatten` (D48) can turn a mild 3D corner into a plan hairpin, and
     # that bevel's own `warns` only reach an element through `build_assembly`
