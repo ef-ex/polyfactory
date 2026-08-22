@@ -1,0 +1,69 @@
+// STAGE 4 - PLACE (spec 4.4), THE MODULE'S OWN NUMBERS.  POINT wrangle, 64.
+//   input 0  the NATIVE plan (one point per piece)
+//   input 1  CONFIG
+//   input 2  IN_KIT
+//
+// `place.Proto`'s two load-bearing fields, read off the kit instead of off a
+// Python object: the module's nominal FITTED length and its local origin.
+// Without them `pc_frames` had to be fed by `pc_plan_bridge`, which is the
+// Python 13.9 N2 exists to delete.
+//
+//   pc_proto_len  `module.length` (3.2's `pc_size.x`), and the bbox X extent
+//                 when that is zero or absent - D20's "the fitted size is not
+//                 the bounding box", with the documented fallback.
+//   pc_proto_ax   the source bbox MIN X.  D20 again: geometry outside
+//                 [minX, minX + size.x] legitimately OVERHANGS and is carried
+//                 along, so the fit origin is the bbox minimum and not 0.
+//
+// ⚠️ WHAT THIS NODE DOES NOT ANSWER, AND WHY IT SAYS SO RATHER THAN GUESSING.
+// `pc_frames` also reads `pc_yscale` (E2's row band - phase 2), `pc_upref`
+// (D55's camber, which comes from 4.5's surface normal) and `pc_basey` (D98's
+// flatten-under).  All three are the identity in a phase-1 build with no
+// surface and no flatten, and NONE of them is derivable here - so
+// `pc_frame_valid` is 0 whenever the build asks for one of them, and the
+// branch drops the piece rather than drawing it in the wrong place.  That is
+// warn-never-block for a half-ported graph, exactly as D160 wrote it for the
+// bridge.
+
+#include "pc_path.h"
+
+string want = s@pc_module;
+int n = nprimitives(2);
+float plen = 1.0, pax = 0.0;
+int found = 0;
+for (int i = 0; i < n; i++) {
+    string name = prim(2, "pc_module", i);
+    if (name != want) continue;
+    int pts[] = primpoints(2, i);
+    if (!len(pts)) continue;
+    vector size = point(2, "pc_size", pts[0]);
+    float bb[] = primintrinsic(2, "bounds", i);
+    pax = len(bb) ? bb[0] : 0.0;
+    float extent = len(bb) ? (bb[1] - bb[0]) : 1.0;
+    plen = (size.x > PC_EPS) ? size.x : max(extent, PC_EPS);
+    found = 1;
+    break;
+}
+
+f@pc_proto_len = plen;
+f@pc_proto_ax  = pax;
+f@pc_yscale    = 1.0;                    // E2 is phase 2; the identity here
+v@pc_upref     = set(0.0, 1.0, 0.0);     // D55's camber needs 4.5's normal
+i@pc_has_basey = 0;                      // D98's flatten-under needs 4.5 too
+
+// 3.4's stand-in is a real answer, not a failure - but this node cannot
+// MEASURE one, because a missing module has no geometry in the kit.  The
+// piece is declared unanswerable rather than placed at a guessed size.
+dict cfg = detail(1, "pc_cfg");
+int has_surface = 0;
+if (isvalidindex(cfg, "has_surface")) { float v = cfg["has_surface"]; has_surface = (int)v; }
+float fillet = 0.0;
+if (isvalidindex(cfg, "fillet_radius")) { float v = cfg["fillet_radius"]; fillet = v; }
+float fix_slope = 0.0;
+if (isvalidindex(cfg, "fix_slope")) { float v = cfg["fix_slope"]; fix_slope = v; }
+float flatten = 0.0;
+if (isvalidindex(cfg, "flatten_stepped")) { float v = cfg["flatten_stepped"]; flatten = v; }
+
+i@pc_frame_valid = (found && !has_surface && fillet <= 0.0
+                    && fix_slope == 0.0 && flatten == 0.0);
+if (!found) i@pc_warn_kit_gap = 1;

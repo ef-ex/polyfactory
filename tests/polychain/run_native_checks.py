@@ -1740,6 +1740,313 @@ def plan_mutation(root, built):
           "plan's own, and u comes back 3e-9 off on a marker case")
 
 
+# --- 13.9 N4: the packed branch, and R8 -------------------------------------
+
+
+def asset_on(root, case, stage, tag):
+    """The SHIPPED asset, on `case`, at `stage`.  -> (node, geometry|None)."""
+    from polyfactory.polychain import style as STYLE
+    node = root.createNode("pf_polychain", "asset_%s" % tag)
+    node.setInput(0, native.feed(root, case["curve"], "AC_%s" % tag))
+    kit_geo = case["kit"]
+    if kit_geo is not None:
+        node.setInput(1, native.feed(root, kit_geo, "AK_%s" % tag))
+    if case["style"] is not None:
+        style_geo = hou.Geometry()
+        STYLE.write(style_geo, case["style"])
+        node.setInput(2, native.feed(root, style_geo, "AS_%s" % tag))
+    node.parm("stage").set(stage)
+    try:
+        node.cook(force=True)
+    except Exception:
+        return (node, None)
+    if node.errors():
+        return (node, None)
+    return (node, node.geometry())
+
+
+def _place_out_of_scope(case, params):
+    """Why this case cannot be compared yet, or "" when it can.
+
+    ⚠️ EVERY ROW HERE IS AN UNPORTED STAGE, NAMED, AND THE CHECK PRINTS THE
+    LIST - a scope that quietly shrinks until the check is green is the
+    "unfailable" pattern cycle P2-3V found six times.
+    """
+    from polyfactory.polychain import decompose as D
+    if case["kit"] is None:
+        return "no kit (3.4's stand-in has no geometry to measure)"
+    if case.get("surface") is not None:
+        return "4.5 conform - N6"
+    if params.fillet_radius > 0.0:
+        return "4.3 fillet - N8"
+    if params.fix_slope:
+        return "4.4 slope flatten - N5"
+    if params.flatten_stepped:
+        return "D98 flatten-under - N5"
+    if case.get("overrides"):
+        # 4.6's swap / replace cascade rewrites the module AFTER the plan, so
+        # the same address names a different piece in the two builds.
+        return "4.6 overrides - N7"
+    curves, markers = P.read_curves(case["curve"])
+    if any(D.resolve_corners(c, params) for c in curves):
+        # 4.3 reserves span off both ends of every leg, so the SAME element
+        # address names a different span in the two plans. That is N8, and it
+        # is a different question from the one this check asks.
+        return "4.3 corners - N8"
+    ids = [str(c.curve_id) for c in curves]
+    if len(set(ids)) != len(ids):
+        return "D169 duplicated curve id - the marker binds to one prim"
+    return ""
+
+
+def place_packed_parity(root, built):
+    """13.9 N4 and R8, measured: `copytopoints(pack=1)` vs the reference.
+
+    ⚠️ WHAT IS COMPARED, AND WHAT IS NOT.  Every packed prim the reference
+    built is looked up by `pc_elem_id` and compared against the native
+    branch's own prim of the same address - its float32 `P` and its WORLD
+    BOUNDS, which is where a wrong pivot, a wrong module or a wrong scale
+    would show.  A piece the reference did NOT keep packed is not compared,
+    because 13.9 N5's deform gate is not built; a case with a surface, a
+    fillet or a slope flatten is skipped whole, because `pc_proto` declares
+    those unanswerable (4.5's normal is N6's) rather than guessing.
+
+    ⚠️ AND 4.3 IS NOT BUILT (N8), so on a corner-heavy case the native plan
+    has no corner assembly and no reserve.  Those pieces simply have no
+    counterpart and drop out of the match; the ones that DO match still have
+    to be bit-identical, which is what makes this check about the COPY.
+    """
+    worst_p = worst_b = 0.0
+    nprim = ncase = 0
+    bad = []
+    per = []
+    scope = {}
+    skipped = 0
+    for name in sorted(built):
+        case = built[name]
+        ref_packed = [p for p in case["out"].prims()
+                      if p.type() == hou.primType.PackedGeometry]
+        if not ref_packed:
+            skipped += 1
+            continue
+        params = case["style"].params if case["style"] else DEFAULTS
+        why = _place_out_of_scope(case, params)
+        if why:
+            skipped += 1
+            scope.setdefault(why, []).append(name)
+            continue
+        node, geo = asset_on(root, case, "place_native", name)
+        if geo is None:
+            bad.append((name, "cook: %s"
+                        % (node.errors()[0].replace("\n", " ")[:120]
+                           if node.errors() else "?")))
+            continue
+        ref = {}
+        for p in ref_packed:
+            try:
+                ref[p.attribValue("pc_elem_id")] = p
+            except hou.OperationFailed:
+                pass
+        matched = 0
+        case_worst = 0.0
+        for p in geo.prims():
+            try:
+                eid = p.attribValue("pc_elem_id")
+            except hou.OperationFailed:
+                continue
+            r = ref.get(eid)
+            if r is None:
+                continue
+            pa = p.points()[0].position()
+            pb = r.points()[0].position()
+            worst_p = max(worst_p, max(abs(pa[i] - pb[i]) for i in range(3)))
+            ba = p.intrinsicValue("bounds")
+            bb = r.intrinsicValue("bounds")
+            d = max(abs(x - y) for x, y in zip(ba, bb))
+            worst_b = max(worst_b, d)
+            case_worst = max(case_worst, d)
+            matched += 1
+        nprim += matched
+        if matched:
+            ncase += 1
+            per.append((case_worst, name, matched))
+    # float64 noise at fixture scale, and nothing else: the two sides run the
+    # SAME arithmetic and both land in float32 storage, so this is parity and
+    # not a new floor (13.8's third row).
+    check("place_packed_parity", worst_p == 0.0 and worst_b < 1e-9 and not bad,
+          "%d cases / %d prims" % (ncase, nprim),
+          "copytopoints(pack=1) against the reference's own packed prims, "
+          "matched on pc_elem_id: worst |dP| %.3e m, worst |d world bounds| "
+          "%.3e m (%d cases skipped - conform, fillet or slope flatten, which "
+          "pc_proto declares unanswerable). %s"
+          % (worst_p, worst_b, skipped,
+             "; ".join("%s %s" % b for b in bad[:2]) or ""))
+    for why in sorted(scope):
+        print("        out of scope  %-42s %d case(s)"
+              % (why, len(scope[why])))
+    check("place_packed_is_not_empty", nprim > 400, nprim,
+          "packed prims actually compared - a branch that built none would "
+          "make the check above vacuously green")
+
+
+def r8_packed_transform(root):
+    """R8: does the packed `transform` intrinsic carry the UNIFORM SCALE?
+
+    13.2 wrote a 3x3 through `setprimintrinsic` and read `bounds` back, found
+    no scale, and recorded R8 - "the mechanism exists; the scale semantics are
+    unverified".  This asks `packedfulltransform` instead, which is what 13.9
+    said to re-check against, on three scales including one at 20 km.
+    """
+    from polyfactory.polychain import kit as KIT
+    import math
+    sub = root.createNode("subnet", "r8")
+    kit_src = native.feed(sub, KIT.starter_kit(), "KIT")
+    kid = native.wrangle(sub, "pc_kit_id", "primitive", "pc_kit_id")
+    kid.setInput(0, kit_src)
+    pts = sub.createNode("add", "pts")
+    pts.parm("points").set(3)
+    frames = native.wrangle(sub, "frames", "point", "pc_kit_id")
+    frames.parm("snippet").set("""
+float S[] = array(1.0, 2.5, 0.37);
+float ANG[] = array(0.0, 30.0, 137.0);
+float X[] = array(0.0, 5.0, 20000.0);
+string M[] = array("post", "panel", "gate");
+float s = S[@ptnum], a = radians(ANG[@ptnum]);
+matrix3 m = set(cos(a), 0.0, -sin(a), 0.0, 1.0, 0.0, sin(a), 0.0, cos(a)) * s;
+3@transform = m;
+@P = set(X[@ptnum], 0.0, 0.0);
+s@pc_module = M[@ptnum];
+""")
+    frames.parm("class").set(2)
+    frames.setInput(0, pts)
+    copy = sub.createNode("copytopoints::2.0", "copy")
+    copy.setInput(0, kid)
+    copy.setInput(1, frames)
+    copy.parm("pack").set(True)
+    copy.parm("pivot").set("origin")
+    copy.parm("useimplicitn").set(False)
+    copy.parm("useidattrib").set(True)
+    copy.parm("idattrib").set("pc_module")
+    copy.cook(force=True)
+    want = (1.0, 2.5, 0.37)
+    got = []
+    for prim in copy.geometry().prims():
+        xf = prim.intrinsicValue("packedfulltransform")
+        got.append(math.sqrt(xf[0] ** 2 + xf[1] ** 2 + xf[2] ** 2))
+    worst = max(abs(a - b) for a, b in zip(sorted(got), sorted(want))) \
+        if len(got) == 3 else 1.0
+    sub.destroy()
+    check("r8_packed_scale_survives", worst < 1e-9,
+          "%.3e" % worst,
+          "R8 CLOSED - the uniform scale in a 3x3 `transform` attribute DOES "
+          "reach packedfulltransform (asked for %s, measured %s). 13.2 read "
+          "`bounds` and concluded it did not."
+          % (list(want), ["%.6f" % g for g in sorted(got)]))
+
+
+def place_mutation(root, built):
+    """The three copytopoints parameters that are silently wrong by default.
+
+    ⚠️ IT HAS TO BE A CASE WITH ROTATION IN IT.  `pivot` and `useimplicitn`
+    both act on the ROTATION, so on a straight run along X they are no-ops
+    and both mutations came back 0.0000 m and PASSING - proving nothing about
+    two parameters whose defaults are wrong.  The closed rectangle turns four
+    times.
+    """
+    case = built["B_rect_closed"]
+    node, geo = asset_on(root, case, "place_native", "mut")
+    if geo is None:
+        check("place_mutation_baseline", False, "cook failed", "")
+        return
+    # ⚠️ AGAINST ITSELF, NOT AGAINST THE REFERENCE.  `B_rect_closed` turns
+    # four times, which is what `pivot` and `useimplicitn` need - and a corner
+    # case is OUT OF `place_packed_parity`'s scope until N8, so comparing it
+    # to the reference here would be measuring the missing stage.  What these
+    # three mutations have to show is that the parameter MOVES THE OUTPUT.
+    sound = dict((p.attribValue("pc_elem_id"), p.intrinsicValue("bounds"))
+                 for p in geo.prims())
+
+    def spread(g):
+        out = 0.0
+        for p in g.prims():
+            try:
+                b = sound[p.attribValue("pc_elem_id")]
+            except (hou.OperationFailed, KeyError):
+                continue
+            a = p.intrinsicValue("bounds")
+            out = max(out, max(abs(x - y) for x, y in zip(a, b)))
+        return out
+
+    check("place_mutation_baseline", len(sound) > 8, len(sound),
+          "the branch built something to mutate (each check below is that "
+          "same build with ONE copytopoints parameter changed)")
+    node.allowEditingOfContents()
+    copy = node.node("copy_packed")
+
+    def moved_by(parm, value):
+        old = copy.parm(parm).eval()
+        copy.parm(parm).set(value)
+        try:
+            node.cook(force=True)
+            out = spread(node.geometry())
+        except Exception:
+            out = -1.0
+        copy.parm(parm).set(old)
+        node.cook(force=True)
+        return out
+
+    # ⚠️ THE NUMBERS HERE ARE MEASURED, AND ONE OF THEM CORRECTS AN EARLIER
+    # CLAIM IN THIS FILE'S OWN HISTORY. `pivot = centroid` was first written
+    # up as "1.25 m wrong"; that reading was the missing `pc_module` copying
+    # the WHOLE KIT and taking the whole kit's centroid. In isolation the
+    # pivot moves the world result by ~9.5e-07 m.
+    pivot = moved_by("pivot", "centroid")
+    check("mutation_copy_pivot", pivot > 1e-7, "%.3e m" % pivot,
+          "pivot=centroid is the DEFAULT and this branch needs origin - "
+          "_packed_transform maps the module's OWN local space. It is a "
+          "sub-micron move, not a module length; the ceiling is 1e-7 m")
+    # NOT a mutation, a MEASUREMENT: with an explicit `transform` attribute
+    # present, `useimplicitn` is a no-op. Recorded as 0.0 rather than
+    # asserted as a fix, so nobody removes the parm believing it does work
+    # and nobody credits it with any.
+    implicit = moved_by("useimplicitn", True)
+    check("copy_useimplicitn_is_a_noop", implicit == 0.0, "%.3e m" % implicit,
+          "with a per-point `transform` present the matrix wins outright, so "
+          "toggling useimplicitn moves NOTHING. Set for determinism, not for "
+          "correctness - and the 0.0 is the honest claim")
+    ident = moved_by("useidattrib", False)
+    check("mutation_copy_useidattrib", ident > 1e-6, "%.4f m" % ident,
+          "useidattrib=0 - every target point receives the ENTIRE kit")
+
+
+def kit_id_mutation(root, built):
+    """`pc_kit_id` is what makes `useidattrib` work at all."""
+    case = built["B_rect_closed"]
+    node, geo = asset_on(root, case, "place_native", "kitmut")
+    if geo is None:
+        check("kit_id_mutation", False, "cook failed", "")
+        return
+    node.allowEditingOfContents()
+    node.node("pc_kit_id").bypass(True)
+    try:
+        node.cook(force=True)
+        bounds = [p.intrinsicValue("bounds") for p in node.geometry().prims()]
+        width = max((b[1] - b[0]) for b in bounds) if bounds else 0.0
+    except Exception:
+        width = -1.0
+    node.node("pc_kit_id").bypass(False)
+    node.cook(force=True)
+    sound = max((p.intrinsicValue("bounds")[1] - p.intrinsicValue("bounds")[0])
+                for p in node.geometry().prims())
+    check("mutation_pc_kit_id", abs(width - sound) > 1e-6,
+          "%.4f m vs %.4f m" % (width, sound),
+          "bypassing pc_kit_id leaves the kit with no prim `pc_module`. "
+          "`pc_proto` then measures no module, declares every piece "
+          "unanswerable and the branch ships NOTHING - which is what "
+          "warn-never-block looks like when the id is missing, and it is a "
+          "different answer from the sound build's widest piece")
+
+
 def union_parity(root):
     """D166's safety property: the fence does not change when the VEX answers.
 
@@ -1872,10 +2179,16 @@ def main():
     plan_stress_parity(root)
     plan_determinism(root, built)
 
+    print("\n=== 3d. 13.9 N4 - the packed branch, and R8 ===")
+    r8_packed_transform(root)
+    place_packed_parity(root, built)
+
     print("\n=== 4. the mutation test ===")
     mutation(root, built)
     seeding_mutation(root)
     plan_mutation(root, built)
+    place_mutation(root, built)
+    kit_id_mutation(root, built)
 
     print("\n=== 5. 13.7 - the graph is readable, on the built asset ===")
     node = readability(root)

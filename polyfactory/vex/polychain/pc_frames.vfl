@@ -32,8 +32,20 @@ int   pr     = i@pc_curveprim;
 // `pc_s0r` and the float32 residual in `pc_s0r_lo`; added here in 64-bit VEX
 // the pair reproduces the metre to ~6e-11 m.  When 13.9 N2's solve computes
 // the span in this wrangle, both attributes go away together.
-float sa     = f@pc_s0r + f@pc_s0r_lo;
-float sb     = f@pc_s1r + f@pc_s1r_lo;
+// 13.9 N2 - AND ON THE NATIVE BRANCH THE PAIR IS GONE.  `pc_plan_read` writes
+// `pc_ws0`/`pc_ws1` from a 64-bit wrangle, which is float64 STORAGE (15.1
+// measured 0.0 error at 20 km), so the span crosses whole and the head plus
+// residual is only needed where a PYTHON SOP wrote it.  15.6 asked N2 to
+// delete both attributes the day the solve computes the span inside the
+// wrangle; this is that day, on the branch that has the solve.
+float sa, sb;
+if (haspointattrib(0, "pc_s0r_lo")) {
+    sa = f@pc_s0r + f@pc_s0r_lo;
+    sb = f@pc_s1r + f@pc_s1r_lo;
+} else {
+    sa = f@pc_ws0;
+    sb = f@pc_ws1;
+}
 string zmode = s@pc_zmode;
 float plen   = f@pc_proto_len;          // the module's nominal fitted length
 float pax    = f@pc_proto_ax;           // its bbox min x - the local origin

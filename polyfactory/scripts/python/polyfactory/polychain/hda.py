@@ -501,6 +501,22 @@ def config_resolved(node):
                           or _parm_str(parms, "style_id", "pf_polychain"))
     out["seed"] = float(getattr(style, "seed", 0))
     out["from_payload"] = 1.0 if from_payload else 0.0
+    # 13.9 N4 - `pc_proto` has to know whether 4.5 is going to move the piece,
+    # because D55's camber up-vector and D98's flatten-under datum both come
+    # from the surface and neither is derivable in the PLACE box.  A build
+    # with a surface wired declares its frames unanswerable rather than
+    # drawing them in the wrong place (D160's rule, in a new stage).
+    # ⚠️ `is not None` IS NOT THE TEST.  Every stage wrangle is wired to the
+    # IN_SURFACE *null*, which exists whether or not the HDA's own input 4 is
+    # connected, so `_input_geo` hands back an EMPTY geometry rather than
+    # None - measured, `has_surface` read 1.0 with nothing wired and the
+    # whole native PLACE branch declared itself unanswerable and shipped
+    # zero prims, silently. The question is whether there is a surface, so
+    # the test is whether there are primitives.
+    surface = _input_geo(node, 3)
+    out["has_surface"] = 1.0 if (surface is not None
+                                 and surface.intrinsicValue("primitivecount")
+                                 ) else 0.0
     return (out, style, kit)
 
 
@@ -719,6 +735,29 @@ def write_tables(geo, tables):
             kind = hou.attribData.Int
         geo.addArrayAttrib(hou.attribType.Global, name, kind)
         geo.setGlobalAttribValue(name, list(values))
+
+
+def cook_kit(node):
+    """The KIT STREAM the native PLACE branch copies from.
+
+    ⚠️ IT ADDS NO PYTHON TO THE COOK PATH - it MOVES some.  `kit_geometry`
+    already ran inside `kernel` on every cook where input 2 is unwired (6's
+    standalone-usability floor: a curve and nothing else must make a fence),
+    and 15.6 lists `kit.box_mesh` as unported and unscheduled.  Putting it on
+    a node of its own is what lets the VEX branch reach the same kit the
+    reference uses, and it makes the fallback VISIBLE in the graph instead of
+    buried six thousand lines into a Python SOP.  D154 replaces the body with
+    native `box` SOPs; the node is where it will happen.
+    """
+    geo = node.geometry()
+    wired = _input_geo(node, 0)
+    if wired is not None and wired.intrinsicValue("primitivecount"):
+        return                                   # the artist's kit, untouched
+    geo.clear()
+    try:
+        geo.merge(kit_geometry(node))
+    except Exception as exc:                     # warn-never-block
+        node.addWarning("kit: %s" % exc)
 
 
 def cook_config(node):

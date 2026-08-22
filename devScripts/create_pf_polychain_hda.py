@@ -115,6 +115,7 @@ _hda.%s(hou.pwd())
 KERNEL_CODE = BOOTSTRAP % "cook"
 CONFIG_CODE = BOOTSTRAP % "cook_config"
 PLAN_CODE = BOOTSTRAP % "cook_plan_bridge"
+KIT_CODE = BOOTSTRAP % "cook_kit"
 
 # --- the stages, as data ----------------------------------------------------
 # 13.7 rule 3: `Stage` is a menu over the stage output NULLS.  This tuple is
@@ -131,6 +132,8 @@ STAGES = (
     ("plan_native", "OUT_plan_native",
      "2 - Plan, NATIVE (4.2 - the VEX fitting solve)"),
     ("frames", "OUT_frames", "4 - Frames (4.4 - the transform per piece)"),
+    ("place_native", "OUT_place_native",
+     "4 - Place, NATIVE (4.4 - packed pieces, no Python)"),
 )
 
 # (node name, wrangle class, the input CONFIG is wired to or None, comment).
@@ -183,11 +186,14 @@ def vex(name):
     return vexsrc.source(name)
 
 
-def wrangle(parent, name, cls, comment, precision="64"):
+def wrangle(parent, name, cls, comment, precision="64", vfl=None):
+    """`vfl` names the SOURCE when it is not the node name - which happens
+    exactly once, where `pc_frames.vfl` is instanced twice (the bridge branch
+    and the native one). Two nodes, one file."""
     node = parent.createNode("attribwrangle", name)
     node.parm("class").set({"detail": 0, "primitive": 1,
                             "point": 2, "vertex": 3}[cls])
-    node.parm("snippet").set(vex(name))
+    node.parm("snippet").set(vex(vfl or name))
     node.parm("vex_precision").set(precision)
     node.setComment(comment)
     node.setGenericFlag(hou.nodeFlag.DisplayComment, True)
@@ -278,6 +284,11 @@ config = python_sop(
 # is left empty on purpose - index 2 must mean IN_STYLE on every body.
 config.setInput(1, ins[1])
 config.setInput(2, ins[2])
+# 13.9 N4 - and IN_SURFACE on 3, for one bit: `has_surface`. `pc_proto` needs
+# to know whether 4.5 is going to move the piece, because D55's camber
+# up-vector and D98's flatten-under datum both come from the surface. The
+# index convention is unchanged - 2 still means IN_STYLE on every body.
+config.setInput(3, ins[3])
 config.setPosition(hou.Vector2(5.0, -3.0))
 
 # ---- 1 DECOMPOSE (4.1) - VEX and native, no Python --------------------------
@@ -403,6 +414,140 @@ out_frames = net.createNode("null", "OUT_frames")
 out_frames.setInput(0, valid)
 out_frames.setPosition(hou.Vector2(22.0, -4.0))
 
+# ---- 4 PLACE, NATIVE (13.9 N4) - the packed branch ---------------------------
+# ⚠️ THIS BRANCH HAS NO PYTHON IN IT AT ALL. Spline -> VEX decompose -> VEX
+# plan -> VEX frames -> a native `copytopoints`, with `config` the only Python
+# SOP anywhere upstream. `place_packed_parity` measures it against the
+# reference's own packed prims, matched on `pc_elem_id`.
+#
+# ⚠️ AND IT IS NOT THE WHOLE OF 4.4. There is no deform gate yet (13.9 N5), so
+# every piece here is PACKED - a piece the curvature budget would have
+# unpacked is drawn as a chord. And there is no 4.3 (N8), so a run with
+# corners shows no corner assembly and no reserve. `Stage = output` is
+# untouched, which is what the switch is for.
+kit_starter = python_sop(
+    net, "kit_starter", KIT_CODE,
+    "The kit stream, and it MOVES Python rather than adding it. 6's\n"
+    "standalone floor says a curve and nothing else must make a fence, so\n"
+    "kit_geometry already ran inside `kernel` on every cook with input 2\n"
+    "unwired - 15.6 lists kit.box_mesh as unported and unscheduled. Here\n"
+    "the fallback is VISIBLE in the graph, and D154's native box SOPs are\n"
+    "a replacement for this body rather than a new node.")
+kit_starter.setInput(0, ins[1])
+kit_starter.setPosition(hou.Vector2(28.0, -6.0))
+
+kit_id = wrangle(
+    net, "pc_kit_id", "primitive",
+    "4.4 - the copy id, and it is not optional. 13.2's copytopoints probe\n"
+    "assumed a STRING pc_module on the kit PRIMS; 3.2 / D22 put the whole\n"
+    "manifest on the packed prim's own POINT, so useidattrib matched\n"
+    "nothing and every target point received the ENTIRE KIT - measured, a\n"
+    "0.124 m post came out 2.07 m wide with no error and no warning.")
+kit_id.setInput(0, kit_starter)
+kit_id.setPosition(hou.Vector2(28.0, -8.0))
+
+# ⚠️ AND THE KIT HAS TO BE UNPACKED BEFORE IT IS COPIED, or the result is a
+# packed prim INSIDE a packed prim. 3.2 / D22 ships one PACKED prim per
+# module, and `copytopoints(pack=1)` over a packed source nests them: the
+# world positions and bounds are still exact - `place_packed_parity` was
+# 0.0 with the nesting - but `getEmbeddedGeometry()` then hands back one
+# packed prim instead of polygons, so `Stage = place_native` drew 34 single
+# vertices and nothing else. The reference packs the module's RAW geometry
+# (`Proto.source`), so this branch does too.
+kit_unpack = net.createNode("unpack", "kit_unpack")
+kit_unpack.setInput(0, kit_id)
+kit_unpack.parm("transfer_attributes").set("pc_module")
+kit_unpack.setPosition(hou.Vector2(28.0, -7.0))
+kit_unpack.setComment(
+    "3.2 ships one PACKED prim per module. copytopoints(pack=1) over a\n"
+    "packed source nests the packs - exact, and unviewable: the stage drew\n"
+    "one vertex per piece. The reference packs the module's RAW geometry,\n"
+    "so this does too, carrying pc_module through.")
+kit_unpack.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+
+proto = wrangle(
+    net, "pc_proto", "point",
+    "4.4 - place.Proto's two load-bearing fields, read off the KIT: the\n"
+    "module's nominal fitted length and its local origin (D20 - the fitted\n"
+    "size is not the bounding box). Without them pc_frames had to be fed by\n"
+    "pc_plan_bridge, which is the Python N2 exists to delete.\n"
+    "It also declares what it CANNOT answer: a build with a surface, a\n"
+    "fillet, a slope flatten or D98's flatten-under needs numbers only 4.5\n"
+    "has, so the piece is dropped rather than drawn in the wrong place.")
+proto.setInput(0, out_plan_native)
+proto.setInput(1, config)
+proto.setInput(2, kit_id)
+proto.setPosition(hou.Vector2(22.0, -8.0))
+
+frames_n = wrangle(
+    net, "pc_frames_native", "point",
+    "4.4 - THE SAME pc_frames.vfl as the node above, on the NATIVE plan.\n"
+    "One source file, two instances: D170's float32 head-plus-residual is\n"
+    "only read where a PYTHON SOP wrote the span, and this branch reads\n"
+    "pc_ws0 / pc_ws1 straight - a 64-bit wrangle writes float64 storage, so\n"
+    "the metre crosses whole and 15.6's 'N2 deletes both attributes' is\n"
+    "discharged on the branch that has the solve.",
+    vfl="pc_frames")
+frames_n.setInput(0, proto)
+frames_n.setInput(1, config)
+frames_n.setInput(2, out_sections)
+frames_n.setPosition(hou.Vector2(22.0, -10.0))
+
+valid_n = net.createNode("blast", "pc_place_valid")
+valid_n.parm("group").set("@pc_frame_valid==0")
+valid_n.parm("grouptype").set(3)
+valid_n.setInput(0, frames_n)
+valid_n.setPosition(hou.Vector2(22.0, -12.0))
+valid_n.setComment(
+    "The pieces this branch is ANSWERABLE for. Warn-never-block while N5,\n"
+    "N6 and N8 are still ahead: a piece whose frame needs 4.5's surface\n"
+    "normal is dropped, not guessed.")
+valid_n.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+
+copy_packed = net.createNode("copytopoints::2.0", "copy_packed")
+copy_packed.setInput(0, kit_unpack)
+copy_packed.setInput(1, valid_n)
+copy_packed.parm("pack").set(True)
+# `pivot` DEFAULTS TO CENTROID and this branch needs ORIGIN, because
+# `_packed_transform` maps the module's OWN local space. ⚠️ AND THE FIRST
+# MEASUREMENT OF THAT WAS WRONG AND IS CORRECTED HERE: it read 1.25 m, which
+# was the missing `pc_module` copying the WHOLE KIT and taking the whole
+# kit's centroid, not the pivot. Re-measured in isolation on three rotated,
+# scaled pieces: `centroid` moves the world result by 9.54e-07 m - real,
+# under 13.8's 1e-6 m viewport tolerance, and still not what the reference
+# does. `mutation_copy_pivot` asserts that number.
+copy_packed.parm("pivot").set("origin")
+# ⚠️ AND `useimplicitn` IS A MEASURED NO-OP HERE, kept because it is one, not
+# because it fixes anything: with an explicit `transform` point attribute
+# present the matrix wins outright, and toggling this moves the world result
+# by EXACTLY 0.0 (three rotated pieces, one carrying an `N`). It is set so
+# the branch does not depend on which of the two Houdini prefers, and the
+# suite records the 0.0 rather than claiming a fix.
+copy_packed.parm("useimplicitn").set(False)
+copy_packed.parm("useidattrib").set(True)
+copy_packed.parm("idattrib").set("pc_module")
+copy_packed.parm("targetattribs").set(1)
+copy_packed.parm("applyto1").set("prims")
+copy_packed.parm("applyattribs1").set(
+    "pc_elem_id pc_elem_key pc_module pc_slot pc_index pc_section pc_u "
+    "pc_variant pc_curve_id pc_deform pc_zmode pc_scale")
+copy_packed.setPosition(hou.Vector2(28.0, -10.0))
+copy_packed.setComment(
+    "4.4's materialisation, in ONE native node. The 3x3 pc_frames wrote is\n"
+    "honoured as a per-point transform and the kit module is picked per\n"
+    "point by the string pc_module - which is what makes 4.4 a copy and not\n"
+    "a Python loop. R8, measured: the uniform scale DOES reach\n"
+    "packedfulltransform (1.0 / 2.5 / 0.37 exactly), and a 64-bit transform\n"
+    "attribute reproduces the reference's packed prims bit for bit -\n"
+    "11.1's declined 4.34e-07 m is retired.")
+copy_packed.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+
+out_place_native = net.createNode("null", "OUT_place_native")
+out_place_native.setInput(0, copy_packed)
+out_place_native.setPosition(hou.Vector2(28.0, -12.0))
+place_native_nodes = [kit_starter, kit_id, kit_unpack, proto, frames_n,
+                      valid_n, copy_packed, out_place_native]
+
 # ---- R REFERENCE - the shipped cook path ------------------------------------
 kernel = python_sop(
     net, "kernel", KERNEL_CODE,
@@ -455,8 +600,10 @@ box(net, "stage2_plan",
     "2 - PLAN (4.2) - the VEX solve, and the bridge N4 still needs",
     (0.35, 0.60, 0.38),
     [plan, out_plan] + plan_native_nodes)
-box(net, "stage4_frames", "4 - PLACE + DEFORM (4.4) - the frame, in VEX",
-    (0.70, 0.35, 0.32), [frames, valid, out_frames])
+box(net, "stage4_frames",
+    "4 - PLACE + DEFORM (4.4) - the frame in VEX, and the packed copy",
+    (0.70, 0.35, 0.32),
+    [frames, valid, out_frames] + place_native_nodes)
 box(net, "stageR_reference", "R - THE REFERENCE (13.6) - the oracle",
     (0.45, 0.38, 0.55), [kernel, out_reference])
 

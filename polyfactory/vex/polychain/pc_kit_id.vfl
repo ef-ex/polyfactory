@@ -1,0 +1,25 @@
+// STAGE 4 - PLACE (spec 4.4), the KIT's copy id.  PRIMITIVE wrangle.
+//   input 0  IN_KIT
+//
+// ⚠️ THIS NODE EXISTS BECAUSE 13.2's `copytopoints` PROBE ASSUMED A KIT THE
+// FORMAT DOES NOT HAVE.  The probe recorded "`useidattrib` with a STRING
+// `pc_module` attribute picks the right packed kit module per point" - true,
+// and it needs that attribute on the PRIMITIVE.  3.2 / D22 put the whole
+// manifest on the packed prim's own POINT (`pc_name`, `pc_role`, `pc_size`,
+// ...), so a real kit has no `pc_module` anywhere and `useidattrib` silently
+// matched nothing: measured, every target point received the ENTIRE KIT, and
+// a 0.124 m post came out 2.07 m wide with no error and no warning.
+//
+// One line of VEX rather than `attribpromote` + `attribute` rename, because
+// the name it publishes is not the name the kit stores and two nodes to move
+// one string is two nodes.
+
+int pts[] = primpoints(0, @primnum);
+string name = "";
+if (len(pts)) {
+    // ⚠️ a TYPED local before `point()` - the return is untyped and the
+    // assignment below is ambiguous without one (recorded trap).
+    string n = point(0, "pc_name", pts[0]);
+    name = n;
+}
+s@pc_module = name;
