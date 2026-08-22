@@ -130,6 +130,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -593,6 +600,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -1070,6 +1084,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -1540,6 +1561,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -2000,6 +2028,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -2467,6 +2502,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -2929,6 +2971,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -3386,6 +3435,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -3855,6 +3911,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -4332,6 +4395,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -4829,6 +4899,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -5315,6 +5392,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -5772,6 +5856,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -6239,6 +6330,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -6701,6 +6799,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -7158,6 +7263,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -7650,6 +7762,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -8114,6 +8233,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -8588,6 +8714,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -9041,6 +9174,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -9522,6 +9662,17 @@
       "value": 29.50626
     },
     {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -9975,6 +10126,17 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
     },
     {
       "detail": "",
@@ -10432,6 +10594,17 @@
       "value": null
     },
     {
+      "detail": "1004 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -10881,6 +11054,17 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
     },
     {
       "detail": "",
@@ -11338,6 +11522,17 @@
       "value": 14.03624
     },
     {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -11791,6 +11986,17 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
     },
     {
       "detail": "",
@@ -12260,6 +12466,17 @@
       "value": null
     },
     {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -12715,6 +12932,17 @@
       "value": null
     },
     {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -13168,6 +13396,17 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
     },
     {
       "detail": "",
@@ -13632,6 +13871,17 @@
       "value": null
     },
     {
+      "detail": "360 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -14094,6 +14344,17 @@
       "value": null
     },
     {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -14549,6 +14810,17 @@
       "value": null
     },
     {
+      "detail": "70 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -15002,6 +15274,17 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
     },
     {
       "detail": "",
@@ -15464,6 +15747,17 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
     },
     {
       "detail": "",
@@ -15933,6 +16227,17 @@
       "value": null
     },
     {
+      "detail": "1004 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -16386,6 +16691,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -16856,6 +17168,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -17310,6 +17629,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -17780,6 +18106,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -18270,6 +18603,13 @@
       "value": 0.0
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -18721,6 +19061,13 @@
       "value": 0.0
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -19167,6 +19514,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -19622,6 +19976,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -20084,6 +20445,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -20553,6 +20921,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -21006,6 +21381,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -21466,6 +21848,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -21916,6 +22305,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -22376,6 +22772,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -22829,6 +23232,13 @@
       "ok": true,
       "skipped": false,
       "value": 30.73139
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "",
@@ -23286,6 +23696,13 @@
       "value": 0.0
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -23736,6 +24153,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -24206,6 +24630,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -24668,6 +25099,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -25114,6 +25552,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -25570,6 +26015,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -26019,6 +26471,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -26482,6 +26941,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -26935,6 +27401,17 @@
       "ok": true,
       "skipped": false,
       "value": 76.29304
+    },
+    {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
     },
     {
       "detail": "",
@@ -27392,6 +27869,17 @@
       "value": 5.42681
     },
     {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -27845,6 +28333,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -28308,6 +28803,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -28758,6 +29260,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -29229,6 +29738,17 @@
       "value": 11.30993
     },
     {
+      "detail": "342 drops over 1 paths, bit-identical",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -29684,6 +30204,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -30134,6 +30661,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -30601,6 +31135,13 @@
       "value": 14.03651
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -31051,6 +31592,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -31511,6 +32059,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -31961,6 +32516,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -32435,6 +32997,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -32904,6 +33473,13 @@
       "value": 0.0
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -33366,6 +33942,13 @@
       "value": 0.0
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -33819,6 +34402,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -34279,6 +34869,13 @@
       "value": 0.0
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -34725,6 +35322,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -35199,6 +35803,13 @@
       "value": 0.0
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -35655,6 +36266,13 @@
       "ok": true,
       "skipped": false,
       "value": 108.43495
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "",
@@ -36119,6 +36737,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -36575,6 +37200,13 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "",
@@ -37035,6 +37667,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -37485,6 +38124,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -37948,6 +38594,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -38405,6 +39058,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -38890,6 +39550,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -39347,6 +40014,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null
@@ -39814,6 +40488,13 @@
       "value": null
     },
     {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "open_edges",
       "ok": true,
@@ -40212,7 +40893,7 @@
       ]
     },
     {
-      "detail": "warm 0.98 us at 10 verts, 1.31 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 6.8 us at 10, 14478.3 us at 20 001 (1.1x per vertex, O(n), expected O(n))",
+      "detail": "warm 0.74 us at 10 verts, 0.90 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 6.2 us at 10, 14161.4 us at 20 001 (1.1x per vertex, O(n), expected O(n))",
       "name": "curve_sample_scaling",
       "ok": true,
       "skipped": false,
@@ -40222,11 +40903,33 @@
       ]
     },
     {
-      "detail": "351 entries over 20 elements on 1 paths (ceiling 30)",
+      "detail": "374 entries over 20 elements on 1 paths (ceiling 30)",
       "name": "conform_cache_per_element",
       "ok": true,
       "skipped": false,
-      "value": 17.55
+      "value": 18.7
+    },
+    {
+      "detail": "0 fallback keys against 374 batched (ceiling 0.20)",
+      "name": "conform_prefetch_hit_rate",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        374
+      ]
+    },
+    {
+      "detail": "385 points over 8 surfaces, bit-identical",
+      "name": "ray_verb_semantics",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0.0
+      ]
     }
   ],
   "Z_compose_even": [
@@ -40355,6 +41058,13 @@
     {
       "detail": "no adaptive-mode pieces",
       "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
       "ok": true,
       "skipped": true,
       "value": null

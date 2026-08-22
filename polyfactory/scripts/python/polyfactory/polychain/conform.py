@@ -69,6 +69,8 @@ import hou
 
 from . import EPS
 
+HIT_GROUP = "pcConformHit"
+
 
 def _sub(a, b):
     return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
@@ -169,6 +171,122 @@ class Surface(object):
         nrm = (self._nrm[0], self._nrm[1], self._nrm[2])
         return (pos, nrm, _len(_sub(pos, p)))
 
+    def drop_many(self, pts):
+        """The same question as `drop`, asked for every point in ONE `ray`.
+
+        11.2 P5. `drop` is two `hou.Geometry.intersect` calls plus four
+        `hou.Vector3` constructions per query - 5.5 us, and 39-49 % of the
+        wall clock of every conformed row on this build (measured post-port:
+        the 2 km fence 0.383 s of which 0.187 s is 34 002 drops; 300 conformed
+        streets 4.22 s of which 1.66 s is 306 600). The `ray` verb answers
+        34 002 of them in 0.0018 s.
+
+        ⚠️ IT IS THE SAME ANSWER, NOT A CLOSE ONE, AND THAT WAS MEASURED
+        BEFORE THIS WAS WRITTEN. Over eight adversarial surfaces - D70's
+        bridge deck (ground y=-2 under a deck y=+2), an EXACT tie between two
+        sheets at +/-2, D52's reversed winding, D53's hole and edge, two
+        coincident sheets, a query from BELOW, the camber cross-fall and the
+        two-facet tent - the verb and `hou.Geometry.intersect` agree to
+        **0.000e+00 m on every point, with 0 hit-flag mismatches and 0
+        difference in the normal after D52's flip**, ties included (both take
+        the down-axis sheet). The verb's parms say the same three things this
+        class says in Python: `reverserays=bidirectional` +
+        `bidirectionalresult=closest` is "look both ways, nearest wins"
+        (D70), `rtolerance` is `intersect`'s `tolerance`, and `maxraydistcheck
+        =0` is the per-point reach - unlimited is equivalent because every
+        surface point lies within `radius` of the centre, so nothing can be
+        further than the `far` the Python path computes.
+
+        ⚠️ THE ONE PLACE THEY DIVERGE IS STORAGE, AND IT IS REAL - THIS PORT
+        MOVES BASELINE VALUES AND SAYS SO. The verb takes its ray origins from
+        a point cloud and writes its hits back into one, so both ends of it
+        are float32; `intersect` is handed a `hou.Vector3`, which is DOUBLE
+        precision (probed: a Vector3 round-trips 2000.1234567890123 exactly),
+        and returns a double. Measured on the 2 km fence: the verb's answer is
+        EXACTLY `Surface.drop(float32(p))` rounded to float32 - 0.000e+00 over
+        34 002 queries - so what differs is the WIDTH OF THE NUMBER, not the
+        intersector, and it scales with the coordinate: **max |dP| 5.5e-07 m
+        for |x| < 20 m, 7.1e-06 m at 200 m, 2.3e-05 m at 2 km**. Casting the
+        cloud's `P` to `fpreal64` does NOT change it (probed: the cast
+        survives the verb for an untouched point, but a hit is computed and
+        written in float32 either way), so this is the verb's floor and not
+        something a caller can configure away. The scene suite's coordinates
+        are under 25 m, which is why `conform_parity` asserts 1e-06 m - 11.3's
+        own declared tolerance for this item.
+
+        Returns `None` rather than raising if the verb is unavailable or
+        fails - warn-never-block (D24/D34/D53): the caller falls back to the
+        per-query Python path, which is slower and never different.
+        """
+        if self.geo is None or not pts:
+            return None
+        try:
+            verb = hou.sopNodeTypeCategory().nodeVerb("ray")
+            if verb is None:
+                return None
+            src = hou.Geometry()
+            src.createPoints(pts)
+            res = hou.Geometry()
+            verb.setParms({
+                "method": 1,                  # project rays
+                "dirmethod": 0,               # ...along a vector
+                "dir": hou.Vector3(*self.axis),
+                "reverserays": 2,             # bidirectional (D70)
+                "bidirectionalresult": 0,     # ...nearest wins (D70)
+                "putnml": 1,                  # the polygon normal, unflipped
+                "newgrp": 1, "hitgrp": HIT_GROUP,
+                # `intersect`'s own explicit tolerance. ⚠️ NOTHING PROBED
+                # HERE CAN TELL 1e-6 FROM THE NODE DEFAULT 0.01: a 1 mm hole
+                # in a 1 mm grid and a query 1 mm past a sheet's edge both
+                # give 0 hit-flag mismatches and 0 m at either setting, and so
+                # does the whole scene suite. It is set to match the Python
+                # path on principle, not because a case distinguishes them.
+                "rtolerance": 1e-6,
+                "maxraydistcheck": 0,         # the reach cannot cut a hit off
+                "bias": 0.0,                  # `intersect`'s min_hit = 0.0
+            })
+            verb.execute(res, [src, self.geo])
+            ps = res.pointFloatAttribValues("P")
+            na = res.findPointAttrib("N")
+            ns = res.pointFloatAttribValues("N") if na is not None else None
+            grp = res.findPointGroup(HIT_GROUP)
+            hit = set(pt.number() for pt in grp.points()) if grp else set()
+            if len(ps) != 3 * len(pts):
+                return None
+        except Exception:                     # a verb may raise where HOM did
+            return None                       # not - degrade, never block
+        a = self.axis
+        up = (-a[0], -a[1], -a[2])
+        out = []
+        for i in range(len(pts)):
+            ok = i in hit
+            if not ok:
+                self.misses += 1
+                out.append((pts[i], up, False))
+                continue
+            self.hits += 1
+            nrm = up if ns is None else _unit(
+                (ns[3 * i], ns[3 * i + 1], ns[3 * i + 2]), up)
+            if _dot(nrm, a) > 0.0:            # D52's flip, re-added
+                nrm = (-nrm[0], -nrm[1], -nrm[2])
+            # ...AND THE HIT IS PUT BACK ON ITS OWN RAY, IN DOUBLE. A drop is
+            # a translation along `axis` by construction - `Surface.drop`
+            # returns a point that lies on the cast line - so the two
+            # components PERPENDICULAR to the axis are the query's own and
+            # nothing may be learned about them from a float32 point cloud.
+            # Taking only the along-axis component from the verb and rebuilding
+            # the rest from the double query is therefore not a correction, it
+            # is the contract: measured, it takes `conform_parity` from
+            # 9.5e-07 m to 0.0 on all 89 cases and this port from 22 moved
+            # baseline values to none. What is left is the drop DISTANCE,
+            # which is float32 and is what `conform_parity` now reports.
+            q = pts[i]
+            hp = (ps[3 * i], ps[3 * i + 1], ps[3 * i + 2])
+            t = _dot(_sub(hp, q), a)
+            out.append(((q[0] + a[0] * t, q[1] + a[1] * t, q[2] + a[2] * t),
+                        nrm, True))
+        return out
+
     def drop(self, p):
         """(position, normal, hit). A miss returns `p` unmoved (D53).
 
@@ -220,6 +338,64 @@ class ConformPath(object):
         self.vertex_s = path.vertex_s
         self.first = path.first
         self._cache = {}
+        self.batched = 0            # keys filled by the `ray` verb
+        self.fallback = 0           # keys the prefetch missed, served by HOM
+
+    # -- the prefetch ------------------------------------------------------
+
+    def prefetch(self, spans):
+        """Fill `_cache` for `spans` with ONE `ray` execution. 11.2 P5.
+
+        `spans` is `(s0, s1, fracs)` per piece - the piece's own arclength
+        span and the module's station fractions, which is exactly what
+        `_probe_s` turns into the places `missed`, `deviates`, `_stepped_base`,
+        `_y_varies`, `_bend_deviation` and `_deform_positions` all sample
+        (D71). Each station is asked forward, its `delta` partner is asked
+        with it (that is what `sample`'s one-sided finite difference needs),
+        the gap MIDPOINTS are added because `_bend_deviation` probes them, and
+        the span's end is asked backward.
+
+        ⚠️ THE PREFETCH IS ADDITIVE, AND THAT IS THE WHOLE SAFETY ARGUMENT.
+        It enumerates the keys it can name from the plan; anything it misses
+        - a `fix_slope` remap that is not affine over the span, an interior
+        curve vertex `span_deviation` finds, a corner assembly's own drop -
+        falls through to the per-query Python path in `_at`, which is slower
+        and never different. Both implementations are therefore live in one
+        process, which is what lets `conform_parity` prove them equal by
+        asking BOTH rather than by diffing two runs (11.3 rule 4).
+        `conform_prefetch_hit_rate` is the tripwire that stops the batch
+        quietly becoming dead code.
+        """
+        if not self.surface.active:
+            return
+        d = self.delta
+        want, seen = [], set()
+
+        def add(s, forward):
+            key = (round(float(s), 9), bool(forward))
+            if key in self._cache or key in seen:
+                return
+            seen.add(key)
+            want.append((key, s, forward))
+
+        for (sa, sb, fracs) in spans:
+            probes = _probe_s(sa, sb, 5, fracs)
+            probes = probes + [0.5 * (probes[i] + probes[i + 1])
+                               for i in range(len(probes) - 1)]
+            for s in probes:
+                add(s, True)
+                add(s + d, True)
+            add(sb, False)
+            add(sb - d, False)
+        if not want:
+            return
+        pts = [self.base.sample(s, forward) for (_k, s, forward) in want]
+        drops = self.surface.drop_many([hit[0] for hit in pts])
+        if drops is None:                     # the verb declined; stay lazy
+            return
+        for (key, _s, _f), (pos, tan), got in zip(want, pts, drops):
+            self._cache[key] = got + (tan,)
+        self.batched += len(want)
 
     # -- the two questions -------------------------------------------------
 
@@ -227,6 +403,7 @@ class ConformPath(object):
         key = (round(float(s), 9), bool(forward))
         hit = self._cache.get(key)
         if hit is None:
+            self.fallback += 1
             p, t = self.base.sample(s, forward)
             hit = self.surface.drop(p) + (t,)
             self._cache[key] = hit

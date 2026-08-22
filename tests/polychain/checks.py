@@ -48,6 +48,7 @@ WHAT THE NUMBERS MEAN
 """
 
 import math
+import struct
 import time
 
 import hou
@@ -3825,3 +3826,213 @@ def build_out_keeps_upstream_stamps(build_fn, place_mod):
                   [kept, stamped],
                   "%d prims out, %d built elements, prim 0 reads %r"
                   % (len(prims), built, str(prims[0].attribValue("pc_elem_id"))))
+
+
+def conform_parity(scene, tol_m=1e-9, tol_n=1e-9):
+    """11.2 P5 / 11.3 rule 1: the batched `ray` and the per-query
+    `hou.Geometry.intersect` answer every drop this case made THE SAME.
+
+    `ConformPath.prefetch` fills `_cache` from one `ray` execution and `_at`
+    fills anything it missed from `Surface.drop`. Both implementations are
+    therefore live in one process, and this asks BOTH: every key the build
+    actually cached is re-dropped through the Python path here and the two
+    answers are compared. A key the prefetch missed compares exactly 0.0 - it
+    IS the Python path - so what this reports is the batch's own divergence.
+
+    ⚠️ WHAT DIVERGES AND WHY, MEASURED BEFORE THE PORT WAS WRITTEN. The verb
+    and `intersect` are the same intersector - `ray_verb_semantics` asserts
+    that on the eight surfaces that could tell them apart, at exactly 0. What
+    differs is the WIDTH OF THE NUMBER: the verb's ray origins and its hits
+    both live in a point cloud, i.e. float32, while `hou.Vector3` is double
+    (probed - it round-trips 2000.1234567890123 exactly). The verb's answer is
+    exactly `Surface.drop(float32(p))` rounded to float32, which is
+    coordinate-scaled: 5.5e-07 m under 20 m, 2.3e-05 m at 2 km.
+
+    ⚠️ SO `drop_many` DOES NOT USE THE VERB'S POSITION - it takes only the
+    ALONG-AXIS component and rebuilds the other two from the double query,
+    which is what a drop is (see its docstring). That takes this reading to
+    **0.0 on all 89 cases** and takes the whole port to zero geometric
+    baseline movement, so the tolerance here is 1e-09 m - ULP headroom - and
+    NOT 11.3's declared 1e-06. The looser number is what the item was allowed;
+    this is what it achieved, and asserting the allowance would have made the
+    check unable to see the difference: leaving the hit in float32 is 9.5e-07,
+    green at 1e-06, and 22 moved baseline values.
+
+    Reported as `[max |dP| m, hit-flag mismatches, max |dN| after D52's flip]`.
+    """
+    paths = scene.case.get("paths") or []
+    live = [p for p in paths if getattr(p, "_cache", None)]
+    if not live:
+        return _skip("conform_parity", "no conformed path")
+    worst_p = worst_n = 0.0
+    mism = 0
+    where = ""
+    total = 0
+    for path in live:
+        surf = path.surface
+        # the points this build actually visited, re-asked of BOTH paths.
+        # (`_cache` keys are `round(s, 9)`, and `_at` samples the RAW s, so
+        # comparing against the stored value would measure the key's rounding
+        # rather than the drop - 3.7e-09 m of it. Both are asked at the same
+        # `p` here instead, which is the question worth answering.)
+        qs = [path.base.sample(s, forward)[0]
+              for (s, forward) in sorted(path._cache)]
+        batched = surf.drop_many(qs)
+        if batched is None:
+            return Result("conform_parity", False, None,
+                          "the `ray` verb declined on this case")
+        total += len(qs)
+        for q, got in zip(qs, batched):
+            ref = surf.drop(q)
+            dp = max(abs(got[0][k] - ref[0][k]) for k in range(3))
+            dn = max(abs(got[1][k] - ref[1][k]) for k in range(3))
+            if got[2] != ref[2]:
+                mism += 1
+                if not where:
+                    where = "hit flag %r != %r at %r" % (got[2], ref[2], q)
+            if dp > worst_p and mism == 0:
+                where = "worst |dP| %.3e m at %r: %r vs %r" % (dp, q, got[0],
+                                                               ref[0])
+            worst_p, worst_n = max(worst_p, dp), max(worst_n, dn)
+    return Result("conform_parity",
+                  worst_p <= tol_m and worst_n <= tol_n and mism == 0,
+                  [_round(worst_p, 9), mism, _round(worst_n, 9)],
+                  where or "%d drops over %d paths, bit-identical"
+                  % (total, len(live)))
+
+
+def conform_prefetch_hit_rate(build_fn, conform_mod, expect_max_fallback=0.2):
+    """11.2 P5's tripwire: is the batch actually SERVING the drops?
+
+    P5's safety argument is P3's - "a key the prefetch missed is slow, never
+    wrong" - and P5V's X1 is the lesson that goes with it: a pure cache whose
+    fill is silently disabled leaves every suite green and every number
+    unmoved while the work goes back to where it was. Forcing `prefetch` to
+    return early, or letting the enumeration drift off the keys the plan
+    actually asks for, is exactly that mutation.
+
+    Reported as `[fallback keys / batched keys, fallback, batched]`. The
+    remaining fallbacks are real and named: `span_deviation`'s interior curve
+    vertices and `_drop_anchor`'s corner drops are not enumerable from the
+    span alone.
+    """
+    made = []
+    real = conform_mod.ConformPath.__init__
+
+    def spy(self, *a, **k):
+        real(self, *a, **k)
+        made.append(self)
+    conform_mod.ConformPath.__init__ = spy
+    try:
+        build_fn()
+    finally:
+        conform_mod.ConformPath.__init__ = real
+    if not made:
+        return _skip("conform_prefetch_hit_rate", "no surface")
+    batched = sum(p.batched for p in made)
+    fell = sum(p.fallback for p in made)
+    if not batched:
+        return Result("conform_prefetch_hit_rate", False, [-1.0, fell, 0],
+                      "the prefetch filled NOTHING; %d keys went to the "
+                      "per-query path" % fell)
+    ratio = fell / float(batched)
+    return Result("conform_prefetch_hit_rate", ratio <= expect_max_fallback,
+                  [_round(ratio, 4), fell, batched],
+                  "%d fallback keys against %d batched (ceiling %.2f)"
+                  % (fell, batched, expect_max_fallback))
+
+
+def ray_verb_semantics(conform_mod, cases_mod):
+    """The `ray` verb IS `hou.Geometry.intersect`, on the eight surfaces that
+    could tell them apart. 11.2 P5's load-bearing measurement, standing up.
+
+    Everything P5 rests on is that the batched verb answers the same question
+    the per-query HOM call does. 11.2 P5 predicted three named differences and
+    two of the three are simply not there on 22.0.398 once the verb is
+    configured to say what `Surface.drop` says: `reverserays=bidirectional` +
+    `bidirectionalresult=closest` is D70's "look both ways, nearest wins",
+    `rtolerance=1e-6` is `intersect`'s own `tolerance`, `bias=0` is its
+    `min_hit`, and `maxraydistcheck=0` cannot cut a hit off because every
+    surface point lies within `radius` of the centre. The third IS there and
+    is re-added in `drop_many`: the verb hands back the polygon's own normal,
+    so D52's flip-to-oppose-the-axis is applied on read.
+
+    The eight, each of which a naive port gets wrong in a different way:
+      * D70's bridge deck - ground at y=-2 with a deck at y=+2 over part of
+        the run. A `first hit` port puts the road on the deck.
+      * An EXACT TIE - two sheets at y=+/-2 with the query between them. D70
+        says the tie goes DOWN-axis because the stage is a drop.
+      * D52's reversed winding, and a query from BELOW the surface - facing is
+        ignored for the hit itself.
+      * D53's hole and its edge - a miss must keep the unprojected position.
+      * Two COINCIDENT sheets - the degenerate tie.
+      * The camber cross-fall and the two-facet tent - the normal, and a
+        surface coarser than the pieces.
+
+    Reported as `[max |dP| m, hit-flag mismatches, max |dN| after the flip]`,
+    all three asserted at exactly 0.
+    """
+    axis = (0.0, -1.0, 0.0)
+    S = cases_mod.surface
+
+    def deck():
+        g = S(lambda x, z: -2.0, x0=-2.0, x1=24.0, z0=-4.0, z1=4.0,
+              nx=26, nz=4)
+        g.merge(S(lambda x, z: 2.0, x0=4.0, x1=12.0, z0=-4.0, z1=4.0,
+                  nx=8, nz=4))
+        return g
+
+    def tie():
+        g = S(lambda x, z: 2.0, x0=-2.0, x1=24.0, z0=-4.0, z1=4.0,
+              nx=26, nz=4)
+        g.merge(S(lambda x, z: -2.0, x0=-2.0, x1=24.0, z0=-4.0, z1=4.0,
+                  nx=26, nz=4))
+        return g
+
+    def coincident():
+        g = S(cases_mod.ramp_x)
+        g.merge(S(cases_mod.ramp_x))
+        return g
+
+    row = lambda y, n=48, step=0.5: [(k * step, y, 0.0) for k in range(n)]
+    trials = (
+        ("bridge_deck", deck(), row(0.0, 49)),
+        ("exact_tie", tie(), [(1.0, 0.0, 0.0), (5.5, 0.0, 0.0),
+                              (11.25, 0.0, 0.0), (20.0, 0.0, 0.0)]),
+        ("flipped_winding", S(cases_mod.ramp_x, flip=True), row(3.0, 20, 1.0)),
+        ("hole_and_edge", S(cases_mod.ramp_x, x0=-2.0, x1=12.0, nx=14,
+                            holes=((8, 5), (8, 6), (9, 5), (9, 6))), row(3.0)),
+        ("coincident_sheets", coincident(), row(3.0)),
+        ("from_below", S(cases_mod.ridge), row(-5.0)),
+        ("camber", S(cases_mod.camber_z),
+         [(k * 0.5, 3.0, z) for k in range(24) for z in (-2.0, 0.0, 2.0)]),
+        ("tent", S(cases_mod.tent, nx=2, nz=1), row(4.0, 96, 0.25)),
+    )
+    worst_p = worst_n = 0.0
+    mism = 0
+    where = ""
+    for label, geo, pts in trials:
+        surf = conform_mod.Surface(geo, axis)
+        batched = surf.drop_many(pts)
+        if batched is None:
+            return Result("ray_verb_semantics", False, None,
+                          "the `ray` verb declined on %s" % label)
+        for p, got in zip(pts, batched):
+            ref = surf.drop(p)
+            dp = max(abs(got[0][k] - ref[0][k]) for k in range(3))
+            dn = max(abs(got[1][k] - ref[1][k]) for k in range(3))
+            if got[2] != ref[2]:
+                mism += 1
+                if not where:
+                    where = "%s: hit %r != %r at %r" % (label, got[2],
+                                                        ref[2], p)
+            if dp > worst_p or dn > worst_n:
+                if not where:
+                    where = "%s: |dP| %.3e |dN| %.3e at %r" % (label, dp,
+                                                               dn, p)
+            worst_p, worst_n = max(worst_p, dp), max(worst_n, dn)
+    return Result("ray_verb_semantics",
+                  worst_p == 0.0 and worst_n == 0.0 and mism == 0,
+                  [_round(worst_p, 12), mism, _round(worst_n, 12)],
+                  where or "%d points over %d surfaces, bit-identical"
+                  % (sum(len(t[2]) for t in trials), len(trials)))

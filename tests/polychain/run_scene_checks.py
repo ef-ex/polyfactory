@@ -343,6 +343,7 @@ def run_case(name, case):
         # but "does an adaptive piece bank over a ridge that only the SURFACE
         # knows about" can see that tangent at all.
         C.bank_adaptive(scene, require_bank=(name in BANKS)),
+        C.conform_parity(scene),
         C.slice_caps_closed(scene),
         C.axis_follows_curve(scene),
         C.cross_section_width(scene),
@@ -512,6 +513,9 @@ def port_tripwires():
         C.curve_sample_scaling(cases.Curve, expect="O(1)", cold_expect="O(n)"),
         C.conform_cache_per_element(cases.tripwire_conformed_run,
                                     cases.CONFORM, expect_max=30.0),
+        C.conform_prefetch_hit_rate(cases.tripwire_conformed_run,
+                                    cases.CONFORM),
+        C.ray_verb_semantics(cases.CONFORM, cases),
     ]
 
 

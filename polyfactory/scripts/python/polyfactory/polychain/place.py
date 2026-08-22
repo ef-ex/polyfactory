@@ -1716,6 +1716,26 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         bevels.extend(curve_bevels)
         all_sections.extend(sections)
         by_section = dict((sec.index, sec) for sec in sections)
+        # 11.2 P5: ONE `ray` execution fills the conform memo for this whole
+        # curve, before a single placement asks it anything. It is a cache
+        # fill and nothing else - every key it misses is served by the
+        # per-query Python path exactly as before, so this is additive.
+        # Measured post-port: `Surface.drop` is 39-49 % of the wall clock of
+        # every conformed row, and the verb answers 34 002 of them in 1.8 ms.
+        if getattr(path, "prefetch", None) is not None:
+            spans = []
+            for p in placements:
+                section = by_section.get(p.section_index)
+                if section is None:
+                    continue
+                ov = _override_for(overrides, p, p.module)
+                mname = (ov.to_module if (ov is not None and ov.to_module)
+                         else p.module)
+                module = kit.by_name(mname) or stand_in(mname)
+                spans.append((remap(section.s0 + p.s0),
+                              remap(section.s0 + p.s1),
+                              proto_for(module).fracs))
+            path.prefetch(spans)
         for p in placements:
             section = by_section.get(p.section_index)
             if section is None:

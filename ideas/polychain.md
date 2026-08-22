@@ -3975,6 +3975,123 @@ discipline that would have caught both is cheap and is now the standing rule for
 
 ---
 
+#### P5 — the `ray` verb, batched: LANDED, with the port's first ZERO-movement conform (2026-08-22)
+
+**§11.5 risk 10 says re-measure before starting, and the re-measure says P5 still pays — more
+than the plan claimed, on a bigger row than the plan named.** Measured on the POST-PORT build,
+unprofiled, by recording every query the real row makes and re-running just those:
+
+| row | wall clock | `Surface.drop` | share | per drop |
+|---|---|---|---|---|
+| `fence_2km` (2 km conformed fence, 1 000 pieces) | 0.383 s | 34 002 drops, **0.187 s** | **48.9 %** | 5.51 µs |
+| **`streets_300c`** (the citygen shape, conformed) | 4.221 s | 306 600 drops, **1.662 s** | **39.4 %** | 5.42 µs |
+| `hill_2km_adaptive` (adaptive + camber over a ridge) | 0.327 s | 24 338 drops, **0.134 s** | **40.8 %** | 5.48 µs |
+
+⚠️ **That is a share of WALL CLOCK, not of a cProfile column** — P5R's rule 2. The 39–49 % is the
+Python drop loop re-run on its own recorded queries, outside the profiler.
+
+**WHAT LANDED.** `Surface.drop_many` casts every query in ONE `ray` verb execution
+(`method=project`, `dirmethod=vector`, `reverserays=bidirectional`, `bidirectionalresult=closest`,
+`putnml=1`, `newgrp=1`, `bias=0`, `maxraydistcheck=0`), and `ConformPath.prefetch` fills `_cache`
+from it once per curve, before any placement asks anything. **The per-query Python path is
+untouched and is still the reference**: every key the prefetch misses is served by it, so the port
+is additive and both implementations are live in one process — which is what lets `conform_parity`
+prove them equal by asking BOTH (§11.3 rule 4) rather than by diffing two runs.
+
+**§11.2 P5 PREDICTED THREE DIFFERENCES. TWO OF THE THREE ARE NOT THERE, and that was measured
+before a line was written.** Over eight adversarial surfaces — D70's bridge deck (ground y = −2
+under a deck y = +2), an **exact tie** between sheets at ±2, D52's reversed winding, D53's hole
+and its edge, two coincident sheets, a query from BELOW, the camber cross-fall and the two-facet
+tent — the verb and `hou.Geometry.intersect` agree on **385 points to 0.000e+00 m, with 0
+hit-flag mismatches and 0 difference in the normal**, ties included (both take the down-axis
+sheet, which is D70's rule). `bidirectionalresult=closest` IS "nearest wins"; `maxraydistcheck=0`
+is equivalent to the per-point reach because every surface point lies within `radius` of the
+centre. That measurement is committed as **`ray_verb_semantics`**, so it is not re-derived.
+The third difference IS real and is re-added on read: the verb hands back the polygon's own
+normal, so **D52's flip-to-oppose-the-axis is applied in `drop_many`** — dropping it is RED on
+`ray_verb_semantics`, `conform_parity` and `camber_deg`, 19 checks.
+
+**⚠️ AND THE PRECISION STORY IN §11.2/§11.3 IS WRONG IN ITS PREMISE, WHICH IS WHY THIS PORT MOVED
+NOTHING.** §11.3 authorised "≤ 9.5e-07 m, re-baseline the conformed cases". The first working
+build did exactly that — 22 moved values on 5 cases including 4 `geometry_digest` hashes. Then the
+divergence was decomposed instead of accepted:
+
+* the verb is **not** a different intersector. Its answer is **exactly**
+  `Surface.drop(float32(p))` — 0.000e+00 over 34 002 queries on the 2 km fence;
+* what differs is the **width of the number**: the verb's ray origins and its hits both live in a
+  point cloud, i.e. float32, while `hou.Vector3` is **double** (probed: it round-trips
+  2000.1234567890123 exactly). So the loss is real, not a lateral move, and it is
+  coordinate-scaled — **5.5e-07 m under 20 m, 7.1e-06 m at 200 m, 2.3e-05 m at 2 km**;
+* casting the query cloud's `P` to `fpreal64` does **not** fix it (the cast survives the verb for
+  an untouched point; a hit is computed and written in float32 either way);
+* **but a drop is a translation along the axis by construction.** The two components
+  perpendicular to `axis` are the query's own and nothing may be learned about them from a float32
+  cloud. `drop_many` therefore takes only the along-axis component from the verb and rebuilds the
+  rest from the double query.
+
+**Result: `conform_parity` reads 0.0 — bit-identical — on every conformed case, and the whole item
+moves ONE baseline value.** Leaving the hit in float32 instead reads 9.5e-07 m and moves 22, which
+is why `conform_parity`'s tolerance is **1e-09 m and not §11.3's 1e-06**: asserting the allowance
+would have made the check unable to see the difference between the two builds.
+
+**MEASURED, TWO TREES INTERLEAVED, BEST OF 5, TWO PASSES** (`git worktree` at `930b642`, fresh
+hython per invocation):
+
+| row | pre-P5 `930b642` | P5 | × |
+|---|---|---|---|
+| **`fence_2km`** (2 km conformed fence) | 0.3776 / 0.3741 s | **0.2573 / 0.2576 s** | **1.45** |
+| `hill_2km_adaptive` (adaptive + camber) | 0.3223 / 0.3224 s | 0.2661 / 0.2624 s | 1.23 |
+| **`streets_300c`** (300 conformed streets) | 4.1459 / 4.1936 s | **3.4168 / 3.4290 s** | **1.21** |
+| `streets_300` (no surface — the control) | 0.1935 / 0.1956 s | 0.1968 / 0.2026 s | 0.98 |
+| `fence_2km_flat` (no surface — the control) | 0.0286 / 0.0286 s | 0.0287 / 0.0284 s | 1.01 |
+
+The two unconformed controls do not move, which is the point: `prefetch` does not exist on a plain
+`place.Path`, so the branch is not taken. **The batch itself is 34 002 drops in 0.0018 s against
+0.187 s — 104× — and the row only goes 1.45× because the `Path.sample` calls behind those drops
+were always the other half of the cost and are unchanged.** Quoting the 104× as the row's win
+would be P5R's own correction (2) repeated.
+
+**EIGHT MUTATIONS, SEVEN RED, ONE NO-OP that is a finding.** Every one applied by byte-exact
+replacement and reverted md5-exact; `git diff` clean afterwards.
+
+| mutation | verdict |
+|---|---|
+| `prefetch` fills NOTHING (P5V's X1 shape — a pure cache silently disabled) | **RED** — `conform_prefetch_hit_rate`; **0 baseline values moved**, which is exactly why the tripwire exists |
+| D52's normal flip dropped | **RED** — 19 checks (`ray_verb_semantics`, `conform_parity`, `camber_deg`) |
+| `bidirectionalresult` = **farthest** (D70 inverted) | **RED** — 3 checks, 5 values moved |
+| `reverserays` = forward only (no back-look) | **RED** — 62 checks, 119 values moved |
+| the hit left in float32 (no double rebuild) | **RED** — 18 `conform_parity`, 22 values moved |
+| every hit reported as a MISS | **RED** — 97 checks, 224 values moved |
+| the gap midpoints dropped from the enumeration | **RED** — `conform_prefetch_hit_rate` |
+| **`rtolerance` 1e-6 → the node default 0.01** | **GREEN, 0 failing, 0 extra values moved** |
+
+⚠️ **The `rtolerance` no-op is recorded rather than papered over.** Nothing probed can tell 1e-6
+from 0.01: a **1 mm hole in a 1 mm grid** and a query **1 mm past a sheet's edge** both give 0
+hit-flag mismatches and 0 m at either setting, and so does the whole scene suite. It is set to
+match `intersect`'s explicit tolerance on principle, and the docstring says so rather than
+implying a case pins it.
+
+**THE PREFETCH SERVES EVERYTHING.** `conform_prefetch_hit_rate` reads **0 fallback keys against
+374 batched** on the tripwire fixture, and the recording harness measures **0 drops** reaching the
+per-query path on all three benchmark rows. The fallback is therefore live-but-unused, exactly as
+P3's station cache was, which is why it has a tripwire from day one instead of after a review.
+
+**Baseline: 89 cases, 5 395 → 5 485 values; 90 added, 0 removed, ONE moved, 0 ok/skip flag
+changes** — re-derived key by key against `930b642`, index-aware. The one move is
+`conform_cache_per_element` **17.55 → 18.7** (ceiling 30): the prefetch enumerates ~1.15 keys per
+element that no consumer asks for — the `+delta` partner of a last station, and gap midpoints on
+pieces that never reach `_bend_deviation`. **`geometry_digest` moved on 0 of 88 cases.** The 90
+added are `conform_parity` × 88, `conform_prefetch_hit_rate` and `ray_verb_semantics`.
+Suites: **89 cases / 5 485 check rows / 0 failing**, 286 unit tests / 9 625 subtests OK, HDA checks
+0 failing, 9 ladder rows 0 failing.
+
+**Warn-never-block held by construction and by measurement:** `drop_many` returns `None` rather
+than raising if the verb is missing or throws, `prefetch` then returns and every key falls through
+to the Python path — and mutation 1 is that state, with the whole suite green and only the
+tripwire red.
+
+---
+
 #### P5V — independent verification of P0–P5R: everything reproduces, and one fix was pinned by nothing (2026-08-22)
 
 A fresh agent that wrote none of the port re-ran it from clean, re-derived the baseline movement

@@ -422,11 +422,25 @@ def compose_kit():
 # --- the cases --------------------------------------------------------------
 
 def _case(curve_geo, kit_geo, style, surface_geo=None, overrides=None):
-    out, report = P.build(curve_geo, kit_geo, style, surface_geo=surface_geo,
-                          overrides=overrides)
+    # 11.2 P5: the `ConformPath`s the build made are KEPT, so `conform_parity`
+    # can ask the batched `ray` answer and the per-query `hou.Geometry.
+    # intersect` answer the same question in one process (11.3 rule 4) instead
+    # of diffing two runs. Costs nothing when there is no surface.
+    made = []
+    real = CONFORM.ConformPath.__init__
+
+    def spy(self, *a, **k):
+        real(self, *a, **k)
+        made.append(self)
+    CONFORM.ConformPath.__init__ = spy
+    try:
+        out, report = P.build(curve_geo, kit_geo, style,
+                              surface_geo=surface_geo, overrides=overrides)
+    finally:
+        CONFORM.ConformPath.__init__ = real
     return {"curve": curve_geo, "kit": kit_geo, "style": style,
             "out": out, "report": report, "surface": surface_geo,
-            "overrides": overrides}
+            "overrides": overrides, "paths": made}
 
 
 def build_all():
