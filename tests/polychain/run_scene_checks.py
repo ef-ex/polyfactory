@@ -233,7 +233,19 @@ ALL_PACKED = ("A_straight", "CE_all_packed", "CA_swap_module",
               # path D69 actually fixed - CF's rigid beam short-circuits
               # `_needs_deform` at D27 before the vertex test is reached, so
               # CF alone left the fix unguarded (a mutation survived it).
-              "CG_resampled_bendable")
+              "CG_resampled_bendable",
+              # D75: THE CURVATURE BUDGET. A resampled arc has a real interior
+              # vertex in every span, so the binary vertex test unpacked all
+              # three of these; the deviation they would actually suffer is
+              # 4.2e-05 m, 2.5e-04 m and 6.2e-03 m, every one of them under
+              # `bend_tol`. CN_arc_tight is the control that keeps this from
+              # being vacuous - 0.05 m, five times the budget, and it must
+              # unpack all of them.
+              "CK_arc_12000", "CL_arc_2000", "CM_arc_80")
+
+# ...and the other side of D75: the tight arc may not keep a single piece
+# packed. Without this the budget could be widened until nothing ever bends.
+NONE_PACKED = ("CN_arc_tight",)
 
 # [swapped, replaced, ids that moved] per override case, derived from the
 # override stream and not from a run: CA re-points all ten panels, CC and CD
@@ -311,7 +323,8 @@ def run_case(name, case):
         C.module_fidelity(scene),
         C.rigid_never_deformed(scene),
         C.deformed_flag_matches_geometry(scene),
-        C.instancing_split(scene, expect_all=(name in ALL_PACKED)),
+        C.instancing_split(scene, expect_all=(name in ALL_PACKED),
+                           expect_none=(name in NONE_PACKED)),
         C.horizontal_spacing(scene),
         C.module_winding(scene),
         C.frame_continuity(scene),
@@ -353,6 +366,7 @@ def run_case(name, case):
         # suite (it is the check that a build cannot pass by unpacking
         # everything).
         C.over_unpacked(scene),
+        C.curvature_budget(scene, cases.P),
         C.override_round_trip(scene, cases.rebuild_plain,
                               expected=OVERRIDES.get(name)),
         C.elem_ids_survive_upstream(scene, cases.with_extra_curve),

@@ -103,6 +103,24 @@ HILL_GRADE = 0.25                   # 25 %, 14.04 degrees of bank in adaptive.
                                     # Z-mode would still look plausible.
 
 
+def arc_points(radius, spacing=1.0, length=20.0):
+    """A circular arc in XZ, RESAMPLED at `spacing` - one interior vertex per
+    metre, which is what a street polyline looks like (D75).
+
+    The sagitta a span of `c` metres leaves is c*c/(8*radius), so a 2 m panel
+    on these four radii deviates 4.2e-05, 2.5e-04, 6.2e-03 and 5.0e-02 m -
+    three of them under the 0.01 m `bend_tol` and the last one five times over
+    it. That ladder is the whole point: the budget has to keep the first three
+    packed AND still bend the fourth.
+    """
+    n = int(round(length / spacing))
+    pts = []
+    for i in range(n + 1):
+        a = (spacing * i) / radius
+        pts.append((radius * math.sin(a), 0.0, radius * (1.0 - math.cos(a))))
+    return pts
+
+
 def hill_points():
     n = int(round(HILL_RADIUS * HILL_SWEEP / HILL_SPACING))
     pts = []
@@ -1051,6 +1069,20 @@ def build_all():
     g = hou.Geometry()
     polyline(g, [(float(x), 0.0, 0.0) for x in range(21)], curve_id="CG")
     built["CG_resampled_bendable"] = _case(g, kit_geo, panel_style())
+
+    # ---- cycle 7 / D75: THE CURVATURE BUDGET, across radii.
+    # CF and CG proved a resampled STRAIGHT line stays packed. These are the
+    # shape citygen streets actually hands this tool - a resampled ARC - and
+    # before the budget every one of them unpacked every piece for a
+    # deformation smaller than 4.6's own `over_unpacked` tolerance (measured:
+    # R = 12 000 m unpacked 8 of 150 pieces for 4.2e-05 m and over_unpacked
+    # FAILED). One case per decade of radius, so the budget is measured on a
+    # ladder rather than at one point, plus the control that must still bend.
+    for cid, radius in (("CK_arc_12000", 12000.0), ("CL_arc_2000", 2000.0),
+                        ("CM_arc_80", 80.0), ("CN_arc_tight", 10.0)):
+        g = hou.Geometry()
+        polyline(g, arc_points(radius), curve_id=cid.split("_")[0])
+        built[cid] = _case(g, kit_geo, panel_style())
 
     return built
 

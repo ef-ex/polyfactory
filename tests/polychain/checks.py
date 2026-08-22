@@ -689,7 +689,7 @@ def warnings(scene, expected=()):
                   "" if ok else "expected %s" % (sorted(expected),))
 
 
-def instancing_split(scene, expect_all=False):
+def instancing_split(scene, expect_all=False, expect_none=False):
     """4.6's segregation, measured: how many pieces stayed packed. A build
     that unpacked everything would still be geometrically correct and would
     still be a defect.
@@ -702,10 +702,16 @@ def instancing_split(scene, expect_all=False):
     """
     packed = scene.report["packed"]
     total = packed + scene.report["deformed"]
-    ok = (packed == total) if expect_all else True
+    ok = True
+    if expect_all:
+        ok = packed == total
+    elif expect_none:
+        # D75's anti-vacuity control: a curve whose every span leaves the
+        # chord by five times `bend_tol` must unpack every piece of it.
+        ok = packed == 0
     return Result("packed_pieces", ok, packed,
                   "of %d" % total if ok
-                  else "of %d - a straight rigid run must be all packed"
+                  else "of %d - the instancing floor/ceiling for this case"
                   % total)
 
 
@@ -799,12 +805,19 @@ def axis_follows_curve(scene):
     the sagitta they leave is measured as `bend_deg`-adjacent behaviour
     elsewhere. Stepped pieces are compared in XZ, since flat is the mode.
     """
-    worst, where, seen = 0.0, "", 0
+    worst, where, seen, bad = 0.0, "", 0, []
     for eid, rec in scene.by_id.items():
         module = scene.kit.by_name(rec["pc_module"])
         placement = scene.plan_by_id.get(eid)
         if module is None or module.deform < 1 or placement is None:
             continue
+        # D75: a PACKED bendable piece is allowed to cut its span by up to
+        # `bend_tol` - that budget is why it stayed packed at all, and the
+        # mutation this check was written against (deleting the deform gate
+        # outright) still fails here because it cuts by far more than the
+        # budget. A DEFORMED piece has no such excuse and is held to TOL_M.
+        limit = (TOL_M if rec["pc_deformed"]
+                 else max(TOL_M, scene.params.bend_tol))
         if _mitered(scene, placement) or placement.slot == "corner":
             continue        # the miter cut its faces off; corner_* measures it
         track = scene.track_of.get(str(placement.curve_id))
@@ -831,11 +844,15 @@ def axis_follows_curve(scene):
             d = (_dist_xz(want, got) if placement.zmode == "stepped"
                  else _dist(want, got))
             seen += 1
+            if d > limit:
+                bad.append(eid)
             if d > worst:
                 worst, where = d, "%s @ x=%.3f" % (rec["pc_module"], x)
     if not seen:
         return _skip("axis_on_curve_m", "no bendable pieces")
-    return Result("axis_on_curve_m", worst <= TOL_M, _round(worst), where)
+    return Result("axis_on_curve_m", not bad, _round(worst),
+                  where if not bad else "%s - %d over budget, first %s"
+                  % (where, len(bad), bad[0]))
 
 
 def cross_section_width(scene):
@@ -1310,6 +1327,50 @@ def over_unpacked(scene, tol=1e-4):
                   bad[0] if bad else
                   "worst real deform %.4f m, %d sheared (D65)"
                   % (worst_ok, sheared))
+
+
+def curvature_budget(scene, place):
+    """D75 - the deviation the packed pieces are SPENDING, in metres.
+
+    `over_unpacked` is the other half of this: it catches a piece that
+    unpacked for nothing. This catches the opposite mistake and records the
+    number both of them are arguing about - for every bendable, uncut,
+    un-anchored piece, how far its span leaves the chord it would be packed
+    on. A PACKED piece may spend up to `bend_tol` (that is the budget); over
+    that it is a piece the gate should have unpacked and did not.
+
+    The value is [worst spent by a packed piece, worst over all pieces], so a
+    gentle-arc case reads as a real number rather than as silence, and the
+    tight-arc control reads a large second number with a small first one.
+    """
+    worst_packed, worst_all, over = 0.0, 0.0, []
+    tol = scene.params.bend_tol
+    for eid, rec in scene.by_id.items():
+        placement = scene.plan_by_id.get(eid)
+        module = scene.kit.by_name(rec["pc_module"])
+        if placement is None or module is None or module.deform < 1:
+            continue
+        if placement.anchor is not None or placement.cuts                 or placement.slice_t is not None or rec.get("pc_replaced"):
+            continue      # not placed on the path (4.3), cut, or hero (D58)
+        track = scene.track_of.get(str(placement.curve_id))
+        section = scene.section_of.get((str(placement.curve_id),
+                                        placement.section_index))
+        if track is None or section is None:
+            continue
+        s0 = track["remap"](section.s0 + placement.s0)
+        s1 = track["remap"](section.s0 + placement.s1)
+        d = place.span_deviation(track["path"], s0, s1)
+        worst_all = max(worst_all, d)
+        if not rec["pc_deformed"]:
+            worst_packed = max(worst_packed, d)
+            if d > tol:
+                over.append(eid)
+    if worst_all == 0.0 and not scene.by_id:
+        return _skip("curvature_budget_m", "no pieces")
+    return Result("curvature_budget_m", not over,
+                  [_round(worst_packed), _round(worst_all)],
+                  "" if not over else "%d packed over bend_tol %.4g, first %s"
+                  % (len(over), tol, over[0]))
 
 
 def override_round_trip(scene, plain_rebuild, expected=None):

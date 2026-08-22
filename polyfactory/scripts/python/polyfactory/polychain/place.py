@@ -262,18 +262,26 @@ class Path(object):
         ⚠️ AND NEITHER IS A COLLINEAR ONE (D69) - the same lesson, one vertex
         further in. `kink_s` is the vertices where the direction actually
         changes, so a resampled straight run stays packed.
+
+        ⚠️ AND IT BISECTS (D75). `kink_s` is sorted, and scanning all of it
+        per piece is quadratic in the vertex count - which nobody noticed
+        while a curved run unpacked (the deform cost dwarfed it) and which
+        became the whole cook the moment the curvature budget kept those
+        pieces packed: 10 000 pieces against a 20 001-vertex arc spent 9.4 s
+        in this loop and 0.6 s everywhere else.
         """
         out = []
         total = self.total
         reps = (0.0,) if not (self.closed and total > EPS) else (0.0, total,
                                                                 -total)
         for base in reps:
-            for v in self.kink_s:
+            lo = bisect.bisect_right(self.kink_s, s0 + tol - base)
+            hi = bisect.bisect_left(self.kink_s, s1 - tol - base)
+            for v in self.kink_s[lo:hi]:
                 sv = v + base
                 if not self.closed and (sv <= tol or sv >= total - tol):
                     continue
-                if s0 + tol < sv < s1 - tol:
-                    out.append(sv)
+                out.append(sv)
         out.sort()
         return out
 
@@ -752,6 +760,54 @@ COLLAPSE_RATIO = 0.5        # chord vs planned span, for a RIGID piece
 FLAT_RATIO = 0.01           # horizontal reach vs planned span, yaw-only modes
 
 
+def span_deviation(path, sa, sb):
+    """D75 - how far the DEFORMED piece would sit from the PACKED one, metres.
+
+    THE CURVATURE BUDGET. D69 fixed the exact-collinear case and said so; what
+    it left standing is that the vertex test is BINARY. A resampled GENTLE ARC
+    - which is exactly the shape citygen streets hands this tool, since a
+    street curve is a resampled polyline - has a real interior vertex in every
+    span, so every piece unpacked for a deformation that rounds to nothing.
+    Measured before this: a 1 m-resampled R = 12 000 m arc unpacked 8 of 150
+    pieces for 4.2e-05 m of movement, BELOW 4.6's own `over_unpacked`
+    tolerance, and that check FAILED on it; at PC-G3 scale the same shape cost
+    727 packed / 9 278 deformed / 334 735 points / +130 MB / 18.9 s against a
+    straight run's 10 005 packed / +12 MB / 0.55 s.
+
+    So the question is not "is there a vertex" but "does the vertex MOVE
+    anything". A packed piece is the chord A->B (`_packed_transform`); a
+    deformed one puts the point at fraction `f` of its span at arc position
+    `sa + f*(sb - sa)` (`_deform_positions`). The difference between those two
+    positions IS the deformation the unpack would buy, and on a POLYLINE it is
+    extremal at a vertex - so the interior vertices are not a sample of the
+    span, they are the exact answer for it. Above `bend_tol` the piece bends;
+    below it, the artist has already said that much error is acceptable
+    (`bend_tol` is the same parm D25's resolution warning is measured against)
+    and the piece stays packed.
+
+    Note this is measured on the PATH the piece is built on, conform included
+    when there is one - a `ConformPath` samples the drape - so the ridge case
+    that `Surface.deviates` exists for is not weakened by it.
+    """
+    span = sb - sa
+    if abs(span) <= EPS:
+        return 0.0
+    verts = path.interior_vertices(sa, sb)
+    if not verts:
+        return 0.0                       # the chord IS the arc (D66/D69)
+    a = path.sample(sa)[0]
+    b = path.sample(sb, forward=False)[0]
+    ab = _sub(b, a)
+    worst = 0.0
+    for sv in verts:
+        f = (sv - sa) / span
+        p = path.sample(sv)[0]
+        worst = max(worst, _len((p[0] - a[0] - ab[0] * f,
+                                 p[1] - a[1] - ab[1] * f,
+                                 p[2] - a[2] - ab[2] * f)))
+    return worst
+
+
 def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01):
     """4.4 + the streets float32 lesson: rebuild ONLY when it changes something."""
     if placement.slice_t is not None or placement.cuts:
@@ -760,8 +816,8 @@ def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01):
         return False                                    # a straight leg piece
     if proto.module.deform <= 0:
         return False                                    # D27
-    if path.interior_vertices(sa, sb):
-        return True
+    if span_deviation(path, sa, sb) > tol:
+        return True                                     # D75
     # 4.5: A DEAD-STRAIGHT SPLINE OVER A RIDGE HAS NO INTERIOR VERTEX, so
     # without this the test above says "nothing to follow" and a bendable rail
     # crosses the hill as one rigid chord with its two ends on the ground.
