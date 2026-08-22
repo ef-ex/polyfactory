@@ -16,11 +16,14 @@ python tests/unit/test_polychain_array2d.py   # phase 2's row stack + the 25
 # tests/unit/test_plan.py calibrates against)
 hython tests/citygen/dump_trims.py
 
-# attribute hygiene — EVERY polyfactory HDA cooked in a throwaway session.
-# Asserts conventions.md §2 (no output name begins with `_`) and diffs every
-# published attribute name against tests/hda/baseline.json, because the `_*`
-# law alone catches only leaks honest enough to be named `_*` — measured: on
-# the pre-migration HDAs it reported zero while eight attributes were leaking.
+# attribute hygiene — EVERY polyfactory SOP HDA cooked in a throwaway session,
+# at defaults AND once per non-default toggle/menu value (236 branches, ~23 s),
+# because `verts`, `scalefactor` and `__scalefactor` were all invisible at
+# defaults. Asserts conventions.md §2 (no output name begins with `_`), that no
+# retired spelling survives in any library file (the only check that can reach
+# a Vop), and diffs every published name against tests/hda/baseline.json — the
+# `_*` law alone catches only leaks honest enough to be named `_*`. A baseline
+# move FAILS the run; --update-baseline is how you accept one.
 hython tests/hda/run_attrib_checks.py
 hython tests/hda/run_attrib_checks.py --update-baseline
 

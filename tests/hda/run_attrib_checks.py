@@ -18,18 +18,32 @@ assets already carried a cleanup node that had simply never been checked. So:
      NEW attribute on an output is a diff a human has to look at instead of
      something that ships unnoticed. Rule 1 only catches leaks honest enough
      to be named `_*`; `class`, `keep_component`, `restlength` and `verts`
-     were not, and only a snapshot catches that shape.
+     were not, and only a snapshot catches that shape. **Both halves set the
+     exit status.** They did not always: the snapshot printed its diff and
+     returned 0, so an injected `i@junkleak` — the exact shape of all twelve
+     original leaks — reported "0 failing checks" and exited green.
 
-⚠️ "We could not make it leak" is not "it does not leak". An asset needing
-input this file cannot synthesise (a populated kitbash library, a USD file on
-disk) is reported under UNPROVEN, along with anything listed in UNEXERCISED,
-and assets whose leak only appears on a non-default branch are cooked twice —
-see BRANCHES. Read that list; it is the part of the suite that is missing,
-stated out loud.
+  3. THE COLLATERAL. §2's sweep is a wildcard on the whole pass-through
+     stream, so it also deletes `_*` attributes and groups that arrived from
+     UPSTREAM and were never ours. That is deliberate (conventions.md §2) and
+     it is measured here, under the `upstream/` keys, so it is a recorded
+     behaviour rather than a surprise found in someone else's scene.
+
+⚠️ "We could not make it leak" is not "it does not leak". Every asset is
+cooked at its defaults AND once per non-default value of every toggle and
+menu it exposes, because `verts`, `scalefactor` and `__scalefactor` were all
+invisible at default parameters — the last of those survived a full survey, a
+migration and a review pass, on a menu branch nothing had ever cooked. Assets
+needing input this file cannot synthesise (a populated kitbash library, a USD
+file on disk) are reported under UNPROVEN, together with every definition in
+`otls/` that is not a SOP and therefore never enters the check at all. Read
+that block; it is the part of the suite that is missing, stated out loud.
 """
 
+import gzip
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -44,16 +58,17 @@ BASELINE = os.path.join(HERE, "baseline.json")
 # polyChain is mid-rebuild and owned by another workstream; conventions.md §3.2
 # defers its rename until the native rebuild reaches parity, because parity is
 # asserted by comparing its output against the Python reference and renaming
-# one side destroys that comparison. DELETE THIS ENTRY when the rebuild lands —
-# the `_*` rule is adopted in it immediately, so it should pass on arrival.
-NOT_YET = {"pf_polychain"}
+# one side destroys that comparison. Prefix match, not an exact filename: that
+# workstream dropped a `pf_polychain_old.hda` beside it mid-audit and an exact
+# match let the frozen tree straight into the run. DELETE THIS on parity — the
+# `_*` rule is adopted in the rebuild, so it should pass on arrival.
+NOT_YET = "pf_polychain"
 
-# Assets whose leak is invisible at default parameters. Each entry cooks a
-# SECOND time with the parms set, because that is exactly how `verts` and
-# `scalefactor` survived a full survey of the suite.
-BRANCHES = {
-    "pf::group_by_topology::1.0": [{"grouptype": "point"}],
-}
+# Bounds on the parameter sweep. Every toggle gets its other value; every menu
+# gets its first MENU_VALUES entries. Unbounded is a combinatorial explosion
+# for no extra coverage — a leak lives on a branch, not on a pair of branches.
+MENU_VALUES = 4
+MAX_VARIANTS = 60
 
 # Assets that cook here, but only ever on the pass-through branch: their real
 # work needs input this file cannot synthesise, so a PASS on them means
@@ -65,6 +80,66 @@ UNEXERCISED = {
                               "which is where it writes its enum, is unreached",
     "pf::pf_asset_place::1.0": "needs a USD stage",
 }
+
+# Why a whole node-type category is out of scope. These definitions carry
+# attribute names as parameter defaults only; there is no geometry output to
+# read them off, so this runner can prove nothing about them either way.
+OUT_OF_SCOPE = {
+    "Vop": "no geometry output — names appear only as parm defaults and wired "
+           "VOP inputs (`pf::texture_bombing`'s `dir_attr` lives here)",
+    "Cop": "image operators — no geometry, no attributes",
+    "Lop": "USD stage operators — primvars, not GA attributes",
+}
+
+
+# Names the migration retired. A cook cannot see these: they survive as a parm
+# value on a branch nothing reaches, or as a sentence in a Help card. Both
+# happened — `pf::texture_bombing` kept `PF_bomber_dir` on `importpoint6`'s
+# `attribute` parm (inert only because a wired VOP input overrides it) AND in
+# the help text that tells the artist what to name their point attribute, and
+# it is a Vop, so nothing else in this file can reach it. Word-boundary match,
+# so `pf_toposelect` does not trip on `toposelect`.
+RETIRED = {
+    "PF_bomber_dir": "pf::texture_bombing `dir_attr` — now `pf_bomber_dir`",
+    "dirr_attr": "pf::texture_bombing help `#id:` typo — the parm is `dir_attr`",
+    "axisRamp": "pf::axis_mask `attribute` — now `pf_axis_mask`",
+    "toposelect": "pf::group_by_topology `groupname` — now `pf_toposelect`",
+    "pf_tempgroup": "pf::group_by_topology working group — now `_topogroup`",
+    "pf_tempsplit": "pf::polysplit working name — now `_split`",
+    "pf_splitEdges": "pf::polysplit working group — now `_split_edges`",
+    "pf_splitPoints": "pf::polysplit working group — now `_split_points`",
+    "splitPathGroup": "PF::split_poly's polysplit groupname — now `_split_path`",
+    "origP": "efex::normalizemesh — now `_orig_p`",
+}
+
+
+def retired_spellings():
+    """[(file, name, why)] for every retired name still written into a library
+    file, sections and compressed node contents alike."""
+    hits = []
+    for f in sorted(os.listdir(OTLS)):
+        if not f.endswith(".hda") or f[:-4].startswith(NOT_YET):
+            continue
+        blobs = []
+        for d in hou.hda.definitionsInFile(os.path.join(OTLS, f)):
+            for sec in d.sections().values():
+                try:
+                    c = sec.contents()
+                except Exception:
+                    continue
+                if isinstance(c, bytes):
+                    if c[:2] == b"\x1f\x8b":
+                        try:
+                            c = gzip.decompress(c)
+                        except Exception:
+                            pass
+                    c = c.decode("utf-8", "replace")
+                blobs.append(c)
+        text = "\n".join(blobs)
+        for name, why in sorted(RETIRED.items()):
+            if re.search(r"(?<![A-Za-z0-9_])%s(?![A-Za-z0-9_])" % name, text):
+                hits.append((f, name, why))
+    return hits
 
 
 def feeds(geo):
@@ -100,6 +175,22 @@ def feeds(geo):
             ("line", line), ("sphere", sphere)]
 
 
+def upstream_feed(geo, src, idx):
+    """`src` plus `_*` names that are NOT ours — a third-party or user working
+    attribute merely passing through a polyfactory node. What survives is
+    recorded, because §2's wildcard sweep deletes these too."""
+    w = geo.createNode("attribwrangle", "feed_upstream%d" % idx)
+    w.setInput(0, src)
+    w.parm("class").set(2)
+    w.parm("snippet").set(
+        'f@_vendor_pt = 1.0;\n'
+        'setprimattrib(0, "_vendor_prim", 0, 1.0);\n'
+        'setdetailattrib(0, "__vendor_detail", 1.0);\n'
+        'setpointgroup(0, "_vendor_group", @ptnum, 1);\n'
+        'i@pf_keepme = 1;')
+    return w
+
+
 def published(geo):
     """Every name on one output, by class."""
     out = {}
@@ -116,6 +207,16 @@ def scratch(pub):
     """The law: nothing named `_*` may leave."""
     return sorted("%s.%s" % (cls, n) for cls, names in pub.items()
                   for n in names if n.startswith("_"))
+
+
+def merge(into, got):
+    """Union one cook's published names into the running record for an asset.
+    A branch adds names, it never takes them away, so an asset's snapshot is
+    everything it CAN publish rather than what it happens to publish today."""
+    for oi, byclass in got.items():
+        slot = into.setdefault(oi, {})
+        for cls, names in byclass.items():
+            slot[cls] = sorted(set(slot.get(cls, [])) | set(names))
 
 
 def cook(node):
@@ -141,52 +242,121 @@ def cook(node):
     return res, count == 0
 
 
-def polyfactory_sops():
-    types = []
-    for t in hou.sopNodeTypeCategory().nodeTypes().values():
-        d = t.definition()
-        if d is None:
+def variants(node):
+    """(label, {parm: value}) for the defaults and for every toggle and menu
+    branch the asset exposes. This is the half that was missing: the old
+    BRANCHES dict held ONE hand-written entry, so `pf::prepare_mesh`'s
+    `__scalefactor` sat on a menu branch nothing ever cooked."""
+    out = [("", {})]
+    for p in node.parms():
+        if len(out) >= MAX_VARIANTS:
+            break
+        pt = p.parmTemplate()
+        try:
+            kind = pt.type()
+        except Exception:
             continue
-        path = d.libraryFilePath().replace("\\", "/").lower()
-        if "/polyfactory/otls/" not in path:
+        cur = p.eval()
+        if kind == hou.parmTemplateType.Toggle:
+            out.append(("[%s=%d]" % (p.name(), 1 - cur), {p.name(): 1 - cur}))
             continue
-        if os.path.basename(path)[:-4] in NOT_YET:
+        try:
+            items = list(pt.menuItems())
+        except Exception:
+            items = []
+        if not items:
             continue
-        types.append(t)
-    return sorted(types, key=lambda t: t.name())
+        if kind == hou.parmTemplateType.String:
+            vals = [i for i in items[:MENU_VALUES] if i != cur]
+        else:
+            vals = [i for i in range(min(MENU_VALUES, len(items))) if i != cur]
+        for v in vals:
+            out.append(("[%s=%s]" % (p.name(), v), {p.name(): v}))
+    return out
 
 
-def run_generic(results, uncooked, empties):
+def build(geo, t, feed, parms):
+    n = geo.createNode(t.name(), "probe_tmp")
+    for i in range(min(n.type().maxNumInputs(), 3)):
+        try:
+            n.setInput(i, feed)
+        except hou.InvalidInput:
+            pass
+    for k, v in parms.items():
+        try:
+            n.parm(k).set(v)
+        except Exception:
+            pass
+    return n
+
+
+def polyfactory_defs():
+    """Every definition that lives in `otls/`, keyed by node-type category.
+    The old version asked `hou.sopNodeTypeCategory()` only, so 19 of the 53
+    definitions — `pf::texture_bombing` among them, which the pf_ migration
+    edited — were neither checked nor mentioned."""
+    found = {}
+    for cat in hou.nodeTypeCategories().values():
+        for t in cat.nodeTypes().values():
+            d = t.definition()
+            if d is None:
+                continue
+            path = d.libraryFilePath().replace("\\", "/").lower()
+            if "/polyfactory/otls/" not in path:
+                continue
+            if os.path.basename(path)[:-4].startswith(NOT_YET):
+                continue
+            found.setdefault(cat.name(), []).append(t)
+    for k in found:
+        found[k] = sorted(found[k], key=lambda t: t.name())
+    return found
+
+
+def run_generic(results, uncooked, empties, swept):
     geo = hou.node("/obj").createNode("geo", "hygiene")
     for c in geo.children():
         c.destroy()
     fs = feeds(geo)
-    for t in polyfactory_sops():
-        variants = [("", {})]
-        for p in BRANCHES.get(t.name(), []):
-            variants.append(("[%s]" % ",".join("%s=%s" % kv for kv in p.items()), p))
-        for label, parms in variants:
-            got = None
-            for _fname, feed in fs:
-                n = geo.createNode(t.name(), "probe_tmp")
-                for i in range(min(n.type().maxNumInputs(), 3)):
-                    try:
-                        n.setInput(i, feed)
-                    except hou.InvalidInput:
-                        pass
-                for k, v in parms.items():
-                    n.parm(k).set(v)
-                got, empty = cook(n)
-                n.destroy()
-                if got is not None:
-                    break
-            key = t.name() + label
-            if got is None:
-                uncooked.append(key)
-            else:
-                results[key] = got
-                if empty:
-                    empties.append(key)
+    ups = dict((nm, upstream_feed(geo, src, i))
+               for i, (nm, src) in enumerate(fs))
+    for t in polyfactory_defs().get("Sop", []):
+        # Find a feed this asset accepts at defaults, then sweep on that one.
+        live_feed = None
+        for fname, feed in fs:
+            n = build(geo, t, feed, {})
+            got, empty = cook(n)
+            n.destroy()
+            if got is not None:
+                live_feed, first, first_empty = fname, got, empty
+                break
+        if live_feed is None:
+            uncooked.append(t.name())
+            continue
+        union = {}
+        merge(union, first)
+        results[t.name()] = union
+        if first_empty:
+            empties.append(t.name())
+        feed = dict(fs)[live_feed]
+        probe = build(geo, t, feed, {})
+        vs = variants(probe)
+        probe.destroy()
+        swept[t.name()] = len(vs) - 1
+        for label, parms in vs[1:]:
+            n = build(geo, t, feed, parms)
+            got, _ = cook(n)
+            n.destroy()
+            if got is not None:
+                merge(union, got)
+        # the collateral: which UPSTREAM `_*` names survive the sweep
+        n = build(geo, t, ups[live_feed], {})
+        got, _ = cook(n)
+        n.destroy()
+        if got is not None:
+            kept = {}
+            merge(kept, got)
+            results["upstream/" + t.name()] = {"0": {"survives": sorted(set(
+                s for out in kept.values() for s in scratch(out)))}}
 
 
 def run_citygen(results, uncooked, empties):
@@ -213,26 +383,42 @@ def run_citygen(results, uncooked, empties):
 def main():
     cases.install_hdas()
     for f in sorted(os.listdir(OTLS)):
-        if f.endswith(".hda") and f[:-4] not in NOT_YET:
+        if f.endswith(".hda") and not f[:-4].startswith(NOT_YET):
             try:
                 hou.hda.installFile(os.path.join(OTLS, f))
             except Exception as exc:
                 print("install failed: %s (%s)" % (f, str(exc)[:120]))
 
-    results, uncooked, empties = {}, [], []
-    run_generic(results, uncooked, empties)
+    results, uncooked, empties, swept = {}, [], [], {}
+    run_generic(results, uncooked, empties, swept)
     run_citygen(results, uncooked, empties)
+
+    law = dict((k, v) for k, v in results.items()
+               if not k.startswith("upstream/"))
 
     # --- 1. the law --------------------------------------------------------
     failures = 0
     print("=== internal `_*` names on an output (conventions.md 2) ===")
-    for key in sorted(results):
-        leaked = sorted(set(s for out in results[key].values() for s in scratch(out)))
+    for key in sorted(law):
+        leaked = sorted(set(s for out in law[key].values() for s in scratch(out)))
         if leaked:
             failures += 1
             print("  [FAIL] %-44s %s" % (key, ", ".join(leaked)))
-    print("  %d of %d cooked assets leak an internal name"
-          % (failures, len(results)))
+    print("  %d of %d cooked assets leak an internal name, across %d "
+          "parameter branches" % (failures, len(law), sum(swept.values())))
+
+    # --- 1b. retired spellings still written into a library ----------------
+    print("\n=== retired names still in a library file (conventions.md 8) ===")
+    stale = retired_spellings()
+    for f, name, why in stale:
+        failures += 1
+        print("  [FAIL] %-28s %-16s %s" % (f, name, why))
+    if not stale:
+        print("  none of the %d retired names survives in any of the %d "
+              "libraries" % (len(RETIRED),
+                             len([f for f in os.listdir(OTLS)
+                                  if f.endswith(".hda")
+                                  and not f[:-4].startswith(NOT_YET)])))
 
     # --- 2. the snapshot ---------------------------------------------------
     base = {}
@@ -258,18 +444,25 @@ def main():
     print("\n=== published names vs baseline ===")
     if moved:
         print("\n".join(moved))
-        print("  %d change(s) — every one must be deliberate" % len(moved))
+        print("  %d change(s) — every one must be deliberate "
+              "(--update-baseline accepts them)" % len(moved))
     else:
         print("  no change")
 
-    if uncooked or empties or (set(UNEXERCISED) & set(results)):
-        print("\n=== UNPROVEN — not the same thing as clean ===")
-        for k in sorted(uncooked):
-            print("  did not cook   %s" % k)
-        for k in sorted(empties):
-            print("  cooked EMPTY   %s (needs input this file cannot make)" % k)
-        for k in sorted(set(UNEXERCISED) & set(results)):
-            print("  pass-through   %s — %s" % (k, UNEXERCISED[k]))
+    print("\n=== UNPROVEN — not the same thing as clean ===")
+    for k in sorted(uncooked):
+        print("  did not cook   %s" % k)
+    for k in sorted(empties):
+        print("  cooked EMPTY   %s (needs input this file cannot make)" % k)
+    for k in sorted(set(UNEXERCISED) & set(results)):
+        print("  pass-through   %s — %s" % (k, UNEXERCISED[k]))
+    defs = polyfactory_defs()
+    for cat in sorted(defs):
+        if cat == "Sop":
+            continue
+        print("  out of scope   %d %s definition(s): %s"
+              % (len(defs[cat]), cat, ", ".join(t.name() for t in defs[cat])))
+        print("                 %s" % OUT_OF_SCOPE.get(cat, "not cooked here"))
 
     if "--update-baseline" in sys.argv:
         with open(BASELINE, "w") as fh:
@@ -279,8 +472,10 @@ def main():
         with open(sys.argv[sys.argv.index("--json") + 1], "w") as fh:
             json.dump(results, fh, indent=1, sort_keys=True)
 
-    print("\n%d failing checks" % failures)
-    return 1 if failures else 0
+    accepted = "--update-baseline" in sys.argv
+    print("\n%d failing checks, %d unreviewed baseline change(s)"
+          % (failures, 0 if accepted else len(moved)))
+    return 1 if failures or (moved and not accepted) else 0
 
 
 if __name__ == "__main__":

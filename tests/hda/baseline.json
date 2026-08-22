@@ -427,9 +427,11 @@
    "detail": [],
    "group": [
     "pf_bottomedge",
+    "pf_bottomedge_inside",
     "pf_bottomface",
     "pf_tempgroup",
     "pf_topedge",
+    "pf_topedge_inside",
     "pf_topface"
    ],
    "point": [
@@ -448,6 +450,7 @@
    ],
    "group": [],
    "point": [
+    "Cd",
     "P"
    ],
    "prim": [
@@ -494,7 +497,8 @@
     "pf_enum"
    ],
    "prim": [
-    "name"
+    "name",
+    "path"
    ],
    "vertex": []
   }
@@ -571,22 +575,6 @@
    "vertex": []
   }
  },
- "pf::group_by_topology::1.0[grouptype=point]": {
-  "0": {
-   "detail": [],
-   "group": [
-    "pf_toposelect"
-   ],
-   "point": [
-    "P",
-    "pf_enum"
-   ],
-   "prim": [
-    "name"
-   ],
-   "vertex": []
-  }
- },
  "pf::merge_enum::1.0.0": {
   "0": {
    "detail": [],
@@ -596,7 +584,8 @@
     "pf_enum"
    ],
    "prim": [
-    "name"
+    "name",
+    "path"
    ],
    "vertex": []
   }
@@ -710,9 +699,7 @@
  "pf::prim_cross::1.0": {
   "0": {
    "detail": [],
-   "group": [
-    "splitPathGroup"
-   ],
+   "group": [],
    "point": [
     "P",
     "pf_enum"
@@ -753,10 +740,13 @@
  "pf::ramp_sweep::1.0.0": {
   "0": {
    "detail": [],
-   "group": [],
+   "group": [
+    "endcaps"
+   ],
    "point": [
     "P",
-    "pf_enum"
+    "pf_enum",
+    "uv"
    ],
    "prim": [
     "name"
@@ -773,12 +763,16 @@
    "group": [],
    "point": [
     "P",
+    "column",
     "pf_column",
-    "pf_row"
+    "pf_row",
+    "row"
    ],
    "prim": [
+    "column",
     "pf_column",
-    "pf_row"
+    "pf_row",
+    "row"
    ],
    "vertex": [
     "uv"
@@ -1033,6 +1027,255 @@
     "street_class"
    ],
    "vertex": []
+  }
+ },
+ "upstream/PF::split_poly::1.0": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/efex::normalizemesh::1.0.0": {
+  "0": {
+   "survives": [
+    "group._vendor_group"
+   ]
+  }
+ },
+ "upstream/efex::scale_to_one::1.0.0": {
+  "0": {
+   "survives": [
+    "group._vendor_group"
+   ]
+  }
+ },
+ "upstream/pf::advanced_tube::1.0": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/pf::axis_gizmo::1.0": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/pf::axis_mask::1.0": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf::bend_to_radius::1.0.0": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf::connectivity_plus::1.0.0": {
+  "0": {
+   "survives": [
+    "group._vendor_group"
+   ]
+  }
+ },
+ "upstream/pf::curve_vector::1.0": {
+  "0": {
+   "survives": [
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf::fast_clip::1.0": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf::fast_mirror::1.0": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf::geoimporter::1.0.0": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/pf::group_by_topology::1.0": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/pf::merge_enum::1.0.0": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf::mesh_view::1.0.0": {
+  "0": {
+   "survives": [
+    "group._vendor_group"
+   ]
+  }
+ },
+ "upstream/pf::pf_asset_place::1.0": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf::pf_asset_tag::1.0": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf::pf_kitbash::1.0": {
+  "0": {
+   "survives": [
+    "group._vendor_group"
+   ]
+  }
+ },
+ "upstream/pf::point_prim::1.0": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/pf::polysplit::1.0": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/pf::prepare_mesh::1.0": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/pf::prim_cross::1.0": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/pf::primneighbouredge::1.0": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf::ramp_curve::1.0.0": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/pf::ramp_sweep::1.0.0": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf::ramp_tube::1.0.0": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/pf_citygen_field_grid": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf_citygen_field_radial": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf_citygen_junction": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf_citygen_mesh": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf_citygen_segmenter": {
+  "0": {
+   "survives": []
+  }
+ },
+ "upstream/pf_citygen_solver": {
+  "0": {
+   "survives": [
+    "detail.__vendor_detail",
+    "group._vendor_group",
+    "point._vendor_pt",
+    "prim._vendor_prim"
+   ]
+  }
+ },
+ "upstream/pf_citygen_tracer": {
+  "0": {
+   "survives": []
   }
  }
 }
