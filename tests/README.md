@@ -21,6 +21,15 @@ hython tests/citygen/run_scene_checks.py --update-baseline
 hython tests/polychain/run_scene_checks.py
 hython tests/polychain/run_scene_checks.py --update-baseline
 
+# polyChain's HDA, cooked as a node - the only thing that can see a mis-wired
+# input, a parm that reads nothing, or a style payload that does not override
+hython tests/polychain/run_hda_checks.py
+
+# polyChain at scale: PC-G3's 10k-piece run and D75's curvature budget across
+# radii (packed vs deformed, points, seconds, RSS) - ~30 s
+hython tests/polychain/scale_gate.py
+hython tests/polychain/scale_gate.py --json out.json
+
 # the loop-closure gate, swept over a sep/step ladder — ~1 min / ~20 min
 hython tests/citygen/closure_gate.py
 hython tests/citygen/closure_gate.py --full --table

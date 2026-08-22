@@ -1084,8 +1084,9 @@ def plan_points(geo, report):
     The plan is the stage between the kernel and the geometry, and until this
     existed it lived only inside one Python call - nothing to middle-click when
     a fill comes out wrong, and nothing for 5's plan-preview-while-dragging to
-    draw. Written into a SEPARATE geometry (the HDA's second output), never
-    merged with the build: a plan point is not an element.
+    draw. Written into a SEPARATE geometry, never merged with the build: a
+    plan point is not an element. The HDA reaches it through its `display`
+    menu rather than through a second output (D81).
     """
     rows = _plan.plan_dicts(report.get("plan") or [])
     pos = report.get("plan_pos") or [(0.0, 0.0, 0.0)] * len(rows)
