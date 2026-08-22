@@ -161,7 +161,17 @@ def _clean(curve):
 
     For a closed curve a final point coincident with the first is dropped: it
     is the closing vertex, not a second vertex at the same place.
+
+    D166 - WHEN `pc_arclength` ALREADY ANSWERED THIS, IT IS NOT ASKED AGAIN.
+    The asset wires `kernel` behind its own DECOMPOSE box, so the metres
+    arriving on the geometry are the ones the 64-bit wrangle computed, and
+    `decompose_arclength_parity` asserts at exactly 0.0 that they are the same
+    numbers.  Copies are returned because callers own what they get back.
     """
+    native = getattr(curve, "native", None)
+    if native is not None:
+        idx, pts, cum = native["clean"]
+        return (list(idx), list(pts), list(cum))
     idx, pts = [], []
     for i, p in enumerate(curve.points):
         if pts and _norm(_sub(p, pts[-1])) <= POS_EPS:
@@ -197,11 +207,38 @@ def _flag(curve, original_index):
         return 0                                    # warn-never-block
 
 
+def _native_cfg_matches(native, params):
+    """Did the VEX resolve its corners against THESE thresholds?
+
+    `pc_curve_index` stamps CONFIG onto the sections stream precisely so this
+    question has an answer.  A caller asking `resolve_corners` with different
+    thresholds than the wrangle used - `analyse()` with an explicit `params`,
+    a check sweeping the angle - must get the thresholds it asked for, so the
+    mismatch falls back to Python rather than answering the wrong question.
+    """
+    cfg = native.get("cfg") or {}
+    try:
+        return (float(cfg["corner_angle_deg"])
+                == float(params.corner_angle_deg)
+                and float(cfg["min_included_angle_deg"])
+                == float(params.min_included_angle_deg))
+    except (KeyError, TypeError, ValueError):
+        return False
+
+
 def resolve_corners(curve, params=DEFAULTS):
     """Every vertex that is a corner, in point order (4.1).
 
     `pc_corner`: -1 suppress, 0 auto (turn > `corner_angle_deg`), 1 force.
+
+    D166 - `pc_corners.vfl` applies exactly this rule, including the three
+    meanings of `pc_corner`, and `decompose_corner_parity` asserts the sets
+    and the flags are identical on all 89 cases.  When the wrangle has already
+    run with THESE thresholds its answer is the answer.
     """
+    native = getattr(curve, "native", None)
+    if native is not None and _native_cfg_matches(native, params):
+        return list(native["corners"])
     idx, pts, cum = _clean(curve)
     n = len(pts)
     out = []

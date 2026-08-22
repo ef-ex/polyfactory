@@ -1,10 +1,39 @@
-// STAGE 1 - DECOMPOSE.  DETAIL wrangle: the curve id table, one entry per
-// primitive, in primitive order.  It exists so a marker can find its curve
-// with an array lookup instead of a scan over the whole stream - the same
-// "hoist the batch to the outermost loop" rule 11.9 wrote for the Python.
+// STAGE 1 - DECOMPOSE.  DETAIL wrangle: the curve id TABLE.
+//   input 0  the spline stream
+//   input 1  CONFIG
+//
+// D168 - IT IS A DICT, AND THAT IS THE WHOLE POINT.  This node used to
+// publish a string ARRAY and `pc_markers` scanned it, so the comment promised
+// "an array lookup instead of a scan" while the marker stage still did an
+// O(nprimitives) string compare per marker - 300 x 300 = 90 000 comparisons
+// on the citygen shape.  A VEX dict IS a hash lookup, which is the mechanism
+// `pc_cfg` already uses, so the promise and the code now say the same thing.
+//
+// The stored value is the prim number PLUS ONE, because a dict read of an
+// absent key answers 0 and "prim 0" and "no such curve" must not be the same
+// number.  `pc_curve_dup` names the ids that more than one prim claims - the
+// reference fans a marker out onto EVERY curve sharing the id (D74 warns
+// about it) and one point wrangle cannot emit two points, so `pc_markers`
+// warns instead of quietly answering for one of them (D169).
+//
+// It also carries CONFIG onto the stream, so `OUT_sections` says out loud
+// which corner thresholds produced its corners.  That stamp is what lets the
+// reference trust the VEX corners in `place.read_curves` instead of
+// recomputing them (D166).
 
 string ids[];
 int n = nprimitives(0);
 resize(ids, n);
-for (int i = 0; i < n; i++) ids[i] = prim(0, "pc_curve_id_r", i);
+dict byid, dup;
+for (int i = 0; i < n; i++) {
+    string cid = prim(0, "pc_curve_id_r", i);
+    ids[i] = cid;
+    if (cid == "") continue;
+    int prev = byid[cid];
+    if (prev == 0) byid[cid] = i + 1;
+    else           dup[cid] = 1;
+}
 s[]@pc_curve_ids = ids;
+d@pc_curve_prim  = byid;
+d@pc_curve_dup   = dup;
+d@pc_cfg         = detail(1, "pc_cfg");

@@ -15,6 +15,9 @@ int clean = i@pc_cleanidx;
 // the curve this vertex belongs to.  `pc_nclean` is a PRIMITIVE attribute and
 // a point wrangle binding `i@pc_nclean` would read 0 on every point - which is
 // silent, and made every corner in the suite vanish.
+// ⚠️ `pointprims(...)[0]` IS the owning prim only because `pc_unshare` runs
+// first (D165).  On a fused junction it is whichever prim happens to be
+// first, and the corner on the other one disappears - measured.
 int prims[] = pointprims(0, @ptnum);
 int pr = len(prims) ? prims[0] : -1;
 int nclean = (pr < 0) ? 0 : prim(0, "pc_nclean", pr);
@@ -33,7 +36,6 @@ if (flag < 0) return;                        // -1 suppress, before any maths
 
 vector a = point(0, "P", prev);
 vector c = point(0, "P", next);
-vector d0 = a - v@P, d1 = c - v@P;
 // `_turn_deg`: the deviation from straight, 0 = collinear.  Built from the two
 // EDGE directions, not from the two spokes, so the sign convention matches.
 vector e0 = v@P - a, e1 = c - v@P;

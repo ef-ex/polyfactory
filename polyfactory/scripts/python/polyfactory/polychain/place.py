@@ -428,6 +428,7 @@ def read_curves(geo):
                 marker_id=int(_pattr(pt, "pc_marker_id", 0) or 0),
                 data=dict(data) if isinstance(data, dict) else {}))
 
+    native = _native_tables(geo)
     has_corner = geo.findPointAttrib("pc_corner") is not None
     pt_section = geo.findPointAttrib("pc_section") is not None
     prim_section = geo.findPrimAttrib("pc_section") is not None
@@ -464,12 +465,82 @@ def read_curves(geo):
             closed = prim.isClosed()
         except AttributeError:
             closed = False
-        curves.append(Curve(str(cid), [p.position() for p in pts],
-                            closed=closed, corner_flags=flags,
-                            section_ids=sections,
-                            style_key=str(_prattr(prim, "pc_style", "") or ""),
-                            attrs=_prim_attrs(geo, prim)))
+        positions = [p.position() for p in pts]
+        curve = Curve(str(cid), positions,
+                      closed=closed, corner_flags=flags,
+                      section_ids=sections,
+                      style_key=str(_prattr(prim, "pc_style", "") or ""),
+                      attrs=_prim_attrs(geo, prim))
+        curve.prim_number = prim.number()
+        if native is not None:
+            curve.native = _native_for(native, str(cid), positions,
+                                       [p.number() for p in pts])
+        curves.append(curve)
     return (curves, markers)
+
+
+# --- 13.10 THE UNION: 4.1's answers, read back off the geometry -------------
+#
+# The asset wires `kernel` BEHIND its own DECOMPOSE box, so by the time this
+# module sees a spline the 64-bit wrangles have already walked it.  Without
+# this the whole VEX branch was decoration: measured on the build before it,
+# every one of the six new nodes had `cookCount == 0` after an Output cook,
+# bypassing all six left the output hash byte-identical, and DESTROYING all
+# six left it byte-identical too.  A branch nothing cooks is not a port.
+#
+# D166 - THE READ IS PYTHON, AND THAT IS WHAT HANNES' RULE ALLOWS.  What moved
+# to VEX is the per-element geometry work: the cumulative scan, the coincident
+# merge, the turn angle and the corner threshold, all of it over N points.
+# What is left here is a handful of BULK attribute reads and one slice per
+# curve - marshalling data between a node and a caller, which is the second
+# half of the rule.  Nothing below touches a `hou.Point` for anything but its
+# number, and the standing wrapper tripwires are what keep that true.
+
+_NATIVE_POINT_ATTRS = (("s", "pc_s", "float"), ("clean", "pc_cleanidx", "int"),
+                       ("corner", "pc_iscorner", "int"),
+                       ("turn", "pc_turn_deg", "float"),
+                       ("degen", "pc_corner_degen", "int"),
+                       ("forced", "pc_corner_forced", "int"))
+
+
+def _native_tables(geo):
+    """4.1's per-point answers as bulk arrays, or None when they are absent.
+
+    `pc_nclean` is the sentinel because `pc_arclength` is the only thing that
+    writes it, and it writes it on every curve it accepted.  A raw spline - a
+    check calling `build` directly, a node wired straight to a curve SOP - has
+    none of these, and every caller then falls through to the Python.
+    """
+    if geo.findPrimAttrib("pc_nclean") is None:
+        return None
+    out = {}
+    for key, name, kind in _NATIVE_POINT_ATTRS:
+        if geo.findPointAttrib(name) is None:
+            return None
+        out[key] = (geo.pointFloatAttribValues(name) if kind == "float"
+                    else geo.pointIntAttribValues(name))
+    out["cfg"] = (geo.attribValue("pc_cfg")
+                  if geo.findGlobalAttrib("pc_cfg") is not None else {})
+    return out
+
+
+def _native_for(native, curve_id, positions, pnums):
+    """One curve's slice of the native tables, in `_clean`'s own shape."""
+    s, clean = native["s"], native["clean"]
+    corner, turn = native["corner"], native["turn"]
+    degen, forced = native["degen"], native["forced"]
+    idx, pts, cum, corners = [], [], [], []
+    for k, num in enumerate(pnums):
+        if clean[num] >= 0:
+            idx.append(k)
+            pts.append(positions[k])
+            cum.append(s[num])
+        if corner[num]:
+            corners.append(_decompose.Corner(
+                curve_id, k, positions[k], turn[num],
+                bool(forced[num]), bool(degen[num]), s[num]))
+    return {"clean": (idx, pts, cum), "corners": corners,
+            "cfg": native["cfg"]}
 
 
 # --- 4.6: the override cascade (swap and replace) ---------------------------
@@ -1751,7 +1822,7 @@ def analyse(curve_geo, params=DEFAULTS, kit=None, style=None,
 
 
 def build(curve_geo, kit_geo, style, params=None, out=None,
-          surface_geo=None, overrides=None):
+          surface_geo=None, overrides=None, report_frames=False):
     """Curves + kit -> placed geometry. Never raises (warn-never-block).
 
     Returns (geometry, report) where the report carries the plan, the kit
@@ -2163,17 +2234,20 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         "plan": [j["p"] for j in jobs],
         "plan_pos": [j["pos0"] for j in jobs],
         # 13.3.4's frame inputs, as the reference actually computed them.
-        # ADDITIVE and read-only: nothing in the build consults it, and its
-        # only consumer is `frames_parity`, which feeds these exact numbers to
-        # `pc_frames.vfl` and asserts the two 3x3s agree bit for bit.
-        "frames": [{"s0r": j["s0r"], "s1r": j["s1r"], "zmode": j["zmode"],
-                    "proto_len": j["proto"].length, "proto_ax": j["proto"].ax,
-                    "base_y": j["packed_y"], "yscale": j["yscale"],
-                    "up_ref": tuple(j.get("up_ref", UP)),
-                    "curve_id": getattr(j["path"], "pc_curve_id", None),
-                    "raw": bool(getattr(j["path"], "pc_raw", False)),
-                    "anchored": j["p"].anchor is not None}
-                   for j in jobs],
+        # ⚠️ OFF BY DEFAULT (D171). It is instrumentation, its only consumers
+        # are `cook_plan_bridge` and the parity rig, and it is not free:
+        # measured on the packed 10k fixture it is 10 000 dicts of 11 keys,
+        # 4.96 MB by recursive `getsizeof` and 0.0031 s of a 0.2239 s build,
+        # allocated and thrown away on every cook of a node nobody has put on
+        # the Plan stage. It grows with N4/N5, so it asks before it rides.
+        "frames": ([{"s0r": j["s0r"], "s1r": j["s1r"], "zmode": j["zmode"],
+                     "proto_len": j["proto"].length, "proto_ax": j["proto"].ax,
+                     "base_y": j["packed_y"], "yscale": j["yscale"],
+                     "up_ref": tuple(j.get("up_ref", UP)),
+                     "curve_id": getattr(j["path"], "pc_curve_id", None),
+                     "raw": bool(getattr(j["path"], "pc_raw", False)),
+                     "anchored": j["p"].anchor is not None}
+                    for j in jobs] if report_frames else []),
         "kit_warnings": kit_warns,
         "curves": len(curves),
         "markers": len(markers),

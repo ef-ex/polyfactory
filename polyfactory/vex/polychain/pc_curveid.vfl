@@ -1,13 +1,41 @@
-// STAGE 1 - DECOMPOSE (spec 4.1), the curve id.  PRIMITIVE wrangle.
+// STAGE 1 - DECOMPOSE (spec 4.1), the curve id AND the curve SET.
+// PRIMITIVE wrangle.
 //
 // `place.read_curves`' id rule, D29 + D64 included: `pc_curve_id`, else
 // `edge_id`, else the primitive number - and a BLANK id is an ABSENT id, not
 // a shared one.  A Houdini attribute is geometry-wide, so the moment any prim
 // upstream carries `pc_curve_id` every other prim carries "" - and reading
 // that as an id collapses every unlabelled curve onto the same `pc_elem_id`.
+//
+// D167 - AND THE SET, NOT ONLY THE ID.  `read_curves` DECLINES three kinds of
+// primitive and this node declines the same three, because an id rule that
+// agrees with itself while the two sides disagree about WHICH prims are
+// curves is a check of nothing (measured: a 3-point line whose middle point
+// carries `pc_marker` built 0 curves in the reference and a full sampler
+// table here).  A packed prim has exactly one point, so `len(pts) < 2` covers
+// the short prim and the packed prim at once.
+//   * fewer than two points - including every packed prim;
+//   * any point of the prim carrying `pc_marker` - the reference refuses to
+//     build a curve it would then have to place a marker inside of.
+// A declined prim keeps a BLANK `pc_curve_id_r`, which no marker can match,
+// and `pc_arclength` writes it no table at all.
+
+int pts[] = primpoints(0, @primnum);
+int iscurve = (len(pts) >= 2);
+if (iscurve && haspointattrib(0, "pc_marker")) {
+    foreach (int p; pts) {
+        // ⚠️ TYPED LOCAL FIRST - `point()` returns an untyped value and the
+        // comparison below is ambiguous without it (recorded trap).
+        int mark = point(0, "pc_marker", p);
+        if (mark == 1) { iscurve = 0; break; }
+    }
+}
+i@pc_iscurve = iscurve;
 
 string cid = "";
-if (hasprimattrib(0, "pc_curve_id")) cid = prim(0, "pc_curve_id", @primnum);
-if (cid == "" && hasprimattrib(0, "edge_id")) cid = prim(0, "edge_id", @primnum);
-if (cid == "") cid = sprintf("%d", @primnum);
+if (iscurve) {
+    if (hasprimattrib(0, "pc_curve_id")) cid = prim(0, "pc_curve_id", @primnum);
+    if (cid == "" && hasprimattrib(0, "edge_id")) cid = prim(0, "edge_id", @primnum);
+    if (cid == "") cid = sprintf("%d", @primnum);
+}
 s@pc_curve_id_r = cid;

@@ -1,8 +1,14 @@
 // STAGE 1 - DECOMPOSE (spec 4.1).  PRIMITIVE wrangle, VEX precision 64.
 //
 // One curve per thread; the cumulative scan is sequential INSIDE that thread.
-// That is the decomposition the data actually has, and it measured 0.0037 s on
-// a 20 001-vertex 20 km line against the reference's 0.030 s.
+// That is the decomposition the data actually has.
+//
+// ⚠️ IT IS NOT A SPEEDUP AND THE HEADER USED TO SAY IT WAS.  This line
+// claimed "0.0037 s against the reference's 0.030 s"; that number timed a
+// wrangle writing ONE point attribute, not this node, which also builds the
+// 20 000-element sampler table.  `decompose_long_curve_wall_clock` measures
+// the whole stage against the whole reference answer on every run and prints
+// the ratio; 15.2 carries the reading.
 //
 // 64-BIT IS MANDATORY HERE.  This is the 20 km expression 11.0 measured
 // returning 0 at 32 bits; `vex_precision = 64` stores the result as a FLOAT64
@@ -20,6 +26,11 @@
 
 #include "pc_path.h"
 
+// D167 - a prim `place.read_curves` DECLINED is not a curve here either, and
+// it gets no table at all.  `pc_curveid` made the decision; repeating the
+// test would be a second copy of a rule that has already drifted once.
+if (!i@pc_iscurve) return;
+
 int pts[] = primpoints(0, @primnum);
 int np = len(pts);
 int closed = primintrinsic(0, "closed", @primnum);
@@ -31,9 +42,10 @@ for (int i = 0; i < np; i++) P[i] = point(0, "P", pts[i]);
 
 // ⚠️ RESIZE ONCE, THEN INDEX. Never `append` in a loop this long. Measured
 // on this exact fixture - a 20 km line at 1 m, 20 001 vertices - the append
-// version of the four tables below cooked in 0.0442 s and this one cooks in
-// the time recorded in 13.9's build log; `append` reallocates, and five
-// arrays growing one element at a time is most of what the node was doing.
+// version of the four tables below cooked in 0.0442 s against 0.0428 s for
+// this one at 20 km, and 0.0044 s against 0.0028 s on the same shape at 2 km;
+// `append` reallocates, and five arrays growing one element at a time is most
+// of what the node was doing at the shorter length.
 // The arrays are cut back to their real length at the end, which is one
 // reallocation instead of twenty thousand.
 int ncum = np + ((closed && np > 1) ? 1 : 0);
@@ -100,6 +112,11 @@ resize(keep, nk);
 
 // A vertex the clean pass merged away carries -1 and its predecessor's metre,
 // so a downstream read of `pc_s` on ANY point is still a metre on this curve.
+// ⚠️ THESE ARE PER-(CURVE, VERTEX) QUANTITIES IN POINT STORAGE, which is only
+// sound because `pc_unshare` runs first (D165).  Without it a junction point
+// shared by two prims is written twice and one curve silently carries the
+// other's metre - measured on a fused pair, a 90 deg corner vanished and the
+// numbers flipped with primitive order alone.
 // ⚠️ ONE pass, not two: a `setpointattrib` written earlier in the same wrangle
 // is NOT guaranteed readable back, so the running metre is carried in a local.
 int kpos[];

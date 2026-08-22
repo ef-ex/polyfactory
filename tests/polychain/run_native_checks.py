@@ -81,6 +81,30 @@ def f32(x):
     return struct.unpack("f", struct.pack("f", float(x)))[0]
 
 
+def _fingerprint(node):
+    """(prim count, every point of the OUTPUT rounded to 1e-6 m) for one node.
+
+    The strongest cheap statement about a cook: two builds that agree here
+    built the same fence in the same place.
+    """
+    geo = node.geometry()
+    return (len(geo.iterPrims()),
+            tuple(round(v, 6) for v in geo.pointFloatAttribValues("P")))
+
+
+def hilo(x):
+    """D170's split: the float32 head and the float32 residual
+    `plan_geometry` stores, which `pc_frames` adds back in 64-bit VEX."""
+    head = f32(x)
+    return head, f32(float(x) - head)
+
+
+def transported(x):
+    """`x` as it ARRIVES at the wrangle after crossing the point attributes."""
+    head, lo = hilo(x)
+    return head + lo
+
+
 def ulp32(x):
     """One float32 ULP at `x` - the smallest number float32 can express there.
 
@@ -112,7 +136,7 @@ def decompose_parity(root, built):
     bad_corner = []
     bad_marker = []
     bad_id = []
-    n_curves = n_corners = n_markers = 0
+    n_curves = n_corners = n_markers = n_declined = n_dup = 0
     for name in sorted(built):
         case = built[name]
         params = case["style"].params if case["style"] else DEFAULTS
@@ -123,14 +147,28 @@ def decompose_parity(root, built):
             continue
         out = last.geometry()
         curves, markers = P.read_curves(case["curve"])
+        prims = out.prims()
 
-        # (a) the id rule, written twice - once in VEX, once in Python
-        ref_index = H.curve_prim_index(case["curve"])
-        for prim in out.prims():
-            got = prim.attribValue("pc_curve_id_r")
-            if ref_index.get(got) != prim.number():
-                bad_id.append((name, prim.number(), got))
-        by_id = dict((p.attribValue("pc_curve_id_r"), p) for p in out.prims())
+        # (a) THE ID RULE AND THE CURVE SET, against `read_curves` ITSELF.
+        # ⚠️ THIS USED TO COMPARE TWO COPIES OF THE SAME RULE. It asked
+        # `hda.curve_prim_index`, which re-implemented D29/D64 and applied
+        # none of `read_curves`' filters - so it could agree with the VEX
+        # while both disagreed with the curve set the builder plans on.
+        # There is one rule now (`curve_prim_index` reads `read_curves`) and
+        # this asks the builder's own answer, prim by prim, INCLUDING the
+        # prims the reference declined.
+        ref_by_prim = dict((c.prim_number, str(c.curve_id)) for c in curves)
+        iscurve = out.primIntAttribValues("pc_iscurve")
+        got_ids = out.primStringAttribValues("pc_curve_id_r")
+        for i, cid in enumerate(got_ids):
+            want = ref_by_prim.get(i)
+            if want is None:
+                n_declined += 1
+                if iscurve[i] or cid:
+                    bad_id.append((name, i, "kept a prim the reference "
+                                   "declined", cid))
+            elif not iscurve[i] or cid != want:
+                bad_id.append((name, i, cid, want))
 
         pc_s = out.pointFloatAttribValues("pc_s")
         turn = out.pointFloatAttribValues("pc_turn_deg")
@@ -138,10 +176,9 @@ def decompose_parity(root, built):
         degen = out.pointIntAttribValues("pc_corner_degen")
         for curve in curves:
             n_curves += 1
-            prim = by_id.get(str(curve.curve_id))
-            if prim is None:
-                bad_id.append((name, str(curve.curve_id), "no prim"))
-                continue
+            # BY PRIM NUMBER, not by id: two curves may legally share an id
+            # (D74) and keying by id silently compared one of them twice.
+            prim = prims[curve.prim_number]
             worst_total = max(worst_total,
                               abs(prim.attribValue("pc_total") - curve.length))
             idx, _pts, cum = D._clean(curve)
@@ -161,39 +198,63 @@ def decompose_parity(root, built):
                 if bool(degen[got[i]]) != ref[i].degenerate:
                     bad_corner.append((name, str(curve.curve_id), "degen", i))
 
-        # (b) markers
+        # (b) MARKERS, keyed by the PRIM each one landed on.
+        # D169: where two prims claim one id the reference places the marker
+        # on BOTH and one point wrangle can place it on one, so the native
+        # stage owes a WARNING there rather than a second point. That is
+        # asserted, not excused.
+        seen = {}
+        for cid in got_ids:
+            if cid:
+                seen[cid] = seen.get(cid, 0) + 1
+        dup_ids = set(c for c, n in seen.items() if n > 1)
         ref_m = {}
         for curve in curves:
-            for row in D.resolve_markers(curve, markers):
-                ref_m.setdefault(str(curve.curve_id), []).append(row)
-        if ref_m:
-            got_m = {}
-            has = out.findPointAttrib("pc_marker") is not None
-            for point in out.points():
-                if has and point.attribValue("pc_marker") == 1:
-                    got_m.setdefault(str(point.attribValue("pc_curve")),
-                                     []).append(point)
-            for cid, rows in ref_m.items():
-                mine = sorted(got_m.get(cid, []),
-                              key=lambda p: p.attribValue("pc_s"))
-                if len(mine) != len(rows):
-                    bad_marker.append((name, cid, len(rows), len(mine)))
+            rows = D.resolve_markers(curve, markers)
+            if rows:
+                ref_m[curve.prim_number] = sorted(rows, key=lambda d: d["s"])
+        got_m = {}
+        if out.findPointAttrib("pc_marker") is not None:
+            has_dup = out.findPointAttrib("pc_warn_marker_dup") is not None
+            mark = out.pointIntAttribValues("pc_marker")
+            bound = out.pointIntAttribValues("pc_curveprim")
+            warn_dup = (out.pointIntAttribValues("pc_warn_marker_dup")
+                        if has_dup else [0] * len(mark))
+            for pn, is_m in enumerate(mark):
+                if is_m and bound[pn] >= 0:
+                    got_m.setdefault(bound[pn], []).append(
+                        (pc_s[pn], warn_dup[pn]))
+        for pr in sorted(set(ref_m) | set(got_m)):
+            rows = ref_m.get(pr, [])
+            mine = sorted(got_m.get(pr, []))
+            if got_ids[pr] in dup_ids:
+                n_dup += 1
+                # the FIRST prim claiming the id keeps the marker, and it must
+                # say that it is answering for more than one curve
+                first = min(i for i, c in enumerate(got_ids)
+                            if c == got_ids[pr])
+                want = len(rows) if pr == first else 0
+                if len(mine) != want or (mine and not mine[0][1]):
+                    bad_marker.append((name, pr, "dup", want, len(mine),
+                                       mine and mine[0][1]))
                     continue
-                for row, point in zip(sorted(rows, key=lambda d: d["s"]),
-                                      mine):
-                    n_markers += 1
-                    worst_marker = max(worst_marker,
-                                       abs(row["s"] - point.attribValue("pc_s")))
+            elif len(mine) != len(rows):
+                bad_marker.append((name, pr, len(rows), len(mine)))
+                continue
+            for row, pair in zip(rows, mine):
+                n_markers += 1
+                worst_marker = max(worst_marker, abs(row["s"] - pair[0]))
         sub.destroy()
 
-    check("native_id_parity", not bad_id, len(bad_id),
-          "the VEX id rule vs hda.curve_prim_index over %d curves; %s"
-          % (n_curves, bad_id[:2] or "identical"))
+    check("native_id_and_curve_set_parity", not bad_id, len(bad_id),
+          "the VEX id rule AND the curve set vs place.read_curves over %d "
+          "curves and %d declined prims; %s"
+          % (n_curves, n_declined, bad_id[:2] or "identical"))
     # EXACT, no slack: 64-bit VEX doing the same additions in the same order
     # as 64-bit Python. If this needs a tolerance the accumulation order
     # differs, and that is a defect, not float noise (13.8).
     check("decompose_arclength_parity", worst_s == 0.0, "%.3e m" % worst_s,
-          "worst |d pc_s| over %d curves, all 89 cases (ceiling 0.0)"
+          "worst |d pc_s| over %d curves, all cases (ceiling 0.0)"
           % n_curves)
     check("decompose_length_parity", worst_total == 0.0,
           "%.3e m" % worst_total, "worst |d curve length| (ceiling 0.0)")
@@ -207,8 +268,10 @@ def decompose_parity(root, built):
           "ULP not zero)" % n_corners)
     check("decompose_marker_parity", not bad_marker and worst_marker == 0.0,
           "%.3e m" % worst_marker,
-          "worst |d marker s| over %d markers; %s"
-          % (n_markers, bad_marker[:2] or "counts identical"))
+          "worst |d marker s| over %d markers on %d prims, %d of them under "
+          "a duplicated id (D169 - warned, not silently short); %s"
+          % (n_markers, n_curves, n_dup,
+             bad_marker[:2] or "counts identical"))
 
 
 def frame_calls(case):
@@ -230,20 +293,28 @@ def frame_calls(case):
 
     def spy_pt(proto, path, sa, sb, zmode, up_ref=P.UP, base_y=None,
                ends=None, yscale=1.0):
-        # ⚠️ THE SPANS ARE ROUNDED TO FLOAT32 ON *BOTH* SIDES, deliberately.
-        # The rig carries the plan to the wrangle through a .bgeo point
-        # attribute, which is float32 storage; asking the reference the
-        # question in float64 and the wrangle the same question in float32
-        # measures the transport, not the arithmetic. Rounding both isolates
-        # the arithmetic, which is what this check is for - and the transport
-        # is covered separately by `native_intermediates_are_64bit`.
-        sa, sb = f32(sa), f32(sb)
+        # ⚠️ THE SPANS GO THROUGH THE REAL TRANSPORT ON *BOTH* SIDES,
+        # deliberately, and that makes the two checks below ARITHMETIC-ONLY.
+        # The rig carries the plan to the wrangle through point attributes,
+        # which are float32 storage; asking the reference in float64 and the
+        # wrangle in float32 would measure the transport instead of the
+        # maths. Rounding both isolates the maths - and the TRANSPORT is
+        # measured on its own, unrounded, by `plan_span_transport_at_20km`,
+        # which is the check that used not to exist.
+        # ⚠️ THE PAIR IS RECORDED, NOT JUST THE SUM. Splitting `head + lo`
+        # a SECOND time in `frames_geometry` gives a different pair - the sum
+        # is not itself float32-representable - and the 3x3 then disagreed by
+        # 2.220e-16 for no reason but the double transport.
+        (ha, la), (hb, lb) = hilo(sa), hilo(sb)
+        sa, sb = ha + la, hb + lb
         matrix = real_pt(proto, path, sa, sb, zmode, up_ref, base_y, None,
                          yscale)
         calls.append({"pidx": getattr(path, "_pc_pidx", -1),
                       "conform": isinstance(path, CONFORM.ConformPath),
                       "plen": proto.length, "pax": proto.ax,
                       "sa": sa, "sb": sb, "zmode": zmode,
+                      "sa_head": ha, "sa_lo": la,
+                      "sb_head": hb, "sb_lo": lb,
                       "up": tuple(up_ref), "base_y": base_y,
                       "yscale": yscale, "m": matrix})
         return matrix
@@ -270,8 +341,10 @@ def frames_geometry(rows):
     plan.setPointIntAttribValues("pc_curveprim", [r["pidx"] for r in rows])
     plan.setPointIntAttribValues(
         "pc_has_basey", [0 if r["base_y"] is None else 1 for r in rows])
-    plan.setPointFloatAttribValues("pc_s0r", [r["sa"] for r in rows])
-    plan.setPointFloatAttribValues("pc_s1r", [r["sb"] for r in rows])
+    for name, key in (("pc_s0r", "sa"), ("pc_s1r", "sb")):
+        plan.setPointFloatAttribValues(name, [r[key + "_head"] for r in rows])
+        plan.setPointFloatAttribValues(name + "_lo",
+                                       [r[key + "_lo"] for r in rows])
     plan.setPointFloatAttribValues("pc_proto_len", [r["plen"] for r in rows])
     plan.setPointFloatAttribValues("pc_proto_ax", [r["pax"] for r in rows])
     plan.setPointFloatAttribValues(
@@ -337,9 +410,14 @@ def frames_parity(root, built, snippet=None, quiet=False):
             matrix = row["m"]
             for r in range(3):
                 for c in range(3):
+                    want = matrix.at(r, c)
+                    got = xform[i * 9 + r * 3 + c]
+                    # RELATIVE, floored at 1.0 - the entries are direction
+                    # components times a scale, so 1.0 is their natural unit
+                    # and a bare absolute error means two things at two
+                    # magnitudes (D111's lesson).
                     worst_lin = max(worst_lin,
-                                    abs(xform[i * 9 + r * 3 + c]
-                                        - matrix.at(r, c)))
+                                    abs(got - want) / max(abs(want), 1.0))
             for k in range(3):
                 want = f32(matrix.at(3, k))
                 got = pos[i * 3 + k]
@@ -415,9 +493,9 @@ def mutation(root, built):
         "float scale = max(clen / plen, 1e-9) * 1.0000001;")
     worst, _bad, total, _z = frames_parity(root, small, snippet=broken,
                                            quiet=True)
-    check("mutation_pc_frames", worst > 0.0, "%.3e" % worst,
-          "a 1e-7 relative scale error over %d calls turns the 3x3 red"
-          % total)
+    check("mutation_pc_frames", worst > 4.5e-16, "%.3e rel" % worst,
+          "a 1e-7 relative scale error over %d calls turns the 3x3 red - it "
+          "must clear the FMA floor the sound build sits at" % total)
 
     # (b) pc_arclength: skip the coincident-vertex merge, so `_clean`'s
     # 1e-6 m rule stops being honoured. It must move a real number.
@@ -431,9 +509,12 @@ def mutation(root, built):
     sub = root.createNode("subnet", "mut")
     src = native.feed(sub, geo, "IN")
     cfg = native.config_stub(sub, DEFAULTS)
-    node = native.wrangle(sub, "pc_arclength", "primitive", "pc_arclength")
-    node.parm("snippet").set(broken)
-    node.setInput(0, src)
+    # ⚠️ THE WHOLE CHAIN, not `pc_arclength` alone. Since D167 the arclength
+    # node writes nothing to a prim `pc_curveid` did not call a curve, so a
+    # rig that skips the upstream nodes measures the gate rather than the
+    # mutation - and the check then fails for a reason that is not a defect.
+    node, nodes = native.stage_decompose(sub, src, cfg)
+    nodes["pc_arclength"].parm("snippet").set(broken)
     node.cook(force=True)
     curve = P.read_curves(geo)[0][0]
     idx, _pts, cum = D._clean(curve)
@@ -444,6 +525,30 @@ def mutation(root, built):
     check("mutation_pc_arclength", moved != [0, 1, -1, 2], moved,
           "without the merge the cleaned index table changes (sound: "
           "[0, 1, -1, 2])")
+    sub.destroy()
+
+    # (c) pc_unshare: BYPASS it, and the fused junction must go wrong.
+    # D165's whole justification in one assertion. Without the split, curve
+    # FA's real 90 degree corner disappears (`pointprims()[0]` resolves the
+    # junction to whichever prim is first) and its metre at the junction is
+    # whatever the other curve wrote there.
+    fused = cases.topology_cases()["T1_fused_junction"]
+    sub = root.createNode("subnet", "mut_unshare")
+    src = native.feed(sub, fused["curve"], "IN")
+    cfg = native.config_stub(sub, DEFAULTS)
+    last, nodes = native.stage_decompose(sub, src, cfg)
+    last.cook(force=True)
+    sound_corners = sum(last.geometry().pointIntAttribValues("pc_iscorner"))
+    nodes["pc_unshare"].bypass(True)
+    last.cook(force=True)
+    shared_corners = sum(last.geometry().pointIntAttribValues("pc_iscorner"))
+    curves, _m = P.read_curves(fused["curve"])
+    want = sum(len(D.resolve_corners(c, DEFAULTS)) for c in curves)
+    check("mutation_pc_unshare",
+          sound_corners == want and shared_corners != want,
+          "%d -> %d (reference %d)" % (sound_corners, shared_corners, want),
+          "bypassing the unshare on a FUSED junction loses the corner the "
+          "reference finds - which is what the node is for (D165)")
     sub.destroy()
 
 
@@ -463,8 +568,44 @@ def readability(root):
         "    pt = geo.createPoint()\n"
         "    pt.setPosition(p)\n"
         "    poly.addVertex(pt)\n")
+    # ⚠️ THE COST OF SHIPPING UNLOCKED, AS A STANDING MEASUREMENT. Until this
+    # cycle the asset carried `setUnlockNewInstances(True)`, which makes every
+    # instance materialise its own private copy of the whole network. Measured
+    # at citygen scale, 300 chain nodes in one scene: 2.056 s to create and a
+    # 20.7 MB .hip unlocked, 0.096 s and 0.72 MB locked, 6 000 child nodes
+    # against 0 - and `matchesCurrentDefinition()` False on a FRESH instance,
+    # so every scene saved during the rebuild would fork the half-built graph
+    # and never receive the rest of it. Twenty instances is enough to catch
+    # the flag coming back.
+    fleet = [root.createNode("pf_polychain", "fleet%02d" % i)
+             for i in range(20)]
+    kids = sum(len(n.children()) for n in fleet)
+    forked = [n.name() for n in fleet if not n.matchesCurrentDefinition()]
+    for n in fleet:
+        n.destroy()
+    check("instances_do_not_fork_the_network", not kids and not forked,
+          "%d children / %d forked" % (kids, len(forked)),
+          "20 untouched instances materialise no children and all track the "
+          "definition (unlocked: 400 children and 20 forked)")
+
     node = root.createNode("pf_polychain", "readable")
     node.setInput(0, spline)
+
+    # ⚠️ TOUCH THE CONTENTS FIRST. A LOCKED HDA loads its children lazily, so
+    # `children()`, `networkBoxes()` and `stickyNotes()` all read EMPTY on a
+    # fresh instance until something asks for a child - which is the whole of
+    # the trap that used to be written up as "network boxes do not survive the
+    # save unless the asset ships unlocked". One `node("OUT")` is the fix, and
+    # the asset ships locked because of it.
+    node.node("OUT")
+    inside = dict((b.name(), b.comment()) for b in node.networkBoxes())
+    check("locked_instance_shows_its_network", len(inside) >= 5
+          and len(node.stickyNotes()) >= 1 and node.matchesCurrentDefinition(),
+          "%d boxes / %d notes" % (len(inside), len(node.stickyNotes())),
+          "13.7 rule 2 on a LOCKED instance, after one child access; "
+          "matchesCurrentDefinition = %s (an UNLOCKED instance reports False "
+          "the moment it is created and never sees a later fix)"
+          % node.matchesCurrentDefinition())
 
     boxes = dict((b.name(), b.comment()) for b in node.networkBoxes())
     check("every_stage_is_a_network_box", len(boxes) >= 5, len(boxes),
@@ -499,19 +640,41 @@ def readability(root):
 
     # D155 - the Stage menu and the switch's inputs are ONE list or they are
     # a lie; every entry must actually cook and produce something.
+    #
+    # ⚠️ AND UNDER MORE THAN ONE PARM STATE. This used to sweep the menu at
+    # the DEFAULTS only, and the defaults are what hid the finding: with any
+    # non-zero Corner Rounding every plan row is `pc_frame_valid = 0`, the
+    # blast drops all of them, and the Frames stage cooked to 0 points with no
+    # error and no warning. A stage is allowed to come back EMPTY - it is not
+    # allowed to come back empty and silent (warn-never-block).
     tokens = list(node.parm("stage").parmTemplate().menuItems())
-    empty = []
-    for token in tokens:
-        node.parm("stage").set(token)
-        node.cook(force=True)
-        geo = node.geometry()
-        if not (len(geo.points()) or len(geo.prims())):
-            empty.append(token)
-        if node.errors():
-            empty.append(token + "(error)")
+    states = (("defaults", {}),
+              ("fillet_2m", {"fillet_radius": 2.0}),
+              ("mitred_corners", {"corner_mode": "miter",
+                                  "fillet_radius": 0.0}))
+    silent = []
+    for label, parms in states:
+        for name, value in parms.items():
+            node.parm(name).set(value)
+        for token in tokens:
+            node.parm("stage").set(token)
+            node.cook(force=True)
+            geo = node.geometry()
+            if node.errors():
+                silent.append("%s/%s(error)" % (label, token))
+            elif not (len(geo.points()) or len(geo.prims())):
+                # empty is legal; empty and wordless is not
+                said = node.warnings() or any(
+                    c.warnings() for c in node.children())
+                if not said:
+                    silent.append("%s/%s(empty+silent)" % (label, token))
+        for name in parms:
+            node.parm(name).revertToDefaults()
     node.parm("stage").set(tokens[0])
-    check("stage_menu_reaches_every_stage", not empty, len(tokens),
-          "stages that cook to nothing: %s" % (", ".join(empty) or "none"))
+    check("stage_menu_reaches_every_stage", not silent,
+          "%d x %d" % (len(states), len(tokens)),
+          "every stage under %d parm states; empty AND wordless: %s"
+          % (len(states), ", ".join(silent) or "none"))
 
     # 13.7 rule 5 - a group-name collision between two stages silently
     # corrupts one of them, so every working group carries the prefix.
@@ -592,9 +755,18 @@ def benches(root, node):
         # clock above is a number with nothing to be better than - and D115's
         # headline was wrong for exactly that reason, so the comparand is
         # spelled out rather than remembered.
+        # ⚠️ TWO COMPARANDS, BECAUSE ONE OF THEM IS A CHOICE AND THE CHOICE
+        # WAS BEING REPORTED AS THE NUMBER. `read_curves` is the geometry
+        # read the reference CANNOT avoid to reach these answers, and the
+        # native chain does not need it - but the reference amortises it
+        # across plan, place and conform, so charging 100 % of it to stage 1
+        # is not right either. Measured here: it is 48 % of the reference's
+        # real cost on the 20 km curve and 79 % on 300 streets, which is the
+        # difference between "0.81x" and "1.53x" on the same build. The
+        # honest answer is a RANGE and both ends are printed.
         from polyfactory.polychain import decompose as D
         curves, markers = P.read_curves(geo)
-        ref_best = None
+        ref_best = ref_full = None
         for _ in range(3):
             start = time.time()
             for curve in curves:
@@ -604,6 +776,15 @@ def benches(root, node):
                 curve._cum = None           # the cache would make run 2 free
             elapsed = time.time() - start
             ref_best = elapsed if ref_best is None else min(ref_best, elapsed)
+        for _ in range(3):
+            start = time.time()
+            fresh_curves, fresh_marks = P.read_curves(geo)
+            for curve in fresh_curves:
+                D._clean(curve)
+                D.resolve_corners(curve, DEFAULTS)
+                D.resolve_markers(curve, fresh_marks)
+            elapsed = time.time() - start
+            ref_full = elapsed if ref_full is None else min(ref_full, elapsed)
         # ⚠️ THE CEILING IS 1.5x THE REFERENCE, NOT "FASTER", AND THAT IS
         # THE FINDING. Measured this cycle with `cookCount` confirming every
         # pass: 0.85x on one 20 km curve of 20 001 vertices, 1.10x on 300
@@ -617,46 +798,62 @@ def benches(root, node):
         # a REGRESSION cliff and to keep the ratio printed on every run - not
         # to certify a win nobody has measured.
         check("decompose_%s_wall_clock" % label, best < ref_best * 1.5,
-              "%.4f s  (%.2fx)" % (best, ref_best / best if best else 0.0),
-              "%d curves / %d points through %d native nodes, against the "
-              "reference's %.4f s for the same three answers (ceiling 1.5x "
-              "slower - no speedup is claimed yet)"
-              % (len(out.prims()), len(out.points()), len(nodes), ref_best))
+              "%.4f s (%.2f-%.2fx)" % (best, ref_best / best if best else 0.0,
+                                       ref_full / best if best else 0.0),
+              "%d curves / %d points through %d native nodes. The RANGE is "
+              "the reference without its geometry read (%.4f s) and with it "
+              "(%.4f s); the ceiling is 1.5x the lower bound, and no speedup "
+              "is claimed on the lower bound"
+              % (len(out.prims()), len(out.points()), len(nodes),
+                 ref_best, ref_full))
         sub.destroy()
 
-    # `sop_cooks_per_build` - THE NEW TRIPWIRE (13.8). A network's failure
-    # mode is cook count the way the Python's was wrapper count, and the
-    # specific thing that must stay true through nine more build-order items
-    # is this: AN ARTIST WHO NEVER TOUCHES THE STAGE MENU PAYS NOTHING FOR
-    # THE REBUILD. A Switch SOP cooks only its selected input, so on the
-    # Output stage every native node must sit at zero.
+    # ⚠️ THE CHECK THIS REPLACED WAS THE FINDING. It read `sop_cooks_per_build`
+    # and asserted that ZERO native nodes cook on the Output stage - which was
+    # true, and the reason it was true is that `kernel` took IN_SPLINE and the
+    # entire DECOMPOSE box sat BESIDE the tool. Measured on that build: all six
+    # nodes at `cookCount == 0` after an Output cook, bypassing all six left
+    # the output hash byte-identical, and DESTROYING all six left it identical
+    # too. A green suite was certifying that the port had not happened.
     #
-    # ⚠️ MEASURED WITHOUT `force`, because `cook(force=True)` on a subnet
-    # cooks the whole subnet and reports every node as busy - which is a
-    # measurement of the flag, not of the graph. Reading `.geometry()` is the
-    # cook an artist actually causes.
-    fresh = root.createNode("pf_polychain", "cook_count")
+    # So the tripwire is inverted, and it is deliberately NOT "bypassing the
+    # branch changes the output": D166's fallback means a curve with no native
+    # tables is answered by the Python, so a bypass is byte-identical BY
+    # DESIGN. The only honest proof that the VEX answer REACHES the artist is
+    # to corrupt it and watch the geometry move.
+    fresh = root.createNode("pf_polychain", "load_bearing")
     fresh.setInput(0, node.input(0))
-    fresh.geometry()
+    before = _fingerprint(fresh)
+    # The DECOMPOSE box plus CONFIG - the nodes that are UPSTREAM of `kernel`
+    # and therefore on every artist's cook. `pc_plan_bridge`, `pc_frames` and
+    # `pc_frames_valid` sit behind the Stage switch on purpose and must stay
+    # at zero, which is what the second half of this line asserts.
+    ON_PATH = ("config", "pc_unshare", "pc_curveid", "pc_curve_index",
+               "pc_arclength", "pc_corners", "pc_markers")
+    OFF_PATH = ("pc_plan_bridge", "pc_frames", "pc_frames_valid")
     counts = dict((c.name(), c.cookCount()) for c in fresh.children())
-    busy = sorted(n for n, c in counts.items()
-                  if c and (n.startswith("pc_") or n == "config"))
-    check("sop_cooks_per_build", not busy,
-          "%d/%d" % (len(busy), len(counts)),
-          "native nodes that cooked on the Output stage: %s (ceiling 0 - a "
-          "switch cooks one branch, so the rebuild is free until you look "
-          "at it)" % (", ".join(busy) or "none"))
+    asleep = sorted(n for n in ON_PATH if not counts.get(n))
+    asleep += sorted("%s(should be idle)" % n for n in OFF_PATH
+                     if counts.get(n))
+    check("native_branch_cooks_on_output", not asleep,
+          "%d/%d" % (len(ON_PATH) - len(asleep), len(ON_PATH)),
+          "native nodes that did NOT cook on the Output stage: %s (ceiling 0 "
+          "- the DECOMPOSE box is upstream of `kernel`, so an artist who "
+          "never opens the Stage menu is still running the VEX)"
+          % (", ".join(asleep) or "none"))
 
-    # ...and the other half of the same sentence: the stages DO cook when
-    # they are asked for, which is what stops the check above passing on a
-    # graph whose native branch is simply disconnected.
-    fresh.parm("stage").set("sections")
-    fresh.geometry()
-    awake = sorted(n for n in counts
-                   if n.startswith("pc_") and fresh.node(n).cookCount())
-    check("stage_menu_actually_cooks_the_stage", len(awake) >= 5, len(awake),
-          "native nodes that cooked once Stage = sections: %s"
-          % (", ".join(awake) or "none"))
+    fresh.allowEditingOfContents()
+    arclength = fresh.node("pc_arclength")
+    sound = arclength.parm("snippet").eval()
+    arclength.parm("snippet").set(
+        sound.replace('setpointattrib(0, "pc_s",        pts[i], ccum);',
+                      'setpointattrib(0, "pc_s",        pts[i], ccum + 0.25);'))
+    moved = _fingerprint(fresh)
+    arclength.parm("snippet").set(sound)
+    check("native_branch_is_load_bearing", moved != before, before[0],
+          "shifting `pc_arclength`'s metre by 0.25 m moves the SHIPPED output "
+          "(%d prims -> %d); before the rewiring this mutation changed nothing "
+          "at all" % (before[0], moved[0]))
 
 
 # --- the 64-bit design rule -------------------------------------------------
@@ -706,8 +903,11 @@ def sixty_four_bit(root):
 
     cfg = native.config_stub(sub, DEFAULTS)
     _last, nodes = native.stage_decompose(sub, src, cfg)
+    # `pc_unshare` is a native `splitpoints`, not a wrangle - it has no
+    # precision to set and it carries no intermediate of its own.
     thirty_two = [n for n, node in nodes.items()
-                  if node.parm("vex_precision").eval() != "64"]
+                  if node.parm("vex_precision") is not None
+                  and node.parm("vex_precision").eval() != "64"]
     check("native_intermediates_are_64bit",
           survived == 0.0 and crossed == 0.0 and not thirty_two,
           "%.3e / %.3e" % (survived, crossed),
@@ -717,13 +917,153 @@ def sixty_four_bit(root):
     sub.destroy()
 
 
+def worldscale_transport(root):
+    """D170 - the SPAN, across the Python SOP -> wrangle boundary, at 20 km.
+
+    ⚠️ THE CHECK ABOVE CANNOT SEE THIS, AND SAYING SO IS THE POINT.
+    `frames_linear_parity` rounds the span on BOTH sides through the same
+    transport, which isolates the arithmetic and is what it is for. The thing
+    the network actually does differently from the reference is CARRY the
+    span through a point attribute, and `hou.Geometry` has no 64-bit float
+    storage - so before D170 a 20 km arclength arrived 9.765e-4 m out, ten
+    times the suite's own 1e-4 m tolerance and a 1.95 mm quantum that two
+    neighbouring pieces snapped to the same station inside.
+
+    So this reads `pc_s0r`/`pc_s1r` BACK off the built asset's Plan stage on
+    the 20 km fixture and diffs them against the reference's own float64
+    numbers, with no rounding on either side.
+    """
+    from polyfactory.polychain import kit as K
+
+    # ⚠️ `root` IS ALREADY A `geo`, so the fixture is built inside it and the
+    # nodes are destroyed by name afterwards.
+    geo_node = root
+    spline = geo_node.createNode("python", "long_spline")
+    spline.parm("python").set(
+        "import sys\n"
+        "sys.path.insert(0, %r)\n"
+        "sys.path.insert(0, %r)\n"
+        "import cases\n"
+        "cases.polyline(hou.pwd().geometry(),\n"
+        "               cases.arc_points(20000.0, 1.0, 20000.0),\n"
+        "               curve_id='LONG')\n" % (HERE.replace(chr(92), "/"),
+              os.path.dirname(HERE).replace(chr(92), "/")))
+    node = geo_node.createNode("pf_polychain", "worldscale")
+    node.setInput(0, spline)
+    node.parm("stage").set("plan")
+    plan = node.geometry()
+    head0 = plan.pointFloatAttribValues("pc_s0r")
+    lo0 = plan.pointFloatAttribValues("pc_s0r_lo")
+    head1 = plan.pointFloatAttribValues("pc_s1r")
+    lo1 = plan.pointFloatAttribValues("pc_s1r_lo")
+
+    style = H.style_from_parms(node)
+    _out, report = P.build(spline.geometry(), H.kit_geometry(node), style,
+                           params=style.params, report_frames=True)
+    rows = report["frames"]
+    worst_head = worst_pair = 0.0
+    at = -1
+    for i, row in enumerate(rows):
+        worst_head = max(worst_head, abs(head0[i] - row["s0r"]),
+                         abs(head1[i] - row["s1r"]))
+        err = max(abs(head0[i] + lo0[i] - row["s0r"]),
+                  abs(head1[i] + lo1[i] - row["s1r"]))
+        if err > worst_pair:
+            worst_pair, at = err, i
+    # 1e-4 m is `checks.TOL_M`, the tolerance the rest of the suite asserts
+    # positions at. The pair measures ~6e-11 m; the head alone measures the
+    # 9.765e-4 m this check exists to keep out.
+    check("plan_span_transport_at_20km", worst_pair < 1.0e-4,
+          "%.3e m" % worst_pair,
+          "worst |transported s - reference s| over %d pieces on a 20 km "
+          "spline, read back off Stage = plan (ceiling 1e-4 m = TOL_M). The "
+          "float32 HEAD alone is %.3e m out at piece %d, which is what the "
+          "residual half is for" % (len(rows), worst_head, at))
+    node.parm("stage").set("output")
+    node.destroy()
+    spline.destroy()
+
+
+def config_payload_parity(root):
+    """D77 through the ASSET'S OWN `config` NODE, under a wired payload.
+
+    ⚠️ THE RIG'S `config_stub` CANNOT SEE THIS. It synthesises `pc_cfg` from
+    the `Params` object, so it agrees with the parameters by construction -
+    and the shipped node was reading an UNWIRED input for its payload the
+    whole time. Measured before the fix: a payload asking for
+    corner_angle_deg = 77 / min_included_angle_deg = 3 produced pc_cfg 30 /
+    15 and `from_payload = 0`, and the sections stage then broke the run at
+    two corners where the payload asks for one.
+    """
+    geo_node = root
+    spline = geo_node.createNode("python", "cfg_spline")
+    spline.parm("python").set(
+        "geo = hou.pwd().geometry()\n"
+        "poly = geo.createPolygon(False)\n"
+        "for p in ((0,0,0), (12,0,0), (12,0,8), (20,0,14)):\n"
+        "    pt = geo.createPoint()\n"
+        "    pt.setPosition(p)\n"
+        "    poly.addVertex(pt)\n")
+    payload = geo_node.createNode("python", "style_in")
+    payload.parm("python").set(
+        "from polyfactory.polychain import Params, Rule, Style\n"
+        "from polyfactory.polychain import style as S\n"
+        "st = Style('pipeline', 1, 11,\n"
+        "           rules=[Rule('default', 'first', ['panel'])],\n"
+        "           params=Params(corner_angle_deg=77.0,\n"
+        "                         min_included_angle_deg=3.0))\n"
+        "S.write(hou.pwd().geometry(), st)\n")
+    node = geo_node.createNode("pf_polychain", "cfg")
+    node.setInput(0, spline)
+    node.setInput(2, payload)
+    node.parm("stage").set("config")
+    cfg = node.geometry().attribValue("pc_cfg")
+
+    from polyfactory.polychain import style as S
+    want = S.read(payload.geometry())[0]
+    bad = [k for k in ("corner_angle_deg", "min_included_angle_deg")
+           if cfg.get(k) != getattr(want.params, k)]
+    if cfg.get("from_payload") != 1.0:
+        bad.append("from_payload")
+    if cfg.get("style_id") != want.style_id:
+        bad.append("style_id")
+    check("config_reads_the_payload", not bad,
+          "%.1f deg / %.1f deg" % (cfg.get("corner_angle_deg", -1.0),
+                                   cfg.get("min_included_angle_deg", -1.0)),
+          "pc_cfg vs style.read(payload).params on the BUILT asset "
+          "(payload asks 77.0 / 3.0); disagreeing keys: %s"
+          % (", ".join(bad) or "none"))
+
+    # ...and the sections the payload's own thresholds produce, which is what
+    # the disagreement actually cost.
+    node.parm("stage").set("sections")
+    corners = sum(node.geometry().pointIntAttribValues("pc_iscorner"))
+    check("payload_thresholds_reach_the_corners", corners == 1, corners,
+          "corner breaks at corner_angle_deg = 77 (the 90 deg elbow, not the "
+          "53 deg bend); the parm page's 30 deg would give 2")
+    node.parm("stage").set("output")
+    node.destroy()
+    spline.destroy()
+    payload.destroy()
+
+
 def main():
     if not os.path.exists(HDA_PATH):
         print("no HDA at %s - run devScripts/create_pf_polychain_hda.py"
               % HDA_PATH)
         sys.exit(1)
+    # The asset is needed from section 3 on (the two boundary checks cook it),
+    # not only by `readability`.
+    hou.hda.installFile(HDA_PATH)
     root = hou.node("/obj").createNode("geo", "polychain_native")
     built = cases.build_all()
+    # 13.10 - the three shapes the scene suite structurally cannot
+    # contain: a fused junction, a marker inside a prim, and a
+    # duplicated id with a marker. They live in `cases.py` beside
+    # everything else and are merged HERE rather than into
+    # `build_all` because two of them build no geometry at all, so
+    # the scene checks would have nothing to assert about them.
+    built.update(cases.topology_cases())
 
     print("\n=== 1. 4.1 DECOMPOSE - native vs the reference, %d cases ==="
           % len(built))
@@ -734,8 +1074,22 @@ def main():
     frames_ulp = FRAMES_ULP
     # EXACT. Both sides are 64-bit arithmetic over the same span, and the
     # rig rounds the span on both sides so this measures the maths alone.
-    check("frames_linear_parity", worst == 0.0, "%.3e" % worst,
-          "worst |d 3x3| over %d real calls, z-modes %s (ceiling 0.0)"
+    # ⚠️ THE CEILING MOVED FROM 0.0 TO 2 float64 ULP, AND THE REASON IS THE
+    # FIX, NOT A REGRESSION. Until D170 the span crossed to the wrangle as a
+    # single float32, so BOTH sides sampled a span with 24 significant bits
+    # and every last bit agreed by construction. The pair now carries ~48 of
+    # them, which un-masks the one difference that was always there and that
+    # `frames_arithmetic_position_parity` already names: VEX fuses `a + d*t`
+    # into an FMA and Python does not, so the sampled position can round one
+    # float64 ULP apart, and the frame built on it inherits that. Measured:
+    # 2.220e-16 relative, exactly 1 ULP at 1.0. Trading 1e-16 of agreement
+    # here for 9.765e-4 m of agreement at 20 km is the whole point of D170.
+    check("frames_arithmetic_linear_parity", worst <= 4.5e-16,
+          "%.3e rel" % worst,
+          "worst relative |d 3x3| over %d real calls, z-modes %s (ceiling "
+          "4.5e-16 = 2 float64 ULP; it is FMA, not a disagreement). "
+          "ARITHMETIC ONLY - the span goes through D170's transport on both "
+          "sides; `plan_span_transport_at_20km` measures the transport"
           % (total, "/".join(sorted(zmodes))))
     # NOT an equality, and the difference is worth naming rather than
     # papering over. 4 949 of 4 950 P components come back BIT-IDENTICAL to
@@ -746,14 +1100,16 @@ def main():
     # differently on one span in the whole suite. One ULP is the smallest
     # unit the storage HAS - a tighter ceiling would be a claim that float32
     # arithmetic is associative.
-    check("frames_position_parity", frames_ulp[0] <= 1.0,
+    check("frames_arithmetic_position_parity", frames_ulp[0] <= 1.0,
           "%d / %d, %.2f ULP" % (bad_pos, total * 3, frames_ulp[0]),
           "P components not bit-identical to f32(reference), and the worst "
           "one in float32 ULP (ceiling 1.0 ULP)")
 
-    print("\n=== 3. D113's three trials ===")
+    print("\n=== 3. D113's three trials, and the two boundaries ===")
     trial_parity(root)
     sixty_four_bit(root)
+    worldscale_transport(root)
+    config_payload_parity(root)
 
     print("\n=== 4. the mutation test ===")
     mutation(root, built)

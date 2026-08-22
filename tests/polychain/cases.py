@@ -443,6 +443,85 @@ def _case(curve_geo, kit_geo, style, surface_geo=None, overrides=None):
             "overrides": overrides, "paths": made}
 
 
+# --- 13.10 TOPOLOGY FIXTURES - the shapes 4.1's parity rig could not see ----
+#
+# ⚠️ THESE ARE NOT IN `build_all()` ON PURPOSE. They exist to make three
+# DECOMPOSE checks capable of failing, and two of the three build no geometry
+# at all (a curve the reference declines has nothing to dress), so putting
+# them in the scene suite would add cases whose only assertion is "nothing
+# happened". `run_native_checks.py` merges them into its own case set.
+#
+# Every one of them was a HOLE, found by an audit and measured before it was
+# closed:
+#   * `T1_fused_junction` - 0 of the 89 scene cases has a point in more than
+#     one primitive, and citygen's pipeline ends in `graph_fuse`, so a street
+#     network is nothing BUT this shape. Before `pc_unshare`, curve A's real
+#     90 degree corner vanished in both primitive orders and the junction's
+#     metre flipped from 0.000 to 10.000 with the order alone.
+#   * `T2_marker_in_prim` - `read_curves` refuses to build a curve on a prim
+#     that contains a marker point; the VEX built one anyway, complete with a
+#     sampler table and a marker at s = 0 on a curve that does not exist.
+#   * `T3_dup_id_marker` - the reference fans a marker out onto EVERY curve
+#     sharing its id (2 rows here, s = 5 and s = 20); a point wrangle can only
+#     move the point it is on, so the native stage answers for the first and
+#     WARNS (D169). No case in the suite had a duplicate id AND a marker.
+
+def fused_pair(geo):
+    """Two polylines that SHARE their junction point, as `graph_fuse` emits.
+
+    A turns 90 degrees AT the shared vertex, so the corner the sharing used to
+    destroy is a real one with a number attached (turn = 90.000 deg, s = 10).
+    """
+    if geo.findPrimAttrib("pc_curve_id") is None:
+        geo.addAttrib(hou.attribType.Prim, "pc_curve_id", "")
+    shared = geo.createPoint()
+    shared.setPosition((10.0, 0.0, 0.0))
+    for cid, pts in (("FA", [(0.0, 0.0, 0.0), None, (10.0, 0.0, 10.0)]),
+                     ("FB", [None, (20.0, 0.0, 0.0)])):
+        poly = geo.createPolygon(False)
+        for p in pts:
+            if p is None:
+                poly.addVertex(shared)
+            else:
+                pt = geo.createPoint()
+                pt.setPosition(p)
+                poly.addVertex(pt)
+        poly.setAttribValue("pc_curve_id", cid)
+    return geo
+
+
+def topology_cases():
+    """The three fixtures above, in `_case`'s own shape."""
+    kit_geo = K.starter_kit()
+    out = {}
+
+    g = hou.Geometry()
+    fused_pair(g)
+    out["T1_fused_junction"] = _case(g, kit_geo, fence_style())
+
+    # A marker ON one of the curve's own vertices, which is what
+    # `read_curves` refuses to build a curve behind.
+    g = hou.Geometry()
+    poly = polyline(g, [(0.0, 0.0, 0.0), (10.0, 0.0, 0.0), (20.0, 0.0, 0.0)],
+                    curve_id="T2")
+    for name, default in (("pc_marker", 0), ("pc_marker_id", 0)):
+        if g.findPointAttrib(name) is None:
+            g.addAttrib(hou.attribType.Point, name, default)
+    if g.findPointAttrib("pc_curve") is None:
+        g.addAttrib(hou.attribType.Point, "pc_curve", "")
+    mid = poly.points()[1]
+    mid.setAttribValue("pc_marker", 1)
+    mid.setAttribValue("pc_curve", "T2")
+    out["T2_marker_in_prim"] = _case(g, kit_geo, fence_style())
+
+    g = hou.Geometry()
+    polyline(g, [(0.0, 0.0, 0.0), (10.0, 0.0, 0.0)], curve_id="DUP")
+    polyline(g, [(0.0, 0.0, 5.0), (40.0, 0.0, 5.0)], curve_id="DUP")
+    marker(g, (0.0, 3.0, 0.0), "DUP", 1, u=0.5)
+    out["T3_dup_id_marker"] = _case(g, kit_geo, fence_style())
+    return out
+
+
 def build_all():
     kit_geo = K.starter_kit()
     built = {}

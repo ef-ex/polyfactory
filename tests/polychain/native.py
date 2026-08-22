@@ -37,14 +37,24 @@ def wrangle(parent, name, cls, vfl, precision="64"):
 
 
 def stage_decompose(parent, spline, config):
-    """4.1 - arclength, the curve-id table, corners, markers.
+    """4.1 - unshare, arclength, the curve-id table, corners, markers.
 
     Returns (last node, {name: node}).  Wired, not cooked.
+
+    `pc_unshare` is a NATIVE `splitpoints`, not a wrangle, and it is the first
+    node on purpose (D165): `pc_arclength` walks each curve into POINT
+    storage, so a junction point shared by two primitives is written twice and
+    one curve carries the other's metre.  It is in the RIG as well as in the
+    asset because a normalisation the checks skip is a normalisation the
+    checks cannot measure.
     """
     nodes = {}
-    prev = spline
+    unshare = parent.createNode("splitpoints", "pc_unshare")
+    unshare.setInput(0, spline)
+    nodes["pc_unshare"] = unshare
+    prev = unshare
     order = (("pc_curveid",     "primitive", "pc_curveid",     None),
-             ("pc_curve_index", "detail",    "pc_curve_index", None),
+             ("pc_curve_index", "detail",    "pc_curve_index", config),
              ("pc_arclength",   "primitive", "pc_arclength",   None),
              ("pc_corners",     "point",     "pc_corners",     config),
              ("pc_markers",     "point",     "pc_markers",     config))

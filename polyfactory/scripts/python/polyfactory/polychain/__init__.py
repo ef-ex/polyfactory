@@ -342,6 +342,20 @@ class Curve(object):
         self.attrs = dict(attrs or {})
         self._cum = None
         self._segs = None
+        # D166 - 4.1's answers, WHEN THEY WERE ALREADY COMPUTED IN VEX.
+        # `place.read_curves` fills this from the DECOMPOSE box's own output;
+        # `decompose._clean` and `decompose.resolve_corners` then return it
+        # instead of re-deriving it in Python.  A curve built by any other
+        # code path (the fillet, the slope flatten, a check, a caller with a
+        # list of tuples) leaves it None and the Python answers, so the
+        # reference never stops being runnable on its own.
+        self.native = None
+        # The primitive this curve was read off, or -1.  It is the ONE place
+        # the id -> prim mapping lives (D167): `hda.curve_prim_index` used to
+        # be a second copy of `read_curves`' id rule that applied none of its
+        # filters, so the two could agree with each other and both disagree
+        # with the curve set the builder actually planned on.
+        self.prim_number = -1
 
     def _cumulative(self):
         if self._cum is None:

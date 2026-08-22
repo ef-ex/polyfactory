@@ -15,11 +15,28 @@
 
 if (!i@pc_marker) return;
 
+// -1 until this marker is BOUND. The attribute's own default is 0, and 0 is
+// a real primitive number, so an unbound marker used to be indistinguishable
+// from one sitting on prim 0.
+i@pc_curveprim = -1;
+
+// D168 - a DICT lookup, not a scan.  The stored value is prim + 1 so that an
+// absent key (0) and prim 0 are different answers.
 string cid = s@pc_curve;
-string ids[] = detail(0, "pc_curve_ids");
-int pr = -1;
-for (int i = 0; i < len(ids); i++) if (ids[i] == cid) { pr = i; break; }
-if (pr < 0) { i@pc_warn_marker_unbound = 1; return; }
+if (cid == "") { i@pc_warn_marker_unbound = 1; return; }
+dict byid = detail(0, "pc_curve_prim");
+int slot = byid[cid];
+if (slot <= 0) { i@pc_warn_marker_unbound = 1; return; }
+int pr = slot - 1;
+
+// D169 - TWO CURVES WITH ONE ID.  The reference places the marker on BOTH of
+// them (`resolve_markers` filters by id, not by prim); one point wrangle can
+// only move the point it is on.  So this stage answers for the FIRST prim
+// claiming the id and says so, rather than being quietly short by one gate.
+// D74 already warns about the duplicate id itself.
+dict dupids = detail(0, "pc_curve_dup");
+int dup = dupids[cid];
+if (dup) i@pc_warn_marker_dup = 1;
 
 float total = prim(0, "pc_total", pr);
 

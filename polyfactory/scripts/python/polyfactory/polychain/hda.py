@@ -75,6 +75,7 @@ DECISIONS TAKEN HERE (recorded in polychain.md 10):
 """
 
 import os
+import struct
 import time
 
 import hou
@@ -161,17 +162,24 @@ def kit_geometry(node, parms=None):
 
 
 def _padded(kit_geo, padding):
-    """D84 - `padding` metres added to every module's own `pc_pad`."""
+    """D84 - `padding` metres added to every module's own `pc_pad`.
+
+    ⚠️ IN BULK, not point by point. This used to iterate `out.points()` and
+    call `attribValue` / `setAttribValue` on each - the exact pattern 11.9
+    rule 1 forbids and the standing wrapper tripwires watch for - on every
+    cook where the gap parm is non-zero. The kit is small, so it never showed
+    up in a number; it was still the forbidden shape sitting in the cook path,
+    and 15.6's inventory did not list it.
+    """
     if abs(padding) < 1e-9:
         return kit_geo
     out = hou.Geometry()
     out.merge(kit_geo)
     if out.findPointAttrib("pc_pad") is None:
         out.addAttrib(hou.attribType.Point, "pc_pad", (0.0, 0.0))
-    for pt in out.points():
-        pad = pt.attribValue("pc_pad")
-        pt.setAttribValue("pc_pad", (pad[0] + 0.5 * padding,
-                                     pad[1] + 0.5 * padding))
+    half = 0.5 * padding
+    out.setPointFloatAttribValues(
+        "pc_pad", [v + half for v in out.pointFloatAttribValues("pc_pad")])
     return out
 
 
@@ -456,7 +464,12 @@ def config_dict(node):
     passing by construction.
     """
     parms = parm_owner(node)
-    style, _warns = _style.read(_input_geo(node, 2))
+    # ⚠️ THE KIT GOES IN TOO. `cook` and `cook_plan_bridge` both hand
+    # `style.read` the kit so a payload naming a module the kit does not have
+    # warns; without it this node resolved the same payload against a
+    # different world and its warnings disagreed with the kernel's.
+    style, _warns = _style.read(_input_geo(node, 2),
+                                kit=_kit.read(kit_geometry(node, parms))[0])
     params = style.params if style is not None else params_from_parms(parms)
     out = {}
     for key in CONFIG_KEYS:
@@ -491,30 +504,44 @@ def cook_config(node):
 # 13.3.4's frame inputs, as point attributes. The names are the ones
 # `pc_frames.vfl` binds; changing one means changing both.
 FRAME_POINT_ATTRS = (
-    ("pc_s0r", 0.0), ("pc_s1r", 0.0), ("pc_proto_len", 1.0),
+    ("pc_s0r", 0.0), ("pc_s1r", 0.0),
+    # D170 - THE RESIDUAL HALVES OF THE TWO SPANS. `hou.Geometry.addAttrib`
+    # has no precision argument (probed), so every float attribute a Python
+    # SOP creates is float32, and at 20 km that quantises an arclength to
+    # 1.95 mm - measured, 9.765e-4 m worst against the reference, ten times
+    # the suite's own 1e-4 m tolerance. R2 forbids this network being worse
+    # at world scale than the Python it replaces, so the metre crosses the
+    # boundary as a float32 head plus a float32 residual and `pc_frames`
+    # adds the pair back in 64-bit VEX (~6e-11 m at 20 km). 13.9 N2 deletes
+    # both the moment the span is solved inside that wrangle.
+    ("pc_s0r_lo", 0.0), ("pc_s1r_lo", 0.0),
+    ("pc_proto_len", 1.0),
     ("pc_proto_ax", 0.0), ("pc_basey", 0.0), ("pc_yscale", 1.0),
     ("pc_has_basey", 0), ("pc_curveprim", -1), ("pc_frame_valid", 0),
 )
 
 
-def curve_prim_index(curve_geo):
-    """{curve id: primitive number} using `pc_curveid.vfl`'s OWN id rule.
+def _f32(x):
+    """`x` as float32 storage will hold it - the head of the split above."""
+    return struct.unpack("f", struct.pack("f", float(x)))[0]
 
-    D29 + D64: `pc_curve_id`, else `edge_id`, else the primitive number, and a
-    BLANK id is an ABSENT id.  Written twice - once here, once in VEX - and
-    `native_id_parity` asserts the two agree on every case, because an id rule
-    that drifts silently re-addresses every element in the build.
+
+def curve_prim_index(curve_geo):
+    """{curve id: primitive number} - THE ids `place.read_curves` produced.
+
+    ⚠️ IT USED TO BE A SECOND COPY OF THE RULE, and that is exactly how it
+    went wrong.  This function re-implemented D29/D64's id resolution and
+    applied NONE of `read_curves`' filters, so `native_id_parity` compared one
+    copy of the rule against another and both could disagree with the curve
+    set the builder actually planned on - measured, a 3-point line whose
+    middle point carried `pc_marker` produced 0 curves in the reference and a
+    full entry here.  There is one rule now and it lives in `read_curves`.
     """
-    out = {}
     if curve_geo is None:
-        return out
-    for prim in curve_geo.prims():
-        cid = _place._blank_to_none(_place._prattr(prim, "pc_curve_id", None))
-        if cid is None:
-            cid = _place._blank_to_none(_place._prattr(prim, "edge_id", None))
-        if cid is None:
-            cid = prim.number()
-        out.setdefault(str(cid), prim.number())
+        return {}
+    out = {}
+    for curve in _place.read_curves(curve_geo)[0]:
+        out.setdefault(str(curve.curve_id), curve.prim_number)
     return out
 
 
@@ -548,8 +575,11 @@ def plan_geometry(geo, report, curve_geo):
     geo.setPointIntAttribValues("pc_frame_valid", valid)
     geo.setPointIntAttribValues(
         "pc_has_basey", [0 if r["base_y"] is None else 1 for r in rows])
-    geo.setPointFloatAttribValues("pc_s0r", [r["s0r"] for r in rows])
-    geo.setPointFloatAttribValues("pc_s1r", [r["s1r"] for r in rows])
+    for name, key in (("pc_s0r", "s0r"), ("pc_s1r", "s1r")):
+        head = [_f32(r[key]) for r in rows]
+        geo.setPointFloatAttribValues(name, head)
+        geo.setPointFloatAttribValues(
+            name + "_lo", [r[key] - head[i] for i, r in enumerate(rows)])
     geo.setPointFloatAttribValues("pc_proto_len", [r["proto_len"] for r in rows])
     geo.setPointFloatAttribValues("pc_proto_ax", [r["proto_ax"] for r in rows])
     geo.setPointFloatAttribValues(
@@ -581,6 +611,20 @@ def cook_plan_bridge(node):
                           if parms.parm("padding") else 0.0)
     _out, report = _place.build(curve_geo, kit_geo, style,
                                 params=style.params,
-                                surface_geo=_input_geo(node, 3))
+                                surface_geo=_input_geo(node, 3),
+                                report_frames=True)
     plan_geometry(geo, report, curve_geo)
+    # D160, warn-never-block applied to a stage that used to go SILENT. The
+    # blast below this node deletes every piece the native frame cannot
+    # answer for, and on any non-zero Corner Rounding that is ALL of them:
+    # measured, an L-spline at fillet 2.0 cooked the Frames stage to 0 points
+    # with no error and no warning while the Output stage built 121 prims.
+    valid = geo.pointIntAttribValues("pc_frame_valid")
+    dropped = sum(1 for v in valid if not v)
+    if dropped:
+        node.addWarning(
+            "%d of %d pieces ride a filleted, slope-flattened or conformed "
+            "path, which is not the input spline - the native Frames stage "
+            "cannot answer for them and drops them (D160). The Output stage "
+            "is unaffected." % (dropped, len(valid)))
     return report

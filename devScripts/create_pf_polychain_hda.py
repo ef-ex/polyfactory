@@ -122,13 +122,34 @@ STAGES = (
 # (node name, wrangle class, the input CONFIG is wired to or None, comment).
 # The node name IS the .vfl name - one string, so a wrangle cannot be wired to
 # a snippet that belongs to a different stage.
+# D165 - INPUT NORMALISATION, and it is a NATIVE node.  `pc_arclength` keeps
+# a per-(curve, vertex) walk in POINT storage, which is only sound while a
+# point belongs to ONE primitive.  citygen's pipeline ends in `graph_fuse`,
+# so a street network arrives WELDED at every junction, and the dev-loop trap
+# list already records that a welded junction point cannot hold the
+# parametrisations of every edge sharing it.  Measured before this node
+# existed: two polylines sharing one vertex lost a real 90 deg corner
+# outright, and the junction's metre flipped with primitive order alone.
+# `splitpoints` is Houdini's own answer (procedural-modeling rule 3 - convert
+# the input into the space the tool operates in), it leaves prim attributes,
+# detail attributes and stand-alone marker points untouched, and it measured
+# 0.00008 s on the 20 001-vertex fixture, where nothing needs splitting.
+UNSHARE_COMMENT = (
+    "4.1 - INPUT NORMALISATION (D165). One point per vertex, so the\n"
+    "per-curve walk below cannot be overwritten by the curve next door.\n"
+    "A fused junction - which is what citygen's graph_fuse emits - is\n"
+    "where this earns its cook.")
+
 DECOMPOSE = (
     ("pc_curveid", "primitive", None,
-     "4.1 - the curve id: pc_curve_id, else edge_id, else the prim number.\n"
-     "A BLANK id is an ABSENT id (D29/D64)."),
-    ("pc_curve_index", "detail", None,
-     "4.1 - the id table, one entry per prim, so a marker finds its curve\n"
-     "with an array lookup instead of a scan of the whole stream."),
+     "4.1 - the curve id AND the curve SET: pc_curve_id, else edge_id, else\n"
+     "the prim number. A BLANK id is an ABSENT id (D29/D64), and a prim the\n"
+     "reference declines - packed, under two points, or holding a marker\n"
+     "point - is declined here too and gets no table (D167)."),
+    ("pc_curve_index", "detail", 1,
+     "4.1 - the id -> prim DICT, so a marker finds its curve by hash and not\n"
+     "by scanning every prim (D168). It also stamps CONFIG onto the stream,\n"
+     "which is what lets the reference trust these corners (D166)."),
     ("pc_arclength", "primitive", None,
      "4.1 - cumulative metres per point, plus the per-curve SAMPLER table.\n"
      "One curve per thread, the scan sequential inside it. 64-bit, because\n"
@@ -233,13 +254,27 @@ config = python_sop(
     "detail dict, which VEX reads natively. No geometry; N = the parm\n"
     "count. It must never grow a geometry loop - the wrapper tripwires\n"
     "are pointed at it.")
-config.setInput(0, ins[2])
+# ⚠️ ONE INPUT CONVENTION, AND THIS NODE USED TO BREAK IT.  Every Python body
+# reads its style payload with `_input_geo(node, 2)` - `kernel` and
+# `pc_plan_bridge` have four inputs so that index lands on IN_STYLE, and this
+# node had IN_STYLE on input 0, so `config_dict` read an UNWIRED input and
+# `pc_cfg` carried PARM values under a wired payload.  Measured: a payload
+# asking for corner_angle_deg = 77 produced pc_cfg 30, and `Stage = sections`
+# then broke the run at two corners where the payload asks for one.  Input 0
+# is left empty on purpose - index 2 must mean IN_STYLE on every body.
 config.setInput(1, ins[1])
+config.setInput(2, ins[2])
 config.setPosition(hou.Vector2(5.0, -3.0))
 
 # ---- 1 DECOMPOSE (4.1) - VEX and native, no Python --------------------------
 _prev = ins[0]
-dec_nodes = []
+unshare = net.createNode("splitpoints", "pc_unshare")
+unshare.setInput(0, _prev)
+unshare.setPosition(hou.Vector2(10.0, 4.0))
+unshare.setComment(UNSHARE_COMMENT)
+unshare.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+_prev = unshare
+dec_nodes = [unshare]
 for _i, (_name, _cls, _second, _comment) in enumerate(DECOMPOSE):
     _node = wrangle(net, _name, _cls, _comment)
     _node.setInput(0, _prev)
@@ -263,7 +298,11 @@ plan = python_sop(
     "pc_basey / pc_upref, and pc_frame_valid - 0 where the piece rides a\n"
     "filleted or conformed polyline the native arclength table cannot\n"
     "answer for.")
-for _i in range(4):
+# INPUT 0 IS `OUT_sections`, NOT `IN_SPLINE` (D166) - the plan is solved on
+# the same decomposed stream the shipped run is, so `Stage = plan` and
+# `Stage = output` cannot answer about two different curves.
+plan.setInput(0, out_sections)
+for _i in range(1, 4):
     plan.setInput(_i, ins[_i])
 plan.setPosition(hou.Vector2(16.0, 0.0))
 out_plan = net.createNode("null", "OUT_plan")
@@ -308,7 +347,16 @@ kernel = python_sop(
     "still the whole tool. Every stage above is measured against it, and\n"
     "it is retired one 13.9 item at a time. It is never deleted: it is the\n"
     "oracle the parity checks ask.")
-for _i in range(4):
+# ⚠️ THIS ONE WIRE IS WHAT MAKES THE REBUILD REAL (D166). `kernel` used to
+# take IN_SPLINE, so the whole DECOMPOSE box sat BESIDE the tool: measured on
+# the build before this line, all six native nodes reported `cookCount == 0`
+# after an Output cook, and bypassing them - or destroying them outright -
+# left the output hash byte-identical. Behind OUT_sections the arclengths,
+# the cleaned index table and the corners `place.read_curves` picks up are
+# the ones the 64-bit wrangles computed, so the 89 scene cases and all four
+# gates now exercise the VEX instead of walking past it.
+kernel.setInput(0, out_sections)
+for _i in range(1, 4):
     kernel.setInput(_i, ins[_i])
 kernel.setPosition(hou.Vector2(28.0, 4.0))
 out_reference = net.createNode("null", "OUT_reference")
@@ -682,20 +730,35 @@ defn.setParmTemplateGroup(ptg)
 
 defn.setExtraFileOption("polychain/source", __file__.replace("\\", "/"))
 
-# 13.7 - THE ASSET SHIPS UNLOCKED, and this one option is what does it.
-# ⚠️ AND IT IS ALSO THE ONLY WAY THE NETWORK BOXES SURVIVE THE SAVE. Measured
-# this cycle on a three-node throwaway asset: with the default options,
-# `defn.save(..., template_node=...)` and `defn.updateFromNode()` BOTH write
-# the nodes and silently drop every network box and sticky note - a new
-# instance came back with `networkBoxes() == []` and no error anywhere. Worse,
-# force-cooking such an instance then failed with "Network box save failed",
-# which is the only sign Houdini gives that anything went wrong. With
-# `unlockNewInstances` the boxes, the comments and the sticky note all arrive
-# on a fresh instance and the cook is clean.
-# So the readability deliverable (`artist_ui.md` 6 rule 10) and the asset
-# being editable are the SAME switch, not two.
+# 13.7 - THE ASSET SHIPS LOCKED, and the trap that said it could not is
+# WRONG. It used to read: "unlockNewInstances is the only way the network
+# boxes survive the save - a locked instance comes back with
+# `networkBoxes() == []`". That observation was real and the diagnosis was
+# not: a LOCKED HDA loads its contents LAZILY, so `children()`,
+# `networkBoxes()` and `stickyNotes()` are all empty until something touches
+# the contents. Control test, one throwaway two-node asset with one box and
+# one note, saved twice with the flag as the only difference - locked:
+# children 0 / boxes 0 / notes 0 before `n.node("OUT")` and children 2 /
+# boxes 1 / notes 1 with the comment intact after it, `cook(force=True)`
+# clean. The "Network box save failed" half belongs to the OTHER trap
+# (a `;` in a box comment, see `box()` above), which carries the identical
+# error string.
+#
+# ⚠️ AND THE FLAG IS NOT FREE. Measured at citygen scale, 300 chain nodes in
+# one scene: unlocked 2.056 s to create against 0.094 s locked, 6 000 child
+# nodes materialised against 0, a 20.7 MB .hip against 0.76 MB. Worse than
+# any of that, `matchesCurrentDefinition()` is False on a FRESH untouched
+# unlocked instance, so every scene an artist saves forks its own private
+# copy of the network and never receives a later fix - with nine build-order
+# items still ahead, that is every scene built during the rebuild running
+# last week's graph forever.
+#
+# The readability deliverable (`artist_ui.md` 6 rule 10) does not need it:
+# diving into a locked instance loads the contents and shows the boxes, the
+# comments and the sticky note, and an artist who wants to EDIT one instance
+# still has Allow Editing of Contents per node.
 _opts = defn.options()
-_opts.setUnlockNewInstances(True)
+_opts.setUnlockNewInstances(False)
 defn.setOptions(_opts)
 defn.save(HDA_PATH, template_node=hda_node)
 

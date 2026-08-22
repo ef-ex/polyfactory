@@ -23,8 +23,17 @@
 #define PC_FLAT_RATIO   0.01    // horizontal reach vs planned span, yaw-only
 
 int   pr     = i@pc_curveprim;
-float sa     = f@pc_s0r;
-float sb     = f@pc_s1r;
+// D170 - THE SPAN ARRIVES IN TWO HALVES, and it has to.  `hou.Geometry`'s
+// only float storage is 32-bit (probed: `addAttrib` has no precision
+// argument), so a plain `pc_s0r` quantises to 1.95 mm at 20 km - measured,
+// 9.765e-4 m worst on the 20 km fixture, ten times the suite's own 1e-4 m
+// tolerance, and R2 says this network may not be WORSE at world scale than
+// the Python it replaces.  The planner therefore stores the float32 head in
+// `pc_s0r` and the float32 residual in `pc_s0r_lo`; added here in 64-bit VEX
+// the pair reproduces the metre to ~6e-11 m.  When 13.9 N2's solve computes
+// the span in this wrangle, both attributes go away together.
+float sa     = f@pc_s0r + f@pc_s0r_lo;
+float sb     = f@pc_s1r + f@pc_s1r_lo;
 string zmode = s@pc_zmode;
 float plen   = f@pc_proto_len;          // the module's nominal fitted length
 float pax    = f@pc_proto_ax;           // its bbox min x - the local origin
