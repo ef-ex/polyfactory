@@ -656,6 +656,19 @@ def build_all():
     built["AR_offset_past"] = _case(g, kit_geo,
                                     corner_style("miter", offset=-100.0))
 
+    # ---- the cycle-4 cases.
+
+    # AS - CYCLE 3v'S OWN FIGURE: PC-G1's 12 x 8 m rectangle in BEND mode with
+    # a panel-only default, so twenty 2 m panels fit the 40 m ring EXACTLY and
+    # ALL FOUR corners land on a piece boundary. That is the one shape where
+    # no piece wraps a vertex and every corner is a butt joint - which is what
+    # `corner_breach_m`'s bend branch and `corner_wedge_m2` were written for.
+    # B_rect_closed cannot cover it: its post/panel sequence wraps three of
+    # its four corners, so only the seam is ever a joint.
+    g = hou.Geometry()
+    polyline(g, RECT, closed=True, curve_id="AS")
+    built["AS_rect_bend_butt"] = _case(g, kit_geo, corner_style("bend"))
+
     return built
 
 

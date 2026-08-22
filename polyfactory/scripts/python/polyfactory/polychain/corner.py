@@ -224,6 +224,21 @@ class Bevel(object):
             else (0.0, 0.0, 1.0)
         self.side = 1.0 if _dot(self.tout, self.across) >= 0.0 else -1.0
         summed = _add(self.tin, self.tout)
+        # ⚠️ THIS TEST IS NOT DEAD, AND THE ONE THING THAT REACHES IT IS
+        # `flatten` (D50, measured). Cycle 3v instrumented `__init__` over the
+        # whole suite - 40 bevels built, 0 degenerate - and concluded these
+        # three lines were unreachable decoration on top of `_joinable`. They
+        # are unreachable AT FIRST CONSTRUCTION, and for the reason that pass
+        # gives: `merge_bend_sections` welds every corner `decompose` already
+        # scored degenerate before `solve_corners` looks at a boundary.
+        # `flatten` then RE-RUNS this constructor on the yaw-flattened
+        # tangents, and yaw-flattening changes the turn: a path that climbs
+        # while doubling back in plan turns 104.8 degrees in 3D and 178.5
+        # degrees flat. `decompose` never saw that hairpin - it reads the 3D
+        # tangents - so this is the only place it can be caught, and D48 made
+        # the catching necessary the moment it made plumb pieces cut on a
+        # flattened plane. `test_polychain_corner.TestFlattenDegenerate` pins
+        # the route; 3v's M4/M6 mutations die on it.
         self.degenerate = bool(
             (corner.degenerate if corner is not None else False)
             or _len(summed) < 1e-6
@@ -1044,6 +1059,17 @@ def plan_curve(curve, sections, kit, style, params=None):
         asm.bevel.squeeze = factors.get((key - 1) % n, 1.0)
         out.extend(_assembly_placements(asm, sections, key, params, style,
                                         factors, closed, bases))
+    # D50 - AND THE CORNERS THAT ONLY DEGENERATE ONCE THEY ARE FLATTENED.
+    # `degenerate_s` above reads `decompose`, which works on the 3D tangents;
+    # `Bevel.flatten` (D48) can turn a mild 3D corner into a plan hairpin, and
+    # that bevel's own `warns` only reach an element through `build_assembly`
+    # - so a style with NO corner module dropped the warning entirely and a
+    # 178.5 degree flattened corner built silently. Adding the vertex here
+    # stamps the pieces that meet it either way; `_stamp_degenerate`'s bounds
+    # are inclusive, so a piece that merely ENDS on the vertex is stamped too.
+    degenerate_s = list(degenerate_s) + [
+        asm.bevel.s_vertex for asm in assemblies.values()
+        if asm.bevel.degenerate]
     if degenerate_s:
         _stamp_degenerate(out, sections, degenerate_s, curve.length, closed)
     out.sort(key=lambda p: (p.section_index, p.s0, p.slot, p.index))

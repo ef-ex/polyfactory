@@ -48,6 +48,7 @@ TOL_M = 1e-4        # P is float32; below ~1e-4 m at scene scale this measures
 LOCAL_TOL = 1e-5
 
 
+
 class Result(object):
     __slots__ = ("name", "ok", "value", "detail", "skipped")
 
@@ -1600,17 +1601,55 @@ def corner_breach(scene, tol=1e-4):
         default piece stops short of the vertex and still reaches across the
         plane, so the two legs' square ends cross inside the corner post.
 
-    Both are invisible from outside the fence and invisible to `max_gap_m`,
-    which walks one run at a time. This walks the plane instead: a piece is
+    IN BEND MODE THE SAME NUMBER IS NOT ZERO AND IS NOT A DEFECT (D36,
+    extended). There is no cut plane there because nothing is cut: two
+    square-ended pieces butt at the vertex, so each of them crosses the
+    bisector by `half_width * cos(turn/2)` - 0.021213 m for the starter
+    panel's 0.03 m half-width at 90 degrees. That is inherent to a butt
+    joint; `corner_wedge_m2` measures the solid it leaves, `BUTT_BREACH_M` is
+    the accepted limit, and miter is the fix.
+
+    Both miter failures are invisible from outside the fence and invisible to
+    `max_gap_m`, which walks one run at a time. This walks the plane instead: a piece is
     filed on the side its centroid is on, and every one of its points must
     stay there. Pieces further than a couple of module lengths from the vertex
     are out of scope - a bisector plane is infinite and a far leg may
     legitimately straddle it.
     """
     bevels = [b for b in _bevels(scene) if b.mode == "miter"]
-    if not bevels:
-        return _skip("corner_breach_m", "no mitered corners")
     worst, where, seen = 0.0, "", 0
+    # --- THE BEND BRANCH (cycle 3v's open finding, D36 extended). A bend
+    # corner has no bevel to filter on, so this walked past every bend case
+    # and reported SKIP while a butt joint was crossing the bisector by
+    # 0.0212 m. The dissolved vertex carries the same plane a miter would have
+    # cut on; what changes is that NOTHING cuts on it, which is exactly the
+    # thing to measure. A SPANNED weld is not a joint (one bent piece) and is
+    # counted, not scored.
+    excess = 0.0
+    for v, n, cos_half, pieces, spanned in _welds(scene):
+        if spanned:
+            continue
+        for side, _eid, rec in pieces:
+            sign = 1.0 if side == "in" else -1.0
+            d = max(sign * _dot3(_sub3(q, v), n) for q in _pts_of(rec))
+            seen += 1
+            # ...AND WHAT IT IS ALLOWED TO BE, derived from the piece and the
+            # turn rather than from the run: a square-ended piece of across
+            # half-extent `h` butting at a turn `t` must cross the bisector by
+            # exactly `h*cos(t/2)` - 0.021213 m for the starter panel at 90
+            # degrees, 0.042426 m for the fatter post. Anything MORE is a
+            # piece running past the vertex uncut, which is the defect the
+            # miter branch below hunts. So the recorded number is the physical
+            # breach and the assertion is the excess over the butt geometry.
+            excess = max(excess, d - _half_across(rec) * cos_half)
+            if d > worst:
+                worst, where = d, "%s butt %s at (%.2f, %.2f)" % (
+                    rec["pc_module"], side, v[0], v[2])
+    if not bevels:
+        if not seen:
+            return _skip("corner_breach_m", "no mitered or dissolved corners")
+        return Result("corner_breach_m", excess <= 2e-3, _round(worst, 6),
+                      "%s, %.2e m over the butt wedge" % (where, excess))
     for bevel in bevels:
         legs = set()
         for leg in (bevel.section_in, bevel.section_out):
@@ -1644,6 +1683,189 @@ def corner_breach(scene, tol=1e-4):
     if not seen:
         return _skip("corner_breach_m", "no pieces near a corner")
     return Result("corner_breach_m", worst <= tol, _round(worst, 6), where)
+
+
+# --- 4.3 in BEND mode: the dissolved vertex, and the wedge a butt joint
+# leaves inside the corner. Cycle 3v's open finding, closed here.
+#
+# A bend corner produces NO bevel at all (`merge_bend_sections` welds the two
+# sections into one run before `solve_corners` ever looks at the boundary), so
+# every `corner_*` check above reports SKIP on every bend case - which is how a
+# real interpenetration sat unmeasured for two cycles. The vertex is still
+# recorded: `Section.welds` carries the dissolved corners in section-local
+# metres (D36), and that is what these two walk.
+
+def _welds(scene, tol=1e-4):
+    """[(v, n, section, welded pieces...)] - one entry per DISSOLVED corner.
+
+    Returns (vertex, bisector normal, cos(turn/2), [(side, eid, rec)],
+    spanned) where
+    `side` is "in" for the piece ARRIVING at the vertex and "out" for the one
+    leaving it, and `spanned` is True when ONE piece covers the vertex - in
+    which case there is no butt joint to measure and the geometry is
+    continuous by construction (4.3's "deformed across the vertex").
+    """
+    out = []
+    for track in scene.tracks:
+        cid = str(track["curve"].curve_id)
+        path, remap = track["path"], track["remap"]
+        for section in track["sections"]:
+            welds = list(getattr(section, "welds", ()) or ())
+            if not welds:
+                continue
+            total = section.curve_length
+            for w in welds:
+                s_real = remap(section.s0 + w)
+                v, tout = path.sample(s_real)
+                # ⚠️ THE RING'S OWN SEAM IS A WELD AT s = 0, and `Path.sample`
+                # only pushes a backward read onto the closing segment when
+                # the ASKED s was non-zero (it cannot know that a literal 0
+                # meant "arriving"). Reading it as it stands returns the
+                # FIRST segment's tangent for both sides, so `n` came out as
+                # the outgoing tangent rather than the bisector and the
+                # closed rectangle's seam scored 0.030 m against a plane no
+                # corner has. Ask for the arriving side at `total`.
+                s_in = s_real
+                if path.closed and s_real <= 1e-9:
+                    s_in = path.total
+                _p, tin = path.sample(s_in, forward=False)
+                summed = (tin[0] + tout[0], tin[1] + tout[1], tin[2] + tout[2])
+                if math.sqrt(_dot3(summed, summed)) < 1e-6:
+                    continue          # a hairpin has no usable bisector
+                n = tuple(c / math.sqrt(_dot3(summed, summed)) for c in summed)
+                cos_half = abs(_dot3(n, tout))      # = cos(turn/2)
+                pieces, spanned = [], False
+                for p in scene.plan:
+                    if str(p.curve_id) != cid                             or p.section_index != section.index:
+                        continue
+                    rec = scene.by_id.get(p.elem_id)
+                    if rec is None:
+                        continue
+                    # a closed ring's own seam sits at 0 and D19 lets a run
+                    # wrap it, so the weld is looked for at both ends
+                    for wv in (w, w + total, w - total):
+                        if p.s0 + tol < wv < p.s1 - tol:
+                            spanned = True
+                        elif abs(p.s1 - wv) <= tol:
+                            pieces.append(("in", p.elem_id, rec))
+                        elif abs(p.s0 - wv) <= tol:
+                            pieces.append(("out", p.elem_id, rec))
+                out.append((v, n, cos_half, pieces, spanned))
+    return out
+
+
+def _half_across(rec):
+    """The piece's own across half-extent, in METRES of module local space.
+
+    D20 puts across on local +Z, and `pc_local` rides through the deform and
+    the clip, so this reads the same number off a packed prim and off a bent
+    one. It is what makes the butt allowance a fact about the KIT rather than
+    a tolerance someone picked.
+    """
+    loc = rec["local"]
+    zs = [abs(loc[i + 2]) for i in range(0, len(loc), 3)]
+    return max(zs) if zs else 0.0
+
+
+def _pts_of(rec):
+    w = rec["world"]
+    return [(w[i], w[i + 1], w[i + 2]) for i in range(0, len(w), 3)]
+
+
+def _hull_xz(pts):
+    """Monotone-chain convex hull of the XZ footprint, CCW."""
+    ps = sorted(set((round(p[0], 9), round(p[2], 9)) for p in pts))
+    if len(ps) < 3:
+        return ps
+
+    def half(seq):
+        out = []
+        for q in seq:
+            while len(out) >= 2 and ((out[-1][0] - out[-2][0])
+                                     * (q[1] - out[-2][1])
+                                     - (out[-1][1] - out[-2][1])
+                                     * (q[0] - out[-2][0])) <= 0.0:
+                out.pop()
+            out.append(q)
+        return out
+    lower, upper = half(ps), half(list(reversed(ps)))
+    return lower[:-1] + upper[:-1]
+
+
+def _clip_convex(subject, clip):
+    """Sutherland-Hodgman. Both polygons CCW and convex, so the result is the
+    intersection and it is convex."""
+    out = list(subject)
+    for i in range(len(clip)):
+        a, b = clip[i], clip[(i + 1) % len(clip)]
+        ex, ez = b[0] - a[0], b[1] - a[1]
+
+        def inside(q):
+            return ex * (q[1] - a[1]) - ez * (q[0] - a[0]) >= -1e-12
+        src, out = out, []
+        for k in range(len(src)):
+            p, q = src[k - 1], src[k]
+            ip, iq = inside(p), inside(q)
+            if ip != iq:
+                dx, dz = q[0] - p[0], q[1] - p[1]
+                den = ex * dz - ez * dx
+                if abs(den) > 1e-18:
+                    t = (ex * (p[1] - a[1]) - ez * (p[0] - a[0])) / -den
+                    out.append((p[0] + dx * t, p[1] + dz * t))
+            if iq:
+                out.append(q)
+        if not out:
+            return []
+    return out
+
+
+def _area(poly):
+    a = 0.0
+    for i in range(len(poly)):
+        p, q = poly[i], poly[(i + 1) % len(poly)]
+        a += p[0] * q[1] - q[0] * p[1]
+    return abs(a) * 0.5
+
+
+def corner_wedge(scene, tol=1e-9):
+    """THE BUTT-JOINT WEDGE, in square metres of doubly-solid footprint.
+
+    Cycle 3v measured it on a raster and left it unbaselined: two square-ended
+    0.06 m panels meeting at 90 degrees must leave a wedge of doubly-solid
+    geometry inside the corner and the matching notch outside - 0.03 x 0.03 m
+    on the starter panel, which is the 0.0009 m2 that pass reported. It is
+    INHERENT to a butt joint, RailClone behaves the same way, and miter is the
+    fix (D36, extended) - so this is baselined as the ACCEPTED LIMIT rather
+    than asserted to be zero. What it protects against is the number GROWING.
+
+    Convex hulls in XZ, not a raster: the two pieces at a butt joint are
+    boxes, so the hull is exact and the intersection is a polygon clip instead
+    of 10 000 point-in-solid tests. A piece that SPANS the vertex is skipped -
+    it is one continuous bent piece, and there is no joint to measure.
+    """
+    joints = _welds(scene)
+    if not joints:
+        return _skip("corner_wedge_m2", "no dissolved corners")
+    worst, where, seen, spanned_n = 0.0, "", 0, 0
+    for v, _n, _cos_half, pieces, spanned in joints:
+        if spanned:
+            spanned_n += 1
+            continue
+        ins = [r for s, _e, r in pieces if s == "in"]
+        outs = [r for s, _e, r in pieces if s == "out"]
+        for a in ins:
+            for b in outs:
+                seen += 1
+                area = _area(_clip_convex(_hull_xz(_pts_of(a)),
+                                          _hull_xz(_pts_of(b))))
+                if area > worst:
+                    worst, where = area, "%s|%s at (%.2f, %.2f)" % (
+                        a["pc_module"], b["pc_module"], v[0], v[2])
+    if not seen:
+        return _skip("corner_wedge_m2",
+                     "%d dissolved corners, all spanned" % spanned_n)
+    return Result("corner_wedge_m2", True, _round(worst, 8),
+                  "%s (%d joints, %d spanned)" % (where, seen, spanned_n))
 
 
 def corner_clearance(scene, vertex, expected, tol=5e-3):

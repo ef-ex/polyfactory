@@ -279,6 +279,13 @@
       "value": 0.0
     },
     {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "turn 45.0 deg (residual vs 0.0000)",
       "name": "corner_seam_m",
       "ok": true,
@@ -561,11 +568,18 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "panel butt in at (11.56, 0.44), 0.00e+00 m over the butt wedge",
       "name": "corner_breach_m",
       "ok": true,
-      "skipped": true,
-      "value": null
+      "skipped": false,
+      "value": 0.005853
+    },
+    {
+      "detail": " (1 joints, 0 spanned)",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no mitered corners",
@@ -861,8 +875,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "1 dissolved corners, all spanned",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -1161,6 +1182,13 @@
       "value": 0.0
     },
     {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "turn 90.0 deg (residual vs 0.0000)",
       "name": "corner_seam_m",
       "ok": true,
@@ -1447,6 +1475,13 @@
       "ok": true,
       "skipped": false,
       "value": 1e-06
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "turn 90.0 deg (residual vs 0.0000)",
@@ -1737,6 +1772,13 @@
       "value": 1e-06
     },
     {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "turn 90.0 deg (residual vs 0.0000)",
       "name": "corner_seam_m",
       "ok": true,
@@ -2023,6 +2065,13 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "turn 90.0 deg (residual vs 0.0000)",
@@ -2316,6 +2365,13 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "turn 140.0 deg (residual vs 0.0000)",
@@ -2621,6 +2677,13 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "turn 120.0 deg (residual vs 0.0000)",
@@ -2941,6 +3004,13 @@
       "value": 0.0
     },
     {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": " (residual vs 0.0000)",
       "name": "corner_seam_m",
       "ok": true,
@@ -3253,6 +3323,13 @@
       "value": 0.0
     },
     {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "turn 72.0 deg (residual vs 0.0000)",
       "name": "corner_seam_m",
       "ok": true,
@@ -3539,6 +3616,13 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": " (residual vs 0.0000)",
@@ -3829,6 +3913,13 @@
       "value": 0.0
     },
     {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": " (residual vs 0.0000)",
       "name": "corner_seam_m",
       "ok": true,
@@ -4117,6 +4208,13 @@
       "value": 0.0
     },
     {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": " (residual vs 0.0000)",
       "name": "corner_seam_m",
       "ok": true,
@@ -4403,6 +4501,13 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "turn 90.0 deg (residual vs 0.0000)",
@@ -4716,6 +4821,13 @@
       "value": 1e-06
     },
     {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "turn 90.0 deg (residual vs 0.0000)",
       "name": "corner_seam_m",
       "ok": true,
@@ -5007,6 +5119,13 @@
       "ok": true,
       "skipped": false,
       "value": 1e-06
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "turn 90.0 deg (residual vs 0.0000)",
@@ -5302,11 +5421,309 @@
       "value": 0.0
     },
     {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "turn 90.0 deg (residual vs 0.0000)",
       "name": "corner_seam_m",
       "ok": true,
       "skipped": false,
       "value": 1e-06
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "AS_rect_bend_butt": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 20
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no consecutive stepped pieces",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "20 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no stepped pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=2.000",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 20",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 20
+    },
+    {
+      "detail": "20 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "detail": "of 64",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "no deformed pieces",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.0
+    },
+    {
+      "detail": "worst 0.000e+00 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 20
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "66f2f85ebae2b0a9"
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 of 4 spanned by one piece",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4,
+        0
+      ]
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "panel butt out at (0.00, 0.00), 0.00e+00 m over the butt wedge",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.021213
+    },
+    {
+      "detail": "panel|panel at (12.00, 8.00) (4 joints, 0 spanned)",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0009
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "",
@@ -5576,8 +5993,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -5865,11 +6289,18 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "post butt out at (0.00, 0.00), 0.00e+00 m over the butt wedge",
       "name": "corner_breach_m",
       "ok": true,
-      "skipped": true,
-      "value": null
+      "skipped": false,
+      "value": 0.042426
+    },
+    {
+      "detail": "panel|post at (0.00, 0.00) (1 joints, 3 spanned)",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0018
     },
     {
       "detail": "no mitered corners",
@@ -6146,8 +6577,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -6434,8 +6872,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -6722,8 +7167,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -7003,8 +7455,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -7284,8 +7743,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -7565,8 +8031,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -7860,8 +8333,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -8160,8 +8640,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -8446,8 +8933,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -8727,8 +9221,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -9008,8 +9509,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -9289,8 +9797,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -9589,8 +10104,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -9875,8 +10397,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -10161,8 +10690,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -10447,8 +10983,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -10728,8 +11271,15 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "no mitered or dissolved corners",
       "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
       "ok": true,
       "skipped": true,
       "value": null
@@ -11012,11 +11562,18 @@
       "value": null
     },
     {
-      "detail": "no mitered corners",
+      "detail": "panel butt in at (12.00, 0.00), 3.24e-07 m over the butt wedge",
       "name": "corner_breach_m",
       "ok": true,
-      "skipped": true,
-      "value": null
+      "skipped": false,
+      "value": 0.021214
+    },
+    {
+      "detail": "panel|panel at (12.00, 0.00) (1 joints, 0 spanned)",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": false,
+      "value": 0.00090001
     },
     {
       "detail": "no mitered corners",
@@ -11305,6 +11862,13 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": " (residual vs 0.0000)",
@@ -11613,6 +12177,13 @@
       "value": 0.0
     },
     {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": " (residual vs 0.0000)",
       "name": "corner_seam_m",
       "ok": true,
@@ -11899,6 +12470,13 @@
       "ok": true,
       "skipped": false,
       "value": 1e-06
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": "turn 90.0 deg (residual vs 0.0000)",
@@ -12189,6 +12767,13 @@
       "value": 0.0
     },
     {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "turn 90.0 deg (residual vs 0.0000)",
       "name": "corner_seam_m",
       "ok": true,
@@ -12477,6 +13062,13 @@
       "value": 1e-06
     },
     {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "turn 90.0 deg (residual vs 0.0000)",
       "name": "corner_seam_m",
       "ok": true,
@@ -12763,6 +13355,13 @@
       "ok": true,
       "skipped": false,
       "value": 0.0
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
     },
     {
       "detail": " (residual vs 0.0000)",

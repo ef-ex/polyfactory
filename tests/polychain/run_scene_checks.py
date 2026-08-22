@@ -49,6 +49,12 @@ EXPECTED_WARNS = {
     "AC_degenerate_corner": ("pc_warn_bend_resolution",
                              "pc_warn_corner_degenerate"),
     "AD_short_legs": ("pc_warn_overflow",),
+    # AS is 3v's own figure: twenty 2 m panels fit the 40 m ring exactly, so
+    # every corner is a BUTT JOINT and no piece is asked to wrap one. A clean
+    # build is the assertion - the wedge those joints leave is measured by
+    # `corner_wedge_m2`, not warned about (D36: it is inherent, miter is the
+    # fix).
+    "AS_rect_bend_butt": (),
     # The cycle-3 review cases. Every one of these overflows for a REASON the
     # case name gives, and every one of them used to build silently:
     # AH  a 140 degree turn is sharper than the 0.16 m post's own 0.2198 m
@@ -245,6 +251,7 @@ def run_case(name, case):
                                 expected=CORNER_OUTSIDE.get(name)),
         C.corner_reach(scene, expected=CORNER_REACH.get(name)),
         C.corner_breach(scene),
+        C.corner_wedge(scene),
     ]
     out.append(C.corner_seam(scene, expected=CORNER_SEAM.get(name, 0.0)))
     if name in ("C_tile_slice", "H_tile_slope_free", "I_tile_slope_fixed"):

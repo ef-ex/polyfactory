@@ -683,5 +683,68 @@ class TestReviewFindings(unittest.TestCase):
                 self.assertNotIn(WARN_OVERFLOW, p.warns)
 
 
+class TestFlattenDegenerate(unittest.TestCase):
+    """D50 - `Bevel.degenerate` is reachable, and `flatten` is what reaches it.
+
+    Cycle 3v mutated `Bevel.degenerate` to False and mutated away the
+    `mode = "bend" if degenerate` fallback; both mutations SURVIVED all 44
+    scene cases, and the pass concluded the branch was dead code sitting on
+    top of `_joinable`. It is dead only at FIRST construction: `decompose`
+    reads the 3D tangents, so a corner that is mild in 3D and a hairpin in
+    PLAN is never welded, and D48's `flatten` then rebuilds the bevel on the
+    flattened tangents - where it is a hairpin. These three tests are the
+    route, and they are what those two mutations now die on.
+    """
+
+    def bevel(self, tin, tout, params=None):
+        # miter, because "falls back to bend" is only a statement about a
+        # bevel that was asked for a miter in the first place.
+        params = params or style("miter").params
+        corner = D.Corner("c", 1, (0.0, 0.0, 0.0),
+                          C._turn_deg((-tin[0], -tin[1], -tin[2]),
+                                      (0.0, 0.0, 0.0), tout))
+        return C.Bevel(corner, (0.0, 0.0, 0.0), tin, tout, params)
+
+    def test_flatten_can_turn_a_mild_corner_into_a_hairpin(self):
+        # climbing steeply while doubling back in plan: 104.8 degrees of turn
+        # in 3D, 178.5 flat. Nothing upstream can see the second number.
+        b = self.bevel((8.0, 6.0, 0.0), (-7.6, 6.0, 0.2))
+        self.assertFalse(b.degenerate)
+        self.assertEqual(b.mode, "miter")
+        self.assertLess(b.turn, 110.0)
+        b.flatten()
+        self.assertTrue(b.degenerate)
+        self.assertGreater(b.turn, 170.0)
+
+    def test_a_flattened_hairpin_falls_back_to_bend_and_warns(self):
+        b = self.bevel((8.0, 6.0, 0.0), (-7.6, 6.0, 0.2)).flatten()
+        self.assertEqual(b.mode, "bend")            # nothing is cut on noise
+        self.assertIn(WARN_CORNER_DEGENERATE, b.warns)
+
+    def test_a_flat_corner_is_unchanged_by_flatten(self):
+        b = self.bevel((1.0, 0.0, 0.0), (0.0, 0.0, 1.0))
+        n0, turn0 = tuple(b.n), b.turn
+        b.flatten()
+        self.assertFalse(b.degenerate)
+        self.assertEqual(b.mode, "miter")
+        self.assertAlmostEqual(b.turn, turn0, places=9)
+        for a, c in zip(b.n, n0):
+            self.assertAlmostEqual(a, c, places=9)
+
+    def test_the_flattened_hairpin_warning_reaches_a_placement(self):
+        """...even with NO corner module. `Bevel.warns` only rides out through
+        `build_assembly`, so a style without a corner rule dropped it and the
+        corner built silently - warn-never-block, broken by D48's own fix."""
+        pts = [(0.0, 0.0, 0.0), (8.0, 6.0, 0.0), (0.4, 12.0, 0.2)]
+        st = Style("t", 1, 1, rules=[Rule("default", "first", ["panel"])],
+                   params=Params(fill="adaptive", corner_mode="miter",
+                                 zmode="vertical", corner_angle_deg=20.0))
+        out, bevels, _s = run(pts, st)
+        self.assertTrue(bevels[0].degenerate)
+        self.assertTrue(bevels[0].flat)
+        self.assertTrue([p for p in out
+                         if WARN_CORNER_DEGENERATE in p.warns])
+
+
 if __name__ == "__main__":
     unittest.main()
