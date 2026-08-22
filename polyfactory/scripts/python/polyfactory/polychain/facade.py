@@ -46,8 +46,13 @@ def _ensure(geo, cls, name, default):
     return found or geo.addAttrib(cls, name, default)
 
 
-ROW_STR_ATTRS = ("pc_curve_id", "pc_yclass")
-ROW_INT_ATTRS = ("pc_row",)
+# D142 - a row the clip boundary leaves nothing of has no element to carry a
+# warning, so it says so on the build's own detail channel instead. `cell_grid`
+# reads `report["rows"]` and counts it as a HOLE, which is the number.
+_ROW_CLIPPED = "pc_warn_row_clipped_out"
+
+ROW_STR_ATTRS = ("pc_curve_id", "pc_yclass", "pc_row_warns")
+ROW_INT_ATTRS = ("pc_row", "pc_clipped")
 ROW_FLT_ATTRS = ("pc_row_y0", "pc_row_y1", "pc_row_scale")
 
 
@@ -64,6 +69,12 @@ def rows_geometry(loops, corner_flags=None, geo=None):
     `corner_flags` is 7.5's "vertex type is data": a per-footprint-vertex
     `pc_corner`, repeated for every row. Left None, the auto-turn test
     (`corner_angle_deg`) decides, which is what a rectangle wants.
+
+    ⚠️ THE FLAGS MUST ALREADY BE IN CANONICAL ORDER. `build` permutes them
+    with `array2d.canonical_order` before calling this, because the loops it
+    is handed have been rotated (and possibly reversed) by D124 and indexing
+    an authored flag list by canonical position put every suppression on the
+    wrong vertex.
     """
     geo = geo if geo is not None else hou.Geometry()
     if not loops:
@@ -105,10 +116,28 @@ def rows_geometry(loops, corner_flags=None, geo=None):
     return geo
 
 
+def canonical_flags(footprint, corner_flags, closed=True):
+    """7.5's per-vertex `pc_corner`, permuted the way D124 permuted the points.
+
+    The row emitter walks the CANONICAL point list; the flags arrive in the
+    order the artist authored them. Indexing one by the other put every
+    suppression on a different physical vertex the moment the same footprint
+    was re-authored from another start vertex - a hole in the miter at the
+    vertex that should have had a corner column, and a corner column at the
+    curved return that should not, with `structural_ids` unable to see it
+    because no committed case passed flags at all.
+    """
+    if not corner_flags:
+        return corner_flags
+    return [corner_flags[i % len(corner_flags)]
+            for i in _array2d.canonical_order(footprint, closed)]
+
+
 # --- the kit, with 7.2.2's lattice closed onto it (D136) --------------------
 
 def close_kit(kit_geo, extend="x", extra_roles=()):
-    """(kit geometry with every 2D cell role resolved, {asked: supplied}).
+    """(kit geometry with every 2D cell role resolved, {asked: supplied},
+    [7.2's alias-collision notices]).
 
     A COPY: closing the roles rewrites `pc_role`, and a build must not edit the
     kit its caller handed it.
@@ -134,7 +163,7 @@ def close_kit(kit_geo, extend="x", extra_roles=()):
     meta["role_fallbacks"] = dict(fallbacks)
     _ensure(geo, hou.attribType.Global, _kit.KIT_DETAIL, {})
     geo.setGlobalAttribValue(_kit.KIT_DETAIL, meta)
-    return (geo, fallbacks)
+    return (geo, fallbacks, kit2.role_collisions)
 
 
 def _y_params(style, y_params):
@@ -172,25 +201,29 @@ def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
     x_style, y_style = _array2d.split_style(style, _y_params(style, y_params))
     named = [m for r in style.rules for m in r.modules] + \
             [r.slot for r in style.rules]
-    kit_geo2, fallbacks = close_kit(kit_geo, extend, named)
+    kit_geo2, fallbacks, collisions = close_kit(kit_geo, extend, named)
 
     frame = None
+    unbuilt = []
     if area:
         frame = _array2d.area_frame(footprint, auto_align, expand)
         rows = _array2d.plan_rows(profile if profile is not None
                                   else (height if height is not None
                                         else frame.height),
                                   kit, y_style, y_params, array_id)
-        loops = _array2d.area_rows(frame, rows, clip_mode)
+        loops = _array2d.area_rows(frame, rows, clip_mode, unbuilt)
     else:
         rows = _array2d.plan_rows(profile if profile is not None else height,
                                   kit, y_style, y_params, array_id)
         loops = _array2d.row_loops(footprint, rows, closed)
+        corner_flags = canonical_flags(footprint, corner_flags, closed)
 
     geo, report = _place.build(rows_geometry(loops, corner_flags), kit_geo2,
                                x_style, params=x_style.params, out=out,
                                surface_geo=surface_geo, overrides=overrides)
-    report["rows"] = [r.as_dict() for r in rows]
+    report["rows"] = [dict(r.as_dict(), built=0 if r.index in unbuilt else 1)
+                      for r in rows]
+    report["rows_unbuilt"] = list(unbuilt)
     report["role_fallbacks"] = fallbacks
     report["array_id"] = array_id
     report["frame"] = frame
@@ -201,6 +234,9 @@ def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
     # 7.2.2's "naming both roles" - the per-element attribute says a fallback
     # happened, and this says which one, once per (role, kit).
     report["kit_warnings"] = list(report.get("kit_warnings", [])) + \
+        list(collisions) + \
+        ["%s: row %d has no span left inside the clip boundary - not built"
+         % (_ROW_CLIPPED, i) for i in unbuilt] + \
         _array2d.fallback_lines(dict((k, v) for k, v in fallbacks.items()
                                      if _used(k, report)))
     return (geo, report)

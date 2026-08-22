@@ -108,8 +108,6 @@ from . import (DEFAULTS, EPS, WARN_BEND_RESOLUTION, WARN_CORNER_DEGENERATE,
 from . import (WARN_CONFORM_MISS, WARN_CURVE_ID_DUP, WARN_REPLACED,
                WARN_TILE_FALLBACK)
 from . import conform as _conform
-from . import array2d as _array2d
-from . import array2d as _array2d
 from . import corner as _corner
 from . import decompose as _decompose
 from . import kit as _kit
@@ -375,7 +373,7 @@ _ATTR_SKIP = ("P", "N", "Cd", "uv", "v")
 # `attr:pc_yclass` a usable conditional subject. Nothing moves in phase 1: a
 # curve that does not carry the attribute never gains it.
 ROW_ATTRS_2D = ("pc_yclass", "pc_row", "pc_row_y0", "pc_row_y1",
-                "pc_row_scale")
+                "pc_row_scale", "pc_row_warns", "pc_clipped")
 
 
 def _prim_attrs(geo, prim):
@@ -1512,7 +1510,7 @@ def plan_points(geo, report):
 # 7.3.3's new stamps. Declared ONLY when a 2D build produced a cell, so a
 # phase-1 output keeps exactly the schema `output_schema` has always pinned.
 ELEM_2D_ATTRS = (("pc_cell", ""), ("pc_yclass", ""), ("pc_array", ""),
-                 ("pc_row", -1))
+                 ("pc_row", -1), ("pc_clipped", 0))
 
 
 def _declare(geo, warn_names, cells=False):
@@ -1571,7 +1569,8 @@ def _stamp_2d(placement):
     array, _sep, row = str(placement.curve_id).partition("#")
     row = row.split(".")[0]
     return (("pc_cell", placement.cell), ("pc_yclass", placement.yclass),
-            ("pc_array", array), ("pc_row", int(row) if row.isdigit() else -1))
+            ("pc_array", array), ("pc_row", int(row) if row.isdigit() else -1),
+            ("pc_clipped", int(getattr(placement, "clipped", 0))))
 
 
 def _stamp(prim, placement, warns, deformed, zmode, replaced=False):
@@ -1793,7 +1792,9 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                 - float(curve.attrs.get("pc_row_y0", 0.0) or 0.0)) \
             if "pc_row_y1" in curve.attrs else 0.0
         row_scale = float(curve.attrs.get("pc_row_scale", 1.0) or 1.0)
-        _array2d.classify(placements, kit, yclass)
+        _plan.classify(placements, kit, yclass,
+                       str(curve.attrs.get("pc_row_warns", "") or "").split(),
+                       int(curve.attrs.get("pc_clipped", 0) or 0))
         bevels.extend(curve_bevels)
         all_sections.extend(sections)
         by_section = dict((sec.index, sec) for sec in sections)

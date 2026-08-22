@@ -46,6 +46,18 @@ def kit_of(*roles):
     return Kit("k", 1, mods)
 
 
+def _inside_xz(loop, x, z):
+    """Even-odd point-in-polygon in the plan, for the winding assertion."""
+    inside = False
+    n = len(loop)
+    for i in range(n):
+        (ax, _ay, az), (bx, _by, bz) = loop[i], loop[(i + 1) % n]
+        if (az > z) != (bz > z):
+            if x < ax + (bx - ax) * (z - az) / (bz - az):
+                inside = not inside
+    return inside
+
+
 def y_style(**kw):
     return Style("y", 1, 3, rules=[
         Rule("start", "first", ["default_start"], axis="y"),
@@ -337,9 +349,45 @@ class TestCanonicalFootprint(unittest.TestCase):
                              "reversed rotation %d" % k)
 
     def test_the_winding_is_fixed(self):
-        self.assertGreater(A._signed_area_xz(A.canonical_loop(self.L)), 0.0)
-        self.assertGreater(
+        # 7.3.3/D124: "always run counter-clockwise about +Y". The shoelace
+        # here is taken in the (x, z) chart, whose right-handed normal is -Y,
+        # so counter-clockwise about +Y is a NEGATIVE number in it. The code
+        # used to force the opposite sign and nothing measured the
+        # consequence, which is the next test (D141).
+        self.assertLess(A._signed_area_xz(A.canonical_loop(self.L)), 0.0)
+        self.assertLess(
             A._signed_area_xz(A.canonical_loop(list(reversed(self.L)))), 0.0)
+
+    def test_the_across_axis_points_out_of_the_building(self):
+        """D141 - THE SIGN, MEASURED AS THE THING IT DECIDES.
+
+        `place._frame` builds `across = cross(tangent, +Y)`, and D20 models a
+        bay centred across its local Z with its FRONT on +Z. So the winding is
+        correct exactly when a step along `across` from any leg's midpoint
+        leaves the footprint - which is what makes a window face the street.
+        The sign test above cannot see this; on the old winding every window
+        on every building faced inward and every number in the suite was
+        green. Point-in-polygon rather than a centroid dot, because on a
+        reflex leg of an L the centroid sits ON the leg's own line.
+        """
+        for pts in (self.L, list(reversed(self.L)), self.L[3:] + self.L[:3]):
+            loop = A.canonical_loop(pts)
+            n = len(loop)
+            for i in range(n):
+                a, b = loop[i], loop[(i + 1) % n]
+                tx, tz = b[0] - a[0], b[2] - a[2]
+                L = math.hypot(tx, tz)
+                # cross((tx, 0, tz), (0, 1, 0)) = (-tz, 0, tx)
+                ax, az = -tz / L, tx / L
+                mx = 0.5 * (a[0] + b[0]) + 0.01 * ax
+                mz = 0.5 * (a[2] + b[2]) + 0.01 * az
+                self.assertFalse(_inside_xz(loop, mx, mz),
+                                 "leg %d of %s faces inward" % (i, pts[0]))
+                self.assertTrue(
+                    _inside_xz(loop, 0.5 * (a[0] + b[0]) - 0.01 * ax,
+                               0.5 * (a[2] + b[2]) - 0.01 * az),
+                    "leg %d of %s: the other side is not the interior"
+                    % (i, pts[0]))
 
     def test_the_vertex_set_is_untouched(self):
         got = A.canonical_loop(self.L)

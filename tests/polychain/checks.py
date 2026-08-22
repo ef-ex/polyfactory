@@ -4311,7 +4311,8 @@ def _cells(geo):
                 rec[name] = prim.attribValue(name)
             except hou.OperationFailed:
                 rec[name] = ""
-        for name in ("pc_row", "pc_section", "pc_corner_cut", "pc_deformed"):
+        for name in ("pc_row", "pc_section", "pc_corner_cut", "pc_deformed",
+                     "pc_clipped"):
             try:
                 rec[name] = int(prim.attribValue(name))
             except (hou.OperationFailed, TypeError, ValueError):
@@ -4366,24 +4367,39 @@ def cell_modules(scene, expected=None):
                   "" if ok else "expected %s" % (want,))
 
 
-def cell_grid(scene):
+def cell_grid(scene, expect_unbuilt=0):
     """Every (row, face) pair the array claims is actually occupied.
 
     7.3.3's address, measured: `pc_row` x `pc_section` is the storey x facade
     leg grid, and a hole in it is a facade with a missing storey on one leg -
     the failure PC-G5 condition 1 exists for, seen from the plan side and
     cheap enough to ride every case.
+
+    ⚠️ THE ROW LIST COMES FROM THE SOLVE, NOT FROM THE OUTPUT. It used to be
+    `sorted(set(r["pc_row"] for r in recs))`, i.e. the rows that exist - so a
+    row the clip emptied, or one the builder dropped, could never read as a
+    hole. `FM_area_taper` lost the whole top band of its roof panel and this
+    check said "2 rows x 1 faces, 0 empty" (D142). A row that legitimately
+    has no span left inside the boundary is named per case in `expect_unbuilt`
+    with its reason, the way `BENT` names the bend mode's unpacked pieces.
     """
     recs = _cells(scene.geo)
     if not recs:
         return _skip("cell_grid", "no pc_cell - a 1D build")
-    rows = sorted(set(r["pc_row"] for r in recs))
+    solved = [r["pc_row"] for r in (scene.report.get("rows") or [])]
+    built = set(r["pc_row"] for r in recs)
+    rows = sorted(set(solved) | built) if solved else sorted(built)
+    unbuilt = [y for y in rows if y not in built]
     faces = sorted(set(r["pc_section"] for r in recs))
     have = set((r["pc_row"], r["pc_section"]) for r in recs)
-    holes = [(y, f) for y in rows for f in faces if (y, f) not in have]
-    return Result("cell_grid", not holes, [len(rows), len(faces), len(holes)],
-                  "%d rows x %d faces, %d empty" % (len(rows), len(faces),
-                                                    len(holes)))
+    holes = [(y, f) for y in rows for f in faces
+             if y in built and (y, f) not in have]
+    ok = not holes and len(unbuilt) == expect_unbuilt
+    return Result("cell_grid", ok,
+                  [len(rows), len(faces), len(holes), len(unbuilt)],
+                  "%d rows x %d faces, %d empty, %d rows never built "
+                  "(expected %d)" % (len(rows), len(faces), len(holes),
+                                     len(unbuilt), expect_unbuilt))
 
 
 def row_closure(scene, tol=1e-6):
@@ -4574,7 +4590,39 @@ def clip_inside(scene, tol=1e-6):
             x, y = frame.local((w[i], w[i + 1], w[i + 2]))
             worst = max(worst, _outside(frame.poly, x, y))
     return Result("clip_inside_m", worst <= tol, _round(worst),
-                  "worst distance outside the boundary")
+                  "worst distance outside the boundary (ceiling %g)" % tol)
+
+
+def clip_hole_elements(scene):
+    """PC-G6's OTHER half: "the hole contains 0 elements".
+
+    ⚠️ `clip_inside_m` CANNOT ASSERT THIS UNDER `preserve`, and `preserve` is
+    the mode that can fail it. 7.6 says a preserved piece "is kept whole and
+    may overhang", so a nonzero distance outside the boundary is the mode
+    working - which means the sharp assertion has to be about pieces that are
+    outside ENTIRELY. `row_spans` used to collapse `preserve` to the row's
+    (min, max) over both scanlines, so a U-shaped panel's 4 m notch was
+    bridged and three whole bays stood 2 m inside the hole - every corner of
+    them outside the boundary - while `clip_inside_m` read 0.3333 m and no
+    committed case ran the mode at all.
+    """
+    frame = scene.frame
+    if frame is None:
+        return _skip("clip_hole_elements", "not a clipped-area build")
+    bad = 0
+    for rec in scene.by_id.values():
+        w = rec["world"]
+        if not w:
+            continue
+        pts = [frame.local((w[i], w[i + 1], w[i + 2]))
+               for i in range(0, len(w), 3)]
+        cx = sum(p[0] for p in pts) / len(pts)
+        cy = sum(p[1] for p in pts) / len(pts)
+        if _outside(frame.poly, cx, cy) > 0.0 \
+                and all(_outside(frame.poly, x, y) > 0.0 for x, y in pts):
+            bad += 1
+    return Result("clip_hole_elements", bad == 0, bad,
+                  "%d elements lie wholly outside the clip boundary" % bad)
 
 
 def _outside(poly, x, y):

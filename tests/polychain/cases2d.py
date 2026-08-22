@@ -114,8 +114,15 @@ def facade_style(fill="adaptive", corner_mode="miter", seed=11,
 def case(footprint, kit_geo, style, height=TOWER_H, array_id="A", **kw):
     out, report = F.build(footprint, kit_geo, style, height=height,
                           array_id=array_id, **kw)
-    return {"curve": F.rows_geometry(_loops(footprint, kit_geo, style, height,
-                                            array_id, kw)),
+    return {"curve": F.rows_geometry(
+        _loops(footprint, kit_geo, style, height, array_id, kw),
+        # the same permutation `F.build` applied, or the re-derived curve
+        # stream would carry a different vertex-type pattern from the one the
+        # kernel actually saw and every phase-1 check would measure the seam
+        # between the two instead of the build.
+        F.canonical_flags(footprint, kw.get("corner_flags"),
+                          kw.get("closed", True)) if not kw.get("area")
+        else None),
             # the CLOSED kit, which is what the kernel read (D136) - a check
             # that re-read the authored kit would resolve a different set of
             # roles from the builder and report the difference as a defect.
@@ -207,11 +214,17 @@ def build_all():
     # `corner` ROW (D134) and the only way a `*_corner` cell can appear at
     # all. The profile is authored in (offset, height), so the solve runs on
     # its arc length exactly as X runs on the footprint's.
+    # ⚠️ THE TURN HAS TO CLEAR `corner_angle_deg` (30 by default). The
+    # profile this case shipped with turned 9.46 degrees, produced NO `corner`
+    # row at all, and passed for an unrelated reason - so the whole `*_corner`
+    # column of the 25-role table was untested while the case was named for
+    # it. 4.0 m of offset over 6 m of rise is 33.69 degrees and gives
+    # `['start', 'default', 'corner', 'default', 'end']`.
     built["FH_y_corner"] = case(
         L_FOOTPRINT, facade_kit(("default", "corner", "default_start",
                                  "default_end")),
         facade_style(),
-        profile=A.Curve("prof", [(0, 0, 0), (0.0, 7.0, 0), (1.0, 13.0, 0)]))
+        profile=A.Curve("prof", [(0, 0, 0), (0.0, 7.0, 0), (4.0, 13.0, 0)]))
 
     # FI - EVENLY on Y: a string course every 6 m. `evenly` is a row class
     # like any other, so `default_evenly` is a cell and the Y solve places it
@@ -241,6 +254,52 @@ def build_all():
     built["FM_area_taper"] = case(
         [(0, 0, 0), (14, 0, 0), (0, 9, 0)], kit, facade_style(),
         height=None, area=True)
+
+    # FN / FO / FP - 7.5's "vertex type is data", carried THROUGH D124. The
+    # same L with its REFLEX vertex suppressed, authored three ways. FJ/FK
+    # pass no `corner_flags` at all, so the only committed identity check ran
+    # on the one input where authored and canonical vertex order coincide -
+    # and the emitter was indexing the authored flag list by CANONICAL
+    # position, so re-authoring moved the suppression onto a different corner.
+    # Flags are given in each build's OWN authored order and name the same
+    # physical vertex (12, 0, 12) in all three.
+    for nm, fp, fl in (
+            ("FN_flags", L_FOOTPRINT, [0, 0, 0, -1, 0, 0]),
+            ("FO_flags_reversed", list(reversed(L_FOOTPRINT)),
+             [0, 0, -1, 0, 0, 0]),
+            ("FP_flags_rotated", L_FOOTPRINT[3:] + L_FOOTPRINT[:3],
+             [-1, 0, 0, 0, 0, 0])):
+        built[nm] = case(fp, kit, facade_style(), corner_flags=fl)
+
+    # FQ - 7.6's `preserve` on a CONCAVE boundary, which is the only shape
+    # that can fail it. `preserve` used to collapse the row to (min, max) of
+    # both scanlines, so a U-shaped panel came back as one span straight
+    # across its 4 m notch and three whole bays were built 2 m inside the
+    # hole with `clip_inside_m` at 0.3333 m. Both committed area cases use
+    # the default `remove`, i.e. the mode that cannot fail this.
+    built["FQ_area_preserve"] = case(
+        [(0, 0, 0), (10, 0, 0), (10, 10, 0), (7, 10, 0), (7, 3, 0),
+         (3, 3, 0), (3, 10, 0), (0, 10, 0)], kit, facade_style(),
+        height=None, area=True, clip_mode="preserve")
+
+    # FR - E1/D119 on BOTH slots, which is where the scoping was missing.
+    # "the cornice row gets the cap, every other row gets the pier" is two
+    # rules; `corner._corner_rule` asked `rules_for("corner")` with no row
+    # class, so the scoped rule leaked onto every row and the 1.0 m cap became
+    # the corner column of the ground floor.
+    built["FR_rule_scoped"] = case(
+        RECT_FOOTPRINT, kit,
+        facade_style(extra=[Rule("corner", "first", ["pier_cap"],
+                                 yclass="end"),
+                            Rule("corner", "first", ["pier"])]))
+
+    # FS - a `sequence` X rule that names no modules, the documented
+    # role-resolution idiom. `plan._unit` asked `candidates(rule, kit)`
+    # WITHOUT the cell role, so the ground floor silently resolved the bare
+    # `default` slot and a 3.2 m bay was stretched into the 4.0 m band.
+    built["FS_sequence_cells"] = case(
+        RECT_FOOTPRINT, kit,
+        facade_style(extra=[Rule("default", "sequence", [])]))
 
     return built
 
@@ -273,7 +332,7 @@ def tripwire_many_buildings(n=100, storeys=8, surface_geo=None):
     style = facade_style()
     kit, _s, _w = K.read(kit_geo)
     _x, y_style = A.split_style(style, None)
-    kit_geo2, _fb = F.close_kit(kit_geo, "x", ["default", "corner"])
+    kit_geo2, _fb, _col = F.close_kit(kit_geo, "x", ["default", "corner"])
     height = GROUND_Y + CORNICE_Y + (storeys - 2) * BAY_Y
     loops = []
     for i in range(n):

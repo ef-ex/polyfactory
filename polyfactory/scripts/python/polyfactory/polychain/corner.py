@@ -621,7 +621,10 @@ def compose_modules(rule, kit, ctx, style):
     if rule is None:
         return []
     if rule.select == "sequence":
-        return list(_plan.candidates(rule, kit))
+        # the CELL role, not the bare X slot - `plan._unit` has the same line
+        # and for the same reason (a compose rule that names no modules must
+        # resolve `corner_end` on the cornice row, not `corner`).
+        return list(_plan.candidates(rule, kit, _plan.cell_role(ctx)))
     m = _plan.choose(rule, kit, ctx, style)
     return [m] if m is not None else []
 
@@ -786,7 +789,11 @@ def _corner_rule(style, kit, section):
            "yclass": str((getattr(section, "attrs", None) or {})
                          .get("pc_yclass", "") or ""),          # D94
            "marker_data": {}}
-    for rule in style.rules_for("corner"):
+    # E1/D119 SCOPES THE CORNER SLOT TOO. Without the row class here a
+    # `yclass = "end"` corner rule both leaks onto every other row and can
+    # never be preferred on its own, so "the cornice row gets the cap" put the
+    # 1.0 m cap on the ground floor as well.
+    for rule in style.rules_for("corner", ctx.get("yclass") or None):
         if compose_modules(rule, kit, dict(ctx, slot="corner"), style):
             return (rule, ctx)
     return (None, ctx)

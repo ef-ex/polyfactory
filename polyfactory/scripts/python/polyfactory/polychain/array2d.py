@@ -57,8 +57,9 @@ DECISIONS TAKEN HERE (recorded in polychain.md 12):
 
 import math
 
-from . import (DEFAULTS, EPS, POS_EPS, ROLES_2D, WARN_ROLE_FALLBACK, Curve,
-               Kit, Module, Style, canonical_role, role_2d, split_role)
+from . import (DEFAULTS, EPS, POS_EPS, ROLES_2D, SLOTS, WARN_KIT_GAP,
+               WARN_OVERFLOW, WARN_ROW_KIT_GAP, WARN_ROW_OVERFLOW, Curve, Kit,
+               Module, Style, _is_slot, canonical_role, role_2d, split_role)
 from . import decompose as _decompose
 from . import plan as _plan
 
@@ -127,9 +128,24 @@ def close_roles(kit, extend="x", extra_roles=(), extend_by_slot=None):
     """
     declared = {}
     by_slot = {}
+    collisions = []
+    dropped = {}
     for m in kit.modules:
         for r in m.roles:
             role = canonical_role(r)
+            if role != r and role in declared:
+                # 7.2's alias-collision rule: "an alias that resolves to a
+                # role another module already claims warns and loses - first
+                # module in payload order wins". Only an ALIAS loses; a module
+                # that authors the role literally is a legitimate pool member,
+                # which is what `random`/`pc_weight` selection by role is made
+                # of, and dropping those would break phase 1's own variants.
+                collisions.append(
+                    "pc_warn_role_collision: module %r alias %r resolves to "
+                    "cell %r, already claimed by %r - claim dropped"
+                    % (m.name, r, role, declared[role][0].name))
+                dropped.setdefault(m.name, set()).add(role)
+                continue
             declared.setdefault(role, []).append(m)
             if m.extend >= 0:
                 by_slot.setdefault(split_role(role)[0],
@@ -138,7 +154,29 @@ def close_roles(kit, extend="x", extra_roles=(), extend_by_slot=None):
     extend_by_slot = by_slot
     add = {}
     fallbacks = {}
-    wanted = list(ROLES_2D) + [canonical_role(r) for r in extra_roles]
+    wanted = list(ROLES_2D)
+    for name in list(extra_roles) + list(declared):
+        role = canonical_role(name)
+        x, y = split_role(role)
+        # ⚠️ A MODULE NAME IS NOT A CELL. `facade.build` hands the style's rule
+        # slots AND its module names in as `extra_roles`, and taking a name
+        # for a role wrote `cornice` onto the `bay` module - so `by_role
+        # ("cornice")` returned `bay` and the manifest's fallback map was
+        # wrong to inspect, which is D136's whole stated benefit.
+        if not (_is_slot(x) and _is_slot(y)):
+            continue
+        if role not in wanted:
+            wanted.append(role)
+        # 7.2's marker cells are legal BY GRAMMAR and therefore unbounded, so
+        # they cannot live in ROLES_2D - but `marker:7` on a module still owes
+        # its five Y classes a closure, or `marker:7_start` arrives on the
+        # ground row as a SILENT stand-in (PC-G5 condition 5 counts those).
+        if x.startswith("marker:"):
+            wanted.extend(w for w in (role_2d(x, yy) for yy in SLOTS)
+                          if w not in wanted)
+        if y.startswith("marker:"):
+            wanted.extend(w for w in (role_2d(xx, y) for xx in SLOTS)
+                          if w not in wanted)
     for role in wanted:
         if role in declared:
             continue
@@ -152,7 +190,7 @@ def close_roles(kit, extend="x", extra_roles=(), extend_by_slot=None):
         fallbacks[role] = supplier
         for m in declared.get(supplier, ()):
             add.setdefault(m.name, []).append(role)
-    if not add and not fallbacks:
+    if not add and not fallbacks and not dropped:
         return (kit, {})
     mods = []
     for m in kit.modules:
@@ -162,7 +200,9 @@ def close_roles(kit, extend="x", extra_roles=(), extend_by_slot=None):
         # invisible to the lookup - the alias table has to reach the data, not
         # only the decision. (D4's `moduleRole` does the same thing one level
         # up.)
-        roles = tuple(canonical_role(r) for r in m.roles)
+        lost = dropped.get(m.name, ())
+        roles = tuple(r for r in (canonical_role(r) for r in m.roles)
+                      if r not in lost)
         extra = tuple(r for r in sorted(set(add.get(m.name, ())))
                       if r not in roles)
         if roles == tuple(m.roles) and not extra:
@@ -173,7 +213,7 @@ def close_roles(kit, extend="x", extra_roles=(), extend_by_slot=None):
                            variant=m.variant, weight=m.weight, tilt=m.tilt,
                            extend=m.extend))
     out = Kit(kit.kit_id, kit.version, mods, kit.human_scale_reference,
-              fallbacks)
+              fallbacks, collisions)
     return (out, fallbacks)
 
 
@@ -252,6 +292,12 @@ class Row(object):
         return {"pc_row": self.index, "pc_curve_id": self.curve_id,
                 "pc_yclass": self.yclass, "pc_row_y0": self.y0,
                 "pc_row_y1": self.y1, "pc_row_scale": self.scale,
+                # D139 - the Y solve's warnings ride the ROW CURVE into the
+                # kernel and `plan.classify` puts them on every element the
+                # row produced. Before this they were computed here and
+                # dropped, so a building that lost a storey said nothing.
+                "pc_row_warns": " ".join(self.warns),
+                "pc_clipped": 0,
                 "module": self.module, "height": self.height,
                 "warns": list(self.warns)}
 
@@ -274,6 +320,13 @@ def y_class(slot, s0, corner_s, tol=1e-6):
         if abs(s0 - c) <= tol:
             return "corner"
     return slot
+
+
+# D139 - a warning the Y solve raises is the ROW's, and it is renamed on the
+# way out so an element can never be read as though its own X run overflowed
+# or its own module was missing. Two entries; anything else the 1D solver can
+# say on the Y axis is unambiguous on its own and rides through unchanged.
+_ROW_WARN = {WARN_OVERFLOW: WARN_ROW_OVERFLOW, WARN_KIT_GAP: WARN_ROW_KIT_GAP}
 
 
 def plan_rows(profile, kit, y_style, y_params=None, array_id="A"):
@@ -316,6 +369,15 @@ def plan_rows(profile, kit, y_style, y_params=None, array_id="A"):
                     profile.sample(0.0)[0][0], pos1[0], "", "", 1.0, (),
                     array_id)]
 
+    # 7.3.3's `pc_warn_row_overflow`, D13's cascade seen on the Y axis: a
+    # mandatory cap the Y style asked for that the solve could not place is a
+    # storey that is simply GONE (a one-storey building loses its cornice),
+    # and it used to ship with `warn_counts == {}`. Raised on every row, not
+    # on the missing one - the missing one has no geometry to carry it.
+    asked = set(r.slot for r in (y_style.rules if y_style is not None else ()))
+    got = set(p.slot for _a, _b, p in bands)
+    dropped = sorted(s for s in ("start", "end") if s in asked and s not in got)
+
     rows = []
     for i, (s0, s1, p) in enumerate(bands):
         pos0 = profile.sample(s0)[0]
@@ -325,29 +387,21 @@ def plan_rows(profile, kit, y_style, y_params=None, array_id="A"):
         # D135 - a sliced Y placement becomes a SCALED row. The band is the
         # truth and the module is scaled into it; nothing is ever cut on Y.
         scale = ((s1 - s0) / nominal) if nominal > EPS else 1.0
+        warns = [_ROW_WARN.get(w, w) for w in p.warns]
+        if dropped and WARN_ROW_OVERFLOW not in warns:
+            warns.append(WARN_ROW_OVERFLOW)
         rows.append(Row(i, s0, s1, pos0[1], pos1[1], pos0[0], pos1[0],
                         y_class(p.slot, s0, corner_s), p.module, scale,
-                        p.warns, array_id))
+                        warns, array_id))
     return rows
 
 
-def classify(placements, kit, yclass):
-    """Stamp the 2D half of every placement of ONE row, and warn D118's walk.
-
-    ONE site, deliberately: `corner.plan_curve` builds the corner assembly's
-    placements itself and never passes through `plan._module_warns`, so a
-    fallback warning written in the fill path would have been silent on
-    exactly the cell PC-G5 cares most about (a corner column meeting the
-    cornice). Every placement of the row is here, whatever built it.
-    """
-    if not yclass:
-        return placements
-    for p in placements:
-        p.yclass = yclass
-        p.cell = role_2d(p.slot, yclass)
-        if p.cell in kit.role_fallbacks and WARN_ROLE_FALLBACK not in p.warns:
-            p.warns = tuple(p.warns) + (WARN_ROLE_FALLBACK,)
-    return placements
+# D140 - `classify` MOVED TO `plan.py`. It is kernel work (it touches
+# `Placement` and `Kit.role_fallbacks` and nothing else), and while it lived
+# here `place.build` had to import `array2d`, which pointed 7's dependency
+# arrow the wrong way round: the kernel is not allowed to need the stage above
+# it. Re-exported so the name still resolves from either side.
+classify = _plan.classify
 
 
 # --- D124: the canonical footprint ------------------------------------------
@@ -379,16 +433,40 @@ def canonical_loop(points, closed=True, ndigits=3):
     Done at emission, OUTSIDE the kernel, so not one phase-1 baseline moves.
     """
     pts = [tuple(float(c) for c in p) for p in points]
+    return [pts[i] for i in canonical_order(points, closed, ndigits)]
+
+
+def canonical_order(points, closed=True, ndigits=3):
+    """THE PERMUTATION `canonical_loop` APPLIES, as authored-vertex indices.
+
+    ⚠️ `pc_corner` IS PER-VERTEX DATA (7.5, "vertex type is data") AND IT HAS
+    TO TRAVEL WITH THE VERTEX. The emitter used to index the authored flag
+    list by position in the CANONICALISED point list, so re-authoring the same
+    footprint from a different vertex moved every suppression onto a different
+    corner - the exact failure D124 exists to prevent, invisible because no
+    committed case passed `corner_flags`.
+
+    ⚠️ THE WINDING TEST IS `> 0`, NOT `< 0`. `_signed_area_xz` is the shoelace
+    in the (x, z) chart, whose right-handed normal is -Y, so a POSITIVE area
+    there is clockwise about +Y. 7.3.3/D124 asks for counter-clockwise about
+    +Y, which is what makes `_frame`'s `across = cross(tangent, up)` point OUT
+    of the building - and therefore what makes an asymmetric bay's front face
+    the outside of the facade (D141).
+    """
+    pts = [tuple(float(c) for c in p) for p in points]
+    idx = list(range(len(pts)))
     if not closed or len(pts) < 3:
-        return pts
+        return idx
     if _dist(pts[0], pts[-1]) <= POS_EPS:
         pts.pop()
-    if _signed_area_xz(pts) < 0.0:
+        idx.pop()
+    if _signed_area_xz(pts) > 0.0:
         pts.reverse()
+        idx.reverse()
     keys = [tuple(round(c, ndigits) for c in p) for p in pts]
     n = len(pts)
     best = min(range(n), key=lambda i: keys[i:] + keys[:i])
-    return pts[best:] + pts[:best]
+    return idx[best:] + idx[:best]
 
 
 def _dist(a, b):
@@ -527,9 +605,18 @@ def row_spans(frame, row, mode="remove"):
     before geometry exists, and the cheapest place to apply it is the row's own
     span - so `remove` (nothing crosses the line) is the INTERSECTION of the
     scanlines at the band's bottom and top, `preserve` (a piece may overhang)
-    is their union bounds, and nothing is ever built outside the line by
-    either. On a rectangle both are the full width, which is why a rectangular
-    facade panel needs none of this and still gets it for free.
+    widens each of those intervals to the union of the scanline intervals it
+    OVERLAPS, and nothing is ever built outside the line by either. On a
+    rectangle both are the full width, which is why a rectangular facade panel
+    needs none of this and still gets it for free.
+
+    ⚠️ `preserve` USED TO COLLAPSE THE WHOLE ROW TO `(min, max)`. On any
+    concave or holed boundary that bridged the excluded region: a 4 m notch in
+    a U-shaped panel came back as one span straight across it, and three
+    whole bays were built 2.0 m INSIDE the hole with `clip_inside_m` reading
+    0.3333 m against a 0.01 m tolerance. Per-interval is what "kept whole and
+    may overhang" actually means - overhang the edge of your own interval,
+    never bridge a gap between two.
     """
     if mode == "none" or not frame.poly:
         return [(0.0, frame.width)]
@@ -538,25 +625,55 @@ def row_spans(frame, row, mode="remove"):
     if not lo or not hi:
         mid = scanline(frame.poly, 0.5 * (row.y0 + row.y1))
         return mid or []
-    if mode == "preserve":
-        return [(min(s[0] for s in lo + hi), max(s[1] for s in lo + hi))]
-    return _intersect(lo, hi)
+    keep = _intersect(lo, hi)
+    if mode != "preserve":
+        return keep
+    out = []
+    for (a0, a1) in keep:
+        x0, x1 = a0, a1
+        for (b0, b1) in lo + hi:
+            if min(a1, b1) - max(a0, b0) > EPS:
+                x0, x1 = min(x0, b0), max(x1, b1)
+        out.append((x0, x1))
+    return _merge(sorted(out))
 
 
-def area_rows(frame, rows, mode="remove"):
+def _merge(spans):
+    """Overlapping intervals folded together, so `preserve` cannot emit two
+    row curves for one physical span."""
+    out = []
+    for (a, b) in spans:
+        if out and a - out[-1][1] <= EPS:
+            out[-1] = (out[-1][0], max(out[-1][1], b))
+        else:
+            out.append((a, b))
+    return [tuple(s) for s in out]
+
+
+def area_rows(frame, rows, mode="remove", unbuilt=None):
     """[(points, closed, attrs)] - the row curves of a clipped area.
 
     Each row is a straight OPEN polyline across the boundary at its own band
     datum, in world space. A row the boundary leaves nothing of is dropped,
-    which is `remove` doing its job rather than an error.
+    which is `remove` doing its job rather than an error - but it is RECORDED
+    into `unbuilt` when one is passed, because a whole storey vanishing
+    silently is how `FM_area_taper` lost the top band of its roof panel with
+    `cell_grid` reporting "0 empty": that check derived its row list from the
+    OUTPUT, so a row that was never built could not read as a hole (D142).
     """
     out = []
     for row in rows:
-        for k, (x0, x1) in enumerate(row_spans(frame, row, mode)):
-            if x1 - x0 <= EPS:
-                continue
+        spans = [s for s in row_spans(frame, row, mode) if s[1] - s[0] > EPS]
+        if not spans and unbuilt is not None:
+            unbuilt.append(row.index)
+        full = abs(sum(s[1] - s[0] for s in spans) - frame.width) > EPS
+        for k, (x0, x1) in enumerate(spans):
             pts = [frame.world(x0, row.y0), frame.world(x1, row.y0)]
             attrs = row.as_dict()
+            # 7.3.3's `pc_clipped`, under D137's reading of it: this row's own
+            # span was trimmed by the boundary, so every piece on it is a
+            # piece the clip decided about.
+            attrs["pc_clipped"] = 1 if full else 0
             if k:
                 attrs["pc_curve_id"] = "%s.%d" % (attrs["pc_curve_id"], k)
             out.append((pts, False, attrs))

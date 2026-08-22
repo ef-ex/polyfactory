@@ -176,11 +176,24 @@ WARN_CURVE_ID_DUP = "pc_warn_curve_id_dup"
 # 5 counts, so every degrade says so on every element that took it, and the
 # pair of role names is persisted in `pc_kit_warnings`.
 WARN_ROLE_FALLBACK = "pc_warn_role_fallback"
+# 7.3.3 - THE Y TWIN OF D13's CASCADE. A band shorter than its mandatory
+# bottom + top drops one of them (or squeezes the whole stack), and until this
+# name existed the Y solve computed the warning onto `Row.warns` and then threw
+# it away: a one-storey building lost its cornice with `warn_counts == {}`.
+# D139 - a warning the Y solve raises is the ROW's, so it is named on the row
+# axis and then carried onto every element of that row.
+WARN_ROW_OVERFLOW = "pc_warn_row_overflow"
+# ...and its twin for the other Y-solve failure: the module that was to give
+# the row its nominal HEIGHT (D132) was not in the kit, so 3.4's 1 m stand-in
+# set the storey height. Deliberately NOT `pc_warn_kit_gap`: that name means
+# "this ELEMENT is a blank box", and PC-G5 condition 5 counts an unexplained
+# one - a real element in a wrongly-sized band is a different defect.
+WARN_ROW_KIT_GAP = "pc_warn_row_kit_gap"
 WARN_VOCAB = (WARN_KIT_GAP, WARN_CORNER_DEGENERATE, WARN_OVERFLOW,
               WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD,
               WARN_BEND_RESOLUTION, WARN_DEGENERATE_FRAME, WARN_FILLET_CLAMPED,
               WARN_CONFORM_MISS, WARN_REPLACED, WARN_CURVE_ID_DUP,
-              WARN_ROLE_FALLBACK)
+              WARN_ROLE_FALLBACK, WARN_ROW_OVERFLOW, WARN_ROW_KIT_GAP)
 
 # 3.1 / 3.4 attribute names, so the adapter and the checks read one list.
 CURVE_ATTRS = ("pc_corner", "pc_section", "pc_style", "pc_marker")
@@ -504,7 +517,8 @@ def stand_in(name="", nominal=(1.0, 1.0, 1.0)):
 
 class Kit(object):
     def __init__(self, kit_id="", version=1, modules=(),
-                 human_scale_reference=0.0, role_fallbacks=None):
+                 human_scale_reference=0.0, role_fallbacks=None,
+                 role_collisions=()):
         self.kit_id = kit_id
         self.version = int(version)
         self.modules = list(modules)
@@ -515,6 +529,10 @@ class Kit(object):
         # WARN_ROLE_FALLBACK; a value of "" means the walk ran out and 3.4's
         # stand-in box is what arrives.
         self.role_fallbacks = dict(role_fallbacks or {})
+        # 7.2's alias-collision notice, as persistable strings - "an alias
+        # that resolves to a role another module already claims warns and
+        # loses". Empty on every kit that has no colliding alias.
+        self.role_collisions = list(role_collisions or ())
         self._by_name = dict((m.name, m) for m in self.modules)
 
     def by_name(self, name):

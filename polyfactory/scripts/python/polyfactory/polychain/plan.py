@@ -69,8 +69,8 @@ FURTHER DECISIONS TAKEN HERE:
 import math
 
 from . import (DEFAULTS, EPS, MAX_UNITS, WARN_DEGENERATE_PAD, WARN_KIT_GAP,
-               WARN_OVERFLOW, WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, elem_id,
-               elem_key, rng_for, role_2d)
+               WARN_OVERFLOW, WARN_ROLE_FALLBACK, WARN_TILE_FALLBACK,
+               WARN_VEXPR_IGNORED, elem_id, elem_key, rng_for, role_2d)
 
 
 class Placement(object):
@@ -100,6 +100,9 @@ class Placement(object):
         # so the address is unique without it and `elem_id()` stays untouched.
         self.yclass = ""
         self.cell = ""
+        # 7.3.3's `pc_clipped`: this piece sits on a row whose span the clip
+        # boundary trimmed (D137 - the clip is a span, not a cull).
+        self.clipped = 0
         self.warns = tuple(warns)
         # 4.3. `anchor` = ((ox,oy,oz), (dx,dy,dz)) - build this piece on a
         # STRAIGHT line instead of on the curve, which is what a mitered corner
@@ -317,6 +320,42 @@ def cell_role(ctx, slot=None):
     return role_2d(slot, y) if y else slot
 
 
+def classify(placements, kit, yclass, row_warns=(), clipped=0):
+    """Stamp the 2D half of every placement of ONE row. E1's other tail.
+
+    ONE site, deliberately: `corner.plan_curve` builds the corner assembly's
+    placements itself and never passes through `_module_warns`, so a fallback
+    warning written in the fill path would have been silent on exactly the
+    cell PC-G5 cares most about (a corner column meeting the cornice). Every
+    placement of the row is here, whatever built it.
+
+    ⚠️ IT LIVES IN `plan.py`, NOT IN `array2d.py`. 7 says phase 2 is a stage
+    ABOVE the kernel; `place.build` importing `array2d` pointed the dependency
+    arrow the wrong way and made the kernel untestable without the 2D stage
+    (D140). This touches `Placement` and `Kit.role_fallbacks` and nothing
+    else, so it is kernel work that the 2D stage merely feeds.
+
+    `row_warns` is D139's channel: a warning the Y SOLVE raised belongs to the
+    whole row, and the row curve carries it in `pc_row_warns` so it reaches
+    every element the row produced - which is the difference between a
+    truncated building that says so and one that ships silent.
+    """
+    if not yclass and not row_warns and not clipped:
+        return placements
+    for p in placements:
+        if yclass:
+            p.yclass = yclass
+            p.cell = role_2d(p.slot, yclass)
+            if p.cell in kit.role_fallbacks \
+                    and WARN_ROLE_FALLBACK not in p.warns:
+                p.warns = tuple(p.warns) + (WARN_ROLE_FALLBACK,)
+        p.clipped = int(clipped)
+        extra = tuple(w for w in row_warns if w and w not in p.warns)
+        if extra:
+            p.warns = tuple(p.warns) + extra
+    return placements
+
+
 def candidates(rule, kit, role=None):
     """The rule's module list as real modules: name, then role, then stand-in.
 
@@ -393,7 +432,13 @@ def _zmode(module, params):
 def _unit(rule, kit, ctx, style):
     """The repeating unit of a run (D14): a whole sequence, or one module."""
     if rule.select == "sequence":
-        mods = candidates(rule, kit)
+        # ⚠️ THE CELL ROLE, exactly as `choose` asks for it. A `sequence` rule
+        # that names no modules is the cases2d idiom (the kit's roles decide
+        # every cell), and asking `candidates` without the role resolved the
+        # bare X slot - so a `sequence` ground floor silently filled with the
+        # `default` bay and D138's yscale stretched a 3.2 m module into a
+        # 4.0 m band with every check green.
+        mods = candidates(rule, kit, cell_role(ctx, ctx.get("slot", rule.slot)))
         return mods if mods else None
     m = choose(rule, kit, ctx, style)
     return [m] if m is not None else None
@@ -680,7 +725,10 @@ def plan_section(section, kit, style, params=None, trim=(0.0, 0.0)):
     out.extend(anchors)
 
     # --- the default fill, in the gaps the anchors leave --------------------
-    d_rules = style.rules_for("default")
+    # D119 again - the default fill picks its rule here rather than through
+    # `pick`, so without the row class a `yclass`-scoped default rule leaked
+    # onto every row exactly as the corner one did.
+    d_rules = style.rules_for("default", ctx_base.get("yclass") or None)
     if d_rules:
         ctx = dict(ctx_base, index=0)
         rule = None
