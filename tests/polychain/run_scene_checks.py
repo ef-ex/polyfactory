@@ -55,6 +55,15 @@ EXPECTED_WARNS = {
     # `corner_wedge_m2`, not warned about (D36: it is inherent, miter is the
     # fix).
     "AS_rect_bend_butt": (),
+    # 4.5's own two. BE leaves the terrain twice by construction (a hole and
+    # an edge), which is D53's warning and nothing else; the two
+    # `bend_resolution` pieces are the ones STRADDLING those boundaries, where
+    # the drape steps by the full ramp height inside one panel and 0.25 m
+    # stations cannot follow a cliff - D25 measuring the conform, exactly as
+    # D56 says it should.
+    "BE_conform_holes": ("pc_warn_bend_resolution", "pc_warn_conform_miss"),
+    # BH is the coarse surface: only the panel ON the crease cannot resolve it.
+    "BH_conform_crease": ("pc_warn_bend_resolution",),
     # The cycle-3 review cases. Every one of these overflows for a REASON the
     # case name gives, and every one of them used to build silently:
     # AH  a 140 degree turn is sharper than the 0.16 m post's own 0.2198 m
@@ -172,6 +181,25 @@ CORNER_SYMMETRY = {
 }
 
 
+# 4.5 / D55, derived from the surface and not from a run: `camber_z` falls
+# 25 % ACROSS the run, so a piece that takes the camber ends up with its own
+# up ON the surface normal (0 degrees) and one that refuses it keeps world up,
+# which is atan(0.25) = 14.0362 degrees away from that normal. The pair is the
+# assertion; one of them alone would pass with the parm wired to nothing.
+CAMBER_DEG = {
+    "BD_camber_on": 0.0,
+    "BD_camber_off": math.degrees(math.atan(0.25)),
+}
+
+# BE is the only case built to miss: a hole one grid cell wide and a surface
+# that stops at x = 12 of a 20 m run. Pinned exactly - a miss count that grows
+# means the drape is finding less ground than it did.
+CONFORM_MISSES = {"BE_conform_holes": 5}
+
+
+BANKS = ("E_hill_adaptive", "BA_conform_adaptive")
+
+
 class Scene(object):
     """One case, read once - so a check never re-derives what another already
     measured, and every check sees the same sections the builder used."""
@@ -191,9 +219,15 @@ class Scene(object):
         # it reserves span for the corner assembly. Re-deriving the raw 4.1
         # list here would measure the builder against a section list the
         # builder never used.
+        # ⚠️ THE SURFACE GOES IN HERE TOO (4.5). `analyse` wraps the Path in
+        # the conform, so a check that omits input 4 measures the built
+        # geometry against the UNDRAPED spline: `axis_on_curve_m` and
+        # `plan_points` both read 0.800 m on the ridge cases - which is the
+        # ridge amplitude, i.e. the conform working, reported as a failure.
         self.tracks = cases.P.analyse(case["curve"], self.params,
                                       kit=cases.K.read(case["kit"])[0],
-                                      style=case["style"])
+                                      style=case["style"],
+                                      surface_geo=case.get("surface"))
         self.track_of = dict((str(t["curve"].curve_id), t)
                              for t in self.tracks)
         self.section_of = dict(
@@ -219,7 +253,13 @@ def run_case(name, case):
         C.stepped_riser(scene),
         C.plumb_vertical(scene),
         C.flat_stepped(scene),
-        C.bank_adaptive(scene, require_bank=(name == "E_hill_adaptive")),
+        # ⚠️ BA IS IN HERE FOR THE SAME REASON E IS, and it was added because a
+        # mutation survived without it: taking the SPLINE's tangent instead of
+        # the drape's inside `ConformPath.sample` moved not one number in the
+        # whole suite. The conformed run is dead flat as a spline, so nothing
+        # but "does an adaptive piece bank over a ridge that only the SURFACE
+        # knows about" can see that tangent at all.
+        C.bank_adaptive(scene, require_bank=(name in BANKS)),
         C.slice_caps_closed(scene),
         C.axis_follows_curve(scene),
         C.cross_section_width(scene),
@@ -252,6 +292,13 @@ def run_case(name, case):
         C.corner_reach(scene, expected=CORNER_REACH.get(name)),
         C.corner_breach(scene),
         C.corner_wedge(scene),
+        # --- 4.5, on every case: no surface reports SKIP, so a conform that
+        # appears where none was wired shows up as a value rather than as
+        # silence - the same rule the corner checks ride on.
+        C.conform_contact(scene),
+        C.conform_drape(scene),
+        C.conform_camber(scene, expected=CAMBER_DEG.get(name)),
+        C.conform_misses(scene, expected=CONFORM_MISSES.get(name)),
     ]
     out.append(C.corner_seam(scene, expected=CORNER_SEAM.get(name, 0.0)))
     if name in ("C_tile_slice", "H_tile_slope_free", "I_tile_slope_fixed"):

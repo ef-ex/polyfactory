@@ -77,9 +77,12 @@ WARN_DEGENERATE_PAD = "pc_warn_degenerate_pad"    # D17 - padding eats the unit
 WARN_BEND_RESOLUTION = "pc_warn_bend_resolution"  # D25 - 4.4 "no auto-subdiv"
 WARN_DEGENERATE_FRAME = "pc_warn_degenerate_frame"  # D32 - yaw frame collapsed
 WARN_FILLET_CLAMPED = "pc_warn_fillet_clamped"    # D43 - 4.3's fillet radius
+WARN_CONFORM_MISS = "pc_warn_conform_miss"        # D53 - 4.5 ray missed
+WARN_REPLACED = "pc_warn_replace_deformed"        # D62 - a hero over a bend
 WARN_VOCAB = (WARN_KIT_GAP, WARN_CORNER_DEGENERATE, WARN_OVERFLOW,
               WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD,
-              WARN_BEND_RESOLUTION, WARN_DEGENERATE_FRAME, WARN_FILLET_CLAMPED)
+              WARN_BEND_RESOLUTION, WARN_DEGENERATE_FRAME, WARN_FILLET_CLAMPED,
+              WARN_CONFORM_MISS, WARN_REPLACED)
 
 # 3.1 / 3.4 attribute names, so the adapter and the checks read one list.
 CURVE_ATTRS = ("pc_corner", "pc_section", "pc_style", "pc_marker")
@@ -113,7 +116,8 @@ class Params(object):
                  adjust_to_end=0.0, corner_mode="bend", corner_offset_pct=0.0,
                  corner_displacement="reset", fillet_radius=0.0,
                  fillet_segments=4, zmode="", bend_tol=0.01,
-                 fix_slope=False):
+                 fix_slope=False, conform_axis=(0.0, -1.0, 0.0),
+                 conform_tilt=False):
         self.corner_angle_deg = float(corner_angle_deg)
         self.min_included_angle_deg = float(min_included_angle_deg)
         self.fill = fill if fill in FILL_MODES else "adaptive"
@@ -151,6 +155,17 @@ class Params(object):
         # Lite). Off by default, which is the plain reading of 4.2: the fit
         # runs on the path's own arc length.
         self.fix_slope = bool(fix_slope)
+        # 4.5 / D51. The spec's "-Z" is Houdini's -Y (D20's translation), and
+        # it is a DIRECTION, not an axis menu: a wall-mounted run conforms
+        # sideways with the same parm and no new mode. A zero vector degrades
+        # to the default rather than casting rays into nothing.
+        a = tuple(float(c) for c in conform_axis)
+        if math.sqrt(sum(c * c for c in a)) < EPS:
+            a = (0.0, -1.0, 0.0)
+        self.conform_axis = a
+        # D55 - camber. Off by default: a road wants it, a fence does not, and
+        # a default that tilts every module is a default that surprises.
+        self.conform_tilt = bool(conform_tilt)
 
 
 DEFAULTS = Params()
@@ -301,7 +316,7 @@ class Module(object):
 
     def __init__(self, name, size, pad=(0.0, 0.0), deform=DEFORM_RIGID,
                  zmode="adaptive", roles=("default",), variant="", weight=1.0,
-                 missing=False):
+                 missing=False, tilt=-1):
         if hasattr(size, "__len__"):
             self.size = (float(size[0]), float(size[1]), float(size[2]))
         else:
@@ -314,10 +329,18 @@ class Module(object):
         self.variant = variant
         self.weight = max(float(weight), 0.0)
         self.missing = bool(missing)     # a stand-in => WARN_KIT_GAP downstream
+        # D55, and D6's three-state pattern again: -1 = "the style decides",
+        # 0 = never tilt this module, 1 = always. A kerb stone that must stay
+        # level inside a cambered road is the case for the middle state.
+        self.tilt = int(tilt)
 
     @property
     def length(self):
         return self.size[0]
+
+    def tilts(self, params):
+        """D55 - does THIS module take the surface camber?"""
+        return bool(params.conform_tilt) if self.tilt < 0 else bool(self.tilt)
 
     @property
     def sliceable(self):
@@ -375,7 +398,8 @@ def kit_from_records(records, kit_id="", version=1, human_scale_reference=0.0):
             zmode=r.get("pc_zmode", r.get("zmode", "adaptive")),
             roles=r.get("pc_role", r.get("moduleRole", "default")),
             variant=r.get("pc_variant", r.get("variant", "")),
-            weight=r.get("pc_weight", r.get("weight", 1.0))))
+            weight=r.get("pc_weight", r.get("weight", 1.0)),
+            tilt=r.get("pc_tilt", r.get("tilt", -1))))
     return Kit(kit_id, version, mods, human_scale_reference)
 
 

@@ -114,6 +114,84 @@ def hill_points():
     return pts
 
 
+# --- 4.5's surfaces ---------------------------------------------------------
+# Every one of them is ANALYTIC, so the expected drape is trigonometry on the
+# input rather than a number read off a build: a ramp of grade g puts the
+# fence at y = g*x, a tent's crease is at a known x, and a hole is a hole.
+
+CONFORM_GRADE = 0.25            # 25 %, 14.036 degrees - PC-G2's own grade
+RIDGE_AMP = 0.8
+RIDGE_WAVE = 8.0                # metres per full wave: a 2 m panel cannot
+                                # cross it as a chord, which is the point
+
+
+def surface(fn, x0=-4.0, x1=24.0, z0=-6.0, z1=6.0, nx=28, nz=12,
+            flip=False, holes=()):
+    """A quad grid over [x0,x1] x [z0,z1] with y = fn(x, z).
+
+    `flip` reverses the winding (D52's back-facing case) and `holes` drops
+    (i, j) cells (D53's hole). Hand-built for the same reason `kit.box_mesh`
+    is: the Grid SOP's own output is not the thing under test here.
+    """
+    geo = hou.Geometry()
+    pts = {}
+    for i in range(nx + 1):
+        for j in range(nz + 1):
+            x = x0 + (x1 - x0) * i / float(nx)
+            z = z0 + (z1 - z0) * j / float(nz)
+            pt = geo.createPoint()
+            pt.setPosition((x, fn(x, z), z))
+            pts[(i, j)] = pt
+    for i in range(nx):
+        for j in range(nz):
+            if (i, j) in holes:
+                continue
+            quad = [pts[(i, j)], pts[(i, j + 1)], pts[(i + 1, j + 1)],
+                    pts[(i + 1, j)]]
+            if flip:
+                quad = list(reversed(quad))
+            poly = geo.createPolygon()
+            for pt in quad:
+                poly.addVertex(pt)
+    return geo
+
+
+def ramp_x(x, _z):
+    return CONFORM_GRADE * x
+
+
+def camber_z(_x, z):
+    """Cross-fall: the surface tilts ACROSS the run, which is what camber is.
+    A run along +X on this reads a roll of atan(0.25) = 14.036 degrees."""
+    return CONFORM_GRADE * z
+
+
+def ridge(x, _z):
+    return RIDGE_AMP * math.sin(2.0 * math.pi * x / RIDGE_WAVE)
+
+
+TENT_PEAK = 10.2
+
+
+def tent(x, _z):
+    """TWO FACETS AND A CREASE - the surface coarser than the pieces (D56).
+
+    Built with `nx = 2`, so this is literally two quads 14 m across: one 2 m
+    panel spans a fourteenth of a facet, and the crease is the only feature.
+
+    ⚠️ THE PEAK IS AT 10.2 m AND NOT AT 10 m, and that is the whole case. At
+    10 m the crease lands on a PIECE BOUNDARY (ten 2 m panels on a 20 m run)
+    and at 11 m on a panel's own station - and in both of those the drape is
+    resolved exactly and nothing warns, which is the right answer and no test
+    at all. 10.2 m puts it between two 0.25 m stations, which is D25's
+    condition measured against the conformed path: the piece is built, it cuts
+    0.014 m off the ridge, and it says `pc_warn_bend_resolution`.
+    """
+    return 0.3 * x if x <= TENT_PEAK else (
+        3.06 + (0.3 * (2.0 * TENT_PEAK - 24.4) - 3.06)
+        * (x - TENT_PEAK) / (24.4 - TENT_PEAK))
+
+
 # --- kits -------------------------------------------------------------------
 
 def coarse_kit():
@@ -244,10 +322,12 @@ def compose_kit():
 
 # --- the cases --------------------------------------------------------------
 
-def _case(curve_geo, kit_geo, style):
-    out, report = P.build(curve_geo, kit_geo, style)
+def _case(curve_geo, kit_geo, style, surface_geo=None, overrides=None):
+    out, report = P.build(curve_geo, kit_geo, style, surface_geo=surface_geo,
+                          overrides=overrides)
     return {"curve": curve_geo, "kit": kit_geo, "style": style,
-            "out": out, "report": report}
+            "out": out, "report": report, "surface": surface_geo,
+            "overrides": overrides}
 
 
 def build_all():
@@ -669,10 +749,90 @@ def build_all():
     polyline(g, RECT, closed=True, curve_id="AS")
     built["AS_rect_bend_butt"] = _case(g, kit_geo, corner_style("bend"))
 
+    # ---- 4.5 SURFACE CONFORM (input 4). The spline is DEAD FLAT and dead
+    # straight in every one of these, at y = 0 along +X, so everything
+    # vertical in the result came from the surface and nothing came from the
+    # curve - which is the only way to tell a conform from a hill.
+
+    def conform_line(cid, x1=20.0):
+        g = hou.Geometry()
+        polyline(g, [(0, 0, 0), (x1, 0, 0)], curve_id=cid)
+        return g
+
+    # BA/BB/BC - the same ridge under the same run in the three Z-modes, read
+    # as a TRIPLE exactly like E/F/G: 4.5 says adaptive and vertical DEFORM to
+    # the surface and stepped SITS on it, so the three must not agree.
+    for name, zmode, mod in (("BA_conform_adaptive", "adaptive", "panel"),
+                             ("BB_conform_vertical", "vertical", "panel"),
+                             ("BC_conform_stepped", "stepped", "post")):
+        built[name] = _case(conform_line(name[:2]), kit_geo, Style(
+            "conform", 1, 3, rules=[Rule("default", "first", [mod])],
+            params=Params(fill="adaptive", zmode=zmode)),
+            surface_geo=surface(ridge))
+
+    # BD - CAMBER. The surface falls 25 % ACROSS the run, so a tilted piece
+    # rolls by atan(0.25) = 14.036 degrees and an untilted one does not roll
+    # at all. Both are built, from one surface and one style parm apart.
+    for name, tilt in (("BD_camber_on", True), ("BD_camber_off", False)):
+        built[name] = _case(conform_line(name[:2]), kit_geo, Style(
+            "camber", 1, 3, rules=[Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive", zmode="adaptive",
+                          conform_tilt=tilt)),
+            surface_geo=surface(camber_z))
+
+    # BE - A HOLE, AND AN EDGE. The surface stops at x = 12 and has a hole
+    # punched at x ~ 5, so the run leaves the terrain twice: D53 keeps the
+    # spline elevation there and says `pc_warn_conform_miss`, and NOTHING
+    # raises. The pieces over solid ground must still be draped.
+    built["BE_conform_holes"] = _case(
+        conform_line("BE"), kit_geo, Style(
+            "holed", 1, 3, rules=[Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive", zmode="vertical")),
+        surface_geo=surface(ramp_x, x0=-2.0, x1=12.0, nx=14,
+                            holes=set((7, j) for j in range(12))))
+
+    # BF - A BACK-FACING SURFACE (D52). Identical ramp, wound the other way.
+    # RailClone does not ask an artist to flip their terrain, and neither does
+    # this: the drape must come out the same, which `conform_contact_m` and
+    # `plumb_deg` measure and `geometry_digest` pins against BG.
+    built["BF_conform_flipped"] = _case(
+        conform_line("BF"), kit_geo, Style(
+            "flipped", 1, 3, rules=[Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive", zmode="vertical")),
+        surface_geo=surface(ramp_x, flip=True))
+    built["BG_conform_facing"] = _case(
+        conform_line("BF"), kit_geo, Style(
+            "flipped", 1, 3, rules=[Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive", zmode="vertical")),
+        surface_geo=surface(ramp_x))
+
+    # BH - A SURFACE COARSER THAN THE PIECES, with a hard crease in the middle
+    # (D56). Two facets over 20 m, so a 2 m panel straddles the ridge and its
+    # own 0.25 m stations are what decide whether it follows: the piece ON the
+    # crease says `pc_warn_bend_resolution` - the SAME detector D25 already
+    # owns, measured against the conformed path - and every other piece is
+    # clean.
+    built["BH_conform_crease"] = _case(
+        conform_line("BH"), kit_geo, Style(
+            "crease", 1, 3, rules=[Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive", zmode="vertical")),
+        surface_geo=surface(tent, x1=24.4, nx=2, nz=2))
+
+    # BI - A CONFORMED CORNER. 4.3 anchors a corner assembly on the SPLINE's
+    # own vertex, which is under the terrain here, so without the drop the
+    # corner post is the one piece of a conformed fence still at y = 0.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (12, 0, 0), (12, 0, 8)], curve_id="BI")
+    built["BI_conform_corner"] = _case(g, kit_geo, corner_style("miter"),
+                                       surface_geo=surface(ramp_x, z0=-2.0,
+                                                           z1=12.0, nz=14))
+
     return built
 
 
 def rebuild(case):
     """Cook the same inputs again into fresh geometry - the determinism check."""
-    out, report = P.build(case["curve"], case["kit"], case["style"])
+    out, report = P.build(case["curve"], case["kit"], case["style"],
+                          surface_geo=case.get("surface"),
+                          overrides=case.get("overrides"))
     return (out, report)

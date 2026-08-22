@@ -52,6 +52,10 @@ MODULE_ATTRS = (
     ("pc_zmode", "adaptive", "string"),
     ("pc_variant", "", "string"),
     ("pc_weight", 1.0, "float"),
+    # 4.5 / D55: -1 means "the style's `conform_tilt` decides", which is why
+    # the default is not 0 - a kit that says nothing must not silently veto a
+    # style that asks for camber.
+    ("pc_tilt", -1, "int"),
 )
 
 KIT_DETAIL = "pc_kit"
@@ -115,7 +119,7 @@ def _ensure(geo, cls, name, default):
 
 def add_module(geo, name, source, size=None, pad=(0.0, 0.0),
                deform=DEFORM_RIGID, zmode="adaptive", roles="default",
-               variant="", weight=1.0):
+               variant="", weight=1.0, tilt=-1):
     """Pack `source` into `geo` as one module and write its manifest point."""
     for attr, default, _kind in MODULE_ATTRS:
         _ensure(geo, hou.attribType.Point, attr, default)
@@ -133,6 +137,7 @@ def add_module(geo, name, source, size=None, pad=(0.0, 0.0),
     pt.setAttribValue("pc_zmode", zmode)
     pt.setAttribValue("pc_variant", str(variant))
     pt.setAttribValue("pc_weight", float(weight))
+    pt.setAttribValue("pc_tilt", int(tilt))
     return prim
 
 
@@ -280,7 +285,8 @@ def read(geo):
             deform=deform, zmode=_sattr(pt, "pc_zmode", "adaptive"),
             roles=_sattr(pt, "pc_role", "default"),
             variant=_sattr(pt, "pc_variant", ""),
-            weight=max(_fattr(pt, "pc_weight", 1.0), 0.0)))
+            weight=max(_fattr(pt, "pc_weight", 1.0), 0.0),
+            tilt=_iattr(pt, "pc_tilt", -1)))
         sources[name] = src
     kit = Kit(str(manifest.get("kitId", "")),
               int(manifest.get("version", 1) or 1), modules,

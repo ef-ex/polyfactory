@@ -420,9 +420,19 @@ def unique_elem_ids(scene):
 
 
 def sampler_matches_kernel(scene, samples=400):
+    """The cached sampler and the kernel's own agree about where a metre is.
+
+    ⚠️ ON THE BASE PATH, not on the conformed one. 4.5 wraps the Path in the
+    drape (D54), and the drape is SUPPOSED to disagree with the spline - by
+    the ridge amplitude, which read as a 0.800 m sampler defect the first time
+    this ran on a conformed case. What this check owns is that `place.Path`
+    has not drifted from `Curve.sample`; the drape is measured by
+    `conform_contact_m`.
+    """
     worst = 0.0
     for track in scene.tracks:
         curve, path = track["real"], track["path"]
+        path = getattr(path, "base", path)
         total = curve.length
         if total <= 0.0:
             continue
@@ -1165,6 +1175,165 @@ def horizontal_spacing(scene):
     return Result("horizontal_span_m", True,
                   [_round(min(spans), 6), _round(max(spans), 6)],
                   "%d pieces" % len(spans))
+
+
+# --- 4.5 SURFACE CONFORM -----------------------------------------------------
+#
+# Every number here is a distance to the SURFACE, cast with the same axis the
+# builder used, so a conform that only moved the plan (and not the geometry)
+# cannot pass. The three Z-modes are read as a triple exactly like the hill:
+#
+#   conform_contact_m  the piece TOUCHES the surface - worst over pieces of
+#                      the smallest distance any of its own stations has to
+#                      the surface. Every mode owes this one, including
+#                      `stepped`, which touches at its start and rises off it
+#                      by design.
+#   conform_drape_m    the piece FOLLOWS the surface - worst over EVERY
+#                      station of an adaptive or vertical piece. This is the
+#                      half `stepped` does not owe, and the half that
+#                      separates "projected the plan" from "deformed the
+#                      geometry": a rigid chord across a ridge keeps its two
+#                      ends on the ground and fails here by the sagitta.
+#   camber_deg         the angle between the piece's own up and the surface
+#                      normal under it. With `conform_tilt` on it is 0; with
+#                      it off it is the surface's own cross-fall, and BOTH are
+#                      asserted, because a camber that is always on is as
+#                      wrong as one that never fires.
+
+def _surface_of(scene):
+    from polyfactory.polychain import conform as _conform
+    geo = scene.case.get("surface")
+    if geo is None:
+        return None
+    surf = _conform.Surface(geo, scene.params.conform_axis)
+    return surf if surf.active else None
+
+
+def _axis_stations(rec):
+    """[(local x, world axis point)] for every station of one element."""
+    frame = _element_frame(rec)
+    out = []
+    for x in sorted(set(round(v, 6) for v in rec["local"][0::3])):
+        p = _axis_of(_face(rec, x), frame)
+        if p is not None:
+            out.append((x, p))
+    return out
+
+
+def _surface_gap(surf, p):
+    """Signed distance from `p` to the surface along the conform axis.
+
+    Negative = the point is BELOW the surface for the default -Y axis (the
+    ray has to travel further than it does to reach `p`), positive = above.
+    A miss returns None rather than 0: "no surface here" and "on the surface"
+    are different answers and only one of them is a pass.
+    """
+    hit, _n, ok = surf.drop(p)
+    if not ok:
+        return None
+    d = (hit[0] - p[0], hit[1] - p[1], hit[2] - p[2])
+    a = surf.axis
+    return -(d[0] * a[0] + d[1] * a[1] + d[2] * a[2])
+
+
+def conform_contact(scene, tol=2e-3):
+    surf = _surface_of(scene)
+    if surf is None:
+        return _skip("conform_contact_m", "no surface")
+    worst, where, seen = 0.0, "", 0
+    for eid, rec in scene.by_id.items():
+        # a piece over a HOLE is meant to be off the surface, and it says so
+        # on itself - D53. Scoring it here would make the warning a failure.
+        if scene.warns.get(eid, {}).get("pc_warn_conform_miss"):
+            continue
+        gaps = [abs(g) for _x, p in _axis_stations(rec)
+                for g in (_surface_gap(surf, p),) if g is not None]
+        if not gaps:
+            continue
+        seen += 1
+        if min(gaps) > worst:
+            worst, where = min(gaps), "%s (%s)" % (rec["pc_module"],
+                                                   rec["pc_zmode"])
+    if not seen:
+        return _skip("conform_contact_m", "no pieces over the surface")
+    return Result("conform_contact_m", worst <= tol, _round(worst, 6), where)
+
+
+def conform_drape(scene, tol=2e-3):
+    surf = _surface_of(scene)
+    if surf is None:
+        return _skip("conform_drape_m", "no surface")
+    worst, where, seen = 0.0, "", 0
+    for eid, rec in scene.by_id.items():
+        if rec["pc_zmode"] == "stepped":
+            continue                       # 4.5: stepped SITS, it does not drape
+        if scene.warns.get(eid, {}).get("pc_warn_conform_miss"):
+            continue
+        placement = scene.plan_by_id.get(eid)
+        if placement is not None and placement.anchor is not None:
+            continue                       # a corner piece is rigid on its leg
+        module = scene.kit.by_name(rec["pc_module"])
+        if module is None or module.deform < 1:
+            continue                       # a rigid piece cannot follow, D27
+        for _x, p in _axis_stations(rec):
+            g = _surface_gap(surf, p)
+            if g is None:
+                continue
+            seen += 1
+            if abs(g) > worst:
+                worst, where = abs(g), "%s (%s)" % (rec["pc_module"],
+                                                    rec["pc_zmode"])
+    if not seen:
+        return _skip("conform_drape_m", "no deformable pieces on the surface")
+    return Result("conform_drape_m", worst <= tol, _round(worst, 6), where)
+
+
+def conform_camber(scene, expected=None, tol=0.05):
+    """D55 - the angle between a piece's own up and the surface normal.
+
+    The piece's up comes from `_element_frame`, i.e. off the built geometry,
+    and the normal from a fresh ray cast - so nothing here reads the builder's
+    own opinion of either.
+    """
+    surf = _surface_of(scene)
+    if surf is None:
+        return _skip("camber_deg", "no surface")
+    worst, seen, where = 0.0, 0, ""
+    for _eid, rec in scene.by_id.items():
+        up, _across = _element_frame(rec)
+        stations = _axis_stations(rec)
+        if up is None or not stations:
+            continue
+        mid = stations[len(stations) // 2][1]
+        _hit, nrm, ok = surf.drop(mid)
+        if not ok:
+            continue
+        n_up = math.sqrt(_dot3(up, up))
+        if n_up < 1e-9:
+            continue
+        cos = max(-1.0, min(1.0, _dot3(up, nrm) / n_up))
+        ang = math.degrees(math.acos(cos))
+        seen += 1
+        if ang > worst:
+            worst, where = ang, rec["pc_module"]
+    if not seen:
+        return _skip("camber_deg", "no pieces on the surface")
+    ok = expected is None or abs(worst - expected) <= tol
+    return Result("camber_deg", ok, _round(worst, 4),
+                  where if expected is None
+                  else "%s, expected %.4f" % (where, expected))
+
+
+def conform_misses(scene, expected=None):
+    """How many elements kept the spline elevation because the ray found
+    nothing (D53). Recorded on every conformed case, asserted where the case
+    exists to produce them."""
+    if scene.case.get("surface") is None:
+        return _skip("conform_misses", "no surface")
+    n = sum(1 for w in scene.warns.values() if w.get("pc_warn_conform_miss"))
+    ok = expected is None or n == expected
+    return Result("conform_misses", ok, n,
+                  "" if expected is None else "expected %s" % expected)
 
 
 # --- 4.3 CORNERS ------------------------------------------------------------

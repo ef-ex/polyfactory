@@ -97,6 +97,8 @@ import hou
 from . import (DEFAULTS, EPS, WARN_BEND_RESOLUTION, WARN_CORNER_DEGENERATE,
                WARN_DEGENERATE_FRAME, WARN_KIT_GAP, Curve, Marker, Z_MODES,
                elem_key, stand_in)
+from . import WARN_CONFORM_MISS
+from . import conform as _conform
 from . import corner as _corner
 from . import decompose as _decompose
 from . import kit as _kit
@@ -405,11 +407,19 @@ class _Proto(object):
 
 # --- the frames -------------------------------------------------------------
 
-def _frame(tangent, zmode):
-    """(dir, across, up) for one sample. `across` is +Z when dir is +X."""
+def _frame(tangent, zmode, up_ref=UP):
+    """(dir, across, up) for one sample. `across` is +Z when dir is +X.
+
+    `up_ref` is 4.5's CAMBER (D55): hand it the surface normal and the frame
+    rolls onto the surface, because `up` is rebuilt as `cross(across, d)` and
+    `across` is what `up_ref` decides. With the default it is world up and
+    this is byte-for-byte the frame every earlier cycle measured. Only the
+    `adaptive` branch reads it - a yaw-only mode is PLUMB BY DEFINITION and a
+    picket that leans with the camber is not a picket (D55, D27's precedent).
+    """
     if zmode == "adaptive":
         d = _unit(tangent)
-        across = _cross(d, UP)
+        across = _cross(d, up_ref)
         if _len(across) < EPS:
             across = (0.0, 0.0, 1.0)
         else:
@@ -482,7 +492,7 @@ COLLAPSE_RATIO = 0.5        # chord vs planned span, for a RIGID piece
 FLAT_RATIO = 0.01           # horizontal reach vs planned span, yaw-only modes
 
 
-def _needs_deform(placement, proto, path, sa, sb, zmode):
+def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01):
     """4.4 + the streets float32 lesson: rebuild ONLY when it changes something."""
     if placement.slice_t is not None or placement.cuts:
         return True                                     # D41 - a miter unpacks
@@ -491,6 +501,16 @@ def _needs_deform(placement, proto, path, sa, sb, zmode):
     if proto.module.deform <= 0:
         return False                                    # D27
     if path.interior_vertices(sa, sb):
+        return True
+    # 4.5: A DEAD-STRAIGHT SPLINE OVER A RIDGE HAS NO INTERIOR VERTEX, so
+    # without this the test above says "nothing to follow" and a bendable rail
+    # crosses the hill as one rigid chord with its two ends on the ground.
+    # `deviates` measures the drape against that chord, so a piece on a
+    # UNIFORM slope - where the drape IS the chord - still stays packed, which
+    # is 4.6's segregation surviving the conform rather than being defeated by
+    # it. `stepped` is excluded because sitting flat is the mode (4.5's own
+    # "stepped sits on it").
+    if zmode != "stepped" and getattr(path, "deviates", None) is not None             and path.deviates(sa, sb, tol):
         return True
     if zmode == "vertical":
         ya = path.sample(sa)[0][1]
@@ -518,7 +538,7 @@ def _bend_deviation(proto, stations, path, s0_flat, scale, remap):
 
 # --- building one piece -----------------------------------------------------
 
-def _packed_transform(proto, path, sa, sb, zmode):
+def _packed_transform(proto, path, sa, sb, zmode, up_ref=UP):
     """The 4x4 that maps module local space onto the chord A->B (D21)."""
     a, ta = path.sample(sa)
     b, _tb = path.sample(sb, forward=False)
@@ -536,10 +556,10 @@ def _packed_transform(proto, path, sa, sb, zmode):
         chord = flat
         clen = flen if flen >= FLAT_RATIO * clen else clen
     if clen < EPS:                       # a zero-length span still gets a frame
-        d, across, up = _frame(ta, zmode)
+        d, across, up = _frame(ta, zmode, up_ref)
         clen = 0.0
     else:
-        d, across, up = _frame(chord, zmode)
+        d, across, up = _frame(chord, zmode, up_ref)
     scale = max(clen / proto.length, 1e-9)
     ox = proto.ax * scale
     return hou.Matrix4([
@@ -549,7 +569,7 @@ def _packed_transform(proto, path, sa, sb, zmode):
         [a[0] - d[0] * ox, a[1] - d[1] * ox, a[2] - d[2] * ox, 1.0]])
 
 
-def _anchor_transform(proto, origin, direction, length, zmode):
+def _anchor_transform(proto, origin, direction, length, zmode, up_ref=UP):
     """4.3 - the 4x4 for a piece built on a STRAIGHT leg instead of on the path.
 
     A mitered corner piece does not ride the curve: it rides the leg, extended
@@ -557,7 +577,7 @@ def _anchor_transform(proto, origin, direction, length, zmode):
     length (D38). Sampling the curve out there would walk it round the corner
     and bend the very piece the miter exists to keep straight.
     """
-    d, across, up = _frame(direction, zmode)
+    d, across, up = _frame(direction, zmode, up_ref)
     scale = max(length / proto.length, 1e-9) if proto.length > EPS else 1.0
     ox = proto.ax * scale
     return hou.Matrix4([
@@ -566,6 +586,15 @@ def _anchor_transform(proto, origin, direction, length, zmode):
         [across[0], across[1], across[2], 0.0],
         [origin[0] - d[0] * ox, origin[1] - d[1] * ox,
          origin[2] - d[2] * ox, 1.0]])
+
+
+def _drop_anchor(path, origin):
+    """4.5: a 4.3 anchor is a SPLINE vertex, so it is dropped like everything
+    else. Off a conformed path this is the identity."""
+    surface = getattr(path, "surface", None)
+    if surface is None or not surface.active:
+        return origin
+    return surface.drop(origin)[0]
 
 
 def _anchor_len(placement):
@@ -615,7 +644,8 @@ def clip_plane(geo, origin, normal, keep_sign):
     return filled
 
 
-def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap):
+def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap,
+                      tilt=False):
     """Every point of `src` re-read at its own arc position. Returns
     (flat world positions, flat local positions)."""
     local = src.pointFloatAttribValues("P")
@@ -627,10 +657,15 @@ def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap):
     # flip mid-piece; doing it per station also drops the sampler calls from
     # one-per-point to one-per-station.
     frames, prev = {}, None
+    normal_at = getattr(path, "normal", None) if tilt else None
     for x in sorted(set(local[0::3])):
-        pos, tan = path.sample(remap(s0_flat + (x - ax) * scale))
+        s_x = remap(s0_flat + (x - ax) * scale)
+        pos, tan = path.sample(s_x)
         prev_across = None if prev is None else prev[1]
-        frame = _transport(_frame(tan, zmode), prev_across)
+        # D55: the camber is read PER STATION, so a bent rail rolls along the
+        # surface instead of taking one roll from its start.
+        up_ref = normal_at(s_x) if normal_at is not None else UP
+        frame = _transport(_frame(tan, zmode, up_ref), prev_across)
         frames[x] = (pos, frame)
         prev = frame
     for i in range(0, len(local), 3):
@@ -749,8 +784,12 @@ def _resolve_zmode(placement):
     return placement.zmode if placement.zmode in Z_MODES else "adaptive"
 
 
-def _prepare(curve, params):
+def _prepare(curve, params, surface_geo=None):
     """(kernel curve, Path on the REAL curve, flat->real remap, fillet warns).
+
+    4.5 wraps the Path and nothing else (D54): every stage below this one asks
+    the same two questions of the same object, so the drape reaches the
+    frames, the deform, the plan positions and the checks at once.
 
     4.3's FILLET runs FIRST and replaces the curve outright (D42): decompose,
     plan and place then all run on the rounded path, so 4.2's section lengths
@@ -760,7 +799,7 @@ def _prepare(curve, params):
     actually sit on.
     """
     curve, fillet_warns = _corner.fillet(curve, params)
-    path = Path(curve)
+    path, _surface = _conform.wrap(Path(curve), surface_geo, params)
     if not params.fix_slope:
         return (curve, curve, path, _identity_remap(), fillet_warns)
     flat = Curve(curve.curve_id,
@@ -772,7 +811,8 @@ def _prepare(curve, params):
                                       curve.closed), fillet_warns)
 
 
-def analyse(curve_geo, params=DEFAULTS, kit=None, style=None):
+def analyse(curve_geo, params=DEFAULTS, kit=None, style=None,
+            surface_geo=None):
     """[{curve, real, path, remap, sections}] - what `build` decomposes,
     exposed so the scene checks measure against the same sections the builder
     used instead of re-deriving them (and re-deriving them differently).
@@ -789,7 +829,8 @@ def analyse(curve_geo, params=DEFAULTS, kit=None, style=None):
     curves, markers = read_curves(curve_geo)
     out = []
     for curve in sorted(curves, key=lambda c: str(c.curve_id)):
-        kcurve, real, path, remap, fillet_warns = _prepare(curve, params)
+        kcurve, real, path, remap, fillet_warns = _prepare(curve, params,
+                                                           surface_geo)
         sections = _decompose.decompose(kcurve, markers, params)
         bevels = []
         if style is not None:
@@ -801,7 +842,8 @@ def analyse(curve_geo, params=DEFAULTS, kit=None, style=None):
     return out
 
 
-def build(curve_geo, kit_geo, style, params=None, out=None):
+def build(curve_geo, kit_geo, style, params=None, out=None,
+          surface_geo=None, overrides=None):
     """Curves + kit -> placed geometry. Never raises (warn-never-block).
 
     Returns (geometry, report) where the report carries the plan, the kit
@@ -825,7 +867,8 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
     bevels = []
     all_sections = []
     for curve in sorted(curves, key=lambda c: str(c.curve_id)):
-        kcurve, _real, path, remap, fillet_warns = _prepare(curve, params)
+        kcurve, _real, path, remap, fillet_warns = _prepare(curve, params,
+                                                            surface_geo)
         sections = _decompose.decompose(kcurve, markers, params)
         # 4.3 owns everything between the section list and the fill: it welds
         # what bend must not break (D36), places the corner slot, and hands
@@ -852,7 +895,16 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
                     warns.append(w)
             if module.missing and WARN_KIT_GAP not in warns:
                 warns.append(WARN_KIT_GAP)
-            deformed = _needs_deform(p, proto, path, s0r, s1r, zmode)
+            deformed = _needs_deform(p, proto, path, s0r, s1r, zmode,
+                                     params.bend_tol)
+            # 4.5 / D53: a ray that finds nothing keeps the spline elevation
+            # and SAYS SO. Probed on the piece's own span rather than on the
+            # whole run, so a fence that leaves the terrain at one end reports
+            # exactly the pieces that hang in the air.
+            if getattr(path, "missed", None) is not None \
+                    and path.missed(s0r, s1r) \
+                    and WARN_CONFORM_MISS not in warns:
+                warns.append(WARN_CONFORM_MISS)
             scale = 1.0 if p.slice_t is not None else (
                 ((s1f - s0f) / proto.length) if proto.length > EPS else 1.0)
             if p.anchor is None and _flat_ratio(path, s0r, s1r,
@@ -872,7 +924,9 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
                          "s0f": s0f, "s0r": s0r, "s1r": s1r,
                          "zmode": zmode, "scale": scale,
                          "deformed": deformed, "warns": tuple(warns),
-                         "remap": remap})
+                         "remap": remap,
+                         "tilt": (module.tilts(params)
+                                  and zmode == "adaptive")})
 
     warn_names = []
     for job in jobs:
@@ -887,12 +941,27 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
     for job in jobs:
         p, proto, path = job["p"], job["proto"], job["path"]
         zmode, warns = job["zmode"], job["warns"]
+        up_ref = UP
+        normal_at = getattr(path, "normal", None) if job["tilt"] else None
+        if normal_at is not None:
+            # the MIDPOINT normal for a rigid piece: its two ends can sit on
+            # different facets, and rolling to one end's facet tips the far
+            # end into the ground.
+            up_ref = normal_at(0.5 * (job["s0r"] + job["s1r"]))
         if not job["deformed"]:
-            xform = (_anchor_transform(proto, p.anchor[0], p.anchor[1],
-                                       _anchor_len(p), zmode)
-                     if p.anchor is not None
-                     else _packed_transform(proto, path, job["s0r"],
-                                            job["s1r"], zmode))
+            if p.anchor is not None:
+                # 4.3 lays a corner assembly out on the SPLINE's own vertex, so
+                # without this the corner post of a conformed fence hangs at
+                # spline elevation while every piece beside it sits on the
+                # terrain. The anchor is dropped; its direction is left alone,
+                # because an anchored piece is rigid on its leg by definition.
+                xform = _anchor_transform(proto, _drop_anchor(path,
+                                                              p.anchor[0]),
+                                          p.anchor[1], _anchor_len(p), zmode,
+                                          up_ref)
+            else:
+                xform = _packed_transform(proto, path, job["s0r"],
+                                          job["s1r"], zmode, up_ref)
             prim = out.createPackedGeometry(proto.source)
             prim.setTransform(xform)
             _stamp(prim, p, warns, False, zmode)
@@ -908,8 +977,9 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
             # 4.3: a corner piece is rigid on its leg, so its local frame is
             # the module's own and the transform is baked rather than sampled.
             local = list(src.pointFloatAttribValues("P"))
-            piece.transform(_anchor_transform(proto, p.anchor[0], p.anchor[1],
-                                              _anchor_len(p), zmode))
+            piece.transform(_anchor_transform(
+                proto, _drop_anchor(path, p.anchor[0]), p.anchor[1],
+                _anchor_len(p), zmode, up_ref))
             # AFTER the transform, never before: `hou.Geometry.transform`
             # carries any attribute Houdini reads as a vector along with P, and
             # a rotated `pc_local` would make every local-frame check measure
@@ -917,7 +987,8 @@ def build(curve_geo, kit_geo, style, params=None, out=None):
             piece.setPointFloatAttribValues("pc_local", local)
         else:
             world, local = _deform_positions(piece, proto, path, job["s0f"],
-                                             job["scale"], zmode, job["remap"])
+                                             job["scale"], zmode,
+                                             job["remap"], job["tilt"])
             piece.setPointFloatAttribValues("P", world)
             piece.setPointFloatAttribValues("pc_local", local)
         if p.cuts:

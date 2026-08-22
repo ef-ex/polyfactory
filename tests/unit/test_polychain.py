@@ -436,5 +436,44 @@ class TestKit(unittest.TestCase):
         self.assertAlmostEqual(pc.Module("m", 2.5).length, 2.5, places=9)
 
 
+class TestConformContract(unittest.TestCase):
+    """4.5's hou-free half: the axis parm and the per-module camber switch.
+
+    The drape itself needs a licence and is measured in `tests/polychain`
+    (`conform_contact_m`, `conform_drape_m`, `camber_deg`); these two
+    decisions are pure data and belong here, where they cost nothing.
+    """
+
+    def test_the_axis_defaults_to_houdini_down(self):
+        # D51: 4.5's "-Z" is Max's up axis. Houdini is Y-up (D20's same
+        # translation), so the default must be -Y or every fence conforms
+        # sideways.
+        self.assertEqual(pc.DEFAULTS.conform_axis, (0.0, -1.0, 0.0))
+
+    def test_a_zero_axis_degrades_to_the_default(self):
+        self.assertEqual(pc.Params(conform_axis=(0.0, 0.0, 0.0)).conform_axis,
+                         (0.0, -1.0, 0.0))
+
+    def test_the_axis_is_a_direction_not_a_menu(self):
+        p = pc.Params(conform_axis=(1.0, 0.0, 0.0))
+        self.assertEqual(p.conform_axis, (1.0, 0.0, 0.0))
+
+    def test_camber_is_off_by_default(self):
+        self.assertFalse(pc.DEFAULTS.conform_tilt)
+
+    def test_a_module_defers_to_the_style_by_default(self):
+        # D55 = D6's three-state pattern: -1 means "the style decides".
+        m = pc.Module("m", (1.0, 1.0, 0.1))
+        self.assertEqual(m.tilt, -1)
+        self.assertFalse(m.tilts(pc.Params()))
+        self.assertTrue(m.tilts(pc.Params(conform_tilt=True)))
+
+    def test_a_module_can_veto_or_force_the_camber(self):
+        never = pc.Module("kerb", (1.0, 1.0, 0.1), tilt=0)
+        always = pc.Module("road", (1.0, 1.0, 0.1), tilt=1)
+        self.assertFalse(never.tilts(pc.Params(conform_tilt=True)))
+        self.assertTrue(always.tilts(pc.Params(conform_tilt=False)))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
