@@ -578,6 +578,34 @@ def port_tripwires():
     ]
 
 
+def baseline_movement(results, base):
+    """Every baselined value this run did not reproduce, as text.
+
+    D210 - THIS USED TO BE ADVISORY.  The block printed and the run still
+    exited 0, so every "no baselined value moved" claim in the build log was
+    resting on an exit code that structurally could not carry it.  Pulled out
+    of `main` so `exit_code` below is a testable rule and not a line nobody
+    can reach without a Houdini session.
+    """
+    moved = []
+    for case in sorted(results):
+        prev = dict((d["name"], d) for d in base.get(case, []))
+        for d in results[case]:
+            old = prev.get(d["name"])
+            if old is not None and old["value"] != d["value"]:
+                moved.append("%s/%s: %s -> %s"
+                             % (case, d["name"], old["value"], d["value"]))
+    return moved
+
+
+def exit_code(failures, moved, update):
+    """D210 - a MOVED baselined value fails the run exactly like a failing
+    check does.  `--update-baseline` is the one path that accepts movement,
+    because that is a human saying "I read it and it is an improvement".
+    """
+    return 1 if (failures or moved) and not update else 0
+
+
 def main():
     update = "--update-baseline" in sys.argv
     json_out = None
@@ -608,18 +636,13 @@ def main():
         with open(BASELINE) as fh:
             base = json.load(fh)
 
-    moved = []
-    for case, rows in results.items():
-        prev = dict((d["name"], d) for d in base.get(case, []))
-        for d in rows:
-            old = prev.get(d["name"])
-            if old is not None and old["value"] != d["value"]:
-                moved.append("%s/%s: %s -> %s"
-                             % (case, d["name"], old["value"], d["value"]))
+    moved = baseline_movement(results, base)
     if moved:
-        print("\n--- moved since baseline (check each is an improvement) ---")
+        print("\n--- MOVED SINCE BASELINE: %d value(s) ---" % len(moved))
         for m in moved:
             print("  " + m)
+        print("  ^ each must be an improvement; confirm, then re-run with"
+              " --update-baseline")
 
     if update:
         with open(BASELINE, "w") as fh:
@@ -629,8 +652,9 @@ def main():
         with open(json_out, "w") as fh:
             json.dump(results, fh, indent=2, sort_keys=True)
 
-    print("\n%d failing checks" % failures)
-    sys.exit(1 if failures and not update else 0)
+    print("\n%d failing checks, %d moved baseline values"
+          % (failures, len(moved)))
+    sys.exit(exit_code(failures, moved, update))
 
 
 if __name__ == "__main__":

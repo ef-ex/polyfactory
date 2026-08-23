@@ -4617,6 +4617,45 @@ def union_parity(root):
           "miter threshold. %s" % (n_prims, bad[:2] or "identical"))
 
 
+def scene_baseline_is_enforced():
+    """D210 - `run_scene_checks`' baseline used to be ADVISORY.
+
+    A moved value printed under "moved since baseline" and the run exited 0
+    anyway, so every "no baselined value moved" claim in this build log was
+    citing an exit code that could not carry it.  Reproduced by hand -
+    perturbing two `A_straight` rows printed both and still exited 0 - and
+    this is the standing form of that mutation, so the fix cannot be undone
+    in silence the way D207's was.
+
+    Both halves are asserted: that movement is DETECTED, and that detection
+    reaches the EXIT CODE.  The old rule (`1 if failures and not update`)
+    fails the second half; a rule that also fails `--update-baseline` fails
+    the third row.
+    """
+    import run_scene_checks as RSC
+
+    base = {"C": [{"name": "v", "value": 1}, {"name": "w", "value": 2}]}
+    same = {"C": [{"name": "v", "value": 1}, {"name": "w", "value": 2}]}
+    drift = {"C": [{"name": "v", "value": 1}, {"name": "w", "value": 3}]}
+    moved = RSC.baseline_movement(drift, base)
+    quiet = RSC.baseline_movement(same, base)
+    rows = (
+        ("a moved value is seen", len(moved) == 1 and "C/w: 2 -> 3" in moved),
+        ("an unmoved run is quiet", quiet == []),
+        ("movement exits non-zero", RSC.exit_code(0, moved, False) == 1),
+        ("a clean run exits zero", RSC.exit_code(0, quiet, False) == 0),
+        ("--update-baseline accepts it", RSC.exit_code(0, moved, True) == 0),
+        ("a failing check still exits non-zero",
+         RSC.exit_code(1, quiet, False) == 1),
+    )
+    bad = [name for name, ok in rows if not ok]
+    check("scene_baseline_movement_fails_the_run", not bad,
+          "%d/%d" % (len(rows) - len(bad), len(rows)),
+          "`run_scene_checks` exits non-zero on a moved baselined value "
+          "(D210 - it used to print and exit 0). Broken: %s"
+          % (", ".join(bad) or "none"))
+
+
 def main():
     if not os.path.exists(HDA_PATH):
         print("no HDA at %s - run devScripts/create_pf_polychain_hda.py"
@@ -4715,6 +4754,7 @@ def main():
     frames_scale_mutation(root)
     emit_scale_mutation(root)
     solve_scale_check(root)
+    scene_baseline_is_enforced()
 
     print("\n=== 5. 13.7 - the graph is readable, on the built asset ===")
     node = readability(root)
