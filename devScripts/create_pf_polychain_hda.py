@@ -131,6 +131,8 @@ STAGES = (
     ("plan_native", "OUT_plan_native",
      "2 - Plan, NATIVE (4.2 - the VEX fitting solve)"),
     ("frames", "OUT_frames", "4 - Frames (4.4 - the transform per piece)"),
+    ("gate", "OUT_gate",
+     "4 - Deform gate, NATIVE (4.4 - packed or deformed, per piece)"),
     ("place_native", "OUT_place_native",
      "4 - Place, NATIVE (4.4 - packed pieces, no Python)"),
 )
@@ -474,6 +476,21 @@ _PLACE_COMMENTS = {
         "The pieces this branch is ANSWERABLE for. Warn-never-block while\n"
         "N5, N6 and N8 are ahead: a piece whose frame needs 4.5's surface\n"
         "normal is dropped, not guessed.",
+    "pc_deform_gate":
+        "4.4 - THE DEFORM GATE (13.9 N5). D87's curvature budget in VEX:\n"
+        "one node decides packed or deformed for every piece, which is the\n"
+        "rule PC-G3 rides on - 10 005 pieces at 0.42 s and 12 MB against\n"
+        "21.9 s and 360 180 points. Profiled, it is the biggest single\n"
+        "Python item left on the shipped path: 0.133 s of place.build's\n"
+        "0.813 s at 20 km, more than the fitting solve and the packed\n"
+        "transform together. D99's band and 4.5's drape test are NOT\n"
+        "ported and it says so on pc_frame_valid rather than guessing.",
+    "pc_packed_only":
+        "13.3.4's blast(packed), and until this cycle it did not exist -\n"
+        "EVERY piece went to copytopoints, so a bending panel shipped as a\n"
+        "rigid chord. Invisible, because the parity matches on pc_elem_id\n"
+        "against the reference's PACKED prims and a deformed piece has no\n"
+        "counterpart to disagree with.",
     "pc_out_cast":
         "13.2's lever, at the one place it is needed. The chain runs at\n"
         "vex_precision = 64 (R2) and a 64-bit wrangle writes FLOAT64\n"
@@ -497,8 +514,9 @@ _PLACE_COMMENTS = {
         "is retired. pivot must be ORIGIN (centroid moves it 9.5e-07 m).",
 }
 _PLACE_ORDER = ("kit_starter", "pc_kit_id", "kit_unpack", "pc_proto",
-                "pc_frames_native", "pc_place_valid", "copy_packed",
-                "pc_finalize", "pc_out_cast")
+                "pc_deform_gate", "pc_frames_native", "pc_place_valid",
+                "pc_packed_only", "copy_packed", "pc_finalize",
+                "pc_out_cast")
 for _i, _name in enumerate(_PLACE_ORDER):
     _node = _place_nodes[_name]
     _node.setComment(_PLACE_COMMENTS[_name])
@@ -509,6 +527,15 @@ out_place_native = net.createNode("null", "OUT_place_native")
 out_place_native.setInput(0, _place_last)
 out_place_native.setPosition(hou.Vector2(28.0, -21.0))
 place_native_nodes.append(out_place_native)
+
+# 13.9 N5 - the gate's own stage.  It is upstream of `pc_packed_only`, so it
+# carries BOTH answers: one point per piece with `_needs_deform` on it, which
+# is what `gate_parity` compares against the reference's own `pc_deformed`
+# and what an artist looks at to see why a run unpacked.
+out_gate = net.createNode("null", "OUT_gate")
+out_gate.setInput(0, _place_nodes["pc_deform_gate"])
+out_gate.setPosition(hou.Vector2(22.0, -23.0))
+place_native_nodes.append(out_gate)
 
 # ---- R REFERENCE - the shipped cook path ------------------------------------
 kernel = python_sop(

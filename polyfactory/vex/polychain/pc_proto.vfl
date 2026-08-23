@@ -41,6 +41,7 @@
 string want = s@pc_module;
 int n = nprimitives(2);
 float plen = 1.0, pax = 0.0;
+float pry = 0.0, prz = 0.0, py0 = 0.0, py1 = 0.0;
 int found = 0;
 for (int i = n - 1; i >= 0; i--) {
     string name = prim(2, "pc_module", i);
@@ -52,12 +53,33 @@ for (int i = n - 1; i >= 0; i--) {
     pax = len(bb) ? bb[0] : 0.0;
     float extent = len(bb) ? (bb[1] - bb[0]) : 1.0;
     plen = (size.x > PC_EPS) ? size.x : max(extent, PC_EPS);
+    // 13.9 N5 - HOW FAR THIS MODULE REACHES OFF THE SPINE, which is what
+    // D87's curvature budget is actually spent by. `_Proto` takes these off
+    // the SOURCE bounding box and not off `pc_size`, because the nominal
+    // fitted size is a contract about the FIT while the bbox is the geometry
+    // that will actually move; `bounds` on the packed prim is that same box.
+    // `y0`/`y1` are D99's band interval, in the module's own local Y - which
+    // is also world metres, since the fit scales along x only.
+    if (len(bb) >= 6) {
+        pry = max(abs(bb[2]), abs(bb[3]));
+        prz = max(abs(bb[4]), abs(bb[5]));
+        py0 = bb[2];
+        py1 = bb[3];
+    }
     found = 1;
     break;
 }
 
 f@pc_proto_len = plen;
 f@pc_proto_ax  = pax;
+// `_*` because none of these is 3.4 output contract - they exist for the
+// deform gate one node down (conventions.md 2, so `_scrub` clears them).
+// `adaptive` rolls y AND z with the frame; a yaw-only mode keeps y world-
+// vertical (`place._frame`), so there only z rides it.
+f@_proto_radius = sqrt(pry * pry + prz * prz);
+f@_proto_rz     = prz;
+f@_proto_y0     = py0;
+f@_proto_y1     = py1;
 f@pc_yscale    = 1.0;                    // E2 is phase 2; the identity here
 v@pc_upref     = set(0.0, 1.0, 0.0);     // D55's camber needs 4.5's normal
 i@pc_has_basey = 0;                      // D98's flatten-under needs 4.5 too

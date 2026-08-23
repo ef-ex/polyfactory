@@ -235,8 +235,19 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     proto.setInput(2, kit_id)
     nodes["pc_proto"] = proto
 
+    # 13.9 N5 - THE DEFORM GATE, and it is the rule PC-G3 rides on. One node
+    # decides packed or deformed for every piece in the build; see
+    # `pc_deform_gate.vfl` for the reference's own order and for the two steps
+    # it declares unanswerable instead of guessing.
+    gate = wrangle(parent, "pc_deform_gate" + suffix, "point",
+                   "pc_deform_gate")
+    gate.setInput(0, proto)
+    gate.setInput(1, config)
+    gate.setInput(2, sections)
+    nodes["pc_deform_gate"] = gate
+
     frames = wrangle(parent, "pc_frames_native" + suffix, "point", "pc_frames")
-    frames.setInput(0, proto)
+    frames.setInput(0, gate)
     frames.setInput(1, config)
     frames.setInput(2, sections)
     nodes["pc_frames_native"] = frames
@@ -247,9 +258,21 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     valid.setInput(0, frames)
     nodes["pc_place_valid"] = valid
 
+    # 13.3.4's `blast(packed)`, and until this cycle it did not exist: EVERY
+    # piece went to `copytopoints`, including the ones the curvature budget
+    # unpacks, so a bending panel shipped as a rigid chord. It was invisible
+    # because `place_packed_parity` matches on `pc_elem_id` against the
+    # reference's PACKED prims, and a piece the reference deformed simply had
+    # no counterpart to disagree with.
+    packed = parent.createNode("blast", "pc_packed_only" + suffix)
+    packed.parm("group").set("@pc_deformed==1")
+    packed.parm("grouptype").set(3)
+    packed.setInput(0, valid)
+    nodes["pc_packed_only"] = packed
+
     copy = parent.createNode("copytopoints::2.0", "copy_packed" + suffix)
     copy.setInput(0, unpack)
-    copy.setInput(1, valid)
+    copy.setInput(1, packed)
     copy.parm("pack").set(True)
     # `pivot` defaults to CENTROID and this needs ORIGIN: `_packed_transform`
     # maps the module's OWN local space.  Measured in isolation, `centroid`

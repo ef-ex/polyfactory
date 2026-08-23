@@ -2364,6 +2364,9 @@ def place_packed_parity(root, built):
     stamp_bad = {}
     stamp_owed = {}
     stamp_n = [0]
+    cover_bad = []
+    cover_n = [0]
+    cover_gap = [0]
     for name in sorted(built):
         name_ = name
         case = built[name]
@@ -2443,6 +2446,37 @@ def place_packed_parity(root, built):
                         "%s: %r not %r" % (aname, got, want), []).append(eid)
             stamp_n[0] += 1
         nprim += matched
+        # ⚠ AND THE ELEMENT SET, NOT ONLY THE ELEMENTS THAT HAPPEN TO PAIR.
+        # Until 13.9 N5's gate landed, EVERY piece went to `copytopoints` and
+        # a piece the reference deformed simply had no counterpart here - so
+        # the loop above compared a SUBSET and called it parity. With the gate
+        # the branch is supposed to build exactly the reference's packed set,
+        # and that is a claim about the two SETS.
+        got_ids = set()
+        for p_ in geo.prims():
+            try:
+                got_ids.add(p_.attribValue("pc_elem_id"))
+            except hou.OperationFailed:
+                pass
+        # 3.4's STAND-IN BOX is the one declared gap: "blank stand-in box at
+        # nominal size, never a failure". `pc_proto` cannot MEASURE a module
+        # that is not in the kit, so it declines the piece and D154's native
+        # `box` SOPs are what will build it (N7). The element is counted and
+        # printed, not skipped silently.
+        gapped = set()
+        for eid, r_ in ref.items():
+            try:
+                if int(r_.attribValue("pc_warn_kit_gap")):
+                    gapped.add(eid)
+            except hou.OperationFailed:
+                pass
+        only_ref = sorted(set(ref) - got_ids - gapped)
+        only_nat = sorted(got_ids - set(ref))
+        cover_gap[0] += len(gapped & (set(ref) - got_ids))
+        if only_ref or only_nat:
+            cover_bad.append((name_, len(only_ref), len(only_nat),
+                              (only_ref or only_nat)[0]))
+        cover_n[0] += len(ref)
         if matched:
             ncase += 1
             per.append((case_worst, name, matched))
@@ -2460,6 +2494,16 @@ def place_packed_parity(root, built):
     for why in sorted(scope):
         print("        out of scope  %-42s %d case(s)"
               % (why, len(scope[why])))
+    check("place_packed_covers_the_reference",
+          not cover_bad and cover_gap[0] > 0, cover_n[0],
+          "the native branch builds EXACTLY the reference's packed element "
+          "set on every in-scope case - not a subset - bar %d element(s) that "
+          "are 3.4's STAND-IN BOX for a module the kit does not carry, which "
+          "13.9 N7 owes and which this row fails on if it ever reads 0. "
+          "Disagreeing: %s"
+          % (cover_gap[0],
+             "; ".join("%s (+%d ref / +%d native, e.g. %s)" % b
+                       for b in cover_bad[:3]) or "none"))
     check("place_packed_is_not_empty", nprim > 400, nprim,
           "packed prims actually compared - a branch that built none would "
           "make the check above vacuously green")
@@ -2490,6 +2534,125 @@ def place_packed_parity(root, built):
           "packed prim matched by pc_elem_id: %s"
           % ("; ".join("%s (%d)" % (k, len(stamp_bad[k])) for k in keys[:4])
              or "identical"))
+
+
+def gate_parity(root, built):
+    """13.9 N5 - the deform gate, against `place._needs_deform` itself.
+
+    ⚠️ THIS IS A BOOLEAN PER PIECE AND IT DECIDES THE WHOLE COST MODEL.  A
+    piece the gate keeps packed is one packed prim sharing one `geometryid`; a
+    piece it unpacks is ~36 real points.  D69 measured the difference on
+    PC-G3's own shape: 10 005 packed at 0.42 s and +12 MB against 10 005
+    deformed at 21.9 s and 360 180 points.  So a gate that is 99 % right is
+    not 99 % right, it is a tool that silently costs fifty times what it
+    should on the exact input citygen hands it.
+
+    The reference's answer is read where it SHIPS - `pc_deformed` on the built
+    prim - and not from calling `_needs_deform` again, because the question is
+    whether the two implementations segregate the same elements, not whether
+    two calls of one function agree.  A deformed element is many prims, so the
+    reference's answer is the max over the element's own prims.
+
+    Cases where the gate declares itself unanswerable (`_gate_valid = 0`) are
+    counted and printed separately - that is D99's band and 4.5's drape, both
+    named in `pc_deform_gate.vfl` - and a piece that is never judged is not
+    quietly scored as agreeing.
+    """
+    agree = disagree = unjudged = 0
+    per_case = {}
+    bad = []
+    ncase = 0
+    both = [0, 0]
+    for name in sorted(built):
+        case = built[name]
+        params = case["style"].params if case["style"] else DEFAULTS
+        if _place_out_of_scope(case, params):
+            continue
+        node, geo = asset_on(root, case, "gate", name + "_g")
+        if geo is None:
+            bad.append((name, "cook"))
+            continue
+        ref = {}
+        for prim in case["out"].prims():
+            try:
+                eid = prim.attribValue("pc_elem_id")
+                dfm = int(prim.attribValue("pc_deformed"))
+            except hou.OperationFailed:
+                continue
+            ref[eid] = max(ref.get(eid, 0), dfm)
+        matched = 0
+        wrong = 0
+        for pt in geo.points():
+            try:
+                eid = pt.attribValue("pc_elem_id")
+            except hou.OperationFailed:
+                continue
+            if eid not in ref:
+                continue
+            if not int(pt.attribValue("pc_gate_valid")):
+                unjudged += 1
+                continue
+            got = int(pt.attribValue("pc_deformed"))
+            want = ref[eid]
+            both[want] += 1
+            matched += 1
+            if got != want:
+                wrong += 1
+                if len(bad) < 6:
+                    bad.append((name, "%s: %d not %d" % (eid, got, want)))
+        agree += matched - wrong
+        disagree += wrong
+        if matched:
+            ncase += 1
+            per_case[name] = (matched, wrong)
+        node.destroy()
+    check("gate_parity", not disagree and not bad, "%d cases / %d pieces"
+          % (ncase, agree + disagree),
+          "`pc_deformed` at the gate against the reference's own `pc_deformed`, matched "
+          "on pc_elem_id: %d agree, %d disagree, %d unjudged (D99's band or "
+          "4.5's drape - the gate declares those). %s"
+          % (agree, disagree, unjudged,
+             "; ".join("%s %s" % b for b in bad[:3]) or "identical"))
+    # ⚠️ AND BOTH ANSWERS HAVE TO APPEAR.  A gate that returned 0 for
+    # everything would agree with a suite whose in-scope cases happen to be
+    # all-packed, which is exactly the vacuous shape P2-3V found six times.
+    check("gate_parity_sees_both_answers", both[0] > 100 and both[1] > 0,
+          "%d packed / %d deformed" % (both[0], both[1]),
+          "the compared pieces must contain BOTH answers or the parity above "
+          "is a check that the gate returns a constant")
+
+
+def gate_mutation(root, built):
+    """Move the curvature budget and watch `gate_parity` part company.
+
+    The mutation is D75's own lever - the tolerance the artist sets - so it
+    changes nothing but the answer, which is the property the check is about.
+    """
+    name = None
+    for candidate in sorted(built):
+        case = built[candidate]
+        params = case["style"].params if case["style"] else DEFAULTS
+        if _place_out_of_scope(case, params):
+            continue
+        name = candidate
+        break
+    case = built[name]
+    node, geo = asset_on(root, case, "gate", name + "_gm")
+    node.allowEditingOfContents()
+    gate = node.node("pc_deform_gate")
+    body = gate.parm("snippet").eval()
+    target = "if (dev > tol) {"
+    found = target in body
+    gate.parm("snippet").set(body.replace(target, "if (dev >= -1.0) {"))
+    node.cook(force=True)
+    flipped = sum(int(p.attribValue("pc_deformed"))
+                  for p in node.geometry().points())
+    node.destroy()
+    check("mutation_pc_deform_gate", found and flipped > 0,
+          "%d pieces flipped" % flipped,
+          "dropping the curvature budget to -1 m unpacks every piece of `%s` "
+          "- the answer `gate_parity` compares is therefore the gate's and "
+          "not a constant the check would agree with anyway" % name)
 
 
 def r8_packed_transform(root):
@@ -3571,6 +3734,7 @@ def main():
     place_packed_parity(root, built)
     place_duplicate_module_name(root)
     native_place_says_why_it_is_empty(root)
+    gate_parity(root, built)
     frames_scale_check(root)
     emit_scale_check(root)
 
@@ -3582,6 +3746,7 @@ def main():
     place_mutation(root, built)
     kit_id_mutation(root, built)
     finalize_mutation(root, built)
+    gate_mutation(root, built)
     frames_scale_mutation(root)
     emit_scale_mutation(root)
 
