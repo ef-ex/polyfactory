@@ -2213,8 +2213,9 @@ def plan_mutation(root, built):
     # survives the change of mechanism.
     emit_body = vexsrc.source("pc_plan_emit")
     got = run(lambda n: n["pc_plan_emit"].parm("snippet").set(
-        emit_body.replace("int n = min(npieces, len(p_slot));",
-                          "int n = min(npieces, len(p_slot)) - 1;")))
+        emit_body.replace(
+            "int n = via_row ? npieces : min(npieces, len(p_slot));",
+            "int n = (via_row ? npieces : min(npieces, len(p_slot))) - 1;")))
     check("mutation_plan_emit_count", got is None or plan_diff(got, ref),
           "%s" % ("red" if (got is None or plan_diff(got, ref)) else "GREEN"),
           "dropping ONE piece per section reddens the parity - the emitter's "
@@ -2280,6 +2281,16 @@ def asset_on(root, case, stage, tag):
         style_geo = hou.Geometry()
         STYLE.write(style_geo, case["style"])
         node.setInput(2, native.feed(root, style_geo, "AS_%s" % tag))
+    # ⚠️ AND THE SURFACE, WHICH THIS HELPER USED TO DROP ON THE FLOOR. Every
+    # `B*_conform_*` case was cooked with input 4 UNWIRED, so a check asking
+    # "did the guard hand this build to the native chain" was answering about
+    # a build with no terrain in it - and 4.5 is the largest thing the native
+    # chain cannot do. `place_packed_parity` never noticed because it skips
+    # those cases by name; `output_guard_parity` would have counted eleven of
+    # them as native successes.
+    surface = case.get("surface")
+    if surface is not None:
+        node.setInput(3, native.feed(root, surface, "AF_%s" % tag))
     node.parm("stage").set(stage)
     try:
         node.cook(force=True)
@@ -2333,9 +2344,11 @@ STAMP_OWED = {
     "pc_cap": "4.6 slice caps - N7",
     "pc_cap_material": "4.6 slice caps - N7",
     "pc_warn_bend_resolution": "D25's bend deviation - N5",
-    "pc_warn_degenerate_frame": "4.4's degenerate frame - N5",
-    "pc_warn_corner_degenerate": "4.3 corners - N8",
 }
+# ⚠️ `pc_warn_degenerate_frame` AND `pc_warn_corner_degenerate` WERE ON THAT
+# LIST AND ARE NOT ANY MORE - the deform gate raises both now (D32, one ratio
+# each), which is what `place_stamp_owed_is_live` is for: an exemption that
+# stops being needed FAILS rather than sitting there looking harmless.
 
 
 def place_packed_parity(root, built):
@@ -3550,47 +3563,334 @@ def native_stage_mutation(root):
               % (token, target, python_sop, "; ".join(mine) or "none"))
 
 
-def native_reach(root):
-    """WHICH native nodes an artist who never opens the Stage menu runs.
+def _snapshot(geo):
+    """Everything about a polyChain output that a consumer can see.
 
-    ⚠️ THIS IS THE CHECK THAT KEEPS §16's SCOPE HONEST.  The claim "the plan
-    and the packed branch are ported" is worth exactly as much as the claim
-    "and they reach no artist yet", and the second half is a MEASUREMENT here
-    rather than a sentence in a build log that will age.  The day 13.9 N10
-    retires `kernel`, this check has to be edited on the same commit - which
-    is the ladder device §11.2 already uses.
+    Not a digest: a digest tells you two builds differ and nothing else, and
+    the whole point of this comparison is that a divergence has to be
+    NAMEABLE - which attribute, which element, which number.
     """
-    node = root.createNode("pf_polychain", "reach")
+    names = sorted(a.name() for a in geo.primAttribs())
+    types = dict((a.name(), str(a.dataType())) for a in geo.primAttribs())
+    prims = []
+    for prim in geo.prims():
+        row = [prim.type().name(),
+               tuple(round(float(c), 9) for c in prim.points()[0].position())
+               if prim.points() else ()]
+        try:
+            row.append(tuple(round(float(c), 9)
+                             for c in prim.intrinsicValue("bounds")))
+        except hou.OperationFailed:
+            row.append(())
+        row.extend(prim.attribValue(n) for n in names)
+        prims.append(tuple(row))
+    return dict(
+        prim_attribs=names,
+        prim_types=types,
+        point_attribs=sorted(a.name() for a in geo.pointAttribs()),
+        detail=sorted((a.name(), geo.attribValue(a.name()))
+                      for a in geo.globalAttribs()),
+        groups=sorted(g.name() for g in geo.primGroups()),
+        npoints=len(geo.points()),
+        P=[round(float(c), 9) for c in geo.pointFloatAttribValues("P")],
+        prims=prims)
+
+
+def _first_difference(a, b):
+    for key in ("prim_attribs", "prim_types", "point_attribs", "detail",
+                "groups", "npoints"):
+        if a[key] != b[key]:
+            return "%s: %r != %r" % (key, a[key], b[key])
+    if len(a["prims"]) != len(b["prims"]):
+        return "prim count %d != %d" % (len(a["prims"]), len(b["prims"]))
+    for i, (x, y) in enumerate(zip(a["prims"], b["prims"])):
+        if x != y:
+            for j, (u, v) in enumerate(zip(x, y)):
+                if u != v:
+                    field = ("type", "P", "bounds")[j] if j < 3 \
+                        else a["prim_attribs"][j - 3]
+                    return "prim %d %s: %r != %r" % (i, field, u, v)
+    if a["P"] != b["P"]:
+        for i, (u, v) in enumerate(zip(a["P"], b["P"])):
+            if u != v:
+                return "P[%d]: %r != %r" % (i, u, v)
+    return ""
+
+
+def output_guard_parity(root, built):
+    """13.9 N10 - `Stage = output` takes the NATIVE chain, and it had better
+    build the same fence.
+
+    ⚠️ THIS IS THE CHECK THE WHOLE CYCLE RESTS ON.  Until this commit
+    `Stage = output` was the Python reference and nothing else, so 88-95 % of
+    what an artist cooked was Python however much of the tool had been ported
+    (18.2).  It is a guarded fork now, and a guard that is wrong in either
+    direction is worse than no guard at all: too generous and the artist gets
+    a different fence than yesterday, too mean and the rebuild still does not
+    ship.
+
+    So EVERY case is cooked twice, at `Stage = output` and at the new
+    `Stage = reference`, and the two are compared on EVERYTHING a consumer can
+    see - the prim attribute NAMES, their TYPES, every value on every prim in
+    ORDER, every packed prim's world bounds, every point position, the detail
+    warning arrays and the prim groups.  Where the guard chose the reference
+    the two are the same node and agree trivially; the row that matters is the
+    count of cases where it chose the NATIVE chain, and it is printed.
+    """
+    took_native, took_ref, bad = [], [], []
+    for name in sorted(built):
+        case = built[name]
+        node, geo = asset_on(root, case, "output", name + "_gp")
+        if geo is None:
+            bad.append((name, "cook: output"))
+            continue
+        node.allowEditingOfContents()
+        got = _snapshot(geo)
+        env = node.node("pc_envelope").geometry()
+        level1 = int(env.attribValue("_native_ok")) if \
+            env.findGlobalAttrib("_native_ok") is not None else 0
+        level2 = 0
+        if level1:
+            env2 = node.node("pc_envelope2").geometry()
+            level2 = int(env2.attribValue("_native_ok2")) if \
+                env2.findGlobalAttrib("_native_ok2") is not None else 0
+        node.parm("stage").set("reference")
+        node.cook(force=True)
+        want = _snapshot(node.geometry())
+        diff = _first_difference(want, got)
+        (took_native if level2 else took_ref).append(name)
+        if diff:
+            bad.append((name, ("NATIVE" if level2 else "reference") + ": "
+                        + diff))
+        node.destroy()
+    check("output_guard_parity", not bad,
+          "%d native / %d reference" % (len(took_native), len(took_ref)),
+          "`Stage = output` against `Stage = reference` on %d cases - prim "
+          "attribute names, types and every value in order, packed world "
+          "bounds, every point position, the detail arrays and the groups. "
+          "%s" % (len(built),
+                  "; ".join("%s %s" % b for b in bad[:3]) or "identical"))
+    check("output_guard_takes_the_native_chain", len(took_native) >= 8,
+          len(took_native),
+          "cases the guard hands to the NATIVE chain: %s%s. A guard that "
+          "never fires would make the row above vacuous"
+          % (", ".join(sorted(took_native)[:8]),
+             " ..." if len(took_native) > 8 else ""))
+    return took_native
+
+
+def output_guard_mutation(root, built):
+    """Level 2 is level 1's BACKSTOP, and this is what shows it holding.
+
+    ⚠️ AND THE FIRST TWO VERSIONS OF THIS CHECK WERE DECORATION, WHICH IS WHY
+    IT LOOKS LIKE THIS.  Level 1 grew a "no piece can deform" test and then a
+    marker test and then a style-warning test, and after each one there was no
+    case left in the 92 that passed level 1 and reached level 2 - so the
+    second switch was a node nobody could show doing anything.  A guard whose
+    second half never fires is exactly the unfailable shape P2-3V found six
+    times.
+
+    So the mutation is aimed at LEVEL 1, not at the fixture: level 1 is a
+    CONSERVATIVE MODEL of what the native chain can build, and a model can be
+    wrong.  Widening it - dropping its `!bendable` term, which is the whole of
+    what it knows about the deform - hands a rippled run to the native chain,
+    and level 2 has to be what refuses it.  Then widening level 2 as well has
+    to change the shipped output, or neither of them was doing anything.
+    """
     geo = hou.Geometry()
-    cases.polyline(geo, [(0.0, 0.0, 0.0), (9.0, 0.0, 0.0), (9.0, 0.0, 7.0)],
-                   curve_id="R")
-    node.setInput(0, native.feed(root, geo, "REACH"))
-    node.allowEditingOfContents()
-    watched = ("pc_sections", "pc_plan_solve", "pc_plan_emit", "pc_proto",
-               "pc_frames_native", "copy_packed", "pc_frames",
-               "pc_plan_bridge")
-    before = {}
+    cases.polyline(geo, [(1.0 * i, 0.6 * math.sin(i * 0.35), 0.0)
+                         for i in range(201)], curve_id="GM")
+    node = root.createNode("pf_polychain", "guardmut")
+    node.setInput(0, native.feed(root, geo, "GM_IN"))
+    node.parm("stage").set("reference")
+    node.cook(force=True)
+    want = _snapshot(node.geometry())
     node.parm("stage").set("output")
     node.cook(force=True)
-    for name in watched:
-        child = node.node(name)
-        before[name] = child.cookCount() if child is not None else -1
-    # a real re-cook of the Output stage, forced through the input
-    node.parm("corner_angle_deg").set(31.0)
-    node.cook(force=True)
-    node.parm("corner_angle_deg").set(30.0)
-    node.cook(force=True)
-    cooked = sorted(n for n in watched
-                    if node.node(n) is not None
-                    and node.node(n).cookCount() > before[n])
-    check("native_plan_and_place_reach_no_artist", not cooked,
-          "%d of %d idle" % (len(watched) - len(cooked), len(watched)),
-          "nodes that cooked on `Stage = output`: %s. This is the HONEST "
-          "half of 13.9 N2/N4 - the solve and the packed branch are at "
-          "parity and they are behind the Stage switch, because 4.3, 4.5 and "
-          "4.6 are still the reference (D180). N10 edits this check."
-          % (", ".join(cooked) or "none"))
+    node.allowEditingOfContents()
+
+    env = node.node("pc_envelope")
+    body = env.parm("snippet").eval()
+    target = "&& !bendable && !markers"
+    found = target in body
+    rows = []
+    if found:
+        env.parm("snippet").set(body.replace(target, "&& !markers"))
+        node.cook(force=True)
+        env2 = node.node("pc_envelope2").geometry()
+        level1 = int(node.node("pc_envelope").geometry()
+                     .attribValue("_native_ok"))
+        level2 = int(env2.attribValue("_native_ok2"))
+        planned = int(env2.attribValue("_guard_planned"))
+        built_n = int(env2.attribValue("_guard_built"))
+        caught = (level1 == 1 and level2 == 0
+                  and not _first_difference(want, _snapshot(node.geometry())))
+        rows.append(("level 2 catches it", caught,
+                     "L1=%d L2=%d, %d planned / %d built"
+                     % (level1, level2, planned, built_n)))
+        gate = node.node("pc_envelope2")
+        body2 = gate.parm("snippet").eval()
+        t2 = "i@_native_ok2 = (level1 && planned > 0 && planned == built);"
+        if t2 in body2:
+            gate.parm("snippet").set(
+                body2.replace(t2, "i@_native_ok2 = (level1 && planned > 0);"))
+            node.cook(force=True)
+            diff = _first_difference(want, _snapshot(node.geometry()))
+            rows.append(("and it is load-bearing", bool(diff), diff[:80]))
+        else:
+            rows.append(("and it is load-bearing", False, "target moved"))
     node.destroy()
+    check("mutation_guard_envelope", found and all(r[1] for r in rows),
+          "; ".join("%s %s" % (r[0], "yes" if r[1] else "NO") for r in rows)
+          or "target missing",
+          "widening LEVEL 1 past what it can model hands a rippled run to the "
+          "native chain: level 2 refuses it and the output is unchanged, and "
+          "widening level 2 too changes the output. %s"
+          % ("; ".join(r[2] for r in rows) or "target missing"))
+
+
+def output_guard_cost(root):
+    """What the guard COSTS, on the shapes it admits and on the ones it does
+    not - because a fork whose output is identical can still be a regression.
+
+    ⚠️ THIS CHECK EXISTS BECAUSE THE FIRST VERSION OF THE GUARD WAS ONE.  With
+    only the parameter and corner tests in level 1, a fence over a ripple
+    passed level 1, cooked the whole native chain, was refused by level 2 for
+    having pieces the deformed branch cannot make, and then cooked the
+    reference as well: measured, 2 km 0.238 -> 0.361 s and 20 km 2.489 ->
+    3.971 s, a 1.6x regression on a shape an artist really builds.  Level 1
+    answers the deform question itself now (`pc_envelope.vfl`), and this is
+    what holds that line.
+
+    Two ceilings, and they measure different things:
+      * REFUSED - the build takes the reference exactly as it did before, so
+        the only extra cost is level 1's own probe.  1.15x, and it measures
+        0.93-1.03x.
+      * ADMITTED - the build takes the native chain.  1.6x, and it measures
+        1.21-1.36x, ALL OF IT `pc_plan_solve`: 61 us/piece against
+        `plan.plan_sections`' 2.2 us/piece on the same input.  That is the
+        next cycle's first item and this ceiling is where it will be paid off.
+    """
+    shapes = (
+        ("straight_2km", [(1.0 * i, 0.0, 0.0) for i in range(2001)],
+         True, 1.6),
+        ("arc_2km", cases.arc_points(2000.0, 1.0, 2000.0), False, 1.15),
+        ("bumpy_2km", [(1.0 * i, 0.6 * math.sin(i * 0.35), 0.0)
+                       for i in range(2001)], False, 1.15),
+        ("corner", [(0.0, 0.0, 0.0), (18.0, 0.0, 0.0), (18.0, 0.0, 14.0)],
+         False, 1.15),
+    )
+    rows = []
+    bad = []
+    for label, pts, want_native, ceiling in shapes:
+        geo = hou.Geometry()
+        cases.polyline(geo, pts, curve_id="GC")
+        node = root.createNode("pf_polychain", "cost_" + label)
+        node.setInput(0, native.feed(root, geo, "GC_" + label))
+        node.allowEditingOfContents()
+        best = {}
+        for stage in ("reference", "output"):
+            node.parm("stage").set(stage)
+            node.cook(force=True)
+            for i in range(3):
+                # dirtied through a parm every stage reads, so neither side
+                # is measuring a cache hit (D164)
+                node.parm("corner_angle_deg").set(30.0 + 0.01 * (i + 1))
+                t0 = time.time()
+                node.cook(force=True)
+                dt = time.time() - t0
+                best[stage] = dt if stage not in best else min(best[stage], dt)
+            node.parm("corner_angle_deg").set(30.0)
+        env = node.node("pc_envelope").geometry()
+        level1 = int(env.attribValue("_native_ok")) \
+            if env.findGlobalAttrib("_native_ok") is not None else 0
+        went_native = level1 and int(
+            node.node("pc_envelope2").geometry().attribValue("_native_ok2"))
+        ratio = best["output"] / max(best["reference"], 1e-9)
+        rows.append((label, ratio, bool(went_native)))
+        if bool(went_native) != want_native:
+            bad.append("%s: %s the native chain" % (
+                label, "took" if went_native else "did not take"))
+        if ratio > ceiling:
+            bad.append("%s: %.2fx over %.2fx (%.4f s vs %.4f s)"
+                       % (label, ratio, ceiling, best["output"],
+                          best["reference"]))
+        node.destroy()
+    check("output_guard_cost", not bad,
+          "; ".join("%s %.2fx%s" % (r[0], r[1], " native" if r[2] else "")
+                    for r in rows),
+          "`Stage = output` against `Stage = reference` on the same node - "
+          "a build the guard REFUSES may cost no more than 1.15x (level 1's "
+          "own probe) and one it ADMITS no more than 1.6x (the solve). %s"
+          % ("; ".join(bad) or "both ceilings hold"))
+
+
+def native_reach(root):
+    """WHO cooks on `Stage = output` now - and it is the ladder this cycle
+    had to climb.
+
+    ⚠️ THIS CHECK USED TO ASSERT THE OPPOSITE, AND ITS OWN COMMENT SAID WHEN
+    TO EDIT IT: "the day 13.9 N10 retires `kernel`, this check has to be
+    edited on the same commit".  Until this commit the answer was "none of
+    them" - the solve and the packed branch were at parity behind a Stage menu
+    nobody sets, which is why 18.2 measured the shipped default at 88-95 %
+    Python.  The guard switch changes that, and what has to be asserted
+    changes with it: not that the native chain is idle, but that it runs on a
+    build inside the envelope AND THAT `kernel` DOES NOT.
+
+    Both directions, because either one alone is satisfiable by an accident:
+    a guard that always chose the reference would pass the second half, and a
+    guard that always chose the native chain would pass the first.
+    """
+    watched = ("pc_sections", "pc_plan_solve", "pc_plan_emit", "pc_proto",
+               "pc_deform_gate", "pc_frames_native", "copy_packed",
+               "pc_warn_collate")
+    shapes = (("inside", [(0.0, 0.0, 0.0), (9.0, 0.0, 0.0), (18.0, 0.0, 0.0)],
+               True),
+              # a 90 degree corner: 4.3 is N8, so level 1 refuses outright
+              ("corner", [(0.0, 0.0, 0.0), (9.0, 0.0, 0.0), (9.0, 0.0, 7.0)],
+               False))
+    rows = []
+    bad = []
+    for label, pts, want_native in shapes:
+        geo = hou.Geometry()
+        cases.polyline(geo, pts, curve_id="R")
+        node = root.createNode("pf_polychain", "reach_" + label)
+        node.setInput(0, native.feed(root, geo, "REACH_" + label))
+        node.allowEditingOfContents()
+        node.parm("stage").set("output")
+        node.cook(force=True)
+        before = dict((c.name(), c.cookCount()) for c in node.children())
+        # a real re-cook of the Output stage, forced through a parm every
+        # stage reads
+        node.parm("corner_angle_deg").set(31.0)
+        node.cook(force=True)
+        cooked = set(n for n, c in ((c.name(), c) for c in node.children())
+                     if c.cookCount() > before[n])
+        native_cooked = sorted(n for n in watched if n in cooked)
+        kernel_cooked = "kernel" in cooked
+        rows.append((label, len(native_cooked), kernel_cooked))
+        if want_native:
+            if len(native_cooked) != len(watched):
+                bad.append("%s: only %s ran" % (label, native_cooked))
+            if kernel_cooked:
+                bad.append("%s: the PYTHON kernel cooked anyway" % label)
+        else:
+            if native_cooked:
+                bad.append("%s: the native chain cooked for a build the "
+                           "guard refused (%s)" % (label, native_cooked))
+            if not kernel_cooked:
+                bad.append("%s: nothing built it" % label)
+        node.destroy()
+    check("output_runs_the_native_chain_inside_the_envelope", not bad,
+          "; ".join("%s %d/%d native, kernel %s"
+                    % (r[0], r[1], len(watched), "yes" if r[2] else "no")
+                    for r in rows),
+          "13.9 N10: on a build inside the envelope `Stage = output` cooks "
+          "all %d native nodes and NOT `kernel`; on one outside it cooks "
+          "`kernel` and NONE of them - which is also what keeps the guard "
+          "cheap, since a switch cooks only the input it selected. %s"
+          % (len(watched), "; ".join(bad) or "both directions hold"))
 
 
 def union_parity(root):
@@ -3755,6 +4055,11 @@ def main():
     native_reach(root)
     native_stage_check(root)
     native_stage_mutation(root)
+
+    print("\n=== 7. 13.9 N10 - the guard switch on `Stage = output` ===")
+    output_guard_parity(root, built)
+    output_guard_mutation(root, built)
+    output_guard_cost(root)
 
     print("\n=== 6. cook count and the two benches ===")
     benches(root, node)

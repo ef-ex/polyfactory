@@ -50,11 +50,20 @@ for (int sp = 0; sp < nsec; sp++) {
     // ⚠️ ONCE PER SECTION.  Hoisting these twelve reads out of the piece loop
     // IS the fix - an array read copies the whole array, so doing it per
     // piece is the quadratic the `pointgenerate` version paid.
+    // ⚠ THE FIVE STRING ARRAYS ARE A DEDUPED TABLE NOW, NOT ONE ENTRY PER
+    // PIECE, and `_p_row` is the index into it.  The solve's own comment
+    // carries the measurement: a VEX string ARRAY attribute costs ~9 us per
+    // ELEMENT to write, so five of them at 20 000 pieces was 0.83 s of a
+    // 0.96 s node.  A plan with more distinct rows than the table may hold
+    // SPILLS - the arrays come through per piece exactly as they used to and
+    // `_p_row` is empty, which is what `via_row` reads.
     string p_slot[]    = point(0, "_p_slot", sp);
     string p_module[]  = point(0, "_p_module", sp);
     string p_variant[] = point(0, "_p_variant", sp);
     string p_zmode[]   = point(0, "_p_zmode", sp);
     string p_warns[]   = point(0, "_p_warns", sp);
+    int    p_row[]     = point(0, "_p_row", sp);
+    int    via_row     = (len(p_row) == npieces);
     int    p_index[]   = point(0, "_p_index", sp);
     int    p_deform[]  = point(0, "_p_deform", sp);
     float  p_s0[]      = point(0, "_p_s0", sp);
@@ -78,8 +87,9 @@ for (int sp = 0; sp < nsec; sp++) {
     string style_key = point(0, "_style_key", sp);
     string yclass   = point(0, "pc_yclass", sp);
 
-    int n = min(npieces, len(p_slot));
+    int n = via_row ? npieces : min(npieces, len(p_slot));
     for (int k = 0; k < n; k++) {
+        int rw = via_row ? p_row[k] : k;
         float s0 = p_s0[k], s1 = p_s1[k];
         int pt = addpoint(0, set(sec_s0 + s0, 0.0, 0.0));
 
@@ -106,11 +116,11 @@ for (int sp = 0; sp < nsec; sp++) {
         setpointattrib(0, "pc_style",     pt, style_key);
         setpointattrib(0, "pc_yclass",    pt, yclass);
 
-        setpointattrib(0, "pc_slot",    pt, p_slot[k]);
+        setpointattrib(0, "pc_slot",    pt, p_slot[rw]);
         setpointattrib(0, "pc_index",   pt, p_index[k]);
-        setpointattrib(0, "pc_module",  pt, p_module[k]);
-        setpointattrib(0, "pc_variant", pt, p_variant[k]);
-        setpointattrib(0, "pc_zmode",   pt, p_zmode[k]);
+        setpointattrib(0, "pc_module",  pt, p_module[rw]);
+        setpointattrib(0, "pc_variant", pt, p_variant[rw]);
+        setpointattrib(0, "pc_zmode",   pt, p_zmode[rw]);
         setpointattrib(0, "pc_deform",  pt, p_deform[k]);
         setpointattrib(0, "pc_scale",   pt, p_scale[k]);
         setpointattrib(0, "pc_u",       pt, p_u[k]);
@@ -136,8 +146,8 @@ for (int sp = 0; sp < nsec; sp++) {
         // 0.596 s, so 23 % of the emit was one hash on one core.
         // every warning the solve raised, as its own int attribute - the
         // shape `place` / `hda` already publish and `colour_warnings` reads
-        setpointattrib(0, "pc_warns", pt, p_warns[k]);
-        foreach (string w; split(p_warns[k]))
+        setpointattrib(0, "pc_warns", pt, p_warns[rw]);
+        foreach (string w; split(p_warns[rw]))
             setpointattrib(0, w, pt, 1);
     }
 }

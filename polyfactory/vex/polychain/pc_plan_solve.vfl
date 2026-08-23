@@ -49,6 +49,7 @@ if (L <= PC_PEPS) {
     s[]@_p_slot = o_slot; s[]@_p_module = o_module;
     s[]@_p_variant = o_variant; s[]@_p_zmode = o_zmode;
     s[]@_p_warns = o_warns; i[]@_p_index = o_index;
+    i[]@_p_row = o_index;               // empty, and the attribute must exist
     i[]@_p_deform = o_deform; f[]@_p_s0 = o_s0; f[]@_p_s1 = o_s1;
     f[]@_p_u = o_u; f[]@_p_scale = o_scale; f[]@_p_slice = o_slice;
     return;                                     // D8: a curve, but no span
@@ -352,11 +353,75 @@ foreach (int i; ord) {
     push(p_warns, o_warns[i]);
 }
 
-s[]@_p_slot = p_slot;
-s[]@_p_module = p_module;
-s[]@_p_variant = p_variant;
-s[]@_p_zmode = p_zmode;
-s[]@_p_warns = p_warns;
+// ---- the five STRING arrays leave as a TABLE plus an index -----------------
+//
+// ⚠️ THIS IS 7x ON THIS NODE AND IT WAS THE WHOLE OF THE PORT'S SPEED DEFECT.
+// Measured on a 20 km / 20 000-piece single-section fence: the solve cost
+// **0.96 s** against `plan.plan_sections` - the PYTHON it replaced - at
+// **0.053 s**, twenty times slower, and stubbing the five `s[]@_p_*` writes
+// alone took it to **0.134 s**.  So the cost is not the fill loop, not the
+// sort and not the array pushes (all measured, all small): it is that a VEX
+// STRING ARRAY ATTRIBUTE costs ~9 microseconds PER ELEMENT to write, and five
+// of them at 20 000 pieces is 100 000 elements.
+//
+// Nothing had measured it. `bench_plan_long_curve` says in as many words that
+// it asserts no ceiling, and D193's ceilings this cycle landed on
+// `pc_plan_emit` and `pc_stamp`, which do not write string arrays.
+//
+// The five values are massively repetitive - `slot` is "default" for a whole
+// run, and `module`/`variant`/`zmode`/`warns` come from a unit of one or two
+// modules - so they go out as a small DEDUPED table plus one int per piece.
+// The scan is a fast path on the PREVIOUS row (consecutive pieces almost
+// always share one) and a linear scan of the table otherwise.
+//
+// `PC_ROW_MAX` is the escape hatch and it is not decoration: a plan whose
+// rows really are all distinct would make that scan quadratic, so past the
+// cap the arrays go out exactly as they did before and `pc_plan_emit` reads
+// them directly. `plan_row_table_spills` exercises that branch.
+#define PC_ROW_MAX 256
+string t_slot[], t_module[], t_variant[], t_zmode[], t_warns[];
+int p_row[];
+resize(p_row, n);
+int nrow = 0, last = -1, spill = 0;
+for (int i = 0; i < n; i++) {
+    int r = -1;
+    if (last >= 0 && p_slot[i] == t_slot[last] && p_module[i] == t_module[last]
+            && p_variant[i] == t_variant[last] && p_zmode[i] == t_zmode[last]
+            && p_warns[i] == t_warns[last]) {
+        r = last;
+    } else {
+        for (int j = 0; j < nrow; j++) {
+            if (p_slot[i] == t_slot[j] && p_module[i] == t_module[j]
+                    && p_variant[i] == t_variant[j] && p_zmode[i] == t_zmode[j]
+                    && p_warns[i] == t_warns[j]) { r = j; break; }
+        }
+    }
+    if (r < 0) {
+        if (nrow >= PC_ROW_MAX) { spill = 1; break; }
+        push(t_slot, p_slot[i]); push(t_module, p_module[i]);
+        push(t_variant, p_variant[i]); push(t_zmode, p_zmode[i]);
+        push(t_warns, p_warns[i]);
+        r = nrow;
+        nrow++;
+    }
+    p_row[i] = r;
+    last = r;
+}
+if (spill) {
+    resize(p_row, 0);
+    s[]@_p_slot = p_slot;
+    s[]@_p_module = p_module;
+    s[]@_p_variant = p_variant;
+    s[]@_p_zmode = p_zmode;
+    s[]@_p_warns = p_warns;
+} else {
+    s[]@_p_slot = t_slot;
+    s[]@_p_module = t_module;
+    s[]@_p_variant = t_variant;
+    s[]@_p_zmode = t_zmode;
+    s[]@_p_warns = t_warns;
+}
+i[]@_p_row = p_row;
 i[]@_p_index = p_index;
 i[]@_p_deform = p_deform;
 f[]@_p_s0 = p_s0;

@@ -80,7 +80,7 @@ import time
 
 import hou
 
-from . import DEFAULTS, Params, Rule, SELECTORS, Style
+from . import DEFAULTS, EPS, Params, Rule, SELECTORS, Style
 from . import kit as _kit
 from . import place as _place
 from . import style as _style
@@ -485,8 +485,8 @@ def config_resolved(node):
     # `style.read` the kit so a payload naming a module the kit does not have
     # warns; without it this node resolved the same payload against a
     # different world and its warnings disagreed with the kernel's.
-    kit = _kit.read(kit_geometry(node, parms))[0]
-    style, _warns = _style.read(_input_geo(node, 2), kit=kit)
+    kit, _sources, kit_warns = _kit.read(kit_geometry(node, parms))
+    style, style_warns = _style.read(_input_geo(node, 2), kit=kit)
     params = style.params if style is not None else params_from_parms(parms)
     from_payload = style is not None
     if style is None:
@@ -517,7 +517,57 @@ def config_resolved(node):
     out["has_surface"] = 1.0 if (surface is not None
                                  and surface.intrinsicValue("primitivecount")
                                  ) else 0.0
+    # 13.9 N10, LEVEL 1 OF THE GUARD SWITCH: may the NATIVE chain serve this
+    # build's `Stage = output`?
+    #
+    # ⚠️ THE ANSWER LIVES HERE BECAUSE THIS NODE ALREADY HOLDS THE THREE
+    # THINGS IT NEEDS - the resolved Params, the Style and the Kit - and none
+    # of them is geometry.  That is the half of Hannes' rule Python keeps, and
+    # putting the test anywhere else would mean resolving the payload twice.
+    # `pc_envelope.vfl` adds what only the decomposed spline can say (a corner,
+    # a duplicated curve id) and `pc_envelope2.vfl` what only the plan can.
+    #
+    # EVERY ROW IS AN UNPORTED STAGE, NAMED.  The list must shrink as 13.9
+    # lands, and `output_guard_envelope` prints which case each row refused so
+    # a row that stops mattering is visible rather than merely harmless.
+    out["native_ok"] = 1.0 if _native_ok(
+        parms, params, style, kit, out,
+        list(kit_warns) + list(style_warns)) else 0.0
     return (out, style, kit)
+
+
+def _native_ok(parms, params, style, kit, cfg, warns):
+    """13.9 N10 level 1 - see `config_resolved`. True when nothing in the
+    parameters, the style or the kit needs a stage that is still Python."""
+    if cfg.get("has_surface"):
+        return False                                  # 4.5 conform - N6
+    if float(getattr(params, "fillet_radius", 0.0) or 0.0) > EPS:
+        return False                                  # 4.3 fillet - N8
+    if getattr(params, "fix_slope", False):
+        return False                                  # D26 slope fix - N5
+    if getattr(params, "flatten_stepped", False):
+        return False                                  # D98 flatten-under - N5
+    if (getattr(params, "flat_band", "") in ("top", "bottom")
+            and float(getattr(params, "flat_band_m", 0.0) or 0.0) > EPS):
+        return False                                  # D99 band - N5
+    if getattr(params, "fill", "") == "tile":
+        return False                                  # 4.6 slice caps - N7
+    if warns or not getattr(style, "rules", ()):
+        # `kit.read`'s validation is Python and stays Python (13.6), so the
+        # native chain publishes an EMPTY `pc_kit_warnings`; it may only do
+        # that where the reference would too. A style with no rules builds
+        # nothing and warns, which is the reference's own answer.
+        return False
+    if _parm_str(parms, "display", "full") != "full":
+        return False                                  # D81 plan, D82 proxy
+    for name in ("show_warnings",):
+        if parms.parm(name) is not None and parms.evalParm(name):
+            return False                              # `colour_warnings`' Cd
+    if parms.parm("padding") is not None \
+            and abs(float(parms.evalParm("padding"))) > EPS:
+        # D91's kit padding rewrites the KIT, and `cook_kit` does not do it.
+        return False
+    return True
 
 
 # --- 13.9 N2: the KIT and the RULE TABLE, flattened for VEX ------------------

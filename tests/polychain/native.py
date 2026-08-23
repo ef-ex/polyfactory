@@ -169,7 +169,7 @@ def stage_plan(parent, sections, config, suffix=""):
 # `pc_section`; `_scrub` deletes the `_*` name before OUT for free.
 # `pc_style` joined the list at the same time: 3.4 names it and it was absent.
 COPY_ATTRIBS = ("pc_elem_id pc_elem_key pc_module pc_slot _sec_out "
-                "pc_u pc_variant pc_curve_id pc_zmode pc_warn_*")
+                "pc_u pc_variant pc_curve_id pc_zmode pc_warn_* _warns")
 
 # The body every Python SOP in the asset runs.  ⚠️ IT LIVES HERE, BESIDE THE
 # CHAIN, for the reason 15.8.4 gives: `create_pf_polychain_hda.py` imports
@@ -311,7 +311,16 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     cast.parm("attribs1").set("pc_u")
     cast.parm("precision1").set("fpreal32")
     nodes["pc_out_cast"] = cast
-    return cast, nodes
+
+    # 4.6's warning summary, and the per-element fan-out that goes with it.
+    # A DETAIL wrangle because `setprimattrib` with a name that comes from
+    # DATA creates the attribute at runtime and the creation order in a
+    # multithreaded wrangle is thread order - D150's objection, in a new place.
+    warn = wrangle(parent, "pc_warn_collate" + suffix, "detail",
+                   "pc_warn_collate")
+    warn.setInput(0, cast)
+    nodes["pc_warn_collate"] = warn
+    return warn, nodes
 
 
 # --- the rig ---------------------------------------------------------------

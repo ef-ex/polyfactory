@@ -1,0 +1,57 @@
+// STAGE 6 - FINALIZE (spec 4.6), THE WARNING SUMMARY.  DETAIL wrangle, 64.
+//   input 0  the built prims, carrying `_warns` per element
+//
+// D61 - "collate warnings", as a detail array of "name:count", plus the
+// per-element fan-out.  Two jobs in one node because both need the same scan
+// and the scan is what costs.
+//
+// ⚠️ ONE THREAD, ON PURPOSE, AND IT IS THE SAME REASON `pc_plan_emit` IS A
+// DETAIL WRANGLE.  `setprimattrib` with a name that comes from DATA creates
+// the attribute at runtime, and the order attributes are created in a
+// multithreaded wrangle is thread order - the values would be right and the
+// output's attribute LIST could differ between two cooks of one build, which
+// is exactly the kind of thing `geometry_digest` is pinned on.  One thread,
+// one order.  The scan is a string read per prim; the fan-out only touches
+// elements that actually carry a warning.
+//
+// ⚠️ AND `pc_warnings` EXISTS EVEN WHEN IT IS EMPTY.  `place._collate_warnings`
+// declares the attribute unconditionally, so a build with nothing to say
+// still publishes an empty array - and the guard switch that hands this
+// branch to `Stage = output` compares the two schemas, not just their values.
+//
+// `pc_kit_warnings` is EMPTY here and that is a DECLARED limit, not an
+// omission: the kit-level class (a kit missing `kitId`, a duplicate module
+// name) is `kit.read`'s validation, which is Python and stays Python (13.6).
+// `config` refuses the native path outright when the kit warns, so this array
+// is empty exactly when it is allowed to be - `native_ok` is where that is
+// enforced and `output_guard_parity` is what proves it.
+
+int n = hasprimattrib(0, "_warns") ? nprimitives(0) : 0;
+dict counts;
+for (int i = 0; i < n; i++) {
+    string w = prim(0, "_warns", i);
+    if (w == "") continue;
+    foreach (string name; split(w)) {
+        if (name == "") continue;
+        setprimattrib(0, name, i, 1);
+        int c = counts[name];
+        counts[name] = c + 1;
+    }
+}
+
+string keys[] = sort(keys(counts));
+string summary[];
+foreach (string k; keys) {
+    int c = counts[k];
+    push(summary, sprintf("%s:%d", k, c));
+    // ⚠️ AND ON THE NODE, NOT ONLY IN THE ATTRIBUTE.  `hda.cook` ends with
+    // `node.addWarning("%s on %d elements")` for every warning the build
+    // raised, and that is what an artist sees without middle-clicking
+    // anything.  A native output does not cook `kernel`, so without this line
+    // the guard would take a build and silently drop its warnings - the
+    // wording is `hda.cook`'s own, so the two paths say the same sentence.
+    warning("%s on %d elements", k, c);
+}
+s[]@pc_warnings = summary;
+string none[];
+s[]@pc_kit_warnings = none;

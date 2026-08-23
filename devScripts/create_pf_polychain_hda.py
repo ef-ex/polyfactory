@@ -123,7 +123,9 @@ KIT_CODE = native_rig.sop_body("cook_kit")
 # others.  It GROWS as 13.9's build order lands; a stage that cannot cook does
 # not appear on it.
 STAGES = (
-    ("output", "OUT_reference", "Output - the finished run"),
+    ("output", "OUT_final", "Output - the finished run"),
+    ("reference", "OUT_reference",
+     "R - the Python reference (13.6 - the parity oracle)"),
     ("config", "config", "0 - Config (the resolved parameters)"),
     ("sections", "OUT_sections",
      "1 - Decompose (4.1 - arclength, corners, markers)"),
@@ -476,6 +478,14 @@ _PLACE_COMMENTS = {
         "The pieces this branch is ANSWERABLE for. Warn-never-block while\n"
         "N5, N6 and N8 are ahead: a piece whose frame needs 4.5's surface\n"
         "normal is dropped, not guessed.",
+    "pc_warn_collate":
+        "4.6 - D61's warning SUMMARY, and the per-element fan-out that goes\n"
+        "with it. A DETAIL wrangle because `setprimattrib` with a name that\n"
+        "comes from DATA creates the attribute at runtime, and the creation\n"
+        "order in a multithreaded wrangle is thread order - D150's\n"
+        "objection, in a new place. `pc_warnings` exists even when empty,\n"
+        "because the reference declares it unconditionally and the guard\n"
+        "switch compares the two SCHEMAS, not only their values.",
     "pc_deform_gate":
         "4.4 - THE DEFORM GATE (13.9 N5). D87's curvature budget in VEX:\n"
         "one node decides packed or deformed for every piece, which is the\n"
@@ -516,7 +526,7 @@ _PLACE_COMMENTS = {
 _PLACE_ORDER = ("kit_starter", "pc_kit_id", "kit_unpack", "pc_proto",
                 "pc_deform_gate", "pc_frames_native", "pc_place_valid",
                 "pc_packed_only", "copy_packed", "pc_finalize",
-                "pc_out_cast")
+                "pc_out_cast", "pc_warn_collate")
 for _i, _name in enumerate(_PLACE_ORDER):
     _node = _place_nodes[_name]
     _node.setComment(_PLACE_COMMENTS[_name])
@@ -559,6 +569,78 @@ kernel.setPosition(hou.Vector2(28.0, 4.0))
 out_reference = net.createNode("null", "OUT_reference")
 out_reference.setInput(0, kernel)
 out_reference.setPosition(hou.Vector2(28.0, 2.0))
+
+# ---- 13.9 N10 - THE GUARD SWITCH, AND IT IS THE POINT OF THE CYCLE ----------
+#
+# `Stage = output` was `OUT_reference` and nothing else, so 88-95 % of what an
+# artist cooked was Python however much of the tool had been ported (18.2).
+# It is a guarded fork now: the NATIVE chain when this build is inside what
+# the native chain can answer WHOLE, and the reference otherwise - which is
+# D153's guard switch, written for warn-never-block, doing the job 13.9 N10
+# left open.
+#
+# ⚠️ TWO LEVELS, AND THE SPLIT IS ABOUT COST.  A switch cooks ONLY its selected
+# input, and a selector that reads a detail attribute forces the node it reads
+# to cook.  Level 1 is decided from CONFIG and the decompose - both cook on
+# every build anyway - so a build it refuses never cooks the native chain at
+# all.  Level 2 asks the one question only the plan can answer (did every
+# piece come out buildable and packed), and a build that passes level 1 and
+# fails level 2 pays for both chains.  `bench_guard_fallback` measures that
+# rather than assuming it away.
+envelope = wrangle(
+    net, "pc_envelope", "detail",
+    "13.9 N10 - THE GUARD SWITCH, LEVEL 1. Is this build inside what the\n"
+    "native chain can answer WHOLE? Decided from CONFIG (which already\n"
+    "holds the Params, the Style and the Kit) plus two things only the\n"
+    "decompose knows: a CORNER (4.3 is N8, and a corner reserves span off\n"
+    "both legs so the same address names a different span) and a\n"
+    "DUPLICATED curve id (D169). A SIDE BRANCH - nothing reads its\n"
+    "geometry, only the detail int.")
+envelope.setInput(0, out_sections)
+envelope.setPosition(hou.Vector2(31.0, 4.0))
+
+envelope2 = wrangle(
+    net, "pc_envelope2", "detail",
+    "13.9 N10 - THE GUARD SWITCH, LEVEL 2. Did the native chain end up\n"
+    "able to build EVERY piece the build planned? Asked by COUNTING the\n"
+    "gate's points against the packed branch's, because every reason a\n"
+    "piece leaves is a blast - so adding a reason to drop a piece is\n"
+    "automatically a reason to refuse the build, with no second copy of\n"
+    "the conditions to fall out of step.")
+envelope2.setInput(0, _place_nodes["pc_deform_gate"])
+envelope2.setInput(1, _place_nodes["pc_packed_only"])
+envelope2.setInput(2, envelope)
+envelope2.setPosition(hou.Vector2(31.0, 2.0))
+
+guard2 = net.createNode("switch", "guard_native")
+guard2.setInput(0, out_reference)
+guard2.setInput(1, out_place_native)
+guard2.parm("input").setExpression('detail("../pc_envelope2", "_native_ok2", 0)',
+                                   hou.exprLanguage.Hscript)
+guard2.setPosition(hou.Vector2(31.0, -2.0))
+guard2.setComment(
+    "LEVEL 2 - the native output, or the reference. A piece the curvature\n"
+    "budget unpacks, one the kit cannot answer for, or one the tile fill\n"
+    "sliced sends the WHOLE build to the reference: 13.9 N5's deformed\n"
+    "branch and N7's slice caps are what will shrink that.")
+guard2.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+
+guard1 = net.createNode("switch", "guard_envelope")
+guard1.setInput(0, out_reference)
+guard1.setInput(1, guard2)
+guard1.parm("input").setExpression('detail("../pc_envelope", "_native_ok", 0)',
+                                   hou.exprLanguage.Hscript)
+guard1.setPosition(hou.Vector2(31.0, -4.0))
+guard1.setComment(
+    "LEVEL 1 - and it is what keeps the guard cheap. A build it refuses\n"
+    "never cooks the native chain, because a switch cooks only the input\n"
+    "it selected and level 2's selector is inside the branch this one\n"
+    "did not take.")
+guard1.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+
+out_final = net.createNode("null", "OUT_final")
+out_final.setInput(0, guard1)
+out_final.setPosition(hou.Vector2(31.0, -6.0))
 
 # ---- the stage switch and the output ----------------------------------------
 stage_switch = net.createNode("switch", "stage_switch")
@@ -637,6 +719,11 @@ box(net, "stage4_frames",
     [frames, valid, out_frames] + place_native_nodes)
 box(net, "stageR_reference", "R - THE REFERENCE (13.6) - the oracle",
     (0.45, 0.38, 0.55), [kernel, out_reference])
+box(net, "stageG_guard",
+    "G - THE GUARD (13.9 N10) - native when it can answer whole, else the "
+    "reference",
+    (0.62, 0.55, 0.28),
+    [envelope, envelope2, guard2, guard1, out_final])
 
 note = net.createStickyNote("what_is_left")
 note.setText(

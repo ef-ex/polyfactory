@@ -1,0 +1,110 @@
+// THE GUARD SWITCH, LEVEL 1 (spec 13.9 N10, 13.3.6's D153 guard).
+//   DETAIL wrangle, 64.  A SIDE BRANCH off OUT_sections - nothing downstream
+//   reads its geometry, only the one detail int below.
+//   input 0  OUT_sections (the decomposed spline, carrying `pc_cfg`)
+//
+// `Stage = output` used to be the Python reference and nothing else, so
+// 88-95 % of what an artist cooked was Python however much of the tool had
+// been ported.  It is a GUARD SWITCH now: the native chain when this build is
+// inside what the native chain can answer WHOLE, the reference otherwise.
+//
+// ⚠️ THE SWITCH IS TWO LEVELS AND THE SPLIT IS ABOUT COST, NOT ABOUT LOGIC.
+// A Houdini switch cooks ONLY its selected input, and a selector that reads a
+// detail attribute forces the node it reads to cook.  So the CHEAP half of the
+// envelope is decided here - from CONFIG and the decompose, both of which cook
+// on every build anyway - and it is what decides whether the native chain gets
+// cooked at all.  `pc_envelope2` then asks the expensive half (did any piece
+// come out deformed or unanswerable), and a build that passes here and fails
+// there pays for both chains.  That is the honest cost of the guard and
+// `bench_guard_fallback` measures it rather than assuming it away.
+//
+// WHAT LEVEL 1 REFUSES, and every one of them is a stage that is not ported:
+//   * anything `config` refused - a surface (4.5, N6), a fillet radius (4.3,
+//     N8), a slope fix, D98's flatten, D99's band, `tile` fill's slice, a
+//     non-`full` Display (D81/D82's plan and proxy modes), Colour Warnings,
+//     a non-zero Kit Padding, a style or kit that warned, or no rules at all.
+//     `hda.config_resolved` writes that verdict into `pc_cfg["native_ok"]`
+//     because it is the node that already holds the Params, the Style and the
+//     Kit - which is the half of Hannes' rule Python keeps.
+//   * a CORNER. 4.3 is N8, and a corner does not merely add an assembly: it
+//     reserves span off both ends of every leg, so the same element address
+//     names a different span in the two plans.  `_cornerpt` is `pc_corners`'
+//     own group and one member is enough to refuse.
+//   * a DUPLICATED curve id.  D169: the reference fans a marker out onto
+//     every curve sharing the id and the native chain answers for the first,
+//     which is a DECLARED divergence with its own check.  `pc_curve_dup` is
+//     the dict `pc_curve_index` already builds.
+//   * nothing to build.  With no primitive the reference warns "no spline on
+//     input 1" and returns empty; that warning is worth keeping.
+
+#include "pc_gate.h"
+
+dict cfg = detail(0, "pc_cfg");
+int ok = 0;
+if (isvalidindex(cfg, "native_ok")) { float v = cfg["native_ok"]; ok = (int)v; }
+
+int corners = len(expandpointgroup(0, "_cornerpt"));
+dict dup = detail(0, "pc_curve_dup");
+int ndup = len(keys(dup));
+
+// ⚠️ AND THE ONE TEST THAT KEEPS THE GUARD FROM COSTING MORE THAN IT SAVES.
+// Level 2 refuses a build whose pieces the deformed branch cannot make - and
+// by then the native chain has already cooked, so that build pays for BOTH.
+// Measured: a 2 km fence over a ripple is 0.238 s on the reference and
+// 0.361 s through the guard, and a 20 km one 2.489 s against 3.971 s. That is
+// a 1.6x regression on a shape an artist really builds (a fence on a hill
+// with no corners in it), and no amount of "the output is identical" makes it
+// acceptable as a DEFAULT.
+//
+// So level 1 answers the deform question itself, EXACTLY and CONSERVATIVELY:
+// a curve with no KINK and no elevation change cannot produce a deformed
+// piece, whatever the module or the span.
+//   * `span_deviation`'s spine term is 0 - there is no interior vertex, so
+//     the chord IS the arc (D66/D69);
+//   * its off-spine term is 0 - every tangent on a straight curve is the
+//     chord's own direction, so the frame does not rotate and 2 r sin(0/2)
+//     is 0;
+//   * `vertical`'s shear test is 0 - the two ends sit at one elevation;
+//   * D99's band and 4.5's drape are already refused above, and `tile`'s
+//     slice with them.
+// It is a bound, not a guess: nothing here says a curved run WOULD deform,
+// only that a straight flat one cannot. Widening it to a curved run needs the
+// turn-per-module-length bound, which is the next cycle's, and until then an
+// arc takes the reference and says so on `_guard_bend`.
+int bendable = 0;
+int np = nprimitives(0);
+for (int pr = 0; pr < np && !bendable; pr++) {
+    int nseg = prim(0, "_nseg", pr);
+    if (nseg <= 0) continue;
+    float bb[] = primintrinsic(0, "bounds", pr);
+    if (len(bb) >= 4 && bb[3] - bb[2] > 1e-6) { bendable = 1; break; }
+    int closed = prim(0, "pc_closed", pr);
+    for (int j = 0; j < nseg; j++)
+        if (pc_is_kink(0, pr, nseg, closed, j)) { bendable = 1; break; }
+}
+
+// ⚠️ AND A MARKER KEEPS THE REFERENCE, WHICH IS ABOUT A WARNING AND NOT
+// ABOUT GEOMETRY.  4.2's marker anchors are at parity - `plan_solve_parity`
+// runs the marker cases - but D88's UNREAD-MARKER warning is raised by
+// `hda.cook`, on the `kernel` node, and a native output does not cook that
+// node at all.  Measured: `unread_marker_warns` in `run_hda_checks.py` went
+// red the moment the guard took a marked straight run, because the warning
+// really had disappeared from the artist's node.  Moving it is 13.9 N7's
+// (`pc_plan_emit` already fans the per-element warnings out); until then a
+// build with a marker in it takes the reference and keeps its warning.
+int markers = 0;
+if (haspointattrib(0, "pc_marker")) {
+    int npt = npoints(0);
+    for (int i = 0; i < npt; i++) {
+        int m = point(0, "pc_marker", i);
+        if (m) { markers = 1; break; }
+    }
+}
+
+i@_native_ok = (ok && corners == 0 && ndup == 0 && !bendable && !markers
+                && nprimitives(0) > 0);
+i@_guard_markers = markers;
+i@_guard_corners = corners;
+i@_guard_dup = ndup;
+i@_guard_cfg = ok;
+i@_guard_bend = bendable;
