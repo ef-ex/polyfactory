@@ -414,18 +414,18 @@ def main():
     if os.path.exists(BASELINE):
         with open(BASELINE) as fh:
             base = json.load(fh)
-    moved = []
-    for case, rows in results.items():
-        prev = dict((d["name"], d) for d in base.get(case, []))
-        for d in rows:
-            old = prev.get(d["name"])
-            if old is not None and old["value"] != d["value"]:
-                moved.append("%s/%s: %s -> %s"
-                             % (case, d["name"], old["value"], d["value"]))
+    # D210, the second half: this runner carried the IDENTICAL advisory
+    # baseline - a moved value printed and `1 if failures and not update`
+    # exited 0 anyway. It is `run_scene_checks`' rule now, imported rather
+    # than copied, because a copied exit rule is how the phase-1 runner and
+    # this one drifted apart in the first place.
+    moved = R.baseline_movement(results, base)
     if moved:
-        print("\n--- moved since baseline (check each is an improvement) ---")
+        print("\n--- MOVED SINCE BASELINE: %d value(s) ---" % len(moved))
         for m in moved:
             print("  " + m)
+        print("  ^ each must be an improvement; confirm, then re-run with"
+              " --update-baseline")
     if update:
         with open(BASELINE, "w") as fh:
             json.dump(results, fh, indent=2, sort_keys=True)
@@ -433,8 +433,9 @@ def main():
     if json_out:
         with open(json_out, "w") as fh:
             json.dump(results, fh, indent=2, sort_keys=True)
-    print("\n%d failing checks" % failures)
-    sys.exit(1 if failures and not update else 0)
+    print("\n%d failing checks, %d moved baseline values"
+          % (failures, len(moved)))
+    sys.exit(R.exit_code(failures, moved, update))
 
 
 if __name__ == "__main__":

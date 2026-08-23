@@ -3654,7 +3654,6 @@ SOLVE_SPILLED = "if (1) {"
 # three orders of magnitude between these two sizes.
 GROWTH_CEILING = 1.5
 
-
 def emit_scale_check(root):
     """D193 - the emit chain gets a per-piece ceiling, the way N4 gave one to
     the frames.
@@ -4648,11 +4647,34 @@ def scene_baseline_is_enforced():
         ("a failing check still exits non-zero",
          RSC.exit_code(1, quiet, False) == 1),
     )
+    # ...and the OTHER runner that carries a baseline. `run_2d_checks` had a
+    # copy of the same advisory rule; adde049 named it and left it, because
+    # the phase-2 agent owned the file. It is fixed now, and this is what
+    # stops it being re-copied: the rule has to be R's, not a duplicate that
+    # can drift back. `inspect.getsource` reads the SHIPPED module, so this
+    # reddens on a revert rather than on a comment.
+    import inspect
+
+    import run_2d_checks as R2D
+
+    # Comments stripped first, and not as tidiness: the third row below
+    # matched this very fix's own comment, which QUOTES the rule it removed.
+    # A source assertion that a comment can satisfy is D207's defect again.
+    src = "\n".join(ln.split("#")[0]
+                    for ln in inspect.getsource(R2D.main).splitlines())
+    rows += (
+        ("run_2d_checks diffs through R.baseline_movement",
+         "R.baseline_movement(results, base)" in src),
+        ("run_2d_checks exits through R.exit_code",
+         "sys.exit(R.exit_code(failures, moved, update))" in src),
+        ("run_2d_checks keeps no advisory exit of its own",
+         "1 if failures and not update" not in src),
+    )
     bad = [name for name, ok in rows if not ok]
     check("scene_baseline_movement_fails_the_run", not bad,
           "%d/%d" % (len(rows) - len(bad), len(rows)),
-          "`run_scene_checks` exits non-zero on a moved baselined value "
-          "(D210 - it used to print and exit 0). Broken: %s"
+          "`run_scene_checks` AND `run_2d_checks` exit non-zero on a moved "
+          "baselined value (D210 - both used to print and exit 0). Broken: %s"
           % (", ".join(bad) or "none"))
 
 

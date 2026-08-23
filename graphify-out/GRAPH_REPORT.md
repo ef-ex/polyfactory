@@ -1,7 +1,7 @@
 # Graph Report - polyfactory  (2026-08-23)
 
 ## Corpus Check
-- 169 files · ~751,407 words
+- 169 files · ~750,722 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `adde049f`
+- Built from commit: `54f4bbd4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -292,8 +292,8 @@
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/ui_framework/__init__.py -> polyfactory/scripts/python/polyfactory/ui_framework/__init__.py`
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/viewer_utils/__init__.py -> polyfactory/scripts/python/polyfactory/viewer_utils/__init__.py`
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
-- 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
@@ -455,7 +455,7 @@ Nodes (10): _ends(), _graph_geometry_delta(), graph_reaches_a_fixed_point(), _ne
 
 ### Community 39 - "Community 39"
 Cohesion: 0.08
-Nodes (33): axis_points(), _band_case(), band_datum(), band_hybrid(), _degenerate(), _dist_xz(), exact_fill(), _flat_in_y() (+25 more)
+Nodes (33): axis_points(), _degenerate(), _dist_xz(), exact_fill(), _flat_in_y(), _groups(), horizontal_spacing(), horizontal_span_is() (+25 more)
 
 ### Community 40 - "Community 40"
 Cohesion: 0.08
@@ -643,7 +643,7 @@ Nodes (17): Junction repair used to be recorded here — moved to §S5a, 2026-08
 
 ### Community 92 - "Community 92"
 Cohesion: 0.05
-Nodes (20): AssetGroupRow, Asset Group Row widget used by the inline batch mode in AssetExportDialog., Returns the per-row name, or empty string if blank (caller applies dialog-level, Fill in category/tags only if the prim had no attributes for them., Update the status dot to reflect export progress.          Args:, One row in the detected-assets list.      Displays a checkbox, sequential inde, AssetExportDialog, Export UI Panel for Asset Library (+12 more)
+Nodes (31): _aabbs_overlap(), detect_asset_groups(), export_batch_group(), next_free_filename(), Batch Kitbash Importer - AABB-based asset detection and batch export backend, Find the next available numbered filename (no extension).      Scans both the, Export a single asset group detected by detect_asset_groups.      Converts pri, Detect asset groups in a SOP node using connectivity + AABB overlap.      Each (+23 more)
 
 ### Community 95 - "Community 95"
 Cohesion: 0.14
@@ -766,8 +766,8 @@ Cohesion: 0.15
 Nodes (6): The same four modes, now through the whole section solve., 4.2's "else adaptive-fallback + pc_warn". D11: the WHOLE run falls         back,, ⚠️ The one a naive weighted pick fails. Iterating the payload order         make, D16. A section halfway down a curve must not report u from 0., TestDeterminism, TestFillModesInPlace
 
 ### Community 125 - "Community 125"
-Cohesion: 0.12
-Nodes (17): _aabbs_overlap(), detect_asset_groups(), export_batch_group(), next_free_filename(), Batch Kitbash Importer - AABB-based asset detection and batch export backend, Find the next available numbered filename (no extension).      Scans both the, Export a single asset group detected by detect_asset_groups.      Converts pri, Detect asset groups in a SOP node using connectivity + AABB overlap.      Each (+9 more)
+Cohesion: 0.14
+Nodes (6): AssetGroupRow, Asset Group Row widget used by the inline batch mode in AssetExportDialog., Returns the per-row name, or empty string if blank (caller applies dialog-level, Fill in category/tags only if the prim had no attributes for them., Update the status dot to reflect export progress.          Args:, One row in the detected-assets list.      Displays a checkbox, sequential inde
 
 ### Community 126 - "Community 126"
 Cohesion: 0.16
@@ -778,8 +778,8 @@ Cohesion: 0.10
 Nodes (21): _add(), _assembly_placements(), Bevel, _mul(), _piece_span(), plan_curve(), 4.1 -> 4.3 -> 4.2 for ONE curve. -> (placements, [Bevel], [Section]).      Thi, Metres one corner assembly takes off one leg's default fill.      NEVER NEGATI (+13 more)
 
 ### Community 128 - "Community 128"
-Cohesion: 0.25
-Nodes (8): _affine_fit(), _affine_residual(), _inv3(), over_unpacked(), How far this element is from being AN AFFINE IMAGE of its own module.      4.6, 4.6: NOTHING unpacks that did not have to.      `instancing_split` counts what, Least-squares (origin, up, across) over EVERY point of the face.      The pair, Inverse of a 3x3, or None when it is singular for this job.
+Cohesion: 0.15
+Nodes (14): _band_case(), band_datum(), band_hybrid(), bank_adaptive(), _by_zmode(), flat_stepped(), flatness_m(), plumb_vertical() (+6 more)
 
 ### Community 129 - "Community 129"
 Cohesion: 0.50
@@ -886,8 +886,8 @@ Cohesion: 0.40
 Nodes (3): Marker, 3.1's marker point. `u` (0-1) OR `dist` (m, negative = from the end)., Resolve to metres along `curve`. Out-of-range values are clamped.
 
 ### Community 156 - "Community 156"
-Cohesion: 0.09
-Nodes (33): axis_follows_curve(), _axis_of(), _axis_stations(), conform_camber(), conform_contact(), conform_drape(), corner_clearance(), _element_frame() (+25 more)
+Cohesion: 0.12
+Nodes (27): axis_follows_curve(), _axis_of(), _axis_stations(), conform_camber(), conform_contact(), conform_drape(), corner_clearance(), _element_frame() (+19 more)
 
 ### Community 157 - "Community 157"
 Cohesion: 0.22
@@ -975,7 +975,7 @@ Nodes (17): config_full(), config_stub(), feed(), The NATIVE stage chain, built 
 
 ### Community 179 - "Community 179"
 Cohesion: 0.06
-Nodes (46): _area(), _attrs(), bank_adaptive(), _by_zmode(), _clip_convex(), collect_warns(), _component_centres(), corner_wedge() (+38 more)
+Nodes (46): _affine_fit(), _affine_residual(), _area(), _attrs(), _clip_convex(), collect_warns(), _component_centres(), corner_wedge() (+38 more)
 
 ### Community 181 - "Community 181"
 Cohesion: 0.29
@@ -1159,7 +1159,7 @@ Nodes (22): declared_limit_dup_id_marker(), fixture_cases(), plan_chain(), plan_
 
 ### Community 232 - "Community 232"
 Cohesion: 0.21
-Nodes (13): _splitmix(), The strings the seeding chain is asked about, ~360 of them.      Four families, `text` as a VEX string literal.  ONE site - the plan solve needs it too., Cook `pc_rand.h` over `_seed_texts()`; -> {name: [values]}., A Python uint64 as the signed int VEX stores and hou reads back., 13.9 R1, CLOSED: crc32, splitmix64, elem_key and `random()` in VEX.      R1 sa, Swap the LOGICAL shift for the ARITHMETIC one and confirm it reddens.      `sh, s64() (+5 more)
+Nodes (13): _splitmix(), The strings the seeding chain is asked about, ~360 of them.      Four families o, `text` as a VEX string literal.  ONE site - the plan solve needs it too., Cook `pc_rand.h` over `_seed_texts()`; -> {name: [values]}., A Python uint64 as the signed int VEX stores and hou reads back., 13.9 R1, CLOSED: crc32, splitmix64, elem_key and `random()` in VEX.      R1 said, Swap the LOGICAL shift for the ARITHMETIC one and confirm it reddens.      `shr`, s64() (+5 more)
 
 ### Community 233 - "Community 233"
 Cohesion: 0.25
@@ -1171,7 +1171,7 @@ Nodes (7): Node, Initialize binding manager for a node.                  Args:  
 
 ### Community 235 - "Community 235"
 Cohesion: 0.20
-Nodes (10): digest(), generic(), main(), Does every promoted parameter on the CityGen HDAs actually do anything?  ⚠️ It s, (geometry digest, attribute digest) for one output.      Split so an attribute-o, A perturbation for a parm nobody has written a value for yet., plan_determinism(), The branches the 89 scene cases do not reach.      ⚠️ THIS EXISTS BECAUSE OF D (+2 more)
+Nodes (10): digest(), generic(), main(), Does every promoted parameter on the CityGen HDAs actually do anything?  ⚠️ It s, (geometry digest, attribute digest) for one output.      Split so an attribute-o, A perturbation for a parm nobody has written a value for yet., plan_determinism(), The branches the 89 scene cases do not reach.      ⚠️ THIS EXISTS BECAUSE OF DEV (+2 more)
 
 ### Community 236 - "Community 236"
 Cohesion: 0.50
@@ -1179,7 +1179,7 @@ Nodes (4): _fill_span(), [shortfall, overshoot] in metres.      The SHORTFALL is
 
 ### Community 238 - "Community 238"
 Cohesion: 0.21
-Nodes (8): benches(), _fingerprint(), _kit_scale_run(), plan_kit_scale(), The plan chain on a 2 km fence with an `nmods`-module kit, timed.      Only `p, 4.2's cost must not grow with the KIT, and it grew like a cube.      ⚠️ EVERY, (prim count, every point of the OUTPUT rounded to 1e-6 m) for one node.      T, ONE LONG CURVE and THREE HUNDRED SHORT ONES.      11.9 rule 2 said a per-CALL
+Nodes (8): benches(), _fingerprint(), _kit_scale_run(), plan_kit_scale(), The plan chain on a 2 km fence with an `nmods`-module kit, timed.      Only `pc_, 4.2's cost must not grow with the KIT, and it grew like a cube.      ⚠️ EVERY FI, (prim count, every point of the OUTPUT rounded to 1e-6 m) for one node.      The, ONE LONG CURVE and THREE HUNDRED SHORT ONES.      11.9 rule 2 said a per-CALL fi
 
 ### Community 239 - "Community 239"
 Cohesion: 0.29
@@ -1207,7 +1207,7 @@ Nodes (8): 17.1 The scoreboard — 17 findings, 17 verdicts, 17.2 The parity hal
 
 ### Community 250 - "Community 250"
 Cohesion: 0.20
-Nodes (10): emit_scale_check(), emit_scale_in_pieces(), emit_scale_mutation(), What `pc_plan_emit` and `pc_stamp` cost PER PIECE, each on its own.      ⚠️ TH, D193 - the emit chain gets a per-piece ceiling, the way N4 gave one to     the, De-batch `pc_stamp` back into a single-threaded detail loop - cycle     N-2V2's, `pc_plan_solve` alone, at two sizes and in its two transports, as the     MIN o, D204 - `pc_plan_solve` gets the per-piece ceiling D193's mandate named     and (+2 more)
+Nodes (10): emit_scale_check(), emit_scale_in_pieces(), emit_scale_mutation(), What `pc_plan_emit` and `pc_stamp` cost PER PIECE, each on its own.      ⚠️ THE, D193 - the emit chain gets a per-piece ceiling, the way N4 gave one to     the f, De-batch `pc_stamp` back into a single-threaded detail loop - cycle     N-2V2's, `pc_plan_solve` alone, at two sizes and in its two transports, as the     MIN ov, D204 - `pc_plan_solve` gets the per-piece ceiling D193's mandate named     and d (+2 more)
 
 ### Community 252 - "Community 252"
 Cohesion: 0.29
@@ -1215,7 +1215,7 @@ Nodes (5): Override, _override_for(), _pattr(), [Override] off the override inpu
 
 ### Community 253 - "Community 253"
 Cohesion: 0.28
-Nodes (9): _first_difference(), output_guard_mutation(), output_guard_parity(), payload_cond_parity(), Everything about a polyChain output that a consumer can see.      Not a digest, 13.9 N10 - `Stage = output` takes the NATIVE chain, and it had better     build, D202 - a `pc_cond` VALUE has to mean the same thing after the PAYLOAD     round, Level 2 is level 1's BACKSTOP, and this is what shows it holding.      ⚠️ AND (+1 more)
+Nodes (9): _first_difference(), output_guard_mutation(), output_guard_parity(), payload_cond_parity(), Everything about a polyChain output that a consumer can see.      Not a digest:, 13.9 N10 - `Stage = output` takes the NATIVE chain, and it had better     build, D202 - a `pc_cond` VALUE has to mean the same thing after the PAYLOAD     round-, Level 2 is level 1's BACKSTOP, and this is what shows it holding.      ⚠️ AND TH (+1 more)
 
 ### Community 254 - "Community 254"
 Cohesion: 0.33
@@ -1241,7 +1241,7 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.109) - this node is a cross-community bridge._
 - **Why does `Rule` connect `Community 149` to `Community 135`, `Community 8`, `Community 138`, `Community 21`, `Community 161`, `Community 54`, `Community 186`, `Community 188`, `Community 201`, `Community 76`, `Community 211`, `Community 229`, `Community 231`, `Community 103`, `Community 105`, `Community 235`, `Community 238`, `Community 250`, `Community 253`?**
   _High betweenness centrality (0.106) - this node is a cross-community bridge._
-- **Why does `Result` connect `Community 108` to `Community 32`, `Community 128`, `Community 39`, `Community 201`, `Community 236`, `Community 177`, `Community 179`, `Community 215`, `Community 216`, `Community 156`?**
+- **Why does `Result` connect `Community 108` to `Community 128`, `Community 32`, `Community 39`, `Community 201`, `Community 236`, `Community 177`, `Community 179`, `Community 215`, `Community 216`, `Community 156`?**
   _High betweenness centrality (0.092) - this node is a cross-community bridge._
 - **Are the 42 inferred relationships involving `Rule` (e.g. with `build_all()` and `facade_style()`) actually correct?**
   _`Rule` has 42 INFERRED edges - model-reasoned connections that need verification._
