@@ -4106,6 +4106,56 @@ OUTPUT_STAGE = (
      ("config",)),
 )
 
+# --- D208: THE SIX STAGES WITH NO INDEPENDENT EXPECTATION AT ALL ------------
+#
+# §21.5.  D203 made `native.STAGES` the ONE declaration the build script and
+# the checks both read, which is the right shape for consistency and has a
+# cost nobody wrote down: a mutation of the DECLARATION moves the asset and
+# its oracle together, so `every_stage_entry_serves_the_node_it_names` can
+# only ever see the asset DRIFTING from the declaration, never the
+# declaration being wrong.  Reproduced at source this cycle - the `reference`
+# row re-pointed at `OUT_final` / `guard_envelope`, .hda rebuilt (md5
+# 37f1e344 -> 92b0d456) - and that check printed **PASS**.
+#
+# `NATIVE_STAGES` and `OUTPUT_STAGE` above are the second voice for five
+# stages, and they work because they are BEHAVIOURAL: they name nodes that
+# must cook and Python that must not, so they are an expectation about the
+# GRAPH rather than a copy of the table.  The other five - `reference`,
+# `config`, `plan`, `frames`, `gate` - had nothing.
+#
+# These are those five, in the same behavioural shape, plus a fifth column:
+# the nodes that must NOT cook.  A stage on the Python side cannot be asserted
+# by "no Python cooked", so it is asserted by what the OTHER branch would do
+# if the entry were re-pointed at it - `copy_packed` is the native branch's
+# materialiser and `kernel` is the reference, and on a straight admitted run
+# exactly one of them cooks.
+#
+# ⚠️ THE FIXTURE IS THE STRAIGHT RUN, and it has to be: on the L-shape the
+# guard REFUSES, so `Stage = output` runs the reference and `copy_packed`
+# never cooks whatever the entry is wired to - the forbidden column would be
+# vacuous on exactly the mutation it exists to catch.
+#
+# ⚠️ `config` HAS NO must-cook LIST, and that is a property of the node, not
+# leniency: `config` is wired to IN_KIT / IN_STYLE / IN_SURFACE and not to the
+# spline, so the dirtying lever cannot reach it.  Its row is the forbidden
+# column alone, which is still enough - re-pointing the `config` entry at
+# either neighbour makes something on this list cook.
+BRIDGE_STAGES = (
+    ("reference", "OUT_reference", ("kernel",), ("config", "kernel"),
+     ("copy_packed", "pc_finalize", "pc_out_cast")),
+    ("config", "config", (), ("config",),
+     ("kernel", "copy_packed", "pc_plan_solve")),
+    ("plan", "OUT_plan", ("pc_plan_bridge",),
+     ("config", "pc_plan_bridge", "kit_starter"),
+     ("kernel", "copy_packed")),
+    ("frames", "OUT_frames", ("pc_plan_bridge", "pc_frames",
+                              "pc_frames_valid"),
+     ("config", "pc_plan_bridge", "kit_starter"),
+     ("kernel", "copy_packed")),
+    ("gate", "OUT_gate", ("pc_deform_gate",), ("config", "kit_starter"),
+     ("kernel", "copy_packed")),
+)
+
 # The L-shape every native STAGE is dirtied on, and the straight flat run the
 # guard ADMITS - which is the only shape `output` can be asserted native on.
 D192_CORNER = [(0.0, 0.0, 0.0), (9.0, 0.0, 0.0), (9.0, 0.0, 7.0)]
@@ -4157,19 +4207,36 @@ def stage_is_really_native(root, tag, rewire=None, rows=NATIVE_STAGES,
     node.setInput(0, dirt)
     node.allowEditingOfContents()
 
+    bad = []
     if rewire is not None:
         token, target = rewire
-        served = dict((t, n) for t, n, _w, _p in rows)[token]
+        served = dict((r[0], r[1]) for r in rows)[token]
         switch = node.node("stage_switch")
         moved = [i for i, inp in enumerate(switch.inputs())
                  if inp is not None and inp.name() == served]
-        assert len(moved) == 1, "no switch input serves %s" % served
-        switch.setInput(moved[0], node.node(target))
+        # ⚠️ THIS USED TO BE `assert len(moved) == 1` AND IT IS D208's OTHER
+        # HALF.  Under §21.4's M10 - the `reference` row of `native.STAGES`
+        # re-pointed at `OUT_final` at SOURCE - no switch input serves
+        # `OUT_reference` any more, the assert fired, and the run ABORTED with
+        # a traceback: 94 [PASS], **0 [FAIL]**, and `every_stage_entry_serves
+        # _the_node_it_names` printing PASS on the way past.  The exit code
+        # was 1, so a caller that checks it was safe; every summary in this
+        # build log counts [FAIL] lines, and would have read that as green.
+        # A missing switch input is a COMPLAINT now, not an exception.
+        if len(moved) != 1:
+            bad.append("%s: %d switch inputs serve %s (want exactly 1) - the "
+                       "declaration and the asset disagree about which null "
+                       "this stage is" % (token, len(moved), served))
+        else:
+            switch.setInput(moved[0], node.node(target))
 
     pysops = [c for c in node.children() if c.type().name() == "python"]
-    bad = []
     nudge = 2
-    for token, served, must_cook, allowed in rows:
+    for row in rows:
+        token, served, must_cook, allowed = row[:4]
+        # D208 - the fifth column, and it is what makes a row about a stage
+        # that is NOT native still say something. See `BRIDGE_STAGES`.
+        forbidden = row[4] if len(row) > 4 else ()
         node.parm("stage").set(token)
         dirt.parm("nudge").set(nudge)
         node.cook(force=True)
@@ -4183,10 +4250,15 @@ def stage_is_really_native(root, tag, rewire=None, rows=NATIVE_STAGES,
         strangers = sorted(p.name() for p in pysops
                            if p.name() not in allowed
                            and p.cookCount() > before[p.name()])
+        busy = [n for n in forbidden
+                if node.node(n) is not None
+                and node.node(n).cookCount() > before[n]]
         if idle:
             bad.append("%s: idle %s" % (token, ",".join(idle)))
         if strangers:
             bad.append("%s: python %s cooked" % (token, ",".join(strangers)))
+        if busy:
+            bad.append("%s: %s cooked and must not" % (token, ",".join(busy)))
         nudge += 1
     node.destroy()
     dirt.destroy()
@@ -4198,13 +4270,30 @@ def native_stage_check(root):
     bad += stage_is_really_native(root, "sound_out", rows=OUTPUT_STAGE,
                                   pts=D192_STRAIGHT)
     rows = NATIVE_STAGES + OUTPUT_STAGE
-    watched = sum(len(w) for _t, _n, w, _p in rows)
+    watched = sum(len(r[2]) for r in rows)
     check("native_stages_are_really_native", not bad,
           "%d nodes / %d stages" % (watched, len(rows)),
           "D192, on the SHIPPED asset: every node each native Stage is made "
           "of advanced its cookCount, and no Python SOP outside its named "
           "allowance did - `output` among them, on a straight flat run the "
           "guard admits. Complaints: %s" % (", ".join(bad) or "none"))
+
+    # D208 - and the FIVE stages that had no independent expectation at all,
+    # in the same behavioural shape. See `BRIDGE_STAGES`.
+    bad = stage_is_really_native(root, "bridge", rows=BRIDGE_STAGES,
+                                 pts=D192_STRAIGHT)
+    covered = set(r[0] for r in NATIVE_STAGES + OUTPUT_STAGE + BRIDGE_STAGES)
+    declared = set(t for t, _n, _f, _l in native.STAGES)
+    check("every_stage_has_a_second_source",
+          not bad and covered == declared,
+          "%d/%d stages" % (len(covered & declared), len(declared)),
+          "D208: every one of the %d `Stage` entries has an expectation that "
+          "does NOT read `native.STAGES` - the nodes that must cook, the "
+          "Python allowed to, and the nodes that must not - so a mutation of "
+          "the declaration itself moves the asset WITHOUT moving its oracle. "
+          "Uncovered: %s. Complaints: %s"
+          % (len(declared), sorted(declared - covered) or "none",
+             ", ".join(bad) or "none"))
 
 
 def native_stage_mutation(root):
@@ -4224,7 +4313,20 @@ def native_stage_mutation(root):
             # pointed back at the Python reference.  Before `output` had a
             # `NATIVE_STAGES` row, only two of 94 checks could see it.
             ("w3", "output", "OUT_reference", "kernel",
-             OUTPUT_STAGE, D192_STRAIGHT)):
+             OUTPUT_STAGE, D192_STRAIGHT),
+            # D208 / §21.4's M10 - THE MUTATION §20.1 OPENS WITH, and the one
+            # that was stopped by an assertion CRASH rather than by the check
+            # credited with it. The `reference` entry - `output_guard_parity`'s
+            # whole oracle - pointed at the guarded native OUTPUT, so the
+            # cycle's headline parity proof compares the output WITH ITSELF
+            # over all 92 cases.
+            ("m10", "reference", "OUT_final", "kernel",
+             BRIDGE_STAGES, D192_STRAIGHT),
+            # ...and the same shape on the one native stage that had no
+            # independent voice either: an artist opening the Deform gate to
+            # ask why a piece unpacked, shown the Python reference's fence.
+            ("m10b", "gate", "OUT_reference", "kernel",
+             BRIDGE_STAGES, D192_STRAIGHT)):
         bad = stage_is_really_native(root, tag, rewire=(token, target),
                                      rows=rows, pts=pts)
         mine = [b for b in bad if b.startswith(token + ":")]
