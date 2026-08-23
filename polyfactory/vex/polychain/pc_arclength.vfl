@@ -16,9 +16,10 @@
 //
 // It writes TWO tables, because the reference has two and they are not the
 // same table:
-//   * the SAMPLER table (`pc_seg_*`, `pc_total`, `pc_closed`, `pc_first`) is
-//     `place.Path`: raw vertices, zero-length segments dropped at 1e-9, the
-//     closing segment appended for a closed curve.
+//   * the SAMPLER table (`_seg_hi` / `_seg_i` per VERTEX, `_nseg` /
+//     `pc_total` / `pc_closed` / `_first` per prim) is `place.Path`: raw
+//     vertices, zero-length segments dropped at 1e-9, the closing segment
+//     appended for a closed curve.
 //   * the CLEAN table (`pc_s` per point, `pc_seclen` per prim) is
 //     `decompose._clean`: coincident vertices merged at 1e-6, and a closed
 //     curve's repeated final vertex dropped.
@@ -62,36 +63,64 @@ if (closed && np > 1) {
     cum[np] = total;
 }
 
-float seg_lo[], seg_hi[];
-vector seg_a[], seg_d[];
-resize(seg_lo, ncum - 1);
+float seg_hi[];
+int seg_i[];
 resize(seg_hi, ncum - 1);
-resize(seg_a, ncum - 1);
-resize(seg_d, ncum - 1);
+resize(seg_i, ncum - 1);
 int nseg = 0;
 for (int i = 0; i < ncum - 1; i++) {
     vector a = P[i];
     vector d = P[(i + 1) % np] - a;
     if (length(d) >= PC_EPS) {          // a duplicated point is not a segment
-        seg_lo[nseg] = cum[i];
         seg_hi[nseg] = cum[i + 1];
-        seg_a[nseg] = a;
-        seg_d[nseg] = d;
+        seg_i[nseg] = i;
         nseg++;
     }
 }
-resize(seg_lo, nseg);
 resize(seg_hi, nseg);
-resize(seg_a, nseg);
-resize(seg_d, nseg);
+resize(seg_i, nseg);
 
-f[]@pc_seg_lo = seg_lo;
-f[]@pc_seg_hi = seg_hi;
-v[]@pc_seg_a  = seg_a;
-v[]@pc_seg_d  = seg_d;
+// ⚠️ THE SAMPLER TABLE IS PER-VERTEX STORAGE, NOT FOUR PER-PRIM ARRAYS, AND
+// THAT IS THE SINGLE BIGGEST MEASUREMENT OF THIS CYCLE.  A `prim()` read of an
+// ARRAY attribute COPIES THE WHOLE ARRAY, and `pc_sample` did four of them on
+// every call - twice per piece.  On the 20 km fixture (20 001 vertices,
+// 18 870 pieces) that is 160 000 values copied per sample x 2 x 18 870 =
+// 3.2e9 value copies, and it measured as `pc_frames_native` 4 833 ms against
+// `copy_packed`'s 5.1 ms - while 16.5 blamed `copytopoints` for "roughly two
+// of those three seconds".  Scaling the curve 250 m -> 20 km, the node grew
+// ~4x per doubling (pieces x segments) where the linear stages grew 2x.
+//
+// A per-VERTEX attribute is read one scalar at a time - `vertex(inp, name,
+// prim, j)` - so the bisect is ~15 indexed reads and the sample is four more.
+// Segment j lives on VERTEX j of the same primitive, which always fits:
+// `nseg <= ncum - 1 <= primvertexcount`.  This is the same defect D175 fixed
+// in `pointgenerate` (an attribute copy that is quadratic in the thing being
+// iterated), shipped unfixed in the node beside it.
+//
+// 13.5's OpenCL transliterability is kept and arguably improved: indexed
+// reads into one flat table are what OpenCL wants anyway.
+//
+// TWO columns, not four.  `_seg_lo` is `_seg_hi[j - 1]` exactly - a dropped
+// segment has zero length, so `cum` does not advance across it and the kept
+// segments stay contiguous in arclength, and `seg_lo[0]` is 0.0 because
+// `cum[0]` is 0 and any dropped prefix is zero-long.  And the segment's two
+// VECTORS are not stored at all: `_seg_i` is the VERTEX the segment starts
+// at, so `a` is `P` there and `d` is `P` at the next vertex minus it - the
+// same float32 positions this wrangle just read, so the arithmetic downstream
+// is bit-for-bit what it was.  Two values per vertex instead of seven, which
+// is what keeps `decompose_long_curve_wall_clock` where it was: the table is
+// no longer four BULK array writes, it is a per-vertex loop, and a loop that
+// writes seven values costs what it says.
+int nvtx = primvertexcount(0, @primnum);
+for (int j = 0; j < nseg; j++) {
+    if (j >= nvtx) break;               // cannot happen; a silent guard
+    setvertexattrib(0, "_seg_hi", @primnum, j, seg_hi[j]);
+    setvertexattrib(0, "_seg_i",  @primnum, j, seg_i[j]);
+}
+i@_nseg       = nseg;
 f@pc_total    = (len(cum) ? cum[len(cum) - 1] : 0.0);
 i@pc_closed   = closed;
-v@pc_first    = (np ? P[0] : set(0.0, 0.0, 0.0));
+v@_first      = (np ? P[0] : set(0.0, 0.0, 0.0));
 
 // ---- the CLEAN table: decompose._clean -------------------------------------
 // `keep[k]` is the k-th surviving VERTEX SLOT (an index into `pts`), which is

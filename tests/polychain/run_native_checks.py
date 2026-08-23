@@ -2628,6 +2628,135 @@ def plan_benches(root, built):
         sub.destroy()
 
 
+def frames_scale_in_segments(root, snippet=None, passes=3):
+    """`pc_frames_native` must not pay O(segments) per piece.
+
+    ⚠️ THIS IS THE CHECK THAT WOULD HAVE CAUGHT THE BIGGEST DEFECT OF THIS
+    CYCLE, AND IT DID NOT EXIST.  `pc_sample` read four per-primitive ARRAY
+    attributes, and a `prim()` read of an array COPIES THE WHOLE ARRAY - so
+    every sample cost O(segments) and every piece pays two samples.  Measured
+    on the shipped asset before the fix, 20 km / 20 001 vertices / 18 870
+    pieces: `pc_frames_native` **4 833 ms**, against `copy_packed`'s 5.1 ms -
+    while 16.5 wrote that "roughly two of those three seconds are
+    `copytopoints` itself", off by a factor of ~950, which would have sent
+    13.9 N5 at the wrong node.
+
+    `bench_plan_long_curve` could not see it (it asserts no ceiling) and
+    `streets_300` structurally cannot (a 3-point curve has 2 segments).
+
+    ⚠️ AND IT IS DIRTIED, NOT FORCED.  D164 again: `cook(force=True)` on a
+    node whose inputs have not changed can be a no-op, and the first version
+    of this check reported 0.0 ms for 18 870 pieces because of it.  A nudge
+    wrangle sits between `pc_proto` and `pc_frames_native`, so each pass
+    re-cooks the frames node and nothing above it, and `cookCount` has to
+    advance once per pass.
+
+    `snippet` replaces `pc_frames.vfl`'s whole VEX - the mutation lever, so
+    the ceiling can be shown to bite.  ⚠️ IT IS THE SNIPPET AND NOT THE
+    HEADER: `vexsrc.source` INLINES `#include "pc_path.h"` (that is the whole
+    point of it - the shipped asset must not need `HOUDINI_VEX_PATH`), so a
+    mutation that patches the header text and then looks for the include line
+    in the body finds nothing and measures the SOUND build.  It did, and the
+    mutation reported "1.0 ms" and failed for the right reason.
+    """
+    from polyfactory.polychain import Params, Rule, Style
+    from polyfactory.polychain import kit as KIT
+    from polyfactory.polychain import vexsrc
+
+    kit_geo = KIT.starter_kit()
+    kit = KIT.read(kit_geo)[0]
+    style = Style("fscale", 1, 1, rules=[Rule("default", "first", ["panel"])],
+                  params=Params(fill="adaptive"))
+    geo = hou.Geometry()
+    cases.polyline(geo, [(1.0 * i, 0.0, 0.0) for i in range(20001)],
+                   curve_id="LONG")
+
+    sub = root.createNode("subnet", "framescale")
+    src = native.feed(sub, geo, "IN")
+    cfg = native.config_full(sub, style.params, style, kit, "config")
+    last, _dec = native.stage_decompose(sub, src, cfg)
+    plan, _pn = native.stage_plan(sub, last, cfg)
+    place, qn = native.stage_place(sub, plan, cfg,
+                                   native.feed(sub, kit_geo, "KIT"), last)
+    frames = qn["pc_frames_native"]
+    if snippet is not None:
+        frames.parm("snippet").set(snippet)
+    dirt = sub.createNode("attribwrangle", "frames_dirty")
+    dirt.parm("class").set(2)
+    group = dirt.parmTemplateGroup()
+    group.append(hou.IntParmTemplate("nudge", "Nudge", 1))
+    dirt.setParmTemplateGroup(group)
+    dirt.parm("snippet").set('i@_bench = chi("nudge");')
+    dirt.setInput(0, qn["pc_proto"])
+    frames.setInput(0, dirt)
+    place.cook(force=True)
+    npieces = len(frames.geometry().points())
+    before = frames.cookCount()
+    best = None
+    for i in range(passes):
+        dirt.parm("nudge").set(i + 2)
+        t0 = time.time()
+        frames.cook()
+        dt = time.time() - t0
+        best = dt if best is None else min(best, dt)
+    cooked = frames.cookCount() - before
+    sub.destroy()
+    return (best, npieces, cooked)
+
+
+def frames_scale_check(root):
+    best, npieces, cooked = frames_scale_in_segments(root)
+    check("frames_cost_is_flat_in_segment_count",
+          cooked == 3 and npieces > 8000 and best < 0.25,
+          "%.1f ms / %d pieces" % (best * 1000.0, npieces),
+          "`pc_frames_native` ALONE on 20 km / 20 000 segments / %d pieces, "
+          "best of 3 dirtied passes (cookCount advanced %d). Ceiling 250 ms - "
+          "twenty times the measured cost and twenty times under the defect. "
+          "`mutation_pc_sample_array_reads` proves the ceiling bites"
+          % (npieces, cooked))
+
+
+def frames_scale_mutation(root):
+    """Put an ARRAY-shaped read back and watch the 250 ms ceiling bite.
+
+    Without this the ceiling is a number nobody has seen fail.  The mutation
+    is the SHAPE of the code that shipped, not a slower constant: ONE of
+    `pc_sample`'s reads binds the whole per-vertex column into a local array
+    before indexing it.  The answer is identical; only the cost model changes,
+    which is exactly the property the ceiling is about.  The shipped code had
+    FOUR reads of that shape and measured 4 833 ms.
+    """
+    from polyfactory.polychain import vexsrc
+    body = vexsrc.source("pc_frames")
+    target = ('float pc_seg_hi_at(const int inp; const int pr; const int j) {\n'
+              '    float v = vertex(inp, "_seg_hi", pr, j);\n'
+              '    return v;\n'
+              '}')
+    replacement = (
+        'float pc_seg_hi_at(const int inp; const int pr; const int j) {\n'
+        '    int n = prim(inp, "_nseg", pr);\n'
+        '    float col[];\n'
+        '    resize(col, n);\n'
+        '    for (int k = 0; k < n; k++) {\n'
+        '        float e = vertex(inp, "_seg_hi", pr, k);\n'
+        '        col[k] = e;\n'
+        '    }\n'
+        '    return col[j];\n'
+        '}')
+    found = target in body
+    # ONE pass: the mutated node costs ~9 s and a `min` over three of them
+    # buys nothing when the ceiling it has to clear is 0.25 s.
+    best, npieces, cooked = frames_scale_in_segments(
+        root, snippet=body.replace(target, replacement), passes=1)
+    check("mutation_pc_sample_array_reads",
+          found and best >= 0.25,
+          "%.1f ms (target present: %s)" % (best * 1000.0, found),
+          "binding ONE of `pc_sample`'s reads to the whole segment column - "
+          "the shape the shipped code had four of - takes the node from ~1 ms "
+          "to %.1f ms on the same %d pieces. The ceiling above is therefore a "
+          "measurement and not a decoration" % (best * 1000.0, npieces))
+
+
 def sections_mutation(root, built):
     """`pc_sections` has no parity check of its own, so it gets a MUTATION.
 
@@ -2862,6 +2991,7 @@ def main():
     place_packed_parity(root, built)
     place_duplicate_module_name(root)
     native_place_says_why_it_is_empty(root)
+    frames_scale_check(root)
 
     print("\n=== 4. the mutation test ===")
     mutation(root, built)
@@ -2870,6 +3000,7 @@ def main():
     sections_mutation(root, built)
     place_mutation(root, built)
     kit_id_mutation(root, built)
+    frames_scale_mutation(root)
 
     print("\n=== 5. 13.7 - the graph is readable, on the built asset ===")
     node = readability(root)

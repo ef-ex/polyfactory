@@ -7,9 +7,23 @@
 //   * the forward/backward tie-break at a vertex: a section's START frame
 //     wants the tangent LEAVING the vertex, its END frame the one ARRIVING.
 //
-// It reads ONLY per-primitive arrays written by `pc_arclength`, never
-// `primpoints()` or a point at a random index - which is 13.5's OpenCL
-// transliterability constraint, kept for free rather than retrofitted.
+// It reads the sampler table `pc_arclength` wrote and the SPLINE'S OWN `P`
+// through it - never `primpoints()`, never an unindexed scan.  Every read is
+// a constant-cost lookup into a flat table (`vertex(prim, j)`,
+// `vertexpoint`, `point(P)`), which is what 13.5's OpenCL transliterability
+// constraint is actually asking for; a buffer plus an index buffer is exactly
+// the shape OpenCL wants.
+//
+// ⚠️ AND IT READS IT ONE SCALAR AT A TIME.  The table used to be four
+// per-primitive ARRAY attributes, and a `prim()` read of an array COPIES THE
+// WHOLE ARRAY - so `pc_sample` copied 160 000 values per call on the 20 km
+// fixture, twice per piece.  Measured on the shipped asset at 18 870 pieces:
+// `pc_frames_native` 4 833 ms, `copy_packed` 5.1 ms.  The table is per-VERTEX
+// storage now (segment j on vertex j of the same prim), so the bisect is ~15
+// indexed reads and the sample four more.  The COMPARISONS are unchanged -
+// D30's extrapolation past either end and the forward/backward tie-break at a
+// vertex both round exactly as they did, which is what keeps the parity at
+// 0.0 rather than at a tolerance.
 
 #ifndef __pc_path_h__
 #define __pc_path_h__
@@ -17,21 +31,29 @@
 #define PC_EPS      1e-9        // metres; a chord shorter than this is no segment
 #define PC_POS_EPS  1e-6        // metres; two points closer than this are one point
 
-// bisect.bisect_right / bisect_left over a sorted float array.
-int pc_bisect_right(const float a[]; const float v) {
-    int lo = 0, hi = len(a);
+// One element of the sampler table, by segment index.  A typed local before
+// every `vertex()` - the return is untyped and everything downstream of it
+// would be ambiguous (recorded trap).
+float pc_seg_hi_at(const int inp; const int pr; const int j) {
+    float v = vertex(inp, "_seg_hi", pr, j);
+    return v;
+}
+
+// bisect.bisect_right / bisect_left over the segment table, by INDEX.
+int pc_bisect_right(const int inp; const int pr; const int n; const float v) {
+    int lo = 0, hi = n;
     while (lo < hi) {
         int mid = (lo + hi) / 2;
-        if (v < a[mid]) hi = mid; else lo = mid + 1;
+        if (v < pc_seg_hi_at(inp, pr, mid)) hi = mid; else lo = mid + 1;
     }
     return lo;
 }
 
-int pc_bisect_left(const float a[]; const float v) {
-    int lo = 0, hi = len(a);
+int pc_bisect_left(const int inp; const int pr; const int n; const float v) {
+    int lo = 0, hi = n;
     while (lo < hi) {
         int mid = (lo + hi) / 2;
-        if (a[mid] < v) lo = mid + 1; else hi = mid;
+        if (pc_seg_hi_at(inp, pr, mid) < v) lo = mid + 1; else hi = mid;
     }
     return lo;
 }
@@ -39,19 +61,16 @@ int pc_bisect_left(const float a[]; const float v) {
 // `Path.sample(s, forward)` - position and unit tangent at `s` metres.
 void pc_sample(const int inp; const int pr; const float s_in; const int forward;
                export vector pos; export vector tang) {
-    float seg_lo[] = prim(inp, "pc_seg_lo", pr);
-    float seg_hi[] = prim(inp, "pc_seg_hi", pr);
-    vector seg_a[] = prim(inp, "pc_seg_a", pr);
-    vector seg_d[] = prim(inp, "pc_seg_d", pr);
-    int n = len(seg_hi);
-    if (n == 0) {                       // a curve with no segment at all
-        pos = prim(inp, "pc_first", pr);
+    int n = prim(inp, "_nseg", pr);
+    if (n <= 0) {                       // a curve with no segment at all
+        vector first = prim(inp, "_first", pr);
+        pos = first;
         tang = set(0.0, 0.0, 0.0);
         return;
     }
     float total  = prim(inp, "pc_total", pr);
     int   closed = prim(inp, "pc_closed", pr);
-    float last   = seg_hi[n - 1];
+    float last   = pc_seg_hi_at(inp, pr, n - 1);
     float s      = s_in;
 
     if (closed && total > PC_EPS) {
@@ -65,12 +84,27 @@ void pc_sample(const int inp; const int pr; const float s_in; const int forward;
     int i;
     if (s < 0.0)           i = 0;
     else if (s > last)     i = n - 1;
-    else if (forward)      i = pc_bisect_right(seg_hi, s + PC_EPS);
-    else                   i = pc_bisect_left(seg_hi, s - PC_EPS);
+    else if (forward)      i = pc_bisect_right(inp, pr, n, s + PC_EPS);
+    else                   i = pc_bisect_left(inp, pr, n, s - PC_EPS);
     i = min(max(i, 0), n - 1);
 
-    float lo = seg_lo[i], hi = seg_hi[i];
-    vector a = seg_a[i], d = seg_d[i];
+    // `seg_lo[i]` IS `seg_hi[i - 1]` - a dropped segment has zero length, so
+    // the kept segments are contiguous in arclength and the table stores one
+    // column instead of two.
+    float hi = pc_seg_hi_at(inp, pr, i);
+    float lo = (i > 0) ? pc_seg_hi_at(inp, pr, i - 1) : 0.0;
+    // and the segment's two VECTORS are read off `P`, not stored: `_seg_i` is
+    // the vertex the segment starts at, and the wrap is the same
+    // `(i + 1) % np` `pc_arclength` used, so a closed curve's last segment
+    // returns to vertex 0.  Same float32 positions, same subtraction, same
+    // bits.
+    int i0 = vertex(inp, "_seg_i", pr, i);
+    int nv = primvertexcount(inp, pr);
+    int pa = vertexpoint(inp, vertexindex(inp, pr, i0));
+    int pb = vertexpoint(inp, vertexindex(inp, pr, (i0 + 1) % max(nv, 1)));
+    vector a = point(inp, "P", pa);
+    vector bpos = point(inp, "P", pb);
+    vector d = bpos - a;
     float t = (hi - lo < PC_EPS) ? 0.0 : (s - lo) / (hi - lo);
     if (s >= 0.0 && s <= last) t = min(max(t, 0.0), 1.0);
     pos  = a + d * t;
