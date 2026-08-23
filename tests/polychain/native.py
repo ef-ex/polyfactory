@@ -19,6 +19,63 @@ import hou
 from polyfactory.polychain import vexsrc
 
 
+# 13.7 rule 3 - `Stage` IS A MENU OVER THE STAGE OUTPUT NULLS, and this tuple
+# is the one declaration of it.
+#
+# (token, the NULL the switch input must be wired to, the node that NULL must
+#  be fed by, the menu label).
+#
+# IT LIVES HERE, NOT IN `create_pf_polychain_hda.py`, AND THAT IS D203.  The
+# build script's own comment claimed "the menu, the switch's inputs and the
+# HDA-wiring check all read it, so a stage cannot be added to one and not the
+# others" - and `grep -rn STAGES tests/` returned one prose mention inside a
+# docstring.  No check read it, which is exactly how these three mutations of
+# the shipped asset stayed 94 [PASS] / 0:
+#   * `stage_switch` input 1 (`reference`) moved onto `OUT_final`, so
+#     `output_guard_parity` compared the guarded native output WITH ITSELF
+#     over all 92 cases and still printed "identical";
+#   * input 0 (`output`) moved onto `OUT_reference` - the exact undo of the
+#     cycle - which only `output_runs_the_native_chain_inside_the_envelope`
+#     and `mutation_guard_envelope` could see;
+#   * input 6 (`frames`) moved onto `OUT_reference`, so the Frames stage
+#     showed the Python kernel's finished fence (18 packed prims carrying only
+#     `P`) instead of 18 points carrying 33 attributes.
+# The THIRD column closes the other half: `OUT_frames` re-pointed from
+# `pc_frames_valid` to `pc_frames` - an UNPLUG, which `asset_stages_match_the_rig`'s
+# `isBypassed()` scan structurally cannot see - was 94 / 0 too.
+# `every_stage_entry_serves_the_node_it_names` reads both columns.
+STAGES = (
+    ("output", "OUT_final", "guard_envelope",
+     "Output - the finished run"),
+    ("reference", "OUT_reference", "kernel",
+     "R - the Python reference (13.6 - the parity oracle)"),
+    # `config` is a Python SOP, not a null with a feeder - the one row whose
+    # third column is None, and the check skips the feeder half for it rather
+    # than pretending the stage has one.
+    ("config", "config", None,
+     "0 - Config (the resolved parameters)"),
+    ("sections", "OUT_sections", "pc_markers",
+     "1 - Decompose (4.1 - arclength, corners, markers)"),
+    ("plan", "OUT_plan", "pc_plan_bridge",
+     "2 - Plan, via the PYTHON BRIDGE (4.2 - the scaffolding N5 deletes)"),
+    ("plan_native", "OUT_plan_native", "pc_stamp",
+     "2 - Plan, NATIVE (4.2 - the VEX fitting solve)"),
+    ("frames", "OUT_frames", "pc_frames_valid",
+     "4 - Frames, via the PYTHON BRIDGE (4.4 - the transform per piece)"),
+    # D203 - the frames branch `Stage = output` ACTUALLY USES had no menu
+    # entry, while both entries that named the stage showed the dead bridge.
+    # 13.7 rule 1 is that an artist can drop a display flag on any stage and
+    # see THAT stage's output; asking "what transform did my piece get" and
+    # being shown a branch the output does not cook is the rule broken.
+    ("frames_native", "OUT_frames_native", "pc_frames_native",
+     "4 - Frames, NATIVE (4.4 - the transform Stage = output uses)"),
+    ("gate", "OUT_gate", "pc_deform_gate",
+     "4 - Deform gate, NATIVE (4.4 - packed or deformed, per piece)"),
+    ("place_native", "OUT_place_native", "pc_warn_collate",
+     "4 - Place, NATIVE (4.4 - packed pieces, no Python)"),
+)
+
+
 def wrangle(parent, name, cls, vfl, precision="64"):
     """One Attribute Wrangle, its VEX inlined from the .vfl of the same name.
 

@@ -43,6 +43,19 @@
 #define PC_C_LIST 3
 #define PC_C_BAD  4
 
+// D202 - THE SUBJECT'S OWN THIRD ANSWER.  `pc_cond_subject` used to have two:
+// absent (kind 0, which `evaluate_cond` reads as `value is None` -> False) and
+// readable (a number or a string).  Python has a third, and it was answering
+// differently: a subject whose value is a TUPLE (a multi-component or array
+// prim attribute, through `place._prim_attrs`) or a DICT (`ctx_base`'s own
+// `attrs` and `marker_data` keys) is NOT None, so `evaluate_cond` reaches the
+// operator - where every ordered compare raises TypeError and is caught as
+// False, `eq` is False and `ne` is TRUE.  Kind 3 is that answer exactly.
+// A key is published under the sentinel prefix below rather than in `cf`/`cs`,
+// so no function signature has to grow a third dict.
+#define PC_S_UNREADABLE 3
+#define PC_UNREADABLE "!unreadable:"
+
 // --- CONFIG accessors -------------------------------------------------------
 
 float pc_cfg_f(const string key; const float fallback) {
@@ -174,6 +187,9 @@ void pc_cond_subject(const string subject; const dict cf; const dict cs;
     kind = 0; num = 0.0; text = "";
     if (isvalidindex(cf, subject)) { float v = cf[subject]; num = v; kind = 1; return; }
     if (isvalidindex(cs, subject)) { string v = cs[subject]; text = v; kind = 2; return; }
+    if (isvalidindex(cs, concat(PC_UNREADABLE, subject))) {
+        kind = PC_S_UNREADABLE; return;        // present, but not a scalar
+    }
 }
 
 // `plan.evaluate_cond`, including its two quiet rules: an unknown op is
@@ -193,6 +209,14 @@ int pc_evaluate_cond(const int r; const dict cf; const dict cs) {
     int skind; float snum; string stext;
     pc_cond_subject(csubj[r], cf, cs, skind, snum, stext);
     if (skind == 0) return 0;                  // `value is None` -> False
+    // D202 - present but unreadable.  Python compares a tuple or a dict
+    // against the condition value without raising under `eq`/`ne` (never
+    // equal, so `ne` is True) and raises TypeError under every other
+    // operator, which `evaluate_cond` catches as False.  MEASURED on the
+    // shipped asset: `attr:vecattr gt 5.0` against the prim vector
+    // (7.5, 1.0, 2.0) built 12 `gate` prims natively and 10 `panel` prims in
+    // the reference, because `prim(0, name, pr)` read COMPONENT 0.
+    if (skind == PC_S_UNREADABLE) return (op == "ne");
 
     int kind = ckind[r];
     string cnums[] = detail(1, "pc_r_cnum");

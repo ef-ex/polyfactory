@@ -364,9 +364,19 @@ foreach (int i; ord) {
 
     // D94's `attr:<name>` bag, restricted to the names a rule asks for.
     dict af, as_;
+    string abad[];
     foreach (string name; want) {
         int t = primattribtype(0, name);
         if (t < 0) continue;
+        // ONE COMPONENT, OR THE TWO SIDES ANSWER DIFFERENT QUESTIONS (D202).
+        // `prim(0, name, pr)` reads COMPONENT 0 of a vector and 0 of an
+        // array, where `place._prim_attrs` hands the reference the WHOLE
+        // tuple.  Probed on 22.0.398: `primattribtype` is 0 int, 1 float,
+        // 2 string, 3 ARRAY, and `primattribsize` is 3 for a vector and 2 for
+        // a vector2 - so readable means a scalar of a scalar type, and
+        // everything else is PRESENT BUT UNREADABLE, which `pc_cond_subject`
+        // answers as kind 3 rather than as a missing key.
+        if (t == 3 || primattribsize(0, name) != 1) { push(abad, name); continue; }
         if (t == 2) { string v = prim(0, name, pr); as_[name] = v; }
         else        { float v = prim(0, name, pr); af[name] = v; }
     }
@@ -381,6 +391,7 @@ foreach (int i; ord) {
     as_["pc_style"] = sk;
     setpointattrib(0, "_attr_f", p, af);
     setpointattrib(0, "_attr_s", p, as_);
+    setpointattrib(0, "_attr_bad", p, abad);
 
     // E1's row class - blank on every 1D curve, which is what makes
     // `cell_role` the identity and `rules_for(slot, None)` the phase-1 call.

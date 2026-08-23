@@ -15,8 +15,14 @@
 // on every build anyway - and it is what decides whether the native chain gets
 // cooked at all.  `pc_envelope2` then asks the expensive half (did any piece
 // come out deformed or unanswerable), and a build that passes here and fails
-// there pays for both chains.  That is the honest cost of the guard and
-// `bench_guard_fallback` measures it rather than assuming it away.
+// there pays for both chains.  That is the honest cost of the guard, and
+// `bench_guard_fallback` MEASURES it - 1.47x at 2 km and 1.34-1.58x at 20 km,
+// against a 1.8x ceiling.  It has to force level 1 open to do so, because the
+// deform bound below means no legitimate input reaches level 2's refusal
+// today; `no_case_pays_the_guard_fallback` asserts THAT over all 92 cases, and
+// it is what makes the fallback free rather than merely unmeasured.  Widening
+// level 1 past straight-and-flat is exactly the change that re-opens it, and
+// both rows are waiting for it.
 //
 // WHAT LEVEL 1 REFUSES, and every one of them is a stage that is not ported:
 //   * anything `config` refused - a surface (4.5, N6), a fillet radius (4.3,

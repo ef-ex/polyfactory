@@ -85,6 +85,16 @@ CS["yclass"]        = YCLASS;
 dict af = d@_attr_f, as_ = d@_attr_s;
 foreach (string k; keys(af)) { float v = af[k]; CF[sprintf("attr:%s", k)] = v; }
 foreach (string k; keys(as_)) { string v = as_[k]; CS[sprintf("attr:%s", k)] = v; }
+// D202 - and the subjects that are PRESENT BUT UNREADABLE, under the sentinel
+// prefix `pc_cond_subject` looks for.  Two sources: an `attr:` name whose prim
+// attribute is a vector or an array (`pc_sections` names them in `_attr_bad`),
+// and `ctx_base`'s own two DICT-valued keys, which `cond_subject` ends in
+// `ctx.get(subject)` and therefore reaches - `{} != "zzz"` is True in Python
+// and was False here, measured as a 10-vs-12-piece plan divergence.
+string abad[] = s[]@_attr_bad;
+foreach (string k; abad) CS[concat(PC_UNREADABLE, sprintf("attr:%s", k))] = "";
+CS[concat(PC_UNREADABLE, "attrs")] = "";
+CS[concat(PC_UNREADABLE, "marker_data")] = "";
 
 // ---- mandatory start / end, and D13's overflow policy ----------------------
 // D18: caps end a RUN, not a section - true at a spline end and at a
@@ -341,16 +351,43 @@ while (width < n) {
     width *= 2;
 }
 
+// ---- and the permutation is APPLIED ONLY WHEN THERE IS ONE ----------------
+//
+// The sort itself is free (measured: disabling it changes nothing), but the
+// copy that applies its answer - twelve `push()` calls per piece into twelve
+// parallel local arrays - ran on every fill whether `ord` permuted anything
+// or not, and on an ordinary run it does not: `_p_index` reads (0, 1, 2, 3,
+// ...) on a straight fence, so the merge sort's answer is the IDENTITY and
+// the copy reproduces the order it was already in.  Measured on the rig,
+// `pc_plan_solve` alone, best of 3 dirtied passes with `cookCount` asserted:
+// 2 500 pieces 25.6 -> 22.3 us/piece (13 % off the node) and 10 000 pieces
+// 29.7 -> 24.2 us/piece (18 % off, 5.5 us/piece), with `_p_s0`, `_p_index`
+// and `_p_row` bit-identical.  A 20 km fence was paying ~0.055 s of pure
+// array shuffling for no change in its output.
+//
+// The ANCHOR and MARKER cases are where the permutation is genuinely
+// non-trivial and both branches have to agree; `plan_fixture_parity` and
+// `plan_stress_parity` run them.
+int _perm = 0;
+for (int i = 0; i < n; i++) if (ord[i] != i) { _perm = 1; break; }
+
 string p_slot[], p_module[], p_variant[], p_zmode[], p_warns[];
 int p_index[], p_deform[];
 float p_s0[], p_s1[], p_u[], p_scale[], p_slice[];
-foreach (int i; ord) {
-    push(p_slot, o_slot[i]); push(p_index, o_index[i]);
-    push(p_module, o_module[i]); push(p_variant, o_variant[i]);
-    push(p_s0, o_s0[i]); push(p_s1, o_s1[i]); push(p_u, o_u[i]);
-    push(p_scale, o_scale[i]); push(p_slice, o_slice[i]);
-    push(p_deform, o_deform[i]); push(p_zmode, o_zmode[i]);
-    push(p_warns, o_warns[i]);
+if (!_perm) {
+    p_slot = o_slot; p_index = o_index; p_module = o_module;
+    p_variant = o_variant; p_s0 = o_s0; p_s1 = o_s1; p_u = o_u;
+    p_scale = o_scale; p_slice = o_slice; p_deform = o_deform;
+    p_zmode = o_zmode; p_warns = o_warns;
+} else {
+    foreach (int i; ord) {
+        push(p_slot, o_slot[i]); push(p_index, o_index[i]);
+        push(p_module, o_module[i]); push(p_variant, o_variant[i]);
+        push(p_s0, o_s0[i]); push(p_s1, o_s1[i]); push(p_u, o_u[i]);
+        push(p_scale, o_scale[i]); push(p_slice, o_slice[i]);
+        push(p_deform, o_deform[i]); push(p_zmode, o_zmode[i]);
+        push(p_warns, o_warns[i]);
+    }
 }
 
 // ---- the five STRING arrays leave as a TABLE plus an index -----------------

@@ -567,6 +567,16 @@ def _native_ok(parms, params, style, kit, cfg, warns):
             and abs(float(parms.evalParm("padding"))) > EPS:
         # D91's kit padding rewrites the KIT, and `cook_kit` does not do it.
         return False
+    # D202 - A `pc_cond` VALUE THE RULE TABLE CANNOT REPRESENT IS A REFUSAL,
+    # not a silent False.  COND_BAD used to mean "VEX evaluates this as
+    # False", which is the reference's answer only by luck: the day a value
+    # type arrives that Python can compare and the table cannot carry, the two
+    # sides ship different fences and nothing here would have refused the
+    # build.  Every other unported feature in this function fails safe; so
+    # does this one, and `native_ok_refuses_an_unreadable_cond` is the check.
+    for rule in (getattr(style, "rules", ()) or ()):
+        if _cond_columns(dict(getattr(rule, "cond", None) or {}))[0]                 == COND_BAD:
+            return False
     return True
 
 
@@ -650,18 +660,35 @@ def _cond_columns(cond):
         return (COND_NUM, float(value), "", [])
     if isinstance(value, str):
         return (COND_STR, 0.0, value, [])
-    if isinstance(value, (list, tuple)):
-        items = []
-        for v in value:
-            if isinstance(v, bool):
-                items.append((COND_NUM, 1.0 if v else 0.0, ""))
-            elif isinstance(v, (int, float)):
-                items.append((COND_NUM, float(v), ""))
-            elif isinstance(v, str):
-                items.append((COND_STR, 0.0, v))
-            else:
-                items.append((COND_BAD, 0.0, ""))
-        return (COND_LIST, 0.0, "", items)
+    # ANY NON-STRING SEQUENCE, NOT `(list, tuple)` - D202.  A 2-, 3- or
+    # 4-number list written into the `pc_cond` DICT point attribute comes back
+    # out of `style.read` as a `hou.Vector2/3/4`, which is neither, so the
+    # shipped code fell through to COND_BAD and `pc_evaluate_cond` answered
+    # False to `in` where the reference answers True.  MEASURED on a 20 m line
+    # with `{"subject": "sectionLength", "op": "in", "value": [20.0, 3.0]}`:
+    # 10 `panel` prims natively against the reference's 12 `gate` prims, 100 %
+    # of the run wrong, with `_check_cond` silent because both the subject and
+    # the operator are known.  Lengths 1, 5 and 6 round-trip as tuples and
+    # agreed, which is why no case caught it.  `list()` also does the right
+    # thing for a dict (Python `in` tests its KEYS) and for any future `hou`
+    # sequence type.
+    if not isinstance(value, (bytes, bytearray)):
+        try:
+            seq = list(value)
+        except TypeError:
+            seq = None
+        if seq is not None:
+            items = []
+            for v in seq:
+                if isinstance(v, bool):
+                    items.append((COND_NUM, 1.0 if v else 0.0, ""))
+                elif isinstance(v, (int, float)):
+                    items.append((COND_NUM, float(v), ""))
+                elif isinstance(v, str):
+                    items.append((COND_STR, 0.0, v))
+                else:
+                    items.append((COND_BAD, 0.0, ""))
+            return (COND_LIST, 0.0, "", items)
     return (COND_BAD, 0.0, "", [])
 
 

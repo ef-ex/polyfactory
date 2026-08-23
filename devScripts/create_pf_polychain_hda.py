@@ -22,26 +22,33 @@ not possible to process with the other 3 mentioned options."*
 So the body is being rebuilt as named, visible, DISPLAYABLE stages, 13.9's
 build order at a time.  What this script builds today:
 
-    pf_polychain                          36 nodes: 12 VEX (all at 64),
-      IN_SPLINE IN_KIT IN_STYLE IN_SURFACE      9 native SOPs, 11 nulls,
-      [0 CONFIG]     config     [python]        4 Python SOPs
+    pf_polychain                          51 nodes: 18 VEX (all at 64),
+      IN_SPLINE IN_KIT IN_STYLE IN_SURFACE      4 Python SOPs, 14 nulls,
+      [0 CONFIG]     config     [python]        3 switches, the rest native
       [1 DECOMPOSE]  pc_unshare pc_curveid pc_curve_index pc_arclength
                      pc_corners pc_markers OUT_sections   VEX + native (N3)
-      [2 PLAN]       pc_plan_bridge OUT_plan    [python] SCAFFOLDING (N5)
+      [2 PLAN]       pc_plan_bridge OUT_plan    [python] SCAFFOLDING, and
+                                                OFF the output path
                      pc_sections pc_sec_only pc_plan_clean pc_plan_solve
-                     pc_plan_emit pc_plan_only OUT_plan_native      4.2 (N2)
-      [4 PLACE]      pc_frames pc_frames_valid OUT_frames
+                     pc_plan_emit pc_plan_only pc_stamp
+                     OUT_plan_native                              4.2 (N2)
+      [4 PLACE]      pc_frames pc_frames_valid OUT_frames  the bridge branch
                      kit_starter pc_kit_id kit_unpack pc_proto
-                     pc_frames_native pc_place_valid copy_packed
-                     OUT_place_native            the PACKED branch (N4)
-      [R REFERENCE]  kernel OUT_reference       [python]  <- the shipped path
+                     pc_deform_gate pc_frames_native pc_place_valid
+                     pc_packed_only copy_packed pc_finalize pc_out_cast
+                     pc_warn_collate OUT_gate OUT_frames_native
+                     OUT_place_native            the PACKED branch (N4/N5)
+      [R REFERENCE]  kernel OUT_reference       [python]  the parity oracle
+      [G GUARD]      pc_envelope pc_envelope2 guard_native guard_envelope
+                     OUT_final                            13.9 N10
       stage_switch -> OUT
 
-⚠️ `Stage` DEFAULTS TO `output`, WHICH IS `kernel`, AND THAT IS DELIBERATE
-(D180).  4.3, 4.5 and 4.6 are still the reference, so a native output would
-be a fence with no corner assemblies, no conform and no overrides.  The
-native stages are reachable as `Stage = plan_native` and `place_native`, at
-the parity `tests/polychain/run_native_checks.py` measures.
+⚠️ `Stage` DEFAULTS TO `output`, AND `output` IS THE GUARD SWITCH - not
+`kernel`.  The NATIVE chain serves any build that is inside what the native
+chain can answer WHOLE (9 of the 92 scene cases today, where the Python share
+of the cook is `config` alone), and `kernel` serves the rest.  `Stage =
+reference` is the oracle `output_guard_parity` compares against, and the
+whole menu is declared ONCE, in `tests/polychain/native.STAGES` (D203).
 
 The VEX bodies are real files under `polyfactory/vex/polychain/*.vfl`, INLINED
 here at build time (`polychain.vexsrc`) so the shipped asset needs no
@@ -117,27 +124,14 @@ PLAN_CODE = native_rig.sop_body("cook_plan_bridge")
 KIT_CODE = native_rig.sop_body("cook_kit")
 
 # --- the stages, as data ----------------------------------------------------
-# 13.7 rule 3: `Stage` is a menu over the stage output NULLS.  This tuple is
-# the ONE place the order lives - the menu, the switch's inputs and the
-# HDA-wiring check all read it, so a stage cannot be added to one and not the
-# others.  It GROWS as 13.9's build order lands; a stage that cannot cook does
-# not appear on it.
-STAGES = (
-    ("output", "OUT_final", "Output - the finished run"),
-    ("reference", "OUT_reference",
-     "R - the Python reference (13.6 - the parity oracle)"),
-    ("config", "config", "0 - Config (the resolved parameters)"),
-    ("sections", "OUT_sections",
-     "1 - Decompose (4.1 - arclength, corners, markers)"),
-    ("plan", "OUT_plan", "2 - Plan (4.2 - one point per piece)"),
-    ("plan_native", "OUT_plan_native",
-     "2 - Plan, NATIVE (4.2 - the VEX fitting solve)"),
-    ("frames", "OUT_frames", "4 - Frames (4.4 - the transform per piece)"),
-    ("gate", "OUT_gate",
-     "4 - Deform gate, NATIVE (4.4 - packed or deformed, per piece)"),
-    ("place_native", "OUT_place_native",
-     "4 - Place, NATIVE (4.4 - packed pieces, no Python)"),
-)
+# ONE DECLARATION, AND IT IS `native.STAGES` (D203).  The comment that used to
+# stand here said the menu, the switch's inputs and the HDA-wiring check all
+# read this tuple - and no check read it at all, which is why three
+# menu-repoint mutations of the shipped asset survived a 94 [PASS] / 0 suite.
+# It lives in `tests/polychain/native.py` beside the node declarations now, for
+# the same reason the SOP bodies do, and `every_stage_entry_serves_the_node_it
+# _names` asserts the built switch against it column by column.
+STAGES = native_rig.STAGES
 
 # (node name, wrangle class, the input CONFIG is wired to or None, comment).
 # The node name IS the .vfl name - one string, so a wrangle cannot be wired to
@@ -547,6 +541,17 @@ out_gate.setInput(0, _place_nodes["pc_deform_gate"])
 out_gate.setPosition(hou.Vector2(22.0, -23.0))
 place_native_nodes.append(out_gate)
 
+# D203 - the frames branch the OUTPUT actually uses, given its own stage.
+# Before this null the Stage menu had two entries for 4.4's transform and BOTH
+# showed `pc_plan_bridge`'s Python-fed branch: verified by cook count,
+# `pc_plan_bridge` / `pc_frames` / `pc_frames_valid` are idle on every
+# `Stage = output` cook, so an artist opening "Frames" to ask what transform a
+# piece got was shown a branch the output does not run.
+out_frames_native = net.createNode("null", "OUT_frames_native")
+out_frames_native.setInput(0, _place_nodes["pc_frames_native"])
+out_frames_native.setPosition(hou.Vector2(22.0, -25.0))
+place_native_nodes.append(out_frames_native)
+
 # ---- R REFERENCE - the shipped cook path ------------------------------------
 kernel = python_sop(
     net, "kernel", KERNEL_CODE,
@@ -585,8 +590,11 @@ out_reference.setPosition(hou.Vector2(28.0, 2.0))
 # every build anyway - so a build it refuses never cooks the native chain at
 # all.  Level 2 asks the one question only the plan can answer (did every
 # piece come out buildable and packed), and a build that passes level 1 and
-# fails level 2 pays for both chains.  `bench_guard_fallback` measures that
-# rather than assuming it away.
+# fails level 2 pays for both chains.  `bench_guard_fallback` MEASURES that -
+# 1.47x at 2 km, against a 1.8x ceiling - by forcing level 1 open, since level
+# 1's own deform bound means no legitimate input reaches level 2's refusal
+# today.  `no_case_pays_the_guard_fallback` asserts that second half over all
+# 92 cases.
 envelope = wrangle(
     net, "pc_envelope", "detail",
     "13.9 N10 - THE GUARD SWITCH, LEVEL 1. Is this build inside what the\n"
@@ -644,8 +652,19 @@ out_final.setPosition(hou.Vector2(31.0, -6.0))
 
 # ---- the stage switch and the output ----------------------------------------
 stage_switch = net.createNode("switch", "stage_switch")
-for _i, (_token, _node_name, _label) in enumerate(STAGES):
-    stage_switch.setInput(_i, net.node(_node_name))
+for _i, (_token, _node_name, _feeder, _label) in enumerate(STAGES):
+    _target = net.node(_node_name)
+    assert _target is not None, "STAGES names a null that does not exist: %s" \
+        % _node_name
+    # AND THE FEEDER, ASSERTED AT BUILD TIME AS WELL AS IN THE SUITE.  A stage
+    # entry that serves the right null fed by the wrong node was the second
+    # half of D203's mutation pair, and the build script is where the wiring
+    # is decided, so this is where the claim is cheapest to make true.
+    assert _feeder is None or (_target.inputs()
+                               and _target.inputs()[0] is not None
+                               and _target.inputs()[0].name() == _feeder), \
+        "STAGES says %s is fed by %s" % (_node_name, _feeder)
+    stage_switch.setInput(_i, _target)
 stage_switch.parm("input").setExpression(
     "{%s}.get(hou.pwd().parent().evalParm('stage'), 0)"
     % ", ".join("'%s': %d" % (t[0], i) for i, t in enumerate(STAGES)),
@@ -727,7 +746,16 @@ box(net, "stageG_guard",
 
 note = net.createStickyNote("what_is_left")
 note.setText(
-    "WHERE THIS TOOL ACTUALLY IS (13.9's build order, cycle N-2):\n"
+    # ⚠️ THIS NOTE IS THE FIRST THING AN ARTIST READS ON OPENING THE NETWORK,
+    # AND IT ROTTED (D205).  On the build before this one it said the DEFORM
+    # gate and the finalize were NOT STARTED and that `Stage = output` was
+    # `kernel` - all false: `pc_deform_gate` and `pc_finalize` were both in
+    # the network and both cooking, and `output` was the guard switch.  An
+    # artist toggling `pc_deform_gate` off to see what it does was being told
+    # by the network that the node does not exist yet.
+    # `the_note_does_not_call_a_built_stage_unstarted` is the check that stops
+    # it rotting silently again; it reads THIS text off the built .hda.
+    "WHERE THIS TOOL ACTUALLY IS (13.9's build order, cycle N-3V):\n"
     "\n"
     "  4.1  decompose            N3  DONE, on the shipped cook path\n"
     "  4.2  the fitting solve    N2  DONE, EXACT on 92 cases + a\n"
@@ -740,19 +768,31 @@ note.setText(
     "                                own packed prims. R8 closed: the\n"
     "                                uniform scale DOES survive\n"
     "                                packedfulltransform.\n"
-    "  4.4  the DEFORM gate      N5  NOT STARTED - so every piece on the\n"
-    "                                native branch is PACKED, whether or\n"
-    "                                not D87's budget would unpack it.\n"
+    "  4.4  the DEFORM gate      N5  THE GATE IS DONE - pc_deform_gate,\n"
+    "                                574 pieces over 28 cases, 574 agree\n"
+    "                                against the reference's own\n"
+    "                                pc_deformed. The DEFORMED BRANCH\n"
+    "                                itself (pc_stations + pc_deform) is\n"
+    "                                NOT started, so a piece the budget\n"
+    "                                unpacks sends the whole build to the\n"
+    "                                reference.\n"
+    "  4.6  finalize + the stamp N7  pc_finalize and pc_stamp are DONE\n"
+    "                                (14 prim attributes, names types and\n"
+    "                                values both ways, 471 prims). Slice\n"
+    "                                caps and the hero replacement are\n"
+    "                                NOT started.\n"
     "  4.5  conform              N6  NOT STARTED - `ray` as a node\n"
-    "  4.6  finalize + guards    N7  NOT STARTED - D153\n"
     "  4.3  corners              N8  NOT STARTED - so a run with corners\n"
-    "                                shows no corner assembly and no\n"
-    "                                reserve on the native branch.\n"
+    "                                is refused by the guard and takes\n"
+    "                                the reference.\n"
     "\n"
-    "STAGE STILL DEFAULTS TO `output`, WHICH IS `kernel`. That is the\n"
-    "switch doing its job, not an oversight: 4.3, 4.5 and 4.6 are still\n"
-    "the reference, so a native output would be a fence with no corner\n"
-    "assemblies, no conform and no overrides (D180).\n"
+    "STAGE DEFAULTS TO `output`, AND `output` IS THE GUARD SWITCH - the\n"
+    "NATIVE chain where this build is inside what the native chain can\n"
+    "answer WHOLE, and the reference otherwise. Level 1 (pc_envelope)\n"
+    "decides from CONFIG plus the decompose; level 2 (pc_envelope2) asks\n"
+    "whether every planned piece came out buildable and packed. 9 of the\n"
+    "92 scene cases are inside that envelope today, and on one of them\n"
+    "the Python share of the cook is 0.0-0.1 % (`config` alone).\n"
     "\n"
     "THE PYTHON THAT IS LEFT, and what each one is:\n"
     "\n"
@@ -762,15 +802,19 @@ note.setText(
     "                   node rather than adding it - kit_geometry always\n"
     "                   ran inside `kernel`. D154 replaces the body with\n"
     "                   native box SOPs.\n"
-    "  pc_plan_bridge   SCAFFOLDING. N5 deletes it: it exists only to\n"
-    "                   feed pc_frames, whose deform half is N5's.\n"
-    "  kernel           THE UNPORTED TOOL, and still what ships.\n"
+    "  pc_plan_bridge   SCAFFOLDING, and it is now OFF the output path:\n"
+    "                   it feeds `Stage = plan` and `Stage = frames`\n"
+    "                   only, and is idle on every Output cook. N5's\n"
+    "                   deformed branch deletes it. Use `Stage =\n"
+    "                   frames_native` to see the frames the OUTPUT uses.\n"
+    "  kernel           THE REFERENCE, and still what ships for any\n"
+    "                   build the guard refuses - which is 83 of 92.\n"
     "\n"
     "⚠️ EVERY WRANGLE HERE NEEDS vex_precision = 64. pc_rand.h and\n"
     "pc_plan.h both COMPILE at 32 and both answer WRONGLY.\n"
     "\n"
-    "Nothing above is 'done' in the dev-loop sense - no independent\n"
-    "audit has run on this build. Every number is MEASURED in\n"
+    "Nothing above is 'done' in the dev-loop sense until an independent\n"
+    "audit has run on THIS build. Every number is MEASURED in\n"
     "tests/polychain/run_native_checks.py, not asserted here.")
 note.setPosition(hou.Vector2(36.0, -13.0))
 note.setSize(hou.Vector2(15.0, 16.0))
@@ -1080,7 +1124,7 @@ adv.addParmTemplate(hou.StringParmTemplate(
 # was never meant to be rendered.
 adv.addParmTemplate(_menu(
     "stage", "Stage (debug)",
-    [(token, label) for token, _node, label in STAGES], STAGES[0][0],
+    [(token, label) for token, _node, _feeder, label in STAGES], STAGES[0][0],
     "Which stage of the network to output. This is 1c's 'open it up and "
     "toggle nodes off to see what each one does', as one menu: the run "
     "itself, the resolved parameters, the decomposed spline, the fit plan, "

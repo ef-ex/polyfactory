@@ -32,8 +32,10 @@ What it asserts, in order:
      cost that one 20 km fence never shows and 300 streets multiply.
 """
 
+import io
 import math
 import os
+import re
 import struct
 import sys
 import time
@@ -703,12 +705,57 @@ def readability(root):
         _last, "_rig", kit_code=native.sop_body("cook_kit"))
     for _n, _node in place_rig.items():
         rig[_n] = _node
-    drift = []
-    for rig_name, rig_node in sorted(rig.items()):
-        mine = node.node(rig_name)
-        if mine is None:
-            drift.append("%s: absent from the asset" % rig_name)
-            continue
+    # D203 - and the WIRING, not only the parameters.  `OUT_frames` re-pointed
+    # from `pc_frames_valid` to `pc_frames` was 94 [PASS] / 0 green: this
+    # comparison read every parm that decides what a node COMPUTES and never
+    # asked what any node was FED BY, and the comment above claims the
+    # `isBypassed()` scan closed that - it does not, because an unplug is not
+    # a bypass.  A NULL is walked through on the asset side: the asset taps
+    # each stage with an `OUT_*` null the rig has no counterpart for, and a
+    # null is a display tap, not logic.
+    by_path = dict((n.path(), name) for name, n in rig.items())
+
+    def through_nulls(n):
+        for _hop in range(8):
+            if n is None or n.type().name() != "null":
+                return n
+            ins = n.inputs()
+            n = ins[0] if ins else None
+        return n
+
+    wired = [0]
+
+    def compare(target):
+        """The rig against `target`, recomputed - so the WIRING half can be
+        shown to bite instead of asserted to."""
+        drift = []
+        wired[0] = 0
+        for rig_name, rig_node in sorted(rig.items()):
+            mine = target.node(rig_name)
+            if mine is None:
+                drift.append("%s: absent from the asset" % rig_name)
+                continue
+            mine_ins = mine.inputs()
+            for slot, feeder in enumerate(rig_node.inputs()):
+                want = by_path.get(feeder.path()) if feeder is not None \
+                    else None
+                if want is None:
+                    continue      # the rig feeds this slot from a stub or a
+                                  # `feed` node the asset has no twin for
+                wired[0] += 1
+                got = through_nulls(mine_ins[slot]) \
+                    if slot < len(mine_ins) else None
+                got = got.name() if got is not None else None
+                if got != want:
+                    drift.append("%s input %d <- %s (rig %s)"
+                                 % (rig_name, slot, got, want))
+            drift += parm_drift(rig_name, mine, rig_node)
+        bypassed = sorted(c.name() for c in target.children()
+                          if c.isBypassed())
+        return drift + ["%s(bypassed)" % n for n in bypassed], bypassed
+
+    def parm_drift(rig_name, mine, rig_node):
+        drift = []
         if mine.type().name() != rig_node.type().name():
             drift.append("%s: %s vs rig %s"
                          % (rig_name, mine.type().name(),
@@ -729,15 +776,82 @@ def readability(root):
                 drift.append("%s.%s: one side has it" % (rig_name, parm))
             elif a is not None and a.eval() != b.eval():
                 drift.append("%s.%s differs" % (rig_name, parm))
-    bypassed = sorted(c.name() for c in node.children() if c.isBypassed())
-    drift += ["%s(bypassed)" % n for n in bypassed]
-    sub.destroy()
-    check("asset_stages_match_the_rig", not drift,
-          "%d nodes / %d bypassed" % (len(rig), len(bypassed)),
-          "class, VEX precision, snippet, node type and the parameters that "
-          "decide what it computes, for every stage the "
-          "parity rig measures, read back off the SHIPPED asset, plus every "
-          "bypassed node in it: %s" % (", ".join(drift) or "none"))
+        return drift
+
+    drift, bypassed = compare(node)
+    # D203 - AND THE WIRING HALF IS MUTATION-PROVED HERE, not asserted.  A
+    # comparison that quietly stops comparing anything is the shape this suite
+    # has found six times, and `want is None` skipping every slot would do
+    # exactly that in silence.  `pc_place_valid` is fed from `pc_frames_native`
+    # in both declarations; feeding it from `pc_deform_gate` instead is an
+    # intra-stage unplug of precisely the kind an `isBypassed()` scan cannot
+    # see, and it has to be reported.
+    # ON ITS OWN UNLOCKED INSTANCE: `node` is the LOCKED one, which is what
+    # `locked_instance_shows_its_network` is about, and a locked asset refuses
+    # `setInput` outright.
+    mut = root.createNode("pf_polychain", "rigwire_mutation")
+    mut.allowEditingOfContents()
+    mut.node("pc_place_valid").setInput(0, mut.node("pc_deform_gate"))
+    mutated, _b = compare(mut)
+    mut.destroy()
+    restored, _b = compare(node)
+    check("asset_stages_match_the_rig", not drift and not restored,
+          "%d nodes / %d wires / %d bypassed"
+          % (len(rig), wired[0], len(bypassed)),
+          "class, VEX precision, snippet, node type, the parameters that "
+          "decide what it computes AND the input each node is fed by, for "
+          "every stage the parity rig measures, read back off the SHIPPED "
+          "asset, plus every bypassed node in it: %s"
+          % (", ".join(drift) or "none"))
+    check("asset_wiring_comparison_is_load_bearing",
+          any("pc_place_valid input 0" in d for d in mutated),
+          "%d complaints" % len(mutated),
+          "feeding `pc_place_valid` from `pc_deform_gate` instead of "
+          "`pc_frames_native` - an intra-stage UNPLUG, which is not a bypass "
+          "and which the parameter-only comparison could not see - must be "
+          "reported. Got: %s" % ("; ".join(mutated[:2]) or "NOTHING")) 
+
+    # D205 - THE STICKY NOTE IS THE FIRST THING AN ARTIST READS, AND IT SAID
+    # THE OPPOSITE OF THIS BUILD.  It called 13.9 N5's deform gate and N7's
+    # finalize NOT STARTED while `pc_deform_gate` and `pc_finalize` were both
+    # in the network and both cooking on an admitted build, and it said
+    # `Stage = output` is `kernel` when `output` is the guard switch.
+    # `every_wrangle_says_what_it_computes` only asserts a comment is
+    # non-empty, so nothing could see it.  This reads the note back off the
+    # BUILT .hda and refuses to let it call a stage unstarted whose nodes are
+    # standing in the network - the shape `place_stamp_owed_is_live` uses.
+    note = "\n".join(n.text() for n in node.stickyNotes())
+    rotten = note_rot(node, note)
+    nchildren = len(node.children())
+    # AND IT IS MUTATION-PROVED, on the note this build REPLACED: the previous
+    # cycle's text called N5's deform gate and N7's finalize NOT STARTED while
+    # both nodes were standing in the network and cooking, and said
+    # `Stage = output` is `kernel`.  Nothing could see it.  Feeding that exact
+    # text back in has to produce all three complaints.
+    stale = ("  4.4  the DEFORM gate      N5  NOT STARTED - so every piece\n"
+             "  4.6  finalize + guards    N7  NOT STARTED - D153\n"
+             "STAGE STILL DEFAULTS TO `output`, WHICH IS `kernel`.\n")
+    caught = note_rot(node, stale)
+    check("the_note_matches_the_build", not rotten and len(caught) >= 3,
+          "%d chars / %d nodes" % (len(note), nchildren),
+          "13.7's readability deliverable read back off the SHIPPED .hda: no "
+          "13.9 item is called NOT STARTED while its nodes stand in the "
+          "network, the note agrees with what `Stage = output` is wired to, "
+          "and the build script's headline node count is this asset's - "
+          "with the note this build REPLACED fed back in as the mutation "
+          "(%d complaints, needs 3). Rotten: %s"
+          % (len(caught), "; ".join(rotten) or "none"))
+
+    # D203 - AND THE SWITCH'S INPUTS, AGAINST `native.STAGES` COLUMN BY
+    # COLUMN.  The menu sweep above only requires an entry to COOK; it says
+    # nothing about which node the entry is wired to, and three mutations of
+    # the shipped asset proved that gap is not theoretical - see `STAGES`.
+    wiring = stage_wiring_complaints(node)
+    check("every_stage_entry_serves_the_node_it_names", not wiring,
+          "%d entries" % len(native.STAGES),
+          "every `Stage` menu entry is wired to the null it NAMES, and that "
+          "null is fed by the node the declaration says feeds it - the two "
+          "halves of D203. Wrong: %s" % ("; ".join(wiring) or "none"))
 
     # 13.7 rule 5 - a group-name collision between two stages silently
     # corrupts one of them, so every working group carries the prefix.
@@ -758,6 +872,125 @@ def readability(root):
           "unprefixed: %s" % (", ".join(stray) or "none"))
     node.parm("stage").set("output")
     return node
+
+
+def note_rot(node, note):
+    """What the sticky note claims that this build contradicts.
+
+    ⚠️ 13.7's READABILITY DELIVERABLE IS THE FIRST THING AN ARTIST READS ON
+    OPENING THE NETWORK, AND IT ROTTED (D205).  The text shipped on the build
+    before this one called 13.9 N5's deform gate and N7's finalize NOT STARTED
+    while `pc_deform_gate` and `pc_finalize` were both in the network and both
+    cooking on an admitted build, and said `Stage = output` is `kernel` when
+    `output` is the guard switch.  `every_wrangle_says_what_it_computes` only
+    asserts that a comment is non-EMPTY, so an artist toggling
+    `pc_deform_gate` off to see what it does was being told by the network
+    that the node does not exist yet.
+
+    The shape is `place_stamp_owed_is_live`'s: the claim is read back off the
+    BUILT .hda and checked against the graph it describes.
+    """
+    rotten = []
+    for item, owned in (("N5", ("pc_deform_gate",)),
+                        ("N6", ()),
+                        ("N7", ("pc_finalize", "pc_stamp", "pc_out_cast")),
+                        ("N8", ())):
+        if not [ln for ln in note.splitlines()
+                if item in ln and "NOT STARTED" in ln.upper()]:
+            continue
+        standing = [n for n in owned if node.node(n) is not None]
+        if standing:
+            rotten.append("%s is called NOT STARTED and %s is in the network"
+                          % (item, ", ".join(standing)))
+    # the other half of the same rot: what `Stage = output` IS.
+    final = node.node("OUT_final")
+    fed_by = final.inputs()[0].name() if final is not None and final.inputs() \
+        and final.inputs()[0] is not None else "?"
+    if "WHICH IS `kernel`" in note and fed_by != "kernel":
+        rotten.append("the note says `Stage = output` is `kernel`, and "
+                      "OUT_final is fed by %s" % fed_by)
+    # and the build script's own headline node count.
+    src = io.open(os.path.join(REPO, "devScripts",
+                               "create_pf_polychain_hda.py"),
+                  encoding="utf-8").read()
+    claimed = re.search(r"pf_polychain\s+(\d+) nodes", src)
+    if claimed is None or int(claimed.group(1)) != len(node.children()):
+        rotten.append("the build script's docstring says %s nodes and the "
+                      "asset has %d"
+                      % (claimed.group(1) if claimed else "no",
+                         len(node.children())))
+    return rotten
+
+
+def stage_wiring_complaints(node):
+    """Every `Stage` entry of `node`, against `native.STAGES`, column by
+    column.  Returns a list of complaints; empty is the sound build.
+
+    ⚠️ THIS IS THE ASSERTION THE CYCLE'S HEADLINE CHECK WAS RESTING ON AND DID
+    NOT HAVE.  `output_guard_parity`'s ORACLE is the `Stage = reference`
+    switch input, and nothing asserted what that input was wired to: moving it
+    onto `OUT_final` turned the whole parity proof into a comparison of the
+    guarded native output WITH ITSELF over all 92 cases, and the suite stayed
+    at 94 [PASS] / 0 while `output_guard_cost`'s spread collapsed from
+    0.99-1.39x to four ratios of a node against itself.
+
+    Two columns, because a repoint and an UNPLUG are different mutations and
+    the second is the one `asset_stages_match_the_rig`'s `isBypassed()` scan
+    structurally cannot see.
+    """
+    switch = node.node("stage_switch")
+    if switch is None:
+        return ["stage_switch is absent"]
+    ins = switch.inputs()
+    bad = []
+    for i, (token, null, feeder, _label) in enumerate(native.STAGES):
+        got = ins[i].name() if i < len(ins) and ins[i] is not None else None
+        if got != null:
+            bad.append("%s -> %s (want %s)" % (token, got, null))
+        target = node.node(null)
+        if target is None:
+            bad.append("%s: %s is absent from the asset" % (token, null))
+            continue
+        if feeder is None:
+            continue                      # `config` is a SOP, not a tapped null
+        tins = target.inputs()
+        fed = tins[0].name() if tins and tins[0] is not None else None
+        if fed != feeder:
+            bad.append("%s <- %s (want %s)" % (null, fed, feeder))
+    return bad
+
+
+def stage_wiring_mutation(root):
+    """The four repoints that were all 94 [PASS] / 0 green, each proved to
+    redden the check above.
+
+    Rows 1-3 move a switch input onto another stage's null (w20, w3, w2); row
+    4 leaves the switch alone and UNPLUGS a stage's own output null from the
+    node that feeds it (w18) - the mutation the parameter-only rig comparison
+    cannot see, because an unplug is not a bypass.
+    """
+    rows = []
+    for tag, kind, where, target in (
+            ("reference_entry_serves_the_output", "switch", 1, "OUT_final"),
+            ("output_entry_serves_the_reference", "switch", 0, "OUT_reference"),
+            ("frames_entry_serves_the_reference", "switch", 6, "OUT_reference"),
+            ("out_frames_skips_the_blast", "feeder", "OUT_frames",
+             "pc_frames")):
+        node = root.createNode("pf_polychain", "wiremut_%s" % tag)
+        node.allowEditingOfContents()
+        if kind == "switch":
+            node.node("stage_switch").setInput(where, node.node(target))
+        else:
+            node.node(where).setInput(0, node.node(target))
+        bad = stage_wiring_complaints(node)
+        rows.append((tag, bool(bad), bad[0] if bad else "STAYED GREEN"))
+        node.destroy()
+    check("mutation_stage_wiring", all(r[1] for r in rows),
+          "%d/%d caught" % (sum(1 for r in rows if r[1]), len(rows)),
+          "each of the four menu-repoint / unplug mutations that survived a "
+          "94-PASS suite must be reported by "
+          "`every_stage_entry_serves_the_node_it_names`. %s"
+          % "; ".join("%s: %s" % (r[0], r[2]) for r in rows))
 
 
 # --- 6: cook count and the two benches --------------------------------------
@@ -1790,6 +2023,60 @@ def fixture_cases():
         rules=[Rule("default", "random", ["post", "panel", "gate"],
                     scope="segment")],
         params=Params(fill="adaptive"))))
+
+    # --- D202: an `attr:` SUBJECT THAT IS NOT A SCALAR ---------------------
+    # `prim(0, name, pr)` READS COMPONENT 0.  `place._prim_attrs` hands the
+    # reference `prim.attribValue(name)` - the WHOLE tuple - and
+    # `evaluate_cond`'s TypeError guard makes every ordered comparison on it
+    # False, so the two sides were answering different questions on a build
+    # the guard ADMITS.  Measured on the shipped asset before the fix, a 20 m
+    # line with `vecattr = (7.5, 1.0, 2.0)`: `gt 5.0` built 12 `gate` prims at
+    # `Stage = output` against the reference's 10 `panel` prims, and
+    # `lt 100.0` diverged the other way.  `eq`/`ne` agreed by luck (a tuple is
+    # never equal to a float on either side), and they are the controls here.
+    # Every operator is present because WHICH ones agreed was an accident of
+    # the value, not a property of the code.
+    for tag, value in (("vec3", (7.5, 1.0, 2.0)), ("vec2", (7.5, 1.0)),
+                       ("ivec3", (8, 1, 2)), ("iarray", [8, 1, 2]),
+                       ("sarray", ["a", "b"])):
+        for op, want in (("gt", 5.0), ("ge", 5.0), ("lt", 100.0),
+                         ("eq", 5.0), ("ne", 5.0), ("in", [7.5, 1.0])):
+            geo = hou.Geometry()
+            poly = cases.polyline(geo, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)],
+                                  curve_id="S")
+            geo.addAttrib(hou.attribType.Prim, "vecattr", value)
+            poly.setAttribValue("vecattr", value)
+            out.append(("attr_%s_%s" % (tag, op), geo, kit, Style(
+                "av", 1, 3,
+                rules=[Rule("default", "conditional", ["gate", "post"],
+                            cond={"subject": "attr:vecattr", "op": op,
+                                  "value": want}),
+                       Rule("default", "first", ["panel"])],
+                params=Params(fill="adaptive"))))
+
+    # --- D202: `ctx_base`'s own DICT-VALUED keys ---------------------------
+    # `cond_subject` ends in `ctx.get(subject)`, and `attrs` / `marker_data`
+    # are real keys of `ctx_base` whose value is a DICT - not None, so Python
+    # reaches the operator and answers True to `ne`.  `pc_cond_subject` had no
+    # answer but "absent", which is False under every operator: measured,
+    # `{"subject": "attrs", "op": "ne", "value": "zzz"}` planned 10 pieces
+    # natively against `plan.plan_sections`' 12.  It could not reach
+    # `Stage = output` because `style._check_cond` calls `attrs` an unknown
+    # subject and `_native_ok` refuses on any style warning - protection by
+    # coincidence, one keystroke from being lost, which is why the parity is
+    # asserted here rather than left to the warning.
+    for subj in ("attrs", "marker_data"):
+        for op, want in (("ne", "zzz"), ("eq", "zzz"), ("gt", 5.0),
+                         ("in", ["zzz"])):
+            geo = hou.Geometry()
+            cases.polyline(geo, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)],
+                           curve_id="S")
+            out.append(("subject_%s_%s" % (subj, op), geo, kit, Style(
+                "sd", 1, 3,
+                rules=[Rule("default", "conditional", ["gate", "post"],
+                            cond={"subject": subj, "op": op, "value": want}),
+                       Rule("default", "first", ["panel"])],
+                params=Params(fill="adaptive"))))
     return out
 
 
@@ -3235,7 +3522,8 @@ for (int i = 0; i < n; i++) {
 }'''
 
 
-def emit_scale_in_pieces(root, npts, stamp_snippet=None, passes=3):
+def emit_scale_in_pieces(root, npts, stamp_snippet=None, passes=3,
+                        solve_snippet=None):
     """What `pc_plan_emit` and `pc_stamp` cost PER PIECE, each on its own.
 
     ⚠️ THE TWO NODES ARE TIMED SEPARATELY AND EACH IS DIRTIED FROM ITS OWN
@@ -3244,10 +3532,18 @@ def emit_scale_in_pieces(root, npts, stamp_snippet=None, passes=3):
     so a nudge wrangle sits above each node and its `cookCount` has to advance
     once per pass or the row fails.
 
-    `stamp_snippet` replaces `pc_stamp.vfl`'s VEX, and the class moves with it
-    - the mutation lever, so the ceiling can be shown to bite.
+    `stamp_snippet` replaces `pc_stamp.vfl`'s VEX and `solve_snippet`
+    `pc_plan_solve.vfl`'s - the mutation levers, so each ceiling can be shown
+    to bite.  The stamp's class moves with its snippet, because a DETAIL
+    wrangle is what de-batching MEANS.
 
-    Returns (npieces, emit_best, stamp_best, emit_cooks, stamp_cooks).
+    ⚠️ `pc_plan_solve` IS TIMED FIRST, and the order is not arbitrary: its own
+    nudge dirties everything below it, so timing it after the other two would
+    leave their cook counts short.  Each node still has its OWN nudge wrangle
+    above it and its own `cookCount` assertion.
+
+    Returns (npieces, emit_best, stamp_best, emit_cooks, stamp_cooks,
+             solve_best, solve_cooks).
     """
     from polyfactory.polychain import Params, Rule, Style
     from polyfactory.polychain import kit as KIT
@@ -3267,6 +3563,9 @@ def emit_scale_in_pieces(root, npts, stamp_snippet=None, passes=3):
     last, _dec = native.stage_decompose(sub, src, cfg)
     plan, pn = native.stage_plan(sub, last, cfg)
     emit, stamp = pn["pc_plan_emit"], pn["pc_stamp"]
+    solve = pn["pc_plan_solve"]
+    if solve_snippet is not None:
+        solve.parm("snippet").set(solve_snippet)
     if stamp_snippet is not None:
         # a DETAIL wrangle is what de-batching MEANS; the class moves with the
         # snippet or the mutation would just be a slower point wrangle
@@ -3284,7 +3583,8 @@ def emit_scale_in_pieces(root, npts, stamp_snippet=None, passes=3):
         target.setInput(0, node)
         return node
 
-    dirt_emit = nudge("emitdirty", pn["pc_plan_solve"], emit)
+    dirt_solve = nudge("solvedirty", pn["pc_plan_clean"], solve)
+    dirt_emit = nudge("emitdirty", solve, emit)
     dirt_stamp = nudge("stampdirty", pn["pc_plan_only"], stamp)
     plan.cook(force=True)
     npieces = len(plan.geometry().points())
@@ -3300,10 +3600,12 @@ def emit_scale_in_pieces(root, npts, stamp_snippet=None, passes=3):
             best = dt if best is None else min(best, dt)
         return best, node.cookCount() - before
 
+    solve_best, solve_cooks = timed(solve, dirt_solve, 200)
     emit_best, emit_cooks = timed(emit, dirt_emit, 2)
     stamp_best, stamp_cooks = timed(stamp, dirt_stamp, 40)
     sub.destroy()
-    return npieces, emit_best, stamp_best, emit_cooks, stamp_cooks
+    return (npieces, emit_best, stamp_best, emit_cooks, stamp_cooks,
+            solve_best, solve_cooks)
 
 
 # The ceilings, in microseconds per piece, and where each number comes from.
@@ -3315,6 +3617,38 @@ def emit_scale_in_pieces(root, npts, stamp_snippet=None, passes=3):
 #   `pc_stamp` de-batched into a detail loop:       9.4 us/piece at 20 000
 EMIT_CEILING_US = 6.0
 STAMP_CEILING_US = 3.0
+# ⚠️ AND THE NODE THAT CARRIES THE WHOLE OF THE PORT'S COST REGRESSION, WHICH
+# D193'S MANDATE NAMED AND DID NOT REACH (D204).  `pc_plan_solve` is 78 % of
+# the native chain at 20 km straight, and the only thing watching it was
+# `bench_plan_long_curve`, which asserts `best < 30.0` and prints "NO CEILING
+# is asserted" - a thirty-second wall around a 0.6-second node, so a change
+# that DOUBLED it would still print PASS.  The two ceilings D193 did land
+# cover `pc_plan_emit` and `pc_stamp` at 2.8 and 0.34 us/piece: the two
+# cheapest nodes in the chain.
+# MEASURED LADDER on this build, `pc_plan_solve` alone, best of 2 dirtied
+# passes with `cookCount` asserted, after the identity-permutation skip:
+#     1 250   2 500   5 000  10 000  20 000  40 000  80 000  pieces
+#     20.99   20.73   21.93   23.74   32.23   53.26   53.79  us/piece
+# It is NOT quadratic - 40 000 -> 80 000 is flat - but it is not flat either:
+# the step between 10 000 and 40 000 is where the per-section arrays stop
+# fitting in cache.  So the solve gets its OWN growth ceiling rather than
+# sharing `GROWTH_CEILING`; 1.5x would sit exactly on a measurement that reads
+# 1.49-1.50x over three runs, which is a flaky check, not a strict one.  2.0x
+# still blows up three orders of magnitude on a quadratic node.
+# The absolute ceiling sits between the two measurements it separates, both
+# taken as the MIN over three interleaved repetitions (`solve_scale_rates`
+# says why): the sound node reads 26-28 us/piece and the spill mutant 41-49.
+SOLVE_CEILING_US = 34.0
+SOLVE_GROWTH_CEILING = 2.0
+
+# The dedup table's own branch, and the SPILL branch beside it - which writes
+# the five per-piece STRING ARRAYS the table replaced.  A VEX string array
+# attribute costs ~9 us per ELEMENT to write and five of them at 20 000 pieces
+# is 100 000 elements: that was the port's 20x defect, and forcing the spill
+# path restores the cost model WITHOUT changing a single planned value, which
+# is exactly the property a cost ceiling is for.
+SOLVE_TABLED = "if (spill) {"
+SOLVE_SPILLED = "if (1) {"
 # a linear node's per-piece cost does not GROW with the piece count.  1.5x is
 # slack for thread start-up and cache, and the quadratic expander blows it by
 # three orders of magnitude between these two sizes.
@@ -3334,23 +3668,32 @@ def emit_scale_check(root):
     """
     small = emit_scale_in_pieces(root, 5001)
     big = emit_scale_in_pieces(root, 40001)
-    for label, node, index, ceiling in (("emit", "pc_plan_emit", 1,
-                                         EMIT_CEILING_US),
-                                        ("stamp", "pc_stamp", 2,
-                                         STAMP_CEILING_US)):
+    # ⚠️ `pc_plan_solve` IS NOT IN THIS LOOP - `solve_scale_check` measures it,
+    # for a reason that is a property of the node and not a preference.  The
+    # emit and the stamp are 2.6 and 0.4 us/piece and read within a few per
+    # cent of each other run to run; the solve is ~27 and reads 26-42 across
+    # runs on the same build, because it is the one node here that is heavy
+    # enough for another process on the machine to move.  A single best-of-3
+    # pass is not a strong enough estimator to hang a tight ceiling on, and a
+    # LOOSE ceiling is exactly the "NO CEILING is asserted" problem in a new
+    # costume - measured: with the ceiling at 40 the string-array mutation
+    # passed at 37.44 in a loaded run and failed at 49.45 in a quiet one.
+    for label, node, index, cooki, ceiling, growth in (
+            ("emit", "pc_plan_emit", 1, 3, EMIT_CEILING_US, GROWTH_CEILING),
+            ("stamp", "pc_stamp", 2, 4, STAMP_CEILING_US, GROWTH_CEILING)):
         rate_small = small[index] * 1e6 / small[0]
         rate_big = big[index] * 1e6 / big[0]
-        cooks = small[2 + index] == 3 and big[2 + index] == 3
+        cooks = small[cooki] == 3 and big[cooki] == 3
         check("%s_cost_is_flat_in_piece_count" % label,
               cooks and rate_big <= ceiling
-              and rate_big <= GROWTH_CEILING * rate_small,
+              and rate_big <= growth * rate_small,
               "%.2f us/piece" % rate_big,
               "`%s` ALONE on %d pieces, best of 3 dirtied passes; %.2f "
               "us/piece at %d pieces, so the growth is %.2fx (ceiling %.1fx). "
-              "Absolute ceiling %.1f us/piece. `mutation_pc_stamp_debatched` "
-              "proves the stamp ceiling bites"
+              "Absolute ceiling %.1f us/piece. Every one of the three has "
+              "a mutation that proves it bites"
               % (node, big[0], rate_small, small[0], rate_big / rate_small,
-                 GROWTH_CEILING, ceiling))
+                 growth, ceiling))
 
 
 def emit_scale_mutation(root):
@@ -3362,9 +3705,10 @@ def emit_scale_mutation(root):
     from polyfactory.polychain import vexsrc
     body = vexsrc.source("pc_stamp")
     found = STAMP_BATCHED in body
-    npieces, _emit, stamp_best, _ec, cooks = emit_scale_in_pieces(
+    row = emit_scale_in_pieces(
         root, 40001, stamp_snippet=body.replace(STAMP_BATCHED,
                                                 STAMP_DEBATCHED), passes=1)
+    npieces, stamp_best, cooks = row[0], row[2], row[4]
     rate = stamp_best * 1e6 / npieces
     check("mutation_pc_stamp_debatched",
           found and cooks == 1 and rate > STAMP_CEILING_US,
@@ -3373,6 +3717,76 @@ def emit_scale_mutation(root):
           "thread - M2, which was 77 / 0 green - costs %.2f us/piece against "
           "the batched %.1f-or-less. The ceiling above is a measurement, not "
           "a decoration" % (npieces, rate, STAMP_CEILING_US))
+
+
+def solve_scale_rates(root, reps=3):
+    """`pc_plan_solve` alone, at two sizes and in its two transports, as the
+    MIN over `reps` INTERLEAVED repetitions of each variant.
+
+    ⚠️ THE ESTIMATOR IS THE POINT.  A single best-of-3 pass on this node reads
+    26-42 us/piece for the SAME build - measured, three interleaved
+    repetitions gave sound 27.40 / 42.15 / 27.10 while the mutant gave 48.79 /
+    44.19 / 41.28, so a run that catches the 42 and the 41 reports a ratio of
+    1.05 and a run that catches the 27 and the 49 reports 1.78.  Any threshold
+    between them is a coin toss on a shared machine.  The MIN over
+    repetitions is the estimator that is not: interference can only make a
+    pass slower, so the minimum is the closest thing to the node's own cost,
+    and interleaving means both variants see the same machine.
+
+    Returns ({"small", "big", "spill"} -> us/piece, every cook counted).
+    """
+    from polyfactory.polychain import vexsrc
+    body = vexsrc.source("pc_plan_solve")
+    mutant = body.replace(SOLVE_TABLED, SOLVE_SPILLED)
+    best = {"small": None, "big": None, "spill": None}
+    cooks = []
+    for _rep in range(reps):
+        for tag, npts, snippet in (("small", 5001, None),
+                                   ("big", 40001, None),
+                                   ("spill", 40001, mutant)):
+            row = emit_scale_in_pieces(root, npts, passes=2,
+                                       solve_snippet=snippet)
+            cooks.append(row[6])
+            rate = row[5] * 1e6 / row[0]
+            best[tag] = rate if best[tag] is None else min(best[tag], rate)
+    return best, all(c == 2 for c in cooks), body.count(SOLVE_TABLED) == 1
+
+
+def solve_scale_check(root):
+    """D204 - `pc_plan_solve` gets the per-piece ceiling D193's mandate named
+    and did not reach, and the mutation that proves it bites.
+
+    ⚠️ THE MUTATION DOES NOT CHANGE A SINGLE PLANNED VALUE.  Forcing the solve
+    down its SPILL branch writes the five per-piece string ARRAYS the dedup
+    table replaced - a live, supported transport (`plan_row_table_spills`
+    exercises it) that ships the same plan - so every parity check in the
+    suite stays green under it.  That is precisely why the 20x regression
+    could ship unseen, and precisely what a cost ceiling is for.
+    """
+    rates, cooked, found = solve_scale_rates(root)
+    growth = rates["big"] / max(rates["small"], 1e-9)
+    ratio = rates["spill"] / max(rates["big"], 1e-9)
+    check("solve_cost_is_flat_in_piece_count",
+          cooked and rates["big"] <= SOLVE_CEILING_US
+          and growth <= SOLVE_GROWTH_CEILING,
+          "%.2f us/piece" % rates["big"],
+          "`pc_plan_solve` ALONE on 20 000 pieces, min over 3 interleaved "
+          "repetitions of best-of-2 dirtied passes; %.2f us/piece at 2 500, "
+          "so the growth is %.2fx (ceiling %.1fx). Absolute ceiling %.1f "
+          "us/piece"
+          % (rates["small"], growth, SOLVE_GROWTH_CEILING, SOLVE_CEILING_US))
+    check("mutation_pc_plan_solve_string_arrays",
+          found and cooked and rates["spill"] > SOLVE_CEILING_US
+          and ratio >= 1.25,
+          "%.2f us/piece / %.2fx (target present: %s)"
+          % (rates["spill"], ratio, found),
+          "the solve writing the five per-piece string ARRAYS the dedup table "
+          "replaced - the shape that measured twenty times the Python it "
+          "ported - costs %.2f us/piece against the tabled %.2f, on an output "
+          "that is value-for-value identical. It has to clear the %.1f "
+          "ceiling AND be at least 1.25x the sound node measured in the same "
+          "interleaved run"
+          % (rates["spill"], rates["big"], SOLVE_CEILING_US))
 
 
 def sections_mutation(root, built):
@@ -3445,13 +3859,39 @@ NATIVE_STAGES = (
      ("pc_sections", "pc_sec_only", "pc_plan_clean", "pc_plan_solve",
       "pc_plan_emit", "pc_plan_only", "pc_stamp"),
      ("config",)),
+    ("frames_native", "OUT_frames_native",
+     ("pc_proto", "pc_deform_gate", "pc_frames_native"),
+     ("config", "kit_starter")),
     ("place_native", "OUT_place_native",
-     ("pc_proto", "pc_frames_native", "pc_place_valid", "copy_packed"),
+     ("pc_proto", "pc_deform_gate", "pc_frames_native", "pc_place_valid",
+      "pc_packed_only", "copy_packed", "pc_finalize", "pc_out_cast",
+      "pc_warn_collate"),
      ("config", "kit_starter")),
 )
 
+# ⚠️ AND THE STAGE THE WHOLE CYCLE IS ABOUT, WHICH HAD NO ROW (D203).
+# `NATIVE_STAGES` watched three stages and named no node this cycle added -
+# not `pc_deform_gate`, `pc_packed_only`, `pc_finalize`, `pc_out_cast`,
+# `pc_warn_collate` or either guard switch - and there was no row for `output`
+# at all.  It gets its own tuple because it needs its own FIXTURE: the L-shape
+# below has a corner, 4.3 is N8, so level 1 refuses it outright and the whole
+# native branch is correctly idle on it.  A straight flat run is what the
+# guard admits.
+OUTPUT_STAGE = (
+    ("output", "OUT_final",
+     ("pc_deform_gate", "pc_packed_only", "pc_finalize", "pc_out_cast",
+      "pc_warn_collate", "guard_envelope", "guard_native"),
+     ("config",)),
+)
 
-def stage_is_really_native(root, tag, rewire=None):
+# The L-shape every native STAGE is dirtied on, and the straight flat run the
+# guard ADMITS - which is the only shape `output` can be asserted native on.
+D192_CORNER = [(0.0, 0.0, 0.0), (9.0, 0.0, 0.0), (9.0, 0.0, 7.0)]
+D192_STRAIGHT = [(0.0, 0.0, 0.0), (9.0, 0.0, 0.0), (18.0, 0.0, 0.0)]
+
+
+def stage_is_really_native(root, tag, rewire=None, rows=NATIVE_STAGES,
+                           pts=None):
     """Cook the SHIPPED asset at each NATIVE Stage and ask the graph, not the
     label, whether that stage is native.
 
@@ -3479,8 +3919,7 @@ def stage_is_really_native(root, tag, rewire=None):
     """
     node = root.createNode("pf_polychain", "d192_" + tag)
     geo = hou.Geometry()
-    cases.polyline(geo, [(0.0, 0.0, 0.0), (9.0, 0.0, 0.0), (9.0, 0.0, 7.0)],
-                   curve_id="D192")
+    cases.polyline(geo, pts or D192_CORNER, curve_id="D192")
     src = native.feed(root, geo, "D192IN_" + tag)
     # ⚠️ THE DIRTYING LEVER IS THE SPLINE, NOT A PARM.  D164: a cook that is a
     # no-op measures nothing, and `corner_angle_deg` only dirties `config`, so
@@ -3498,7 +3937,7 @@ def stage_is_really_native(root, tag, rewire=None):
 
     if rewire is not None:
         token, target = rewire
-        served = dict((t, n) for t, n, _w, _p in NATIVE_STAGES)[token]
+        served = dict((t, n) for t, n, _w, _p in rows)[token]
         switch = node.node("stage_switch")
         moved = [i for i, inp in enumerate(switch.inputs())
                  if inp is not None and inp.name() == served]
@@ -3508,7 +3947,7 @@ def stage_is_really_native(root, tag, rewire=None):
     pysops = [c for c in node.children() if c.type().name() == "python"]
     bad = []
     nudge = 2
-    for token, served, must_cook, allowed in NATIVE_STAGES:
+    for token, served, must_cook, allowed in rows:
         node.parm("stage").set(token)
         dirt.parm("nudge").set(nudge)
         node.cook(force=True)
@@ -3534,12 +3973,16 @@ def stage_is_really_native(root, tag, rewire=None):
 
 def native_stage_check(root):
     bad = stage_is_really_native(root, "sound")
-    watched = sum(len(w) for _t, _n, w, _p in NATIVE_STAGES)
+    bad += stage_is_really_native(root, "sound_out", rows=OUTPUT_STAGE,
+                                  pts=D192_STRAIGHT)
+    rows = NATIVE_STAGES + OUTPUT_STAGE
+    watched = sum(len(w) for _t, _n, w, _p in rows)
     check("native_stages_are_really_native", not bad,
-          "%d nodes / %d stages" % (watched, len(NATIVE_STAGES)),
+          "%d nodes / %d stages" % (watched, len(rows)),
           "D192, on the SHIPPED asset: every node each native Stage is made "
           "of advanced its cookCount, and no Python SOP outside its named "
-          "allowance did. Complaints: %s" % (", ".join(bad) or "none"))
+          "allowance did - `output` among them, on a straight flat run the "
+          "guard admits. Complaints: %s" % (", ".join(bad) or "none"))
 
 
 def native_stage_mutation(root):
@@ -3550,10 +3993,18 @@ def native_stage_mutation(root):
     cooks the VEX solve, the parameters still match, and the stage still
     produces a plan - which is precisely why it survived 77 / 0.
     """
-    for tag, token, target, python_sop in (
-            ("m4b", "plan_native", "OUT_plan", "pc_plan_bridge"),
-            ("m4", "place_native", "OUT_reference", "kernel")):
-        bad = stage_is_really_native(root, tag, rewire=(token, target))
+    for tag, token, target, python_sop, rows, pts in (
+            ("m4b", "plan_native", "OUT_plan", "pc_plan_bridge",
+             NATIVE_STAGES, None),
+            ("m4", "place_native", "OUT_reference", "kernel",
+             NATIVE_STAGES, None),
+            # D203 / w3 - THE EXACT UNDO OF THIS CYCLE: the `output` entry
+            # pointed back at the Python reference.  Before `output` had a
+            # `NATIVE_STAGES` row, only two of 94 checks could see it.
+            ("w3", "output", "OUT_reference", "kernel",
+             OUTPUT_STAGE, D192_STRAIGHT)):
+        bad = stage_is_really_native(root, tag, rewire=(token, target),
+                                     rows=rows, pts=pts)
         mine = [b for b in bad if b.startswith(token + ":")]
         check("mutation_%s_unplugged" % token,
               len(mine) >= 2 and any(python_sop in b for b in mine),
@@ -3637,7 +4088,7 @@ def output_guard_parity(root, built):
     the two are the same node and agree trivially; the row that matters is the
     count of cases where it chose the NATIVE chain, and it is printed.
     """
-    took_native, took_ref, bad = [], [], []
+    took_native, took_ref, bad, fallback = [], [], [], []
     for name in sorted(built):
         case = built[name]
         node, geo = asset_on(root, case, "output", name + "_gp")
@@ -3646,6 +4097,16 @@ def output_guard_parity(root, built):
             continue
         node.allowEditingOfContents()
         got = _snapshot(geo)
+        # ⚠️ THE TALLY IS EVIDENCE, NOT THE ENVELOPE'S OWN CLAIM (D203).  It
+        # used to be read off `pc_envelope2`'s `_native_ok2` detail int, which
+        # cooks whether or not anything downstream is wired to it - so with
+        # the `output` entry re-pointed at `OUT_reference` (the exact undo of
+        # this cycle) this row still printed "9 native / 83 reference ...
+        # identical" and PASSED.  `copy_packed` is the node that assembles the
+        # native fence and it is INSIDE level 2's branch, so a switch that did
+        # not select that branch leaves it at cookCount 0.  The envelope is
+        # kept as a CROSS-CHECK and a disagreement fails the row.
+        native_cooked = node.node("copy_packed").cookCount() > 0
         env = node.node("pc_envelope").geometry()
         level1 = int(env.attribValue("_native_ok")) if \
             env.findGlobalAttrib("_native_ok") is not None else 0
@@ -3654,14 +4115,20 @@ def output_guard_parity(root, built):
             env2 = node.node("pc_envelope2").geometry()
             level2 = int(env2.attribValue("_native_ok2")) if \
                 env2.findGlobalAttrib("_native_ok2") is not None else 0
+        if level1 and not level2:
+            fallback.append(name)
+        if bool(level2) != native_cooked:
+            bad.append((name, "the envelope says %s and copy_packed %s"
+                        % ("native" if level2 else "reference",
+                           "cooked" if native_cooked else "did not cook")))
         node.parm("stage").set("reference")
         node.cook(force=True)
         want = _snapshot(node.geometry())
         diff = _first_difference(want, got)
-        (took_native if level2 else took_ref).append(name)
+        (took_native if native_cooked else took_ref).append(name)
         if diff:
-            bad.append((name, ("NATIVE" if level2 else "reference") + ": "
-                        + diff))
+            bad.append((name, ("NATIVE" if native_cooked else "reference")
+                        + ": " + diff))
         node.destroy()
     check("output_guard_parity", not bad,
           "%d native / %d reference" % (len(took_native), len(took_ref)),
@@ -3670,13 +4137,132 @@ def output_guard_parity(root, built):
           "bounds, every point position, the detail arrays and the groups. "
           "%s" % (len(built),
                   "; ".join("%s %s" % b for b in bad[:3]) or "identical"))
+    # ⚠️ AND WHAT MAKES THE 1.15x REFUSED CEILING HONEST.  A build that passes
+    # level 1 and is refused by level 2 cooks the native chain AND the
+    # reference - measured at 1.52x (2 km) and 1.57x (20 km) by
+    # `bench_guard_fallback`.  Level 1 answers the deform question itself, so
+    # today NO case in the 92 reaches level 2's refusal and nobody pays that.
+    # That is a property of the current level 1, not a law: §19.7's next item
+    # is widening level 1 past the straight-and-flat bound, which is exactly
+    # the change that re-opens it.  This row is what says so out loud.
+    check("no_case_pays_the_guard_fallback", not fallback,
+          "%d of %d" % (len(fallback), len(built)),
+          "cases that pass level 1 and are then REFUSED by level 2, cooking "
+          "both chains at the 1.5-1.6x `bench_guard_fallback` measures: %s"
+          % (", ".join(fallback[:5]) or "none"))
     check("output_guard_takes_the_native_chain", len(took_native) >= 8,
           len(took_native),
-          "cases the guard hands to the NATIVE chain: %s%s. A guard that "
-          "never fires would make the row above vacuous"
+          "cases whose `Stage = output` cook ADVANCED `copy_packed`'s "
+          "cookCount - observed, not read off the envelope's own verdict "
+          "(D203): %s%s. A guard that never fires would make the row above "
+          "vacuous"
           % (", ".join(sorted(took_native)[:8]),
              " ..." if len(took_native) > 8 else ""))
     return took_native
+
+
+def payload_cond_parity(root):
+    """D202 - a `pc_cond` VALUE has to mean the same thing after the PAYLOAD
+    round-trip, and for three list lengths it did not.
+
+    ⚠️ NOTHING IN THE SUITE ROUND-TRIPPED A CONDITION VALUE.  `stress_cases`
+    and `fixture_cases` hand `rule_table` a live `Style` object, so a `cond`
+    value stays the plain Python list it was written as - but the artist face
+    writes the style into a DICT POINT ATTRIBUTE and `style.read` reads it
+    back, and Houdini hands a 2-, 3- or 4-number list back as a
+    `hou.Vector2/3/4`.  Those are neither `list` nor `tuple`, so
+    `_cond_columns` classified them COND_BAD and `pc_evaluate_cond` answered
+    False to `in` where the reference answers True.  MEASURED on the shipped
+    asset, a 20 m line with
+    `{"subject": "sectionLength", "op": "in", "value": [20.0, 3.0]}`:
+    `Stage = output` built 10 prims all `pc_module = panel`, `Stage =
+    reference` built 12 all `gate` - 100 % of the run wrong, on a build the
+    guard ADMITS (L1=1 L2=1), with `style._check_cond` silent because both the
+    subject and the operator are known.  Lengths 1, 5 and 6 come back as
+    tuples and agreed, which is exactly why 92 scene cases and a 170-build
+    stress matrix could not see it.
+
+    So the check sweeps the LENGTHS across the boundary - both sides of it -
+    and compares the shipped asset's two stages on everything a consumer can
+    see, not just the prim count.
+    """
+    from polyfactory.polychain import Params, Rule, Style
+    from polyfactory.polychain import style as STY
+    bad, kinds = [], []
+    line = [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)]
+    for n in range(1, 7):
+        value = [20.0] + [3.0 + i for i in range(n - 1)]
+        style = Style("cs", 1, 0, rules=[
+            Rule("default", "conditional", ["gate"],
+                 cond={"subject": "sectionLength", "op": "in",
+                       "value": value}),
+            Rule("default", "first", ["panel"])], params=Params())
+        # the round trip itself, in isolation: what `style.read` hands back
+        # has to still classify as a LIST.
+        payload = hou.Geometry()
+        STY.write(payload, style)
+        back, _warns = STY.read(payload)
+        got = back.rules[0].cond.get("value")
+        kind = H._cond_columns(dict(back.rules[0].cond))[0]
+        kinds.append("len %d -> %s kind %d" % (n, type(got).__name__, kind))
+        if kind != H.COND_LIST:
+            bad.append("len %d: `%s` classifies as kind %d after the round "
+                       "trip" % (n, type(got).__name__, kind))
+        # and the whole asset, both stages, on the same style.
+        geo = hou.Geometry()
+        cases.polyline(geo, line, curve_id="CS")
+        case = {"curve": geo, "kit": None, "style": style}
+        node, out = asset_on(root, case, "output", "pcp%d" % n)
+        if out is None:
+            bad.append("len %d: cook failed" % n)
+            node.destroy()
+            continue
+        got_snap = _snapshot(out)
+        node.parm("stage").set("reference")
+        node.cook(force=True)
+        diff = _first_difference(_snapshot(node.geometry()), got_snap)
+        if diff:
+            bad.append("len %d: %s" % (n, diff))
+        node.destroy()
+    # AND THE FAIL-SAFE, which is the other half of D202: a value the rule
+    # table genuinely CANNOT carry must make level 1 refuse the build, not
+    # evaluate to False in VEX and to something else in Python.  A `cond` with
+    # no `value` key at all is the reachable case - `_cond_columns` answers
+    # COND_BAD for it - and every other unported feature in `_native_ok`
+    # already fails safe this way.
+    novalue = Style("nv", 1, 0, rules=[
+        Rule("default", "conditional", ["gate"],
+             cond={"subject": "sectionLength", "op": "eq"}),
+        Rule("default", "first", ["panel"])], params=Params())
+    kind = H._cond_columns(dict(novalue.rules[0].cond))[0]
+    geo = hou.Geometry()
+    cases.polyline(geo, line, curve_id="CS")
+    node, out = asset_on(root, {"curve": geo, "kit": None, "style": novalue},
+                         "output", "pcp_novalue")
+    node.allowEditingOfContents()
+    env = node.node("pc_envelope").geometry()
+    refused = not int(env.attribValue("_native_ok")) \
+        if env.findGlobalAttrib("_native_ok") is not None else False
+    node.parm("stage").set("reference")
+    node.cook(force=True)
+    safe_diff = _first_difference(_snapshot(node.geometry()),
+                                  _snapshot(out) if out is not None else None) \
+        if out is not None else "cook failed"
+    node.destroy()
+    check("native_ok_refuses_an_unreadable_cond",
+          kind == H.COND_BAD and refused and not safe_diff,
+          "kind %d / refused %s" % (kind, refused),
+          "a `pc_cond` whose VALUE the rule table cannot represent (here: no "
+          "`value` key, which is COND_BAD) must make level 1 refuse the build "
+          "outright - COND_BAD used to mean `VEX evaluates this as False`, "
+          "which is the reference's answer only by luck. Output vs "
+          "reference: %s" % (safe_diff or "identical"))
+
+    check("payload_cond_values_survive_the_round_trip", not bad,
+          "%d lengths" % len(kinds),
+          "a list-valued `pc_cond` written through `style.write` and read "
+          "back: %s. `Stage = output` against `Stage = reference` on each. "
+          "%s" % ("; ".join(kinds), "; ".join(bad[:3]) or "identical"))
 
 
 def output_guard_mutation(root, built):
@@ -3766,10 +4352,14 @@ def output_guard_cost(root):
       * REFUSED - the build takes the reference exactly as it did before, so
         the only extra cost is level 1's own probe.  1.15x, and it measures
         0.93-1.03x.
-      * ADMITTED - the build takes the native chain.  1.6x, and it measures
-        1.21-1.36x, ALL OF IT `pc_plan_solve`: 61 us/piece against
-        `plan.plan_sections`' 2.2 us/piece on the same input.  That is the
-        next cycle's first item and this ceiling is where it will be paid off.
+      * ADMITTED - the build takes the native chain.  1.6x, and it measured
+        1.21-1.36x while `pc_plan_solve` was 61 us/piece against
+        `plan.plan_sections`' 2.2 on the same input.  Half of that is paid
+        off: the deduped row table took the solve to ~31 us/piece and D204's
+        identity-permutation skip took another 13-18 % off it, so this shape
+        now reads 0.92-1.05x.  `solve_cost_is_flat_in_piece_count` is the
+        committed per-piece ceiling that keeps it there - this row is the
+        end-to-end one, and neither replaces the other.
     """
     shapes = (
         ("straight_2km", [(1.0 * i, 0.0, 0.0) for i in range(2001)],
@@ -3823,6 +4413,81 @@ def output_guard_cost(root):
           "a build the guard REFUSES may cost no more than 1.15x (level 1's "
           "own probe) and one it ADMITS no more than 1.6x (the solve). %s"
           % ("; ".join(bad) or "both ceilings hold"))
+
+
+# The double cook a level-1 pass / level-2 refusal costs, measured on the
+# 2 km and 20 km ripples §19.4 says nearly shipped.  1.8x is the ceiling and
+# it measures 1.52x / 1.57x.
+GUARD_FALLBACK_CEILING = 1.8
+
+
+def bench_guard_fallback(root):
+    """What the guard's LEVEL-1-PASS / LEVEL-2-REFUSE path costs.
+
+    ⚠️ THIS CHECK IS WRITTEN BECAUSE TWO SOURCE COMMENTS CITED IT BY NAME AND
+    IT DID NOT EXIST.  `pc_envelope.vfl` and `create_pf_polychain_hda.py` both
+    said `bench_guard_fallback` "measures that rather than assuming it away",
+    and nothing in the repo did: `output_guard_cost`'s four shapes are all
+    either refused at level 1 or admitted through level 2, so no committed
+    check exercised the fallback at all.
+
+    ⚠️ AND IT IS DRIVEN BY A MUTATION, NECESSARILY.  Level 1 answers the
+    deform question itself now, so on the shipped build there is no legitimate
+    input that passes level 1 and fails level 2 - `no_case_pays_the_guard_
+    fallback` is the row that asserts that, and it is the reason the guard is
+    free today.  The COST of the path is still real and still one widening
+    away: §19.7 item 3 is the turn-per-module-length bound, which is precisely
+    the change that lets a rippled run through level 1.  So the fixture forces
+    level 1 open - the same lever `mutation_guard_envelope` uses - and times
+    the double cook that follows.
+    """
+    rows, bad = [], []
+    for label, npts in (("ripple_2km", 2001), ("ripple_20km", 20001)):
+        geo = hou.Geometry()
+        cases.polyline(geo, [(1.0 * i, 0.6 * math.sin(i * 0.35), 0.0)
+                             for i in range(npts)], curve_id="GF")
+        node = root.createNode("pf_polychain", "fallback_" + label)
+        node.setInput(0, native.feed(root, geo, "GF_" + label))
+        node.parm("stage").set("output")
+        node.cook(force=True)
+        node.allowEditingOfContents()
+        env = node.node("pc_envelope")
+        env.parm("snippet").set(env.parm("snippet").eval()
+                                + "\ni@_native_ok = (nprimitives(0) > 0);\n")
+        best = {}
+        for stage in ("reference", "output"):
+            node.parm("stage").set(stage)
+            node.cook(force=True)
+            for i in range(3):
+                # dirtied through a parm every stage reads (D164)
+                node.parm("corner_angle_deg").set(30.0 + 0.01 * (i + 1))
+                t0 = time.time()
+                node.cook(force=True)
+                dt = time.time() - t0
+                best[stage] = dt if stage not in best else min(best[stage], dt)
+            node.parm("corner_angle_deg").set(30.0)
+        node.parm("stage").set("output")
+        node.cook(force=True)
+        level1 = int(node.node("pc_envelope").geometry()
+                     .attribValue("_native_ok"))
+        level2 = int(node.node("pc_envelope2").geometry()
+                     .attribValue("_native_ok2"))
+        ratio = best["output"] / max(best["reference"], 1e-9)
+        rows.append((label, ratio, level1, level2))
+        if not (level1 == 1 and level2 == 0):
+            bad.append("%s: L1=%d L2=%d - this is not the fallback path"
+                       % (label, level1, level2))
+        if ratio > GUARD_FALLBACK_CEILING:
+            bad.append("%s: %.2fx over %.2fx (%.4f s vs %.4f s)"
+                       % (label, ratio, GUARD_FALLBACK_CEILING,
+                          best["output"], best["reference"]))
+        node.destroy()
+    check("bench_guard_fallback", not bad,
+          "; ".join("%s %.2fx" % (r[0], r[1]) for r in rows),
+          "level 1 forced open on a rippled run, so the native chain cooks, "
+          "level 2 refuses it and the reference cooks too - the double cook, "
+          "measured rather than assumed. Ceiling %.1fx. %s"
+          % (GUARD_FALLBACK_CEILING, "; ".join(bad) or "the ceiling holds"))
 
 
 def native_reach(root):
@@ -4049,17 +4714,21 @@ def main():
     gate_mutation(root, built)
     frames_scale_mutation(root)
     emit_scale_mutation(root)
+    solve_scale_check(root)
 
     print("\n=== 5. 13.7 - the graph is readable, on the built asset ===")
     node = readability(root)
     native_reach(root)
     native_stage_check(root)
     native_stage_mutation(root)
+    stage_wiring_mutation(root)
 
     print("\n=== 7. 13.9 N10 - the guard switch on `Stage = output` ===")
     output_guard_parity(root, built)
+    payload_cond_parity(root)
     output_guard_mutation(root, built)
     output_guard_cost(root)
+    bench_guard_fallback(root)
 
     print("\n=== 6. cook count and the two benches ===")
     benches(root, node)
