@@ -4740,17 +4740,61 @@ def clip_stamp(scene):
     rectangle is the identity, the taper and the U read every element.
     ⚠️ NOT the per-module `pc_clip` policy of 7.3.1 (remove/preserve/slice per
     module): that arrives with real slicing in P2-7 and does not exist yet.
+
+    ⚠️ AND IT ASSERTS, IT DOES NOT MERELY RECORD. This used to be
+    `ok = area or n == 0`, i.e. on an area build - the only kind where the
+    stamp can legitimately be 1, and therefore the only kind the check was
+    written for - `ok` was `True` no matter what the value was. Setting
+    `p.clipped = 0` for every placement left the whole suite green with only a
+    baseline line to show for it. The assertion is now the TRANSFER: the row
+    curve carries `pc_clipped` per row and every element of that row must
+    carry the same number, which is the step `plan.classify` performs and the
+    step that silently stopped happening.
     """
     recs = _cells(scene.geo)
     if not recs:
         return _skip("clip_stamp", "no pc_cell - a 1D build")
     n = sum(1 for r in recs if r.get("pc_clipped") == 1)
-    area = scene.frame is not None
-    ok = area or n == 0
+    curve = scene.case.get("curve")
+    want = {}
+    if curve is not None and curve.findPrimAttrib("pc_clipped") is not None:
+        rows = list(curve.primIntAttribValues("pc_row"))
+        clip = list(curve.primIntAttribValues("pc_clipped"))
+        for y, c in zip(rows, clip):
+            want[y] = max(want.get(y, 0), int(c))
+    bad = sum(1 for r in recs
+              if r["pc_row"] in want
+              and int(r.get("pc_clipped") or 0) != want[r["pc_row"]])
+    ok = bad == 0 and (scene.frame is not None or n == 0)
     return Result("clip_stamp", ok, [n, len(recs)],
                   "%d of %d elements on a clipped row%s"
                   % (n, len(recs),
-                     "" if ok else " - but this is not an area build"))
+                     "" if ok else
+                     " - %d disagree with their row curve" % bad if bad
+                     else " - but this is not an area build"))
+
+
+def rows_clipped_out(scene, expected=0):
+    """The row the boundary left NOTHING of, on the channel an artist reads.
+
+    `cell_grid` counts the hole; this asserts that the build SAID so. The two
+    are separate on purpose: `cell_grid` derives its unbuilt rows from
+    solve-minus-output, so it catches a vanished row whatever the cause, while
+    `report["rows_unbuilt"]` and `pc_warn_row_clipped_out` are the channel
+    `facade.build_many` writes for the artist - and both were dead code, in no
+    test file and firing in no run, because the case that produces one did not
+    exist. A row with no geometry has no element to carry a warning, which is
+    exactly why this one has to be asserted on the detail channel instead.
+    """
+    rows = scene.report.get("rows_unbuilt")
+    if rows is None:
+        return _skip("rows_clipped_out", "no 2D build")
+    said = sum(1 for w in scene.report.get("kit_warnings", ())
+               if "pc_warn_row_clipped_out" in str(w))
+    ok = len(rows) == expected and said == len(rows)
+    return Result("rows_clipped_out", ok, [len(rows), said],
+                  "%d rows left nothing inside the boundary, %d said so "
+                  "(expected %d)" % (len(rows), said, expected))
 
 
 def clip_hole_elements(scene):

@@ -301,6 +301,41 @@ def build_all():
         RECT_FOOTPRINT, kit,
         facade_style(extra=[Rule("default", "sequence", [])]))
 
+    # FT / FU - D139's TWO row-warning channels, which nothing ran. The
+    # decision landed with its repros measured by hand and never committed, so
+    # deleting the propagation outright (`extra = ()` in `plan.classify`) left
+    # 19 cases and 346 unit tests green: `pc_warn_row_overflow` and
+    # `pc_warn_row_kit_gap` appeared in no case, no `EXPECTED_WARNS` entry and
+    # no unit test. A warning nothing asserts is a warning that can be
+    # deleted by accident, which is the exact failure D139 exists to prevent.
+    #
+    # FT - 3.2 m of height cannot hold the 4.0 m ground floor AND the 1.0 m
+    # cornice, so D13's cascade drops the mandatory `end` and the building
+    # ships one storey short. Raised on every row, because the missing one has
+    # no geometry to carry it.
+    built["FT_row_overflow"] = case(RECT_FOOTPRINT, kit, facade_style(),
+                                    height=BAY_Y)
+
+    # FU - the Y style names a module the kit does not carry, so the Y solve's
+    # own `pc_warn_kit_gap` is renamed on the way out. The rename is the
+    # point: without it an element reads as though ITS OWN X run had no
+    # module, when what is missing is the storey it stands in.
+    built["FU_row_kit_gap"] = case(
+        RECT_FOOTPRINT, kit,
+        facade_style(extra=[Rule("end", "first", ["no_such_cornice"],
+                                 axis="y")]))
+
+    # FV - a row the clip boundary leaves NOTHING of. `area_rows` records it
+    # into `rows_unbuilt` and `facade.build_many` turns that into
+    # `pc_warn_row_clipped_out`, and until this case both were dead code:
+    # neither string appeared anywhere in the suite and neither fired in any
+    # run. FM's dropped band is caught by `cell_grid`'s own solved-vs-built
+    # difference instead, so the channel D142 added was never the thing doing
+    # the catching. A 13 m stack over a 9 m boundary is the plain form of it.
+    built["FV_area_short"] = case(
+        [(0, 0, 0), (12, 0, 0), (12, 9, 0), (0, 9, 0)], kit, facade_style(),
+        height=TOWER_H, area=True)
+
     return built
 
 

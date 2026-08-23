@@ -202,6 +202,61 @@ class TestRoleClosure(unittest.TestCase):
         self.assertEqual(src.modules[0].roles, ("default",))
         self.assertEqual(src.role_fallbacks, {})
 
+    def test_a_colliding_alias_loses_and_says_so(self):
+        """7.2's alias-collision rule, which nothing ran.
+
+        Two modules claim `default_start`, one LITERALLY and one through the
+        `bottom` alias. First in payload order wins, the alias's claim is
+        dropped, and the drop is announced. Re-pooling them instead - one
+        deleted `continue` - left 19 scene cases and every other unit test
+        green, so the rule had no assertion behind it at all.
+        """
+        kit, _fb = A.close_roles(Kit("k", 1, [
+            Module("shopfront", (3.0, GROUND_Y, 0.3), roles="default_start"),
+            Module("arcade", (3.0, GROUND_Y, 0.3), roles="bottom")]))
+        self.assertEqual([m.name for m in kit.by_role("default_start")],
+                         ["shopfront"])
+        self.assertEqual(len(kit.role_collisions), 1)
+        self.assertIn("pc_warn_role_collision", kit.role_collisions[0])
+
+    def test_a_literal_second_claim_stays_a_pool_member(self):
+        """...and the control: only an ALIAS loses. Two modules authoring the
+        same role literally are a `random`/`pc_weight` pool, which is what
+        phase 1's variants are made of, and dropping those would break them."""
+        kit, _fb = A.close_roles(Kit("k", 1, [
+            Module("bay_a", (3.0, BAY_Y, 0.3), roles="default"),
+            Module("bay_b", (3.0, BAY_Y, 0.3), roles="default")]))
+        self.assertEqual(sorted(m.name for m in kit.by_role("default")),
+                         ["bay_a", "bay_b"])
+        self.assertEqual(list(kit.role_collisions), [])
+
+    def test_a_marker_cell_closes_over_all_five_y_classes(self):
+        """7.2's marker cells are legal BY GRAMMAR and therefore unbounded, so
+        they cannot live in `ROLES_2D` - but `marker:7` still owes its five Y
+        classes a closure or `marker:7_start` arrives on the ground row as a
+        SILENT stand-in, which is the one thing PC-G5 condition 5 counts at 0.
+        Deleting the expansion left the whole suite green."""
+        kit, fb = A.close_roles(Kit("k", 1, [
+            Module("entrance", (3.0, GROUND_Y, 0.3), roles="marker:7"),
+            Module("bay", (3.0, BAY_Y, 0.3), roles="default")]))
+        for y in SLOTS:
+            role = role_2d("marker:7", y)
+            self.assertTrue(role in fb or kit.by_role(role),
+                            "marker cell %r never closed" % role)
+        self.assertEqual([m.name for m in kit.by_role("marker:7_start")],
+                         ["entrance"])
+
+    def test_a_module_name_is_not_a_cell_role(self):
+        """`facade.build` hands the style's module NAMES in as `extra_roles`.
+        Taking a name for a role wrote `cornice` onto the `bay` module, so
+        `by_role("cornice")` returned `bay` and D136's inspectable manifest
+        was wrong to read. Nothing in the scene suite could see it."""
+        kit, fb = A.close_roles(kit_of("default"),
+                                extra_roles=("cornice", "bay", "corner_end"))
+        self.assertEqual(list(kit.by_role("cornice")), [])
+        self.assertNotIn("cornice", fb)
+        self.assertIn("corner_end", fb)
+
     def test_aliases_are_normalised_before_the_walk(self):
         kit, fb = A.close_roles(Kit("k", 1, [
             Module("ground", (3.0, GROUND_Y, 0.3), roles="bottom")]))

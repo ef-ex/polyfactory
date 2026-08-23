@@ -68,6 +68,15 @@ EXPECTED_WARNS = {
     # gate before any station has to resolve the turn. A returning
     # `pc_warn_bend_resolution` here means a bay started riding the corner.
     "FB_L_bend": (),
+    # D139's two channels, and they are the whole reason FT/FU exist. A
+    # warning the Y SOLVE raised belongs to the ROW, so it is renamed on the
+    # way out and then carried onto every element the row produced. ⚠️ THE
+    # NAMES ARE THE ASSERTION: `pc_warn_overflow` here would mean the element
+    # is claiming ITS OWN X run overflowed, when what actually happened is
+    # that a whole storey is missing.
+    "FT_row_overflow": ("pc_warn_row_overflow",),
+    "FU_row_kit_gap": ("pc_warn_row_kit_gap",),
+    "FV_area_short": (),
 }
 
 # 7.2's headline, as an inventory rather than a total: WHICH cells the figure
@@ -105,6 +114,15 @@ CELLS = {
                        "default_end", "corner_end"},
     "FS_sequence_cells": {"default", "corner", "default_start", "corner_start",
                           "default_end", "corner_end"},
+    # the overflow, as an INVENTORY: the whole `end` column is gone. A run
+    # that still shows `default_end` here has not dropped the cornice, which
+    # would make the warning FT asserts a lie.
+    "FT_row_overflow": {"default_start", "corner_start"},
+    # ...and the control beside it: the same rect, the same six cells, the
+    # ONLY difference being the warning. FU's `geometry_digest` is FC_rect's.
+    "FU_row_kit_gap": {"default", "corner", "default_start", "corner_start",
+                       "default_end", "corner_end"},
+    "FV_area_short": {"default", "default_start"},
 }
 
 # ...and WHICH MODULE each cell was filled with, which is the half an
@@ -212,6 +230,23 @@ UNBUILT = {
     # reporting "2 rows x 1 faces, 0 empty" for a roof panel that had lost its
     # whole cornice band (D142).
     "FM_area_taper": 1,
+    # ⚠️ FM IS NOT WHAT EXERCISES `rows_unbuilt`. Its top band leaves 1.6e-9 m
+    # of row, which is still a span, so `area_rows` emits a curve and records
+    # nothing - `cell_grid` catches it by its own solved-vs-built difference
+    # instead. FV is the case where the boundary leaves LITERALLY nothing: a
+    # 13 m stack over a 9 m plate, so rows 2 and 3 are never built, and it is
+    # the only case in which `rows_unbuilt` and `pc_warn_row_clipped_out` are
+    # non-empty at all. Both were dead code until it existed.
+    "FV_area_short": 2,
+}
+
+# ...and the half of the same fact that reaches the ARTIST. Deliberately a
+# second table rather than a reuse of `UNBUILT`: FM's band is unbuilt without
+# `area_rows` ever recording it (its 1.6e-9 m span is still a span), so the
+# two numbers legitimately differ and folding them together would hide the
+# distinction that made `rows_unbuilt` dead code in the first place.
+UNBUILT_SAID = {
+    "FV_area_short": 2,
 }
 
 # The 2D cases where every cell is filled by a real module, so the instancing
@@ -271,6 +306,7 @@ def run_case(name, case, scenes):
         C.clip_inside(scene, CLIP_TOL.get(name, 1e-6)),
         C.clip_hole_elements(scene),
         C.clip_stamp(scene),
+        C.rows_clipped_out(scene, UNBUILT_SAID.get(name, 0)),
     ]
     if cells is not None:
         out.append(C.Result("cell_set", set(_inv(scene)) == cells,

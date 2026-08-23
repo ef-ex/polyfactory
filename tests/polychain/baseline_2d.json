@@ -284,6 +284,16 @@
       ]
     },
     {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "cell_set",
       "ok": true,
@@ -557,6 +567,16 @@
       "value": [
         0,
         128
+      ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
       ]
     },
     {
@@ -853,6 +873,16 @@
       "value": [
         0,
         104
+      ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
       ]
     },
     {
@@ -1174,6 +1204,16 @@
       "value": [
         0,
         176
+      ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
       ]
     },
     {
@@ -1508,6 +1548,16 @@
         0,
         408
       ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
     }
   ],
   "FF_extend_x": [
@@ -1811,6 +1861,16 @@
         0,
         176
       ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
     }
   ],
   "FG_extend_y": [
@@ -2113,6 +2173,16 @@
       "value": [
         0,
         164
+      ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
       ]
     }
   ],
@@ -2440,6 +2510,16 @@
       "value": [
         0,
         220
+      ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
       ]
     },
     {
@@ -2776,6 +2856,16 @@
         0,
         220
       ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
     }
   ],
   "FJ_reversed": [
@@ -3060,6 +3150,16 @@
       "value": [
         0,
         176
+      ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
       ]
     }
   ],
@@ -3346,6 +3446,16 @@
         0,
         176
       ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
     }
   ],
   "FL_area_rect": [
@@ -3601,6 +3711,16 @@
         0,
         12
       ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
     }
   ],
   "FM_area_taper": [
@@ -3845,6 +3965,16 @@
       "value": [
         4,
         4
+      ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
       ]
     }
   ],
@@ -4130,6 +4260,16 @@
       "value": [
         0,
         168
+      ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
       ]
     },
     {
@@ -4439,6 +4579,16 @@
       ]
     },
     {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "cell_set",
       "ok": true,
@@ -4738,6 +4888,16 @@
       ]
     },
     {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "cell_set",
       "ok": true,
@@ -5004,6 +5164,16 @@
       "value": [
         6,
         9
+      ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
       ]
     }
   ],
@@ -5289,6 +5459,16 @@
       "value": [
         0,
         104
+      ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
       ]
     },
     {
@@ -5591,6 +5771,16 @@
       ]
     },
     {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "cell_set",
       "ok": true,
@@ -5601,6 +5791,855 @@
         "corner_start",
         "default",
         "default_end",
+        "default_start"
+      ]
+    }
+  ],
+  "FT_row_overflow": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 26
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "A#0[3] start",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 7.45e-07
+    },
+    {
+      "detail": "shopfront -> shopfront",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 5.66e-07
+    },
+    {
+      "detail": "8 stand-ins or mitered",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "8 mitered",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 26",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 18
+    },
+    {
+      "detail": "of 72, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "pier_base",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.600000024
+    },
+    {
+      "detail": "out leg, 0.450 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "turn 90.0 deg (residual vs 0.0000)",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "pier_base at turn 90.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "pc_warn_row_overflow",
+          26
+        ]
+      ]
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "67f973c923210085"
+    },
+    {
+      "detail": "",
+      "name": "cell_inventory",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "corner_start",
+          8
+        ],
+        [
+          "default_start",
+          18
+        ]
+      ]
+    },
+    {
+      "detail": "",
+      "name": "cell_modules",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "corner_start",
+          [
+            "pier_base"
+          ]
+        ],
+        [
+          "default_start",
+          [
+            "shopfront"
+          ]
+        ]
+      ]
+    },
+    {
+      "detail": "1 rows x 4 faces, 0 empty, 0 rows never built (expected 0)",
+      "name": "cell_grid",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1,
+        4,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "1 rows, worst band joint",
+      "name": "row_closure_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "1 rows, worst band under/overshoot",
+      "name": "row_fill_y_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.8e-08
+    },
+    {
+      "detail": "26 elements on scaled rows, 8 cut by a miter, 0 bent (expected 0)",
+      "name": "row_scale_packed",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        26,
+        8,
+        0
+      ]
+    },
+    {
+      "detail": "0 elements degraded, 0 silent stand-ins",
+      "name": "role_fallbacks",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "fallback_map",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "not a clipped-area build",
+      "name": "clip_inside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "not a clipped-area build",
+      "name": "clip_hole_elements",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 of 26 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        26
+      ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "cell_set",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        "corner_start",
+        "default_start"
+      ]
+    }
+  ],
+  "FU_row_kit_gap": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 104
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "A#1[3] start",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 7.45e-07
+    },
+    {
+      "detail": "shopfront -> shopfront",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 5.66e-07
+    },
+    {
+      "detail": "32 stand-ins or mitered",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "32 mitered",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 104",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 72
+    },
+    {
+      "detail": "of 72, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "pier_base",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.600000024
+    },
+    {
+      "detail": "out leg, 0.450 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "turn 90.0 deg (residual vs 0.0000)",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "pier_base at turn 90.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "pc_warn_row_kit_gap",
+          26
+        ]
+      ]
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "b221f20253c8a97b"
+    },
+    {
+      "detail": "",
+      "name": "cell_inventory",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "corner",
+          16
+        ],
+        [
+          "corner_end",
+          8
+        ],
+        [
+          "corner_start",
+          8
+        ],
+        [
+          "default",
+          36
+        ],
+        [
+          "default_end",
+          18
+        ],
+        [
+          "default_start",
+          18
+        ]
+      ]
+    },
+    {
+      "detail": "",
+      "name": "cell_modules",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "corner",
+          [
+            "pier"
+          ]
+        ],
+        [
+          "corner_end",
+          [
+            "pier_cap"
+          ]
+        ],
+        [
+          "corner_start",
+          [
+            "pier_base"
+          ]
+        ],
+        [
+          "default",
+          [
+            "bay"
+          ]
+        ],
+        [
+          "default_end",
+          [
+            "cornice"
+          ]
+        ],
+        [
+          "default_start",
+          [
+            "shopfront"
+          ]
+        ]
+      ]
+    },
+    {
+      "detail": "4 rows x 4 faces, 0 empty, 0 rows never built (expected 0)",
+      "name": "cell_grid",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4,
+        4,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "4 rows, worst band joint",
+      "name": "row_closure_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "4 rows, worst band under/overshoot",
+      "name": "row_fill_y_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "52 elements on scaled rows, 16 cut by a miter, 0 bent (expected 0)",
+      "name": "row_scale_packed",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        52,
+        16,
+        0
+      ]
+    },
+    {
+      "detail": "0 elements degraded, 0 silent stand-ins",
+      "name": "role_fallbacks",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "fallback_map",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "not a clipped-area build",
+      "name": "clip_inside_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "not a clipped-area build",
+      "name": "clip_hole_elements",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 of 104 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        104
+      ]
+    },
+    {
+      "detail": "0 rows left nothing inside the boundary, 0 said so (expected 0)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "cell_set",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        "corner",
+        "corner_end",
+        "corner_start",
+        "default",
+        "default_end",
+        "default_start"
+      ]
+    }
+  ],
+  "FV_area_short": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 8
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 8",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 8
+    },
+    {
+      "detail": "of 72, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "bay",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3.0
+    },
+    {
+      "detail": "no corner assemblies",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered corners",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no mitered or dissolved corners",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "7e0c6686bca36782"
+    },
+    {
+      "detail": "",
+      "name": "cell_inventory",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "default",
+          4
+        ],
+        [
+          "default_start",
+          4
+        ]
+      ]
+    },
+    {
+      "detail": "",
+      "name": "cell_modules",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "default",
+          [
+            "bay"
+          ]
+        ],
+        [
+          "default_start",
+          [
+            "shopfront"
+          ]
+        ]
+      ]
+    },
+    {
+      "detail": "4 rows x 1 faces, 0 empty, 2 rows never built (expected 2)",
+      "name": "cell_grid",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4,
+        1,
+        0,
+        2
+      ]
+    },
+    {
+      "detail": "4 rows, worst band joint",
+      "name": "row_closure_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "2 rows, worst band under/overshoot",
+      "name": "row_fill_y_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "4 elements on scaled rows, 0 cut by a miter, 0 bent (expected 0)",
+      "name": "row_scale_packed",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "0 elements degraded, 0 silent stand-ins",
+      "name": "role_fallbacks",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "fallback_map",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "worst distance outside the boundary (ceiling 1e-06)",
+      "name": "clip_inside_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "0 elements lie wholly outside the clip boundary",
+      "name": "clip_hole_elements",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "0 of 8 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        8
+      ]
+    },
+    {
+      "detail": "2 rows left nothing inside the boundary, 2 said so (expected 2)",
+      "name": "rows_clipped_out",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2,
+        2
+      ]
+    },
+    {
+      "detail": "",
+      "name": "cell_set",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        "default",
         "default_start"
       ]
     }

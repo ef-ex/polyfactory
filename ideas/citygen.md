@@ -34,6 +34,9 @@ end-user HDA's parameter page is subject to it.
 
 **Reference library:** `polyfactory/resources/citygen/README.md` — gitignored, local only.
 
+**Data conventions:** [`conventions.md`](conventions.md) — suite-wide attribute naming and node
+hygiene, adopted 2026-08-22. Streets V1 migrates when next opened.
+
 ---
 
 ## 1. The vision (Hannes, 2026-08-08)
