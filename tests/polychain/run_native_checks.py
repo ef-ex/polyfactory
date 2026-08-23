@@ -2907,6 +2907,172 @@ def frames_scale_mutation(root):
           "measurement and not a decoration" % (best * 1000.0, npieces))
 
 
+# --- D193: the emit chain's batching ceiling ---------------------------------
+
+# ⚠️ `pc_stamp` DE-BATCHED, and it is the mutation D193 exists for.  Cycle
+# N-2V2 turned this POINT wrangle into a DETAIL wrangle looping over every
+# piece on one thread - §17 finding 16, reverted - and the whole suite stayed
+# at 77 / 0 while `bench_plan_streets_300` went 0.0395 -> 0.0800 s and PRINTED
+# PASS, because both `bench_plan_*` rows say "NO CEILING is asserted".  The
+# answer is identical; only the cost model changes, which is exactly the
+# property a batching ceiling is about.
+STAMP_BATCHED = '''string eid = sprintf("%s|%d|%s|%d|%s", s@pc_curve_id, i@pc_sec_index,
+                     s@pc_slot, i@pc_index, style_id);
+s@pc_elem_id  = eid;
+i@pc_elem_key = pc_elem_key(eid);'''
+
+STAMP_DEBATCHED = '''int n = npoints(0);
+for (int i = 0; i < n; i++) {
+    string cid = point(0, "pc_curve_id", i);
+    int si = point(0, "pc_sec_index", i);
+    string slot = point(0, "pc_slot", i);
+    int idx = point(0, "pc_index", i);
+    string eid = sprintf("%s|%d|%s|%d|%s", cid, si, slot, idx, style_id);
+    setpointattrib(0, "pc_elem_id", i, eid);
+    setpointattrib(0, "pc_elem_key", i, pc_elem_key(eid));
+}'''
+
+
+def emit_scale_in_pieces(root, npts, stamp_snippet=None, passes=3):
+    """What `pc_plan_emit` and `pc_stamp` cost PER PIECE, each on its own.
+
+    ⚠️ THE TWO NODES ARE TIMED SEPARATELY AND EACH IS DIRTIED FROM ITS OWN
+    INPUT.  D164: `cook(force=True)` on a node whose inputs have not changed
+    can be a no-op, and a timing without a cook count is not a measurement -
+    so a nudge wrangle sits above each node and its `cookCount` has to advance
+    once per pass or the row fails.
+
+    `stamp_snippet` replaces `pc_stamp.vfl`'s VEX, and the class moves with it
+    - the mutation lever, so the ceiling can be shown to bite.
+
+    Returns (npieces, emit_best, stamp_best, emit_cooks, stamp_cooks).
+    """
+    from polyfactory.polychain import Params, Rule, Style
+    from polyfactory.polychain import kit as KIT
+
+    kit_geo = KIT.starter_kit()
+    kit = KIT.read(kit_geo)[0]
+    style = Style("emitscale", 1, 1,
+                  rules=[Rule("default", "first", ["panel"])],
+                  params=Params(fill="adaptive"))
+    geo = hou.Geometry()
+    cases.polyline(geo, [(1.0 * i, 0.0, 0.0) for i in range(npts)],
+                   curve_id="LONG")
+
+    sub = root.createNode("subnet", "emitscale%d" % npts)
+    src = native.feed(sub, geo, "IN")
+    cfg = native.config_full(sub, style.params, style, kit, "config")
+    last, _dec = native.stage_decompose(sub, src, cfg)
+    plan, pn = native.stage_plan(sub, last, cfg)
+    emit, stamp = pn["pc_plan_emit"], pn["pc_stamp"]
+    if stamp_snippet is not None:
+        # a DETAIL wrangle is what de-batching MEANS; the class moves with the
+        # snippet or the mutation would just be a slower point wrangle
+        stamp.parm("class").set(0)
+        stamp.parm("snippet").set(stamp_snippet)
+
+    def nudge(name, feeder, target):
+        node = sub.createNode("attribwrangle", name)
+        node.parm("class").set(2)
+        group = node.parmTemplateGroup()
+        group.append(hou.IntParmTemplate("nudge", "Nudge", 1))
+        node.setParmTemplateGroup(group)
+        node.parm("snippet").set('i@_%s = chi("nudge");' % name)
+        node.setInput(0, feeder)
+        target.setInput(0, node)
+        return node
+
+    dirt_emit = nudge("emitdirty", pn["pc_plan_solve"], emit)
+    dirt_stamp = nudge("stampdirty", pn["pc_plan_only"], stamp)
+    plan.cook(force=True)
+    npieces = len(plan.geometry().points())
+
+    def timed(node, dirt, offset):
+        before = node.cookCount()
+        best = None
+        for i in range(passes):
+            dirt.parm("nudge").set(offset + i)
+            t0 = time.time()
+            node.cook()
+            dt = time.time() - t0
+            best = dt if best is None else min(best, dt)
+        return best, node.cookCount() - before
+
+    emit_best, emit_cooks = timed(emit, dirt_emit, 2)
+    stamp_best, stamp_cooks = timed(stamp, dirt_stamp, 40)
+    sub.destroy()
+    return npieces, emit_best, stamp_best, emit_cooks, stamp_cooks
+
+
+# The ceilings, in microseconds per piece, and where each number comes from.
+# Measured on this build at 1 000 / 2 500 / 5 000 / 10 000 / 20 000 pieces:
+#   pc_plan_emit   3.25 2.80 2.78 2.75 2.91   - flat, and DETAIL by necessity
+#   pc_stamp       1.34 1.32 1.28 0.33 0.30   - flat, and POINT by choice
+# The two defects each ceiling is aimed at, measured on the same fixture:
+#   the `pointgenerate` expander D175 replaced: 3 860 us/piece at 10 000
+#   `pc_stamp` de-batched into a detail loop:       9.4 us/piece at 20 000
+EMIT_CEILING_US = 6.0
+STAMP_CEILING_US = 3.0
+# a linear node's per-piece cost does not GROW with the piece count.  1.5x is
+# slack for thread start-up and cache, and the quadratic expander blows it by
+# three orders of magnitude between these two sizes.
+GROWTH_CEILING = 1.5
+
+
+def emit_scale_check(root):
+    """D193 - the emit chain gets a per-piece ceiling, the way N4 gave one to
+    the frames.
+
+    ⚠️ THIS IS THE CHECK THAT WOULD HAVE FAILED MUTATION M2 AND DID NOT EXIST.
+    `bench_plan_long_curve` and `bench_plan_streets_300` both MEASURED the
+    de-batched stamp (+24 % and +103 %) and both printed PASS, because both
+    say in as many words that no ceiling is asserted.  That is defensible for
+    a RATIO against a half-ported chain and it is not a guard, so the guard is
+    here: an absolute cost per piece, on the two nodes that had none.
+    """
+    small = emit_scale_in_pieces(root, 5001)
+    big = emit_scale_in_pieces(root, 40001)
+    for label, node, index, ceiling in (("emit", "pc_plan_emit", 1,
+                                         EMIT_CEILING_US),
+                                        ("stamp", "pc_stamp", 2,
+                                         STAMP_CEILING_US)):
+        rate_small = small[index] * 1e6 / small[0]
+        rate_big = big[index] * 1e6 / big[0]
+        cooks = small[2 + index] == 3 and big[2 + index] == 3
+        check("%s_cost_is_flat_in_piece_count" % label,
+              cooks and rate_big <= ceiling
+              and rate_big <= GROWTH_CEILING * rate_small,
+              "%.2f us/piece" % rate_big,
+              "`%s` ALONE on %d pieces, best of 3 dirtied passes; %.2f "
+              "us/piece at %d pieces, so the growth is %.2fx (ceiling %.1fx). "
+              "Absolute ceiling %.1f us/piece. `mutation_pc_stamp_debatched` "
+              "proves the stamp ceiling bites"
+              % (node, big[0], rate_small, small[0], rate_big / rate_small,
+                 GROWTH_CEILING, ceiling))
+
+
+def emit_scale_mutation(root):
+    """De-batch `pc_stamp` back into a single-threaded detail loop - cycle
+    N-2V2's mutation M2, which survived a 77 / 0 suite - and watch the ceiling
+    bite.  The mutated VEX writes the SAME `pc_elem_id` and `pc_elem_key`;
+    only the cost model changes.
+    """
+    from polyfactory.polychain import vexsrc
+    body = vexsrc.source("pc_stamp")
+    found = STAMP_BATCHED in body
+    npieces, _emit, stamp_best, _ec, cooks = emit_scale_in_pieces(
+        root, 40001, stamp_snippet=body.replace(STAMP_BATCHED,
+                                                STAMP_DEBATCHED), passes=1)
+    rate = stamp_best * 1e6 / npieces
+    check("mutation_pc_stamp_debatched",
+          found and cooks == 1 and rate > STAMP_CEILING_US,
+          "%.2f us/piece (target present: %s)" % (rate, found),
+          "`pc_stamp` as a DETAIL wrangle looping over all %d pieces on one "
+          "thread - M2, which was 77 / 0 green - costs %.2f us/piece against "
+          "the batched %.1f-or-less. The ceiling above is a measurement, not "
+          "a decoration" % (npieces, rate, STAMP_CEILING_US))
+
+
 def sections_mutation(root, built):
     """`pc_sections` has no parity check of its own, so it gets a MUTATION.
 
@@ -2956,6 +3122,143 @@ def sections_mutation(root, built):
               "%s, and the plan parity has to see it - `pc_sections` has no "
               "parity check of its own, so this is what makes its coverage "
               "real rather than structural" % label)
+
+
+# --- D192: a native Stage must be PROVED native, not labelled native ---------
+
+# (stage token, the null it must be served by, the nodes on the SPLINE side
+#  that must cook, the Python SOPs allowed to cook).
+#
+# ⚠️ THE KIT-SIDE NODES ARE NOT ON THE "MUST COOK" LIST AND THAT IS NOT
+# LENIENCY.  The dirtying lever is the SPLINE (see `stage_is_really_native`),
+# and `kit_starter` / `pc_kit_id` / `kit_unpack` hang off input 1, so
+# asserting they re-cook would be asserting a cache miss - `plan_benches`
+# excludes them for the same reason and by the same name.
+NATIVE_STAGES = (
+    ("sections", "OUT_sections",
+     ("pc_unshare", "pc_curveid", "pc_curve_index", "pc_arclength",
+      "pc_corners", "pc_markers"),
+     ("config",)),
+    ("plan_native", "OUT_plan_native",
+     ("pc_sections", "pc_sec_only", "pc_plan_clean", "pc_plan_solve",
+      "pc_plan_emit", "pc_plan_only", "pc_stamp"),
+     ("config",)),
+    ("place_native", "OUT_place_native",
+     ("pc_proto", "pc_frames_native", "pc_place_valid", "copy_packed"),
+     ("config", "kit_starter")),
+)
+
+
+def stage_is_really_native(root, tag, rewire=None):
+    """Cook the SHIPPED asset at each NATIVE Stage and ask the graph, not the
+    label, whether that stage is native.
+
+    ⚠️ THIS IS THE CHECK CYCLE N-2V2's MUTATION M4b SURVIVED FOR WANT OF.
+    Pointing the `plan_native` entry of `STAGES` at `OUT_plan` makes the menu
+    entry labelled "2 - Plan, NATIVE (4.2 - the VEX fitting solve)" serve
+    `pc_plan_bridge`'s PYTHON plan, and the suite stayed at 77 / 0: every
+    parity check runs on `native.py`'s RIG, `asset_stages_match_the_rig`
+    compares node PARAMETERS and not WIRING, and
+    `native_plan_and_place_reach_no_artist` asserts the opposite direction.
+    Nothing asserted that a native stage IS native.
+
+    Two assertions, and both are needed - the first alone would pass a stage
+    whose wrangles cook into a null nobody reads, and the second alone would
+    pass a stage that cooks nothing at all:
+
+      1. every node the stage is made of advanced its `cookCount`;
+      2. no Python SOP outside the named allowance advanced its `cookCount`.
+
+    `rewire` is (stage token, null name) - the mutation lever. It moves the
+    switch input that serves that stage onto another null, which is M4b
+    exactly, applied to the built asset rather than to the build script.
+
+    Returns a list of complaint strings; empty is the sound build.
+    """
+    node = root.createNode("pf_polychain", "d192_" + tag)
+    geo = hou.Geometry()
+    cases.polyline(geo, [(0.0, 0.0, 0.0), (9.0, 0.0, 0.0), (9.0, 0.0, 7.0)],
+                   curve_id="D192")
+    src = native.feed(root, geo, "D192IN_" + tag)
+    # ⚠️ THE DIRTYING LEVER IS THE SPLINE, NOT A PARM.  D164: a cook that is a
+    # no-op measures nothing, and `corner_angle_deg` only dirties `config`, so
+    # `pc_curveid` and `pc_arclength` - which do not read it - would never
+    # re-cook and the check would read them as idle on a sound build.
+    dirt = root.createNode("attribwrangle", "d192_dirty_" + tag)
+    dirt.parm("class").set(2)
+    group = dirt.parmTemplateGroup()
+    group.append(hou.IntParmTemplate("nudge", "Nudge", 1))
+    dirt.setParmTemplateGroup(group)
+    dirt.parm("snippet").set('i@_d192 = chi("nudge");')
+    dirt.setInput(0, src)
+    node.setInput(0, dirt)
+    node.allowEditingOfContents()
+
+    if rewire is not None:
+        token, target = rewire
+        served = dict((t, n) for t, n, _w, _p in NATIVE_STAGES)[token]
+        switch = node.node("stage_switch")
+        moved = [i for i, inp in enumerate(switch.inputs())
+                 if inp is not None and inp.name() == served]
+        assert len(moved) == 1, "no switch input serves %s" % served
+        switch.setInput(moved[0], node.node(target))
+
+    pysops = [c for c in node.children() if c.type().name() == "python"]
+    bad = []
+    nudge = 2
+    for token, served, must_cook, allowed in NATIVE_STAGES:
+        node.parm("stage").set(token)
+        dirt.parm("nudge").set(nudge)
+        node.cook(force=True)
+        before = dict((c.name(), c.cookCount()) for c in node.children())
+        nudge += 1
+        dirt.parm("nudge").set(nudge)
+        node.cook(force=True)
+        idle = [n for n in must_cook
+                if node.node(n) is None
+                or node.node(n).cookCount() == before[n]]
+        strangers = sorted(p.name() for p in pysops
+                           if p.name() not in allowed
+                           and p.cookCount() > before[p.name()])
+        if idle:
+            bad.append("%s: idle %s" % (token, ",".join(idle)))
+        if strangers:
+            bad.append("%s: python %s cooked" % (token, ",".join(strangers)))
+        nudge += 1
+    node.destroy()
+    dirt.destroy()
+    return bad
+
+
+def native_stage_check(root):
+    bad = stage_is_really_native(root, "sound")
+    watched = sum(len(w) for _t, _n, w, _p in NATIVE_STAGES)
+    check("native_stages_are_really_native", not bad,
+          "%d nodes / %d stages" % (watched, len(NATIVE_STAGES)),
+          "D192, on the SHIPPED asset: every node each native Stage is made "
+          "of advanced its cookCount, and no Python SOP outside its named "
+          "allowance did. Complaints: %s" % (", ".join(bad) or "none"))
+
+
+def native_stage_mutation(root):
+    """M4b, applied to the built asset: point the `plan_native` menu entry at
+    the PYTHON bridge and watch the check above go red.
+
+    The mutation is invisible to everything else in the suite - the rig still
+    cooks the VEX solve, the parameters still match, and the stage still
+    produces a plan - which is precisely why it survived 77 / 0.
+    """
+    for tag, token, target, python_sop in (
+            ("m4b", "plan_native", "OUT_plan", "pc_plan_bridge"),
+            ("m4", "place_native", "OUT_reference", "kernel")):
+        bad = stage_is_really_native(root, tag, rewire=(token, target))
+        mine = [b for b in bad if b.startswith(token + ":")]
+        check("mutation_%s_unplugged" % token,
+              len(mine) >= 2 and any(python_sop in b for b in mine),
+              "%d complaints" % len(bad),
+              "rewiring the `%s` switch input to %s must report BOTH "
+              "halves - the stage own nodes idle AND %s cooking. Got: %s"
+              % (token, target, python_sop, "; ".join(mine) or "none"))
 
 
 def native_reach(root):
@@ -3143,6 +3446,7 @@ def main():
     place_duplicate_module_name(root)
     native_place_says_why_it_is_empty(root)
     frames_scale_check(root)
+    emit_scale_check(root)
 
     print("\n=== 4. the mutation test ===")
     mutation(root, built)
@@ -3152,10 +3456,13 @@ def main():
     place_mutation(root, built)
     kit_id_mutation(root, built)
     frames_scale_mutation(root)
+    emit_scale_mutation(root)
 
     print("\n=== 5. 13.7 - the graph is readable, on the built asset ===")
     node = readability(root)
     native_reach(root)
+    native_stage_check(root)
+    native_stage_mutation(root)
 
     print("\n=== 6. cook count and the two benches ===")
     benches(root, node)
