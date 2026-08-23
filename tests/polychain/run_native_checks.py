@@ -4997,6 +4997,89 @@ GUARD_BEND_FALLBACK_CEILING = 1.8
 GUARD_PADDING_M = (0.05, 0.4, -0.05, -0.3)
 
 
+def kit_starter_cooks_once(root):
+    """D154 - DECLINED, and this is the measurement that declines it.
+
+    13.3.6 and 21.10 both list `kit_starter` as Python that must go native:
+    "geometry construction in Python, on the shipped path, cold".  PART B
+    measured it instead of porting it, and both halves of the case for porting
+    turned out to be wrong.
+
+    1. IT DOES NOT RE-COOK.  Measured on a warm instance: `cookCount` stays at
+       1 through spline nudges, `bend_tol`, `padding`, `seed` and every `Stage`
+       change - while `config` next to it goes 1 -> 4 on the same sequence.
+       It is 1.50-1.83 ms, **1.4 % of ONE cold build and 0 % of every cook
+       after it**.  `houdini-procedural-modeling` rule 1 forbids "per-element
+       geometry in a node that RE-COOKS" and explicitly permits a Python SOP
+       for a trivial one-off constructor; this is the second thing, not the
+       first.
+
+    2. THE PRESCRIBED MECHANISM DOES NOT PRESERVE THE GEOMETRY.  13.3.6 says
+       "four `box` SOPs + `pack`".  Probed on 22.0.398: a Box SOP at
+       `type = polymesh, divrate1 = 9` gives 34 four-sided prims and 36 points,
+       exactly `box_mesh(divx=8)`'s counts, and both score 0 inward faces - but
+       the point SET, the point ORDER and the vertex ORDER all differ, because
+       the Box SOP lays points out per face and `box_mesh` lays them out in
+       4-point rings along x.  Every module is packed and copied, so swapping
+       the builder re-orders the points of every element the tool ships and
+       moves `geometry_digest` on every case in the suite.  1.5 ms once per
+       instance is not worth moving every baseline.
+
+    ⚠️ SO THIS CHECK PINS THE PREMISE, NOT THE CONCLUSION.  A decision resting
+    on "it only cooks once" is worth exactly as much as that sentence staying
+    true, and nothing was watching it.  The day an edit puts `kit_starter` on
+    a dependency that dirties per cook, this goes red and D154 is open again.
+    """
+    geo = guard_polyline_geo([(1.0 * i, 0.0, 0.0) for i in range(501)])
+    src = native.feed(root, geo, "KS_IN")
+    dirt = root.createNode("attribwrangle", "ks_dirty")
+    dirt.parm("class").set(0)
+    group = dirt.parmTemplateGroup()
+    group.append(hou.IntParmTemplate("nudge", "Nudge", 1))
+    dirt.setParmTemplateGroup(group)
+    dirt.parm("snippet").set('i@_ks = chi("nudge");')
+    dirt.setInput(0, src)
+
+    node = root.createNode("pf_polychain", "kit_starter_once")
+    node.setInput(0, dirt)              # NO kit wired - the fallback IS the kit
+    node.allowEditingOfContents()
+    node.cook(force=True)
+    starter, config = node.node("kit_starter"), node.node("config")
+    first = starter.cookCount()
+
+    steps = []
+    for i, (what, act) in enumerate((
+            ("spline", lambda: dirt.parm("nudge").set(100 + i)),
+            ("spline again", lambda: dirt.parm("nudge").set(200 + i)),
+            ("bend_tol", lambda: node.parm("bend_tol").set(0.02)),
+            ("padding", lambda: node.parm("padding").set(0.03)),
+            ("seed", lambda: node.parm("seed").set(9)),
+            ("stage=reference", lambda: node.parm("stage").set("reference")),
+            ("stage=output", lambda: node.parm("stage").set("output")))):
+        act()
+        node.cook()
+        steps.append((what, starter.cookCount(), config.cookCount()))
+
+    # ⚠️ `config` IS THE CONTROL.  Without it "cookCount stayed at 1" is also
+    # what a node that never cooked at all would report, and the whole row
+    # would be satisfied by a broken fixture.  `config` is dirtied by the parm
+    # changes above and has to prove it by advancing.
+    starter_moved = [w for w, k, _c in steps if k != first]
+    config_moved = steps[-1][2] > 1
+    ok = first == 1 and not starter_moved and config_moved
+    check("kit_starter_cooks_once", ok,
+          "%d cook%s over %d dirtying steps"
+          % (steps[-1][1], "" if steps[-1][1] == 1 else "s", len(steps)),
+          "D154 is DECLINED on the measurement that `kit_starter` never "
+          "re-cooks - 1.4%% of ONE cold build and 0%% of every cook after it - "
+          "so this pins that premise. `config` beside it is the control and "
+          "must advance (%d): %s. kit_starter advanced on: %s"
+          % (steps[-1][2], "; ".join("%s=%d" % (w, k) for w, k, _c in steps),
+             ", ".join(starter_moved) or "nothing"))
+    node.destroy()
+    dirt.destroy()
+
+
 def guard_padding_parity(root):
     """PART B - D91's Gap, on the native chain, against the reference.
 
@@ -6114,6 +6197,7 @@ def main():
     payload_cond_parity(root)
     output_guard_mutation(root, built)
     output_guard_cost(root)
+    kit_starter_cooks_once(root)
     guard_padding_parity(root)
     guard_bend_bound(root)
     guard_bend_bound_skips_rigid_modules(root)

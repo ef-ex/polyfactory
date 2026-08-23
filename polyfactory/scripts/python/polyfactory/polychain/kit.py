@@ -72,9 +72,26 @@ UNREADABLE = "pc_kit: unreadable geometry"
 def box_mesh(geo, x0, x1, y0, y1, z0, z1, divx=1):
     """A CLOSED, point-shared box running along X, divided `divx` times.
 
-    Hand-built rather than run through the Box SOP because the Box SOP's
-    division mode emits 24 two-point polygons alongside the faces (measured on
-    22.0.398), which is not a solid and so can be neither sliced nor capped.
+    Hand-built rather than run through the Box SOP, and PART B corrected the
+    reason - which matters, because the old one invites the opposite
+    conclusion.
+
+    ⚠️ THE OLD REASON IS STALE: "the Box SOP's division mode emits 24 two-point
+    polygons alongside the faces (measured on 22.0.398), which is not a solid".
+    Re-probed on 22.0.398 with `type = polymesh` and `divrate1 = 9`, the Box
+    SOP emits **34 four-sided prims and 36 points, no degenerate primitive at
+    all** - the same counts as `box_mesh(divx=8)` - and D33's centroid-dot-
+    normal test scores 0 inward faces on both.  A reader checking that sentence
+    finds it false and concludes the hand-build is obsolete.
+
+    THE REAL REASON IS ORDER.  The two are not interchangeable geometry: the
+    Box SOP lays its points out per FACE and this lays them out in 4-point
+    RINGS along x, so the point set, the point order and the vertex order all
+    differ.  Every module is packed and copied by `copytopoints`, so swapping
+    the builder re-orders the points of every element the tool ships and moves
+    `geometry_digest` on every case in the suite.  That is what makes 13.3.6's
+    "four `box` SOPs + `pack`" the wrong native mechanism, and it is why D154
+    is declined rather than merely unstarted - see `kit_starter_cooks_once`.
 
     D33 WINDING IS OUTWARD, AND IT IS ASSERTED AGAINST THE BOX SOP VERB. The
     first version of this wound every face the other way, which put 18 of the
