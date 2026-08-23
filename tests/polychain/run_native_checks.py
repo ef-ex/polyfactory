@@ -1765,12 +1765,12 @@ def fixture_cases():
     # fixture in the suite uses five modules - which is why nothing saw
     # `pc_choose` rebuilding and re-sorting the whole pool on every piece.
     # This row is the PARITY half (the pool's sort order and its weights have
-    # to be the reference's at scale); `plan_cost_is_flat_in_kit_size` is the
-    # cost half.
+    # to be the reference's at scale, on 220 modules);
+    # `plan_cost_is_flat_in_kit_size` is the cost half, at 151.
     big = [Module("m%03d" % i, (0.5 + 0.01 * i, 1.0, 0.1), pad=(0.0, 0.0),
                   deform=1, roles="default", variant="v%d" % (i % 7),
                   weight=1.0 + (i % 5))
-           for i in range(120)]
+           for i in range(220)]
     geo = hou.Geometry()
     cases.polyline(geo, [(0.0, 0.0, 0.0), (60.0, 0.0, 0.0)], curve_id="S")
     out.append(("big_kit_random_by_role", geo, big, Style(
