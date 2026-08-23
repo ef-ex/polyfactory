@@ -228,11 +228,28 @@ def _check_slot(slot, warns, index):
         # an id belongs - matches nothing and places nothing. Kept, because
         # warn-never-block, and named, because a rule that can never fire is
         # exactly what D78's contract says must not be silent.
+        # ⚠️ AND `int()` IS TOO GENEROUS TO BE THE TEST, which is a warning
+        # divergence between the two faces.  The kernel emits `marker:%d`, so
+        # `marker:03`, `marker:+3` and `marker: 3` match NOTHING on either
+        # path - but Python's `int()` parses all three, so
+        # `hda._warn_unread_markers` counted id 3 as READ and the reference
+        # said nothing at all, while `pc_sections.vfl`'s VEX (`tail !=
+        # itoa(atoi(tail))`, which is the canonical test) said the markers
+        # were unread.  Two paths, two answers, and the SILENT one was the
+        # wrong one: it suppressed the warning for a rule that can never fire,
+        # which is exactly what D93 says must not be silent.  Asking for the
+        # CANONICAL form here warns on the rule itself, which is the honest
+        # sentence, and it makes `_native_ok` refuse the build (it refuses on
+        # any style warning), so the two faces agree by construction.
+        tail = slot[7:]
         try:
-            int(slot[7:])
+            canonical = str(int(tail)) == tail
         except ValueError:
+            canonical = False
+        if not canonical:
             warns.append("rule %d: pc_slot %r - a marker id is an INTEGER "
-                         "(pc_marker_id), so this rule can never fire"
+                         "(pc_marker_id) written plainly, so this rule can "
+                         "never fire; the kernel only ever emits 'marker:%%d'"
                          % (index, slot))
         return True
     if slot in SLOTS:

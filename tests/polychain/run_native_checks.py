@@ -4510,12 +4510,23 @@ def output_guard_parity(root, built):
                   "; ".join("%s %s" % b for b in bad[:3]) or "identical"))
     # ⚠️ AND WHAT MAKES THE 1.15x REFUSED CEILING HONEST.  A build that passes
     # level 1 and is refused by level 2 cooks the native chain AND the
-    # reference - measured at 1.52x (2 km) and 1.57x (20 km) by
-    # `bench_guard_fallback`.  Level 1 answers the deform question itself, so
-    # today NO case in the 92 reaches level 2's refusal and nobody pays that.
-    # That is a property of the current level 1, not a law: §19.7's next item
-    # is widening level 1 past the straight-and-flat bound, which is exactly
-    # the change that re-opens it.  This row is what says so out loud.
+    # reference - measured at 1.43x (2 km) and 1.54x (20 km) by
+    # `bench_guard_fallback`.
+    #
+    # ⚠️ THE FALLBACK PATH IS REACHABLE ON THE SHIPPED BUILD, and this comment
+    # said the opposite for a cycle.  It was written when level 1 answered the
+    # deform question with an UPPER bound, which refused every arc in
+    # existence; PART B turned it into a LOWER bound in the same cycle that
+    # added `GUARD_BEND_LADDER`, two of whose rows (`arc_R20_step0.05`,
+    # `arc_R50_step0.1`) are legitimate inputs that pass level 1 and are
+    # refused by level 2.  A kit whose module names no rule matches used to be
+    # a third such class and cost 2.35x at 18.9 km; `_native_ok` refuses it
+    # now (`guard_kit_mismatch`).
+    #
+    # So this row's "0 of 92" is a statement about the 92 FIXTURES' shapes and
+    # kits, not about the tool - it says no case in the scene suite pays the
+    # double cook, and `GUARD_BEND_LADDER` is where the shapes that do are
+    # pinned.
     check("no_case_pays_the_guard_fallback", not fallback,
           "%d of %d" % (len(fallback), len(built)),
           "cases that pass level 1 and are then REFUSED by level 2, cooking "
@@ -5356,10 +5367,32 @@ def guard_bend_bound_needs_its_operands(root):
     # satisfied by a function that refuses everything.
     good = K.read(K.starter_kit())
     sound = H._bend_bound(good[0], good[1], DEFAULTS)
+    # ⚠️ AND THE EMPTY KIT, WHICH IS THE OTHER HALF AND WAS NEVER IMPLEMENTED.
+    # This docstring says "an empty or unreadable kit publishes span 0 /
+    # radius 0 ... so the guard would ADMIT every curve in existence", and
+    # `pc_envelope.vfl`'s own warning block says the same in the same words -
+    # but only the UNREADABLE branch (`except -> (0, 0, 0)`) existed, and only
+    # that branch was asserted.  A `Kit` with no modules never entered the
+    # loop, fell through to the derived return and published
+    # (0.0, 0.0, 1.0) - a bound of ZERO, flagged DERIVED, which is the
+    # fail-OPEN answer the flag exists to prevent.  Not reachable through the
+    # node today (`kit.read` warns on an empty kit and `_native_ok` refuses on
+    # any kit warning), which is why it was a documented fail-safe that was
+    # not the implemented one rather than a shipped divergence - but it is
+    # 20.1's and 20.2's shape exactly, and the fix is one counter.
+    empty = H._bend_bound(K.Kit("empty", 1, []), {}, DEFAULTS)
+    # ...and the ALL-RIGID kit, which must stay the deliberate derived zero
+    # the docstring argues for: nothing in it can unpack, so the bound is
+    # genuinely 0 and the flag is genuinely 1.  Without this row the fix above
+    # would be satisfied by refusing every kit with no deformable module.
+    rigid = K.read(cases.rigid_kit())
+    rigid_v = H._bend_bound(rigid[0], rigid[1], DEFAULTS)
 
     ok = (before == 1 and forced == 0 and after == 0 and ok_flag == 0
           and verdict == (0.0, 0.0, 0.0) and sound[2] == 1.0
-          and sound[0] > 0.0)
+          and sound[0] > 0.0
+          and empty == (0.0, 0.0, 0.0)
+          and rigid_v[2] == 1.0 and rigid_v[0] == 0.0 and rigid_v[1] == 0.0)
     check("guard_bend_bound_needs_its_operands", ok,
           "admits %d, refuses %d without the flag" % (before, after),
           "a 2 km arc the widened bound ADMITS must be REFUSED the moment "
@@ -5367,9 +5400,438 @@ def guard_bend_bound_needs_its_operands(root):
           "- a bound of 0.0 m is under every tolerance there is, so an "
           "underivable kit must fail SAFE rather than read as `nothing can "
           "deform`. before=%d forced=%d cleared=%d flag=%d; "
-          "`_bend_bound` on an unreadable kit -> %r (must be (0.0, 0.0, 0.0)) "
-          "and on the starter kit -> %r (must be derived, with a span)"
-          % (before, forced, after, ok_flag, verdict, sound))
+          "`_bend_bound` on an unreadable kit -> %r and on an EMPTY one -> "
+          "%r (both must be (0.0, 0.0, 0.0) - nothing was inspected, so "
+          "nothing was derived); on the starter kit -> %r (must be derived, "
+          "with a span); on an ALL-RIGID kit -> %r (must be a DERIVED zero - "
+          "nothing in it can unpack, which is a different sentence)"
+          % (before, forced, after, ok_flag, verdict, empty, sound, rigid_v))
+
+
+# --- PART A2: the artist's own attribute TYPES, and the kit-name mismatch ---
+#
+# (name, class, the storage that DIVERGES, the value, what it breaks)
+GUARD_TYPE_ROWS = (
+    ("edge_id", "prim", "int",
+     "D29's curve-id ladder is string-only in VEX, so an int reads \"\" and "
+     "falls through to the primitive number while the reference does "
+     "`str(cid)` - every `pc_elem_id` differs AND `decompose_all` sorts on "
+     "the id, so the curves come out in a different ORDER"),
+    ("pc_curve_id", "prim", "int",
+     "the first rung of the same ladder"),
+    ("pc_style", "prim", "int",
+     "`skey = prim(0, \"pc_style\", pr)` reads \"\", so an `attr:pc_style` "
+     "condition evaluates against the empty string natively and against "
+     "`str(5)` in the reference - 100 % of the run ships the wrong module"),
+    ("pc_yclass", "prim", "int",
+     "`primattribtype(0, \"pc_yclass\") == 2` blanks it, so the native chain "
+     "builds a 1D run where the reference builds a 2D one and the whole "
+     "phase-2 stamp is missing from the output schema"),
+    ("pc_marker_id", "point", "string",
+     "`int mid = point(0, \"pc_marker_id\", p)` reads 0 where the reference "
+     "does `int(\"3\")`, so the `marker:<id>` rule never fires natively"),
+)
+
+
+def _typed_spline(name, cls, storage, value, marker=False):
+    """A 20 m line whose `name` is authored at a storage VEX cannot read."""
+    geo = hou.Geometry()
+    cases.polyline(geo, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)],
+                   curve_id=None if name == "pc_curve_id" else "A")
+    if marker:
+        for attr, default in (("pc_marker", 0), ("pc_curve", ""),
+                              ("pc_u", 0.0)):
+            geo.addAttrib(hou.attribType.Point, attr, default)
+        geo.addAttrib(hou.attribType.Point, name,
+                      "" if storage == "string" else 0)
+        pt = geo.createPoint()
+        pt.setPosition((5.0, 0.0, 0.0))
+        pt.setAttribValue("pc_marker", 1)
+        pt.setAttribValue("pc_curve", "A")
+        pt.setAttribValue("pc_u", 0.25)
+        pt.setAttribValue(name, value)
+        return geo
+    kind = hou.attribType.Prim if cls == "prim" else hou.attribType.Point
+    geo.addAttrib(kind, name, "" if storage == "string" else 0)
+    for elem in (geo.prims() if cls == "prim" else geo.points()):
+        elem.setAttribValue(name, value)
+    return geo
+
+
+def guard_spline_attr_types(root):
+    """The artist's spline attributes have STORAGE, and four of them shipped
+    a different fence when the storage was not the one VEX asks for.
+
+    ⚠️ FOUR SHIPPED PARITY DIVERGENCES IN ONE SHAPE, ALL ON BUILDS THE GUARD
+    ADMITTED WITH NO WARNING.  3.1 names the spline attributes; it does not
+    name their storage.  `place.read_curves` reads whatever the artist
+    authored and converts it (`str(cid)`, `int(... or 0)`, `float(u)`); VEX
+    asks for a typed value and gets the TYPE'S ZERO when the storage does not
+    match - "" for a string read of an int, 0 for an int read of a string -
+    and zero is a legal value in every one of them, so nothing errors and
+    nothing warns.  Measured on the shipped asset before the fix, each with
+    level 1 admitting and `copy_packed` cooking:
+
+      * an INT `edge_id` (7, 3) - `pc_curve_id` "0"/"1" natively against the
+        reference's "7"/"3", and the curves EMITTED IN A DIFFERENT ORDER;
+      * an INT `pc_style` = 5 under an `attr:pc_style` condition - 10 `panel`
+        natively against the reference's 12 `gate`, 100 % of the run;
+      * an INT `pc_yclass` = 2 - a 1D run natively, a 2D one in the reference,
+        `pc_array`/`pc_cell`/`pc_clipped`/`pc_row`/`pc_yclass` absent;
+      * a STRING `pc_marker_id` "3" under a `marker:3` rule - no gate at all.
+
+    ⚠️ NOTHING IN THE SUITE COULD SEE ANY OF IT, and the reason is uniform:
+    every case in `cases.py` authors these as the storage VEX happens to want,
+    and `edge_id` - D29's second rung, added for the streets stream - had ZERO
+    occurrences anywhere under `tests/`.  A parity case that cannot reach a
+    code path proves nothing.
+
+    ⚠️ THE ANSWER IS A REFUSAL, NOT A COERCION.  Reproducing Python's `str()`
+    in VEX is a trap (`str(2.0)` is "2.0", `sprintf("%g")` is "2"), so a
+    ported coercion would be a new divergence wearing the fix's clothes.  The
+    guard's own law is that a build the native chain cannot answer takes the
+    reference, and an attribute whose storage the chain cannot read is
+    exactly that.  `pc_envelope.vfl` holds the table.
+
+    The check asserts BOTH halves on every row: the guard refuses (level 1 = 0
+    and `copy_packed` never cooks), AND `Stage = output` is the reference's
+    own answer element for element - because a refusal that shipped a
+    different fence would be no better than the admission it replaced.
+    """
+    from polyfactory.polychain.style import Rule, Style
+    bad, rows = [], []
+    for name, cls, storage, why in GUARD_TYPE_ROWS:
+        marker = (name == "pc_marker_id")
+        value = "3" if storage == "string" else (5 if name == "pc_style" else
+                                                 (2 if name == "pc_yclass"
+                                                  else 7))
+        geo = _typed_spline(name, cls, storage, value, marker=marker)
+        style = None
+        if name == "pc_style":
+            style = Style(rules=[
+                Rule("default", "conditional", ["gate"],
+                     cond={"subject": "attr:pc_style", "op": "eq",
+                           "value": "5"}),
+                Rule("default", "first", ["panel"])])
+        elif marker:
+            style = Style(rules=[Rule("marker:3", "first", ["gate"]),
+                                 Rule("default", "first", ["panel"])])
+        got = ref = None
+        level1 = cooked = None
+        for stage in ("output", "reference"):
+            tag = "%s_%s_%s" % (name, storage, stage)
+            case = {"curve": geo, "kit": None, "style": style,
+                    "surface": None}
+            node, out = asset_on(root, case, stage, tag)
+            if out is None:
+                bad.append("%s: cook failed at %s" % (name, stage))
+                node.destroy()
+                break
+            if stage == "output":
+                node.allowEditingOfContents()
+                cooked = node.node("copy_packed").cookCount() > 0
+                env = node.node("pc_envelope").geometry()
+                level1 = int(env.attribValue("_native_ok"))
+                got = _snapshot(out)
+            else:
+                ref = _snapshot(out)
+            node.destroy()
+        if got is None or ref is None:
+            continue
+        diff = _first_difference(ref, got)
+        rows.append("%s(%s) L1=%s" % (name, storage, level1))
+        if level1 or cooked:
+            bad.append("%s as %s: the guard ADMITTED it (L1=%s, "
+                       "copy_packed cooked=%s) - %s"
+                       % (name, storage, level1, cooked, why))
+        if diff:
+            bad.append("%s as %s: output != reference - %s"
+                       % (name, storage, diff))
+    # ...and the CONTROL, so the row above is not satisfied by a guard that
+    # refuses every build with any of these names on it.  Same attribute,
+    # same value, authored at the storage the chain reads.
+    ctrl = hou.Geometry()
+    cases.polyline(ctrl, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)])
+    ctrl.addAttrib(hou.attribType.Prim, "edge_id", "")
+    for pr in ctrl.prims():
+        pr.setAttribValue("edge_id", "7")
+    ctrl_case = {"curve": ctrl, "kit": None, "style": None, "surface": None}
+    node, out = asset_on(root, ctrl_case, "output", "edge_id_ctrl")
+    ctrl_native = False
+    if out is not None:
+        node.allowEditingOfContents()
+        ctrl_native = node.node("copy_packed").cookCount() > 0
+        cid = sorted(set(pr.attribValue("pc_curve_id")
+                         for pr in out.prims()))
+        if cid != ["7"]:
+            bad.append("string edge_id: pc_curve_id %r, expected ['7']" % cid)
+        # ⚠️ AND AGAINST THE REFERENCE, because D29's SECOND rung had zero
+        # occurrences anywhere under `tests/` before this check - `grep
+        # edge_id tests/polychain` returned nothing, and every case in
+        # `cases.py` authors `pc_curve_id` instead.  A rung nothing exercises
+        # is a rung nobody knows the two paths agree on, whatever its storage.
+        ctrl_got = _snapshot(out)
+        node.destroy()
+        node, ref_out = asset_on(root, ctrl_case, "reference",
+                                 "edge_id_ctrl_r")
+        if ref_out is None:
+            bad.append("string edge_id: the reference would not cook")
+        else:
+            ctrl_diff = _first_difference(_snapshot(ref_out), ctrl_got)
+            if ctrl_diff:
+                bad.append("string edge_id: native != reference - %s"
+                           % ctrl_diff)
+    node.destroy()
+    if not ctrl_native:
+        bad.append("a STRING edge_id must still take the native chain - the "
+                   "refusal is about storage, not about the name")
+    check("guard_spline_attr_types", not bad,
+          "%d refused, control native" % len(rows),
+          "an artist attribute authored at a storage the VEX chain cannot "
+          "read must be REFUSED at level 1 and must ship the reference's own "
+          "fence: %s. Control (a STRING `edge_id`) took the native chain: "
+          "%s. %s" % ("; ".join(rows), ctrl_native,
+                      "; ".join(bad[:3]) or "all rows refused and identical"))
+
+
+def mutation_spline_attr_types(root):
+    """...and the table has to BITE, per row, or it is decoration.
+
+    D206's lesson in a new place: a refusal table that is never mutated is a
+    list of strings.  Each row's entry is removed from `pc_envelope.vfl`'s own
+    table in turn and the fixture re-cooked; level 1 must ADMIT it again, and
+    the output must go back to disagreeing with the reference.  A row that
+    cannot be made to admit is a row the guard was never enforcing.
+    """
+    from polyfactory.polychain.style import Rule, Style
+    node = None
+    survivors, rows = [], []
+    for name, cls, storage, _why in GUARD_TYPE_ROWS:
+        marker = (name == "pc_marker_id")
+        value = "3" if storage == "string" else (5 if name == "pc_style" else
+                                                 (2 if name == "pc_yclass"
+                                                  else 7))
+        geo = _typed_spline(name, cls, storage, value, marker=marker)
+        style = None
+        if name == "pc_style":
+            style = Style(rules=[
+                Rule("default", "conditional", ["gate"],
+                     cond={"subject": "attr:pc_style", "op": "eq",
+                           "value": "5"}),
+                Rule("default", "first", ["panel"])])
+        elif marker:
+            style = Style(rules=[Rule("marker:3", "first", ["gate"]),
+                                 Rule("default", "first", ["panel"])])
+        case = {"curve": geo, "kit": None, "style": style, "surface": None}
+        node, _out = asset_on(root, case, "output", "mut_%s" % name)
+        node.allowEditingOfContents()
+        env = node.node("pc_envelope")
+        src = env.parm("snippet").eval()
+        # blank this ONE row's name out of the table, leaving the others
+        env.parm("snippet").set(src.replace('"%s"' % name, '"_no_such_attr"'))
+        node.cook(force=True)
+        admitted = int(node.node("pc_envelope").geometry()
+                       .attribValue("_native_ok"))
+        env.parm("snippet").set(src)
+        node.destroy()
+        rows.append("%s %s" % (name, "ADMITTED" if admitted else "still refused"))
+        if not admitted:
+            survivors.append(name)
+    check("mutation_spline_attr_types", not survivors,
+          "%d/%d bite" % (len(GUARD_TYPE_ROWS) - len(survivors),
+                          len(GUARD_TYPE_ROWS)),
+          "each row of `pc_envelope.vfl`'s storage table, removed on its own "
+          "- level 1 must go back to ADMITTING the divergent build, or the "
+          "row was never the thing refusing it: %s. Survivors (rows that "
+          "refuse for some OTHER reason and so assert nothing): %s"
+          % ("; ".join(rows), ", ".join(survivors) or "none"))
+
+
+# The 18.9 km straight the kit-mismatch fallback was measured on.  It is not
+# 300 m on purpose: the cost of a level-1-pass / level-2-refuse build is the
+# DISCARDED NATIVE CHAIN, which scales with the build, so a ceiling asserted
+# on a small fixture is a ceiling asserted where the cost is not.
+GUARD_MISMATCH_M = 18900.0
+GUARD_MISMATCH_CEILING = 1.30
+
+
+def _named_kit(names):
+    """A kit of `names`, each a plain rigid box, with no `default` role."""
+    from polyfactory.polychain import kit as K
+    geo = hou.Geometry()
+    for i, name in enumerate(names):
+        src = hou.Geometry()
+        K.box_mesh(src, 0.0, 2.0, 0.0, 1.0, -0.05, 0.05, 1)
+        K.add_module(geo, name, src, size=(2.0, 1.0, 0.1),
+                     deform=0, zmode="adaptive", roles=name)
+    K.write_manifest(geo, "pf_mismatch", 1, sources=("run_native_checks",),
+                     human_scale_reference=1.8)
+    return geo
+
+
+def guard_kit_mismatch(root):
+    """A rule naming a module the kit does not carry - the ORDINARY artist
+    kit - used to be 2.35x SLOWER than having no native chain at all.
+
+    ⚠️ THE PARAMETER PAGE'S SLOT DEFAULTS NAME THE STARTER KIT.  `slot_default`
+    is "post panel", `slot_corner` is "corner_post".  Wire your own kit into
+    input 2 and leave the slots alone - which is how a kit arrives - and every
+    row of `_native_ok` passed: no surface, no fillet, and NO WARNING, because
+    the parm face never validates the style against the kit (only
+    `style.read` does, and only for a wired payload).  So level 1 admitted,
+    the native chain planned every piece and built ZERO (`pc_place_valid`
+    drops a piece whose module `pc_proto` could not resolve), level 2 refused
+    on `planned != built`, and the reference cooked on top of the discarded
+    work.
+
+    Measured on the shipped asset before the fix, an 18.9 km straight with a
+    two-module kit named `wall_a`/`wall_b`: `Stage = output` 1.507 s against
+    `Stage = reference` 0.642 s - 2.35x, over `GUARD_FALLBACK_CEILING`'s 1.8x,
+    with 852 ms of discarded native work (736 ms of it `pc_plan_solve`) and
+    `node.warnings()` empty.  The identical kit renamed `post`/`panel` read
+    0.97x.
+
+    ⚠️ NO COMMITTED CHECK COULD REACH IT.  The 92 scene cases all use
+    compatible kits, so `no_case_pays_the_guard_fallback` reads 0 of 92; and
+    `GUARD_BEND_LADDER`'s two fallback rows are 300 m and 600 m fixtures
+    measuring 1.21x/1.27x, because the cost of the fallback scales with the
+    native chain and it had only ever been measured on tiny ones.
+
+    `_native_ok` refuses the build now, with `style.read`'s own test
+    (`kit.by_name(name) is None and not kit.by_role(name)`) so the parm face
+    refuses exactly what the payload face already warns about.  Both halves
+    are asserted: the refusal, and the RATIO at 18.9 km.
+    """
+    spline = guard_polyline_geo([(x, 0.0, 0.0) for x in
+                                 range(0, int(GUARD_MISMATCH_M) + 1, 1)])
+    kit = _named_kit(("wall_a", "wall_b"))
+    tag = "kitmismatch"
+    node = root.createNode("pf_polychain", "asset_%s" % tag)
+    node.setInput(0, native.feed(root, spline, "KM_S"))
+    node.setInput(1, native.feed(root, kit, "KM_K"))
+    node.parm("stage").set("output")
+    node.cook(force=True)
+    node.allowEditingOfContents()
+    level1 = int(node.node("pc_envelope").geometry()
+                 .attribValue("_native_ok"))
+    cooked = node.node("pc_plan_solve").cookCount() > 0
+
+    # ⚠️ INTERLEAVED, AND WHAT MOVES IS A PARM.  D209's estimator: one
+    # repetition sets `Stage = output`, cooks it, then sets `Stage =
+    # reference` and cooks that, so a busy moment lands on both sides.  The
+    # setup half - dirtying the node so the next cook is a real one - is
+    # outside the stopwatch.
+    # `setup` dirties through a parm EVERY stage reads, so neither side times
+    # a cache hit (D164) - `cook(force=True)` on an unchanged node returns in
+    # microseconds, which is how this row first read 1.04x on a 3 ms cook.
+    # It is `output_guard_cost`'s own lever, and it is outside the timer.
+    state = {"i": 0}
+
+    def _make(stage):
+        def setup():
+            state["i"] += 1
+            node.parm("stage").set(stage)
+            node.parm("corner_angle_deg").set(30.0 + 0.01 * (state["i"] % 3))
+
+        return (stage, setup, lambda: node.cook(force=True))
+
+    for stage in ("reference", "output"):
+        node.parm("stage").set(stage)
+        node.cook(force=True)
+    best = interleaved_best((_make("output"), _make("reference")))
+    node.parm("corner_angle_deg").set(30.0)
+    out_s, ref_s = best["output"], best["reference"]
+    ratio = out_s / ref_s if ref_s > 0 else 0.0
+    node.destroy()
+    ok = (level1 == 0 and not cooked and ratio <= GUARD_MISMATCH_CEILING
+          and ref_s >= GUARD_COST_FLOOR_S)
+    check("guard_kit_mismatch", ok,
+          "L1=%d, %.2fx" % (level1, ratio),
+          "an %.1f km straight with a kit named `wall_a`/`wall_b` and the "
+          "slot parms left at their starter-kit defaults. Level 1 must "
+          "REFUSE (it read %d) and `pc_plan_solve` must never cook (it "
+          "cooked: %s), because the native chain would plan every piece and "
+          "build none. `Stage = output` %.3f s against `Stage = reference` "
+          "%.3f s = %.2fx, ceiling %.2fx - it measured 2.35x before the "
+          "refusal existed. The reference side must clear the %.0f ms floor "
+          "(it read %.3f s) or the ratio is noise"
+          % (GUARD_MISMATCH_M / 1000.0, level1, cooked, out_s, ref_s, ratio,
+             GUARD_MISMATCH_CEILING, GUARD_COST_FLOOR_S * 1e3, ref_s))
+
+
+# ⚠️ THE PARAMETERS LEVEL 1 CAN REFUSE ON.  Read off the built asset in
+# `guard_refusal_list_is_true` rather than listed here, so a NEW parm that
+# `_native_ok` starts testing is covered without anyone remembering to add it.
+_VEX_KEYWORDS = frozenset((
+    "int", "float", "string", "vector", "if", "else", "for", "while",
+    "foreach", "return", "nprimitives", "npoints", "detail", "prim", "point",
+))
+
+
+def guard_refusal_list_is_true(node=None):
+    """`pc_envelope.vfl`'s "WHAT LEVEL 1 REFUSES" list, checked against the
+    code it describes - in BOTH directions.
+
+    ⚠️ IT WENT STALE FOR A CYCLE AND NOTHING NOTICED.  PART B ported D91's Kit
+    Padding into `config_resolved` and deleted the row from `_native_ok`; the
+    header went on listing "a non-zero Kit Padding" among the things level 1
+    refuses.  A reader auditing the guard reads that list - it is the only
+    prose statement of the envelope there is - and concludes a padded build
+    takes the reference.  It does not: `padding = 0.5` admits and
+    `copy_packed` cooks.  D207 closed exactly this shape for the Stage menu
+    ("text that makes a claim about the build is a CHECK, not a comment") and
+    the guard's own header was left out of it.
+
+    Each row of the list now carries a tag - `[cfg:<name>]` for something
+    `hda._native_ok` tests, `[vex:<name>]` for a term of this file's
+    `i@_native_ok` expression - and four things are asserted:
+
+      1. every `[cfg:...]` tag appears in `_native_ok`'s source;
+      2. every `[vex:...]` tag appears in the verdict expression;
+      3. every PARAMETER NAME `_native_ok` reads has a `[cfg:]` row - so a
+         refusal added without prose is red (this is the direction that would
+         have caught the padding row being ADDED, and it is read off the
+         asset's own parm list, not off a second hand-kept table);
+      4. every identifier in the verdict expression has a `[vex:]` row - so a
+         VEX refusal added without prose is red (and, conversely, a row whose
+         term is DELETED goes red at 2).
+    """
+    import inspect
+    src = inspect.getsource(H._native_ok)
+    vfl = io.open(os.path.join(REPO, "polyfactory", "vex", "polychain",
+                               "pc_envelope.vfl"), encoding="utf-8").read()
+    cfg_tags = re.findall(r"\[cfg:([A-Za-z_][A-Za-z_0-9]*)\]", vfl)
+    vex_tags = re.findall(r"\[vex:([A-Za-z_][A-Za-z_0-9]*)\]", vfl)
+    expr = vfl[vfl.index("i@_native_ok = (") + len("i@_native_ok = ("):]
+    expr = expr[:expr.index(");")]
+    bad = []
+    for tag in cfg_tags:
+        if not re.search(r"\b%s\b" % re.escape(tag), src):
+            bad.append("[cfg:%s] is not tested by `_native_ok`" % tag)
+    for tag in vex_tags:
+        if not re.search(r"\b%s\b" % re.escape(tag), expr):
+            bad.append("[vex:%s] is not read by the verdict expression" % tag)
+    # 3 - every parm the asset exposes that `_native_ok` reads must be listed
+    parms = set()
+    if node is not None:
+        parms = set(p.name() for p in node.parms())
+    unlisted = sorted(p for p in parms
+                      if re.search(r"[\"']%s[\"']" % re.escape(p), src)
+                      and p not in cfg_tags)
+    bad += ["`_native_ok` refuses on the %r parm and no row says so" % p
+            for p in unlisted]
+    # 4 - every term of the verdict expression must be listed
+    terms = set(t for t in re.findall(r"[A-Za-z_][A-Za-z_0-9]*", expr)
+                if t not in _VEX_KEYWORDS and not t.startswith("_native_ok"))
+    untagged = sorted(t for t in terms if t not in vex_tags)
+    bad += ["the verdict reads %r and no row says so" % t for t in untagged]
+    check("guard_refusal_list_is_true", not bad,
+          "%d cfg / %d vex rows" % (len(cfg_tags), len(vex_tags)),
+          "`pc_envelope.vfl`'s WHAT LEVEL 1 REFUSES list against "
+          "`_native_ok`'s source and against this file's own verdict "
+          "expression, both directions. Rows: %s | %s. Complaints: %s"
+          % (", ".join(cfg_tags), ", ".join(vex_tags),
+             "; ".join(bad[:4]) or "the list is true"))
 
 
 # The double cook a level-1 pass / level-2 refusal costs, measured on the
@@ -5388,15 +5850,22 @@ def bench_guard_fallback(root):
     either refused at level 1 or admitted through level 2, so no committed
     check exercised the fallback at all.
 
-    ⚠️ AND IT IS DRIVEN BY A MUTATION, NECESSARILY.  Level 1 answers the
-    deform question itself now, so on the shipped build there is no legitimate
-    input that passes level 1 and fails level 2 - `no_case_pays_the_guard_
-    fallback` is the row that asserts that, and it is the reason the guard is
-    free today.  The COST of the path is still real and still one widening
-    away: §19.7 item 3 is the turn-per-module-length bound, which is precisely
-    the change that lets a rippled run through level 1.  So the fixture forces
-    level 1 open - the same lever `mutation_guard_envelope` uses - and times
-    the double cook that follows.
+    ⚠️ AND THE FALLBACK PATH IS REACHABLE, which is a correction to what this
+    docstring said for a cycle.  It claimed "on the shipped build there is no
+    legitimate input that passes level 1 and fails level 2 ... and it is the
+    reason the guard is free today".  That was true of the UPPER-bound level 1
+    it was written against and false the moment PART B made the bound a LOWER
+    one: `GUARD_BEND_LADDER`'s `arc_R20_step0.05` and `arc_R50_step0.1` rows
+    are exactly such inputs (want1=True, want2=False), reproduced here at
+    R = 20 m / 500 m - L1=1, L2=0, 292 ms of which 224 ms is `kernel` and
+    25 ms is discarded native work.  `guard_bend_bound` is the check that pins
+    WHICH shapes pay; this one pins what it costs.
+
+    The fixture still FORCES level 1 open rather than using an arc, and that
+    is a choice about size rather than about reachability: the cost of the
+    double cook scales with the native chain, so it is measured on a 2 km and
+    a 20 km ripple - shapes big enough for the ratio to mean something -
+    rather than on the ladder's 500 m arcs, which read 1.21-1.27x.
     """
     rows, bad = [], []
     for label, npts in (("ripple_2km", 2001), ("ripple_20km", 20001)):
@@ -6202,6 +6671,10 @@ def main():
     guard_bend_bound(root)
     guard_bend_bound_skips_rigid_modules(root)
     guard_bend_bound_needs_its_operands(root)
+    guard_spline_attr_types(root)
+    mutation_spline_attr_types(root)
+    guard_kit_mismatch(root)
+    guard_refusal_list_is_true(node)
     bench_guard_fallback(root)
 
     print("\n=== 6. cook count and the two benches ===")

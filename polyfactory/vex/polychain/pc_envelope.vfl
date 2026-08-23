@@ -26,36 +26,73 @@
 // only ever forced open by a check.  A flat run that curves hard enough to
 // unpack a piece now passes level 1 and is refused by level 2, and it pays
 // for both chains: measured 1.45-1.58x on flat arcs at R = 5..50 m.
-// `guard_fallback_classes` is the check that pins WHICH shapes pay it, and
-// `bench_guard_fallback` the one that pins what it costs.
+// `guard_bend_bound` is the check that pins WHICH shapes pay it - its two
+// `L2 refused` rows ARE those shapes - and `bench_guard_fallback` the one
+// that pins what it costs.  ⚠️ There is no `guard_fallback_classes`; this
+// sentence named one for a cycle and `grep` returned only itself.  The
+// third reachable class is a kit whose module names no rule matches, and
+// `_native_ok` refuses that outright now rather than paying 2.35x for it.
 //
-// WHAT LEVEL 1 REFUSES, and every one of them is a stage that is not ported:
-//   * anything `config` refused - a surface (4.5, N6), a fillet radius (4.3,
-//     N8), a slope fix, D98's flatten, D99's band, `tile` fill's slice, a
-//     non-`full` Display (D81/D82's plan and proxy modes), Colour Warnings,
-//     a non-zero Kit Padding, a style or kit that warned, or no rules at all.
+// WHAT LEVEL 1 REFUSES - AND THIS LIST IS A CHECKED CLAIM, NOT PROSE.
+//
+// ⚠️ IT WENT STALE, WHICH IS WHY IT IS TAGGED.  For a whole cycle after PART B
+// ported D91's Gap into `config_resolved` this list still said level 1
+// refuses "a non-zero Kit Padding".  It does not - a padded build admits and
+// `copy_packed` cooks - and the list is the only prose statement of the
+// guard's envelope, so an auditor reading the contract against the code was
+// reading a contract the code had left.  That is D207's defect (text that
+// makes a claim about the build is a CHECK, not a comment) in the guard's own
+// header.
+//
+// So each row carries a TAG.  `[cfg:<name>]` names something
+// `hda._native_ok` must actually test, `[vex:<name>]` something the
+// `i@_native_ok` expression at the bottom of this file must actually read,
+// and `guard_refusal_list_is_true` checks BOTH directions: every tag here
+// exists in the code, and every parameter the code refuses on, plus every
+// term of the verdict expression, has a tag here.  A row that stops being
+// true, or a refusal added without a row, is a red check.
+//
+//   * [vex:ok] anything `config` refused, namely:
+//       [cfg:has_surface]     a surface (4.5, N6)
+//       [cfg:fillet_radius]   a fillet radius (4.3, N8)
+//       [cfg:fix_slope]       a slope fix (D26, N5)
+//       [cfg:flatten_stepped] D98's flatten-under (N5)
+//       [cfg:flat_band]       D99's band, and its
+//       [cfg:flat_band_m]     depth - the pair is one refusal (N5)
+//       [cfg:fill]            `tile` fill's slice caps (4.6, N7)
+//       [cfg:display]         a non-`full` Display (D81/D82, plan and proxy)
+//       [cfg:show_warnings]   Colour Warnings (`colour_warnings`' Cd)
+//       [cfg:warns]           a style or kit that WARNED
+//       [cfg:rules]           no rules at all
+//       [cfg:COND_BAD]        a `pc_cond` value the rule table cannot carry
+//       [cfg:by_name]         a rule naming a module the kit does not carry
 //     `hda.config_resolved` writes that verdict into `pc_cfg["native_ok"]`
 //     because it is the node that already holds the Params, the Style and the
 //     Kit - which is the half of Hannes' rule Python keeps.
-//   * a CORNER. 4.3 is N8, and a corner does not merely add an assembly: it
-//     reserves span off both ends of every leg, so the same element address
-//     names a different span in the two plans.  `_cornerpt` is `pc_corners`'
-//     own group and one member is enough to refuse.
-//   * a DUPLICATED curve id.  D169: the reference fans a marker out onto
-//     every curve sharing the id and the native chain answers for the first,
-//     which is a DECLARED divergence with its own check.  `pc_curve_dup` is
-//     the dict `pc_curve_index` already builds.
-//   * a MARKER SITTING ON A CURVE VERTEX.  `place.read_curves` skips the
-//     whole primitive for containing one, so the reference builds nothing
-//     there and the decompose builds a curve; see the note below.  Every
-//     OTHER marker is native now - the blanket refusal was about D88's
-//     warning, not about geometry, and `pc_sections.vfl` raises that.
-//   * nothing to build.  With no primitive the reference warns "no spline on
-//     input 1" and returns empty; that warning is worth keeping.
-//   * a TURN sharp enough to unpack a piece, or ANY elevation change, or a
-//     kit whose deform bound could not be derived at all.  See the long note
-//     on the bound below - this is the row PART B widened, and the only one
-//     of the five that is a COST heuristic rather than a correctness test.
+//   * [vex:corners] a CORNER. 4.3 is N8, and a corner does not merely add an
+//     assembly: it reserves span off both ends of every leg, so the same
+//     element address names a different span in the two plans.  `_cornerpt`
+//     is `pc_corners`' own group and one member is enough to refuse.
+//   * [vex:ndup] a DUPLICATED curve id.  D169: the reference fans a marker
+//     out onto every curve sharing the id and the native chain answers for
+//     the first, which is a DECLARED divergence with its own check.
+//     `pc_curve_dup` is the dict `pc_curve_index` already builds.
+//   * [vex:marker_in_prim] a MARKER SITTING ON A CURVE VERTEX.
+//     `place.read_curves` skips the whole primitive for containing one, so
+//     the reference builds nothing there and the decompose builds a curve;
+//     see the note below.  Every OTHER marker is native now - the blanket
+//     refusal was about D88's warning, not about geometry, and
+//     `pc_warn_collate.vfl` raises that.
+//   * [vex:type_bad] an artist attribute at a STORAGE THE CHAIN CANNOT READ -
+//     an int `edge_id` or `pc_style` or `pc_yclass`, a string `pc_marker_id`.
+//     See the table below; four shipped divergences, all silent.
+//   * [vex:nprimitives] nothing to build.  With no primitive the reference
+//     warns "no spline on input 1" and returns empty; that warning is worth
+//     keeping.
+//   * [vex:bendable] a TURN sharp enough to unpack a piece, or ANY elevation
+//     change, or a kit whose deform bound could not be derived at all.  See
+//     the long note on the bound below - this is the row PART B widened, and
+//     the only one that is a COST heuristic rather than a correctness test.
 
 #include "pc_gate.h"
 
@@ -189,6 +226,64 @@ if (elevated || dev_bound > bend_tol) bendable = 1;
 // AFTER the whole native chain had cooked, and `no_case_pays_the_guard_
 // fallback` went from 0 of 92 to 1 of 92.  A refusal this cheap and this exact
 // belongs at level 1, where it costs a loop this node is already running.
+// ⚠️ AND THE ARTIST'S OWN ATTRIBUTES HAVE TYPES, WHICH IS FOUR SHIPPED
+// DIVERGENCES IN ONE SHAPE.  3.1 names the spline attributes; it does not
+// name their storage, and Python and VEX disagree about what an unexpected
+// storage MEANS.  `place.read_curves` reads whatever type the artist
+// authored and stringifies it (`str(cid)`, `int(... or 0)`, `float(u)`);
+// VEX asks for a typed value and gets the type's ZERO when the storage does
+// not match - "" for a string read of an int, 0 for an int read of a string.
+// Zero is a legal value in every one of these, so nothing errors and nothing
+// warns.  Measured on the shipped asset, all four with level 1 admitting and
+// `copy_packed` cooking:
+//   * an INT `edge_id` (7, 3) - native `pc_curve_id` "0"/"1" against the
+//     reference's "7"/"3", every element's `pc_elem_id` different AND the
+//     curves emitted in a different ORDER (`decompose_all` sorts on the id);
+//   * an INT `pc_style` = 5 with an `attr:pc_style` condition - 10 `panel`
+//     natively against the reference's 12 `gate`, 100 % of the run;
+//   * an INT `pc_yclass` = 2 - a 1D run natively where the reference builds a
+//     2D one, `pc_array`/`pc_cell`/`pc_clipped`/`pc_row`/`pc_yclass` absent
+//     from the output schema entirely;
+//   * a STRING `pc_marker_id` "3" with a `marker:3` rule - no gate at all
+//     natively, one in the reference.
+//
+// ⚠️ THE ANSWER IS A REFUSAL AND NOT A COERCION, and that is the whole point.
+// Reproducing Python's `str()` in VEX is a trap - `str(2.0)` is "2.0" where
+// `sprintf("%g")` is "2" - so a ported coercion would be a NEW divergence
+// wearing the fix's clothes.  The guard's rule is that a build the native
+// chain cannot answer takes the reference, and an attribute whose storage
+// the chain cannot read is exactly that.
+//
+// The test is per NAME and it is O(1) - a Houdini attribute is geometry-wide,
+// so one `attribtype` call decides for the whole build.  `want` is 2 where
+// VEX must read a STRING (the reference stringifies it), 0 where VEX must
+// read a NUMBER and a string storage would answer 0 (the reference's `int()`
+// / `float()` parse it), and every one of them must be SIZE 1: a size-3
+// `pc_u` is component 0 in VEX and a `float(tuple)` TypeError in Python.
+// `pc_section` appears twice because the chain reads it on EITHER class (D7 -
+// a per-point one breaks the curve, a per-prim one is the whole-curve key) and
+// `pc_sections.vfl` already types it both ways, so only its SIZE is asked
+// about.  The rows are written out flat rather than nested: `array(...)` in a
+// `foreach` is one of this project's recorded VEX traps.
+string t_name[]  = {"pc_curve_id", "edge_id", "pc_style", "pc_yclass",
+                    "pc_curve", "pc_marker", "pc_marker_id", "pc_corner",
+                    "pc_u", "pc_dist", "pc_section", "pc_section"};
+int    t_point[] = {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1};
+int    t_want[]  = {2, 2, 2, 2, 2, 0, 0, 0, 0, 0, -1, -1};
+string type_bad = "";
+for (int i = 0; i < len(t_name); i++) {
+    int c  = t_point[i];
+    int t  = c ? pointattribtype(0, t_name[i])
+               : primattribtype(0, t_name[i]);
+    if (t < 0) continue;                     // absent - nothing to disagree on
+    int sz = c ? pointattribsize(0, t_name[i])
+               : primattribsize(0, t_name[i]);
+    int bad = (sz != 1)
+              || (t_want[i] == 2 && t != 2)
+              || (t_want[i] == 0 && t == 2);
+    if (bad) { type_bad = t_name[i]; break; }
+}
+
 int markers = 0;
 int marker_in_prim = 0;
 if (haspointattrib(0, "pc_marker")) {
@@ -207,7 +302,8 @@ if (haspointattrib(0, "pc_marker")) {
 }
 
 i@_native_ok = (ok && corners == 0 && ndup == 0 && !bendable
-                && !marker_in_prim && nprimitives(0) > 0);
+                && !marker_in_prim && type_bad == ""
+                && nprimitives(0) > 0);
 i@_guard_markers = markers;
 i@_guard_marker_in_prim = marker_in_prim;
 i@_guard_corners = corners;
@@ -221,3 +317,4 @@ f@_guard_turn      = worst_turn;
 f@_guard_dev_bound = dev_bound;
 i@_guard_elevated  = elevated;
 i@_guard_bound_ok  = bound_ok;
+s@_guard_type_bad  = type_bad;

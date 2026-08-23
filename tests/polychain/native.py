@@ -373,9 +373,17 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     # A DETAIL wrangle because `setprimattrib` with a name that comes from
     # DATA creates the attribute at runtime and the creation order in a
     # multithreaded wrangle is thread order - D150's objection, in a new place.
+    #
+    # ⚠️ AND IT RAISES D88's UNREAD-MARKER WARNING, which is why it has three
+    # inputs rather than one.  The warning was in `pc_sections` and that node
+    # cooks on the L1-admit / L2-refuse class too, beside `kernel`'s own copy
+    # of the same sentence; this node's cookCount is `kernel`'s exact
+    # complement, so the artist reads it once.  See `pc_warn_collate.vfl`.
     warn = wrangle(parent, "pc_warn_collate" + suffix, "detail",
                    "pc_warn_collate")
     warn.setInput(0, cast)
+    warn.setInput(1, config)
+    warn.setInput(2, sections)
     nodes["pc_warn_collate"] = warn
     return warn, nodes
 

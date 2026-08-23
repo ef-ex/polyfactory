@@ -365,6 +365,30 @@ def main():
         marked.parm("python").eval().replace(
             "for p in [(0,0,0), (20,0,0)]:",
             "for p in [(0,0,0), (20,0,0), (20,0,14)]:"))
+    # ⚠️ AND THE THIRD CLASS, WHICH NEITHER OF THE TWO ABOVE CAN REACH.  The
+    # straight run is pure native (level 1 admits, level 2 admits) and the
+    # cornered one is pure reference (level 1 refuses), so between them they
+    # never cook BOTH chains - and PART B created a class that does: level 1
+    # ADMITS a finely resampled arc and level 2 REFUSES it, which cooks the
+    # native plan chain (for `pc_envelope2`) and `kernel`.  This is
+    # `guard_bend_bound`'s own `arc_R20_step0.05` row, and on it D88's warning
+    # was raised TWICE - once by `pc_sections` and once by `kernel`, word for
+    # word - which is the outcome the placement comment said it was chosen to
+    # prevent.  The warning is in `pc_warn_collate` now, whose cookCount is
+    # `kernel`'s exact complement.
+    marked_arc = geo_node.createNode("python", "marked_arc")
+    marked_arc.parm("python").set(
+        marked.parm("python").eval().replace(
+            "for p in [(0,0,0), (20,0,0)]:",
+            "\n".join((
+                "import math",
+                "_R, _STEP, _LEN = 20.0, 0.05, 500.0",
+                "_pts = [(_R*math.sin(i*_STEP/_R), 0.0,",
+                "         _R*(1.0-math.cos(i*_STEP/_R)))",
+                "        for i in range(int(_LEN/_STEP) + 1)]",
+                "for p in _pts:"))).replace(
+            "m.setPosition((9.0, 0.0, 0.0))",
+            "m.setPosition((0.0, 9.0, 0.0))"))
 
     def marker_warnings(node):
         """D88's warning and the node that raised it, anywhere in the asset.
@@ -389,11 +413,22 @@ def main():
     mkc = geo_node.createNode("pf_polychain", "chain_marker_corner")
     mkc.setInput(0, marked_corner)
     mkc.cook(force=True)
+    mka = geo_node.createNode("pf_polychain", "chain_marker_arc")
+    mka.setInput(0, marked_arc)
+    mka.cook(force=True)
 
     native_w = marker_warnings(mk)
     ref_w = marker_warnings(mkc)
+    arc_w = marker_warnings(mka)
     took_native = mk.node("copy_packed").cookCount() > 0
     took_ref = mkc.node("kernel").cookCount() > 0
+    mka.allowEditingOfContents()
+    arc_l1 = int(mka.node("pc_envelope").geometry().attribValue("_native_ok"))
+    arc_l2 = int(mka.node("pc_envelope2").geometry()
+                 .attribValue("_native_ok2"))
+    arc_both = (arc_l1 == 1 and arc_l2 == 0
+                and mka.node("kernel").cookCount() > 0
+                and mka.node("pc_sections").cookCount() > 0)
     # ⚠️ ONE WARNING, THE SAME SENTENCE, ON BOTH PATHS - and this is a
     # STRONGER assertion than the one it replaces, which only asked whether
     # `kernel` said something with "marker" in it.  PART B removed the
@@ -407,18 +442,25 @@ def main():
     # differently depending on which branch cooked.
     same = ([w for _n, w in native_w] == [w for _n, w in ref_w])
     where = dict((n, w) for n, w in native_w + ref_w)
-    ok = (len(native_w) == 1 and len(ref_w) == 1 and same
-          and took_native and took_ref
-          and native_w[0][0] == "pc_sections" and ref_w[0][0] == "kernel")
+    same = same and ([w for _n, w in arc_w] == [w for _n, w in ref_w])
+    ok = (len(native_w) == 1 and len(ref_w) == 1 and len(arc_w) == 1 and same
+          and took_native and took_ref and arc_both
+          and native_w[0][0] == "pc_warn_collate"
+          and ref_w[0][0] == "kernel" and arc_w[0][0] == "kernel")
     check("unread_marker_warns", ok,
-          "%s / %s" % (native_w[0][0] if native_w else "SILENT",
-                       ref_w[0][0] if ref_w else "SILENT"),
-          "D88's warning on BOTH paths and word for word the same. The "
-          "straight run takes the NATIVE chain (copy_packed cooked: %s) and "
-          "must be warned by `pc_sections`; the cornered one takes the "
-          "REFERENCE (kernel cooked: %s) and must be warned by `kernel`. "
-          "native=%r reference=%r identical=%s"
-          % (took_native, took_ref, native_w, ref_w, same))
+          "%s / %s / %s"
+          % (native_w[0][0] if native_w else "SILENT",
+             ref_w[0][0] if ref_w else "SILENT",
+             arc_w[0][0] if arc_w else "SILENT"),
+          "D88's warning on ALL THREE guard classes, EXACTLY ONCE each and "
+          "word for word the same. Straight = pure native (copy_packed "
+          "cooked: %s) -> `pc_warn_collate`; cornered = level 1 refuses "
+          "(kernel cooked: %s) -> `kernel`; ARC = level 1 admits and level 2 "
+          "REFUSES (L1=%s L2=%s, both chains cooked: %s) -> `kernel` ALONE - "
+          "the class in which `pc_sections` and `kernel` both raised it. "
+          "native=%r reference=%r arc=%r identical=%s"
+          % (took_native, took_ref, arc_l1, arc_l2, arc_both,
+             native_w, ref_w, arc_w, same))
     mk.parm("slot_marker").set("gate")
     mk.parm("marker_id").set(1)
     mods = sorted(set(p.attribValue("pc_module") for p in mk.geometry().prims()))

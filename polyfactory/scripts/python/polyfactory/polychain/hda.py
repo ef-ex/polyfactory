@@ -508,6 +508,19 @@ def _bend_bound(kit, sources, params):
     other ways `_needs_deform` can answer True without consulting the module,
     and CONFIG already refuses both before this function is reached.
 
+    ⚠️ AN EMPTY KIT IS NOT THAT SENTENCE, AND IT USED TO GET IT.  A `Kit` with
+    no modules at all never entered the loop, fell through to the derived
+    return and published (0.0, 0.0, 1.0) - a bound of zero, DERIVED, which
+    `pc_envelope.vfl` reads as "admit any curvature".  That is the fail-OPEN
+    answer the flag exists to prevent, stated in this file's own warning
+    block and in `guard_bend_bound_needs_its_operands`' docstring, and only
+    the UNREADABLE branch was ever implemented or asserted.  Nothing was
+    INSPECTED, so nothing was derived: it takes the (0, 0, 0) refusal.  It is
+    not reachable through the node today (`kit.read` warns on an empty kit and
+    `_native_ok` refuses on any kit warning), which is why the impact was a
+    documented fail-safe that was not the implemented one rather than a
+    shipped divergence - but it is 20.1's and 20.2's shape exactly.
+
     `module.length` and the source bbox X extent are both taken because D20
     says the fitted size is a contract about the FIT while the bbox is the
     geometry that will actually move, and a module may legitimately overhang.
@@ -517,6 +530,7 @@ def _bend_bound(kit, sources, params):
     direction, and paying for it is `bench_guard_fallback`'s business.
     """
     span = radius = 0.0
+    inspected = 0
     style_zmode = str(getattr(params, "zmode", "") or "")
     for module in (getattr(kit, "modules", ()) or ()):
         try:
@@ -529,6 +543,7 @@ def _bend_bound(kit, sources, params):
             return (0.0, 0.0, 0.0)                # unreadable - refuse, D34
         if not (hi[0] >= lo[0]):                  # NaN or an invalid box
             return (0.0, 0.0, 0.0)
+        inspected += 1                            # a module WAS read
         if deform <= 0:
             continue                              # D27 - it cannot unpack
         zmode = style_zmode or str(getattr(module, "zmode", "") or "")
@@ -538,7 +553,7 @@ def _bend_bound(kit, sources, params):
         rz = max(abs(lo[2]), abs(hi[2]))
         span = max(span, length, float(hi[0] - lo[0]))
         radius = max(radius, math.hypot(ry, rz) if zmode == "adaptive" else rz)
-    return (span, radius, 1.0)
+    return (span, radius, 1.0 if inspected else 0.0)
 
 
 def config_dict(node):
@@ -691,6 +706,36 @@ def _native_ok(parms, params, style, kit, cfg, warns):
     for rule in (getattr(style, "rules", ()) or ()):
         if _cond_columns(dict(getattr(rule, "cond", None) or {}))[0]                 == COND_BAD:
             return False
+    # ⚠️ A RULE NAMING A MODULE THE KIT DOES NOT CARRY - THE ORDINARY ARTIST
+    # KIT, AND IT WAS 2.35x SLOWER THAN HAVING NO NATIVE CHAIN AT ALL.
+    #
+    # The parameter page's slot defaults name the STARTER kit's modules
+    # (`post`, `panel`, `corner_post`).  Wire your own two-module kit into
+    # input 2 and leave the slots alone - which is how a kit arrives - and
+    # every row above passes: no surface, no fillet, no warning (the PARM
+    # face never validates against the kit; only `style.read` does, and only
+    # for a wired payload).  So level 1 admitted, the native chain planned
+    # every piece and built ZERO (`pc_place_valid` drops a piece whose module
+    # `pc_proto` could not resolve), level 2 refused on `planned != built`,
+    # and the reference cooked on top.  Measured on the shipped asset, an
+    # 18.9 km straight with a 2-module kit named `wall_a`/`wall_b`:
+    # `Stage = output` 1.507 s against `Stage = reference` 0.642 s - 2.35x,
+    # over `GUARD_FALLBACK_CEILING`'s 1.8x, with 852 ms of discarded native
+    # work and `node.warnings()` empty.  The same kit renamed `post`/`panel`
+    # reads 0.97x.
+    #
+    # The test is `style.read`'s own - `kit.by_name(name) is None and not
+    # kit.by_role(name)` - deliberately transcribed rather than reinvented, so
+    # the parm face refuses exactly the builds the payload face already warns
+    # about (and `_native_ok` already refuses a warning).  `guard_kit_mismatch`
+    # is the check, and it measures the ratio at 18.9 km rather than at the
+    # 300 m the ladder used, because the cost of the fallback scales with the
+    # native chain.
+    if kit is not None:
+        for rule in (getattr(style, "rules", ()) or ()):
+            for name in (getattr(rule, "modules", ()) or ()):
+                if kit.by_name(name) is None and not kit.by_role(name):
+                    return False
     return True
 
 
