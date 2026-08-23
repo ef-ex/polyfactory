@@ -6,6 +6,10 @@
 // POINT PER SECTION - the stream 4.2's fitting solve runs over - and nothing
 // else; `pc_sec_only` downstream blasts the spline away.
 //
+// It also raises D88's UNREAD-MARKER warning, because this is the last node in
+// the native chain that can still see a marker point - see the long note at
+// the bottom of the file.
+//
 // ⚠️ WHY THIS IS A DETAIL WRANGLE AND NOT A PRIMITIVE ONE.  13.3.1 specified
 // "a primitive wrangle emitting one point per section" plus "a sort SOP,
 // which is not optional", because `addpoint` from a multithreaded wrangle
@@ -404,3 +408,83 @@ foreach (int i; ord) {
 }
 
 i@_nsections = nsec;
+
+// ---------------------------------------------------------------------------
+// D88's UNREAD-MARKER WARNING, ON THE NATIVE PATH.  PART B, 13.9 N7's marker
+// half.
+//
+// ⚠️ THE MARKER REFUSAL WAS NEVER ABOUT GEOMETRY, IT WAS ABOUT THIS SENTENCE.
+// 4.2's marker anchors have been at parity since N2 - `plan_solve_parity`
+// runs the marker cases - but `hda._warn_unread_markers` raises D88's warning
+// from `hda.cook`, on the `kernel` node, and a native output never cooks that
+// node.  So `pc_envelope.vfl` refused every build with a marker in it purely
+// to keep the warning, and `unread_marker_warns` was the check that made the
+// refusal necessary.  Measured on the shipped asset with `hou.perfMon`, that
+// cost **52 ms of Python on a 2 km run and 212 ms on 300 streets** - the
+// biggest thing in this tool that was Python for want of a string.
+//
+// ⚠️ IT LIVES IN THIS NODE AND NOT IN A NEW ONE, and the reason is where the
+// marker points still are.  `pc_sec_only` blasts everything that is not a
+// section one node down, so `pc_plan_emit` - which 19.7 nominated, and which
+// already fans the per-element warnings out - cannot see a marker at all.
+// This wrangle is the FIRST node of the native plan chain, it is DETAIL (so
+// it can aggregate the ids into one sentence, which a point wrangle cannot)
+// and it already holds both inputs.  A new node would have cost a
+// `WRANGLE_CEILING_US` row, a header and a `NATIVE_STAGES` row to say the
+// same thing in the same place.
+//
+// ⚠️ AND IT IS IN THE NATIVE PLAN CHAIN ON PURPOSE, not in the decompose.
+// The decompose runs on EVERY build, including the ones the guard refuses -
+// so a warning raised there would fire beside `kernel`'s own and the artist
+// would read it twice.  This chain only cooks when level 1 has admitted the
+// build, which is exactly when `kernel` is silent.
+//
+// The message is `_warn_unread_markers`' own, word for word, including which
+// of the two faces authored the style - a warning that reads differently
+// depending on which node raised it is a warning an artist cannot search for.
+int mk_ids[];
+if (haspointattrib(0, "pc_marker")) {
+    int has_id = haspointattrib(0, "pc_marker_id");
+    for (int i = 0; i < npt; i++) {
+        int flag = point(0, "pc_marker", i);
+        if (flag != 1) continue;
+        int id = has_id ? point(0, "pc_marker_id", i) : 0;
+        if (find(mk_ids, id) < 0) push(mk_ids, id);
+    }
+}
+if (len(mk_ids)) {
+    // which ids a `marker:<id>` rule actually READS.  `pc_r_slot` is CONFIG's
+    // flattened rule table - the same array `pc_plan.h` selects on - so this
+    // asks the resolved STYLE and not the parameter page, which is what makes
+    // it answer the same way under a wired payload (D77).
+    string slots[] = detail(1, "pc_r_slot");
+    int read_ids[];
+    foreach (string slot; slots) {
+        // VEX has no `strncmp`; the slice IS the prefix test.
+        if (slot[0:7] != "marker:") continue;
+        string tail = slot[7:];
+        // `atoi` answers 0 for junk, and 0 is a REAL marker id (it is the
+        // default `pc_marker_id`), so a slot whose tail is not a number must
+        // not be read as reading marker 0.  `_warn_unread_markers` reaches
+        // the same answer with `except ValueError: continue`.
+        if (tail == "" || tail != itoa(atoi(tail))) continue;
+        push(read_ids, atoi(tail));
+    }
+    int unread[];
+    foreach (int id; sort(mk_ids))
+        if (find(read_ids, id) < 0) push(unread, id);
+    if (len(unread)) {
+        string parts[];
+        foreach (int id; unread) push(parts, itoa(id));
+        dict cfg_w = detail(1, "pc_cfg");
+        int from_payload = 0;
+        if (isvalidindex(cfg_w, "from_payload")) {
+            float v = cfg_w["from_payload"];
+            from_payload = (int)v;
+        }
+        warning("input 1 carries markers with id %s and no rule reads them - %s",
+                join(parts, ", "),
+                from_payload ? "add a marker:<id> rule to the style payload"
+                             : "set Marker Id and Piece at Marker");
+    }
+}

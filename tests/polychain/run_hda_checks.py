@@ -263,6 +263,59 @@ def main():
                                          ",".join(moved) or "none"))
     node.setInput(2, None)
 
+    # ⚠️ AND THE SAME SWEEP ON A BUILD THE GUARD ADMITS, because the one above
+    # only ever judged the REFERENCE.  Its fixture asks for `corner_mode
+    # ='miter'` on a cornered spline, which 13.9 N10's level 1 refuses outright
+    # - so every parm it sweeps is being read by `hda.cook`, and D77's
+    # guarantee on the NATIVE chain was untested.  PART B is what made that
+    # matter: the guard admits arcs, markers and padded builds now, so the
+    # parm lane has a second implementation behind it.
+    #
+    # It was found by a MUTATION, not by reading.  Padding a WIRED payload -
+    # D91 reverted, the exact defect D107's comment above says this sweep
+    # exists to catch - left BOTH runners at 0 [FAIL]: the sweep saw nothing
+    # because `hda.cook` still refuses to pad under a payload, and the native
+    # chain, which now would have padded, was never the thing being swept.
+    native_payload = geo_node.createNode("python", "style_in_native")
+    native_payload.parm("python").set(
+        "import hou\n"
+        "from polyfactory.polychain import Params, Rule, Style\n"
+        "from polyfactory.polychain import style as S\n"
+        "st = Style('pipeline_native', 1, 11, rules=[\n"
+        "    Rule('default', 'sequence', ['post', 'panel'])],\n"
+        "    params=Params(fill='adaptive'))\n"
+        "S.write(hou.pwd().geometry(), st)\n")
+    straight = curve_node(geo_node, "straight_for_payload",
+                          [(1.0 * i, 0.0, 0.0) for i in range(201)])
+    nat = geo_node.createNode("pf_polychain", "chain_payload_native")
+    nat.setInput(0, straight)
+    nat.setInput(2, native_payload)
+    nat.cook(force=True)
+    nat.allowEditingOfContents()
+    took_native = nat.node("copy_packed").cookCount() > 0
+    base_ids2, base_pos2 = _fingerprint(nat)
+    moved2 = []
+    for parm in sorted(nat.parms(), key=lambda q: q.name()):
+        if parm.name() in PARM_LANE_EXEMPT:
+            continue
+        was = parm.eval()
+        if not _nudge(parm):
+            continue
+        got_ids, got_pos = _fingerprint(nat)
+        if got_ids != base_ids2 or got_pos != base_pos2:
+            moved2.append(parm.name())
+        parm.set(was)
+    # ⚠️ `took_native` IS PART OF THE ASSERTION, not a print.  A sweep that
+    # reports "moved: none" because the guard quietly went back to the
+    # reference would be the same unfailable check in a new place.
+    check("parms_inert_under_payload_native", took_native and not moved2,
+          "%s / %d parms" % ("native" if took_native else "REFERENCE",
+                             len(nat.parms())),
+          "D77 on the NATIVE chain: a straight run with a payload the guard "
+          "ADMITS (copy_packed cooked: %s), every parm on the page nudged, "
+          "ids and positions both. moved: %s"
+          % (took_native, ",".join(moved2) or "none"))
+
     # ---- 4b. a payload whose rules ALL drop stays in the PIPELINE face -----
     print("\n=== 4b. a payload with no usable rule degrades in place (D92) ===")
     junk = geo_node.createNode("python", "style_junk")
@@ -304,13 +357,68 @@ def main():
         "m.setAttribValue('pc_marker_id', 1)\n"
         "m.setAttribValue('pc_u', 0.45)\n"
         "m.setAttribValue('pc_curve', 'M')\n")
+    # A CORNERED copy of the same marked spline, because PART B made the two
+    # paths raise D88's warning from two different nodes and only a fixture
+    # the guard REFUSES still exercises `kernel`'s.
+    marked_corner = geo_node.createNode("python", "marked_corner")
+    marked_corner.parm("python").set(
+        marked.parm("python").eval().replace(
+            "for p in [(0,0,0), (20,0,0)]:",
+            "for p in [(0,0,0), (20,0,0), (20,0,14)]:"))
+
+    def marker_warnings(node):
+        """D88's warning and the node that raised it, anywhere in the asset.
+
+        ⚠️ IT CANNOT ASK THE INSTANCE, AND THAT WAS MEASURED RATHER THAN
+        ASSUMED.  `hou.Node.warnings()` on the `pf_polychain` instance returns
+        an EMPTY tuple in every case tested - a native build, a reference
+        build, and even the `no spline on input 1` build that every reader
+        would expect it to carry.  Houdini propagates the warning STATE up the
+        hierarchy for the badge in the network editor, not the text through
+        HOM, so a check that asked the instance would be asserting nothing at
+        all.  Every check in this suite has therefore always read an INNER
+        node; what PART B changed is WHICH one.
+        """
+        node.allowEditingOfContents()
+        return sorted((c.name(), w) for c in node.children()
+                      for w in c.warnings() if "marker" in w)
+
     mk = geo_node.createNode("pf_polychain", "chain_marker")
     mk.setInput(0, marked)
     mk.cook(force=True)
-    silent = mk.node("kernel").warnings()
-    check("unread_marker_warns",
-          any("marker" in w for w in silent), len(silent),
-          (silent or ("",))[0][:80])
+    mkc = geo_node.createNode("pf_polychain", "chain_marker_corner")
+    mkc.setInput(0, marked_corner)
+    mkc.cook(force=True)
+
+    native_w = marker_warnings(mk)
+    ref_w = marker_warnings(mkc)
+    took_native = mk.node("copy_packed").cookCount() > 0
+    took_ref = mkc.node("kernel").cookCount() > 0
+    # ⚠️ ONE WARNING, THE SAME SENTENCE, ON BOTH PATHS - and this is a
+    # STRONGER assertion than the one it replaces, which only asked whether
+    # `kernel` said something with "marker" in it.  PART B removed the
+    # envelope's marker refusal (measured: 52 ms of Python on a 2 km run, 212
+    # on 300 streets, spent entirely to keep this sentence) and moved D88's
+    # warning into `pc_sections`, the last node of the native chain that can
+    # still see a marker point.  Three things have to hold for that to be an
+    # honest move rather than a hole: the native build must raise it, the
+    # reference build must still raise it, and the two must be WORD FOR WORD
+    # the same - an artist cannot search for a warning that is phrased
+    # differently depending on which branch cooked.
+    same = ([w for _n, w in native_w] == [w for _n, w in ref_w])
+    where = dict((n, w) for n, w in native_w + ref_w)
+    ok = (len(native_w) == 1 and len(ref_w) == 1 and same
+          and took_native and took_ref
+          and native_w[0][0] == "pc_sections" and ref_w[0][0] == "kernel")
+    check("unread_marker_warns", ok,
+          "%s / %s" % (native_w[0][0] if native_w else "SILENT",
+                       ref_w[0][0] if ref_w else "SILENT"),
+          "D88's warning on BOTH paths and word for word the same. The "
+          "straight run takes the NATIVE chain (copy_packed cooked: %s) and "
+          "must be warned by `pc_sections`; the cornered one takes the "
+          "REFERENCE (kernel cooked: %s) and must be warned by `kernel`. "
+          "native=%r reference=%r identical=%s"
+          % (took_native, took_ref, native_w, ref_w, same))
     mk.parm("slot_marker").set("gate")
     mk.parm("marker_id").set(1)
     mods = sorted(set(p.attribValue("pc_module") for p in mk.geometry().prims()))
@@ -318,9 +426,32 @@ def main():
              if p.attribValue("pc_module") == "gate"]
     check("marker_slot_on_the_page", "gate" in mods, ",".join(mods),
           "%d gate element(s) at the marker" % len(gates))
-    check("marker_read_is_silent",
-          not any("marker" in w for w in mk.node("kernel").warnings()),
-          len(mk.node("kernel").warnings()), "the warning stops once read")
+    mkc.parm("slot_marker").set("gate")
+    mkc.parm("marker_id").set(1)
+    mkc.cook(force=True)
+    quiet = marker_warnings(mk) + marker_warnings(mkc)
+    check("marker_read_is_silent", not quiet, len(quiet),
+          "the warning stops once read, on the native path and on the "
+          "reference: %r" % (quiet or "silent",))
+    # ⚠️ AND THE PIECE THE MARKER ASKED FOR HAS TO SURVIVE THE FLIP.  Before
+    # PART B the guard refused every marked build, so `marker_slot_on_the_page`
+    # only ever judged the REFERENCE - it would have stayed green if the
+    # native chain had placed no gate at all.
+    ngates_native = len([pr for pr in mk.geometry().prims()
+                         if pr.attribValue("pc_module") == "gate"])
+    mk.parm("stage").set("reference")
+    mk.cook(force=True)
+    ngates_ref = len([pr for pr in mk.geometry().prims()
+                      if pr.attribValue("pc_module") == "gate"])
+    mk.parm("stage").set("output")
+    mk.cook(force=True)
+    check("marker_gate_survives_the_native_chain",
+          ngates_native == ngates_ref and ngates_native > 0,
+          "%d native / %d reference" % (ngates_native, ngates_ref),
+          "the gate a `marker:<id>` rule places, counted on the guarded "
+          "output and on the reference - PART B let the native chain answer "
+          "marked builds, and `marker_slot_on_the_page` above judged the "
+          "reference alone until now")
 
     # ---- 5. the proxy LOD, at 10k pieces ---------------------------------
     print("\n=== 5. proxy LOD at scale (5's acceptance criterion) ===")

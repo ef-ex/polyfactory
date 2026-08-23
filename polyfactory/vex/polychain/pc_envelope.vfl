@@ -45,6 +45,11 @@
 //     every curve sharing the id and the native chain answers for the first,
 //     which is a DECLARED divergence with its own check.  `pc_curve_dup` is
 //     the dict `pc_curve_index` already builds.
+//   * a MARKER SITTING ON A CURVE VERTEX.  `place.read_curves` skips the
+//     whole primitive for containing one, so the reference builds nothing
+//     there and the decompose builds a curve; see the note below.  Every
+//     OTHER marker is native now - the blanket refusal was about D88's
+//     warning, not about geometry, and `pc_sections.vfl` raises that.
 //   * nothing to build.  With no primitive the reference warns "no spline on
 //     input 1" and returns empty; that warning is worth keeping.
 //   * a TURN sharp enough to unpack a piece, or ANY elevation change, or a
@@ -159,27 +164,52 @@ float dev_bound = 0.25 * bend_span * sin(min(worst_turn, PC_HALF_PI))
                   + 2.0 * bend_radius * sin(0.5 * worst_turn);
 if (elevated || dev_bound > bend_tol) bendable = 1;
 
-// ⚠️ AND A MARKER KEEPS THE REFERENCE, WHICH IS ABOUT A WARNING AND NOT
-// ABOUT GEOMETRY.  4.2's marker anchors are at parity - `plan_solve_parity`
-// runs the marker cases - but D88's UNREAD-MARKER warning is raised by
-// `hda.cook`, on the `kernel` node, and a native output does not cook that
-// node at all.  Measured: `unread_marker_warns` in `run_hda_checks.py` went
-// red the moment the guard took a marked straight run, because the warning
-// really had disappeared from the artist's node.  Moving it is 13.9 N7's
-// (`pc_plan_emit` already fans the per-element warnings out); until then a
-// build with a marker in it takes the reference and keeps its warning.
+// ⚠️ A MARKER USED TO KEEP THE REFERENCE, AND IT WAS NEVER ABOUT GEOMETRY.
+// 4.2's marker anchors have been at parity since N2 - `plan_solve_parity`
+// runs the marker cases - but D88's UNREAD-MARKER warning was raised by
+// `hda.cook` on the `kernel` node, which a native output never cooks, so
+// `unread_marker_warns` went red the moment the guard took a marked straight
+// run.  The whole refusal existed to keep ONE SENTENCE, and it was measured
+// at **52 ms of Python on a 2 km run and 212 ms on 300 streets**.
+//
+// PART B moved the sentence instead: `pc_sections.vfl` raises it, from the
+// first node of the NATIVE PLAN CHAIN, which is the last place a marker point
+// still exists (`pc_sec_only` blasts them one node down) and which only cooks
+// when this envelope has already admitted the build.  `markers` is kept as a
+// DIAGNOSTIC below so `Stage = output` can still say how many arrived, but it
+// no longer refuses anything.
+//
+// ⚠️ ONE MARKER SHAPE STILL REFUSES, AND IT IS A REAL DIVERGENCE RATHER THAN
+// A WARNING.  `place.read_curves` SKIPS any primitive that contains a marker
+// point outright - `if any(p.number() in marker_pts for p in pts): continue` -
+// so a marker authored ON a curve vertex makes the reference build NO CURVE
+// AT ALL there, while the decompose builds one happily, sampler table and all.
+// That is `T2_marker_in_prim`, and dropping the blanket marker refusal above
+// exposed it: level 2 caught it (which is the guard working), but it caught it
+// AFTER the whole native chain had cooked, and `no_case_pays_the_guard_
+// fallback` went from 0 of 92 to 1 of 92.  A refusal this cheap and this exact
+// belongs at level 1, where it costs a loop this node is already running.
 int markers = 0;
+int marker_in_prim = 0;
 if (haspointattrib(0, "pc_marker")) {
     int npt = npoints(0);
     for (int i = 0; i < npt; i++) {
         int m = point(0, "pc_marker", i);
-        if (m) { markers = 1; break; }
+        if (!m) continue;
+        markers++;
+        // `pointprims` is the same question `read_curves` asks from the other
+        // side: it skips the PRIM for containing the point, this refuses the
+        // BUILD for the point being in a prim.  Read after `pc_unshare`, which
+        // only splits points shared BETWEEN prims and so cannot turn a vertex
+        // into a loose point or the other way round.
+        if (len(pointprims(0, i))) marker_in_prim = 1;
     }
 }
 
-i@_native_ok = (ok && corners == 0 && ndup == 0 && !bendable && !markers
-                && nprimitives(0) > 0);
+i@_native_ok = (ok && corners == 0 && ndup == 0 && !bendable
+                && !marker_in_prim && nprimitives(0) > 0);
 i@_guard_markers = markers;
+i@_guard_marker_in_prim = marker_in_prim;
 i@_guard_corners = corners;
 i@_guard_dup = ndup;
 i@_guard_cfg = ok;

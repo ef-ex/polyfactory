@@ -4668,11 +4668,17 @@ def output_guard_mutation(root, built):
 
     env = node.node("pc_envelope")
     body = env.parm("snippet").eval()
-    target = "&& !bendable && !markers"
+    # ⚠️ THE TARGET IS THE `!bendable` TERM AND IT MOVED IN PART B.  Level 1's
+    # marker refusal is gone (D88's warning is raised by `pc_sections` now),
+    # so the string this used to key on - "&& !bendable && !markers" - no
+    # longer exists and the check reported "target missing" rather than
+    # failing loudly.  It keys on the term alone now, which is what it was
+    # always about.
+    target = "&& !bendable"
     found = target in body
     rows = []
     if found:
-        env.parm("snippet").set(body.replace(target, "&& !markers"))
+        env.parm("snippet").set(body.replace(target, ""))
         node.cook(force=True)
         env2 = node.node("pc_envelope2").geometry()
         level1 = int(node.node("pc_envelope").geometry()
@@ -4981,6 +4987,71 @@ GUARD_BEND_LADDER = (
 # Measured 1.21x and 1.27x on the two rows that reach it; the ceiling is
 # `bench_guard_fallback`'s, because it is the same double cook.
 GUARD_BEND_FALLBACK_CEILING = 1.8
+
+
+# PART B - the Gap values `guard_padding_parity` sweeps.  Negative is not
+# decoration: 4.2 packs with `pc_pad` and RailClone's semantics allow a
+# NEGATIVE overlap, which is a different branch of the solve (D17's
+# "padding that cancels the unit degrades") and the one most likely to
+# diverge.
+GUARD_PADDING_M = (0.05, 0.4, -0.05, -0.3)
+
+
+def guard_padding_parity(root):
+    """PART B - D91's Gap, on the native chain, against the reference.
+
+    ⚠️ NO CASE IN THE 92 REACHES THIS AND THAT IS WHY IT IS ITS OWN CHECK.
+    `padding` is a PARM-FACE control (D91) and every scene case drives the
+    kernel through a `Style` object, so `output_guard_parity`'s 92 builds
+    never touch the parm - the last three criticals in this project were all
+    features no case exercised, and shipping the port on the strength of a
+    suite that cannot reach it would be the fourth.
+
+    The port itself is one branch in `hda.config_resolved`: nothing in the
+    native chain reads the kit geometry's `pc_pad` (grep says `pc_plan.h` and
+    only `pc_plan.h`, through CONFIG's flattened `pc_k_pad0` / `pc_k_pad1`), so
+    padding the kit before it is flattened is the whole of it.  What has to be
+    proved is that the flattened numbers reach the solve and produce the
+    reference's fence element for element - not merely that the build no
+    longer refuses.
+    """
+    rows, bad = [], []
+    for pad in GUARD_PADDING_M:
+        geo = guard_polyline_geo([(1.0 * i, 0.0, 0.0) for i in range(201)])
+        node = root.createNode("pf_polychain", "pad_%d" % int(pad * 1000))
+        node.setInput(0, native.feed(root, geo, "PAD_%d" % int(pad * 1000)))
+        node.parm("padding").set(pad)
+        node.allowEditingOfContents()
+        node.parm("stage").set("output")
+        node.cook(force=True)
+        took = node.node("copy_packed").cookCount() > 0
+        got = _snapshot(node.geometry())
+        node.parm("stage").set("reference")
+        node.cook(force=True)
+        want = _snapshot(node.geometry())
+        diff = _first_difference(want, got)
+        nprim = len(node.geometry().prims())
+        if not took:
+            bad.append("%+.2f m: took the reference - the guard still refuses "
+                       "a padded build" % pad)
+        if diff:
+            bad.append("%+.2f m: %s" % (pad, diff))
+        rows.append((pad, nprim, took))
+        node.destroy()
+
+    # ...and the sweep has to MOVE the fence, or every row above is the same
+    # build four times and the parity is a comparison of nothing with nothing.
+    counts = sorted(set(r[1] for r in rows))
+    if len(counts) < 2:
+        bad.append("every Gap value built %d prims - the parm is not reaching "
+                   "the solve at all" % counts[0])
+    check("guard_padding_parity", not bad,
+          "; ".join("%+.2fm %d prims%s" % (r[0], r[1], "" if r[2] else " REF")
+                    for r in rows),
+          "D91's Gap on the NATIVE chain against `Stage = reference`, over %d "
+          "values including negative overlaps, element for element. No scene "
+          "case sets this parm, so nothing else in the suite can see it. %s"
+          % (len(GUARD_PADDING_M), "; ".join(bad[:3]) or "identical"))
 
 
 def guard_bend_bound(root):
@@ -6043,6 +6114,7 @@ def main():
     payload_cond_parity(root)
     output_guard_mutation(root, built)
     output_guard_cost(root)
+    guard_padding_parity(root)
     guard_bend_bound(root)
     guard_bend_bound_skips_rigid_modules(root)
     guard_bend_bound_needs_its_operands(root)

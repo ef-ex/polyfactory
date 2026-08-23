@@ -577,6 +577,31 @@ def config_resolved(node):
     from_payload = style is not None
     if style is None:
         style = style_from_parms(node)
+    # D91's KIT PADDING, ON THE NATIVE PATH.  PART B.
+    #
+    # ⚠️ THE REFUSAL WAS ONE LINE AND SO IS THE PORT, WHICH IS THE FINDING.
+    # `_native_ok` refused every build with a non-zero Gap because "D91's kit
+    # padding rewrites the KIT, and `cook_kit` does not do it" - measured on
+    # the shipped asset with `hou.perfMon`, 53 ms of Python on a 2 km run and
+    # 211 ms on 300 straight streets.  But NOTHING in the native chain reads
+    # the kit geometry's `pc_pad`: grepping `pc_pad` over
+    # `polyfactory/vex/polychain/` returns exactly ONE hit, `pc_plan.h`
+    # reading CONFIG's own flattened `pc_k_pad0` / `pc_k_pad1` columns.  So
+    # padding the kit HERE, before it is flattened, is the whole port - the
+    # solve reads the padded numbers and `copy_packed` still gets the
+    # unpadded geometry, which is what it wants.
+    #
+    # ⚠️ THE ORDER IS `cook`'s ORDER, NOT A TIDIER ONE.  `cook` reads the
+    # style against the UNPADDED kit and pads afterwards, so a payload's
+    # validation warnings are about the kit the artist wired; doing it the
+    # other way round would make a padded kit warn differently.  And D91's own
+    # rule holds - a wired payload is never padded, because `_padded` under a
+    # payload made one payload build two different fences on two nodes.
+    if not from_payload and parms.parm("padding") is not None \
+            and abs(float(parms.evalParm("padding"))) > EPS:
+        kit, _sources, kit_warns = _kit.read(
+            _padded(kit_geometry(node, parms), parms.evalParm("padding")))
+
     out = {}
     for key in CONFIG_KEYS:
         value = getattr(params, key, None)
@@ -656,10 +681,6 @@ def _native_ok(parms, params, style, kit, cfg, warns):
     for name in ("show_warnings",):
         if parms.parm(name) is not None and parms.evalParm(name):
             return False                              # `colour_warnings`' Cd
-    if parms.parm("padding") is not None \
-            and abs(float(parms.evalParm("padding"))) > EPS:
-        # D91's kit padding rewrites the KIT, and `cook_kit` does not do it.
-        return False
     # D202 - A `pc_cond` VALUE THE RULE TABLE CANNOT REPRESENT IS A REFUSAL,
     # not a silent False.  COND_BAD used to mean "VEX evaluates this as
     # False", which is the reference's answer only by luck: the day a value
