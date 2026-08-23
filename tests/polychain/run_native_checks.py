@@ -871,7 +871,230 @@ def readability(root):
     check("working_groups_are_prefixed", not stray, len(groups),
           "unprefixed: %s" % (", ".join(stray) or "none"))
     node.parm("stage").set("output")
+
+    # D207 - and the two bodies of text that make CHECKABLE claims about this
+    # graph and were only ever asserted to be non-empty.
+    text_claims_are_true(node)
     return node
+
+
+# --- D207: TEXT THAT MAKES A CLAIM ABOUT THE BUILD IS A CHECK, NOT A COMMENT
+#           ---------------------------------------------------------------
+#
+# §21.4's SURVIVOR 2, reproduced at SOURCE this cycle: `native.STAGES`' two
+# "via the PYTHON BRIDGE" labels re-worded back to "NATIVE", the .hda REBUILT
+# (md5 37f1e344 -> 34fbd13a), and the asset ships a Stage menu offering **two
+# entries labelled `2 - Plan, NATIVE` and two labelled `4 - Frames, NATIVE`**,
+# one of each serving the dead Python bridge - with `run_native_checks` at
+# **111 [PASS] / 0** and `run_hda_checks` at 0.  `stage_menu_reaches_every
+# _stage` asserts a label is neither empty nor wordless; `every_stage_entry
+# _serves_the_node_it_names` asserts wiring and never text.  D205's fix got
+# `the_note_matches_the_build`; the menu labels, the other half of the same
+# finding, got nothing, and neither did the eighteen wrangle comments.
+#
+# THE RULE ADOPTED: a claim token in artist-facing text is verified against
+# the GRAPH, and the verification is independent of the declaration the text
+# comes from (which is D208's lesson applied here in advance - reading
+# `native.STAGES` to check a label built from `native.STAGES` would prove
+# nothing).
+#
+# ⚠️ `config` AND `kit_starter` ARE EXCLUDED FROM "IS THERE PYTHON UPSTREAM",
+# BY NAME AND WITH REASONS, because both sit upstream of nearly everything:
+#   `config`      §13.6 - UI marshalling, no geometry, and it STAYS. It is
+#                 wired into input 1 of most wrangles, so counting it would
+#                 make every NATIVE label a lie and the check a nuisance.
+#   `kit_starter` D154 - the standalone-kit fallback, and it should NOT be
+#                 Python. It is named here rather than silently skipped, so
+#                 when D154 lands this list gets shorter.
+# Everything else that cooks Python on a branch makes a NATIVE label on that
+# branch false.
+STAGE_PYTHON_EXEMPT = ("config", "kit_starter")
+
+# The class a wrangle's own header claims, and the class it is.  Every .vfl
+# opens with a line naming its wrangle class; nothing read it until now.
+WRANGLE_CLASS_WORD = {0: "DETAIL", 1: "PRIMITIVE", 2: "POINT", 3: "VERTEX"}
+
+
+def _python_upstream(node, start):
+    """Every Python SOP at or above `start` inside the asset, minus the two
+    named exemptions.  Depth-first over `inputs()`, which is what an artist
+    tracing a branch backwards would do."""
+    # ⚠️ THE WALK STOPS AT THE ASSET BOUNDARY, and the first version did not:
+    # `readability` feeds the node from a `python` SOP that builds its test
+    # spline, so the walk climbed out through the indirect inputs and reported
+    # four NATIVE labels as lying about `readable_spline`. A claim a label
+    # makes is about the network the label is IN.
+    seen, found, stack = set(), set(), [start]
+    while stack:
+        cur = stack.pop()
+        if cur is None or cur.path() in seen or cur.parent() != node:
+            continue
+        seen.add(cur.path())
+        if (cur.type().name() == "python"
+                and cur.name() not in STAGE_PYTHON_EXEMPT):
+            found.add(cur.name())
+        stack.extend(cur.inputs())
+    return sorted(found)
+
+
+def stage_label_complaints(node, labels):
+    """What each `Stage` menu label claims that this graph contradicts.
+
+    Pure with respect to the LABELS - they are passed in - so §21.4's M8 can
+    be replayed without rebuilding the .hda, the way `run_scene_checks
+    .exit_code` and `wrangle_verdict` are exercised.
+    """
+    bad = []
+    stems = {}
+    for (token, _null, feeder, _decl), label in zip(native.STAGES, labels):
+        stem = label.split("(")[0].strip().rstrip(",").strip()
+        stems.setdefault(stem, []).append(token)
+        if feeder is None:
+            continue
+        start = node.node(feeder)
+        if start is None:
+            bad.append("%s: no node named %s" % (token, feeder))
+            continue
+        python = _python_upstream(node, start)
+        upper = label.upper()
+        # ⚠️ "NO PYTHON" IS A NATIVE CLAIM, NOT A PYTHON ONE, and the first
+        # version of this check did not know that: `4 - Place, NATIVE (4.4 -
+        # packed pieces, no Python)` was reported as claiming PYTHON on a
+        # branch that has none. A negated claim read as its opposite is a
+        # false alarm, and a check that cries wolf on a correct build is the
+        # same disease as one that cannot fail (D209).
+        claims_native = "NATIVE" in upper or "NO PYTHON" in upper
+        claims_python = re.search(r"(?<!NO )PYTHON", upper) is not None
+        if claims_native and python:
+            bad.append("%s claims NATIVE and its branch cooks %s"
+                       % (token, ", ".join(python)))
+        if claims_python and not python:
+            bad.append("%s claims PYTHON and there is none on its branch"
+                       % token)
+    for stem, tokens in sorted(stems.items()):
+        if len(tokens) > 1:
+            bad.append("%d entries read %r: %s"
+                       % (len(tokens), stem, ", ".join(tokens)))
+    return bad
+
+
+def wrangle_comment_complaints(node):
+    """What each wrangle's own text claims that the built node contradicts.
+
+    Three claims, all of them already written in the .vfl headers and none of
+    them read by anything until now:
+
+      * the CLASS - every header opens by naming it, and it must be the
+        class parm.  Required, not optional: a header that names no class is
+        a comment that cannot lie and cannot help either.
+      * the PRECISION, where the header states one (`precision 64`,
+        `VEX precision 64`, `DETAIL wrangle, 64`).
+      * the INPUTS - a header line `//   input N  ...` must describe an input
+        that is actually connected, which is what turns an UNPLUG into a
+        contradiction instead of a silence.
+
+    ⚠️ ONLY THE HEADER IS READ, not the whole snippet, and that is
+    deliberate: the body comments discuss OTHER nodes' classes ("`pc_plan
+    _emit` above HAS to be single-threaded... a DETAIL wrangle") and a
+    checker that matched those would fail on correct text.  The header is the
+    contiguous run of `//` lines the file opens with.
+    """
+    bad = []
+    for child in sorted(node.children(), key=lambda c: c.name()):
+        if child.type().name() != "attribwrangle":
+            continue
+        header = []
+        for line in (child.parm("snippet").eval() or "").splitlines():
+            if not line.startswith("//"):
+                break
+            header.append(line)
+        head = "\n".join(header)
+        name = child.name()
+        if not head:
+            bad.append("%s: the .vfl opens with no header" % name)
+            continue
+
+        want = WRANGLE_CLASS_WORD[child.parm("class").eval()]
+        claimed = re.findall(r"\b(DETAIL|PRIMITIVE|POINT|VERTEX)\s+wrangle",
+                             head)
+        if not claimed:
+            bad.append("%s: the header names no wrangle class" % name)
+        elif claimed[0] != want:
+            bad.append("%s: the header says %s, the node is %s"
+                       % (name, claimed[0], want))
+
+        prec = re.findall(r"precision\s+(\d+)|wrangle,\s+(\d+)\b", head)
+        prec = [p or q for p, q in prec]
+        real = child.parm("vex_precision").evalAsString()
+        if prec and prec[0] != real:
+            bad.append("%s: the header says precision %s, the node is %s"
+                       % (name, prec[0], real))
+
+        # ⚠️ THE INPUT PATTERN IS EXACT, AND IT HAS TO BE. A loose
+        # `input\s+(\d)` matched `pc_envelope`'s line 44 - which QUOTES the
+        # reference's warning text, "no spline on input 1" - and reported a
+        # correct build as declaring an input it does not have. The two forms
+        # the headers actually use are the indented block and the inline
+        # parenthesis; anything else is prose.
+        decls = (set(re.findall(r"^//   input (\d)  ", head, re.M))
+                 | set(re.findall(r"input (\d) = ", head)))
+        for idx in sorted(decls):
+            wired = child.inputs()
+            i = int(idx)
+            if i >= len(wired) or wired[i] is None:
+                bad.append("%s: the header declares input %s and nothing is "
+                           "wired there" % (name, idx))
+    return bad
+
+
+def text_claims_are_true(node):
+    """D207 - the two bodies of artist-facing text that make CHECKABLE claims.
+
+    `the_note_matches_the_build` did this for the sticky note, on one string.
+    These are the other two: ten `Stage` menu labels and eighteen wrangle
+    headers, all of which said NATIVE / PYTHON / DETAIL / `input 2` and none
+    of which anything read.
+    """
+    labels = list(node.parm("stage").parmTemplate().menuLabels())
+    bad = stage_label_complaints(node, labels)
+    # ...and the exemptions have to still BE Python, or they are decoration.
+    # `place_stamp_owed_is_live`'s shape: when D154 turns `kit_starter` into
+    # native `box` SOPs, this line fails and the exemption has to come out,
+    # rather than sitting in the source forgiving a node that no longer needs
+    # forgiving.
+    dead = [n for n in STAGE_PYTHON_EXEMPT
+            if node.node(n) is None or node.node(n).type().name() != "python"]
+    check("stage_labels_are_true", not bad and not dead,
+          "%d labels" % len(labels),
+          "every `Stage` label's NATIVE / PYTHON claim is verified against "
+          "the Python SOPs actually upstream of the node it serves (bar %s - "
+          "§13.6 and D154), and no two entries read the same. Wrong: %s. "
+          "Exemptions that are no longer Python SOPs and must be deleted: %s"
+          % (" and ".join(STAGE_PYTHON_EXEMPT), "; ".join(bad) or "none",
+             dead or "none"))
+
+    # §21.4's M8, replayed on the labels alone - the source mutation rebuilds
+    # the .hda, this reproduces the same text without one.
+    m8 = [lbl.replace("via the PYTHON BRIDGE", "NATIVE") for lbl in labels]
+    caught = stage_label_complaints(node, m8)
+    check("mutation_stage_labels_claim_native",
+          len(caught) >= 4 and m8 != labels,
+          "%d complaints" % len(caught),
+          "re-wording the two 'via the PYTHON BRIDGE' labels back to NATIVE - "
+          "§21.4's SURVIVOR 2, which rebuilt the .hda and left the suite at "
+          "111 [PASS] / 0 - must be reported, both as a false NATIVE claim "
+          "and as two menu entries reading the same. Got: %s"
+          % ("; ".join(caught) or "NOTHING"))
+
+    bad = wrangle_comment_complaints(node)
+    wrangles = [c for c in node.children()
+                if c.type().name() == "attribwrangle"]
+    check("every_wrangle_comment_is_checkable", not bad, len(wrangles),
+          "every wrangle's own header names its CLASS and it is the node's "
+          "class, any precision it states is the node's precision, and every "
+          "`input N` it declares is wired - so a comment that lies is a "
+          "failing check and not an invisible one. Wrong: %s"
+          % ("; ".join(bad) or "none"))
 
 
 def note_rot(node, note):
