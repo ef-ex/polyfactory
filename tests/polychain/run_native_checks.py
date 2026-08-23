@@ -1751,6 +1751,27 @@ def fixture_cases():
     for i in range(8):
         cases.polyline(geo, [(0.0, 0.0, 3.0 * i), (11.0, 0.0, 3.0 * i)],
                        curve_id=u"\u00e9tage%d" % i)
+    # --- a kit in the HUNDREDS, resolved by ROLE ---------------------------
+    # 7.2's 25 cell roles imply a facade kit of this size, and every other
+    # fixture in the suite uses five modules - which is why nothing saw
+    # `pc_choose` rebuilding and re-sorting the whole pool on every piece.
+    # This row is the PARITY half (the pool's sort order and its weights have
+    # to be the reference's at scale); `plan_cost_is_flat_in_kit_size` is the
+    # cost half.
+    big = [Module("m%03d" % i, (0.5 + 0.01 * i, 1.0, 0.1), pad=(0.0, 0.0),
+                  deform=1, roles="default", variant="v%d" % (i % 7),
+                  weight=1.0 + (i % 5))
+           for i in range(120)]
+    geo = hou.Geometry()
+    cases.polyline(geo, [(0.0, 0.0, 0.0), (60.0, 0.0, 0.0)], curve_id="S")
+    out.append(("big_kit_random_by_role", geo, big, Style(
+        "bk", 1, 9,
+        rules=[Rule("default", "random", [], scope="segment")],
+        params=Params(fill="adaptive"))))
+    out.append(("big_kit_sequence_by_role", geo, big, Style(
+        "bq", 1, 9, rules=[Rule("default", "sequence", [])],
+        params=Params(fill="adaptive"))))
+
     out.append(("nonascii_ids_segment", geo, kit, Style(
         u"\u00c5ngstr\u00f6m", 1, 5,
         rules=[Rule("default", "random", ["post", "panel", "gate"],
@@ -2005,6 +2026,126 @@ def plan_shared_id_order(root):
           "above is a claim about a tie-break and not about nothing. If this "
           "ever goes green-by-equality, the check above has stopped testing "
           "`pc_sections`' `r_prim` tie-break")
+
+
+def _kit_scale_run(root, nmods, snippet=None, passes=2):
+    """The plan chain on a 2 km fence with an `nmods`-module kit, timed.
+
+    Only `pc_plan_solve` is timed, behind a nudge wrangle - D164: a forced
+    cook of a node whose inputs have not changed can be a no-op, so the pass
+    is dirtied and `cookCount` is returned for the caller to assert on.
+    """
+    from polyfactory.polychain import Kit, Module, Params, Rule, Style
+
+    mods = [Module("m%03d" % i, (2.0, 0.9, 0.05), pad=(0.0, 0.0), deform=1,
+                   roles="default", variant="v%d" % (i % 7))
+            for i in range(nmods)]
+    kit = Kit("scale", 1, mods)
+    style = Style("scale", 1, 3,
+                  rules=[Rule("default", "random", [], scope="segment")],
+                  params=Params(fill="adaptive"))
+    geo = hou.Geometry()
+    cases.polyline(geo, [(0.0, 0.0, 0.0), (2000.0, 0.0, 0.0)], curve_id="S")
+
+    sub = root.createNode("subnet", "kitscale_%d_%d" % (nmods, snippet is None))
+    src = native.feed(sub, geo, "IN")
+    cfg = native.config_full(sub, style.params, style, kit, "config")
+    last, _dec = native.stage_decompose(sub, src, cfg)
+    plan, pnodes = native.stage_plan(sub, last, cfg)
+    solve = pnodes["pc_plan_solve"]
+    if snippet is not None:
+        solve.parm("snippet").set(snippet)
+    dirt = sub.createNode("attribwrangle", "solve_dirty")
+    dirt.parm("class").set(2)
+    group = dirt.parmTemplateGroup()
+    group.append(hou.IntParmTemplate("nudge", "Nudge", 1))
+    dirt.setParmTemplateGroup(group)
+    dirt.parm("snippet").set('i@_bench = chi("nudge");')
+    dirt.setInput(0, pnodes["pc_plan_clean"])
+    solve.setInput(0, dirt)
+    plan.cook(force=True)
+    npieces = len(plan.geometry().points())
+    before = solve.cookCount()
+    best = None
+    for i in range(passes):
+        dirt.parm("nudge").set(i + 2)
+        t0 = time.time()
+        solve.cook()
+        dt = time.time() - t0
+        best = dt if best is None else min(best, dt)
+    cooked = solve.cookCount() - before
+    sub.destroy()
+    return (best, npieces, cooked)
+
+
+def plan_kit_scale(root):
+    """4.2's cost must not grow with the KIT, and it grew like a cube.
+
+    ⚠️ EVERY FIXTURE IN THE SUITE USES A FIVE-MODULE KIT, which is why nothing
+    saw this.  `pc_choose` re-resolved the candidate pool, re-sorted it and
+    re-weighed it on EVERY PIECE, and each insertion-sort comparison called
+    `pc_m_variant`, which copies the whole `pc_k_variant` detail array.
+    Measured on the plan chain, 2 km fence, 1 000 pieces held constant, one
+    `default` rule that names no modules so the kit resolves by ROLE:
+
+        modules       1        51       151
+        `first`     0.051 s  0.051 s   0.053 s     (flat - D175's hoist)
+        `random`    0.283 s  2.632 s  66.493 s     <- the defect
+        after       0.267 s  0.295 s   0.309 s
+
+    An artist with a 150-module facade kit and one `random` rule waited over a
+    minute per plan cook where the same style with `first` takes 0.05 s.
+    """
+    from polyfactory.polychain import vexsrc
+
+    t1, n1, c1 = _kit_scale_run(root, 1)
+    t61, n61, c61 = _kit_scale_run(root, 151)
+    ratio = t61 / max(t1, 1e-6)
+    check("plan_cost_is_flat_in_kit_size",
+          c1 == 2 and c61 == 2 and n1 == n61 and ratio < 3.0,
+          "%.2fx (%.0f ms -> %.0f ms, %d pieces)"
+          % (ratio, t1 * 1000.0, t61 * 1000.0, n1),
+          "`pc_plan_solve` alone, 1 000 pieces held constant, kit 1 -> 151 "
+          "modules resolved by role under `random` (cookCount 2 and 2). "
+          "Ceiling 3.0x: the pool is resolved once per RUN now, so the only "
+          "growth left is the one-off sort. Before the hoist this measured "
+          "~10x at 51 modules and 235x at 151")
+
+    # THE MUTATION IS BOTH HALVES, because the shipped code had both and they
+    # compound.  (a) rebuild the pool per piece - which is exactly what
+    # `pc_choose` does - and (b) put the ACCESSOR back inside the comparator,
+    # so each of the sort's O(n^2) comparisons copies the whole
+    # `pc_k_variant` detail array again.  (a) alone measures 1.7x; (b) alone
+    # is free while the sort runs once per run.  Together they are the cube
+    # the suite never saw.
+    body = vexsrc.source("pc_plan_solve")
+    call_new = ('pc_pick_from_pool(r, cfi, cs_slot, "default", idx,\n'
+                '                                      curve_id, sec_index, '
+                'p_ci, p_cn, p_ord,\n'
+                '                                      p_w, p_total, gi, gn, '
+                'ok);')
+    call_old = ('pc_choose(r, cfi, cs_slot, "default", idx, curve_id,\n'
+                '                              sec_index, yclass, gi, gn, '
+                'ok);')
+    cmp_new = ('            if (cn[a] < cn[b] || (cn[a] == cn[b] && '
+               'cv[a] <= cv[b])) break;')
+    cmp_old = ('            string va = pc_m_variant(ci[a]), '
+               'vb = pc_m_variant(ci[b]);\n'
+               '            if (cn[a] < cn[b] || (cn[a] == cn[b] && '
+               'va <= vb)) break;')
+    found = body.count(call_new)
+    found_cmp = body.count(cmp_new)
+    mutated = body.replace(call_new, call_old).replace(cmp_new, cmp_old)
+    tm, _nm, _cm = _kit_scale_run(root, 151, snippet=mutated, passes=1)
+    check("mutation_plan_pool_per_piece",
+          found == 2 and found_cmp == 1 and tm > t61 * 5.0,
+          "%.0f ms vs %.0f ms sound (targets %d/%d)"
+          % (tm * 1000.0, t61 * 1000.0, found, found_cmp),
+          "restoring the code that shipped - the pool rebuilt per piece AND "
+          "`pc_m_variant` called inside the sort comparator, which copies a "
+          "whole detail array per comparison - takes the solve from %.0f ms "
+          "to %.0f ms on the same 151-module kit. The ceiling above is a "
+          "measurement, not a decoration" % (t61 * 1000.0, tm * 1000.0))
 
 
 def plan_mutation(root, built):
@@ -2985,6 +3126,7 @@ def main():
     declared_limit_dup_id_marker(root)
     plan_determinism(root, built)
     plan_shared_id_order(root)
+    plan_kit_scale(root)
 
     print("\n=== 3d. 13.9 N4 - the packed branch, and R8 ===")
     r8_packed_transform(root)

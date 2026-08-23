@@ -275,30 +275,86 @@ string pc_scope_text(const string scope; const string curve_id;
                    pc_cfg_s("style_id", ""), scope, key);
 }
 
-// `plan.choose` - one module for one piece, or -1/"" when a conditional rule
-// declines.  `ok` is the `is not None` half of the answer, because a real
-// module can legitimately be row -1 (the stand-in).
-void pc_choose(const int r; const dict cf; const dict cs; const string slot;
-               const int index; const string curve_id; const int sec_index;
-               const string yclass;
-               export int mi; export string mn; export int ok) {
-    mi = -1; mn = ""; ok = 0;
-    string selects[] = detail(1, "pc_r_select");
-    string slots[] = detail(1, "pc_r_slot");
-    string use_slot = (slot != "") ? slot : slots[r];
-    // ⚠️ `plan.pick` DOES `dict(ctx, slot=slot)` AND `_fill`'s ctx0 sets
-    // `slot="default"`, so `slot` is a readable conditional subject on EVERY
-    // pick - `cond_subject` ends in `ctx.get(subject)`.  It was missing from
-    // the VEX bag, and a `{subject: slot, op: eq, value: "start"}` rule
-    // therefore declined natively where the reference accepted.  It is added
-    // HERE rather than at the five call sites because here is where the
-    // answer to "which slot" exists.
-    dict cs_slot = cs;
-    cs_slot["slot"] = use_slot;
-    int ci[]; string cn[];
-    pc_candidates(r, pc_role_2d(use_slot, yclass), ci, cn);
+// --- THE POOL, AND WHY IT IS ITS OWN FUNCTION ------------------------------
+//
+// ⚠️ NOTHING IN THE POOL DEPENDS ON THE PIECE.  The candidate list, its
+// (name, variant) sort order and its weight vector are a pure function of
+// (rule, role) - and `pc_choose` rebuilt all three on EVERY piece, with each
+// insertion-sort comparison calling `pc_m_variant`, which copies the entire
+// `pc_k_variant` detail array.  So the solve grew super-linearly in KIT SIZE,
+// which the whole suite could not see because every fixture uses a
+// five-module kit.  Measured here, plan chain only, 2 km fence, 1 000 pieces
+// held constant, ONE `default` rule that names no modules so the kit resolves
+// by ROLE (which is 7.2's own idiom and what makes the pool the whole kit):
+//
+//     modules       1        51       151
+//     `first`     0.051 s  0.051 s   0.053 s      (flat - D175's hoist)
+//     `random`    0.283 s  2.632 s  66.493 s      <- this
+//     after       0.267 s  0.295 s   0.309 s
+//
+// 3x the modules cost 25x the time, and the `first` row isolates the whole
+// delta to the selection path.  7.2's 25 cell roles imply a facade kit in the
+// hundreds, so this is a shape an artist reaches, not a stress toy.
+//
+// It is D175's fix applied one level up: D175 hoisted the UNIT's numbers out
+// of the piece loop, and the pool is the other thing in there that cannot
+// change inside a run.
+void pc_pool(const int r; const string role;
+             export int ci[]; export string cn[]; export int ord[];
+             export float weights[]; export float total) {
+    resize(ord, 0); resize(weights, 0); total = 0.0;
+    pc_candidates(r, role, ci, cn);
     int n = len(ci);
     if (!n) return;
+    string selects[] = detail(1, "pc_r_select");
+    if (selects[r] != "random") return;          // only `random` needs either
+
+    // ⚠️ THE COLUMNS ARE READ ONCE, NOT PER COMPARISON.  `pc_m_variant` and
+    // `pc_m_weight` each copy a whole detail array, and the insertion sort
+    // below asks O(n^2) times.
+    string kvar[] = detail(1, "pc_k_variant");
+    string kwgt[] = detail(1, "pc_k_weight");
+    string cv[];
+    for (int i = 0; i < n; i++)
+        push(cv, (ci[i] < 0) ? "" : kvar[ci[i]]);
+
+    // sorted by (name, variant), so the pick cannot depend on the order the
+    // payload happens to list the modules in.
+    for (int i = 0; i < n; i++) {
+        push(ord, i);
+        int j = i;
+        while (j > 0) {
+            int a = ord[j - 1], b = ord[j];
+            if (cn[a] < cn[b] || (cn[a] == cn[b] && cv[a] <= cv[b])) break;
+            ord[j - 1] = b; ord[j] = a;
+            j--;
+        }
+    }
+    int w0[] = detail(1, "pc_r_w0"), wn[] = detail(1, "pc_r_wn");
+    string wkey[] = detail(1, "pc_r_wkey");
+    string wval[] = detail(1, "pc_r_wval");
+    foreach (int o; ord) {
+        float w = (ci[o] < 0) ? 1.0 : atof(kwgt[ci[o]]);
+        for (int j = 0; j < wn[r]; j++)
+            if (wkey[w0[r] + j] == cn[o]) { w = atof(wval[w0[r] + j]); break; }
+        push(weights, w);
+        total += w;
+    }
+}
+
+// `plan.choose`'s TAIL: the part that does depend on the piece.  `cs` must
+// already carry the `slot` key (see `pc_choose`), because `slot` is a
+// readable conditional subject and the caller is the one that knows it.
+void pc_pick_from_pool(const int r; const dict cf; const dict cs;
+                       const string use_slot; const int index;
+                       const string curve_id; const int sec_index;
+                       const int ci[]; const string cn[]; const int ord[];
+                       const float weights[]; const float total;
+                       export int mi; export string mn; export int ok) {
+    mi = -1; mn = ""; ok = 0;
+    int n = len(ci);
+    if (!n) return;
+    string selects[] = detail(1, "pc_r_select");
     string sel = selects[r];
 
     if (sel == "sequence") {
@@ -308,34 +364,6 @@ void pc_choose(const int r; const dict cf; const dict cs; const string slot;
         return;
     }
     if (sel == "random") {
-        // sorted by (name, variant), so the pick cannot depend on the order
-        // the payload happens to list the modules in.  Insertion sort: the
-        // pool is the kit, not the run.
-        int ord[];
-        for (int i = 0; i < n; i++) {
-            push(ord, i);
-            int j = i;
-            while (j > 0) {
-                int a = ord[j - 1], b = ord[j];
-                string na = cn[a], nb = cn[b];
-                string va = pc_m_variant(ci[a]), vb = pc_m_variant(ci[b]);
-                if (na < nb || (na == nb && va <= vb)) break;
-                ord[j - 1] = b; ord[j] = a;
-                j--;
-            }
-        }
-        int w0[] = detail(1, "pc_r_w0"), wn[] = detail(1, "pc_r_wn");
-        string wkey[] = detail(1, "pc_r_wkey");
-        string wval[] = detail(1, "pc_r_wval");
-        float weights[];
-        float total = 0.0;
-        foreach (int o; ord) {
-            float w = pc_m_weight(ci[o]);
-            for (int j = 0; j < wn[r]; j++)
-                if (wkey[w0[r] + j] == cn[o]) { w = atof(wval[w0[r] + j]); break; }
-            push(weights, w);
-            total += w;
-        }
         string scopes[] = detail(1, "pc_r_scope");
         float roll = pc_random01(pc_seed_for(
             pc_scope_text(scopes[r], curve_id, sec_index, use_slot, index)))
@@ -353,11 +381,36 @@ void pc_choose(const int r; const dict cf; const dict cs; const string slot;
         return;
     }
     if (sel == "conditional") {
-        if (pc_evaluate_cond(r, cf, cs_slot)) { mi = ci[0]; mn = cn[0]; ok = 1; return; }
+        if (pc_evaluate_cond(r, cf, cs)) { mi = ci[0]; mn = cn[0]; ok = 1; return; }
         if (n > 1) { mi = ci[1]; mn = cn[1]; ok = 1; }
         return;                                 // a rule that declines
     }
     mi = ci[0]; mn = cn[0]; ok = 1;              // first
+}
+
+// `plan.choose` - one module for one piece, or -1/"" when a conditional rule
+// declines.  `ok` is the `is not None` half of the answer, because a real
+// module can legitimately be row -1 (the stand-in).  Pool plus pick, for the
+// callers that ask ONCE; `pc_fill` splits them and hoists the pool.
+void pc_choose(const int r; const dict cf; const dict cs; const string slot;
+               const int index; const string curve_id; const int sec_index;
+               const string yclass;
+               export int mi; export string mn; export int ok) {
+    string slots[] = detail(1, "pc_r_slot");
+    string use_slot = (slot != "") ? slot : slots[r];
+    // ⚠️ `plan.pick` DOES `dict(ctx, slot=slot)` AND `_fill`'s ctx0 sets
+    // `slot="default"`, so `slot` is a readable conditional subject on EVERY
+    // pick - `cond_subject` ends in `ctx.get(subject)`.  It was missing from
+    // the VEX bag, and a `{subject: slot, op: eq, value: "start"}` rule
+    // therefore declined natively where the reference accepted.  It is added
+    // HERE rather than at the five call sites because here is where the
+    // answer to "which slot" exists.
+    dict cs_slot = cs;
+    cs_slot["slot"] = use_slot;
+    int ci[], ord[]; string cn[]; float weights[], total;
+    pc_pool(r, pc_role_2d(use_slot, yclass), ci, cn, ord, weights, total);
+    pc_pick_from_pool(r, cf, cs_slot, use_slot, index, curve_id, sec_index,
+                      ci, cn, ord, weights, total, mi, mn, ok);
 }
 
 // `Style.rules_for` - payload order preserved, the scoped rules first (D119).
@@ -559,6 +612,17 @@ int pc_fill(const float a; const float b; const int r;
         resize(o_deform, entry); resize(o_zmode, entry); resize(o_warns, entry);
         idx = index0;
 
+        // ⚠️ THE POOL IS RESOLVED ONCE PER RUN, NOT ONCE PER PIECE.  The
+        // slot is "default" for the whole fill and the yclass is the row's,
+        // so the candidate list, its (name, variant) order and its weights
+        // cannot change inside this loop - and rebuilding them per piece cost
+        // 32 s on a 301-module kit against 0.13 s under `first`.
+        dict cs_slot = cs;
+        cs_slot["slot"] = "default";
+        int p_ci[], p_ord[]; string p_cn[]; float p_w[], p_total;
+        pc_pool(r, pc_role_2d("default", yclass), p_ci, p_cn, p_ord, p_w,
+                p_total);
+
         // `_unit` (D14): a whole SEQUENCE, or one module.
         dict cf0 = cf;
         cf0["index"] = (float)index0; cf0["segIndex"] = (float)index0;
@@ -567,11 +631,12 @@ int pc_fill(const float a; const float b; const int r;
             // ⚠️ THE CELL ROLE, exactly as `choose` asks for it.  A `sequence`
             // rule naming no modules is the phase-2 idiom, and resolving the
             // bare X slot silently filled a ground floor with the default bay.
-            pc_candidates(r, pc_role_2d("default", yclass), umi, umn);
+            umi = p_ci; umn = p_cn;
         } else {
             int mi, ok; string mn;
-            pc_choose(r, cf0, cs, "default", index0, curve_id, sec_index,
-                      yclass, mi, mn, ok);
+            pc_pick_from_pool(r, cf0, cs_slot, "default", index0, curve_id,
+                              sec_index, p_ci, p_cn, p_ord, p_w, p_total,
+                              mi, mn, ok);
             if (ok) { push(umi, mi); push(umn, mn); }
         }
         int nu = len(umi);
@@ -644,8 +709,9 @@ int pc_fill(const float a; const float b; const int r;
                     cfi["index"] = (float)idx; cfi["segIndex"] = (float)idx;
                     cfi["u"] = pc_u_at(sec_s0, curve_len, cursor);
                     int gi, ok; string gn;
-                    pc_choose(r, cfi, cs, "default", idx, curve_id, sec_index,
-                              yclass, gi, gn, ok);
+                    pc_pick_from_pool(r, cfi, cs_slot, "default", idx,
+                                      curve_id, sec_index, p_ci, p_cn, p_ord,
+                                      p_w, p_total, gi, gn, ok);
                     if (ok) {
                         mi = gi; mn = gn;
                         mlen = pc_m_len(mi);
@@ -693,8 +759,9 @@ int pc_fill(const float a; const float b; const int r;
                     cfi["index"] = (float)idx; cfi["segIndex"] = (float)idx;
                     cfi["u"] = pc_u_at(sec_s0, curve_len, cursor);
                     int gi, ok; string gn;
-                    pc_choose(r, cfi, cs, "default", idx, curve_id, sec_index,
-                              yclass, gi, gn, ok);
+                    pc_pick_from_pool(r, cfi, cs_slot, "default", idx,
+                                      curve_id, sec_index, p_ci, p_cn, p_ord,
+                                      p_w, p_total, gi, gn, ok);
                     if (ok) { mi = gi; mn = gn; }
                 }
                 float mlen = pc_m_len(mi), plen = 0.0, slice_t = -1.0;
