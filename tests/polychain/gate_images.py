@@ -127,6 +127,25 @@ def unpack(geo):
     return out
 
 
+def drawn_covers_packed(name, geo):
+    """The image must contain the PACKED pieces, which are most of the fence.
+
+    ⚠️ THIS IS AN AUDIT FINDING, NOT TIDYING.  `unpack` sat in this file with
+    a docstring naming the hazard and NO CALLER: every `rasterise` was handed
+    the raw node output, so a packed prim - one vertex, no polygon - drew
+    nothing.  PC-G1's mitered rectangle is 80 prims of which 40 are packed,
+    and the committed image was 188 segments where the fence is 3 388.  The
+    gate said "judged on an image" and the image could not show the subject.
+    """
+    packed = sum(1 for p in geo.prims()
+                 if p.type() == hou.primType.PackedGeometry)
+    drawn = sum(1 for p in unpack(geo).prims()
+                if p.type() != hou.primType.PackedGeometry)
+    check("image_shows_packed_" + name, drawn >= packed, [packed, drawn],
+          "%d packed prims, %d polygons in the rasterised copy - a raw "
+          "`node_geo` here draws %d of them" % (packed, drawn, 0))
+
+
 def project(axes, p):
     """(right, up) for one world point. `axes` is a pair of world axis names,
     or "iso" - the three-quarter view PC-G5 asks to be judged on, which no
@@ -294,8 +313,9 @@ def main():
                         C.corner_breach(scene), C.module_winding(scene),
                         C.element_count(scene)):
                 show(res)
+            drawn_covers_packed("%s_%s" % (shape, mode), node_geo)
             rasterise(os.path.join(OUT, "VG1_%s_%s_top.png" % (shape, mode)),
-                      node_geo, ("x", "z"),
+                      unpack(node_geo), ("x", "z"),
                       extra=[((255, 130, 60),
                               list(pts) + ([pts[0]] if closed else []))])
 
@@ -327,8 +347,9 @@ def main():
                     C.bank_adaptive(scene), C.module_winding(scene),
                     C.over_unpacked(scene)):
             show(res)
-        rasterise(os.path.join(OUT, "VG2_%s_side.png" % zmode), node_geo,
-                  ("x", "y"), extra=[((80, 210, 120), ground),
+        drawn_covers_packed(zmode, node_geo)
+        rasterise(os.path.join(OUT, "VG2_%s_side.png" % zmode),
+                  unpack(node_geo), ("x", "y"), extra=[((80, 210, 120), ground),
                                      ((255, 130, 60), hill_pts)])
 
     print("  -- Tilt to Surface (camber) --")
@@ -340,11 +361,14 @@ def main():
           "node output == place.build on style_from_parms(node)")
     for res in (C.conform_contact(scene), C.module_winding(scene)):
         show(res)
-    rasterise(os.path.join(OUT, "VG2_camber_side.png"), node_geo, ("x", "y"),
+    drawn_covers_packed("camber", node_geo)
+    rasterise(os.path.join(OUT, "VG2_camber_side.png"), unpack(node_geo),
+              ("x", "y"),
               extra=[((80, 210, 120), ground)])
     # the FRONT view is the one the camber is visible in - a roll onto the
     # cross-fall does not show in the side elevation it rolls about.
-    rasterise(os.path.join(OUT, "VG2_camber_front.png"), node_geo, ("z", "y"),
+    rasterise(os.path.join(OUT, "VG2_camber_front.png"), unpack(node_geo),
+              ("z", "y"),
               extra=[((80, 210, 120), ground)])
 
     print("\n%d failing gate checks" % len(FAIL))
