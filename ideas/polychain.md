@@ -8520,8 +8520,9 @@ moved" is confirmed.
 **citygen is untouched.** `git diff 2324855 HEAD -- ideas/citygen.md polyfactory/.../citygen
 tests/citygen tests/unit/test_citygen.py tests/unit/test_plan.py` is **empty**. (`ideas/citygen.md`
 is modified in the *working tree* by the concurrent phase-2 workstream; no commit of the fix pass
-touches it.) ⚠️ One thing §17 did not mention that it committed: **`graphify-out/` moved** —
-`GRAPH_REPORT.md` +345 lines, `graph.json` +3 152. Incidental regeneration, harmless, unrecorded.
+touches it.) ⚠️ `graphify-out/` moves on every commit here — `GRAPH_REPORT.md` and `graph.json` are
+**regenerated and staged automatically by a commit-time graphify hook**, not by the author. This
+cycle's own commit picked up 3 of its 5 files that way. Expect it; it is not churn anyone wrote.
 
 ### 18.2 THE NUMBER HANNES ASKED FOR — how much of the tool has left Python
 
@@ -8696,4 +8697,3 @@ each printing the packed count beside the polygon count. Every gate image gained
    but was not driven.
 3. **The shipped node is 88–95 % Python.** N5..N8 and N10 are untouched, and until N10 the
    `Stage = output` default means none of N2's or N4's work reaches an artist.
-4. **`graphify-out/` is committed churn** from the fix pass, unrecorded and unreviewed.

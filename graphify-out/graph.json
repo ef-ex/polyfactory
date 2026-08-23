@@ -36660,7 +36660,7 @@
       "source_location": "L4610",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6b_shipped_v1_assets",
-      "community": 213,
+      "community": 102,
       "norm_label": "6b. shipped v1 assets"
     },
     {
@@ -36670,7 +36670,7 @@
       "source_location": "L4612",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_old_chain_is_being_retired_status_2026_08_12",
-      "community": 213,
+      "community": 102,
       "norm_label": "the old chain is being retired \u2014 status 2026-08-12"
     },
     {
@@ -36680,7 +36680,7 @@
       "source_location": "L4645",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_retirement_finished_2026_08_12",
-      "community": 213,
+      "community": 102,
       "norm_label": "the retirement, finished \u2014 2026-08-12"
     },
     {
@@ -36690,7 +36690,7 @@
       "source_location": "L4652",
       "_origin": "ast",
       "id": "ideas_citygen_streets_every_promoted_parameter_measured_by_who_reads_it",
-      "community": 213,
+      "community": 102,
       "norm_label": "every promoted parameter, measured by who reads it"
     },
     {
@@ -36700,7 +36700,7 @@
       "source_location": "L4736",
       "_origin": "ast",
       "id": "ideas_citygen_streets_audit_of_the_trim_and_the_monolith_was_not_a_control_it_was_a_divergence_hazard",
-      "community": 213,
+      "community": 102,
       "norm_label": "\u2705 audit of the trim \u2014 and the monolith was not a control, it was a divergence hazard"
     },
     {
@@ -36710,7 +36710,7 @@
       "source_location": "L4777",
       "_origin": "ast",
       "id": "ideas_citygen_streets_closure_gate_py_ported_onto_tracer_segmenter",
-      "community": 213,
+      "community": 102,
       "norm_label": "`closure_gate.py` ported onto `tracer \u2192 segmenter`"
     },
     {
@@ -36720,7 +36720,7 @@
       "source_location": "L4832",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_original_v1_assets",
-      "community": 213,
+      "community": 102,
       "norm_label": "the original v1 assets"
     },
     {
@@ -36730,7 +36730,7 @@
       "source_location": "L4846",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_boundary_moved_2026_08_10_it_is_now_between_data_and_geometry",
-      "community": 213,
+      "community": 102,
       "norm_label": "\u26a0\ufe0f the boundary moved \u2014 2026-08-10. it is now between data and geometry"
     },
     {
@@ -36850,7 +36850,7 @@
       "source_location": "L5180",
       "_origin": "ast",
       "id": "ideas_citygen_streets_never_change_a_shared_vex_signature_under_existing_callers_2026_08_11",
-      "community": 213,
+      "community": 102,
       "norm_label": "\u26a0\ufe0f never change a shared vex signature under existing callers \u2014 2026-08-11"
     },
     {
@@ -41127,7 +41127,7 @@
       "label": "18.2 THE NUMBER HANNES ASKED FOR \u2014 how much of the tool has left Python",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L8526",
+      "source_location": "L8527",
       "_origin": "ast",
       "id": "ideas_polychain_18_2_the_number_hannes_asked_for_how_much_of_the_tool_has_left_python",
       "community": 169,
@@ -41137,7 +41137,7 @@
       "label": "18.3 MUTATION \u2014 six applied, TWO SURVIVED",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L8560",
+      "source_location": "L8561",
       "_origin": "ast",
       "id": "ideas_polychain_18_3_mutation_six_applied_two_survived",
       "community": 169,
@@ -41147,7 +41147,7 @@
       "label": "SURVIVOR 1 \u2014 the batching regression the suite measures and passes anyway (M2)",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L8576",
+      "source_location": "L8577",
       "_origin": "ast",
       "id": "ideas_polychain_survivor_1_the_batching_regression_the_suite_measures_and_passes_anyway_m2",
       "community": 169,
@@ -41157,7 +41157,7 @@
       "label": "SURVIVOR 2 \u2014 the native plan can be unplugged from the artist and nothing notices (M4b)",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L8594",
+      "source_location": "L8595",
       "_origin": "ast",
       "id": "ideas_polychain_survivor_2_the_native_plan_can_be_unplugged_from_the_artist_and_nothing_notices_m4b",
       "community": 169,
@@ -41167,7 +41167,7 @@
       "label": "18.4 THE BLIND GATE \u2014 PC-G1 and PC-G2 were judged on images that could not show the fence",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L8613",
+      "source_location": "L8614",
       "_origin": "ast",
       "id": "ideas_polychain_18_4_the_blind_gate_pc_g1_and_pc_g2_were_judged_on_images_that_could_not_show_the_fence",
       "community": 169,
@@ -41177,7 +41177,7 @@
       "label": "18.5 The gates, re-confirmed on the corrected images",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L8634",
+      "source_location": "L8635",
       "_origin": "ast",
       "id": "ideas_polychain_18_5_the_gates_re_confirmed_on_the_corrected_images",
       "community": 169,
@@ -41187,7 +41187,7 @@
       "label": "18.6 Two smaller things, recorded so they are not rediscovered",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L8661",
+      "source_location": "L8662",
       "_origin": "ast",
       "id": "ideas_polychain_18_6_two_smaller_things_recorded_so_they_are_not_rediscovered",
       "community": 169,
@@ -41197,7 +41197,7 @@
       "label": "18.7 Decisions",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L8671",
+      "source_location": "L8672",
       "_origin": "ast",
       "id": "ideas_polychain_18_7_decisions",
       "community": 169,
@@ -41207,7 +41207,7 @@
       "label": "18.8 What is NOT done",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L8691",
+      "source_location": "L8692",
       "_origin": "ast",
       "id": "ideas_polychain_18_8_what_is_not_done",
       "community": 169,
@@ -88355,9 +88355,9 @@
       "source_file": "tests/polychain/gate_images.py",
       "source_location": "L130",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gate_images",
-      "target": "polychain_gate_images_drawn_covers_packed",
-      "confidence_score": 1.0
+      "target": "polychain_gate_images_drawn_covers_packed"
     },
     {
       "relation": "contains",
@@ -88476,9 +88476,9 @@
       "source_file": "tests/polychain/gate_images.py",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gate_images_drawn_covers_packed",
-      "target": "polychain_gate_images_check",
-      "confidence_score": 1.0
+      "target": "polychain_gate_images_check"
     },
     {
       "relation": "calls",
@@ -88531,9 +88531,9 @@
       "source_file": "tests/polychain/gate_images.py",
       "source_location": "L142",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gate_images_drawn_covers_packed",
-      "target": "polychain_gate_images_unpack",
-      "confidence_score": 1.0
+      "target": "polychain_gate_images_unpack"
     },
     {
       "relation": "calls",
@@ -88542,9 +88542,9 @@
       "source_file": "tests/polychain/gate_images.py",
       "source_location": "L318",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gate_images_main",
-      "target": "polychain_gate_images_unpack",
-      "confidence_score": 1.0
+      "target": "polychain_gate_images_unpack"
     },
     {
       "relation": "rationale_for",
@@ -88563,9 +88563,9 @@
       "source_file": "tests/polychain/gate_images.py",
       "source_location": "L316",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gate_images_main",
-      "target": "polychain_gate_images_drawn_covers_packed",
-      "confidence_score": 1.0
+      "target": "polychain_gate_images_drawn_covers_packed"
     },
     {
       "relation": "rationale_for",
@@ -88573,9 +88573,9 @@
       "source_file": "tests/polychain/gate_images.py",
       "source_location": "L131",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gate_images_rationale_131",
-      "target": "polychain_gate_images_drawn_covers_packed",
-      "confidence_score": 1.0
+      "target": "polychain_gate_images_drawn_covers_packed"
     },
     {
       "relation": "calls",
@@ -88604,9 +88604,9 @@
       "source_file": "tests/polychain/gate_images.py",
       "source_location": "L150",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gate_images_rationale_150",
-      "target": "polychain_gate_images_project",
-      "confidence_score": 1.0
+      "target": "polychain_gate_images_project"
     },
     {
       "relation": "calls",
@@ -88635,9 +88635,9 @@
       "source_file": "tests/polychain/gate_images.py",
       "source_location": "L161",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gate_images_rationale_161",
-      "target": "polychain_gate_images_rasterise",
-      "confidence_score": 1.0
+      "target": "polychain_gate_images_rasterise"
     },
     {
       "relation": "calls",
@@ -88667,9 +88667,9 @@
       "source_file": "tests/polychain/gate_images.py",
       "source_location": "L224",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gate_images_rationale_224",
-      "target": "polychain_gate_images_terrain_node",
-      "confidence_score": 1.0
+      "target": "polychain_gate_images_terrain_node"
     },
     {
       "relation": "calls",
@@ -88699,9 +88699,9 @@
       "source_file": "tests/polychain/gate_images.py",
       "source_location": "L255",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gate_images_rationale_255",
-      "target": "polychain_gate_images_through_the_face",
-      "confidence_score": 1.0
+      "target": "polychain_gate_images_through_the_face"
     },
     {
       "relation": "contains",
@@ -109275,9 +109275,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L8485",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_polychain_implementation_spec",
-      "target": "ideas_polychain_18_native_network_build_log_cycle_n_2v2_the_independent_verification_of_17",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_18_native_network_build_log_cycle_n_2v2_the_independent_verification_of_17"
     },
     {
       "relation": "contains",
@@ -111785,9 +111785,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L8497",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_18_native_network_build_log_cycle_n_2v2_the_independent_verification_of_17",
-      "target": "ideas_polychain_18_1_everything_from_clean_the_actual_runs",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_18_1_everything_from_clean_the_actual_runs"
     },
     {
       "relation": "contains",
@@ -111795,9 +111795,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L8526",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_18_native_network_build_log_cycle_n_2v2_the_independent_verification_of_17",
-      "target": "ideas_polychain_18_2_the_number_hannes_asked_for_how_much_of_the_tool_has_left_python",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_18_2_the_number_hannes_asked_for_how_much_of_the_tool_has_left_python"
     },
     {
       "relation": "contains",
@@ -111805,9 +111805,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L8560",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_18_native_network_build_log_cycle_n_2v2_the_independent_verification_of_17",
-      "target": "ideas_polychain_18_3_mutation_six_applied_two_survived",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_18_3_mutation_six_applied_two_survived"
     },
     {
       "relation": "contains",
@@ -111815,9 +111815,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L8613",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_18_native_network_build_log_cycle_n_2v2_the_independent_verification_of_17",
-      "target": "ideas_polychain_18_4_the_blind_gate_pc_g1_and_pc_g2_were_judged_on_images_that_could_not_show_the_fence",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_18_4_the_blind_gate_pc_g1_and_pc_g2_were_judged_on_images_that_could_not_show_the_fence"
     },
     {
       "relation": "contains",
@@ -111825,9 +111825,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L8634",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_18_native_network_build_log_cycle_n_2v2_the_independent_verification_of_17",
-      "target": "ideas_polychain_18_5_the_gates_re_confirmed_on_the_corrected_images",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_18_5_the_gates_re_confirmed_on_the_corrected_images"
     },
     {
       "relation": "contains",
@@ -111835,9 +111835,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L8661",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_18_native_network_build_log_cycle_n_2v2_the_independent_verification_of_17",
-      "target": "ideas_polychain_18_6_two_smaller_things_recorded_so_they_are_not_rediscovered",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_18_6_two_smaller_things_recorded_so_they_are_not_rediscovered"
     },
     {
       "relation": "contains",
@@ -111845,9 +111845,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L8671",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_18_native_network_build_log_cycle_n_2v2_the_independent_verification_of_17",
-      "target": "ideas_polychain_18_7_decisions",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_18_7_decisions"
     },
     {
       "relation": "contains",
@@ -111855,9 +111855,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L8691",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_18_native_network_build_log_cycle_n_2v2_the_independent_verification_of_17",
-      "target": "ideas_polychain_18_8_what_is_not_done",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_18_8_what_is_not_done"
     },
     {
       "relation": "contains",
@@ -111865,9 +111865,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L8576",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_18_3_mutation_six_applied_two_survived",
-      "target": "ideas_polychain_survivor_1_the_batching_regression_the_suite_measures_and_passes_anyway_m2",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_survivor_1_the_batching_regression_the_suite_measures_and_passes_anyway_m2"
     },
     {
       "relation": "contains",
@@ -111875,9 +111875,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L8594",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_18_3_mutation_six_applied_two_survived",
-      "target": "ideas_polychain_survivor_2_the_native_plan_can_be_unplugged_from_the_artist_and_nothing_notices_m4b",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_survivor_2_the_native_plan_can_be_unplugged_from_the_artist_and_nothing_notices_m4b"
     },
     {
       "relation": "contains",
@@ -112594,5 +112594,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "bec344efd558c66b6c7ac7716cdbc3e982c13c98"
+  "built_at_commit": "cd3b03a50a9cabd68c13a2b88a0077b9e79dc807"
 }
