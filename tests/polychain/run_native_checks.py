@@ -1264,14 +1264,44 @@ def benches(root, node):
         last, nodes = native.stage_decompose(sub, dirt, cfg)
         last.cook(force=True)
         before = dict((n, node.cookCount()) for n, node in nodes.items())
-        best = None
         passes = 4
-        for i in range(passes):
-            dirt.parm("nudge").set(i + 2)
-            start = time.time()
+        from polyfactory.polychain import decompose as D
+        curves, markers = P.read_curves(geo)
+
+        # ⚠️ D209 - ALL THREE VARIANTS ARE INTERLEAVED NOW, and they used to
+        # be three separate blocks. `decompose_long_curve_wall_clock` went red
+        # once under an unrelated mutation for exactly that reason: the
+        # comparand and the measurement never saw the same machine. See
+        # `interleaved_best`.
+        state = {"i": 1}
+
+        def _dirty():
+            state["i"] += 1
+            dirt.parm("nudge").set(state["i"])
+
+        def _native():
             last.cook()
-            elapsed = time.time() - start
-            best = elapsed if best is None else min(best, elapsed)
+
+        def _ref_best():
+            for curve in curves:
+                D._clean(curve)
+                D.resolve_corners(curve, DEFAULTS)
+                D.resolve_markers(curve, markers)
+                curve._cum = None       # the cache would make run 2 free
+
+        def _ref_full():
+            fresh_curves, fresh_marks = P.read_curves(geo)
+            for curve in fresh_curves:
+                D._clean(curve)
+                D.resolve_corners(curve, DEFAULTS)
+                D.resolve_markers(curve, fresh_marks)
+
+        timed = interleaved_best(
+            [("native", _dirty, _native),
+             ("ref_best", None, _ref_best),
+             ("ref_full", None, _ref_full)], reps=passes)
+        best, ref_best, ref_full = (timed["native"], timed["ref_best"],
+                                    timed["ref_full"])
         stale = sorted(n for n, node in nodes.items()
                        if node.cookCount() - before[n] != passes)
         check("bench_%s_really_cooked" % label, not stale, passes,
@@ -1292,27 +1322,6 @@ def benches(root, node):
         # real cost on the 20 km curve and 79 % on 300 streets, which is the
         # difference between "0.81x" and "1.53x" on the same build. The
         # honest answer is a RANGE and both ends are printed.
-        from polyfactory.polychain import decompose as D
-        curves, markers = P.read_curves(geo)
-        ref_best = ref_full = None
-        for _ in range(3):
-            start = time.time()
-            for curve in curves:
-                D._clean(curve)
-                D.resolve_corners(curve, DEFAULTS)
-                D.resolve_markers(curve, markers)
-                curve._cum = None           # the cache would make run 2 free
-            elapsed = time.time() - start
-            ref_best = elapsed if ref_best is None else min(ref_best, elapsed)
-        for _ in range(3):
-            start = time.time()
-            fresh_curves, fresh_marks = P.read_curves(geo)
-            for curve in fresh_curves:
-                D._clean(curve)
-                D.resolve_corners(curve, DEFAULTS)
-                D.resolve_markers(curve, fresh_marks)
-            elapsed = time.time() - start
-            ref_full = elapsed if ref_full is None else min(ref_full, elapsed)
         # ⚠️ THE CEILING IS 1.5x THE REFERENCE, NOT "FASTER", AND THAT IS
         # THE FINDING. Measured this cycle with `cookCount` confirming every
         # pass: 0.85x on one 20 km curve of 20 001 vertices, 1.10x on 300
@@ -4659,6 +4668,57 @@ def output_guard_mutation(root, built):
           % ("; ".join(r[2] for r in rows) or "target missing"))
 
 
+def interleaved_best(variants, reps=3):
+    """D204's estimator, generalised - the MIN over `reps` INTERLEAVED
+    repetitions of each variant.
+
+    ⚠️ D209.  `output_guard_cost` failed once in three runs of an UNMUTATED
+    build (`corner: 1.31x over 1.15x, 0.0066 s vs 0.0050 s`) and
+    `decompose_long_curve_wall_clock` went red once under an unrelated
+    mutation.  Both were timing A against B in SEPARATE blocks - all of A,
+    then all of B - so a busy moment during one block lands entirely on one
+    side of the ratio.  D204 diagnosed exactly this on `pc_plan_solve` and
+    applied the cure to that one node; this is the same cure, in a function,
+    for everything else that hangs a tight ratio on a stopwatch.
+
+    Two properties, and both matter:
+      * INTERLEAVED - within one repetition every variant sees the same
+        machine, so interference moves the ratio far less than it moves
+        either number;
+      * MIN - interference can only make a pass SLOWER, so the minimum is the
+        closest thing to the variant's own cost.
+
+    `variants` is [(name, setup, run)]; `setup` is untimed (dirtying a parm
+    is not part of the measurement) and may be None.
+    """
+    best = {}
+    for _ in range(reps):
+        for name, setup, run in variants:
+            if setup is not None:
+                setup()
+            start = time.time()
+            run()
+            elapsed = time.time() - start
+            if name not in best or elapsed < best[name]:
+                best[name] = elapsed
+    return best
+
+
+# ⚠️ THE CORNER FIXTURE IS 2 km NOW AND IT USED TO BE THREE POINTS.  D209's
+# other half: an 18 m x 14 m L cooks in about 5 ms, and a 1.15x ceiling on a
+# 5 ms build is a coin toss whatever the estimator - the observed spread on
+# six consecutive runs of an unmutated build was 0.85x to 1.05x, a 24 % swing
+# against a 15 % ceiling.  A 2 km L is the same SHAPE (one 90 degree corner,
+# refused by level 1) at the same size as the other three rows, so the
+# ceiling is measuring the guard rather than the scheduler.
+GUARD_CORNER_PTS = ([(1.0 * i, 0.0, 0.0) for i in range(1001)]
+                    + [(1000.0, 0.0, 1.0 * j) for j in range(1, 1001)])
+# ...and the floor under every row of that check, as an ASSERTION rather than
+# a habit: a fixture whose reference side cooks faster than this cannot carry
+# a 1.15x ceiling, so it FAILS instead of quietly becoming a coin toss.
+GUARD_COST_FLOOR_S = 0.02
+
+
 def output_guard_cost(root):
     """What the guard COSTS, on the shapes it admits and on the ones it does
     not - because a fork whose output is identical can still be a regression.
@@ -4691,8 +4751,7 @@ def output_guard_cost(root):
         ("arc_2km", cases.arc_points(2000.0, 1.0, 2000.0), False, 1.15),
         ("bumpy_2km", [(1.0 * i, 0.6 * math.sin(i * 0.35), 0.0)
                        for i in range(2001)], False, 1.15),
-        ("corner", [(0.0, 0.0, 0.0), (18.0, 0.0, 0.0), (18.0, 0.0, 14.0)],
-         False, 1.15),
+        ("corner", GUARD_CORNER_PTS, False, 1.15),
     )
     rows = []
     bad = []
@@ -4702,41 +4761,64 @@ def output_guard_cost(root):
         node = root.createNode("pf_polychain", "cost_" + label)
         node.setInput(0, native.feed(root, geo, "GC_" + label))
         node.allowEditingOfContents()
-        best = {}
+
+        # D209 - INTERLEAVED, not two blocks. See `interleaved_best`.
+        # `setup` dirties through a parm every stage reads, so neither side
+        # measures a cache hit (D164), and it is outside the timer.
+        state = {"i": 0}
+
+        def _setup(stage):
+            def go():
+                state["i"] += 1
+                node.parm("stage").set(stage)
+                node.parm("corner_angle_deg").set(
+                    30.0 + 0.01 * (state["i"] % 3 + 1))
+            return go
+
         for stage in ("reference", "output"):
             node.parm("stage").set(stage)
             node.cook(force=True)
-            for i in range(3):
-                # dirtied through a parm every stage reads, so neither side
-                # is measuring a cache hit (D164)
-                node.parm("corner_angle_deg").set(30.0 + 0.01 * (i + 1))
-                t0 = time.time()
-                node.cook(force=True)
-                dt = time.time() - t0
-                best[stage] = dt if stage not in best else min(best[stage], dt)
-            node.parm("corner_angle_deg").set(30.0)
+        best = interleaved_best(
+            [(stage, _setup(stage), lambda: node.cook(force=True))
+             for stage in ("reference", "output")])
+        node.parm("corner_angle_deg").set(30.0)
+        node.parm("stage").set("output")
         env = node.node("pc_envelope").geometry()
         level1 = int(env.attribValue("_native_ok")) \
             if env.findGlobalAttrib("_native_ok") is not None else 0
         went_native = level1 and int(
             node.node("pc_envelope2").geometry().attribValue("_native_ok2"))
         ratio = best["output"] / max(best["reference"], 1e-9)
-        rows.append((label, ratio, bool(went_native)))
+        rows.append((label, ratio, bool(went_native), best["reference"]))
         if bool(went_native) != want_native:
             bad.append("%s: %s the native chain" % (
                 label, "took" if went_native else "did not take"))
+        # D209 - AND THE FIXTURE HAS TO BE BIG ENOUGH TO CARRY THE RATIO.
+        # This FAILS rather than skipping: a fixture that shrinks below the
+        # floor turns a tight ceiling into a coin toss, and the whole finding
+        # is that a coin toss teaches a reader to stop believing the suite.
+        if best["reference"] < GUARD_COST_FLOOR_S:
+            bad.append("%s: the reference cooks in %.4f s, under the %.0f ms "
+                       "floor - a %.2fx ceiling on it is noise, not a "
+                       "measurement" % (label, best["reference"],
+                                        GUARD_COST_FLOOR_S * 1e3, ceiling))
         if ratio > ceiling:
             bad.append("%s: %.2fx over %.2fx (%.4f s vs %.4f s)"
                        % (label, ratio, ceiling, best["output"],
                           best["reference"]))
         node.destroy()
     check("output_guard_cost", not bad,
-          "; ".join("%s %.2fx%s" % (r[0], r[1], " native" if r[2] else "")
+          "; ".join("%s %.2fx/%.0fms%s"
+                    % (r[0], r[1], r[3] * 1e3, " native" if r[2] else "")
                     for r in rows),
-          "`Stage = output` against `Stage = reference` on the same node - "
-          "a build the guard REFUSES may cost no more than 1.15x (level 1's "
-          "own probe) and one it ADMITS no more than 1.6x (the solve). %s"
-          % ("; ".join(bad) or "both ceilings hold"))
+          "`Stage = output` against `Stage = reference` on the same node, MIN "
+          "over 3 INTERLEAVED repetitions (D209 - two separate blocks put a "
+          "busy moment entirely on one side of the ratio, and this failed "
+          "once in three runs of an unmutated build). A build the guard "
+          "REFUSES may cost no more than 1.15x (level 1's own probe), one it "
+          "ADMITS no more than 1.6x (the solve), and every fixture must cook "
+          "in at least %.0f ms. %s"
+          % (GUARD_COST_FLOOR_S * 1e3, "; ".join(bad) or "both ceilings hold"))
 
 
 # The double cook a level-1 pass / level-2 refusal costs, measured on the
