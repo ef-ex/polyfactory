@@ -4557,6 +4557,454 @@ def native_reach(root):
           % (len(watched), "; ".join(bad) or "both directions hold"))
 
 
+# --- D206: EVERY WRANGLE GETS A MEASURED CEILING, NOT THE FOUR THAT HAPPENED
+#           TO BE CAUGHT ------------------------------------------------------
+#
+# §21.4's SURVIVOR 1, reproduced at SOURCE this cycle: `pc_finalize.vfl`
+# rewritten as a single-threaded detail loop over the prims, `native.py`'s
+# class moved `primitive` -> `detail` with it, and the .hda REBUILT (md5
+# 37f1e344 -> 6f2fec2e).  The fence is value-for-value identical and
+#
+#     run_native_checks   106 [PASS] / 0        exit 0
+#     run_scene_checks    0 failing / 0 moved   exit 0
+#     run_hda_checks      0 failing             exit 0
+#
+# while the node measures 2.13 -> 13.15 ms at 17 804 pieces (0.114 -> 0.738
+# us/piece, 6.2x).  Nothing in the suite could see it, because the per-node
+# ceilings D193 and D204 landed cover `pc_plan_emit`, `pc_stamp`,
+# `pc_plan_solve` and `pc_frames_native` - FOUR of the eighteen wrangles - and
+# §14's "batching beats language by ~55x" is the law all eighteen obey.
+#
+# THE INSTRUMENT is `hou.perfMon` per-node cook time on the SHIPPED ASSET -
+# §21.2's second instrument, not a stopwatch around a rig subnet.  The column
+# read is `Cook - ms`, which is INCLUSIVE of the wrangle's `attribvop` child;
+# that child is where the VEX time actually lands (a probe measured a wrangle
+# at 0.166 ms self against 234.7 ms in its child), so reading self time would
+# measure nothing at all.
+#
+# ⚠️ THE TABLE IS RECORDED FROM AN UNLOCKED INSTANCE, and that was checked
+# rather than assumed, because the mutation levers below need
+# `allowEditingOfContents`.  Locked and unlocked measure the same node: 13.459
+# / 13.490 ms on `pc_arclength`, 2.159 / 2.132 on `pc_finalize`, 497.2 / 484.0
+# on `pc_plan_solve`.  What unlocking costs is scene size, which is
+# `instances_do_not_fork_the_network`'s business and not this one's.
+#
+# THREE DIRTYING LEVERS, because no single one reaches all eighteen, and the
+# per-node lever is DERIVED (the lever the node's own minimum came from)
+# rather than hand-tabled:
+#   spline   input 0 nudged  - the sixteen on the default output path;
+#   kit      input 1 nudged  - `pc_kit_id`, which hangs off the KIT;
+#   frames   Stage = frames  - `pc_frames`, the dead Python-bridge branch
+#                              that `Stage = output` never cooks.
+#
+# MEASURED ON THIS BUILD, the minimum over five independent runs of three
+# interleaved repetitions x three levers, at 4 454 and 17 804 pieces (a 4.7 km
+# and an 18.9 km straight at 2 m spacing):
+#
+#   node               small us/p   big us/p   growth   big ms
+#   pc_arclength          0.8558     0.7439     0.87    13.244
+#   pc_corners            0.0822     0.0219     0.27     0.390
+#   pc_curve_index        0.0269     0.0081     0.30     0.145
+#   pc_curveid            0.0422     0.0180     0.43     0.320
+#   pc_deform_gate        0.9412     0.2406     0.26     4.284
+#   pc_envelope           0.5126     0.4812     0.94     8.568
+#   pc_envelope2          0.1091     0.0746     0.68     1.329
+#   pc_finalize           0.1688     0.1140     0.68     2.030
+#   pc_frames             0.5873     0.1996     0.34     3.553
+#   pc_frames_native      0.4457     0.1501     0.34     2.672
+#   pc_kit_id             0.0362     0.0092     0.25     0.164
+#   pc_markers            0.0370     0.0108     0.29     0.193
+#   pc_plan_emit          2.9598     2.5636     0.87    45.643
+#   pc_plan_solve        25.1938    26.3745     1.05   469.572
+#   pc_proto              0.2703     0.1013     0.37     1.804
+#   pc_sections           0.3345     0.2339     0.70     4.164
+#   pc_stamp              1.9199     0.4280     0.22     7.620
+#   pc_warn_collate       0.2813     0.1975     0.70     3.516
+#
+# THE CEILING IS THE BIG-SIZE RATE x 2.5 PLUS ONE MILLISECOND EXPRESSED PER
+# PIECE, so a node whose whole cook is 0.16 ms is not judged on a coin toss -
+# D209's lesson applied before the fact rather than after.  It is judged at
+# the BIG size ONLY: five of these nodes are dominated by a FIXED cost at
+# 4 454 pieces (`pc_corners` is 0.39 ms at BOTH sizes), so one per-piece
+# ceiling cannot be right at both.  What the small size is for is the GROWTH
+# ratio, which is scale-free and is the shape that catches the quadratic
+# regressions - D175's `pointgenerate` expander read 3 860 us/piece where the
+# node that replaced it reads 2.6.
+#
+# ⚠️ 2.5x IS DELIBERATELY TIGHT AND `wrangle_ceilings_are_tight` HOLDS IT
+# THERE.  A ceiling is worth exactly what it refuses, so no row may sit more
+# than 4x above what the run in front of it measures: the table cannot be
+# quietly loosened into a number nothing can cross, and a real 40 % speedup
+# (which is what §21.10 asks for on `pc_plan_solve`) FAILS this check until
+# the table is re-recorded, which is the intended behaviour and not a bug.
+WRANGLE_CEILING_US = {
+    "pc_arclength":     1.95,
+    "pc_corners":       0.115,
+    "pc_curve_index":   0.078,
+    "pc_curveid":       0.105,
+    "pc_deform_gate":   0.67,
+    "pc_envelope":      1.28,
+    "pc_envelope2":     0.25,
+    "pc_finalize":      0.35,
+    "pc_frames":        0.57,
+    "pc_frames_native": 0.44,
+    "pc_kit_id":        0.08,
+    "pc_markers":       0.085,
+    "pc_plan_emit":     6.55,
+    "pc_plan_solve":   66.50,
+    "pc_proto":         0.32,
+    "pc_sections":      0.65,
+    "pc_stamp":         1.15,
+    "pc_warn_collate":  0.56,
+}
+# The widest growth this build shows is `pc_plan_solve`'s 1.05x; 1.6x is slack
+# for cache and thread start-up, and a quadratic node blows it by three orders
+# of magnitude across these two sizes.
+WRANGLE_GROWTH_CEILING = 1.6
+# The noise floor, in MILLISECONDS, expressed per piece when the ceiling is
+# built.  A node whose entire cook is a fifth of a millisecond cannot carry a
+# tight per-piece ratio on a shared machine.
+WRANGLE_FLOOR_MS = 1.0
+# ...and how far a ceiling may sit above the measurement it is recorded from
+# before it stops refusing anything.  2.5x is the recipe; 4.0x is the refusal.
+WRANGLE_HEADROOM = 4.0
+# The two sizes.  Points at 2 m spacing; the piece counts they produce are
+# 4 454 and 17 804.
+WRANGLE_SMALL_PTS = 2361
+WRANGLE_BIG_PTS = 9436
+
+# §21.4's M3, verbatim: `pc_finalize` as a DETAIL wrangle looping over the
+# prims on one thread, writing the SAME values element for element.  The
+# output is identical - `place_stamp_parity` and every other parity check stay
+# green under it, which is precisely why a COST ceiling is the only thing that
+# can see it.
+FINALIZE_DEBATCHED = """
+dict cfg = detail(1, "pc_cfg");
+string style_id = "";
+if (isvalidindex(cfg, "style_id")) { string v = cfg["style_id"]; style_id = v; }
+int nprim = nprimitives(0);
+for (int i = 0; i < nprim; i++) {
+    int sec = prim(0, "_sec_out", i);
+    setprimattrib(0, "pc_section",    i, sec);
+    setprimattrib(0, "pc_generated",  i, 1);
+    setprimattrib(0, "pc_deformed",   i, 0);
+    setprimattrib(0, "pc_corner_cut", i, 0);
+    setprimattrib(0, "pc_replaced",   i, 0);
+    setprimattrib(0, "pc_style",      i, style_id);
+}
+"""
+
+# The regression each row of the table has to refuse, as a multiple of what
+# this run measured.  It is 5x and not 2x because `wrangle_ceilings_are_tight`
+# holds every ceiling at or under 4x the measurement: 5x therefore crosses
+# EVERY ceiling in the table by construction, and the two checks together say
+# "a five-fold regression on any one of the eighteen is caught", which is the
+# sentence D206 asks for.
+WRANGLE_MUTATION_SCALE = 5.0
+
+# ⚠️ A PHYSICAL BURN WAS BUILT FIRST AND IT IS NOT HERE, WHICH IS THE POINT.
+# The obvious way to "prove each of the eighteen reddens" is to append a
+# workload to each wrangle in turn and watch it cross its ceiling.  That was
+# written and measured, and on ONE machine, in ONE process, it read 18/18 on
+# the first pass and 11/18 on the second and third - identical build,
+# identical ceilings, `pc_deform_gate` swinging 6.94 -> 0.43 us/piece.  The
+# cause is that a loop whose body does not depend on the element is
+# loop-invariant, so VEX hoists it out and the "total" workload collapses by
+# the thread count; making it element-dependent instead needs a per-node
+# iteration budget, because a DETAIL wrangle and a 17 804-element POINT
+# wrangle are sixteen times apart on the same count.
+#
+# A mutation check that reddens on a SOUND build is D209's defect wearing
+# D206's hat, and shipping one while closing D209 in the same cycle would be
+# absurd.  So the per-node proof is DETERMINISTIC: `wrangle_verdict` is a pure
+# function of the measured rates, and the mutation scales one row at a time
+# and asserts the verdict names it.  The one PHYSICAL mutation kept is
+# §21.4's own M3 on `pc_finalize`, which is what the finding is about and
+# which measured 0.82-1.42 us/piece against a 0.35 ceiling across five runs.
+#
+# ⚠️ AND ONE LEVER THAT DOES NOT WORK, recorded so it is not re-tried: setting
+# `vex_threadjobsize` to 1e9 - one job, one thread, which looks like the
+# perfect generic de-batching - moves these nodes by 10-25 % and NOTHING
+# crosses its ceiling.  They are not thread-bound, which is itself worth
+# knowing: M3's 6.2x is the cost of `prim()` / `setprimattrib` random access
+# in a loop, not the cost of losing fifteen cores.
+
+
+def _wrangle_rig(root, tag, npts):
+    """The SHIPPED asset on a straight run, with a nudge on each input.
+
+    Unlocked, because the mutation levers below have to reach a node inside
+    it; `instances_do_not_fork_the_network` is what guards the shipped
+    default, and the comment above records that locked and unlocked measure
+    the same node.
+    """
+    from polyfactory.polychain import kit as KIT
+
+    geo = hou.Geometry()
+    cases.polyline(geo, [(2.0 * i, 0.0, 0.0) for i in range(npts)],
+                   curve_id="LONG")
+
+    def nudger(name, feeder):
+        node = root.createNode("attribwrangle", "%s_%s" % (name, tag))
+        node.parm("class").set(2)
+        group = node.parmTemplateGroup()
+        group.append(hou.IntParmTemplate("nudge", "Nudge", 1))
+        node.setParmTemplateGroup(group)
+        node.parm("snippet").set('i@_%s = chi("nudge");' % name)
+        node.setInput(0, feeder)
+        return node
+
+    node = root.createNode("pf_polychain", "wcost_%s" % tag)
+    spline = nudger("wsp", native.feed(root, geo, "WSP_%s" % tag))
+    kit = nudger("wkt", native.feed(root, KIT.starter_kit(), "WKT_%s" % tag))
+    node.setInput(0, spline)
+    node.setInput(1, kit)
+    node.allowEditingOfContents()
+    node.node("OUT")
+    node.parm("stage").set("output")
+    node.cook(force=True)
+    return node, spline, kit, len(node.geometry().prims())
+
+
+def _wrangle_cook(node, dirt, nudge, stage):
+    """One PROFILED cook -> {child node name: `Cook - ms`}.
+
+    The CSV's `Cook - ms` is inclusive of the node's `attribvop` child, which
+    is where a wrangle's VEX time lives; its self time is ~0.02 ms and would
+    measure nothing.
+    """
+    csv = os.path.join(os.path.dirname(HDA_PATH), "_d206_perf.csv")
+    node.parm("stage").set(stage)
+    dirt.parm("nudge").set(nudge)
+    profile = hou.perfMon.startProfile("d206")
+    try:
+        node.cook()
+    finally:
+        profile.stop()
+    profile.exportAsCSV(csv)
+    out = {}
+    with io.open(csv, encoding="utf-8") as fh:
+        for line in fh:
+            field = [c.strip() for c in line.split(",")]
+            if len(field) < 9 or "/wcost_" not in field[0]:
+                continue
+            try:
+                out[field[0].rsplit("/", 1)[1]] = float(field[7])
+            except ValueError:
+                pass
+    os.remove(csv)
+    return out
+
+
+def wrangle_cost_table(node, spline, kit, reps=3, base=0):
+    """Per-node MINIMUM cook time over `reps` x the three levers.
+
+    The minimum is the estimator D204 argued for and this check inherits:
+    interference can only make a pass slower, so the min is the closest thing
+    to the node's own cost.  It also DERIVES the lever - whichever one the
+    minimum came from - so the mutation pass below needs no hand-maintained
+    table of which input dirties which node.
+
+    -> ({name: ms}, {name: (nudge node, stage)})
+    """
+    best, lever = {}, {}
+    for rep in range(reps):
+        for tag, dirt, stage in (("spline", spline, "output"),
+                                 ("kit", kit, "output"),
+                                 ("frames", spline, "frames")):
+            got = _wrangle_cook(node, dirt, base + rep * 10 + len(tag), stage)
+            for name, ms in got.items():
+                if name not in best or ms < best[name]:
+                    best[name] = ms
+                    lever[name] = (dirt, stage)
+    return best, lever
+
+
+def wrangle_verdict(big, small, pieces, small_pieces):
+    """Every complaint the measured rates raise, as text.  PURE - no Houdini.
+
+    It is a separate function for the same reason `run_scene_checks.exit_code`
+    is (D210): a rule that can only be exercised by cooking a 20 km fence is a
+    rule nobody can mutate, and D206's own mandate is that every row of the
+    table refuses something.  Here one row can be scaled and the verdict
+    re-asked in microseconds.
+
+    -> (rows, over, unmeasured, loose) where `rows` is [(name, us/piece,
+    growth)] and the other three are lists of complaint strings; a sound build
+    raises none.
+    """
+    floor_us = WRANGLE_FLOOR_MS * 1e3 / pieces
+    rows, over, unmeasured, loose = [], [], [], []
+    for name in sorted(WRANGLE_CEILING_US):
+        if name not in big or name not in small:
+            unmeasured.append(name)
+            continue
+        rate = big[name] * 1e3 / pieces
+        rate_small = small[name] * 1e3 / small_pieces
+        growth = rate / max(rate_small, 1e-12)
+        ceiling = WRANGLE_CEILING_US[name]
+        rows.append((name, rate, growth))
+        if rate > ceiling:
+            over.append("%s %.4f > %.4f us/piece" % (name, rate, ceiling))
+        if growth > WRANGLE_GROWTH_CEILING:
+            over.append("%s growth %.2fx" % (name, growth))
+        if ceiling > WRANGLE_HEADROOM * rate + 2.0 * floor_us:
+            loose.append("%s %.4f is %.1fx the measured %.4f"
+                         % (name, ceiling, ceiling / max(rate, 1e-12), rate))
+    return rows, over, unmeasured, loose
+
+
+def wrangle_cost_check(root):
+    """D206 - one generic ceiling over every wrangle in the shipped asset.
+
+    Five assertions, and each closes a different way for the table to become
+    decoration:
+
+      * `every_wrangle_has_a_cost_ceiling` - the table's keys ARE the asset's
+        attribwrangles, read off the built network. A nineteenth wrangle added
+        without a ceiling fails here rather than shipping unwatched, which is
+        exactly how fourteen of the eighteen got here.
+      * `wrangle_cost_is_flat_in_piece_count` - every row under its ceiling at
+        17 804 pieces and under the growth ceiling between the two sizes.
+      * `wrangle_ceilings_are_tight` - no row more than 4x above what this run
+        measures, so the table cannot be loosened into a number nothing can
+        reach.
+      * `mutation_every_wrangle_ceiling_bites` - each of the eighteen rows is
+        scaled by 5 in turn and the verdict has to name it. With the row above
+        holding every ceiling at or under 4x, the pair says: a five-fold
+        regression on ANY of the eighteen is caught.
+      * `mutation_pc_finalize_debatched` - and the real one, §21.4's M3, on the
+        node the whole finding is about.
+    """
+    small_node, small_sp, small_kt, small_pieces = _wrangle_rig(
+        root, "small", WRANGLE_SMALL_PTS)
+    small, _lev = wrangle_cost_table(small_node, small_sp, small_kt, base=100)
+    small_node.destroy()
+
+    node, spline, kit, pieces = _wrangle_rig(root, "big", WRANGLE_BIG_PTS)
+    big, lever = wrangle_cost_table(node, spline, kit, base=300)
+
+    wrangles = sorted(n.name() for n in node.children()
+                      if n.type().name() == "attribwrangle")
+    missing = [n for n in wrangles if n not in WRANGLE_CEILING_US]
+    stale = [n for n in WRANGLE_CEILING_US if n not in wrangles]
+    check("every_wrangle_has_a_cost_ceiling",
+          not missing and not stale and len(wrangles) == 18,
+          "%d wrangles / %d ceilings" % (len(wrangles),
+                                         len(WRANGLE_CEILING_US)),
+          "every `attribwrangle` in the shipped asset has a MEASURED "
+          "per-piece ceiling (D206 - four of eighteen did). No ceiling: %s. "
+          "No node: %s" % (missing or "none", stale or "none"))
+
+    floor_us = WRANGLE_FLOOR_MS * 1e3 / pieces
+    rows, over, unmeasured, loose = wrangle_verdict(
+        big, small, pieces, small_pieces)
+    worst = max(rows or [("none", 0.0, 0.0)],
+                key=lambda r: r[1] / WRANGLE_CEILING_US.get(r[0], 1.0))
+    check("wrangle_cost_is_flat_in_piece_count",
+          bool(rows) and not over and not unmeasured,
+          "%d rows, worst %s at %.0f%% of its ceiling"
+          % (len(rows), worst[0],
+             100.0 * worst[1] / WRANGLE_CEILING_US.get(worst[0], 1.0)),
+          "all %d wrangles of the SHIPPED asset under a per-piece ceiling at "
+          "%d pieces and under %.1fx growth from %d, perfMon `Cook - ms`, min "
+          "over 3 interleaved repetitions x 3 levers. Over: %s. Never cooked: "
+          "%s" % (len(rows), pieces, WRANGLE_GROWTH_CEILING, small_pieces,
+                  over or "none", unmeasured or "none"))
+    # ⚠️ THE VALUE IS THE FLOOR-ADJUSTED FRACTION, NOT THE BARE RATIO. A bare
+    # ratio reads 9.4x on `pc_kit_id` - whose whole cook is 0.16 ms, so its
+    # ceiling is the 1 ms noise floor and nothing else - and a reader would
+    # take that for a failure the check declined to make. What is asserted is
+    # the ceiling against its ALLOWANCE, and 100 % is the refusal.
+    check("wrangle_ceilings_are_tight", bool(rows) and not loose,
+          "worst %.0f%% of its allowance"
+          % (100.0 * max([WRANGLE_CEILING_US[n]
+                          / (WRANGLE_HEADROOM * max(r, 1e-12) + 2.0 * floor_us)
+                          for n, r, _g in rows] or [0.0])),
+          "no ceiling sits more than %.1fx above what this run measures (plus "
+          "twice the %.0f ms noise floor), so the table cannot be loosened "
+          "into decoration. Loose: %s"
+          % (WRANGLE_HEADROOM, WRANGLE_FLOOR_MS, loose or "none"))
+
+    # --- the mutation pass: each of the eighteen rows, one at a time --------
+    #
+    # ⚠️ THE EXEMPTION IS DERIVED, NOT LISTED, and it is the honest half of the
+    # noise floor.  A node whose entire cook is 0.16 ms cannot be guarded to
+    # five per cent on a shared machine, so its ceiling is the 1 ms floor and
+    # a 5x regression on it - 0.65 ms - is genuinely below what this
+    # instrument can see.  A hand-written exemption list would rot; this one
+    # is computed from the floor the ceiling was built with, so a node that
+    # grows out of the floor stops being exempt by itself.  Every exempt row
+    # is still required to be REACHED by the verdict at its own ceiling, which
+    # is what catches a row silently skipped.
+    survived, blind = [], []
+    for name in sorted(WRANGLE_CEILING_US):
+        if name not in big:
+            survived.append("%s (never cooked)" % name)
+            continue
+        rate = big[name] * 1e3 / pieces
+        ceiling = WRANGLE_CEILING_US[name]
+
+        def _named(ms):
+            worse = dict(big)
+            worse[name] = ms
+            _r, over_m, _u, _l = wrangle_verdict(
+                worse, small, pieces, small_pieces)
+            return any(c.startswith(name + " ") for c in over_m)
+
+        # ...and the row has to be REACHED at all, exempt or not.
+        if not _named(ceiling * pieces * 1.01e-3):
+            survived.append("%s (not reached even at its own ceiling)" % name)
+            continue
+        if _named(big[name] * WRANGLE_MUTATION_SCALE):
+            continue
+        slip = (WRANGLE_MUTATION_SCALE - 1.0) * rate * pieces * 1e-3
+        if slip >= 2.0 * WRANGLE_FLOOR_MS:
+            survived.append("%s (%.4f us/piece at %.0fx, ceiling %.4f, "
+                            "+%.2f ms)"
+                            % (name, rate * WRANGLE_MUTATION_SCALE,
+                               WRANGLE_MUTATION_SCALE, ceiling, slip))
+        else:
+            blind.append("%s +%.2f ms" % (name, slip))
+    check("mutation_every_wrangle_ceiling_bites", not survived,
+          "%d/%d at %.0fx, %d under the floor"
+          % (len(WRANGLE_CEILING_US) - len(survived) - len(blind),
+             len(WRANGLE_CEILING_US), WRANGLE_MUTATION_SCALE, len(blind)),
+          "every row is reached by the verdict at its own ceiling, and a "
+          "%.0f-fold regression on it is NAMED unless that regression is "
+          "smaller than twice the %.0f ms noise floor the ceiling was built "
+          "with - so with `wrangle_ceilings_are_tight` holding every ceiling "
+          "at or under %.0fx, no wrangle can %.0fx in silence and the ones "
+          "this instrument cannot see are these, with their numbers: %s. "
+          "Survived: %s"
+          % (WRANGLE_MUTATION_SCALE, WRANGLE_FLOOR_MS, WRANGLE_HEADROOM,
+             WRANGLE_MUTATION_SCALE, blind or "none", survived or "none"))
+
+    # --- and the REAL survivor, M3, on the node it shipped through ----------
+    fin = node.node("pc_finalize")
+    sound = fin.parm("snippet").eval()
+    dirt, stage = lever["pc_finalize"]
+    fin.parm("class").set(0)
+    fin.parm("snippet").set(FINALIZE_DEBATCHED)
+    got = _wrangle_cook(node, dirt, 880, stage)
+    fin.parm("class").set(1)
+    fin.parm("snippet").set(sound)
+    ms = got.get("pc_finalize")
+    rate = None if ms is None else ms * 1e3 / pieces
+    ceiling = WRANGLE_CEILING_US["pc_finalize"]
+    check("mutation_pc_finalize_debatched",
+          rate is not None and rate > ceiling,
+          "%.4f us/piece" % (rate if rate is not None else -1.0),
+          "§21.4's SURVIVOR 1 - `pc_finalize` as a DETAIL wrangle looping "
+          "over the prims on one thread, which ships a value-for-value "
+          "identical fence and was 106 [PASS] / 0 green with the .hda rebuilt "
+          "at source - costs %.4f us/piece against the batched %.4f and the "
+          "%.4f ceiling. This is the mutation D206 exists for"
+          % (rate if rate is not None else -1.0,
+             big["pc_finalize"] * 1e3 / pieces, ceiling))
+    node.destroy()
+
+
 def union_parity(root):
     """D166's safety property: the fence does not change when the VEX answers.
 
@@ -4776,6 +5224,7 @@ def main():
     frames_scale_mutation(root)
     emit_scale_mutation(root)
     solve_scale_check(root)
+    wrangle_cost_check(root)
     scene_baseline_is_enforced()
 
     print("\n=== 5. 13.7 - the graph is readable, on the built asset ===")
