@@ -71,6 +71,9 @@ int has_band = ((band_side == "top" || band_side == "bottom")
 // z half in the other.
 float radius = (zmode == "adaptive") ? f@_proto_radius : f@_proto_rz;
 
+vector a, ta, b, tb;
+pc_span_ends(2, pr, sa, sb, a, ta, b, tb);
+
 float dev = 0.0;
 int needs = 0;
 if (i@pc_sliced) {
@@ -80,11 +83,50 @@ if (i@pc_sliced) {
     if (dev > tol) {
         needs = 1;
     } else if (zmode == "vertical") {
-        vector a, ta, b, tb;
-        pc_span_ends(2, pr, sa, sb, a, ta, b, tb);
         needs = (abs(b.y - a.y) > 1e-6);
     }
 }
+
+// 4.6's TWO PLACE-SIDE WARNINGS (D32), raised here because this is the node
+// that already holds the span's two ends and the deform verdict they read.
+// Both are `place.build` pass A, both are one ratio, and without them a
+// build the guard switch hands to the native chain would ship an element the
+// reference stamps a warning on and this one does not.
+//
+//   `_flat_ratio` - D32: a yaw-only mode measures the piece along the
+//   horizontal, so a vertical span leaves nothing to scale by. It used to
+//   build silently - a 3 m vertical curve produced 25 posts 0.0000 m wide,
+//   stacked coincident, with no warning. The onset is continuous (0.0852 m at
+//   45 degrees, 0.0021 m at 89) so it is a RATIO and not a test for exactly
+//   vertical.
+//
+//   `_chord_ratio` - the same lesson for a RIGID piece: a suppressed hairpin
+//   turns corner-cutting into an order-of-magnitude collapse, a 2.5 m beam
+//   asked to cover 4 m of a there-and-back polyline materialising 0.10 m long.
+//
+// ⚠️ THEY GO INTO THE PIECE'S OWN WARNING STRING, NOT INTO NEW ATTRIBUTES.
+// `setpointattrib` with a literal name creates the attribute at RUNTIME, and
+// the order two such names are created in a MULTITHREADED wrangle is thread
+// order - which would put the output's attribute LIST at the mercy of the
+// scheduler while every value stayed right. `pc_warn_collate` fans the string
+// out on one thread, exactly as `pc_plan_emit` already does for the plan's
+// own warnings and for the same reason (D150).
+#define PC_FLAT_RATIO_W    0.01     // place.FLAT_RATIO
+#define PC_COLLAPSE_RATIO  0.5      // place.COLLAPSE_RATIO
+string warns = s@pc_warns;
+float aspan = abs(sb - sa);
+float flat_ratio = 1.0;
+if (zmode != "adaptive" && aspan > PC_EPS)
+    flat_ratio = length(set(b.x - a.x, 0.0, b.z - a.z)) / aspan;
+if (flat_ratio < PC_FLAT_RATIO_W)
+    warns = (warns == "") ? "pc_warn_degenerate_frame"
+                          : warns + " pc_warn_degenerate_frame";
+float chord_ratio = (aspan <= PC_EPS) ? 1.0 : (length(b - a) / aspan);
+if (!needs && chord_ratio < PC_COLLAPSE_RATIO
+        && find(warns, "pc_warn_corner_degenerate") < 0)
+    warns = (warns == "") ? "pc_warn_corner_degenerate"
+                          : warns + " pc_warn_corner_degenerate";
+s@_warns = warns;
 
 // ⚠ THE ANSWER IS `pc_deformed`, WHICH IS 3.4's OWN NAME FOR IT, AND THAT
 // IS NOT A CONVENTION VIOLATION.  13.3.4 asked for a point group called
