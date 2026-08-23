@@ -38,9 +38,16 @@ int npt = npoints(0);
 // dicts rather than one because a VEX dict slot has a type and `attr:` can
 // name either a number or a string; `evaluate_cond`'s "anything unreadable is
 // False" is what makes the miss harmless.
+//
+// ⚠️ AND THE LIST IS FILTERED BY `place._prim_attrs`' OWN RULE, IN `hda`.
+// `primattribtype` finds ANYTHING, including this network's own internals, so
+// an `attr:pc_total` condition read the raw curve length natively and None in
+// the reference.  `hda.rule_table` applies `_ATTR_SKIP` / `ROW_ATTRS_2D`
+// before publishing, which keeps ONE list rather than two that can drift.
+// `pc_section` and `pc_style` are NOT harvested off the prim at all: 3.3's
+// `attr:pc_section` means the SECTION's key, and the two lines near the
+// bottom of this file are the only place they come from.
 string want[] = detail(1, "pc_attr_names");
-push(want, "pc_section");
-push(want, "pc_style");
 
 // ---- the marker cloud, once ------------------------------------------------
 // Small N (a marker is a stand-alone point, never a curve vertex), so one
@@ -95,6 +102,16 @@ int flat_mk[];                          // marker POINT numbers, section-major
 float flat_mk_s[];                      // and each one's s_local
 
 int pt_sec = haspointattrib(0, "pc_section");
+// ⚠️ THE POINT ATTRIBUTE HAS A TYPE TOO, and reading a STRING one as a float
+// answers 0.0 for every vertex - which silently deleted D7's mid-curve break.
+// Measured on a 4-point polyline whose per-point `pc_section` is a,a,b,b:
+// two sections and 14 pieces in the reference, ONE section and 12 pieces
+// natively, with both interior caps gone.  `place.read_curves` reads whatever
+// type the artist authored (`_pattr(p, "pc_section", 0)`), so a string is
+// inside the contract; 3.1 typing it as an int is the common case, not the
+// only one.  A Houdini attribute is geometry-wide, so ONE test outside the
+// prim loop decides for the whole build.
+int pt_sec_t = pt_sec ? pointattribtype(0, "pc_section") : -1;
 int prim_sec_t = pt_sec ? -1 : primattribtype(0, "pc_section");
 int has_corner_flag = haspointattrib(0, "pc_corner");
 
@@ -138,7 +155,17 @@ for (int pr = 0; pr < nprim; pr++) {
     // D7 - a per-POINT `pc_section` breaks the curve, a per-PRIM one is the
     // whole-curve key and never breaks anything.
     int keykind = 0;                    // 0 none/num, 2 string
-    if (pt_sec) {
+    if (pt_sec && pt_sec_t == 2) {
+        keykind = 2;
+        for (int i = 0; i < n; i++) {
+            string k = point(0, "pc_section", cpt[i]);
+            seckey_str[i] = k;
+        }
+        int lo = closed ? 0 : 1;
+        int hi = closed ? n : n - 1;
+        for (int i = lo; i < hi; i++)
+            if (seckey_str[i] != seckey_str[(i - 1 + n) % n]) is_secbreak[i] = 1;
+    } else if (pt_sec) {
         for (int i = 0; i < n; i++) {
             float k = point(0, "pc_section", cpt[i]);
             seckey_num[i] = k;
@@ -343,10 +370,11 @@ foreach (int i; ord) {
         if (t == 2) { string v = prim(0, name, pr); as_[name] = v; }
         else        { float v = prim(0, name, pr); af[name] = v; }
     }
-    // ⚠️ THE KERNEL'S OWN TWO OVERRIDE THE HARVEST, exactly as `ctx_base`
-    // does: `attr:pc_section` means the SECTION's key (which a per-point
+    // ⚠️ THE KERNEL'S OWN TWO, exactly as `ctx_base` writes them:
+    // `attr:pc_section` means the SECTION's key (which a per-point
     // `pc_section` makes different from the prim's) and `attr:pc_style` the
-    // curve's style key.
+    // curve's style key.  Neither is harvested, so neither can be shadowed by
+    // a same-named prim attribute of the other type.
     if (r_seckey_kind[i] == 2) { string v = r_seckey_str[i]; as_["pc_section"] = v; }
     else                       { float v = r_seckey_num[i]; af["pc_section"] = v; }
     string sk = r_stylekey[i];

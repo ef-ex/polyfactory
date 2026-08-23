@@ -27,11 +27,22 @@
 
 #include "pc_path.h"
 
+// ⚠️ THE KIT IS WALKED BACKWARDS, AND THE DIRECTION IS THE WHOLE POINT.
+// `Kit._by_name` is a dict comprehension, so a REPEATED `pc_name` is won by
+// the LAST module carrying it - `pc_kit_by_name` (pc_plan.h) already walks
+// backwards for that reason, and `copytopoints`' own `useidattrib` was
+// measured to pick the last too.  This loop ran FORWARDS, so on a kit with
+// two prims named "post" the plan fitted one module and the copy pasted the
+// other: measured on three 0.5 / 1.0 / 2.0 m prims all named "post", the
+// reference built 10 pieces 2.0000 m long and this branch built them
+// 8.0000 m long (2.0 m of geometry x a scale computed from the 0.5 m one),
+// with no warning and no error.  Reversing the kit payload made the error
+// disappear, which is what an order dependence looks like.
 string want = s@pc_module;
 int n = nprimitives(2);
 float plen = 1.0, pax = 0.0;
 int found = 0;
-for (int i = 0; i < n; i++) {
+for (int i = n - 1; i >= 0; i--) {
     string name = prim(2, "pc_module", i);
     if (name != want) continue;
     int pts[] = primpoints(2, i);
@@ -64,6 +75,25 @@ if (isvalidindex(cfg, "fix_slope")) { float v = cfg["fix_slope"]; fix_slope = v;
 float flatten = 0.0;
 if (isvalidindex(cfg, "flatten_stepped")) { float v = cfg["flatten_stepped"]; flatten = v; }
 
-i@pc_frame_valid = (found && !has_surface && fillet <= 0.0
-                    && fix_slope == 0.0 && flatten == 0.0);
+// The four the CONFIG decides for the WHOLE build, so this test is the same
+// answer on every point - which is what makes the node warning below sound.
+int unported = (has_surface || fillet > 0.0 || fix_slope != 0.0
+                || flatten != 0.0);
+i@pc_frame_valid = (found && !unported);
 if (!found) i@pc_warn_kit_gap = 1;
+
+// ⚠️ AN EMPTY STAGE HAS TO SAY WHY IT IS EMPTY.  `pc_place_valid` blasts
+// every piece this node could not answer for, so with a surface, a fillet, a
+// slope fix or D98's flatten in the build the native PLACE branch shipped
+// ZERO prims with `node.warnings()` EMPTY - the same silent-empty failure
+// 16.4 point 3 had already fixed once for the unwired input, in a new place.
+// D177 said this branch "declares what it cannot answer", and it did - onto a
+// point attribute that `pc_place_valid` then deleted, so the declaration
+// reached nobody.  `warning()` puts it on the NODE, which is where an artist
+// staring at an empty viewport can read it; the attribute stays for the
+// checks.  ONE point raises it because `unported` is a per-build answer.
+if (unported) {
+    i@pc_warn_stage_unported = 1;
+    if (@ptnum == 0)
+        warning("polyChain: the native PLACE branch cannot answer this build - a surface, a fillet radius, a slope fix or a stepped flatten needs spec 4.5, which is not ported yet (13.9 N5/N6). Set Stage = Output for the full result.");
+}

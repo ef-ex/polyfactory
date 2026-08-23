@@ -1114,11 +1114,19 @@ SEED_TEXTS = None
 def _seed_texts():
     """The strings the seeding chain is asked about, ~360 of them.
 
-    Three families on purpose: RANDOM ASCII (which is what caught the
+    Four families on purpose: RANDOM ASCII (which is what caught the
     `split(s, "")` defect - it agreed with zlib on every 1-character string
     and on nothing else), the exact `seed_for` shape for all four 3.3 scopes,
-    and 40 real `elem_id`s, because `pc_elem_key` and `pc_seed_for` are two
-    different callers of the same crc.
+    40 real `elem_id`s, because `pc_elem_key` and `pc_seed_for` are two
+    different callers of the same crc - and NON-ASCII text.
+
+    ⚠️ THE NON-ASCII FAMILY IS NOT DECORATION.  `pc_crc32` used to fold the
+    CODE POINT masked to 8 bits where `zlib.crc32` folds UTF-8 BYTES, and this
+    corpus could not see it because every one of its 358 strings was ASCII.
+    Measured before the fix: a German `style_id` moved 28 of 40 `random`
+    picks, because `pc_seed_for` runs through the same crc.  Two- three- and
+    four-byte code points are all here, and so is a string that is nothing but
+    continuation-byte territory.
     """
     global SEED_TEXTS
     if SEED_TEXTS is not None:
@@ -1136,6 +1144,20 @@ def _seed_texts():
     out.append("%d\x1f%s\x1f%s\x1f%s" % (2 ** 31 - 1, "sty", "spline", "X"))
     out.extend(_eid("curve%d" % i, i, "default", i * 7, "sty")
                for i in range(40))
+    # non-ASCII: 2-byte (Latin-1 supplement), 3-byte (CJK, euro sign) and
+    # 4-byte (astral) code points, alone and mixed with ASCII, plus the two
+    # shapes that actually reach the crc - a `style_id` and a `curve_id` -
+    # in `seed_for`'s own assembled text.
+    nonascii = ["\u00e9", "\u00e9x", "stra\u00dfe", "Stra\u00dfe",
+                "rue\u00e9", "\u00e9tage", "\u20ac", "\u4e2d\u6587",
+                "\U0001F600", "a\U0001F600b", "\u00c5ngstr\u00f6m",
+                "\u00e9\u20ac\U0001F600"]
+    out.extend(nonascii)
+    for scope in ("generator", "spline", "section", "segment"):
+        out.append("%d\x1f%s\x1f%s\x1f%s"
+                   % (5, "stra\u00dfe", scope, "rue\u00e91"))
+    out.extend(_eid("Stra\u00dfe%d" % i, i, "default", i, "\u00e9tage")
+               for i in range(6))
     SEED_TEXTS = out
     return out
 
@@ -1156,22 +1178,21 @@ def seeding_vex(root, header_src=None):
     body = vexsrc.source("pc_rand.h") if header_src is None else header_src
     node.parm("snippet").set(body + """
 string PC_TXT[] = array(%s);
-int crcs[], seeds[], keys[], ascii[];
+int crcs[], seeds[], keys[];
 float rs[];
 foreach (string t; PC_TXT) {
     push(crcs, pc_crc32(t));
     int sd = pc_seed_for(t);
     push(seeds, sd);
     push(keys, pc_elem_key(t));
-    push(ascii, pc_is_ascii(t));
     push(rs, pc_random01(sd));
 }
-i[]@crc = crcs; i[]@seed = seeds; i[]@key = keys; i[]@ascii = ascii;
+i[]@crc = crcs; i[]@seed = seeds; i[]@key = keys;
 f[]@r = rs;
 """ % ", ".join(vex_string_literal(t) for t in _seed_texts()))
     geo = node.geometry()
     out = dict((name, list(geo.intListAttribValue(name)))
-               for name in ("crc", "seed", "key", "ascii"))
+               for name in ("crc", "seed", "key"))
     out["r"] = list(geo.floatListAttribValue("r"))
     node.destroy()
     add.destroy()
@@ -1224,9 +1245,16 @@ def seeding_parity(root):
     check("seed_random01_parity", bad["random"] == 0, "%d texts" % n,
           "random.Random(seed).random() - MT19937 init_by_array plus "
           "genrand_res53, in VEX; mismatches: %d" % bad["random"])
-    check("seed_ascii_guard", all(got["ascii"]), "%d texts" % n,
-          "pc_is_ascii - the crc is answerable for ASCII only, and this is "
-          "how a caller finds out instead of shipping a wrong key")
+    # ⚠️ THE CORPUS'S OWN NON-VACUITY, asserted rather than assumed.  The
+    # four checks above were green for a whole cycle on a crc that hashed
+    # CODE POINTS instead of UTF-8 BYTES, because every text was ASCII.
+    multibyte = sum(1 for t in texts if len(t.encode("utf-8")) != len(t))
+    check("seed_corpus_has_multibyte", multibyte >= 20,
+          "%d of %d texts" % (multibyte, n),
+          "texts whose UTF-8 encoding is LONGER than their code-point count. "
+          "`pc_is_ascii` used to stand here and only said the crc might be "
+          "wrong; these say it is right. Reverting pc_crc32's UTF-8 encode "
+          "reddens seed_crc32_parity on %d texts" % multibyte)
 
 
 def seeding_mutation(root):
@@ -1491,12 +1519,66 @@ def stress_cases():
                            Rule("end", "first", ["panel"]),
                            Rule("default", "first", ["post"])],
         params=Params(fill="adaptive"))))
+
+    # ⚠️ THE SUBJECT BAG, SUBJECT BY SUBJECT.  `plan.cond_subject` ends in
+    # `ctx.get(subject)`, so every key of `plan_section`'s `ctx_base` is a
+    # readable subject - not only the five `COND_SUBJECTS` documents - and the
+    # two bags were simply not the same set.  `segIndex` existed on the VEX
+    # side at every pick OUTSIDE the fill loop and on the reference side only
+    # INSIDE it; `curve_id`, `section_index`, `slot` and `yclass` existed on
+    # the reference side and nowhere in the VEX.  Each of the five below was a
+    # measured divergence (0 vs 10 pieces on `segIndex`, 10 vs 11 on the rest)
+    # and none of the 34 rows above nor the 89 scene cases contained one.
+    #
+    # Each subject is asked on the DEFAULT slot (which runs inside `_fill`,
+    # where `segIndex` is defined) and on an ANCHORED slot (`start`, which
+    # does not) - because that difference IS the defect.
+    for subj, op, value in (("segIndex", "lt", 1),
+                            ("curve_id", "eq", "S"),
+                            ("section_index", "eq", 0),
+                            ("slot", "eq", "default"),
+                            ("yclass", "eq", ""),
+                            ("attr:pc_total", "gt", 5.0),
+                            ("attr:pc_closed", "eq", 0),
+                            ("attr:pc_curve_id_r", "eq", "S")):
+        tag = subj.replace(":", "_")
+        out.append(("subject_%s_default" % tag, kit, Style(
+            "sub", 1, 2,
+            rules=[Rule("default", "conditional", ["gate", "panel"],
+                        cond={"subject": subj, "op": op, "value": value})],
+            params=Params(fill="adaptive"))))
+        out.append(("subject_%s_start" % tag, kit, Style(
+            "sub", 1, 2,
+            rules=[Rule("start", "conditional", ["gate", "panel"],
+                        cond={"subject": subj, "op": op, "value": value}),
+                   Rule("evenly", "conditional", ["post", "gate"],
+                        cond={"subject": subj, "op": op, "value": value}),
+                   Rule("default", "first", ["post"])],
+            params=Params(fill="adaptive", evenly_spacing=4.0))))
     return out
 
 
 def stress_geometry(closed=False, length=20.0):
+    """One straight open span, or - with `closed` - a square ring of it.
+
+    ⚠️ `closed` USED TO BE IGNORED, which is worse than not having it: the
+    signature advertised coverage that no caller could obtain, because the
+    body built `cases.polyline(..., curve_id="S")` with polyline's OWN
+    `closed=False` whatever it was asked for.  D19's cyclic run - a closed
+    section with no anchors and no caps, which folds the wrap gap in and
+    starts half a gap along - was therefore reached by the scene cases'
+    default style and by nothing in the matrix that sweeps all four
+    selectors, all four scopes and the padding modes.
+    """
     geo = hou.Geometry()
-    cases.polyline(geo, [(0.0, 0.0, 0.0), (length, 0.0, 0.0)], curve_id="S")
+    if closed:
+        h = length * 0.25
+        cases.polyline(geo, [(0.0, 0.0, 0.0), (h, 0.0, 0.0),
+                             (h, 0.0, h), (0.0, 0.0, h)],
+                       closed=True, curve_id="S")
+    else:
+        cases.polyline(geo, [(0.0, 0.0, 0.0), (length, 0.0, 0.0)],
+                       curve_id="S")
     return geo
 
 
@@ -1522,6 +1604,14 @@ def plan_stress_parity(root):
     cases.polyline(g, [(0.0, 0.0, 0.0), (7.3, 0.0, 0.0), (7.3, 0.0, 19.1),
                        (1.05, 0.0, 19.1)], curve_id="S")
     shapes[4] = ("asymmetric", g)
+    # D19's cyclic run, which the matrix advertised and did not have:
+    # `stress_geometry`'s `closed` argument was ignored and no caller passed
+    # it, so every one of the five shapes above is an OPEN polyline. A closed
+    # ring is the branch that folds the wrap gap in and starts half a gap
+    # along - reached by the scene cases' default style and by nothing that
+    # sweeps all four selectors, all four scopes and the padding modes.
+    # ⚠️ APPENDED, NOT INSERTED: the three trials above are assigned BY INDEX.
+    shapes.append(("closed", stress_geometry(closed=True)))
 
     bad = []
     nrun = npiece = 0
@@ -1559,6 +1649,212 @@ def plan_stress_parity(root):
           "unit-cancelling padding, the tile fallback and D13's overflow - "
           "on five shapes including D113's three trials. Mismatches: %s"
           % ("; ".join("%s %s" % b for b in bad[:3]) or "none"))
+
+
+# --- the SHAPE-shaped fixtures the stress matrix cannot express -------------
+#
+# `stress_cases` varies the STYLE over six fixed shapes.  Five defects found
+# by review live in the shape instead - a marker's DATA, a per-point section
+# key's TYPE, two prims sharing an id, a non-ASCII id - so they need their own
+# table.  Every row is (name, geometry, kit modules, style).
+
+
+def fixture_cases():
+    from polyfactory.polychain import Module, Params, Rule, Style
+    kit = [Module("post", (0.12, 1.0, 0.12), pad=(0.0, 0.0), deform=0,
+                  roles="default start end"),
+           Module("panel", (2.0, 0.9, 0.05), pad=(0.0, 0.0), deform=1,
+                  roles="default"),
+           Module("gate", (1.6, 1.2, 0.06), pad=(0.0, 0.0), deform=2,
+                  roles="default evenly", variant="wide", weight=3.0)]
+    out = []
+
+    # --- 3.3's `markerData:<key>`, by VALUE TYPE ---------------------------
+    # ⚠️ THE EMPTY STRING IS THE WHOLE POINT.  VEX has no `dicttype`, so the
+    # solve used to infer a dict slot's type by READING it, and a value that
+    # is "" reads as "" through the string port AND as 0.0 through the numeric
+    # one.  It was taken as numeric, so `markerData:tag eq ""` could never
+    # match: measured, a 0.12 m post where the reference puts a 1.6 m gate,
+    # and every downstream piece 0.21 m out.  `json_dumps(dict, 0)` names the
+    # type and is what the solve reads now; the other four rows are the
+    # controls that say the naming did not break the easy cases.
+    for tag, data, value in (("empty", {"tag": ""}, ""),
+                             ("str", {"tag": "x"}, "x"),
+                             ("num", {"tag": 3.0}, 3.0),
+                             ("int", {"tag": 4}, 4),
+                             ("zero", {"tag": 0.0}, 0.0)):
+        geo = hou.Geometry()
+        cases.polyline(geo, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)], curve_id="S")
+        cases.marker(geo, (8.0, 0.0, 0.0), "S", 7, dist=8.0, data=data)
+        out.append(("marker_data_%s" % tag, geo, kit, Style(
+            "md", 1, 3,
+            rules=[Rule("marker:7", "conditional", ["gate", "post"],
+                        cond={"subject": "markerData:tag", "op": "eq",
+                              "value": value}),
+                   Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive"))))
+
+    # --- D7's per-POINT `pc_section`, by TYPE ------------------------------
+    # A STRING per-point key was read as a float (always 0.0), so the
+    # mid-curve break vanished: 1 section and 12 pieces natively against the
+    # reference's 2 sections and 14, with both interior caps gone.
+    # `read_curves` reads whatever type the artist authored, so both rows are
+    # inside the contract.
+    for tag, keys in (("string", ("a", "a", "b", "b")),
+                      ("int", (0, 0, 1, 1))):
+        geo = hou.Geometry()
+        poly = cases.polyline(geo, [(0.0, 0.0, 0.0), (5.0, 0.0, 0.0),
+                                    (12.0, 0.0, 0.0), (20.0, 0.0, 0.0)],
+                              curve_id="S")
+        geo.addAttrib(hou.attribType.Point, "pc_section", keys[0])
+        for pt, key in zip(poly.points(), keys):
+            pt.setAttribValue("pc_section", key)
+        out.append(("pt_section_%s" % tag, geo, kit, Style(
+            "ps", 1, 3,
+            rules=[Rule("start", "first", ["post"]),
+                   Rule("end", "first", ["post"]),
+                   Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive"))))
+
+    # --- two primitives, ONE curve id --------------------------------------
+    # The only topology where primitive order genuinely decides the answer:
+    # `decompose_all` sorts by `(str(curve_id), index)` and Python's sort is
+    # STABLE, so the two curves' sections INTERLEAVE (A0, B0, A1, B1) in prim
+    # order.  `plan_is_input_order_free` builds its two orders out of three
+    # DISTINCT ids, so it cannot reach this; the merge sort in `pc_sections`
+    # breaks the tie on the prim number, and this row is what says the two
+    # agree.
+    geo = hou.Geometry()
+    cases.polyline(geo, [(0.0, 0.0, 0.0), (10.0, 0.0, 0.0),
+                         (10.0, 0.0, 8.0)], curve_id="A")
+    cases.polyline(geo, [(0.0, 0.0, 20.0), (7.0, 0.0, 20.0),
+                         (7.0, 0.0, 26.0)], curve_id="A")
+    out.append(("shared_curve_id", geo, kit, Style(
+        "sh", 1, 3, rules=[Rule("default", "first", ["panel"])],
+        params=Params(fill="adaptive"))))
+
+    # --- non-ASCII ids, through the RANDOM selector ------------------------
+    # `pc_crc32` folded CODE POINTS where `zlib.crc32` folds UTF-8 BYTES, so a
+    # German styleId or curve id moved the pick on roughly half the curves -
+    # a 47-piece picket run where the reference builds a 5-piece panel run.
+    # The `random` selector is what makes this visible: `pc_seed_for` runs
+    # through the same crc as `pc_elem_key`.
+    geo = hou.Geometry()
+    for i in range(8):
+        cases.polyline(geo, [(0.0, 0.0, 3.0 * i), (11.0, 0.0, 3.0 * i)],
+                       curve_id=u"rue\u00e9%d" % i)
+    out.append(("nonascii_ids_random", geo, kit, Style(
+        u"stra\u00dfe", 1, 5,
+        rules=[Rule("default", "random", ["post", "panel"], scope="spline")],
+        params=Params(fill="adaptive"))))
+    geo = hou.Geometry()
+    for i in range(8):
+        cases.polyline(geo, [(0.0, 0.0, 3.0 * i), (11.0, 0.0, 3.0 * i)],
+                       curve_id=u"\u00e9tage%d" % i)
+    out.append(("nonascii_ids_segment", geo, kit, Style(
+        u"\u00c5ngstr\u00f6m", 1, 5,
+        rules=[Rule("default", "random", ["post", "panel", "gate"],
+                    scope="segment")],
+        params=Params(fill="adaptive"))))
+    return out
+
+
+def plan_fixture_parity(root):
+    """The shape-shaped fixtures, against `plan.plan_sections`, EXACT."""
+    from polyfactory.polychain import Kit
+    bad = []
+    nrun = npiece = 0
+    for name, geo, mods, style in fixture_cases():
+        case = {"curve": geo, "kit": None}
+        kit = Kit("fixture", 1, mods)
+        params = style.params
+        ref = plan_reference(case, params, style, kit)
+        sub = root.createNode("subnet", "fix_%s" % name)
+        read, _cfg, nodes = plan_chain(sub, case, params, style, kit, name)
+        try:
+            read.cook(force=True)
+        except Exception:
+            pass
+        errs = [(n.name(), n.errors()[0].replace("\n", " ")[:200])
+                for n in nodes.values() if n.errors()]
+        if errs:
+            bad.append((name, "%s: %s" % errs[0]))
+            sub.destroy()
+            continue
+        diff = plan_diff(plan_rows(read.geometry()), ref)
+        nrun += 1
+        npiece += len(ref)
+        if diff:
+            bad.append((name, "row %d %s" % diff[0]))
+        sub.destroy()
+    check("plan_fixture_parity", not bad, "%d builds / %d pieces"
+          % (nrun, npiece),
+          "the SHAPES the style matrix cannot express - a marker's "
+          "`markerData` by value type (including the empty string), a "
+          "per-point `pc_section` as a STRING and as an int, two prims "
+          "sharing one curve id, and non-ASCII curve/style ids through the "
+          "`random` selector. Mismatches: %s"
+          % ("; ".join("%s %s" % b for b in bad[:3]) or "none"))
+
+
+def declared_limit_dup_id_marker(root):
+    """D169, ASSERTED rather than described: a marker on a DUPLICATED id.
+
+    ⚠️ THIS CHECK EXPECTS A DIFFERENCE.  `resolve_markers` filters markers by
+    curve id, so the reference places the gate on BOTH curves carrying the id;
+    `pc_markers` is a point wrangle and one point can only bind to one prim,
+    so the native chain places it on the FIRST and raises
+    `pc_warn_marker_dup`.  That divergence was documented in a comment, warned
+    about, and asserted NOWHERE - `place_packed_parity` skips the suite's one
+    duplicated-id case and `plan_solve_parity` passes on it only because it
+    carries no marker.  A limit nothing measures is a limit that can silently
+    become something else, so this is the shape of the gap, in numbers.
+    """
+    from polyfactory.polychain import Kit, Module, Params, Rule, Style
+    mods = [Module("post", (0.12, 1.0, 0.12), pad=(0.0, 0.0), deform=0,
+                   roles="default"),
+            Module("panel", (2.0, 0.9, 0.05), pad=(0.0, 0.0), deform=1,
+                   roles="default"),
+            Module("gate", (1.6, 1.2, 0.06), pad=(0.0, 0.0), deform=2,
+                   roles="default")]
+    geo = hou.Geometry()
+    cases.polyline(geo, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)], curve_id="D")
+    cases.polyline(geo, [(0.0, 0.0, 6.0), (20.0, 0.0, 6.0)], curve_id="D")
+    cases.marker(geo, (8.0, 0.0, 0.0), "D", 7, dist=8.0)
+    style = Style("dup", 1, 3,
+                  rules=[Rule("marker:7", "first", ["gate"]),
+                         Rule("default", "first", ["panel"])],
+                  params=Params(fill="adaptive"))
+    kit = Kit("dup", 1, mods)
+    case = {"curve": geo, "kit": None}
+    ref = plan_reference(case, style.params, style, kit)
+    sub = root.createNode("subnet", "dupmk")
+    read, _cfg, nodes = plan_chain(sub, case, style.params, style, kit, "dupmk")
+    try:
+        read.cook(force=True)
+    except Exception:
+        pass
+    rows = plan_rows(read.geometry())
+    got_gates = sum(1 for r in rows if r["slot"] == "marker:7")
+    ref_gates = sum(1 for p in ref if p.slot == "marker:7")
+    # the warning the decompose stage raises about it, on the marker point
+    dec = nodes["pc_sections"].inputs()[0].geometry()
+    warned = 0
+    if dec.findPointAttrib("pc_warn_marker_dup") is not None:
+        warned = sum(dec.pointIntAttribValues("pc_warn_marker_dup"))
+    sub.destroy()
+    ok = (ref_gates == 2 and got_gates == 1 and warned == 1
+          and len(ref) - len(rows) == 1)
+    check("declared_limit_dup_id_marker", ok,
+          "ref %d gates / native %d / warned %d" % (ref_gates, got_gates,
+                                                    warned),
+          "D169, MEASURED: two prims share one curve id and one marker is "
+          "bound to it. The reference places the gate on BOTH curves (%d "
+          "pieces); the native chain places it on the FIRST and says so "
+          "(%d pieces, pc_warn_marker_dup on 1 point). This FAILS if the "
+          "divergence changes size in either direction - closing it needs "
+          "the marker resolved per PRIM, not per marker point"
+          % (len(ref), len(rows)))
 
 
 def plan_determinism(root, built):
@@ -1639,13 +1935,76 @@ def plan_determinism(root, built):
           "three forced re-cooks of the same chain, digested on elem_id and "
           "the three float64 spans: %s"
           % ("identical" if all(d == fwd for d in fwd_again) else "MOVED"))
-    check("plan_is_input_order_free", fwd == rev, "%d chars" % len(fwd),
-          "the same three curves fed in REVERSED primitive order plan "
-          "identically - D150's point: nothing in the chain depends on cook "
-          "order, and the section emission order is (curve_id, section, prim)")
+    check("plan_distinct_ids_are_input_order_free", fwd == rev,
+          "%d chars" % len(fwd),
+          "the same three curves - THREE DISTINCT IDS - fed in REVERSED "
+          "primitive order plan identically. ⚠️ ITS SCOPE IS IN ITS NAME: "
+          "with distinct ids the sort key (curve_id, section, prim) is "
+          "already total, so this cannot see the prim tie-break at all. "
+          "`plan_shared_id_is_order_sensitive` is the check that can")
     check("plan_digest_is_not_empty", len(fwd) > 200, len(fwd),
           "the determinism digest is non-trivial, so the two checks above "
           "are not comparing two empty strings")
+
+
+def plan_shared_id_order(root):
+    """Primitive order over TWO PRIMS SHARING ONE `pc_curve_id`.
+
+    ⚠️ `plan_is_input_order_free` CANNOT REACH THIS AND SAYS SO NOW.  It
+    builds its two orders out of three DISTINCT ids, where the sort key
+    `(curve_id, section_index, prim)` is already total - so the prim term is
+    dead weight there and mutating it cannot redden the check.  The one
+    topology where primitive order genuinely decides the answer is two prims
+    with the SAME id: `decompose_all` sorts by `(str(curve_id), index)` and
+    Python's sort is STABLE, so their sections interleave in PRIM order and
+    the plan is different in the two orders - on BOTH sides.
+
+    So the claim is not "order-free"; it is "order-sensitive the same way".
+    That is what this asserts: native == reference in each order, and the two
+    orders differ, which is what makes the first half non-vacuous.
+    """
+    from polyfactory.polychain import Kit, Module, Params, Rule, Style
+    mods = [Module("post", (0.12, 1.0, 0.12), pad=(0.0, 0.0), deform=0,
+                   roles="default"),
+            Module("panel", (2.0, 0.9, 0.05), pad=(0.0, 0.0), deform=1,
+                   roles="default")]
+    style = Style("shared", 1, 4,
+                  rules=[Rule("default", "random", ["post", "panel"],
+                              scope="section")],
+                  params=Params(fill="adaptive"))
+    kit = Kit("shared", 1, mods)
+    legs = [([(0.0, 0.0, 0.0), (10.0, 0.0, 0.0), (10.0, 0.0, 8.0)], "A"),
+            ([(0.0, 0.0, 20.0), (7.0, 0.0, 20.0), (7.0, 0.0, 26.0)], "A")]
+
+    def run(order):
+        geo = hou.Geometry()
+        for pts, cid in (legs if order else list(reversed(legs))):
+            cases.polyline(geo, pts, curve_id=cid)
+        case = {"curve": geo, "kit": None}
+        ref = plan_reference(case, style.params, style, kit)
+        sub = root.createNode("subnet", "shared_%d" % order)
+        read, _cfg, _n = plan_chain(sub, case, style.params, style, kit,
+                                    "shared%d" % order)
+        read.cook(force=True)
+        rows = plan_rows(read.geometry())
+        sub.destroy()
+        digest = "|".join("%s@%.17g" % (r["elem_id"], r["s0"]) for r in rows)
+        return (plan_diff(rows, ref), digest, len(rows))
+
+    d_fwd, dig_fwd, n_fwd = run(1)
+    d_rev, dig_rev, n_rev = run(0)
+    check("plan_shared_id_matches_reference_in_both_orders",
+          not d_fwd and not d_rev, "%d / %d pieces" % (n_fwd, n_rev),
+          "two prims carrying ONE curve id, fed in both primitive orders, "
+          "against `plan.plan_sections` on the same input. Mismatches: %s"
+          % ((d_fwd or d_rev)[:1] or "none"))
+    check("plan_shared_id_is_order_sensitive", dig_fwd != dig_rev,
+          "%d chars" % len(dig_fwd),
+          "and the two orders genuinely DISAGREE - Python's stable sort "
+          "interleaves the two curves' sections in prim order, so the check "
+          "above is a claim about a tie-break and not about nothing. If this "
+          "ever goes green-by-equality, the check above has stopped testing "
+          "`pc_sections`' `r_prim` tie-break")
 
 
 def plan_mutation(root, built):
@@ -1954,6 +2313,116 @@ s@pc_module = M[@ptnum];
           "reach packedfulltransform (asked for %s, measured %s). 13.2 read "
           "`bounds` and concluded it did not."
           % (list(want), ["%.6f" % g for g in sorted(got)]))
+
+
+def place_duplicate_module_name(root):
+    """A kit with TWO prims called `post` - and all three resolvers agree.
+
+    ⚠️ THREE THINGS RESOLVE A MODULE NAME AND THEY HAVE TO PICK THE SAME ONE.
+    `Kit._by_name` is a dict comprehension, so a repeated `pc_name` is won by
+    the LAST module carrying it; `pc_kit_by_name` walks the kit backwards for
+    exactly that reason; `copytopoints`' `useidattrib` was measured to pick
+    the last too.  `pc_proto` - which MEASURES the module the frame is built
+    from - walked FORWARDS, so the plan fitted one module and the copy pasted
+    another: measured on 0.5 / 1.0 / 2.0 m prims all named "post", the
+    reference built 10 pieces 2.0000 m long and the native branch built them
+    8.0000 m long (2.0 m of geometry scaled by 2.0 / 0.5), with
+    `node.warnings()` empty.  Reversing the kit payload made the error vanish,
+    which is what an order dependence looks like.
+
+    `place_packed_parity` matches by `pc_elem_id`, so it would have caught
+    this the moment such a fixture existed.  This is that fixture.
+    """
+    from polyfactory.polychain import kit as K
+    from polyfactory.polychain import place as PL
+    from polyfactory.polychain import Params, Rule, Style
+
+    kit_geo = hou.Geometry()
+    for length in (0.5, 1.0, 2.0):
+        body = hou.Geometry()
+        K.box_mesh(body, 0.0, length, 0.0, 1.0, -0.05, 0.05, 1)
+        K.add_module(kit_geo, "post", body, size=(length, 1.0, 0.1),
+                     deform=0, zmode="vertical", roles="default")
+    K.write_manifest(kit_geo, "pf_dupname", 1,
+                     sources=("run_native_checks.place_duplicate_module_name",),
+                     human_scale_reference=1.8)
+    spline = hou.Geometry()
+    cases.polyline(spline, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)], curve_id="S")
+    style = Style("dupname", 1, 1,
+                  rules=[Rule("default", "first", ["post"])],
+                  params=Params(fill="adaptive"))
+    case = {"curve": spline, "kit": kit_geo, "style": style}
+
+    ref_geo, _r = PL.build(spline, kit_geo, style, params=style.params)
+    ref_x = sorted(round(p.intrinsicValue("bounds")[1]
+                         - p.intrinsicValue("bounds")[0], 6)
+                   for p in ref_geo.prims()
+                   if p.type() == hou.primType.PackedGeometry)
+    node, geo = asset_on(root, case, "place_native", "dupname")
+    got_x = []
+    if geo is not None:
+        got_x = sorted(round(p.intrinsicValue("bounds")[1]
+                             - p.intrinsicValue("bounds")[0], 6)
+                       for p in geo.prims()
+                       if p.type() == hou.primType.PackedGeometry)
+    ok = bool(ref_x) and got_x == ref_x
+    check("place_duplicate_module_name", ok,
+          "native %s / ref %s" % (got_x[:1] or "-", ref_x[:1] or "-"),
+          "%d native prims vs %d reference prims, compared on the packed X "
+          "extent: LAST-wins in `Kit._by_name`, in `pc_kit_by_name`, in "
+          "`pc_proto` and in `copytopoints`' own `useidattrib`. A forward "
+          "walk in `pc_proto` alone reads %s here"
+          % (len(got_x), len(ref_x), "8.0" if ref_x and ref_x[0] == 2.0
+             else "the wrong module"))
+
+
+def native_place_says_why_it_is_empty(root):
+    """An unported build must WARN, not just ship nothing.
+
+    ⚠️ D177 SAID THIS BRANCH "DECLARES WHAT IT CANNOT ANSWER" AND THE
+    DECLARATION REACHED NOBODY.  `pc_proto` wrote `pc_frame_valid = 0` and
+    `pc_place_valid` then blasted the very points carrying it, so with a
+    surface wired the native PLACE branch cooked 0 prims with
+    `node.warnings() == ()` and `node.errors() == ()` - an empty viewport and
+    no explanation, which is the same silent-empty failure 16.4 point 3 had
+    already fixed once for the unwired input.  `pc_proto` raises a node
+    warning now, and this is what says so.
+    """
+    spline = hou.Geometry()
+    cases.polyline(spline, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)], curve_id="S")
+    surf = cases.surface(cases.ramp_x)
+    rows = []
+    for label, wire_surface, fillet in (("surface", True, 0.0),
+                                        ("fillet", False, 1.0)):
+        node = root.createNode("pf_polychain", "empty_%s" % label)
+        node.setInput(0, native.feed(root, spline, "ES_%s" % label))
+        if wire_surface:
+            node.setInput(3, native.feed(root, surf, "ESF_%s" % label))
+        if fillet > 0.0:
+            node.parm("fillet_radius").set(fillet)
+        node.parm("stage").set("place_native")
+        try:
+            node.cook(force=True)
+            nprim = len(node.geometry().prims())
+        except Exception:
+            nprim = -1
+        # ⚠️ THE WARNING LIVES ON THE INNER NODE, exactly as `run_hda_checks`
+        # already records for `kernel`: `hou.Node.warnings()` does not
+        # aggregate a child's warnings onto the asset (measured again here),
+        # even though the viewport badge does.
+        warned = [w for w in node.node("pc_proto").warnings()
+                  if "4.5" in w or "Stage" in w]
+        rows.append((label, nprim, len(warned)))
+        node.destroy()
+    ok = all(n == 0 and w >= 1 for _l, n, w in rows)
+    check("native_place_says_why_it_is_empty", ok,
+          "; ".join("%s %d prims / %d warnings" % r for r in rows),
+          "a surface on input 4 and a fillet radius are both 4.5/4.3 work "
+          "the native PLACE branch cannot answer (13.9 N5/N6). It ships no "
+          "prims - which is correct - and it now says why on `pc_proto`, "
+          "which is where the viewport badge comes from. The "
+          "check FAILS both if the geometry comes back non-empty and if the "
+          "warning is missing, so it cannot be satisfied by silence")
 
 
 def place_mutation(root, built):
@@ -2383,11 +2852,16 @@ def main():
     print("\n=== 3c. 13.9 N2 - 4.2's fitting solve, in VEX ===")
     plan_parity(root, built)
     plan_stress_parity(root)
+    plan_fixture_parity(root)
+    declared_limit_dup_id_marker(root)
     plan_determinism(root, built)
+    plan_shared_id_order(root)
 
     print("\n=== 3d. 13.9 N4 - the packed branch, and R8 ===")
     r8_packed_transform(root)
     place_packed_parity(root, built)
+    place_duplicate_module_name(root)
+    native_place_says_why_it_is_empty(root)
 
     print("\n=== 4. the mutation test ===")
     mutation(root, built)

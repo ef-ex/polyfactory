@@ -60,6 +60,12 @@ for (int sp = 0; sp < nsec; sp++) {
     float  curve_l  = point(0, "pc_curve_len", sp);
     int    curveprim = point(0, "pc_curveprim", sp);
     float  sec_key  = point(0, "pc_sec_key", sp);
+    // D7's section key is whatever type the artist authored - `read_curves`
+    // reads it back untyped and `Placement.section_key` carries it through.
+    // A Houdini attribute is geometry-wide, so exactly one of these two
+    // branches ever runs in a build.
+    int    sec_kind = point(0, "pc_sec_key_kind", sp);
+    string sec_key_s = point(0, "pc_sec_key_s", sp);
     string style_key = point(0, "pc_style_key", sp);
     string yclass   = point(0, "pc_yclass", sp);
     string style_id = pc_cfg_s("style_id", "");
@@ -74,7 +80,8 @@ for (int sp = 0; sp < nsec; sp++) {
         setpointattrib(0, "pc_sec_s0",    pt, sec_s0);
         setpointattrib(0, "pc_curve_len", pt, curve_l);
         setpointattrib(0, "pc_curveprim", pt, curveprim);
-        setpointattrib(0, "pc_section",   pt, sec_key);
+        if (sec_kind == 2) setpointattrib(0, "pc_section", pt, sec_key_s);
+        else               setpointattrib(0, "pc_section", pt, sec_key);
         setpointattrib(0, "pc_style",     pt, style_key);
         setpointattrib(0, "pc_yclass",    pt, yclass);
 
@@ -108,8 +115,6 @@ for (int sp = 0; sp < nsec; sp++) {
                              p_slot[k], p_index[k], style_id);
         setpointattrib(0, "pc_elem_id",  pt, eid);
         setpointattrib(0, "pc_elem_key", pt, pc_elem_key(eid));
-        if (!pc_is_ascii(eid))
-            setpointattrib(0, "pc_warn_elem_key_utf8", pt, 1);
 
         // every warning the solve raised, as its own int attribute - the
         // shape `place` / `hda` already publish and `colour_warnings` reads

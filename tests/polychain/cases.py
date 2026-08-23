@@ -60,7 +60,7 @@ def polyline(geo, pts, closed=False, curve_id=None):
     return poly
 
 
-def marker(geo, position, curve_id, marker_id, dist=None, u=None):
+def marker(geo, position, curve_id, marker_id, dist=None, u=None, data=None):
     """One 3.1 marker point, authored through `pc_dist` OR `pc_u`.
 
     ⚠️ AUTHORING ONLY ONE OF THE TWO IS THE POINT. A Houdini attribute is
@@ -86,6 +86,14 @@ def marker(geo, position, curve_id, marker_id, dist=None, u=None):
         pt.setAttribValue("pc_dist", float(dist))
     if u is not None:
         pt.setAttribValue("pc_u", float(u))
+    if data is not None:
+        # 3.3's `markerData:<key>` bag. A DICT point attribute, which is what
+        # `place.read_curves` reads and what the VEX solve has to type without
+        # a `dicttype` function - so an EMPTY-STRING value here is the fixture
+        # that separates "the string \"\"" from "the number 0".
+        if geo.findPointAttrib("pc_marker_data") is None:
+            geo.addAttrib(hou.attribType.Point, "pc_marker_data", {})
+        pt.setAttribValue("pc_marker_data", dict(data))
     return pt
 
 

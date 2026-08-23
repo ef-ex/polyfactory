@@ -699,6 +699,20 @@ def rule_table(style):
     names = sorted(set(
         str(r.cond["subject"])[5:] for r in rules
         if r.cond and str(r.cond.get("subject", "")).startswith("attr:")))
+    # ⚠️ AND FILTERED BY `place._prim_attrs`' OWN RULE, because `pc_sections`
+    # harvests by NAME and `primattribtype` finds anything.  The reference
+    # skips P/N/Cd/uv/v and every `pc_` name outside `ROW_ATTRS_2D`; without
+    # the same filter here, `attr:pc_total` - the raw curve length this
+    # network's own `pc_arclength` writes onto the prim - answered 20.0
+    # natively and None in the reference, and a conditional on it built 12
+    # gates against the reference's 10 panels.  Every internal the DECOMPOSE
+    # box publishes (`pc_total`, `pc_closed`, `pc_nclean`, `pc_iscurve`,
+    # `pc_curve_id_r`) was a live subject on one side and dead on the other.
+    # Filtering HERE rather than in the VEX is what stops the two lists
+    # drifting: this is the only place that decides what VEX may see.
+    names = [n for n in names
+             if n not in _place._ATTR_SKIP
+             and not (n.startswith("pc_") and n not in _place.ROW_ATTRS_2D)]
     out["pc_attr_names"] = names
     for name in RULE_FLOAT_COLUMNS:
         out[name] = [_exact(v) for v in out[name]]

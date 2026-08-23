@@ -286,6 +286,15 @@ void pc_choose(const int r; const dict cf; const dict cs; const string slot;
     string selects[] = detail(1, "pc_r_select");
     string slots[] = detail(1, "pc_r_slot");
     string use_slot = (slot != "") ? slot : slots[r];
+    // ⚠️ `plan.pick` DOES `dict(ctx, slot=slot)` AND `_fill`'s ctx0 sets
+    // `slot="default"`, so `slot` is a readable conditional subject on EVERY
+    // pick - `cond_subject` ends in `ctx.get(subject)`.  It was missing from
+    // the VEX bag, and a `{subject: slot, op: eq, value: "start"}` rule
+    // therefore declined natively where the reference accepted.  It is added
+    // HERE rather than at the five call sites because here is where the
+    // answer to "which slot" exists.
+    dict cs_slot = cs;
+    cs_slot["slot"] = use_slot;
     int ci[]; string cn[];
     pc_candidates(r, pc_role_2d(use_slot, yclass), ci, cn);
     int n = len(ci);
@@ -344,7 +353,7 @@ void pc_choose(const int r; const dict cf; const dict cs; const string slot;
         return;
     }
     if (sel == "conditional") {
-        if (pc_evaluate_cond(r, cf, cs)) { mi = ci[0]; mn = cn[0]; ok = 1; return; }
+        if (pc_evaluate_cond(r, cf, cs_slot)) { mi = ci[0]; mn = cn[0]; ok = 1; return; }
         if (n > 1) { mi = ci[1]; mn = cn[1]; ok = 1; }
         return;                                 // a rule that declines
     }

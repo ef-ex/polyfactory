@@ -55,19 +55,52 @@ int pc_splitmix(const int x0) {
 // first shipped here: 333 of 358 test strings wrong, 25 right.  String
 // INDEXING is the answer (`"abcd"[2]` -> `"c"`), with `strlen` for the count.
 //
-// ⚠️ ASCII ONLY.  `ord` answers about a CHARACTER; a non-ASCII one would need
-// its UTF-8 bytes.  Every string that reaches here is a curve id, a slot
-// name, a scope name or a style id; `pc_is_ascii` below is how a caller finds
-// out when that stops being true instead of shipping a wrong key.
+// ⚠️ IT HASHES UTF-8 BYTES, BECAUSE `zlib.crc32` DOES.  This used to fold
+// `ord(text[c]) & 0xFF` - the CODE POINT masked to 8 bits - and a non-ASCII
+// id then hashed something zlib never sees: measured on 22.0.398,
+// `pc_crc32("é")` was 3815224791 against `zlib.crc32`'s 235179326, and
+// because `pc_seed_for` runs through the same function a German styleId moved
+// 28 of 40 `random` picks.  It was not only `pc_elem_key`, which is what the
+// old comment here claimed.
+//
+// The walk is over BYTES and the decode is free, because VEX already works
+// that way (probed): `strlen("éx")` is 3, and indexing gives
+// `"é"` / `""` / `"x"` with `ord` 233 / -1 / 120 - i.e. `s[i]` decodes
+// the code point that STARTS at byte i and answers -1 on a continuation byte.
+// So skipping the -1 slots and re-encoding each code point reproduces
+// Python's `str.encode("utf-8")` exactly.
+//
+// ⚠️ AND THE BYTES ARE FOUR SCALARS, NOT AN ARRAY.  `array(...)` is
+// ambiguous inside a loop in VEX (recorded trap), and a four-element array
+// allocated per character would be the batching mistake this cycle spent its
+// time removing.
 int pc_crc32(const string text) {
     int crc = 0xFFFFFFFF;
     int n = strlen(text);
     for (int c = 0; c < n; c++) {
-        crc = (crc ^ (ord(text[c]) & 0xFF)) & 0xFFFFFFFF;
-        for (int k = 0; k < 8; k++) {
-            int lsb = crc & 1;
-            crc = shrz(crc, 1) & 0x7FFFFFFF;
-            if (lsb) crc = crc ^ 0xEDB88320;
+        int cp = ord(text[c]);
+        if (cp < 0) continue;                  // a UTF-8 continuation byte
+        int b0 = cp, b1 = 0, b2 = 0, b3 = 0, nb = 1;
+        if (cp >= 0x80 && cp < 0x800) {
+            b0 = 0xC0 | shrz(cp, 6); b1 = 0x80 | (cp & 0x3F); nb = 2;
+        } else if (cp >= 0x800 && cp < 0x10000) {
+            b0 = 0xE0 | shrz(cp, 12);
+            b1 = 0x80 | (shrz(cp, 6) & 0x3F);
+            b2 = 0x80 | (cp & 0x3F); nb = 3;
+        } else if (cp >= 0x10000) {
+            b0 = 0xF0 | shrz(cp, 18);
+            b1 = 0x80 | (shrz(cp, 12) & 0x3F);
+            b2 = 0x80 | (shrz(cp, 6) & 0x3F);
+            b3 = 0x80 | (cp & 0x3F); nb = 4;
+        }
+        for (int i = 0; i < nb; i++) {
+            int by = (i == 0) ? b0 : ((i == 1) ? b1 : ((i == 2) ? b2 : b3));
+            crc = (crc ^ (by & 0xFF)) & 0xFFFFFFFF;
+            for (int k = 0; k < 8; k++) {
+                int lsb = crc & 1;
+                crc = shrz(crc, 1) & 0x7FFFFFFF;
+                if (lsb) crc = crc ^ 0xEDB88320;
+            }
         }
     }
     return (crc ^ 0xFFFFFFFF) & 0xFFFFFFFF;
@@ -78,14 +111,13 @@ int pc_elem_key(const string elem_id) {
     return pc_crc32(elem_id) & 0x7FFFFFFF;
 }
 
-// 1 when every character of `text` is ASCII, so `pc_crc32` is answerable for
-// it.  Warn-never-block: the caller warns, it does not stop.
-int pc_is_ascii(const string text) {
-    int n = strlen(text);
-    for (int c = 0; c < n; c++)
-        if (ord(text[c]) > 127) return 0;
-    return 1;
-}
+// ⚠️ `pc_is_ascii` IS GONE, AND ITS DELETION IS THE POINT.  It existed to
+// warn that `pc_crc32` could not answer for a non-ASCII `elem_id`; the crc
+// answers for every string now, so the guard would only ever have fired on
+// keys that are correct.  A warning that says "this may be wrong" about a
+// value that is right is worse than no warning: it trains the reader to
+// ignore it.  `seed_crc32_parity` carries non-ASCII texts instead, which is
+// a check rather than a caveat.
 
 // --- MT19937 - because `plan.choose` weighs with `random.Random(s).random()`--
 //
