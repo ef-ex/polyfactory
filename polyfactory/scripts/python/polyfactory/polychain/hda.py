@@ -74,13 +74,14 @@ DECISIONS TAKEN HERE (recorded in polychain.md 10):
       node. The kit's own `pc_pad` is the pipeline face's padding.
 """
 
+import math
 import os
 import struct
 import time
 
 import hou
 
-from . import DEFAULTS, EPS, Params, Rule, SELECTORS, Style
+from . import DEFAULTS, EPS, Params, Rule, SELECTORS, Style, Z_MODES
 from . import kit as _kit
 from . import place as _place
 from . import style as _style
@@ -455,6 +456,91 @@ CONFIG_KEYS = ("corner_angle_deg", "min_included_angle_deg", "fillet_radius",
                "fix_slope", "bend_tol", "conform_tilt")
 
 
+def _bend_bound(kit, sources, params):
+    """(longest deformable span, widest off-spine reach, is the pair KNOWN?).
+
+    PART B - the two kit numbers 13.9 N10's LEVEL 1 needs to widen its deform
+    bound past straight-and-flat.  Level 1 has to answer "can a TURN in this
+    spline unpack a piece?" BEFORE the plan cooks, and `place.span_deviation`
+    needs three things to answer it: the turn, the piece's SPAN and how far
+    the module reaches OFF THE SPINE.  The turn is the decompose's; these two
+    are the kit's, and this node is the one that has already resolved it.
+
+    ⚠️ THE OPERANDS ARE NOT THE KIT'S RAW MAXIMA, AND THE FIRST VERSION'S WERE.
+    Taking `max` over every module in the kit refused 300 gently curved
+    streets at a bound of 0.0258 m against a 0.01 m tolerance while level 2 -
+    the exact answer - admitted all 17 400 pieces.  Two of the reference's own
+    rules were being ignored, and both of them narrow the set:
+
+      D27  A RIGID MODULE NEVER DEFORMS.  `_needs_deform` returns False at
+           `proto.module.deform <= 0` before it measures anything, so a rigid
+           module cannot unpack however sharp the turn is.  The starter kit's
+           widest module by far is `corner_post` at radius 1.3025 m and it is
+           rigid; it was setting the bound for every build.
+      D87  A YAW-ONLY MODE REACHES OFF THE SPINE BY ITS Z HALF ONLY.  The gate
+           spends the budget with `radius = (zmode == "adaptive") ? hypot(ry,
+           rz) : rz`, because `adaptive` rolls y AND z with the frame while
+           `vertical` and `stepped` keep y world-vertical.  Every deformable
+           module in the starter kit is `vertical`, so the honest reach is
+           0.03-0.04 m and not 1.00-1.10.
+
+    With both applied the bound reads 0.0077 m on those streets and admits
+    them, 0.0054 m on a 2 km R = 200 arc (level 2 admits, 1 888 / 1 888) and
+    0.0216 m on R = 50 (level 2 refuses, 1 186 / 1 888).  It is tracking the
+    exact answer rather than shadowing it.
+
+    The zmode is resolved exactly as `plan._zmode` resolves it - a non-empty
+    style zmode overrides every module (D6) - because a second rule here would
+    be a second thing to keep in step.
+
+    ⚠️ AND THE THIRD RETURN IS NOT DECORATION.  A kit that cannot be read, or
+    a module with no valid bounding box, would otherwise yield 0.0 / 0.0 - and
+    a bound of zero reads as "nothing can deform", which is the fail-OPEN
+    answer this whole cycle exists to refuse (20.1's `hou.Vector2` cond value
+    and 20.2's `attr:` on a multi-component prim attribute were both a VEX
+    expression quietly evaluating False on an input nobody had modelled).  So
+    the pair is published with a flag saying whether it was DERIVED, and
+    `pc_envelope.vfl` refuses the build outright when it was not.
+
+    ⚠️ A kit with no DEFORMABLE module at all is a derived 0.0 / 0.0 and NOT a
+    refusal, which is a different sentence: nothing in it can unpack, so the
+    bound is genuinely zero.  `tile`'s slice and 4.3's anchors are the two
+    other ways `_needs_deform` can answer True without consulting the module,
+    and CONFIG already refuses both before this function is reached.
+
+    `module.length` and the source bbox X extent are both taken because D20
+    says the fitted size is a contract about the FIT while the bbox is the
+    geometry that will actually move, and a module may legitimately overhang.
+    The fill's own stretch is NOT folded in: `adaptive` can scale a module to
+    at most ~2x its nominal length, and underestimating the span makes level 1
+    ADMIT more, which level 2 then answers exactly.  That is the safe
+    direction, and paying for it is `bench_guard_fallback`'s business.
+    """
+    span = radius = 0.0
+    style_zmode = str(getattr(params, "zmode", "") or "")
+    for module in (getattr(kit, "modules", ()) or ()):
+        try:
+            src = _kit.source_for(sources, module)
+            box = src.boundingBox()
+            lo, hi = box.minvec(), box.maxvec()
+            length = float(getattr(module, "length", 0.0) or 0.0)
+            deform = int(getattr(module, "deform", 0) or 0)
+        except Exception:
+            return (0.0, 0.0, 0.0)                # unreadable - refuse, D34
+        if not (hi[0] >= lo[0]):                  # NaN or an invalid box
+            return (0.0, 0.0, 0.0)
+        if deform <= 0:
+            continue                              # D27 - it cannot unpack
+        zmode = style_zmode or str(getattr(module, "zmode", "") or "")
+        if zmode not in Z_MODES:
+            zmode = "adaptive"                    # `_resolve_zmode`'s fallback
+        ry = max(abs(lo[1]), abs(hi[1]))
+        rz = max(abs(lo[2]), abs(hi[2]))
+        span = max(span, length, float(hi[0] - lo[0]))
+        radius = max(radius, math.hypot(ry, rz) if zmode == "adaptive" else rz)
+    return (span, radius, 1.0)
+
+
 def config_dict(node):
     """13.3.0's `pc_cfg` - the resolved parameters, payload precedence applied.
 
@@ -530,6 +616,13 @@ def config_resolved(node):
     # EVERY ROW IS AN UNPORTED STAGE, NAMED.  The list must shrink as 13.9
     # lands, and `output_guard_envelope` prints which case each row refused so
     # a row that stops mattering is visible rather than merely harmless.
+    # PART B - LEVEL 1's DEFORM BOUND, widened past straight-and-flat.  The
+    # two kit numbers and the flag that says whether they were derived; see
+    # `_bend_bound` and `pc_envelope.vfl`.  They ride in `pc_cfg` rather than
+    # in `native_ok` because the turn they are weighed against is the
+    # DECOMPOSE's, and only the envelope holds both halves.
+    (out["bend_span_m"], out["bend_radius_m"],
+     out["bend_bound_ok"]) = _bend_bound(kit, _sources, params)
     out["native_ok"] = 1.0 if _native_ok(
         parms, params, style, kit, out,
         list(kit_warns) + list(style_warns)) else 0.0

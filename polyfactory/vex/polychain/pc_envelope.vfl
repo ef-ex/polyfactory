@@ -17,12 +17,17 @@
 // come out deformed or unanswerable), and a build that passes here and fails
 // there pays for both chains.  That is the honest cost of the guard, and
 // `bench_guard_fallback` MEASURES it - 1.47x at 2 km and 1.34-1.58x at 20 km,
-// against a 1.8x ceiling.  It has to force level 1 open to do so, because the
-// deform bound below means no legitimate input reaches level 2's refusal
-// today; `no_case_pays_the_guard_fallback` asserts THAT over all 92 cases, and
-// it is what makes the fallback free rather than merely unmeasured.  Widening
-// level 1 past straight-and-flat is exactly the change that re-opens it, and
-// both rows are waiting for it.
+// against a 1.8x ceiling.
+//
+// ⚠️ AND SINCE PART B THAT COST IS REAL RATHER THAN HYPOTHETICAL, which is
+// the price of the widening below and is stated here rather than discovered.
+// The deform bound used to refuse every curved run at level 1, so no
+// legitimate input reached level 2's refusal at all and the double cook was
+// only ever forced open by a check.  A flat run that curves hard enough to
+// unpack a piece now passes level 1 and is refused by level 2, and it pays
+// for both chains: measured 1.45-1.58x on flat arcs at R = 5..50 m.
+// `guard_fallback_classes` is the check that pins WHICH shapes pay it, and
+// `bench_guard_fallback` the one that pins what it costs.
 //
 // WHAT LEVEL 1 REFUSES, and every one of them is a stage that is not ported:
 //   * anything `config` refused - a surface (4.5, N6), a fillet radius (4.3,
@@ -42,6 +47,10 @@
 //     the dict `pc_curve_index` already builds.
 //   * nothing to build.  With no primitive the reference warns "no spline on
 //     input 1" and returns empty; that warning is worth keeping.
+//   * a TURN sharp enough to unpack a piece, or ANY elevation change, or a
+//     kit whose deform bound could not be derived at all.  See the long note
+//     on the bound below - this is the row PART B widened, and the only one
+//     of the five that is a COST heuristic rather than a correctness test.
 
 #include "pc_gate.h"
 
@@ -62,32 +71,93 @@ int ndup = len(keys(dup));
 // with no corners in it), and no amount of "the output is identical" makes it
 // acceptable as a DEFAULT.
 //
-// So level 1 answers the deform question itself, EXACTLY and CONSERVATIVELY:
-// a curve with no KINK and no elevation change cannot produce a deformed
-// piece, whatever the module or the span.
-//   * `span_deviation`'s spine term is 0 - there is no interior vertex, so
-//     the chord IS the arc (D66/D69);
-//   * its off-spine term is 0 - every tangent on a straight curve is the
-//     chord's own direction, so the frame does not rotate and 2 r sin(0/2)
-//     is 0;
-//   * `vertical`'s shear test is 0 - the two ends sit at one elevation;
-//   * D99's band and 4.5's drape are already refused above, and `tile`'s
-//     slice with them.
-// It is a bound, not a guess: nothing here says a curved run WOULD deform,
-// only that a straight flat one cannot. Widening it to a curved run needs the
-// turn-per-module-length bound, which is the next cycle's, and until then an
-// arc takes the reference and says so on `_guard_bend`.
-int bendable = 0;
+// LEVEL 1 USED TO ANSWER THE DEFORM QUESTION WITH AN UPPER BOUND - "a curve
+// with no KINK and no elevation change cannot produce a deformed piece" -
+// which is exact, free, and refuses every arc in existence.
+//
+// PART B WIDENED IT, AND THE CHANGE IS A CHANGE OF CATEGORY.  Measured on the
+// shipped asset with `hou.perfMon`, that refusal cost 490 ms of Python on
+// 300 gently curved streets - the citygen shape - and 54 ms on a 2 km arc,
+// while LEVEL 2, which answers curvature EXACTLY and per piece through
+// `pc_deform_gate`, ADMITTED both: 17 400 planned / 17 400 built, and
+// 1 888 / 1 888.  Level 1's bend question was never load-bearing for
+// CORRECTNESS - level 2 holds the exact answer - it is a COST heuristic, and
+// the only thing it buys is not cooking the native chain for a build that is
+// going to be refused anyway.
+//
+// So what belongs here is a LOWER bound - will a piece CERTAINLY deform -
+// and both ways of being wrong are safe:
+//   * refuse where level 2 would have admitted -> the reference cooks, the
+//     output is right, one native opportunity is missed;
+//   * admit where level 2 refuses              -> the double cook, measured
+//     1.45-1.58x on flat arcs at R = 5..50 m, against `bench_guard_fallback`'s
+//     1.8x ceiling.
+// Neither can ship a wrong fence, which is the property the whole guard rests
+// on and the one both of last cycle's criticals broke.
+//
+// THE BOUND IS `place.span_deviation`'s OWN TWO TERMS, evaluated on the
+// SHARPEST kink anywhere in the build against the WIDEST module in the kit
+// (`hda._bend_bound` publishes the pair through CONFIG):
+//   * the SPINE term - a vertex sits (p*q/W)*sin(theta) off the chord of a
+//     span of length W = p + q, worst at p = q, hence 0.25*W*sin(theta);
+//   * the OFF-SPINE term (D87) - a point `radius` metres off the spine swings
+//     by the chord of the frame's own rotation, 2*r*sin(theta/2).
+// The kit's MAXIMA are the right operands and not merely conservative ones:
+// level 2 refuses the WHOLE build when ANY ONE piece unpacks, so "the widest
+// module at the sharpest kink deforms" IS "this build will be refused".
+//
+// ⚠️ ELEVATION STAYS AN OUTRIGHT REFUSAL, and that is measured too.  A
+// `vertical` piece deforms on any sheared span at 1e-6 m, and the rippled and
+// hilly shapes are the ones that pay the double cook worst: 300 hilly streets
+// plan 17 400 pieces and build 9 000, a 2 km ripple 1 892 / 947.  Those need
+// 13.9 N5's deformed branch, not a wider bound, so they are refused here
+// where the refusal is free.
+//
+// ⚠️ AND A BOUND THAT COULD NOT BE DERIVED IS A REFUSAL, NOT A ZERO.  An empty
+// kit yields span 0 and radius 0, and a bound of zero reads as "nothing can
+// deform" - the fail-OPEN answer that shipped 100 % wrong modules twice
+// (20.1's `hou.Vector2` cond value, 20.2's `attr:` on a multi-component prim
+// attribute).  `bend_bound_ok` is an explicit third value from `_bend_bound`
+// and its absence refuses the build outright.
+#define PC_HALF_PI  1.5707963267948966
+
+float bend_tol = 0.01;
+if (isvalidindex(cfg, "bend_tol")) { float v = cfg["bend_tol"]; bend_tol = v; }
+float bend_span = 0.0;
+if (isvalidindex(cfg, "bend_span_m")) { float v = cfg["bend_span_m"]; bend_span = v; }
+float bend_radius = 0.0;
+if (isvalidindex(cfg, "bend_radius_m")) { float v = cfg["bend_radius_m"]; bend_radius = v; }
+int bound_ok = 0;
+if (isvalidindex(cfg, "bend_bound_ok")) { float v = cfg["bend_bound_ok"]; bound_ok = (int)v; }
+
+int bendable = !bound_ok;               // no derived bound, no admission
+int elevated = 0;
+float worst_turn = 0.0;
 int np = nprimitives(0);
-for (int pr = 0; pr < np && !bendable; pr++) {
+for (int pr = 0; pr < np && !elevated; pr++) {
     int nseg = prim(0, "_nseg", pr);
     if (nseg <= 0) continue;
     float bb[] = primintrinsic(0, "bounds", pr);
-    if (len(bb) >= 4 && bb[3] - bb[2] > 1e-6) { bendable = 1; break; }
+    if (len(bb) >= 4 && bb[3] - bb[2] > 1e-6) { elevated = 1; break; }
     int closed = prim(0, "pc_closed", pr);
-    for (int j = 0; j < nseg; j++)
-        if (pc_is_kink(0, pr, nseg, closed, j)) { bendable = 1; break; }
+    // ⚠️ THE WHOLE CURVE IS WALKED NOW, where the old test broke at the first
+    // kink.  A STRAIGHT curve already walked all of it - it finds none - so
+    // the cost this adds falls only on the curved builds the widening exists
+    // to admit, and `pc_envelope`'s row in `WRANGLE_CEILING_US` is what holds
+    // it there.
+    for (int j = 0; j < nseg; j++) {
+        if (!pc_is_kink(0, pr, nseg, closed, j)) continue;
+        vector da = pc_unit(pc_seg_dir(0, pr, j));
+        vector db = pc_unit(pc_seg_dir(0, pr, (j + 1) % nseg));
+        worst_turn = max(worst_turn, acos(clamp(dot(da, db), -1.0, 1.0)));
+    }
 }
+// `min(turn, pi/2)` inside the SPINE sine because sin() turns over there and
+// a bound may not shrink as its input gets worse.  The off-spine half takes
+// theta/2, which is monotone across the whole range, so it needs no clamp.
+float dev_bound = 0.25 * bend_span * sin(min(worst_turn, PC_HALF_PI))
+                  + 2.0 * bend_radius * sin(0.5 * worst_turn);
+if (elevated || dev_bound > bend_tol) bendable = 1;
 
 // ⚠️ AND A MARKER KEEPS THE REFERENCE, WHICH IS ABOUT A WARNING AND NOT
 // ABOUT GEOMETRY.  4.2's marker anchors are at parity - `plan_solve_parity`
@@ -114,3 +184,10 @@ i@_guard_corners = corners;
 i@_guard_dup = ndup;
 i@_guard_cfg = ok;
 i@_guard_bend = bendable;
+// The numbers the verdict was reached on, so a reader can see WHY a curved
+// build went one way rather than being handed a boolean.  `_*` - internal;
+// this is a side branch and nothing downstream reads its geometry.
+f@_guard_turn      = worst_turn;
+f@_guard_dev_bound = dev_bound;
+i@_guard_elevated  = elevated;
+i@_guard_bound_ok  = bound_ok;

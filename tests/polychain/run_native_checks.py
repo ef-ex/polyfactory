@@ -1218,6 +1218,17 @@ def stage_wiring_mutation(root):
 
 # --- 6: cook count and the two benches --------------------------------------
 
+# D211 - the floor under both `decompose_*_wall_clock` rows.  20 ms is
+# `GUARD_COST_FLOOR_S`, and it is the same number for the same reason: below
+# it a ratio is measuring the scheduler.
+BENCH_FLOOR_S = 0.02
+# ...and the curve count that clears it on this shape.  3-point streets cost
+# ~5 us each on the reference's best side, so 300 of them were 1.5 ms; 6 000
+# measure 30-35 ms and the row reads 0.9-1.1x with a spread of a few percent
+# instead of a few tens of percent.
+BENCH_STREETS = 6000
+
+
 def benches(root, node):
     """ONE LONG CURVE and THREE HUNDRED SHORT ONES.
 
@@ -1233,15 +1244,29 @@ def benches(root, node):
     long_curve = hou.Geometry()
     cases.polyline(long_curve, cases.arc_points(20000.0, 1.0, 20000.0),
                    curve_id="LONG")
+    # ⚠️ THE CURVE COUNT IS `BENCH_STREETS` AND IT USED TO BE 300, WHICH IS
+    # D211 APPLIED TO A ROW D209 MISSED.  D209 fixed the ESTIMATOR on both
+    # `decompose_*_wall_clock` rows - they are interleaved now - and gave
+    # `output_guard_cost` a 20 ms floor, but this row was left resting on a
+    # **1.3-2.6 ms** fixture.  Observed on an UNMUTATED build across four
+    # consecutive runs: 0.53x, 0.92x, 0.94x, 1.12x against a ceiling that
+    # needs > 0.667x, and the 0.53x run went RED.  That is D209's defect
+    # exactly - the estimator was cured and the SIZE was not - and D211 is
+    # the rule it broke: a timing check declares the size it rests on and
+    # fails below it.  The count is raised rather than the points per curve,
+    # because the whole point of this fixture is 11.9 rule 2's PER-CURVE
+    # fixed cost: 3-point streets are what multiply it, and lengthening them
+    # would measure something else.
     streets = hou.Geometry()
-    for i in range(300):
+    for i in range(BENCH_STREETS):
         x = (i % 20) * 30.0
         z = (i // 20) * 25.0
         cases.polyline(streets, [(x, 0.0, z), (x + 18.0, 0.0, z),
                                  (x + 18.0, 0.0, z + 14.0)],
-                       curve_id="S%03d" % i)
+                       curve_id="S%04d" % i)
 
-    for label, geo in (("long_curve", long_curve), ("streets_300", streets)):
+    for label, geo in (("long_curve", long_curve),
+                       ("streets_%d" % BENCH_STREETS, streets)):
         sub = root.createNode("subnet", "bench_" + label)
         src = native.feed(sub, geo, "IN")
         # ⚠️ `cook(force=True)` IS NOT A MEASUREMENT. 13.2's OpenCL probe was
@@ -1334,15 +1359,28 @@ def benches(root, node):
         # R7 is confirmed rather than refuted, so this check exists to catch
         # a REGRESSION cliff and to keep the ratio printed on every run - not
         # to certify a win nobody has measured.
-        check("decompose_%s_wall_clock" % label, best < ref_best * 1.5,
+        # ⚠️ AND THE FIXTURE HAS TO BE BIG ENOUGH TO CARRY THE RATIO (D211).
+        # This FAILS rather than skipping, for the reason `output_guard_cost`
+        # gives: a fixture that shrinks below the floor turns a tight ceiling
+        # into a coin toss SILENTLY, and a coin toss teaches a reader to stop
+        # believing the suite.  The absolute time is in the value on every
+        # run so the next reader can see the size the ratio rests on.
+        floor = ref_best >= BENCH_FLOOR_S
+        check("decompose_%s_wall_clock" % label,
+              floor and best < ref_best * 1.5,
               "%.4f s (%.2f-%.2fx)" % (best, ref_best / best if best else 0.0,
                                        ref_full / best if best else 0.0),
               "%d curves / %d points through %d native nodes. The RANGE is "
               "the reference without its geometry read (%.4f s) and with it "
               "(%.4f s); the ceiling is 1.5x the lower bound, and no speedup "
-              "is claimed on the lower bound"
+              "is claimed on the lower bound.%s"
               % (len(out.prims()), len(out.points()), len(nodes),
-                 ref_best, ref_full))
+                 ref_best, ref_full,
+                 "" if floor else
+                 " THE FIXTURE IS TOO SMALL: the reference side cooks in "
+                 "%.4f s, under the %.0f ms floor - a 1.5x ceiling on it is "
+                 "noise, not a measurement (D211)."
+                 % (ref_best, BENCH_FLOOR_S * 1e3)))
         sub.destroy()
 
     # ⚠️ THE CHECK THIS REPLACED WAS THE FINDING. It read `sop_cooks_per_build`
@@ -4719,6 +4757,41 @@ GUARD_CORNER_PTS = ([(1.0 * i, 0.0, 0.0) for i in range(1001)]
 GUARD_COST_FLOOR_S = 0.02
 
 
+def guard_arc_pts(radius, step, length):
+    """A FLAT arc - the shape PART B's widened level-1 bound is about."""
+    n = int(length / step) + 1
+    return [(radius * math.sin(i * step / radius), 0.0,
+             radius * (1.0 - math.cos(i * step / radius))) for i in range(n)]
+
+
+def guard_curved_streets(count=300, seglen=4.0, nseg=15, radius=400.0):
+    """THE CITYGEN SHAPE - many SHORT, GENTLY CURVED streets, laid out apart.
+
+    ⚠️ THIS IS THE FIXTURE PART B WAS ORDERED BY, and it is not the same shape
+    as `streets_300` two sections up.  That one bends 90 degrees at its middle
+    vertex, so it is refused for a CORNER whatever the deform bound says; this
+    one only curves, which is what an actual street network looks like and
+    what 11.9 rule 2's "many short curves" lesson is really about.  Measured
+    on the shipped asset with `hou.perfMon` before the widening: **490 ms of
+    Python**, the second largest refused class in the whole mix.
+    """
+    geo = hou.Geometry()
+    for i in range(count):
+        x0, z0 = (i % 20) * 80.0, (i // 20) * 70.0
+        r = radius * (1.0 + 0.3 * ((i % 7) - 3) / 3.0)
+        cases.polyline(geo, [(x0 + r * math.sin(j * seglen / r), 0.0,
+                              z0 + r * (1.0 - math.cos(j * seglen / r)))
+                             for j in range(nseg + 1)],
+                       curve_id="C%03d" % i)
+    return geo
+
+
+def guard_polyline_geo(pts):
+    geo = hou.Geometry()
+    cases.polyline(geo, pts, curve_id="GC")
+    return geo
+
+
 def output_guard_cost(root):
     """What the guard COSTS, on the shapes it admits and on the ones it does
     not - because a fork whose output is identical can still be a regression.
@@ -4731,6 +4804,16 @@ def output_guard_cost(root):
     3.971 s, a 1.6x regression on a shape an artist really builds.  Level 1
     answers the deform question itself now (`pc_envelope.vfl`), and this is
     what holds that line.
+
+    ⚠️ PART B NARROWED WHAT "ANSWERS IT" MEANS, so this check now has rows on
+    BOTH sides of the widened bound.  Level 1 used to refuse every curved run
+    outright; it now refuses only the ones where a piece will CERTAINLY
+    unpack, and it is a LOWER bound rather than an upper one.  The rippled row
+    below is still refused (elevation is an outright refusal), the tight arc
+    is refused by the bound, and the gentle arc and the 300 curved streets are
+    ADMITTED - which is where the 54 ms and 490 ms of Python went.
+    `guard_bend_bound` is the row that pins the bound itself; this one is the
+    end-to-end cost, and neither replaces the other.
 
     Two ceilings, and they measure different things:
       * REFUSED - the build takes the reference exactly as it did before, so
@@ -4746,18 +4829,52 @@ def output_guard_cost(root):
         end-to-end one, and neither replaces the other.
     """
     shapes = (
-        ("straight_2km", [(1.0 * i, 0.0, 0.0) for i in range(2001)],
-         True, 1.6),
-        ("arc_2km", cases.arc_points(2000.0, 1.0, 2000.0), False, 1.15),
-        ("bumpy_2km", [(1.0 * i, 0.6 * math.sin(i * 0.35), 0.0)
-                       for i in range(2001)], False, 1.15),
-        ("corner", GUARD_CORNER_PTS, False, 1.15),
+        ("straight_2km",
+         lambda: guard_polyline_geo([(1.0 * i, 0.0, 0.0)
+                                     for i in range(2001)]), True, True, 1.6),
+        # ⚠️ PART B MOVED THIS ROW FROM `refused` TO `admitted`, AND THAT IS
+        # THE FLIP THIS CYCLE SHIPS.  A 2 km R = 2 000 arc used to be refused
+        # by level 1's straight-and-flat bound and cost 54 ms of Python; the
+        # widened bound reads 0.00058 m against a 0.01 m tolerance, level 2
+        # confirms 1 888 planned / 1 888 built, and it takes the native chain.
+        ("arc_2km",
+         lambda: guard_polyline_geo(cases.arc_points(2000.0, 1.0, 2000.0)),
+         True, True, 1.6),
+        # THE CITYGEN SHAPE, and the reason PART B ordered the way it did.
+        ("curved_streets_300", guard_curved_streets, True, True, 1.6),
+        # ...and the other side of the same bound: an arc tight enough that a
+        # panel really does unpack is refused at LEVEL 1, so it never cooks
+        # the native chain and pays only the probe.  Without this row the
+        # widening would be asserted in one direction only.
+        ("arc_R50_2km",
+         lambda: guard_polyline_geo(guard_arc_pts(50.0, 1.0, 2000.0)),
+         False, False, 1.15),
+        ("bumpy_2km",
+         lambda: guard_polyline_geo([(1.0 * i, 0.6 * math.sin(i * 0.35), 0.0)
+                                     for i in range(2001)]),
+         False, False, 1.15),
+        # ⚠️ A UNIFORM RAMP, AND IT IS NOT A DUPLICATE OF THE ROW ABOVE.  The
+        # ripple is refused twice over - it is elevated AND it kinks hard
+        # enough for the bend bound alone to refuse it - so it cannot tell
+        # which of the two refusals is doing the work.  A dead-straight slope
+        # has ZERO turn, so the bound reads 0.0 m and ONLY the elevation test
+        # refuses it; drop that test and this row passes level 1, cooks the
+        # whole native chain, and is thrown out by level 2 for the sheared
+        # span a `vertical` piece deforms on.  Measured: that mutation puts
+        # `CI_swap_zmode`, `F_hill_vertical`, `G_hill_stepped` and
+        # `L_ramp_vertical` on the double cook, and without this row
+        # `no_case_pays_the_guard_fallback` was the ONLY check that saw it.
+        ("ramp_2km",
+         lambda: guard_polyline_geo([(1.0 * i, 0.04 * i, 0.0)
+                                     for i in range(2001)]),
+         False, False, 1.15),
+        ("corner", lambda: guard_polyline_geo(GUARD_CORNER_PTS),
+         False, False, 1.15),
     )
     rows = []
     bad = []
-    for label, pts, want_native, ceiling in shapes:
-        geo = hou.Geometry()
-        cases.polyline(geo, pts, curve_id="GC")
+    for label, make_geo, want_level1, want_native, ceiling in shapes:
+        geo = make_geo()
         node = root.createNode("pf_polychain", "cost_" + label)
         node.setInput(0, native.feed(root, geo, "GC_" + label))
         node.allowEditingOfContents()
@@ -4793,6 +4910,21 @@ def output_guard_cost(root):
         if bool(went_native) != want_native:
             bad.append("%s: %s the native chain" % (
                 label, "took" if went_native else "did not take"))
+        # ⚠️ AND THE LEVEL-1 VERDICT SEPARATELY, WHICH IS NOT THE SAME
+        # ASSERTION.  A row expected to be REFUSED is refused for a reason,
+        # and "did not take the native chain" is satisfied just as well by
+        # passing level 1 and being thrown out by level 2 - which cooks BOTH
+        # chains.  Dropping the elevation refusal from `pc_envelope.vfl` does
+        # exactly that to `bumpy_2km`, and with only the outcome asserted this
+        # row stayed green through it: the 1.15x ceiling did not catch it
+        # either, because the double cook on that shape happens to land under
+        # it.  The refusal an artist pays for has to be the refusal the check
+        # names, so both are asserted.
+        if bool(level1) != want_level1:
+            bad.append("%s: level 1 %s, wanted %s - a build refused at level "
+                       "2 instead cooks the native chain first"
+                       % (label, "admitted" if level1 else "refused",
+                          "admit" if want_level1 else "refuse"))
         # D209 - AND THE FIXTURE HAS TO BE BIG ENOUGH TO CARRY THE RATIO.
         # This FAILS rather than skipping: a fixture that shrinks below the
         # floor turns a tight ceiling into a coin toss, and the whole finding
@@ -4819,6 +4951,271 @@ def output_guard_cost(root):
           "ADMITS no more than 1.6x (the solve), and every fixture must cook "
           "in at least %.0f ms. %s"
           % (GUARD_COST_FLOOR_S * 1e3, "; ".join(bad) or "both ceilings hold"))
+
+
+# PART B - THE LADDER LEVEL 1's WIDENED DEFORM BOUND IS JUDGED ON.
+#
+# (label, radius m, vertex spacing m, run length m, what level 1 must say,
+#  what level 2 must say once level 1 has admitted).  `None` for the level-2
+# column means level 1 refused and level 2 was never asked.
+#
+# ⚠️ THE THIRD AND FOURTH ROWS ARE THE POINT OF THE WHOLE TABLE.  Level 1's
+# bound reads ONE kink - the sharpest anywhere in the build - so a FINELY
+# RESAMPLED arc puts several kinks inside one module span and the bound
+# UNDER-READS: R = 20 m at 0.05 m spacing bounds the deviation at 0.00142 m
+# and level 2 then finds 284 pieces planned against 143 built.  That is the
+# bound being wrong in the direction it is allowed to be wrong in, and
+# `guard_bend_bound` asserts the OUTPUT IS STILL IDENTICAL there, which is the
+# only property that actually matters.  A ladder without those rows would
+# assert that the bound is never wrong, which is false, instead of asserting
+# that being wrong is safe, which is the design.
+GUARD_BEND_LADDER = (
+    ("arc_R2000_step1",   2000.0, 1.0,  2000.0, True,  True),
+    ("arc_R200_step2",     200.0, 2.0,  2000.0, True,  True),
+    ("arc_R100_step2",     100.0, 2.0,  2000.0, False, None),
+    ("arc_R20_step0.05",    20.0, 0.05,  300.0, True,  False),
+    ("arc_R50_step0.1",     50.0, 0.1,   600.0, True,  False),
+    ("arc_R20_step0.5",     20.0, 0.5,   300.0, False, None),
+)
+# What a level-1 pass / level-2 refusal is allowed to cost on that ladder.
+# Measured 1.21x and 1.27x on the two rows that reach it; the ceiling is
+# `bench_guard_fallback`'s, because it is the same double cook.
+GUARD_BEND_FALLBACK_CEILING = 1.8
+
+
+def guard_bend_bound(root):
+    """PART B - level 1's deform bound, judged against level 2's exact answer.
+
+    THE BOUND CHANGED CATEGORY THIS CYCLE AND THIS CHECK IS WHY IT IS SAFE TO.
+    Level 1 used to hold an UPPER bound on `span_deviation` - "no kink and no
+    elevation change" - which is exact, free, and refuses every arc in
+    existence.  Measured on the shipped asset with `hou.perfMon`, that refusal
+    was 490 ms of Python on 300 gently curved streets and 54 ms on a 2 km arc,
+    while level 2 - which asks `pc_deform_gate` the exact question, per piece -
+    admitted both.
+
+    So level 1 now holds a LOWER bound: will a piece CERTAINLY unpack.  Both
+    ways of being wrong are safe, and both are asserted here rather than
+    argued:
+
+      * REFUSE where level 2 would have admitted -> the reference cooks, the
+        output is right, one native opportunity is missed.  Row `arc_R100`.
+      * ADMIT where level 2 refuses -> the DOUBLE COOK, and the output must
+        still be identical.  Rows `arc_R20_step0.05` and `arc_R50_step0.1`,
+        which are exactly the case the bound gets wrong (many kinks inside one
+        span, one kink read).
+
+    ⚠️ AND THE LAST ASSERTION IS THE ONE THAT WOULD CATCH A REAL REGRESSION.
+    `no_case_pays_the_guard_fallback` says no case in the 92 reaches the
+    double cook; that is a statement about the CASES, not about the guard, and
+    it would stay green if the fallback path were broken.  These two rows
+    reach it deliberately and compare `Stage = output` against
+    `Stage = reference` element for element on the way through.
+    """
+    rows, bad = [], []
+    for label, radius, step, length, want1, want2 in GUARD_BEND_LADDER:
+        geo = guard_polyline_geo(guard_arc_pts(radius, step, length))
+        node = root.createNode("pf_polychain", "bend_" + label)
+        node.setInput(0, native.feed(root, geo, "BB_" + label))
+        node.allowEditingOfContents()
+        node.parm("stage").set("output")
+        node.cook(force=True)
+        env = node.node("pc_envelope").geometry()
+        level1 = int(env.attribValue("_native_ok"))
+        bound = float(env.attribValue("_guard_dev_bound"))
+        level2 = None
+        if level1:
+            level2 = bool(int(node.node("pc_envelope2").geometry()
+                              .attribValue("_native_ok2")))
+        if bool(level1) != want1:
+            bad.append("%s: level 1 %s, wanted %s"
+                       % (label, bool(level1), want1))
+        if level1 and level2 != want2:
+            bad.append("%s: level 2 %s, wanted %s" % (label, level2, want2))
+
+        # THE OUTPUT, on every row and not only on the admitted ones.
+        got = _snapshot(node.geometry())
+        node.parm("stage").set("reference")
+        node.cook(force=True)
+        diff = _first_difference(_snapshot(node.geometry()), got)
+        if diff:
+            bad.append("%s: %s" % (label, diff))
+        rows.append((label, bool(level1), level2, bound))
+        node.destroy()
+
+    admitted = [r for r in rows if r[2] is True]
+    refused1 = [r for r in rows if not r[1]]
+    fellback = [r for r in rows if r[2] is False]
+    # A bound that admits everything, or refuses everything, is not a bound.
+    if not admitted:
+        bad.append("no row on this ladder reaches the native chain")
+    if not refused1:
+        bad.append("level 1 refuses nothing on this ladder")
+    if not fellback:
+        bad.append("no row exercises the level-1 pass / level-2 refusal path, "
+                   "so nothing here proves it is safe")
+    check("guard_bend_bound", not bad,
+          "%d native / %d refused at L1 / %d fell back to L2"
+          % (len(admitted), len(refused1), len(fellback)),
+          "PART B - level 1's LOWER bound on `span_deviation` against level "
+          "2's exact per-piece answer, over %d arcs, with `Stage = output` "
+          "compared to `Stage = reference` on every one. The bound reads ONE "
+          "kink, so a finely resampled arc under-reads it and level 2 has to "
+          "catch that - which it must do without changing the output. %s"
+          % (len(GUARD_BEND_LADDER),
+             "; ".join(bad) or "; ".join("%s %.5f m %s" % (
+                 r[0], r[3], "native" if r[2] else
+                 ("L2 refused" if r[1] else "L1 refused")) for r in rows)))
+    return rows
+
+
+def guard_bend_bound_skips_rigid_modules(root):
+    """PART B - D27 in `hda._bend_bound`, on a kit that can tell the difference.
+
+    ⚠️ THIS CHECK EXISTS BECAUSE A MUTATION SURVIVED.  Deleting the
+    `deform <= 0: continue` line from `_bend_bound` - so that a RIGID module
+    sets the deform bound for the whole build - left the suite at 0 `[FAIL]`.
+    The reason is that the starter kit's rigid modules are all `stepped`, so
+    D87's yaw-only rule had already cut them down to their z half (0.06 and
+    0.08 m) and they were not the widest thing in the kit any more.  Two
+    correct rules, and only one of them was load-bearing on the fixtures.
+
+    So this is the kit that separates them: `corner_post` - RIGID, and the
+    widest module in the starter kit at ry = 1.3 m - re-tagged `adaptive`, so
+    that D87 no longer shrinks it and only D27 can exclude it.  On a 2 km
+    R = 200 m arc the bound then reads 0.0054 m with D27 and 0.018 m without,
+    against a 0.01 m tolerance - and level 2's exact answer is ADMIT, 1 888
+    planned and 1 888 built.  Without D27 the build takes the reference and
+    the 54 ms of Python PART B removed comes straight back.
+
+    D27 is `_needs_deform`'s own first test - `proto.module.deform <= 0`
+    returns False before anything is measured - so a rigid module genuinely
+    cannot unpack however sharp the turn is.  This asserts that the bound
+    agrees with the gate about that rather than merely being safe.
+    """
+    from polyfactory.polychain import kit as K
+
+    kit_geo = hou.Geometry()
+    kit_geo.merge(K.starter_kit())
+    # ⚠️ the tag lives on the packed prim's FIRST POINT, which is where
+    # `kit.read` looks for it (`_sattr(pt, "pc_zmode", ...)`).
+    if kit_geo.findPointAttrib("pc_zmode") is None:
+        kit_geo.addAttrib(hou.attribType.Point, "pc_zmode", "adaptive")
+    retagged = 0
+    for prim in kit_geo.prims():
+        pt = prim.points()[0]
+        if pt.attribValue("pc_name") == "corner_post":
+            pt.setAttribValue("pc_zmode", "adaptive")
+            retagged += 1
+
+    geo = guard_polyline_geo(guard_arc_pts(200.0, 2.0, 2000.0))
+    node = root.createNode("pf_polychain", "bend_rigid")
+    node.setInput(0, native.feed(root, geo, "BR_SPLINE"))
+    node.setInput(1, native.feed(root, kit_geo, "BR_KIT"))
+    node.allowEditingOfContents()
+    node.parm("stage").set("output")
+    node.cook(force=True)
+    env = node.node("pc_envelope").geometry()
+    level1 = int(env.attribValue("_native_ok"))
+    bound = float(env.attribValue("_guard_dev_bound"))
+    took = node.node("copy_packed").cookCount() > 0
+    got = _snapshot(node.geometry())
+    node.parm("stage").set("reference")
+    node.cook(force=True)
+    diff = _first_difference(_snapshot(node.geometry()), got)
+    node.destroy()
+
+    ok = retagged == 1 and level1 == 1 and took and not diff
+    check("guard_bend_bound_skips_rigid_modules", ok,
+          "bound %.5f m, %s" % (bound, "native" if took else "reference"),
+          "a kit whose WIDEST module is RIGID and `adaptive` - so D87's "
+          "yaw-only rule cannot shrink it and only D27 can exclude it - must "
+          "still admit a 2 km R = 200 m arc that level 2 confirms is fully "
+          "packed. Without D27 the bound reads 0.018 m against 0.01 and the "
+          "build takes the reference. retagged=%d level1=%d took_native=%s%s"
+          % (retagged, level1, took, "; " + diff if diff else ""))
+
+
+def guard_bend_bound_needs_its_operands(root):
+    """PART B - a bound that could not be DERIVED must refuse, not read zero.
+
+    `hda._bend_bound` returns (span, radius, KNOWN) and level 1 refuses the
+    build outright when the third value is 0.  Without that flag an empty or
+    unreadable kit publishes span 0 / radius 0, the bound evaluates to 0.0 m,
+    and 0.0 is under every tolerance there is - so the guard would ADMIT every
+    curve in existence on exactly the input it understands least.
+
+    ⚠️ THAT IS NOT A HYPOTHETICAL FAILURE MODE, IT IS THE ONE THIS PROJECT HAS
+    SHIPPED TWICE.  20.1's `hou.Vector2` cond value and 20.2's `attr:` on a
+    multi-component prim attribute were both a VEX expression quietly
+    evaluating False on an input nobody had modelled, and each shipped 100 %
+    wrong modules on the DEFAULT path.  The mutation below is the same shape:
+    it removes the flag's refusal and asserts a straight run - which the guard
+    would otherwise admit - is refused instead.
+    """
+    geo = guard_polyline_geo(guard_arc_pts(2000.0, 1.0, 2000.0))
+    node = root.createNode("pf_polychain", "bend_operands")
+    node.setInput(0, native.feed(root, geo, "BO"))
+    node.allowEditingOfContents()
+    node.parm("stage").set("output")
+    node.cook(force=True)
+    env = node.node("pc_envelope")
+    before = int(env.geometry().attribValue("_native_ok"))
+
+    # the mutation: the flag says the pair was never derived
+    src = env.parm("snippet").eval()
+    env.parm("snippet").set(src + "\nif (1) { i@_native_ok = 0; }\n")
+    node.cook(force=True)
+    forced = int(env.geometry().attribValue("_native_ok"))
+    env.parm("snippet").set(src)
+
+    # ...and the real one: `bound_ok` cleared where the VEX reads it
+    env.parm("snippet").set(
+        src.replace('int bendable = !bound_ok;',
+                    'bound_ok = 0;\nint bendable = !bound_ok;'))
+    node.cook(force=True)
+    after = int(env.geometry().attribValue("_native_ok"))
+    ok_flag = int(env.geometry().attribValue("_guard_bound_ok"))
+    env.parm("snippet").set(src)
+    node.destroy()
+
+    # ⚠️ AND THE OTHER HALF, WHICH A NODE CANNOT REACH (D212).  Everything
+    # above proves the VEX honours the flag; nothing above proves `_bend_bound`
+    # ever RAISES it.  A mutation that made the unreadable-kit path return
+    # `derived` instead of `refuse` survived the whole suite, because no
+    # fixture can put an unreadable kit in front of the asset - a kit broken
+    # enough to fail this way fails `kit.validate` first and `_native_ok`
+    # refuses it for the warnings instead.  So the PURE VERDICT is called
+    # directly, which is D212's own remedy: where a physical mutation cannot
+    # be staged, mutate the function's answer and assert it.
+    from polyfactory.polychain import kit as K
+
+    class _UnreadableSources(dict):
+        """`source_for` cannot get at the module's geometry at all."""
+
+        def get(self, *args, **kwargs):
+            raise RuntimeError("kit source unreadable")
+
+    bad_kit = K.Kit("broken", 1, [K.Module("m", (1.0, 1.0, 0.1), deform=1)])
+    verdict = H._bend_bound(bad_kit, _UnreadableSources(), DEFAULTS)
+    # ...and the same call on a kit that IS readable, so the row above is not
+    # satisfied by a function that refuses everything.
+    good = K.read(K.starter_kit())
+    sound = H._bend_bound(good[0], good[1], DEFAULTS)
+
+    ok = (before == 1 and forced == 0 and after == 0 and ok_flag == 0
+          and verdict == (0.0, 0.0, 0.0) and sound[2] == 1.0
+          and sound[0] > 0.0)
+    check("guard_bend_bound_needs_its_operands", ok,
+          "admits %d, refuses %d without the flag" % (before, after),
+          "a 2 km arc the widened bound ADMITS must be REFUSED the moment "
+          "`bend_bound_ok` says the kit's span and radius were never derived "
+          "- a bound of 0.0 m is under every tolerance there is, so an "
+          "underivable kit must fail SAFE rather than read as `nothing can "
+          "deform`. before=%d forced=%d cleared=%d flag=%d; "
+          "`_bend_bound` on an unreadable kit -> %r (must be (0.0, 0.0, 0.0)) "
+          "and on the starter kit -> %r (must be derived, with a span)"
+          % (before, forced, after, ok_flag, verdict, sound))
 
 
 # The double cook a level-1 pass / level-2 refusal costs, measured on the
@@ -5646,6 +6043,9 @@ def main():
     payload_cond_parity(root)
     output_guard_mutation(root, built)
     output_guard_cost(root)
+    guard_bend_bound(root)
+    guard_bend_bound_skips_rigid_modules(root)
+    guard_bend_bound_needs_its_operands(root)
     bench_guard_fallback(root)
 
     print("\n=== 6. cook count and the two benches ===")
