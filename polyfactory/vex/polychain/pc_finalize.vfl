@@ -1,0 +1,55 @@
+// STAGE 6 - FINALIZE (spec 4.6), 3.4's STAMP ON THE BUILT PRIM.
+//   PRIMITIVE wrangle, precision 64.
+//   input 0  the packed pieces out of `copy_packed`
+//   input 1  CONFIG
+//
+// ⚠️ THIS NODE EXISTS BECAUSE NOTHING HAD EVER COMPARED THE STAMP.
+// `place_packed_parity` measures `P` and the packed prim's world bounds, and
+// it measures them at 0.0 m over 471 prims - so the branch was believed to
+// reproduce the reference.  What it reproduced was the GEOMETRY.  Of 3.4's
+// fourteen prim attributes the branch published nine, four were simply
+// ABSENT (`pc_generated`, `pc_deformed`, `pc_corner_cut`, `pc_replaced`) and
+// one was WRONG on every prim of a sectioned run (`pc_section`, the artist's
+// section KEY as a float where `_stamp_values` writes the section INDEX as an
+// int).  `place_stamp_parity` is the check; this is the fix.
+//
+// The four constants are not placeholders, they are what THIS BRANCH BUILT,
+// and each one is only sound because of a property the graph enforces above:
+//
+//   pc_generated = 1   every prim here was made by polyChain (3.4).
+//   pc_deformed  = 0   `copy_packed` is the PACKED branch. 13.9 N5's deform
+//                      gate does not exist yet, so a piece the curvature
+//                      budget WOULD unpack is not built here at all - it has
+//                      no counterpart in the reference's packed set either,
+//                      which is why the parity matches on `pc_elem_id` and
+//                      skips what it cannot pair.
+//   pc_corner_cut = 0  4.3 is not ported (N8) and the native plan therefore
+//                      emits no piece carrying a cut. A case WITH corners is
+//                      out of scope by name in `_place_out_of_scope`, not
+//                      silently stamped 0 and compared.
+//   pc_replaced  = 0   4.6's hero replacement is N7's other half; a case with
+//                      overrides is out of scope by name for the same reason.
+//
+// When N5 and N8 land, the first two stop being constants and read the gate
+// and the cut flag; the check that pairs them with the reference is already
+// written, which is the point of landing it now.
+
+i@pc_section    = i@_sec_out;
+i@pc_generated  = 1;
+i@pc_deformed   = 0;
+i@pc_corner_cut = 0;
+i@pc_replaced   = 0;
+
+// ⚠️ AND `pc_style` IS THE STYLE'S ID, NOT THE CURVE'S STYLE KEY.  The two
+// are different strings and the branch published the wrong one: 3.1's
+// per-curve `pc_style` picks WHICH style out of a multi-style payload, while
+// 3.4's `pc_style` is the id of the style that produced the element
+// (`Placement.style_id`).  Carrying the plan point's `_style_key` through
+// `copytopoints` read EMPTY on every case with a named style - 24 of them -
+// against the reference's own id.  `pc_cfg["style_id"]` is the same string
+// `pc_stamp` already hashes into `pc_elem_id`, so it is the one that is
+// asserted bit-exact on 92 cases.
+dict cfg = detail(1, "pc_cfg");
+string style_id = "";
+if (isvalidindex(cfg, "style_id")) { string v = cfg["style_id"]; style_id = v; }
+s@pc_style = style_id;

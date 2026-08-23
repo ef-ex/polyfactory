@@ -80,7 +80,14 @@ if (isvalidindex(cfg, "flatten_stepped")) { float v = cfg["flatten_stepped"]; fl
 int unported = (has_surface || fillet > 0.0 || fix_slope != 0.0
                 || flatten != 0.0);
 i@pc_frame_valid = (found && !unported);
-if (!found) i@pc_warn_kit_gap = 1;
+// ⚠ `setpointattrib` AND NOT `i@`, AND THE DIFFERENCE IS THE OUTPUT'S
+// SCHEMA.  A bound write creates the attribute whether or not the branch
+// runs, so every build published `pc_warn_kit_gap` on every element - where
+// the reference DECLARES a warning attribute only when the build actually
+// raised it (`place._declare`).  Measured by `place_stamp_parity` on six
+// cases with a perfectly good kit: the attribute was there, reading 0, and
+// the reference's output had no such attribute at all.
+if (!found) setpointattrib(0, "pc_warn_kit_gap", @ptnum, 1);
 
 // ⚠️ AN EMPTY STAGE HAS TO SAY WHY IT IS EMPTY.  `pc_place_valid` blasts
 // every piece this node could not answer for, so with a surface, a fillet, a
@@ -93,7 +100,11 @@ if (!found) i@pc_warn_kit_gap = 1;
 // staring at an empty viewport can read it; the attribute stays for the
 // checks.  ONE point raises it because `unported` is a per-build answer.
 if (unported) {
-    i@pc_warn_stage_unported = 1;
+    // INTERNAL, and named for it (conventions.md 2). It is this BRANCH
+    // saying it cannot answer, not one of 3.4's per-element warnings, and
+    // published as `pc_warn_*` it rode onto every output prim where the
+    // reference has no such attribute. `_scrub` removes it before OUT.
+    i@_warn_stage_unported = 1;
     if (@ptnum == 0)
         warning("polyChain: the native PLACE branch cannot answer this build - a surface, a fillet radius, a slope fix or a stepped flatten needs spec 4.5, which is not ported yet (13.9 N5/N6). Set Stage = Output for the full result.");
 }

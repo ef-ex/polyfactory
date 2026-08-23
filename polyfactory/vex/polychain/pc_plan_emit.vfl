@@ -90,6 +90,19 @@ for (int sp = 0; sp < nsec; sp++) {
         setpointattrib(0, "pc_curveprim", pt, curveprim);
         if (sec_kind == 2) setpointattrib(0, "pc_section", pt, sec_key_s);
         else               setpointattrib(0, "pc_section", pt, sec_key);
+        // ⚠ AND 3.4's OWN `pc_section` IS A DIFFERENT NUMBER FROM THE ONE
+        // ABOVE.  The reference calls the attribute `pc_section` twice with
+        // two meanings: on a PLAN POINT it is the artist's section KEY
+        // (`Placement.as_dict`), and on the built PRIM it is the section
+        // INDEX as an int (`_stamp_values`).  This branch published the KEY,
+        // as a float, on every prim - measured on a 30 m run sectioned 5/7/9,
+        // all 36 prims read 5.0 / 7.0 / 9.0 where the reference reads 0/1/2 -
+        // and nothing saw it, because `place_packed_parity` compared `P` and
+        // the world bounds and no check compared the stamp at all.
+        // `_sec_out` is what `copy_packed` carries and `pc_finalize` turns
+        // into the output attribute; the `_` prefix is conventions.md 2, so
+        // `_scrub` removes it before OUT with no edit there.
+        setpointattrib(0, "_sec_out", pt, sec_ix);
         setpointattrib(0, "pc_style",     pt, style_key);
         setpointattrib(0, "pc_yclass",    pt, yclass);
 

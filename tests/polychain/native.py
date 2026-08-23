@@ -159,8 +159,17 @@ def stage_plan(parent, sections, config, suffix=""):
 # pc_u pc_variant pc_warn_degenerate_frame pc_zmode, and 3.4's contract names
 # none of the three either. A native branch that publishes MORE than the
 # reference is a contract nobody wrote.
-COPY_ATTRIBS = ("pc_elem_id pc_elem_key pc_module pc_slot pc_section "
-                "pc_u pc_variant pc_curve_id pc_zmode")
+# ⚠️ `pc_section` IS NOT ON THIS LIST AND `_sec_out` IS, AND THAT IS THE
+# WHOLE OF A DIVERGENCE NOTHING SAW.  The reference calls one attribute name
+# by two meanings - on a PLAN POINT `pc_section` is the artist's section KEY
+# (`Placement.as_dict`), on the BUILT PRIM it is the section INDEX as an int
+# (`_stamp_values`) - and copying the plan point's value straight through
+# published the key, as a float, on every prim.  `pc_plan_emit` writes the
+# index as `_sec_out`, this carries it, and `pc_finalize` turns it into
+# `pc_section`; `_scrub` deletes the `_*` name before OUT for free.
+# `pc_style` joined the list at the same time: 3.4 names it and it was absent.
+COPY_ATTRIBS = ("pc_elem_id pc_elem_key pc_module pc_slot _sec_out "
+                "pc_u pc_variant pc_curve_id pc_zmode pc_warn_*")
 
 # The body every Python SOP in the asset runs.  ⚠️ IT LIVES HERE, BESIDE THE
 # CHAIN, for the reason 15.8.4 gives: `create_pf_polychain_hda.py` imports
@@ -255,7 +264,31 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     copy.parm("applyto1").set("prims")
     copy.parm("applyattribs1").set(COPY_ATTRIBS)
     nodes["copy_packed"] = copy
-    return copy, nodes
+
+    # 13.9 N7's first half - 4.6's stamp, on the prim the copy just made.
+    # Everything above this node reproduces the reference's GEOMETRY; this is
+    # what makes it reproduce the reference's ELEMENT.  See `pc_finalize.vfl`
+    # for why each of the four constants is a statement about this branch and
+    # not a placeholder.
+    fin = wrangle(parent, "pc_finalize" + suffix, "primitive", "pc_finalize")
+    fin.setInput(0, copy)
+    fin.setInput(1, config)
+    nodes["pc_finalize"] = fin
+
+    # 13.2's named lever, used for the one place it is actually needed.  The
+    # whole chain runs at `vex_precision = 64` on purpose (R2), and a 64-bit
+    # wrangle writes FLOAT64 STORAGE - so `pc_u` left this branch carrying
+    # 0.003703703703703704 where the reference's float32 attribute carries
+    # 0.003703703638166189.  Both are the same number; only one of them is
+    # what 3.4 ships.  The 64 bits are right for every intermediate and wrong
+    # for the output, and `attribcast` is where that line is drawn.
+    cast = parent.createNode("attribcast", "pc_out_cast" + suffix)
+    cast.setInput(0, fin)
+    cast.parm("class1").set("primitive")
+    cast.parm("attribs1").set("pc_u")
+    cast.parm("precision1").set("fpreal32")
+    nodes["pc_out_cast"] = cast
+    return cast, nodes
 
 
 # --- the rig ---------------------------------------------------------------

@@ -474,6 +474,21 @@ _PLACE_COMMENTS = {
         "The pieces this branch is ANSWERABLE for. Warn-never-block while\n"
         "N5, N6 and N8 are ahead: a piece whose frame needs 4.5's surface\n"
         "normal is dropped, not guessed.",
+    "pc_out_cast":
+        "13.2's lever, at the one place it is needed. The chain runs at\n"
+        "vex_precision = 64 (R2) and a 64-bit wrangle writes FLOAT64\n"
+        "STORAGE, so pc_u left here as 0.003703703703703704 where 3.4's\n"
+        "own float32 attribute carries 0.003703703638166189. 64 bits are\n"
+        "right for every intermediate and wrong for the output.",
+    "pc_finalize":
+        "4.6 - 3.4's STAMP, and it closes a hole nothing looked in.\n"
+        "`place_packed_parity` measures P and the packed prim's world\n"
+        "bounds and reads 0.0 m over 471 prims, so this branch was\n"
+        "believed to reproduce the reference - it reproduced the\n"
+        "GEOMETRY. Four of 3.4's fourteen prim attributes were ABSENT\n"
+        "and pc_section carried the section KEY as a float where\n"
+        "_stamp_values writes the section INDEX as an int.\n"
+        "`place_stamp_parity` is the check that now says so.",
     "copy_packed":
         "4.4's materialisation, in ONE native node. R8, measured: the\n"
         "uniform scale DOES reach packedfulltransform (1.0 / 2.5 / 0.37\n"
@@ -482,7 +497,8 @@ _PLACE_COMMENTS = {
         "is retired. pivot must be ORIGIN (centroid moves it 9.5e-07 m).",
 }
 _PLACE_ORDER = ("kit_starter", "pc_kit_id", "kit_unpack", "pc_proto",
-                "pc_frames_native", "pc_place_valid", "copy_packed")
+                "pc_frames_native", "pc_place_valid", "copy_packed",
+                "pc_finalize", "pc_out_cast")
 for _i, _name in enumerate(_PLACE_ORDER):
     _node = _place_nodes[_name]
     _node.setComment(_PLACE_COMMENTS[_name])

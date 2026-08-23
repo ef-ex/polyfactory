@@ -719,7 +719,11 @@ def readability(root):
         for parm in ("class", "vex_precision", "snippet", "ptdel", "group",
                      "grouptype", "negate", "ptsperpt", "nptsperpt",
                      "doattrib", "attrib", "spointnum", "spointidx",
-                     "docopyattribs", "attribstocopy"):
+                     "docopyattribs", "attribstocopy",
+                     # `attribcast` decides the OUTPUT's storage width, which
+                     # is a parity property: 64 bits in `pc_u` is a different
+                     # number from what 3.4 ships.
+                     "class1", "attribs1", "precision1", "typeinfo1"):
             a, b = mine.parm(parm), rig_node.parm(parm)
             if (a is None) != (b is None):
                 drift.append("%s.%s: one side has it" % (rig_name, parm))
@@ -2320,6 +2324,20 @@ def _place_out_of_scope(case, params):
     return ""
 
 
+# 3.4 attributes the native branch CANNOT publish yet, each named with the
+# 13.9 item that owes it.  This is a DECLARED list and not a tolerance: the
+# stamp check fails on any name outside it, and `place_stamp_owed_is_live`
+# fails on any entry here that no case exercises - so an exemption cannot be
+# added for a defect and it cannot rot into decoration either.
+STAMP_OWED = {
+    "pc_cap": "4.6 slice caps - N7",
+    "pc_cap_material": "4.6 slice caps - N7",
+    "pc_warn_bend_resolution": "D25's bend deviation - N5",
+    "pc_warn_degenerate_frame": "4.4's degenerate frame - N5",
+    "pc_warn_corner_degenerate": "4.3 corners - N8",
+}
+
+
 def place_packed_parity(root, built):
     """13.9 N4 and R8, measured: `copytopoints(pack=1)` vs the reference.
 
@@ -2343,7 +2361,11 @@ def place_packed_parity(root, built):
     per = []
     scope = {}
     skipped = 0
+    stamp_bad = {}
+    stamp_owed = {}
+    stamp_n = [0]
     for name in sorted(built):
+        name_ = name
         case = built[name]
         ref_packed = [p for p in case["out"].prims()
                       if p.type() == hou.primType.PackedGeometry]
@@ -2368,6 +2390,30 @@ def place_packed_parity(root, built):
                 ref[p.attribValue("pc_elem_id")] = p
             except hou.OperationFailed:
                 pass
+        # 3.4's STAMP, which nothing compared until this cycle. The reference
+        # publishes `ELEM_PRIM_ATTRS` plus one int per warning; the native
+        # branch published nine of the fourteen and got one of those WRONG -
+        # `pc_section` carried the section KEY as a float where 3.4 and
+        # `_stamp_values` both say the section INDEX as an int.
+        ref_types = dict((a.name(), a.dataType()) for a in
+                         case["out"].primAttribs())
+        nat_types = dict((a.name(), a.dataType()) for a in geo.primAttribs())
+        # BOTH DIRECTIONS, over every prim attribute either side publishes -
+        # not over 3.4's fourteen names. A branch that publishes MORE than
+        # the reference is a contract nobody wrote (`COPY_ATTRIBS` had three
+        # such names once), and a per-element WARNING that never reached the
+        # prim would be invisible to a list of the fourteen.
+        for name in sorted(set(ref_types) | set(nat_types)):
+            if name in STAMP_OWED and name not in nat_types:
+                stamp_owed.setdefault(name, []).append(name_)
+            elif name not in nat_types:
+                stamp_bad.setdefault("%s: absent" % name, []).append(name_)
+            elif name not in ref_types:
+                stamp_bad.setdefault("%s: extra" % name, []).append(name_)
+            elif nat_types[name] != ref_types[name]:
+                stamp_bad.setdefault(
+                    "%s: %s not %s" % (name, nat_types[name],
+                                       ref_types[name]), []).append(name_)
         matched = 0
         case_worst = 0.0
         for p in geo.prims():
@@ -2387,6 +2433,15 @@ def place_packed_parity(root, built):
             worst_b = max(worst_b, d)
             case_worst = max(case_worst, d)
             matched += 1
+            for aname in sorted(ref_types):
+                if aname not in nat_types or aname in STAMP_OWED:
+                    continue
+                want = r.attribValue(aname)
+                got = p.attribValue(aname)
+                if got != want:
+                    stamp_bad.setdefault(
+                        "%s: %r not %r" % (aname, got, want), []).append(eid)
+            stamp_n[0] += 1
         nprim += matched
         if matched:
             ncase += 1
@@ -2408,6 +2463,33 @@ def place_packed_parity(root, built):
     check("place_packed_is_not_empty", nprim > 400, nprim,
           "packed prims actually compared - a branch that built none would "
           "make the check above vacuously green")
+
+    # ⚠️ THE STAMP, AND IT HAD NEVER BEEN COMPARED. `place_packed_parity`
+    # above measures `P` and the world bounds; every one of 3.4's fourteen
+    # prim attributes rode out of the native branch unasserted, and the
+    # `copytopoints` list that carries them is nine names long. Measured
+    # before the fix: `pc_deformed`, `pc_generated`, `pc_corner_cut`,
+    # `pc_style` and `pc_replaced` were ABSENT, and `pc_section` disagreed on
+    # every prim of a multi-section run - the artist's section KEY, as a
+    # float, where `_stamp_values` writes the section INDEX as an int.
+    keys = sorted(stamp_bad)
+    for k in keys:
+        print("        stamp complaint  %-46s %s"
+              % (k, sorted(set(stamp_bad[k]))[:6]))
+    for name in sorted(stamp_owed):
+        print("        stamp owed       %-30s %-28s %d case(s)"
+              % (name, STAMP_OWED[name], len(stamp_owed[name])))
+    dead = sorted(set(STAMP_OWED) - set(stamp_owed))
+    check("place_stamp_owed_is_live", not dead, len(STAMP_OWED),
+          "every declared-owed attribute is exercised by at least one case, "
+          "so the exemption list cannot rot into decoration. Never fired: %s"
+          % (", ".join(dead) or "none"))
+    check("place_stamp_parity", not stamp_bad,
+          "%d prims / %d complaints" % (stamp_n[0], len(keys)),
+          "3.4's fourteen prim attributes - NAME, TYPE and VALUE - on every "
+          "packed prim matched by pc_elem_id: %s"
+          % ("; ".join("%s (%d)" % (k, len(stamp_bad[k])) for k in keys[:4])
+             or "identical"))
 
 
 def r8_packed_transform(root):
@@ -2648,6 +2730,50 @@ def place_mutation(root, built):
     ident = moved_by("useidattrib", False)
     check("mutation_copy_useidattrib", ident > 1e-6, "%.4f m" % ident,
           "useidattrib=0 - every target point receives the ENTIRE kit")
+
+
+def finalize_mutation(root, built):
+    """Bypass `pc_finalize` on the SHIPPED asset and watch the stamp go.
+
+    Without this the stamp parity above is a check nobody has seen fail, and
+    the thing it guards - 3.4's fourteen prim attributes - was wrong for two
+    cycles with `place_packed_parity` reading 0.0 m the whole time.  The
+    mutation is the state the branch shipped in: `copytopoints` alone, no
+    finalize wrangle.
+    """
+    name = None
+    for candidate in sorted(built):
+        case = built[candidate]
+        params = case["style"].params if case["style"] else DEFAULTS
+        if _place_out_of_scope(case, params):
+            continue
+        if any(p.type() == hou.primType.PackedGeometry
+               for p in case["out"].prims()):
+            name = candidate
+            break
+    if name is None:
+        check("mutation_pc_finalize", False, "no case", "no in-scope case")
+        return
+    case = built[name]
+    node, geo = asset_on(root, case, "place_native", "finmut")
+    node.allowEditingOfContents()
+    fin = node.node("pc_finalize")
+    sound = fin is not None
+    missing = []
+    if sound:
+        fin.bypass(True)
+        node.cook(force=True)
+        got = dict((a.name(), a.dataType()) for a in node.geometry().primAttribs())
+        ref = dict((a.name(), a.dataType()) for a in case["out"].primAttribs())
+        missing = sorted(n for n in ref if n not in got and n not in STAMP_OWED)
+        fin.bypass(False)
+    node.destroy()
+    check("mutation_pc_finalize", sound and len(missing) >= 4,
+          "%d attributes lost" % len(missing),
+          "bypassing `pc_finalize` on the built asset drops %s from the "
+          "output of `%s` - the state this branch shipped in, with "
+          "`place_packed_parity` reading 0.0 m throughout"
+          % (", ".join(missing) or "nothing", name))
 
 
 def kit_id_mutation(root, built):
@@ -3455,6 +3581,7 @@ def main():
     sections_mutation(root, built)
     place_mutation(root, built)
     kit_id_mutation(root, built)
+    finalize_mutation(root, built)
     frames_scale_mutation(root)
     emit_scale_mutation(root)
 
