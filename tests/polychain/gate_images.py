@@ -371,6 +371,69 @@ def main():
               ("z", "y"),
               extra=[((80, 210, 120), ground)])
 
+    # ---- PART B: the CURVED run the guard now takes natively -------------
+    #
+    # ⚠️ A 90 m ARC DRAWN WHOLE IS A ONE-PIXEL LINE, which is 18.4's defect in
+    # a new place: two gates were once judged on images that could not show
+    # the fence.  So this crops to 12 m of the arc - where a 2 m panel and a
+    # 0.12 m post are several pixels wide - and renders the SAME crop from the
+    # native chain and from the reference, so the pair can be compared by eye
+    # as well as by `output_guard_parity`'s element-for-element diff.
+    print("\n=== PART B - a curved run, NATIVE and reference, cropped ===")
+    gb = hou.node("/obj").createNode("geo", "partb_images")
+    radius, step, length = 60.0, 1.0, 90.0
+    arc_pts = [(radius * math.sin(i * step / radius), 0.0,
+                radius * (1.0 - math.cos(i * step / radius)))
+               for i in range(int(length / step) + 1)]
+    nodeb = gb.createNode("pf_polychain", "chain_curved")
+    nodeb.setInput(0, spline_node(gb, "partb_arc", arc_pts))
+    nodeb.allowEditingOfContents()
+
+    def crop(geo, x0, x1):
+        """The polygons whose centroid sits in [x0, x1], rebuilt.
+
+        A CROP and not a re-fit: `rasterise` fits whatever it is handed, so
+        handing it the whole arc is what produced the one-pixel line.
+        """
+        out = hou.Geometry()
+        for prim in geo.prims():
+            if not (x0 <= prim.boundingBox().center()[0] <= x1):
+                continue
+            poly = out.createPolygon()
+            for vtx in prim.vertices():
+                pt = out.createPoint()
+                pt.setPosition(vtx.point().position())
+                poly.addVertex(pt)
+        return out
+
+    shapes_seen = {}
+    for stage in ("output", "reference"):
+        nodeb.parm("stage").set(stage)
+        nodeb.cook(force=True)
+        took = nodeb.node("copy_packed").cookCount() > 0
+        tag = "native" if (stage == "output" and took) else "reference"
+        sub = crop(unpack(nodeb.geometry()), 30.0, 42.0)
+        shapes_seen[tag] = (len(nodeb.geometry().prims()), len(sub.prims()))
+        rasterise(os.path.join(OUT, "PARTB_arc_%s_top.png" % tag), sub,
+                  ("x", "z"))
+        rasterise(os.path.join(OUT, "PARTB_arc_%s_side.png" % tag), sub,
+                  ("x", "y"))
+    # ⚠️ AND THE GUARD'S VERDICT IS PART OF THE GATE.  Without this the pair
+    # of images is satisfied by the reference rendered twice - which is
+    # exactly what `Stage = output` did before PART B on any curved spline.
+    check("partb_curved_is_native", "native" in shapes_seen,
+          ",".join(sorted(shapes_seen)),
+          "`Stage = output` on a 90 m R = 60 m arc must ADVANCE "
+          "`copy_packed` - the widened level-1 bound reads 0.009 m "
+          "against a 0.01 m tolerance and level 2 confirms every piece "
+          "stays packed. prims/crop: %r" % (shapes_seen,))
+    check("partb_curved_matches_the_reference",
+               len(set(shapes_seen.values())) == 1,
+          "%r" % (sorted(set(shapes_seen.values())),),
+          "the two images are the same fence: same prim count whole and "
+          "same prim count in the crop, so the pair below differs only "
+          "in which chain drew it")
+
     print("\n%d failing gate checks" % len(FAIL))
     if FAIL:
         print("  " + ", ".join(FAIL))
