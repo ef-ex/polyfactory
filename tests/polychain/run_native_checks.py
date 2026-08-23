@@ -737,10 +737,19 @@ def readability(root):
 
     # 13.7 rule 5 - a group-name collision between two stages silently
     # corrupts one of them, so every working group carries the prefix.
+    # ⚠️ IT READS THE INNER NODE, NOT THE OUTPUT, AND IT HAS TO NOW.
+    # `_scrub_groups` deletes `_*` before OUT (conventions.md 5), so asking
+    # the OUTPUT what groups it carries would be asking a question whose
+    # answer is "none" whatever the stages do - the unfailable shape. The
+    # group is asserted where it is CREATED, and the law's other half - that
+    # nothing `_*` reaches the output - is `tests/hda/run_attrib_checks.py`.
     node.parm("stage").set("sections")
     node.cook(force=True)
-    groups = [g.name() for g in node.geometry().pointGroups()]
-    stray = [g for g in groups if not g.startswith("pc_")]
+    groups = [g.name() for g in node.node("pc_corners").geometry().pointGroups()]
+    stray = [g for g in groups if not g.startswith("_")]
+    out_groups = [g.name() for g in node.geometry().pointGroups()
+                  if g.name().startswith("_")]
+    stray += ["%s ON THE OUTPUT" % g for g in out_groups]
     check("working_groups_are_prefixed", not stray, len(groups),
           "unprefixed: %s" % (", ".join(stray) or "none"))
     node.parm("stage").set("output")
@@ -2194,7 +2203,7 @@ def plan_mutation(root, built):
           "breaking 4.2's add-one-more threshold changes the piece count and "
           "the parity must see it (target line present: %s)" % has_target)
 
-    # (b) the EMITTER's piece count. `pc_plan_emit` reads `pc_npieces` and
+    # (b) the EMITTER's piece count. `pc_plan_emit` reads `_npieces` and
     # loops it; miscounting is the failure mode 13.2 warned about in the
     # `pointgenerate` shape ("the attribute MULTIPLIES nptsperpt") and it
     # survives the change of mechanism.

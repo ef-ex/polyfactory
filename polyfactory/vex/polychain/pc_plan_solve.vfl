@@ -5,7 +5,7 @@
 // `plan.plan_section` ported.  ONE SECTION PER THREAD, and the sequential
 // accumulation stays sequential INSIDE that thread - which is the data
 // dependency the solve actually has.  It ADDS NO POINTS: the answer leaves as
-// PER-SECTION ARRAYS plus `pc_npieces`, and `pc_plan_expand` (a
+// PER-SECTION ARRAYS plus `_npieces`, and `pc_plan_expand` (a
 // `pointgenerate`) turns that into one point per piece.
 //
 // ⚠️ THAT SHAPE IS D150 AND IT IS NOT A STYLE CHOICE.  `addpoint` from a
@@ -44,13 +44,13 @@ string o_slot[], o_module[], o_variant[], o_zmode[], o_warns[];
 int o_index[], o_deform[];
 float o_s0[], o_s1[], o_u[], o_scale[], o_slice[];
 
-i@pc_npieces = 0;
+i@_npieces = 0;
 if (L <= PC_PEPS) {
-    s[]@pc_p_slot = o_slot; s[]@pc_p_module = o_module;
-    s[]@pc_p_variant = o_variant; s[]@pc_p_zmode = o_zmode;
-    s[]@pc_p_warns = o_warns; i[]@pc_p_index = o_index;
-    i[]@pc_p_deform = o_deform; f[]@pc_p_s0 = o_s0; f[]@pc_p_s1 = o_s1;
-    f[]@pc_p_u = o_u; f[]@pc_p_scale = o_scale; f[]@pc_p_slice = o_slice;
+    s[]@_p_slot = o_slot; s[]@_p_module = o_module;
+    s[]@_p_variant = o_variant; s[]@_p_zmode = o_zmode;
+    s[]@_p_warns = o_warns; i[]@_p_index = o_index;
+    i[]@_p_deform = o_deform; f[]@_p_s0 = o_s0; f[]@_p_s1 = o_s1;
+    f[]@_p_u = o_u; f[]@_p_scale = o_scale; f[]@_p_slice = o_slice;
     return;                                     // D8: a curve, but no span
 }
 
@@ -81,7 +81,7 @@ CF["u"]             = U0;
 CF["section_index"] = (float)SEC_IX;
 CS["curve_id"]      = CURVE_ID;
 CS["yclass"]        = YCLASS;
-dict af = d@pc_attr_f, as_ = d@pc_attr_s;
+dict af = d@_attr_f, as_ = d@_attr_s;
 foreach (string k; keys(af)) { float v = af[k]; CF[sprintf("attr:%s", k)] = v; }
 foreach (string k; keys(as_)) { string v = as_[k]; CS[sprintf("attr:%s", k)] = v; }
 
@@ -194,9 +194,9 @@ float a_s0[], a_s1[], a_u[];
     }
 }
 
-int mk_id[] = i[]@pc_mk_id;
-float mk_s[] = f[]@pc_mk_s, mk_u[] = f[]@pc_mk_u;
-dict mk_data[] = d[]@pc_mk_data;
+int mk_id[] = i[]@_mk_id;
+float mk_s[] = f[]@_mk_s, mk_u[] = f[]@_mk_u;
+dict mk_data[] = d[]@_mk_data;
 dict m_index;
 for (int j = 0; j < len(mk_id); j++) {
     string slot = sprintf("marker:%d", mk_id[j]);
@@ -352,17 +352,17 @@ foreach (int i; ord) {
     push(p_warns, o_warns[i]);
 }
 
-s[]@pc_p_slot = p_slot;
-s[]@pc_p_module = p_module;
-s[]@pc_p_variant = p_variant;
-s[]@pc_p_zmode = p_zmode;
-s[]@pc_p_warns = p_warns;
-i[]@pc_p_index = p_index;
-i[]@pc_p_deform = p_deform;
-f[]@pc_p_s0 = p_s0;
-f[]@pc_p_s1 = p_s1;
-f[]@pc_p_u = p_u;
-f[]@pc_p_scale = p_scale;
-f[]@pc_p_slice = p_slice;
-i@pc_npieces = n;
-f@pc_sec_length = L;
+s[]@_p_slot = p_slot;
+s[]@_p_module = p_module;
+s[]@_p_variant = p_variant;
+s[]@_p_zmode = p_zmode;
+s[]@_p_warns = p_warns;
+i[]@_p_index = p_index;
+i[]@_p_deform = p_deform;
+f[]@_p_s0 = p_s0;
+f[]@_p_s1 = p_s1;
+f[]@_p_u = p_u;
+f[]@_p_scale = p_scale;
+f[]@_p_slice = p_slice;
+i@_npieces = n;
+f@_sec_length = L;

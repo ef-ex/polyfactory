@@ -54,4 +54,6 @@ i@pc_iscorner = 1;
 i@pc_corner_forced = (flag > 0);
 i@pc_corner_degen = ((180.0 - turn) < min_incl);
 f@pc_corner_s = f@pc_s;
-setpointgroup(0, "pc_cornerpt", @ptnum, 1);
+// conventions.md 5: a group that exists only to get from one internal
+// node to the next is `_*` and is deleted before the output.
+setpointgroup(0, "_cornerpt", @ptnum, 1);

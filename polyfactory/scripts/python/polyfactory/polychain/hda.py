@@ -713,14 +713,14 @@ def rule_table(style):
     names = [n for n in names
              if n not in _place._ATTR_SKIP
              and not (n.startswith("pc_") and n not in _place.ROW_ATTRS_2D)]
-    out["pc_attr_names"] = names
+    out["_attr_names"] = names
     for name in RULE_FLOAT_COLUMNS:
         out[name] = [_exact(v) for v in out[name]]
     return out
 
 
 _ARRAY_DEFAULTS = dict(
-    [(name, "") for name in ("pc_attr_names", "pc_k_name", "pc_k_variant",
+    [(name, "") for name in ("_attr_names", "pc_k_name", "pc_k_variant",
                              "pc_k_zmode", "pc_k_roles", "pc_r_slot",
                              "pc_r_select", "pc_r_scope", "pc_r_yclass",
                              "pc_r_axis", "pc_r_vexpr", "pc_r_mods",

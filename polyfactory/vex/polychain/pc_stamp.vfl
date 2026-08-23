@@ -1,0 +1,39 @@
+// STAGE 2 - PLAN (spec 4.2), 3.4's STAMP.  POINT wrangle, precision 64.
+//   input 0  the piece points (after pc_plan_only)
+//   input 1  CONFIG
+//
+// `pc_elem_id` and `pc_elem_key`, and nothing else.
+//
+// ⚠️ IT IS A SEPARATE NODE BECAUSE IT IS THE ONE PART OF THE EMIT THAT IS
+// EMBARRASSINGLY PARALLEL, AND THE EMIT IS SINGLE-THREADED.  `pc_plan_emit`
+// has to be a DETAIL wrangle - `addpoint` from a multithreaded wrangle emits
+// in thread-completion order (D150) - so every `sprintf` and every one of
+// `pc_elem_key`'s per-byte crc32 rounds ran on one core.  Measured on the
+// 20 km fence at 10 000 pieces: the plan chain is 0.777 s and stubbing
+// `pc_elem_key` alone takes it to 0.596 s, i.e. 23 % of the emit is one hash
+// on one thread.  It reads only per-point values the emit already wrote, so
+// moving it out has no ordering exposure at all - and 13.3.6 wanted this node
+// at N7 anyway.
+//
+// ⚠️ THE WARNING FAN-OUT STAYS IN THE EMIT, deliberately.  It writes an
+// attribute whose NAME comes from the data (`setpointattrib(0, w, ...)`), and
+// the order attributes are CREATED in a multithreaded wrangle is thread
+// order.  The values would be right and the geometry's attribute list could
+// differ between cooks, which is exactly the kind of thing `geometry_digest`
+// is pinned on.  One thread, one order.
+
+#include "pc_rand.h"
+
+// `pc_cfg_s` lives in pc_plan.h, and pulling the whole fitting solve in for
+// one dictionary read would be 700 lines of dead VEX in this snippet.
+string style_id = "";
+dict cfg = detail(1, "pc_cfg");
+if (isvalidindex(cfg, "style_id")) { string v = cfg["style_id"]; style_id = v; }
+
+// 3.4's structural address.  `sprintf` reproduces `elem_id` exactly (13.2
+// probed it on every tested tuple) and `pc_elem_key` is its crc32, asserted
+// bit-exact against `zlib.crc32` on 380 strings including 22 multibyte ones.
+string eid = sprintf("%s|%d|%s|%d|%s", s@pc_curve_id, i@pc_sec_index,
+                     s@pc_slot, i@pc_index, style_id);
+s@pc_elem_id  = eid;
+i@pc_elem_key = pc_elem_key(eid);

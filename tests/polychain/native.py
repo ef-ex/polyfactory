@@ -74,8 +74,8 @@ def stage_decompose(parent, spline, config):
 # `native.py` and the build script drifting apart is exactly how two mutations
 # survived in cycle N-1V.
 PLAN_KEEP = ("* ^pc_curve_id ^pc_curveprim ^pc_sec_* ^pc_curve_len "
-             "^pc_start_cap ^pc_end_cap ^pc_corner_angle ^pc_style_key "
-             "^pc_trim_* ^pc_mk_* ^pc_attr_* ^pc_yclass ^pc_is_section ^P")
+             "^pc_start_cap ^pc_end_cap ^pc_corner_angle ^_style_key "
+             "^pc_trim_* ^_mk_* ^_attr_* ^pc_yclass ^_is_section ^_sec_* ^P")
 
 
 def stage_plan(parent, sections, config, suffix=""):
@@ -99,7 +99,7 @@ def stage_plan(parent, sections, config, suffix=""):
 
     only = parent.createNode("blast", "pc_sec_only" + suffix)
     only.setInput(0, sec)
-    only.parm("group").set("@pc_is_section==1")
+    only.parm("group").set("@_is_section==1")
     only.parm("grouptype").set(3)
     only.parm("negate").set(True)
     nodes["pc_sec_only"] = only
@@ -130,17 +130,37 @@ def stage_plan(parent, sections, config, suffix=""):
 
     only = parent.createNode("blast", "pc_plan_only" + suffix)
     only.setInput(0, emit)
-    only.parm("group").set("@pc_is_section==1")
+    only.parm("group").set("@_is_section==1")
     only.parm("grouptype").set(3)
     nodes["pc_plan_only"] = only
-    return only, nodes
+
+    # ⚠️ 3.4's STAMP IS ITS OWN POINT WRANGLE, and the reason is that
+    # `pc_plan_emit` above HAS to be single-threaded (D150's `addpoint`
+    # ordering) while `sprintf` + `pc_elem_key`'s per-byte crc32 is the one
+    # part of the emit that is embarrassingly parallel. Measured at 10 000
+    # pieces: stubbing `pc_elem_key` alone took the plan chain from 0.777 s to
+    # 0.596 s. It reads only per-point values the emit already wrote, so the
+    # lift has no ordering exposure - and 13.3.6 asks for this node at N7.
+    stamp = wrangle(parent, "pc_stamp" + suffix, "point", "pc_stamp")
+    stamp.setInput(0, only)
+    stamp.setInput(1, config)
+    nodes["pc_stamp"] = stamp
+    return stamp, nodes
 
 
 # 13.9 N4.  The PACKED branch, in one declaration for the same reason the plan
 # chain is: two independent copies is how two mutations of the shipped asset
 # survived every suite in cycle N-1V.
-COPY_ATTRIBS = ("pc_elem_id pc_elem_key pc_module pc_slot pc_index pc_section "
-                "pc_u pc_variant pc_curve_id pc_deform pc_zmode pc_scale")
+# ⚠️ THE LIST IS THE REFERENCE'S OWN, AND IT USED TO BE THREE NAMES LONGER.
+# `pc_deform`, `pc_index` and `pc_scale` were being copied onto the packed
+# prims where `place.build` publishes none of them - measured side by side,
+# the reference's prims carry pc_corner_cut pc_curve_id pc_deformed pc_elem_id
+# pc_elem_key pc_generated pc_module pc_replaced pc_section pc_slot pc_style
+# pc_u pc_variant pc_warn_degenerate_frame pc_zmode, and 3.4's contract names
+# none of the three either. A native branch that publishes MORE than the
+# reference is a contract nobody wrote.
+COPY_ATTRIBS = ("pc_elem_id pc_elem_key pc_module pc_slot pc_section "
+                "pc_u pc_variant pc_curve_id pc_zmode")
 
 # The body every Python SOP in the asset runs.  ⚠️ IT LIVES HERE, BESIDE THE
 # CHAIN, for the reason 15.8.4 gives: `create_pf_polychain_hda.py` imports

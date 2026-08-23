@@ -28,47 +28,55 @@
 // ONCE and emitting from them is linear, and it is what 15.6 predicted when
 // it wrote "N2's per-section arrays will hit the same wall `pc_seg_*` hit".
 //
-// The section points stay in the stream carrying `pc_is_section = 1`;
-// `pc_plan_only` blasts them, so nothing downstream sees an array attribute.
+// The section points stay in the stream carrying `_is_section = 1` and
+// `pc_plan_only` blasts them.
+//
+// ⚠️ THAT DOES NOT DELETE THE ARRAYS, AND THE COMMENT HERE USED TO SAY IT
+// DID - "nothing downstream sees an array attribute".  A blast removes
+// POINTS, not attribute definitions, so all twelve per-section arrays ride
+// every piece point to the end of the graph; measured at `Stage = plan_native`
+// they were all still on the point-attribute list.  They are `_*` names now,
+// so `_scrub` before OUT removes them for free (conventions.md 2), and the
+// next implementer reading this will not reuse a pattern that does not work -
+// which matters at N5, where `pc_stations` carries arrays that are NOT empty.
 
 #include "pc_plan.h"
 
 int nsec = npoints(0);
 for (int sp = 0; sp < nsec; sp++) {
-    int npieces = point(0, "pc_npieces", sp);
+    int npieces = point(0, "_npieces", sp);
     if (npieces <= 0) continue;
 
     // ⚠️ ONCE PER SECTION.  Hoisting these twelve reads out of the piece loop
     // IS the fix - an array read copies the whole array, so doing it per
     // piece is the quadratic the `pointgenerate` version paid.
-    string p_slot[]    = point(0, "pc_p_slot", sp);
-    string p_module[]  = point(0, "pc_p_module", sp);
-    string p_variant[] = point(0, "pc_p_variant", sp);
-    string p_zmode[]   = point(0, "pc_p_zmode", sp);
-    string p_warns[]   = point(0, "pc_p_warns", sp);
-    int    p_index[]   = point(0, "pc_p_index", sp);
-    int    p_deform[]  = point(0, "pc_p_deform", sp);
-    float  p_s0[]      = point(0, "pc_p_s0", sp);
-    float  p_s1[]      = point(0, "pc_p_s1", sp);
-    float  p_u[]       = point(0, "pc_p_u", sp);
-    float  p_scale[]   = point(0, "pc_p_scale", sp);
-    float  p_slice[]   = point(0, "pc_p_slice", sp);
+    string p_slot[]    = point(0, "_p_slot", sp);
+    string p_module[]  = point(0, "_p_module", sp);
+    string p_variant[] = point(0, "_p_variant", sp);
+    string p_zmode[]   = point(0, "_p_zmode", sp);
+    string p_warns[]   = point(0, "_p_warns", sp);
+    int    p_index[]   = point(0, "_p_index", sp);
+    int    p_deform[]  = point(0, "_p_deform", sp);
+    float  p_s0[]      = point(0, "_p_s0", sp);
+    float  p_s1[]      = point(0, "_p_s1", sp);
+    float  p_u[]       = point(0, "_p_u", sp);
+    float  p_scale[]   = point(0, "_p_scale", sp);
+    float  p_slice[]   = point(0, "_p_slice", sp);
 
     string curve_id = point(0, "pc_curve_id", sp);
     int    sec_ix   = point(0, "pc_sec_index", sp);
     float  sec_s0   = point(0, "pc_sec_s0", sp);
     float  curve_l  = point(0, "pc_curve_len", sp);
     int    curveprim = point(0, "pc_curveprim", sp);
-    float  sec_key  = point(0, "pc_sec_key", sp);
+    float  sec_key  = point(0, "_sec_key", sp);
     // D7's section key is whatever type the artist authored - `read_curves`
     // reads it back untyped and `Placement.section_key` carries it through.
     // A Houdini attribute is geometry-wide, so exactly one of these two
     // branches ever runs in a build.
-    int    sec_kind = point(0, "pc_sec_key_kind", sp);
-    string sec_key_s = point(0, "pc_sec_key_s", sp);
-    string style_key = point(0, "pc_style_key", sp);
+    int    sec_kind = point(0, "_sec_key_kind", sp);
+    string sec_key_s = point(0, "_sec_key_s", sp);
+    string style_key = point(0, "_style_key", sp);
     string yclass   = point(0, "pc_yclass", sp);
-    string style_id = pc_cfg_s("style_id", "");
 
     int n = min(npieces, len(p_slot));
     for (int k = 0; k < n; k++) {
@@ -107,15 +115,12 @@ for (int sp = 0; sp < nsec; sp++) {
         setpointattrib(0, "pc_slice_t", pt, p_slice[k]);
         setpointattrib(0, "pc_sliced",  pt, (p_slice[k] >= 0.0) ? 1 : 0);
 
-        // 3.4's structural address.  `sprintf` reproduces `elem_id` exactly
-        // (13.2 probed it on every tested tuple) and `pc_elem_key` is its
-        // crc32, hand-written in `pc_rand.h` and asserted bit-exact against
-        // `zlib.crc32` on 358 strings.
-        string eid = sprintf("%s|%d|%s|%d|%s", curve_id, sec_ix,
-                             p_slot[k], p_index[k], style_id);
-        setpointattrib(0, "pc_elem_id",  pt, eid);
-        setpointattrib(0, "pc_elem_key", pt, pc_elem_key(eid));
-
+        // ⚠️ 3.4's STAMP IS NOT HERE ANY MORE - IT IS `pc_stamp`, THE NEXT
+        // POINT WRANGLE.  `sprintf` plus `pc_elem_key`'s per-byte crc32 is
+        // the one embarrassingly parallel part of this node, and this node is
+        // single-threaded by construction (D150).  Measured at 10 000 pieces:
+        // stubbing `pc_elem_key` alone took the plan chain from 0.777 s to
+        // 0.596 s, so 23 % of the emit was one hash on one core.
         // every warning the solve raised, as its own int attribute - the
         // shape `place` / `hda` already publish and `colour_warnings` reads
         setpointattrib(0, "pc_warns", pt, p_warns[k]);

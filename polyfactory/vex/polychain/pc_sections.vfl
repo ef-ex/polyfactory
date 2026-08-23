@@ -47,7 +47,7 @@ int npt = npoints(0);
 // `pc_section` and `pc_style` are NOT harvested off the prim at all: 3.3's
 // `attr:pc_section` means the SECTION's key, and the two lines near the
 // bottom of this file are the only place they come from.
-string want[] = detail(1, "pc_attr_names");
+string want[] = detail(1, "_attr_names");
 
 // ---- the marker cloud, once ------------------------------------------------
 // Small N (a marker is a stand-alone point, never a curve vertex), so one
@@ -316,7 +316,7 @@ while (width < nsec) {
 foreach (int i; ord) {
     int pr = r_prim[i];
     int p = addpoint(0, set(r_s0[i], 0.0, 0.0));
-    setpointattrib(0, "pc_is_section", p, 1);
+    setpointattrib(0, "_is_section", p, 1);
     setpointattrib(0, "pc_curve_id",   p, r_cid[i]);
     setpointattrib(0, "pc_curveprim",  p, pr);
     setpointattrib(0, "pc_sec_index",  p, r_index[i]);
@@ -327,10 +327,10 @@ foreach (int i; ord) {
     setpointattrib(0, "pc_start_cap",  p, r_scap[i]);
     setpointattrib(0, "pc_end_cap",    p, r_ecap[i]);
     setpointattrib(0, "pc_corner_angle", p, r_angle[i]);
-    setpointattrib(0, "pc_style_key",  p, r_stylekey[i]);
-    setpointattrib(0, "pc_sec_key",    p, r_seckey_num[i]);
-    setpointattrib(0, "pc_sec_key_s",  p, r_seckey_str[i]);
-    setpointattrib(0, "pc_sec_key_kind", p, r_seckey_kind[i]);
+    setpointattrib(0, "_style_key",  p, r_stylekey[i]);
+    setpointattrib(0, "_sec_key",    p, r_seckey_num[i]);
+    setpointattrib(0, "_sec_key_s",  p, r_seckey_str[i]);
+    setpointattrib(0, "_sec_key_kind", p, r_seckey_kind[i]);
 
     // 4.3's reserve, which the CORNER stage writes.  It is 0 until 13.9 N8
     // lands: a native plan with no corner stage in front of it fits the whole
@@ -357,10 +357,10 @@ foreach (int i; ord) {
         }
         push(mdata, d);
     }
-    setpointattrib(0, "pc_mk_id", p, ids);
-    setpointattrib(0, "pc_mk_s", p, slocal);
-    setpointattrib(0, "pc_mk_u", p, us);
-    setpointattrib(0, "pc_mk_data", p, mdata);
+    setpointattrib(0, "_mk_id", p, ids);
+    setpointattrib(0, "_mk_s", p, slocal);
+    setpointattrib(0, "_mk_u", p, us);
+    setpointattrib(0, "_mk_data", p, mdata);
 
     // D94's `attr:<name>` bag, restricted to the names a rule asks for.
     dict af, as_;
@@ -379,8 +379,8 @@ foreach (int i; ord) {
     else                       { float v = r_seckey_num[i]; af["pc_section"] = v; }
     string sk = r_stylekey[i];
     as_["pc_style"] = sk;
-    setpointattrib(0, "pc_attr_f", p, af);
-    setpointattrib(0, "pc_attr_s", p, as_);
+    setpointattrib(0, "_attr_f", p, af);
+    setpointattrib(0, "_attr_s", p, as_);
 
     // E1's row class - blank on every 1D curve, which is what makes
     // `cell_role` the identity and `rules_for(slot, None)` the phase-1 call.
@@ -392,4 +392,4 @@ foreach (int i; ord) {
     setpointattrib(0, "pc_yclass", p, yclass);
 }
 
-i@pc_nsections = nsec;
+i@_nsections = nsec;

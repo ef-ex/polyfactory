@@ -171,7 +171,7 @@ DECOMPOSE = (
      "One curve per thread, the scan sequential inside it. 64-bit, because\n"
      "this is the 20 km expression that returns 0 at 32."),
     ("pc_corners", "point", 1,
-     "4.1 - turn angle per vertex, the pc_cornerpt group and the narrow-\n"
+     "4.1 - turn angle per vertex, the _cornerpt group and the narrow-\n"
      "corner flag. pc_corner: -1 suppress, 0 auto, 1 force."),
     ("pc_markers", "point", 1,
      "4.1 - each marker's metre along its own curve, clamped, with D35's\n"
@@ -361,7 +361,7 @@ _PLAN_COMMENTS = {
     "pc_plan_solve":
         "4.2 - THE FITTING SOLVE. One section per thread, the accumulation\n"
         "sequential inside it. It ADDS NO POINTS: the answer leaves as\n"
-        "per-section arrays plus pc_npieces, because addpoint from a\n"
+        "per-section arrays plus _npieces, because addpoint from a\n"
         "multithreaded wrangle emits in thread-completion order (D150).",
     "pc_plan_emit":
         "One point per piece, and 3.4's stamp: pc_elem_id by sprintf,\n"
@@ -371,19 +371,27 @@ _PLAN_COMMENTS = {
         "pieces 38.6 s, while the solve above is linear. A DETAIL wrangle\n"
         "has one thread, so D150's addpoint objection does not apply.",
     "pc_plan_only":
-        "The section points away, the pieces kept. Nothing downstream sees\n"
-        "an array attribute.",
+        "The section points away, the pieces kept. \u26a0 The twelve\n"
+        "per-section ARRAYS ride on - a blast removes points, not attribute\n"
+        "definitions - which is why they are named _p_* and why _scrub\n"
+        "before OUT is what actually removes them.",
+    "pc_stamp":
+        "3.4's stamp: pc_elem_id by sprintf, pc_elem_key by the crc32 in\n"
+        "pc_rand.h. Its own POINT wrangle because the emit above HAS to be\n"
+        "single-threaded (D150) and this is the one part of it that is\n"
+        "embarrassingly parallel - 23 % of the emit at 10 000 pieces.",
 }
 for _name, _node in _plan_nodes.items():
     _node.setComment(_PLAN_COMMENTS[_name])
     _node.setGenericFlag(hou.nodeFlag.DisplayComment, True)
     plan_native_nodes.append(_node)
 for _i, _name in enumerate(("pc_sections", "pc_sec_only", "pc_plan_clean",
-                            "pc_plan_solve", "pc_plan_emit", "pc_plan_only")):
+                            "pc_plan_solve", "pc_plan_emit", "pc_plan_only",
+                            "pc_stamp")):
     _plan_nodes[_name].setPosition(hou.Vector2(16.0, -5.0 - 2.0 * _i))
 out_plan_native = net.createNode("null", "OUT_plan_native")
 out_plan_native.setInput(0, _plan_last)
-out_plan_native.setPosition(hou.Vector2(16.0, -17.0))
+out_plan_native.setPosition(hou.Vector2(16.0, -19.0))
 plan_native_nodes.append(out_plan_native)
 
 # ---- 4 PLACE + DEFORM (4.4) - the frame, in VEX ------------------------------
@@ -525,8 +533,50 @@ stage_switch.setComment(
     "looking at costs nothing.")
 stage_switch.setGenericFlag(hou.nodeFlag.DisplayComment, True)
 
-out_null.setInput(0, stage_switch)
-out_null.setPosition(hou.Vector2(34.0, -2.0))
+# ---- conventions.md 2 and 5: the `_*` sweep, immediately before OUT ---------
+#
+# \u26a0 IT IS A WILDCARD ON ALL FOUR CLASSES, NOT A LIST OF NAMES, and that is
+# the whole rule.  `pf::prepare_mesh` named `__scalefactor __scaleX __scaleY
+# __scaleZ` explicitly - in the POINT class, while the wrangles wrote them as
+# DETAIL - so its cleanup node had never removed anything and all four rode
+# out of a shipped asset through a survey, a migration and a review pass.
+#
+# This cycle created about fifty internal attributes (the plan's twelve
+# per-section arrays, the section record, the marker bag, the `attr:` bag, the
+# sampler table) and named every one of them as if it were contract.  They are
+# `_*` now and this pair is what makes that checkable.  The `pc_*` names that
+# remain are named in 16 with their reason: six of them are 13.10's UNION
+# interface that `place._native_tables` reads, `hda.FRAME_POINT_ATTRS` is the
+# plan->frames bridge, and the rest are 3.1 input or 3.4 output contract -
+# which conventions.md 3 rule 2 renames in the `pc_*` -> `pf_*` pass AFTER
+# parity, because renaming one side of a parity comparison destroys it.
+#
+# The collateral is deliberate (conventions.md 2): an upstream `_*` name that
+# was never ours is destroyed too, and `tests/hda/run_attrib_checks.py`
+# records that under its `upstream/` keys so it is a diff a human reads.
+scrub = net.createNode("attribdelete", "_scrub")
+scrub.setInput(0, stage_switch)
+for _parm in ("ptdel", "vtxdel", "primdel", "dtldel"):
+    scrub.parm(_parm).set("_*")
+scrub.setPosition(hou.Vector2(34.0, -2.0))
+scrub.setComment(
+    "conventions.md 2 - the `_*` sweep, on all four attribute classes.\n"
+    "A WILDCARD and not a list: pf::prepare_mesh named its four internals\n"
+    "explicitly, in the wrong class, and had never deleted one of them.")
+scrub.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+
+scrub_groups = net.createNode("groupdelete", "_scrub_groups")
+scrub_groups.setInput(0, scrub)
+scrub_groups.parm("group1").set("_*")
+scrub_groups.setPosition(hou.Vector2(34.0, -4.0))
+scrub_groups.setComment(
+    "conventions.md 5 - the same sweep for GROUPS. `pc_corners` builds\n"
+    "`_cornerpt` and a group-name collision between two stages has already\n"
+    "silently corrupted one of them in this codebase.")
+scrub_groups.setGenericFlag(hou.nodeFlag.DisplayComment, True)
+
+out_null.setInput(0, scrub_groups)
+out_null.setPosition(hou.Vector2(34.0, -6.0))
 out_null.setDisplayFlag(True)
 out_null.setRenderFlag(True)
 

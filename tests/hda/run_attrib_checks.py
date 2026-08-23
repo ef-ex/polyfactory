@@ -55,14 +55,26 @@ import cases                                        # noqa: E402
 OTLS = os.path.join(REPO, "polyfactory", "otls")
 BASELINE = os.path.join(HERE, "baseline.json")
 
-# polyChain is mid-rebuild and owned by another workstream; conventions.md §3.2
-# defers its rename until the native rebuild reaches parity, because parity is
-# asserted by comparing its output against the Python reference and renaming
-# one side destroys that comparison. Prefix match, not an exact filename: that
-# workstream dropped a `pf_polychain_old.hda` beside it mid-audit and an exact
-# match let the frozen tree straight into the run. DELETE THIS on parity — the
-# `_*` rule is adopted in the rebuild, so it should pass on arrival.
-NOT_YET = "pf_polychain"
+# ⚠️ POLYCHAIN IS IN THE RUN NOW, AND THE NOTE THAT EXCLUDED IT WAS FALSE.
+# It read: "DELETE THIS on parity — the `_*` rule is adopted in the rebuild,
+# so it should pass on arrival." Measured on the build that claimed it: the
+# asset carried ZERO `_*` names on any of the four classes at any of its seven
+# Stage values, held exactly one `attribdelete` (point class only, a precision
+# fix) and no `groupdelete` — the rebuild had created ~50 internal attributes
+# and named every one of them as if it were contract. It would have FAILED on
+# arrival, and the one test that could see that was disarmed with a rationale
+# that was not true.
+#
+# conventions.md §3 rule 2 still defers the `pc_*` → `pf_*` rename until the
+# native rebuild reaches parity (renaming one side of a parity comparison
+# destroys it) and says the `_*` rule applies IMMEDIATELY. So the `_*` half is
+# enforced here from now on; the `pf_` half is `NOT_YET_PF`, which this file
+# does not test and which polychain.md owns.
+#
+# The prefix-match form is kept for the exclusion list because that
+# workstream once dropped a `pf_polychain_old.hda` beside the real one
+# mid-audit, and an exact match let the frozen tree straight into the run.
+NOT_YET = "pf_polychain_old"
 
 # Bounds on the parameter sweep. Every toggle gets its other value; every menu
 # gets its first MENU_VALUES entries. Unbounded is a combinatorial explosion
