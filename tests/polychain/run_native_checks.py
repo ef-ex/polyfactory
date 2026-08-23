@@ -4300,12 +4300,33 @@ def stage_is_really_native(root, tag, rewire=None, rows=NATIVE_STAGES,
         busy = [n for n in forbidden
                 if node.node(n) is not None
                 and node.node(n).cookCount() > before[n]]
+        # ⚠️ AND A NAME THAT RESOLVES TO NO NODE IS A COMPLAINT, NOT A SKIP.
+        # `busy` used to read `node.node(n) is not None and ...`, so a
+        # RENAMED node silently turned the forbidden column off - and that
+        # column is the whole of D208's fix, the only behavioural assertion
+        # the `config` row has (its `must_cook` list is empty by design).
+        # Demonstrated: replace the forbidden entries of `config`, `plan` and
+        # `frames` with `kernelXX` / `copy_packedXX` / `pc_plan_solveXX` -
+        # simulating a rename of `copy_packed` - and the suite prints
+        # `every_stage_has_a_second_source` PASS 10/10, `native_stages_are_
+        # really_native` PASS, all five `mutation_*_unplugged` PASS, 0
+        # failing. With the column blinded, re-pointing the `config` Stage
+        # entry at `OUT_final` yields NO complaint where the sound table
+        # yields `config: copy_packed,pc_plan_solve cooked and must not`.
+        # `must_cook` has complained about a missing name since D208; the two
+        # halves of the same row disagreed about it for a cycle.
+        gone = [n for n in tuple(forbidden) + tuple(allowed)
+                if node.node(n) is None]
         if idle:
             bad.append("%s: idle %s" % (token, ",".join(idle)))
         if strangers:
             bad.append("%s: python %s cooked" % (token, ",".join(strangers)))
         if busy:
             bad.append("%s: %s cooked and must not" % (token, ",".join(busy)))
+        if gone:
+            bad.append("%s: %s is not a node in the asset - a declaration "
+                       "naming a node that does not exist asserts nothing"
+                       % (token, ",".join(sorted(gone))))
         nudge += 1
     node.destroy()
     dirt.destroy()
@@ -6028,25 +6049,38 @@ def native_reach(root):
 # interleaved repetitions x three levers, at 4 454 and 17 804 pieces (a 4.7 km
 # and an 18.9 km straight at 2 m spacing):
 #
-#   node               small us/p   big us/p   growth   big ms
-#   pc_arclength          0.8558     0.7439     0.87    13.244
-#   pc_corners            0.0822     0.0219     0.27     0.390
-#   pc_curve_index        0.0269     0.0081     0.30     0.145
-#   pc_curveid            0.0422     0.0180     0.43     0.320
-#   pc_deform_gate        0.9412     0.2406     0.26     4.284
-#   pc_envelope           0.5126     0.4812     0.94     8.568
-#   pc_envelope2          0.1091     0.0746     0.68     1.329
-#   pc_finalize           0.1688     0.1140     0.68     2.030
-#   pc_frames             0.5873     0.1996     0.34     3.553
-#   pc_frames_native      0.4457     0.1501     0.34     2.672
-#   pc_kit_id             0.0362     0.0092     0.25     0.164
-#   pc_markers            0.0370     0.0108     0.29     0.193
-#   pc_plan_emit          2.9598     2.5636     0.87    45.643
-#   pc_plan_solve        25.1938    26.3745     1.05   469.572
-#   pc_proto              0.2703     0.1013     0.37     1.804
-#   pc_sections           0.3345     0.2339     0.70     4.164
-#   pc_stamp              1.9199     0.4280     0.22     7.620
-#   pc_warn_collate       0.2813     0.1975     0.70     3.516
+# ⚠️ RE-RECORDED, AND THE GROWTH COLUMN IS A SPREAD RATHER THAN A NUMBER.
+# The table below used to be one run, and it was measured with the two sizes
+# in two SEPARATE BLOCKS - the small rig built, measured and destroyed, then
+# the big one built and measured - which is D209's defect inside the check
+# that closed D206.  The growth ratio's two sides never saw the same machine,
+# `wrangle_cost_is_flat_in_piece_count` failed on an UNMUTATED build
+# (`pc_plan_solve growth 1.85x`), and six measurements of that sound build
+# read 0.97 / 1.14 / 1.15 / 1.40 / 1.69 / 1.85 against a recorded "1.05x".
+# `wrangle_cost_tables` interleaves the SIZES now; six independent runs of the
+# interleaved estimator read pc_plan_solve growth 1.10 / 1.10 / 1.15 / 1.17 /
+# 1.18 / 1.09, and its big-size cook 470-507 ms where the old estimator swung
+# 482-818.  The numbers below are the range over those six runs.
+#
+#   node               big us/p (6 runs)      growth (6 runs)   big ms
+#   pc_arclength         0.7560 - 0.7817       1.04 - 1.14      13.5-13.9
+#   pc_corners           0.0215 - 0.0247       0.25 - 0.30       0.38-0.44
+#   pc_curve_index       0.0080 - 0.0090       0.30 - 0.36       0.14-0.16
+#   pc_curveid           0.0187 - 0.0217       0.50 - 0.60       0.33-0.39
+#   pc_deform_gate       0.2355 - 0.2533       0.26 - 0.27       4.19-4.51
+#   pc_envelope          0.4697 - 0.4960       0.92 - 0.96       8.36-8.83
+#   pc_envelope2         0.0772 - 0.0891       0.71 - 0.87       1.37-1.59
+#   pc_finalize          0.1119 - 0.1206       0.67 - 0.78       1.99-2.15
+#   pc_frames            0.1970 - 0.2351       0.33 - 0.40       3.51-4.18
+#   pc_frames_native     0.1486 - 0.1756       0.33 - 0.39       2.65-3.13
+#   pc_kit_id            0.0091 - 0.0104       0.22 - 0.30       0.16-0.18
+#   pc_markers           0.0111 - 0.0129       0.31 - 0.41       0.20-0.23
+#   pc_plan_emit         2.5904 - 2.7142       0.91 - 0.96      46.1-48.3
+#   pc_plan_solve       26.4171 - 28.4861      1.09 - 1.18       470-507
+#   pc_proto             0.1048 - 0.1195       0.37 - 0.45       1.86-2.13
+#   pc_sections          0.2506 - 0.3162       0.79 - 1.04       4.46-5.63
+#   pc_stamp             0.4348 - 0.4525       0.22 - 0.24       7.74-8.06
+#   pc_warn_collate      0.2358 - 0.2490       0.73 - 0.79       4.20-4.43
 #
 # THE CEILING IS THE BIG-SIZE RATE x 2.5 PLUS ONE MILLISECOND EXPRESSED PER
 # PIECE, so a node whose whole cook is 0.16 ms is not judged on a coin toss -
@@ -6084,9 +6118,12 @@ WRANGLE_CEILING_US = {
     "pc_stamp":         1.15,
     "pc_warn_collate":  0.56,
 }
-# The widest growth this build shows is `pc_plan_solve`'s 1.05x; 1.6x is slack
-# for cache and thread start-up, and a quadratic node blows it by three orders
-# of magnitude across these two sizes.
+# The widest growth this build shows over SIX interleaved runs is
+# `pc_plan_solve`'s 1.18x (see the spread above - it is a range, not a number,
+# and quoting a single run's value here is what made this ceiling look tighter
+# than it is).  1.6x leaves 36 % over the widest observation for cache and
+# thread start-up, and a quadratic node blows it by three orders of magnitude
+# across these two sizes.
 WRANGLE_GROWTH_CEILING = 1.6
 # The noise floor, in MILLISECONDS, expressed per piece when the ceiling is
 # built.  A node whose entire cook is a fifth of a millisecond cannot carry a
@@ -6157,6 +6194,41 @@ WRANGLE_MUTATION_SCALE = 5.0
 # in a loop, not the cost of losing fifteen cores.
 
 
+# ⚠️ AND THE ROWS THE ARITHMETIC MUTATION CANNOT SEE GET A PHYSICAL ONE.
+#
+# The comment above records that a physical burn was built and abandoned
+# because it read 18/18 on one pass and 11/18 on the next: the burn was
+# LOOP-INVARIANT, so VEX hoisted it and the workload collapsed by the thread
+# count.  Making the body depend on the ELEMENT removes the hoist, and it is
+# then deterministic - the auditor of §23 measured `pc_arclength` 18.8 -> 79.4
+# ms, `pc_plan_solve` 818 -> 1836, `pc_frames_native` 3.8 -> 115,
+# `pc_deform_gate` 5.1 -> 170, `pc_sections` 8.8 -> 86, `pc_envelope` 11.6 ->
+# 53 and `pc_stamp` 8.5 -> 48 on seven of seven tries.  The accumulator is
+# also loop-CARRIED, so the inner iterations cannot be hoisted either.
+#
+# It is used only for the rows the 5x arithmetic mutation lands under the
+# noise floor on - five of eighteen on this build, all of them nodes whose
+# whole cook is a fifth of a millisecond - because it is the expensive proof
+# and the cheap one covers the other thirteen.  Together they say: EVERY row
+# of the table refuses a regression, thirteen of them provably at 5x and five
+# of them provably at all.
+WRANGLE_BURN_ITERS = {"detail": 400000, "primitive": 900, "point": 900}
+WRANGLE_BURN_ELEM = {"detail": "nprimitives(0)", "primitive": "@primnum",
+                     "point": "@ptnum"}
+WRANGLE_BURN = (
+    "\n// a burn whose body depends on the ELEMENT and on its own\n"
+    "// accumulator, so neither VEX's hoist nor its unroller can remove it\n"
+    "if (1) {\n"
+    "    float _burn = 0.0;\n"
+    "    for (int _k = 0; _k < %d; _k++)\n"
+    "        _burn += sin(_burn + (float)%s * 0.0013 + (float)_k);\n"
+    "    if (_burn > 1e30) printf(\"never\");\n"
+    "}\n")
+# The `class` parm's own order, probed rather than recalled: 0 detail,
+# 1 primitive, 2 point, 3 vertex.
+WRANGLE_CLASS = {0: "detail", 1: "primitive", 2: "point", 3: "vertex"}
+
+
 def _wrangle_rig(root, tag, npts):
     """The SHIPPED asset on a straight run, with a nudge on each input.
 
@@ -6223,28 +6295,49 @@ def _wrangle_cook(node, dirt, nudge, stage):
     return out
 
 
-def wrangle_cost_table(node, spline, kit, reps=3, base=0):
-    """Per-node MINIMUM cook time over `reps` x the three levers.
+def wrangle_cost_tables(rigs, reps=3):
+    """Per-node MINIMUM cook time over `reps` x three levers, for EVERY rig,
+    with the rigs INTERLEAVED.
 
-    The minimum is the estimator D204 argued for and this check inherits:
-    interference can only make a pass slower, so the min is the closest thing
-    to the node's own cost.  It also DERIVES the lever - whichever one the
-    minimum came from - so the mutation pass below needs no hand-maintained
-    table of which input dirties which node.
+    ⚠️ THE TWO SIZES USED TO BE MEASURED IN TWO SEPARATE BLOCKS, WHICH IS
+    D209's DEFECT INSIDE THE CHECK THAT CLOSED D206.  The small rig was built,
+    measured over nine cooks and DESTROYED, and only then was the big rig
+    built and measured - so the two sides of the growth ratio never saw the
+    same machine, and a busy moment during one block landed entirely on one
+    side.  `wrangle_cost_is_flat_in_piece_count` failed on an UNMUTATED build
+    because of it (`pc_plan_solve growth 1.85x` against a 1.6 ceiling, run 0
+    of three in one process), and six independent measurements of the same
+    sound build read growth 0.97 / 1.14 / 1.15 / 1.40 / 1.69 / 1.85 while the
+    recorded table claimed "the widest growth this build shows is
+    `pc_plan_solve`'s 1.05x".
 
-    -> ({name: ms}, {name: (nudge node, stage)})
+    `interleaved_best`'s own two properties, applied to the SIZE axis: within
+    one repetition every rig sees the same machine, and the minimum is taken
+    because interference can only make a pass slower.  The rigs must therefore
+    all exist before the first measurement, which is why the caller builds
+    both and destroys neither until the end.
+
+    It also DERIVES the lever - whichever one a node's minimum came from - so
+    the mutation pass below needs no hand-maintained table of which input
+    dirties which node.
+
+    `rigs` is [(base, node, spline, kit)].
+    -> [({name: ms}, {name: (nudge node, stage)})], one per rig, in order.
     """
-    best, lever = {}, {}
+    out = [({}, {}) for _r in rigs]
     for rep in range(reps):
-        for tag, dirt, stage in (("spline", spline, "output"),
-                                 ("kit", kit, "output"),
-                                 ("frames", spline, "frames")):
-            got = _wrangle_cook(node, dirt, base + rep * 10 + len(tag), stage)
-            for name, ms in got.items():
-                if name not in best or ms < best[name]:
-                    best[name] = ms
-                    lever[name] = (dirt, stage)
-    return best, lever
+        for index, (base, node, spline, kit) in enumerate(rigs):
+            best, lever = out[index]
+            for tag, dirt, stage in (("spline", spline, "output"),
+                                     ("kit", kit, "output"),
+                                     ("frames", spline, "frames")):
+                got = _wrangle_cook(node, dirt,
+                                    base + rep * 10 + len(tag), stage)
+                for name, ms in got.items():
+                    if name not in best or ms < best[name]:
+                        best[name] = ms
+                        lever[name] = (dirt, stage)
+    return out
 
 
 def wrangle_verdict(big, small, pieces, small_pieces):
@@ -6303,13 +6396,16 @@ def wrangle_cost_check(root):
       * `mutation_pc_finalize_debatched` - and the real one, §21.4's M3, on the
         node the whole finding is about.
     """
+    # ⚠️ BOTH RIGS ARE BUILT BEFORE EITHER IS MEASURED.  See
+    # `wrangle_cost_tables` - measuring them in two blocks was D209's defect
+    # living inside D206's own check, and it failed on a sound build.
     small_node, small_sp, small_kt, small_pieces = _wrangle_rig(
         root, "small", WRANGLE_SMALL_PTS)
-    small, _lev = wrangle_cost_table(small_node, small_sp, small_kt, base=100)
-    small_node.destroy()
-
     node, spline, kit, pieces = _wrangle_rig(root, "big", WRANGLE_BIG_PTS)
-    big, lever = wrangle_cost_table(node, spline, kit, base=300)
+    (small, _lev), (big, lever) = wrangle_cost_tables(
+        ((100, small_node, small_sp, small_kt),
+         (300, node, spline, kit)))
+    small_node.destroy()
 
     wrangles = sorted(n.name() for n in node.children()
                       if n.type().name() == "attribwrangle")
@@ -6372,18 +6468,37 @@ def wrangle_cost_check(root):
         rate = big[name] * 1e3 / pieces
         ceiling = WRANGLE_CEILING_US[name]
 
-        def _named(ms):
-            worse = dict(big)
+        def _named(ms, small_ms=None):
+            """The verdict on a table where this ONE row is `ms`.
+
+            ⚠️ BOTH SIZES MOVE, AND THAT IS THE FIX.  The mutation used to
+            scale `big[name]` alone, which multiplies that row's GROWTH by 5
+            and trips `WRANGLE_GROWTH_CEILING` almost regardless of the
+            per-piece ceiling - so most rows were being caught by the growth
+            term rather than by the ceiling the check claims to prove.  A real
+            de-batching or algorithmic regression slows BOTH sizes and leaves
+            growth unchanged; measured with 5x applied to both,
+            `pc_curve_index`, `pc_kit_id` and `pc_markers` survived entirely
+            (their sound growth is ~0.3, so even 5x reads 1.5 < 1.6) and
+            `pc_curveid` and `pc_corners` cleared their ceilings by 1.3 % and
+            3.6 % - margins inside the measurement spread.  The check reported
+            "15/18 at 5x, 3 under the floor" and PASSED.
+            """
+            worse, worse_small = dict(big), dict(small)
             worse[name] = ms
+            if small_ms is not None:
+                worse_small[name] = small_ms
             _r, over_m, _u, _l = wrangle_verdict(
-                worse, small, pieces, small_pieces)
+                worse, worse_small, pieces, small_pieces)
             return any(c.startswith(name + " ") for c in over_m)
 
         # ...and the row has to be REACHED at all, exempt or not.
-        if not _named(ceiling * pieces * 1.01e-3):
+        if not _named(ceiling * pieces * 1.01e-3,
+                      small_ms=small.get(name)):
             survived.append("%s (not reached even at its own ceiling)" % name)
             continue
-        if _named(big[name] * WRANGLE_MUTATION_SCALE):
+        if _named(big[name] * WRANGLE_MUTATION_SCALE,
+                  small_ms=small[name] * WRANGLE_MUTATION_SCALE):
             continue
         slip = (WRANGLE_MUTATION_SCALE - 1.0) * rate * pieces * 1e-3
         if slip >= 2.0 * WRANGLE_FLOOR_MS:
@@ -6393,7 +6508,37 @@ def wrangle_cost_check(root):
                                WRANGLE_MUTATION_SCALE, ceiling, slip))
         else:
             blind.append("%s +%.2f ms" % (name, slip))
-    check("mutation_every_wrangle_ceiling_bites", not survived,
+    # ⚠️ AND `blind` USED TO LEAVE THE VERDICT ENTIRELY, which is the other
+    # half of the same finding: with only `survived` asserted, this row would
+    # print PASS at "0/18 at 5x, 18 under the floor" if the instrument ever
+    # read low across the board.  Every blind row now has to be reddened
+    # PHYSICALLY - the burn above, appended to that wrangle's own snippet -
+    # so a row that the arithmetic mutation cannot see is proved by the one
+    # thing that is not arithmetic.
+    burned, burn_rows = [], []
+    for entry in list(blind):
+        name = entry.split()[0]
+        target = node.node(name)
+        cls = WRANGLE_CLASS.get(int(target.parm("class").eval()), "point")
+        sound_src = target.parm("snippet").eval()
+        target.parm("snippet").set(
+            sound_src + WRANGLE_BURN % (WRANGLE_BURN_ITERS[cls],
+                                        WRANGLE_BURN_ELEM[cls]))
+        dirt, stage = lever[name]
+        got = _wrangle_cook(node, dirt, 900 + len(burn_rows), stage)
+        target.parm("snippet").set(sound_src)
+        ms = got.get(name)
+        # the PER-PIECE CEILING alone, deliberately - the growth term cannot
+        # help here, because the burn is applied at the big size only and the
+        # whole point of this pass is that the ceiling refuses on its own.
+        seen = (ms is not None
+                and ms * 1e3 / pieces > WRANGLE_CEILING_US[name])
+        burn_rows.append("%s %s -> %.3f ms (ceiling %.3f)"
+                         % (name, cls, ms if ms is not None else -1.0,
+                            WRANGLE_CEILING_US[name] * pieces * 1e-3))
+        if not seen:
+            burned.append(name)
+    check("mutation_every_wrangle_ceiling_bites", not survived and not burned,
           "%d/%d at %.0fx, %d under the floor"
           % (len(WRANGLE_CEILING_US) - len(survived) - len(blind),
              len(WRANGLE_CEILING_US), WRANGLE_MUTATION_SCALE, len(blind)),
@@ -6402,10 +6547,14 @@ def wrangle_cost_check(root):
           "smaller than twice the %.0f ms noise floor the ceiling was built "
           "with - so with `wrangle_ceilings_are_tight` holding every ceiling "
           "at or under %.0fx, no wrangle can %.0fx in silence and the ones "
-          "this instrument cannot see are these, with their numbers: %s. "
-          "Survived: %s"
+          "this instrument cannot see are these, with their numbers: %s - "
+          "and each of THOSE is reddened by a PHYSICAL element-dependent "
+          "burn instead: %s. Survived the arithmetic mutation: %s. Survived "
+          "the burn: %s"
           % (WRANGLE_MUTATION_SCALE, WRANGLE_FLOOR_MS, WRANGLE_HEADROOM,
-             WRANGLE_MUTATION_SCALE, blind or "none", survived or "none"))
+             WRANGLE_MUTATION_SCALE, blind or "none",
+             "; ".join(burn_rows) or "none", survived or "none",
+             burned or "none"))
 
     # --- and the REAL survivor, M3, on the node it shipped through ----------
     fin = node.node("pc_finalize")
@@ -6491,6 +6640,104 @@ def union_parity(root):
           "miter threshold. %s" % (n_prims, bad[:2] or "identical"))
 
 
+class _StubResult(object):
+    """The smallest thing a runner's `main` can put in `results`."""
+
+    def __init__(self, value):
+        self.ok, self.skipped, self.value = True, False, value
+
+    def as_dict(self):
+        return {"name": "reachability", "value": self.value}
+
+    def __repr__(self):
+        return "reachability=%r" % (self.value,)
+
+
+def _runner_reaches_its_baseline(module, cases_module, tripwire_name, key):
+    """Call `module.main()` FOR REAL and watch what it does about a moved
+    baselined value.  -> (rows, note).
+
+    ⚠️ THIS IS THE HALF THAT WAS MISSING AND IT IS THE HALF THAT MATTERS.
+    D210's rule was asserted on `run_scene_checks.exit_code` as a pure
+    function, and on `run_2d_checks` by grepping three literal strings out of
+    `inspect.getsource(main)`.  Neither is REACHABILITY: inserting
+
+        if not update and not json_out:
+            print(...); sys.exit(1 if failures else 0)
+
+    before the baseline block of `run_2d_checks.main` leaves every asserted
+    string present but unreachable, and the row printed PASS 9/9 while the
+    runner itself - with a `baseline_2d.json` value perturbed to 999999
+    against a real 176 - printed NO movement line and exited 0.  That is
+    D210's exact finding restored past a green check.
+
+    So `main` is CALLED, with two things replaced and both restored: the case
+    builder returns nothing and the tripwire block returns one stub value, so
+    the run costs milliseconds instead of minutes and the only thing being
+    exercised is the baseline-and-exit tail; and `BASELINE` points at a
+    throwaway file this function writes.  Three passes: write the baseline,
+    perturb it and demand exit 1 with the movement printed, then restore it
+    and demand exit 0.  A `sys.exit` inserted anywhere above the baseline
+    block fails the second pass, which is the whole point.
+    """
+    import contextlib
+    import json as _json
+    import tempfile
+
+    handle, path = tempfile.mkstemp(suffix=".json")
+    os.close(handle)
+    # `mkstemp` leaves an EMPTY file and both runners do `if
+    # os.path.exists(BASELINE): json.load(...)`, so the first pass has to find
+    # nothing rather than nothing-shaped.
+    os.remove(path)
+    saved = (module.BASELINE, cases_module.build_all,
+             getattr(module, tripwire_name), list(sys.argv))
+    module.BASELINE = path
+    cases_module.build_all = lambda: {}
+    setattr(module, tripwire_name, lambda: [_StubResult(1.0)])
+
+    def _run(argv):
+        sys.argv = ["runner"] + argv
+        out = io.StringIO()
+        code = None
+        try:
+            with contextlib.redirect_stdout(out):
+                module.main()
+        except SystemExit as exc:
+            code = exc.code
+        return (code, out.getvalue())
+
+    try:
+        write_code, _ = _run(["--update-baseline"])
+        with io.open(path, encoding="utf-8") as fh:
+            written = _json.load(fh)
+        clean_code, clean_text = _run([])
+        written[key][0]["value"] = 999999.0
+        with io.open(path, "w", encoding="utf-8") as fh:
+            fh.write(_json.dumps(written, indent=2, sort_keys=True))
+        moved_code, moved_text = _run([])
+    finally:
+        module.BASELINE = saved[0]
+        cases_module.build_all = saved[1]
+        setattr(module, tripwire_name, saved[2])
+        sys.argv = saved[3]
+        if os.path.exists(path):
+            os.remove(path)
+
+    name = module.__name__
+    return ((("%s writes a baseline and exits 0" % name, write_code in (0, None)),
+             ("%s exits 0 on an unmoved baseline" % name,
+              clean_code in (0, None)),
+             ("%s REACHES the baseline block" % name,
+              "MOVED SINCE BASELINE" in moved_text),
+             ("%s exits NON-ZERO on a moved value" % name, moved_code == 1)),
+            "clean exit=%r, moved exit=%r, moved line: %s"
+            % (clean_code, moved_code,
+               "printed" if "MOVED SINCE BASELINE" in moved_text
+               else "ABSENT"))
+
+
+
 def scene_baseline_is_enforced():
     """D210 - `run_scene_checks`' baseline used to be ADVISORY.
 
@@ -6545,12 +6792,28 @@ def scene_baseline_is_enforced():
         ("run_2d_checks keeps no advisory exit of its own",
          "1 if failures and not update" not in src),
     )
+    # ...and the BEHAVIOURAL half, which is what the three rows above are NOT.
+    # A source grep proves a line is present, never that it runs; see
+    # `_runner_reaches_its_baseline` for the mutation that leaves all three
+    # strings in place and still exits 0 on a moved value.
+    import cases2d
+
+    notes = []
+    for module, cases_module, tripwire, key in (
+            (RSC, cases, "port_tripwires", "ZZ_port_tripwires"),
+            (R2D, cases2d, "tripwires", "ZZ_2d_tripwires")):
+        got, note = _runner_reaches_its_baseline(module, cases_module,
+                                                 tripwire, key)
+        rows += got
+        notes.append("%s: %s" % (module.__name__, note))
     bad = [name for name, ok in rows if not ok]
     check("scene_baseline_movement_fails_the_run", not bad,
           "%d/%d" % (len(rows) - len(bad), len(rows)),
           "`run_scene_checks` AND `run_2d_checks` exit non-zero on a moved "
-          "baselined value (D210 - both used to print and exit 0). Broken: %s"
-          % (", ".join(bad) or "none"))
+          "baselined value (D210 - both used to print and exit 0), asserted "
+          "on the pure rule, on the source, AND by CALLING each runner's own "
+          "`main` against a perturbed throwaway baseline. %s. Broken: %s"
+          % ("; ".join(notes), ", ".join(bad) or "none"))
 
 
 def main():
