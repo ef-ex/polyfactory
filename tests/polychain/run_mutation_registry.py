@@ -223,13 +223,44 @@ def main():
     runners = sorted(set(m.runner for m in picked))
     t0 = time.time()
 
+    # ⚠️ THE SWEEP HAS TO BE RESUMABLE, and this is not a convenience.  A full
+    # pass is over an hour of hython, the two long-running agents on this
+    # machine share it, and the first attempt was KILLED at mutation 7 of 27 -
+    # losing 45 minutes of green verdicts that had already been earned.  The
+    # state file is keyed to the COMMIT, so a resume can never mix verdicts
+    # from two different trees, and `--only` always re-runs.
+    state_path = (argv[argv.index("--state") + 1]
+                  if "--state" in argv else None)
+    head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO)
+    head = head.decode().strip()
+    state = {"head": head, "control": {}, "results": {}}
+    if state_path and os.path.exists(state_path):
+        with open(state_path) as fh:
+            got = json.load(fh)
+        if got.get("head") == head:
+            state = got
+            print("resuming %s: %d cached control runners, %d cached verdicts"
+                  % (state_path, len(state["control"]), len(state["results"])))
+        else:
+            print("%s is for %s, not HEAD %s - starting clean"
+                  % (state_path, got.get("head", "?")[:8], head[:8]))
+
+    def save():
+        if state_path:
+            with open(state_path, "w") as fh:
+                json.dump(state, fh, indent=1, sort_keys=True)
+
     print("=== 0. the control build: a pristine export, all four runners ===")
-    control, bad = {}, []
+    control, bad = dict(state["control"]), []
+    todo = [r for r in runners if r not in control]
+    for r in control:
+        print("  %-7s %4d checks (cached)" % (r, len(control[r])))
     root = os.path.join(tempfile.mkdtemp(prefix="pcmut_ctl_"), "tree")
     try:
-        export(root)
-        rebuild(root)
-        for r in runners:
+        if todo:
+            export(root)
+            rebuild(root)
+        for r in todo:
             code, states, moved, _out = run(root, r)
             red = sorted(n for n, s in states.items() if s == "FAIL")
             # ⚠️ THE CONTROL IS RE-RUN ONCE BEFORE IT IS DECLARED BROKEN, and
@@ -260,20 +291,35 @@ def main():
               "worthless until it is: %s" % "; ".join(bad))
         return 1
 
+    state["control"] = control
+    save()
+
     print("\n=== 1. the registered mutations ===")
     rows, proven = [], {}
     for mut in picked:
         t = time.time()
-        try:
-            verdict, detail, red = execute(mut, control)
-        except Exception as exc:                                # noqa: BLE001
-            verdict, detail, red = "STALE", "%s: %s" % (
-                type(exc).__name__, str(exc)[:300]), set()
+        cached = state["results"].get(mut.id) if only is None else None
+        if cached:
+            verdict, detail, red = cached[0], cached[1] + " (cached)", set(
+                cached[2])
+        else:
+            try:
+                verdict, detail, red = execute(mut, control)
+            except Exception as exc:                            # noqa: BLE001
+                verdict, detail, red = "STALE", "%s: %s" % (
+                    type(exc).__name__, str(exc)[:300]), set()
+            state["results"][mut.id] = [verdict, detail, sorted(red)]
+            save()
         if verdict == "ABORT" and mut.expect == "abort":
             verdict = "RED(abort, declared)"
         ok = verdict.startswith("RED")
         for name in red:
-            proven.setdefault(name, []).append(mut.id)
+            # ⚠️ KEYED BY RUNNER, not by name. `corner_abut_m` exists in
+            # `scene`, `2d` AND `images`, and a mutation that reddens the scene
+            # copy says nothing about the other two - crediting them would be
+            # this file over-claiming in exactly the way it was written to
+            # stop.
+            proven.setdefault("%s/%s" % (mut.runner, name), []).append(mut.id)
         rows.append((mut, verdict, detail, ok))
         print("  [%s] %-32s %-8s %5.0fs  %s"
               % ("ok" if ok else "!!", mut.id, verdict, time.time() - t,
@@ -282,14 +328,14 @@ def main():
     print("\n=== 2. coverage - every check name, PROVEN / EXEMPT / UNPROVEN ===")
     gaps = []
     for r in runners:
-        names = sorted(control[r])
+        names = ["%s/%s" % (r, n) for n in sorted(control[r])]
         p = [n for n in names if n in proven]
         e = [n for n in names if n not in proven and n in REG.EXEMPT]
         u = [n for n in names if n not in proven and n not in REG.EXEMPT
              and n in REG.UNPROVEN]
         g = [n for n in names if n not in proven and n not in REG.EXEMPT
              and n not in REG.UNPROVEN]
-        gaps += ["%s/%s" % (r, n) for n in g]
+        gaps += g
         print("  %-7s %4d checks: %3d proven, %3d exempt, %3d unproven, "
               "%3d UNDECLARED" % (r, len(names), len(p), len(e), len(u),
                                   len(g)))
@@ -309,7 +355,7 @@ def main():
             # the thing that needs its own line.
             print("\nUNPROVEN.update(dict.fromkeys((")
             for n in gaps:
-                print('    "%s",' % n.split("/", 1)[1])
+                print('    "%s",' % n)
             print('), "no mutation yet"))')
 
     failed = [m.id for m, _v, _d, ok in rows if not ok]
