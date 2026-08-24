@@ -6943,6 +6943,9 @@ def wrangle_cost_check(root):
     for entry in list(blind):
         name = entry.split()[0]
         target = node.node(name)
+        if target is None or name not in lever:
+            burned.append("%s (no node, or it never cooked)" % name)
+            continue
         cls = WRANGLE_CLASS.get(int(target.parm("class").eval()), "point")
         sound_src = target.parm("snippet").eval()
         target.parm("snippet").set(
@@ -6981,7 +6984,26 @@ def wrangle_cost_check(root):
              burned or "none"))
 
     # --- and the REAL survivor, M3, on the node it shipped through ----------
+    #
+    # ⚠️ A NODE THAT NEVER COOKED IS A COMPLAINT, NOT A KeyError, and that
+    # is D208's lesson applied to this check.  `lever` only holds the
+    # nodes the profiler actually saw, so unplugging `guard_native` -
+    # which takes `pc_finalize` and `pc_warn_collate` off the cooked
+    # path entirely - made this line raise, and the run ended in a
+    # TRACEBACK after two [FAIL] lines with every check below it never
+    # run.  The exit code was 1 so a caller was safe; a reader counting
+    # [FAIL] lines was not, and neither was the summary line, which
+    # never printed.  The two rows above already name the missing node.
     fin = node.node("pc_finalize")
+    if "pc_finalize" not in lever or fin is None:
+        check("mutation_pc_finalize_debatched", False, "never cooked",
+              "§21.4's SURVIVOR 1 cannot be staged: `pc_finalize` did not "
+              "cook on any of the three levers, so there is nothing to "
+              "de-batch. `wrangle_cost_is_flat_in_piece_count` names it "
+              "too - this row says the MUTATION could not run, which is a "
+              "different sentence from the mutation surviving.")
+        node.destroy()
+        return
     sound = fin.parm("snippet").eval()
     dirt, stage = lever["pc_finalize"]
     fin.parm("class").set(0)

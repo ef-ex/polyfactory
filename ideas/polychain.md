@@ -28,11 +28,11 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 |---|---|
 | Branch | `polychain` (created 2026-08-21 off `cityGen`) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
-| Last completed | **CYCLE N-4B — PART B: THE GUARD, WIDENED IN MEASURED ORDER (2026-08-24). Read §23 first, then §22, then §21.** Commits `7ece224`, `12d89c0`, `1c167b4`. **The measurement re-ordered the brief.** `hou.perfMon` on the shipped asset, per refused build class: **conformed streets 772 ms, hilly streets 1 217, CURVED streets 490, cornered streets 283, marked streets 212, padded streets 211, a 2 km arc 54, `kit_starter` 1.5–1.8** — and level 2 already ADMITTED the curved rows (17 400 planned / 17 400 built; 1 888 / 1 888). So the citygen shape was never the cornered one, and the two cheapest refusals were not about geometry at all. **Three classes flipped to native, all at 0 % Python: CURVED runs** (level 1's deform bound changed CATEGORY — it held an UPPER bound on `span_deviation` and now holds a LOWER one, because level 2 is the exact answer and level 1 is only a COST heuristic; D216), **MARKED runs** (the whole refusal existed to keep D88's warning, which `kernel` raises and a native output never cooks — it is raised by `pc_sections` now, word for word; D218), **PADDED runs** (`grep pc_pad polyfactory/vex/` returns ONE hit, `pc_plan.h` reading CONFIG's flattened columns, so padding the kit before it is flattened is the whole port). ⚠️ **THE OPERANDS WERE THE FINDING, NOT THE FORMULA**: the bound built from the kit's raw maxima refused the 300 curved streets at 0.0258 m against a 0.01 m tolerance while level 2 admitted every piece — D27 (a RIGID module never deforms; the kit's widest is `corner_post` at 1.30 m and it is rigid) and D87 (a yaw-only mode reaches by its z half, 0.03–0.04 m, not 1.00) were both being ignored (D217). ⚠️ **D154 is DECLINED with the measurement that declines it** (D219): `kit_starter` cooks **once per instance, ever** — `cookCount` 1 through spline nudges, three parms and both Stage changes while `config` beside it goes 1 → 4 — and §13.3.6's prescribed `box` SOP gives the same COUNTS as `box_mesh` but a different point ORDER, so the port would move `geometry_digest` on every case for 1.5 ms. **ELEVEN source-level mutations with the .hda rebuilt, THREE SURVIVED and all three are closed**: D27's skip was correct and unwatched; the underivable-kit branch is unreachable through a node (D212's pure-verdict remedy); and **`parms_inert_under_payload` had been green for two cycles while testing only the REFERENCE**, because its fixture is a mitered corner the guard refuses (D221). Plus one **flaky check found on an UNMUTATED build** — `decompose_streets_300_wall_clock` read 0.53 / 0.92 / 0.94 / 1.12x on a 1.5 ms fixture and went red once; D209 fixed its estimator and never gave it a size, so D211's floor is applied and the count is 6 000 (at which the native decompose is a REAL 1.55–1.61x speedup, where 300 read par). **THE NUMBER:** an arc at 2 km went **96.0 % → 2.3 % Python**, at 20 km **0.2 %**; straight 2 km 3.6 → 2.5 %, 20 km 0.4 → 0.2 %; the citygen shape end-to-end reads **0.22x, a 4.4x speedup**. `output_guard_parity` **9 native / 83 reference → 18 / 74, identical**. **Conformed (954 ms), elevation (1 349 ms) and cornered (336 ms) builds STILL TAKE THE REFERENCE and that is correct** — the guard fails safe and the output is the reference's bit for bit. Suites: **`run_native_checks` 122 `[PASS]` / 0** (was 117), `run_scene_checks` 0 / **0 moved**, `run_2d_checks` 0 / **0 moved**, `run_hda_checks` 0, `scale_gate` 9 / 0, `gate_images` 0, `run_attrib_checks` 0 / 0, **350 unit tests OK**, citygen untouched. **Dev-loop rule 0 is NOT discharged** — start the audit at §23.11. |
-| Native rebuild (§13/§15–§23) | **⚠️ §23 IS THE NEWEST ENTRY (cycle N-4B, PART B, 2026-08-24) — read §23 first, then §22, then §21, then §20.** §23 widened the guard: three build classes (CURVED, MARKED, PADDED) flipped to the native chain at 0 % Python, `output_guard_parity` went 9 native / 83 reference to **18 / 74, identical**, and conformed / elevated / cornered builds still take the reference by design. It also DECLINED D154 with the measurement that declines it, and closed three mutation survivors plus one flaky check. What follows is §22's entry, unaltered. **§22 (cycle N-4A, 2026-08-23) SUPERSEDES THE “Next up” LINE IN §21.9.** §22 closes all five of §21.9's evidence defects (D206–D210); the tool's geometry, kernel and VEX are UNCHANGED by it and no baselined value moved. What follows is §21's entry, unaltered. **CYCLE N-3V2 — INDEPENDENT AUDIT OF N-3V, BY AN AGENT THAT WROTE NONE OF IT. DEV-LOOP RULE 0 IS DISCHARGED FOR N-3V. Read §21 before touching anything, then §20.** Everything was re-run from a pristine `git archive HEAD` export, so the concurrent phase-2 agent's seven uncommitted files could not colour it. **§20's 13 fixes all reproduce and its headline number reproduces on a SECOND INSTRUMENT** (`hou.perfMon` per-node self time, not a stopwatch): the shipped default measures **3.6 % Python at 2 km and 0.4 % at 20 km** against §18.2's pre-flip 88.2 % / 95.3 %, and **88-98 % on a build the guard refuses**. ⚠ **TWO CORRECTIONS TO §20's TABLE**: `config` is not the only Python SOP that cooks - `kit_starter` cooks on every COLD build at 1.6-1.9 ms, and it is geometry construction in Python, which is exactly what **D154** says must become native `box` SOPs; and **87 % of the shipped native cook at 20 km is ONE WRANGLE**, `pc_plan_solve` (679 ms of 780). ⚠ **TEN SOURCE-LEVEL MUTATIONS - each edits a source file and REBUILDS the .hda, which moves the asset and its declaration together - AND TWO SURVIVED (§21.4).** **SURVIVOR 1: `pc_finalize` DE-BATCHED** into a single-threaded detail loop ships an identical fence at **2.15 → 14.56 ms (+577 %)** with the suite 105 `[PASS]` / 0 - D193's defect one node to the left, because the per-node cost ceilings cover **4 of the 18 wrangles** and the other fourteen have no cost assertion of any kind (D206). **SURVIVOR 2: §20.5's OWN FIX IS UNDOABLE IN SILENCE** - re-wording the two "via the PYTHON BRIDGE" Stage labels back to "NATIVE" ships a menu with two entries labelled Plan NATIVE and two labelled Frames NATIVE, one of each serving the dead bridge, suite green: `stage_menu_reaches_every_stage` asserts a label is non-empty, never that it is TRUE (D207). **And §20.1's headline mutation is stopped by an assertion CRASH, not by the check credited with it** - `every_stage_entry_serves_the_node_it_names` reads the very table the mutation edits, so it passes on both declaration mutations; only `NATIVE_STAGES`' independent second declaration caught the plan row, and nothing independent covers the `reference` row (D208). Two more: `output_guard_cost` **failed once in three runs of an UNMUTATED build** (1.31x on a 5 ms node against a 1.15x ceiling - D209), and `run_scene_checks`' baseline **prints a moved value and still exits 0** (D210). Killed clean: the flip's undo, 32-bit `pc_arclength`, the corner bisector (51 red in `run_scene_checks`), the identity-permutation fast path, `_cond_columns`' revert, and the `_*` sweep. **GATES: PC-G1, PC-G2, PC-G3, PC-G4 RE-CONFIRMED AND LOOKED AT** on images whose drawn-segment counts were checked against the geometry (D194) - segment/polygon 4.0-4.4 throughout; **PC-G5 still does not pass**, unchanged, for P2-3V's two reasons. Suites from clean: **346 unit tests** (not 328 or 350), `run_native_checks` **105 / 0**, `run_scene_checks` **3 665 / 0**, `run_hda_checks` **29 / 0**, `run_2d_checks` **528 / 0**, `scale_gate` 9 rows / 0, `gate_images` 0, `run_attrib_checks` 0 / 0 unreviewed, **no baselined value moved and citygen untouched**. ⚠ `devScripts/create_pf_polychain_hda.py` defaults `POLYFACTORY` to a HARDCODED `F:/projects/polyfactory`, so running it from a copy overwrites the REAL repo's .hda (§21.7). — the N-3V entry it replaces follows. **CYCLE N-3V — THE AUDIT RESPONSE. `Stage = output` IS THE NATIVE CHAIN, IT NOW SHIPS THE SAME FENCE AS THE REFERENCE, AND THE FLIP CAN NO LONGER BE UNDONE SILENTLY. Read §20 before touching anything.** Three independent reviewers returned 13 findings; all 13 are reproduced and closed, each as a standing check with a mutation that reddens. **TWO SHIPPED PARITY DIVERGENCES (§20.2), both 100 % of the run, both on builds the guard ADMITS with no warning**: a `pc_cond` list of 2, 3 or 4 numbers comes back out of `style.read` as a `hou.Vector2/3/4`, which `_cond_columns` called unreadable — 10 `panel` prims natively against the reference's 12 `gate`, and lengths 1/5/6 agreed, so nothing in the suite (which never round-tripped a cond value through the payload) could see it; and an `attr:<name>` subject that is a VECTOR was read as COMPONENT 0 in VEX where the reference gets the whole tuple — 12 `gate` against 10 `panel` on `gt`, the other way on `lt`. Both fixed by giving `pc_cond_subject` Python's THIRD answer (`PC_S_UNREADABLE`: `ne` is True, everything else False), which also closes `ctx_base`'s dict-valued `attrs`/`marker_data`; COND_BAD now makes `_native_ok` REFUSE rather than silently answer False. **FIVE MUTATIONS OF THE SHIPPED ASSET THAT 94 PASSES COULD NOT SEE (§20.1)** — including pointing `Stage = reference` at `OUT_final`, which turned the cycle's headline parity proof into a comparison of the output WITH ITSELF over all 92 cases and stayed green. Root cause: `STAGES` claimed three consumers read it and **no check read it at all**. It is `tests/polychain/native.STAGES` now, (token, null, FEEDER, label), read by the build script and by `every_stage_entry_serves_the_node_it_names`; `asset_stages_match_the_rig` compares 27 INPUT WIRES as well as parameters; `output_guard_parity` counts `copy_packed`'s cookCount instead of believing the envelope; `NATIVE_STAGES` gained `frames_native` and `output` (17 nodes / 3 stages → 32 / 5). **`bench_guard_fallback` existed only in two source comments** — it is written (1.47x at 2 km, 1.8x ceiling) with `no_case_pays_the_guard_fallback` (0 of 92) beside it. **`pc_plan_solve` finally has the ceiling D193's mandate named** — 34 µs/piece, measuring 24.6-25.0, min over three INTERLEAVED repetitions because a single best-of-3 pass reads 26-42 on an unchanged build (D204); the identity-permutation skip took another 13-18 % off it and `bench_plan_long_curve` went **0.4369 → 0.3510 s**. The sticky note and the build script's docstring said the opposite of the build and are rewritten with a check (§20.5). **⚠ THE NUMBER, re-measured: 2.5 % Python at 2 km and 0.2 % at 20 km on an admitted build (`config` alone, a FIXED 1.7 ms), against 84-99 % on a refused one. 9 of 92 cases are inside the envelope — unchanged, and the COND_BAD refusal did not narrow it.** The asset is **51 nodes**, 18 wrangles all at `vex_precision = 64`, 4 Python SOPs, 14 nulls, 3 switches, 10 Stage entries. Suites: **`run_native_checks` 105 `[PASS]` / 0 failing** (was 94/0), `run_scene_checks` 0, `run_hda_checks` 0, `scale_gate` 9 rows / 0, `gate_images` 0, `run_2d_checks` 0, `run_attrib_checks` 0 failing / 0 unreviewed, 328 unit tests OK, **and no baselined value moved**. **Dev-loop rule 0 is NOT discharged for this cycle** — start the audit at §20.7. |
-| Next up (native lane) | **PART B's three cheap classes are DONE (§23). What is left is the three big ones, in measured order of the Python they remove — and each is a CYCLE, not a stage.** **(1) N6, CONFORM — 954 ms, the largest by 3.4x.** §13.3.5's design (`ray` as a NODE + a `pc_drop` wrangle) stands but understates it: `ConformPath` wraps `place.Path`, so the drape reaches the frames, the plan positions, the deform gate AND `span_deviation`'s two unported terms (D100's camber rotation, D104's extra stations) at once — `pc_gate.h` says so in its own header, and the gate DECLARES itself unanswerable whenever a surface is wired. **(2) N5, THE DEFORMED BRANCH — 1 349 ms** (`pc_stations` + `pc_deform`): ripples and hills, the hottest node in the tool, and it retires `pc_plan_bridge`, `pc_frames`, `pc_frames_valid`, `OUT_plan` and `OUT_frames`. **(3) N8, §4.3 CORNERS — 336 ms**, the last and least certain. **The cheapest three remaining refusals**, each measured on a 2 km run: `show_warnings` (54 ms — `colour_warnings`' `Cd`, one wrangle), `display = proxy|plan` (50 ms — D81/D82; the proxy needs a box kit built in the graph, which is D154's problem wearing a different hat), `fill = tile` (58 ms — N7's slice caps). ⚠️ **D216 IS THE SHAPE OF EVERY FUTURE WIDENING**: the exact test lives at level 2, the cheap test at level 1 may be approximate IN A NAMED DIRECTION, and the cost of being wrong is measured (`bench_guard_fallback` 1.8x; the ladder reaches it at 1.21–1.27x). ⚠️ **THE GUARD MUST FAIL SAFE**: when the native chain cannot answer a build it takes the REFERENCE — never “evaluate False and ship”, which was the root cause of both of §20.2's criticals and is why `bend_bound_ok` is an explicit third value. ⚠️ **`pc_plan_solve` is 87 % of the shipped native cook at 20 km** and everything else together is 13 % — that is where optimisation lives, if any, and `wrangle_ceilings_are_tight` will go RED on the first real speedup until the §22.2 table is re-recorded (deliberate). ⚠️ **Every new wrangle needs a row in `WRANGLE_CEILING_US`** (D206), **a `.vfl` header naming its class, precision and inputs** (D207), and **a new stage needs a `BRIDGE_STAGES` or `NATIVE_STAGES` row** (D208) — on top of `vex_precision = 64`, the `_*` law, and `native.STAGES`' FEEDER column. ⚠️ **D221: a check that polices a behaviour now has TWO implementations behind it** — it must run on both, or assert which one it ran on (`took_native` in the verdict, not in a print). ⚠️ A new `pc_warn_*` must be written with `setpointattrib`, not bound with `i@`, or it is published on every element whether it fired or not (§19.2). |
+| Last completed | **CYCLE N-4C — THE §23 AUDIT, WORKED THROUGH (2026-08-24). Read §24 first, then §23, then §22.** Commits `cac4f68`, `4f04aa5`, `935d2ef` and this one. **Twenty findings: nineteen reproduced, one DISPROVED with the measurement that disproves it.** ⚠️ **THE STORAGE WAS THE FINDING — four shipped parity divergences in one shape, all on builds the guard ADMITTED with no warning.** 3.1 names the spline attributes and never names their STORAGE: `place.read_curves` converts what the artist authored (`str(cid)`, `int(...)`, `float(u)`), VEX reads THE TYPE'S ZERO, and zero is legal in every one of them. An **int `edge_id`** gave `pc_curve_id` '0'/'0' against '3'/'3' **and emitted the curves in a different ORDER**; an **int `pc_style`** under an `attr:` condition built 10 `panel` against 12 `gate`, **100 % of the run**; an **int `pc_yclass`** built a 1D run where the reference builds 2D, with five prim attributes absent from the schema; a **string `pc_marker_id`** placed no gate at all. Nothing in the suite could see any of it — `edge_id`, D29's second rung, had **zero occurrences under `tests/`**. **The answer is a REFUSAL, not a coercion** (`str(2.0)` is '2.0' where `sprintf("%g")` is '2'), and it is an eleven-row storage table in `pc_envelope.vfl`; D223. ⚠️ **THE ORDINARY ARTIST KIT COST 2.35x**: the slot parms default to the STARTER kit's module names, the parm face never validates the style against the kit, so bringing your own kit planned 18 870 pieces, built ZERO, was refused by level 2 and cooked the reference on top — 1.507 s against 0.642 s at 18.9 km, over the 1.8x fallback ceiling, warnings empty. Level 1 refuses it now (0.98x); D224. Plus `_bend_bound` **failing OPEN on an empty kit** (a bound of zero flagged DERIVED — the exact fail-open both its own docstring and `pc_envelope.vfl`'s warning block say the flag exists to prevent), and D88's warning raised **TWICE** on the L1-admit/L2-refuse class PART B created (it lives on `pc_warn_collate` now, whose cookCount is `kernel`'s exact complement; D225). ⚠️ **THREE CHECKS COULD NOT FAIL**: `wrangle_cost_is_flat_in_piece_count` measured its two SIZES in two separate blocks — D209 inside the check that closed D206, and it went red on a SOUND build (growth 0.97–1.85 against a recorded '1.05x'); the wrangle mutation **scaled only the big size**, so eleven of eighteen rows were caught by the growth term and not by their ceiling, and the exempt set never entered the verdict; and `run_2d_checks`' D210 rule was proved by **grepping three strings out of `main`** — an early `sys.exit` above the baseline block leaves all three present, unreachable, and the row still printed PASS 9/9. All three closed, each with the mutation that reddens it. **THE NUMBER, measured here per class and per size**: straight **3.5 % Python at 2 km, 0.3 % at 20 km**; a curved R = 2 000 arc **3.4 % / 0.3 %**; and the classes the guard still refuses — **cornered 91.9 % / 94.9 %, conformed 97.2 % / 98.3 %** — which is correct: the guard fails safe and the output is the reference's, bit for bit. All the Python on an admitted build is `config`, a FIXED 2.3–2.4 ms, and **80 % of a 20 km native cook is `pc_plan_solve`**. ⚠️ **THAT NODE PARALLELISES PER SECTION**: the same piece count costs **30x more as one long curve than as 300 short ones** (33 586 pieces / 1 section = 1 139.7 ms; 34 200 / 300 sections = 33.7 ms). Reproduced, measured, **NOT fixed** — `plan_solve_section_shape` is the tripwire, the rewrite is D222 and it is a cycle. The auditor's other performance finding (~2/3 of the node is the five string columns) is **DISPROVED**: deleting the writes and leaving everything live is 1 871 ms against a sound 1 615, and the truncation the finding rests on reads 7.9 ms — 204x, because VEX eliminates the ENTIRE dead fill. **FIFTEEN SOURCE-LEVEL MUTATIONS with the .hda rebuilt, NO SURVIVORS** (two are caught by the build script itself). Suites from a pristine `git archive HEAD` export: `run_native_checks` **130 `[PASS]` / 0** (was 122), `run_hda_checks` **31 / 0**, `run_scene_checks` **3 665 / 0 failing, 0 moved**, `run_2d_checks` **633 / 0, 0 moved**, `scale_gate` 9 rows / 0, `gate_images` 0, `facade_images` 0, `run_attrib_checks` 0 / 0, **350 unit tests OK**. **GATES PC-G1..PC-G4 RE-CONFIRMED AND LOOKED AT** on images whose drawn-segment counts were checked against the geometry; **PC-G5 still does not pass**, unchanged and untouched. **Dev-loop rule 0 is NOT discharged** — start the audit at §24.12. |
+| Native rebuild (§13/§15–§24) | **⚠️ §24 IS THE NEWEST ENTRY (cycle N-4C, 2026-08-24) — read §24 first, then §23, then §22, then §21.** §24 is the response to an independent audit of §23: twenty findings, nineteen reproduced and one disproved. It closes **four shipped parity divergences** (an artist attribute at a storage the VEX chain cannot read — int `edge_id`/`pc_curve_id`/`pc_style`/`pc_yclass`, string `pc_marker_id` — each admitted by the guard and each shipping a different fence), **a 2.35x cost regression on the most ordinary input there is** (your own kit, the slot parms left alone), a **fail-open in `_bend_bound`**, a warning raised **twice**, **three checks that could not fail**, and **four shipped comments describing a build that no longer existed**. It reproduces and MEASURES `pc_plan_solve`'s per-section parallelism (30x on one long curve) without fixing it — D222 — and DISPROVES the claim that two thirds of that node is its string columns. What follows is §23's entry, unaltered. **⚠️ §23 IS THE NEWEST ENTRY (cycle N-4B, PART B, 2026-08-24) — read §23 first, then §22, then §21, then §20.** §23 widened the guard: three build classes (CURVED, MARKED, PADDED) flipped to the native chain at 0 % Python, `output_guard_parity` went 9 native / 83 reference to **18 / 74, identical**, and conformed / elevated / cornered builds still take the reference by design. It also DECLINED D154 with the measurement that declines it, and closed three mutation survivors plus one flaky check. What follows is §22's entry, unaltered. **§22 (cycle N-4A, 2026-08-23) SUPERSEDES THE “Next up” LINE IN §21.9.** §22 closes all five of §21.9's evidence defects (D206–D210); the tool's geometry, kernel and VEX are UNCHANGED by it and no baselined value moved. What follows is §21's entry, unaltered. **CYCLE N-3V2 — INDEPENDENT AUDIT OF N-3V, BY AN AGENT THAT WROTE NONE OF IT. DEV-LOOP RULE 0 IS DISCHARGED FOR N-3V. Read §21 before touching anything, then §20.** Everything was re-run from a pristine `git archive HEAD` export, so the concurrent phase-2 agent's seven uncommitted files could not colour it. **§20's 13 fixes all reproduce and its headline number reproduces on a SECOND INSTRUMENT** (`hou.perfMon` per-node self time, not a stopwatch): the shipped default measures **3.6 % Python at 2 km and 0.4 % at 20 km** against §18.2's pre-flip 88.2 % / 95.3 %, and **88-98 % on a build the guard refuses**. ⚠ **TWO CORRECTIONS TO §20's TABLE**: `config` is not the only Python SOP that cooks - `kit_starter` cooks on every COLD build at 1.6-1.9 ms, and it is geometry construction in Python, which is exactly what **D154** says must become native `box` SOPs; and **87 % of the shipped native cook at 20 km is ONE WRANGLE**, `pc_plan_solve` (679 ms of 780). ⚠ **TEN SOURCE-LEVEL MUTATIONS - each edits a source file and REBUILDS the .hda, which moves the asset and its declaration together - AND TWO SURVIVED (§21.4).** **SURVIVOR 1: `pc_finalize` DE-BATCHED** into a single-threaded detail loop ships an identical fence at **2.15 → 14.56 ms (+577 %)** with the suite 105 `[PASS]` / 0 - D193's defect one node to the left, because the per-node cost ceilings cover **4 of the 18 wrangles** and the other fourteen have no cost assertion of any kind (D206). **SURVIVOR 2: §20.5's OWN FIX IS UNDOABLE IN SILENCE** - re-wording the two "via the PYTHON BRIDGE" Stage labels back to "NATIVE" ships a menu with two entries labelled Plan NATIVE and two labelled Frames NATIVE, one of each serving the dead bridge, suite green: `stage_menu_reaches_every_stage` asserts a label is non-empty, never that it is TRUE (D207). **And §20.1's headline mutation is stopped by an assertion CRASH, not by the check credited with it** - `every_stage_entry_serves_the_node_it_names` reads the very table the mutation edits, so it passes on both declaration mutations; only `NATIVE_STAGES`' independent second declaration caught the plan row, and nothing independent covers the `reference` row (D208). Two more: `output_guard_cost` **failed once in three runs of an UNMUTATED build** (1.31x on a 5 ms node against a 1.15x ceiling - D209), and `run_scene_checks`' baseline **prints a moved value and still exits 0** (D210). Killed clean: the flip's undo, 32-bit `pc_arclength`, the corner bisector (51 red in `run_scene_checks`), the identity-permutation fast path, `_cond_columns`' revert, and the `_*` sweep. **GATES: PC-G1, PC-G2, PC-G3, PC-G4 RE-CONFIRMED AND LOOKED AT** on images whose drawn-segment counts were checked against the geometry (D194) - segment/polygon 4.0-4.4 throughout; **PC-G5 still does not pass**, unchanged, for P2-3V's two reasons. Suites from clean: **346 unit tests** (not 328 or 350), `run_native_checks` **105 / 0**, `run_scene_checks` **3 665 / 0**, `run_hda_checks` **29 / 0**, `run_2d_checks` **528 / 0**, `scale_gate` 9 rows / 0, `gate_images` 0, `run_attrib_checks` 0 / 0 unreviewed, **no baselined value moved and citygen untouched**. ⚠ `devScripts/create_pf_polychain_hda.py` defaults `POLYFACTORY` to a HARDCODED `F:/projects/polyfactory`, so running it from a copy overwrites the REAL repo's .hda (§21.7). — the N-3V entry it replaces follows. **CYCLE N-3V — THE AUDIT RESPONSE. `Stage = output` IS THE NATIVE CHAIN, IT NOW SHIPS THE SAME FENCE AS THE REFERENCE, AND THE FLIP CAN NO LONGER BE UNDONE SILENTLY. Read §20 before touching anything.** Three independent reviewers returned 13 findings; all 13 are reproduced and closed, each as a standing check with a mutation that reddens. **TWO SHIPPED PARITY DIVERGENCES (§20.2), both 100 % of the run, both on builds the guard ADMITS with no warning**: a `pc_cond` list of 2, 3 or 4 numbers comes back out of `style.read` as a `hou.Vector2/3/4`, which `_cond_columns` called unreadable — 10 `panel` prims natively against the reference's 12 `gate`, and lengths 1/5/6 agreed, so nothing in the suite (which never round-tripped a cond value through the payload) could see it; and an `attr:<name>` subject that is a VECTOR was read as COMPONENT 0 in VEX where the reference gets the whole tuple — 12 `gate` against 10 `panel` on `gt`, the other way on `lt`. Both fixed by giving `pc_cond_subject` Python's THIRD answer (`PC_S_UNREADABLE`: `ne` is True, everything else False), which also closes `ctx_base`'s dict-valued `attrs`/`marker_data`; COND_BAD now makes `_native_ok` REFUSE rather than silently answer False. **FIVE MUTATIONS OF THE SHIPPED ASSET THAT 94 PASSES COULD NOT SEE (§20.1)** — including pointing `Stage = reference` at `OUT_final`, which turned the cycle's headline parity proof into a comparison of the output WITH ITSELF over all 92 cases and stayed green. Root cause: `STAGES` claimed three consumers read it and **no check read it at all**. It is `tests/polychain/native.STAGES` now, (token, null, FEEDER, label), read by the build script and by `every_stage_entry_serves_the_node_it_names`; `asset_stages_match_the_rig` compares 27 INPUT WIRES as well as parameters; `output_guard_parity` counts `copy_packed`'s cookCount instead of believing the envelope; `NATIVE_STAGES` gained `frames_native` and `output` (17 nodes / 3 stages → 32 / 5). **`bench_guard_fallback` existed only in two source comments** — it is written (1.47x at 2 km, 1.8x ceiling) with `no_case_pays_the_guard_fallback` (0 of 92) beside it. **`pc_plan_solve` finally has the ceiling D193's mandate named** — 34 µs/piece, measuring 24.6-25.0, min over three INTERLEAVED repetitions because a single best-of-3 pass reads 26-42 on an unchanged build (D204); the identity-permutation skip took another 13-18 % off it and `bench_plan_long_curve` went **0.4369 → 0.3510 s**. The sticky note and the build script's docstring said the opposite of the build and are rewritten with a check (§20.5). **⚠ THE NUMBER, re-measured: 2.5 % Python at 2 km and 0.2 % at 20 km on an admitted build (`config` alone, a FIXED 1.7 ms), against 84-99 % on a refused one. 9 of 92 cases are inside the envelope — unchanged, and the COND_BAD refusal did not narrow it.** The asset is **51 nodes**, 18 wrangles all at `vex_precision = 64`, 4 Python SOPs, 14 nulls, 3 switches, 10 Stage entries. Suites: **`run_native_checks` 105 `[PASS]` / 0 failing** (was 94/0), `run_scene_checks` 0, `run_hda_checks` 0, `scale_gate` 9 rows / 0, `gate_images` 0, `run_2d_checks` 0, `run_attrib_checks` 0 failing / 0 unreviewed, 328 unit tests OK, **and no baselined value moved**. **Dev-loop rule 0 is NOT discharged for this cycle** — start the audit at §20.7. |
+| Next up (native lane) | ⚠️ **§24 PUT TWO THINGS AHEAD OF THE THREE BIG PORTS, AND ONE OF THEM IS THE ONLY PERFORMANCE STORY LEFT.** **(0a) D222 — `pc_plan_solve` parallelises per SECTION.** It is **80 % of a 20 km native cook** and it costs **30x more on one long curve than on the same piece count as 300 short ones** (1 139.7 ms vs 33.7 ms at ~34 000 pieces). `plan_solve_section_shape` pins the ratio; bringing it down means emitting per-section SCALARS and expanding per piece in a parallel wrangle after `pc_plan_emit`, with `reselects`, the slice tail, the marker anchors and D150's determinism all in the loop that would be replaced. `wrangle_ceilings_are_tight` goes RED on the first real speedup until §24.2's table is re-recorded — deliberate. **(0b) The storage table is ELEVEN NAMES on one reading of the VEX** (D223); it was built by grepping every `point(0, "…")` / `prim(0, "…")` in `polyfactory/vex/polychain/`, and `guard_spline_attr_types` proves those eleven bite, not that eleven is the whole list. **Every new artist-authored name the chain reads owes a row.** Then the three big ports, unchanged and still in measured order: **(1) N6, CONFORM — 954 ms, the largest by 3.4x.** §13.3.5's design (`ray` as a NODE + a `pc_drop` wrangle) stands but understates it: `ConformPath` wraps `place.Path`, so the drape reaches the frames, the plan positions, the deform gate AND `span_deviation`'s two unported terms (D100's camber rotation, D104's extra stations) at once — `pc_gate.h` says so in its own header, and the gate DECLARES itself unanswerable whenever a surface is wired. **(2) N5, THE DEFORMED BRANCH — 1 349 ms** (`pc_stations` + `pc_deform`): ripples and hills, the hottest node in the tool, and it retires `pc_plan_bridge`, `pc_frames`, `pc_frames_valid`, `OUT_plan` and `OUT_frames`. **(3) N8, §4.3 CORNERS — 336 ms**, the last and least certain. **The cheapest three remaining refusals**, each measured on a 2 km run: `show_warnings` (54 ms — `colour_warnings`' `Cd`, one wrangle), `display = proxy|plan` (50 ms — D81/D82; the proxy needs a box kit built in the graph, which is D154's problem wearing a different hat), `fill = tile` (58 ms — N7's slice caps). ⚠️ **D216 IS THE SHAPE OF EVERY FUTURE WIDENING**: the exact test lives at level 2, the cheap test at level 1 may be approximate IN A NAMED DIRECTION, and the cost of being wrong is measured (`bench_guard_fallback` 1.8x; the ladder reaches it at 1.21–1.27x). ⚠️ **THE GUARD MUST FAIL SAFE**: when the native chain cannot answer a build it takes the REFERENCE — never “evaluate False and ship”, which was the root cause of both of §20.2's criticals and is why `bend_bound_ok` is an explicit third value. ⚠️ **`pc_plan_solve` is 87 % of the shipped native cook at 20 km** and everything else together is 13 % — that is where optimisation lives, if any, and `wrangle_ceilings_are_tight` will go RED on the first real speedup until the §22.2 table is re-recorded (deliberate). ⚠️ **Every new wrangle needs a row in `WRANGLE_CEILING_US`** (D206), **a `.vfl` header naming its class, precision and inputs** (D207), and **a new stage needs a `BRIDGE_STAGES` or `NATIVE_STAGES` row** (D208) — on top of `vex_precision = 64`, the `_*` law, and `native.STAGES`' FEEDER column. ⚠️ **D221: a check that polices a behaviour now has TWO implementations behind it** — it must run on both, or assert which one it ran on (`took_native` in the verdict, not in a print). ⚠️ A new `pc_warn_*` must be written with `setpointattrib`, not bound with `i@`, or it is published on every element whether it fired or not (§19.2). |
 | Next up (phase 2 lane) | **Cycle P2-4 then P2-5** (§7.10) — the payload half from input 3, then the Y fit's `aligned` mode (D122) and `pc_extend` as a parm. ⚠️ **GATE PC-G5 HAS BEEN JUDGED AND IT DOES NOT PASS** — not because the facade is wrong but because two of its seven conditions have nothing behind them. **Conditions 1, 2, 5, 6, 7 PASS and are mutation-proved**, and condition 1 was verified NON-VACUOUS (`_corner_caps` yields **24 groups, 24 paired and measured** — the 6 x 4 the gate asks for, probed rather than read off the label; `corner_seam_m` 0.0). **Condition 4 is TRUE but UNASSERTED** — 0 of 176 placements carry a `slice_t` and no check says so; **write that one line on the way past, it is the cheapest untested truth in the tool.** **Condition 3 needs a FIXTURE as well as a mode**: every row of the L uses the same kit over the same leg lengths, so `aligned` and `free` are indistinguishable on it however `aligned` is implemented — P2-5 must ship unequal leg lengths or a per-row kit with it. **The images were looked at**: the plan is a closed ring with no holes or overlaps and a 45° bisector cut at all five convex vertices and the reflex one; the corner column runs unbroken ground-to-cornice with the cornice band turning round it; bend mode correctly has no corner post. Still owed and unchanged: P2-7's real clipping (per-module `pc_clip`, sub-spline independence, even-odd nesting, `slice`, i.e. all of PC-G6), P2-8, P2-9, §7.7's kit slicer — and phase 1's own GUI viewport pass on PC-G1/PC-G2, the streets acceptance and standing finding (11). Run `hython tests/polychain/run_2d_checks.py` and `python tests/unit/test_polychain_array2d.py` before and after every change. |
-| Gates | **RE-CONFIRMED AGAIN BY THE N-3V2 AUDIT (2026-08-23, §21.8), ON IMAGES WHOSE DRAWN-SEGMENT COUNTS WERE CHECKED AGAINST THE GEOMETRY (D194): PC-G1 / PC-G2 / PC-G3 / PC-G4 ALL PASS AND WERE LOOKED AT** — the miter's two legs terminate into a corner post with the 45° bisector drawn across it and the bend turns with no post, all four PC-G2 z-modes read correctly on the hill, `scale_gate` is 9 rows / 0, `run_hda_checks` 29 / 0, and segment-per-polygon is 4.0-4.4 everywhere (the blind gate drew 188 where the fence is 3 388). **PC-G5 STILL DOES NOT PASS**, unchanged and untouched by the native lane: its condition 4 is true and unasserted and its condition 3 needs a fixture as well as a mode. GUI viewport pass still owed on all of them. — the P5cV entry follows. **ALL FOUR RE-CONFIRMED BY P5cV (2026-08-22) — PC-G1 and PC-G2 through the parm face and judged on images, PC-G3 on the 9-row ladder under both z-modes, PC-G4 mutation-proved (reverting D91 reports `moved: padding`). All four still owe the GUI viewport pass and nothing else changed.** PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** — the closed rectangle and the L close in both corner modes, all four fill modes, the gate on its marker (1.8e-7 m), convex and reflex corners; the bend corner's butt wedge is MEASURED and baselined as the accepted limit (D36 extended), and cycle 6's mutation of it fails by 1.10e-02 m on `CJ_bend_butt_120`. Cycle 8 closed the last hole in its parm face: the **marker slot is authorable on the page** (D88), so PC-G1's gate-on-a-marker no longer needs a payload, and an unread marker warns. **Cycle 9 rebuilt the whole figure THROUGH THE PARM FACE and looked at it** (`HC_{miter,bend}_{top,iso}.png`, `HG1_*.png`): the miter's two legs terminate into a corner post with the 45° bisector cut clean across it and the tops flush; the bend turns through the elbow as one continuous top arris with no corner post (D36's ring weld) and only the accepted butt notch; all four Fit Methods close flush on the spline; and the gate authored with **Piece at Markers + Marker Id and NO payload** lands at **x 7.200000..8.800000, centre 8.000000, error 1.788e-07 m**, with the unread-marker warning firing beforehand. PC-G1 no longer owes its parm face — only the GUI viewport pass · **PC-G2 numerically complete + IMAGE-VERIFIED (headless), INCLUDING the curving-spline variant it used to owe; GUI viewport pass still owed** — cycle 6 built the gate's own wording: a 24 m spline that **turns in plan (±3.6 m S-curve) and climbs 2.4 m**, resampled at 0.25 m, over a 2D terrain (`1.1 sin(2πx/13) + 0.8 cos(2πz/9) + 0.06x`), conform ON. All four modes pass **50 of 50** suite checks with **0 failures and nothing baselined**: `plumb_deg` **0.0** over 14 vertical pieces, `flat_stepped_m` **0.0** over **240 stepped posts, 240/240 still PACKED**, `bank_deg` **27.15°** adaptive, camber ON halving the residual to the surface normal (`camber_deg` 37.31° → **17.20°**), `conform_contact_m` **0.0**, `conform_misses` **0**, `inward_faces` **0**, no warnings. Judged on `VG2P_{vertical,stepped,adaptive}.png` and `VG2C_camber_cu.png`: the pickets' ribs are dead vertical while the run's foot follows the ground line, the adaptive rail's ribs lean perpendicular to the drape, the posts' tops make a clean sawtooth over a smooth ground line, and the cambered rail is visibly rolled onto the cross-fall. The **riser under each stepped piece is there and is expected** — it IS stepped mode — and it measures **0.061 m** on this hill; §4.4's flatten-under is BUILT as of cycle 10 (D98) and takes the AIR under each piece (`stepped_float_m` 0.054818/0.061280) to **0.0** with all 240 pieces still packed, leaving that riser where it is. **Cycle 9 re-rendered all of it through the HDA's parm page** with the terrain on input 4 (`HG2_*.png`): the pickets' ribs are plumb while the run's foot tracks the ground line, the stepped posts stand plumb with feet on the ground and tops stepping over it, the adaptive rail's ribs rake perpendicular to the drape, Tilt to Surface visibly rolls the rail onto the cross-fall, and the whole 24 m S-curve reads as a fence on a hill. Only the GUI viewport pass is owed · **PC-G3 numerically MEASURED at scale, and narrower than its headline** — 20 km, 10 005 × 2 m bendable panels: **10 005 packed, 0 deformed, one shared `geometryid`, 10 005 real points, +12.1 MB RSS, 0.42 s** as a two-point spline and **the same numbers at 0.55 s** as a **20 011-vertex resampled polyline** — independently reproduced in cycle 6, and D69 is what buys it (reverting D69 takes the resampled form to 0 packed / 10 005 deformed / 360 180 points / **21.9 s**). ⚠️ ~~The gate holds for a STRAIGHT resampled run only~~ — **CLOSED by D75 in cycle 7**: `hython tests/polychain/scale_gate.py` is the harness now, and R = 12 000 / 2 000 / 80 m all read **10 000 packed / 0 deformed / 10 000 points / +5.1 MB / ~0.60 s**, while R = 10 m (five times the budget) still deforms all 10 000 at 10.8 s. ⚠️ **CYCLE 9 RE-MEASURED THIS AFTER D87 AND THE TERMS ARE NARROWER AGAIN.** Those three rows are green because the starter kit's `panel` is **yaw-only** (`pc_zmode = vertical`), so the budget was spent on `rz` = 0.03 m and D87's off-spine term was switched almost all the way off — and `scale_gate.py` was still deciding pass/fail from `4/(8R)`, **the spine sagitta D87 retired**. Re-run under `zmode = adaptive`, where the panel's full 0.90 m height rides the frame: **R = 12 000 m and R = 2 000 m stay 10 000 packed / 10 000 points / ~0.6 s**, but **R = 80 m is 0 packed / 10 000 deformed / 360 000 points / 11.0 s / +34.7 MB** — `0.90 x 0.025 = 0.0225 m`, 2.25x `bend_tol`, so unpacking is CORRECT. D97 put the expectation on each ladder row with its reason and runs the ladder under both z-modes: **9 rows, 0 failing**, and mutating the budget 50x now fails 2 rows where it failed none. **PC-G3 passes on its own terms** — 10 005-piece packed instancing at 20 km, one `geometryid`, sub-second, +12 MB — and those terms are: a straight or gently-turning-IN-PLAN run, or any run whose module is yaw-only. A TALL module on an R = 80 m arc, or ANY module on a climbing run (D65's shear), costs the 11 s / 360 k-point deform path. The FLOOR rides the suite: `A_straight`, `CE_all_packed`, `CA_swap_module`, `CF_resampled_straight` and `CG_resampled_bendable` are asserted 100 % packed and `over_unpacked` proves nothing unpacks without a reason. ~~Owed: the deform path's VEX rewrite~~ — **DONE, cycle 10c (D102/D103)**: profiled first, the cost was the per-prim STAMP (9.023 s of 14.136 s, 4 758 096 `Prim.setAttribValue` calls) and not the deform loop (0.201 s, 1.4 %); through `hou.Geometry`'s bulk array setters the two deformed rows go **11.159 → 1.548 s (7.21x)** and **11.181 → 1.597 s (7.00x)**, bit-identical on all 83 cases, and VEX is measured and declined · **PC-G4 ✅ PASSES — as of cycle 12 (D107); before that its sweep was pretending** (§10 cycle 7): the same fence driven entirely by a style payload on input 3 with the parms at defaults, asserted in `tests/polychain/run_hda_checks.py` — the payload replaces the modules, the styleId and the ids, matches the kernel built from the `Style` object directly, and **the parms are provably inert while it is wired** — cycle 8 turned that from two parms into a SWEEP of the whole page (`swept 36 parms; moved: none`, ids AND rounded positions, exempting only `display`/`show_warnings`/`kitfile` by name), which is what caught `padding` still being live under a payload (D91). The generic-loop rule is audited by construction: `polychain/style.py` contains no style name and no branch per name, and `style_round_trip` re-proves it on all 73 cases. **Cycle 9 re-measured PC-G4 independently, in §2.1's own stronger wording — the SAME fence**: the parm face's own `Style` written out through `style.write` and wired back into input 3 of a second node with the parms at defaults produces output **identical on element ids, module names, rounded point positions AND every packed prim's full transform** across all **8 fill x corner combinations** (adaptive/scale/evenly/count x miter/bend, 35 to 137 prims). The page swept under that payload: **32 parms nudged, 0 moved the geometry**. A style the code has never heard of — `a_style_nobody_wrote_code_for`, carrying a `marker:42` slot — built **52 prims, 4 modules, 0 warnings** with no code change. The branch-per-name grep over the whole kernel returns nothing but `style_from_parms`' DEFAULT VALUE `"pf_polychain"`; the names that do appear in conditionals (`corner`, `default`, `start`, `end`) are §3.3's fixed slot vocabulary — the kernel's own schema, not any style's — and a slot outside it is dispatched generically. ⚠️ **CYCLE 12 MUTATION-TESTED THIS AND FOUND IT BLIND.** Reverting D91 - the `padding` parm applied unconditionally, so a wired payload feels it again - left the whole HDA suite **green**, `parms_inert_under_payload … moved: none`, with a debug print proving `_padded` really ran at 0.37 under the payload. The fixture was the cause, not the sweep: its `Params(fill="scale")` fence does not move for ANY `pc_pad` - `gate.pad` 0.0 -> 0.185 -> 0.400 with the output stuck at 44 prims, 12 elements and an identical point sum. **The fixture is `adaptive` now (D107)** and the same revert reports **`moved: padding`**; the shipped code reports `moved: none`. `scale` coverage is not lost - cycle 9 sweeps all 8 fill x corner combinations separately. GUI viewport pass owed like the others |
+| Gates | **RE-CONFIRMED AGAIN BY CYCLE N-4C (2026-08-24, §24.10), ON IMAGES REGENERATED FROM THIS BUILD WHOSE DRAWN-SEGMENT COUNTS WERE CHECKED AGAINST THE GEOMETRY (D194), AND LOOKED AT: PC-G1 / PC-G2 / PC-G3 / PC-G4 ALL PASS.** `VG1_rect_miter_top.png` 40 packed / 840 polys / 3 388 segments — a closed rectangle with a corner post at all four corners and the 45° bisector drawn across each, confirmed by eye; `VG2_camber_front.png` 2 078 segments — the rail visibly rolled onto the cross-fall around the whole S with its feet on the ground line, confirmed by eye; segment-per-polygon 4.0–4.4 throughout. PART B's `PARTB_arc_{native,reference}_*` pair is still `(86, 283)` prims whole and cropped on both. `scale_gate` **9 rows / 0**, `run_hda_checks` **31 / 0** (was 29 — `unread_marker_warns` gained a third fixture, the L1-admit/L2-refuse arc). **PC-G5 STILL DOES NOT PASS**, unchanged and untouched by the native lane — `run_2d_checks` is 633 `[PASS]` / 0 and the images regenerate identically (`PCG5_FA_L_facade_iso.png` 10 368 segments), but its condition 4 is true and unasserted and its condition 3 needs a fixture as well as a mode. GUI viewport pass still owed on all of them. — the N-3V2 entry follows. **RE-CONFIRMED AGAIN BY THE N-3V2 AUDIT (2026-08-23, §21.8), ON IMAGES WHOSE DRAWN-SEGMENT COUNTS WERE CHECKED AGAINST THE GEOMETRY (D194): PC-G1 / PC-G2 / PC-G3 / PC-G4 ALL PASS AND WERE LOOKED AT** — the miter's two legs terminate into a corner post with the 45° bisector drawn across it and the bend turns with no post, all four PC-G2 z-modes read correctly on the hill, `scale_gate` is 9 rows / 0, `run_hda_checks` 29 / 0, and segment-per-polygon is 4.0-4.4 everywhere (the blind gate drew 188 where the fence is 3 388). **PC-G5 STILL DOES NOT PASS**, unchanged and untouched by the native lane: its condition 4 is true and unasserted and its condition 3 needs a fixture as well as a mode. GUI viewport pass still owed on all of them. — the P5cV entry follows. **ALL FOUR RE-CONFIRMED BY P5cV (2026-08-22) — PC-G1 and PC-G2 through the parm face and judged on images, PC-G3 on the 9-row ladder under both z-modes, PC-G4 mutation-proved (reverting D91 reports `moved: padding`). All four still owe the GUI viewport pass and nothing else changed.** PC-G0 ✅ resolved (§2.3) · **PC-G1 numerically complete + IMAGE-VERIFIED (headless), GUI viewport pass still owed** — the closed rectangle and the L close in both corner modes, all four fill modes, the gate on its marker (1.8e-7 m), convex and reflex corners; the bend corner's butt wedge is MEASURED and baselined as the accepted limit (D36 extended), and cycle 6's mutation of it fails by 1.10e-02 m on `CJ_bend_butt_120`. Cycle 8 closed the last hole in its parm face: the **marker slot is authorable on the page** (D88), so PC-G1's gate-on-a-marker no longer needs a payload, and an unread marker warns. **Cycle 9 rebuilt the whole figure THROUGH THE PARM FACE and looked at it** (`HC_{miter,bend}_{top,iso}.png`, `HG1_*.png`): the miter's two legs terminate into a corner post with the 45° bisector cut clean across it and the tops flush; the bend turns through the elbow as one continuous top arris with no corner post (D36's ring weld) and only the accepted butt notch; all four Fit Methods close flush on the spline; and the gate authored with **Piece at Markers + Marker Id and NO payload** lands at **x 7.200000..8.800000, centre 8.000000, error 1.788e-07 m**, with the unread-marker warning firing beforehand. PC-G1 no longer owes its parm face — only the GUI viewport pass · **PC-G2 numerically complete + IMAGE-VERIFIED (headless), INCLUDING the curving-spline variant it used to owe; GUI viewport pass still owed** — cycle 6 built the gate's own wording: a 24 m spline that **turns in plan (±3.6 m S-curve) and climbs 2.4 m**, resampled at 0.25 m, over a 2D terrain (`1.1 sin(2πx/13) + 0.8 cos(2πz/9) + 0.06x`), conform ON. All four modes pass **50 of 50** suite checks with **0 failures and nothing baselined**: `plumb_deg` **0.0** over 14 vertical pieces, `flat_stepped_m` **0.0** over **240 stepped posts, 240/240 still PACKED**, `bank_deg` **27.15°** adaptive, camber ON halving the residual to the surface normal (`camber_deg` 37.31° → **17.20°**), `conform_contact_m` **0.0**, `conform_misses` **0**, `inward_faces` **0**, no warnings. Judged on `VG2P_{vertical,stepped,adaptive}.png` and `VG2C_camber_cu.png`: the pickets' ribs are dead vertical while the run's foot follows the ground line, the adaptive rail's ribs lean perpendicular to the drape, the posts' tops make a clean sawtooth over a smooth ground line, and the cambered rail is visibly rolled onto the cross-fall. The **riser under each stepped piece is there and is expected** — it IS stepped mode — and it measures **0.061 m** on this hill; §4.4's flatten-under is BUILT as of cycle 10 (D98) and takes the AIR under each piece (`stepped_float_m` 0.054818/0.061280) to **0.0** with all 240 pieces still packed, leaving that riser where it is. **Cycle 9 re-rendered all of it through the HDA's parm page** with the terrain on input 4 (`HG2_*.png`): the pickets' ribs are plumb while the run's foot tracks the ground line, the stepped posts stand plumb with feet on the ground and tops stepping over it, the adaptive rail's ribs rake perpendicular to the drape, Tilt to Surface visibly rolls the rail onto the cross-fall, and the whole 24 m S-curve reads as a fence on a hill. Only the GUI viewport pass is owed · **PC-G3 numerically MEASURED at scale, and narrower than its headline** — 20 km, 10 005 × 2 m bendable panels: **10 005 packed, 0 deformed, one shared `geometryid`, 10 005 real points, +12.1 MB RSS, 0.42 s** as a two-point spline and **the same numbers at 0.55 s** as a **20 011-vertex resampled polyline** — independently reproduced in cycle 6, and D69 is what buys it (reverting D69 takes the resampled form to 0 packed / 10 005 deformed / 360 180 points / **21.9 s**). ⚠️ ~~The gate holds for a STRAIGHT resampled run only~~ — **CLOSED by D75 in cycle 7**: `hython tests/polychain/scale_gate.py` is the harness now, and R = 12 000 / 2 000 / 80 m all read **10 000 packed / 0 deformed / 10 000 points / +5.1 MB / ~0.60 s**, while R = 10 m (five times the budget) still deforms all 10 000 at 10.8 s. ⚠️ **CYCLE 9 RE-MEASURED THIS AFTER D87 AND THE TERMS ARE NARROWER AGAIN.** Those three rows are green because the starter kit's `panel` is **yaw-only** (`pc_zmode = vertical`), so the budget was spent on `rz` = 0.03 m and D87's off-spine term was switched almost all the way off — and `scale_gate.py` was still deciding pass/fail from `4/(8R)`, **the spine sagitta D87 retired**. Re-run under `zmode = adaptive`, where the panel's full 0.90 m height rides the frame: **R = 12 000 m and R = 2 000 m stay 10 000 packed / 10 000 points / ~0.6 s**, but **R = 80 m is 0 packed / 10 000 deformed / 360 000 points / 11.0 s / +34.7 MB** — `0.90 x 0.025 = 0.0225 m`, 2.25x `bend_tol`, so unpacking is CORRECT. D97 put the expectation on each ladder row with its reason and runs the ladder under both z-modes: **9 rows, 0 failing**, and mutating the budget 50x now fails 2 rows where it failed none. **PC-G3 passes on its own terms** — 10 005-piece packed instancing at 20 km, one `geometryid`, sub-second, +12 MB — and those terms are: a straight or gently-turning-IN-PLAN run, or any run whose module is yaw-only. A TALL module on an R = 80 m arc, or ANY module on a climbing run (D65's shear), costs the 11 s / 360 k-point deform path. The FLOOR rides the suite: `A_straight`, `CE_all_packed`, `CA_swap_module`, `CF_resampled_straight` and `CG_resampled_bendable` are asserted 100 % packed and `over_unpacked` proves nothing unpacks without a reason. ~~Owed: the deform path's VEX rewrite~~ — **DONE, cycle 10c (D102/D103)**: profiled first, the cost was the per-prim STAMP (9.023 s of 14.136 s, 4 758 096 `Prim.setAttribValue` calls) and not the deform loop (0.201 s, 1.4 %); through `hou.Geometry`'s bulk array setters the two deformed rows go **11.159 → 1.548 s (7.21x)** and **11.181 → 1.597 s (7.00x)**, bit-identical on all 83 cases, and VEX is measured and declined · **PC-G4 ✅ PASSES — as of cycle 12 (D107); before that its sweep was pretending** (§10 cycle 7): the same fence driven entirely by a style payload on input 3 with the parms at defaults, asserted in `tests/polychain/run_hda_checks.py` — the payload replaces the modules, the styleId and the ids, matches the kernel built from the `Style` object directly, and **the parms are provably inert while it is wired** — cycle 8 turned that from two parms into a SWEEP of the whole page (`swept 36 parms; moved: none`, ids AND rounded positions, exempting only `display`/`show_warnings`/`kitfile` by name), which is what caught `padding` still being live under a payload (D91). The generic-loop rule is audited by construction: `polychain/style.py` contains no style name and no branch per name, and `style_round_trip` re-proves it on all 73 cases. **Cycle 9 re-measured PC-G4 independently, in §2.1's own stronger wording — the SAME fence**: the parm face's own `Style` written out through `style.write` and wired back into input 3 of a second node with the parms at defaults produces output **identical on element ids, module names, rounded point positions AND every packed prim's full transform** across all **8 fill x corner combinations** (adaptive/scale/evenly/count x miter/bend, 35 to 137 prims). The page swept under that payload: **32 parms nudged, 0 moved the geometry**. A style the code has never heard of — `a_style_nobody_wrote_code_for`, carrying a `marker:42` slot — built **52 prims, 4 modules, 0 warnings** with no code change. The branch-per-name grep over the whole kernel returns nothing but `style_from_parms`' DEFAULT VALUE `"pf_polychain"`; the names that do appear in conditionals (`corner`, `default`, `start`, `end`) are §3.3's fixed slot vocabulary — the kernel's own schema, not any style's — and a slot outside it is dispatched generically. ⚠️ **CYCLE 12 MUTATION-TESTED THIS AND FOUND IT BLIND.** Reverting D91 - the `padding` parm applied unconditionally, so a wired payload feels it again - left the whole HDA suite **green**, `parms_inert_under_payload … moved: none`, with a debug print proving `_padded` really ran at 0.37 under the payload. The fixture was the cause, not the sweep: its `Params(fill="scale")` fence does not move for ANY `pc_pad` - `gate.pad` 0.0 -> 0.185 -> 0.400 with the output stuck at 44 prims, 12 elements and an identical point sum. **The fixture is `adaptive` now (D107)** and the same revert reports **`moved: padding`**; the shipped code reports `moved: none`. `scale` coverage is not lost - cycle 9 sweeps all 8 fill x corner combinations separately. GUI viewport pass owed like the others |
 
 **⚠️ NEW 2026-08-22, after phase 1 closed: [§11](#11-nativevexopencl-port-plan) is the ordered
 Native/VEX/OpenCL port plan**, synthesised from two independent audits. Read it before optimising
@@ -10244,3 +10244,521 @@ specific things an auditor should attack first are:
    needs a second voice — there is none.
 5. **§23 ran eleven source-level rebuilds of the `.hda`** and restored each by copying a backup.
    Verify `git status` is clean and the committed asset is the one the checks were run against.
+
+## 24. Native network build log — cycle N-4C (the §23 audit, worked through)
+
+**Read this before §23.** §23 shipped PART B — three build classes flipped to the native chain —
+and said in as many words that dev-loop rule 0 was **not** discharged for it. An independent audit
+of that build returned **twenty findings**. This section is all twenty: each one reproduced or
+disproved with the measurement, each fix a standing check, each check mutated.
+
+**The shape of the cycle, in one line: the guard was admitting builds it could not answer, because
+3.1 names the spline's attributes and never named their STORAGE.**
+
+### 24.0 The scoreboard
+
+| # | finding | verdict | closed by |
+|---|---|---|---|
+| 1 | `wrangle_cost_is_flat_in_piece_count` is flaky on a sound build | **reproduced** | the two SIZES are interleaved now (§24.2) |
+| 2 | `BRIDGE_STAGES`' forbidden column is blind to a rename | **reproduced** | a missing name is a complaint (§24.3) |
+| 3 | `run_2d_checks`' D210 rule is proved by `grep`, not by running it | **reproduced** | both runners' `main` are CALLED (§24.4) |
+| 4 | the wrangle mutation scales only the big size | **reproduced** | both sizes, plus a physical burn (§24.2) |
+| 5 | `_bend_bound` fails OPEN on an empty kit | **reproduced** | `(0, 0, 0)` unless a module was inspected |
+| 6 | D88's warning is raised TWICE on the L1-admit/L2-refuse class | **reproduced** | it moved to `pc_warn_collate` (§24.5) |
+| 7 | `pc_envelope.vfl` cites a check that does not exist | **reproduced** | `every_cited_check_exists` (§24.6) |
+| 8 | an int `edge_id` / `pc_curve_id` ships a different fence | **reproduced, CRITICAL** | level 1 refuses the STORAGE (§24.1) |
+| 9 | an int `pc_style` ships the wrong module, 100 % of the run | **reproduced, CRITICAL** | ditto |
+| 10 | an int `pc_yclass` builds 1D where the reference builds 2D | **reproduced** | ditto |
+| 11 | a string `pc_marker_id` never fires the `marker:` rule | **reproduced** | ditto |
+| 12 | `marker:03` warns natively and is SILENT in the reference | **reproduced** | `_check_slot` asks for the CANONICAL form |
+| 13 | the guard's refusal list still claims Kit Padding | **reproduced** | the list is TAGGED and checked (§24.6) |
+| 14 | `pc_plan_solve` parallelises per SECTION — 30x on one long curve | **reproduced** | measured, `plan_solve_section_shape`, **not fixed** (D222) |
+| 15 | ~2/3 of `pc_plan_solve` is the five string columns | **DISPROVED** | §24.7 — the method measures dead-code elimination |
+| 16 | a kit whose names no rule matches costs 2.35x | **reproduced** | level 1 refuses it (§24.1) |
+| 17 | `bench_guard_fallback` says the fallback path is unreachable | **reproduced** | both comments rewritten |
+| 18 | `kit_starter` promises a port the doc DECLINED | **reproduced** | rewritten + `every_python_sop_comment_is_checkable` |
+| 19 | `config`'s comment names the wrong N | **reproduced** | rewritten + `config_cost_per_module` |
+| 20 | `pc_plan_bridge` promises its own deletion | **reproduced** | rewritten + the same check |
+
+**Suites, all from a pristine `git archive HEAD` export:** `run_native_checks` **130 `[PASS]` / 0**
+(was 122), `run_hda_checks` **31 / 0**, `run_scene_checks` **3 665 / 0 failing, 0 moved**,
+`run_2d_checks` **633 / 0 failing, 0 moved**, `scale_gate` 9 rows / 0, `gate_images` 0,
+`facade_images` 0, `run_attrib_checks` 0 / 0 unreviewed, **350 unit tests OK**.
+
+### 24.1 THE STORAGE WAS THE FINDING — four shipped divergences in one shape
+
+3.1 names the spline attributes. It does not name their **storage**, and Python and VEX disagree
+about what an unexpected storage MEANS. `place.read_curves` reads whatever the artist authored and
+converts it (`str(cid)`, `int(... or 0)`, `float(u)`); VEX asks for a typed value and gets **the
+type's ZERO** when the storage does not match — `""` for a string read of an int, `0` for an int
+read of a string. Zero is a legal value in every one of them, so nothing errors and nothing warns.
+
+Reproduced on the shipped `pf_polychain`, each with **level 1 admitting and `copy_packed` cooking**:
+
+| authored | native | reference |
+|---|---|---|
+| prim `edge_id` **int** 7 / 3 on two lines | `pc_curve_id` `'0'`, `'0'`; `pc_elem_id` `0\|0\|start\|…` | `'3'`, `'3'`; `3\|0\|start\|…` — **and the curves emitted in a different ORDER**, because `decompose_all` sorts on `str(curve_id)` |
+| prim `pc_style` **int** 5, rule `attr:pc_style eq "5"` | `{'panel': 10}` | `{'gate': 12}` — **100 % of the run is a different module** |
+| prim `pc_yclass` **int** 2 | a 1D run; `pc_array`/`pc_cell`/`pc_clipped`/`pc_row`/`pc_yclass` **absent from the output schema** | a 2D run, `pc_cell='start_2'`, `pc_row=-1` |
+| point `pc_marker_id` **string** `"3"`, rule `marker:3` | `{'panel': 10}` — **no gate at all** | `{'panel': 9, 'gate': 1}` |
+
+**Nothing in the suite could see any of it, and the reason is uniform.** Every case in `cases.py`
+authors these at the storage VEX happens to want, and `edge_id` — D29's SECOND rung, added for the
+streets stream — had **zero occurrences anywhere under `tests/`**. A parity case that cannot reach
+a code path proves nothing (the third time that sentence has been written in this document).
+
+**THE ANSWER IS A REFUSAL AND NOT A COERCION.** Reproducing Python's `str()` in VEX is a trap —
+`str(2.0)` is `"2.0"` where `sprintf("%g")` is `"2"` — so a ported coercion would be a NEW
+divergence wearing the fix's clothes. `pc_envelope.vfl` carries a table of eleven (name, class,
+wanted storage) rows; a name present at the wrong storage refuses the build at level 1 and it takes
+the reference, which is the guard's own law. The test is O(1) — a Houdini attribute is
+geometry-wide, so one `attribtype` call decides for the whole build.
+
+`guard_spline_attr_types` asserts BOTH halves on every row (refused **and** identical to the
+reference) plus a CONTROL — a **string** `edge_id`, which must still take the native chain and must
+still agree with the reference. `mutation_spline_attr_types` blanks each row of the table in turn:
+**5 of 5 bite.**
+
+**AND THE ORDINARY ARTIST KIT COST 2.35x (finding 16).** The parameter page's slot defaults name the
+STARTER kit's modules (`slot_default = "post panel"`, `slot_corner = "corner_post"`). Wire your own
+kit into input 2 and leave the slots alone — which is how a kit arrives — and every row of
+`_native_ok` passed: no surface, no fillet, and **no warning**, because the parm face never
+validates the style against the kit (only `style.read` does, and only for a wired payload). So
+level 1 admitted, the native chain planned **18 870** pieces and built **ZERO** (`pc_place_valid`
+drops a piece whose module `pc_proto` could not resolve), level 2 refused on `planned != built`,
+and the reference cooked on top of the discarded work: **`Stage = output` 1.507 s against
+`Stage = reference` 0.642 s = 2.35x**, over `GUARD_FALLBACK_CEILING`'s 1.8x, with `node.warnings()`
+empty. `_native_ok` takes `style.read`'s own test now (`kit.by_name(name) is None and not
+kit.by_role(name)`) so the parm face refuses exactly what the payload face already warns about, and
+`guard_kit_mismatch` measures **0.98x at 18.9 km** with D211's floor on the reference side.
+
+**And `_bend_bound` failed OPEN on an EMPTY kit (finding 5).** `H._bend_bound(Kit('empty', 1, []),
+{}, DEFAULTS)` returned `(0.0, 0.0, 1.0)` — a bound of zero, flagged **DERIVED**, which
+`pc_envelope.vfl` reads as *admit any curvature*. Both that file's warning block and
+`guard_bend_bound_needs_its_operands`' own docstring say in as many words that this is the case the
+flag exists to prevent; only the UNREADABLE branch was implemented and only it was asserted. It
+counts what it INSPECTED now, and the check has three rows: unreadable → `(0,0,0)`, **empty →
+`(0,0,0)`**, and **all-rigid → `(0,0,1)`**, which is the deliberate derived zero the docstring
+argues for and which stops the fix being satisfied by a function that refuses everything.
+
+### 24.2 The check that closed D209 had D209 inside it
+
+`wrangle_cost_check` built the small rig, measured it over nine cooks, **destroyed it**, and only
+then built and measured the big one. That is verbatim D209's *"a stopwatch in two separate blocks"*
+— inside the check written to close D206, in the same cycle that closed D209. It **failed on an
+unmutated build** (`pc_plan_solve growth 1.85x` against a 1.6 ceiling, run 0 of three in one
+process), and six measurements of that sound build read growth **0.97 / 1.14 / 1.15 / 1.40 / 1.69 /
+1.85** while the recorded table claimed *"the widest growth this build shows is `pc_plan_solve`'s
+1.05x"*. Its absolute big-size cook swung **482 → 818 ms**.
+
+`wrangle_cost_tables` applies `interleaved_best`'s two properties to the **SIZE** axis: both rigs
+exist before either is measured, and within one repetition every rig sees the same machine. Six
+independent runs of the new estimator read `pc_plan_solve` growth **1.10 / 1.10 / 1.15 / 1.17 /
+1.18 / 1.09** and its big-size cook **470–507 ms**. The recorded table is a **spread over those six
+runs**, not one run's numbers.
+
+**AND THE MUTATION HAD THE WRONG SHAPE (finding 4).** `_named` scaled `big[name]` alone, which
+multiplies that row's GROWTH by 5 and trips `WRANGLE_GROWTH_CEILING` almost regardless of the
+per-piece ceiling — so eleven of the eighteen rows were being caught by a term the check does not
+claim to be proving. A real de-batching slows BOTH sizes. With both scaled, `pc_curve_index`,
+`pc_kit_id` and `pc_markers` survive entirely (their sound growth is ~0.3, so even 5x reads 1.5 <
+1.6) and `pc_curveid` and `pc_corners` clear their ceilings by 1.3 % and 3.6 %. And `blind` — the
+rows the noise floor exempts — **never entered the verdict at all**, so the row would have printed
+PASS at *"0/18 at 5x, 18 under the floor"* if the instrument ever read low across the board.
+
+Both sizes move now, and every blind row is reddened **physically** instead. The auditor was right
+that the abandoned physical burn failed for a fixable reason: it was **loop-invariant**, so VEX
+hoisted it. An **element-dependent** burn whose accumulator is also loop-carried cannot be hoisted,
+and it is deterministic — all five blind rows redden by 10–25x: `pc_corners` 0.40 → 33.4 ms,
+`pc_curve_index` 0.15 → 23.9, `pc_curveid` 0.34 → 16.4, `pc_kit_id` 0.17 → 16.0, `pc_markers` 0.21
+→ 17.6. **13 at 5x + 5 by burn = eighteen of eighteen.**
+
+### 24.3 A declaration that names a node that does not exist asserts nothing
+
+D208's forbidden column is the whole of D208's fix — it is the only behavioural assertion the
+`config` row has, whose `must_cook` list is empty by design. It read
+`node.node(n) is not None and node.node(n).cookCount() > before[n]`, so **a RENAMED node silently
+turned the second voice off**, where `must_cook` has complained about a missing name since D208.
+
+Demonstrated: replace the forbidden entries of `config`, `plan` and `frames` with `kernelXX` /
+`copy_packedXX` / `pc_plan_solveXX` — simulating a rename of `copy_packed` — and the suite prints
+`every_stage_has_a_second_source` **PASS 10/10**, `native_stages_are_really_native` PASS, all five
+`mutation_*_unplugged` PASS, **0 failing**. With the sound table, re-pointing the `config` Stage
+entry at `OUT_final` yields `config: copy_packed,pc_plan_solve cooked and must not`; with the
+column blinded it yields nothing. A missing name in **either** column (`forbidden` or `allowed`) is
+a complaint now, and the same mutation reddens the check on all five rows.
+
+### 24.4 A rule about a RUNNER is proved by calling the runner
+
+D210's rule was asserted on `run_scene_checks.exit_code` as a pure function and on `run_2d_checks`
+by grepping three literal strings out of `inspect.getsource(main)`. **Neither is reachability.**
+Inserting, before the baseline block of `run_2d_checks.main`,
+
+```python
+if not update and not json_out:
+    print(...); sys.exit(1 if failures else 0)
+```
+
+leaves every asserted string present and unreachable: the row printed **PASS 9/9** while the runner
+itself, with a `baseline_2d.json` value perturbed to 999999 against a real 176, printed **no
+movement line and exited 0** — D210's exact finding, restored past a green check.
+
+Both runners' `main` are **called** now, in-process, with three things replaced and all three
+restored: the case builder returns `{}`, the tripwire block returns one stub value (so the run
+costs milliseconds rather than minutes and the only thing exercised is the baseline-and-exit tail),
+and `BASELINE` points at a throwaway file. Three passes: write the baseline, perturb it and demand
+exit 1 **with the movement line printed**, restore it and demand exit 0. **17 rows**, and the
+mutation above takes it to **15/17**, naming `run_2d_checks REACHES the baseline block`.
+
+**D210's own second half, re-checked.** §22.1 replayed twelve claims made while the runner could
+exit 0 on movement and found none of them wrong. That still holds: `run_scene_checks` and
+`run_2d_checks` are **0 failing / 0 moved** from the pristine export at this commit, so no baseline
+claim in this document rests on the advisory rule.
+
+### 24.5 A warning belongs where the cookCount is the complement
+
+PART B moved D88's unread-marker warning into `pc_sections` — the first node of the native PLAN
+chain — on the premise that *"this chain only cooks when level 1 has admitted the build, which is
+exactly when `kernel` is silent"*. **That premise stopped being true in the same cycle that wrote
+it**: PART B also widened level 1, so there is now a class of build that level 1 ADMITS and level 2
+REFUSES, and on those the plan chain cooks (`pc_envelope2` needs it) **and** `kernel` cooks. The
+artist read the identical sentence twice. Reproduced on the shipped asset with a loose marker of id
+7:
+
+| fixture | `copy_packed` | `kernel` | who warned |
+|---|---|---|---|
+| straight | 1 | 0 | `pc_sections` — correct |
+| `arc R=20 step 0.05` | 0 | 1 | **`pc_sections` AND `kernel`** |
+| `arc R=50 step 0.1` | 0 | 1 | **`pc_sections` AND `kernel`** |
+
+Those two arcs are `guard_bend_bound`'s own L2-refusal fixtures, so the class was already in the
+suite — but `unread_marker_warns` asserted on a straight run (pure native) and a cornered one (pure
+reference), and **between them they never cook both chains**.
+
+The cook map is what picked the new node, not taste:
+
+| node | native | L1-admit / L2-refuse | `Stage = reference` |
+|---|---|---|---|
+| `pc_sections` | 1 | 1 | 0 |
+| `copy_packed` … `pc_warn_collate` | 1 | 0 | 0 |
+| `kernel` | 0 | 1 | 1 |
+
+`pc_warn_collate` and `kernel` are **exact complements**, so the warning is raised exactly once on
+every build, by whichever branch actually shipped it. It is `pc_warn_collate`'s job already (D61's
+summary, and `hda.cook`'s own `addWarning` wording), and it gained two inputs — `config` for the
+flattened rule table and `OUT_sections` for the marker points. `unread_marker_warns` has a third
+fixture now, the arc, and asserts L1 = 1 ∧ L2 = 0 explicitly so the row cannot silently stop
+covering that class.
+
+**And the two paths disagreed about what a marker id IS (finding 12).** The VEX uses the canonical
+test (`tail != itoa(atoi(tail))`); `hda._warn_unread_markers` uses Python's permissive `int()`. So
+for `marker:03`, `marker:+3` and `marker: 3` — none of which can ever match the kernel's own
+`"marker:%d"` — the reference counted id 3 as READ and **said nothing**, while the native path
+warned. The silent one was the wrong one: it suppressed the warning for a rule that can never fire,
+which is exactly what D93 says must not be silent. `style._check_slot` asks for the canonical form
+now, which warns on the RULE (the honest sentence) and makes `_native_ok` refuse the build, so the
+two faces agree by construction.
+
+### 24.6 Prose that makes a claim gets a TAG, not a promise
+
+Three separate stale-text findings, and all three are D207's rule (*text that makes a claim about
+the build is a CHECK, not a comment*) in places D207 did not look.
+
+**The guard's own refusal list.** `pc_envelope.vfl`'s `WHAT LEVEL 1 REFUSES` block still named
+*"a non-zero Kit Padding"* a whole cycle after PART B ported D91's Gap into `config_resolved` and
+deleted that row from `_native_ok`. It is the **only prose statement of the guard's envelope** there
+is, so an auditor reading the contract against the code was reading a contract the code had left
+(measured: `padding = 0.5` admits and `copy_packed` cooks). Every row carries a TAG now —
+`[cfg:<name>]` for something `_native_ok` tests, `[vex:<name>]` for a term of this file's
+`i@_native_ok` expression — and `guard_refusal_list_is_true` checks **both directions**: every tag
+exists in the code, and every parameter the code refuses on (read off the ASSET's own parm list,
+not a second hand-kept table) plus every term of the verdict expression has a row. Three mutations,
+three complaints: the padding row restored → `[cfg:padding] is not tested by _native_ok`; the
+storage row's tag removed → `the verdict reads 'type_bad' and no row says so`; the storage term
+deleted from the verdict → `[vex:type_bad] is not read by the verdict expression`.
+
+**A check named in a comment must exist.** §20.3 found `bench_guard_fallback` cited by two source
+comments and existing nowhere; the cycle that wrote it immediately grew a citation of
+`guard_fallback_classes`, which `grep -rn` finds **once in the whole tree, on the comment line
+itself**. `every_cited_check_exists` reads every wrangle header and every Python SOP comment and
+refuses a backticked snake_case name that exists nowhere in the codebase. The vocabulary is
+deliberately *every name the codebase has* rather than a list of checks — a header legitimately
+cites `plan_sections` (a function), `native_ok` (a `pc_cfg` key) and `pc_deform_gate` (a node), and
+a narrower rule fires on correct text.
+
+**The four Python SOPs' DisplayComments were the one shipped string nothing read** (§22.8 item 4),
+and two of the four had gone stale in the worst way — by promising a port:
+
+* `pc_plan_bridge` read `SCAFFOLDING - 13.9 N2 DELETES THIS NODE` on a build where N2 landed
+  cycles ago, the node is still wired, still on the Stage menu and still the only feeder of
+  `OUT_frames`. It is kept **deliberately** — it is the per-stage oracle `frames_parity` and
+  `plan_parity` compare against — and the comment says that now.
+* `kit_starter` promised *"D154's native box SOPs replace this body"* on a build whose own cycle
+  formally **DECLINED** D154 with the measurement that declines it (D219). So did `hda.cook_kit`'s
+  docstring.
+
+`every_python_sop_comment_is_checkable` asserts the comment exists, is displayed, and **may not
+promise the removal of a node that is still in the asset**. (It deliberately does NOT check
+`input N` on these: they are prose, not headers — `kit_starter` says *"ran inside `kernel` on every
+cook with input 2 unwired"*, which a loose wiring rule reads as a declaration. A rule that has to be
+written loosely to fire at all is a rule that fires on correct text.)
+
+**And `config`'s comment named the wrong N (finding 19).** It said *"No geometry; N = the parm
+count. It must never grow a geometry loop — the wrapper tripwires are pointed at it"*, and the
+tripwires it invokes are pointed at a LOOP SHAPE. N is the **kit**: `config_resolved` runs
+`kit.read()` over the kit geometry's packed prims in Python on every cook. Measured, `hou.perfMon`,
+min of 3 on a 2 km straight:
+
+| modules | 5 | 50 | 150 | 301 |
+|---|---|---|---|---|
+| `config` | 1.61 ms | 5.45 ms | 14.48 ms | 28.52 ms |
+
+~0.09 ms per module per cook, and at 301 modules it is the **second most expensive node in the
+graph**. §13.6's own exemption text said the module count all along; the artist-facing comment did
+not. `config_cost_per_module` holds the SLOPE at 0.25 ms/module (measured 0.089–0.091), on builds
+the guard ADMITS so the number sits beside the VEX and not beside `kernel`.
+
+`pc_deform_gate`'s comment had the mirror problem — it described in the present tense the PYTHON it
+replaced (*"the biggest single Python item left on the shipped path: 0.133 s of `place.build`'s
+0.813 s at 20 km"*) while the node measures **4.2–4.5 ms of VEX**. Past tense now, with both
+numbers.
+
+`bench_guard_fallback`'s docstring and `no_case_pays_the_guard_fallback`'s comment both said *"on
+the shipped build there is no legitimate input that passes level 1 and fails level 2 … and it is
+the reason the guard is free today"*. That was true of the UPPER-bound level 1 they were written
+against and false the moment PART B made the bound a LOWER one: `GUARD_BEND_LADDER`'s
+`arc_R20_step0.05` and `arc_R50_step0.1` rows are exactly such inputs, and reproduce (L1 = 1,
+L2 = 0). Both are rewritten to say the path IS reachable, to name the shapes, and to say that
+"0 of 92" is a statement about the 92 fixtures' kits and not about the tool.
+
+### 24.7 The two performance findings — one reproduced, one disproved
+
+**REPRODUCED, MEASURED, NOT FIXED: `pc_plan_solve` parallelises per SECTION.** It is a POINT
+wrangle over the section stream — one section per thread — which is right for the data dependency
+the fitting solve has and wrong for a build made of one long curve: the whole solve, 81–87 % of the
+native cook, runs on a single core. `hou.perfMon`, min of 4 dirtied cooks on the shipped asset:
+
+| shape | pieces | `pc_plan_solve` | µs/piece | whole build |
+|---|---|---|---|---|
+| one 18.9 km straight | 33 586 | 1 139.7 ms | 33.93 | 1 353.8 ms |
+| 300 curved streets | 34 200 | 33.7 ms | 0.99 | 234.6 ms |
+
+Same node, same work per piece, **34x apart purely because the parallel unit is the section**.
+The committed guard could not see it: `WRANGLE_SMALL_PTS` and `WRANGLE_BIG_PTS` are 2 361 and 9 436
+points of a **single straight**, so both sizes sit on the one-thread shape and the growth ratio
+compares slow against slow.
+
+`plan_solve_section_shape` is the row that would have caught it — the same piece count over 1
+section and over 300, ceiling set from a six-run spread (24.2–35.0x observed, **55.0x** ceiling,
+D211's floors on both piece count and cook time). **It is a tripwire, not an endorsement.** The fix
+the auditor proposes — emit per-section SCALARS and let a parallel POINT wrangle after
+`pc_plan_emit` compute `s0`/`s1`/`u` per piece — is a rewrite of the hottest and most
+parity-sensitive node in the tool: the cursor is only affine in the piece index for the ordinary
+`first`/`adaptive` run, and `reselects`, the slice tail, the marker anchors and D150's determinism
+all live in the loop it would replace. That is a cycle, not a patch. **D222.**
+
+**DISPROVED: "~2/3 of `pc_plan_solve` is the five per-piece STRING columns."** The finding's method
+is to leave the columns *"with no consumer, so VEX eliminates their construction"*. It eliminates
+far more than that. Measured on the shipped asset at 33 594 pieces, `hou.perfMon`, min over **five
+INTERLEAVED** repetitions of the three variants:
+
+| variant | `pc_plan_solve` | |
+|---|---|---|
+| sound | 1 615.3 ms | |
+| the five `s[]@_p_*` writes DELETED, everything else live | 1 871.3 ms | **no speedup at all** |
+| truncated before the sort | 7.9 ms | **204x — VEX eliminated the entire dead fill** |
+
+The 204x row is what the finding's numbers are made of: the truncation measures **dead-code
+elimination**, not the fill. And the direct test — deleting only the attribute writes and leaving
+the arrays live — shows the write is inside the sound build's own run-to-run spread (886–1 774 ms
+on this node at this size, which is itself worth knowing). The reason is in the node's own header:
+the **deduped row table** (this node's recorded 7x fix) means only a handful of string ELEMENTS are
+written per section, not one per piece. There is no two-thirds to recover.
+
+### 24.8 THE PYTHON SHARE — measured here, per build class and per size
+
+`hou.perfMon` `Cook - ms` per child of the shipped instance; a child whose type is `python` is
+Python, everything else is native. Min over 3 dirtied cooks, from the pristine export.
+
+| class | km | Python ms | native ms | total | **Python %** | chain |
+|---|---|---|---|---|---|---|
+| straight | 2 | 2.3 | 63.1 | 65.4 | **3.5 %** | NATIVE |
+| straight | 20 | 2.3 | 733.9 | 736.2 | **0.3 %** | NATIVE |
+| curved (R = 2 000 arc) | 2 | 2.4 | 67.4 | 69.8 | **3.4 %** | NATIVE |
+| curved (R = 2 000 arc) | 20 | 2.4 | 708.1 | 710.5 | **0.3 %** | NATIVE |
+| cornered (dog-leg / 200 m) | 2 | 59.2 | 5.2 | 64.4 | **91.9 %** | reference |
+| cornered (dog-leg / 200 m) | 20 | 593.7 | 31.9 | 625.6 | **94.9 %** | reference |
+| conformed (surface on input 4) | 2 | 180.0 | 5.3 | 185.3 | **97.2 %** | reference |
+| conformed (surface on input 4) | 20 | 1 945.1 | 33.6 | 1 978.7 | **98.3 %** | reference |
+
+**The whole of the Python on an admitted build is `config`, and it is a FIXED 2.3–2.4 ms** — see
+§24.6 for what makes it fixed and what makes it grow. Per stage at 20 km, straight (every child over
+0.5 ms):
+
+| node | ms | |
+|---|---|---|
+| `pc_plan_solve` | 585.19 | **80 % of the build** |
+| `pc_plan_emit` | 49.97 | |
+| `pc_arclength` | 14.85 | |
+| `pc_envelope` | 9.03 | |
+| `pc_stamp` | 7.65 | |
+| `pc_sections` | 4.64 | |
+| `copy_packed` | 4.57 | |
+| `pc_deform_gate` | 4.55 | |
+| `pc_warn_collate` | 4.49 | |
+| `pc_frames_native` | 2.83 | |
+| **`config`** | **2.38** | **PYTHON — all of it** |
+| `pc_finalize` | 2.15 | |
+| `pc_proto` | 2.10 | |
+| `_scrub_groups` / `_scrub` | 1.92 / 1.91 | |
+| `pc_out_cast` | 1.80 | |
+| `pc_sec_only` | 1.52 | |
+| `pc_envelope2` | 1.46 | |
+| `pc_plan_only` | 1.07 | |
+
+**WHICH CLASSES STILL TAKE THE REFERENCE, and it is correct rather than a gap** — the guard fails
+safe and the output is the reference's, bit for bit, on every one:
+
+1. **conformed** (a surface on input 4) — N6, the largest remaining;
+2. **elevation** (ripples, hills, any climb) — N5;
+3. **cornered** — N8;
+4. `show_warnings`, `display = proxy|plan`, `fill = tile` — the three cheap ones;
+5. **and, new this cycle and by design:** a spline attribute at a storage the VEX chain cannot read,
+   and a kit whose module names no resolved rule matches. Both were previously ADMITTED — the first
+   shipped a different fence, the second cost 2.35x.
+
+### 24.9 Mutation — twelve at source with the `.hda` rebuilt
+
+Every row edits a SOURCE file in a throwaway copy of the pristine export, **rebuilds the `.hda` from
+that copy** (so the asset and its declaration move together) with `POLYFACTORY` pointed at the copy
+— §21.7's hazard, which would otherwise overwrite the real repo's asset — and runs the suite there.
+
+| # | mutation | verdict |
+|---|---|---|
+| 1 | `pc_stamp` de-batched (per-element full scan) | **RED** — `stamp_cost_is_flat_in_piece_count`, `wrangle_cost_is_flat_in_piece_count` |
+| 2 | `pc_deform_gate` de-batched | **RED** — `wrangle_cost_is_flat_in_piece_count`, `output_guard_cost` |
+| 3 | `pc_warn_collate` de-batched ×8 | **RED** — `wrangle_cost_is_flat_in_piece_count` |
+| 4 | `OUT_place_native` re-fed from `pc_out_cast` | **RED at BUILD** — the build script asserts the wiring against `native.STAGES` |
+| 5 | `OUT_frames_native` re-fed from `pc_proto` | **RED at BUILD** — same |
+| 6 | `guard_native` input 1 moved onto `OUT_reference` | **RED** — 13 failing, incl. `output_runs_the_native_chain_inside_the_envelope`, `native_stages_are_really_native`, `mutation_reference_unplugged` |
+| 7 | the `plan` Stage label re-worded to NATIVE | **RED** — `stage_labels_are_true` |
+| 8 | `pc_arclength` at `vex_precision = 32` | **RED** — 8 failing, incl. `plan_span_transport_at_20km`, `place_packed_parity`, `output_guard_parity`, `every_wrangle_comment_is_checkable` |
+| 9 | the corner bisector broken (`_unit(tin, tin)`) | **RED** — **51 failing** in `run_scene_checks` (`corner_face_mate_m`, `corner_outside_m`, `corner_breach_m`), the same 51 §21.4 recorded |
+| 10 | level 1 admits everything | **RED** — 9 failing, incl. `output_guard_parity`, `no_case_pays_the_guard_fallback`, `guard_bend_bound` |
+| 11 | the storage table dropped from the verdict | **RED** — `guard_spline_attr_types`, `guard_refusal_list_is_true` |
+| 12 | the kit-mismatch row removed from `_native_ok` | **RED** — `guard_kit_mismatch` |
+| 13 | `_bend_bound` fails open on an empty kit | **RED** — `guard_bend_bound_needs_its_operands` |
+| 14 | `kit_starter`'s promise restored | **RED** — `every_python_sop_comment_is_checkable` |
+| 15 | D88's warning taken out of `pc_warn_collate` | **RED** — `unread_marker_warns` |
+
+**FIFTEEN MUTATIONS, NO SURVIVORS** — the first cycle in this document's history where that is
+true. Two of the fifteen never reach the suite because the BUILD SCRIPT refuses them, which is a
+stronger answer than a red check and is D203's `native.STAGES` earning its keep.
+
+**Two mutation-shape lessons recorded rather than rediscovered**, both found while writing this
+table and both the reason a mutation can look like a survivor when it is not:
+
+* **A burn whose value is OVERWRITTEN each iteration is eliminated.** `_junk = point(...)` in a loop
+  keeps only the last read, so a "per-element full scan" costs one read. It has to ACCUMULATE.
+* **A ceiling built as 2.5x the measurement tolerates a 2x regression by design.** One extra full
+  scan of `pc_warn_collate` (0.24 → ~0.45 µs/piece against a 0.56 ceiling) passes, correctly: the
+  claim the pair of checks makes is FIVE-fold, so the mutation has to be five-fold to test it.
+
+**And one real defect the mutations found**, in the check machinery rather than in the tool:
+unplugging `guard_native` takes `pc_finalize` and `pc_warn_collate` off the cooked path entirely,
+and `wrangle_cost_check` then did `lever["pc_finalize"]` — a **KeyError**, so the run ended in a
+traceback after two `[FAIL]` lines with every check below it never run and the summary line never
+printed. That is D208's crash-instead-of-complaint, one cycle later and in a new place. It is a
+complaint now, and the same mutation reports **13 failing** where it reported 2 and a traceback.
+
+### 24.10 GATES PC-G1..PC-G5 — re-confirmed on images whose segment counts were checked
+
+Every image regenerated from this build; the rasteriser's `image_shows_packed_*` rows unpack first
+and report `[packed prims, polygons]` beside the drawn-segment count (D194's rule, after a committed
+gate image once held 188 segments where the fence is 3 388).
+
+- **PC-G1 — PASSES, and was LOOKED AT.** `VG1_rect_miter_top.png` **40 packed / 840 polys / 3 388
+  segments**: a closed rectangle, four continuous sides, posts at even intervals, and a corner post
+  at every one of the four corners **with the 45° bisector drawn across it** — confirmed by eye on
+  this build. `VG1_rect_bend_top.png` 35 / 760 / 3 079, `VG1_L_bend` 15 / 292 / 1 185, `VG1_L_miter`
+  18 / 342 / 1 384, `VG1_closeup_bend` 537, `VG1_closeup_miter` 412. Segment-per-polygon 4.0–4.4
+  throughout.
+- **PC-G2 — PASSES, and was LOOKED AT.** All four z-modes on the 24 m S-curve over the 2D hill,
+  14 packed / 492 polys / 2 078–2 174 segments each. `VG2_camber_front.png` confirmed by eye: the
+  rail is visibly rolled onto the cross-fall around the whole S and the feet track the green ground
+  line.
+- **PART B's pair, still identical.** `PARTB_arc_{native,reference}_{top,side}.png`, 1 132 segments
+  each, `(86, 283)` prims whole and cropped on both — `partb_curved_is_native` and
+  `partb_curved_matches_the_reference` both PASS.
+- **PC-G3 — PASSES on its own terms.** `scale_gate` **9 rows, 0 failing**, unchanged: five rows at
+  10 000 packed / 0 deformed / 10 000 points / one geometryid / 0.22–0.40 s, and `arc_10` (kit) /
+  `arc_80` (adaptive) correctly deforming at ~360 000 points / 1.25 s.
+- **PC-G4 — PASSES.** `run_hda_checks` **31 `[PASS]` / 0** (was 29; `unread_marker_warns` gained its
+  third fixture).
+- **PC-G5 — STILL DOES NOT PASS, and this cycle did not touch it.** The images regenerate unchanged
+  (`PCG5_FA_L_facade_iso.png` 10 368 segments, `_reflex` 1 184) and `run_2d_checks` is **633 `[PASS]`
+  / 0 failing / 0 moved**. What is missing is what P2-3V and §21.8 already recorded: **condition 4 is
+  true and unasserted** (0 of 176 placements carry a `slice_t` and no check says so) and **condition
+  3 needs a fixture as well as a mode**.
+
+### 24.11 Decisions
+
+- **D222 — `pc_plan_solve`'s parallel unit is the SECTION, and the ROW is not the fix.** One long
+  curve pays 30x what the same piece count pays as 300 short ones. `plan_solve_section_shape` pins
+  the ratio so it cannot get worse in silence; bringing it DOWN means emitting per-section scalars
+  and expanding per piece in a parallel wrangle after `pc_plan_emit`, and that is a cycle with the
+  `reselects` path, the slice tail, the marker anchors and D150's determinism all in it. Until then
+  the honest sentence is: **the tool is fast on many short curves and slow on one long one, and the
+  suite says so.**
+- **D223 — AN ATTRIBUTE'S STORAGE IS PART OF THE CONTRACT, AND THE ANSWER IS A REFUSAL.** Python
+  converts what the artist authored; VEX reads the type's zero. Where the two disagree the guard
+  refuses, because porting the coercion is a trap (`str(2.0)` is `"2.0"`, `sprintf("%g")` is `"2"`).
+  Every future `point()`/`prim()` read of an artist-authored name owes a row in
+  `pc_envelope.vfl`'s storage table.
+- **D224 — the PARM face never validates the style against the kit, and level 1 must.** `style.read`
+  warns when a rule names a module the kit lacks and `_native_ok` refuses on any warning; the parm
+  face has no such path, so the ordinary "bring your own kit" input planned every piece, built none,
+  and paid 2.35x. The test is `style.read`'s own, transcribed.
+- **D225 — a warning goes on the node whose cookCount is the COMPLEMENT of the other branch's.**
+  Not on the first node that can see the data. `pc_sections` cooks on the L1-admit/L2-refuse class
+  and so does `kernel`; `pc_warn_collate` and `kernel` are exact complements. Any future warning
+  that both faces must raise needs that cook map drawn before it is placed.
+- **D226 — a prose contract carries TAGS.** The guard's refusal list is the only statement of its
+  envelope, and it drifted for a cycle. Tags make both directions checkable: every claim exists in
+  the code, and every refusal in the code has a claim.
+- **D227 — a comment may not promise the removal of a node that exists, and a check it names must
+  exist.** Two of the four Python SOP comments promised ports (one already declined by the document
+  itself), and two source comments have now cited non-existent checks in two consecutive cycles.
+- **D228 — `interleaved_best`'s rule applies to the SIZE axis, not only the repetition axis.** Two
+  rigs measured in two blocks is D209 whatever the estimator inside each block is. Build every rig a
+  ratio compares before measuring any of them.
+- **D229 — a mutation must have the SHAPE of the regression it stands for, and the exempt set must
+  enter the verdict.** Scaling one side of a growth ratio tests the growth term, not the ceiling;
+  and rows the instrument cannot see must be proved some other way (an element-dependent,
+  loop-carried burn) rather than counted and ignored.
+- **D230 — a declaration that names a node complains when the node is missing, in EVERY column.**
+  `must_cook` did; `forbidden` and `allowed` did not, so a rename turned D208's second voice off.
+
+### 24.12 What is NOT done — where the next audit should start
+
+**Dev-loop rule 0 is NOT discharged for this cycle.** Nothing here has been audited by an agent that
+did not write it. The honest words for §24 are **implemented, self-verified, unaudited**.
+
+1. **D222 is open and it is the whole performance story.** `pc_plan_solve` is 80 % of a 20 km native
+   cook and 30x worse on one curve than on three hundred. `wrangle_ceilings_are_tight` will go RED
+   on the first real speedup until the §24.2 table is re-recorded — deliberate.
+2. **The storage table is eleven names on one reading of the VEX.** It was built by grepping every
+   `point(0, "…")` / `prim(0, "…")` in `polyfactory/vex/polychain/`. A name the chain reads through
+   a variable, or one added later, is not in it — and `guard_spline_attr_types` proves the ELEVEN
+   bite, not that eleven is the whole list.
+3. **`_native_ok`'s kit-mismatch row uses `style.read`'s test, and that is a transcription.** D214's
+   rule says a transcription needs a second voice; there is none. If `style.read`'s rule changes,
+   the two faces diverge silently again.
+4. **`config_cost_per_module` measures two points and holds a slope.** It cannot see a quadratic
+   between them, and 301 modules is the largest kit anyone has tried.
+5. **The three classes that still take the reference are unchanged** — conform (N6), the deformed
+   branch (N5), corners (N8) — and §23.11's notes on each still stand.
+6. **PC-G5's two gaps are untouched** and are the cheapest untested truths in the tool.
+7. **Verify `git status` is clean and the committed `.hda` is the one the checks ran against.**
+   Fifteen source-level rebuilds ran this cycle, all of them in throwaway copies with `POLYFACTORY`
+   redirected; confirm that held.
