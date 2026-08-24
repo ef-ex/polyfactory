@@ -434,6 +434,53 @@ def main():
           "same prim count in the crop, so the pair below differs only "
           "in which chain drew it")
 
+    # ---- 13.9 N5: a DEFORMED run, NATIVE and reference --------------------
+    #
+    # WHY THIS PAIR EXISTS: PRIM COUNTS DO NOT PROVE GEOMETRY.  The deformed
+    # branch is the first thing this graph builds that is not one packed
+    # instance per piece - every point of every module is rebuilt from
+    # scratch - and two defects in this codebase (a junction that was a flat
+    # plate, streets driving through each other) were invisible in every
+    # number and obvious in the first frame that rendered.  So the same 24 m
+    # ripple is drawn from the native chain and from the reference, cropped
+    # to 8 m where a 2 m panel is several pixels wide.
+    print(chr(10) + "=== 13.9 N5 - a DEFORMED run, NATIVE and reference, cropped ===")
+    gd = hou.node("/obj").createNode("geo", "n5_images")
+    ripple = [(0.5 * i, 0.45 * math.sin(i * 0.55), 0.0) for i in range(49)]
+    noded = gd.createNode("pf_polychain", "chain_deformed")
+    noded.setInput(0, spline_node(gd, "n5_ripple", ripple))
+    noded.allowEditingOfContents()
+    deformed_seen = {}
+    n5_polys = 0
+    for stage in ("output", "reference"):
+        noded.parm("stage").set(stage)
+        noded.cook(force=True)
+        took = noded.node("copy_deformed").cookCount() > 0
+        tag = "native" if (stage == "output" and took) else "reference"
+        sub = crop(unpack(noded.geometry()), 6.0, 14.0)
+        deformed_seen[tag] = (len(noded.geometry().prims()), len(sub.prims()))
+        n5_polys = sum(len(pr.vertices()) for pr in sub.prims())
+        rasterise(os.path.join(OUT, "N5_ripple_%s_side.png" % tag), sub,
+                  ("x", "y"))
+        rasterise(os.path.join(OUT, "N5_ripple_%s_top.png" % tag), sub,
+                  ("x", "z"))
+    check("n5_deformed_is_native", "native" in deformed_seen,
+          ",".join(sorted(deformed_seen)),
+          "`Stage = output` on a 24 m ripple must ADVANCE `copy_deformed` - "
+          "before 13.9 N5 this build took the reference whole and cost 96 %% "
+          "Python. prims/crop: %r" % (deformed_seen,))
+    check("n5_deformed_matches_the_reference",
+          len(set(deformed_seen.values())) == 1,
+          "%r" % (sorted(set(deformed_seen.values())),),
+          "the two images are the same fence: same prim count whole and same "
+          "prim count in the crop, so the pair differs only in which chain "
+          "drew it")
+    # ...and the drawn-segment count against the geometry (D194), because a
+    # blind gate once drew 188 segments of a 3 388-segment fence.
+    check("n5_deformed_image_has_geometry", n5_polys > 200, n5_polys,
+          "drawn segments in the crop, counted off the geometry the "
+          "rasteriser was handed - D194's rule")
+
     print("\n%d failing gate checks" % len(FAIL))
     if FAIL:
         print("  " + ", ".join(FAIL))

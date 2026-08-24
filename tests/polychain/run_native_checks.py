@@ -5638,6 +5638,61 @@ def guard_deform_refusals(root):
              "; ".join(bad[:3]) or "all refused, all identical"))
 
 
+def piece_order_key_is_total(root):
+    """13.9 N5 - the order key must be UNIQUE per prim and per point.
+
+    THIS CHECK EXISTS BECAUSE TWO MUTATIONS SURVIVED THE WHOLE SUITE.  Dropping
+    the within-piece term from either key - `f@_pkey = (float)_pk0` and
+    `f@_pkeyp = (float)i@_pkey0`, so every prim and every point of one deformed
+    piece carries the SAME key - left `run_native_checks` at 136 [PASS] / 0,
+    `output_guard_parity` included.
+
+    The reason it survived is that Houdini's `sort` happens to be STABLE here,
+    so equal keys kept the order `copytopoints` emitted them in, which is
+    already the reference's.  That is luck resting on an undocumented property:
+    the whole point of the second term is that the key is TOTAL, so the result
+    does not depend on how the sort breaks ties.  Nothing asserted totality, so
+    nothing could see the term go.
+
+    So this asserts the property directly rather than its consequence: on a
+    build with deformed pieces, no two prims and no two points may share a key.
+    It is independent of the sort, of stability, and of the fixture's shape.
+    """
+    geo = hou.Geometry()
+    cases.polyline(geo, [(0.5 * i, 0.45 * math.sin(i * 0.55), 0.0)
+                         for i in range(121)], curve_id="OK")
+    node = root.createNode("pf_polychain", "orderkey")
+    node.setInput(0, native.feed(root, geo, "OK_IN"))
+    node.allowEditingOfContents()
+    node.parm("stage").set("output")
+    node.cook(force=True)
+    key = node.node("pc_piece_key").geometry()
+    gate = node.node("pc_deform_gate").geometry()
+    ndef = sum(gate.pointIntAttribValues("pc_deformed"))
+    pk = list(key.primFloatAttribValues("_pkey"))
+    pp = list(key.pointFloatAttribValues("_pkeyp"))
+    dup_prim = len(pk) - len(set(pk))
+    dup_point = len(pp) - len(set(pp))
+    # ...and the fixture has to CONTAIN a multi-prim piece, or a per-piece key
+    # would be total by accident.
+    biggest = 0
+    if ndef:
+        from collections import Counter
+        biggest = max(Counter(int(v) // 65536 for v in pk).values())
+    ok = (ndef > 0 and biggest > 1 and dup_prim == 0 and dup_point == 0)
+    node.destroy()
+    check("piece_order_key_is_total", ok,
+          "%d prims / %d points, %d dup" % (len(pk), len(pp),
+                                            dup_prim + dup_point),
+          "no two prims share `_pkey` and no two points share `_pkeyp` on a "
+          "build with %d deformed pieces whose largest contributes %d prims - "
+          "the property the within-piece term exists for, asserted directly "
+          "because BOTH mutations that delete it survived the whole suite on "
+          "the sort's undocumented stability. Duplicate prim keys: %d; "
+          "duplicate point keys: %d"
+          % (ndef, biggest, dup_prim, dup_point))
+
+
 def mutation_deform_refusals(root):
     """13.9 N5 - each of the gate's three deform refusals, removed in turn.
 
@@ -7830,6 +7885,7 @@ def main():
     guard_padding_parity(root)
     guard_deform_ladder(root)
     guard_deform_refusals(root)
+    piece_order_key_is_total(root)
     mutation_deform_refusals(root)
     guard_spline_attr_types(root)
     mutation_spline_attr_types(root)
