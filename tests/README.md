@@ -84,6 +84,19 @@ hython tests/polychain/conform_bench.py --reps 5 --ab --json out.json
 # on - the headless substitute for the wedged live bridge. ~40 s
 hython tests/polychain/gate_images.py [outdir]
 
+# THE MUTATION REGISTRY - break the thing each check guards and watch it go
+# red. Every check in the polyChain runners is PROVEN (a registered mutation
+# was seen to redden it), EXEMPT (it IS a mutation, one line saying so) or a
+# dated DEBT entry; a name in none of the three fails the run. Each mutation
+# runs in its own `git archive HEAD` export with the .hda rebuilt from that
+# copy, so the working tree is never touched. ~80 min - a weekly/audit tool,
+# not a per-commit one; `--state FILE` makes it resumable and `--only <id>`
+# runs one. Plain `python`, not hython: it spawns hython per suite.
+python tests/polychain/run_mutation_registry.py
+python tests/polychain/run_mutation_registry.py --list
+python tests/polychain/run_mutation_registry.py --only pc_local_scaled
+python tests/polychain/run_mutation_registry.py --runner scene --state s.json
+
 # the loop-closure gate, swept over a sep/step ladder — ~1 min / ~20 min
 hython tests/citygen/closure_gate.py
 hython tests/citygen/closure_gate.py --full --table
