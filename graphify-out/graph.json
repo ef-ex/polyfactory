@@ -1530,7 +1530,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_importer",
-      "community": 92,
+      "community": 205,
       "norm_label": "batch_importer.py"
     },
     {
@@ -1540,7 +1540,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "asset_library_batch_importer_detect_asset_groups",
-      "community": 92,
+      "community": 205,
       "norm_label": "detect_asset_groups()"
     },
     {
@@ -1550,7 +1550,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "asset_library_batch_importer_next_free_filename",
-      "community": 92,
+      "community": 205,
       "norm_label": "next_free_filename()"
     },
     {
@@ -1570,7 +1570,7 @@
       "source_location": "L269",
       "_origin": "ast",
       "id": "asset_library_batch_importer_aabbs_overlap",
-      "community": 92,
+      "community": 205,
       "norm_label": "_aabbs_overlap()"
     },
     {
@@ -1580,7 +1580,7 @@
       "source_location": "L281",
       "_origin": "ast",
       "id": "asset_library_batch_importer_read_str_attrib",
-      "community": 92,
+      "community": 205,
       "norm_label": "_read_str_attrib()"
     },
     {
@@ -1590,7 +1590,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "geometry",
-      "community": 92,
+      "community": 205,
       "norm_label": "geometry"
     },
     {
@@ -1610,7 +1610,7 @@
       "source_location": "L293",
       "_origin": "ast",
       "id": "asset_library_batch_importer_sanitize",
-      "community": 92,
+      "community": 205,
       "norm_label": "_sanitize()"
     },
     {
@@ -1620,7 +1620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_1",
-      "community": 92,
+      "community": 205,
       "norm_label": "batch kitbash importer - aabb-based asset detection and batch export backend"
     },
     {
@@ -1630,7 +1630,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_26",
-      "community": 92,
+      "community": 205,
       "norm_label": "detect asset groups in a sop node using connectivity + aabb overlap.      each"
     },
     {
@@ -1640,7 +1640,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_159",
-      "community": 92,
+      "community": 205,
       "norm_label": "find the next available numbered filename (no extension).      scans both the"
     },
     {
@@ -1660,7 +1660,7 @@
       "source_location": "L273",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_273",
-      "community": 92,
+      "community": 205,
       "norm_label": "return true if two aabbs (min_x,min_y,min_z,max_x,max_y,max_z) overlap."
     },
     {
@@ -1670,7 +1670,7 @@
       "source_location": "L282",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_282",
-      "community": 92,
+      "community": 205,
       "norm_label": "read a string primitive attribute value; return default if absent."
     },
     {
@@ -1680,7 +1680,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_294",
-      "community": 92,
+      "community": 205,
       "norm_label": "sanitize a name for use as a filesystem component."
     },
     {
@@ -24277,7 +24277,7 @@
       "label": "execute()",
       "file_type": "code",
       "source_file": "tests/polychain/run_mutation_registry.py",
-      "source_location": "L157",
+      "source_location": "L167",
       "_origin": "ast",
       "id": "polychain_run_mutation_registry_execute",
       "community": 226,
@@ -24287,7 +24287,7 @@
       "label": "main()",
       "file_type": "code",
       "source_file": "tests/polychain/run_mutation_registry.py",
-      "source_location": "L196",
+      "source_location": "L206",
       "_origin": "ast",
       "id": "polychain_run_mutation_registry_main",
       "community": 226,
@@ -24357,9 +24357,9 @@
       "label": "One mutation, in its own export.  -> (verdict, detail, reddened set)",
       "file_type": "rationale",
       "source_file": "tests/polychain/run_mutation_registry.py",
-      "source_location": "L158",
+      "source_location": "L168",
       "_origin": "ast",
-      "id": "polychain_run_mutation_registry_rationale_158",
+      "id": "polychain_run_mutation_registry_rationale_168",
       "community": 226,
       "norm_label": "one mutation, in its own export.  -> (verdict, detail, reddened set)"
     },
@@ -25080,7 +25080,7 @@
       "source_location": "L4723",
       "_origin": "ast",
       "id": "polychain_run_native_checks_stage_is_really_native",
-      "community": 3,
+      "community": 229,
       "norm_label": "stage_is_really_native()"
     },
     {
@@ -25090,7 +25090,7 @@
       "source_location": "L4847",
       "_origin": "ast",
       "id": "polychain_run_native_checks_native_stage_check",
-      "community": 3,
+      "community": 229,
       "norm_label": "native_stage_check()"
     },
     {
@@ -25100,7 +25100,7 @@
       "source_location": "L4881",
       "_origin": "ast",
       "id": "polychain_run_native_checks_native_stage_mutation",
-      "community": 3,
+      "community": 229,
       "norm_label": "native_stage_mutation()"
     },
     {
@@ -25470,7 +25470,7 @@
       "source_location": "L7796",
       "_origin": "ast",
       "id": "polychain_run_native_checks_module_kit",
-      "community": 3,
+      "community": 278,
       "norm_label": "_module_kit()"
     },
     {
@@ -25480,7 +25480,7 @@
       "source_location": "L7819",
       "_origin": "ast",
       "id": "polychain_run_native_checks_config_cost_per_module",
-      "community": 3,
+      "community": 278,
       "norm_label": "config_cost_per_module()"
     },
     {
@@ -26300,7 +26300,7 @@
       "source_location": "L4725",
       "_origin": "ast",
       "id": "polychain_run_native_checks_rationale_4725",
-      "community": 3,
+      "community": 229,
       "norm_label": "cook the shipped asset at each native stage and ask the graph, not the     label"
     },
     {
@@ -26310,7 +26310,7 @@
       "source_location": "L4882",
       "_origin": "ast",
       "id": "polychain_run_native_checks_rationale_4882",
-      "community": 3,
+      "community": 229,
       "norm_label": "m4b, applied to the built asset: point the `plan_native` menu entry at     the p"
     },
     {
@@ -26660,7 +26660,7 @@
       "source_location": "L7797",
       "_origin": "ast",
       "id": "polychain_run_native_checks_rationale_7797",
-      "community": 3,
+      "community": 278,
       "norm_label": "a kit of `count` modules that the parm page's slots can resolve.      the first"
     },
     {
@@ -26670,7 +26670,7 @@
       "source_location": "L7820",
       "_origin": "ast",
       "id": "polychain_run_native_checks_rationale_7820",
-      "community": 3,
+      "community": 278,
       "norm_label": "d206's rule, applied to the one python sop that is allowed to cook.      `config"
     },
     {
@@ -37840,7 +37840,7 @@
       "source_location": "L1528",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
-      "community": 17,
+      "community": 246,
       "norm_label": "s5 \u2014 intersections"
     },
     {
@@ -37850,7 +37850,7 @@
       "source_location": "L1550",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
-      "community": 17,
+      "community": 246,
       "norm_label": "what the literature adds"
     },
     {
@@ -37860,7 +37860,7 @@
       "source_location": "L1574",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "community": 17,
+      "community": 246,
       "norm_label": "the invariant that was violated: **every corner is an arc, always**"
     },
     {
@@ -37870,7 +37870,7 @@
       "source_location": "L1602",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
-      "community": 17,
+      "community": 246,
       "norm_label": "two rules the design left open, decided 2026-08-09"
     },
     {
@@ -37880,7 +37880,7 @@
       "source_location": "L1722",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
-      "community": 17,
+      "community": 246,
       "norm_label": "three constructions adopted from the civil sweep \u2014 2026-08-09"
     },
     {
@@ -37890,7 +37890,7 @@
       "source_location": "L1757",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "community": 17,
+      "community": 246,
       "norm_label": "higher-degree junctions \u2014 untested, and structurally unreachable from the field"
     },
     {
@@ -37900,7 +37900,7 @@
       "source_location": "L1783",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "community": 17,
+      "community": 246,
       "norm_label": "plazas and roundabouts at degenerate points"
     },
     {
@@ -38640,7 +38640,7 @@
       "source_location": "L4610",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6b_shipped_v1_assets",
-      "community": 205,
+      "community": 102,
       "norm_label": "6b. shipped v1 assets"
     },
     {
@@ -38650,7 +38650,7 @@
       "source_location": "L4612",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_old_chain_is_being_retired_status_2026_08_12",
-      "community": 205,
+      "community": 102,
       "norm_label": "the old chain is being retired \u2014 status 2026-08-12"
     },
     {
@@ -38660,7 +38660,7 @@
       "source_location": "L4645",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_retirement_finished_2026_08_12",
-      "community": 205,
+      "community": 102,
       "norm_label": "the retirement, finished \u2014 2026-08-12"
     },
     {
@@ -38670,7 +38670,7 @@
       "source_location": "L4652",
       "_origin": "ast",
       "id": "ideas_citygen_streets_every_promoted_parameter_measured_by_who_reads_it",
-      "community": 205,
+      "community": 102,
       "norm_label": "every promoted parameter, measured by who reads it"
     },
     {
@@ -38680,7 +38680,7 @@
       "source_location": "L4736",
       "_origin": "ast",
       "id": "ideas_citygen_streets_audit_of_the_trim_and_the_monolith_was_not_a_control_it_was_a_divergence_hazard",
-      "community": 205,
+      "community": 102,
       "norm_label": "\u2705 audit of the trim \u2014 and the monolith was not a control, it was a divergence hazard"
     },
     {
@@ -38690,7 +38690,7 @@
       "source_location": "L4777",
       "_origin": "ast",
       "id": "ideas_citygen_streets_closure_gate_py_ported_onto_tracer_segmenter",
-      "community": 205,
+      "community": 102,
       "norm_label": "`closure_gate.py` ported onto `tracer \u2192 segmenter`"
     },
     {
@@ -38700,7 +38700,7 @@
       "source_location": "L4832",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_original_v1_assets",
-      "community": 205,
+      "community": 102,
       "norm_label": "the original v1 assets"
     },
     {
@@ -38710,7 +38710,7 @@
       "source_location": "L4846",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_boundary_moved_2026_08_10_it_is_now_between_data_and_geometry",
-      "community": 205,
+      "community": 102,
       "norm_label": "\u26a0\ufe0f the boundary moved \u2014 2026-08-10. it is now between data and geometry"
     },
     {
@@ -38830,7 +38830,7 @@
       "source_location": "L5180",
       "_origin": "ast",
       "id": "ideas_citygen_streets_never_change_a_shared_vex_signature_under_existing_callers_2026_08_11",
-      "community": 205,
+      "community": 102,
       "norm_label": "\u26a0\ufe0f never change a shared vex signature under existing callers \u2014 2026-08-11"
     },
     {
@@ -40580,7 +40580,7 @@
       "source_location": "L204",
       "_origin": "ast",
       "id": "ideas_polychain_3_data_contracts",
-      "community": 246,
+      "community": 12,
       "norm_label": "3. data contracts"
     },
     {
@@ -40590,7 +40590,7 @@
       "source_location": "L208",
       "_origin": "ast",
       "id": "ideas_polychain_3_1_input_spline_schema",
-      "community": 246,
+      "community": 12,
       "norm_label": "3.1 input spline schema"
     },
     {
@@ -40600,7 +40600,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "ideas_polychain_3_2_kit_format",
-      "community": 246,
+      "community": 12,
       "norm_label": "3.2 kit format"
     },
     {
@@ -40610,7 +40610,7 @@
       "source_location": "L245",
       "_origin": "ast",
       "id": "ideas_polychain_3_2b_prototype_identity_reuse_pf_merge_enum_and_keep_it_distinct_from_element_identity",
-      "community": 246,
+      "community": 12,
       "norm_label": "3.2b prototype identity \u2014 reuse `pf::merge_enum`, and keep it distinct from element identity"
     },
     {
@@ -40620,7 +40620,7 @@
       "source_location": "L280",
       "_origin": "ast",
       "id": "ideas_polychain_3_3_style_payload",
-      "community": 246,
+      "community": 12,
       "norm_label": "3.3 style payload"
     },
     {
@@ -40630,7 +40630,7 @@
       "source_location": "L297",
       "_origin": "ast",
       "id": "ideas_polychain_3_4_output",
-      "community": 246,
+      "community": 12,
       "norm_label": "3.4 output"
     },
     {
@@ -43900,7 +43900,7 @@
       "source_location": "L10795",
       "_origin": "ast",
       "id": "ideas_polychain_25_native_network_build_log_cycle_n_4d_d206_d210_re_verified_and_the_brief_was_stale",
-      "community": 12,
+      "community": 277,
       "norm_label": "25. native network build log \u2014 cycle n-4d (d206\u2013d210 re-verified, and the brief was stale)"
     },
     {
@@ -43910,7 +43910,7 @@
       "source_location": "L10812",
       "_origin": "ast",
       "id": "ideas_polychain_25_0_the_scoreboard_five_mutations_re_run_five_reddened",
-      "community": 12,
+      "community": 277,
       "norm_label": "25.0 the scoreboard \u2014 five mutations re-run, five reddened"
     },
     {
@@ -43920,7 +43920,7 @@
       "source_location": "L10825",
       "_origin": "ast",
       "id": "ideas_polychain_25_1_d210_and_the_twelve_claims_re_checked_from_scratch_a_second_time",
-      "community": 12,
+      "community": 277,
       "norm_label": "25.1 d210 \u2014 and the twelve claims, re-checked from scratch a second time"
     },
     {
@@ -43930,7 +43930,7 @@
       "source_location": "L10868",
       "_origin": "ast",
       "id": "ideas_polychain_25_2_d209_s_other_half_the_flakiness_not_just_the_floor",
-      "community": 12,
+      "community": 277,
       "norm_label": "25.2 d209's other half \u2014 the flakiness, not just the floor"
     },
     {
@@ -43940,7 +43940,7 @@
       "source_location": "L10882",
       "_origin": "ast",
       "id": "ideas_polychain_25_3_one_thing_the_d206_re_run_exposes_and_it_is_minor",
-      "community": 12,
+      "community": 277,
       "norm_label": "25.3 one thing the d206 re-run exposes, and it is minor"
     },
     {
@@ -43950,7 +43950,7 @@
       "source_location": "L10890",
       "_origin": "ast",
       "id": "ideas_polychain_25_4_what_this_cycle_asks_of_the_next_agent",
-      "community": 12,
+      "community": 277,
       "norm_label": "25.4 what this cycle asks of the next agent"
     },
     {
@@ -92943,11 +92943,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/polychain/run_mutation_registry.py",
-      "source_location": "L158",
+      "source_location": "L168",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_run_mutation_registry_rationale_158",
-      "target": "polychain_run_mutation_registry_execute"
+      "source": "polychain_run_mutation_registry_rationale_168",
+      "target": "polychain_run_mutation_registry_execute",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -120808,5 +120808,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2c5d9e53fa2570a07ce87ae21abb7d62dc711c42"
+  "built_at_commit": "55cd1fca1d52c12d7aa0eb3a0da3255a8a6eaf8c"
 }
