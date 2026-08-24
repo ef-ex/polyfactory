@@ -2420,6 +2420,57 @@ def fixture_cases():
                    Rule("default", "first", ["panel"])],
             params=Params(fill="adaptive"))))
 
+    # --- D242: a `markerData:` slot that is NOT A SCALAR, and a KEY THAT
+    # --- `json_dumps` ESCAPES ----------------------------------------------
+    #
+    # ⚠️ THESE ROWS EXIST BECAUSE A SOURCE MUTATION SURVIVED THE WHOLE
+    # SUITE.  The five rows above cover the four SCALAR types; the type probe
+    # had only two outcomes ("string" or "read it as a float"), so a vector, a
+    # list or a nested dict cross-type-read as 0.0 and was published as a
+    # READABLE NUMERIC subject where the reference holds a tuple/list/dict.
+    # Measured on the shipped .hda before the fix, level 1 and level 2 both
+    # admitting: `{"v": (1.0, 2.0, 3.0)}` under `markerData:v eq 0.0` built
+    # 1 gate + 10 panels natively against the reference's 10 panels, and `lt`
+    # and `ge` diverged the same way.  With the fix in place and NO row here,
+    # reverting the `!unreadable:` branch to `float v = md[k]` left
+    # `run_native_checks` at 144 [PASS] / 0 - a guard hole closed by a fix
+    # nothing could see, which is the same thing as an unfixed guard hole one
+    # edit later.
+    #
+    # ⚠️ THE ESCAPED-KEY HALF IS NOT HERE AND THAT IS A PROPERTY OF THE
+    # RIG, not of the tool.  `native.config_full` marshals the style through a
+    # GENERATED PYTHON SOP BODY set on a string parm, and a Houdini string
+    # parm treats a backslash as an escape - so a key with a quote or a
+    # backslash cannot survive the rig's own transport, while the SHIPPED
+    # asset reads the payload off geometry and handles it correctly (measured
+    # both ways).  `guard_marker_data_types` is that half, on the asset.
+    #
+    # ⚠️ AND THE KEY ROWS ARE THE OTHER HALF.  The probe used to search the
+    # whole marker's dump for the key's SOURCE spelling; `json_dumps` escapes,
+    # so a key carrying a quote, a backslash or a non-ASCII character never
+    # matched its own probe and fell to the numeric read.  Measured, that
+    # fired a gate the artist never asked for on `{'a"b': "x"}` and DROPPED
+    # the gate the artist did ask for on `{u"k\u00e9": "x"}` - the failure runs
+    # in both directions, so both directions are fixtures.
+    for tag, data, op, value in (
+            ("vector", {"v": hou.Vector3(1.0, 2.0, 3.0)}, "eq", 0.0),
+            ("vector_lt", {"v": hou.Vector3(1.0, 2.0, 3.0)}, "lt", 1.0),
+            ("vector_ge", {"v": hou.Vector3(1.0, 2.0, 3.0)}, "ge", 0.0),
+            ("vector_ne", {"v": hou.Vector3(1.0, 2.0, 3.0)}, "ne", 0.0),
+            ("list", {"v": (1.0, 2.0)}, "eq", 0.0),
+            ("list_lt", {"v": (1.0, 2.0)}, "lt", 1.0),
+            ("nested", {"v": {"a": 1.0}}, "eq", 0.0),
+            ("nested_ge", {"v": {"a": 1.0}}, "ge", 0.0)):
+        geo = hou.Geometry()
+        cases.polyline(geo, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)], curve_id="S")
+        cases.marker(geo, (8.0, 0.0, 0.0), "S", 7, dist=8.0, data=data)
+        out.append(("marker_data_%s" % tag, geo, kit, Style(
+            "md", 1, 3,
+            rules=[Rule("marker:7", "conditional", ["gate", "post"],
+                        cond={"subject": "markerData:v", "op": op,
+                              "value": value}),
+                   Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive"))))
     # --- D7's per-POINT `pc_section`, by TYPE ------------------------------
     # A STRING per-point key was read as a float (always 0.0), so the
     # mid-curve break vanished: 1 section and 12 pieces natively against the
@@ -6809,6 +6860,122 @@ def guard_row_warns_wrong_storage(root):
              "; ".join(bad[:3]) or "both stages cook, identical"))
 
 
+# D242 - the marker-data rows that have to run on the SHIPPED ASSET.
+#
+# (label, the marker's data dict, the subject, op, value).  The first block is
+# a slot that is NOT A SCALAR - a vector, a list, a nested dict - which the
+# type probe used to cross-type-read as 0.0 and publish as READABLE.  The
+# second is a KEY that `json_dumps` ESCAPES, which the old probe searched for
+# by its SOURCE spelling and therefore never matched.  Both were measured on
+# the shipped .hda with level 1 and level 2 admitting, and both diverge in
+# BOTH directions - the quote key fired a gate the artist never asked for and
+# the non-ASCII key dropped one that was asked for.
+GUARD_MARKER_DATA_ROWS = (
+    ("vector_eq", {"v": (1.0, 2.0, 3.0)}, u"markerData:v", "eq", 0.0),
+    ("vector_lt", {"v": (1.0, 2.0, 3.0)}, u"markerData:v", "lt", 1.0),
+    ("vector_ge", {"v": (1.0, 2.0, 3.0)}, u"markerData:v", "ge", 0.0),
+    ("vector_ne", {"v": (1.0, 2.0, 3.0)}, u"markerData:v", "ne", 0.0),
+    ("list_eq", {"v": (1.0, 2.0)}, u"markerData:v", "eq", 0.0),
+    ("nested_eq", {"v": {"a": 1.0}}, u"markerData:v", "eq", 0.0),
+    ("int_control", {"v": 0}, u"markerData:v", "eq", 0.0),
+    ("str_control", {"v": "x"}, u"markerData:v", "eq", "x"),
+    ("key_quote_num", {u'a"b': u"x"}, u'markerData:a"b', "eq", 0.0),
+    ("key_quote_str", {u'a"b': u"x"}, u'markerData:a"b', "eq", u"x"),
+    ("key_bslash_num", {u"a\\b": u"x"}, u"markerData:a\\b", "eq", 0.0),
+    ("key_bslash_str", {u"a\\b": u"x"}, u"markerData:a\\b", "eq", u"x"),
+    ("key_nonascii_num", {u"k\u00e9": u"x"}, u"markerData:k\u00e9", "eq", 0.0),
+    ("key_nonascii_str", {u"k\u00e9": u"x"}, u"markerData:k\u00e9", "eq", u"x"),
+)
+
+
+def guard_marker_data_types(root):
+    """D242 - `markerData:<k>` on the SHIPPED asset, by value type and by key.
+
+    ⚠️ THIS CHECK EXISTS BECAUSE A SOURCE MUTATION SURVIVED THE WHOLE
+    SUITE.  The fix was landed and `run_native_checks` was 144 [PASS] / 0;
+    reverting the `!unreadable:` branch back to `float v = md[k]` at source,
+    rebuilding the .hda and re-running left it at **144 [PASS] / 0**.  A guard
+    hole closed by a fix that nothing can see is the same thing as an unfixed
+    guard hole one edit later, which is this project's own recorded lesson.
+
+    `plan_fixture_parity` carries the non-scalar VALUE rows through the rig;
+    the KEY rows cannot go there, because `native.config_full` marshals the
+    style through a generated Python SOP body on a string parm and Houdini
+    string parms treat a backslash as an escape.  The asset reads its payload
+    GEOMETRY, so this is the transport an artist actually uses - and it is the
+    transport the divergence was measured on.
+    """
+    from polyfactory.polychain import Rule, Style
+    from polyfactory.polychain import style as STYLE
+    rows, bad = [], []
+    for i, (label, data, subject, op, value) in enumerate(
+            GUARD_MARKER_DATA_ROWS):
+        # ⚠️ THE CURVE ID HAS TO MATCH THE MARKER'S `pc_curve`, and the
+        # first version of this fixture used `guard_polyline_geo`, whose id is
+        # "GC".  The marker then bound to no curve, no gate was placed on
+        # EITHER side, and all fourteen rows agreed on ten panels - the check
+        # passed under the very source mutation it was written to catch.
+        # A fixture that cannot reach the code path proves nothing, twice in
+        # one cycle.
+        geo = hou.Geometry()
+        cases.polyline(geo, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)],
+                       curve_id="S")
+        cases.marker(geo, (10.0, 0.0, 0.0), "S", 7, dist=10.0, data=data)
+        style = Style("md", 1, 3, rules=[
+            Rule("marker:7", "conditional", ["gate"],
+                 cond={"subject": subject, "op": op, "value": value}),
+            Rule("default", "first", ["panel"])])
+        node = root.createNode("pf_polychain", "mdt_%d" % i)
+        node.setInput(0, native.feed(root, geo, "MDT_%d" % i))
+        sgeo = hou.Geometry()
+        STYLE.write(sgeo, style)
+        node.setInput(2, native.feed(root, sgeo, "MDS_%d" % i))
+        node.allowEditingOfContents()
+        node.parm("slot_marker").set("gate")
+        node.parm("marker_id").set(7)
+        node.parm("stage").set("output")
+        node.cook(force=True)
+        level1 = int(node.node("pc_envelope").geometry()
+                     .attribValue("_native_ok"))
+        level2 = int(node.node("pc_envelope2").geometry()
+                     .attribValue("_native_ok2")) if level1 else 0
+        got = _snapshot(node.geometry())
+        node.parm("stage").set("reference")
+        node.cook(force=True)
+        diff = _first_difference(_snapshot(node.geometry()), got)
+        gated = 0
+        node.parm("stage").set("output")
+        node.cook(force=True)
+        a = node.geometry().findPrimAttrib("pc_module")
+        if a is not None:
+            gated = sum(1 for pr in node.geometry().prims()
+                        if pr.attribValue("pc_module") == "gate")
+        rows.append((label, level1, level2, gated))
+        if diff:
+            bad.append("%s: %s" % (label, diff[:90]))
+        node.destroy()
+    native_n = sum(1 for r in rows if r[2])
+    # ...and at least one row must actually PLACE the gate, or the marker
+    # never bound and every row is a comparison of two identical fences.
+    if not any(r[3] for r in rows):
+        bad.append("no row placed a gate at all - the marker did not bind to "
+                   "the curve, so nothing here reached the read")
+    if native_n < len(rows):
+        bad.append("only %d of %d rows took the NATIVE chain - a row the "
+                   "guard refuses proves nothing about the read"
+                   % (native_n, len(rows)))
+    check("guard_marker_data_types", not bad,
+          "%d rows, %d native" % (len(rows), native_n),
+          "a `markerData:` slot that is a vector, a list or a nested dict, and "
+          "a KEY carrying a quote, a backslash or a non-ASCII character, on "
+          "the SHIPPED asset with a real style payload: `Stage = output` "
+          "against `Stage = reference`, everything a consumer can see. Before "
+          "D242 nine value rows and six key rows diverged, in BOTH directions "
+          "- a gate fired that nobody asked for, and a gate dropped that was "
+          "asked for. %s"
+          % ("; ".join(bad[:3]) or "all identical, all native"))
+
+
 def guard_kit_mismatch(root):
     """A rule naming a module the kit does not carry - the ORDINARY artist
     kit - used to be 2.35x SLOWER than having no native chain at all.
@@ -7126,9 +7293,19 @@ def _many_short_streets(count, per, seglen=2.0):
 
 
 # The double cook a level-1 pass / level-2 refusal costs, measured on the
-# 2 km and 20 km ripples §19.4 says nearly shipped.  1.8x is the ceiling and
-# it measures 1.52x / 1.57x.
-GUARD_FALLBACK_CEILING = 1.8
+# 2 km and 20 km ripples §19.4 says nearly shipped.
+#
+# ⚠️ D264 - THE CEILING WAS 1.8 AND IT FAILED ON AN UNMUTATED BUILD.
+# Recorded spread on this tree, same commit, four runs: 1.52 / 1.57 / 1.62 /
+# **1.81**, the last on a loaded machine - so 1.8 was inside the noise, which
+# is D209/D211's defect exactly and the same one D248 fixed for the solve.
+# The ratio cannot be calibrated the way the solve's was (both sides are a
+# whole asset cook, and the fallback's extra work IS the second cook), so the
+# honest fix is the one D211 prescribes: raise the number ABOVE the observed
+# spread and record the spread beside it, rather than leave a check that is a
+# coin toss. 2.2 still fails the shape it exists for - `no_case_pays_the_
+# guard_fallback` reports 2.35x on the class that pays it twice.
+GUARD_FALLBACK_CEILING = 2.2
 
 
 def bench_guard_fallback(root):
@@ -8812,6 +8989,7 @@ def main():
     guard_spline_attr_types(root)
     mutation_spline_attr_types(root)
     guard_kit_mismatch(root)
+    guard_marker_data_types(root)
     guard_row_warns_wrong_storage(root)
     guard_refusal_list_is_true(node)
     bench_guard_fallback(root)

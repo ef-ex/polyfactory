@@ -11448,10 +11448,15 @@ the shipped code and blowing it. **D259.**
   18 922 pieces, 9 460 deformed, with per-piece ceilings for `pc_order` (7.09 us/piece), `pc_pieces`
   (1.60) and `pc_built` — the two nodes N5 added that are **not wrangles** and that
   `every_wrangle_has_a_cost_ceiling` structurally cannot reach. And `cited_check_complaints` scans
-  the TEST MODULES' own comments now, which is where this rot landed: it found **six more stale
-  citations** on its first run (`plan_is_input_order_free`, `frames_linear_parity`,
-  `frames_position_parity`, `plan_row_table_spills`, `native_plan_and_place_reach_no_artist`, and
-  two false positives from keyword arguments and composed names, both now modelled). **D252**
+  the TEST MODULES' own comments now, which is where this rot landed: on its first run it returned twelve
+  complaints, of which **five are genuinely stale** (`plan_is_input_order_free`,
+  `frames_linear_parity`, `frames_position_parity`, `plan_row_table_spills`,
+  `native_plan_and_place_reach_no_artist` — all renamed or deleted checks, all now fixed in the
+  prose), **two are deliberate** (`guard_bend_bound` and `guard_fallback_classes` are named in
+  sentences whose subject is that they do not exist, and are exempt by name), and **five were false
+  positives of two shapes now modelled**: keyword-argument names (`kit_code`, `solve_snippet`) and
+  names a `check("prefix_%s" % ...)` composes at runtime (`bench_plan_long_curve`,
+  `bench_plan_streets_300`). **D252**
 * **`parm_drift`'s `attribcast` list was hand-written** and had not been extended when 13.9 N5 added
   a second cast; `numcasts` itself was never compared. It enumerates now. **D249**
 * **`NATIVE_STAGES` / `OUTPUT_STAGE` named none of the ten nodes 13.9 N5 added** — the same sentence
@@ -11489,6 +11494,56 @@ the two shapes that must deform doing so at ~360 000 points. PC-G4 **PASSES** �
 unchanged and untouched by this cycle: the images regenerate identically (`PCG5_FA_L_facade_iso`
 10 368 segments, `_reflex` 1 184) and `run_2d_checks` is 633/0, and what is missing is what §21.8
 recorded — condition 4 is true and unasserted, condition 3 needs a fixture as well as a mode.
+
+### 27.7b TEN SOURCE-LEVEL MUTATIONS, AND **TWO SURVIVORS**
+
+Each one edits a SOURCE file in its own copy of the pristine export, **rebuilds the .hda from that
+copy** (so the asset and its declaration move together — §21.4's rule) and re-runs
+`run_native_checks`.
+
+| # | mutation | verdict |
+|---|---|---|
+| m1 | `pc_stamp` de-batched to a DETAIL wrangle | reddened — aborts the run, exit 1 (`plan_parity` cannot read `pc_elem_id`) |
+| m2 | `pc_deform` de-batched to a DETAIL wrangle | reddened — 6 failures incl. `output_guard_parity`, `guard_deform_ladder`, `output_snapshot_sees_the_deformed_branch` |
+| m3 | the `output` Stage entry re-pointed at `OUT_reference` / `kernel` | reddened — **20 failures** |
+| m4 | every wrangle's `vex_precision` dropped to 32 | reddened — **30 failures** |
+| m5 | **the corner bisector negated** (`corner.py`, `self.n`) | ⚠️ **SURVIVOR of `run_native_checks`** — see below |
+| m6 | level 1 forced to `1 \|\| …` (the guard never refuses) | reddened — 9 failures incl. `output_guard_parity`, `no_case_pays_the_guard_fallback`, `mutation_guard_envelope` |
+| m7 | `pc_place_valid` unplugged from `pc_frames_native` onto `pc_deform_gate` | reddened — 15 failures incl. `asset_wiring_comparison_is_load_bearing` |
+| m8 | this cycle's `t >= 3` reverted to `t == 3` | reddened — `plan_fixture_parity`, on exactly the array/dict rows D257 rebuilt |
+| m9 | this cycle's `!unreadable:` markerData branch reverted | ⚠️ **SURVIVOR** — see below |
+| m10 | `pc_out_cast.precision3` int32 → int64 | reddened — 7 failures, all through the storage dimension D246 added |
+
+**SURVIVOR 1 — m5, the corner bisector, and it is a survivor of ONE SUITE, not of the net.** Negating
+`Corner.n` leaves `run_native_checks` at 145 [PASS] / 0, and that is defensible rather than alarming:
+4.3 is N8, level 1 REFUSES every cornered build, and `union_matches_the_python_path` compares the
+asset against `place.build` — both of which go through the same `corner.py`, so both move together.
+It is caught, hard, by the suite that owns corner geometry: `run_scene_checks` on the mutated tree
+reports **50 failing checks and 171 moved baseline values** (`corner_outside_m` on 17 cases,
+`corner_abut_m` on 10, `corner_reach_m` on 5, plus `element_count` and `unresolved_elem_ids`).
+**Recorded here so nobody re-derives it: a mutation sweep that runs only `run_native_checks` cannot
+judge anything the guard refuses.**
+
+**SURVIVOR 2 — m9, and this one was real, and the first fix for it was ALSO unfailable.** Reverting the `!unreadable:` branch this cycle added for
+non-scalar `markerData` slots — i.e. re-opening one of the four criticals of §27.1 — left
+`run_native_checks` at **144 [PASS] / 0**. The guard hole was closed by a fix that **nothing in the
+tree could see**, which is the same thing as an unfixed guard hole one edit later, and it is this
+project's own recorded lesson (*a parity case that cannot reach a code path proves nothing*)
+happening to a fix written for that lesson. Closed by `guard_marker_data_types`: fourteen rows on
+the **shipped asset** with a real style payload — vector / list / nested-dict slots under `eq`,
+`lt`, `ge`, `ne`, plus keys carrying a quote, a backslash and a non-ASCII character in both
+directions, with int and string controls. All fourteen take the native chain (a refused row would
+prove nothing about the read), and at least one row must actually PLACE a gate.
+
+⚠️ **THAT LAST CLAUSE IS THERE BECAUSE THE FIRST VERSION OF THIS CHECK PASSED UNDER m9 TOO.** It
+built its spline with `guard_polyline_geo`, whose curve id is `"GC"`, and bound the marker to
+`"S"` — so the marker matched no curve, no gate was placed on EITHER side, and all fourteen rows
+agreed on ten panels. A fixture that cannot reach the code path proves nothing: twice in one cycle,
+in the fix written for the lesson and then in the check written for the fix. With the id corrected
+and the gate floor added, m9 reddens `plan_fixture_parity` AND `guard_marker_data_types`. **The key rows cannot live in `plan_fixture_parity`**: the rig
+marshals the style through a generated Python SOP body set on a string parm, and a Houdini string
+parm treats a backslash as an escape — the asset reads its payload off geometry and handles it
+correctly, and that is the transport the divergence was measured on.
 
 ### 27.8 Decisions taken this cycle (§10 continues here)
 
@@ -11563,6 +11618,17 @@ recorded — condition 4 is true and unasserted, condition 3 needs a fixture as 
   Six prim ints plus every `pc_warn_*` shipped at int64 against the reference's int32 on every
   admitted build. `pc_warn_collate` CREATES attributes at cook time, so anything upstream of it
   cannot cast them.
+- **D264 — a timing ceiling that cannot be calibrated is RAISED ABOVE ITS SPREAD, not left on the
+  edge of it.** `bench_guard_fallback` failed on an unmutated build at 1.81x against a 1.8 ceiling;
+  the recorded spread over four runs of the same commit is 1.52 / 1.57 / 1.62 / 1.81. Both sides of
+  that ratio are whole asset cooks and the extra work IS the second cook, so D248's calibrator does
+  not apply — D211's rule does: raise it above the spread (2.2) and write the spread down. The
+  class it exists for still fails it at 2.35x.
+- **D265 — A FIX WITHOUT A FIXTURE IS NOT A FIX, and only a source mutation can tell you.**
+  Reverting this cycle's own `markerData` fix at source left the suite at 144 [PASS] / 0. Every
+  guard hole closed in a cycle must be re-opened at source and the suite must go red, or the
+  closure is a comment. And when the fixture cannot go through the test rig, that is a fact about
+  the RIG and the fixture moves to the shipped asset — it does not get dropped.
 - **D263 — a channel the native chain does not read is a REFUSAL, not a silence.** `pc_row_warns`
   makes the reference publish one prim attribute per token and the native chain publishes none;
   level 1 refuses a non-empty one, and an empty-value control row proves the refusal is not blanket.
