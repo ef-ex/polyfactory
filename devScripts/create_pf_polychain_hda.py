@@ -1013,10 +1013,25 @@ ptg.append(hou.StringParmTemplate(
           "input 2, and leave input 2 unwired to use the built-in starter "
           "fence - post, panel, corner post and gate. Metric metres.")))
 
-ptg.append(_slot("slot_default", "Repeating Pieces", "post panel",
+# ⚠️ THE DEFAULT IS `panel` AND NOT `post panel`, AND THAT IS THE FIX FOR A
+# DEFECT HANNES FOUND IN THE VIEWPORT (D266).  A composed default of
+# `post panel` opens EVERY section with a post, so at a mitered corner the
+# artist saw the corner assembly's pillar and then, 0.0 m away, the run's own
+# post - two pillars of different height (1.30 m and 1.20 m) where a fence has
+# one.  Every closure check passed, because the geometry was closed.
+#
+# RailClone's canonical fence is the shape this now copies: PANELS are the
+# Default and POSTS are Evenly-spaced, so the rhythm element lives in a slot
+# that anchors it INSIDE the run and the run's ends belong to whatever caps
+# them - the Corner piece at a vertex, the Start/End piece at a spline end.
+# `railclone.md` 1 (the slot list) and 6.1 ("X Evenly = pillar rhythm").
+ptg.append(_slot("slot_default", "Repeating Pieces", "panel",
                  "The modules that fill the run, by kit module name or by "
-                 "role. Two or more names make a repeating pattern - "
-                 "'post panel' is a picket fence. From the kit manifest."))
+                 "role. Two or more names make a repeating pattern (see "
+                 "Piece Order). The rhythm element of a fence - the post - "
+                 "belongs in 'Evenly Spaced Piece' instead, so that the "
+                 "corner and end pieces are not doubled by the fill. From "
+                 "the kit manifest."))
 ptg.append(_menu("variety", "Piece Order",
                  [("first", "Always the first"),
                   ("sequence", "In turn"),
@@ -1036,10 +1051,12 @@ ptg.append(_slot("slot_corner", "Piece at Corners", "corner_post",
                  "Module placed where the spline turns by more than the "
                  "Corner Angle. Empty means the run bends through the corner "
                  "with no special piece."))
-ptg.append(_slot("slot_evenly", "Evenly Spaced Piece", "",
+ptg.append(_slot("slot_evenly", "Evenly Spaced Piece", "post",
                  "Module placed at a fixed interval along the run (see "
-                 "Evenly Spacing) regardless of the fill - lamps on a "
-                 "railing, bollards on a kerb."))
+                 "Evenly Spacing) regardless of the fill - the posts of a "
+                 "fence, lamps on a railing, bollards on a kerb. Anchors "
+                 "stay clear of the run's own ends, so a corner or cap "
+                 "piece is never doubled by one of these."))
 
 ptg.append(_slot("slot_marker", "Piece at Markers", "",
                  "Module placed on every marker point merged into input 1 "
@@ -1066,10 +1083,11 @@ ptg.append(_float("padding", "Gap Between Pieces (m)", 0.0, -0.5, 2.0,
                   "of whatever the kit's own padding says. NEGATIVE overlaps "
                   "them, which is how lapped boards are built. The gap moves "
                   "the neighbours; it never stretches the piece."))
-ptg.append(_float("evenly_spacing", "Evenly Spacing (m)", 0.0, 0.0, 50.0,
+ptg.append(_float("evenly_spacing", "Evenly Spacing (m)", 2.0, 0.0, 50.0,
                   "Metres between 'Evenly Spaced Piece' anchors. 0 turns the "
                   "evenly pass off (or set Evenly Count in Advanced "
-                  "instead)."))
+                  "instead). The default is the starter kit's own 2 m panel, "
+                  "so a post lands on every panel joint."))
 
 ptg.append(_menu("corner_mode", "Corner Treatment",
                  [("bend", "Bend - the piece follows the corner"),

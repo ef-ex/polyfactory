@@ -159,6 +159,31 @@ CORNER_REACH = {
     "AO_displace_offset": 2.0 - 0.03 - 0.2,
 }
 
+# `double_pillar_m`, per case, in metres. ZERO IS THE RULE, and both entries
+# below are THE SAME DEFECT the check was written for, kept on purpose.
+#
+# `fence_style` is the suite's ONLY coverage of the `sequence` selector, and
+# it composes the default run as `post panel` with a `post` cap on each end -
+# which is exactly the shipped parm defaults BEFORE this cycle. On an open run
+# that lands a `start` post hard against the run's own opening `post`: 0.12 m,
+# one whole post, of doubled pillar. It is the run-END half of the corner
+# defect Hannes found, and nothing in the suite had ever measured it.
+#
+# It is pinned rather than fixed because (a) rewriting `fence_style` deletes
+# the only `sequence` fixture in the suite, and (b) a LIVE instance of the
+# defect inside the committed suite is the standing proof that this check can
+# see it - the value is exactly the post width, so a check that quietly
+# stopped measuring would drop to 0.0 and go red here.
+#
+# ⚠️ THE SHIPPED DEFAULTS NO LONGER DO THIS. `run_hda_checks.py` and
+# `gate_images.py` drive the parm face and assert 0.0 there; this table is
+# about two fixtures, not about the asset.
+DOUBLE_PILLAR = {
+    "A_straight": 0.12,
+    "DL_variant_kit": 0.12,
+}
+
+
 # 4.3 item B, the odd/even compose rule as a distance. An ODD count reaches
 # equally down both legs; an EVEN count carries one extra module on the
 # outgoing leg, so the difference is exactly that module's length.
@@ -392,6 +417,10 @@ def run_case(name, case):
         C.corner_reach(scene, expected=CORNER_REACH.get(name)),
         C.corner_breach(scene),
         C.corner_wedge(scene),
+        # ...and the one that says the corner READS as one pillar.
+        # Every check above it is a CLOSURE check, and a double pillar
+        # is perfectly closed - see `checks.single_pillar`.
+        C.single_pillar(scene, expected=DOUBLE_PILLAR.get(name, 0.0)),
         # --- 4.5, on every case: no surface reports SKIP, so a conform that
         # appears where none was wired shows up as a value rather than as
         # silence - the same rule the corner checks ride on.

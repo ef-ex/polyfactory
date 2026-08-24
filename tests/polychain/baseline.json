@@ -359,6 +359,13 @@
       "value": null
     },
     {
+      "detail": "6 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -824,6 +831,13 @@
     {
       "detail": " (1 joints, 0 spanned)",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
       "value": 0.0
@@ -1312,6 +1326,13 @@
       "value": null
     },
     {
+      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -1789,6 +1810,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -2251,6 +2279,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -2725,6 +2760,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -3189,6 +3231,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -3666,6 +3715,13 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -4154,6 +4210,13 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "6 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -4653,6 +4716,13 @@
       "value": null
     },
     {
+      "detail": "12 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -5146,6 +5216,13 @@
       "value": null
     },
     {
+      "detail": "10 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -5613,6 +5690,13 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -6084,6 +6168,13 @@
       "value": null
     },
     {
+      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -6553,6 +6644,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -7017,6 +7115,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -7514,6 +7619,13 @@
       "value": null
     },
     {
+      "detail": "8 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -7985,6 +8097,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -8466,6 +8585,13 @@
       "value": null
     },
     {
+      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -8933,6 +9059,13 @@
       "value": 0.00019286
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -9393,6 +9526,13 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "11 upright members, 1 mixed-slot groups, worst default:post+start:post at (0.12, 0.00) (expected 0.1200)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.12
     },
     {
       "detail": "no surface",
@@ -9882,6 +10022,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "conform_contact_m",
       "ok": true,
@@ -10343,6 +10490,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -10814,6 +10968,13 @@
       "value": null
     },
     {
+      "detail": "167 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "post (stepped)",
       "name": "conform_contact_m",
       "ok": true,
@@ -11271,6 +11432,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -11737,6 +11905,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -12217,6 +12392,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "conform_contact_m",
       "ok": true,
@@ -12681,6 +12863,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -13152,6 +13341,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "conform_contact_m",
       "ok": true,
@@ -13618,6 +13814,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -14098,6 +14301,13 @@
       "value": null
     },
     {
+      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "",
       "name": "conform_contact_m",
       "ok": true,
@@ -14564,6 +14774,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "conform_contact_m",
       "ok": true,
@@ -15021,6 +15238,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -15492,6 +15716,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "conform_contact_m",
       "ok": true,
@@ -15958,6 +16189,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -16440,6 +16678,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "conform_contact_m",
       "ok": true,
@@ -16907,6 +17152,13 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "167 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "",
@@ -17382,6 +17634,13 @@
       "value": 0.0018
     },
     {
+      "detail": "19 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -17841,6 +18100,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -18307,6 +18573,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -18801,6 +19074,13 @@
       "value": null
     },
     {
+      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -19281,6 +19561,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -19739,6 +20026,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -20192,6 +20486,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -20664,6 +20965,13 @@
       "value": null
     },
     {
+      "detail": "1 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -21123,6 +21431,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -21602,6 +21917,13 @@
       "value": 0.00117778
     },
     {
+      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -22059,6 +22381,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -22526,6 +22855,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -22983,6 +23319,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -23450,6 +23793,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -23907,6 +24257,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -24374,6 +24731,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -24831,6 +25195,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -25308,6 +25679,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -25777,6 +26155,13 @@
       "value": null
     },
     {
+      "detail": "270 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -26233,6 +26618,13 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "270 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -26693,6 +27085,13 @@
       "value": null
     },
     {
+      "detail": "270 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -27149,6 +27548,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -27614,6 +28020,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -28085,6 +28498,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "conform_contact_m",
       "ok": true,
@@ -28546,6 +28966,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -29016,6 +29443,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -29481,6 +29915,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -29941,6 +30382,13 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "270 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -30420,6 +30868,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "",
       "name": "conform_contact_m",
       "ok": true,
@@ -30880,6 +31335,13 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "11 upright members, 1 mixed-slot groups, worst default:post+start:post at (0.12, 0.00) (expected 0.1200)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.12
     },
     {
       "detail": "no surface",
@@ -31349,6 +31811,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -31808,6 +32277,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -32282,6 +32758,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -32739,6 +33222,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -33206,6 +33696,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -33663,6 +34160,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "1 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -34139,6 +34643,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -34625,6 +35136,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -35094,6 +35612,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -35549,6 +36074,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -36016,6 +36548,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -36469,6 +37008,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -36955,6 +37501,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -37415,6 +37968,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -37889,6 +38449,13 @@
       "value": null
     },
     {
+      "detail": "25 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -38354,6 +38921,13 @@
       "value": null
     },
     {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -38809,6 +39383,13 @@
     {
       "detail": "no dissolved corners",
       "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 upright members",
+      "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
       "value": null
@@ -39279,6 +39860,13 @@
       "value": 0.00019459
     },
     {
+      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -39746,6 +40334,13 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -40235,6 +40830,13 @@
       "value": null
     },
     {
+      "detail": "8 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -40702,6 +41304,13 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -41173,6 +41782,13 @@
       "value": null
     },
     {
+      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -41642,6 +42258,13 @@
       "value": null
     },
     {
+      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
       "detail": "no surface",
       "name": "conform_contact_m",
       "ok": true,
@@ -41824,7 +42447,7 @@
       ]
     },
     {
-      "detail": "warm 0.75 us at 10 verts, 0.95 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 6.9 us at 10, 14981.9 us at 20 001 (1.1x per vertex, O(n), expected O(n))",
+      "detail": "warm 0.72 us at 10 verts, 0.93 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 6.3 us at 10, 14191.9 us at 20 001 (1.1x per vertex, O(n), expected O(n))",
       "name": "curve_sample_scaling",
       "ok": true,
       "skipped": false,
@@ -42315,6 +42938,13 @@
       "ok": true,
       "skipped": true,
       "value": null
+    },
+    {
+      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",

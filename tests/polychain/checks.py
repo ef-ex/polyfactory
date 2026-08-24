@@ -3169,6 +3169,148 @@ def corner_wedge(scene, tol=1e-9):
                   "%s (%d joints, %d spanned)" % (where, seen, spanned_n))
 
 
+# --- the check that a corner reads as ONE pillar ----------------------------
+#
+# ⚠️ THIS IS THE DEFECT NO CLOSURE CHECK COULD SEE. Hannes found it in the
+# viewport on the shipped defaults: at every mitered corner of the PC-G1
+# rectangle an artist saw TWO pillars of different height where they expected
+# one - the corner assembly's mated halves (h 1.30) and then, 0.0 m away, the
+# default run's own opening `post` (h 1.20). `no_gaps_or_overlaps`,
+# `corner_abut` and `corner_seam` all PASSED, and they were right to: the
+# overlap is EXACTLY zero, the geometry IS closed. Closure is not composition.
+# Nothing in 3 600 numeric checks asserted that the result looks like a fence.
+#
+# So this asserts COMPOSITION, and it does it without a vocabulary of module
+# names. TWO ideas, and both are needed:
+#
+#   1. UPRIGHT is geometry, not a name - height at least 3x the widest side of
+#      the footprint. `post` scores 10.0, `corner_post` 8.1, `panel` 0.48 and
+#      `gate` 0.66, so the threshold is not tuned, it is a gulf.
+#   2. A RESERVED SLOT MUST NOT BE DOUBLED BY ANOTHER SLOT. `corner`, `start`,
+#      `end`, `evenly` and `marker:<id>` exist to put ONE piece at one place;
+#      if the fill puts a second upright hard against it, the artist sees two
+#      pillars. So a touching group of uprights drawn from MORE THAN ONE slot
+#      is the defect, and its size is how much wider the group is than its own
+#      widest member.
+#
+# The second idea is what keeps the check honest on the runs that are supposed
+# to be a row of pillars: 270 butted `post`s on the hill cases are all slot
+# `default` and are one deliberate rhythm, while the two mitered halves of a
+# corner post are both slot `corner` and are one assembly. The shipped defect
+# is `corner` + `default`, 0.111 m wider than the 0.16 m corner post - and the
+# same pattern at a RUN END (`start` post then a `default` post) measures
+# exactly one post, 0.12 m, which is how the fixtures found the second half of
+# the same defect.
+
+UPRIGHT_ASPECT = 3.0    # height / widest footprint side. post 10.0,
+                        # corner_post 8.1, panel 0.48, gate 0.66 - the two
+                        # families are an order of magnitude apart, so the
+                        # threshold is not tuned, it is a gulf.
+TOUCH_M = 1e-3          # footprints this close are touching. Bigger than the
+                        # float32 noise on P and far smaller than any gap an
+                        # artist would read as deliberate spacing.
+
+
+def _world_bbox(rec):
+    w = rec.get("world") or []
+    if len(w) < 3:
+        return None
+    xs, ys, zs = w[0::3], w[1::3], w[2::3]
+    return (min(xs), max(xs), min(ys), max(ys), min(zs), max(zs))
+
+
+def _is_upright(bb):
+    foot = max(bb[1] - bb[0], bb[5] - bb[4])
+    return foot > TOL_M and (bb[3] - bb[2]) >= UPRIGHT_ASPECT * foot
+
+
+def _touching(a, b):
+    """Footprints within TOUCH_M on BOTH horizontal axes, and Y ranges that
+    overlap - so a finial stacked on a post is not a second pillar."""
+    return (a[0] - TOUCH_M <= b[1] and b[0] - TOUCH_M <= a[1]
+            and a[4] - TOUCH_M <= b[5] and b[4] - TOUCH_M <= a[5]
+            and a[2] - TOUCH_M <= b[3] and b[2] - TOUCH_M <= a[3])
+
+
+def single_pillar(scene, expected=0.0, tol=2e-3):
+    """`double_pillar_m` - how much wider a touching group of UPRIGHT members
+    drawn from more than one SLOT is than the widest member in it. 0.0 means
+    every reserved piece stands alone, which is what "one pillar at a corner"
+    means when nobody is allowed to name the modules.
+
+    The number is a distance in metres, so a corner doubled by half a post
+    reads as half a post and not as a boolean.
+
+    WHAT IT CANNOT SEE, stated because the checks it joins could not see the
+    defect it was written for:
+      * a SEPARATED double pillar - two uprights 50 mm apart look just as
+        wrong and read here as deliberate spacing (TOUCH_M is 1 mm);
+      * a MISSING pillar, an empty corner, or a corner dressed in the wrong
+        module - it never asks what SHOULD be there, only that what is there
+        is not doubled;
+      * doubling WITHIN one slot: two corner assemblies squeezed onto a leg
+        shorter than both (AP_narrow_rect) are all slot `corner` and pass
+        here. That case is covered by `pc_warn_overflow` and
+        `corner_face_mate_m`, and this check deliberately does not
+        second-guess them;
+      * duplication among non-upright members - two coincident panels are
+        invisible to it;
+      * a kit whose default piece is a narrow tall pier, which the aspect
+        rule classifies as upright: its legitimate neighbours from another
+        slot would then read as a double pillar. That is what `expected` is
+        for, and every non-zero expectation in the runner is named;
+      * it compares axis-aligned world bounding boxes, so a pillar standing
+        on a bend is measured on its AABB and reads slightly wide - hence a
+        2 mm tolerance rather than TOL_M.
+    """
+    boxes = []
+    for eid, rec in scene.by_id.items():
+        bb = _world_bbox(rec)
+        if bb is not None and _is_upright(bb):
+            boxes.append((eid, rec, bb))
+    if len(boxes) < 2:
+        return _skip("double_pillar_m", "%d upright members" % len(boxes))
+    parent = dict((eid, eid) for eid, _r, _b in boxes)
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for i in range(len(boxes)):
+        for j in range(i + 1, len(boxes)):
+            if _touching(boxes[i][2], boxes[j][2]):
+                a, b = find(boxes[i][0]), find(boxes[j][0])
+                if a != b:
+                    parent[a] = b
+    groups = {}
+    for eid, rec, bb in boxes:
+        groups.setdefault(find(eid), []).append((rec, bb))
+    worst, where, mixed = 0.0, "", 0
+    for members in groups.values():
+        slots = set(r.get("pc_slot", "") for r, _b in members)
+        if len(slots) < 2:
+            continue
+        mixed += 1
+        gx = (min(b[0] for _r, b in members), max(b[1] for _r, b in members))
+        gz = (min(b[4] for _r, b in members), max(b[5] for _r, b in members))
+        span = max(gx[1] - gx[0], gz[1] - gz[0])
+        own = max(max(b[1] - b[0], b[5] - b[4]) for _r, b in members)
+        if span - own > worst:
+            worst = span - own
+            where = "%s at (%.2f, %.2f)" % (
+                "+".join(sorted("%s:%s" % (r.get("pc_slot", "?"),
+                                           r.get("pc_module", "?"))
+                                for r, _b in members)),
+                0.5 * (gx[0] + gx[1]), 0.5 * (gz[0] + gz[1]))
+    return Result("double_pillar_m", abs(worst - expected) <= tol,
+                  _round(worst, 6),
+                  "%d upright members, %d mixed-slot groups, worst %s "
+                  "(expected %.4f)"
+                  % (len(boxes), mixed, where or "none", expected))
+
+
 def corner_clearance(scene, vertex, expected, tol=5e-3):
     """4.3 item E: the fillet moved the PATH, so the pieces keep their distance
     from the original sharp vertex.

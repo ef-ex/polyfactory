@@ -34,6 +34,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 import cases                                                     # noqa: E402
+import checks as C                                               # noqa: E402
 import hou                                                       # noqa: E402
 from polyfactory.polychain import Params, Rule, Style             # noqa: E402
 from polyfactory.polychain import hda as H                        # noqa: E402
@@ -55,6 +56,19 @@ RESULTS = []
 # output. It is not a lane violation, it is the debug menu working. Its own
 # check is `stage_menu_reaches_every_stage` in section 9.
 PARM_LANE_EXEMPT = ("display", "show_warnings", "kitfile", "stage")
+
+
+class Uprights(object):
+    """The one field `checks.single_pillar` reads, off a cooked NODE.
+
+    It is here rather than in `run_scene_checks.Scene` because the defect that
+    check exists for is a PARM-FACE defect: the scene cases build their styles
+    in Python and the shipped defaults are the one composition none of them
+    ever expressed. Reading the node's own geometry is the whole point.
+    """
+
+    def __init__(self, geo):
+        self.by_id = dict((r["pc_elem_id"], r) for r in C.elements(geo))
 
 
 def _fingerprint(node):
@@ -158,6 +172,23 @@ def main():
     check("no_errors", not node.errors(), len(node.errors()),
           "; ".join(node.errors())[:120])
 
+    # ⚠️ AND THE DEFECT THREE THOUSAND SIX HUNDRED NUMERIC CHECKS COULD NOT
+    # SEE (D266). Hannes opened this exact fence in the viewport and counted
+    # TWO pillars at every mitered corner - the corner assembly's 1.30 m post
+    # and, 0.0 m away, the default run's own 1.20 m `post`. `corner_abut`,
+    # `corner_seam` and `no_gaps_or_overlaps` all passed and were all right:
+    # the overlap is EXACTLY zero. Closure is not composition, and the fix is
+    # a composition fix - `panel` fills the run, `post` is the evenly-spaced
+    # rhythm, RailClone's own canonical fence (`railclone.md` 1, 6.1).
+    # BOTH corner modes, because the mode decides whether a corner assembly
+    # exists at all and only one of them was ever looked at.
+    for _mode in ("bend", "miter"):
+        node.parm("corner_mode").set(_mode)
+        _res = C.single_pillar(Uprights(node.geometry()))
+        check("starter_fence_one_pillar_" + _mode, _res.ok and not _res.skipped,
+              _res.value, _res.detail)
+    node.parm("corner_mode").set("bend")
+
     # ---- 2. the node agrees with the kernel ------------------------------
     print("\n=== 2. the node agrees with place.build on the same style ===")
     style = H.style_from_parms(node)
@@ -222,7 +253,7 @@ def main():
     styles = sorted(set(p.attribValue("pc_style")
                         for p in with_payload.prims()))
     check("payload_overrides_modules", mods == ["corner_post", "gate"],
-          ",".join(mods), "the parms still say post/panel")
+          ",".join(mods), "the parms still say panel + evenly post")
     check("payload_overrides_styleid", styles == ["pipeline"],
           ",".join(styles), "pc_style comes from the payload")
     direct2, _r = P.build(geo_from(spline), H.kit_geometry(node),

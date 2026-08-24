@@ -5700,6 +5700,19 @@ def output_guard_cost(root):
         node = root.createNode("pf_polychain", "cost_" + label)
         node.setInput(0, native.feed(root, geo, "GC_" + label))
         node.allowEditingOfContents()
+        # ⚠️ EVERY ROW PINS `slot_evenly` OFF FIRST, AND D266 IS WHY.  These
+        # rows used to read the parm defaults, and when the shipped default
+        # gained an `evenly` post (the one-pillar-at-a-corner fix) FOUR of
+        # them moved at once - straight_2km 1.33x -> 1.81x, measured on ONE
+        # asset with only the two slot parms swapped.  That is not a regression
+        # in the stages these rows bound; it is D259's per-anchor cost, which
+        # `evenly_2km` below already bounds ON PURPOSE at 2.6x.  A row's shape
+        # has to be the shape its ceiling was measured on (the same rule that
+        # keeps the straight and deformed wrangle tables apart), so the plain
+        # fill is now stated instead of inherited - and `evenly_2km`, which
+        # sets it back, is ALSO the shipped default composition and is
+        # therefore the row that bounds the default path.
+        node.parm("slot_evenly").set("")
         for pname, pvalue in sorted(parms.items()):
             node.parm(pname).set(pvalue)
 
@@ -8005,6 +8018,25 @@ def _wrangle_rig(root, tag, npts, ripple=0.0):
     node.setInput(1, kit)
     node.allowEditingOfContents()
     node.node("OUT")
+    # D266, and the same rule as the guard-cost rows: EVERY per-piece ceiling
+    # this rig is read against - `WRANGLE_CEILING_US`,
+    # `WRANGLE_DEFORM_CEILING_US` and `BENCH_DEFORM_CEILING_US` - was measured
+    # on the composed `post panel` fill with no anchors, so the rig has to
+    # keep being that shape.  Both halves of the shipped default moved at
+    # D266 and both moved a table:
+    #   * the `evenly` post added D259's per-anchor cost and took
+    #     `pc_plan_solve` from 66.5 to 87.2 us/piece;
+    #   * dropping `post` from the fill HALVED the piece count on the 20 km
+    #     ripple (20 057 -> 10 029) while `pc_order`'s cook barely moved
+    #     (147.9 -> 141.4 ms), because `pc_order` sorts PRIMS and the ceiling
+    #     divides by PIECES - so the rate doubled on a node that did not get
+    #     slower.
+    # Both are the loosening D206 exists to refuse, arriving through the
+    # fixture rather than through the code.  The shipped default's own cost is
+    # bounded by `evenly_2km` in `output_guard_cost`, which is that
+    # composition.
+    node.parm("slot_default").set("post panel")
+    node.parm("slot_evenly").set("")
     node.parm("stage").set("output")
     node.cook(force=True)
     # ⚠️ THE COUNT IS PIECES, NOT PRIMS, AND ON A DEFORMED RIG THOSE DIFFER BY
@@ -8502,6 +8534,20 @@ CONFORM_DROP_CEILING_M = 1e-12
 # A degradation that lands in the next float32 bucket would move the f32 row
 # from 0.000e+00 to 1e-3 with no intermediate warning; this one grows
 # smoothly and says so first.
+#
+# ⚠️ AND WHAT THE RAW ROW CANNOT DO, stated rather than left to be assumed
+# (retrospective 4a rule 2).  It is not an independent DETECTOR of a
+# disagreement the f32 row would miss, and the arithmetic says so: f32
+# rounding separates two doubles once they are about half a float32 ULP apart
+# (2^-25 = 2.98e-8 relative), which is FOUR TIMES TIGHTER than the 2-ULP
+# relative ceiling below.  Anything big enough to trip the raw ceiling is
+# therefore big enough to have tripped the f32 one first.  What the raw row IS
+# for is the other two things D247 asked of it: it REPORTS the real number
+# where the f32 row printed `0.000e+00` on a genuine 9.375e-04 m
+# disagreement, and it is deterministic where f32 detection is a coin toss in
+# the last bit - two doubles a full ULP apart can still round to the same
+# float32.  The registered mutation is `conform_drop_biased`
+# (`tests/polychain/mutations.py`), which biases the drop by 1e-5 m.
 CONFORM_DROP_REL_CEILING = 1.192e-7      # 2 x 2^-24
 
 
