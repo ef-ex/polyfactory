@@ -616,6 +616,17 @@ int pc_fill(const float a; const float b; const int r;
             const float lead_pad; const int has_lead;
             const float trail_pad; const int has_trail;
             const string mode_in; const string extra_in; const int cyclic;
+            // ⚠️ D244 - THE POOL AND THE SLOT CONTEXT ARE THE CALLER'S NOW.
+            // They are a pure function of (rule, yclass), which do not change
+            // between the gaps an `evenly` or `marker` rule leaves, and
+            // rebuilding them here cost one `pc_candidates` plus one dict
+            // copy PER GAP: measured on a 2 km straight at 2 m spacing (1 000
+            // anchors), `pc_plan_solve` 177.2 ms with them inside against
+            // 63 ms of fill for the same 3 001 pieces with no anchor in the
+            // run.  Same shape as the pool hoist out of the PIECE loop above,
+            // one level further out.
+            const int p_ci[]; const string p_cn[]; const int p_ord[];
+            const float p_w[]; const float p_total; const dict cs_slot;
             export string o_slot[]; export int o_index[];
             export string o_module[]; export string o_variant[];
             export float o_s0[]; export float o_s1[]; export float o_u[];
@@ -636,16 +647,13 @@ int pc_fill(const float a; const float b; const int r;
         resize(o_deform, entry); resize(o_zmode, entry); resize(o_warns, entry);
         idx = index0;
 
-        // ⚠️ THE POOL IS RESOLVED ONCE PER RUN, NOT ONCE PER PIECE.  The
-        // slot is "default" for the whole fill and the yclass is the row's,
-        // so the candidate list, its (name, variant) order and its weights
-        // cannot change inside this loop - and rebuilding them per piece cost
-        // 32 s on a 301-module kit against 0.13 s under `first`.
-        dict cs_slot = cs;
-        cs_slot["slot"] = "default";
-        int p_ci[], p_ord[]; string p_cn[]; float p_w[], p_total;
-        pc_pool(r, pc_role_2d("default", yclass), p_ci, p_cn, p_ord, p_w,
-                p_total);
+        // ⚠️ THE POOL IS RESOLVED ONCE PER RUN, NOT ONCE PER PIECE, AND
+        // SINCE D244 ONCE PER SECTION RATHER THAN ONCE PER GAP - the caller
+        // hands it in (see the signature).  The slot is "default" for the
+        // whole fill and the yclass is the row's, so the candidate list, its
+        // (name, variant) order and its weights cannot change inside this
+        // loop - and rebuilding them per piece cost 32 s on a 301-module kit
+        // against 0.13 s under `first`.
 
         // `_unit` (D14): a whole SEQUENCE, or one module.
         dict cf0 = cf;

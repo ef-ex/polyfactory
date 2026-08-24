@@ -87,6 +87,15 @@
 //   * [vex:type_bad] an artist attribute at a STORAGE THE CHAIN CANNOT READ -
 //     an int `edge_id` or `pc_style` or `pc_yclass`, a string `pc_marker_id`.
 //     See the table below; four shipped divergences, all silent.
+//   * [vex:row_warns] a ROW CURVE CARRYING `pc_row_warns` (D139's channel).
+//     The Y solve puts a warning on the row curve and `place.build` fans it
+//     out onto EVERY element the row produced, as one prim attribute per
+//     warning name.  The native chain does not read the attribute at all, so
+//     the reference publishes `w1`/`w2` and the native fence does not - a
+//     SCHEMA divergence on a build the guard used to admit, and one nothing
+//     could see until D258 stopped `place.build` raising on the input that
+//     found it.  Refused whenever any prim carries a non-empty value, and
+//     refused outright at a storage VEX cannot read.
 //   * [vex:nprimitives] nothing to build.  With no primitive the reference
 //     warns "no spline on input 1" and returns empty; that warning is worth
 //     keeping.
@@ -256,9 +265,27 @@ if (haspointattrib(0, "pc_marker")) {
     }
 }
 
+// D263 - D139's ROW WARNING CHANNEL, which this chain does not read.  See the
+// header.  The test is per PRIM and only over the attribute's own presence,
+// so a build without one pays nothing.
+int row_warns = 0;
+int rw_t = primattribtype(0, "pc_row_warns");
+if (rw_t >= 0) {
+    if (rw_t != 2 || primattribsize(0, "pc_row_warns") != 1) {
+        row_warns = 1;              // a storage VEX cannot read at all
+    } else {
+        int nprim = nprimitives(0);
+        for (int i = 0; i < nprim; i++) {
+            string w = prim(0, "pc_row_warns", i);
+            if (w != "") { row_warns = 1; break; }
+        }
+    }
+}
+
 i@_native_ok = (ok && corners == 0 && ndup == 0
-                && !marker_in_prim && type_bad == ""
+                && !marker_in_prim && type_bad == "" && !row_warns
                 && nprimitives(0) > 0);
+i@_guard_row_warns = row_warns;
 i@_guard_markers = markers;
 i@_guard_marker_in_prim = marker_in_prim;
 i@_guard_corners = corners;

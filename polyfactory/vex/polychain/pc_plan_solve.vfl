@@ -232,17 +232,55 @@ for (int j = 0; j < len(mk_id); j++) {
         // `json_dumps(dict, 0)` IS the missing introspection (probed on
         // 22.0.398): it emits
         //     {"a": {"type": "string", "value": ""}, "b": {"type": "float", ...
-        // so one call per marker names the type of every slot.  A key
-        // containing a quote or a backslash is JSON-escaped and its probe
-        // misses, which degrades to the old numeric read - warn-never-block,
-        // and the same answer as before for a case that cannot arise from
-        // `hda`'s own payload reader.
-        string mjson = json_dumps(md, 0);
+        // so one dump names the type of a slot.
+        //
+        // ⚠️ D242 - AND IT IS DUMPED ONE KEY AT A TIME, NOT ONCE PER MARKER.
+        // The previous version searched the WHOLE marker's dump for the
+        // literal text `"<k>": {"type": "string"`, which is the key's SOURCE
+        // spelling and not its JSON spelling.  `json_dumps` escapes, so a key
+        // containing a quote, a backslash or any non-ASCII character never
+        // matched its own probe.  Measured on the shipped .hda, level 1 and
+        // level 2 both admitting, 20 m line + one marker at 10 m:
+        //   * `{'a"b': "x"}` with `markerData:a"b eq 0.0` - the miss read the
+        //     string as 0.0 and fired a gate the artist never asked for
+        //     (native 1 gate + 10 panels, reference 10 panels);
+        //   * `{u"ké": "x"}` with `markerData:ké eq "x"` - the miss
+        //     DROPPED the gate the artist did ask for, so the failure runs in
+        //     both directions.
+        // Dumping a ONE-KEY dict removes the key text from the question
+        // entirely: the FIRST `"type": "` token in that dump is the slot's own
+        // type, whatever the key is spelled like.  `removeindex` on a dict is
+        // probed and is the only way to build it - `one[k] = md[k]` is an
+        // ambiguous call to the array index operator.
+        //
+        // ⚠️ AND EVERY TYPE THAT IS NOT A SCALAR IS UNREADABLE, NOT A NUMBER.
+        // The old `else` branch was `float v = md[k]`, so a vector, a list or
+        // a nested dict cross-type-read as 0.0 and was published as a READABLE
+        // NUMERIC subject where the reference holds a tuple/list/dict.
+        // Measured: `{"v": (1.0, 2.0, 3.0)}` under `markerData:v eq 0.0` built
+        // 1 gate + 10 panels natively against the reference's 10 panels, and
+        // `lt`/`ge` diverged the same way.  The sentinel below is the answer
+        // `pc_cond_subject` already models for an unreadable `attr:` name -
+        // False under every ordered op and under `eq`, True under `ne`.
+        //
+        // ⚠️ AND THE FIRST TOKEN, NOT ANY TOKEN: a nested dict's dump carries
+        // its CHILD's `"type"` too ({"d": {"type": "dict", "value": {"a":
+        // {"type": "float"...), so a bare `pc_str_contains(tj, "float")` would
+        // type the parent by its child.  `find` returns the first index.
         foreach (string k; keys(md)) {
             string key = sprintf("markerData:%s", k);
-            string probe = sprintf("\"%s\": {\"type\": \"string\"", k);
-            if (pc_str_contains(mjson, probe)) { string sv = md[k]; csi[key] = sv; }
-            else { float v = md[k]; cfi[key] = v; }
+            dict one = md;
+            foreach (string kk; keys(md)) if (kk != k) removeindex(one, kk);
+            string tj = json_dumps(one, 0);
+            int ti = find(tj, "\"type\": \"");
+            string head = (ti < 0) ? "" : tj[ti + 9 : ti + 17];
+            if (startswith(head, "string\"")) {
+                string sv = md[k]; csi[key] = sv;
+            } else if (startswith(head, "int\"") || startswith(head, "float\"")) {
+                float v = md[k]; cfi[key] = v;
+            } else {
+                csi[concat(PC_UNREADABLE, key)] = "";
+            }
         }
     }
     int rr, mi; string mn;
@@ -302,6 +340,16 @@ if (len(d_rules)) {
     int idx = 0;
     float a = free_a, lead = lead_pad;
     int has_lead = has_head;
+    // D244 - the pool and the slot context, ONCE for every gap this loop
+    // fills.  Both are a pure function of (rule, yclass); see `pc_fill`.
+    dict cs_slot = CS;
+    cs_slot["slot"] = "default";
+    int p_ci[], p_ord[]; string p_cn[]; float p_w[], p_total = 0.0;
+    // `rule` is -1 when every default rule declined, which `pc_fill` answers
+    // by returning `index0` - so the pool is not asked for either.
+    if (rule >= 0)
+        pc_pool(rule, pc_role_2d("default", YCLASS), p_ci, p_cn, p_ord, p_w,
+                p_total);
     // D19: only a closed section with NOTHING else on it wraps as one run.
     int cyclic = CLOSED && !na && !len(e_slot);
     for (int k = 0; k <= na; k++) {
@@ -311,11 +359,46 @@ if (len(d_rules)) {
         // the anchor's own pad pushes its neighbours, this run included
         float trail = last ? trail_pad : pc_m_pad(pc_kit_by_name(a_module[ai]), 0);
         int has_trail = last ? has_tail : 1;
+        // ⚠️ FRESH ARRAYS PER CALL, AND THAT IS D243 - THE ONE CHANGE THAT
+        // TOOK THIS NODE FROM QUADRATIC TO LINEAR IN THE ANCHOR COUNT.
+        // `pc_fill`'s twelve plan arrays are `export`, so VEX copies each of
+        // them IN and OUT on every call; passing the accumulating plan made
+        // one call cost the whole plan built so far, and an `evenly` or
+        // `marker` rule calls once per gap.  Measured on the shipped asset,
+        // `hou.perfMon` Cook-ms on this node, 2 km straight at four
+        // `Evenly Spacing` values: 1 277.6 / 3 041.4 / 12 414.0 / 47 168.1 ms
+        // for 2 501 / 3 001 / 6 001 / 12 001 pieces - doubling the anchors
+        // QUADRUPLED the node, and the end-to-end 2 km cook was 39.5 s
+        // against the reference's 0.48 s (82x SLOWER than the Python this
+        // port replaced, on a MAIN-page parm the guard admits).  Isolated:
+        // stubbing the `pc_fill` call and leaving the anchor loop and the
+        // insertion sort in place restored linear growth, so the sort the
+        // comment above calls out is NOT the cost - the copy is.
+        //
+        // ⚠️ AND IT IS SEMANTICALLY IDENTICAL, WHICH IS WHY IT IS SAFE.
+        // `pc_fill` reads its incoming arrays exactly once, as
+        // `int entry = len(o_slot)` (pc_plan.h), and resizes back to that on
+        // D11's tile retry; every other use is `push`.  A fresh array of
+        // length 0 is that same contract with entry = 0, and the pieces it
+        // pushed are appended after it returns.  Measured with the same
+        // fixtures: 243.6 / 273.0 / 533.8 / 1 161.8 ms (5.2x / 11.1x / 23.3x
+        // / 40.6x), growth back to linear, and the plan bit-identical at all
+        // four sizes.
+        string f_slot[], f_module[], f_variant[], f_zmode[], f_warns[];
+        int f_index[], f_deform[];
+        float f_s0[], f_s1[], f_u[], f_scale[], f_slice[];
         idx = pc_fill(a, b, rule, CF, CS, CURVE_ID, SEC_IX, SEC_S0, CURVE_L,
                       YCLASS, idx, lead, has_lead, trail, has_trail,
                       "", "", cyclic,
-                      o_slot, o_index, o_module, o_variant, o_s0, o_s1, o_u,
-                      o_scale, o_slice, o_deform, o_zmode, o_warns);
+                      p_ci, p_cn, p_ord, p_w, p_total, cs_slot,
+                      f_slot, f_index, f_module, f_variant, f_s0, f_s1, f_u,
+                      f_scale, f_slice, f_deform, f_zmode, f_warns);
+        append(o_slot, f_slot);       append(o_index, f_index);
+        append(o_module, f_module);   append(o_variant, f_variant);
+        append(o_s0, f_s0);           append(o_s1, f_s1);
+        append(o_u, f_u);             append(o_scale, f_scale);
+        append(o_slice, f_slice);     append(o_deform, f_deform);
+        append(o_zmode, f_zmode);     append(o_warns, f_warns);
         if (last) break;
         a = a_s1[ai];
         lead = pc_m_pad(pc_kit_by_name(a_module[ai]), 1);

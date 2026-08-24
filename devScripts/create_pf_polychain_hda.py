@@ -40,7 +40,7 @@ build order at a time.  What this script builds today:
                      pc_deformed_only pc_deform_prep copy_deformed
                      pc_deform                       the DEFORMED branch (N5)
                      pc_pieces pc_built pc_finalize pc_piece_key pc_order
-                     pc_out_cast pc_warn_collate      merged, back in job order
+                     pc_warn_collate pc_out_cast      merged, back in job order
                      OUT_gate OUT_frames_native OUT_place_native
       [R REFERENCE]  kernel OUT_reference       [python]  the parity oracle
       [G GUARD]      pc_envelope pc_envelope2 guard_native guard_envelope
@@ -525,11 +525,16 @@ _PLACE_COMMENTS = {
         "against the reference's PACKED prims and a deformed piece has no\n"
         "counterpart to disagree with.",
     "pc_out_cast":
-        "13.2's lever, at the one place it is needed. The chain runs at\n"
-        "vex_precision = 64 (R2) and a 64-bit wrangle writes FLOAT64\n"
-        "STORAGE, so pc_u left here as 0.003703703703703704 where 3.4's\n"
-        "own float32 attribute carries 0.003703703638166189. 64 bits are\n"
-        "right for every intermediate and wrong for the output.",
+        "13.2's lever, and it is the LAST node of the stage. The chain\n"
+        "runs at vex_precision = 64 (R2) and a 64-bit wrangle writes\n"
+        "FLOAT64 and INT64 STORAGE, so pc_u left here as\n"
+        "0.003703703703703704 where 3.4's own float32 attribute\n"
+        "carries 0.003703703638166189, pc_local at twice the\n"
+        "reference's width, and every int of the stamp at int64 where\n"
+        "place.build declares int32. 64 bits are right for every\n"
+        "intermediate and wrong for the output. It sits AFTER\n"
+        "pc_warn_collate because that node CREATES prim attributes at\n"
+        "cook time, so nothing upstream of it can cast them (D262).",
     "pc_finalize":
         "4.6 - 3.4's STAMP, and it closes a hole nothing looked in.\n"
         "`place_packed_parity` measures P and the packed prim's world\n"
@@ -631,7 +636,7 @@ _PLACE_ORDER = ("kit_starter", "pc_kit_id", "kit_unpack", "pc_kit_rank",
                 "pc_deformed_only", "pc_deform_prep", "copy_deformed",
                 "pc_deform", "pc_pieces", "pc_built",
                 "pc_finalize", "pc_piece_key", "pc_order",
-                "pc_out_cast", "pc_warn_collate")
+                "pc_warn_collate", "pc_out_cast")
 for _i, _name in enumerate(_PLACE_ORDER):
     _node = _place_nodes[_name]
     _node.setComment(_PLACE_COMMENTS[_name])

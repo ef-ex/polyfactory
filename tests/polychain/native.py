@@ -71,7 +71,7 @@ STAGES = (
      "4 - Frames, NATIVE (4.4 - the transform Stage = output uses)"),
     ("gate", "OUT_gate", "pc_deform_gate",
      "4 - Deform gate, NATIVE (4.4 - packed or deformed, per piece)"),
-    ("place_native", "OUT_place_native", "pc_warn_collate",
+    ("place_native", "OUT_place_native", "pc_out_cast",
      "4 - Place, NATIVE (4.4 - packed pieces, no Python)"),
 )
 
@@ -481,7 +481,6 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     # what 3.4 ships.  The 64 bits are right for every intermediate and wrong
     # for the output, and `attribcast` is where that line is drawn.
     cast = parent.createNode("attribcast", "pc_out_cast" + suffix)
-    cast.setInput(0, order)
     cast.parm("class1").set("primitive")
     cast.parm("attribs1").set("pc_u")
     cast.parm("precision1").set("fpreal32")
@@ -490,10 +489,32 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     # default) and `pc_deform` is a 64-bit wrangle, so without this line the
     # shipped fence carries the module's local frame at twice the reference's
     # storage.  It is the same line `pc_u` needed, for the same reason.
-    cast.parm("numcasts").set(2)
+    cast.parm("numcasts").set(3)
     cast.parm("class2").set("point")
     cast.parm("attribs2").set("pc_local")
     cast.parm("precision2").set("fpreal32")
+    # ⚠️ D262 - AND EVERY INT OF 3.4's STAMP, FOR EXACTLY THE SAME REASON,
+    # WHICH NOTHING COULD SEE UNTIL D246.  A 64-bit wrangle writes `i@` at
+    # int64; `place.build` declares the same attributes with
+    # `geo.addAttrib(Prim, name, 0)`, which is int32.  So the shipped fence
+    # carried SIX prim ints plus every `pc_warn_*` at twice the reference's
+    # storage on every admitted build, and `_snapshot`'s types dimension read
+    # `hou.Attrib.dataType()`, which is `attribData.Int` for both - so
+    # `output_guard_parity` printed "identical" over all 92 cases.  Measured
+    # the moment `numericDataType()` went into the snapshot: 29 of 93 cases
+    # differ, on `pc_elem_key`, `pc_section`, `pc_corner_cut`, `pc_deformed`,
+    # `pc_generated`, `pc_replaced` and `pc_warn_*`.
+    #
+    # The list is EXPLICIT rather than `pc_*`: `attribcast` would happily
+    # convert `pc_u` - a float - to an integer, so a pattern that is wider
+    # than the int columns is a data-loss bug wearing a tidiness costume.
+    # `pc_row` and `pc_clipped` are `ELEM_2D_ATTRS`, declared only on a 2D
+    # build, and a pattern that names an absent attribute is a no-op.
+    cast.parm("class3").set("primitive")
+    cast.parm("attribs3").set("pc_elem_key pc_section pc_generated "
+                              "pc_deformed pc_corner_cut pc_replaced "
+                              "pc_row pc_clipped pc_warn_*")
+    cast.parm("precision3").set("int32")
     nodes["pc_out_cast"] = cast
 
     # 4.6's warning summary, and the per-element fan-out that goes with it.
@@ -508,11 +529,21 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     # complement, so the artist reads it once.  See `pc_warn_collate.vfl`.
     warn = wrangle(parent, "pc_warn_collate" + suffix, "detail",
                    "pc_warn_collate")
-    warn.setInput(0, cast)
+    warn.setInput(0, order)
     warn.setInput(1, config)
     warn.setInput(2, sections)
     nodes["pc_warn_collate"] = warn
-    return warn, nodes
+    # ⚠️ D262 - THE CAST IS THE LAST NODE OF THE STAGE, NOT THE SECOND
+    # TO LAST, AND THE ORDER IS THE POINT.  `pc_warn_collate` CREATES prim
+    # attributes at cook time (`setprimattrib` with a name that comes from
+    # data), and a 64-bit wrangle creates them at int64 - so with the cast
+    # upstream of it, `pc_warn_bend_resolution` shipped at twice the
+    # reference's storage on every deformed build while every other int of
+    # 3.4's stamp was correctly 32.  Casting AFTER the last node that can
+    # create an attribute is the only placement that cannot be outgrown by
+    # the next warning somebody adds.
+    cast.setInput(0, warn)
+    return cast, nodes
 
 
 # --- the rig ---------------------------------------------------------------

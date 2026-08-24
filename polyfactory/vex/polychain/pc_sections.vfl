@@ -383,12 +383,29 @@ foreach (int i; ord) {
         // ONE COMPONENT, OR THE TWO SIDES ANSWER DIFFERENT QUESTIONS (D202).
         // `prim(0, name, pr)` reads COMPONENT 0 of a vector and 0 of an
         // array, where `place._prim_attrs` hands the reference the WHOLE
-        // tuple.  Probed on 22.0.398: `primattribtype` is 0 int, 1 float,
-        // 2 string, 3 ARRAY, and `primattribsize` is 3 for a vector and 2 for
-        // a vector2 - so readable means a scalar of a scalar type, and
-        // everything else is PRESENT BUT UNREADABLE, which `pc_cond_subject`
-        // answers as kind 3 rather than as a missing key.
-        if (t == 3 || primattribsize(0, name) != 1) { push(abad, name); continue; }
+        // tuple.
+        //
+        // ⚠️ THE TABLE, RE-PROBED ON 22.0.398 (D241), because the sentence
+        // that used to sit here was WRONG FOR THREE OF THE FOUR ARRAY CODES
+        // and the line below tested `t == 3`:
+        //     0 int   1 float   2 string
+        //     3 int-array   4 float-array   5 string-array   6 dict
+        // `t == 3` therefore admitted a FLOAT ARRAY, a STRING ARRAY and a
+        // DICT, each of which fell through to `float v = prim(0, name, pr)`,
+        // read 0.0 and was published as a READABLE NUMERIC subject.  Measured
+        // on the shipped .hda with a payload rule `attr:w eq 0.0`: a float
+        // array `w = (7.5, 1.0)` built 12 gates natively against the
+        // reference's 10 panels, and a string array and a dict did the same.
+        //
+        // ⚠️ AND `primattribsize` CANNOT STAND IN FOR IT: probed, an array
+        // attribute reports size 1 (`a_ia` 3, `a_fa` 4, `a_sa` 5 and
+        // `a_dict` 6 all read `primattribsize == 1`), so the size test only
+        // ever caught the fixed-size TUPLES.  Every code above 2 is an array
+        // or a dict and none of them is a scalar VEX can read, so the test is
+        // `t >= 3` and readable means a scalar of a scalar type - everything
+        // else is PRESENT BUT UNREADABLE, which `pc_cond_subject` answers as
+        // kind 3 rather than as a missing key.
+        if (t >= 3 || primattribsize(0, name) != 1) { push(abad, name); continue; }
         if (t == 2) { string v = prim(0, name, pr); as_[name] = v; }
         else        { float v = prim(0, name, pr); af[name] = v; }
     }

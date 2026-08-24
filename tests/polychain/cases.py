@@ -1444,6 +1444,25 @@ def build_all():
                Rule("end", "first", ["post"])],
         params=Params(fill="adaptive")))
 
+    # DM - 13.9 N5's OWN COVERAGE, AND IT IS ONE ROW LONG FOR A REASON.
+    # `place_deformed_covers_the_reference` compares the elements the
+    # reference UNPACKS against the elements the native deformed branch
+    # unpacks - and over all 92 cases it was comparing THREE, two of which the
+    # gate refuses, i.e. about one element.  A set comparison on one element
+    # is satisfied by almost any implementation that unpacks anything at all.
+    # The reason is SCOPE, not a shortage of hilly cases: every hilly fixture
+    # in this file has a CORNER (`_place_out_of_scope` -> "4.3 corners"), a
+    # surface, a fillet or a slope flatten, and each of those is skipped.
+    # This is a smooth 24 m ripple with none of them - level 1 admits it, most
+    # of the run unpacks, and it is the same shape `gate_images` draws and
+    # `piece_order_key_is_total` measures the order key on, so the three rows
+    # agree about their fixture.
+    g = hou.Geometry()
+    polyline(g, [(0.5 * i, 0.45 * math.sin(i * 0.55), 0.0)
+                 for i in range(49)], curve_id="DM")
+    built["DM_ripple_deformed"] = _case(g, kit_geo,
+                                        panel_style(zmode="adaptive"))
+
     return built
 
 

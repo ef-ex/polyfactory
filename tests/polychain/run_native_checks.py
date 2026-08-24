@@ -763,14 +763,31 @@ def readability(root):
         # `nptsperpt` and `ptsperpt` are on the list because 13.2 measured
         # that the count attribute MULTIPLIES `nptsperpt` - an asset shipping
         # the default 10 would plan ten fences and nothing else would notice.
+        # ⚠️ D249 - THE `attribcast` ENTRIES ARE ENUMERATED, NOT LISTED.
+        # `attribcast` decides the OUTPUT's storage width, which is a parity
+        # property: 64 bits in `pc_u` is a different number from what 3.4
+        # ships.  The list used to name `class1/attribs1/precision1/typeinfo1`
+        # by hand, so when 13.9 N5 added a SECOND cast (`pc_local` ->
+        # fpreal32, without which the shipped fence carries the module's local
+        # frame at twice the reference's storage) nothing compared it, and
+        # `numcasts` itself was never compared at all.  A hand-written list
+        # has to be edited every time a cast is added, and it was not.
+        casts = []
+        for side in (mine, rig_node):
+            n = side.parm("numcasts")
+            casts.append(int(n.eval()) if n is not None else 0)
+        if casts[0] != casts[1]:
+            drift.append("%s.numcasts: %d vs rig %d"
+                         % (rig_name, casts[0], casts[1]))
+        cast_parms = []
+        for i in range(1, max(casts) + 1):
+            cast_parms += ["class%d" % i, "attribs%d" % i,
+                           "precision%d" % i, "typeinfo%d" % i]
         for parm in ("class", "vex_precision", "snippet", "ptdel", "group",
                      "grouptype", "negate", "ptsperpt", "nptsperpt",
                      "doattrib", "attrib", "spointnum", "spointidx",
                      "docopyattribs", "attribstocopy",
-                     # `attribcast` decides the OUTPUT's storage width, which
-                     # is a parity property: 64 bits in `pc_u` is a different
-                     # number from what 3.4 ships.
-                     "class1", "attribs1", "precision1", "typeinfo1"):
+                     "numcasts") + tuple(cast_parms):
             a, b = mine.parm(parm), rig_node.parm(parm)
             if (a is None) != (b is None):
                 drift.append("%s.%s: one side has it" % (rig_name, parm))
@@ -1138,6 +1155,19 @@ def cited_check_complaints(node):
     known = set(r[0] for r in RESULTS)
     known |= set(n.name() for n in node.children())
     known |= set(p.name() for p in node.parms())
+    # ⚠️ D252 - TWO NAMES ARE CITED *BECAUSE* THEY DO NOT EXIST, and a
+    # row that fires on the sentence describing its own reason for existing is
+    # the check eating itself.  These two are named in prose as the citations
+    # that sent a reader to an oracle nobody had written; they are exempt HERE
+    # rather than un-backticked in the prose, because the backticks are what
+    # make the sentence readable.
+    known |= {"guard_bend_bound", "guard_fallback_classes"}
+    # ...and the names a check COMPOSES at runtime.  `check("bench_plan_%s" %
+    # label, ...)` produces `bench_plan_long_curve` and
+    # `bench_plan_streets_300`, neither of which appears as a literal
+    # anywhere; a citation that starts with a format string's literal prefix
+    # is treated as known.
+    prefixes = set()
     roots = (HERE,
              os.path.join(REPO, "polyfactory", "scripts", "python",
                           "polyfactory", "polychain"),
@@ -1155,6 +1185,13 @@ def cited_check_complaints(node):
                                     body))
             known |= set(re.findall(r"[\"']([a-z][a-z_0-9]{3,})[\"']",
                                     body))
+            # every function's PARAMETER names too: `kit_code` and
+            # `solve_snippet` are keyword arguments, cited in the docstring
+            # that documents them, and they are not checks.
+            known |= set(re.findall(r"\n\s*([a-z_0-9]{3,})=", body))
+            known |= set(re.findall(r"[(,]\s*([a-z_0-9]{3,})=[^=]", body))
+            prefixes |= set(re.findall(r"[\"']([a-z][a-z_0-9]{3,}_)%[sd]",
+                                       body))
     bad = []
     texts = []
     for child in sorted(node.children(), key=lambda c: c.name()):
@@ -1167,14 +1204,33 @@ def cited_check_complaints(node):
             texts.append((child.name(), "\n".join(header)))
         elif child.type().name() == "python":
             texts.append((child.name(), child.comment() or ""))
+    # ⚠️ D252 - AND THE TEST MODULES' OWN COMMENTS, WHICH IS WHERE THIS ROT
+    # LANDED THIS TIME.  The scan above reads shipped HDA text only - wrangle
+    # headers and Python SOP DisplayComments - so a citation inside
+    # `run_native_checks.py` itself was outside its reach, and
+    # `bench_deform_20km` sat in one for a whole cycle claiming the deformed
+    # branch's two most expensive nodes were "measured end to end" by a check
+    # that `grep -rn` found exactly once, on the comment line.  The runners
+    # document themselves in comments far more than the asset does, so this is
+    # the larger surface, not the smaller one.
+    for folder in (HERE,):
+        for entry in sorted(os.listdir(folder)):
+            if not entry.endswith(".py"):
+                continue
+            with io.open(os.path.join(folder, entry),
+                         encoding="utf-8") as fh:
+                texts.append(("tests/%s" % entry, fh.read()))
     for name, text in texts:
         for cited in set(re.findall(r"`((?:guard|bench|mutation|native|"
                                     r"output|plan|place|frames|emit|solve|"
                                     r"wrangle|stage|scene|kit|unread|no)_"
                                     r"[a-z_0-9]+)`", text)):
-            if cited not in known:
-                bad.append("%s cites `%s` and no such check exists"
-                           % (name, cited))
+            if cited in known:
+                continue
+            if any(cited.startswith(pre) for pre in prefixes):
+                continue
+            bad.append("%s cites `%s` and no such check exists"
+                       % (name, cited))
     return bad, len(texts)
 
 
@@ -1602,7 +1658,7 @@ def sixty_four_bit(root):
     # 20000.0004883 comes back as 20000.0 before any wrangle has run, so a
     # curve cannot even CARRY the number the rule is about. That floor is R2,
     # it is unchanged from today, and it is where the REFERENCE already lives
-    # too - `frames_position_parity` is what measures it. What this checks is
+    # too - `frames_arithmetic_position_parity` is what measures it. What this checks is
     # the thing that IS new: an intermediate the network computes must not be
     # rounded to float32 at every node boundary on its way to the next stage.
     sub = root.createNode("subnet", "prec")
@@ -1650,7 +1706,7 @@ def worldscale_transport(root):
     """D170 - the SPAN, across the Python SOP -> wrangle boundary, at 20 km.
 
     ⚠️ THE CHECK ABOVE CANNOT SEE THIS, AND SAYING SO IS THE POINT.
-    `frames_linear_parity` rounds the span on BOTH sides through the same
+    `frames_arithmetic_linear_parity` rounds the span on BOTH sides through the same
     transport, which isolates the arithmetic and is what it is for. The thing
     the network actually does differently from the reference is CARRY the
     span through a point attribute, and `hou.Geometry` has no 64-bit float
@@ -2390,7 +2446,7 @@ def fixture_cases():
     # The only topology where primitive order genuinely decides the answer:
     # `decompose_all` sorts by `(str(curve_id), index)` and Python's sort is
     # STABLE, so the two curves' sections INTERLEAVE (A0, B0, A1, B1) in prim
-    # order.  `plan_is_input_order_free` builds its two orders out of three
+    # order.  `plan_distinct_ids_are_input_order_free` builds its two orders out of three
     # DISTINCT ids, so it cannot reach this; the merge sort in `pc_sections`
     # breaks the tie on the prim number, and this row is what says the two
     # agree.
@@ -2460,23 +2516,75 @@ def fixture_cases():
     # never equal to a float on either side), and they are the controls here.
     # Every operator is present because WHICH ones agreed was an accident of
     # the value, not a property of the code.
+    #
+    # ⚠️ D257 - AND THE TWO ROWS THAT CLAIMED TO COVER *ARRAYS* DID NOT.
+    # `geo.addAttrib(Prim, "vecattr", [8, 1, 2])` builds a fixed-size TUPLE,
+    # not an array: probed on 22.0.398, `attrib.isArrayType()` is False for it
+    # and `size()` is 3.  So all five rows were caught by the
+    # `primattribsize != 1` half of the refusal and the ARRAY half - which was
+    # written `t == 3` - was DEAD CODE in every run of the suite.  Re-probed,
+    # `primattribtype` is 0 int / 1 float / 2 string / 3 int-array /
+    # 4 float-array / 5 string-array / 6 dict, and an array reports
+    # `primattribsize == 1` - so a float array, a string array and a dict all
+    # fell through to a float read of 0.0 and shipped as READABLE numeric
+    # subjects.  Measured on the shipped .hda before the fix: a float array
+    # `w = (7.5, 1.0)` under `eq 0.0` built 12 `gate` prims natively against
+    # the reference's 10 `panel` prims, and a string array and a dict did the
+    # same; the int array is the control and was correctly refused.
+    #
+    # The array rows are built with `addArrayAttrib` now and the fixture
+    # ASSERTS `isArrayType()`, so a row that stops being an array fails
+    # instead of silently degrading to a tuple.  The operand set gains
+    # `eq 0.0` / `lt 1.0` / `ge 0.0` because the shipped one (`gt 5.0`,
+    # `lt 100.0`, `eq 5.0`, `ne 5.0`) happens to agree with a 0.0 cross-type
+    # read on four of six operators - which is how this shipped wrong for a
+    # cycle under five PASSing rows.
+    ARRAY_ROWS = (("iarray", hou.attribData.Int, (8, 1, 2)),
+                  ("farray", hou.attribData.Float, (7.5, 1.0)),
+                  ("sarray", hou.attribData.String, ("a", "b")))
+    OPS = (("gt", 5.0), ("ge", 5.0), ("lt", 100.0), ("eq", 5.0), ("ne", 5.0),
+           ("in", [7.5, 1.0]), ("eq", 0.0), ("lt", 1.0), ("ge", 0.0),
+           ("ne", 0.0))
+
+    def _attr_case(tag, op, want, make):
+        geo = hou.Geometry()
+        poly = cases.polyline(geo, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)],
+                              curve_id="S")
+        make(geo, poly)
+        # the name becomes a NODE name, so it has to survive `createNode`
+        suffix = re.sub(r"[^A-Za-z0-9]", "", str(want))
+        return ("attr_%s_%s%s" % (tag, op, suffix), geo,
+                kit, Style(
+                    "av", 1, 3,
+                    rules=[Rule("default", "conditional", ["gate", "post"],
+                                cond={"subject": "attr:vecattr", "op": op,
+                                      "value": want}),
+                           Rule("default", "first", ["panel"])],
+                    params=Params(fill="adaptive")))
+
     for tag, value in (("vec3", (7.5, 1.0, 2.0)), ("vec2", (7.5, 1.0)),
-                       ("ivec3", (8, 1, 2)), ("iarray", [8, 1, 2]),
-                       ("sarray", ["a", "b"])):
-        for op, want in (("gt", 5.0), ("ge", 5.0), ("lt", 100.0),
-                         ("eq", 5.0), ("ne", 5.0), ("in", [7.5, 1.0])):
-            geo = hou.Geometry()
-            poly = cases.polyline(geo, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)],
-                                  curve_id="S")
-            geo.addAttrib(hou.attribType.Prim, "vecattr", value)
-            poly.setAttribValue("vecattr", value)
-            out.append(("attr_%s_%s" % (tag, op), geo, kit, Style(
-                "av", 1, 3,
-                rules=[Rule("default", "conditional", ["gate", "post"],
-                            cond={"subject": "attr:vecattr", "op": op,
-                                  "value": want}),
-                       Rule("default", "first", ["panel"])],
-                params=Params(fill="adaptive"))))
+                       ("ivec3", (8, 1, 2))):
+        for op, want in OPS:
+            def _tuple(geo, poly, value=value):
+                geo.addAttrib(hou.attribType.Prim, "vecattr", value)
+                poly.setAttribValue("vecattr", value)
+            out.append(_attr_case(tag, op, want, _tuple))
+    for tag, storage, value in ARRAY_ROWS:
+        for op, want in OPS:
+            def _array(geo, poly, storage=storage, value=value):
+                geo.addArrayAttrib(hou.attribType.Prim, "vecattr", storage)
+                poly.setAttribValue("vecattr", value)
+                attrib = geo.findPrimAttrib("vecattr")
+                if attrib is None or not attrib.isArrayType():
+                    raise AssertionError(
+                        "the `%s` fixture is not an ARRAY attribute - D257's "
+                        "whole finding is that a tuple looks like one" % tag)
+            out.append(_attr_case(tag, op, want, _array))
+    for op, want in OPS:
+        def _dict(geo, poly):
+            geo.addAttrib(hou.attribType.Prim, "vecattr", {})
+            poly.setAttribValue("vecattr", {"a": 1.0})
+        out.append(_attr_case("dict", op, want, _dict))
 
     # --- D202: `ctx_base`'s own DICT-VALUED keys ---------------------------
     # `cond_subject` ends in `ctx.get(subject)`, and `attrs` / `marker_data`
@@ -2695,7 +2803,7 @@ def plan_determinism(root, built):
 def plan_shared_id_order(root):
     """Primitive order over TWO PRIMS SHARING ONE `pc_curve_id`.
 
-    ⚠️ `plan_is_input_order_free` CANNOT REACH THIS AND SAYS SO NOW.  It
+    ⚠️ `plan_distinct_ids_are_input_order_free` CANNOT REACH THIS AND SAYS SO NOW.  It
     builds its two orders out of three DISTINCT ids, where the sort key
     `(curve_id, section_index, prim)` is already total - so the prim term is
     dead weight there and mutating it cannot redden the check.  The one
@@ -3099,7 +3207,15 @@ def place_packed_parity(root, built):
         case = built[name]
         ref_packed = [p for p in case["out"].prims()
                       if p.type() == hou.primType.PackedGeometry]
-        if not ref_packed:
+        # ⚠️ D253 - THE SKIP USED TO BE "NO PACKED PRIMS", WHICH THREW AWAY
+        # EXACTLY THE CASES THE DEFORMED HALF OF THIS CHECK IS ABOUT.  A run
+        # every piece of which unpacks has NO packed prim at all, so
+        # `DM_ripple_deformed` - the case added to feed the deformed row - was
+        # skipped whole before its element set was ever looked at, and the row
+        # stayed at the three elements that made it vacuous.  The skip is now
+        # "the reference built nothing", which is the case that really has
+        # nothing to compare.
+        if not case["out"].prims():
             skipped += 1
             continue
         params = case["style"].params if case["style"] else DEFAULTS
@@ -3284,6 +3400,18 @@ def place_packed_parity(root, built):
           "packed prims actually compared - a branch that built none would "
           "make the check above vacuously green")
     # 13.9 N5 - and the DEFORMED set, element for element.
+    #
+    # ⚠️ D253 - AND A SIZE FLOOR, because without one this row passed on THREE
+    # elements across all 92 cases, two of which the gate refused - roughly
+    # one element actually compared, and a set comparison on one element is
+    # satisfied by almost any implementation that unpacks anything at all.
+    # Its packed sibling has had `place_packed_is_not_empty` (nprim > 400)
+    # since D192 for exactly this reason.  `DM_ripple_deformed` is the case
+    # that feeds it: every other hilly fixture in `cases.py` is skipped by
+    # `_place_out_of_scope` for a corner, a surface, a fillet or a slope fix.
+    check("place_deformed_is_not_empty", deform_n[0] >= 40, deform_n[0],
+          "deformed elements actually compared - the row below is a SET "
+          "comparison, so on three elements it was vacuously green")
     check("place_deformed_covers_the_reference",
           not deform_bad and deform_n[0] > 0, deform_n[0],
           "the elements the reference UNPACKS are exactly the elements 13.9 "
@@ -4146,10 +4274,36 @@ STAMP_CEILING_US = 3.0
 # sharing `GROWTH_CEILING`; 1.5x would sit exactly on a measurement that reads
 # 1.49-1.50x over three runs, which is a flaky check, not a strict one.  2.0x
 # still blows up three orders of magnitude on a quadratic node.
-# The absolute ceiling sits between the two measurements it separates, both
-# taken as the MIN over three interleaved repetitions (`solve_scale_rates`
-# says why): the sound node reads 26-28 us/piece and the spill mutant 41-49.
-SOLVE_CEILING_US = 34.0
+# ⚠️ D248 - THE ABSOLUTE CEILING WAS A COIN TOSS, AND IT IS RELATIVE NOW.
+# It used to read `SOLVE_CEILING_US = 34.0`, placed 1.2x above ONE machine's
+# sound measurement - and the sound measurement is not a property of the
+# build.  Measured on the unmutated tree at 2bc6ef7: 25.97 us/piece on an idle
+# box, 34.56 us/piece on the same box with one other hython running, and an
+# auditor reported 34.49 and 36.78.  So "all suites green" did not reproduce,
+# which is D209/D211's own defect shape inside the check written to enforce
+# that doctrine.
+#
+# `pc_plan_emit` is not a usable calibrator either (measured in the same two
+# runs: 2.90 and 2.67 us/piece, i.e. it did NOT move when the solve moved 33 %
+# - it is cheap enough to stay in cache).  So the calibrator is an explicit
+# one: a detail wrangle running a fixed integer loop, cooked INTERLEAVED with
+# the solve in the same repetitions, which measures exactly what moved - this
+# machine's single-thread VEX throughput at this moment.  The ceiling is then
+# a RATIO against it, and the run PRINTS both numbers so the spread is on the
+# record instead of one machine's lucky sample.
+SOLVE_CALIB_ITERS = 3000000
+# us/piece per millisecond of calibrator.  Measured on this build:
+# Two independent runs of the unmutated tree, one loaded and one not:
+#   sound  33.68 / 33.46 us/piece, calibrator 71.8 / 74.2 ms -> 0.469 / 0.451
+#   spill  52.99 / 45.64 us/piece, same runs               -> 0.738 / 0.615
+# The SOUND ratio is stable to 4 % across a load that moved the absolute
+# figure by 33 %, which is the whole reason for the calibrator.  0.55 sits
+# between them - 1.17x above the worst sound reading and 0.89x of the best
+# mutant reading
+# - and it is a RATIO, so it does not move when the machine does.  The two
+# absolute figures behind it were 25.97 us/piece idle and 33.68-34.56 loaded
+# on the same tree, which is why the constant it replaces was a coin toss.
+SOLVE_CEILING_PER_CALIB = 0.55
 SOLVE_GROWTH_CEILING = 2.0
 
 # The dedup table's own branch, and the SPILL branch beside it - which writes
@@ -4248,8 +4402,29 @@ def solve_scale_rates(root, reps=3):
     from polyfactory.polychain import vexsrc
     body = vexsrc.source("pc_plan_solve")
     mutant = body.replace(SOLVE_TABLED, SOLVE_SPILLED)
+    # D248 - the CALIBRATOR, cooked in the same repetitions as the solve.  A
+    # fixed integer loop on one thread, touching no geometry: its cook time is
+    # this machine's single-thread VEX throughput and nothing else, so the
+    # solve's cost divided by it is a number about the BUILD.
+    calib = root.createNode("attribwrangle", "solve_calib")
+    calib.parm("class").set(0)
+    calib.parm("vex_precision").set("64")
+    grp = calib.parmTemplateGroup()
+    grp.append(hou.IntParmTemplate("nudge", "Nudge", 1))
+    calib.setParmTemplateGroup(grp)
+    calib.parm("snippet").set(
+        'int acc = chi("nudge");\n'
+        'for (int i = 1; i < %d; i++)\n'
+        '    acc = (1812433253 * (acc ^ shrz(acc, 30)) + i)'
+        ' & 0xFFFFFFFF;\n'
+        'i@_calib = acc;' % SOLVE_CALIB_ITERS)
+    calib.setInput(0, native.feed(root, hou.Geometry(), "SOLVE_CALIB_IN"))
+    calib.cook(force=True)
+
     best = {"small": None, "big": None, "spill": None}
+    calib_ms = None
     cooks = []
+    nudge = [0]
     for _rep in range(reps):
         for tag, npts, snippet in (("small", 5001, None),
                                    ("big", 40001, None),
@@ -4259,7 +4434,16 @@ def solve_scale_rates(root, reps=3):
             cooks.append(row[6])
             rate = row[5] * 1e6 / row[0]
             best[tag] = rate if best[tag] is None else min(best[tag], rate)
-    return best, all(c == 2 for c in cooks), body.count(SOLVE_TABLED) == 1
+        for _pass in range(2):
+            nudge[0] += 1
+            calib.parm("nudge").set(nudge[0])
+            t0 = time.time()
+            calib.cook()
+            dt = (time.time() - t0) * 1e3
+            calib_ms = dt if calib_ms is None else min(calib_ms, dt)
+    calib.destroy()
+    return (best, all(c == 2 for c in cooks),
+            body.count(SOLVE_TABLED) == 1, calib_ms)
 
 
 def solve_scale_check(root):
@@ -4268,35 +4452,44 @@ def solve_scale_check(root):
 
     ⚠️ THE MUTATION DOES NOT CHANGE A SINGLE PLANNED VALUE.  Forcing the solve
     down its SPILL branch writes the five per-piece string ARRAYS the dedup
-    table replaced - a live, supported transport (`plan_row_table_spills`
-    exercises it) that ships the same plan - so every parity check in the
+    table replaced - a live, supported transport - `pc_plan_solve`'s own
+    `spill` branch, which the plan parity rows cook through whenever the
+    row table overflows - that ships the same plan - so every parity check in the
     suite stays green under it.  That is precisely why the 20x regression
     could ship unseen, and precisely what a cost ceiling is for.
     """
-    rates, cooked, found = solve_scale_rates(root)
+    rates, cooked, found, calib_ms = solve_scale_rates(root)
     growth = rates["big"] / max(rates["small"], 1e-9)
     ratio = rates["spill"] / max(rates["big"], 1e-9)
+    calib_ms = max(calib_ms or 0.0, 1e-9)
+    per_calib = rates["big"] / calib_ms
+    spill_per_calib = rates["spill"] / calib_ms
     check("solve_cost_is_flat_in_piece_count",
-          cooked and rates["big"] <= SOLVE_CEILING_US
+          cooked and per_calib <= SOLVE_CEILING_PER_CALIB
           and growth <= SOLVE_GROWTH_CEILING,
-          "%.2f us/piece" % rates["big"],
+          "%.3f x calib (%.2f us/piece)" % (per_calib, rates["big"]),
           "`pc_plan_solve` ALONE on 20 000 pieces, min over 3 interleaved "
           "repetitions of best-of-2 dirtied passes; %.2f us/piece at 2 500, "
-          "so the growth is %.2fx (ceiling %.1fx). Absolute ceiling %.1f "
-          "us/piece"
-          % (rates["small"], growth, SOLVE_GROWTH_CEILING, SOLVE_CEILING_US))
+          "so the growth is %.2fx (ceiling %.1fx). The absolute ceiling is "
+          "RELATIVE (D248): %.3f us/piece per ms of the fixed %d-iteration "
+          "calibrator cooked in the same repetitions, which read %.1f ms - "
+          "ceiling %.2f. The old constant 34.0 us/piece read 25.97 idle and "
+          "34.56 loaded on ONE machine, so it was a coin toss"
+          % (rates["small"], growth, SOLVE_GROWTH_CEILING, per_calib,
+             SOLVE_CALIB_ITERS, calib_ms, SOLVE_CEILING_PER_CALIB))
     check("mutation_pc_plan_solve_string_arrays",
-          found and cooked and rates["spill"] > SOLVE_CEILING_US
+          found and cooked and spill_per_calib > SOLVE_CEILING_PER_CALIB
           and ratio >= 1.25,
-          "%.2f us/piece / %.2fx (target present: %s)"
-          % (rates["spill"], ratio, found),
+          "%.3f x calib / %.2fx (target present: %s)"
+          % (spill_per_calib, ratio, found),
           "the solve writing the five per-piece string ARRAYS the dedup table "
           "replaced - the shape that measured twenty times the Python it "
           "ported - costs %.2f us/piece against the tabled %.2f, on an output "
-          "that is value-for-value identical. It has to clear the %.1f "
-          "ceiling AND be at least 1.25x the sound node measured in the same "
-          "interleaved run"
-          % (rates["spill"], rates["big"], SOLVE_CEILING_US))
+          "that is value-for-value identical. It has to clear the SAME "
+          "calibrated ceiling (%.3f x calib against %.2f) AND be at least "
+          "1.25x the sound node measured in the same interleaved run"
+          % (rates["spill"], rates["big"], spill_per_calib,
+             SOLVE_CEILING_PER_CALIB))
 
 
 def sections_mutation(root, built):
@@ -4394,6 +4587,32 @@ OUTPUT_STAGE = (
      ("config",)),
 )
 
+# ⚠️ D250 - AND THE SAME SENTENCE WAS TRUE OF 13.9 N5's TEN NODES.  The block
+# above says `NATIVE_STAGES` "watched three stages and named no node this
+# cycle added"; the cycle that landed the DEFORMED branch added
+# `pc_kit_rank`, `pc_kit_meta`, `pc_deformed_only`, `pc_deform_prep`,
+# `copy_deformed`, `pc_deform`, `pc_pieces`, `pc_built`, `pc_piece_key` and
+# `pc_order` and extended neither table.
+#
+# It needs its OWN FIXTURE and that is why it is its own tuple: every row
+# above runs on `D192_STRAIGHT`, where the `pc_built` switch legitimately
+# bypasses the deformed branch, so extending them would assert that nodes
+# which correctly do not cook did cook.  `N5_RIPPLE` is the shape the branch
+# exists for - level 1 admits it, level 2 admits it, and `copy_deformed`
+# builds real geometry on it.
+#
+# `pc_kit_rank` and `pc_kit_meta` are NOT on the list for the reason the block
+# above gives for `kit_starter`: they hang off input 1 and the dirtying lever
+# is the SPLINE, so asserting they re-cook would be asserting a cache miss.
+OUTPUT_DEFORMED_STAGE = (
+    ("output", "OUT_final",
+     ("pc_deform_gate", "pc_deformed_only", "pc_deform_prep", "copy_deformed",
+      "pc_deform", "pc_pieces", "pc_built", "pc_piece_key", "pc_order",
+      "pc_finalize", "pc_out_cast", "pc_warn_collate", "guard_envelope",
+      "guard_native"),
+     ("config",)),
+)
+
 # --- D208: THE SIX STAGES WITH NO INDEPENDENT EXPECTATION AT ALL ------------
 #
 # §21.5.  D203 made `native.STAGES` the ONE declaration the build script and
@@ -4460,8 +4679,8 @@ def stage_is_really_native(root, tag, rewire=None, rows=NATIVE_STAGES,
     entry labelled "2 - Plan, NATIVE (4.2 - the VEX fitting solve)" serve
     `pc_plan_bridge`'s PYTHON plan, and the suite stayed at 77 / 0: every
     parity check runs on `native.py`'s RIG, `asset_stages_match_the_rig`
-    compares node PARAMETERS and not WIRING, and
-    `native_plan_and_place_reach_no_artist` asserts the opposite direction.
+    compares node PARAMETERS and not WIRING, and the one row that mentioned the
+    native place stage asserted the opposite direction.
     Nothing asserted that a native stage IS native.
 
     Two assertions, and both are needed - the first alone would pass a stage
@@ -4578,7 +4797,10 @@ def native_stage_check(root):
     bad = stage_is_really_native(root, "sound")
     bad += stage_is_really_native(root, "sound_out", rows=OUTPUT_STAGE,
                                   pts=D192_STRAIGHT)
-    rows = NATIVE_STAGES + OUTPUT_STAGE
+    # D250 - and the DEFORMED branch, on the shape it exists for.
+    bad += stage_is_really_native(root, "sound_def",
+                                  rows=OUTPUT_DEFORMED_STAGE, pts=N5_RIPPLE)
+    rows = NATIVE_STAGES + OUTPUT_STAGE + OUTPUT_DEFORMED_STAGE
     watched = sum(len(r[2]) for r in rows)
     check("native_stages_are_really_native", not bad,
           "%d nodes / %d stages" % (watched, len(rows)),
@@ -4623,6 +4845,12 @@ def native_stage_mutation(root):
             # `NATIVE_STAGES` row, only two of 94 checks could see it.
             ("w3", "output", "OUT_reference", "kernel",
              OUTPUT_STAGE, D192_STRAIGHT),
+            # D250 - the same undo, judged on the DEFORMED branch's own ten
+            # nodes and its own fixture. Without this row a `Stage` entry
+            # re-pointed so that the deformed branch stops cooking on a shape
+            # that needs it is invisible to every stage check.
+            ("w3d", "output", "OUT_reference", "kernel",
+             OUTPUT_DEFORMED_STAGE, N5_RIPPLE),
             # D208 / §21.4's M10 - THE MUTATION §20.1 OPENS WITH, and the one
             # that was stopped by an assertion CRASH rather than by the check
             # credited with it. The `reference` entry - `output_guard_parity`'s
@@ -4647,15 +4875,75 @@ def native_stage_mutation(root):
               % (token, target, python_sop, "; ".join(mine) or "none"))
 
 
+def _storage(attribs):
+    """(dataType, NUMERIC STORAGE WIDTH, size, isArray) per attribute.
+
+    ⚠️ D246 - `dataType()` CANNOT SEE A PRECISION CHANGE, AND STORAGE IS PART
+    OF THE CONTRACT (D223, on the input side).  Probed on 22.0.398:
+    `hou.Attrib.dataType()` returns `attribData.Float` for BOTH fpreal32 and
+    fpreal64, so the old `prim_types` dimension read the same string either
+    way - and `pc_out_cast.numcasts` 2 -> 1, which ships `pc_local` at
+    fpreal64 where the reference ships fpreal32, moved NOTHING in this
+    snapshot.  `numericDataType()` is the accessor that separates them
+    (`numericData.Float32` / `numericData.Float64`), it is one call per
+    attribute, and it is what makes the output side of D223's rule assertable.
+    """
+    out = {}
+    for a in attribs:
+        try:
+            numeric = str(a.numericDataType())
+        except (AttributeError, hou.OperationFailed):
+            numeric = "?"
+        out[a.name()] = (str(a.dataType()), numeric, a.size(),
+                         bool(a.isArrayType()))
+    return out
+
+
+def _columns(geo, attribs, bulk):
+    """{name: the whole column}, read in BULK - one call per attribute.
+
+    ⚠️ D246 - THE POINT ATTRIBUTES USED TO BE COMPARED BY NAME ALONE, so
+    `pc_local` - the one output attribute 13.9 N5 added - was compared by
+    NOTHING in the entire safety net.  Demonstrated on the ripple fixture:
+    mutating the shipped `pc_deform` to `v@pc_local = local * 1.5`, and again
+    to `set(0,0,0)` (worst |native - ref| 2.0 m), left `_first_difference`
+    EMPTY.  The columns are read with `point*AttribValues` rather than per
+    point because a deformed 20 km build carries ~300 000 points and a Python
+    loop over them would be the check nobody runs.
+    """
+    out = {}
+    for a in attribs:
+        name = a.name()
+        try:
+            if a.isArrayType():
+                out[name] = "array"          # no bulk reader; storage is above
+                continue
+            dt = a.dataType()
+            if dt == hou.attribData.String:
+                out[name] = list(bulk["s"](name))
+            elif dt == hou.attribData.Int:
+                out[name] = list(bulk["i"](name))
+            elif dt == hou.attribData.Float:
+                out[name] = [round(float(v), 9) for v in bulk["f"](name)]
+            else:
+                out[name] = "unreadable"
+        except (hou.OperationFailed, TypeError):
+            out[name] = "unreadable"
+    return out
+
+
 def _snapshot(geo):
     """Everything about a polyChain output that a consumer can see.
 
     Not a digest: a digest tells you two builds differ and nothing else, and
     the whole point of this comparison is that a divergence has to be
     NAMEABLE - which attribute, which element, which number.
+
+    ⚠️ D246 - AND "EVERYTHING" NOW INCLUDES THE POINT ATTRIBUTES' VALUES AND
+    EVERY ATTRIBUTE'S STORAGE WIDTH.  See `_columns` and `_storage` for the
+    two demonstrations that the sentence above was false before this cycle.
     """
     names = sorted(a.name() for a in geo.primAttribs())
-    types = dict((a.name(), str(a.dataType())) for a in geo.primAttribs())
     prims = []
     for prim in geo.prims():
         row = [prim.type().name(),
@@ -4670,8 +4958,13 @@ def _snapshot(geo):
         prims.append(tuple(row))
     return dict(
         prim_attribs=names,
-        prim_types=types,
+        prim_types=_storage(geo.primAttribs()),
         point_attribs=sorted(a.name() for a in geo.pointAttribs()),
+        point_types=_storage(geo.pointAttribs()),
+        point_values=_columns(geo, geo.pointAttribs(), {
+            "s": geo.pointStringAttribValues,
+            "i": geo.pointIntAttribValues,
+            "f": geo.pointFloatAttribValues}),
         detail=sorted((a.name(), geo.attribValue(a.name()))
                       for a in geo.globalAttribs()),
         groups=sorted(g.name() for g in geo.primGroups()),
@@ -4681,10 +4974,20 @@ def _snapshot(geo):
 
 
 def _first_difference(a, b):
-    for key in ("prim_attribs", "prim_types", "point_attribs", "detail",
-                "groups", "npoints"):
+    for key in ("prim_attribs", "prim_types", "point_attribs", "point_types",
+                "detail", "groups", "npoints"):
         if a[key] != b[key]:
             return "%s: %r != %r" % (key, a[key], b[key])
+    # D246 - the point columns, NAMED: which attribute and which element.
+    for name in sorted(a["point_values"]):
+        u, v = a["point_values"][name], b["point_values"][name]
+        if u == v:
+            continue
+        if not isinstance(u, list) or not isinstance(v, list)                 or len(u) != len(v):
+            return "point %s: %r != %r" % (name, u, v)
+        for i, (x, y) in enumerate(zip(u, v)):
+            if x != y:
+                return "point %s[%d]: %r != %r" % (name, i, x, y)
     if len(a["prims"]) != len(b["prims"]):
         return "prim count %d != %d" % (len(a["prims"]), len(b["prims"]))
     for i, (x, y) in enumerate(zip(a["prims"], b["prims"])):
@@ -4814,6 +5117,105 @@ def output_guard_parity(root, built):
           % (", ".join(sorted(took_native)[:8]),
              " ..." if len(took_native) > 8 else ""))
     return took_native
+
+
+# 13.9 N5's RIPPLE - the one fixture in this file on which the DEFORMED
+# branch cooks end to end at `Stage = output`.  49 points, 24 m, no corner, so
+# level 1 admits it and `copy_deformed` runs.
+N5_RIPPLE = [(0.5 * i, 0.45 * math.sin(i * 0.55), 0.0) for i in range(49)]
+
+
+def output_snapshot_sees_the_deformed_branch(root):
+    """D246 - the parity ORACLE has to be able to see `pc_local`.
+
+    ⚠️ `output_guard_parity`'s docstring says the two sides are compared on
+    "EVERYTHING a consumer can see", and until this cycle that sentence was
+    false in two ways at once, both of them exactly over the one output
+    attribute 13.9 N5 added:
+
+      * `_snapshot` recorded point attributes by NAME only, so every VALUE of
+        `pc_local` (1 338 floats on this fixture) was compared by nothing.
+        Demonstrated: `v@pc_local = local * 1.5` and `v@pc_local = set(0,0,0)`
+        both left `_first_difference` EMPTY, the second one 2.0 m out.
+      * the "types" dimension read `hou.Attrib.dataType()`, which is
+        `attribData.Float` for fpreal32 AND fpreal64, so `pc_out_cast` losing
+        its second cast shipped `pc_local` at TWICE the reference's storage
+        and moved nothing.  That is D223's own rule - the storage of an
+        attribute is part of its contract - on the output side.
+
+    Nothing else in the tree covers it: `place_packed_parity` compares PACKED
+    prims, `place_deformed_covers_the_reference` compares element-id SETS, and
+    `run_scene_checks` / `run_2d_checks` call `place.build` directly and never
+    instantiate the HDA, so `checks.py`'s three `pc_local` readers never see
+    the native branch at all.
+
+    So this row mutates the SHIPPED asset twice and demands the snapshot names
+    each one.  A row that only asserted the sound build is identical would be
+    satisfied by a snapshot that compares nothing, which is what shipped.
+    """
+    geo = guard_polyline_geo(N5_RIPPLE)
+    node = root.createNode("pf_polychain", "snapmut")
+    node.setInput(0, native.feed(root, geo, "SNAPMUT_IN"))
+    node.allowEditingOfContents()
+
+    def both():
+        node.parm("stage").set("output")
+        node.cook(force=True)
+        took = node.node("copy_deformed").cookCount() > 0
+        got = _snapshot(node.geometry())
+        node.parm("stage").set("reference")
+        node.cook(force=True)
+        return took, _first_difference(_snapshot(node.geometry()), got)
+
+    deformed, sound = both()
+    nlocal = 0
+    node.parm("stage").set("output")
+    node.cook(force=True)
+    if node.geometry().findPointAttrib("pc_local") is not None:
+        nlocal = len(node.geometry().pointFloatAttribValues("pc_local"))
+
+    deform = node.node("pc_deform")
+    body = deform.parm("snippet").eval()
+    TARGET = "v@pc_local = local;"
+    rows, bad = [], []
+    if TARGET not in body:
+        bad.append("`%s` is not in the shipped `pc_deform`" % TARGET)
+    else:
+        for label, repl in (("scaled", "v@pc_local = local * 1.5;"),
+                            ("zeroed", "v@pc_local = set(0.0, 0.0, 0.0);")):
+            deform.parm("snippet").set(body.replace(TARGET, repl))
+            _t, diff = both()
+            rows.append((label, diff))
+            if not diff:
+                bad.append("%s: the snapshot saw NOTHING" % label)
+        deform.parm("snippet").set(body)
+
+    cast = node.node("pc_out_cast")
+    ncasts = cast.parm("numcasts").eval()
+    cast.parm("numcasts").set(max(ncasts - 1, 0))
+    _t, diff = both()
+    cast.parm("numcasts").set(ncasts)
+    rows.append(("numcasts %d->%d" % (ncasts, ncasts - 1), diff))
+    if not diff:
+        bad.append("dropping the last `pc_out_cast` cast moved NOTHING - the "
+                   "snapshot cannot see a storage width")
+    if not deformed:
+        bad.append("`copy_deformed` never cooked, so this fixture never "
+                   "reached the branch the row is about")
+    if sound:
+        bad.append("the UNMUTATED build already differs: %s" % sound)
+    if nlocal < 300:
+        bad.append("only %d `pc_local` floats on the output - too few for "
+                   "this row to mean anything" % nlocal)
+    node.destroy()
+    check("output_snapshot_sees_the_deformed_branch", not bad,
+          "%d pc_local floats / %d mutations" % (nlocal, len(rows)),
+          "`_snapshot` has to NAME a change to `pc_local`'s values and to its "
+          "STORAGE WIDTH on the shipped asset - both were invisible to the "
+          "whole native suite. Mutations: %s. %s"
+          % ("; ".join("%s -> %s" % (r[0], (r[1] or "NOTHING")[:60])
+                       for r in rows),
+             "; ".join(bad[:3]) or "each one named"))
 
 
 def payload_cond_parity(root):
@@ -5145,15 +5547,17 @@ def output_guard_cost(root):
     answers the deform question itself now (`pc_envelope.vfl`), and this is
     what holds that line.
 
-    ⚠️ PART B NARROWED WHAT "ANSWERS IT" MEANS, so this check now has rows on
-    BOTH sides of the widened bound.  Level 1 used to refuse every curved run
-    outright; it now refuses only the ones where a piece will CERTAINLY
-    unpack, and it is a LOWER bound rather than an upper one.  The rippled row
-    below is still refused (elevation is an outright refusal), the tight arc
-    is refused by the bound, and the gentle arc and the 300 curved streets are
-    ADMITTED - which is where the 54 ms and 490 ms of Python went.
-    `guard_bend_bound` is the row that pins the bound itself; this one is the
-    end-to-end cost, and neither replaces the other.
+    ⚠️ PART B NARROWED WHAT "ANSWERS IT" MEANS AND 13.9 N5 DELETED THE BOUND.
+    Level 1 used to refuse every curved run outright; PART B narrowed that to
+    "a piece will CERTAINLY unpack", and N5 removed even that, because the
+    deformed branch builds an unpacked piece now.  So of the NINE shapes
+    below exactly ONE is refused - the corner, which is 4.3 and out of scope -
+    and the other eight take the native chain, including the ripple and the
+    ramp that used to be refused outright by the elevation test, and D259's
+    two anchored / random rows.
+    `guard_deform_ladder` is the row that pins the widened bound itself
+    (D251 - it replaced `guard_bend_bound`, which no longer exists); this one
+    is the end-to-end cost, and neither replaces the other.
 
     Two ceilings, and they measure different things:
       * REFUSED - the build takes the reference exactly as it did before, so
@@ -5206,14 +5610,47 @@ def output_guard_cost(root):
          True, True, 1.6),
         ("corner", lambda: guard_polyline_geo(GUARD_CORNER_PTS),
          False, False, 1.15),
+        # ⚠️ D259 - THE TWO MAIN-PAGE PARMS NO COST ROW HERE EVER SET,
+        # and both of them shipped a regression against the Python they
+        # replaced.  See `ANCHOR_COST_CEILING` for the numbers.  Their
+        # ceilings are NOT 1.6x and that is a recorded, named debt rather than
+        # a relaxed standard:
+        #   * `evenly_2km` measured 20.4x before D243/D244 and reads 1.94x
+        #     now.  What is left is a per-GAP fixed cost - `pc_candidates`,
+        #     the `pc_m_*` detail-array accessors and `pc_fit`, ~114 us an
+        #     anchor - plus the anchor insertion sort, which is O(n^2) with a
+        #     small constant (measured: 131 ms of 868 ms at 4 000 anchors, 0
+        #     at 1 000).  `guard_anchor_cost_is_linear` is what bounds the
+        #     GROWTH; this row bounds the end-to-end level.
+        #   * `random_2km` measured 3.96x and reads 3.06x.  The residual is
+        #     `pc_random01`: reproducing `random.Random(s).random()` means
+        #     reproducing MT19937's `init_by_array`, which is ~1 870
+        #     sequential array steps, and VEX's single-thread floor is ~24 ns
+        #     a step (measured: a bare 1 872-iteration scalar loop is 45
+        #     us/call, the whole draw 98 us).  CPython answers the same call
+        #     in 1-2 us of C.  There is no cheaper VEX; making this row 1.6x
+        #     needs the draws BATCHED into a parallel wrangle, which is a
+        #     two-pass solve and is not this cycle.  D260.
+        ("evenly_2km",
+         lambda: guard_polyline_geo([(1.0 * i, 0.0, 0.0)
+                                     for i in range(2001)]),
+         True, True, 2.6, {"slot_evenly": "post", "evenly_spacing": 2.0}),
+        ("random_2km",
+         lambda: guard_polyline_geo([(1.0 * i, 0.0, 0.0)
+                                     for i in range(2001)]),
+         True, True, 4.0, {"variety": "random", "slot_default": "panel gate"}),
     )
     rows = []
     bad = []
-    for label, make_geo, want_level1, want_native, ceiling in shapes:
+    for shape in shapes:
+        label, make_geo, want_level1, want_native, ceiling = shape[:5]
+        parms = shape[5] if len(shape) > 5 else {}
         geo = make_geo()
         node = root.createNode("pf_polychain", "cost_" + label)
         node.setInput(0, native.feed(root, geo, "GC_" + label))
         node.allowEditingOfContents()
+        for pname, pvalue in sorted(parms.items()):
+            node.parm(pname).set(pvalue)
 
         # D209 - INTERLEAVED, not two blocks. See `interleaved_best`.
         # `setup` dirties through a parm every stage reads, so neither side
@@ -5289,34 +5726,39 @@ def output_guard_cost(root):
           % (GUARD_COST_FLOOR_S * 1e3, "; ".join(bad) or "both ceilings hold"))
 
 
-# PART B - THE LADDER LEVEL 1's WIDENED DEFORM BOUND IS JUDGED ON.
+# PART B - THE LADDER 13.9 N5's DEFORMED BRANCH IS JUDGED ON.
 #
-# (label, radius m, vertex spacing m, run length m, what level 1 must say,
-#  what level 2 must say once level 1 has admitted).  `None` for the level-2
-# column means level 1 refused and level 2 was never asked.
+# (label, radius m, vertex spacing m, run length m).
 #
-# ⚠️ THE THIRD AND FOURTH ROWS ARE THE POINT OF THE WHOLE TABLE.  Level 1's
-# bound reads ONE kink - the sharpest anywhere in the build - so a FINELY
-# RESAMPLED arc puts several kinks inside one module span and the bound
-# UNDER-READS: R = 20 m at 0.05 m spacing bounds the deviation at 0.00142 m
-# and level 2 then finds 284 pieces planned against 143 built.  That is the
-# bound being wrong in the direction it is allowed to be wrong in, and
-# `guard_bend_bound` asserts the OUTPUT IS STILL IDENTICAL there, which is the
-# only property that actually matters.  A ladder without those rows would
-# assert that the bound is never wrong, which is false, instead of asserting
-# that being wrong is safe, which is the design.
+# ⚠️ D251 - THE TWO EXPECTATION COLUMNS ARE GONE, AND THAT IS A CORRECTION.
+# They used to declare a level-1 and a level-2 verdict per row, and the only
+# consumer - `guard_deform_ladder` - unpacked them as `_w1, _w2` and IGNORED
+# them, asserting instead that ALL SIX rows are admitted at BOTH levels.  So
+# four of the six rows said the opposite of what the run measures, and a
+# reader coming to this table to learn which shapes the guard refuses got the
+# answer backwards.  A declaration its own consumer contradicts is worse than
+# no declaration; the columns are deleted rather than corrected, because the
+# assertion is uniform and belongs in the check.
+#
+# `GUARD_BEND_FALLBACK_CEILING = 1.8` went with them: it was the cost of a
+# level-1-pass / level-2-refusal double cook, nothing on this ladder does that
+# any more, and `grep` found no reference to it anywhere in the tree.
+#
+# ⚠️ WHAT THE ROWS ARE FOR NOW.  `arc_R20_step0.05` and `arc_R50_step0.1` are
+# the two shapes that used to pass level 1 and be REFUSED by level 2 - a
+# finely resampled arc puts several kinks inside one module span, level 1's
+# one-kink bound under-read it, and 284 pieces were planned against 143 built.
+# They are native AT PARITY now, and `arc_R100_step2` and `arc_R20_step0.5` -
+# refused outright before - are too.  Keeping the rows is what makes that
+# turnover assertable instead of anecdotal.
 GUARD_BEND_LADDER = (
-    ("arc_R2000_step1",   2000.0, 1.0,  2000.0, True,  True),
-    ("arc_R200_step2",     200.0, 2.0,  2000.0, True,  True),
-    ("arc_R100_step2",     100.0, 2.0,  2000.0, False, None),
-    ("arc_R20_step0.05",    20.0, 0.05,  300.0, True,  False),
-    ("arc_R50_step0.1",     50.0, 0.1,   600.0, True,  False),
-    ("arc_R20_step0.5",     20.0, 0.5,   300.0, False, None),
+    ("arc_R2000_step1",   2000.0, 1.0,  2000.0),
+    ("arc_R200_step2",     200.0, 2.0,  2000.0),
+    ("arc_R100_step2",     100.0, 2.0,  2000.0),
+    ("arc_R20_step0.05",    20.0, 0.05,  300.0),
+    ("arc_R50_step0.1",     50.0, 0.1,   600.0),
+    ("arc_R20_step0.5",     20.0, 0.5,   300.0),
 )
-# What a level-1 pass / level-2 refusal is allowed to cost on that ladder.
-# Measured 1.21x and 1.27x on the two rows that reach it; the ceiling is
-# `bench_guard_fallback`'s, because it is the same double cook.
-GUARD_BEND_FALLBACK_CEILING = 1.8
 
 
 # PART B - the Gap values `guard_padding_parity` sweeps.  Negative is not
@@ -5325,6 +5767,163 @@ GUARD_BEND_FALLBACK_CEILING = 1.8
 # "padding that cancels the unit degrades") and the one most likely to
 # diverge.
 GUARD_PADDING_M = (0.05, 0.4, -0.05, -0.3)
+
+
+# D259 - THE TWO MAIN-PAGE PARMS NO COST FIXTURE IN THIS SUITE EVER SET.
+#
+# Every cost fixture in the file is built on the parameter page's DEFAULT
+# style: `output_guard_cost`'s seven shapes wire no style and set no slot
+# parm, `_wrangle_rig` wires only a spline and the starter kit, and
+# `bench_guard_fallback` uses the defaults too.  So no committed check could
+# reach an ANCHOR (an `evenly` or `marker` rule) or the `random` selector -
+# the only fixtures that set one are `stress_cases`' `evenly_*` rows, which
+# run on a 20 m span at 3.7 m spacing (about five anchors, where a term
+# quadratic in the anchor count is invisible) and which assert PARITY, not
+# cost.  `WRANGLE_GROWTH_CEILING = 1.6`, the mechanism its own comment says
+# "catches the quadratic regressions", had never been pointed at a build with
+# an anchor in it.
+#
+# What was hiding there, measured on the shipped asset at 2 km straight with
+# `Evenly Spaced Piece = post`, both MAIN-page parms, guard ADMITTING:
+#
+#     spacing   pieces   Stage=output   Stage=reference   ratio
+#      2.0 m     3 001      2.107 s         0.103 s       20.4x
+#      1.0 m     6 001      9.389 s         0.161 s       58.4x
+#      0.5 m    12 001     39.141 s         0.330 s      118.7x
+#
+# - i.e. doubling the anchors QUADRUPLED the node, because `pc_fill`'s twelve
+# plan arrays are `export` and VEX copied the whole growing plan in and out
+# once per gap (D243).  After the fix, same fixtures: 1.94x / 2.47x / 2.99x.
+#
+# ANCHOR_COST_CEILING is the per-anchor GROWTH between the two sizes, and it
+# is the assertion that carries this: a per-piece rate cannot express a cost
+# that is quadratic in a SECOND variable, so the ratio between two anchor
+# counts is what has to be bounded.  1.6x is `WRANGLE_GROWTH_CEILING`'s own
+# number; the fixed build reads 1.19-1.24x and the pre-fix build 2.0-2.4x.
+ANCHOR_COST_CEILING = 1.6
+ANCHOR_SMALL_SPACING = 2.0        # ~1 000 anchors on the 2 km straight
+ANCHOR_BIG_SPACING = 0.5          # ~4 000
+# the source mutation that proves the ceiling bites: the fill writing straight
+# into the accumulating plan again, which is the code that shipped.
+FILL_FRESH = """                      f_slot, f_index, f_module, f_variant, f_s0, f_s1, f_u,
+                      f_scale, f_slice, f_deform, f_zmode, f_warns);
+        append(o_slot, f_slot);       append(o_index, f_index);
+        append(o_module, f_module);   append(o_variant, f_variant);
+        append(o_s0, f_s0);           append(o_s1, f_s1);
+        append(o_u, f_u);             append(o_scale, f_scale);
+        append(o_slice, f_slice);     append(o_deform, f_deform);
+        append(o_zmode, f_zmode);     append(o_warns, f_warns);"""
+FILL_ACCUM = """                      o_slot, o_index, o_module, o_variant, o_s0, o_s1, o_u,
+                      o_scale, o_slice, o_deform, o_zmode, o_warns);"""
+
+
+def _anchor_solve_ms(root, tag, spacing, snippet=None, reps=3):
+    """`pc_plan_solve` Cook-ms and the anchor count, on the SHIPPED asset."""
+    geo = guard_polyline_geo([(1.0 * i, 0.0, 0.0) for i in range(2001)])
+    node = root.createNode("pf_polychain", "anch_" + tag)
+    node.setInput(0, native.feed(root, geo, "ANCH_" + tag))
+    node.allowEditingOfContents()
+    node.parm("slot_evenly").set("post")
+    node.parm("evenly_spacing").set(spacing)
+    node.parm("stage").set("output")
+    if snippet is not None:
+        node.node("pc_plan_solve").parm("snippet").set(snippet)
+    node.cook(force=True)
+    level1 = int(node.node("pc_envelope").geometry()
+                 .attribValue("_native_ok"))
+    npieces = len(node.node("pc_deform_gate").geometry().points())
+    best = None
+    csv = os.path.join(os.path.dirname(HDA_PATH), "_anchor_%s.csv" % tag)
+    for rep in range(reps):
+        node.parm("corner_angle_deg").set(30.0 + 0.01 * (rep + 1))
+        profile = hou.perfMon.startProfile("anchor")
+        try:
+            node.cook()
+        finally:
+            profile.stop()
+        profile.exportAsCSV(csv)
+        with io.open(csv, encoding="utf-8") as fh:
+            for line in fh:
+                f = [c.strip() for c in line.split(",")]
+                if len(f) < 9 or not f[0].endswith("/anch_%s/pc_plan_solve"
+                                                   % tag):
+                    continue
+                try:
+                    ms = float(f[7])
+                except ValueError:
+                    continue
+                if best is None or ms < best:
+                    best = ms
+        os.remove(csv)
+    node.destroy()
+    # anchors ~ run length / spacing; the count is derived from the fixture
+    # rather than counted, because what the ceiling is about is the RATIO.
+    return (best or 0.0), npieces, int(2000.0 / spacing), level1
+
+
+def guard_anchor_cost_is_linear(root):
+    """D259 - `pc_plan_solve` must be LINEAR in the anchor count.
+
+    See the block above for the 118x that lived here.  The row measures
+    `pc_plan_solve` alone on the shipped asset at two anchor counts four times
+    apart, and asserts the PER-ANCHOR cost does not grow more than
+    ANCHOR_COST_CEILING between them - which is the only shape of assertion
+    that can see a term quadratic in a variable the per-piece ceilings do not
+    have.
+    """
+    small = _anchor_solve_ms(root, "small", ANCHOR_SMALL_SPACING)
+    big = _anchor_solve_ms(root, "big", ANCHOR_BIG_SPACING)
+    rate_s = small[0] * 1e3 / max(small[2], 1)
+    rate_b = big[0] * 1e3 / max(big[2], 1)
+    growth = rate_b / max(rate_s, 1e-9)
+    ok = (small[3] and big[3] and small[0] > 0.0 and big[0] > 0.0
+          and growth <= ANCHOR_COST_CEILING)
+    check("guard_anchor_cost_is_linear", ok,
+          "%.2fx (%.1f -> %.1f us/anchor)" % (growth, rate_s, rate_b),
+          "`pc_plan_solve` on the SHIPPED asset with `Evenly Spaced Piece` "
+          "set - a MAIN-page parm no cost fixture in this suite reached - at "
+          "%d and %d anchors: %.1f ms and %.1f ms, so %.1f and %.1f "
+          "us/anchor, growth %.2fx against a %.1fx ceiling. The guard admits "
+          "this build (level 1 %s / %s), which is what makes it an artist's "
+          "cook and not a stress toy"
+          % (small[2], big[2], small[0], big[0], rate_s, rate_b, growth,
+             ANCHOR_COST_CEILING, small[3], big[3]))
+
+
+def mutation_anchor_fill_copies_the_plan(root):
+    """D259/D243 - restore the accumulating `pc_fill` call and watch it blow.
+
+    The mutation is the code that SHIPPED: the twelve plan arrays handed to
+    `pc_fill` as the accumulating output rather than as fresh locals, so VEX
+    copies the whole plan built so far in and out once per gap.  It plans the
+    IDENTICAL fence - `pc_fill` reads its incoming arrays only as
+    `int entry = len(o_slot)` - which is exactly why 130 [PASS] / 0 sat on top
+    of a 118x regression on a default-adjacent parm.
+    """
+    from polyfactory.polychain import vexsrc
+    body = vexsrc.source("pc_plan_solve")
+    found = body.count(FILL_FRESH) == 1
+    if not found:
+        check("mutation_anchor_fill_copies_the_plan", False, "TARGET GONE",
+              "the fresh-array `pc_fill` call D243 landed is not in "
+              "`pc_plan_solve` any more, so this mutation asserts nothing")
+        return
+    mutant = body.replace(FILL_FRESH, FILL_ACCUM)
+    small = _anchor_solve_ms(root, "msmall", ANCHOR_SMALL_SPACING,
+                             snippet=mutant, reps=2)
+    big = _anchor_solve_ms(root, "mbig", ANCHOR_BIG_SPACING,
+                           snippet=mutant, reps=2)
+    rate_s = small[0] * 1e3 / max(small[2], 1)
+    rate_b = big[0] * 1e3 / max(big[2], 1)
+    growth = rate_b / max(rate_s, 1e-9)
+    check("mutation_anchor_fill_copies_the_plan",
+          growth > ANCHOR_COST_CEILING,
+          "%.2fx (%.1f -> %.1f us/anchor)" % (growth, rate_s, rate_b),
+          "handing `pc_fill` the ACCUMULATING plan arrays again - the code "
+          "that shipped, which plans a bit-identical fence - has to blow the "
+          "%.1fx growth ceiling: measured %.1f ms at %d anchors and %.1f ms "
+          "at %d, growth %.2fx"
+          % (ANCHOR_COST_CEILING, small[0], small[2], big[0], big[2], growth))
 
 
 def kit_starter_cooks_once(root):
@@ -5491,7 +6090,7 @@ def guard_deform_ladder(root):
     leave it at 0 with `_native_ok2` still reading 1.
     """
     rows, bad = [], []
-    for label, radius, step, length, _w1, _w2 in GUARD_BEND_LADDER:
+    for label, radius, step, length in GUARD_BEND_LADDER:
         geo = guard_polyline_geo(guard_arc_pts(radius, step, length))
         node = root.createNode("pf_polychain", "bend_" + label)
         node.setInput(0, native.feed(root, geo, "BB_" + label))
@@ -5632,10 +6231,18 @@ def guard_deform_refusals(root):
           "a piece whose span D31's frame TRANSPORT could flip on is declared "
           "unanswerable, level 2 refuses the whole build on it, and the "
           "output is the reference's own - `pc_frames_transportable` is the "
-          "test and this is the fail-safe. Rows "
+          "test and this is the fail-safe. ⚠️ D255 - THE PARITY HALF OF THIS "
+          "ROW IS TRIVIALLY SATISFIED AND IS REPORTED AS SUCH: level 2 "
+          "refuses both shapes, so `Stage = output` selects `OUT_reference` "
+          "and the two snapshots are two cooks of the SAME node. It says the "
+          "switch really did select the reference and nothing more; parity on "
+          "a build the guard ADMITS is `output_guard_parity`'s job. What this "
+          "row actually asserts is the triple level-1-admits / "
+          "level-2-refuses / at-least-one-piece-refused. Rows "
           "(refused/planned/built): %s. %s"
           % ("; ".join("%s %d/%d/%d" % r for r in rows),
-             "; ".join(bad[:3]) or "all refused, all identical"))
+             "; ".join(bad[:3]) or "all refused, and the output is the "
+             "reference's own node"))
 
 
 def piece_order_key_is_total(root):
@@ -5694,18 +6301,40 @@ def piece_order_key_is_total(root):
 
 
 def mutation_deform_refusals(root):
-    """13.9 N5 - each of the gate's three deform refusals, removed in turn.
+    """13.9 N5 - each of the gate's four deform refusals, PROVED SEPARATELY.
 
-    ⚠️ A REFUSAL NOTHING CAN REMOVE IS A REFUSAL NOTHING PROVES.
-    `guard_deform_refusals` above exercises the transport one through real
-    geometry; the other two cannot be reached that way, so they are proved
-    the way this project proves everything it cannot build a fixture for -
-    edit the source, and demand that the build stops being refused.
+    ⚠️ D256 - THREE OF THE FOUR ROWS USED TO PROVE ONLY THAT A LINE OF
+    TEXT WAS PRESENT, and printed "still refused" as if that were evidence.
+    Every row deleted its line on the HAIRPIN, where the TRANSPORT refusal
+    already refuses the build - so deleting `if (i@pc_sliced) deform_ok = 0;`
+    changed nothing, the row printed "still refused", and the check passed.
+    If `pc_sliced` were renamed upstream so `i@pc_sliced` always read 0, that
+    row would have printed exactly the same words while the refusal had
+    silently stopped biting.  A refusal nothing can flip is a refusal nothing
+    proves.
 
-    Each row deletes ONE line of `pc_deform_gate.vfl` on the shipped node and
-    asks whether level 2 still refuses the hairpin.  A line whose removal
-    changes nothing was never the thing refusing it.
+    So each refusal now gets its own two-sided proof, at the gate's own
+    output rather than through level 2:
+
+      1. FORCE the refusal's INPUT on one deformed piece of a build the guard
+         admits, and demand `_gate_deform_ok` goes to 0 for that piece;
+      2. force it AND delete the refusal line, and demand it comes back to 1.
+
+    Step 2 is what separates "this line refuses" from "something else refuses".
+    The TRANSPORT row keeps the delete-only shape because its input is a
+    property of the GEOMETRY and cannot be forced with an assignment - it is
+    the one refusal a real fixture reaches, and `guard_deform_refusals` is
+    that fixture.
+
+    ⚠️ AND THE ATTRIBUTES THE REFUSALS READ HAVE TO EXIST ON THE GATE'S
+    OWN INPUTS.  Forcing `i@pc_sliced = 1` proves the line fires; it cannot
+    prove the name is still the one the plan writes, because the forcing
+    writes the attribute itself.  The rename hole is closed by naming the
+    inputs.
     """
+    rows, bad = [], []
+
+    # --- the reachable one, on the hairpin: delete it and the build admits --
     geo = guard_polyline_geo(guard_hairpin_pts())
     node = root.createNode("pf_polychain", "dmut")
     node.setInput(0, native.feed(root, geo, "DMUT_IN"))
@@ -5716,48 +6345,113 @@ def mutation_deform_refusals(root):
     node.cook(force=True)
     gate = node.node("pc_deform_gate")
     sound = gate.parm("snippet").eval()
-
-    def admits(without):
-        if without not in sound:
-            return None
-        gate.parm("snippet").set(sound.replace(without, ""))
+    TRANSPORT = "if (!pc_frames_transportable(2, pr, sa, shi)) deform_ok = 0;"
+    if TRANSPORT not in sound:
+        bad.append("transport: the line is not in the shipped node")
+        rows.append(("transport", "MISSING"))
+    else:
+        gate.parm("snippet").set(sound.replace(TRANSPORT, ""))
         node.cook(force=True)
-        env2 = node.node("pc_envelope2").geometry()
-        out = int(env2.attribValue("_native_ok2"))
+        admits = int(node.node("pc_envelope2").geometry()
+                     .attribValue("_native_ok2"))
         gate.parm("snippet").set(sound)
         node.cook(force=True)
-        return out
-
-    targets = (
-        ("transport",
-         "if (!pc_frames_transportable(2, pr, sa, shi)) deform_ok = 0;"),
-        ("rank bound", "if (rank_max >= rank_span) deform_ok = 0;"),
-        ("sliced", "if (i@pc_sliced) deform_ok = 0;"),
-        ("no module", "if (kprim < 0) deform_ok = 0;"),
-    )
-    rows, bad = [], []
-    for label, line in targets:
-        got = admits(line)
-        if got is None:
-            bad.append("%s: the line is not in the shipped node" % label)
-            rows.append((label, "MISSING"))
-            continue
-        rows.append((label, "admits" if got else "still refused"))
-    # Only the transport row can flip this fixture - the other three are
-    # STRUCTURAL (their line has to exist and be the shipped text), which the
-    # `MISSING` complaint above is what asserts. A row that flips is stronger
-    # and is reported as such.
-    if not any(r[1] == "admits" for r in rows):
-        bad.append("removing none of the four refusals changed the verdict, "
-                   "so none of them is what refuses this build")
+        rows.append(("transport", "flips level 2" if admits
+                     else "DELETING IT CHANGED NOTHING"))
+        if not admits:
+            bad.append("transport: deleting it left the build refused")
     node.destroy()
+
+    # --- the other three, forced on a build the guard ADMITS ----------------
+    geo = guard_polyline_geo(N5_RIPPLE)
+    node = root.createNode("pf_polychain", "dmut2")
+    node.setInput(0, native.feed(root, geo, "DMUT2_IN"))
+    node.allowEditingOfContents()
+    node.parm("stage").set("output")
+    node.cook(force=True)
+    gate = node.node("pc_deform_gate")
+    sound = gate.parm("snippet").eval()
+    gg = gate.geometry()
+    victim = -1
+    for pt in gg.points():
+        if int(pt.attribValue("pc_deformed")) \
+                and int(pt.attribValue("_gate_deform_ok")):
+            victim = pt.number()
+            break
+    if victim < 0:
+        bad.append("no piece of the ripple both deforms and passes the gate, "
+                   "so nothing here can be forced")
+
+    # the attribute each refusal READS, on the gate's own input - the half a
+    # forced assignment cannot prove.
+    ins = gate.inputs()
+    plan_in = ins[0].geometry() if ins and ins[0] is not None else None
+    meta_in = ins[3].geometry() if len(ins) > 3 and ins[3] is not None \
+        else None
+    for name, geo_, kind in (("pc_sliced", plan_in, "point"),
+                             ("_proto_kitprim", plan_in, "point"),
+                             ("_kit_rank_max", meta_in, "detail"),
+                             ("_kit_span", meta_in, "detail")):
+        found = geo_ is not None and (
+            geo_.findPointAttrib(name) is not None if kind == "point"
+            else geo_.findGlobalAttrib(name) is not None)
+        if not found:
+            bad.append("`%s` is not on the gate's input any more - the "
+                       "refusal that reads it can never fire" % name)
+
+    ANCHOR = "int    pr    = i@pc_curveprim;"
+    RANK_READ = 'int rank_max = detail(3, "_kit_rank_max");'
+    TARGETS = (
+        ("sliced", "if (i@pc_sliced) deform_ok = 0;", ANCHOR,
+         "if (@ptnum == %d) i@pc_sliced = 1;\n" % victim + ANCHOR),
+        ("no module", "if (kprim < 0) deform_ok = 0;", ANCHOR,
+         "if (@ptnum == %d) i@_proto_kitprim = -1;\n" % victim + ANCHOR),
+        ("rank bound", "if (rank_max >= rank_span) deform_ok = 0;", RANK_READ,
+         RANK_READ + "\n    if (@ptnum == %d) rank_max = 1000000;" % victim),
+    )
+
+    def gate_ok(snippet):
+        gate.parm("snippet").set(snippet)
+        node.cook(force=True)
+        g = gate.geometry()
+        if gate.errors() or g is None or victim >= len(g.points()):
+            return None
+        return int(g.points()[victim].attribValue("_gate_deform_ok"))
+
+    if victim >= 0:
+        for label, line, anchor, forced in TARGETS:
+            if line not in sound or anchor not in sound:
+                bad.append("%s: the line is not in the shipped node" % label)
+                rows.append((label, "MISSING"))
+                continue
+            with_line = gate_ok(sound.replace(anchor, forced))
+            without = gate_ok(sound.replace(anchor, forced).replace(line, ""))
+            rows.append((label, "%s / %s"
+                         % ("refuses" if with_line == 0
+                            else "ADMITS(%r)" % with_line,
+                            "admits" if without == 1
+                            else "STILL REFUSES(%r)" % without)))
+            if with_line != 0:
+                bad.append("%s: forcing its input did NOT refuse the piece"
+                           % label)
+            if without != 1:
+                bad.append("%s: deleting the line left the piece refused, so "
+                           "something else is doing the refusing" % label)
+        gate.parm("snippet").set(sound)
+        node.cook(force=True)
+    node.destroy()
+
     check("mutation_deform_refusals", not bad,
           "%d refusals" % len(rows),
-          "each of `pc_deform_gate`'s deform refusals deleted in turn on the "
-          "SHIPPED node: %s. %s"
-          % ("; ".join("%s -> %s" % r for r in rows),
-             "; ".join(bad[:3]) or "the transport refusal is load-bearing "
-             "and all four lines are the shipped text"))
+          "D256 - each of `pc_deform_gate`'s four deform refusals proved on "
+          "its own: the transport one by deleting it on the hairpin it "
+          "actually refuses, the other three by FORCING their input on one "
+          "deformed piece of an admitted build and then deleting the line "
+          "again, so a line that has stopped biting cannot print 'still "
+          "refused'. Rows (forced / forced-and-deleted): %s. %s"
+          % ("; ".join("%s: %s" % r for r in rows),
+             "; ".join(bad[:3]) or "all four are load-bearing, and the four "
+             "attributes they read are still on the gate's inputs"))
 
 
 # --- PART A2: the artist's own attribute TYPES, and the kit-name mismatch ---
@@ -6018,6 +6712,101 @@ def _named_kit(names):
     K.write_manifest(geo, "pf_mismatch", 1, sources=("run_native_checks",),
                      human_scale_reference=1.8)
     return geo
+
+
+def guard_row_warns_wrong_storage(root):
+    """D258 - warn-never-block, on an input that used to BLOCK the reference.
+
+    ⚠️ THIS IS A PARITY QUESTION EVEN THOUGH NO STYLE CONDITION IS
+    INVOLVED.  `pc_row_warns` is D139's channel: a warning the Y solve raised
+    rides on the ROW CURVE and reaches every element the row produced.  It is
+    documented as a space-separated STRING (`array2d.py` writes
+    `" ".join(self.warns)`), and `place.build` turned it into prim ATTRIBUTE
+    NAMES with a bare `str(...).split()`.
+
+    Author it at a STRING ARRAY storage instead - a wrong-storage input, which
+    is exactly what `guard_spline_attr_types` exists for on the other five
+    attributes - and `str(("w1",)).split()` gives `["("w1",)"]`, which `hou`
+    refuses as an attribute name.  Measured on the shipped .hda: the NATIVE
+    chain cooked 12 prims with level 1 and level 2 both admitting, and
+    `Stage = reference` reported `Invalid source .../kernel` with a Python
+    traceback.  So parity on that input was not different, it was UNDEFINED -
+    and the house rule is warn-never-block, which it broke on the Python side.
+
+    Both stages must now cook, and they must agree.
+    """
+    rows, bad = [], []
+    for label, nonempty, make in (
+            ("string array", True, lambda g: (
+                g.addArrayAttrib(hou.attribType.Prim, "pc_row_warns",
+                                 hou.attribData.String),
+                g.prims()[0].setAttribValue("pc_row_warns", ("w1",)))),
+            ("space-separated string (the documented one)", True, lambda g: (
+                g.addAttrib(hou.attribType.Prim, "pc_row_warns", ""),
+                g.prims()[0].setAttribValue("pc_row_warns", "w1 w2"))),
+            ("a token that is not an identifier", True, lambda g: (
+                g.addAttrib(hou.attribType.Prim, "pc_row_warns", ""),
+                g.prims()[0].setAttribValue("pc_row_warns", "w1 (bad) 9nope"))
+             ),
+            # the CONTROL: present but EMPTY, which is what a 1D row curve
+            # carries, and which the reference fans nothing out from - so the
+            # refusal above must not be a blanket one.
+            ("present but empty", False, lambda g: (
+                g.addAttrib(hou.attribType.Prim, "pc_row_warns", ""),))):
+        geo = guard_polyline_geo([(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)])
+        make(geo)
+        node = root.createNode("pf_polychain", "rowwarn_%d" % len(rows))
+        node.setInput(0, native.feed(root, geo, "RW_%d" % len(rows)))
+        node.allowEditingOfContents()
+        snaps = {}
+        for stage in ("output", "reference"):
+            node.parm("stage").set(stage)
+            try:
+                node.cook(force=True)
+                if node.errors():
+                    raise hou.OperationFailed(node.errors()[0])
+                snaps[stage] = _snapshot(node.geometry())
+            except Exception as exc:
+                bad.append("%s: `Stage = %s` FAILED - %s"
+                           % (label, stage, str(exc)[:70]))
+        diff = ""
+        if len(snaps) == 2:
+            diff = _first_difference(snaps["reference"], snaps["output"])
+            if diff:
+                bad.append("%s: %s" % (label, diff))
+        nprim = len(snaps["output"]["prims"]) if "output" in snaps else 0
+        rows.append((label, nprim))
+        # ⚠️ D263 - AND THE GUARD HAS TO REFUSE THE ONES IT CANNOT
+        # ANSWER.  `pc_row_warns` is D139's ROW channel: `place.build` fans
+        # every token out as a prim ATTRIBUTE on every element the row
+        # produced, and the native chain does not read the attribute at all.
+        # Both stages cook now, and the reference's fence carries `w1`/`w2`
+        # where the native one carries nothing - so the only correct verdict
+        # is the reference, and level 1 says so.
+        lvl1 = int(node.node("pc_envelope").geometry()
+                   .attribValue("_native_ok"))
+        if not nonempty and not lvl1:
+            bad.append("%s: level 1 refused a build whose `pc_row_warns` is "
+                       "EMPTY - the refusal is a blanket one" % label)
+        if nonempty:
+            if lvl1:
+                bad.append("%s: level 1 ADMITTED a build carrying "
+                           "`pc_row_warns` - the native chain does not "
+                           "publish the row's warning attributes at all"
+                           % label)
+        if "output" in snaps and nprim < 5:
+            bad.append("%s: only %d prims - the fixture built nothing"
+                       % (label, nprim))
+        node.destroy()
+    check("guard_row_warns_wrong_storage", not bad,
+          "%d storages" % len(rows),
+          "`pc_row_warns` authored at a storage the documented reader does "
+          "not expect must WARN, never block: both stages cook and agree. "
+          "Before D258 the string-array row made `place.build` raise "
+          "`Could not add attribute` while the native chain shipped a fence, "
+          "so the two sides were not comparable at all. Rows: %s. %s"
+          % ("; ".join("%s %d prims" % r for r in rows),
+             "; ".join(bad[:3]) or "both stages cook, identical"))
 
 
 def guard_kit_mismatch(root):
@@ -6661,11 +7450,14 @@ WRANGLE_BIG_PTS = 9436
 #   pc_piece_key         0.2171 - 0.2325     0.87 - 0.96     3.9
 #
 # ⚠️ AND THE TWO MOST EXPENSIVE NODES ON THIS SHAPE ARE NOT WRANGLES, so no
-# row here guards them: `pc_order` (the sort) reads 125-131 ms and `pc_pieces`
-# (the merge) 24-28 ms at 17 852 pieces / ~304 000 prims.  That is the price
-# of putting `place.build`'s job order back together, it is recorded here so
-# nobody rediscovers it as a surprise, and `bench_deform_20km` is where it is
-# measured end to end.
+# row in THIS table guards them: `pc_order` (the sort) reads 125-131 ms and
+# `pc_pieces` (the merge) 24-28 ms at 17 852 pieces / ~304 000 prims.  That is
+# the price of putting `place.build`'s job order back together, and `pc_order`
+# is 34-37 % of a 300-street citygen cook where `pc_plan_solve` is 4 %.
+# `bench_deform_20km` is the row that guards them - and until this cycle that
+# sentence named a check that DID NOT EXIST anywhere in the tree, which is the
+# third time this project has shipped a citation of an unwritten oracle
+# (`bench_guard_fallback`, `guard_fallback_classes`).
 #   pc_deform            0.5755 - 0.5890     0.92 - 0.94    10.3
 #
 # ...and FOUR ROWS THAT ARE IN THE STRAIGHT TABLE TOO, deliberately.  Their
@@ -6905,6 +7697,93 @@ def config_cost_per_module(root):
              slope, CONFIG_MODULE_CEILING_MS, hi,
              best[hi] if have else -1.0,
              CONFIG_FIXED_MS + CONFIG_MODULE_CEILING_MS * hi, native_ok))
+
+
+# D252 - `pc_order` AND `pc_pieces` ARE THE TWO NODES 13.9 N5 ADDED THAT NO
+# CEILING OF ANY KIND WATCHES.  `every_wrangle_has_a_cost_ceiling` covers
+# `attribwrangle` nodes only; `pc_order` is a `sort` and `pc_pieces` a `merge`,
+# and between them they are the largest single cost the deformed branch
+# introduced - `pc_order` alone is 12x `pc_deform`'s own VEX at 17 852 pieces
+# and 34-37 % of a 300-street citygen cook.
+#
+# Per PIECE, at 18 866 pieces on a 20 km ripple (`hou.perfMon` `Cook - ms`,
+# min over 3 dirtied cooks on this build) - the ceilings are ~1.6x measured,
+# the same slack `WRANGLE_DEFORM_CEILING_US` uses:
+BENCH_DEFORM_CEILING_US = {
+    "pc_order":   12.0,
+    "pc_pieces":   3.0,
+    "pc_built":    1.2,
+}
+# 20 km at 2 m spacing, rippled hard enough that every piece unpacks - the
+# same amplitude `WRANGLE_DEFORM_CEILING_US` is recorded over.
+BENCH_DEFORM_PTS = 10001
+
+
+def bench_deform_20km(root):
+    """13.9 N5's branch at 20 km, and the two nodes nothing was watching.
+
+    ⚠️ THIS CHECK IS WRITTEN BECAUSE A SOURCE COMMENT CITED IT AND IT DID NOT
+    EXIST.  `grep -rn bench_deform_20km` over the whole tree returned exactly
+    one hit - the comment claiming the deformed branch's two most expensive
+    nodes were "measured end to end" here.  That is the identical signature
+    this project has now burned on three times, and the fix is to write the
+    oracle, not to soften the claim.
+
+    What it measures, on the SHIPPED asset at `Stage = output`:
+      * every piece unpacks (asserted - a rig that quietly stopped unpacking
+        would make every number below a measurement of nodes that never ran);
+      * `pc_order`, `pc_pieces` and `pc_built` under a per-PIECE ceiling, the
+        way `WRANGLE_DEFORM_CEILING_US` guards the wrangles beside them;
+      * the whole native cook, printed, so the shape's total is on the record.
+
+    It does NOT compare against `Stage = reference` at this size and that is
+    deliberate: `place.build` unpacking 18 866 pieces is D69's 21.9 s, which
+    would be a minute of suite time for a ratio `output_guard_cost` already
+    measures on the same shape at 2 km.
+    """
+    node, spline, kit, npieces = _wrangle_rig(root, "bench20", 
+                                              BENCH_DEFORM_PTS,
+                                              ripple=WRANGLE_RIPPLE_M)
+    gate = node.node("pc_deform_gate").geometry()
+    ndef = sum(gate.pointIntAttribValues("pc_deformed"))
+    best = {}
+    total = 0.0
+    for rep in range(3):
+        rows = _wrangle_cook(node, spline, 40 + rep, "output")
+        total = sum(rows.values()) if not total else min(total,
+                                                         sum(rows.values()))
+        for name, ms in rows.items():
+            if name not in best or ms < best[name]:
+                best[name] = ms
+    deformed = node.node("copy_deformed").cookCount() > 0
+    bad = []
+    measured = []
+    for name in sorted(BENCH_DEFORM_CEILING_US):
+        ms = best.get(name)
+        if ms is None:
+            bad.append("%s never cooked" % name)
+            continue
+        rate = ms * 1e3 / max(npieces, 1)
+        measured.append((name, ms, rate))
+        if rate > BENCH_DEFORM_CEILING_US[name]:
+            bad.append("%s %.2f us/piece over %.2f"
+                       % (name, rate, BENCH_DEFORM_CEILING_US[name]))
+    if not deformed:
+        bad.append("`copy_deformed` never cooked")
+    if ndef < npieces // 4:
+        bad.append("only %d of %d pieces unpack - the fixture stopped being "
+                   "a deformed one" % (ndef, npieces))
+    node.destroy()
+    spline.destroy()
+    kit.destroy()
+    check("bench_deform_20km", not bad,
+          "%d pieces, %d deformed, %.0f ms" % (npieces, ndef, total),
+          "D252 - the deformed branch at 20 km on the SHIPPED asset, and a "
+          "per-piece ceiling for the two nodes it added that are NOT "
+          "wrangles and that `every_wrangle_has_a_cost_ceiling` therefore "
+          "cannot reach. Rows: %s. %s"
+          % ("; ".join("%s %.1f ms = %.2f us/piece" % m for m in measured),
+             "; ".join(bad[:3]) or "both under their ceilings"))
 
 
 def _wrangle_rig(root, tag, npts, ripple=0.0):
@@ -7426,10 +8305,27 @@ v@_hitP = best;
 i@_hit  = hit;
 '''
 
-# what survives float32 `P` storage.  Not a tolerance: both sides round the
-# same real number into the same 24 bits, so anything above this is a
-# DIFFERENT number and not a rounding of one.
+# what survives float32 `P` storage.  Both sides round into the same 24 bits,
+# so anything above this is a DIFFERENT number in the storage the output ships.
 CONFORM_DROP_CEILING_M = 1e-12
+# ⚠️ D247 - AND THE RAW DOUBLE DIFFERENCE, WHICH THE f32 ROW WAS HIDING.
+# `f32()` was applied to BOTH sides before the subtraction, so the advertised
+# 1e-12 m ceiling was really a half-float32-ULP tolerance - about 0.98 mm at
+# 20 km - and the row that decides N6 printed `ramp_20km 0.000e+00` while the
+# two implementations disagreed by 9.375e-04 m, 96 % of the way to the next
+# float32 bucket.  Re-measured raw, before `f32()`: flat 3.815e-07 m,
+# irrational 4.578e-07 m, ramp_20km 9.375e-04 m.
+#
+# That divergence is NOT noise and it is not a bug either: Houdini's
+# `intersect()` is a float32 ray test, so the raw agreement is bounded by the
+# float32 RELATIVE precision of the query magnitude, not by float64's.  The
+# measured worst is 4.93e-08 relative (9.375e-04 / 19 012), which is 0.83 of
+# one float32 ULP.  So the raw row is asserted RELATIVE - two float32 ULP -
+# and the f32 row keeps its exact ceiling as the "survives storage" statement.
+# A degradation that lands in the next float32 bucket would move the f32 row
+# from 0.000e+00 to 1e-3 with no intermediate warning; this one grows
+# smoothly and says so first.
+CONFORM_DROP_REL_CEILING = 1.192e-7      # 2 x 2^-24
 
 
 def _conform_sheet(y, x0, x1, z0, z1, n=8, slope=0.0, reverse=False):
@@ -7503,6 +8399,8 @@ def conform_drop_is_portable_to_vex(root):
         w.setInput(1, native.feed(root, surf, "CDS_" + label))
         got = w.geometry()
         worst = 0.0
+        worst_raw = 0.0
+        worst_rel = 0.0
         misses = 0
         for i, pt in enumerate(got.points()):
             gp = pt.attribValue("_hitP")
@@ -7511,23 +8409,44 @@ def conform_drop_is_portable_to_vex(root):
                 continue
             worst = max(worst, max(abs(f32(gp[k]) - f32(want[i][0][k]))
                                    for k in range(3)))
+            # D247 - the RAW double difference, and its size RELATIVE to the
+            # coordinate it is a difference of.
+            raw = max(abs(float(gp[k]) - float(want[i][0][k]))
+                      for k in range(3))
+            scale = max(abs(float(c)) for c in qs[i]) or 1.0
+            worst_raw = max(worst_raw, raw)
+            worst_rel = max(worst_rel, raw / scale)
         nq += len(qs)
-        rows.append((label, worst, misses))
+        rows.append((label, worst, misses, worst_raw, worst_rel))
         if misses:
             bad.append("%s: %d hit-flag mismatches" % (label, misses))
         if worst > CONFORM_DROP_CEILING_M:
             bad.append("%s: %.3e m > %.3e m in float32 storage"
                        % (label, worst, CONFORM_DROP_CEILING_M))
+        if worst_rel > CONFORM_DROP_REL_CEILING:
+            bad.append("%s: raw %.3e m is %.3e RELATIVE, over the %.3e "
+                       "float32-ULP ceiling - the two implementations "
+                       "genuinely disagree, and the f32 row cannot see it "
+                       "until it crosses a storage bucket"
+                       % (label, worst_raw, worst_rel,
+                          CONFORM_DROP_REL_CEILING))
         w.destroy()
     check("conform_drop_is_portable_to_vex", not bad,
-          "%d queries, worst %.3e m" % (nq, max(r[1] for r in rows)),
+          "%d queries, f32 %.3e m / raw %.3e rel"
+          % (nq, max(r[1] for r in rows), max(r[4] for r in rows)),
           "13.9 N6's deciding experiment: VEX `intersect()` against "
           "`conform.Surface.drop`, read off the AXIS COMPONENT and rebuilt "
-          "from the query (D111's reconstruction), compared in the float32 "
-          "`P` storage the output is compared in. Ceiling %.0e m. Rows: %s. "
-          "%s" % (CONFORM_DROP_CEILING_M,
-                  "; ".join("%s %.3e m" % (r[0], r[1]) for r in rows),
-                  "; ".join(bad[:3]) or "the drape is a PORT, not a rewrite"))
+          "from the query (D111's reconstruction). TWO ceilings (D247): in "
+          "float32 `P` storage %.0e m, and RAW as a fraction of the query "
+          "magnitude %.3e (two float32 ULP - `intersect()` is a float32 ray "
+          "test, so the raw agreement cannot be better than that and the f32 "
+          "row was hiding a 9.4e-4 m disagreement at 20 km). Rows "
+          "(f32 / raw m / raw rel): %s. %s"
+          % (CONFORM_DROP_CEILING_M, CONFORM_DROP_REL_CEILING,
+             "; ".join("%s %.3e / %.3e / %.3e" % (r[0], r[1], r[3], r[4])
+                       for r in rows),
+             "; ".join(bad[:3]) or "the drape is a PORT, not a rewrite - and "
+             "the raw number is now on the record"))
 
 
 def union_parity(root):
@@ -7878,11 +8797,14 @@ def main():
 
     print("\n=== 7. 13.9 N10 - the guard switch on `Stage = output` ===")
     output_guard_parity(root, built)
+    output_snapshot_sees_the_deformed_branch(root)
     payload_cond_parity(root)
     output_guard_mutation(root, built)
     output_guard_cost(root)
     kit_starter_cooks_once(root)
     guard_padding_parity(root)
+    guard_anchor_cost_is_linear(root)
+    mutation_anchor_fill_copies_the_plan(root)
     guard_deform_ladder(root)
     guard_deform_refusals(root)
     piece_order_key_is_total(root)
@@ -7890,12 +8812,14 @@ def main():
     guard_spline_attr_types(root)
     mutation_spline_attr_types(root)
     guard_kit_mismatch(root)
+    guard_row_warns_wrong_storage(root)
     guard_refusal_list_is_true(node)
     bench_guard_fallback(root)
 
     print("\n=== 6. cook count and the two benches ===")
     benches(root, node)
     plan_benches(root, built)
+    bench_deform_20km(root)
 
     native.cleanup()
     failed = [r for r in RESULTS if not r[1]]

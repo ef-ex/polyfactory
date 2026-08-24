@@ -99,6 +99,7 @@ DECISIONS TAKEN HERE (recorded in polychain.md 10):
 
 import bisect
 import math
+import re
 
 import hou
 
@@ -1616,11 +1617,34 @@ ELEM_2D_ATTRS = (("pc_cell", ""), ("pc_yclass", ""), ("pc_array", ""),
                  ("pc_row", -1), ("pc_clipped", 0))
 
 
+# D258 - a warning NAME becomes a prim ATTRIBUTE name, and `hou` refuses an
+# attribute name that is not an identifier.  `pc_row_warns` is artist-authored
+# geometry (D139's channel), so its tokens are input, not code: a row curve
+# carrying it at a STRING ARRAY storage instead of the documented
+# space-separated string gave `str(("w1",)).split()` -> `["("w1",)"]`, which
+# `_declare` handed to `addAttrib` and which raised
+# `hou.OperationFailed: Could not add attribute`.  The native chain built that
+# input happily (12 prims, level 1 and level 2 both admitting) while
+# `Stage = reference` errored out with a traceback - so parity on it was not
+# merely different, it was UNDEFINED, and the house rule is warn-never-block.
+WARN_NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z_0-9]*$")
+
+
+def warn_tokens(raw):
+    """The `pc_row_warns` string as warning names - the valid ones only."""
+    return [t for t in str(raw or "").split() if WARN_NAME_RE.match(t)]
+
+
 def _declare(geo, warn_names, cells=False):
     for name, default in ELEM_PRIM_ATTRS + (ELEM_2D_ATTRS if cells else ()):
         if geo.findPrimAttrib(name) is None:
             geo.addAttrib(hou.attribType.Prim, name, default)
     for name in warn_names:
+        # D258 - and the same guard here, because `warn_names` is the union of
+        # every job's warnings and a future channel could reach it too.  A
+        # name that cannot be an attribute is DROPPED, never raised on.
+        if not WARN_NAME_RE.match(str(name)):
+            continue
         if geo.findPrimAttrib(name) is None:
             geo.addAttrib(hou.attribType.Prim, name, 0)
 
@@ -1909,7 +1933,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             if "pc_row_y1" in curve.attrs else 0.0
         row_scale = float(curve.attrs.get("pc_row_scale", 1.0) or 1.0)
         _plan.classify(placements, kit, yclass,
-                       str(curve.attrs.get("pc_row_warns", "") or "").split(),
+                       warn_tokens(curve.attrs.get("pc_row_warns")),
                        int(curve.attrs.get("pc_clipped", 0) or 0))
         bevels.extend(curve_bevels)
         all_sections.extend(sections)

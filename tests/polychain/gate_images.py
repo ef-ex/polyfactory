@@ -450,8 +450,24 @@ def main():
     noded = gd.createNode("pf_polychain", "chain_deformed")
     noded.setInput(0, spline_node(gd, "n5_ripple", ripple))
     noded.allowEditingOfContents()
+    # ⚠️ D254 - PER TAG, AND POSITIONS RATHER THAN COUNTS.  Both of the rows
+    # below used to be written under this block's own opening line - "PRIM
+    # COUNTS DO NOT PROVE GEOMETRY" - and then assert prim counts:
+    #   * `n5_polys` was a single variable assigned inside the loop, so it
+    #     held the LAST iteration's value - the REFERENCE crop - and the
+    #     "the image contains geometry" row said nothing at all about
+    #     `N5_ripple_native_side.png`, which is the image this pair exists
+    #     for and the one the cycle report says it looked at;
+    #   * the match row compared (whole prim count, crop prim count) tuples,
+    #     which two completely different sets of vertex positions satisfy
+    #     just as well - and if `Stage = output` had silently taken the
+    #     reference, `deformed_seen` would hold ONE key and `len(set(...))
+    #     == 1` would be trivially true.
+    # The geometry is already in hand, so the honest comparison is the crop's
+    # rounded POINT POSITIONS.
     deformed_seen = {}
-    n5_polys = 0
+    n5_polys = {}
+    n5_points = {}
     for stage in ("output", "reference"):
         noded.parm("stage").set(stage)
         noded.cook(force=True)
@@ -459,7 +475,10 @@ def main():
         tag = "native" if (stage == "output" and took) else "reference"
         sub = crop(unpack(noded.geometry()), 6.0, 14.0)
         deformed_seen[tag] = (len(noded.geometry().prims()), len(sub.prims()))
-        n5_polys = sum(len(pr.vertices()) for pr in sub.prims())
+        n5_polys[tag] = sum(len(pr.vertices()) for pr in sub.prims())
+        n5_points[tag] = sorted(
+            tuple(round(float(c), 6) for c in pt.position())
+            for pt in sub.points())
         rasterise(os.path.join(OUT, "N5_ripple_%s_side.png" % tag), sub,
                   ("x", "y"))
         rasterise(os.path.join(OUT, "N5_ripple_%s_top.png" % tag), sub,
@@ -469,17 +488,36 @@ def main():
           "`Stage = output` on a 24 m ripple must ADVANCE `copy_deformed` - "
           "before 13.9 N5 this build took the reference whole and cost 96 %% "
           "Python. prims/crop: %r" % (deformed_seen,))
-    check("n5_deformed_matches_the_reference",
-          len(set(deformed_seen.values())) == 1,
-          "%r" % (sorted(set(deformed_seen.values())),),
-          "the two images are the same fence: same prim count whole and same "
-          "prim count in the crop, so the pair differs only in which chain "
-          "drew it")
+    two = "native" in n5_points and "reference" in n5_points
+    same = two and n5_points["native"] == n5_points["reference"]
+    first = ""
+    if two and not same:
+        a, b = n5_points["native"], n5_points["reference"]
+        if len(a) != len(b):
+            first = "%d points native / %d reference" % (len(a), len(b))
+        else:
+            for i, (u, v) in enumerate(zip(a, b)):
+                if u != v:
+                    first = "point %d %r != %r" % (i, u, v)
+                    break
+    check("n5_deformed_matches_the_reference", two and same,
+          "%d / %d points" % (len(n5_points.get("native", ())),
+                              len(n5_points.get("reference", ()))),
+          "the two images are the same fence, compared on every POINT "
+          "POSITION in the crop rather than on a prim count - and BOTH chains "
+          "must have drawn one, so a build that quietly took the reference "
+          "cannot satisfy this by having a single tag. %s"
+          % (first or "identical"))
     # ...and the drawn-segment count against the geometry (D194), because a
-    # blind gate once drew 188 segments of a 3 388-segment fence.
-    check("n5_deformed_image_has_geometry", n5_polys > 200, n5_polys,
-          "drawn segments in the crop, counted off the geometry the "
-          "rasteriser was handed - D194's rule")
+    # blind gate once drew 188 segments of a 3 388-segment fence.  BOTH
+    # images, because the native one is the one that could be empty.
+    thin = sorted(t for t, n in n5_polys.items() if n <= 200)
+    check("n5_deformed_image_has_geometry", two and not thin,
+          "native %d / reference %d" % (n5_polys.get("native", 0),
+                                        n5_polys.get("reference", 0)),
+          "drawn segments in EACH crop, counted off the geometry the "
+          "rasteriser was handed - D194's rule. Under 200: %s"
+          % (", ".join(thin) or "neither"))
 
     print("\n%d failing gate checks" % len(FAIL))
     if FAIL:

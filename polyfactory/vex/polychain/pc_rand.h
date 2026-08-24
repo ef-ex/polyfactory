@@ -132,65 +132,102 @@ int pc_elem_key(const string elem_id) {
 #define PC_MT_N 624
 #define PC_MT_M32 0xFFFFFFFF
 
-void pc_mt_init(export int mt[]; const int s) {
-    resize(mt, PC_MT_N);
-    mt[0] = s & PC_MT_M32;
-    for (int i = 1; i < PC_MT_N; i++)
-        mt[i] = (1812433253 * (mt[i - 1] ^ shrz(mt[i - 1], 30)) + i) & PC_MT_M32;
-}
+// ⚠️ D245 - MT19937 IS INLINED INTO ONE FUNCTION, AND THAT IS A COST FIX,
+// NOT A STYLE ONE.  It used to be three functions - `pc_mt_init`,
+// `pc_mt_seed64`, `pc_mt_next` - each taking the 624-word state as
+// `export int mt[]`, which VEX copies IN and OUT on every call.  Measured on
+// the shipped asset, a 2 km straight at `Piece Order = Random` (a MAIN-page
+// parm the guard ADMITS), `hou.perfMon` Cook-ms, min of 3 dirtied cooks:
+// `pc_plan_solve` 21.7 ms under `first` against 251.7 ms under `random` on
+// the same 1 002 pieces, and the whole native cook 42.3 -> 273.2 ms against
+// the reference's 68.3 ms - 4.00x SLOWER than the Python it ported, where
+// `first` on the identical input is 0.69x.  That is ~230 us of VEX for one
+// `random.Random(s).random()` CPython answers in 1-2 us.
+//
+// ⚠️ AND THE FIRST TWIST IS TRUNCATED TO THE TWO WORDS THE TWO DRAWS READ.
+// `genrand_res53` consumes `genrand_int32` twice, which with `mti = N` is
+// mt[0]' and mt[1]' of the first twist.  mt[0]' depends on mt[0], mt[1] and
+// mt[397]; mt[1]' on mt[1], mt[2] and mt[398] - and at kk = 1 the real loop
+// has written only mt[0], so mt[1], mt[2], mt[397] and mt[398] are all still
+// the seeded values.  The two words are therefore PROVABLY the same numbers
+// the full 624-word twist would produce, and `plan_random_matches_cpython`
+// compares the result against `random.Random(s).random()` itself.
+//
+// `random.Random(int)` splits the seed into 32-bit words, little-endian, and
+// runs `init_by_array`.  Every value is masked to 32 bits by hand - `int` is
+// 64-bit here, so the wrap MT19937 is defined on has to be written out.
 
-// CPython `random_seed` + `init_by_array`.  `keyused` is 1 below 2^32 and 2
-// above it, which is what `_PyLong_AsByteArray` into 32-bit little-endian
-// words comes to for the 64-bit seed `seed_for` produces.
-void pc_mt_seed64(export int mt[]; const int seed64) {
+// `random.random()` = `genrand_res53`.  `float` is float64 under
+// `vex_precision = 64`, which is what makes the 53-bit assembly exact.
+float pc_random01(const int seed64) {
+    // `init_genrand(19650218)`
+    int mt[];
+    resize(mt, PC_MT_N);
+    int seedprev = 19650218 & PC_MT_M32;
+    mt[0] = seedprev;
+    for (int i = 1; i < PC_MT_N; i++) {
+        seedprev = (1812433253 * (seedprev ^ shrz(seedprev, 30)) + i)
+                   & PC_MT_M32;
+        mt[i] = seedprev;
+    }
+
+    // CPython `random_seed` + `init_by_array`.  `keyused` is 1 below 2^32 and
+    // 2 above it, which is what `_PyLong_AsByteArray` into 32-bit
+    // little-endian words comes to for the 64-bit seed `seed_for` produces.
     int lo = seed64 & PC_MT_M32;
     int hi = shrz(seed64, 32) & PC_MT_M32;
-    int key[] = array(lo);
-    if (hi != 0) push(key, hi);
-    int klen = len(key);
-    pc_mt_init(mt, 19650218);
+    int klen = (hi != 0) ? 2 : 1;
+    // ⚠️ `prev` CARRIES mt[i-1] IN A REGISTER, and the key is two scalars.
+    // Every read of `mt[i - 1]` is the value the previous iteration WROTE
+    // (and at the wrap, `mt[0] = mt[N-1]` writes exactly that value again),
+    // so the array read is redundant - and a VEX array read is not free:
+    // measured single-threaded, the 624-word init loop alone goes 23.6 us to
+    // 18.6 us a call (-21 %) on this one change.  `key[]` becomes `lo`/`hi`
+    // for the same reason: `array(...)` inside a loop is this project's
+    // recorded ambiguity trap AND an allocation nobody asked for.
+    int prev = mt[0];
     int i = 1, j = 0;
-    for (int k = max(PC_MT_N, klen); k > 0; k--) {
-        mt[i] = ((mt[i] ^ ((mt[i - 1] ^ shrz(mt[i - 1], 30)) * 1664525))
-                 + key[j] + j) & PC_MT_M32;
+    for (int k = PC_MT_N; k > 0; k--) {
+        int kv = (j == 0) ? lo : hi;
+        prev = ((mt[i] ^ ((prev ^ shrz(prev, 30)) * 1664525))
+                + kv + j) & PC_MT_M32;
+        mt[i] = prev;
         i++; j++;
         if (i >= PC_MT_N) { mt[0] = mt[PC_MT_N - 1]; i = 1; }
         if (j >= klen) j = 0;
     }
     for (int k = PC_MT_N - 1; k > 0; k--) {
-        mt[i] = ((mt[i] ^ ((mt[i - 1] ^ shrz(mt[i - 1], 30)) * 1566083941))
-                 - i) & PC_MT_M32;
+        prev = ((mt[i] ^ ((prev ^ shrz(prev, 30)) * 1566083941))
+                - i) & PC_MT_M32;
+        mt[i] = prev;
         i++;
         if (i >= PC_MT_N) { mt[0] = mt[PC_MT_N - 1]; i = 1; }
     }
     mt[0] = 0x80000000;
-}
 
-int pc_mt_next(export int mt[]; export int mti) {
-    if (mti >= PC_MT_N) {
-        for (int kk = 0; kk < PC_MT_N; kk++) {
-            int y = (mt[kk] & 0x80000000) | (mt[(kk + 1) % PC_MT_N] & 0x7FFFFFFF);
-            int nx = mt[(kk + 397) % PC_MT_N] ^ shrz(y, 1);
-            if (y & 1) nx = nx ^ 0x9908B0DF;
-            mt[kk] = nx & PC_MT_M32;
-        }
-        mti = 0;
-    }
-    int y = mt[mti];
-    mti++;
-    y = y ^ shrz(y, 11);
-    y = (y ^ (shl(y, 7) & 0x9D2C5680)) & PC_MT_M32;
-    y = (y ^ (shl(y, 15) & 0xEFC60000)) & PC_MT_M32;
-    return (y ^ shrz(y, 18)) & PC_MT_M32;
-}
+    // the first twist, words 0 and 1 - see the note above for why the other
+    // 622 cannot change either of them
+    int y0 = (mt[0] & 0x80000000) | (mt[1] & 0x7FFFFFFF);
+    int w0 = mt[397] ^ shrz(y0, 1);
+    if (y0 & 1) w0 = w0 ^ 0x9908B0DF;
+    w0 = w0 & PC_MT_M32;
+    int y1 = (mt[1] & 0x80000000) | (mt[2] & 0x7FFFFFFF);
+    int w1 = mt[398] ^ shrz(y1, 1);
+    if (y1 & 1) w1 = w1 ^ 0x9908B0DF;
+    w1 = w1 & PC_MT_M32;
 
-// `random.random()` = `genrand_res53`.  `float` is float64 under
-// `vex_precision = 64`, which is what makes the 53-bit assembly exact.
-float pc_random01(const int seed64) {
-    int mt[]; int mti = PC_MT_N;
-    pc_mt_seed64(mt, seed64);
-    int ua = shrz(pc_mt_next(mt, mti), 5);
-    int ub = shrz(pc_mt_next(mt, mti), 6);
+    // `genrand_int32`'s tempering, twice
+    int t0 = w0 ^ shrz(w0, 11);
+    t0 = (t0 ^ (shl(t0, 7) & 0x9D2C5680)) & PC_MT_M32;
+    t0 = (t0 ^ (shl(t0, 15) & 0xEFC60000)) & PC_MT_M32;
+    t0 = (t0 ^ shrz(t0, 18)) & PC_MT_M32;
+    int t1 = w1 ^ shrz(w1, 11);
+    t1 = (t1 ^ (shl(t1, 7) & 0x9D2C5680)) & PC_MT_M32;
+    t1 = (t1 ^ (shl(t1, 15) & 0xEFC60000)) & PC_MT_M32;
+    t1 = (t1 ^ shrz(t1, 18)) & PC_MT_M32;
+
+    int ua = shrz(t0, 5);
+    int ub = shrz(t1, 6);
     return ((float)ua * 67108864.0 + (float)ub) * (1.0 / 9007199254740992.0);
 }
 

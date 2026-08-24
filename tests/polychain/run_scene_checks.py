@@ -31,6 +31,14 @@ BASELINE = os.path.join(HERE, "baseline.json")
 # exist to prove the detectors are not vacuous.
 EXPECTED_WARNS = {
     "J_coarse_bend": ("pc_warn_bend_resolution",),
+    # DM is 13.9 N5's own coverage case (a smooth 24 m ripple with no corner,
+    # which is what `place_deformed_covers_the_reference` compares a real
+    # element set on).  Five of its thirteen panels wrap a crest their own
+    # 0.25 m stations cannot resolve inside `bend_tol` - 0.0153 m against
+    # 0.0100 - so D25's warning is the RIGHT answer here for exactly the
+    # reason `P_crest_bend`'s is, and a clean build would mean the fixture
+    # had stopped bending anything.
+    "DM_ripple_deformed": ("pc_warn_bend_resolution",),
     "K_broken_kit": ("pc_warn_kit_gap",),
     "O_no_kit": ("pc_warn_kit_gap",),
     # A 2 m panel resolves the crest with its own 0.25 m stations, and 4.4
