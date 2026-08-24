@@ -136,6 +136,10 @@ closed), do NOT block: continue the build on hython, mark affected gates
 prefix) and node hygiene (`_*` internal, deleted before output). Binding here; §3 renames `pc_*`
 to `pf_*` after the §12 rebuild reaches parity, and the `_*` rule applies to the rebuild now.
 
+**Build retrospective:** [`build_retrospective.md`](build_retrospective.md) - the incident log
+of what caused loop restarts and rework across this build, the recurring patterns, and what each
+implies for the skills and workflow briefs. Read its 3 and 4 before running another cycle.
+
 ## 1. Scope and non-goals
 
 **Phase 1 (this spec's build target): the 1D kernel** — RailClone L1S parity minus its warts.
