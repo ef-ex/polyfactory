@@ -7317,6 +7317,164 @@ def wrangle_cost_check(root):
     node.destroy()
 
 
+# 13.9 N6 - THE DECIDING EXPERIMENT FOR THE CONFORM PORT, COMMITTED.
+#
+# ⚠️ THIS CHECK GUARDS A DECISION, NOT A FEATURE, and that is why it exists on
+# a build where nothing conforms natively.  4.5 is the largest refused class
+# left by a factor of 4.5 - measured on the shipped asset with `hou.perfMon`,
+# 300 conformed streets over a terrain that COVERS them cost 3 645 ms of
+# Python and the curved variant 4 225 ms, against 806 ms for the cornered
+# class - so the next cycle's first question is whether N6 is a PORT of the
+# drape's numbers or a REWRITE of them.
+#
+# `conform.Surface.drop` is `hou.Geometry.intersect` twice (down-axis, then
+# back, nearest wins, `tolerance = 1e-6`, `min_hit = 0.0`), and `drop_many` is
+# the `ray` VERB, already measured bit-identical to it.  A native conform would
+# be a THIRD implementation - VEX's own `intersect()` - and if that one does
+# not reproduce `drop`, every conformed fence the guard admitted would be a
+# different fence.
+#
+# ⚠️ AND THE FIRST READING OF THIS EXPERIMENT SAID NO.  Compared as DOUBLES the
+# two disagree by 3.8e-07 m at fixture scale and 9.4e-04 m at 20 km - which
+# would fail `_first_difference`'s 1e-9 rounding outright.  The whole
+# divergence is in x and z, the two components a -Y drop never moves: VEX's
+# `intersect` in a 64-bit wrangle hands back the query's own double
+# coordinates, and `hou.Geometry.intersect` hands back float32 ones.  It is
+# D111's finding from the other side - the REFERENCE is the quantised one -
+# and it disappears the moment both land in the float32 `P` storage the output
+# is actually compared on.
+#
+# So the answer is YES, with a condition, and the condition is recorded here
+# rather than rediscovered: read the drop off the AXIS COMPONENT and rebuild
+# the position from the query (`drop_many`'s own reconstruction), and compare
+# in float32.
+CONFORM_DROP_VEX = r'''
+// `conform.Surface.drop`, in VEX. Down-axis, then back no further than the
+// hit already found, nearest wins, ties go DOWN-axis (D70).
+vector a = v@_axis;
+vector up = -a;
+vector q = v@_q;
+float far = f@_far;
+vector p0, uvw0, p1, uvw1;
+int h0 = intersect(1, q, a * far, p0, uvw0);
+float d0 = (h0 >= 0) ? length(p0 - q) : -1.0;
+int h1 = intersect(1, q, up * ((d0 >= 0.0) ? d0 : far), p1, uvw1);
+float d1 = (h1 >= 0) ? length(p1 - q) : -1.0;
+vector best = q;
+int hit = 0;
+if (h0 >= 0) { best = p0; hit = 1; }
+if (h1 >= 0 && (h0 < 0 || d1 < d0 - 1e-9)) { best = p1; hit = 1; }
+// D111's reconstruction: the hit POSITION is quantised at the magnitude of a
+// WORLD COORDINATE, the drop is quantised at the magnitude of a DROP.
+if (hit) { float t = dot(best - q, a); best = q + a * t; }
+v@_hitP = best;
+i@_hit  = hit;
+'''
+
+# what survives float32 `P` storage.  Not a tolerance: both sides round the
+# same real number into the same 24 bits, so anything above this is a
+# DIFFERENT number and not a rounding of one.
+CONFORM_DROP_CEILING_M = 1e-12
+
+
+def _conform_sheet(y, x0, x1, z0, z1, n=8, slope=0.0, reverse=False):
+    geo = hou.Geometry()
+    pts = {}
+    for i in range(n + 1):
+        for j in range(n + 1):
+            x = x0 + (x1 - x0) * i / float(n)
+            z = z0 + (z1 - z0) * j / float(n)
+            pt = geo.createPoint()
+            pt.setPosition((x, y + slope * x, z))
+            pts[(i, j)] = pt
+    for i in range(n):
+        for j in range(n):
+            poly = geo.createPolygon()
+            ring = [pts[(i, j)], pts[(i, j + 1)],
+                    pts[(i + 1, j + 1)], pts[(i + 1, j)]]
+            for pt in (reversed(ring) if reverse else ring):
+                poly.addVertex(pt)
+    return geo
+
+
+def conform_drop_is_portable_to_vex(root):
+    """13.9 N6 - can VEX's `intersect()` reproduce `conform.Surface.drop`?
+
+    See the block above for why this is committed on a build that conforms
+    nothing.  Five surfaces, chosen for the four things that have broken a
+    drop in this codebase before: an exact-tie flat sheet, a rational slope,
+    an IRRATIONAL slope (the fixtures' own 0.25x is exactly representable and
+    hid a real divergence for a cycle - D111), a REVERSED winding (D52), and
+    the same irrational ramp at 20 km, where float32 world coordinates are
+    2 mm apart.
+    """
+    surfaces = (
+        ("flat", _conform_sheet(0.0, -5.0, 25.0, -5.0, 5.0),
+         [(0.3 * i, 3.0, 0.0) for i in range(40)]),
+        ("ramp_25pct", _conform_sheet(0.0, -5.0, 25.0, -5.0, 5.0, slope=0.25),
+         [(0.3 * i, 9.0, 0.5) for i in range(40)]),
+        ("irrational",
+         _conform_sheet(0.0, -5.0, 25.0, -5.0, 5.0, slope=1.0 / 7.0),
+         [(0.31 * i, 9.0, 0.37) for i in range(40)]),
+        ("reversed",
+         _conform_sheet(0.0, -5.0, 25.0, -5.0, 5.0, slope=0.25, reverse=True),
+         [(0.3 * i, 9.0, 0.5) for i in range(40)]),
+        ("ramp_20km",
+         _conform_sheet(0.0, -5.0, 20005.0, -5.0, 5.0, slope=1.0 / 7.0, n=64),
+         [(19000.0 + 0.31 * i, 4000.0, 0.37) for i in range(40)]),
+    )
+    rows, bad = [], []
+    nq = 0
+    for label, surf, qs in surfaces:
+        py = CONFORM.Surface(surf, (0.0, -1.0, 0.0))
+        want = [py.drop(q) for q in qs]
+        cloud = hou.Geometry()
+        cloud.addAttrib(hou.attribType.Point, "_q", (0.0, 0.0, 0.0))
+        cloud.addAttrib(hou.attribType.Point, "_axis", (0.0, -1.0, 0.0))
+        cloud.addAttrib(hou.attribType.Point, "_far", 0.0)
+        for q in qs:
+            pt = cloud.createPoint()
+            pt.setPosition(q)
+            pt.setAttribValue("_q", q)
+            # `Surface.drop`'s own per-POINT reach (D70), not a magic number.
+            pt.setAttribValue("_far", math.sqrt(
+                sum((q[i] - py.centre[i]) ** 2 for i in range(3)))
+                + py.radius)
+        w = root.createNode("attribwrangle", "cdrop_" + label)
+        w.parm("class").set(2)
+        w.parm("vex_precision").set("64")
+        w.parm("snippet").set(CONFORM_DROP_VEX)
+        w.setInput(0, native.feed(root, cloud, "CDQ_" + label))
+        w.setInput(1, native.feed(root, surf, "CDS_" + label))
+        got = w.geometry()
+        worst = 0.0
+        misses = 0
+        for i, pt in enumerate(got.points()):
+            gp = pt.attribValue("_hitP")
+            if int(pt.attribValue("_hit")) != int(want[i][2]):
+                misses += 1
+                continue
+            worst = max(worst, max(abs(f32(gp[k]) - f32(want[i][0][k]))
+                                   for k in range(3)))
+        nq += len(qs)
+        rows.append((label, worst, misses))
+        if misses:
+            bad.append("%s: %d hit-flag mismatches" % (label, misses))
+        if worst > CONFORM_DROP_CEILING_M:
+            bad.append("%s: %.3e m > %.3e m in float32 storage"
+                       % (label, worst, CONFORM_DROP_CEILING_M))
+        w.destroy()
+    check("conform_drop_is_portable_to_vex", not bad,
+          "%d queries, worst %.3e m" % (nq, max(r[1] for r in rows)),
+          "13.9 N6's deciding experiment: VEX `intersect()` against "
+          "`conform.Surface.drop`, read off the AXIS COMPONENT and rebuilt "
+          "from the query (D111's reconstruction), compared in the float32 "
+          "`P` storage the output is compared in. Ceiling %.0e m. Rows: %s. "
+          "%s" % (CONFORM_DROP_CEILING_M,
+                  "; ".join("%s %.3e m" % (r[0], r[1]) for r in rows),
+                  "; ".join(bad[:3]) or "the drape is a PORT, not a rewrite"))
+
+
 def union_parity(root):
     """D166's safety property: the fence does not change when the VEX answers.
 
@@ -7615,6 +7773,7 @@ def main():
     sixty_four_bit(root)
     worldscale_transport(root)
     config_payload_parity(root)
+    conform_drop_is_portable_to_vex(root)
     union_parity(root)
 
     print("\n=== 3b. R1 - 3.3's seeding chain, in VEX ===")
