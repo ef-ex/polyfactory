@@ -189,6 +189,51 @@ def main():
               _res.value, _res.detail)
     node.parm("corner_mode").set("bend")
 
+    # ⚠️ AND THE SAME DEFECT ONE ADVANCED PARM AWAY (D269). The two rows above
+    # ran the shipped defaults on a 12 x 8 m rectangle, where 12 m is an exact
+    # multiple of the 2 m spacing - so the justify leftover never approaches
+    # zero and NO justification could reach the corner. On 12.161 m it can:
+    # `Evenly Justify = From the end` used to drive the evenly post 0.061 m
+    # INTO the mitered corner post, and `Adjust to End` did it at every corner
+    # of every leg, because D15's half-module shed keyed on `start_cap` /
+    # `end_cap` and D18 makes both FALSE at a corner. The corner reserves its
+    # space through `trim`, and `trim` is now guarded the same way.
+    #
+    # `adjust_to_end` is pinned at one whole post rather than at zero: landing
+    # the last anchor ON the section end is what the artist asked the parm
+    # for, and at a corner that end carries the corner post. What D269 removed
+    # is the INTERPENETRATION; the abutment that remains is documented in the
+    # parm's own help.
+    odd = curve_node(geo_node, "odd_spline",
+                     [(0, 0, 0), (12.161, 0, 0), (12.161, 0, 8.161),
+                      (0, 0, 8.161)], closed=True)
+    node.setInput(0, odd)
+    node.parm("corner_mode").set("miter")
+    for _label, _val in (("justify_start", "start"),
+                         ("justify_center", "center"),
+                         ("justify_end", "end")):
+        node.parm("justify").set(_val)
+        _res = C.single_pillar(Uprights(node.geometry()))
+        check("evenly_clears_the_corner_" + _label,
+              _res.ok and not _res.skipped, _res.value, _res.detail)
+    node.parm("justify").revertToDefaults()
+    # 12.66 m, because the adjust branch only fires when the LEFTOVER is at
+    # or under `adjust_to_end` - on 12.161 m it is not, so the parm would
+    # have been set and read on a build that never used it.
+    adj = curve_node(geo_node, "adj_spline",
+                     [(0, 0, 0), (12.66, 0, 0), (12.66, 0, 8.66),
+                      (0, 0, 8.66)], closed=True)
+    node.setInput(0, adj)
+    node.parm("adjust_to_end").set(1.0)
+    _res = C.single_pillar(Uprights(node.geometry()), expected=0.12)
+    check("evenly_clears_the_corner_adjust_to_end",
+          _res.ok and not _res.skipped, _res.value, _res.detail)
+    node.parm("adjust_to_end").revertToDefaults()
+    node.setInput(0, spline)
+    node.parm("corner_mode").set("bend")
+    odd.destroy()
+    adj.destroy()
+
     # ---- 2. the node agrees with the kernel ------------------------------
     print("\n=== 2. the node agrees with place.build on the same style ===")
     style = H.style_from_parms(node)

@@ -307,11 +307,18 @@ def main():
             scene, node_geo, ok, n = through_the_face(node1, src)
             check("g1_%s_%s_parm_face" % (shape, mode), ok, n,
                   "node output == place.build on style_from_parms(node)")
+            # Every check on this line but the last is a CLOSURE check, and
+            # a double pillar is perfectly closed - which is why the first
+            # nine of them passed on the fence Hannes counted two pillars on.
+            # `single_pillar` is here because this is the only place in the
+            # suite that drives the parm face over the L and the 3 m
+            # CLOSE-UP as well as the rectangle (D270; the comment in
+            # `run_scene_checks` claimed it already was, and was wrong).
             for res in (C.exact_fill(scene), C.no_gaps_or_overlaps(scene),
                         C.axis_follows_curve(scene), C.corner_abut(scene),
                         C.corner_seam(scene), C.corner_turns(scene),
                         C.corner_breach(scene), C.module_winding(scene),
-                        C.element_count(scene)):
+                        C.element_count(scene), C.single_pillar(scene)):
                 show(res)
             drawn_covers_packed("%s_%s" % (shape, mode), node_geo)
             rasterise(os.path.join(OUT, "VG1_%s_%s_top.png" % (shape, mode)),

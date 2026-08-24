@@ -3181,34 +3181,62 @@ def corner_wedge(scene, tol=1e-9):
 # Nothing in 3 600 numeric checks asserted that the result looks like a fence.
 #
 # So this asserts COMPOSITION, and it does it without a vocabulary of module
-# names. TWO ideas, and both are needed:
+# names. THREE ideas, and D270 rewrote the first two after an audit proved
+# each of them wrong on a kit that is not the starter fence:
 #
-#   1. UPRIGHT is geometry, not a name - height at least 3x the widest side of
-#      the footprint. `post` scores 10.0, `corner_post` 8.1, `panel` 0.48 and
-#      `gate` 0.66, so the threshold is not tuned, it is a gulf.
-#   2. A RESERVED SLOT MUST NOT BE DOUBLED BY ANOTHER SLOT. `corner`, `start`,
-#      `end`, `evenly` and `marker:<id>` exist to put ONE piece at one place;
-#      if the fill puts a second upright hard against it, the artist sees two
-#      pillars. So a touching group of uprights drawn from MORE THAN ONE slot
-#      is the defect, and its size is how much wider the group is than its own
-#      widest member.
+#   1. A RESERVED SLOT MUST NOT BE DOUBLED BY ANOTHER SLOT. `corner`, `start`,
+#      `end`, `evenly` and `marker:<id>` exist to put ONE piece at one place.
+#      A reserved piece is PROTECTED whatever its shape - the first cut of
+#      this check made protection depend on the aspect rule below, and a
+#      corner module that is a plinth, a pier cap or a wall return (the
+#      starter kit's own 1.20 x 1.30 x 0.16 `corner_block`, aspect 1.08) was
+#      then not protected at all: measured 0.111698 m with a slender corner
+#      post and 0.0 m with the block, on the SAME mutation. Most real kits
+#      have a blocky corner piece, so that was a false negative on the
+#      check's own reason for existing.
+#   2. UPRIGHT is geometry, not a name, and it is read off the module's OWN
+#      space, not off the placed piece. Height at least 3x the widest side of
+#      the footprint: `post` scores 10.0, `corner_post` 8.1, `panel` 0.48 and
+#      `gate` 0.66, so the threshold is not tuned, it is a gulf. Reading the
+#      PLACED world box instead let the FIT decide the classification - an
+#      adaptive fill shrinks the 2 m `panel` below 0.30 m long, its 0.90 m
+#      height then clears 3:1, and the whole run chained into one group:
+#      measured 11.98 m of "double pillar" at `Evenly Spacing = 0.30` and
+#      0.0 / 0.28 / 0.0 at 0.50 / 0.60 / 0.80. A 0.35 m picket spacing is an
+#      ordinary fence, not a defect. `rec["local"]` is the module's own
+#      geometry before the placement transform, so `fill`, `padding` and
+#      `evenly_spacing` cannot reclassify anything.
+#   3. THE MEASURE IS PAIRWISE. The first cut unioned a transitive touching
+#      CLUSTER and reported its span minus its widest member, so a run whose
+#      fill was uprights and whose ends were capped became ONE mixed-slot
+#      group and the number was the RUN LENGTH - 1999.88 m on a 2 km run,
+#      12.0 m on the PC-G1 rectangle. A number that big cannot be acted on
+#      and cannot say which junction is wrong. The value is now the worst
+#      single PROTECTED-vs-UPRIGHT pair, per axis, and is bounded by one
+#      module's footprint by construction.
 #
-# The second idea is what keeps the check honest on the runs that are supposed
-# to be a row of pillars: 270 butted `post`s on the hill cases are all slot
-# `default` and are one deliberate rhythm, while the two mitered halves of a
-# corner post are both slot `corner` and are one assembly. The shipped defect
-# is `corner` + `default`, 0.111 m wider than the 0.16 m corner post - and the
-# same pattern at a RUN END (`start` post then a `default` post) measures
-# exactly one post, 0.12 m, which is how the fixtures found the second half of
-# the same defect.
+# Idea 1 is what keeps the check honest on runs that are SUPPOSED to be a row
+# of pillars: 270 butted `post`s on the hill cases are all slot `default` and
+# are one deliberate rhythm, while the two mitered halves of a corner post are
+# both slot `corner` and are one assembly. The shipped defect is `corner` +
+# `default` and measures 0.111698 m - and the same pattern at a RUN END
+# (`start` post then a `default` post) measures exactly one post, 0.12 m,
+# which is how the fixtures found the second half of the same defect.
 
-UPRIGHT_ASPECT = 3.0    # height / widest footprint side. post 10.0,
-                        # corner_post 8.1, panel 0.48, gate 0.66 - the two
-                        # families are an order of magnitude apart, so the
-                        # threshold is not tuned, it is a gulf.
+UPRIGHT_ASPECT = 3.0    # height / widest footprint side, in the MODULE's own
+                        # space. post 10.0, corner_post 8.1, panel 0.48,
+                        # gate 0.66 - the two families are an order of
+                        # magnitude apart, so the threshold is not tuned, it
+                        # is a gulf.
 TOUCH_M = 1e-3          # footprints this close are touching. Bigger than the
                         # float32 noise on P and far smaller than any gap an
                         # artist would read as deliberate spacing.
+RESERVED_SLOTS = ("corner", "start", "end", "evenly")
+
+
+def _reserved_slot(slot):
+    """Slots that exist to put ONE piece at ONE place (D267)."""
+    return slot in RESERVED_SLOTS or slot.startswith("marker:")
 
 
 def _world_bbox(rec):
@@ -3219,96 +3247,139 @@ def _world_bbox(rec):
     return (min(xs), max(xs), min(ys), max(ys), min(zs), max(zs))
 
 
-def _is_upright(bb):
-    foot = max(bb[1] - bb[0], bb[5] - bb[4])
-    return foot > TOL_M and (bb[3] - bb[2]) >= UPRIGHT_ASPECT * foot
+def _is_upright(rec):
+    """Aspect off `pc_local` - the MODULE's own space, so the fitting solve
+    cannot reclassify a piece by scaling it (D270)."""
+    loc = rec.get("local") or []
+    if len(loc) < 3:
+        return False
+    xs, ys, zs = loc[0::3], loc[1::3], loc[2::3]
+    foot = max(max(xs) - min(xs), max(zs) - min(zs))
+    return foot > TOL_M and (max(ys) - min(ys)) >= UPRIGHT_ASPECT * foot
 
 
 def _touching(a, b):
-    """Footprints within TOUCH_M on BOTH horizontal axes, and Y ranges that
-    overlap - so a finial stacked on a post is not a second pillar."""
+    """Footprints within TOUCH_M on both horizontal axes AND overlapping in Y.
+
+    The Y clause only excludes pieces at genuinely different heights (a coping
+    course over a plinth); a finial whose base sits exactly on a post's top
+    still satisfies it. What makes a concentric stack score zero is the
+    per-axis `span - own` form of the metric, not this term.
+    """
     return (a[0] - TOUCH_M <= b[1] and b[0] - TOUCH_M <= a[1]
             and a[4] - TOUCH_M <= b[5] and b[4] - TOUCH_M <= a[5]
             and a[2] - TOUCH_M <= b[3] and b[2] - TOUCH_M <= a[3])
 
 
+def _pair_excess(a, b):
+    """How much more ground the PAIR covers than the bigger of the two, per
+    horizontal axis. Bounded by the smaller footprint, so it is a pillar
+    width and never a run length."""
+    return max(max(a[1], b[1]) - min(a[0], b[0]) - max(a[1] - a[0], b[1] - b[0]),
+               max(a[5], b[5]) - min(a[4], b[4]) - max(a[5] - a[4], b[5] - b[4]))
+
+
 def single_pillar(scene, expected=0.0, tol=2e-3):
-    """`double_pillar_m` - how much wider a touching group of UPRIGHT members
-    drawn from more than one SLOT is than the widest member in it. 0.0 means
+    """`double_pillar_m` - how much ground a RESERVED piece and a touching
+    UPRIGHT from a different slot cover beyond the wider of the two. 0.0 means
     every reserved piece stands alone, which is what "one pillar at a corner"
     means when nobody is allowed to name the modules.
 
     The number is a distance in metres, so a corner doubled by half a post
-    reads as half a post and not as a boolean.
+    reads as half a post and not as a boolean, and (D270) it is a PAIRWISE
+    quantity bounded by one module's footprint - never a cluster span.
 
     WHAT IT CANNOT SEE, stated because the checks it joins could not see the
     defect it was written for:
       * a SEPARATED double pillar - two uprights 50 mm apart look just as
-        wrong and read here as deliberate spacing (TOUCH_M is 1 mm);
+        wrong and read here as deliberate spacing (`TOUCH_M` is 1 mm);
+      * a doubling at or under the 2 mm `tol`. That tolerance is there because
+        a pillar standing on a bend is measured on its AABB and reads slightly
+        wide; the price is that a genuine 2 mm overshoot passes. Measured:
+        0.0015 and 0.0019 pass, 0.0021 fails;
       * a MISSING pillar, an empty corner, or a corner dressed in the wrong
         module - it never asks what SHOULD be there, only that what is there
         is not doubled;
       * doubling WITHIN one slot: two corner assemblies squeezed onto a leg
-        shorter than both (AP_narrow_rect) are all slot `corner` and pass
+        shorter than both (`AP_narrow_rect`) are all slot `corner` and pass
         here. That case is covered by `pc_warn_overflow` and
         `corner_face_mate_m`, and this check deliberately does not
         second-guess them;
-      * duplication among non-upright members - two coincident panels are
-        invisible to it;
-      * a kit whose default piece is a narrow tall pier, which the aspect
-        rule classifies as upright: its legitimate neighbours from another
-        slot would then read as a double pillar. That is what `expected` is
-        for, and every non-zero expectation in the runner is named;
-      * it compares axis-aligned world bounding boxes, so a pillar standing
-        on a bend is measured on its AABB and reads slightly wide - hence a
-        2 mm tolerance rather than TOL_M.
+      * two touching pieces that are BOTH reserved and both non-upright - a
+        blocky corner return abutting a blocky end cap. The doubler side of
+        the rule is the aspect test, and a plinth is not an upright;
+      * duplication among non-reserved members - two coincident panels, or a
+        fill post butted against another fill post, are invisible to it;
+      * it FLAGS any upright from another slot touching a reserved piece,
+        including compositions the tool advertises: `slot_evenly`'s own help
+        names "lamps on a railing, bollards on a kerb", and a kit whose fill
+        piece is a bollard and whose evenly piece is a lamp reds here
+        (measured 0.08 m on a synthetic `default:post` + `evenly:lamp`
+        abutment). `expected` is the escape hatch for such kits, and every
+        non-zero expectation in the runner is named;
+      * it is a PHASE-1 check: `run_2d_checks` does not call it, because a
+        facade's mullions are uprights in different cells by design and the
+        rule would need a 2D reading before it means anything there.
     """
     boxes = []
     for eid, rec in scene.by_id.items():
         bb = _world_bbox(rec)
-        if bb is not None and _is_upright(bb):
-            boxes.append((eid, rec, bb))
-    if len(boxes) < 2:
-        return _skip("double_pillar_m", "%d upright members" % len(boxes))
-    parent = dict((eid, eid) for eid, _r, _b in boxes)
-
-    def find(x):
-        while parent[x] != x:
-            parent[x] = parent[parent[x]]
-            x = parent[x]
-        return x
-
-    for i in range(len(boxes)):
-        for j in range(i + 1, len(boxes)):
-            if _touching(boxes[i][2], boxes[j][2]):
-                a, b = find(boxes[i][0]), find(boxes[j][0])
-                if a != b:
-                    parent[a] = b
-    groups = {}
-    for eid, rec, bb in boxes:
-        groups.setdefault(find(eid), []).append((rec, bb))
-    worst, where, mixed = 0.0, "", 0
-    for members in groups.values():
-        slots = set(r.get("pc_slot", "") for r, _b in members)
-        if len(slots) < 2:
+        if bb is None:
             continue
-        mixed += 1
-        gx = (min(b[0] for _r, b in members), max(b[1] for _r, b in members))
-        gz = (min(b[4] for _r, b in members), max(b[5] for _r, b in members))
-        span = max(gx[1] - gx[0], gz[1] - gz[0])
-        own = max(max(b[1] - b[0], b[5] - b[4]) for _r, b in members)
-        if span - own > worst:
-            worst = span - own
-            where = "%s at (%.2f, %.2f)" % (
-                "+".join(sorted("%s:%s" % (r.get("pc_slot", "?"),
-                                           r.get("pc_module", "?"))
-                                for r, _b in members)),
-                0.5 * (gx[0] + gx[1]), 0.5 * (gz[0] + gz[1]))
+        slot = rec.get("pc_slot", "")
+        res, up = _reserved_slot(slot), _is_upright(rec)
+        if res or up:                    # anything else can never form a pair
+            boxes.append((eid, rec, bb, res, up))
+    if len(boxes) < 2:
+        return _skip("double_pillar_m", "%d candidate members" % len(boxes))
+
+    # D270: bucket the footprints instead of sweeping every pair. The old
+    # O(n^2) sweep measured 33.9 s on 16 667 uprights (2 km of `post` fill) -
+    # affordable on the 270-piece hill cases it was written against and not on
+    # the long-run fixtures `run_native_checks` already builds.
+    cell = max(max(b[1] - b[0], b[5] - b[4]) for _e, _r, b, _s, _u in boxes)
+    cell = max(cell, TOL_M) + TOUCH_M
+    grid = {}
+    for k, (_e, _r, bb, _s, _u) in enumerate(boxes):
+        for ix in range(int(math.floor((bb[0] - TOUCH_M) / cell)),
+                        int(math.floor((bb[1] + TOUCH_M) / cell)) + 1):
+            for iz in range(int(math.floor((bb[4] - TOUCH_M) / cell)),
+                            int(math.floor((bb[5] + TOUCH_M) / cell)) + 1):
+                grid.setdefault((ix, iz), []).append(k)
+
+    worst, where, pairs, seen = 0.0, "", 0, set()
+    for bucket in grid.values():
+        for a in range(len(bucket)):
+            for b in range(a + 1, len(bucket)):
+                i, j = bucket[a], bucket[b]
+                if i > j:
+                    i, j = j, i
+                if (i, j) in seen:
+                    continue
+                seen.add((i, j))
+                _ei, ri, bi, si, ui = boxes[i]
+                _ej, rj, bj, sj, uj = boxes[j]
+                if ri.get("pc_slot", "") == rj.get("pc_slot", ""):
+                    continue             # one slot is one deliberate rhythm
+                if not ((si and uj) or (sj and ui)):
+                    continue             # protected piece + upright doubler
+                if not _touching(bi, bj):
+                    continue
+                pairs += 1
+                excess = _pair_excess(bi, bj)
+                if excess > worst or not where:
+                    worst = excess
+                    where = "%s+%s at (%.2f, %.2f)" % (
+                        "%s:%s" % (ri.get("pc_slot", "?"),
+                                   ri.get("pc_module", "?")),
+                        "%s:%s" % (rj.get("pc_slot", "?"),
+                                   rj.get("pc_module", "?")),
+                        0.25 * (bi[0] + bi[1] + bj[0] + bj[1]),
+                        0.25 * (bi[4] + bi[5] + bj[4] + bj[5]))
     return Result("double_pillar_m", abs(worst - expected) <= tol,
                   _round(worst, 6),
-                  "%d upright members, %d mixed-slot groups, worst %s "
-                  "(expected %.4f)"
-                  % (len(boxes), mixed, where or "none", expected))
+                  "%d candidates, %d doubled pairs, worst %s (expected %.4f)"
+                  % (len(boxes), pairs, where or "none", expected))
 
 
 def corner_clearance(scene, vertex, expected, tol=5e-3):

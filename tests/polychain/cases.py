@@ -387,6 +387,11 @@ RECT = [(0.0, 0.0, 0.0), (12.0, 0.0, 0.0), (12.0, 0.0, 8.0), (0.0, 0.0, 8.0)]
 # coverage again.
 ZIGZAG = [(0.0, 0.0, 0.0), (8.0, 0.0, 0.0), (12.0, 0.0, 4.0),
           (20.0, 0.0, 4.0)]
+# The same rectangle with legs that are NOT a multiple of the 2 m evenly
+# spacing, so the justify leftover approaches zero and an evenly anchor can
+# reach the corner assembly. See the EA..EI block for why that matters.
+RECT_ODD = [(0.0, 0.0, 0.0), (12.161, 0.0, 0.0), (12.161, 0.0, 8.161),
+            (0.0, 0.0, 8.161)]
 
 # A 90 degree corner post of half-width 0.08 m reaches e = 0.08*tan(45) past
 # the vertex, so its outside face still measures its full 0.16 m.
@@ -395,15 +400,36 @@ CORNER_BLOCK_LENGTH = 1.20
 
 
 def corner_style(mode="miter", offset=0.0, fillet=0.0, fill="adaptive",
-                 displacement="reset"):
-    """The PC-G1 fence, with 4.3's parms exposed. Same kit, same rules."""
-    return Style("corner", 1, 9, rules=[
+                 displacement="reset", evenly="", evenly_spacing=0.0,
+                 justify="center", adjust_to_end=0.0, corner="corner_post",
+                 marker=""):
+    """The PC-G1 fence, with 4.3's parms exposed. Same kit, same rules.
+
+    `evenly` is D269's fixture repair. §28.1(c) diagnosed the original double
+    pillar as "the one composition the parameter page actually shipped was in
+    no corner case in the suite" - and after D266 that sentence was STILL
+    true, of the NEW defaults: `evenly` appeared zero times in this file, so
+    the ~35 corner and closure checks ran on a composition the asset does not
+    ship. The gap had been inverted, not closed. These arguments are what let
+    the EA..EI cases put `panel` fill + `evenly post` @ 2 m + a corner piece
+    through the corner battery, under every justification.
+    """
+    rules = [
         Rule("default", "first", ["panel"]),
         Rule("start", "first", ["post"]),
         Rule("end", "first", ["post"]),
-        Rule("corner", "first", ["corner_post"]),
-    ], params=Params(fill=fill, corner_mode=mode, corner_offset_pct=offset,
-                     fillet_radius=fillet, corner_displacement=displacement))
+        Rule("corner", "first", [corner]),
+    ]
+    if evenly:
+        rules.append(Rule("evenly", "first", [evenly]))
+    if marker:
+        rules.append(Rule("marker:7", "first", [marker]))
+    return Style("corner", 1, 9, rules=rules,
+                 params=Params(fill=fill, corner_mode=mode,
+                               corner_offset_pct=offset, fillet_radius=fillet,
+                               corner_displacement=displacement,
+                               evenly_spacing=evenly_spacing,
+                               justify=justify, adjust_to_end=adjust_to_end))
 
 
 def compose_kit():
@@ -1076,6 +1102,98 @@ def build_all():
     g = hou.Geometry()
     polyline(g, RECT, closed=True, curve_id="AS")
     built["AS_rect_bend_butt"] = _case(g, kit_geo, corner_style("bend"))
+
+    # ---- EA..EI - THE COMPOSITION THE ASSET ACTUALLY SHIPS, ON A CORNER.
+    #
+    # ⚠️ D269, and it is §28.1(c) caught doing the SAME THING ONE CYCLE
+    # LATER. The original double pillar shipped because `corner_style` filled
+    # with `panel` alone while the parm page shipped `post panel` - the one
+    # composition on the page was in no corner case. D266 changed the page to
+    # `panel` fill + `evenly post` @ 2 m... and `evenly` then appeared ZERO
+    # times in this file, so the ~35 corner and closure checks were once
+    # again running a composition the asset does not ship. The gap was
+    # inverted, not closed, and the only assertion on the new defaults was
+    # two rows of `run_hda_checks` on one rectangle.
+    #
+    # These nine cases put the shipped composition through the corner
+    # battery on four shapes, under all three justifications and with
+    # `adjust_to_end` on, plus the two shapes the check itself could not see:
+    # a BLOCKY corner module (EH) and a MARKER landing at a corner (EI).
+    # ⚠️ THE LEG LENGTHS ARE THE FIXTURE. On the 12 x 8 m rectangle every
+    # justification measures 0.0 BOTH BEFORE AND AFTER D269 - 12 m is an
+    # exact multiple of the 2 m spacing, so the leftover never approaches
+    # zero and the defect is unreachable. `RECT_ODD` is 12.161 x 8.161 m,
+    # where the leftover is ~0: before D269 `Evenly Justify = From the end`
+    # drove the evenly post 0.061 m INTO the mitered corner post there. A
+    # fixture on the round number would have been green on the broken build.
+    for name, cid, pts, closed, kw in (
+            ("EA_rect_miter_evenly", "EA", RECT, True, {}),
+            ("EB_rect_evenly_start", "EB", RECT_ODD, True,
+             {"justify": "start"}),
+            ("EC_rect_evenly_end", "EC", RECT_ODD, True, {"justify": "end"}),
+            ("EE_lshape_evenly", "EE", L_SHAPE, False, {}),
+            ("EF_reflex_evenly", "EF", ZIGZAG, False, {}),
+    ):
+        g = hou.Geometry()
+        polyline(g, pts, closed=closed, curve_id=cid)
+        built[name] = _case(g, kit_geo, corner_style(
+            "miter", evenly="post", evenly_spacing=2.0, **kw))
+
+    # ED - `Adjust to End` DELIBERATELY lands the last anchor on the end of
+    # the free span, and at a corner that span ends against the corner
+    # assembly. D269 shed the half module that used to let the post grow
+    # 0.061 m INTO the corner post; what is left is an exact ABUTMENT, one
+    # whole 0.12 m post, and it is the artist's own instruction rather than a
+    # defect. Pinned in `DOUBLE_PILLAR`, named there, and warned about on the
+    # parm page. 12.66 m leaves a leftover under the 1 m `adjust_to_end`, so
+    # the adjust branch actually fires - on 12 m it never does.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (12.66, 0, 0), (12.66, 0, 8.66), (0, 0, 8.66)],
+             closed=True, curve_id="ED")
+    built["ED_rect_evenly_adjust"] = _case(g, kit_geo, corner_style(
+        "miter", evenly="post", evenly_spacing=2.0, adjust_to_end=1.0))
+
+    _pent5 = 6.0 / (2.0 * math.sin(math.pi / 5.0))
+    g = hou.Geometry()
+    polyline(g, [(_pent5 * math.cos(2 * math.pi * i / 5.0), 0.0,
+                  _pent5 * math.sin(2 * math.pi * i / 5.0))
+                 for i in range(5)], closed=True, curve_id="EG")
+    built["EG_pentagon_evenly"] = _case(g, kit_geo, corner_style(
+        "miter", evenly="post", evenly_spacing=2.0))
+
+    # EH - A CORNER MODULE THAT IS NOT SLENDER. `corner_block` is
+    # 1.20 x 1.30 x 0.16 m, aspect 1.08, so the first cut of `single_pillar`
+    # classified it as not-upright, never entered it into the sweep at all,
+    # and measured 0.0 on a build that doubled every corner. Most real kits
+    # have a blocky corner piece - a plinth, a pier cap, a wall return - so
+    # that false negative was on the check's own reason for existing. D270
+    # protects a RESERVED piece whatever its aspect; this is the fixture that
+    # keeps it protected.
+    g = hou.Geometry()
+    polyline(g, L_SHAPE, curve_id="EH")
+    built["EH_block_corner_evenly"] = _case(g, compose_kit(), corner_style(
+        "miter", evenly="post", evenly_spacing=2.0, corner="corner_block"))
+
+    # EI - A MARKER SLOT ON A CORNERED CURVE, which no marker case reached:
+    # all four of them (T2/T3/D/N) run straight curves with no corner rule,
+    # so a marker had never met a corner assembly, an evenly rhythm or the
+    # ~35 corner checks. `marker:<id>` is a RESERVED slot, so it is protected
+    # by `single_pillar` here exactly as `corner` and `evenly` are.
+    #
+    # ⚠️ The marker is mid-leg ON PURPOSE. Dropped 0.4 m short of the vertex
+    # instead, it lands INSIDE the corner assembly's reserve: measured
+    # `pc_warn_overflow`, `corner_abut_m` 0.040, `corner_face_mate_m` 0.113
+    # and `double_pillar_m` 0.0767 (`marker:7:gate` + `corner:corner_post`).
+    # The engine reserves nothing for a marker against a corner - `trim` is
+    # the corner's alone - so the two assemblies share ground and the seam
+    # opens. That is a recorded standing finding (§28.7), not a pin: it fails
+    # `corner_abut`, which carries no `expected` and should not grow one for
+    # a fixture's convenience.
+    g = hou.Geometry()
+    polyline(g, L_SHAPE, curve_id="EI")
+    marker(g, (5.0, 0, 0), "EI", 7, 5.0)
+    built["EI_marker_at_corner"] = _case(g, kit_geo, corner_style(
+        "miter", evenly="post", evenly_spacing=2.0, marker="gate"))
 
     # ---- 4.5 SURFACE CONFORM (input 4). The spline is DEAD FLAT and dead
     # straight in every one of these, at y = 0 along +X, so everything

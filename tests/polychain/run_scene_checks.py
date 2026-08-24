@@ -176,11 +176,24 @@ CORNER_REACH = {
 # stopped measuring would drop to 0.0 and go red here.
 #
 # ⚠️ THE SHIPPED DEFAULTS NO LONGER DO THIS. `run_hda_checks.py` and
-# `gate_images.py` drive the parm face and assert 0.0 there; this table is
-# about two fixtures, not about the asset.
+# `gate_images.py` both drive the parm face and both assert 0.0 there; this
+# table is about three fixtures, not about the asset. (The `gate_images.py`
+# half of that sentence was FALSE when it was first written - that file ran
+# nine checks and `single_pillar` was not one of them - and the reader who
+# trusted it believed the parm face was covered twice when it was covered
+# once, on one rectangle. It is covered twice now, D270.)
+#
+# ED is the third, and it is a different animal: `Adjust to End` is an
+# artist's explicit instruction to land the last evenly anchor ON the end of
+# the free span, and where that span ends at a corner assembly the evenly
+# post abuts the corner post - exactly one post, 0.12 m. D269 removed the
+# 0.061 m of INTERPENETRATION that used to be there; the abutment that
+# remains is the documented meaning of the parm, so it is pinned and the parm
+# help says so rather than being quietly engineered away.
 DOUBLE_PILLAR = {
     "A_straight": 0.12,
     "DL_variant_kit": 0.12,
+    "ED_rect_evenly_adjust": 0.12,
 }
 
 

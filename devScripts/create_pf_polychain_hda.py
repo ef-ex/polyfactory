@@ -1054,9 +1054,11 @@ ptg.append(_slot("slot_corner", "Piece at Corners", "corner_post",
 ptg.append(_slot("slot_evenly", "Evenly Spaced Piece", "post",
                  "Module placed at a fixed interval along the run (see "
                  "Evenly Spacing) regardless of the fill - the posts of a "
-                 "fence, lamps on a railing, bollards on a kerb. Anchors "
-                 "stay clear of the run's own ends, so a corner or cap "
-                 "piece is never doubled by one of these."))
+                 "fence, lamps on a railing, bollards on a kerb. Each anchor "
+                 "keeps half a module clear of a corner piece or an end cap, "
+                 "so the fill's own rhythm never doubles one - except where "
+                 "Adjust to End is on, which deliberately lands the last "
+                 "anchor on the section end."))
 
 ptg.append(_slot("slot_marker", "Piece at Markers", "",
                  "Module placed on every marker point merged into input 1 "
@@ -1163,7 +1165,9 @@ adv.addParmTemplate(_float(
     "adjust_to_end", "Adjust to End (m)", 0.0, 0.0, 5.0,
     "Metres. When the trailing leftover is at or under this, the evenly "
     "spacing is stretched so the last anchor lands exactly on the section "
-    "end. 0 never adjusts."))
+    "end. 0 never adjusts. Where that end carries a corner piece or an end "
+    "cap, the last evenly piece will stand right against it - which is what "
+    "landing ON the end means. Leave it at 0 unless you want that."))
 
 adv.addParmTemplate(_menu(
     "corner_displacement", "Corner Displacement",

@@ -231,13 +231,28 @@ def main():
         rebuild(root)
         for r in runners:
             code, states, moved, _out = run(root, r)
-            control[r] = states
             red = sorted(n for n, s in states.items() if s == "FAIL")
-            print("  %-7s %4d checks, %d red, %d moved, exit %d"
-                  % (r, len(states), len(red), moved, code))
+            # ⚠️ THE CONTROL IS RE-RUN ONCE BEFORE IT IS DECLARED BROKEN, and
+            # its failing names are PRINTED. Measured: a pristine HEAD export
+            # reported `hda 33 checks, 1 red` and aborted the whole sweep
+            # without naming the row, then ran green on the next invocation
+            # and green again when the export was reproduced by hand. This
+            # machine carries another agent's hython and a live GUI session,
+            # and several rows in these suites are timings. A sweep that a
+            # timing flake can silently invalidate is worse than one that
+            # costs a second control build - and an operator who cannot see
+            # WHICH check went red cannot tell a flake from a real defect.
             if red or moved or code:
-                bad.append("%s: %d red, %d moved, exit %d"
-                           % (r, len(red), moved, code))
+                print("  %-7s retrying the control: %d red %s, %d moved, "
+                      "exit %d" % (r, len(red), red[:6], moved, code))
+                code, states, moved, _out = run(root, r)
+                red = sorted(n for n, s in states.items() if s == "FAIL")
+            control[r] = states
+            print("  %-7s %4d checks, %d red, %d moved, exit %d %s"
+                  % (r, len(states), len(red), moved, code, red[:6] or ""))
+            if red or moved or code:
+                bad.append("%s: %d red %s, %d moved, exit %d"
+                           % (r, len(red), red[:6], moved, code))
     finally:
         shutil.rmtree(os.path.dirname(root), ignore_errors=True)
     if bad:

@@ -8032,9 +8032,19 @@ def _wrangle_rig(root, tag, npts, ripple=0.0):
     #     divides by PIECES - so the rate doubled on a node that did not get
     #     slower.
     # Both are the loosening D206 exists to refuse, arriving through the
-    # fixture rather than through the code.  The shipped default's own cost is
-    # bounded by `evenly_2km` in `output_guard_cost`, which is that
-    # composition.
+    # fixture rather than through the code.
+    #
+    # ⚠️ WHAT THIS PIN LEAVES UNBOUNDED, corrected because the first version
+    # of this comment overstated it (D270).  `evenly_2km` in
+    # `output_guard_cost` IS the shipped composition and does bound the
+    # shipped default's STRAIGHT path - but it is
+    # `guard_polyline_geo([(1.0*i, 0, 0) ...])`, a dead-flat line that never
+    # enters the deform branch.  So `wrangle_cost_is_flat_in_piece_count_
+    # deformed` and `bench_deform_20km` bound the DEFORMED path of a shape
+    # the asset no longer ships, and the deformed path of the shape it DOES
+    # ship has no committed ceiling at all.  Recorded as a standing finding
+    # in polychain.md 28.7 rather than closed with a ceiling calibrated on a
+    # contended machine.
     node.parm("slot_default").set("post panel")
     node.parm("slot_evenly").set("")
     node.parm("stage").set("output")

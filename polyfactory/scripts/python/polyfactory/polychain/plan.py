@@ -691,9 +691,21 @@ def plan_section(section, kit, style, params=None, trim=(0.0, 0.0)):
         # D15, corrected: the anchor divides the free span, but the PIECE is
         # centred on it, so half a module has to come off each guarded end -
         # otherwise the last evenly post grows through the end cap.
+        #
+        # D269: a RESERVED boundary is guarded, not only a CAPPED one. D18
+        # makes `start_cap`/`end_cap` false at a corner - a corner assembly
+        # reserves its space through `trim`, not through a cap - so `head`
+        # and `tail` are both None there and the shed never ran. Measured on
+        # the shipped asset: `Evenly Justify = From the end` on a 12.161 m
+        # leg drove the evenly post HALF ITS WIDTH INTO the mitered corner
+        # post (0.061 m of interpenetration), and `Adjust to End` did it at
+        # every corner of every leg. Same shed, same reason, one more way of
+        # spelling "something is already standing here".
         half = e_mod.length * 0.5
-        base = free_a + (lead_pad or 0.0) + (e_mod.pad[0] + half if head else 0.0)
-        top = free_b - (trail_pad or 0.0) - (e_mod.pad[1] + half if tail else 0.0)
+        guard_a = head is not None or float(trim[0]) > EPS
+        guard_b = tail is not None or float(trim[1]) > EPS
+        base = free_a + (lead_pad or 0.0) + (e_mod.pad[0] + half if guard_a else 0.0)
+        top = free_b - (trail_pad or 0.0) - (e_mod.pad[1] + half if guard_b else 0.0)
         for i, at in enumerate(evenly(max(top - base, 0.0), params)):
             at += base
             # the rule is re-read AT THE ANCHOR: 3.3 lists `u` as a

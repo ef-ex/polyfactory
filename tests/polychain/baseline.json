@@ -359,7 +359,7 @@
       "value": null
     },
     {
-      "detail": "6 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "6 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -836,7 +836,7 @@
       "value": 0.0
     },
     {
-      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "2 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -1326,7 +1326,7 @@
       "value": null
     },
     {
-      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "2 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -1810,11 +1810,11 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "4 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
-      "skipped": true,
-      "value": null
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -2284,7 +2284,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -2760,7 +2760,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -3236,7 +3236,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -3717,7 +3717,7 @@
       "value": null
     },
     {
-      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "4 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -4212,7 +4212,7 @@
       "value": null
     },
     {
-      "detail": "6 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "6 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -4716,7 +4716,7 @@
       "value": null
     },
     {
-      "detail": "12 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "12 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -5216,7 +5216,7 @@
       "value": null
     },
     {
-      "detail": "10 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "10 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -5692,7 +5692,7 @@
       "value": null
     },
     {
-      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "4 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -6168,7 +6168,7 @@
       "value": null
     },
     {
-      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "4 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -6644,7 +6644,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -7120,7 +7120,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -7619,7 +7619,7 @@
       "value": null
     },
     {
-      "detail": "8 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "8 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -8102,11 +8102,11 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "4 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
-      "skipped": true,
-      "value": null
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -8585,7 +8585,7 @@
       "value": null
     },
     {
-      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "4 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -9059,7 +9059,7 @@
       "value": 0.00019286
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -9528,7 +9528,7 @@
       "value": null
     },
     {
-      "detail": "11 upright members, 1 mixed-slot groups, worst default:post+start:post at (0.12, 0.00) (expected 0.1200)",
+      "detail": "11 candidates, 1 doubled pairs, worst start:post+default:post at (0.12, 0.00) (expected 0.1200)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -10022,7 +10022,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -10495,7 +10495,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -10968,7 +10968,7 @@
       "value": null
     },
     {
-      "detail": "167 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "167 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -11437,7 +11437,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -11910,7 +11910,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -12392,7 +12392,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -12868,7 +12868,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -13341,7 +13341,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -13819,7 +13819,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -14301,7 +14301,7 @@
       "value": null
     },
     {
-      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "4 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -14774,7 +14774,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -15243,7 +15243,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -15716,7 +15716,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -16194,7 +16194,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -16678,7 +16678,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -17154,7 +17154,7 @@
       "value": null
     },
     {
-      "detail": "167 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "167 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -17634,7 +17634,7 @@
       "value": 0.0018
     },
     {
-      "detail": "19 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "19 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -18105,7 +18105,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -18578,7 +18578,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -19074,7 +19074,7 @@
       "value": null
     },
     {
-      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "2 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -19561,7 +19561,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -20026,7 +20026,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -20491,7 +20491,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -20965,11 +20965,11 @@
       "value": null
     },
     {
-      "detail": "1 upright members",
+      "detail": "4 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
-      "skipped": true,
-      "value": null
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -21436,11 +21436,11 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "5 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
-      "skipped": true,
-      "value": null
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -21917,7 +21917,7 @@
       "value": 0.00117778
     },
     {
-      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "2 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -22386,7 +22386,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -22855,7 +22855,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -23324,7 +23324,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -23793,7 +23793,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -24262,7 +24262,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -24731,7 +24731,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -25200,7 +25200,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -25679,7 +25679,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -26155,7 +26155,7 @@
       "value": null
     },
     {
-      "detail": "270 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "270 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -26620,7 +26620,7 @@
       "value": null
     },
     {
-      "detail": "270 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "270 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -27085,7 +27085,7 @@
       "value": null
     },
     {
-      "detail": "270 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "270 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -27553,7 +27553,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -28025,7 +28025,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -28498,7 +28498,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -28971,7 +28971,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -29443,7 +29443,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -29915,7 +29915,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -30384,7 +30384,7 @@
       "value": null
     },
     {
-      "detail": "270 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "270 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -30868,7 +30868,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -31337,7 +31337,7 @@
       "value": null
     },
     {
-      "detail": "11 upright members, 1 mixed-slot groups, worst default:post+start:post at (0.12, 0.00) (expected 0.1200)",
+      "detail": "11 candidates, 1 doubled pairs, worst start:post+default:post at (0.12, 0.00) (expected 0.1200)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -31811,7 +31811,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -32282,7 +32282,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "1 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -32402,6 +32402,4392 @@
       "ok": true,
       "skipped": false,
       "value": 1.79e-07
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "EA_rect_miter_evenly": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 44
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "EA|2|default|0|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.6e-08,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "EA[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.21e-07
+    },
+    {
+      "detail": "post -> panel",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 8.42e-07
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "16 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1848,
+        0
+      ]
+    },
+    {
+      "detail": "20 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "24 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.000",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.21e-07
+    },
+    {
+      "detail": "corner_post want 0.1600 got 0.1600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 6.26e-07
+    },
+    {
+      "detail": "8 stand-ins or mitered",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "8 mitered",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 44",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 36
+    },
+    {
+      "detail": "44 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.12,
+        1.88
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": " (8 pieces skipped)",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "corner_post",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.159999847
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.119999997
+    },
+    {
+      "detail": "worst 4.210e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 44
+    },
+    {
+      "detail": "EA|0|evenly|3|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.2e-08,
+        0
+      ]
+    },
+    {
+      "detail": "tol 0.0100 m",
+      "name": "bend_deviation_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "2903f599d39c31a6"
+    },
+    {
+      "detail": "in leg, 0.080 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "4 corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ]
+      ]
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "corner_post in",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3.37e-07
+    },
+    {
+      "detail": "",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "in 0.0800 out 0.0800",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "corner_post in, error 1.49e-07 m",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.16
+    },
+    {
+      "detail": "",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.08
+    },
+    {
+      "detail": "corner_post at turn 90.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "24 candidates, 0 doubled pairs, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "20 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "44 ids, 64 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "8 caps, 0 untagged, 0 degenerate",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": " (residual vs 0.0000)",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "EB_rect_evenly_start": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 44
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "EB|2|default|5|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.9e-08,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "EB[1] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.86e-07
+    },
+    {
+      "detail": "post -> panel",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.27e-07
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "16 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1848,
+        0
+      ]
+    },
+    {
+      "detail": "20 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "24 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.500",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.86e-07
+    },
+    {
+      "detail": "corner_post want 0.1600 got 0.1600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.49e-07
+    },
+    {
+      "detail": "8 stand-ins or mitered",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "8 mitered",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 44",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 36
+    },
+    {
+      "detail": "44 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.12,
+        2.0
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": " (8 pieces skipped)",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "corner_post",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.159998894
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.119999997
+    },
+    {
+      "detail": "worst 1.863e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 44
+    },
+    {
+      "detail": "EB|0|evenly|1|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.4e-08,
+        0
+      ]
+    },
+    {
+      "detail": "tol 0.0100 m",
+      "name": "bend_deviation_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "b1222ca2de405883"
+    },
+    {
+      "detail": "in leg, 0.080 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "4 corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ]
+      ]
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "corner_post in",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.206e-06
+    },
+    {
+      "detail": "",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "in 0.0800 out 0.0800",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "corner_post in, error 1.10e-06 m",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.159999
+    },
+    {
+      "detail": "",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.08
+    },
+    {
+      "detail": "corner_post at turn 90.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "24 candidates, 0 doubled pairs, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "20 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "worst on EB|0|default|3|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "44 ids, 64 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "8 caps, 0 untagged, 0 degenerate",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": " (residual vs 0.0000)",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "EC_rect_evenly_end": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 44
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "EC|2|evenly|0|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.2e-08,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "EC[2] start",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 7.5e-08
+    },
+    {
+      "detail": "panel -> post",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.61e-07
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "16 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1848,
+        0
+      ]
+    },
+    {
+      "detail": "20 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "24 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.250",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 7.5e-08
+    },
+    {
+      "detail": "corner_post want 0.1600 got 0.1600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.49e-07
+    },
+    {
+      "detail": "8 stand-ins or mitered",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "8 mitered",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 44",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 36
+    },
+    {
+      "detail": "44 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.12,
+        2.0
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": " (8 pieces skipped)",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "corner_post",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.159998894
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.119999997
+    },
+    {
+      "detail": "worst 1.863e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 44
+    },
+    {
+      "detail": "EC|0|evenly|0|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
+    },
+    {
+      "detail": "tol 0.0100 m",
+      "name": "bend_deviation_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "ced436c8137d3106"
+    },
+    {
+      "detail": "in leg, 0.080 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "4 corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ]
+      ]
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "corner_post in",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.206e-06
+    },
+    {
+      "detail": "",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "in 0.0800 out 0.0800",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "corner_post in, error 1.10e-06 m",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.159999
+    },
+    {
+      "detail": "",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.08
+    },
+    {
+      "detail": "corner_post at turn 90.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "24 candidates, 0 doubled pairs, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "20 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "worst on EC|0|default|3|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "44 ids, 64 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "8 caps, 0 untagged, 0 degenerate",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": " (residual vs 0.0000)",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "ED_rect_evenly_adjust": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 48
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "ED|3|evenly|0|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3e-08,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "ED[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.86e-07
+    },
+    {
+      "detail": "panel -> post",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.15e-07
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "20 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2016,
+        0
+      ]
+    },
+    {
+      "detail": "20 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "28 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.000",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3.3e-07
+    },
+    {
+      "detail": "corner_post want 0.1600 got 0.1600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.49e-07
+    },
+    {
+      "detail": "8 stand-ins or mitered",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "8 mitered",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 48",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 40
+    },
+    {
+      "detail": "48 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.12,
+        2.095
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": " (8 pieces skipped)",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "corner_post",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.159998894
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.119999997
+    },
+    {
+      "detail": "worst 3.303e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 48
+    },
+    {
+      "detail": "ED|0|default|0|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.2e-08,
+        0
+      ]
+    },
+    {
+      "detail": "tol 0.0100 m",
+      "name": "bend_deviation_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "f46cc61ba530686a"
+    },
+    {
+      "detail": "in leg, 0.080 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "4 corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ]
+      ]
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "corner_post in",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.349e-06
+    },
+    {
+      "detail": "",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "in 0.0800 out 0.0800",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "corner_post in, error 1.10e-06 m",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.159999
+    },
+    {
+      "detail": "",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.08
+    },
+    {
+      "detail": "corner_post at turn 90.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "28 candidates, 8 doubled pairs, worst corner:corner_post+evenly:post at (0.00, 0.07) (expected 0.1200)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.12
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "20 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "worst on ED|2|default|5|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "48 ids, 66 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "8 caps, 0 untagged, 0 degenerate",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": " (residual vs 0.0000)",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "EE_lshape_evenly": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 26
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "EE|1|evenly|1|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.3e-08,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "EE[1] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.12e-07
+    },
+    {
+      "detail": "panel -> post",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.49e-07
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "12 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1092,
+        0
+      ]
+    },
+    {
+      "detail": "12 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "14 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.250",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 7.5e-08
+    },
+    {
+      "detail": "corner_post want 0.1600 got 0.1600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.49e-07
+    },
+    {
+      "detail": "2 stand-ins or mitered",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "2 mitered",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 26",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 24
+    },
+    {
+      "detail": "26 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.12,
+        1.88
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": " (2 pieces skipped)",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "corner_post",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.159999847
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.119999997
+    },
+    {
+      "detail": "worst 1.118e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 26
+    },
+    {
+      "detail": "EE|0|evenly|0|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.6e-08,
+        0
+      ]
+    },
+    {
+      "detail": "tol 0.0100 m",
+      "name": "bend_deviation_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "a36670292918cd62"
+    },
+    {
+      "detail": "in leg, 0.080 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "1 corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ]
+      ]
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "corner_post in",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 5.3e-08
+    },
+    {
+      "detail": "",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "in 0.0800 out 0.0800",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "corner_post in, error 1.49e-07 m",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.16
+    },
+    {
+      "detail": "",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.08
+    },
+    {
+      "detail": "corner_post at turn 90.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "14 candidates, 0 doubled pairs, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "12 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "26 ids, 46 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "2 caps, 0 untagged, 0 degenerate",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": " (residual vs 0.0000)",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "EF_reflex_evenly": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 25
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "EF|2|evenly|2|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.9e-08,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "EF[2] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 8.42e-07
+    },
+    {
+      "detail": "post -> panel",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.065e-06
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "10 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1050,
+        0
+      ]
+    },
+    {
+      "detail": "11 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "14 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.250",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 6.7e-07
+    },
+    {
+      "detail": "corner_post want 0.1600 got 0.1600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.44e-07
+    },
+    {
+      "detail": "4 stand-ins or mitered",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "4 mitered",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 25",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 21
+    },
+    {
+      "detail": "25 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.12,
+        1.88
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": " (4 pieces skipped)",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "corner_post",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.066273222
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.119999997
+    },
+    {
+      "detail": "worst 8.419e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 25
+    },
+    {
+      "detail": "EF|2|evenly|1|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.8e-08,
+        0
+      ]
+    },
+    {
+      "detail": "tol 0.0100 m",
+      "name": "bend_deviation_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "1bd1d2a60744f452"
+    },
+    {
+      "detail": "out leg, 0.127 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "2 corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          45.0,
+          -1,
+          "miter",
+          0
+        ],
+        [
+          45.0,
+          1,
+          "miter",
+          0
+        ]
+      ]
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "corner_post out",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.79e-07
+    },
+    {
+      "detail": "turn 45.0 deg",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.2e-07
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "in 0.1269 out 0.1269",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "corner_post in, error 6.13e-07 m",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.159999
+    },
+    {
+      "detail": "",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.126863
+    },
+    {
+      "detail": "corner_post at turn 45.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "14 candidates, 0 doubled pairs, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "11 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "worst on EF|1|default|0|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "25 ids, 45 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "4 caps, 0 untagged, 0 degenerate",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "turn 45.0 deg (residual vs 0.0000)",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "EG_pentagon_evenly": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 35
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "EG|4|evenly|1|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.9e-08,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "EG[1] start",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.52e-07
+    },
+    {
+      "detail": "panel -> post",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.56e-07
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "10 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1470,
+        0
+      ]
+    },
+    {
+      "detail": "15 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "20 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=1.250",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.59e-07
+    },
+    {
+      "detail": "corner_post want 0.1600 got 0.1600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3.66e-07
+    },
+    {
+      "detail": "10 stand-ins or mitered",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "10 mitered",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 35",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 25
+    },
+    {
+      "detail": "35 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.12,
+        1.88
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.500 (10 pieces skipped)",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "corner_post",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.043752922
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.119999997
+    },
+    {
+      "detail": "worst 1.700e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 35
+    },
+    {
+      "detail": "EG|0|evenly|0|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3.8e-08,
+        0
+      ]
+    },
+    {
+      "detail": "tol 0.0100 m",
+      "name": "bend_deviation_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "1192f4965e7aaa29"
+    },
+    {
+      "detail": "out leg, 0.102 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "5 corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          72.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          72.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          72.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          72.0,
+          1,
+          "miter",
+          0
+        ],
+        [
+          72.0,
+          1,
+          "miter",
+          0
+        ]
+      ]
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "corner_post in",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.97e-07
+    },
+    {
+      "detail": "turn 72.0 deg",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.9e-07
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "in 0.1019 out 0.1019",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "corner_post out, error 3.33e-07 m",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.16
+    },
+    {
+      "detail": "",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.101876
+    },
+    {
+      "detail": "corner_post at turn 72.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "20 candidates, 0 doubled pairs, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "15 bendable, tol 0.0100 m - worst packed on panel",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "worst on EG|4|default|2|corner",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "35 ids, 55 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "10 caps, 0 untagged, 0 degenerate",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "turn 72.0 deg (residual vs 0.0000)",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "EH_block_corner_evenly": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 26
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "EH|1|default|3|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.3e-08,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "EH[0] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.47e-07
+    },
+    {
+      "detail": "post -> panel",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 8.42e-07
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "12 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1092,
+        0
+      ]
+    },
+    {
+      "detail": "12 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "14 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.000",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.47e-07
+    },
+    {
+      "detail": "corner_block want 0.1600 got 0.1600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.49e-07
+    },
+    {
+      "detail": "2 stand-ins or mitered",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "2 mitered",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 26",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 24
+    },
+    {
+      "detail": "26 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.12,
+        1.88
+      ]
+    },
+    {
+      "detail": "of 162, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": " (2 pieces skipped)",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "corner_block",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.159998894
+    },
+    {
+      "detail": "post",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.119999997
+    },
+    {
+      "detail": "worst 4.470e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 26
+    },
+    {
+      "detail": "EH|1|default|3|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        5.3e-08,
+        0
+      ]
+    },
+    {
+      "detail": "tol 0.0100 m",
+      "name": "bend_deviation_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "1247c8f655533006"
+    },
+    {
+      "detail": "in leg, 1.120 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "1 corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ]
+      ]
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "corner_block in",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 7.27e-07
+    },
+    {
+      "detail": "turn 90.0 deg",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 9e-08
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "in 1.1200 out 1.1200",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "corner_block in, error 2.38e-07 m",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.2
+    },
+    {
+      "detail": "",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.12
+    },
+    {
+      "detail": "corner_block at turn 90.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "14 candidates, 0 doubled pairs, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "12 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "26 ids, 42 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "2 caps, 0 untagged, 0 degenerate",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "turn 90.0 deg (residual vs 0.0000)",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": false,
+      "value": -1e-06
+    },
+    {
+      "detail": "",
+      "name": "kit_warnings",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    }
+  ],
+  "EI_marker_at_corner": [
+    {
+      "detail": "",
+      "name": "element_count",
+      "ok": true,
+      "skipped": false,
+      "value": 28
+    },
+    {
+      "detail": "",
+      "name": "duplicate_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "unresolved_elem_ids",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "EI|1|evenly|1|corner pc_u",
+      "name": "stamp_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        2.3e-08,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "output_schema",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "sampler_matches_kernel",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "section_coverage_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "EI[1] end",
+      "name": "exact_fill_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.12e-07
+    },
+    {
+      "detail": "gate -> panel",
+      "name": "max_gap_m",
+      "ok": true,
+      "skipped": false,
+      "value": 3.58e-07
+    },
+    {
+      "detail": "",
+      "name": "stepped_riser_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "12 stepped pieces",
+      "name": "stepped_float_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_hybrid_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no band on this case",
+      "name": "band_datum_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "stamp_parity",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        1176,
+        0
+      ]
+    },
+    {
+      "detail": "14 pieces",
+      "name": "plumb_deg",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "14 pieces",
+      "name": "flat_stepped_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no adaptive-mode pieces",
+      "name": "bank_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no conformed path",
+      "name": "conform_parity",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "",
+      "name": "open_edges",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "panel @ x=0.500",
+      "name": "axis_on_curve_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.79e-07
+    },
+    {
+      "detail": "corner_post want 0.1600 got 0.1600",
+      "name": "cross_section_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1.49e-07
+    },
+    {
+      "detail": "2 stand-ins or mitered",
+      "name": "module_fidelity_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "2 mitered",
+      "name": "rigid_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "deformed_flag_mismatch",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "of 28",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 26
+    },
+    {
+      "detail": "28 pieces",
+      "name": "horizontal_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.12,
+        1.88
+      ]
+    },
+    {
+      "detail": "of 156, 0 unjudged",
+      "name": "inward_faces",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": " (2 pieces skipped)",
+      "name": "frame_dot_min",
+      "ok": true,
+      "skipped": false,
+      "value": 1.0
+    },
+    {
+      "detail": "corner_post",
+      "name": "station_spacing_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.159999847
+    },
+    {
+      "detail": "panel",
+      "name": "min_piece_span_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.11999999
+    },
+    {
+      "detail": "worst 1.788e-07 m",
+      "name": "plan_points",
+      "ok": true,
+      "skipped": false,
+      "value": 28
+    },
+    {
+      "detail": "EI|0|default|2|corner pc_s1",
+      "name": "plan_point_provenance",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        4.3e-08,
+        0
+      ]
+    },
+    {
+      "detail": "tol 0.0100 m",
+      "name": "bend_deviation_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "",
+      "name": "determinism",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "geometry_digest",
+      "ok": true,
+      "skipped": false,
+      "value": "ee5add1365b58b22"
+    },
+    {
+      "detail": "in leg, 0.080 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "1 corners",
+      "name": "corner_turns",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          90.0,
+          1,
+          "miter",
+          0
+        ]
+      ]
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_welds",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "corner_post in",
+      "name": "corner_plane_dev_m",
+      "ok": true,
+      "skipped": false,
+      "value": 5.3e-08
+    },
+    {
+      "detail": "",
+      "name": "corner_face_mate_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "corner_mate_axis_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "in 0.0800 out 0.0800",
+      "name": "corner_symmetry_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "corner_post in, error 1.49e-07 m",
+      "name": "corner_outside_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.16
+    },
+    {
+      "detail": "",
+      "name": "corner_reach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.08
+    },
+    {
+      "detail": "corner_post at turn 90.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no dissolved corners",
+      "name": "corner_wedge_m2",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "15 candidates, 0 doubled pairs, worst none (expected 0.0000)",
+      "name": "double_pillar_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_contact_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_drape_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "camber_deg",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "no surface",
+      "name": "conform_misses",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "worst real deform 0.0000 m, 0 sheared (D65)",
+      "name": "over_unpacked",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "",
+      "name": "curvature_budget_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "detail": "14 bendable, tol 0.0100 m",
+      "name": "deform_gate_m",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.0,
+        0,
+        0
+      ]
+    },
+    {
+      "detail": "no packed bendable pieces",
+      "name": "packed_true_dev_m",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "0 reader warnings",
+      "name": "style_round_trip",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        0.0
+      ]
+    },
+    {
+      "detail": "no overrides",
+      "name": "override_round_trip",
+      "ok": true,
+      "skipped": true,
+      "value": null
+    },
+    {
+      "detail": "28 ids, 48 after the merge",
+      "name": "elem_ids_upstream",
+      "ok": true,
+      "skipped": false,
+      "value": 0
+    },
+    {
+      "detail": "2 caps, 0 untagged, 0 degenerate",
+      "name": "cap_uv_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warn_summary",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": " (residual vs 0.0000)",
+      "name": "corner_seam_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "",
@@ -32758,7 +37144,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -33227,7 +37613,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -33696,7 +38082,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -34165,7 +38551,7 @@
       "value": null
     },
     {
-      "detail": "1 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -34648,7 +39034,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -35136,7 +39522,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -35612,7 +39998,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "1 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -36079,7 +40465,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -36548,7 +40934,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -37013,11 +41399,11 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "2 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
-      "skipped": true,
-      "value": null
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -37501,11 +41887,11 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "2 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
-      "skipped": true,
-      "value": null
+      "skipped": false,
+      "value": 0.0
     },
     {
       "detail": "no surface",
@@ -37973,7 +42359,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -38449,7 +42835,7 @@
       "value": null
     },
     {
-      "detail": "25 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "25 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -38921,7 +43307,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "0 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -39388,7 +43774,7 @@
       "value": null
     },
     {
-      "detail": "0 upright members",
+      "detail": "1 candidate members",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": true,
@@ -39860,7 +44246,7 @@
       "value": 0.00019459
     },
     {
-      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "2 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -40336,7 +44722,7 @@
       "value": null
     },
     {
-      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "4 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -40830,7 +45216,7 @@
       "value": null
     },
     {
-      "detail": "8 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "8 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -41306,7 +45692,7 @@
       "value": null
     },
     {
-      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "4 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -41782,7 +46168,7 @@
       "value": null
     },
     {
-      "detail": "4 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "4 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -42258,7 +46644,7 @@
       "value": null
     },
     {
-      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "4 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,
@@ -42447,7 +46833,7 @@
       ]
     },
     {
-      "detail": "warm 0.72 us at 10 verts, 0.93 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 6.3 us at 10, 14191.9 us at 20 001 (1.1x per vertex, O(n), expected O(n))",
+      "detail": "warm 1.35 us at 10 verts, 1.64 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 10.8 us at 10, 28154.8 us at 20 001 (1.3x per vertex, O(n), expected O(n))",
       "name": "curve_sample_scaling",
       "ok": true,
       "skipped": false,
@@ -42940,7 +47326,7 @@
       "value": null
     },
     {
-      "detail": "2 upright members, 0 mixed-slot groups, worst none (expected 0.0000)",
+      "detail": "3 candidates, 0 doubled pairs, worst none (expected 0.0000)",
       "name": "double_pillar_m",
       "ok": true,
       "skipped": false,

@@ -337,6 +337,31 @@ MUTATIONS = (
         "fracs=proto.fracs):"),),
       rebuild=False),
 
+    # ---- 4.2, the fitting solve: one piece too few -------------------------
+    M("adaptive_rounds_down", "scene",
+      (BASELINE_MOVED, "warnings"),
+      "4.2's adaptive rounding, one piece the other way: D14's 'a remainder "
+      "over `adaptive_pct` earns another unit' deleted. It is the broadest "
+      "cheap mutation in the registry - it changes how many pieces a run "
+      "gets, which is the first number an artist reads - and it is here to "
+      "prove the fill checks are assertions and not a recording of whatever "
+      "the solve happened to do. ⚠️ AND THEY ARE NOT. Measured: "
+      "`element_count`, `exact_fill_m`, `max_gap_m` and `section_coverage_m` "
+      "ALL STAY GREEN with a piece removed from every adaptive run, because "
+      "adaptive mode then stretches the survivors and the fill is still "
+      "exact. The whole change shows up as 224 MOVED BASELINE VALUES and one "
+      "warning. So on this runner the guard against a re-fit is D210's "
+      "baseline diff, NOT the geometry checks - which is why the reserved "
+      "name is the paired one here. Third instance of the same shape in this "
+      "cycle (see `deviates_branch_disabled`): a name that reads like an "
+      "assertion is a recorded value on most cases.",
+      ((PY % "plan.py",
+        "        if (exact - n) * 100.0 >= params.adaptive_pct - EPS:\n"
+        "            n += 1",
+        "        if False and (exact - n) * 100.0 >= params.adaptive_pct - "
+        "EPS:\n            n += 1"),),
+      rebuild=False),
+
     # ---- D210: a moved baselined value fails the run ------------------------
     M("scene_baseline_perturbed", "scene",
       (BASELINE_MOVED,),
@@ -463,24 +488,71 @@ MUTATIONS = (
       "way the page used to reddens `double_pillar_m` on 19 cases - "
       "V_rect_miter at 0.111698 m, the exact number Hannes measured.",
       (("tests/polychain/cases.py",
-        '    return Style("corner", 1, 9, rules=[',
-        '    return Style("corner", 1, 9, rules=[\n'
-        '        Rule("default", "sequence", ["post", "panel"]),'),),
+        '    rules = [\n        Rule("default", "first", ["panel"]),',
+        '    rules = [\n        Rule("default", "sequence", ["post", "panel"]),'),),
       rebuild=False,
       note="⚠️ IT MUTATES THE FIXTURE, NOT THE KERNEL, and that is the point: "
            "the kernel was never wrong. The defect was a COMPOSITION shipped "
            "on the parameter page and a fixture set that could not reach it. "
            "The kernel-side pair for the same check is "
-           "`default_slot_composed_again` on the `hda` runner."),
+           "`default_slot_composed_again` on the `hda` runner. ⚠️ AND ITS "
+           "ANCHOR MOVED AT D269, when `corner_style` grew an optional "
+           "`evenly` rule: the registry HARD FAILS on an edit whose target "
+           "has moved rather than reporting a silent green, which is how "
+           "that was noticed. It now also reddens `EH_block_corner_evenly`, "
+           "whose corner module is a 1.20 x 1.30 m BLOCK - before D270 that "
+           "same build measured 0.0 and PASSED, because the aspect rule "
+           "gated ENTRY and a block is not an upright."),
+
+    # ---- D269: a corner RESERVES space, and the guard has to know it -------
+    M("evenly_ignores_the_corner_reserve", "hda",
+      ("evenly_clears_the_corner_justify_end",),
+      "D269, at source - the corner's reservation stops guarding the evenly "
+      "anchors and only a CAP does, which is what shipped. D15 sheds half a "
+      "module at a guarded end so the centred piece cannot grow through it, "
+      "but `head`/`tail` are built from `section.start_cap`/`end_cap` and "
+      "D18 makes both FALSE at a corner: a corner reserves its space through "
+      "`trim`, not through a cap, so the shed never ran there. What kept the "
+      "shipped defaults clean was `justify='center'`, whose lead is at least "
+      "half a spacing - an accident, not a guarantee, and the parm help "
+      "claimed the guarantee. ONE Advanced parm reached the defect the whole "
+      "of section 28 exists to fix: measured on the shipped asset, "
+      "`Evenly Justify = From the end` on a 12.161 m leg drove the evenly "
+      "post 0.061 m INTO the mitered corner post, and `Adjust to End` did it "
+      "at every corner of every leg (0.06 m on 4.66 / 6.66 / 8.66 / 12.66 / "
+      "12.70 / 12.90 m legs, 0.0 with the parm off).",
+      ((PY % "plan.py",
+        "        guard_a = head is not None or float(trim[0]) > EPS\n"
+        "        guard_b = tail is not None or float(trim[1]) > EPS",
+        "        guard_a = head is not None\n"
+        "        guard_b = tail is not None"),),
+      rebuild=False,
+      note="⚠️ THE LEG LENGTH IS THE MUTATION'S OTHER HALF. On the 12 x 8 m "
+           "rectangle every justification measures 0.0 BOTH BEFORE AND AFTER "
+           "the fix, because 12 m is an exact multiple of the 2 m spacing and "
+           "the justify leftover never approaches zero - so a fixture on the "
+           "round number is green on the broken build and this mutation would "
+           "be a SURVIVOR. `evenly_clears_the_corner_*` and the scene cases "
+           "EB/EC run 12.161 m for that reason. It also reddens "
+           "`double_pillar_m` in `run_scene_checks` (EB, EC) and moves those "
+           "cases' baselines; `justify_start` and `justify_center` stay green "
+           "on the mutated build, which is the shape of the defect rather "
+           "than a weak pairing."),
 
     # ---- D194: verify an image contains its subject ------------------------
     M("gate_image_not_unpacked", "images",
-      ("n5_deformed_image_has_geometry",),
+      ("image_shows_packed_L_bend", "image_shows_packed_L_miter",
+       "image_shows_packed_rect_bend"),
       "D194, at source - `unpack` made a no-op. A PACKED PRIM HAS ONE VERTEX, "
       "so a wireframe drawn straight off a 4.6-instanced polyChain output is "
       "EMPTY: PC-G1's committed gate image was 188 segments of a "
       "3 388-segment fence, and four gates were reported PASSED on it. The "
-      "check that exists because of that has to be the one that reddens.",
+      "check that exists because of that has to be the one that reddens. "
+      "⚠️ MEASURED, and the pairing was wrong at first: it does NOT redden "
+      "`n5_deformed_image_has_geometry`, because 13.9 N5's crop is the "
+      "DEFORMED branch and a deformed piece is a polygon soup, not a packed "
+      "prim - unpacking it is the identity. The three rows that see it are "
+      "the packed ones, which is the case D194 actually happened on.",
       ((IMG,
         'def unpack(geo):\n    """A flat copy with every PACKED prim '
         "expanded, for the rasteriser.",
