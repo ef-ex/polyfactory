@@ -3091,6 +3091,9 @@ def place_packed_parity(root, built):
     cover_bad = []
     cover_n = [0]
     cover_gap = [0]
+    deform_bad = []
+    deform_n = [0]
+    deform_refused = [0]
     for name in sorted(built):
         name_ = name
         case = built[name]
@@ -3176,12 +3179,61 @@ def place_packed_parity(root, built):
         # the loop above compared a SUBSET and called it parity. With the gate
         # the branch is supposed to build exactly the reference's packed set,
         # and that is a claim about the two SETS.
+        # ⚠️ PACKED PRIMS ONLY, AND THAT QUALIFIER ARRIVED WITH 13.9 N5.  This
+        # branch used to build nothing but packed prims, so "every prim's
+        # elem_id" and "every PACKED prim's elem_id" were the same set; the
+        # deformed branch made them differ, and without the filter every
+        # unpacked element read as a native EXTRA against the reference's
+        # packed set - J_coarse_bend reported +1 on a build that was correct.
         got_ids = set()
+        got_deformed = set()
         for p_ in geo.prims():
             try:
-                got_ids.add(p_.attribValue("pc_elem_id"))
+                eid_ = p_.attribValue("pc_elem_id")
+            except hou.OperationFailed:
+                continue
+            if p_.type() == hou.primType.PackedGeometry:
+                got_ids.add(eid_)
+            else:
+                got_deformed.add(eid_)
+        # ...and the OTHER half of the same set, which nothing asserted before:
+        # the elements the reference DEFORMED have to be exactly the elements
+        # this branch deformed.  `output_guard_parity` would catch a mismatch
+        # end to end, but only as "prim 214 type" - this names the element.
+        ref_deformed = set()
+        for p_ in case["out"].prims():
+            if p_.type() == hou.primType.PackedGeometry:
+                continue
+            try:
+                ref_deformed.add(p_.attribValue("pc_elem_id"))
             except hou.OperationFailed:
                 pass
+        # ⚠️ AND WHAT THE GATE REFUSED IS SUBTRACTED, NAMED AND COUNTED, not
+        # silently tolerated.  13.9 N5's deformed branch declares three kinds
+        # of piece unanswerable - a SLICED one, a module whose piece-local
+        # index would overflow the order key, and a span D31's frame TRANSPORT
+        # could flip on - and `pc_place_valid` blasts them, which makes level 2
+        # refuse the whole build.  `C_tile_slice` and `P_crest_bend` are
+        # exactly those two shapes in the scene suite.  A refusal is the guard
+        # working; what would be a defect is the branch building a piece the
+        # reference deforms and getting it WRONG, which is what the set
+        # difference below still catches.
+        gate_geo = node.node("pc_deform_gate").geometry()
+        refused = set()
+        if gate_geo is not None:
+            for pt in gate_geo.points():
+                try:
+                    if not int(pt.attribValue("pc_frame_valid")):
+                        refused.add(pt.attribValue("pc_elem_id"))
+                except hou.OperationFailed:
+                    pass
+        deform_refused[0] += len(refused & ref_deformed)
+        if (ref_deformed - refused) != got_deformed:
+            sym = sorted((ref_deformed - refused) ^ got_deformed)
+            deform_bad.append(
+                (name_, len(sorted(ref_deformed - refused - got_deformed)),
+                 len(sorted(got_deformed - ref_deformed)), sym[0]))
+        deform_n[0] += len(ref_deformed)
         # 3.4's STAND-IN BOX is the one declared gap: "blank stand-in box at
         # nominal size, never a failure". `pc_proto` cannot MEASURE a module
         # that is not in the kit, so it declines the piece and D154's native
@@ -3231,6 +3283,18 @@ def place_packed_parity(root, built):
     check("place_packed_is_not_empty", nprim > 400, nprim,
           "packed prims actually compared - a branch that built none would "
           "make the check above vacuously green")
+    # 13.9 N5 - and the DEFORMED set, element for element.
+    check("place_deformed_covers_the_reference",
+          not deform_bad and deform_n[0] > 0, deform_n[0],
+          "the elements the reference UNPACKS are exactly the elements 13.9 "
+          "N5's deformed branch unpacks, bar %d the gate declared "
+          "UNANSWERABLE (a slice, an order-key overflow, a span D31's frame "
+          "transport could flip on - each of which makes level 2 refuse the "
+          "whole build). Until N5 this set was empty natively and every build "
+          "with one bending panel took the reference. Disagreeing: %s"
+          % (deform_refused[0],
+             "; ".join("%s (+%d ref / +%d native, e.g. %s)" % b
+                       for b in deform_bad[:3]) or "none"))
 
     # ⚠️ THE STAMP, AND IT HAD NEVER BEEN COMPARED. `place_packed_parity`
     # above measures `P` and the world bounds; every one of 3.4's fourteen
@@ -3563,12 +3627,22 @@ def place_mutation(root, built):
     # case is OUT OF `place_packed_parity`'s scope until N8, so comparing it
     # to the reference here would be measuring the missing stage.  What these
     # three mutations have to show is that the parameter MOVES THE OUTPUT.
+    # ⚠️ PACKED PRIMS ONLY, SINCE 13.9 N5.  This block measures what a
+    # `copytopoints` PARAMETER does, and `copy_packed` is the only node those
+    # parameters belong to.  A deformed piece is many polygons sharing one
+    # `pc_elem_id`, so keying `sound` on the id over EVERY prim keeps the last
+    # polygon of each piece and then reports its distance from all the others
+    # as a "move" - 1.917 m on an unmutated build, which is the corner
+    # rectangle's own module, not a mutation.
     sound = dict((p.attribValue("pc_elem_id"), p.intrinsicValue("bounds"))
-                 for p in geo.prims())
+                 for p in geo.prims()
+                 if p.type() == hou.primType.PackedGeometry)
 
     def spread(g):
         out = 0.0
         for p in g.prims():
+            if p.type() != hou.primType.PackedGeometry:
+                continue
             try:
                 b = sound[p.attribValue("pc_elem_id")]
             except (hou.OperationFailed, KeyError):
@@ -3749,7 +3823,20 @@ def plan_benches(root, built):
         # correctly does NOT re-cook it - asserting that it does would be
         # asserting a cache miss. It is excluded by name rather than by
         # loosening the rule, so D164 still bites on everything on the path.
-        for off_path in ("kit_starter", "pc_kit_id", "kit_unpack"):
+        # ⚠️ 13.9 N5 ADDED TWO MORE KIT-SIDE NODES and one whole branch that a
+        # STRAIGHT-ish fixture correctly never cooks. `pc_kit_rank` and
+        # `pc_kit_meta` hang off the kit like the three above; `pc_deform*`,
+        # `copy_deformed` and `pc_pieces` sit behind `pc_built`'s switch,
+        # which selects `copy_packed` alone when nothing in the run unpacks -
+        # so demanding they cook would be demanding the deformed branch run on
+        # a build with no deformed piece in it. Both fixtures here are chosen
+        # for the PLAN's shape (one long curve, 300 short streets), not for
+        # the gate's, and `deform_wrangle_rig_really_deforms` is where the
+        # deformed branch is required to cook.
+        for off_path in ("kit_starter", "pc_kit_id", "kit_unpack",
+                         "pc_kit_rank", "pc_kit_meta",
+                         "pc_deformed_only", "pc_deform_prep",
+                         "copy_deformed", "pc_deform", "pc_pieces"):
             timed.pop(off_path, None)
         place.cook(force=True)
         pieces = len(plan.geometry().points())
@@ -4702,11 +4789,22 @@ def output_guard_parity(root, built):
     # kits, not about the tool - it says no case in the scene suite pays the
     # double cook, and `GUARD_BEND_LADDER` is where the shapes that do are
     # pinned.
-    check("no_case_pays_the_guard_fallback", not fallback,
+    # ⚠️ THIS ROW WENT FROM "none" TO A NAMED SET AT 13.9 N5, and the named
+    # set is the assertion.  `P_crest_bend` is an OVERHANGING CREST - the
+    # path's plan-view direction reverses inside one panel's span - which is
+    # exactly the shape D31's frame transport flips on and exactly what
+    # `pc_frames_transportable` declares unanswerable.  It is correct that it
+    # pays the double cook: the output is the reference's, and refusing it at
+    # level 1 would mean modelling a per-piece question with a per-build test.
+    # What must not happen is the set GROWING quietly, so it is compared
+    # against a declaration rather than against zero.
+    check("no_case_pays_the_guard_fallback",
+          sorted(fallback) == sorted(GUARD_FALLBACK_CASES),
           "%d of %d" % (len(fallback), len(built)),
           "cases that pass level 1 and are then REFUSED by level 2, cooking "
-          "both chains at the 1.5-1.6x `bench_guard_fallback` measures: %s"
-          % (", ".join(fallback[:5]) or "none"))
+          "both chains at the 1.5-1.6x `bench_guard_fallback` measures. "
+          "Expected exactly %s, got %s"
+          % (list(GUARD_FALLBACK_CASES), sorted(fallback) or "none"))
     check("output_guard_takes_the_native_chain", len(took_native) >= 8,
           len(took_native),
           "cases whose `Stage = output` cook ADVANCED `copy_packed`'s "
@@ -4822,6 +4920,32 @@ def payload_cond_parity(root):
           "%s" % ("; ".join(kinds), "; ".join(bad[:3]) or "identical"))
 
 
+def _guard_terrain(cell=10.0, x0=-40.0, x1=260.0, z0=-40.0, z1=40.0):
+    """A flat quad heightfield under the mutation fixture.
+
+    Flat on purpose: the point of `mutation_guard_envelope` is that CONFORM is
+    unported at all, not that a particular terrain shape is hard - `pc_proto`
+    declares every piece unanswerable the moment `has_surface` is set,
+    whatever the surface looks like.
+    """
+    geo = hou.Geometry()
+    nx = int(round((x1 - x0) / cell))
+    nz = int(round((z1 - z0) / cell))
+    pts = {}
+    for i in range(nx + 1):
+        for j in range(nz + 1):
+            pt = geo.createPoint()
+            pt.setPosition((x0 + cell * i, 0.0, z0 + cell * j))
+            pts[(i, j)] = pt
+    for i in range(nx):
+        for j in range(nz):
+            poly = geo.createPolygon()
+            for pt in (pts[(i, j)], pts[(i, j + 1)],
+                       pts[(i + 1, j + 1)], pts[(i + 1, j)]):
+                poly.addVertex(pt)
+    return geo
+
+
 def output_guard_mutation(root, built):
     """Level 2 is level 1's BACKSTOP, and this is what shows it holding.
 
@@ -4835,16 +4959,33 @@ def output_guard_mutation(root, built):
 
     So the mutation is aimed at LEVEL 1, not at the fixture: level 1 is a
     CONSERVATIVE MODEL of what the native chain can build, and a model can be
-    wrong.  Widening it - dropping its `!bendable` term, which is the whole of
-    what it knows about the deform - hands a rippled run to the native chain,
-    and level 2 has to be what refuses it.  Then widening level 2 as well has
-    to change the shipped output, or neither of them was doing anything.
+    wrong.  Widening it hands a build the native chain cannot make whole to
+    the native chain, and level 2 has to be what refuses it.  Then widening
+    level 2 as well has to change the shipped output, or neither of them was
+    doing anything.
+
+    ⚠️ THE TARGET AND THE FIXTURE BOTH MOVED AT 13.9 N5, AND THEY HAD TO MOVE
+    TOGETHER.  This used to drop `&& !bendable` on a RIPPLED run: level 1
+    refused every elevated build, so removing that term handed one to a branch
+    that could not build a deformed piece.  The deformed branch exists now -
+    the ripple is native at parity and `!bendable` is deleted source - so the
+    old mutation would have removed a term that is not there, on a fixture the
+    guard admits, and reported "target missing" rather than failing loudly
+    (which is exactly what it did the first time this cycle ran).
+
+    The term that is still a MODEL is `ok`: `config`'s own verdict, which is
+    where every unported stage is named.  Dropping it on a CONFORMED run -
+    4.5 is N6 and nothing about it is ported - is the same experiment on the
+    build class that is still out of reach: `pc_proto` declares every piece
+    unanswerable for want of a surface normal, `planned != built`, and level 2
+    is what has to catch it.
     """
     geo = hou.Geometry()
-    cases.polyline(geo, [(1.0 * i, 0.6 * math.sin(i * 0.35), 0.0)
-                         for i in range(201)], curve_id="GM")
+    cases.polyline(geo, [(1.0 * i, 40.0, 0.0) for i in range(201)],
+                   curve_id="GM")
     node = root.createNode("pf_polychain", "guardmut")
     node.setInput(0, native.feed(root, geo, "GM_IN"))
+    node.setInput(3, native.feed(root, _guard_terrain(), "GM_TERRAIN"))
     node.parm("stage").set("reference")
     node.cook(force=True)
     want = _snapshot(node.geometry())
@@ -4854,13 +4995,13 @@ def output_guard_mutation(root, built):
 
     env = node.node("pc_envelope")
     body = env.parm("snippet").eval()
-    # ⚠️ THE TARGET IS THE `!bendable` TERM AND IT MOVED IN PART B.  Level 1's
-    # marker refusal is gone (D88's warning is raised by `pc_sections` now),
-    # so the string this used to key on - "&& !bendable && !markers" - no
-    # longer exists and the check reported "target missing" rather than
-    # failing loudly.  It keys on the term alone now, which is what it was
-    # always about.
-    target = "&& !bendable"
+    # ⚠️ THE TARGET HAS MOVED TWICE AND EACH MOVE WAS SILENT.  It keyed on
+    # "&& !bendable && !markers" until PART B removed the marker refusal, and
+    # on "&& !bendable" until 13.9 N5 deleted the bend bound; both times the
+    # string simply stopped existing and the check reported "target missing".
+    # `ok` is `config`'s whole verdict and is the one term that cannot go
+    # away while any stage is unported.
+    target = "ok && "
     found = target in body
     rows = []
     if found:
@@ -4892,9 +5033,9 @@ def output_guard_mutation(root, built):
     check("mutation_guard_envelope", found and all(r[1] for r in rows),
           "; ".join("%s %s" % (r[0], "yes" if r[1] else "NO") for r in rows)
           or "target missing",
-          "widening LEVEL 1 past what it can model hands a rippled run to the "
-          "native chain: level 2 refuses it and the output is unchanged, and "
-          "widening level 2 too changes the output. %s"
+          "widening LEVEL 1 past what it can model hands a CONFORMED run to "
+          "the native chain: level 2 refuses it and the output is unchanged, "
+          "and widening level 2 too changes the output. %s"
           % ("; ".join(r[2] for r in rows) or "target missing"))
 
 
@@ -4947,6 +5088,13 @@ GUARD_CORNER_PTS = ([(1.0 * i, 0.0, 0.0) for i in range(1001)]
 # a habit: a fixture whose reference side cooks faster than this cannot carry
 # a 1.15x ceiling, so it FAILS instead of quietly becoming a coin toss.
 GUARD_COST_FLOOR_S = 0.02
+
+# 13.9 N5 - the scene cases that legitimately pay the LEVEL-1-PASS /
+# LEVEL-2-REFUSE double cook, declared rather than counted.  `P_crest_bend` is
+# the overhanging crest whose plan-view direction reverses inside one panel's
+# span - `pc_frames_transportable` refuses that piece and level 2 refuses the
+# build.  A case joining this set is a widening somebody has to look at.
+GUARD_FALLBACK_CASES = ("P_crest_bend",)
 
 
 def guard_arc_pts(radius, step, length):
@@ -5034,32 +5182,28 @@ def output_guard_cost(root):
          True, True, 1.6),
         # THE CITYGEN SHAPE, and the reason PART B ordered the way it did.
         ("curved_streets_300", guard_curved_streets, True, True, 1.6),
-        # ...and the other side of the same bound: an arc tight enough that a
-        # panel really does unpack is refused at LEVEL 1, so it never cooks
-        # the native chain and pays only the probe.  Without this row the
-        # widening would be asserted in one direction only.
+        # ⚠️ THESE THREE ROWS FLIPPED SIDES AT 13.9 N5, AND THAT IS THE CYCLE.
+        # A tight arc, a ripple and a uniform ramp were all REFUSED - the arc
+        # by PART B's deform bound, the other two by level 1's outright
+        # elevation test - because the native branch could not build an
+        # unpacked piece.  It can now, so all three take the native chain and
+        # all three are FASTER than the reference on it: measured 0.71-0.76x,
+        # against the 96 % Python they used to cost.  They keep the 1.6x
+        # ADMITTED ceiling like every other admitted row.
         ("arc_R50_2km",
          lambda: guard_polyline_geo(guard_arc_pts(50.0, 1.0, 2000.0)),
-         False, False, 1.15),
+         True, True, 1.6),
         ("bumpy_2km",
          lambda: guard_polyline_geo([(1.0 * i, 0.6 * math.sin(i * 0.35), 0.0)
                                      for i in range(2001)]),
-         False, False, 1.15),
-        # ⚠️ A UNIFORM RAMP, AND IT IS NOT A DUPLICATE OF THE ROW ABOVE.  The
-        # ripple is refused twice over - it is elevated AND it kinks hard
-        # enough for the bend bound alone to refuse it - so it cannot tell
-        # which of the two refusals is doing the work.  A dead-straight slope
-        # has ZERO turn, so the bound reads 0.0 m and ONLY the elevation test
-        # refuses it; drop that test and this row passes level 1, cooks the
-        # whole native chain, and is thrown out by level 2 for the sheared
-        # span a `vertical` piece deforms on.  Measured: that mutation puts
-        # `CI_swap_zmode`, `F_hill_vertical`, `G_hill_stepped` and
-        # `L_ramp_vertical` on the double cook, and without this row
-        # `no_case_pays_the_guard_fallback` was the ONLY check that saw it.
+         True, True, 1.6),
+        # A dead-straight slope has ZERO turn in plan, so it is the row that
+        # separates "elevated" from "curved": before N5 only the elevation
+        # test refused it, and after N5 nothing does.
         ("ramp_2km",
          lambda: guard_polyline_geo([(1.0 * i, 0.04 * i, 0.0)
                                      for i in range(2001)]),
-         False, False, 1.15),
+         True, True, 1.6),
         ("corner", lambda: guard_polyline_geo(GUARD_CORNER_PTS),
          False, False, 1.15),
     )
@@ -5323,37 +5467,31 @@ def guard_padding_parity(root):
           % (len(GUARD_PADDING_M), "; ".join(bad[:3]) or "identical"))
 
 
-def guard_bend_bound(root):
-    """PART B - level 1's deform bound, judged against level 2's exact answer.
+def guard_deform_ladder(root):
+    """13.9 N5 - the arcs level 1 used to refuse, all NATIVE and all identical.
 
-    THE BOUND CHANGED CATEGORY THIS CYCLE AND THIS CHECK IS WHY IT IS SAFE TO.
-    Level 1 used to hold an UPPER bound on `span_deviation` - "no kink and no
-    elevation change" - which is exact, free, and refuses every arc in
-    existence.  Measured on the shipped asset with `hou.perfMon`, that refusal
-    was 490 ms of Python on 300 gently curved streets and 54 ms on a 2 km arc,
-    while level 2 - which asks `pc_deform_gate` the exact question, per piece -
-    admitted both.
+    ⚠️ THIS CHECK REPLACES `guard_bend_bound`, AND THE REPLACEMENT IS THE
+    CYCLE.  That check judged level 1's LOWER bound on `span_deviation` - "will
+    a piece CERTAINLY unpack" - against level 2's exact answer, and its whole
+    point was that a build which unpacks a piece is a build the native chain
+    cannot make.  The deformed branch makes it now, so the bound is deleted
+    (see the note at the top of `pc_envelope.vfl`) and what this ladder asserts
+    has turned over: every row must take the NATIVE chain, and every row must
+    ship the reference's own fence.
 
-    So level 1 now holds a LOWER bound: will a piece CERTAINLY unpack.  Both
-    ways of being wrong are safe, and both are asserted here rather than
-    argued:
+    The rows are the same arcs, which matters: `arc_R20_step0.05` and
+    `arc_R50_step0.1` were the two shapes that passed level 1 and were REFUSED
+    by level 2, i.e. the ones that paid the double cook.  They are native at
+    parity now, and `arc_R100_step2` and `arc_R20_step0.5` - refused outright
+    before - are too.
 
-      * REFUSE where level 2 would have admitted -> the reference cooks, the
-        output is right, one native opportunity is missed.  Row `arc_R100`.
-      * ADMIT where level 2 refuses -> the DOUBLE COOK, and the output must
-        still be identical.  Rows `arc_R20_step0.05` and `arc_R50_step0.1`,
-        which are exactly the case the bound gets wrong (many kinks inside one
-        span, one kink read).
-
-    ⚠️ AND THE LAST ASSERTION IS THE ONE THAT WOULD CATCH A REAL REGRESSION.
-    `no_case_pays_the_guard_fallback` says no case in the 92 reaches the
-    double cook; that is a statement about the CASES, not about the guard, and
-    it would stay green if the fallback path were broken.  These two rows
-    reach it deliberately and compare `Stage = output` against
-    `Stage = reference` element for element on the way through.
+    ⚠️ AND "TOOK THE NATIVE CHAIN" IS OBSERVED, NOT READ OFF THE ENVELOPE'S OWN
+    VERDICT (D203).  `copy_deformed`'s cookCount is what says the deformed
+    branch actually built these pieces; a guard rewired to the reference would
+    leave it at 0 with `_native_ok2` still reading 1.
     """
     rows, bad = [], []
-    for label, radius, step, length, want1, want2 in GUARD_BEND_LADDER:
+    for label, radius, step, length, _w1, _w2 in GUARD_BEND_LADDER:
         geo = guard_polyline_geo(guard_arc_pts(radius, step, length))
         node = root.createNode("pf_polychain", "bend_" + label)
         node.setInput(0, native.feed(root, geo, "BB_" + label))
@@ -5362,225 +5500,209 @@ def guard_bend_bound(root):
         node.cook(force=True)
         env = node.node("pc_envelope").geometry()
         level1 = int(env.attribValue("_native_ok"))
-        bound = float(env.attribValue("_guard_dev_bound"))
-        level2 = None
-        if level1:
-            level2 = bool(int(node.node("pc_envelope2").geometry()
-                              .attribValue("_native_ok2")))
-        if bool(level1) != want1:
-            bad.append("%s: level 1 %s, wanted %s"
-                       % (label, bool(level1), want1))
-        if level1 and level2 != want2:
-            bad.append("%s: level 2 %s, wanted %s" % (label, level2, want2))
-
-        # THE OUTPUT, on every row and not only on the admitted ones.
+        env2 = node.node("pc_envelope2").geometry() if level1 else None
+        level2 = bool(int(env2.attribValue("_native_ok2"))) if env2 else False
+        planned = int(env2.attribValue("_guard_planned")) if env2 else 0
+        built_n = int(env2.attribValue("_guard_built")) if env2 else 0
+        deformed = node.node("copy_deformed").cookCount() > 0
+        gate = node.node("pc_deform_gate").geometry()
+        ndef = sum(gate.pointIntAttribValues("pc_deformed"))
+        if not level1:
+            bad.append("%s: level 1 REFUSED it - the bend bound is supposed "
+                       "to be gone" % label)
+        elif not level2:
+            bad.append("%s: level 2 refused it, %d planned / %d built"
+                       % (label, planned, built_n))
+        elif ndef and not deformed:
+            bad.append("%s: %d pieces unpack and `copy_deformed` never cooked"
+                       % (label, ndef))
         got = _snapshot(node.geometry())
         node.parm("stage").set("reference")
         node.cook(force=True)
         diff = _first_difference(_snapshot(node.geometry()), got)
         if diff:
             bad.append("%s: %s" % (label, diff))
-        rows.append((label, bool(level1), level2, bound))
+        rows.append((label, ndef, planned))
         node.destroy()
-
-    admitted = [r for r in rows if r[2] is True]
-    refused1 = [r for r in rows if not r[1]]
-    fellback = [r for r in rows if r[2] is False]
-    # A bound that admits everything, or refuses everything, is not a bound.
-    if not admitted:
-        bad.append("no row on this ladder reaches the native chain")
-    if not refused1:
-        bad.append("level 1 refuses nothing on this ladder")
-    if not fellback:
-        bad.append("no row exercises the level-1 pass / level-2 refusal path, "
-                   "so nothing here proves it is safe")
-    check("guard_bend_bound", not bad,
-          "%d native / %d refused at L1 / %d fell back to L2"
-          % (len(admitted), len(refused1), len(fellback)),
-          "PART B - level 1's LOWER bound on `span_deviation` against level "
-          "2's exact per-piece answer, over %d arcs, with `Stage = output` "
-          "compared to `Stage = reference` on every one. The bound reads ONE "
-          "kink, so a finely resampled arc under-reads it and level 2 has to "
-          "catch that - which it must do without changing the output. %s"
-          % (len(GUARD_BEND_LADDER),
-             "; ".join(bad) or "; ".join("%s %.5f m %s" % (
-                 r[0], r[3], "native" if r[2] else
-                 ("L2 refused" if r[1] else "L1 refused")) for r in rows)))
+    if not any(r[1] for r in rows):
+        bad.append("not one row on this ladder unpacks a piece, so nothing "
+                   "here exercises the deformed branch at all")
+    check("guard_deform_ladder", not bad,
+          "%d arcs, %d deforming"
+          % (len(rows), sum(1 for r in rows if r[1])),
+          "13.9 N5 - every arc on the ladder `guard_bend_bound` used to split "
+          "in three now takes the NATIVE chain and ships the reference's own "
+          "fence, prim for prim and point for point. Rows (deformed/planned): "
+          "%s. %s"
+          % ("; ".join("%s %d/%d" % r for r in rows),
+             "; ".join(bad[:3]) or "identical"))
     return rows
 
 
-def guard_bend_bound_skips_rigid_modules(root):
-    """PART B - D27 in `hda._bend_bound`, on a kit that can tell the difference.
+# 13.9 N5 - THE SHAPES THE DEFORMED BRANCH REFUSES, and each one is a
+# refusal `pc_deform_gate` makes per piece rather than a parameter level 1
+# reads.  (label, points, which refusal).
+def guard_hairpin_pts():
+    """A run whose PLAN-VIEW direction reverses three times - `_transport`'s
+    own condition - while its 3D turn stays under the corner threshold.
 
-    ⚠️ THIS CHECK EXISTS BECAUSE A MUTATION SURVIVED.  Deleting the
-    `deform <= 0: continue` line from `_bend_bound` - so that a RIGID module
-    sets the deform bound for the whole build - left the suite at 0 `[FAIL]`.
-    The reason is that the starter kit's rigid modules are all `stepped`, so
-    D87's yaw-only rule had already cut them down to their z half (0.06 and
-    0.08 m) and they were not the widest thing in the kit any more.  Two
-    correct rules, and only one of them was load-bearing on the fixtures.
-
-    So this is the kit that separates them: `corner_post` - RIGID, and the
-    widest module in the starter kit at ry = 1.3 m - re-tagged `adaptive`, so
-    that D87 no longer shrinks it and only D27 can exclude it.  On a 2 km
-    R = 200 m arc the bound then reads 0.0054 m with D27 and 0.018 m without,
-    against a 0.01 m tolerance - and level 2's exact answer is ADMIT, 1 888
-    planned and 1 888 built.  Without D27 the build takes the reference and
-    the 54 ms of Python PART B removed comes straight back.
-
-    D27 is `_needs_deform`'s own first test - `proto.module.deform <= 0`
-    returns False before anything is measured - so a rigid module genuinely
-    cannot unpack however sharp the turn is.  This asserts that the bound
-    agrees with the gate about that rather than merely being safe.
+    ⚠️ THE REVERSAL HAS TO BE IN THE VERTICAL PLANE, AND THE FIRST VERSION OF
+    THIS FIXTURE MISSED IT.  A flat hairpin reverses by turning ~180 degrees,
+    which `pc_corners` reads as a CORNER and level 1 refuses outright - so the
+    build never reached level 2 at all and the row passed while asserting
+    nothing about the deformed branch.  An overhanging crest reverses `across`
+    (the horizontal normal, which is what both z-modes build their frame from)
+    while the 3D turn between the two segments is only 52 degrees, under the
+    60 the caller sets - so it is ONE section, one panel really does straddle
+    the reversal, and level 1 admits it.  `cases.P_crest_bend` is the same
+    shape with one crest instead of three.
     """
-    from polyfactory.polychain import kit as K
+    return [(0.0, 0.0, 0.0), (2.0, 3.0, 0.0), (1.0, 6.0, 0.0),
+            (3.0, 9.0, 0.0), (2.0, 12.0, 0.0)]
 
-    kit_geo = hou.Geometry()
-    kit_geo.merge(K.starter_kit())
-    # ⚠️ the tag lives on the packed prim's FIRST POINT, which is where
-    # `kit.read` looks for it (`_sattr(pt, "pc_zmode", ...)`).
-    if kit_geo.findPointAttrib("pc_zmode") is None:
-        kit_geo.addAttrib(hou.attribType.Point, "pc_zmode", "adaptive")
-    retagged = 0
-    for prim in kit_geo.prims():
-        pt = prim.points()[0]
-        if pt.attribValue("pc_name") == "corner_post":
-            pt.setAttribValue("pc_zmode", "adaptive")
-            retagged += 1
 
-    geo = guard_polyline_geo(guard_arc_pts(200.0, 2.0, 2000.0))
-    node = root.createNode("pf_polychain", "bend_rigid")
-    node.setInput(0, native.feed(root, geo, "BR_SPLINE"))
-    node.setInput(1, native.feed(root, kit_geo, "BR_KIT"))
+def guard_deform_refusals(root):
+    """13.9 N5 - what the deformed branch CANNOT answer takes the reference.
+
+    ⚠️ THE GUARD FAILS SAFE OR IT IS NOT A GUARD, and this is the row that
+    says so for the branch this cycle added.  Four criticals in this build
+    came from one root cause - a VEX expression quietly evaluating False on an
+    input nobody had modelled - so every step of `_deform_positions` that is
+    NOT ported is an explicit refusal on `pc_frame_valid`, and level 2 turns
+    one refused piece into a refused build.
+
+    The reachable one through the parm face is D31's FRAME TRANSPORT: a piece
+    whose plan-view direction reverses inside its own span.  `_transport`
+    carries `across` station by station and flips it there, which is a prefix
+    scan a per-point wrangle cannot evaluate; `pc_frames_transportable` asks
+    whether the flip is reachable and refuses the piece where it is.
+    `P_crest_bend` in the scene suite is the same shape in the vertical plane.
+
+    The other two - a SLICED piece and a module whose piece-local index would
+    overflow the order key - are not reachable through the parm face (level 1
+    refuses `fill = tile` outright, and a 65 536-prim module is not a fixture),
+    so they are proved by SOURCE MUTATION in `mutation_deform_refusals`.
+    """
+    bad, rows = [], []
+    shapes = (("hairpin", guard_hairpin_pts()),
+              ("crest", [(0.0, 0.0, 0.0), (2.0, 3.0, 0.0), (1.0, 6.0, 0.0)]))
+    for label, pts in shapes:
+        geo = guard_polyline_geo(pts)
+        node = root.createNode("pf_polychain", "dref_" + label)
+        node.setInput(0, native.feed(root, geo, "DR_" + label))
+        node.parm("corner_angle_deg").set(60.0)
+        node.parm("zmode").set("adaptive")
+        node.allowEditingOfContents()
+        node.parm("stage").set("output")
+        node.cook(force=True)
+        env2 = node.node("pc_envelope2").geometry()
+        level2 = int(env2.attribValue("_native_ok2"))
+        planned = int(env2.attribValue("_guard_planned"))
+        built_n = int(env2.attribValue("_guard_built"))
+        env1 = node.node("pc_envelope").geometry()
+        level1 = int(env1.attribValue("_native_ok"))
+        gate = node.node("pc_deform_gate").geometry()
+        refused = sum(1 for pt in gate.points()
+                      if not int(pt.attribValue("_gate_deform_ok")))
+        got = _snapshot(node.geometry())
+        node.parm("stage").set("reference")
+        node.cook(force=True)
+        diff = _first_difference(_snapshot(node.geometry()), got)
+        rows.append((label, refused, planned, built_n))
+        if not refused:
+            bad.append("%s: no piece tripped the transport refusal, so this "
+                       "row asserts nothing" % label)
+        # ⚠️ AND LEVEL 1 HAS TO ADMIT IT, WHICH IS NOT THE SAME ASSERTION.
+        # "the output took the reference" is satisfied just as well by level 1
+        # refusing the build for a CORNER - and that is exactly what a flat
+        # hairpin does, so the first version of this check passed while
+        # exercising nothing below `pc_envelope`.
+        if not level1:
+            bad.append("%s: level 1 refused it, so the gate's refusal is not "
+                       "what this row measured" % label)
+        if level2:
+            bad.append("%s: level 2 ADMITTED a build with %d unanswerable "
+                       "piece(s)" % (label, refused))
+        if diff:
+            bad.append("%s: %s" % (label, diff))
+        node.destroy()
+    check("guard_deform_refusals", not bad,
+          "%d shapes, %d pieces refused"
+          % (len(rows), sum(r[1] for r in rows)),
+          "a piece whose span D31's frame TRANSPORT could flip on is declared "
+          "unanswerable, level 2 refuses the whole build on it, and the "
+          "output is the reference's own - `pc_frames_transportable` is the "
+          "test and this is the fail-safe. Rows "
+          "(refused/planned/built): %s. %s"
+          % ("; ".join("%s %d/%d/%d" % r for r in rows),
+             "; ".join(bad[:3]) or "all refused, all identical"))
+
+
+def mutation_deform_refusals(root):
+    """13.9 N5 - each of the gate's three deform refusals, removed in turn.
+
+    ⚠️ A REFUSAL NOTHING CAN REMOVE IS A REFUSAL NOTHING PROVES.
+    `guard_deform_refusals` above exercises the transport one through real
+    geometry; the other two cannot be reached that way, so they are proved
+    the way this project proves everything it cannot build a fixture for -
+    edit the source, and demand that the build stops being refused.
+
+    Each row deletes ONE line of `pc_deform_gate.vfl` on the shipped node and
+    asks whether level 2 still refuses the hairpin.  A line whose removal
+    changes nothing was never the thing refusing it.
+    """
+    geo = guard_polyline_geo(guard_hairpin_pts())
+    node = root.createNode("pf_polychain", "dmut")
+    node.setInput(0, native.feed(root, geo, "DMUT_IN"))
+    node.parm("corner_angle_deg").set(60.0)
+    node.parm("zmode").set("adaptive")
     node.allowEditingOfContents()
     node.parm("stage").set("output")
     node.cook(force=True)
-    env = node.node("pc_envelope").geometry()
-    level1 = int(env.attribValue("_native_ok"))
-    bound = float(env.attribValue("_guard_dev_bound"))
-    took = node.node("copy_packed").cookCount() > 0
-    got = _snapshot(node.geometry())
-    node.parm("stage").set("reference")
-    node.cook(force=True)
-    diff = _first_difference(_snapshot(node.geometry()), got)
+    gate = node.node("pc_deform_gate")
+    sound = gate.parm("snippet").eval()
+
+    def admits(without):
+        if without not in sound:
+            return None
+        gate.parm("snippet").set(sound.replace(without, ""))
+        node.cook(force=True)
+        env2 = node.node("pc_envelope2").geometry()
+        out = int(env2.attribValue("_native_ok2"))
+        gate.parm("snippet").set(sound)
+        node.cook(force=True)
+        return out
+
+    targets = (
+        ("transport",
+         "if (!pc_frames_transportable(2, pr, sa, shi)) deform_ok = 0;"),
+        ("rank bound", "if (rank_max >= rank_span) deform_ok = 0;"),
+        ("sliced", "if (i@pc_sliced) deform_ok = 0;"),
+        ("no module", "if (kprim < 0) deform_ok = 0;"),
+    )
+    rows, bad = [], []
+    for label, line in targets:
+        got = admits(line)
+        if got is None:
+            bad.append("%s: the line is not in the shipped node" % label)
+            rows.append((label, "MISSING"))
+            continue
+        rows.append((label, "admits" if got else "still refused"))
+    # Only the transport row can flip this fixture - the other three are
+    # STRUCTURAL (their line has to exist and be the shipped text), which the
+    # `MISSING` complaint above is what asserts. A row that flips is stronger
+    # and is reported as such.
+    if not any(r[1] == "admits" for r in rows):
+        bad.append("removing none of the four refusals changed the verdict, "
+                   "so none of them is what refuses this build")
     node.destroy()
-
-    ok = retagged == 1 and level1 == 1 and took and not diff
-    check("guard_bend_bound_skips_rigid_modules", ok,
-          "bound %.5f m, %s" % (bound, "native" if took else "reference"),
-          "a kit whose WIDEST module is RIGID and `adaptive` - so D87's "
-          "yaw-only rule cannot shrink it and only D27 can exclude it - must "
-          "still admit a 2 km R = 200 m arc that level 2 confirms is fully "
-          "packed. Without D27 the bound reads 0.018 m against 0.01 and the "
-          "build takes the reference. retagged=%d level1=%d took_native=%s%s"
-          % (retagged, level1, took, "; " + diff if diff else ""))
-
-
-def guard_bend_bound_needs_its_operands(root):
-    """PART B - a bound that could not be DERIVED must refuse, not read zero.
-
-    `hda._bend_bound` returns (span, radius, KNOWN) and level 1 refuses the
-    build outright when the third value is 0.  Without that flag an empty or
-    unreadable kit publishes span 0 / radius 0, the bound evaluates to 0.0 m,
-    and 0.0 is under every tolerance there is - so the guard would ADMIT every
-    curve in existence on exactly the input it understands least.
-
-    ⚠️ THAT IS NOT A HYPOTHETICAL FAILURE MODE, IT IS THE ONE THIS PROJECT HAS
-    SHIPPED TWICE.  20.1's `hou.Vector2` cond value and 20.2's `attr:` on a
-    multi-component prim attribute were both a VEX expression quietly
-    evaluating False on an input nobody had modelled, and each shipped 100 %
-    wrong modules on the DEFAULT path.  The mutation below is the same shape:
-    it removes the flag's refusal and asserts a straight run - which the guard
-    would otherwise admit - is refused instead.
-    """
-    geo = guard_polyline_geo(guard_arc_pts(2000.0, 1.0, 2000.0))
-    node = root.createNode("pf_polychain", "bend_operands")
-    node.setInput(0, native.feed(root, geo, "BO"))
-    node.allowEditingOfContents()
-    node.parm("stage").set("output")
-    node.cook(force=True)
-    env = node.node("pc_envelope")
-    before = int(env.geometry().attribValue("_native_ok"))
-
-    # the mutation: the flag says the pair was never derived
-    src = env.parm("snippet").eval()
-    env.parm("snippet").set(src + "\nif (1) { i@_native_ok = 0; }\n")
-    node.cook(force=True)
-    forced = int(env.geometry().attribValue("_native_ok"))
-    env.parm("snippet").set(src)
-
-    # ...and the real one: `bound_ok` cleared where the VEX reads it
-    env.parm("snippet").set(
-        src.replace('int bendable = !bound_ok;',
-                    'bound_ok = 0;\nint bendable = !bound_ok;'))
-    node.cook(force=True)
-    after = int(env.geometry().attribValue("_native_ok"))
-    ok_flag = int(env.geometry().attribValue("_guard_bound_ok"))
-    env.parm("snippet").set(src)
-    node.destroy()
-
-    # ⚠️ AND THE OTHER HALF, WHICH A NODE CANNOT REACH (D212).  Everything
-    # above proves the VEX honours the flag; nothing above proves `_bend_bound`
-    # ever RAISES it.  A mutation that made the unreadable-kit path return
-    # `derived` instead of `refuse` survived the whole suite, because no
-    # fixture can put an unreadable kit in front of the asset - a kit broken
-    # enough to fail this way fails `kit.validate` first and `_native_ok`
-    # refuses it for the warnings instead.  So the PURE VERDICT is called
-    # directly, which is D212's own remedy: where a physical mutation cannot
-    # be staged, mutate the function's answer and assert it.
-    from polyfactory.polychain import kit as K
-
-    class _UnreadableSources(dict):
-        """`source_for` cannot get at the module's geometry at all."""
-
-        def get(self, *args, **kwargs):
-            raise RuntimeError("kit source unreadable")
-
-    bad_kit = K.Kit("broken", 1, [K.Module("m", (1.0, 1.0, 0.1), deform=1)])
-    verdict = H._bend_bound(bad_kit, _UnreadableSources(), DEFAULTS)
-    # ...and the same call on a kit that IS readable, so the row above is not
-    # satisfied by a function that refuses everything.
-    good = K.read(K.starter_kit())
-    sound = H._bend_bound(good[0], good[1], DEFAULTS)
-    # ⚠️ AND THE EMPTY KIT, WHICH IS THE OTHER HALF AND WAS NEVER IMPLEMENTED.
-    # This docstring says "an empty or unreadable kit publishes span 0 /
-    # radius 0 ... so the guard would ADMIT every curve in existence", and
-    # `pc_envelope.vfl`'s own warning block says the same in the same words -
-    # but only the UNREADABLE branch (`except -> (0, 0, 0)`) existed, and only
-    # that branch was asserted.  A `Kit` with no modules never entered the
-    # loop, fell through to the derived return and published
-    # (0.0, 0.0, 1.0) - a bound of ZERO, flagged DERIVED, which is the
-    # fail-OPEN answer the flag exists to prevent.  Not reachable through the
-    # node today (`kit.read` warns on an empty kit and `_native_ok` refuses on
-    # any kit warning), which is why it was a documented fail-safe that was
-    # not the implemented one rather than a shipped divergence - but it is
-    # 20.1's and 20.2's shape exactly, and the fix is one counter.
-    empty = H._bend_bound(K.Kit("empty", 1, []), {}, DEFAULTS)
-    # ...and the ALL-RIGID kit, which must stay the deliberate derived zero
-    # the docstring argues for: nothing in it can unpack, so the bound is
-    # genuinely 0 and the flag is genuinely 1.  Without this row the fix above
-    # would be satisfied by refusing every kit with no deformable module.
-    rigid = K.read(cases.rigid_kit())
-    rigid_v = H._bend_bound(rigid[0], rigid[1], DEFAULTS)
-
-    ok = (before == 1 and forced == 0 and after == 0 and ok_flag == 0
-          and verdict == (0.0, 0.0, 0.0) and sound[2] == 1.0
-          and sound[0] > 0.0
-          and empty == (0.0, 0.0, 0.0)
-          and rigid_v[2] == 1.0 and rigid_v[0] == 0.0 and rigid_v[1] == 0.0)
-    check("guard_bend_bound_needs_its_operands", ok,
-          "admits %d, refuses %d without the flag" % (before, after),
-          "a 2 km arc the widened bound ADMITS must be REFUSED the moment "
-          "`bend_bound_ok` says the kit's span and radius were never derived "
-          "- a bound of 0.0 m is under every tolerance there is, so an "
-          "underivable kit must fail SAFE rather than read as `nothing can "
-          "deform`. before=%d forced=%d cleared=%d flag=%d; "
-          "`_bend_bound` on an unreadable kit -> %r and on an EMPTY one -> "
-          "%r (both must be (0.0, 0.0, 0.0) - nothing was inspected, so "
-          "nothing was derived); on the starter kit -> %r (must be derived, "
-          "with a span); on an ALL-RIGID kit -> %r (must be a DERIVED zero - "
-          "nothing in it can unpack, which is a different sentence)"
-          % (before, forced, after, ok_flag, verdict, empty, sound, rigid_v))
+    check("mutation_deform_refusals", not bad,
+          "%d refusals" % len(rows),
+          "each of `pc_deform_gate`'s deform refusals deleted in turn on the "
+          "SHIPPED node: %s. %s"
+          % ("; ".join("%s -> %s" % r for r in rows),
+             "; ".join(bad[:3]) or "the transport refusal is load-bearing "
+             "and all four lines are the shipped text"))
 
 
 # --- PART A2: the artist's own attribute TYPES, and the kit-name mismatch ---
@@ -5631,7 +5753,6 @@ def _typed_spline(name, cls, storage, value, marker=False):
     for elem in (geo.prims() if cls == "prim" else geo.points()):
         elem.setAttribValue(name, value)
     return geo
-
 
 def guard_spline_attr_types(root):
     """The artist's spline attributes have STORAGE, and four of them shipped
@@ -6178,20 +6299,24 @@ def bench_guard_fallback(root):
 
     ⚠️ AND THE FALLBACK PATH IS REACHABLE, which is a correction to what this
     docstring said for a cycle.  It claimed "on the shipped build there is no
-    legitimate input that passes level 1 and fails level 2 ... and it is the
-    reason the guard is free today".  That was true of the UPPER-bound level 1
-    it was written against and false the moment PART B made the bound a LOWER
-    one: `GUARD_BEND_LADDER`'s `arc_R20_step0.05` and `arc_R50_step0.1` rows
-    are exactly such inputs (want1=True, want2=False), reproduced here at
-    R = 20 m / 500 m - L1=1, L2=0, 292 ms of which 224 ms is `kernel` and
-    25 ms is discarded native work.  `guard_bend_bound` is the check that pins
-    WHICH shapes pay; this one pins what it costs.
+    legitimate input that passes level 1 and fails level 2".  That was true of
+    the UPPER-bound level 1 it was written against and false the moment PART B
+    made the bound a LOWER one.  ⚠️ AND THE CLASS TURNED OVER AGAIN AT 13.9
+    N5: PART B's two arcs (`arc_R20_step0.05`, `arc_R50_step0.1`) are NATIVE
+    at parity now, because the deformed branch builds what they unpack.  What
+    reaches the fallback on this build is `pc_deform_gate`'s three per-piece
+    refusals, and `guard_deform_refusals` is the check that pins which shapes
+    those are.
 
-    The fixture still FORCES level 1 open rather than using an arc, and that
-    is a choice about size rather than about reachability: the cost of the
-    double cook scales with the native chain, so it is measured on a 2 km and
-    a 20 km ripple - shapes big enough for the ratio to mean something -
-    rather than on the ladder's 500 m arcs, which read 1.21-1.27x.
+    ⚠️ THE LEVER MOVED WITH THE CLASS, AND IT HAD TO.  This used to force
+    LEVEL 1 open on a rippled run - a run level 1 now admits legitimately and
+    level 2 also admits, so the same mutation would have measured the ADMITTED
+    path and the row would have gone green while measuring nothing.  It now
+    refuses ONE PIECE at the gate, which is exactly what an unanswerable piece
+    does: `planned != built`, level 2 refuses, both chains cook.  The fixture
+    stays a 2 km and a 20 km ripple because the cost of the double cook scales
+    with the native chain and the ratio needs a shape big enough to mean
+    something.
     """
     rows, bad = [], []
     for label, npts in (("ripple_2km", 2001), ("ripple_20km", 20001)):
@@ -6203,9 +6328,14 @@ def bench_guard_fallback(root):
         node.parm("stage").set("output")
         node.cook(force=True)
         node.allowEditingOfContents()
-        env = node.node("pc_envelope")
-        env.parm("snippet").set(env.parm("snippet").eval()
-                                + "\ni@_native_ok = (nprimitives(0) > 0);\n")
+        # ONE piece declared unanswerable - `pc_deform_gate`'s own refusal,
+        # applied to a single element so the shape and the cook are
+        # otherwise the build an artist would run.
+        gate = node.node("pc_deform_gate")
+        gate.parm("snippet").set(
+            gate.parm("snippet").eval()
+            + chr(10) + "if (@ptnum == 0) { i@pc_frame_valid = 0; "
+                        "i@pc_gate_valid = 0; }" + chr(10))
         best = {}
         for stage in ("reference", "output"):
             node.parm("stage").set(stage)
@@ -6236,9 +6366,10 @@ def bench_guard_fallback(root):
         node.destroy()
     check("bench_guard_fallback", not bad,
           "; ".join("%s %.2fx" % (r[0], r[1]) for r in rows),
-          "level 1 forced open on a rippled run, so the native chain cooks, "
-          "level 2 refuses it and the reference cooks too - the double cook, "
-          "measured rather than assumed. Ceiling %.1fx. %s"
+          "one piece of a rippled run declared unanswerable at the gate, so "
+          "the native chain cooks, level 2 refuses it on `planned != built` "
+          "and the reference cooks too - the double cook, measured rather "
+          "than assumed. Ceiling %.1fx. %s"
           % (GUARD_FALLBACK_CEILING, "; ".join(bad) or "the ceiling holds"))
 
 
@@ -6409,7 +6540,13 @@ WRANGLE_CEILING_US = {
     "pc_curve_index":   0.078,
     "pc_curveid":       0.105,
     "pc_deform_gate":   0.67,
-    "pc_envelope":      1.28,
+    # ⚠️ 1.28 UNTIL 13.9 N5, AND THE MEASUREMENT MOVED, NOT THE CEILING'S
+    # RECIPE.  Level 1's deform bound walked EVERY curve for its sharpest
+    # kink; with the bound deleted this node reads CONFIG, one point group,
+    # one dict and eleven attribute types, and it measures 0.0595-0.0602
+    # us/piece against the 0.47-0.50 it used to.  `wrangle_ceilings_are_tight`
+    # is what made this a failing check rather than free headroom.
+    "pc_envelope":      0.21,
     "pc_envelope2":     0.25,
     "pc_finalize":      0.35,
     "pc_frames":        0.57,
@@ -6438,9 +6575,71 @@ WRANGLE_FLOOR_MS = 1.0
 # before it stops refusing anything.  2.5x is the recipe; 4.0x is the refusal.
 WRANGLE_HEADROOM = 4.0
 # The two sizes.  Points at 2 m spacing; the piece counts they produce are
-# 4 454 and 17 804.
+# 4 454 and 17 804 straight, 4 466 and 17 852 over the ripple below.
 WRANGLE_SMALL_PTS = 2361
 WRANGLE_BIG_PTS = 9436
+
+# 13.9 N5 - THE DEFORMED SHAPE'S OWN TABLE, AND IT IS SEPARATE ON PURPOSE.
+#
+# The table above is recorded on a STRAIGHT run, where every piece stays
+# packed.  Five of the asset's wrangles - the deformed branch - never cook
+# there at all, so a ceiling for them cannot come from it; and four that sit
+# downstream of the merge (`pc_finalize`, `pc_piece_key`, `pc_out_cast`,
+# `pc_warn_collate`) see the module's whole polygon soup instead of one prim
+# per piece, so folding a deformed shape INTO the straight table would move
+# eighteen recorded rows by the prim-to-piece ratio and guard neither shape.
+#
+# So: same recipe, same two sizes, same `hou.perfMon` `Cook - ms`, over a
+# 0.6 m sine at 0.35 rad per 2 m point - a shape an `adaptive` module cannot
+# chord, so all 17 852 pieces unpack.  ⚠️ The rate is per PIECE, not per prim
+# (`_wrangle_rig` counts the deform gate's points), because a per-prim rate
+# would divide by the module's own prim count and read ~17x too cheap.
+#
+# MEASURED ON THIS BUILD, minimum over two independent five-repetition passes
+# (three interleaved reps x three levers each), at 4 466 and 17 852 pieces:
+#
+#   node               big us/p (2 passes)   growth        big ms
+#   pc_deform            0.5755 - 0.5890     0.92 - 0.94    10.3
+#   pc_deform_prep       0.1023 - 0.1059     0.41 - 0.43     1.8
+#   pc_kit_meta          0.0451 - 0.0665     0.24 - 0.36     0.9
+#   pc_kit_rank          0.0119 - 0.0129     0.24 - 0.27     0.2
+#   pc_piece_key         0.2171 - 0.2325     0.87 - 0.96     3.9
+#
+# ⚠️ AND THE TWO MOST EXPENSIVE NODES ON THIS SHAPE ARE NOT WRANGLES, so no
+# row here guards them: `pc_order` (the sort) reads 125-131 ms and `pc_pieces`
+# (the merge) 24-28 ms at 17 852 pieces / ~304 000 prims.  That is the price
+# of putting `place.build`'s job order back together, it is recorded here so
+# nobody rediscovers it as a surprise, and `bench_deform_20km` is where it is
+# measured end to end.
+#   pc_deform            0.5755 - 0.5890     0.92 - 0.94    10.3
+#
+# ...and FOUR ROWS THAT ARE IN THE STRAIGHT TABLE TOO, deliberately.  Their
+# cost is shape-dependent: `pc_deform_gate` measures a curvature budget that a
+# straight run answers with one comparison, and `pc_finalize`, `pc_out_cast`
+# and `pc_warn_collate` are per-PRIM over the module's whole polygon soup
+# instead of over one packed prim.  Guarding them on the straight shape alone
+# would leave the shape this cycle shipped unwatched:
+#
+#   node               deformed us/p        straight us/p
+#   pc_deform_gate       0.9103 - 1.0080     0.2355 - 0.2533
+#   pc_warn_collate      1.5846 - 1.6232     0.2358 - 0.2490
+#   pc_finalize          0.3030 - 0.3214     0.1119 - 0.1279
+#   pc_out_cast          0.2203 - 0.2373     (not a wrangle row - attribcast)
+WRANGLE_DEFORM_CEILING_US = {
+    "pc_deform":        1.53,
+    "pc_deform_prep":   0.32,
+    "pc_kit_meta":      0.22,
+    "pc_kit_rank":      0.09,
+    "pc_piece_key":     0.64,
+    "pc_deform_gate":   2.58,
+    "pc_warn_collate":  4.12,
+    "pc_finalize":      0.86,
+}
+# The ripple amplitude, in metres.  Big enough that `span_deviation` clears
+# `bend_tol` on every piece - asserted by `deform_wrangle_rig_really_deforms`,
+# because a rig that quietly stopped unpacking would make every row below a
+# measurement of five nodes that never ran.
+WRANGLE_RIPPLE_M = 0.6
 
 # §21.4's M3, verbatim: `pc_finalize` as a DETAIL wrangle looping over the
 # prims on one thread, writing the SAME values element for element.  The
@@ -6653,19 +6852,30 @@ def config_cost_per_module(root):
              CONFIG_FIXED_MS + CONFIG_MODULE_CEILING_MS * hi, native_ok))
 
 
-def _wrangle_rig(root, tag, npts):
+def _wrangle_rig(root, tag, npts, ripple=0.0):
     """The SHIPPED asset on a straight run, with a nudge on each input.
 
     Unlocked, because the mutation levers below have to reach a node inside
     it; `instances_do_not_fork_the_network` is what guards the shipped
     default, and the comment above records that locked and unlocked measure
     the same node.
+
+    ⚠️ `ripple` IS 13.9 N5's HALF OF THIS RIG AND IT IS A SEPARATE TABLE, NOT A
+    WIDER ONE.  A straight run keeps every piece PACKED, so the five wrangles
+    the deformed branch is made of never cook on it and the four that sit
+    downstream of the merge (`pc_finalize`, `pc_piece_key`, `pc_out_cast`,
+    `pc_warn_collate`) see one prim per piece instead of the module's whole
+    polygon soup.  Folding a deformed shape into `WRANGLE_CEILING_US` would
+    therefore move all eighteen recorded rows by the ratio of prims to pieces
+    and guard neither shape properly.  A non-zero `ripple` builds the same run
+    over a sine an `adaptive` module cannot chord, which unpacks every piece,
+    and `WRANGLE_DEFORM_CEILING_US` is that shape's own table.
     """
     from polyfactory.polychain import kit as KIT
 
     geo = hou.Geometry()
-    cases.polyline(geo, [(2.0 * i, 0.0, 0.0) for i in range(npts)],
-                   curve_id="LONG")
+    cases.polyline(geo, [(2.0 * i, ripple * math.sin(i * 0.35), 0.0)
+                         for i in range(npts)], curve_id="LONG")
 
     def nudger(name, feeder):
         node = root.createNode("attribwrangle", "%s_%s" % (name, tag))
@@ -6686,7 +6896,13 @@ def _wrangle_rig(root, tag, npts):
     node.node("OUT")
     node.parm("stage").set("output")
     node.cook(force=True)
-    return node, spline, kit, len(node.geometry().prims())
+    # ⚠️ THE COUNT IS PIECES, NOT PRIMS, AND ON A DEFORMED RIG THOSE DIFFER BY
+    # THE MODULE's PRIM COUNT.  Every ceiling in both tables is per PIECE, so
+    # reading `len(prims())` on a rippled run would divide by ~17x too many
+    # and make every row look 17x cheaper than it is.  The deform gate holds
+    # one point per planned piece on either shape.
+    gate = node.node("pc_deform_gate").geometry()
+    return node, spline, kit, len(gate.points())
 
 
 def _wrangle_cook(node, dirt, nudge, stage):
@@ -6764,7 +6980,7 @@ def wrangle_cost_tables(rigs, reps=3):
     return out
 
 
-def wrangle_verdict(big, small, pieces, small_pieces):
+def wrangle_verdict(big, small, pieces, small_pieces, ceilings=None):
     """Every complaint the measured rates raise, as text.  PURE - no Houdini.
 
     It is a separate function for the same reason `run_scene_checks.exit_code`
@@ -6777,16 +6993,17 @@ def wrangle_verdict(big, small, pieces, small_pieces):
     growth)] and the other three are lists of complaint strings; a sound build
     raises none.
     """
+    ceilings = WRANGLE_CEILING_US if ceilings is None else ceilings
     floor_us = WRANGLE_FLOOR_MS * 1e3 / pieces
     rows, over, unmeasured, loose = [], [], [], []
-    for name in sorted(WRANGLE_CEILING_US):
+    for name in sorted(ceilings):
         if name not in big or name not in small:
             unmeasured.append(name)
             continue
         rate = big[name] * 1e3 / pieces
         rate_small = small[name] * 1e3 / small_pieces
         growth = rate / max(rate_small, 1e-12)
-        ceiling = WRANGLE_CEILING_US[name]
+        ceiling = ceilings[name]
         rows.append((name, rate, growth))
         if rate > ceiling:
             over.append("%s %.4f > %.4f us/piece" % (name, rate, ceiling))
@@ -6798,74 +7015,42 @@ def wrangle_verdict(big, small, pieces, small_pieces):
     return rows, over, unmeasured, loose
 
 
-def wrangle_cost_check(root):
-    """D206 - one generic ceiling over every wrangle in the shipped asset.
+def _wrangle_cost_pass(node, big, small, pieces, small_pieces, lever,
+                       ceilings, suffix, shape):
+    """The three cost verdicts plus the mutation pass, over ONE ceiling table.
 
-    Five assertions, and each closes a different way for the table to become
-    decoration:
-
-      * `every_wrangle_has_a_cost_ceiling` - the table's keys ARE the asset's
-        attribwrangles, read off the built network. A nineteenth wrangle added
-        without a ceiling fails here rather than shipping unwatched, which is
-        exactly how fourteen of the eighteen got here.
-      * `wrangle_cost_is_flat_in_piece_count` - every row under its ceiling at
-        17 804 pieces and under the growth ceiling between the two sizes.
-      * `wrangle_ceilings_are_tight` - no row more than 4x above what this run
-        measures, so the table cannot be loosened into a number nothing can
-        reach.
-      * `mutation_every_wrangle_ceiling_bites` - each of the eighteen rows is
-        scaled by 5 in turn and the verdict has to name it. With the row above
-        holding every ceiling at or under 4x, the pair says: a five-fold
-        regression on ANY of the eighteen is caught.
-      * `mutation_pc_finalize_debatched` - and the real one, §21.4's M3, on the
-        node the whole finding is about.
+    13.9 N5 made this a function.  There are two tables now - the straight
+    shape's and the deformed shape's - because five wrangles never cook on a
+    straight run and four more see a different number of prims per piece on a
+    deformed one (see `WRANGLE_DEFORM_CEILING_US`).  Running one table's rows
+    against the other's measurements would have been the loosening D206 exists
+    to refuse, so the assertions are parameterised and the tables are not
+    merged.
     """
-    # ⚠️ BOTH RIGS ARE BUILT BEFORE EITHER IS MEASURED.  See
-    # `wrangle_cost_tables` - measuring them in two blocks was D209's defect
-    # living inside D206's own check, and it failed on a sound build.
-    small_node, small_sp, small_kt, small_pieces = _wrangle_rig(
-        root, "small", WRANGLE_SMALL_PTS)
-    node, spline, kit, pieces = _wrangle_rig(root, "big", WRANGLE_BIG_PTS)
-    (small, _lev), (big, lever) = wrangle_cost_tables(
-        ((100, small_node, small_sp, small_kt),
-         (300, node, spline, kit)))
-    small_node.destroy()
-
-    wrangles = sorted(n.name() for n in node.children()
-                      if n.type().name() == "attribwrangle")
-    missing = [n for n in wrangles if n not in WRANGLE_CEILING_US]
-    stale = [n for n in WRANGLE_CEILING_US if n not in wrangles]
-    check("every_wrangle_has_a_cost_ceiling",
-          not missing and not stale and len(wrangles) == 18,
-          "%d wrangles / %d ceilings" % (len(wrangles),
-                                         len(WRANGLE_CEILING_US)),
-          "every `attribwrangle` in the shipped asset has a MEASURED "
-          "per-piece ceiling (D206 - four of eighteen did). No ceiling: %s. "
-          "No node: %s" % (missing or "none", stale or "none"))
-
     floor_us = WRANGLE_FLOOR_MS * 1e3 / pieces
     rows, over, unmeasured, loose = wrangle_verdict(
-        big, small, pieces, small_pieces)
+        big, small, pieces, small_pieces, ceilings)
     worst = max(rows or [("none", 0.0, 0.0)],
-                key=lambda r: r[1] / WRANGLE_CEILING_US.get(r[0], 1.0))
-    check("wrangle_cost_is_flat_in_piece_count",
+                key=lambda r: r[1] / ceilings.get(r[0], 1.0))
+    check("wrangle_cost_is_flat_in_piece_count" + suffix,
           bool(rows) and not over and not unmeasured,
           "%d rows, worst %s at %.0f%% of its ceiling"
           % (len(rows), worst[0],
-             100.0 * worst[1] / WRANGLE_CEILING_US.get(worst[0], 1.0)),
-          "all %d wrangles of the SHIPPED asset under a per-piece ceiling at "
+             100.0 * worst[1] / ceilings.get(worst[0], 1.0)),
+          "all %d wrangles of the SHIPPED asset, on the %s shape, under a "
+          "per-piece ceiling at "
           "%d pieces and under %.1fx growth from %d, perfMon `Cook - ms`, min "
           "over 3 interleaved repetitions x 3 levers. Over: %s. Never cooked: "
-          "%s" % (len(rows), pieces, WRANGLE_GROWTH_CEILING, small_pieces,
-                  over or "none", unmeasured or "none"))
+          "%s" % (len(rows), shape, pieces, WRANGLE_GROWTH_CEILING,
+                  small_pieces, over or "none", unmeasured or "none"))
     # ⚠️ THE VALUE IS THE FLOOR-ADJUSTED FRACTION, NOT THE BARE RATIO. A bare
     # ratio reads 9.4x on `pc_kit_id` - whose whole cook is 0.16 ms, so its
     # ceiling is the 1 ms noise floor and nothing else - and a reader would
     # take that for a failure the check declined to make. What is asserted is
     # the ceiling against its ALLOWANCE, and 100 % is the refusal.
-    check("wrangle_ceilings_are_tight", bool(rows) and not loose,
+    check("wrangle_ceilings_are_tight" + suffix, bool(rows) and not loose,
           "worst %.0f%% of its allowance"
-          % (100.0 * max([WRANGLE_CEILING_US[n]
+          % (100.0 * max([ceilings[n]
                           / (WRANGLE_HEADROOM * max(r, 1e-12) + 2.0 * floor_us)
                           for n, r, _g in rows] or [0.0])),
           "no ceiling sits more than %.1fx above what this run measures (plus "
@@ -6885,12 +7070,12 @@ def wrangle_cost_check(root):
     # is still required to be REACHED by the verdict at its own ceiling, which
     # is what catches a row silently skipped.
     survived, blind = [], []
-    for name in sorted(WRANGLE_CEILING_US):
+    for name in sorted(ceilings):
         if name not in big:
             survived.append("%s (never cooked)" % name)
             continue
         rate = big[name] * 1e3 / pieces
-        ceiling = WRANGLE_CEILING_US[name]
+        ceiling = ceilings[name]
 
         def _named(ms, small_ms=None):
             """The verdict on a table where this ONE row is `ms`.
@@ -6913,7 +7098,7 @@ def wrangle_cost_check(root):
             if small_ms is not None:
                 worse_small[name] = small_ms
             _r, over_m, _u, _l = wrangle_verdict(
-                worse, worse_small, pieces, small_pieces)
+                worse, worse_small, pieces, small_pieces, ceilings)
             return any(c.startswith(name + " ") for c in over_m)
 
         # ...and the row has to be REACHED at all, exempt or not.
@@ -6959,16 +7144,16 @@ def wrangle_cost_check(root):
         # help here, because the burn is applied at the big size only and the
         # whole point of this pass is that the ceiling refuses on its own.
         seen = (ms is not None
-                and ms * 1e3 / pieces > WRANGLE_CEILING_US[name])
+                and ms * 1e3 / pieces > ceilings[name])
         burn_rows.append("%s %s -> %.3f ms (ceiling %.3f)"
                          % (name, cls, ms if ms is not None else -1.0,
-                            WRANGLE_CEILING_US[name] * pieces * 1e-3))
+                            ceilings[name] * pieces * 1e-3))
         if not seen:
             burned.append(name)
-    check("mutation_every_wrangle_ceiling_bites", not survived and not burned,
+    check("mutation_every_wrangle_ceiling_bites" + suffix, not survived and not burned,
           "%d/%d at %.0fx, %d under the floor"
-          % (len(WRANGLE_CEILING_US) - len(survived) - len(blind),
-             len(WRANGLE_CEILING_US), WRANGLE_MUTATION_SCALE, len(blind)),
+          % (len(ceilings) - len(survived) - len(blind),
+             len(ceilings), WRANGLE_MUTATION_SCALE, len(blind)),
           "every row is reached by the verdict at its own ceiling, and a "
           "%.0f-fold regression on it is NAMED unless that regression is "
           "smaller than twice the %.0f ms noise floor the ceiling was built "
@@ -6982,6 +7167,69 @@ def wrangle_cost_check(root):
              WRANGLE_MUTATION_SCALE, blind or "none",
              "; ".join(burn_rows) or "none", survived or "none",
              burned or "none"))
+
+
+
+def wrangle_cost_check(root):
+    """D206 - one generic ceiling over every wrangle in the shipped asset.
+
+    Five assertions, and each closes a different way for the table to become
+    decoration:
+
+      * `every_wrangle_has_a_cost_ceiling` - the table's keys ARE the asset's
+        attribwrangles, read off the built network. A nineteenth wrangle added
+        without a ceiling fails here rather than shipping unwatched, which is
+        exactly how fourteen of the eighteen got here.
+      * `wrangle_cost_is_flat_in_piece_count` - every row under its ceiling at
+        17 804 pieces and under the growth ceiling between the two sizes.
+      * `wrangle_ceilings_are_tight` - no row more than 4x above what this run
+        measures, so the table cannot be loosened into a number nothing can
+        reach.
+      * `mutation_every_wrangle_ceiling_bites` - each of the eighteen rows is
+        scaled by 5 in turn and the verdict has to name it. With the row above
+        holding every ceiling at or under 4x, the pair says: a five-fold
+        regression on ANY of the eighteen is caught.
+      * `mutation_pc_finalize_debatched` - and the real one, §21.4's M3, on the
+        node the whole finding is about.
+    """
+    # ⚠️ BOTH RIGS ARE BUILT BEFORE EITHER IS MEASURED.  See
+    # `wrangle_cost_tables` - measuring them in two blocks was D209's defect
+    # living inside D206's own check, and it failed on a sound build.
+    small_node, small_sp, small_kt, small_pieces = _wrangle_rig(
+        root, "small", WRANGLE_SMALL_PTS)
+    node, spline, kit, pieces = _wrangle_rig(root, "big", WRANGLE_BIG_PTS)
+    (small, _lev), (big, lever) = wrangle_cost_tables(
+        ((100, small_node, small_sp, small_kt),
+         (300, node, spline, kit)))
+    small_node.destroy()
+
+    wrangles = sorted(n.name() for n in node.children()
+                      if n.type().name() == "attribwrangle")
+    # 13.9 N5 - TWO TABLES, ONE RULE: every wrangle in the asset has a ceiling
+    # in exactly one of them, and neither names a node the asset does not
+    # have.  The split is by SHAPE, not by taste - see
+    # `WRANGLE_DEFORM_CEILING_US`.
+    covered = set(WRANGLE_CEILING_US) | set(WRANGLE_DEFORM_CEILING_US)
+    missing = [n for n in wrangles if n not in covered]
+    stale = sorted(covered - set(wrangles))
+    # A name in BOTH tables is not a fault - it is a node whose cost is
+    # SHAPE-DEPENDENT and is therefore guarded on both shapes (`pc_finalize`
+    # sees one prim per piece straight and seventeen deformed).  What is a
+    # fault is a wrangle in neither.
+    check("every_wrangle_has_a_cost_ceiling",
+          not missing and not stale and len(wrangles) == 23,
+          "%d wrangles / %d + %d ceilings"
+          % (len(wrangles), len(WRANGLE_CEILING_US),
+             len(WRANGLE_DEFORM_CEILING_US)),
+          "every `attribwrangle` in the shipped asset has a MEASURED "
+          "per-piece ceiling (D206 - four of eighteen did), on the straight "
+          "table or on 13.9 N5's deformed one, and %d of them on both. "
+          "No ceiling: %s. No node: %s"
+          % (len(set(WRANGLE_CEILING_US) & set(WRANGLE_DEFORM_CEILING_US)),
+             missing or "none", stale or "none"))
+
+    _wrangle_cost_pass(node, big, small, pieces, small_pieces,
+                       lever, WRANGLE_CEILING_US, "", "straight")
 
     # --- and the REAL survivor, M3, on the node it shipped through ----------
     #
@@ -7024,6 +7272,48 @@ def wrangle_cost_check(root):
           "%.4f ceiling. This is the mutation D206 exists for"
           % (rate if rate is not None else -1.0,
              big["pc_finalize"] * 1e3 / pieces, ceiling))
+    node.destroy()
+
+    # --- 13.9 N5: the same three verdicts on the DEFORMED shape -------------
+    #
+    # Five wrangles exist that a straight run never cooks, so a table recorded
+    # on one shape cannot guard them.  Same rigs, same levers, same estimator,
+    # over a ripple every piece unpacks on.
+    small_node, small_sp, small_kt, small_pieces = _wrangle_rig(
+        root, "dsmall", WRANGLE_SMALL_PTS, ripple=WRANGLE_RIPPLE_M)
+    node, spline, kit, pieces = _wrangle_rig(
+        root, "dbig", WRANGLE_BIG_PTS, ripple=WRANGLE_RIPPLE_M)
+    # ⚠️ AND THE RIG HAS TO ACTUALLY DEFORM, ASSERTED RATHER THAN ASSUMED.
+    # A ripple the gate reads as chordable would leave all five rows
+    # `unmeasured`, which `wrangle_cost_is_flat_in_piece_count_deformed`
+    # reports - but only if somebody reads it. This says it in one number.
+    gate = node.node("pc_deform_gate").geometry()
+    ndef = sum(gate.pointIntAttribValues("pc_deformed"))
+    # ⚠️ HALF, NOT ALL, AND THE HALF IS D27.  The starter kit alternates
+    # `post` (rigid, `deform = 0`) with `panel`, and `_needs_deform` returns
+    # False on a rigid module before it measures anything - so a ripple no
+    # module can chord still leaves every post packed. What this row has to
+    # assert is that the deformed BRANCH ran, not that nothing is packed:
+    # a rig where it did not would leave five ceilings measuring nodes that
+    # never cooked, which `wrangle_cost_is_flat_in_piece_count_deformed`
+    # reports as `Never cooked` and nobody reads.
+    branch = ("pc_deform", "pc_deform_prep", "pc_kit_rank", "pc_kit_meta",
+              "pc_piece_key")
+    idle = [n for n in branch if node.node(n).cookCount() == 0]
+    check("deform_wrangle_rig_really_deforms",
+          ndef > pieces // 4 and not idle,
+          "%d/%d deformed" % (ndef, pieces),
+          "the %.1f m ripple `WRANGLE_DEFORM_CEILING_US` is recorded over "
+          "must unpack a real share of the run and cook every node of the "
+          "deformed branch. Idle: %s (the other half stays packed by D27 - "
+          "the starter kit's `post` is rigid)"
+          % (WRANGLE_RIPPLE_M, idle or "none"))
+    (small, _lev), (big, lever) = wrangle_cost_tables(
+        ((500, small_node, small_sp, small_kt),
+         (700, node, spline, kit)))
+    small_node.destroy()
+    _wrangle_cost_pass(node, big, small, pieces, small_pieces, lever,
+                       WRANGLE_DEFORM_CEILING_US, "_deformed", "deformed")
     node.destroy()
 
 
@@ -7379,9 +7669,9 @@ def main():
     output_guard_cost(root)
     kit_starter_cooks_once(root)
     guard_padding_parity(root)
-    guard_bend_bound(root)
-    guard_bend_bound_skips_rigid_modules(root)
-    guard_bend_bound_needs_its_operands(root)
+    guard_deform_ladder(root)
+    guard_deform_refusals(root)
+    mutation_deform_refusals(root)
     guard_spline_attr_types(root)
     mutation_spline_attr_types(root)
     guard_kit_mismatch(root)

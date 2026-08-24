@@ -1,6 +1,7 @@
 // STAGE 6 - FINALIZE (spec 4.6), 3.4's STAMP ON THE BUILT PRIM.
 //   PRIMITIVE wrangle, precision 64.
-//   input 0  the packed pieces out of `copy_packed`
+//   input 0  the built pieces - `copy_packed`'s packed prims MERGED with
+//            `pc_deform`'s deformed polygons (13.9 N5)
 //   input 1  CONFIG
 //
 // ⚠️ THIS NODE EXISTS BECAUSE NOTHING HAD EVER COMPARED THE STAMP.
@@ -17,12 +18,6 @@
 // and each one is only sound because of a property the graph enforces above:
 //
 //   pc_generated = 1   every prim here was made by polyChain (3.4).
-//   pc_deformed  = 0   `copy_packed` is the PACKED branch. 13.9 N5's deform
-//                      gate does not exist yet, so a piece the curvature
-//                      budget WOULD unpack is not built here at all - it has
-//                      no counterpart in the reference's packed set either,
-//                      which is why the parity matches on `pc_elem_id` and
-//                      skips what it cannot pair.
 //   pc_corner_cut = 0  4.3 is not ported (N8) and the native plan therefore
 //                      emits no piece carrying a cut. A case WITH corners is
 //                      out of scope by name in `_place_out_of_scope`, not
@@ -30,15 +25,37 @@
 //   pc_replaced  = 0   4.6's hero replacement is N7's other half; a case with
 //                      overrides is out of scope by name for the same reason.
 //
-// When N5 and N8 land, the first two stop being constants and read the gate
-// and the cut flag; the check that pairs them with the reference is already
-// written, which is the point of landing it now.
+// ⚠️ `pc_deformed` STOPPED BEING A CONSTANT WHEN 13.9 N5 LANDED, and this
+// comment said "0 - `copy_packed` is the PACKED branch" for as long as it was
+// one.  Both branches now feed this node, the flag rides across
+// `copytopoints` from the plan point the deform gate wrote it on, and the
+// constant would have stamped every deformed prim `pc_deformed = 0` against
+// the reference's 1 - on every prim of the build, which is the shape of
+// divergence 20.2 and D223 both shipped.
+
+#include "pc_path.h"
 
 i@pc_section    = i@_sec_out;
 i@pc_generated  = 1;
-i@pc_deformed   = 0;
 i@pc_corner_cut = 0;
 i@pc_replaced   = 0;
+
+// 13.9 N5 - THE OUTPUT'S PRIM ORDER, as the key `pc_order` sorts on.  See
+// `PC_PIECE_SPAN` in pc_path.h for why the two halves are one declaration.
+// `_srcrank` is absent on a PACKED prim and reads 0, which is right: a packed
+// piece contributes exactly one prim, so its index within the piece IS 0.
+//
+// ⚠️ THE PIECE INDEX IS READ OFF THE PRIM'S OWN FIRST POINT, NOT OFF THE PRIM,
+// AND THAT IS A MEASURED `copytopoints` FACT.  A target attribute named in TWO
+// `targetattribs` entries is applied by the LAST one ONLY - probed on
+// 22.0.398, `_pkey0` in both the prims entry and the points entry produced the
+// point attribute, no prim attribute, no warning, and every key reading 0.
+// So it crosses on the point and is lifted here.  A packed prim has exactly
+// one point and a deformed prim's points all belong to the same piece, so
+// either way the first one answers for the prim.
+int _pts[] = primpoints(0, @primnum);
+int _pk0 = len(_pts) ? point(0, "_pkey0", _pts[0]) : 0;
+f@_pkey = (float)_pk0 * (float)PC_PIECE_SPAN + (float)i@_srcrank;
 
 // ⚠️ AND `pc_style` IS THE STYLE'S ID, NOT THE CURVE'S STYLE KEY.  The two
 // are different strings and the branch published the wrong one: 3.1's

@@ -31,6 +31,17 @@
 #define PC_EPS      1e-9        // metres; a chord shorter than this is no segment
 #define PC_POS_EPS  1e-6        // metres; two points closer than this are one point
 
+// 13.9 N5 - THE OUTPUT'S ORDER, AS A NUMBER.  `place.build` materialises pass
+// B in job order, interleaving one packed prim per rigid piece with a whole
+// polygon soup per deformed one; the native branch builds those as two
+// `copytopoints` streams and sorts them back together on
+// `_pkey0 * PC_PIECE_SPAN + <index within the piece>`.  The span is how many
+// prims (or points) one module may contribute before two pieces' keys would
+// collide - `pc_kit_rank` measures the real maximum and `pc_deform_gate`
+// REFUSES the build rather than shipping a permuted fence.  One declaration,
+// because a key whose two writers disagree is a silent reordering.
+#define PC_PIECE_SPAN 65536
+
 // One element of the sampler table, by segment index.  A typed local before
 // every `vertex()` - the return is untyped and everything downstream of it
 // would be ambiguous (recorded trap).

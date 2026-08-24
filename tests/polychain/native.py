@@ -225,8 +225,21 @@ def stage_plan(parent, sections, config, suffix=""):
 # index as `_sec_out`, this carries it, and `pc_finalize` turns it into
 # `pc_section`; `_scrub` deletes the `_*` name before OUT for free.
 # `pc_style` joined the list at the same time: 3.4 names it and it was absent.
+# ⚠️ `pc_deformed` IS IN THIS LIST SINCE 13.9 N5 AND IT USED TO BE A
+# CONSTANT IN `pc_finalize`.  Both branches feed that node now, so the
+# flag has to ride across from the plan point the gate wrote it on - a
+# constant 0 would stamp every DEFORMED prim against the reference's 1.
+#
+# ⚠️ AND `_pkey0` IS NOT IN THIS LIST, WHICH IS A `copytopoints` FACT WORTH
+# WRITING DOWN.  A target attribute named in TWO `targetattribs` entries is
+# applied by the LAST one ONLY - measured on 22.0.398: with entry 1 = prims
+# and entry 2 = points both naming `_pkey0`, the copies came out with the
+# point attribute and NO prim attribute at all, silently, and every prim key
+# read 0.  So the piece index crosses on the POINT alone and `pc_finalize`
+# reads it off the prim's own first point.
 COPY_ATTRIBS = ("pc_elem_id pc_elem_key pc_module pc_slot _sec_out "
-                "pc_u pc_variant pc_curve_id pc_zmode pc_warn_* _warns")
+                "pc_u pc_variant pc_curve_id pc_zmode pc_warn_* _warns "
+                "pc_deformed")
 
 # The body every Python SOP in the asset runs.  ⚠️ IT LIVES HERE, BESIDE THE
 # CHAIN, for the reason 15.8.4 gives: `create_pf_polychain_hda.py` imports
@@ -286,10 +299,28 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     unpack.parm("transfer_attributes").set("pc_module")
     nodes["kit_unpack"] = unpack
 
+    # 13.9 N5 - the deformed branch's own copy source, and it is a SEPARATE
+    # branch off `kit_unpack` rather than an edit of it: `copy_packed` copies
+    # its source with `pack = 1`, so a `_srcpt` written on `kit_unpack` would
+    # be baked INSIDE every packed prim's embedded geometry, where `_scrub`
+    # cannot reach it.
+    kit_rank = wrangle(parent, "pc_kit_rank" + suffix, "detail", "pc_kit_rank")
+    kit_rank.setInput(0, unpack)
+    nodes["pc_kit_rank"] = kit_rank
+
+    # ...and the per-module STATION table, on the packed prim the plan
+    # resolves against.  D71: the stations are where 4.4's deform rebuilds a
+    # frame and where D25's `_bend_deviation` measures the sag between, so
+    # both read one table.
+    kit_meta = wrangle(parent, "pc_kit_meta" + suffix, "detail", "pc_kit_meta")
+    kit_meta.setInput(0, kit_id)
+    kit_meta.setInput(1, kit_rank)
+    nodes["pc_kit_meta"] = kit_meta
+
     proto = wrangle(parent, "pc_proto" + suffix, "point", "pc_proto")
     proto.setInput(0, plan)
     proto.setInput(1, config)
-    proto.setInput(2, kit_id)
+    proto.setInput(2, kit_meta)
     nodes["pc_proto"] = proto
 
     # 13.9 N5 - THE DEFORM GATE, and it is the rule PC-G3 rides on. One node
@@ -301,6 +332,7 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     gate.setInput(0, proto)
     gate.setInput(1, config)
     gate.setInput(2, sections)
+    gate.setInput(3, kit_meta)
     nodes["pc_deform_gate"] = gate
 
     frames = wrangle(parent, "pc_frames_native" + suffix, "point", "pc_frames")
@@ -341,9 +373,80 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     copy.parm("useidattrib").set(True)
     copy.parm("idattrib").set("pc_module")
     copy.parm("targetattribs").set(1)
+    copy.parm("targetattribs").set(2)
     copy.parm("applyto1").set("prims")
     copy.parm("applyattribs1").set(COPY_ATTRIBS)
+    # the piece index, on the POINT as well, because `pc_piece_key` needs it
+    # on both classes and a packed prim's single point carries nothing else.
+    copy.parm("applyto2").set("points")
+    copy.parm("applyattribs2").set("_pkey0")
     nodes["copy_packed"] = copy
+
+    # --- 13.9 N5, THE DEFORMED BRANCH -------------------------------------
+    #
+    # The complement of `pc_packed_only`, built the way `place.build` builds
+    # it: the module's own polygons, every point re-read at its own arc
+    # position.  Until this landed ONE bending panel in a ten-thousand-piece
+    # run sent the whole build to the reference - measured on the citygen
+    # shape (300 gently hilly streets, 9 000 pieces, 8 999 deformed) at
+    # 1 237 ms of Python, 98.7 % of the cook.
+    deformed = parent.createNode("blast", "pc_deformed_only" + suffix)
+    deformed.parm("group").set("@pc_deformed==0")
+    deformed.parm("grouptype").set(3)
+    deformed.setInput(0, valid)
+    nodes["pc_deformed_only"] = deformed
+
+    prep = wrangle(parent, "pc_deform_prep" + suffix, "point",
+                   "pc_deform_prep")
+    prep.setInput(0, deformed)
+    prep.setInput(1, sections)
+    nodes["pc_deform_prep"] = prep
+
+    copy_def = parent.createNode("copytopoints::2.0", "copy_deformed" + suffix)
+    copy_def.setInput(0, kit_rank)
+    copy_def.setInput(1, prep)
+    # ⚠️ `pack = 0` AND `transform = 0` - the module has to arrive in its OWN
+    # local space, because `pc_deform` rewrites every position from scratch
+    # exactly as `_deform_positions` does.  `pc_deform_prep` zeroes the
+    # target's `P` and its 3x3 as well: probed on 22.0.398, `transform = 0`
+    # still TRANSLATES a copy to its target point.
+    copy_def.parm("pack").set(False)
+    copy_def.parm("transform").set(False)
+    copy_def.parm("useimplicitn").set(False)
+    copy_def.parm("useidattrib").set(True)
+    copy_def.parm("idattrib").set("pc_module")
+    copy_def.parm("targetattribs").set(2)
+    copy_def.parm("applyto1").set("prims")
+    copy_def.parm("applyattribs1").set(COPY_ATTRIBS)
+    copy_def.parm("applyto2").set("points")
+    copy_def.parm("applyattribs2").set("_pkey0 _d*")
+    nodes["copy_deformed"] = copy_def
+
+    deform = wrangle(parent, "pc_deform" + suffix, "point", "pc_deform")
+    deform.setInput(0, copy_def)
+    deform.setInput(1, config)
+    deform.setInput(2, sections)
+    nodes["pc_deform"] = deform
+
+    merge = parent.createNode("merge", "pc_pieces" + suffix)
+    merge.setInput(0, copy)
+    merge.setInput(1, deform)
+    nodes["pc_pieces"] = merge
+
+    # ⚠️ AND THE ALL-PACKED BUILD MUST NOT SEE THE DEFORMED BRANCH AT ALL.
+    # An EMPTY `copy_deformed` still carries its source's attribute
+    # DEFINITIONS, so merging it into a run with nothing to deform would
+    # publish `pc_local` - and any `uv`/`N`/`Cd` an artist's kit carries - as
+    # point attributes on a fence where the reference has none, which
+    # `output_guard_parity` reads as a differing point attribute LIST on all
+    # 92 cases.  A switch is the cheapest correct answer; its selector reads
+    # `pc_deformed_only`, which this branch cooks anyway.
+    built = parent.createNode("switch", "pc_built" + suffix)
+    built.setInput(0, copy)
+    built.setInput(1, merge)
+    built.parm("input").setExpression(
+        'npoints("../%s") > 0' % deformed.name())
+    nodes["pc_built"] = built
 
     # 13.9 N7's first half - 4.6's stamp, on the prim the copy just made.
     # Everything above this node reproduces the reference's GEOMETRY; this is
@@ -351,9 +454,24 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     # for why each of the four constants is a statement about this branch and
     # not a placeholder.
     fin = wrangle(parent, "pc_finalize" + suffix, "primitive", "pc_finalize")
-    fin.setInput(0, copy)
+    fin.setInput(0, built)
     fin.setInput(1, config)
     nodes["pc_finalize"] = fin
+
+    # 13.9 N5 - the two streams put back into `place.build`'s own job order.
+    # `pc_finalize` writes the PRIM half of the key, this the POINT half, and
+    # one `sort` applies both.  See `PC_PIECE_SPAN` in pc_path.h.
+    key = wrangle(parent, "pc_piece_key" + suffix, "point", "pc_piece_key")
+    key.setInput(0, fin)
+    nodes["pc_piece_key"] = key
+
+    order = parent.createNode("sort", "pc_order" + suffix)
+    order.setInput(0, key)
+    order.parm("primsort").set("attribute")
+    order.parm("primattrib").set("_pkey")
+    order.parm("ptsort").set("attribute")
+    order.parm("pointattrib").set("_pkeyp")
+    nodes["pc_order"] = order
 
     # 13.2's named lever, used for the one place it is actually needed.  The
     # whole chain runs at `vex_precision = 64` on purpose (R2), and a 64-bit
@@ -363,10 +481,19 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     # what 3.4 ships.  The 64 bits are right for every intermediate and wrong
     # for the output, and `attribcast` is where that line is drawn.
     cast = parent.createNode("attribcast", "pc_out_cast" + suffix)
-    cast.setInput(0, fin)
+    cast.setInput(0, order)
     cast.parm("class1").set("primitive")
     cast.parm("attribs1").set("pc_u")
     cast.parm("precision1").set("fpreal32")
+    # 13.9 N5 - and the deformed branch's own 64-bit leak.  `pc_local` is a
+    # float32 point attribute in `place.build` (`addAttrib` with a 3-float
+    # default) and `pc_deform` is a 64-bit wrangle, so without this line the
+    # shipped fence carries the module's local frame at twice the reference's
+    # storage.  It is the same line `pc_u` needed, for the same reason.
+    cast.parm("numcasts").set(2)
+    cast.parm("class2").set("point")
+    cast.parm("attribs2").set("pc_local")
+    cast.parm("precision2").set("fpreal32")
     nodes["pc_out_cast"] = cast
 
     # 4.6's warning summary, and the per-element fan-out that goes with it.

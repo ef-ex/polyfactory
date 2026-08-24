@@ -1,0 +1,75 @@
+// STAGE 4 - PLACE (spec 4.4), THE MODULE'S STATION TABLE.  13.9 N5.
+//   DETAIL wrangle, 64.
+//   input 0  `pc_kit_id` - the kit, one PACKED prim per module
+//   input 1  `pc_kit_rank` - the same kit unpacked into polygons
+//
+// `place._stations(source, ax)` ported: the sorted DISTINCT local x values of
+// a module's own points.  D71 - they are the places 4.4's deform rebuilds a
+// frame at, and the places D25's `_bend_deviation` measures the sag between,
+// so the two read the same ground by construction rather than by agreement.
+//
+// ⚠️ THE RAW x IS STORED, NOT `x - ax`, AND THAT IS ABOUT STORAGE.  A point's
+// P is float32; `x - ax` is a float64 subtraction of two float32s and is
+// NOT a float32 in general, so writing the difference into an array attribute
+// would quantise it and the stations the gate measures would stop being the
+// stations the deform builds on.  The consumer subtracts `ax` itself, in 64
+// bits, exactly as `_stations` does.  The dedupe is unaffected: the reference
+// compares `(x2 - ax) - (x1 - ax) > tol`, which is `x2 - x1 > tol`.
+//
+// ⚠️ THE LAST RUN WINS, and that is `Kit._by_name`'s own rule (a repeated
+// `pc_name` is won by the LAST module carrying it) which `pc_proto` and
+// `copytopoints`' `useidattrib` both already follow.  A forward scan here
+// would hand the gate one module's stations while the copy pastes another's -
+// the exact class of order dependence `pc_proto.vfl`'s header records having
+// shipped once already.
+
+#define PC_STATION_TOL  1e-6        // `place._stations`' own tolerance
+#define PC_MAX_STATIONS 4096
+
+int nk = nprimitives(0);
+for (int k = 0; k < nk; k++) {
+    string want = prim(0, "pc_module", k);
+    float bb[] = primintrinsic(0, "bounds", k);
+    float ax = len(bb) ? bb[0] : 0.0;
+
+    // the LAST contiguous run of unpacked prims carrying this name
+    int np = nprimitives(1);
+    int hi = -1;
+    for (int i = np - 1; i >= 0; i--) {
+        string m = prim(1, "pc_module", i);
+        if (m == want) { hi = i; break; }
+    }
+    float xs[];
+    if (hi >= 0) {
+        int lo = hi;
+        while (lo > 0) {
+            string m = prim(1, "pc_module", lo - 1);
+            if (m != want) break;
+            lo--;
+        }
+        int seen[];
+        for (int i = lo; i <= hi; i++) {
+            int pts[] = primpoints(1, i);
+            foreach (int p; pts) {
+                if (find(seen, p) >= 0) continue;
+                push(seen, p);
+                vector pos = point(1, "P", p);
+                push(xs, pos.x);
+            }
+        }
+    }
+    xs = sort(xs);
+    float st[];
+    foreach (float x; xs) {
+        if (len(st) && x - st[len(st) - 1] <= PC_STATION_TOL) continue;
+        push(st, x);
+    }
+    setprimattrib(0, "_st", k, st);
+    setprimattrib(0, "_stn", k, len(st));
+    setprimattrib(0, "_st_ax", k, ax);
+}
+
+// carried through so the gate can refuse on it without a fourth input
+i@_kit_rank_max = detail(1, "_kit_rank_max");
+i@_kit_span     = detail(1, "_kit_span");
+i@_kit_stmax    = PC_MAX_STATIONS;

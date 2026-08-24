@@ -1,0 +1,86 @@
+// STAGE 4 - PLACE + DEFORM (spec 4.4), THE DEFORMED PIECE.  13.9 N5.
+//   POINT wrangle over the COPIED module points, precision 64.
+//   input 0  `copy_deformed` - the module's polygons, one copy per piece,
+//            still in MODULE LOCAL space, each point carrying the piece's
+//            own `_d*` numbers
+//   input 1  CONFIG
+//   input 2  the DECOMPOSED spline (the sampler table)
+//
+// `place._deform_positions` ported.  It is the last of the three
+// materialisation paths to leave Python and the most expensive one by far:
+// measured on the shipped asset with `hou.perfMon`, 300 gently HILLY streets
+// (the citygen shape, 9 000 pieces, 8 999 of them deformed) cost **1 237 ms
+// of `kernel`** and nothing else in the graph - 98.7 % of the cook - because
+// ONE bending panel in a run sends the whole build to the reference.
+//
+// THE REFERENCE'S OWN SENTENCE, kept: "every point of `src` re-read at its
+// own arc position".  A module point at local x maps to arc length
+// `s0 + (x - ax) * scale`, the path is sampled there, and the point is
+// rebuilt on the frame at that station.  `scale` is the SPAN over the
+// module's nominal length - NOT `pc_frames`' chord-based fit scale - because
+// a deformed piece follows the arc where a packed one spans the chord.
+//
+// ⚠️ D31's FRAME TRANSPORT IS NOT COMPUTED HERE, IT IS REFUSED UPSTREAM, and
+// the difference is the whole reason this node can be one parallel wrangle.
+// `_transport` carries `across` station by station and flips it whenever it
+// would reverse - a PREFIX SCAN, whose answer at station k depends on every
+// station before it.  Evaluating that per point would cost O(stations) samples
+// each; `pc_deform_gate` instead asks whether the flip is REACHABLE over this
+// piece's span (`pc_frames_transportable`, pc_gate.h) and declares the piece
+// unanswerable where it is, so the whole build takes the reference.  Where the
+// piece IS answerable `_transport` provably returns its input untouched, so
+// this file reproduces it by not implementing it.
+//
+// ⚠️ WHAT IS ABSENT HERE IS ABSENT UPSTREAM TOO, and each one is a refusal
+// with a name: D99's BAND (`_follows`' `inside` term - `pc_deform_gate`'s
+// `has_band`), D98's FLATTEN-UNDER (`base_y` - `_native_ok`'s
+// `flatten_stepped`), 4.5's CAMBER (`normal_at` - `has_surface`), a SLICED
+// module (`pc_sliced` - `fill`), and E2's row band (`yscale`, phase 2, the
+// identity here and carried as an attribute rather than assumed).  With all
+// five refused, `_follows(y, None, stepped)` collapses to `!stepped` and
+// `base_y` to the piece's own start elevation - which is what the two
+// branches below are.
+
+#include "pc_path.h"
+
+int   pr     = i@_dprim;
+float s0     = f@_dws0;
+float ax     = f@_dax;
+float scale  = f@_dscale;
+float yscale = f@_dyscale;
+float base_y = f@_dbasey;
+string zmode = s@_dzmode;
+vector up_ref = v@_dupref;
+
+// the module's own local position, kept before it is overwritten.  3.4 ships
+// it as `pc_local` so a check - and an artist - can still recover the piece's
+// frame from the built geometry; `place.build` adds the same attribute to
+// every deformed piece it merges.
+vector local = v@P;
+
+float s_x = s0 + (local.x - ax) * scale;
+vector pos, tang;
+pc_sample(2, pr, s_x, 1, pos, tang);
+
+vector d, across, up;
+pc_frame(tang, zmode, up_ref, d, across, up);
+
+float sy = local.y * yscale;
+vector world;
+if (zmode == "adaptive") {
+    world = set(pos.x + across.x * local.z + up.x * sy,
+                pos.y + across.y * local.z + up.y * sy,
+                pos.z + across.z * local.z + up.z * sy);
+} else {
+    // `place._follows(y, band = None, stepped)` - with no band the `inside`
+    // term is False, so `vertical` follows the ground and `stepped` sits at
+    // the piece's one elevation.  Written as the collapsed expression, with
+    // the band it collapses FROM named above, because the band is a refusal
+    // and not an omission.
+    float py = (zmode == "stepped") ? base_y : pos.y;
+    world = set(pos.x + across.x * local.z, py + sy,
+                pos.z + across.z * local.z);
+}
+
+v@pc_local = local;
+v@P        = world;

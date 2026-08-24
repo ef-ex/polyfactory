@@ -22,9 +22,9 @@ not possible to process with the other 3 mentioned options."*
 So the body is being rebuilt as named, visible, DISPLAYABLE stages, 13.9's
 build order at a time.  What this script builds today:
 
-    pf_polychain                          51 nodes: 18 VEX (all at 64),
+    pf_polychain                          61 nodes: 23 VEX (all at 64),
       IN_SPLINE IN_KIT IN_STYLE IN_SURFACE      4 Python SOPs, 14 nulls,
-      [0 CONFIG]     config     [python]        3 switches, the rest native
+      [0 CONFIG]     config     [python]        4 switches, the rest native
       [1 DECOMPOSE]  pc_unshare pc_curveid pc_curve_index pc_arclength
                      pc_corners pc_markers OUT_sections   VEX + native (N3)
       [2 PLAN]       pc_plan_bridge OUT_plan    [python] SCAFFOLDING, and
@@ -33,11 +33,15 @@ build order at a time.  What this script builds today:
                      pc_plan_emit pc_plan_only pc_stamp
                      OUT_plan_native                              4.2 (N2)
       [4 PLACE]      pc_frames pc_frames_valid OUT_frames  the bridge branch
-                     kit_starter pc_kit_id kit_unpack pc_proto
+                     kit_starter pc_kit_id kit_unpack pc_kit_rank
+                     pc_kit_meta pc_proto
                      pc_deform_gate pc_frames_native pc_place_valid
-                     pc_packed_only copy_packed pc_finalize pc_out_cast
-                     pc_warn_collate OUT_gate OUT_frames_native
-                     OUT_place_native            the PACKED branch (N4/N5)
+                     pc_packed_only copy_packed        the PACKED branch (N4)
+                     pc_deformed_only pc_deform_prep copy_deformed
+                     pc_deform                       the DEFORMED branch (N5)
+                     pc_pieces pc_built pc_finalize pc_piece_key pc_order
+                     pc_out_cast pc_warn_collate      merged, back in job order
+                     OUT_gate OUT_frames_native OUT_place_native
       [R REFERENCE]  kernel OUT_reference       [python]  the parity oracle
       [G GUARD]      pc_envelope pc_envelope2 guard_native guard_envelope
                      OUT_final                            13.9 N10
@@ -535,6 +539,84 @@ _PLACE_COMMENTS = {
         "and pc_section carried the section KEY as a float where\n"
         "_stamp_values writes the section INDEX as an int.\n"
         "`place_stamp_parity` is the check that now says so.",
+    "pc_kit_rank":
+        "13.9 N5 - the deformed branch's copy source, and its PIECE-LOCAL\n"
+        "index. `place.build` interleaves one packed prim per rigid piece\n"
+        "with a whole polygon soup per deformed one, in job order, and\n"
+        "output_guard_parity compares every prim IN ORDER plus the whole P\n"
+        "array - so the two copy streams have to be sorted back together.\n"
+        "copytopoints carries a SOURCE attribute onto every copy for free,\n"
+        "which is why the second half of the key costs one wrangle over a\n"
+        "kit of a few dozen prims instead of a scan over the output.\n"
+        "A SEPARATE BRANCH off kit_unpack, not an edit of it: copy_packed\n"
+        "packs its source, so a _srcpt written upstream would be baked\n"
+        "INSIDE every packed prim where _scrub cannot reach it.",
+    "pc_kit_meta":
+        "13.9 N5 - place._stations, per module, on the packed prim the plan\n"
+        "resolves against. D71: the stations are where 4.4's deform rebuilds\n"
+        "a frame AND where D25's _bend_deviation measures the sag between,\n"
+        "so both read one table. The RAW local x is stored, not x - ax: a\n"
+        "point's P is float32 and the difference of two float32s is not one,\n"
+        "so storing the difference would quantise the very numbers the\n"
+        "deform is built on. The LAST run of a repeated pc_name wins, which\n"
+        "is Kit._by_name's rule and copytopoints' useidattrib's.",
+    "pc_deformed_only":
+        "13.9 N5 - the complement of pc_packed_only, and until this cycle it\n"
+        "went nowhere: ONE bending panel in a ten-thousand-piece run made\n"
+        "level 2 refuse the whole build. Measured on the citygen shape (300\n"
+        "gently hilly streets, 9 000 pieces, 8 999 of them deformed) that\n"
+        "refusal cost 1 237 ms of Python, 98.7 % of the cook.",
+    "pc_deform_prep":
+        "13.9 N5 - the copy target, reset to the MODULE's own local space.\n"
+        "place.build does piece.merge(src) and then rewrites every position\n"
+        "from scratch, so the module arrives untransformed; copytopoints\n"
+        "always translates a copy to its target point. Probed on 22.0.398:\n"
+        "transform = 0 STILL translates. So P and the 3x3 are zeroed here\n"
+        "and the toggle is off too - each makes the other unnecessary and\n"
+        "neither is worth depending on alone.\n"
+        "Every number the deform needs is renamed _d* before it crosses,\n"
+        "because copytopoints publishes a target attribute under its own\n"
+        "name and a pc_ws0 POINT attribute on the shipped fence is a\n"
+        "differing attribute LIST, which is a failed parity.",
+    "copy_deformed":
+        "13.9 N5 - pack = 0, transform = 0. The module's polygons, one copy\n"
+        "per deformed piece, still in local space for pc_deform to place.",
+    "pc_deform":
+        "13.9 N5 - place._deform_positions, in VEX. Every point of the\n"
+        "module re-read at its own arc position: local x maps to\n"
+        "s0 + (x - ax) * scale, the path is sampled there, and the point is\n"
+        "rebuilt on the frame at that station. `scale` is the SPAN over the\n"
+        "module's nominal length - NOT pc_frames' chord-based fit scale -\n"
+        "because a deformed piece follows the arc where a packed one spans\n"
+        "the chord.\n"
+        "D31's frame TRANSPORT is not computed here, it is REFUSED upstream:\n"
+        "it is a prefix scan over the piece's stations, and pc_deform_gate\n"
+        "asks instead whether the flip is REACHABLE over this span\n"
+        "(pc_frames_transportable) and declares the piece unanswerable where\n"
+        "it is. Where the piece IS answerable _transport provably returns\n"
+        "its input untouched, so this node reproduces it by not\n"
+        "implementing it - and stays one parallel wrangle.",
+    "pc_pieces":
+        "13.9 N5 - the packed prims and the deformed polygons, merged.",
+    "pc_built":
+        "13.9 N5 - AND THE ALL-PACKED BUILD MUST NOT SEE THE DEFORMED\n"
+        "BRANCH AT ALL. An EMPTY copy_deformed still carries its source's\n"
+        "attribute DEFINITIONS, so merging it into a run with nothing to\n"
+        "deform publishes pc_local - and any uv/N/Cd an artist's kit\n"
+        "carries - on a fence where the reference has none. That is a\n"
+        "differing point attribute LIST on all 92 cases.",
+    "pc_piece_key":
+        "13.9 N5 - the POINT half of the order key (pc_finalize writes the\n"
+        "prim half). Its own node because a wrangle has one class and these\n"
+        "are two. The point order is as load-bearing as the prim order and\n"
+        "easier to forget: place.build appends ONE point per packed piece\n"
+        "and the module's whole point list per deformed one, and the parity\n"
+        "check compares the entire P array element by element.",
+    "pc_order":
+        "13.9 N5 - the two streams back in place.build's own job order, in\n"
+        "ONE native node. Probed on 22.0.398: sort by attribute is exact at\n"
+        "3.07e8, so the key is not quantised - which a float32 read would\n"
+        "do at 1.7e7, silently, as a permutation of the right answer.",
     "copy_packed":
         "4.4's materialisation, in ONE native node. R8, measured: the\n"
         "uniform scale DOES reach packedfulltransform (1.0 / 2.5 / 0.37\n"
@@ -542,9 +624,13 @@ _PLACE_COMMENTS = {
         "reference's packed prims bit for bit - 11.1's declined 4.34e-07 m\n"
         "is retired. pivot must be ORIGIN (centroid moves it 9.5e-07 m).",
 }
-_PLACE_ORDER = ("kit_starter", "pc_kit_id", "kit_unpack", "pc_proto",
+_PLACE_ORDER = ("kit_starter", "pc_kit_id", "kit_unpack", "pc_kit_rank",
+                "pc_kit_meta", "pc_proto",
                 "pc_deform_gate", "pc_frames_native", "pc_place_valid",
-                "pc_packed_only", "copy_packed", "pc_finalize",
+                "pc_packed_only", "copy_packed",
+                "pc_deformed_only", "pc_deform_prep", "copy_deformed",
+                "pc_deform", "pc_pieces", "pc_built",
+                "pc_finalize", "pc_piece_key", "pc_order",
                 "pc_out_cast", "pc_warn_collate")
 for _i, _name in enumerate(_PLACE_ORDER):
     _node = _place_nodes[_name]
@@ -636,12 +722,18 @@ envelope2 = wrangle(
     net, "pc_envelope2", "detail",
     "13.9 N10 - THE GUARD SWITCH, LEVEL 2. Did the native chain end up\n"
     "able to build EVERY piece the build planned? Asked by COUNTING the\n"
-    "gate's points against the packed branch's, because every reason a\n"
+    "gate's points against the BUILDABLE branch's, because every reason a\n"
     "piece leaves is a blast - so adding a reason to drop a piece is\n"
     "automatically a reason to refuse the build, with no second copy of\n"
-    "the conditions to fall out of step.")
+    "the conditions to fall out of step.\n"
+    "INPUT 1 IS pc_place_valid AND IT USED TO BE pc_packed_only. While\n"
+    "the deformed branch did not exist those two were the same set, and\n"
+    "13.9 N5 split them: an unpacked piece is BUILT now, by copy_deformed\n"
+    "+ pc_deform, so counting only the packed half would refuse every\n"
+    "build with one bending panel in it - which is the refusal N5 exists\n"
+    "to remove.")
 envelope2.setInput(0, _place_nodes["pc_deform_gate"])
-envelope2.setInput(1, _place_nodes["pc_packed_only"])
+envelope2.setInput(1, _place_nodes["pc_place_valid"])
 envelope2.setInput(2, envelope)
 envelope2.setPosition(hou.Vector2(31.0, 2.0))
 

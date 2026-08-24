@@ -28,14 +28,28 @@
 // is empty exactly when it is allowed to be - `native_ok` is where that is
 // enforced and `output_guard_parity` is what proves it.
 
+// ⚠️ THE FAN-OUT IS PER PRIM AND THE COUNT IS PER ELEMENT, AND THOSE WERE THE
+// SAME NUMBER UNTIL 13.9 N5.  `place._collate_warnings` counts JOBS - one per
+// placement - while `_stamp_bulk` writes the warning onto every prim the piece
+// produced.  A packed piece is one prim, so a per-prim count agreed with the
+// reference on every build the branch could make; a DEFORMED piece is the
+// module's whole polygon soup, and J_coarse_bend's one warned element came out
+// `pc_warn_bend_resolution:6` against the reference's `:1` - six prims, one
+// element.  `_srcrank` is the prim's index WITHIN its piece (`pc_kit_rank`),
+// so `== 0` is "this prim is the first of its element"; it is absent on a
+// packed prim and `prim()` answers 0, which is the same sentence.
 int n = hasprimattrib(0, "_warns") ? nprimitives(0) : 0;
 dict counts;
 for (int i = 0; i < n; i++) {
     string w = prim(0, "_warns", i);
     if (w == "") continue;
+    // a TYPED local before the compare - `prim()` returns an untyped value.
+    int rank = prim(0, "_srcrank", i);
+    int first = (rank == 0);
     foreach (string name; split(w)) {
         if (name == "") continue;
         setprimattrib(0, name, i, 1);
+        if (!first) continue;
         int c = counts[name];
         counts[name] = c + 1;
     }
@@ -81,8 +95,11 @@ s[]@pc_kit_warnings = none;
 // the plan chain cooks (`pc_envelope2` needs it) AND `kernel` cooks, so the
 // artist read the identical sentence twice.  Measured on the shipped asset
 // with a loose marker of id 7: `straight` -> `pc_sections` alone, correct;
-// `arc R=20 step 0.05` and `arc R=50 step 0.1` - `guard_bend_bound`'s own two
-// L2-refusal fixtures - -> `pc_sections` AND `kernel`, the same words.
+// `arc R=20 step 0.05` and `arc R=50 step 0.1` - PART B's own two L2-refusal
+// fixtures - -> `pc_sections` AND `kernel`, the same words.  ⚠️ 13.9 N5
+// admits both of those arcs now (`guard_deform_ladder`), so the shape that
+// reaches the L1-admit/L2-refuse class is `guard_deform_refusals`' hairpin;
+// the cook map below is unchanged and `unread_marker_warns` runs on it.
 //
 // ⚠️ THE COOK MAP IS WHAT PICKS THIS NODE, not taste.  Over the three
 // scenarios the `cookCount`s are:

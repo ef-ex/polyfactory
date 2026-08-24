@@ -1,0 +1,20 @@
+// STAGE 6 - FINALIZE (spec 4.6), THE OUTPUT's POINT ORDER.  13.9 N5.
+//   POINT wrangle over the merged built pieces, precision 64.
+//   input 0  `pc_finalize` - the packed prims merged with the deformed ones
+//
+// The point half of the key `pc_finalize` writes for prims, and it needs its
+// own node for one reason: a wrangle has one class, and these are two.
+//
+// ⚠️ THE POINT ORDER IS AS LOAD-BEARING AS THE PRIM ORDER, and it is easier to
+// forget.  `place.build` appends ONE point per packed piece (the packed
+// prim's own) and the module's WHOLE point list per deformed one, in job
+// order, and `output_guard_parity` compares the entire `P` array element by
+// element - so a build that has every prim right and its points permuted is a
+// failed parity with a confusing message.
+//
+// `_srcpt` is absent on a packed prim's single point and reads 0, which is
+// its index within its piece.
+
+#include "pc_path.h"
+
+f@_pkeyp = (float)i@_pkey0 * (float)PC_PIECE_SPAN + (float)i@_srcpt;

@@ -12,7 +12,9 @@
 // which is exactly when `kernel` is silent" - stopped being true in the same
 // cycle that wrote it: level 1 now admits builds level 2 refuses, and on those
 // the plan chain cooks AND `kernel` cooks, so the artist read the sentence
-// TWICE (measured on `guard_bend_bound`'s own `arc_R20_step0.05` fixture).
+// TWICE (measured on the arc_R20_step0.05 fixture, which
+// `guard_deform_ladder` owns now - it was PART B's own L2-refusal row
+// and 13.9 N5 made it native at parity).
 // It lives in `pc_warn_collate` now, whose cookCount is `kernel`'s exact
 // complement; `unread_marker_warns` has an arc fixture for it.
 //

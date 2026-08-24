@@ -176,4 +176,92 @@ float pc_span_deviation(const int inp; const int pr; const float sa;
     return worst;
 }
 
+// `place._bend_deviation` (D25) - how far the DEFORMED piece cuts the corner
+// between two of its own stations, in metres.  13.9 N5.
+//
+// It is not `span_deviation` in another costume: that one asks whether the
+// piece should deform AT ALL, measured against the chord; this one measures
+// what the deformed piece, built on the module's OWN stations, still misses -
+// the sag of the straight run between two adjacent stations against the curve
+// under it.  Over `bend_tol` it is `pc_warn_bend_resolution`, which is the one
+// warning a deformed piece can raise and a packed one cannot, so without it
+// the native branch ships an element the reference stamps and it does not.
+//
+// The stations come off `pc_kit_meta`'s per-module table as RAW local x; the
+// `- ax` happens here, in 64 bits, exactly as `_stations` does it.
+//
+// ⚠️ THE REFERENCE'S `ps[]` CACHE IS NOT PORTED AND DOES NOT NEED TO BE.  It
+// saves a `path.sample` call per gap and returns the identical position for
+// the identical argument - the sampler is a pure function of (prim, s) - so
+// dropping it changes the cost and not one bit of the answer.  What IS ported
+// is the `s_b - s_a <= EPS` skip, which changes WHICH gaps are measured.
+float pc_bend_deviation(const int spline; const int pr; const int kit;
+                        const int kprim; const float s0f; const float scale) {
+    float st[] = prim(kit, "_st", kprim);
+    int n = len(st);
+    if (n < 2) return 0.0;
+    float ax = prim(kit, "_st_ax", kprim);
+    float worst = 0.0;
+    for (int i = 0; i + 1 < n; i++) {
+        float sa = s0f + (st[i] - ax) * scale;
+        float sb = s0f + (st[i + 1] - ax) * scale;
+        if (sb - sa <= PC_EPS) continue;
+        vector pa, pb, pm, t;
+        pc_sample(spline, pr, sa, 1, pa, t);
+        pc_sample(spline, pr, sb, 1, pb, t);
+        pc_sample(spline, pr, 0.5 * (sa + sb), 1, pm, t);
+        worst = max(worst, length(pm - 0.5 * (pa + pb)));
+    }
+    return worst;
+}
+
+// D31's FRAME TRANSPORT, ANSWERED AS A REFUSAL RATHER THAN PORTED.  13.9 N5.
+//
+// `place._transport` carries `across` along the piece station by station and
+// FLIPS it whenever it would reverse against its predecessor - a prefix scan,
+// which is the one shape a per-point wrangle cannot evaluate in O(1).  What
+// makes the flip reachable at all is the piece's own plan-view direction
+// REVERSING inside its span (an overhanging crest, a cliff lip, a hairpin
+// shorter than one module), because `across` is the horizontal normal in both
+// z-modes: `_frame`'s `adaptive` branch takes `cross(d, UP)` = (-dz, 0, dx)
+// and its yaw-only branch takes (-d.z, 0, d.x) of the flattened tangent.
+//
+// So this asks the question the flip needs: over the piece's own span, do any
+// two of the path's distinct directions OPPOSE, and is any of them without a
+// horizontal direction at all (which is `_frame`'s other special case, the
+// (0,0,1) fallback).  Either way the piece is declared unanswerable, the whole
+// build takes the reference, and nothing wrong ships - 13.9 N10's rule, and
+// the one both of 20.2's criticals broke by answering False instead.
+//
+// ⚠️ THE SAMPLE SET IS THE PATH'S DIRECTIONS, NOT THE MODULE'S STATIONS, AND
+// THAT IS WHY IT IS SOUND.  A station's tangent is the direction of whatever
+// segment its arclength lands in, so the set of station tangents is a SUBSET
+// of the segment directions over the span; the directions change only at a
+// KINK, so sampling the span's start, every interior kink and its end visits
+// every one of them.  Refusing on the superset can only refuse more, never
+// less.
+#define PC_FLAT_TANGENT 1e-6
+int pc_frames_transportable(const int inp; const int pr; const float s0;
+                            const float s1) {
+    if (s1 - s0 <= PC_EPS) return 1;
+    float verts[];
+    int nv = pc_interior_kinks(inp, pr, s0, s1, verts);
+    vector hs[];
+    for (int k = 0; k < nv + 2; k++) {
+        float s = (k == 0) ? s0 : ((k <= nv) ? verts[k - 1] : s1);
+        vector p, t;
+        pc_sample(inp, pr, s, 1, p, t);
+        vector u = pc_unit(t);
+        vector h = set(u.x, 0.0, u.z);
+        float hl = length(h);
+        if (hl < PC_FLAT_TANGENT) return 0;
+        push(hs, h / hl);
+    }
+    int n = len(hs);
+    for (int i = 0; i < n; i++)
+        for (int j = i + 1; j < n; j++)
+            if (dot(hs[i], hs[j]) < 0.0) return 0;
+    return 1;
+}
+
 #endif

@@ -1,0 +1,48 @@
+// STAGE 4 - PLACE + DEFORM (spec 4.4), THE DEFORMED BRANCH's COPY TARGET.
+//   13.9 N5.  POINT wrangle over the DEFORMED plan points, precision 64.
+//   input 0  `pc_deformed_only` - the pieces the gate unpacked
+//   input 1  the DECOMPOSED spline (the sampler table)
+//
+// ⚠️ THE COPY THAT FOLLOWS MUST LAND THE MODULE IN ITS OWN LOCAL SPACE, and
+// this node is what makes that true.  `place.build`'s deformed path does
+// `piece.merge(src)` and then rewrites every position from scratch
+// (`_deform_positions`), so the module arrives UNTRANSFORMED; `copytopoints`
+// on the other hand always translates a copy to its target point, and honours
+// a `transform` attribute when its own toggle is on.  Probed on 22.0.398:
+// with `transform = 0` the copy is still TRANSLATED to the target's `P` (a
+// module at local x 10 landed at 110 on a target at 100).  So the target's
+// position and its 3x3 are both reset here - belt and braces, because the
+// node's toggle and this reset each make the other unnecessary and neither is
+// worth depending on alone.
+//
+// ⚠️ AND EVERY NUMBER THE DEFORM NEEDS IS RENAMED `_d*` BEFORE IT CROSSES.
+// `copytopoints` puts a target attribute on the copies under its own name, so
+// carrying `pc_ws0` across would publish a `pc_ws0` POINT attribute on every
+// deformed piece in the shipped fence, where the reference has none - and
+// `output_guard_parity` compares the point attribute LIST.  `_*` is
+// conventions.md 2's answer and `_scrub` is what enforces it.
+
+#include "pc_path.h"
+
+int   pr    = i@pc_curveprim;
+float sa    = f@pc_ws0;
+
+// D98's flatten-under is refused upstream, so `place._deform_positions`'
+// `base_y is None` branch is the only one this graph reaches: the elevation
+// a `stepped` point sits at is the sample at the piece's own START, taken
+// FORWARD - the same call, at the same argument, `pc_frames` opens with.
+vector a, ta;
+pc_sample(1, pr, sa, 1, a, ta);
+
+f@_dws0    = sa;
+f@_dax     = f@pc_proto_ax;
+f@_dyscale = (haspointattrib(0, "pc_yscale")) ? f@pc_yscale : 1.0;
+f@_dbasey  = a.y;
+i@_dprim   = pr;
+s@_dzmode  = s@pc_zmode;
+v@_dupref  = (haspointattrib(0, "pc_upref")) ? v@pc_upref : set(0.0, 1.0, 0.0);
+// `_dscale` comes from the gate, which computed it to decide D25's warning on
+// exactly this number - one derivation, two consumers.
+
+v@P         = set(0.0, 0.0, 0.0);
+3@transform = ident();

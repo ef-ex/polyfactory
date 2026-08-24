@@ -365,28 +365,33 @@ def main():
         marked.parm("python").eval().replace(
             "for p in [(0,0,0), (20,0,0)]:",
             "for p in [(0,0,0), (20,0,0), (20,0,14)]:"))
-    # ⚠️ AND THE THIRD CLASS, WHICH NEITHER OF THE TWO ABOVE CAN REACH.  The
+    # AND THE THIRD CLASS, WHICH NEITHER OF THE TWO ABOVE CAN REACH.  The
     # straight run is pure native (level 1 admits, level 2 admits) and the
     # cornered one is pure reference (level 1 refuses), so between them they
     # never cook BOTH chains - and PART B created a class that does: level 1
-    # ADMITS a finely resampled arc and level 2 REFUSES it, which cooks the
-    # native plan chain (for `pc_envelope2`) and `kernel`.  This is
-    # `guard_bend_bound`'s own `arc_R20_step0.05` row, and on it D88's warning
-    # was raised TWICE - once by `pc_sections` and once by `kernel`, word for
-    # word - which is the outcome the placement comment said it was chosen to
+    # ADMITS and level 2 REFUSES, which cooks the native plan chain (for
+    # `pc_envelope2`) and `kernel`.  On that class D88's warning was raised
+    # TWICE - once by `pc_sections` and once by `kernel`, word for word -
+    # which is the outcome the placement comment said it was chosen to
     # prevent.  The warning is in `pc_warn_collate` now, whose cookCount is
     # `kernel`'s exact complement.
+    #
+    # THE FIXTURE FOR THAT CLASS CHANGED AT 13.9 N5, AND IT HAD TO.  It was a
+    # finely resampled R = 20 m arc, which level 2 refused because the
+    # deformed branch could not build an unpacked piece; that branch exists
+    # now and the arc is native at parity (`guard_deform_ladder`), so the old
+    # fixture had silently become a SECOND straight-run case and this check
+    # would have asserted the same class twice.  What still reaches the class
+    # is `pc_deform_gate`'s per-piece refusal: an OVERHANGING CREST, whose
+    # plan-view direction reverses inside one panel's span, which D31's frame
+    # transport flips on and `pc_frames_transportable` declares unanswerable.
+    # `corner_angle_deg = 60` keeps it ONE section, so a single panel really
+    # does straddle the reversal - `cases.P_crest_bend`'s own wording.
     marked_arc = geo_node.createNode("python", "marked_arc")
     marked_arc.parm("python").set(
         marked.parm("python").eval().replace(
             "for p in [(0,0,0), (20,0,0)]:",
-            "\n".join((
-                "import math",
-                "_R, _STEP, _LEN = 20.0, 0.05, 500.0",
-                "_pts = [(_R*math.sin(i*_STEP/_R), 0.0,",
-                "         _R*(1.0-math.cos(i*_STEP/_R)))",
-                "        for i in range(int(_LEN/_STEP) + 1)]",
-                "for p in _pts:"))).replace(
+            "for p in [(0,0,0), (6,9,0), (3,18,0)]:").replace(
             "m.setPosition((9.0, 0.0, 0.0))",
             "m.setPosition((0.0, 9.0, 0.0))"))
 
@@ -415,6 +420,8 @@ def main():
     mkc.cook(force=True)
     mka = geo_node.createNode("pf_polychain", "chain_marker_arc")
     mka.setInput(0, marked_arc)
+    # one section over the crest, so one panel straddles the reversal
+    mka.parm("corner_angle_deg").set(60.0)
     mka.cook(force=True)
 
     native_w = marker_warnings(mk)

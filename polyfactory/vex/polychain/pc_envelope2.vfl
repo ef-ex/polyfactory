@@ -1,6 +1,6 @@
 // THE GUARD SWITCH, LEVEL 2 (spec 13.9 N10).  DETAIL wrangle, 64.
 //   input 0  the DEFORM GATE's plan points - every piece the build planned
-//   input 1  `pc_packed_only`'s output - every piece this branch will build
+//   input 1  `pc_place_valid`'s output - every piece this branch will build
 //   input 2  `pc_envelope` (level 1's verdict)
 //
 // Level 1 asked what the PARAMETERS and the SPLINE allow.  This asks the one
@@ -9,16 +9,21 @@
 //
 // ⚠️ AND IT ASKS IT BY COUNTING, NOT BY RE-DERIVING.  Every reason a piece
 // leaves this branch is a blast - `pc_place_valid` drops what `pc_proto` and
-// the gate declared unanswerable (a missing module, D99's band, 4.5's normal),
-// `pc_packed_only` drops what the curvature budget unpacks and what the tile
-// fill sliced - so "nothing was dropped" is exactly `npoints(gate) ==
-// npoints(packed)`.  Two integers, O(1), and it cannot fall out of step with
-// the blasts the way a second copy of their conditions would: adding a reason
-// to drop a piece is automatically a reason to refuse the build.
+// the gate declared unanswerable (a missing module, D99's band, 4.5's normal,
+// a sliced piece, a span D31's frame transport could flip on) - so "nothing
+// was dropped" is exactly `npoints(gate) == npoints(valid)`.  Two integers,
+// O(1), and it cannot fall out of step with the blasts the way a second copy
+// of their conditions would: adding a reason to drop a piece is automatically
+// a reason to refuse the build.
 //
-// 13.9 N5's deformed branch is what will shrink this refusal; until it exists,
-// ONE bending panel in a ten-thousand-piece run sends the whole build to the
-// reference, which is correct and is not free (see `pc_envelope.vfl`).
+// ⚠️ INPUT 1 IS `pc_place_valid` AND IT USED TO BE `pc_packed_only`, WHICH IS
+// 13.9 N5's ONE-LINE SUMMARY.  While the deformed branch did not exist those
+// two were the same set and the sentence above was true of either; N5 split
+// them.  `pc_packed_only` and `pc_deformed_only` are now a PARTITION of
+// `pc_place_valid`, not a drop and a remainder, and counting only the packed
+// half would refuse every build with one bending panel in it - the exact
+// refusal N5 exists to remove, measured at 1 237 ms of Python on 300 gently
+// hilly streets.
 
 int planned = npoints(0);
 int built   = npoints(1);

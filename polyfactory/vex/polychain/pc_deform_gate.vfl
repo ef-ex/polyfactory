@@ -3,6 +3,7 @@
 //   input 0  the plan, carrying `pc_proto`'s module numbers
 //   input 1  CONFIG
 //   input 2  the DECOMPOSED spline (the sampler table)
+//   input 3  `pc_kit_meta` - the per-module station table (13.9 N5)
 //
 // `place._needs_deform` ported: ONE rule, in ONE place, deciding whether a
 // piece ships as a packed instance or as rebuilt geometry.  It is the single
@@ -40,6 +41,30 @@
 // surface, a fillet, a slope fix and D98's flatten; this adds D99's band to
 // it, so an unanswerable piece is DROPPED by `pc_place_valid` exactly as
 // those are, and `Stage = output` keeps the reference for that build.
+//
+// ⚠️ 13.9 N5 LANDED THE DEFORMED BRANCH, SO THIS NODE'S VERDICT IS NO LONGER
+// A DEAD END.  `pc_deformed = 1` used to mean "this piece leaves the native
+// branch and the whole build goes to the reference"; it now means "this piece
+// is built by `copy_deformed` + `pc_deform`".  Three things that were somebody
+// else's problem while every deformed piece was refused are this node's
+// problem now, and each is a REFUSAL rather than a guess:
+//
+//   * D25's `_bend_deviation` - the one warning only a DEFORMED piece can
+//     raise.  It is computed here (`pc_bend_deviation`, pc_gate.h) because
+//     this is the node that already holds the span, the verdict and, since
+//     N5, the module's station table on input 3.  Without it the native
+//     branch ships an element the reference stamps `pc_warn_bend_resolution`
+//     on and it does not, which `output_guard_parity` reads as a missing
+//     PRIM ATTRIBUTE on the whole build.
+//   * D31's frame TRANSPORT is a prefix scan over the piece's stations, which
+//     a per-point wrangle cannot evaluate in O(1).  `pc_frames_transportable`
+//     asks whether the flip is reachable at all over this span and refuses
+//     the piece where it is - see pc_gate.h for why the sample set is sound.
+//   * a SLICED piece (`fill = tile`) needs 4.6's slice caps, which is N7.
+//     Level 1 already refuses a tile fill outright, so this is the assertion
+//     of that and not a second implementation of it - but a gate that
+//     depended on another node's refusal without saying so is how an unported
+//     feature gets shipped the day that other refusal is widened.
 
 #include "pc_gate.h"
 
@@ -87,6 +112,57 @@ if (i@pc_sliced) {
     }
 }
 
+// --- 13.9 N5: what the DEFORMED branch needs from this node -----------------
+//
+// `place.build` pass A: `if p.anchor is None and deformed and
+// module.deform > 0`, transcribed.  A sliced piece reaches `needs = 1` with
+// `pc_deform == 0` and the reference does not measure it either.
+int kprim   = i@_proto_kitprim;
+float plen  = f@pc_proto_len;
+// `place.build`'s own `scale` - the SPAN over the module's nominal length,
+// which is not `pc_frames`' chord-based fit scale.  The deform maps local x
+// onto ARC LENGTH; the packed transform maps it onto the CHORD.
+float dscale = (plen > PC_EPS) ? ((sb - sa) / plen) : 1.0;
+float bend_dev = 0.0;
+if (needs && i@pc_deform > 0 && kprim >= 0)
+    bend_dev = pc_bend_deviation(2, pr, 3, kprim, sa, dscale);
+f@_bend_dev = bend_dev;
+f@_dscale   = dscale;
+
+// the three refusals above, as one flag.  Only a piece that will actually be
+// DEFORMED can trip them: a packed piece takes one chord transform and asks
+// none of these questions.
+int deform_ok = 1;
+if (needs) {
+    if (i@pc_sliced) deform_ok = 0;             // 4.6's slice caps - N7
+    if (kprim < 0) deform_ok = 0;               // no module, no stations
+    // the key `pc_order` sorts the two streams back together on.  A module
+    // with more prims or points than one span would collide with the next
+    // piece's key, so the bound is CHECKED rather than assumed.
+    // ⚠️ TYPED LOCALS BEFORE THE COMPARE - `detail()` returns an untyped
+    // value and `>=` is ambiguous over it (this project's recorded trap, hit
+    // for the sixth time here).
+    int rank_max = detail(3, "_kit_rank_max");
+    int rank_span = detail(3, "_kit_span");
+    if (rank_max >= rank_span) deform_ok = 0;
+    // ⚠️ THE SPAN THE FRAMES ARE ASKED ABOUT IS THE STATION SPAN, NOT THE
+    // PLANNED ONE.  D20: geometry outside [ax, ax + size.x] legitimately
+    // OVERHANGS and is carried along, so the last station can sit PAST `sb`
+    // and the transport question has to be asked out there too.
+    if (deform_ok && kprim >= 0) {
+        float st[] = prim(3, "_st", kprim);
+        float sax  = prim(3, "_st_ax", kprim);
+        float shi  = sb;
+        if (len(st)) shi = max(sb, sa + (st[len(st) - 1] - sax) * dscale);
+        if (!pc_frames_transportable(2, pr, sa, shi)) deform_ok = 0;
+    }
+}
+// `_gate_deform_ok`, not `_deform_ok`: `copy_deformed` transfers the
+// piece's numbers with the wildcard `_d*`, which the shorter name
+// matches, and a diagnostic riding onto a million copied points is a
+// cost nobody asked for.
+i@_gate_deform_ok = deform_ok;
+
 // 4.6's TWO PLACE-SIDE WARNINGS (D32), raised here because this is the node
 // that already holds the span's two ends and the deform verdict they read.
 // Both are `place.build` pass A, both are one ratio, and without them a
@@ -126,6 +202,12 @@ if (!needs && chord_ratio < PC_COLLAPSE_RATIO
         && find(warns, "pc_warn_corner_degenerate") < 0)
     warns = (warns == "") ? "pc_warn_corner_degenerate"
                           : warns + " pc_warn_corner_degenerate";
+// D25 - the DEFORMED piece's own warning, and it is the third one this node
+// raises rather than a fourth node.  `place.build` appends it right here in
+// pass A, under exactly the condition `bend_dev` was computed under.
+if (bend_dev > tol)
+    warns = (warns == "") ? "pc_warn_bend_resolution"
+                          : warns + " pc_warn_bend_resolution";
 s@_warns = warns;
 
 // ⚠ THE ANSWER IS `pc_deformed`, WHICH IS 3.4's OWN NAME FOR IT, AND THAT
@@ -143,8 +225,8 @@ i@pc_deformed  = needs;
 // already blasts on.  `pc_gate_valid` stays as its own attribute - beside
 // `pc_frame_valid`, for the same reason and by the same rule - so a check can
 // tell "this piece is packed" from "this piece was never judged".
-int gate_valid = (i@pc_frame_valid && !has_band);
+int gate_valid = (i@pc_frame_valid && !has_band && deform_ok);
 i@pc_gate_valid = gate_valid;
 if (!gate_valid) i@pc_frame_valid = 0;
 if (has_band && @ptnum == 0)
-    warning("polyChain: the native deform gate cannot answer a build with a Flat Band - D99's band is a per-point rule and 13.9 N5's deformed branch is not ported. Set Stage = Output for the full result.");
+    warning("polyChain: the native deform gate cannot answer a build with a Flat Band - D99's band is a per-point rule and its deformed half needs 4.4's band datum, which is not ported. Set Stage = Output for the full result.");

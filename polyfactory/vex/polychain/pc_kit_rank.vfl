@@ -1,0 +1,73 @@
+// STAGE 4 - PLACE (spec 4.4), THE KIT's PIECE-LOCAL INDEX.  13.9 N5.
+//   DETAIL wrangle, 64.
+//   input 0  `kit_unpack` - the kit's modules as loose polygons
+//
+// ⚠️ THIS NODE EXISTS FOR ONE REASON: THE OUTPUT'S PRIM AND POINT ORDER.
+// `place.build` materialises pass B in JOB ORDER - a packed piece appends one
+// prim and one point, a DEFORMED piece appends its module's whole polygon
+// soup - so the reference's output interleaves the two.  The native branch
+// builds them as two `copytopoints` streams and has to put them back in that
+// order, and `output_guard_parity` compares "every value on every prim in
+// ORDER" plus the whole `P` array, so an order that is merely a permutation
+// of the right answer is a FAILED parity, not a cosmetic difference.
+//
+// The sort key is (piece index, index WITHIN the piece).  The piece index is
+// `_pkey0`, which `pc_proto` stamps from the plan point's own number; the
+// index within the piece is what this node publishes, and `copytopoints`
+// carries a SOURCE attribute onto every copy for free - so the second half of
+// the key costs one wrangle over a kit of a few dozen prims, once, instead of
+// a scan over the built output.
+//
+// ⚠️ IT IS A SEPARATE BRANCH OFF `kit_unpack` AND NOT AN EDIT OF IT, because
+// `copy_packed` copies its source with `pack = 1`: a `_srcpt` written here
+// would be baked INSIDE every packed prim's embedded geometry, where `_scrub`
+// cannot reach it and where it would sit in every shipped fence.
+//
+// ⚠️ THE RUN RESETS ON A NAME CHANGE, WHICH IS NOT THE SAME AS "PER PACKED
+// PRIM", and the difference is only ever visible on a kit with two ADJACENT
+// packed prims carrying the SAME `pc_name`.  There the second module's ranks
+// continue the first's instead of restarting.  That is still CORRECT for the
+// key - every prim of one piece comes from one module, so a constant offset
+// preserves the order inside the piece - and it stays correct exactly while
+// the rank stays under `PC_PIECE_SPAN`.  `_kit_rank_max` is published for the
+// gate to refuse on, rather than the bound being assumed.
+
+#include "pc_path.h"
+
+int np = nprimitives(0);
+string cur = "";
+int have = 0, rank = 0, worst = 0;
+for (int i = 0; i < np; i++) {
+    string m = prim(0, "pc_module", i);
+    if (!have || m != cur) { cur = m; have = 1; rank = 0; }
+    setprimattrib(0, "_srcrank", i, rank);
+    rank++;
+    worst = max(worst, rank);
+}
+
+// The POINT half of the same key.  A point's module is read off the first
+// prim it belongs to; a module's points are contiguous because `unpack`
+// emits one packed prim's contents at a time, and a LOOSE point (no prim at
+// all) restarts nothing - it keeps the run it is in, which is what the
+// reference's own `piece.merge(src)` point order does.
+int npt = npoints(0);
+cur = "";
+have = 0;
+rank = 0;
+for (int i = 0; i < npt; i++) {
+    int prims[] = pointprims(0, i);
+    if (len(prims)) {
+        string m = prim(0, "pc_module", prims[0]);
+        if (!have || m != cur) { cur = m; have = 1; rank = 0; }
+    }
+    setpointattrib(0, "_srcpt", i, rank);
+    rank++;
+    worst = max(worst, rank);
+}
+
+// The bound the key rests on, published rather than assumed.  A module with
+// more prims or points than one span would make two pieces' keys collide, and
+// `pc_deform_gate` refuses the build outright on it (13.9 N10's rule: what
+// the native chain cannot answer takes the reference).
+i@_kit_rank_max = worst;
+i@_kit_span     = PC_PIECE_SPAN;

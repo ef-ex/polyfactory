@@ -42,7 +42,7 @@ string want = s@pc_module;
 int n = nprimitives(2);
 float plen = 1.0, pax = 0.0;
 float pry = 0.0, prz = 0.0, py0 = 0.0, py1 = 0.0;
-int found = 0;
+int found = 0, kprim = -1;
 for (int i = n - 1; i >= 0; i--) {
     string name = prim(2, "pc_module", i);
     if (name != want) continue;
@@ -67,8 +67,22 @@ for (int i = n - 1; i >= 0; i--) {
         py1 = bb[3];
     }
     found = 1;
+    kprim = i;
     break;
 }
+
+// 13.9 N5 - THE PIECE'S OWN INDEX, AND IT IS THE OUTPUT'S PRIM ORDER.
+// `place.build` materialises pass B in job order and interleaves packed prims
+// with deformed polygon soups; the native branch builds those as two
+// `copytopoints` streams and sorts them back together on
+// (`_pkey0`, index within the piece).  This is the first half of that key,
+// taken HERE because this is the last node upstream of the packed/deformed
+// split that still sees every piece in plan order - `pc_place_valid` blasts
+// below it, and a key taken after a blast would number the survivors.
+i@_pkey0 = @ptnum;
+// ...and which kit prim answered, so the gate can read that module's station
+// table (`pc_kit_meta`) by index instead of walking the kit a second time.
+i@_proto_kitprim = kprim;
 
 f@pc_proto_len = plen;
 f@pc_proto_ax  = pax;
