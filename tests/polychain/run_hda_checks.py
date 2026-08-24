@@ -257,10 +257,30 @@ def main():
         "        pt.setAttribValue('pc_name', 'plank')\n")
     node.setInput(1, kit_node)
     node.parm("slot_default").set("post plank")
-    got = sorted(set(p.attribValue("pc_module") for p in node.geometry()
-                     .prims()))
-    check("input2_is_the_kit", "plank" in got, ",".join(got),
-          "the kit on input 2 renamed panel->plank")
+    # ⚠️ THE NAME IS NOT THE ASSERTION, and asserting it made this check
+    # UNFAILABLE. `Kit.resolve` ends `return [stand_in(name)]`, so a module
+    # the kit cannot supply becomes a blank 1 x 1 x 1 box CARRYING THE
+    # REQUESTED NAME - `plank` appears in `pc_module` whether input 2 was
+    # read or not. The registered mutation `kit_input_unplugged` wires the
+    # asset's kit port to NOTHING and this row stayed green through it,
+    # reddening nothing at all in 31 checks. So it asserts the renamed
+    # module's own GEOMETRY: the starter `panel` is 2.00 x 0.90 x 0.16 m in
+    # module space and 2.00 x 0.90 x 0.06 m as BUILT GEOMETRY (its 0.03 m
+    # half-width is what `corner_wedge` measures); the stand-in is
+    # 1 x 1 x 1. `pc_local` is read, not the world box, so the adaptive
+    # stretch cannot blur the two.
+    plank = [r for r in C.elements(node.geometry())
+             if r["pc_module"] == "plank"]
+    box = (0.0, 0.0, 0.0)
+    if plank:
+        loc = plank[0]["local"]
+        box = tuple(max(loc[i::3]) - min(loc[i::3]) for i in range(3))
+    check("input2_is_the_kit",
+          bool(plank) and abs(box[1] - 0.90) < 1e-4 and abs(box[2] - 0.06) < 1e-4,
+          "%d plank, %.3f x %.3f x %.3f m" % ((len(plank),) + box),
+          "the kit on input 2 renamed panel->plank; the piece must be the "
+          "PANEL (2.00 x 0.90 x 0.06), not the 1 x 1 x 1 stand-in that "
+          "carries the same name")
     node.setInput(1, None)
     node.parm("slot_default").set("post panel")
 

@@ -12039,6 +12039,20 @@ control now prints its failing check names and re-runs once before declaring its
   override payload written against the pre-D266 defaults must be re-addressed** and will otherwise
   miss silently. No code change; recorded so it is not rediscovered.
 
+**AND THE SWEEP FOUND ONE MORE, which is the meta-runner doing its job rather than a reviewer.**
+`run_mutation_registry.py --runner hda` reported **`kit_input_unplugged` SURVIVED — "still green:
+`input2_is_the_kit`; what it DID redden (0): nothing at all"**. The asset's kit port wired to
+NOTHING changed no check. Thirty of the thirty-one legitimately cannot tell (they wire no kit, and
+3.4's `kit_starter` supplies the same starter kit either way); the one written to tell could not
+fail, because it asserted a NAME. `Kit.resolve` ends `return [stand_in(name)]`, so a module the kit
+cannot supply becomes a **blank 1 × 1 × 1 box carrying the requested name** — `plank` appears in
+`pc_module` whether input 2 was read or not. The previous cycle recorded the mechanism correctly
+and left it (*"`run_hda_checks.py` is not this cycle's file to edit"*); **D272** closes it, because
+this cycle was already editing that file for D269. It asserts the renamed module's own geometry off
+`pc_local` — 2.00 × 0.90 × 0.06 m, the panel, against the stand-in's 1 × 1 × 1 — and the mutation
+reddens it. Retrospective 4a rule 4, *assert truth, not presence*, caught by a sweep and not by a
+reading.
+
 ### 28.8 Standing findings — open, named, not implied
 
 1. **The engine cannot phase a composed unit against what a neighbouring assembly supplied.**
@@ -12078,6 +12092,10 @@ control now prints its failing check names and re-runs once before declaring its
   report an 11.9 m double pillar on an ordinary picket fence; gating entry on the aspect let a
   blocky corner double forever at 0.0. The value is pairwise, so it is a pillar width and never a
   run length, and the sweep is bucketed, so it is linear.
+- **D272 — a check on "the right module arrived" asserts the module's GEOMETRY, never its name.**
+  `Kit.resolve`'s stand-in is a blank box that carries the requested name, by design (3.4:
+  warn-never-block), so any assertion phrased as *"`plank` appears in `pc_module`"* is satisfied by
+  the failure it exists to catch. Read `pc_local` and compare the module's own extents.
 - **D271 — a fixture's own dimensions are part of the fixture.** Every justification measures 0.0
   on a 12 m leg at 2 m spacing whether the engine is fixed or broken, because 12 is a multiple of
   2. The round number is what a fixture author reaches for and it is exactly the number that cannot

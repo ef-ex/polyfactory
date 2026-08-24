@@ -397,12 +397,16 @@ MUTATIONS = (
     M("kit_input_unplugged", "hda",
       ("input2_is_the_kit",),
       "THE KIT PORT WIRED TO NOTHING inside the asset - the bluntest possible "
-      "failure of input 2. ⚠️ IT REDDENS NOTHING AT ALL: 31 [PASS] / 0 with "
-      "the artist's kit port dead. Thirty of the thirty-one legitimately "
+      "failure of input 2. ⚠️ IT USED TO REDDEN NOTHING AT ALL: 31 [PASS] / 0 "
+      "with the artist's kit port dead. Thirty of the thirty-one legitimately "
       "cannot tell (they wire no kit and 3.4's `kit_starter` supplies the "
       "same starter kit either way); the one written to tell - "
-      "`input2_is_the_kit` - CANNOT FAIL. This entry stays RED until that is "
-      "fixed, which is the meta-runner doing its job rather than a bug in it.",
+      "`input2_is_the_kit` - COULD NOT FAIL, because it asserted the module "
+      "NAME and `Kit.resolve` ends `return [stand_in(name)]`: a module the "
+      "kit cannot supply becomes a blank 1 x 1 x 1 box carrying the requested "
+      "name. D272 makes it assert the renamed module's own GEOMETRY off "
+      "`pc_local` (2.00 x 0.90 x 0.06 m, the panel, against the stand-in's "
+      "1 x 1 x 1), and this entry reddens it.",
       ((BUILD,
         "    _node.setInput(0, net.indirectInputs()[_i])",
         "    _node.setInput(0, None if _i == 1 "
@@ -413,9 +417,10 @@ MUTATIONS = (
            "REQUESTED NAME. `input2_is_the_kit` renames panel -> plank in the "
            "kit it wires and then asserts `plank` appears in `pc_module` - "
            "which is the name the STYLE asked for, stamped by the stand-in "
-           "too. Assert truth, not presence (retrospective 4a rule 4): the "
-           "fix is to assert the renamed module's own GEOMETRY. D266; "
-           "`run_hda_checks.py` is not this cycle's file to edit."),
+           "too. Assert truth, not presence (retrospective 4a rule 4). CLOSED "
+           "at D272, by the cycle that was already editing `run_hda_checks.py` "
+           "for D269 - the survivor was found by running the sweep rather "
+           "than by reading, which is the meta-runner doing exactly its job."),
 
     M("hda_input_ports_swapped", "hda",
       ("payload_overrides_modules", "payload_matches_kernel",
