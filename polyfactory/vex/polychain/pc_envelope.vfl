@@ -28,8 +28,9 @@
 // for both chains: measured 1.45-1.58x on flat arcs at R = 5..50 m.
 // `guard_bend_bound` is the check that pins WHICH shapes pay it - its two
 // `L2 refused` rows ARE those shapes - and `bench_guard_fallback` the one
-// that pins what it costs.  ⚠️ There is no `guard_fallback_classes`; this
-// sentence named one for a cycle and `grep` returned only itself.  The
+// that pins what it costs.  ⚠️ This sentence used to cite a check called
+// guard_fallback_classes (no backticks, because `every_cited_check_exists`
+// reads them): it never existed, and grep returned only this line.  The
 // third reachable class is a kit whose module names no rule matches, and
 // `_native_ok` refuses that outright now rather than paying 2.35x for it.
 //

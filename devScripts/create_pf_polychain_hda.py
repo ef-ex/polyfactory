@@ -266,11 +266,19 @@ for _i, _name in enumerate(IN_NAMES):
 config = python_sop(
     net, "config", CONFIG_CODE,
     "13.3.0 - THE ONLY PYTHON SOP THAT BELONGS IN THE COOK PATH.\n"
-    "It resolves the parameter page against the style payload on input 3\n"
+    "It resolves the parameter page against the style payload on input 2\n"
     "(the payload wins whole, D77) and writes the result as the pc_cfg\n"
-    "detail dict, which VEX reads natively. No geometry; N = the parm\n"
-    "count. It must never grow a geometry loop - the wrapper tripwires\n"
-    "are pointed at it.")
+    "detail dict, which VEX reads natively.\n"
+    "N IS THE KIT, NOT THE PARM COUNT, and this comment said the parm\n"
+    "count for a cycle: config_resolved runs kit.read() over the kit\n"
+    "geometry packed prims in Python on EVERY cook, so the cost is\n"
+    "linear in the MODULE count. Measured, hou.perfMon, min of 3 on a\n"
+    "2 km straight: 1.61 / 5.45 / 14.48 / 28.52 ms at 5 / 50 / 150 /\n"
+    "301 modules - about 0.095 ms per module per cook, and at 301\n"
+    "modules it is the second most expensive node in the graph. 13.6\n"
+    "says so too (N is the module count plus the rule count); the\n"
+    "tripwires were pointed at a loop shape rather than at this.\n"
+    "config_cost_per_module is the ceiling that says it out loud.")
 # ⚠️ ONE INPUT CONVENTION, AND THIS NODE USED TO BREAK IT.  Every Python body
 # reads its style payload with `_input_geo(node, 2)` - `kernel` and
 # `pc_plan_bridge` have four inputs so that index lands on IN_STYLE, and this
@@ -313,13 +321,18 @@ dec_nodes.append(out_sections)
 # ---- 2 PLAN (4.2) - still the reference, and the network says so ------------
 plan = python_sop(
     net, "pc_plan_bridge", PLAN_CODE,
-    "SCAFFOLDING - 13.9 N2 DELETES THIS NODE.\n"
-    "4.2's fitting solve is still the reference Python. This only lifts\n"
-    "what the reference already computed onto real points, so the NATIVE\n"
-    "pc_frames below has something to read: pc_s0r / pc_s1r / pc_proto_* /\n"
-    "pc_basey / pc_upref, and pc_frame_valid - 0 where the piece rides a\n"
-    "filleted or conformed polyline the native arclength table cannot\n"
-    "answer for.")
+    "THE PYTHON BRIDGE - KEPT DELIBERATELY, AND NOT ON THE OUTPUT PATH.\n"
+    "This comment used to read SCAFFOLDING - 13.9 N2 removes this node.\n"
+    "N2 landed cycles ago, the native solve (pc_plan_solve..pc_stamp) is\n"
+    "what Stage = output cooks, and this node is still here - cookCount\n"
+    "0 on every default build - because it is the PER-STAGE ORACLE the\n"
+    "parity checks compare against: frames_parity and plan_parity ask it\n"
+    "and the VEX the same question in one process, which is 13.8 rule.\n"
+    "It lifts what the reference computed onto real points: pc_s0r /\n"
+    "pc_s1r / pc_proto_* / pc_basey / pc_upref, and pc_frame_valid - 0\n"
+    "where the piece rides a filleted or conformed polyline the native\n"
+    "arclength table cannot answer for. It is NOT scheduled for\n"
+    "removal; N5 will retire it if and when the deformed branch lands.")
 # INPUT 0 IS `OUT_sections`, NOT `IN_SPLINE` (D166) - the plan is solved on
 # the same decomposed stream the shipped run is, so `Stage = plan` and
 # `Stage = output` cannot answer about two different curves.
@@ -443,7 +456,17 @@ _PLACE_COMMENTS = {
         "standalone floor says a curve and nothing else must make a fence,\n"
         "so kit_geometry already ran inside `kernel` on every cook with\n"
         "input 2 unwired - 15.6 lists kit.box_mesh as unported. Here the\n"
-        "fallback is VISIBLE, and D154's native box SOPs replace this body.",
+        "fallback is VISIBLE.\n"
+        "D154 IS DECLINED, WITH THE MEASUREMENT THAT DECLINES IT (D219).\n"
+        "This comment used to promise that D154 native box SOPs would\n"
+        "take over this body, on a build whose own cycle had rejected the\n"
+        "port. It cooks ONCE PER INSTANCE, ever - cookCount 1 through\n"
+        "spline nudges, three parms and both Stage changes, while config\n"
+        "beside it goes to 4 - so it is 1.4 % of one cold build and 0 % of\n"
+        "every cook after it; and 13.3.6 prescribed box SOP gives the same\n"
+        "COUNTS as box_mesh with a different point ORDER, which moves\n"
+        "geometry_digest on every case for 1.5 ms. kit_starter_cooks_once\n"
+        "pins that premise.",
     "pc_kit_id":
         "4.4 - the copy id, and it is not optional. 13.2's copytopoints\n"
         "probe assumed a STRING pc_module on the kit PRIMS; 3.2 / D22 puts\n"
@@ -484,10 +507,12 @@ _PLACE_COMMENTS = {
         "4.4 - THE DEFORM GATE (13.9 N5). D87's curvature budget in VEX:\n"
         "one node decides packed or deformed for every piece, which is the\n"
         "rule PC-G3 rides on - 10 005 pieces at 0.42 s and 12 MB against\n"
-        "21.9 s and 360 180 points. Profiled, it is the biggest single\n"
-        "Python item left on the shipped path: 0.133 s of place.build's\n"
-        "0.813 s at 20 km, more than the fitting solve and the packed\n"
-        "transform together. D99's band and 4.5's drape test are NOT\n"
+        "21.9 s and 360 180 points. PAST TENSE, and this comment was in\n"
+        "the present for a cycle: the PYTHON it replaced WAS the biggest\n"
+        "single item on the shipped path, 0.133 s of place.build 0.813 s\n"
+        "at 20 km. THIS node measures 4.2-4.5 ms of VEX on the same\n"
+        "build - 0.25 us/piece at 17 804, held at 0.67 by\n"
+        "WRANGLE_CEILING_US. D99's band and 4.5's drape test are NOT\n"
         "ported and it says so on pc_frame_valid rather than guessing.",
     "pc_packed_only":
         "13.3.4's blast(packed), and until this cycle it did not exist -\n"

@@ -1047,6 +1047,137 @@ def wrangle_comment_complaints(node):
     return bad
 
 
+# A DisplayComment may not promise that a node which EXISTS is going away.
+# §22.8 item 4 named the four Python SOPs' comments as "the one string nothing
+# reads", and both of the ones that made a promise had gone stale:
+#   * `pc_plan_bridge` read "SCAFFOLDING - 13.9 N2 DELETES THIS NODE" on a
+#     build where N2 had landed cycles earlier and the node is still wired,
+#     still on the Stage menu and still the only feeder of `OUT_frames`;
+#   * `kit_starter` read "D154's native box SOPs replace this body" on a build
+#     whose own cycle formally DECLINED D154 with the measurement that
+#     declines it (D219) - and `hda.cook_kit`'s docstring said the same.
+# An implementer reading the network was told a port was pending that the doc
+# had rejected, which is D207's failure in the one place D207 did not look.
+COMMENT_PROMISES = (
+    "DELETES THIS NODE", "DELETE THIS NODE", "REPLACE THIS BODY",
+    "replaces this body", "deletes this node", "will be deleted",
+    "is deleted by",
+)
+
+
+def python_sop_comment_complaints(node):
+    """What each Python SOP's DisplayComment claims that the asset denies.
+
+    Three claims, none of them read by anything until now:
+
+      * the INPUTS - `input N` must be wired, exactly as the wrangle headers
+        are checked (`wrangle_comment_complaints`);
+      * no PROMISE OF DELETION about a node that is still in the asset;
+      * every CHECK it cites by name must exist in this run's `RESULTS` - see
+        `cited_check_complaints`.
+
+    The comment is `node.comment()` with the DisplayComment flag on; a Python
+    SOP with no comment at all is a complaint, because 13.7 rule 2 is that
+    every node in this graph says what it is for.
+    """
+    bad = []
+    for child in sorted(node.children(), key=lambda c: c.name()):
+        if child.type().name() != "python":
+            continue
+        text = child.comment() or ""
+        name = child.name()
+        if not text.strip():
+            bad.append("%s: no DisplayComment" % name)
+            continue
+        if not child.isGenericFlagSet(hou.nodeFlag.DisplayComment):
+            bad.append("%s: the comment is not displayed" % name)
+        # ⚠️ NO `input N` RULE HERE, and that is deliberate rather than an
+        # omission.  These comments are PROSE, not .vfl headers:
+        # `kit_starter` says "ran inside `kernel` on every cook with input
+        # 2 unwired", which a wiring rule reads as a declaration of an
+        # input the node does not have.  It is the same trap
+        # `wrangle_comment_complaints` records about `pc_envelope`'s
+        # quoted warning text - and there the headers have a strict
+        # declaration form to key on.  A rule that has to be written
+        # loosely to fire at all is a rule that fires on correct text.
+        for promise in COMMENT_PROMISES:
+            if promise in text:
+                bad.append("%s: the comment promises %r about a node that is "
+                           "still in the asset" % (name, promise))
+    return bad
+
+
+def cited_check_complaints(node):
+    """Every CHECK a shipped comment names must exist in this run.
+
+    ⚠️ `bench_guard_fallback` WAS CITED BY TWO SOURCE COMMENTS AND DID NOT
+    EXIST (§20.3); it was written, and the same cycle's `pc_envelope.vfl`
+    header immediately grew a citation of `guard_fallback_classes`, which
+    `grep -rn` finds exactly once in the whole tree - on that comment line.  A
+    reader auditing PART B's "the cost is real rather than hypothetical" claim
+    was sent to an oracle nobody had written.  So the rule is generic: a
+    comment that names something in `check_style` is making a claim about the
+    suite, and the suite is right here.
+
+    The vocabulary is deliberately narrow - `some_name_like_this` in
+    backticks, in a wrangle header or a Python SOP comment, that is not a
+    Python identifier the reader can follow (a module attribute, a parm, a
+    VEX symbol).  It is checked against the union of this run's `RESULTS` and
+    the check names `run_native_checks`, `run_hda_checks`, `run_scene_checks`
+    and `run_2d_checks` can produce, read out of their own sources - because
+    a comment may legitimately cite a row that lives in another runner.
+    """
+    # ⚠️ THE VOCABULARY IS EVERY NAME THE CODEBASE HAS, not a list of
+    # checks, and the difference is what keeps this row from firing on
+    # correct text.  A header legitimately cites `plan_sections` (a
+    # function in `plan.py`), `native_ok` (a `pc_cfg` key) and
+    # `pc_deform_gate` (a node); none of them is a check and all of them
+    # are real.  What the row refuses is a backticked snake_case name that
+    # exists NOWHERE - which is exactly what `bench_guard_fallback` and
+    # guard_fallback_classes each were.
+    known = set(r[0] for r in RESULTS)
+    known |= set(n.name() for n in node.children())
+    known |= set(p.name() for p in node.parms())
+    roots = (HERE,
+             os.path.join(REPO, "polyfactory", "scripts", "python",
+                          "polyfactory", "polychain"),
+             os.path.join(REPO, "devScripts"))
+    for folder in roots:
+        if not os.path.isdir(folder):
+            continue
+        for entry in sorted(os.listdir(folder)):
+            if not entry.endswith(".py"):
+                continue
+            with io.open(os.path.join(folder, entry),
+                         encoding="utf-8") as fh:
+                body = fh.read()
+            known |= set(re.findall(r"def ([a-z_0-9]+)" + re.escape("("),
+                                    body))
+            known |= set(re.findall(r"[\"']([a-z][a-z_0-9]{3,})[\"']",
+                                    body))
+    bad = []
+    texts = []
+    for child in sorted(node.children(), key=lambda c: c.name()):
+        if child.type().name() == "attribwrangle":
+            header = []
+            for line in (child.parm("snippet").eval() or "").splitlines():
+                if not line.startswith("//"):
+                    break
+                header.append(line)
+            texts.append((child.name(), "\n".join(header)))
+        elif child.type().name() == "python":
+            texts.append((child.name(), child.comment() or ""))
+    for name, text in texts:
+        for cited in set(re.findall(r"`((?:guard|bench|mutation|native|"
+                                    r"output|plan|place|frames|emit|solve|"
+                                    r"wrangle|stage|scene|kit|unread|no)_"
+                                    r"[a-z_0-9]+)`", text)):
+            if cited not in known:
+                bad.append("%s cites `%s` and no such check exists"
+                           % (name, cited))
+    return bad, len(texts)
+
+
 def text_claims_are_true(node):
     """D207 - the two bodies of artist-facing text that make CHECKABLE claims.
 
@@ -1094,6 +1225,29 @@ def text_claims_are_true(node):
           "class, any precision it states is the node's precision, and every "
           "`input N` it declares is wired - so a comment that lies is a "
           "failing check and not an invisible one. Wrong: %s"
+          % ("; ".join(bad) or "none"))
+
+    # §22.8 item 4 - the four Python SOPs' DisplayComments, which were the one
+    # body of shipped text nothing read.  Two of the four had gone stale in
+    # exactly D207's shape.
+    bad = python_sop_comment_complaints(node)
+    pysops = [c for c in node.children() if c.type().name() == "python"]
+    check("every_python_sop_comment_is_checkable", not bad, len(pysops),
+          "the DisplayComment on every Python SOP exists, is displayed, "
+          "and does not promise the "
+          "removal of a node that is still in the asset - `pc_plan_bridge` "
+          "read \"SCAFFOLDING - 13.9 N2 DELETES THIS NODE\" cycles after N2 "
+          "landed, and `kit_starter` promised D154's box SOPs on a build "
+          "whose own cycle declined D154. Wrong: %s"
+          % ("; ".join(bad) or "none"))
+
+    bad, ntexts = cited_check_complaints(node)
+    check("every_cited_check_exists", not bad, ntexts,
+          "every check a shipped comment names by identifier exists - "
+          "`bench_guard_fallback` was cited by two comments and did not "
+          "exist (§20.3), and the cycle that wrote it immediately cited "
+          "`guard_fallback_classes`, which `grep -rn` finds once in the "
+          "whole tree, on the comment line itself. Missing: %s"
           % ("; ".join(bad) or "none"))
 
 
@@ -5855,6 +6009,157 @@ def guard_refusal_list_is_true(node=None):
              "; ".join(bad[:4]) or "the list is true"))
 
 
+# `pc_plan_solve` PARALLELISES PER SECTION, so the same piece count costs
+# 30x more when it arrives as ONE curve than as three hundred.
+#
+# The node is a POINT wrangle over the SECTION stream - one point per section,
+# one section per thread - which is the right shape for the data dependency
+# the fitting solve has (the cursor accumulates along the section) and the
+# wrong shape for a build made of one long curve: the whole solve, 81-87 % of
+# the native cook, runs on a single core.
+#
+# Measured on the shipped asset, hou.perfMon, min of 4 dirtied cooks:
+#   shape                    pieces   pc_plan_solve   us/piece   whole build
+#   one 18.9 km straight     33 586      1 139.7 ms     33.93      1 353.8 ms
+#   300 curved streets       34 200         33.7 ms      0.99        234.6 ms
+# Same node, same work per piece, 34x apart purely because the parallel unit
+# is the section.
+#
+# ⚠️ THE COMMITTED GUARD AGAINST THIS COULD NOT SEE IT.  `WRANGLE_SMALL_PTS`
+# and `WRANGLE_BIG_PTS` are 2 361 and 9 436 points of a SINGLE straight, so
+# both sizes sit on the one-thread shape and the growth ratio compares slow
+# against slow.  The 30x shape difference was never asked about by anything.
+#
+# ⚠️ AND THIS ROW DOES NOT FIX IT - it MEASURES it, and that distinction is
+# the honest part.  The fix the auditor proposes (emit per-section SCALARS and
+# let a parallel POINT wrangle after `pc_plan_emit` compute s0/s1/u per piece)
+# is a rewrite of the hottest and most parity-sensitive node in the tool: the
+# cursor is only affine in the piece index for the ordinary `first`/`adaptive`
+# run, and `reselects`, the slice tail, the marker anchors and D150's
+# determinism all live in the loop it would replace.  That is a cycle, not a
+# patch, and it is D222.  What this row buys until then is that the ratio
+# cannot get WORSE in silence, and that the number is in the suite instead of
+# in an audit report.
+# ⚠️ THE CEILING IS SET FROM A SPREAD, NOT FROM ONE RUN (D209/D211).  Six
+# measurements of this sound build read the one-section side at 25.44 / 35.05
+# / 35.46 / 36.08 us/piece and the 300-section side at 0.98 - 1.11, so the
+# RATIO reads 24.2 - 35.0x.  55.0 is 1.57x over the worst of those: tight
+# enough to refuse a doubling of the defect, loose enough that a busy machine
+# does not turn the row into a coin toss.
+PLAN_SHAPE_CEILING = 55.0
+PLAN_SHAPE_PIECES = 16000
+PLAN_SHAPE_FLOOR_MS = 20.0
+
+
+def plan_solve_section_shape(root):
+    """The SAME piece count over one section and over three hundred.
+
+    Both rigs are built before either is measured and the profiled cooks are
+    interleaved - `wrangle_cost_tables`' rule, for the same D209 reason.
+    """
+    shapes = (
+        ("one_section",
+         lambda: guard_polyline_geo([(2.0 * i, 0.0, 0.0)
+                                     for i in range(8901)])),
+        ("300_sections", lambda: _many_short_streets(300, 30)),
+    )
+    rigs = []
+    for label, make in shapes:
+        node = root.createNode("pf_polychain", "shape_%s" % label)
+        node.setInput(0, native.feed(root, make(), "SH_%s" % label))
+        node.allowEditingOfContents()
+        node.parm("stage").set("output")
+        node.cook(force=True)
+        rigs.append([label, node, len(node.geometry().prims()), None, None])
+    for rep in range(3):
+        for row in rigs:
+            label, node = row[0], row[1]
+            node.parm("corner_angle_deg").set(30.0 + 0.01 * (rep + 1))
+            profile = hou.perfMon.startProfile("planshape")
+            try:
+                node.cook()
+            finally:
+                profile.stop()
+            csv = os.path.join(os.path.dirname(HDA_PATH), "_planshape.csv")
+            profile.exportAsCSV(csv)
+            with io.open(csv, encoding="utf-8") as fh:
+                for line in fh:
+                    field = [c.strip() for c in line.split(",")]
+                    if len(field) < 9:
+                        continue
+                    if "/shape_%s/" % label not in field[0]:
+                        continue
+                    try:
+                        ms = float(field[7])
+                    except ValueError:
+                        continue
+                    if field[0].endswith("/pc_plan_solve"):
+                        if row[3] is None or ms < row[3]:
+                            row[3] = ms
+                    if row[4] is None:
+                        row[4] = 0.0
+                    row[4] = row[4]
+            os.remove(csv)
+    bad = []
+    rates = {}
+    for label, node, pieces, ms, _tot in rigs:
+        if ms is None or pieces <= 0:
+            bad.append("%s: pc_plan_solve never cooked" % label)
+            continue
+        rates[label] = ms * 1e3 / pieces
+        if not int(node.node("pc_envelope").geometry()
+                   .attribValue("_native_ok")):
+            bad.append("%s: level 1 refused it, so this is not the native "
+                       "solve's number" % label)
+    for _l, node, _p, _m, _t in rigs:
+        node.destroy()
+    counts = dict((r[0], r[2]) for r in rigs)
+    ratio = -1.0
+    if len(rates) == 2:
+        ratio = rates["one_section"] / max(rates["300_sections"], 1e-12)
+        if abs(counts["one_section"] - counts["300_sections"]) > 2000:
+            bad.append("the two shapes must carry the SAME piece count "
+                       "(%d vs %d) or the ratio is about size, not shape"
+                       % (counts["one_section"], counts["300_sections"]))
+        if min(counts.values()) < PLAN_SHAPE_PIECES:
+            bad.append("the fixtures are %d pieces, under the %d floor"
+                       % (min(counts.values()), PLAN_SHAPE_PIECES))
+        one_ms = [r[3] for r in rigs if r[0] == "one_section"][0]
+        if one_ms < PLAN_SHAPE_FLOOR_MS:
+            bad.append("the one-section side cooks in %.1f ms, under the "
+                       "%.0f ms floor - the ratio would be noise"
+                       % (one_ms, PLAN_SHAPE_FLOOR_MS))
+        if ratio > PLAN_SHAPE_CEILING:
+            bad.append("%.1fx over the %.1fx ceiling" % (ratio,
+                                                         PLAN_SHAPE_CEILING))
+    check("plan_solve_section_shape", not bad, "%.1fx" % ratio,
+          "the SAME piece count as ONE long curve and as 300 short ones, "
+          "through `pc_plan_solve`. It parallelises per SECTION, so the "
+          "one-curve shape runs the whole fitting solve - 81-87 %% of the "
+          "native cook - on a single core: %s. Ceiling %.1fx, and it is a "
+          "TRIPWIRE, not an endorsement - D222 is the rewrite that brings it "
+          "down and nothing here does. %s"
+          % ("; ".join("%s %d pieces, %.1f ms, %.2f us/piece"
+                       % (r[0], r[2], r[3] if r[3] else -1.0,
+                          rates.get(r[0], -1.0)) for r in rigs),
+             PLAN_SHAPE_CEILING, "; ".join(bad) or "the ratio holds"))
+
+
+def _many_short_streets(count, per, seglen=2.0):
+    """`count` straight runs of `per` segments each, laid out apart.
+
+    Straight rather than curved on purpose: the point of the fixture is the
+    SECTION COUNT and nothing else, so both sides of the ratio have to be the
+    same geometry per piece.
+    """
+    geo = hou.Geometry()
+    for i in range(count):
+        z = i * 40.0
+        cases.polyline(geo, [(seglen * j, 0.0, z) for j in range(per + 1)],
+                       curve_id="S%04d" % i)
+    return geo
+
+
 # The double cook a level-1 pass / level-2 refusal costs, measured on the
 # 2 km and 20 km ripples §19.4 says nearly shipped.  1.8x is the ceiling and
 # it measures 1.52x / 1.57x.
@@ -6227,6 +6532,125 @@ WRANGLE_BURN = (
 # The `class` parm's own order, probed rather than recalled: 0 detail,
 # 1 primitive, 2 point, 3 vertex.
 WRANGLE_CLASS = {0: "detail", 1: "primitive", 2: "point", 3: "vertex"}
+
+
+# `config` is linear in the MODULE COUNT, and nothing measured it.
+#
+# The node's own DisplayComment said "No geometry; N = the parm count. It must
+# never grow a geometry loop - the wrapper tripwires are pointed at it", and
+# the tripwires it invokes are pointed at a LOOP SHAPE.  But `config_resolved`
+# runs `kit.read()` over the kit geometry's packed prims in Python on every
+# cook, so N is the module count - which is what §13.6's own exemption text
+# says ("N is the module count plus the rule count") and what the artist-
+# facing comment did not.
+#
+# Measured on the shipped asset, `hou.perfMon`, min of 3, 2 km straight:
+#   modules      5      50     150     301
+#   config ms  1.61    5.45   14.48   28.52
+# ~0.095 ms per module per cook, and at 301 modules `config` is the second
+# most expensive node in the graph.  The ceiling is 0.25 ms/module - 2.6x the
+# measurement, the same recipe `WRANGLE_CEILING_US` uses - plus a fixed
+# allowance, so the row refuses a per-module cost that TRIPLES without
+# failing on scheduler noise.
+CONFIG_MODULE_CEILING_MS = 0.25
+CONFIG_FIXED_MS = 3.0
+CONFIG_MODULE_COUNTS = (5, 301)
+
+
+def _module_kit(count):
+    """A kit of `count` modules that the parm page's slots CAN resolve.
+
+    The first three are `post`, `panel` and `corner_post` so `_native_ok`'s
+    kit-name row admits the build - the point of this check is `config`'s own
+    cost, and measuring it on a build the guard refuses would measure it
+    beside `kernel` instead of beside the native chain.
+    """
+    from polyfactory.polychain import kit as K
+    named = ("post", "panel", "corner_post")
+    geo = hou.Geometry()
+    for i in range(count):
+        src = hou.Geometry()
+        K.box_mesh(src, 0.0, 2.0, 0.0, 1.0, -0.05, 0.05, 1)
+        name = named[i] if i < len(named) else "filler%03d" % i
+        K.add_module(geo, name, src, size=(2.0, 1.0, 0.1), deform=0,
+                     zmode="adaptive",
+                     roles="default" if name == "panel" else name)
+    K.write_manifest(geo, "pf_modscale", 1, sources=("run_native_checks",),
+                     human_scale_reference=1.8)
+    return geo
+
+
+def config_cost_per_module(root):
+    """D206's rule, applied to the one Python SOP that is allowed to cook.
+
+    `config` is 13.6's named exemption and the only Python on the default
+    path, so its cost is the whole of the tool's remaining Python share - and
+    it had no ceiling of any kind.  This measures it at two module counts and
+    holds the SLOPE, because the fixed part is what the Python-share number
+    already reports and the slope is what a kit with three hundred modules
+    pays.  Both rigs exist before either is measured and the cooks are
+    interleaved (`wrangle_cost_tables`' own rule).
+    """
+    geo = hou.Geometry()
+    cases.polyline(geo, [(2.0 * i, 0.0, 0.0) for i in range(1001)],
+                   curve_id="CFG")
+    rigs = []
+    for count in CONFIG_MODULE_COUNTS:
+        node = root.createNode("pf_polychain", "cfgcost_%d" % count)
+        node.setInput(0, native.feed(root, geo, "CFGS_%d" % count))
+        node.setInput(1, native.feed(root, _module_kit(count),
+                                     "CFGK_%d" % count))
+        node.allowEditingOfContents()
+        node.parm("stage").set("output")
+        node.cook(force=True)
+        rigs.append((count, node))
+    best = dict((c, None) for c, _n in rigs)
+    for rep in range(3):
+        for count, node in rigs:
+            node.parm("corner_angle_deg").set(30.0 + 0.01 * (rep + 1))
+            profile = hou.perfMon.startProfile("cfgcost")
+            try:
+                node.cook()
+            finally:
+                profile.stop()
+            csv = os.path.join(os.path.dirname(HDA_PATH), "_cfgcost.csv")
+            profile.exportAsCSV(csv)
+            with io.open(csv, encoding="utf-8") as fh:
+                for line in fh:
+                    field = [c.strip() for c in line.split(",")]
+                    if len(field) < 9 or not field[0].endswith("/config"):
+                        continue
+                    if "/cfgcost_%d/" % count not in field[0]:
+                        continue
+                    try:
+                        ms = float(field[7])
+                    except ValueError:
+                        continue
+                    if best[count] is None or ms < best[count]:
+                        best[count] = ms
+            os.remove(csv)
+    lo, hi = CONFIG_MODULE_COUNTS[0], CONFIG_MODULE_COUNTS[-1]
+    native_ok = all(int(n.node("pc_envelope").geometry()
+                        .attribValue("_native_ok")) for _c, n in rigs)
+    for _c, node in rigs:
+        node.destroy()
+    have = best[lo] is not None and best[hi] is not None
+    slope = ((best[hi] - best[lo]) / float(hi - lo)) if have else -1.0
+    ok = (have and native_ok and slope <= CONFIG_MODULE_CEILING_MS
+          and best[hi] <= CONFIG_FIXED_MS + CONFIG_MODULE_CEILING_MS * hi)
+    check("config_cost_per_module", ok,
+          "%.4f ms/module" % slope,
+          "`config` is the ONE Python SOP on the default path (13.6) and it "
+          "is linear in the MODULE count, not the parm count its own comment "
+          "claimed: %s. Slope %.4f ms/module against a %.2f ceiling; the "
+          "total at %d modules is %.2f ms against %.2f. Both builds must "
+          "take the native chain (they did: %s) or the number is measured "
+          "beside `kernel` instead of beside the VEX"
+          % (", ".join("%d modules %.2f ms" % (c, best[c] if best[c] else -1.0)
+                       for c in CONFIG_MODULE_COUNTS),
+             slope, CONFIG_MODULE_CEILING_MS, hi,
+             best[hi] if have else -1.0,
+             CONFIG_FIXED_MS + CONFIG_MODULE_CEILING_MS * hi, native_ok))
 
 
 def _wrangle_rig(root, tag, npts):
@@ -6915,6 +7339,8 @@ def main():
     emit_scale_mutation(root)
     solve_scale_check(root)
     wrangle_cost_check(root)
+    config_cost_per_module(root)
+    plan_solve_section_shape(root)
     scene_baseline_is_enforced()
 
     print("\n=== 5. 13.7 - the graph is readable, on the built asset ===")

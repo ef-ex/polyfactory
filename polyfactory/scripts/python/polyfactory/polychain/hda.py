@@ -996,8 +996,16 @@ def cook_kit(node):
     and 15.6 lists `kit.box_mesh` as unported and unscheduled.  Putting it on
     a node of its own is what lets the VEX branch reach the same kit the
     reference uses, and it makes the fallback VISIBLE in the graph instead of
-    buried six thousand lines into a Python SOP.  D154 replaces the body with
-    native `box` SOPs; the node is where it will happen.
+    buried six thousand lines into a Python SOP.
+
+    ⚠️ D154 IS DECLINED (D219) AND THIS DOCSTRING PROMISED IT FOR A CYCLE.
+    It read "D154 replaces the body with native `box` SOPs; the node is where
+    it will happen" on a build whose own cycle had rejected the port with the
+    measurement that rejects it: this node cooks ONCE PER INSTANCE, ever -
+    1.4 % of one cold build and 0 % of every cook after it - and 13.3.6's
+    prescribed `box` SOP gives the same counts as `box_mesh` in a different
+    point ORDER, which would move `geometry_digest` on every case to save
+    1.5 ms.  `kit_starter_cooks_once` is the check that pins that premise.
     """
     geo = node.geometry()
     wired = _input_geo(node, 0)
