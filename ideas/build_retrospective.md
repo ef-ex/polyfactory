@@ -196,3 +196,62 @@ Each cost real time here; none is discoverable from the docs:
    A measured "no" is a real deliverable.
 6. **Letting measurement re-order the brief.** Twice the measured payoff contradicted the plan and
    the measurement was right (the citygen shape is curved, not cornered; deform before conform).
+
+---
+
+## 6. Status — what of §4 is ENFORCED IN CODE, what is IN SKILLS, what is still prose
+
+Opened 2026-08-24, after the mutation registry landed and was independently audited. §4 is a list
+of *rules*, and this retrospective's own §1 finding is that a rule living in prose is a rule that
+gets violated ~20 times without anyone noticing. So each item below says where it actually lives.
+**"Enforced in code" means a runner exits non-zero when the rule is broken** — not that a comment
+mentions it.
+
+### 6a. §4a — verification integrity
+
+| §4a rule | Where it lives now |
+|---|---|
+| 1. A check is not written until its mutation has been seen to fail | **ENFORCED IN CODE.** `tests/polychain/mutations.py` + `run_mutation_registry.py`: every check name the five polyChain runners print must be PROVEN (a registered mutation reddened it), EXEMPT (one line saying why) or UNPROVEN (dated debt). A name in none of the three fails the sweep. **AND IN SKILLS** — `houdini-dev-loop` "how to prove a check can fail" items 1 and 9 |
+| 2. State what the check CANNOT see | **PROSE.** Convention in `run_native_checks.py` / `checks.py` docstrings and in the skill; nothing asserts it |
+| 3. A check may not read the same declaration its mutation edits | **PROSE** (D208, D274). The registry makes a violation *visible* — such a mutation SURVIVES and fails the sweep — but only for pairings someone has written |
+| 4. Assert truth, not presence | **PROSE** (skill item 3) |
+| 5. Never compare after rounding unless the rounding is the contract | **PROSE** (skill item 4), with D247/D278 as the worked example |
+| 6. A cost check needs a measured ceiling | **ENFORCED IN CODE** for polyChain: `mutation_every_wrangle_ceiling_bites` (+ `_deformed`) asserts every wrangle's ceiling bites on both branches. **AND IN SKILLS** — promoted to its own numbered item, carrying both numbers (+103 % de-batch, 4 of 18 wrangles covered) |
+| 7. A runner exits non-zero on any movement it prints | **ENFORCED IN CODE.** D210's exit rule, plus `ZZ_BASELINE_MOVED` as a reserved registry name so both baselined runners have a mutation proving the rule is reached from them |
+| 8. Parity runs against the shipped asset | **ENFORCED IN CODE.** `asset_decompose_matches_the_rig`, `native_stages_are_really_native`, and the `stage_output_repointed` mutation. **AND IN SKILLS** — corrected this cycle: the incident was the asset's *Stage-menu* entry, not the TAB menu |
+| 9. Verify an image contains its subject | **ENFORCED IN CODE.** `gate_images.py`'s drawn-primitive counts, with `gate_image_not_unpacked` as the registered mutation |
+| 10. Ask what a fixture cannot reach | **PROSE** (skill item 2), with one instance mechanised: `gate_parity_sees_both_answers` is a vacuity guard, and it now has its own registered mutation (`exempt_gate_parity_collapsed`) |
+
+**The registry's own failure modes, found by the audit that followed it and now fixed in code:**
+coverage credited a mutation's whole blast radius instead of the pairing it was examined against
+(57 of 97 "proven" names had never been looked at); the resumable state cache was keyed to HEAD
+alone while the registry is read from the working tree, so an entry edited into one that cannot
+fail replayed its old RED; a check that stopped being printed was deleted from the meta-check in
+silence; and the name parser truncated at the first non-word character, folding a new
+`clip_stamp.v2` into the already-proven `clip_stamp`. **An instrument built to catch unfailable
+checks had four ways of reporting a green it had not earned** — which is §3's P1 applied one level
+up, and the reason the instrument itself needed an independent auditor.
+
+### 6b. §4b — Houdini domain gotchas
+
+**IN SKILLS.** All seven are in `houdini-procedural-modeling` (§1 language + call structure, §6
+traps). Two are additionally **enforced in code** for polyChain: attribute STORAGE as a contract
+(`out_cast_pc_local_fpreal64`, `out_cast_ints_int64`, `mutation_spline_attr_types`) and batching
+(`mutation_pc_stamp_debatched`, `mutation_pc_finalize_debatched`). The OpenCL ranking was corrected
+this cycle — the list is a *reach order* with a measured entry criterion, not a ranking, because
+OpenCL lost to VEX at every size up to 2e7 points on this hardware.
+
+### 6c. §4c — multi-agent operations
+
+**IN SKILLS** as of this cycle (`houdini-dev-loop` Rule 2, the ownership block): named git paths
+only, no history rewriting, per-agent scratchpad namespacing, the durable on-disk resume pointer,
+incremental commits, and workflow-script hygiene (LF, no backticks, null-safe, retry a locked
+index). Also **in prose** in `polyfactory/CLAUDE.md`. Nothing here is enforced by code, and the
+git half arguably cannot be from inside an agent.
+
+### 6d. §4d — spec-level rules
+
+**PROSE**, in `polyfactory/CLAUDE.md` (language hierarchy; never choose a language for test
+convenience; acceptance criteria include what an artist meets first; verify by reading the built
+asset back). One is partly enforced: `run_hda_checks.py` reads the BUILT asset rather than the
+build script, and `kit_input_unplugged` / `hda_input_ports_swapped` are its registered mutations.

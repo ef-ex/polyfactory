@@ -29,11 +29,23 @@ WHAT IT ASSERTS, and each one is a recorded incident:
   3. **Every check name a runner prints is PROVEN, EXEMPT or UNPROVEN.**  A
      name in none of the three fails the run, so a check cannot be added to
      this project without a decision about how it can fail.  Retrospective 4a
-     rule 1, mechanised.
+     rule 1, mechanised.  PROVEN means *a mutation registered against that
+     name reddened it* - the rest of a mutation's blast radius is printed and
+     credits nothing, because only the declared pairing was examined.
+  4. **The inventory is pinned both ways.**  A new name is UNDECLARED and
+     fails; a name that stops being printed trips `EXPECT_CHECKS`.  A check
+     that quietly stops being emitted used to be deleted from the meta-check
+     in silence, with its debt entry left describing nothing.
+  5. **Every EXEMPT / UNPROVEN key names a live check**, and no debt entry
+     also has a mutation.  Declarations rot as fast as checks do.
 
-Exit code is 0 only if all three hold.
+Exit code is 0 only if all five hold.  `--only` / `--runner` make it a PARTIAL
+run: the mutations still have to redden their paired checks, but the coverage
+table is labelled and cannot fail the run, since names proven by unselected
+mutations necessarily read as undeclared.
 """
 
+import hashlib
 import json
 import os
 import re
@@ -54,8 +66,20 @@ HYTHON = os.environ.get(
     "C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe")
 BUILD_SCRIPT = "devScripts/create_pf_polychain_hda.py"
 
-LINE = re.compile(r"^\s*\[(PASS|FAIL|SKIP)\]\s+([A-Za-z_0-9]+)")
+# ⚠️ THE NAME IS CAPTURED WHOLE, and an unparseable one is reported rather
+# than trimmed.  `([A-Za-z_0-9]+)` stopped at the first character outside the
+# class, so a check named `clip_stamp.v2` was silently folded into the already
+# PROVEN `clip_stamp` row: the inventory did not grow, the new check vanished
+# from the meta-check, and the sweep stayed green.  Nothing in this project
+# forces snake_case check names, so the parser may not assume it.
+LINE = re.compile(r"^\s*\[(PASS|FAIL|SKIP)\]\s+(\S+)")
+NAME_OK = re.compile(r"^[A-Za-z_0-9]+$")
 MOVED = re.compile(r"(\d+) moved baseline values")
+# FAIL beats PASS beats SKIP.  The scene runners print the same name once per
+# case, and a name that is SKIPPED on every case is not the same thing as a
+# name that passed - retrospective P2 is "the check is well written; nothing
+# ever runs it", and conflating the two hides exactly that.
+RANK = {"SKIP": 0, "PASS": 1, "FAIL": 2}
 
 
 # --- the throwaway copy ------------------------------------------------------
@@ -95,19 +119,45 @@ def run(root, runner):
     p = subprocess.Popen([HYTHON, REG.RUNNERS[runner]], cwd=root,
                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = p.communicate()[0].decode("utf-8", "replace")
-    states, moved = {}, 0
+    states, moved, odd = {}, 0, set()
     for line in out.splitlines():
         m = LINE.match(line)
         if m:
             state, name = m.group(1), m.group(2)
-            # A name that fails ANYWHERE is red: the scene runners print the
-            # same check once per case.
-            if states.get(name) != "FAIL":
+            if not NAME_OK.match(name):
+                odd.add(name)
+            if RANK[state] > RANK.get(states.get(name), -1):
                 states[name] = state
         m = MOVED.search(line)
         if m:
             moved = int(m.group(1))
+    if odd:
+        print("  [!] %-7s printed %d check name(s) that are not [A-Za-z_0-9]+: "
+              "%s - they are carried through verbatim, so they surface as "
+              "UNDECLARED rather than being folded into another check's "
+              "coverage" % (runner, len(odd), ", ".join(sorted(odd)[:6])))
     return p.returncode, states, moved, out
+
+
+def digest(mut):
+    """A fingerprint of everything about an entry that decides its verdict."""
+    blob = json.dumps([mut.runner, mut.edits, sorted(mut.kills), mut.expect,
+                       bool(mut.rebuild)], sort_keys=True, default=str)
+    return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:12]
+
+
+def cleanup(path):
+    """Remove an export, and SAY SO when it cannot be removed.
+
+    `ignore_errors=True` alone leaked: on Windows Houdini holds handles inside
+    the export (the installed .hda, loaded modules), the rmtree partially
+    fails, and an audit measured up to 54 MB of `pcmut_*` trees left in %TEMP%
+    with the operator never told.
+    """
+    shutil.rmtree(path, ignore_errors=True)
+    if os.path.exists(path):
+        print("  [!] the export at %s could not be removed (Houdini still "
+              "holds a handle inside it) - sweep it by hand" % path)
 
 
 # --- applying an entry -------------------------------------------------------
@@ -195,10 +245,19 @@ def execute(mut, control):
                        if unreached else "", len(red),
                        ", ".join(sorted(red)[:8]) or "nothing at all"),
                     red)
-        return ("RED", "%d red, %d unreached, exit %d"
-                % (len(red), len(missing), code), red)
+        # ⚠️ THE BLAST RADIUS IS PRINTED AND CREDITS NOTHING.  It used to be
+        # credited: every name the mutation happened to redden was marked
+        # PROVEN, so permuting the conform axis credited `stepped_riser_is_m`
+        # - a step-height check nobody had examined - and removed it from the
+        # debt list for good.  Only `kills` was examined, so only `kills`
+        # counts (D277, one level up).
+        extra = sorted(red - set(mut.kills))
+        return ("RED", "%d red, %d unreached, exit %d; also reddened "
+                "(credits nothing, %d): %s"
+                % (len(red), len(missing), code, len(extra),
+                   ", ".join(extra[:6]) or "nothing else"), red)
     finally:
-        shutil.rmtree(os.path.dirname(root), ignore_errors=True)
+        cleanup(os.path.dirname(root))
 
 
 # --- the run -----------------------------------------------------------------
@@ -220,15 +279,31 @@ def main():
         print("no mutation matches --only %r / --runner %r" % (only, want))
         return 1
 
-    runners = sorted(set(m.runner for m in picked))
+    # ⚠️ A FULL SWEEP INVENTORIES EVERY RUNNER, not just the runners that
+    # happen to own a mutation.  `images` has ONE registered mutation, and
+    # deriving the inventory from the selection meant deleting that one entry
+    # would drop all 43 image checks out of the meta-check in silence.  A
+    # PARTIAL run (`--only` / `--runner`) inventories only what it selected
+    # and its coverage table is not comparable to a full sweep's - it is
+    # labelled and it cannot fail on coverage, because names proven by the
+    # mutations it did NOT select necessarily read as undeclared.
+    full = only is None and want is None
+    runners = sorted(REG.RUNNERS) if full else sorted(
+        set(m.runner for m in picked))
     t0 = time.time()
 
     # ⚠️ THE SWEEP HAS TO BE RESUMABLE, and this is not a convenience.  A full
     # pass is over an hour of hython, the two long-running agents on this
     # machine share it, and the first attempt was KILLED at mutation 7 of 27 -
     # losing 45 minutes of green verdicts that had already been earned.  The
-    # state file is keyed to the COMMIT, so a resume can never mix verdicts
-    # from two different trees, and `--only` always re-runs.
+    # state file is keyed to the COMMIT **and each entry to its own digest**,
+    # and the second half is not optional: the subject comes from `git archive
+    # HEAD` but the registry is imported from the WORKING TREE, so a cached
+    # verdict keyed on HEAD alone replayed RED for an entry that had since
+    # been edited into one that cannot fail.  Measured: neutering
+    # `2d_clip_stamp_zeroed` in the working tree and re-running with `--state`
+    # printed `RED (cached)`, `1 proven`, exit 0, while the same tree without
+    # `--state` correctly printed `SURVIVED ... nothing at all`, exit 1.
     state_path = (argv[argv.index("--state") + 1]
                   if "--state" in argv else None)
     head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO)
@@ -250,7 +325,8 @@ def main():
             with open(state_path, "w") as fh:
                 json.dump(state, fh, indent=1, sort_keys=True)
 
-    print("=== 0. the control build: a pristine export, all four runners ===")
+    print("=== 0. the control build: a pristine export, %d runner(s)%s ==="
+          % (len(runners), "" if full else " - PARTIAL RUN"))
     control, bad = dict(state["control"]), []
     todo = [r for r in runners if r not in control]
     for r in control:
@@ -261,23 +337,26 @@ def main():
             export(root)
             rebuild(root)
         for r in todo:
-            code, states, moved, _out = run(root, r)
-            red = sorted(n for n, s in states.items() if s == "FAIL")
-            # ⚠️ THE CONTROL IS RE-RUN ONCE BEFORE IT IS DECLARED BROKEN, and
-            # its failing names are PRINTED. Measured: a pristine HEAD export
+            # ⚠️ THE CONTROL IS RE-RUN BEFORE IT IS DECLARED BROKEN, and its
+            # failing names are PRINTED. Measured: a pristine HEAD export
             # reported `hda 33 checks, 1 red` and aborted the whole sweep
             # without naming the row, then ran green on the next invocation
             # and green again when the export was reproduced by hand. This
             # machine carries another agent's hython and a live GUI session,
-            # and several rows in these suites are timings. A sweep that a
-            # timing flake can silently invalidate is worse than one that
-            # costs a second control build - and an operator who cannot see
-            # WHICH check went red cannot tell a flake from a real defect.
-            if red or moved or code:
-                print("  %-7s retrying the control: %d red %s, %d moved, "
-                      "exit %d" % (r, len(red), red[:6], moved, code))
+            # and several rows in these suites are WALL-CLOCK ceilings
+            # (`bench_deform_20km`, `*_cost_is_flat_in_piece_count`) - a later
+            # audit saw a pristine control go red on `bench_deform_20km`
+            # TWICE in a row with a second hython on the machine, which a
+            # single retry cannot ride out. Three attempts, and an operator
+            # who cannot see WHICH check went red cannot tell a flake from a
+            # real defect.
+            for attempt in range(3):
                 code, states, moved, _out = run(root, r)
                 red = sorted(n for n, s in states.items() if s == "FAIL")
+                if not (red or moved or code):
+                    break
+                print("  %-7s attempt %d: %d red %s, %d moved, exit %d"
+                      % (r, attempt + 1, len(red), red[:6], moved, code))
             control[r] = states
             print("  %-7s %4d checks, %d red, %d moved, exit %d %s"
                   % (r, len(states), len(red), moved, code, red[:6] or ""))
@@ -285,9 +364,14 @@ def main():
                 bad.append("%s: %d red %s, %d moved, exit %d"
                            % (r, len(red), red[:6], moved, code))
     finally:
-        shutil.rmtree(os.path.dirname(root), ignore_errors=True)
+        cleanup(os.path.dirname(root))
     if bad:
-        print("\n⚠️ THE CONTROL BUILD IS NOT GREEN - every verdict below is "
+        # ⚠️ ASCII ONLY. This was the file's one printed non-ASCII string, and
+        # `sys.stdout.encoding` is cp1252 on this machine whenever stdout is
+        # redirected to a file or a pipe - so the one diagnostic the comment
+        # block above calls essential died in a `UnicodeEncodeError` instead
+        # of naming the check that went red. Observed live.
+        print("\n!! THE CONTROL BUILD IS NOT GREEN - every verdict below is "
               "worthless until it is: %s" % "; ".join(bad))
         return 1
 
@@ -299,6 +383,10 @@ def main():
     for mut in picked:
         t = time.time()
         cached = state["results"].get(mut.id) if only is None else None
+        if cached and (len(cached) < 4 or cached[3] != digest(mut)):
+            print("  ...  %-32s the registered entry changed since it was "
+                  "cached - re-running it" % mut.id)
+            cached = None
         if cached:
             verdict, detail, red = cached[0], cached[1] + " (cached)", set(
                 cached[2])
@@ -308,25 +396,31 @@ def main():
             except Exception as exc:                            # noqa: BLE001
                 verdict, detail, red = "STALE", "%s: %s" % (
                     type(exc).__name__, str(exc)[:300]), set()
-            state["results"][mut.id] = [verdict, detail, sorted(red)]
+            state["results"][mut.id] = [verdict, detail, sorted(red),
+                                        digest(mut)]
             save()
         if verdict == "ABORT" and mut.expect == "abort":
             verdict = "RED(abort, declared)"
         ok = verdict.startswith("RED")
-        for name in red:
-            # ⚠️ KEYED BY RUNNER, not by name. `corner_abut_m` exists in
-            # `scene`, `2d` AND `images`, and a mutation that reddens the scene
-            # copy says nothing about the other two - crediting them would be
-            # this file over-claiming in exactly the way it was written to
-            # stop.
-            proven.setdefault("%s/%s" % (mut.runner, name), []).append(mut.id)
+        for name in mut.kills:
+            # ⚠️ ONLY THE DECLARED PAIRING IS CREDITED, and keyed BY RUNNER.
+            # `corner_abut_m` exists in `scene`, `2d` AND `images`, and a
+            # mutation that reddens the scene copy says nothing about the
+            # other two.  The same argument forbids crediting the rest of the
+            # blast radius: a mutation is evidence about the check it was
+            # PAIRED with and examined against, not about the forty names that
+            # happened to go red downstream of it.
+            if name in red:
+                proven.setdefault("%s/%s" % (mut.runner, name),
+                                  []).append(mut.id)
         rows.append((mut, verdict, detail, ok))
         print("  [%s] %-32s %-8s %5.0fs  %s"
               % ("ok" if ok else "!!", mut.id, verdict, time.time() - t,
                  detail))
 
-    print("\n=== 2. coverage - every check name, PROVEN / EXEMPT / UNPROVEN ===")
-    gaps = []
+    print("\n=== 2. coverage - every check name, PROVEN / EXEMPT / UNPROVEN "
+          "%s===" % ("" if full else "(PARTIAL RUN) "))
+    gaps, miscount, skipped_all = [], [], []
     for r in runners:
         names = ["%s/%s" % (r, n) for n in sorted(control[r])]
         p = [n for n in names if n in proven]
@@ -335,17 +429,70 @@ def main():
              and n in REG.UNPROVEN]
         g = [n for n in names if n not in proven and n not in REG.EXEMPT
              and n not in REG.UNPROVEN]
+        # A name that is SKIPPED on every case it appears in is not a check
+        # that passed - it is retrospective P2, "the check is well written;
+        # nothing ever runs it", and it read as an ordinary inventory row.
+        s = sorted(n for n in control[r] if control[r][n] == "SKIP")
+        skipped_all += ["%s/%s" % (r, n) for n in s]
         gaps += g
         print("  %-7s %4d checks: %3d proven, %3d exempt, %3d unproven, "
-              "%3d UNDECLARED" % (r, len(names), len(p), len(e), len(u),
-                                  len(g)))
+              "%3d UNDECLARED, %3d always skipped"
+              % (r, len(names), len(p), len(e), len(u), len(g), len(s)))
+        # ⚠️ AND THE INVENTORY IS PINNED.  A check that stops being emitted
+        # was silently DELETED from the meta-check: filtering `cell_grid` out
+        # of every 2d case took the control from 40 names to 39, and the
+        # sweep reported `0 UNDECLARED` and exited 0 while `2d/cell_grid` sat
+        # in the debt list describing a check that no longer existed.  Growth
+        # already failed the run (UNDECLARED); this is the other direction.
+        expect = REG.EXPECT_CHECKS.get(r)
+        if expect is not None and expect != len(names):
+            miscount.append("%s: %d checks, %d declared in "
+                            "mutations.EXPECT_CHECKS" % (r, len(names), expect))
+    if skipped_all:
+        print("\n  --- always skipped: printed, never executed (%d) ---"
+              % len(skipped_all))
+        for n in skipped_all:
+            print("    " + n)
     if REG.UNPROVEN:
         print("\n  --- declared debt (%d) ---" % len(REG.UNPROVEN))
         for n in sorted(REG.UNPROVEN):
             print("    %-44s %s" % (n, REG.UNPROVEN[n]))
+    # ⚠️ AND THE DECLARATIONS ARE RECONCILED AGAINST THE INVENTORY, both ways.
+    # Nothing checked that an EXEMPT or UNPROVEN key still NAMES a live check,
+    # so 11 entries described checks no runner prints any more - and
+    # `scene/conform_parity` sat in the debt list as "no mutation yet" while
+    # being the declared kill of `conform_drop_biased_py`. A debt list that
+    # can rot is not a debt list. Only a full sweep can judge this: a partial
+    # run has no inventory for the runners it skipped.
+    dead, stale = [], []
+    if full:
+        live = set()
+        for r in runners:
+            live |= set("%s/%s" % (r, n) for n in control[r])
+            live.add("%s/%s" % (r, REG.BASELINE_MOVED))
+        dead = sorted(k for k in list(REG.EXEMPT) + list(REG.UNPROVEN)
+                      if k not in live)
+        stale = sorted(k for k in REG.UNPROVEN if k in proven)
+        if dead:
+            print("\n  --- DEAD DECLARATIONS: named in EXEMPT/UNPROVEN, "
+                  "printed by no runner (%d) ---" % len(dead))
+            for n in dead:
+                print("    " + n)
+        if stale:
+            print("\n  --- STALE DEBT: has a registered mutation, still "
+                  "listed as debt (%d) ---" % len(stale))
+            for n in stale:
+                print("    %-44s proven by %s" % (n, ", ".join(proven[n])))
+    if miscount:
+        print("\n  --- INVENTORY SHRANK (%d) ---" % len(miscount))
+        for m in miscount:
+            print("    " + m)
     if gaps:
         print("\n  --- UNDECLARED: no mutation, no exemption, no debt entry "
-              "(%d) ---" % len(gaps))
+              "(%d)%s ---"
+              % (len(gaps), "" if full else " - PARTIAL RUN, so these are "
+                 "names proven by mutations this run did not select; they do "
+                 "NOT fail it"))
         for n in gaps:
             print("    " + n)
         if "--emit-unproven" in argv:
@@ -360,10 +507,16 @@ def main():
 
     failed = [m.id for m, _v, _d, ok in rows if not ok]
     print("\n%d mutations: %d reddened their paired check, %d did not (%s). "
-          "%d undeclared check names. %.0f s"
+          "%d undeclared check names, %d dead declarations, %d stale debt "
+          "entries, %d shrunken inventories. %s. %.0f s"
           % (len(rows), len(rows) - len(failed), len(failed),
-             ", ".join(failed) or "none", len(gaps), time.time() - t0))
-    return 1 if (failed or gaps) else 0
+             ", ".join(failed) or "none", len(gaps), len(dead), len(stale),
+             len(miscount),
+             "FULL SWEEP" if full else "PARTIAL RUN - coverage is not "
+             "comparable to a full sweep and cannot fail this run",
+             time.time() - t0))
+    return 1 if (failed or dead or stale or miscount
+                 or (gaps and full)) else 0
 
 
 if __name__ == "__main__":

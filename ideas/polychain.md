@@ -1058,6 +1058,8 @@ gates PC-G1–G4. Phase-1 estimate for a senior TD: **weeks, not months, dominat
 
 ⚠️ **The OpenCL decision (D158–D160) is recorded in [§14.10](#1410-the-audit-of-14--what-survived-what-had-to-be-corrected-and-the-verdict), with the measurement in §14 and the cycle entry in §12 (`Cycle P2-OCL`).** It spans both phases, so it lives with the numbers rather than in either build log: **OpenCL is declined everywhere in polyChain, audited and measured on both workload shapes.**
 
+⚠️ **The MUTATION REGISTRY decisions are recorded in §29: D273–D278 in [§29.5](#295-decisions-10-continues-here) and D279–D285 in [§29.7](#297-the-audit-of-the-instrument-2026-08-24--four-ways-it-could-report-a-green-it-had-not-earned)** — the registry's first sweep, then the independent audit of the registry itself. D285 is the one that is not about polyChain: the Houdini MCP's skills are file-backed at `F:\projects\houdini-mcp\houdini_mcp\skills\<slug>.md` and `houdini_save_skill` writes the hyphenated slug, so five underscore-named files were one save away from becoming duplicate skills (houdini-mcp `ccc0be7` is the collision that already happened).
+
 ⚠️ **The NATIVE NETWORK decisions (D156–D171) are recorded in [§15.5](#155-decisions), with the measurements in §15.0–§15.4 and the audit response in [§15.7](#157-the-audit--seventeen-findings-and-what-each-one-cost).** They are properties of the graph, not of the kernel, so they live with the build log that measured them.
 
 Append one subsection per cycle: what was built, what the reviewers found, what the numbers were,
@@ -12189,8 +12191,9 @@ python tests/polychain/run_mutation_registry.py --runner scene --state s.json
 runner that owns the paired checks, the **exact source edits**, and `kills` — the check names that
 MUST go red. `tests/polychain/run_mutation_registry.py` is the meta-runner. Per mutation it
 exports `git archive HEAD` into its own throwaway directory under the system temp, applies the
-edit, **rebuilds the .hda from that copy** (§21.4's rule: the asset and its declaration move
-together), runs the paired suite, and asserts the pairing. **It never touches the working tree, so
+edit, **rebuilds the .hda from that copy when the edit reaches the asset** (§21.4's rule: the asset
+and its declaration move together), runs the paired suite, and asserts the pairing. **It never
+touches the working tree, so
 there is nothing to restore** — which is the point: §21.4 also records a tree-wide `git checkout`
 from one agent silently deleting another's uncommitted work, and a mutation sweep that edits real
 files is that accident waiting for a crash in the middle of it.
@@ -12207,9 +12210,22 @@ Three properties, each earned by an incident in the log:
    inside a check while the check credited with the catch printed `PASS`. That is reported as
    `ABORT` and fails the run unless the entry declares `expect="abort"` and says why.
 
+⚠️ **"When the edit reaches the asset" is `rebuild=`, and half the registry sets it False** — 16 of
+30 entries as of 2026-08-24. It is not a shortcut: every entry that edits a `.vfl` or the build
+script rebuilds, and every `rebuild=False` entry edits a **Python module under
+`polyfactory/scripts/python/` or a test-side file**, which the runners import from the export at
+cook time, so the mutation reaches the cook without the asset being rebuilt. All 16 are RED, which
+is the evidence that the edit does reach. The `M` docstring's warning — *a source mutation that does
+not rebuild is testing the rig, not the deliverable* — is about VEX and the build script, and no
+entry violates it.
+
 And **coverage is MEASURED, not declared**: the runner records which names each mutation actually
 reddened. A name that is neither proven, exempt nor a dated debt entry fails the run — so a check
 cannot be added to this project without a decision about how it can fail.
+
+⚠️ **AND "PROVEN" MEANS THE PAIRING, NOT THE BLAST RADIUS — corrected 2026-08-24, see §29.7 (D279).**
+The first implementation credited every name a mutation happened to redden, so 57 of 97 "proven"
+names had never been examined by anyone.
 
 ### 29.2 FIVE CHECKS THAT COULD NOT FAIL, OR COULD NOT SEE, ON THE FIRST SWEEP
 
@@ -12284,6 +12300,15 @@ the thing D265 says a fix is not a fix without. Four registered mutations do it,
 | `out_cast_ints_int64` | every int of 3.4's stamp at int64 against the reference's int32 | RED |
 | `conform_drop_biased` | the drop biased 1e-5 m along its own axis | RED |
 
+⚠️ **THREE OF THOSE FIVE ARE ORACLE-SENSITIVITY PROOFS, NOT PRODUCT PROOFS, and the difference
+matters (2026-08-24 audit).** `out_cast_pc_local_fpreal64` and `out_cast_ints_int64` edit
+`tests/polychain/native.py`; `conform_drop_biased` edits the VEX snippet inside
+`run_native_checks.py`. What they establish is that **the oracle can see a storage/precision
+divergence** — which is exactly what D246 and D247 were about, and it is the thing that was
+unasserted before them. What they do NOT establish is that the shipped asset's cast is correct;
+the two that speak about the deliverable are `pc_local_scaled` and `pc_local_zeroed`, which edit
+`polyfactory/vex/polychain/pc_deform.vfl` and rebuild the .hda.
+
 ⚠️ **And one honest correction to D247, written into the check.** The raw relative row is **not an
 independent detector** of a disagreement the f32 row would miss, and the arithmetic says so: f32
 rounding separates two doubles once they are about half a float32 ULP apart (2⁻²⁵ = 2.98e-8
@@ -12324,10 +12349,16 @@ COMMIT so a resume can never mix verdicts from two trees.
 | `scene` | 97 | 26 | 0 | 71 | 0 |
 | **total** | **361** | **97** | **30** | **234** | **0** |
 
-**Exit 0.** The thirty exemptions are all `run_native_checks` rows that ARE mutations (each breaks
+⚠️ **THAT PROVEN COLUMN IS WRONG AND §29.7 REPLACES IT (D279).** It counted every name a mutation
+happened to redden. Only 42 runner/name pairings were ever *declared and examined*, so **57 of the
+97 were credited by blast radius alone** — including checks with no mutation of their own, which
+the credit then removed from the debt list permanently. Corrected numbers: **42 proven, 36 exempt,
+283 debt.** The table above is left as the historical record of what the first sweep printed.
+
+**Exit 0.** The exemptions are all `run_native_checks` rows that ARE mutations (each breaks
 something inline and asserts the break shows) plus the four `*_baseline` / `*_target_exists`
-liveness guards that stand beside them — one line each saying which. The 234 are the debt list of
-D277, and shrinking it is item 1 of §29.6.
+liveness guards that stand beside them — one line each saying which. The debt list is D277's, and
+shrinking it is item 1 of §29.6.
 
 ### 29.5 Decisions (§10 continues here)
 
@@ -12370,7 +12401,9 @@ D277, and shrinking it is item 1 of §29.6.
 
 ### 29.6 What remains
 
-1. **The debt: 221 runner/name pairs of 361 have no mutation.** The leverage is on the cheap
+1. **The debt: `len(mutations.UNPROVEN)` runner/name pairs of 361 have no mutation — 283 as of
+   2026-08-24** (it was quoted as three different numbers in three places; the list itself is the
+   only count now, and D279 raised it by 47). The leverage is on the cheap
    runners — `scene`, `2d`, `hda` and `images` are seconds a mutation, only `native` costs six
    minutes — and the shape to attack first is the one D273 names: every row that is a recorded
    value on most cases.
@@ -12385,3 +12418,98 @@ D277, and shrinking it is item 1 of §29.6.
    thing an auditor should attack first is the registry's own `kills` lists: four of them were
    WRONG on the first sweep and were corrected against measurement, which is exactly the shape of
    error this instrument is supposed to catch in other people's work.
+
+### 29.7 THE AUDIT OF THE INSTRUMENT (2026-08-24) — four ways it could report a green it had not earned
+
+§29.6 item 4 said the honest words were *implemented, self-verified, unaudited*, and named the
+thing an auditor should attack. An independent auditor did, and **the instrument built to catch
+unfailable checks had four majors and eight minors — every one demonstrated, not argued.** That is
+§3's P1 of the retrospective arriving one level up: the agent that writes the checker cannot see
+the checker's blind spots either.
+
+| # | What it did | How it was demonstrated |
+|---|---|---|
+| 1 | **Credited a mutation's whole blast radius**, not the pairing it was examined against | `--only conform_axis_permuted` reddens 7 names against 4 declared, crediting `scene/stepped_riser_is_m` — a step-height check in no `kills` list and, because of the credit, in no debt list either |
+| 2 | **Cached verdicts keyed to HEAD alone** while the registry is read from the WORKING TREE | An entry edited into one that cannot fail replayed `RED (cached)`, `1 proven`, exit 0; the same tree without `--state` correctly reported `SURVIVED … nothing at all`, exit 1 |
+| 3 | **No reconciliation between the declarations and the inventory** | Filtering one check out of every 2d case took the control 40 → 39 names with `0 UNDECLARED`, exit 0, and the vanished check still in the debt list |
+| 4 | **Truncated check names at the first non-word character** | A new check named `clip_stamp.v2` was folded into the already-proven `clip_stamp`: the inventory did not grow and the new check vanished |
+| 5 | **EXEMPT's stated justification was false for 29 of its 33 `mutation_*` rows** | Both exemptions the auditor attacked were mutated successfully on the first correct attempt |
+| 6..12 | Coverage skipped runners with no mutation; the control's single retry cannot ride out a wall-clock flake; the "control is not green" diagnostic died in a `UnicodeEncodeError`; exports leaked silently; SKIP and PASS were conflated; three prose claims did not match the code | each measured on this machine |
+
+**All fixed, and the fixes are in the instrument rather than in prose.** The exit code now covers
+five properties, not three (see the module docstring).
+
+**D279 — coverage credits the PAIRING, not the blast radius, and the debt list went UP by 47.**
+A mutation is evidence about the check it was *paired with and examined against*. The rest of what
+it reddens is printed on the row (`also reddened (credits nothing, N): …`) and credits nothing.
+Consequence, measured: of 97 "proven" names only **42 were ever declared**, so 47 names that no
+mutation names moved into the debt list (`234 → 283`) and 8 EXEMPT rows went back to being exempt.
+D277 already forbade the narrower version of this over-claim — crediting `corner_abut_m` in `2d`
+because the `scene` copy went red — and permitted this wider one, which is worse: it silently
+retired checks from the very list the shrink-the-debt plan works from.
+
+**D280 — a resumable cache must be keyed to everything that decides the verdict.** The subject
+comes from `git archive HEAD`, the registry from the working tree, and the state key was HEAD. So
+the documented resume workflow was the one that laundered an entry that could no longer fail. Each
+entry's `(runner, edits, kills, expect, rebuild)` is hashed into its own cache key now, and a
+changed entry re-runs with a printed reason. *Demonstrated both ways:* a second run replays
+`RED … (cached) 0s`; with the stored digest overwritten the same run prints `the registered entry
+changed since it was cached - re-running it` and re-executes.
+
+**D281 — the inventory is pinned in both directions, and the declarations are reconciled against
+it.** Growth already failed the run; shrinkage was silent, which meant a check that stopped being
+emitted was *deleted from the meta-check* while its debt entry sat there describing nothing.
+`mutations.EXPECT_CHECKS` pins the per-runner count (144 / 97 / 43 / 40 / 37, measured from a
+pristine export), and a full sweep now fails on any EXEMPT / UNPROVEN key that names a check no
+runner prints, or any debt entry that has acquired a mutation. ⚠️ **Honest counter-note:** the
+audit read "30 exempt of 38 keys, 234 debt of 237" as 11 rotten entries; run against the live
+inventory there are **zero** dead entries — those 11 were D279's over-crediting, not rot. One
+genuine stale entry existed (`scene/conform_parity`, a declared kill still listed as debt) and is
+removed. The check is what tells the two apart, which is why it is now code.
+
+**D282 — an exemption is a claim, and a claim is a target.** EXEMPT's header said each `mutation_*`
+row's liveness was guarded by a paired `*_target_exists` / `*_baseline` row; exactly **four** such
+rows exist against **33** `mutation_*` exemptions, and exactly one of the 34 in-check `.replace(`
+injections carries an `assert … in source` guard. The real justification — checked, not assumed —
+is that these checks assert a *difference*, so a dead injection makes the "broken" build equal the
+sound one, the asserted difference collapses and **the check goes RED in the safe direction**. That
+sentence is now backed by two registered mutations rather than by itself:
+`exempt_frames_injection_neutered` (neuter `frames_parity`'s injection → `mutation_pc_frames` RED)
+and `exempt_gate_parity_collapsed` (`_needs_deform` returns False for every piece → the vacuity
+guard `gate_parity_sees_both_answers` RED). Both names are out of EXEMPT. ⚠️ And the auditor's
+*first* attempt at the second one **survived correctly** — killing one of `_needs_deform`'s several
+deform paths left the others still producing both answers — which is D276 again: a source edit is
+not a mutation until something moves.
+
+**D283 — the parser may not assume the project's naming convention, and SKIP is not PASS.** The
+name regex stopped at the first character outside `[A-Za-z_0-9]`; it captures `\S+` now and reports
+anything unparseable instead of folding it into another check's coverage. And a name printed once
+per case kept the LAST non-FAIL state, so a check skipped on every case was indistinguishable from
+one that passed — retrospective P2 inside the instrument built to catch P2. States aggregate
+FAIL > PASS > SKIP now and the coverage table carries an **always-skipped** column. *Measured on
+the current build: 0 always-skipped on all five runners* — the 12 SKIP rows the audit saw in the
+cached scene control were last-case artefacts of the old rule, which is exactly the confusion.
+
+**D284 — a printed diagnostic is ASCII, and a leak that cannot be cleaned says so.** The one
+non-ASCII string in the file was the "THE CONTROL BUILD IS NOT GREEN" line, and `sys.stdout` is
+cp1252 on this machine whenever it is redirected — so the one message an operator needs to tell a
+flake from a defect died in a `UnicodeEncodeError`. (It bit this cycle's own verification script
+before it bit the runner.) The control also retries three times rather than once, because a
+pristine export went red on `bench_deform_20km` twice in a row with a second hython on the machine;
+and `shutil.rmtree(..., ignore_errors=True)` now prints the path it could not remove instead of
+leaking tens of MB of `pcmut_*` trees in silence.
+
+**D285 — the skills are FILE-BACKED, and `houdini_save_skill` writes hyphenated filenames.**
+`F:\projects\houdini-mcp\houdini_mcp\skills\<slug>.md`, where `<slug>` is the frontmatter `name`
+slugified; `list_skills` / `get_skill` key off that `name`. Five files were still underscore-named
+while declaring hyphenated names, so the next `houdini_save_skill` on any of them would have
+created a *second* file for one skill and left a divergent stale copy — the trap that already fired
+once on `houdini_procedural_modeling.md` (houdini-mcp `ccc0be7`). All five are renamed, and
+`save_skill` now removes any other file whose frontmatter name slugifies to the same slug. *(This
+is the decision the previous cycle's implementer deliberately left for the parent to record.)*
+
+**What did NOT change, and why.** The claim that `run_native_checks`'s in-line `.replace(`
+injections are unguarded was checked one by one rather than patched: each asserts a difference, a
+flip or a moved number, so all fail safe (see D282), and `mutation_deform_refusals` carries an
+explicit `if line not in sound or anchor not in sound` guard already. Adding 21 more `assert`
+statements would have been motion, not evidence — the two registered mutations are the evidence.

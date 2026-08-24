@@ -102,6 +102,7 @@ class M(object):
 VEX = "polyfactory/vex/polychain/%s"
 PY = "polyfactory/scripts/python/polyfactory/polychain/%s"
 RIG = "tests/polychain/native.py"
+RUNNER_NATIVE = "tests/polychain/run_native_checks.py"
 BUILD = "devScripts/create_pf_polychain_hda.py"
 IMG = "tests/polychain/gate_images.py"
 
@@ -573,6 +574,53 @@ MUTATIONS = (
       "mutation that proves the shared rule is reached from here too.",
       (("tests/polychain/baseline_2d.json", None, None),),
       rebuild=False),
+
+    # ---- the two entries that were EXEMPT until an audit wrote them --------
+    #
+    # ⚠️ BOTH OF THESE WERE ON THE EXEMPT LIST, and the list said a mutation
+    # for them was impractical. An independent auditor wrote both on the first
+    # correct attempt. That is the whole argument for keeping EXEMPT small and
+    # attacking it: an exemption is a claim, and a claim in this project is
+    # something to falsify, not something to file.
+
+    M("exempt_frames_injection_neutered", "native",
+      ("mutation_pc_frames",),
+      "The `mutation_*` checks apply their own in-line edit and assert the "
+      "break SHOWS. This neuters one - the injected scale error becomes the "
+      "sound line, so `frames_parity`'s `broken` build is byte-identical to "
+      "the sound one - and `mutation_pc_frames` must go red because its "
+      "worst relative error falls back to the FMA floor. It is the exemption "
+      "list's own reasoning, made runnable: a mutation-check whose injection "
+      "has died fails in the SAFE direction, and this is the evidence for "
+      "that sentence rather than the sentence alone.",
+      ((RUNNER_NATIVE,
+        '    broken = vexsrc.source("pc_frames").replace(\n'
+        '        "float scale = max(clen / plen, 1e-9);",\n'
+        '        "float scale = max(clen / plen, 1e-9) * 1.0000001;")',
+        '    broken = vexsrc.source("pc_frames").replace(\n'
+        '        "float scale = max(clen / plen, 1e-9);",\n'
+        '        "float scale = max(clen / plen, 1e-9);")'),),
+      rebuild=False),
+
+    M("exempt_gate_parity_collapsed", "native",
+      ("gate_parity_sees_both_answers",),
+      "The vacuity guard on `gate_parity`, attacked directly: the Python "
+      "reference's `_needs_deform` returns False for every piece, so the "
+      "reference answers a constant and the compared pieces contain one "
+      "answer instead of two. ⚠️ AND THE FIRST ATTEMPT AT THIS SURVIVED, "
+      "correctly - killing ONE of `_needs_deform`'s several deform paths "
+      "left the others still producing both answers, so the guard was right "
+      "and the mutation was wrong. The mutation has to collapse the whole "
+      "function, which is what the check claims to detect.",
+      ((PY % "place.py",
+        '    """4.4 + the streets float32 lesson: rebuild ONLY when it '
+        'changes something."""\n'
+        "    if placement.slice_t is not None or placement.cuts:",
+        '    """4.4 + the streets float32 lesson: rebuild ONLY when it '
+        'changes something."""\n'
+        "    return False            # the mutation: one answer, not two\n"
+        "    if placement.slice_t is not None or placement.cuts:"),),
+      rebuild=False),
 )
 
 # ⚠️ IDS ARE UNIQUE, ASSERTED HERE. Two entries shared the id
@@ -597,9 +645,26 @@ assert len(_ids) == len(set(_ids)),     "duplicate mutation id: %s" % sorted(set
 
 EXEMPT = {
     # ---- the checks that ARE mutations. Each one breaks something and
-    # asserts the break shows; its own liveness is guarded by the paired
-    # `*_target_exists` / `*_baseline` row beside it, which is the second
-    # source D208 asks for.
+    # asserts the break SHOWS - a difference, a flip, a moved number - so a
+    # mutation-of-the-mutation fails in the SAFE direction: if the in-line
+    # edit stops matching, the "broken" build equals the sound one, the
+    # asserted difference is zero and the check goes RED. That, and not a
+    # paired liveness row, is what these exemptions rest on.
+    #
+    # ⚠️ THIS SENTENCE USED TO CLAIM SOMETHING FALSE. It said each row's
+    # liveness was guarded by the paired `*_target_exists` / `*_baseline` row
+    # beside it - but exactly FOUR such rows exist against 33 `mutation_*`
+    # exemptions (they are listed at the end and they are real; they just do
+    # not cover the other 29). An auditor then wrote two of the "impractical"
+    # mutations anyway, both RED on the first correct attempt, and both are
+    # registered above: `exempt_frames_injection_neutered` neuters an
+    # injection and `exempt_gate_parity_collapsed` collapses the reference to
+    # one answer. Their two names are GONE from this list as a result. The
+    # safe-direction argument is now evidence, not assertion - and the
+    # remaining rows are exempt on it, not on a guard they never had.
+    #
+    # ⚠️ AND EXEMPT IS A CLAIM, WHICH MEANS IT IS A TARGET. Both exemptions
+    # attacked in this audit fell. Attack them.
     "native/mutation_anchor_fill_copies_the_plan": "IS a mutation (guard anchor fill)",
     "native/mutation_copy_pivot": "IS a mutation (copytopoints pivot)",
     "native/mutation_copy_useidattrib": "IS a mutation (copytopoints id attrib)",
@@ -614,7 +679,6 @@ EXEMPT = {
     "native/mutation_pc_deform_gate": "IS a mutation (curvature tolerance)",
     "native/mutation_pc_finalize": "IS a mutation (pc_finalize bypassed)",
     "native/mutation_pc_finalize_debatched": "IS a mutation (pc_finalize de-batched)",
-    "native/mutation_pc_frames": "IS a mutation (pc_frames VEX)",
     "native/mutation_pc_kit_id": "IS a mutation (pc_kit_id source)",
     "native/mutation_pc_plan_solve_string_arrays": "IS a mutation (solve columns)",
     "native/mutation_pc_sample_array_reads": "IS a mutation (sampler array reads)",
@@ -642,8 +706,27 @@ EXEMPT = {
         "IS the un-mutated control for `plan_mutation`",
     "native/plan_mutation_marker_baseline":
         "IS the un-mutated control for `plan_mutation`'s marker case",
-    "native/gate_parity_sees_both_answers":
-        "IS the vacuity guard for `gate_parity` (both answers occur)",
+}
+
+# ---- the INVENTORY, pinned ---------------------------------------------------
+#
+# ⚠️ HOW MANY CHECK NAMES EACH RUNNER MUST PRINT.  Growth already fails the
+# sweep (a new name is UNDECLARED), but SHRINKAGE was silent: filtering one
+# check out of every 2d case took the control from 40 names to 39 and the
+# sweep still reported `0 UNDECLARED`, exit 0, with the vanished check still
+# sitting in the debt list describing something that no longer existed.  A
+# check that stops being emitted is exactly retrospective P2 - "the check is
+# well written; nothing ever runs it" - and it may not leave in silence.
+#
+# Measured 2026-08-24 from a pristine `git archive HEAD` export, all five
+# runners green.  Moving a number here is a deliberate act, like every other
+# baseline in this project.
+EXPECT_CHECKS = {
+    "native": 144,
+    "scene": 97,
+    "images": 43,
+    "2d": 40,
+    "hda": 37,
 }
 
 # ---- the DATED DEBT ---------------------------------------------------------
@@ -651,16 +734,25 @@ EXEMPT = {
 # ⚠️ THIS IS NOT AN EXEMPTION LIST AND IT IS NOT CALLED ONE.  An EXEMPTION says
 # "a mutation for this is genuinely impractical, and here is the one-line
 # reason".  A DEBT ENTRY says "nobody has written the mutation yet", which is a
-# different sentence and deserves a different word - writing 221 fake reasons
+# different sentence and deserves a different word - writing 283 fake reasons
 # to make the runner green would be the exact move this whole file exists to
 # stop.
 #
-# Opened 2026-08-24 with 221 names against 361 checks and 28 mutations.  It is
-# printed with its count on every run, and it going UP is a regression: a new
-# check lands here only by a deliberate edit, which is the decision the
-# meta-check exists to force.  The way to shrink it is one registered mutation
-# at a time, and the cheap runners are where the leverage is (`scene`, `2d`,
-# `hda` and `images` are seconds; only `native` costs six minutes a mutation).
+# ⚠️ THE COUNT IS `len(UNPROVEN)` AND NOTHING ELSE, because it was three
+# different numbers in three places for one list.  2026-08-24, after the audit
+# of the instrument: **283 names of 361, against 30 mutations and 36
+# exemptions** (42 declared runner/name pairings + 36 exempt + 283 debt = 361).
+# It went UP by 47 on purpose - see the block at the end of the list: coverage
+# now credits only the pairing a mutation was examined against, and 47 names
+# that a mutation's blast radius had marked PROVEN turned out never to have
+# been looked at.
+#
+# It is printed with its count on every run.  Growth by any other route is a
+# regression: a new check lands here only by a deliberate edit, which is the
+# decision the meta-check exists to force.  The way to shrink it is one
+# registered mutation at a time, and the cheap runners are where the leverage
+# is (`scene`, `2d`, `hda` and `images` are seconds; only `native` costs six
+# minutes a mutation).
 UNPROVEN = {}
 UNPROVEN.update(dict.fromkeys((
     "2d/cell_grid",
@@ -669,17 +761,22 @@ UNPROVEN.update(dict.fromkeys((
     "2d/cell_set",
     "2d/clip_hole_elements",
     "2d/clip_inside_m",
+    "2d/corner_abut_m",
+    "2d/corner_breach_m",
     "2d/corner_seam_m",
     "2d/deformed_flag_mismatch",
     "2d/determinism",
     "2d/duplicate_elem_ids",
     "2d/element_count",
+    "2d/exact_fill_m",
     "2d/fallback_map",
     "2d/geometry_digest",
     "2d/inward_faces",
+    "2d/max_gap_m",
     "2d/min_piece_span_m",
     "2d/module_fidelity_m",
     "2d/output_schema",
+    "2d/packed_pieces",
     "2d/points_wrappers_built_2d_rows",
     "2d/polyfill_appends_its_patches",
     "2d/prims_wrappers_built_2d_rows",
@@ -695,6 +792,7 @@ UNPROVEN.update(dict.fromkeys((
     "2d/section_coverage_m",
     "2d/structural_ids",
     "2d/verb_executions_per_build_2d_rows",
+    "2d/warnings",
     "2d/wrapper_reads_2d_rows",
     "hda/bad_kit_file_warns",
     "hda/every_number_has_a_range",
@@ -718,10 +816,17 @@ UNPROVEN.update(dict.fromkeys((
     "hda/two_disclosure_levels",
     "hda/units_in_the_label",
     "hda/warned_elements_are_coloured",
+    "images/axis_on_curve_m",
+    "images/bank_deg",
     "images/conform_contact_m",
+    "images/conform_drape_m",
+    "images/corner_abut_m",
+    "images/corner_breach_m",
     "images/corner_seam_m",
     "images/corner_turns",
+    "images/double_pillar_m",
     "images/element_count",
+    "images/exact_fill_m",
     "images/flat_stepped_m",
     "images/g1_L_bend_parm_face",
     "images/g1_L_miter_parm_face",
@@ -741,6 +846,7 @@ UNPROVEN.update(dict.fromkeys((
     "images/image_shows_packed_stepped",
     "images/image_shows_packed_vertical",
     "images/inward_faces",
+    "images/max_gap_m",
     "images/n5_deformed_image_has_geometry",
     "images/n5_deformed_is_native",
     "images/n5_deformed_matches_the_reference",
@@ -749,6 +855,7 @@ UNPROVEN.update(dict.fromkeys((
     "images/partb_curved_matches_the_reference",
     "images/plumb_deg",
     "images/stepped_float_m",
+    "images/warnings",
     "native/asset_wiring_comparison_is_load_bearing",
     "native/bench_guard_fallback",
     "native/bench_long_curve_really_cooked",
@@ -802,6 +909,7 @@ UNPROVEN.update(dict.fromkeys((
     "native/scene_baseline_movement_fails_the_run",
     "native/seed_corpus_has_multibyte",
     "native/seed_elem_key_parity",
+    "native/solve_cost_is_flat_in_piece_count",
     "native/stage_labels_are_true",
     "native/stage_menu_reaches_every_stage",
     "native/stamp_cost_is_flat_in_piece_count",
@@ -819,7 +927,6 @@ UNPROVEN.update(dict.fromkeys((
     "scene/conform_cache_per_element",
     "scene/conform_cache_per_element_streets",
     "scene/conform_contact_m",
-    "scene/conform_parity",
     "scene/conform_prefetch_hit_rate",
     "scene/corner_mate_axis_m",
     "scene/corner_plane_dev_m",
@@ -884,20 +991,63 @@ UNPROVEN.update(dict.fromkeys((
     "scene/wrapper_reads_mitered",
     "scene/wrapper_reads_streets",
     "scene/zmode_stamp",
-    "2d/corner_abut_m",
-    "2d/corner_breach_m",
-    "2d/exact_fill_m",
-    "2d/max_gap_m",
-    "2d/packed_pieces",
-    "2d/warnings",
-    "images/axis_on_curve_m",
-    "images/bank_deg",
-    "images/conform_drape_m",
-    "images/corner_abut_m",
-    "images/corner_breach_m",
-    "images/double_pillar_m",
-    "images/exact_fill_m",
-    "images/max_gap_m",
-    "images/warnings",
-    "native/solve_cost_is_flat_in_piece_count",
 ), "no mutation yet"))
+
+# ---- 2026-08-24, THE AUDIT OF THE INSTRUMENT: 47 NAMES THAT WERE
+# CREDITED WITHOUT BEING EXAMINED. Coverage used to credit every check a
+# mutation happened to redden, not the check it was PAIRED with, so a
+# mutation's blast radius marked names PROVEN that nobody had looked at -
+# permuting the conform axis credited `stepped_riser_is_m`, a step-height
+# check with no mutation of its own, and removed it from this list for good.
+# Crediting is `kills`-only now, and these 47 are what fell out: they were
+# never proven, so they are debt, and the debt list going UP is the honest
+# direction here.
+UNPROVEN.update(dict.fromkeys((
+    "hda/evenly_clears_the_corner_adjust_to_end",
+    "hda/evenly_clears_the_corner_justify_center",
+    "hda/evenly_clears_the_corner_justify_start",
+    "hda/junk_payload_builds_nothing",
+    "hda/parms_inert_under_payload",
+    "hda/payload_overrides_styleid",
+    "hda/starter_fence_modules",
+    "hda/unread_marker_warns",
+    "native/asset_stages_match_the_rig",
+    "native/bench_deform_20km",
+    "native/decompose_length_parity",
+    "native/decompose_turn_parity",
+    "native/every_cited_check_exists",
+    "native/every_wrangle_comment_is_checkable",
+    "native/frames_arithmetic_linear_parity",
+    "native/frames_arithmetic_position_parity",
+    "native/guard_anchor_cost_is_linear",
+    "native/guard_deform_ladder",
+    "native/guard_kit_mismatch",
+    "native/guard_padding_parity",
+    "native/guard_row_warns_wrong_storage",
+    "native/guard_spline_attr_types",
+    "native/kit_starter_cooks_once",
+    "native/native_ok_refuses_an_unreadable_cond",
+    "native/output_guard_cost",
+    "native/payload_cond_values_survive_the_round_trip",
+    "native/place_packed_covers_the_reference",
+    "native/place_packed_parity",
+    "native/place_stamp_parity",
+    "native/plan_shared_id_matches_reference_in_both_orders",
+    "native/plan_solve_parity",
+    "native/plan_solve_section_shape",
+    "native/plan_stress_parity",
+    "native/r8_packed_scale_survives",
+    "native/seed_crc32_parity",
+    "native/seed_random01_parity",
+    "native/seed_splitmix64_parity",
+    "native/union_matches_the_python_path",
+    "native/wrangle_cost_is_flat_in_piece_count",
+    "scene/axis_on_curve_m",
+    "scene/conform_drape_m",
+    "scene/conform_prefetch_hit_rate_streets",
+    "scene/corner_clearance_m",
+    "scene/exact_fill_m",
+    "scene/max_gap_m",
+    "scene/path_sample_calls_per_piece_deformed",
+    "scene/stepped_riser_is_m",
+), "no mutation yet - was credited by a mutation's blast radius until 2026-08-24"))
