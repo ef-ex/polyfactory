@@ -11473,7 +11473,7 @@ the shipped code and blowing it. **D259.**
 | suite | result |
 |---|---|
 | unit tests (5 files) | **328 OK** |
-| `run_native_checks` | **144 [PASS] / 0** (was 137/0; +7 rows) |
+| `run_native_checks` | **145 [PASS] / 0** (was 137/0; +8 rows) |
 | `run_scene_checks` | **3 701 [PASS] / 0 failing, 0 moved** (93 cases, +`DM_ripple_deformed`) |
 | `run_hda_checks` | **31 [PASS] / 0** |
 | `run_2d_checks` | **633 [PASS] / 0 failing, 0 moved** |
@@ -11487,6 +11487,8 @@ inside `ZZ_port_tripwires/curve_sample_scaling`'s `detail` string (`warm 0.80 us
 whose `value` (`['O(1)', 'O(n)']`) is unchanged, and which the runner does not compare.
 **D210 re-confirmed live:** perturbing `A_straight/element_count` 20 → 21 in `baseline.json` gives
 `0 failing checks, 1 moved baseline values` and **exit 1**.
+
+⚠️ **THIS TABLE IS THE FINAL RUN, from a pristine export of the second commit of this cycle.** The first commit read 144 / 0; `guard_marker_data_types` is the row §27.7b added.
 
 **GATES.** PC-G1 **PASSES** — the closed rectangle and the L in both corner modes through the parm
 face, `corner_abut_m` 0.0, `corner_seam_m` 0.0, `corner_breach_m` 0.0 at every mitered 90°, on

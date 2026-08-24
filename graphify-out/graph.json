@@ -480,7 +480,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider",
-      "community": 119,
+      "community": 106,
       "norm_label": "hoverslider"
     },
     {
@@ -510,7 +510,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_paintevent",
-      "community": 119,
+      "community": 87,
       "norm_label": ".paintevent()"
     },
     {
@@ -520,7 +520,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox",
-      "community": 119,
+      "community": 106,
       "norm_label": "hovercombobox"
     },
     {
@@ -540,7 +540,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_paintevent",
-      "community": 119,
+      "community": 87,
       "norm_label": ".paintevent()"
     },
     {
@@ -750,7 +750,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_paintevent",
-      "community": 119,
+      "community": 87,
       "norm_label": ".paintevent()"
     },
     {
@@ -820,7 +820,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_49",
-      "community": 119,
+      "community": 106,
       "norm_label": "qslider with animated hover outline"
     },
     {
@@ -830,7 +830,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_62",
-      "community": 119,
+      "community": 106,
       "norm_label": "qcombobox with animated hover outline"
     },
     {
@@ -1000,7 +1000,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_492",
-      "community": 119,
+      "community": 87,
       "norm_label": "draw widget with selection highlight and animated hover outline."
     },
     {
@@ -1870,7 +1870,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_setup_ui",
-      "community": 119,
+      "community": 106,
       "norm_label": "._setup_ui()"
     },
     {
@@ -37490,7 +37490,7 @@
       "source_location": "L1528",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
-      "community": 17,
+      "community": 274,
       "norm_label": "s5 \u2014 intersections"
     },
     {
@@ -37500,7 +37500,7 @@
       "source_location": "L1550",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
-      "community": 17,
+      "community": 274,
       "norm_label": "what the literature adds"
     },
     {
@@ -37510,7 +37510,7 @@
       "source_location": "L1574",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "community": 17,
+      "community": 274,
       "norm_label": "the invariant that was violated: **every corner is an arc, always**"
     },
     {
@@ -37520,7 +37520,7 @@
       "source_location": "L1602",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
-      "community": 17,
+      "community": 274,
       "norm_label": "two rules the design left open, decided 2026-08-09"
     },
     {
@@ -37530,7 +37530,7 @@
       "source_location": "L1722",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
-      "community": 17,
+      "community": 274,
       "norm_label": "three constructions adopted from the civil sweep \u2014 2026-08-09"
     },
     {
@@ -37540,7 +37540,7 @@
       "source_location": "L1757",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "community": 17,
+      "community": 274,
       "norm_label": "higher-degree junctions \u2014 untested, and structurally unreachable from the field"
     },
     {
@@ -37550,7 +37550,7 @@
       "source_location": "L1783",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "community": 17,
+      "community": 274,
       "norm_label": "plazas and roundabouts at degenerate points"
     },
     {
@@ -43837,7 +43837,7 @@
       "label": "27.7b TEN SOURCE-LEVEL MUTATIONS, AND **TWO SURVIVORS**",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L11502",
+      "source_location": "L11504",
       "_origin": "ast",
       "id": "ideas_polychain_27_7b_ten_source_level_mutations_and_two_survivors",
       "community": 197,
@@ -43847,7 +43847,7 @@
       "label": "27.8 Decisions taken this cycle (\u00a710 continues here)",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L11552",
+      "source_location": "L11554",
       "_origin": "ast",
       "id": "ideas_polychain_27_8_decisions_taken_this_cycle_10_continues_here",
       "community": 197,
@@ -43857,7 +43857,7 @@
       "label": "27.9 What remains",
       "file_type": "document",
       "source_file": "ideas/polychain.md",
-      "source_location": "L11640",
+      "source_location": "L11642",
       "_origin": "ast",
       "id": "ideas_polychain_27_9_what_remains",
       "community": 197,
@@ -110543,9 +110543,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective",
-      "target": "ideas_build_retrospective_polychain_build_incident_log_and_recurring_failure_analysis",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_polychain_build_incident_log_and_recurring_failure_analysis"
     },
     {
       "relation": "references",
@@ -110553,9 +110553,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L192",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective",
-      "target": "ideas_polychain",
-      "confidence_score": 1.0
+      "target": "ideas_polychain"
     },
     {
       "relation": "contains",
@@ -110563,9 +110563,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_polychain_build_incident_log_and_recurring_failure_analysis",
-      "target": "ideas_build_retrospective_1_the_one_sentence_finding",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_1_the_one_sentence_finding"
     },
     {
       "relation": "contains",
@@ -110573,9 +110573,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_polychain_build_incident_log_and_recurring_failure_analysis",
-      "target": "ideas_build_retrospective_2_incident_log",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_2_incident_log"
     },
     {
       "relation": "contains",
@@ -110583,9 +110583,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_polychain_build_incident_log_and_recurring_failure_analysis",
-      "target": "ideas_build_retrospective_3_the_patterns",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_3_the_patterns"
     },
     {
       "relation": "contains",
@@ -110593,9 +110593,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L121",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_polychain_build_incident_log_and_recurring_failure_analysis",
-      "target": "ideas_build_retrospective_4_what_should_become_a_skill_an_instruction_or_code",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_4_what_should_become_a_skill_an_instruction_or_code"
     },
     {
       "relation": "contains",
@@ -110603,9 +110603,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L186",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_polychain_build_incident_log_and_recurring_failure_analysis",
-      "target": "ideas_build_retrospective_5_what_worked_and_must_not_be_lost",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_5_what_worked_and_must_not_be_lost"
     },
     {
       "relation": "contains",
@@ -110613,9 +110613,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_2_incident_log",
-      "target": "ideas_build_retrospective_2a_verification_integrity_the_dominant_class_20_instances",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_2a_verification_integrity_the_dominant_class_20_instances"
     },
     {
       "relation": "contains",
@@ -110623,9 +110623,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_2_incident_log",
-      "target": "ideas_build_retrospective_2b_wrong_conclusions_that_propagated",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_2b_wrong_conclusions_that_propagated"
     },
     {
       "relation": "contains",
@@ -110633,9 +110633,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_2_incident_log",
-      "target": "ideas_build_retrospective_2c_harness_and_infrastructure",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_2c_harness_and_infrastructure"
     },
     {
       "relation": "contains",
@@ -110643,9 +110643,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L77",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_2_incident_log",
-      "target": "ideas_build_retrospective_2d_my_own_spec_and_briefing_failures",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_2d_my_own_spec_and_briefing_failures"
     },
     {
       "relation": "contains",
@@ -110653,9 +110653,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_4_what_should_become_a_skill_an_instruction_or_code",
-      "target": "ideas_build_retrospective_4a_highest_value_a_verification_integrity_discipline_p1_p2_p3_20_incidents",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_4a_highest_value_a_verification_integrity_discipline_p1_p2_p3_20_incidents"
     },
     {
       "relation": "contains",
@@ -110663,9 +110663,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L145",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_4_what_should_become_a_skill_an_instruction_or_code",
-      "target": "ideas_build_retrospective_4b_houdini_domain_gotchas_extend_houdini_procedural_modeling",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_4b_houdini_domain_gotchas_extend_houdini_procedural_modeling"
     },
     {
       "relation": "contains",
@@ -110673,9 +110673,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L164",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_4_what_should_become_a_skill_an_instruction_or_code",
-      "target": "ideas_build_retrospective_4c_multi_agent_operations_workflow_brief_boilerplate_or_a_skill",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_4c_multi_agent_operations_workflow_brief_boilerplate_or_a_skill"
     },
     {
       "relation": "contains",
@@ -110683,9 +110683,9 @@
       "source_file": "ideas/build_retrospective.md",
       "source_location": "L176",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_build_retrospective_4_what_should_become_a_skill_an_instruction_or_code",
-      "target": "ideas_build_retrospective_4d_spec_level_rules_for_this_project",
-      "confidence_score": 1.0
+      "target": "ideas_build_retrospective_4d_spec_level_rules_for_this_project"
     },
     {
       "relation": "references",
@@ -116473,9 +116473,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L2651",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_8_the_three_reviewer_pass_over_cycle_7_worked_through_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_2651",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_2651"
     },
     {
       "relation": "contains",
@@ -116553,9 +116553,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L2829",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_9_independent_verification_of_cycle_8_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_2829",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_2829"
     },
     {
       "relation": "contains",
@@ -116563,9 +116563,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L2822",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_9_independent_verification_of_cycle_8_2026_08_22",
-      "target": "ideas_polychain_final_state_2822",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_final_state_2822"
     },
     {
       "relation": "contains",
@@ -116633,9 +116633,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L2966",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_10_4_4_s_flatten_under_and_its_two_hybrid_bands_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_2966",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_2966"
     },
     {
       "relation": "contains",
@@ -116683,9 +116683,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3044",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_10b_the_camber_s_off_spine_rotation_brought_into_the_budget_2026_08_22",
-      "target": "ideas_polychain_5_files_3044",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_5_files_3044"
     },
     {
       "relation": "contains",
@@ -116703,9 +116703,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3078",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_10b_the_camber_s_off_spine_rotation_brought_into_the_budget_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_3078",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_3078"
     },
     {
       "relation": "contains",
@@ -116783,9 +116783,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3200",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_10c_the_deform_path_s_rewrite_profiled_first_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_3200",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_3200"
     },
     {
       "relation": "contains",
@@ -116853,9 +116853,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3324",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_11_the_review_s_three_stayed_packed_sat_wrong_findings_reproduced_then_closed",
-      "target": "ideas_polychain_decisions_taken_3324",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_3324"
     },
     {
       "relation": "contains",
@@ -116863,9 +116863,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3354",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_12_independent_verification_of_cycle_11_and_phase_1_closed_2026_08_22",
-      "target": "ideas_polychain_1_the_suite_re_run_from_clean_3354",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_1_the_suite_re_run_from_clean_3354"
     },
     {
       "relation": "contains",
@@ -116913,9 +116913,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3491",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_12_independent_verification_of_cycle_11_and_phase_1_closed_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_3491",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_3491"
     },
     {
       "relation": "contains",
@@ -117213,9 +117213,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L5562",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_0_7_written_as_a_buildable_spec_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_5562",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_5562"
     },
     {
       "relation": "contains",
@@ -117293,9 +117293,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L5879",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_3r_the_three_reviewer_pass_over_p2_1_p2_3_reproduced_then_closed_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_5879",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_5879"
     },
     {
       "relation": "contains",
@@ -119802,5 +119802,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "55305f502ffafc9bd8a61ea0753a6adc5ca69a3a"
+  "built_at_commit": "a4fbabbb91084164fe44ef7fcfde4c129018f76b"
 }
