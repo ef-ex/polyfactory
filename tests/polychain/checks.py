@@ -3336,7 +3336,10 @@ def single_pillar(scene, expected=0.0, tol=2e-3):
     # D270: bucket the footprints instead of sweeping every pair. The old
     # O(n^2) sweep measured 33.9 s on 16 667 uprights (2 km of `post` fill) -
     # affordable on the 270-piece hill cases it was written against and not on
-    # the long-run fixtures `run_native_checks` already builds.
+    # the long-run fixtures `run_native_checks` already builds. The cell is
+    # the WIDEST candidate, so a kit mixing a 20 m wall module with 0.12 m
+    # posts degrades back towards the pairwise sweep - stated rather than
+    # claimed away, because nothing in the suite has that shape today.
     cell = max(max(b[1] - b[0], b[5] - b[4]) for _e, _r, b, _s, _u in boxes)
     cell = max(cell, TOL_M) + TOUCH_M
     grid = {}

@@ -11980,6 +11980,15 @@ The three pinned `DOUBLE_PILLAR` values are **unchanged** by the rewrite — `A_
 `DL_variant_kit` still read exactly 0.12 — which is the evidence that the new metric measures the
 same thing on the cases it was calibrated on.
 
+⚠️ **F3's fix had to be checked on the DEFORMED branch, because that is where a local-space read
+could have been empty.** `place` writes `pc_local` for every non-packed piece — anchored, mitered
+and deformed alike (`place.py` sets it AFTER the transform, precisely so a rotated local frame
+cannot leak the world in) — but nothing said so. Measured on a 40 m sine hill, `panel` fill +
+`evenly post`, spacing 0.30 / 0.35 / 0.50 / 1.00 / 2.00 m: **137 of 275 elements are multi-prim
+deformed pieces, the upright set is `['post']` at every spacing, and `double_pillar_m` is 0.0 at
+every spacing.** On the old placed-box rule the same run at 0.30 m would have called every panel
+an upright.
+
 **F4 — the fixture gap was INVERTED, not closed, and that is the finding that stings.** §28.1(c)
 diagnosed the original defect as *"the one composition the parameter page actually shipped was in
 no corner case in the suite"* — and after D266 that sentence was **still true, of the new
