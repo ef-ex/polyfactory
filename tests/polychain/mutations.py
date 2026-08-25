@@ -200,8 +200,9 @@ MUTATIONS = (
       "Level 1 stops asking what the surface is MADE OF, so a terrain with "
       "three debug polylines merged into it ships the NATIVE drape: the "
       "reference's `tolerance = 1e-6` will not hit a zero-area primitive and "
-      "VEX's `intersect()` hits 0.1 m off the line, measured 1.7042 m apart "
-      "on `BO_conform_strays` with both guard levels reading 1.",
+      "VEX's `intersect()` hits a few mm off the line: on `BO_conform_strays` "
+      "the reference drapes to y = -2.0 and the native chain to y = +0.5, ON "
+      "the debug curve, with both guard levels reading 1.",
       ((PY % "hda.py",
         "        if not _surface_is_droppable(surface):",
         "        if False:"),)),

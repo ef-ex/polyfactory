@@ -1240,18 +1240,32 @@ def build_all():
     # open POLYLINES 0.5 m over a ramp, which is what a citygen graph hands
     # polyChain when curves and terrain share a merge. The reference will not
     # hit a zero-area primitive (`tolerance = 1e-6`); VEX's `intersect()` has
-    # no tolerance and hits 0.1 m off the line, so `Stage = output` built a
-    # fence 1.7042 m away with both guard levels reading 1. Level 1 refuses it
+    # no tolerance and hits a few mm off the line, so `Stage = output` built a
+    # fence 2.5 m away (the audit's own repro: 1.7042 m on a hill) with both
+    # guard levels reading 1. Level 1 refuses it
     # now (`_surface_is_droppable`) and `output_guard_parity` is the check -
     # this case is the ONLY one in the suite whose surface is not all closed
     # polygons, and `gen_cases._sheet` cannot build one.
+    # ⚠️ AND THE GEOMETRY IS THE FIXTURE, not decoration - TWO placements of
+    # this case reddened nothing before this one, and both failures are the
+    # same question ("what can this fixture NOT reach?") asked of a drop:
+    #   * the ground has to be BELOW the run and the polyline BETWEEN them, or
+    #     the ground wins the nearest-hit on both sides and there is nothing to
+    #     disagree about;
+    #   * and the run has to pass NEAR the line rather than ALONG it. Measured
+    #     on this very surface: a query EXACTLY on a polyline is hit by both
+    #     implementations (and by the `ray` verb - 0 of 54 disagree in the
+    #     audit's own sweep), a query 0.05 m off is hit by neither, and 0.005 m
+    #     off is hit by VEX alone. So the run is 5 mm to the side of the middle
+    #     line - a debug curve laid ALONGSIDE the fence, which is what a
+    #     citygen graph actually contains.
     strays = hou.Geometry()
-    strays.merge(surface(ramp_x))
+    strays.merge(surface(lambda x, _z: -2.0 - CONFORM_GRADE * x))
     for j in range(3):
         polyline(strays, [(-8.0 + 3.0 * i, 0.5, -3.0 + 3.0 * j)
                           for i in range(11)])
     g = hou.Geometry()
-    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="BO")
+    polyline(g, [(0, 0, 0.005), (20, 0, 0.005)], curve_id="BO")
     built["BO_conform_strays"] = _case(
         g, kit_geo,
         Style("strays", 1, 3, rules=[Rule("default", "first", ["panel"])],
