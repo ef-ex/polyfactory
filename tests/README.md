@@ -56,6 +56,30 @@ once and the budget check is red, which is exactly what it is for.
 | 5. budget check | `tests/unit/test_polychain_budget.py` — **RED: 1.84x** |
 | **the deletions** | **not started** — `run_native_checks.py` (9 066) and `checks.py` (5 111) are the targets |
 
+### What the first full sweep measured (2026-08-25, 16-core machine)
+
+| | |
+|---|---|
+| full sweep, 32 mutations, PDG | **1 757 s wall (29.3 min)** for **16 280 s (4 h 31 m) of work** — 9.3x |
+| of which the shared control | 425 s, and 430 s of that is `run_native_checks.py` alone |
+| per-cycle gate (no mutations) | **13.5 s wall** for 88 s of work |
+| result | 30 of 32 mutations RED; both survivors chased down, see below |
+
+⚠️ **THE 15-MINUTE TARGET IS NOT REACHABLE WHILE `run_native_checks.py` COSTS 430 s, and the
+reason is arithmetic rather than scheduling.** The control must finish before any mutation
+starts (425 s), and the longest mutation is a `native` one (430 s + export + HDA rebuild). That
+is a **~15 min floor at infinite parallelism**, and 13 of the 32 entries are `native`. The lever
+is the deletion cycle, not the runner: `run_native_checks.py` is 9 066 lines, 144 checks and the
+single largest item in the budget overrun, and the differential oracle plus generated inputs are
+exactly what subsume most of it.
+
+⚠️ **AND PARALLELISM CAN TURN A RED INTO A FALSE SURVIVOR.** In that sweep
+`piece_key_within_piece_dropped` came back **SURVIVED with 15 of `native`'s check names never
+printed**; run on its own it is **RED in 354 s**. Fifteen concurrent hython processes made the
+native runner lose checks, and a lost check reads exactly like a check that cannot fail. The
+runner now **re-runs any SURVIVED verdict that has unreached names** before believing it, and
+`--slots N` is the blunt instrument for a machine that is also doing something else.
+
 ## The v2 commands
 
 ```bash

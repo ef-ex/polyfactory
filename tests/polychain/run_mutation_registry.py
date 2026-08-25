@@ -449,6 +449,22 @@ def main():
         else:
             try:
                 verdict, detail, red = execute(mut, control, head)
+                # ⚠️ A SURVIVOR WITH UNREACHED NAMES IS RE-RUN BEFORE IT IS
+                # BELIEVED, and this is not caution - it is measured.  In the
+                # first 32-item parallel sweep
+                # `piece_key_within_piece_dropped` came back SURVIVED with 15
+                # of `native`'s names never printed; run on its own it is RED
+                # in 354 s.  Fifteen concurrent hython processes made the
+                # native runner lose checks, and a lost check reads exactly
+                # like a check that could not fail.  The retry costs one
+                # re-run of the few entries that hit it and it is the
+                # difference between "this check is decorative" and "the
+                # machine was busy".
+                if verdict == "SURVIVED" and "never reached" in detail:
+                    print("  ...  %-32s SURVIVED with unreached names - "
+                          "re-running it alone before believing it" % mut.id)
+                    verdict, detail, red = execute(mut, control, head)
+                    detail += " [re-run after an unreached-name survival]"
             except Exception as exc:                            # noqa: BLE001
                 verdict, detail, red = "STALE", "%s: %s" % (
                     type(exc).__name__, str(exc)[:300]), set()
