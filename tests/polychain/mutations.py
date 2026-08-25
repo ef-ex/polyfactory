@@ -626,15 +626,6 @@ MUTATIONS = (
       rebuild=False),
 
     # ---- C3a / D297-D299: ALIGNED, where 7.4 says it changes nothing --------
-    M("2d_align_on_area_arrays", "2d",
-      ("align_no_op_area",),
-      "`align_rows` runs on the AREA path again, where the datum is a SPAN "
-      "and not a row: on a holed plate the 4 m strips take the 30 m row's bay "
-      "count and deliver a 2.0 m module at 0.125 m, 496 prims against 88, "
-      "with every warning channel empty.",
-      ((PY % "facade.py", "            if area:", "            if False:"),),
-      rebuild=False),
-
     M("2d_align_count_is_units", "2d",
       ("align_no_op_sequence",),
       "`pc_bays` (BAYS) is handed to `fit` (UNITS) again, so a SEQUENCE "
@@ -646,11 +637,15 @@ MUTATIONS = (
       rebuild=False),
 
     M("2d_align_no_minimum_scale", "2d",
-      ("align_no_op_floor",),
+      ("align_no_op_floor", "align_no_op_area"),
       "7.4's named degrade loses its threshold and can then not fire at all "
       "on a kit without padding: `fit(0.5, 3.0, 'count', count=7)` returns 7 "
       "units at scale 0.02381 with no warning, and its drop loop only runs "
-      "when `fixed` or `gap` is non-zero.",
+      "when `fixed` or `gap` is non-zero. It kills the AREA row too, and that "
+      "is D297's whole answer: the audit asked for `aligned` to be refused on "
+      "the area path, and this is the measurement that declines it - the "
+      "holed plate's 4 m strips build at 0.125 m because the FLOOR is gone, "
+      "not because the datum is a span.",
       ((PY % "plan.py",
         '                              or res["scale"] < MIN_ALIGN_SCALE):',
         '                              or res["scale"] < 0.0):'),),

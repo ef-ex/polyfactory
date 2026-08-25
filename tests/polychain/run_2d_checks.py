@@ -87,7 +87,6 @@ EXPECTED_WARNS = {
 }
 
 
-
 class Scene(R.Scene):
     """`run_scene_checks.Scene` plus the two things only a 2D build has."""
 
@@ -369,9 +368,11 @@ def align_scope():
             cases2d.clip_style(), height=None, clip_mode="remove",
             y_mode="aligned" if aligned else "free")[0]
     seq = [cases2d.Rule("default", "sequence", ["bay", "pier"])]
-    # D297 the area path (the datum is a SPAN there); D298 a SEQUENCE default
-    # rule (`pc_bays` counts bays, `fit` counts units); D299 a 0.6 m ground bay,
-    # whose count the 3.0 m storeys above cannot hold - 7.4's own degrade.
+    # D297 the area path, where the datum is a SPAN: refusing `aligned` there
+    # was proposed and DECLINED, and this row is the measurement - with D298
+    # and D299 closed the holed plate is byte-identical to free and warns on
+    # the 24 elements that lost the alignment, not on all 88. D298 a SEQUENCE
+    # rule (`pc_bays` counts bays, `fit` units); D299 a 0.6 m ground bay.
     return [C.payload_round_trip_2d(a, b, ("y_align_lost", "pc_warnings"), n)
             for a, b, n in (
                 (area(False), area(True), "align_no_op_area"),
