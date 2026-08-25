@@ -2007,6 +2007,229 @@ def clip_stamp(scene):
                      else " - but this is not an area build"))
 
 
+# --- PC-G6: the clipped area (7.6 / P2-7) -----------------------------------
+
+def _pip(poly, x, y):
+    """Even-odd point-in-polygon, WRITTEN HERE ON PURPOSE. `clip_nesting`
+    judges the artist's four drawings directly, so it must not borrow the
+    builder's own containment test - a `nest` that mislabels a hole would
+    otherwise agree with itself."""
+    inside = False
+    n = len(poly)
+    for i in range(n):
+        (ax, ay), (bx, by) = poly[i][:2], poly[(i + 1) % n][:2]
+        if (ay > y) != (by > y) and \
+                x < ax + (bx - ax) * (y - ay) / (by - ay):
+            inside = not inside
+    return inside
+
+
+def _seg_dist(px, py, ax, ay, bx, by):
+    dx, dy = bx - ax, by - ay
+    d2 = dx * dx + dy * dy
+    t = 0.0 if d2 <= 0.0 else max(
+        0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / d2))
+    return math.hypot(px - ax - dx * t, py - ay - dy * t)
+
+
+def _by_array(scene):
+    """[(element, frame, region)] - each element beside the clip data of its
+    OWN array, matched on the `<arrayId>` half of `pc_curve_id`."""
+    arrays = scene.case.get("clip_arrays") or {}
+    out = []
+    for rec in elements(scene.geo):
+        ent = arrays.get(str(rec.get("pc_curve_id", "")).split("#")[0])
+        if ent is not None:
+            out.append((rec, ent[0], ent[1]))
+    return out
+
+
+def _centre(rec):
+    w = rec.get("world") or [0.0, 0.0, 0.0]
+    n = max(len(w) // 3, 1)
+    return (sum(w[0::3]) / n, sum(w[1::3]) / n, sum(w[2::3]) / n)
+
+
+def clip_inside_m(scene, tol=1e-2):
+    """PC-G6 condition 1: [worst metres a delivered point lies OUTSIDE the
+    clip region, points measured]. `bend_tol` is 0.01 m.
+
+    Every point of every delivered element - not a bbox, and not the plan -
+    projected into its own array's chart and asked whether it is inside the
+    include region and outside every exclude region. A piece that overhangs
+    the line, a bay built inside a hole and a slice that did not actually cut
+    all read as the same number, which is the distance it pokes out.
+
+    WHAT IT CANNOT SEE: (a) a hole that is EMPTY when it should be filled -
+    that is `clip_nesting`, and it is the failure this one is blind to by
+    construction, because nothing missing has a point to measure; (b) whether
+    the region itself is right: the region here is the one the builder used,
+    so this proves agreement between plan and geometry, not that the plan read
+    the artist's drawing correctly. `clip_nesting` judges the drawing.
+    """
+    pairs = _by_array(scene)
+    if not pairs:
+        return _skip("clip_inside_m", "no clip_arrays - not a clipped build")
+    worst, n = 0.0, 0
+    for rec, frame, region in pairs:
+        w = rec["world"]
+        for i in range(0, len(w), 3):
+            x, y = frame.local((w[i], w[i + 1], w[i + 2]))
+            n += 1
+            if region.inside(x, y):
+                continue
+            d = min(_seg_dist(x, y, p[i2][0], p[i2][1],
+                              p[(i2 + 1) % len(p)][0],
+                              p[(i2 + 1) % len(p)][1])
+                    for p in region.polys for i2 in range(len(p)))
+            worst = max(worst, d)
+    return Result("clip_inside_m", worst <= tol and n > 0, _round(worst),
+                  "%d points, worst %.4f m outside the region (tol %.3f)"
+                  % (n, worst, tol))
+
+
+def clip_nesting(scene, hole=1, island=2):
+    """PC-G6 condition 5: [elements centred in the HOLE, elements centred on
+    the ISLAND inside it]. 0 and non-zero is the pass.
+
+    Judged on the artist's own sub-splines by index - loop `hole` must contain
+    nothing, loop `island` (nested inside it, even-odd depth 2) must contain
+    something - with this file's own point-in-polygon, so a `nest` that gave a
+    loop the wrong polarity cannot pass by agreeing with itself.
+
+    ⚠️ MEASURED IN THE WORLD (x, y) CHART, which is the plan chart only
+    because PC-G6's fixture is drawn flat in the world XY plane. A clipped
+    array authored on a tilted plane would need the frame; the gate figure
+    does not, and the simpler measurement is the one that cannot be wrong
+    about the frame.
+    """
+    loops = scene.case.get("clip_loops") or []
+    if len(loops) <= max(hole, island):
+        return _skip("clip_nesting", "no nested clip loops in this case")
+    n_hole = n_island = 0
+    for rec in elements(scene.geo):
+        cx, cy, _cz = _centre(rec)
+        if _pip(loops[island], cx, cy):
+            n_island += 1
+        elif _pip(loops[hole], cx, cy):
+            n_hole += 1
+    return Result("clip_nesting", n_hole == 0 and n_island > 0,
+                  [n_hole, n_island],
+                  "%d element(s) inside the hole, %d on the island inside it"
+                  % (n_hole, n_island))
+
+
+def clip_caps_closed(scene):
+    """PC-G6 condition 2: [open boundary edges on clip-cut elements, cut
+    elements, cut prims tagged as a cap without a cap material].
+
+    A kit module here is a CLOSED box, so a cut that capped only the hole it
+    opened leaves a closed solid: zero edges used by exactly one polygon. That
+    is the same measurement C1's `polyfill` trap failed in the other
+    direction - it closed boundaries the cut never opened - so the two halves
+    of "cap only what the cut opened" are both numbers now.
+
+    ⚠️ `pc_corner_cut` IS THE CLIP CUT HERE. It stamps `1` for any placement
+    carrying world-space cuts, and an area row is an OPEN straight polyline
+    with no vertices for 4.3 to miter, so on a clipped area the only thing
+    that can set it is the boundary.
+
+    WHAT IT CANNOT SEE: a cap in the wrong PLACE. A closed solid capped on the
+    wrong plane is still closed; `clip_inside_m` is what says where the cut
+    landed.
+    """
+    geo = scene.geo
+    if geo.findPrimAttrib("pc_corner_cut") is None:
+        return _skip("clip_caps_closed", "no pc_corner_cut - not a cut build")
+    edges, cut, untagged, caps = {}, set(), 0, 0
+    for prim in geo.prims():
+        try:
+            if int(prim.attribValue("pc_corner_cut")) != 1:
+                continue
+            eid = prim.attribValue("pc_elem_id")
+        except (hou.OperationFailed, TypeError, ValueError):
+            continue
+        cut.add(eid)
+        try:
+            if int(prim.attribValue("pc_cap")) == 1:
+                caps += 1
+                if not str(prim.attribValue("pc_cap_material")):
+                    untagged += 1
+        except (hou.OperationFailed, TypeError, ValueError):
+            pass
+        nums = [v.point().number() for v in prim.vertices()]
+        for i in range(len(nums)):
+            a, b = nums[i], nums[(i + 1) % len(nums)]
+            key = (eid, min(a, b), max(a, b))
+            edges[key] = edges.get(key, 0) + 1
+    open_edges = sum(1 for v in edges.values() if v == 1)
+    ok = open_edges == 0 and len(cut) > 0 and caps > 0 and untagged == 0
+    return Result("clip_caps_closed", ok, [open_edges, len(cut), untagged],
+                  "%d open boundary edge(s) on %d clip-cut element(s), "
+                  "%d cap prim(s), %d untagged"
+                  % (open_edges, len(cut), caps, untagged))
+
+
+def clip_policy(scene):
+    """PC-G6 condition 3: [pieces removed saying `pc_warn_clip_unsliceable`,
+    pieces sliced, pieces removed in total]. All three must be non-zero and
+    the removals must cover the warnings.
+
+    D126's degrade, measured rather than argued: one `slice` policy over a kit
+    with one sliceable and one rigid module must CUT the first and REMOVE the
+    second - and the second must say so, because a silent gap is the failure
+    that policy exists to make visible.
+
+    WHAT IT CANNOT SEE: which pieces. It is a count off the build report; the
+    geometry-side statement that nothing crosses the line is
+    `clip_inside_m`'s.
+    """
+    rep = scene.case.get("report") or {}
+    if "clipped_out" not in rep:
+        return _skip("clip_policy", "no clip report - not a clipped build")
+    warns = rep.get("clip_warns") or {}
+    unsliceable = int(warns.get("pc_warn_clip_unsliceable", 0))
+    sliced, out = int(rep.get("clip_sliced", 0)), int(rep.get("clipped_out", 0))
+    return Result("clip_policy",
+                  unsliceable > 0 and sliced > 0 and out >= unsliceable,
+                  [unsliceable, sliced, out],
+                  "%d rigid piece(s) removed and warned, %d sliced, "
+                  "%d removed in total" % (unsliceable, sliced, out))
+
+
+def clip_independence(a_case, b_case, moved_array):
+    """PC-G6 condition 4: [elem_ids that moved in the UNTOUCHED array,
+    elem_ids that moved in the edited one].
+
+    Two builds of the same clip input with ONE sub-spline edited. The array
+    that sub-spline belongs to must change; every other array must not move a
+    single `pc_elem_id` - which is what "each closed sub-spline is its own
+    array" means operationally (D125), and the only way to say it that a
+    shared row stack could fail.
+
+    WHAT IT CANNOT SEE: positions. Two builds could keep every id and move
+    every piece; `geometry_digest` and `determinism` are what pin the values.
+    """
+    def by_array(case):
+        out = {}
+        for rec in elements(case["out"]):
+            aid = str(rec.get("pc_curve_id", "")).split("#")[0]
+            out.setdefault(aid, set()).add(rec["pc_elem_id"])
+        return out
+    a, b = by_array(a_case), by_array(b_case)
+    still = [k for k in sorted(set(a) | set(b)) if k != moved_array]
+    untouched = sum(len(a.get(k, set()) ^ b.get(k, set())) for k in still)
+    # ...and how many ids the untouched arrays HAVE, because "0 moved" is
+    # free when there is nothing there to move.
+    held = sum(len(a.get(k, set())) for k in still)
+    edited = len(a.get(moved_array, set()) ^ b.get(moved_array, set()))
+    return Result("clip_independence",
+                  untouched == 0 and edited > 0 and held > 0,
+                  [untouched, edited, held],
+                  "%d of %d id(s) moved in the untouched arrays, %d in %s"
+                  % (untouched, held, edited, moved_array))
+
+
 def _elem_cols(geo, names):
     """{name: [value per ELEMENT]} - bulk reads, deduped by `pc_elem_id`.
 

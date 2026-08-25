@@ -57,9 +57,11 @@ DECISIONS TAKEN HERE (recorded in polychain.md 12):
 
 import math
 
-from . import (DEFAULTS, EPS, POS_EPS, ROLES_2D, SLOTS, WARN_KIT_GAP,
-               WARN_OVERFLOW, WARN_ROW_KIT_GAP, WARN_ROW_OVERFLOW, Curve, Kit,
-               Module, Style, _is_slot, canonical_role, role_2d, split_role)
+from . import (CLIP_PRESERVE, CLIP_REMOVE, CLIP_SLICE, DEFAULTS, EPS, POS_EPS,
+               ROLES_2D, SLOTS, WARN_CLIP_CONVEX, WARN_CLIP_UNSLICEABLE,
+               WARN_KIT_GAP, WARN_OVERFLOW, WARN_ROW_KIT_GAP,
+               WARN_ROW_OVERFLOW, Curve, Kit, Module, Style, _is_slot,
+               canonical_role, role_2d, split_role)
 from . import decompose as _decompose
 from . import plan as _plan
 
@@ -73,7 +75,7 @@ def transpose_kit(kit):
         mods.append(Module(m.name, (m.size[1], m.size[0], m.size[2]),
                            pad=m.pad, deform=m.deform, zmode=m.zmode,
                            roles=m.roles, variant=m.variant, weight=m.weight,
-                           tilt=m.tilt, extend=m.extend))
+                           tilt=m.tilt, extend=m.extend, clip=m.clip))
     return Kit(kit.kit_id, kit.version, mods, kit.human_scale_reference,
                kit.role_fallbacks)
 
@@ -211,7 +213,7 @@ def close_roles(kit, extend="x", extra_roles=(), extend_by_slot=None):
         mods.append(Module(m.name, m.size, pad=m.pad, deform=m.deform,
                            zmode=m.zmode, roles=roles + extra,
                            variant=m.variant, weight=m.weight, tilt=m.tilt,
-                           extend=m.extend))
+                           extend=m.extend, clip=m.clip))
     out = Kit(kit.kit_id, kit.version, mods, kit.human_scale_reference,
               fallbacks, collisions)
     return (out, fallbacks)
@@ -588,6 +590,238 @@ def scanline(poly, y):
     return [(xs[i], xs[i + 1]) for i in range(0, len(xs) - 1, 2)]
 
 
+# --- 7.6 / P2-7: the clip REGION - sub-splines, polarity, and the cut --------
+#
+# D143 - A REGION IS A LIST OF LOOPS WITH A POLARITY, NOT A POLYGON. D137
+# reduced 7.6 to one boundary and one span; P2-7 is the rest of it, and the
+# three things that were missing all fall out of the same object: a hole is a
+# loop whose polarity is `exclude`, an island in a hole is a loop at depth 2,
+# and "which edges cut this piece" is a query on the same edge list the
+# scanline already walks.
+
+# A boundary that TOUCHES a piece has not cut it. Four orders of magnitude
+# under `bend_tol` (0.01 m), which is what PC-G6 judges footprint containment
+# on, so nothing this rejects could be a real crossing.
+CLIP_TOUCH_EPS = 1e-6
+
+
+def point_in_poly(poly, x, y):
+    """Even-odd crossing test, in the region's own 2-D chart."""
+    inside = False
+    n = len(poly)
+    for i in range(n):
+        (ax, ay), (bx, by) = poly[i], poly[(i + 1) % n]
+        if (ay > y) != (by > y):
+            if x < ax + (bx - ax) * (y - ay) / (by - ay):
+                inside = not inside
+    return inside
+
+
+def _area2(poly):
+    a = 0.0
+    for i in range(len(poly)):
+        (x0, y0), (x1, y1) = poly[i], poly[(i + 1) % len(poly)]
+        a += x0 * y1 - x1 * y0
+    return a
+
+
+def centroid(poly):
+    """The area centroid - 7.6's own word for what decides nesting.
+
+    Degenerate (zero-area) loops fall back to the vertex mean, because a
+    centroid divided by zero area is not a point and 'never raises' is the
+    rule everywhere else in this file.
+    """
+    a = _area2(poly)
+    if abs(a) < EPS:
+        n = float(len(poly)) or 1.0
+        return (sum(p[0] for p in poly) / n, sum(p[1] for p in poly) / n)
+    cx = cy = 0.0
+    for i in range(len(poly)):
+        (x0, y0), (x1, y1) = poly[i], poly[(i + 1) % len(poly)]
+        f = x0 * y1 - x1 * y0
+        cx += (x0 + x1) * f
+        cy += (y0 + y1) * f
+    return (cx / (3.0 * a), cy / (3.0 * a))
+
+
+def _ccw(poly):
+    """ONE winding, so an edge's inward normal is a formula and not a case."""
+    return poly if _area2(poly) >= 0.0 else poly[::-1]
+
+
+def open_loop(points):
+    """A closed point list with its duplicated last vertex dropped."""
+    pts = [tuple(float(c) for c in p) for p in points]
+    if len(pts) > 1 and _dist(pts[0], pts[-1]) <= POS_EPS:
+        pts.pop()
+    return pts
+
+
+def nest(loops, modes=None, chart=None):
+    """D125's even-odd nesting: ([depth], [include?], [parent], chart).
+
+    Containment is decided in ONE chart - the first loop's plane - because a
+    hole and its boundary are the same drawing and must be compared in the
+    same coordinates; each ARRAY then gets its own frame afterwards, which is
+    the independence half of D125.
+
+    `modes[i]` in ("include", "exclude") is 7.6's per-sub-spline override: it
+    replaces that loop's depth parity and NOTHING else's, which is RC's `None`
+    hierarchy mode expressed per spline instead of globally.
+    """
+    chart = chart if chart is not None else area_frame(loops[0])
+    polys = [[chart.local(p) for p in open_loop(l)] for l in loops]
+    cents = [centroid(p) for p in polys]
+    # ⚠️ THE AREA RULE IS NOT A TIE-BREAK, IT IS THE WHOLE TEST. Concentric
+    # loops - a window in a wall, an island in a hole - share ONE centroid, so
+    # the bare "centroid inside the other" relation makes each of three nested
+    # squares contain both others: depth came back [2, 2, 2] and the plate,
+    # its hole and its island were three separate arrays with the hole FILLED.
+    # A loop can only be nested inside a strictly LARGER one.
+    areas = [abs(_area2(p)) for p in polys]
+    contains = [[j != i and areas[j] > areas[i] + EPS
+                 and point_in_poly(polys[j], cents[i][0], cents[i][1])
+                 for j in range(len(polys))] for i in range(len(polys))]
+    depth = [sum(1 for c in row if c) for row in contains]
+    parent = []
+    for i, row in enumerate(contains):
+        inside_of = [j for j, c in enumerate(row) if c]
+        parent.append(max(inside_of, key=lambda j: depth[j])
+                      if inside_of else -1)
+    include = []
+    for i, d in enumerate(depth):
+        m = (modes[i] if modes and i < len(modes) else "") or ""
+        include.append(True if m == "include" else
+                       False if m == "exclude" else (d % 2 == 0))
+    return (depth, include, parent, chart)
+
+
+def array_members(parent):
+    """{root loop index: [every loop in that root's tree]} - D125's "each
+    closed sub-spline is its own array"."""
+    root = []
+    for i in range(len(parent)):
+        r, seen = i, set()
+        while parent[r] >= 0 and r not in seen:
+            seen.add(r)
+            r = parent[r]
+        root.append(r)
+    out = {}
+    for i, r in enumerate(root):
+        out.setdefault(r, []).append(i)
+    return out
+
+
+class Region(object):
+    """The clip boundary of ONE array, in that array's own frame.
+
+    `polys` are the member loops, normalised to one winding; `include` is
+    their polarity. A point is inside the region when the DEEPEST loop
+    containing it is an include loop - which reduces to even-odd when nothing
+    is overridden, and stays right when something is.
+    """
+
+    __slots__ = ("polys", "include", "depth")
+
+    def __init__(self, polys, include=None, depth=None):
+        self.polys = [_ccw([(float(a), float(b)) for a, b in p])
+                      for p in polys]
+        self.include = list(include if include is not None
+                            else [True] * len(self.polys))
+        self.depth = list(depth if depth is not None
+                          else range(len(self.polys)))
+
+    def inside(self, x, y):
+        best, hit = -1, False
+        for i, poly in enumerate(self.polys):
+            if point_in_poly(poly, x, y) and self.depth[i] > best:
+                best, hit = self.depth[i], self.include[i]
+        return hit
+
+    def spans(self, y):
+        """[(x0, x1)] of the horizontal line `y` INSIDE the region.
+
+        Every loop's crossings, sorted, and the midpoint of each resulting
+        interval tested - so a hole subtracts and an island inside it adds
+        back with no special case for either.
+        """
+        xs = []
+        for poly in self.polys:
+            n = len(poly)
+            for i in range(n):
+                (ax, ay), (bx, by) = poly[i], poly[(i + 1) % n]
+                if (ay <= y < by) or (by <= y < ay):
+                    xs.append(ax + (bx - ax) * (y - ay) / (by - ay))
+        xs.sort()
+        out = []
+        for i in range(len(xs) - 1):
+            if xs[i + 1] - xs[i] > EPS and \
+                    self.inside(0.5 * (xs[i] + xs[i + 1]), y):
+                out.append((xs[i], xs[i + 1]))
+        return _merge(out)
+
+    def cuts(self, x0, y0, x1, y1):
+        """([(px, py, nx, ny)], reflex?) - the boundary edges that cross the
+        rect, each as a half-plane whose normal points INTO the region.
+
+        The second value is D145's honesty: two crossing edges that meet at a
+        REFLEX vertex inside the rect cannot be expressed as an intersection
+        of half-spaces, so the cut takes more than the polygon would.
+        """
+        out, corners = [], []
+        for pi, poly in enumerate(self.polys):
+            n = len(poly)
+            sign = 1.0 if self.include[pi] else -1.0
+            for i in range(n):
+                (ax, ay), (bx, by) = poly[i], poly[(i + 1) % n]
+                if not _seg_hits_rect(ax, ay, bx, by, x0, y0, x1, y1):
+                    continue
+                dx, dy = bx - ax, by - ay
+                m = math.sqrt(dx * dx + dy * dy)
+                if m < EPS:
+                    continue
+                out.append((ax, ay, -dy / m * sign, dx / m * sign))
+                if x0 <= bx <= x1 and y0 <= by <= y1:
+                    corners.append((pi, i))
+        reflex = False
+        for pi, i in corners:
+            poly = self.polys[pi]
+            n = len(poly)
+            (ax, ay) = poly[i]
+            (bx, by) = poly[(i + 1) % n]
+            (cx, cy) = poly[(i + 2) % n]
+            cross = (bx - ax) * (cy - by) - (by - ay) * (cx - bx)
+            if (cross < -EPS) if self.include[pi] else (cross > EPS):
+                reflex = True
+        return (out, reflex)
+
+
+def _seg_hits_rect(ax, ay, bx, by, x0, y0, x1, y1):
+    """Liang-Barsky: does segment a->b meet the axis-aligned rect at all?"""
+    t0, t1 = 0.0, 1.0
+    dx, dy = bx - ax, by - ay
+    for p, q in ((-dx, ax - x0), (dx, x1 - ax), (-dy, ay - y0), (dy, y1 - ay)):
+        if abs(p) < EPS:
+            if q < 0.0:
+                return False
+            continue
+        r = q / p
+        if p < 0.0:
+            t0 = max(t0, r)
+        else:
+            t1 = min(t1, r)
+        if t0 > t1:
+            return False
+    return True
+
+
+def region_for(frame, loops, include=None, depth=None):
+    """A `Region` in `frame`'s 2-D chart, from world-space member loops."""
+    return Region([[frame.local(p) for p in open_loop(l)] for l in loops],
+                  include, depth)
+
+
 def _intersect(a, b):
     out = []
     for (a0, a1) in a:
@@ -598,7 +832,7 @@ def _intersect(a, b):
     return out
 
 
-def row_spans(frame, row, mode="remove"):
+def row_spans(frame, row, mode="remove", region=None):
     """The x intervals row `row` may occupy inside the boundary (D137).
 
     7.6's cost discipline, taken literally: the boundary test runs on the PLAN
@@ -617,16 +851,22 @@ def row_spans(frame, row, mode="remove"):
     0.3333 m against a 0.01 m tolerance. Per-interval is what "kept whole and
     may overhang" actually means - overhang the edge of your own interval,
     never bridge a gap between two.
+
+    P2-7: `slice` widens the same way `preserve` does, and for the opposite
+    reason - a piece that is to be CUT ON the line has to be able to reach it,
+    and the `remove` intersection stops it a bay short. The cut itself is
+    per-piece and lives in `place.build` (D144).
     """
     if mode == "none" or not frame.poly:
         return [(0.0, frame.width)]
-    lo = scanline(frame.poly, row.y0 + EPS)
-    hi = scanline(frame.poly, row.y1 - EPS)
+    region = region if region is not None else Region([frame.poly])
+    lo = region.spans(row.y0 + EPS)
+    hi = region.spans(row.y1 - EPS)
     if not lo or not hi:
-        mid = scanline(frame.poly, 0.5 * (row.y0 + row.y1))
+        mid = region.spans(0.5 * (row.y0 + row.y1))
         return mid or []
     keep = _intersect(lo, hi)
-    if mode != "preserve":
+    if mode == "remove":
         return keep
     out = []
     for (a0, a1) in keep:
@@ -650,7 +890,8 @@ def _merge(spans):
     return [tuple(s) for s in out]
 
 
-def area_rows(frame, rows, mode="remove", unbuilt=None):
+def area_rows(frame, rows, mode="remove", unbuilt=None, region=None,
+              hook=None):
     """[(points, closed, attrs)] - the row curves of a clipped area.
 
     Each row is a straight OPEN polyline across the boundary at its own band
@@ -663,7 +904,8 @@ def area_rows(frame, rows, mode="remove", unbuilt=None):
     """
     out = []
     for row in rows:
-        spans = [s for s in row_spans(frame, row, mode) if s[1] - s[0] > EPS]
+        spans = [s for s in row_spans(frame, row, mode, region)
+                 if s[1] - s[0] > EPS]
         if not spans and unbuilt is not None:
             unbuilt.append(row.index)
         full = abs(sum(s[1] - s[0] for s in spans) - frame.width) > EPS
@@ -676,5 +918,95 @@ def area_rows(frame, rows, mode="remove", unbuilt=None):
             attrs["pc_clipped"] = 1 if full else 0
             if k:
                 attrs["pc_curve_id"] = "%s.%d" % (attrs["pc_curve_id"], k)
+            # D144 - the per-piece half of 7.6, handed to the kernel by
+            # `pc_curve_id` alone. The kernel knows an arc length along a row
+            # curve; this is the only place that knows what that arc length is
+            # in the ARRAY's chart, so the translation is recorded here and
+            # `ClipHook` does nothing but apply it.
+            if hook is not None:
+                hook.add(attrs["pc_curve_id"], frame, region, x0,
+                         row.y0, row.y1)
             out.append((pts, False, attrs))
     return out
+
+
+# --- D144: the per-piece cull, 7.6's own cost discipline --------------------
+
+class ClipHook(object):
+    """`place.build`'s clip callable: (curve_id, s0, s1, module) -> verdict.
+
+    7.6 states the cost rule and this is it, literally: the test is a 2-D
+    point-in-polygon on the piece's four footprint CORNERS, run on the plan
+    before any geometry exists, so `remove` never builds anything and
+    `preserve` never runs a boolean. Only a piece the plan says STRADDLES
+    reaches `clip_plane`, and that is the `clip` verb 4.3 already uses - no
+    fourth verb and no boolean SOP.
+
+    ⚠️ THE CORNER TEST ALONE IS NOT ENOUGH AND THE EDGE WALK IS NOT AN EXTRA
+    COST. A hole smaller than one bay sits entirely inside a piece with all
+    four corners inside the region, so the corner test says "whole" and the
+    window is filled in - the same class of defect as C1's polyfill trap, and
+    invisible for the same reason. The edge walk that finds the CUTS is what
+    detects it, and it has to run for `slice` anyway.
+    """
+
+    __slots__ = ("by_id", "policy", "removed", "sliced", "kept")
+
+    def __init__(self, policy=CLIP_REMOVE):
+        self.by_id = {}
+        self.policy = int(policy)
+        self.removed = self.sliced = self.kept = 0
+
+    def add(self, curve_id, frame, region, x0, y0, y1):
+        self.by_id[str(curve_id)] = (frame, region, float(x0), float(y0),
+                                     float(y1))
+
+    def __call__(self, curve_id, s0, s1, module):
+        """(keep?, ((origin, normal, keep_sign), ...), (warning, ...))."""
+        ent = self.by_id.get(str(curve_id))
+        if ent is None or ent[1] is None:
+            return (True, (), ())
+        frame, region, ox, y0, y1 = ent
+        ax, bx = ox + float(s0), ox + float(s1)
+        lo, hi = min(ax, bx), max(ax, bx)
+        # ⚠️ THE INSET IS LOAD-BEARING, AND IT IS THE FIRST THING THIS GOT
+        # WRONG. `remove` means "a piece INTERSECTING the boundary is dropped";
+        # without the inset a piece that merely TOUCHES it counts, and every
+        # boundary of a rectangle touches the two end bays of every row - a
+        # plain 12 x 9 panel went 12 packed pieces to 2, and the taper to
+        # zero, with nothing failing. A cut is a crossing of the piece's
+        # INTERIOR; the two are one epsilon apart and 1e-6 m is four orders
+        # under `bend_tol`, which is the tolerance PC-G6 judges on.
+        e = CLIP_TOUCH_EPS * max(1.0, hi - lo, y1 - y0)
+        corners = [region.inside(x, y)
+                   for x in (lo + e, hi - e) for y in (y0 + e, y1 - e)]
+        edges, reflex = region.cuts(lo + e, y0 + e, hi - e, y1 - e)
+        if not edges and all(corners):
+            self.kept += 1
+            return (True, (), ())
+        if not edges and not any(corners):
+            self.removed += 1
+            return (False, (), ())
+        policy = module.clip if module.clip >= 0 else self.policy
+        if policy == CLIP_PRESERVE:
+            self.kept += 1
+            return (True, (), ())
+        if policy != CLIP_SLICE:
+            self.removed += 1
+            return (False, (), ())
+        if not module.sliceable:
+            # D126 - degrade to REMOVE, never to preserve: an overhanging
+            # window is a visible defect and a missing one is a visible gap,
+            # and the gap is the one an artist notices and fixes.
+            self.removed += 1
+            return (False, (), (WARN_CLIP_UNSLICEABLE,))
+        cuts = []
+        for (px, py, nx, ny) in edges:
+            cuts.append((frame.world(px, py),
+                         (frame.ex[0] * nx + frame.ey[0] * ny,
+                          frame.ex[1] * nx + frame.ey[1] * ny,
+                          frame.ex[2] * nx + frame.ey[2] * ny),
+                         1.0))
+        self.sliced += 1
+        return (True, tuple(cuts),
+                (WARN_CLIP_CONVEX,) if reflex else ())

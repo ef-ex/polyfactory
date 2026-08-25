@@ -131,6 +131,28 @@ def run_case(name, case):
 Y_ALIGNED = {"FW_y_free": False}
 
 
+def gate_pc_g6():
+    """PC-G6, 7.8's five conditions, each as a number.
+
+    Its own function rather than a `build_all` case because condition 4 needs
+    TWO builds of the same clip input with one sub-spline edited, which is a
+    property of a pair and not of a scene.
+    """
+    a = cases2d.clip_case()
+    scene = Scene(a)
+    # sub-spline B (the hole) grown 0.5 m: array A000 must change and the
+    # disjoint A003 must not move one id.
+    moved = list(cases2d.CLIP_LOOPS)
+    moved[1] = [(6, 2.0, 0), (9.5, 5, 0), (6, 8.0, 0), (2.5, 5, 0)]
+    return [
+        C.clip_inside_m(scene),
+        C.clip_nesting(scene),
+        C.clip_caps_closed(scene),
+        C.clip_policy(scene),
+        C.clip_independence(a, cases2d.clip_case(moved), "A000"),
+    ]
+
+
 def tripwires():
     """11.9's rules 1 and 2, on the shapes phase 2 actually has.
 
@@ -201,13 +223,15 @@ def main():
             if not r.ok and not r.skipped:
                 failures += 1
 
-    res = tripwires()
-    results["ZZ_2d_tripwires"] = [r.as_dict() for r in res]
-    print("\n=== ZZ_2d_tripwires ===")
-    for r in res:
-        print("  %r" % r)
-        if not r.ok and not r.skipped:
-            failures += 1
+    for label, fn in (("ZY_gate_pc_g6", gate_pc_g6),
+                      ("ZZ_2d_tripwires", tripwires)):
+        res = fn()
+        results[label] = [r.as_dict() for r in res]
+        print("\n=== %s ===" % label)
+        for r in res:
+            print("  %r" % r)
+            if not r.ok and not r.skipped:
+                failures += 1
 
     base = {}
     if os.path.exists(BASELINE):

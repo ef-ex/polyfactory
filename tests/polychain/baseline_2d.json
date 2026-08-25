@@ -37,6 +37,16 @@
         0,
         176
       ]
+    },
+    {
+      "detail": "0 of 176 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        176
+      ]
     }
   ],
   "FB_L_bend": [
@@ -71,6 +81,16 @@
     {
       "detail": "0 of 128 elements on a clipped row",
       "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        128
+      ]
+    },
+    {
+      "detail": "0 of 128 placements carry a slice_t",
+      "name": "no_sliced_cells",
       "ok": true,
       "skipped": false,
       "value": [
@@ -117,6 +137,16 @@
         0,
         104
       ]
+    },
+    {
+      "detail": "0 of 104 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        104
+      ]
     }
   ],
   "FD_role_fallback": [
@@ -156,6 +186,16 @@
     {
       "detail": "0 of 176 elements on a clipped row",
       "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        176
+      ]
+    },
+    {
+      "detail": "0 of 176 placements carry a slice_t",
+      "name": "no_sliced_cells",
       "ok": true,
       "skipped": false,
       "value": [
@@ -215,6 +255,16 @@
         0,
         408
       ]
+    },
+    {
+      "detail": "0 of 408 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        408
+      ]
     }
   ],
   "FF_extend_x": [
@@ -254,6 +304,16 @@
     {
       "detail": "0 of 176 elements on a clipped row",
       "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        176
+      ]
+    },
+    {
+      "detail": "0 of 176 placements carry a slice_t",
+      "name": "no_sliced_cells",
       "ok": true,
       "skipped": false,
       "value": [
@@ -305,6 +365,16 @@
         0,
         164
       ]
+    },
+    {
+      "detail": "0 of 164 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        164
+      ]
     }
   ],
   "FH_y_corner": [
@@ -344,6 +414,16 @@
     {
       "detail": "0 of 220 elements on a clipped row",
       "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        220
+      ]
+    },
+    {
+      "detail": "0 of 220 placements carry a slice_t",
+      "name": "no_sliced_cells",
       "ok": true,
       "skipped": false,
       "value": [
@@ -395,6 +475,16 @@
         0,
         220
       ]
+    },
+    {
+      "detail": "0 of 220 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        220
+      ]
     }
   ],
   "FJ_reversed": [
@@ -429,6 +519,16 @@
     {
       "detail": "0 of 176 elements on a clipped row",
       "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        176
+      ]
+    },
+    {
+      "detail": "0 of 176 placements carry a slice_t",
+      "name": "no_sliced_cells",
       "ok": true,
       "skipped": false,
       "value": [
@@ -475,6 +575,16 @@
         0,
         176
       ]
+    },
+    {
+      "detail": "0 of 176 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        176
+      ]
     }
   ],
   "FL_area_rect": [
@@ -509,6 +619,16 @@
     {
       "detail": "0 of 12 elements on a clipped row",
       "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        12
+      ]
+    },
+    {
+      "detail": "0 of 12 placements carry a slice_t",
+      "name": "no_sliced_cells",
       "ok": true,
       "skipped": false,
       "value": [
@@ -555,6 +675,16 @@
         4,
         4
       ]
+    },
+    {
+      "detail": "0 of 4 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        4
+      ]
     }
   ],
   "FN_flags": [
@@ -589,6 +719,16 @@
     {
       "detail": "0 of 168 elements on a clipped row",
       "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        168
+      ]
+    },
+    {
+      "detail": "0 of 168 placements carry a slice_t",
+      "name": "no_sliced_cells",
       "ok": true,
       "skipped": false,
       "value": [
@@ -635,6 +775,16 @@
         0,
         168
       ]
+    },
+    {
+      "detail": "0 of 168 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        168
+      ]
     }
   ],
   "FP_flags_rotated": [
@@ -669,6 +819,16 @@
     {
       "detail": "0 of 168 elements on a clipped row",
       "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        168
+      ]
+    },
+    {
+      "detail": "0 of 168 placements carry a slice_t",
+      "name": "no_sliced_cells",
       "ok": true,
       "skipped": false,
       "value": [
@@ -715,6 +875,16 @@
         6,
         9
       ]
+    },
+    {
+      "detail": "0 of 9 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        9
+      ]
     }
   ],
   "FR_rule_scoped": [
@@ -755,6 +925,16 @@
         0,
         104
       ]
+    },
+    {
+      "detail": "0 of 104 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        104
+      ]
     }
   ],
   "FS_sequence_cells": [
@@ -789,6 +969,16 @@
     {
       "detail": "0 of 104 elements on a clipped row",
       "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        104
+      ]
+    },
+    {
+      "detail": "0 of 104 placements carry a slice_t",
+      "name": "no_sliced_cells",
       "ok": true,
       "skipped": false,
       "value": [
@@ -840,6 +1030,16 @@
         0,
         26
       ]
+    },
+    {
+      "detail": "0 of 26 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        26
+      ]
     }
   ],
   "FU_row_kit_gap": [
@@ -879,6 +1079,16 @@
     {
       "detail": "0 of 104 elements on a clipped row",
       "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        104
+      ]
+    },
+    {
+      "detail": "0 of 104 placements carry a slice_t",
+      "name": "no_sliced_cells",
       "ok": true,
       "skipped": false,
       "value": [
@@ -925,6 +1135,128 @@
         0,
         8
       ]
+    },
+    {
+      "detail": "0 of 8 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        8
+      ]
+    }
+  ],
+  "FW_y_free": [
+    {
+      "detail": "of 162",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 114
+    },
+    {
+      "detail": "in leg, 0.450 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "pier_base at turn 90.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "0 of 162 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        162
+      ]
+    },
+    {
+      "detail": "0 of 162 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        162
+      ]
+    },
+    {
+      "detail": "3 of 4 rows differ from row 0",
+      "name": "bay_alignment",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        3,
+        4
+      ]
+    }
+  ],
+  "ZY_gate_pc_g6": [
+    {
+      "detail": "310 points, worst 0.0000 m outside the region (tol 0.010)",
+      "name": "clip_inside_m",
+      "ok": true,
+      "skipped": false,
+      "value": 2.38e-07
+    },
+    {
+      "detail": "0 element(s) inside the hole, 2 on the island inside it",
+      "name": "clip_nesting",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        2
+      ]
+    },
+    {
+      "detail": "0 open boundary edge(s) on 5 clip-cut element(s), 6 cap prim(s), 0 untagged",
+      "name": "clip_caps_closed",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        5,
+        0
+      ]
+    },
+    {
+      "detail": "8 rigid piece(s) removed and warned, 7 sliced, 8 removed in total",
+      "name": "clip_policy",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        8,
+        7,
+        8
+      ]
+    },
+    {
+      "detail": "0 of 20 id(s) moved in the untouched arrays, 3 in A000",
+      "name": "clip_independence",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        3,
+        20
+      ]
     }
   ],
   "ZZ_2d_tripwires": [
@@ -964,11 +1296,11 @@
       "value": 0
     },
     {
-      "detail": "28264 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 100000)",
+      "detail": "28282 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 100000)",
       "name": "wrapper_reads_2d_rows",
       "ok": true,
       "skipped": false,
-      "value": 28264
+      "value": 28282
     },
     {
       "detail": "12800 compiled SOP executions in one build (ceiling 20000)",

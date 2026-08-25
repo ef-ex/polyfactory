@@ -114,6 +114,98 @@ def facade_style(fill="adaptive", corner_mode="miter", seed=11,
         meta={"y_params": {"fill": y_fill}})
 
 
+# --- PC-G6: the clipped area (7.6 / P2-7) -----------------------------------
+#
+# The gate's own fixture, read off 7.8: "a flat plate defined by a closed
+# spline with a nested exclude sub-spline (a hole) and a second, disjoint
+# sub-spline beside it; extend_to_area on; a tile kit with one sliceable and
+# one rigid module". The island inside the hole is the even-odd depth-2 case
+# the gate's nesting condition asks for.
+
+# ⚠️ NOT AXIS-ALIGNED, AND THAT IS THE FIXTURE'S WHOLE JOB. The first version
+# of this was four rectangles on the module grid: the widened span and the
+# trimmed span were the same interval on every row, NOTHING straddled the line,
+# and the gate measured `slice` on two accidental pieces. A slanted plate
+# corner and a DIAMOND hole put a boundary through the middle of a piece on
+# every row, which is the only shape the slice policy can be judged on.
+CLIP_PLATE = [(0, 0, 0), (12, 0, 0), (12, 7, 0), (7, 10, 0), (0, 10, 0)]
+CLIP_HOLE = [(6, 1, 0), (10.5, 5, 0), (6, 9, 0), (1.5, 5, 0)]
+# ⚠️ THE ISLAND HAS TO CONTAIN A WHOLE ROW BAND OR IT CONTAINS NOTHING. The
+# first one was a 2.4 x 2.0 diamond centred on the 4..6 m band: the band's own
+# two scanlines cut it at its top and bottom VERTICES, the intersection of
+# those was a sliver, and PC-G6's nesting condition read [0, 0] - a hole with
+# an empty island in it, which is exactly what the condition exists to reject.
+CLIP_ISLAND = [(4.5, 3.5, 0), (7.5, 3.5, 0), (7.5, 6.5, 0), (4.5, 6.5, 0)]
+CLIP_BESIDE = [(16, 0, 0), (24, 0, 0), (24, 10, 0), (16, 10, 0)]
+CLIP_LOOPS = [CLIP_PLATE, CLIP_HOLE, CLIP_ISLAND, CLIP_BESIDE]
+CLIP_X = CLIP_Y = 2.0
+
+
+def clip_kit(kit_id="pf_clip"):
+    """A tile kit with one SLICEABLE and one RIGID module, both `slice`.
+
+    Both carry `pc_clip = 2`, which is the assertion: the rigid one CANNOT be
+    cut, so D126's degrade-to-remove must fire on it and say so, while the
+    sliceable one is cut on the line. One policy, two outcomes, decided by the
+    module rather than by the generator.
+    """
+    geo = hou.Geometry()
+    for name, deform in (("panel", 2), ("block", 0)):
+        K.add_module(geo, name, _box(CLIP_X, CLIP_Y, divx=1),
+                     size=(CLIP_X, CLIP_Y, 0.30), deform=deform,
+                     zmode="vertical", roles="default", clip=2)
+    K.write_manifest(geo, kit_id, 1, sources=("cases2d.clip_kit",),
+                     human_scale_reference=1.8)
+    return geo
+
+
+def clip_style(fill="adaptive", seed=5):
+    """`sequence` over both modules, so panel and block alternate along every
+    row and the boundary meets one of each."""
+    return Style("clip", 1, seed, rules=[
+        Rule("default", "sequence", ["panel", "block"]),
+        Rule("default", "first", ["panel"], axis="y"),
+    ], params=Params(fill=fill),
+        meta={"y_params": {"fill": "adaptive"}})
+
+
+def clip_case(loops=None, clip_mode="slice", modes=None, array_ids=None):
+    """One `build_many` over N closed sub-splines - PC-G6's whole fixture."""
+    loops = list(loops if loops is not None else CLIP_LOOPS)
+    kit_geo, style = clip_kit(), clip_style()
+    out, report = F.build_many(loops, kit_geo, style, height=None, area=True,
+                               clip_mode=clip_mode, clip_modes=modes,
+                               array_ids=array_ids)
+    return {"curve": hou.Geometry(), "kit": report["kit_geo"],
+            "kit_src": kit_geo, "style": style, "out": out, "report": report,
+            "surface": None, "overrides": None, "paths": [],
+            "clip_arrays": clip_arrays(loops, modes),
+            "clip_loops": loops, "footprint": loops[0], "height": None,
+            "array_id": "", "kw": {}}
+
+
+def clip_arrays(loops, modes=None):
+    """{array_id: (frame, region, [member loop indices])} - the SAME nesting
+    the builder used, re-derived for the checks to measure against.
+
+    Cheap (pure maths, no geometry) and it keeps the checks from having to
+    know how `facade.build_many` names an array.
+    """
+    depth, include, parent, _chart = A.nest(loops, modes)
+    members = A.array_members(parent)
+    out = {}
+    for root in sorted(members):
+        aid = "A" if len(loops) == 1 else "A%03d" % root
+        frame = A.area_frame(loops[root])
+        mem = members[root]
+        out[aid] = (frame,
+                    A.region_for(frame, [loops[j] for j in mem],
+                                 [include[j] for j in mem],
+                                 [depth[j] for j in mem]),
+                    list(mem))
+    return out
+
+
 def case(footprint, kit_geo, style, height=TOWER_H, array_id="A", **kw):
     out, report = F.build(footprint, kit_geo, style, height=height,
                           array_id=array_id, **kw)

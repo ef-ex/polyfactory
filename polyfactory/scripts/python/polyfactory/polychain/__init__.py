@@ -189,11 +189,31 @@ WARN_ROW_OVERFLOW = "pc_warn_row_overflow"
 # "this ELEMENT is a blank box", and PC-G5 condition 5 counts an unexplained
 # one - a real element in a wrongly-sized band is a different defect.
 WARN_ROW_KIT_GAP = "pc_warn_row_kit_gap"
+# 7.6 / D126 - a piece asked to be SLICED by the clip boundary that its module
+# does not allow to be cut (`pc_deform < 2`). It degrades to `remove`, not to
+# `preserve`: an overhanging window is a visible defect and a missing one is a
+# visible gap, and the gap is the one the artist notices and fixes.
+WARN_CLIP_UNSLICEABLE = "pc_warn_clip_unsliceable"
+# 7.6 / D145 - the half-space limit of `clip_plane`, said out loud. A straddling
+# piece is cut by one world plane per boundary edge that crosses it, so what it
+# is left with is the INTERSECTION of half-spaces - which equals the boundary
+# only where the boundary is locally convex. A REFLEX vertex of the region
+# inside one piece's own footprint takes more material away than the polygon
+# does: a gap, never a breach, and it says so rather than being discovered.
+WARN_CLIP_CONVEX = "pc_warn_clip_convex"
 WARN_VOCAB = (WARN_KIT_GAP, WARN_CORNER_DEGENERATE, WARN_OVERFLOW,
               WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD,
               WARN_BEND_RESOLUTION, WARN_DEGENERATE_FRAME, WARN_FILLET_CLAMPED,
               WARN_CONFORM_MISS, WARN_REPLACED, WARN_CURVE_ID_DUP,
-              WARN_ROLE_FALLBACK, WARN_ROW_OVERFLOW, WARN_ROW_KIT_GAP)
+              WARN_ROLE_FALLBACK, WARN_ROW_OVERFLOW, WARN_ROW_KIT_GAP,
+              WARN_CLIP_UNSLICEABLE, WARN_CLIP_CONVEX)
+
+# 7.6 / D126 - the cull policy, RailClone's "For No Slice" three, as decisions
+# rather than as numbers. -1 on a module means "the array's own parm decides",
+# which is D6's three-state pattern for the fourth time.
+CLIP_REMOVE, CLIP_PRESERVE, CLIP_SLICE = 0, 1, 2
+CLIP_POLICIES = {"remove": CLIP_REMOVE, "preserve": CLIP_PRESERVE,
+                 "slice": CLIP_SLICE}
 
 # 3.1 / 3.4 attribute names, so the adapter and the checks read one list.
 CURVE_ATTRS = ("pc_corner", "pc_section", "pc_style", "pc_marker")
@@ -484,7 +504,7 @@ class Module(object):
 
     def __init__(self, name, size, pad=(0.0, 0.0), deform=DEFORM_RIGID,
                  zmode="adaptive", roles=("default",), variant="", weight=1.0,
-                 missing=False, tilt=-1, extend=-1):
+                 missing=False, tilt=-1, extend=-1, clip=-1):
         if hasattr(size, "__len__"):
             self.size = (float(size[0]), float(size[1]), float(size[2]))
         else:
@@ -506,6 +526,12 @@ class Module(object):
         # fallback keeps X, 0 = it stops at the other axis' band and its
         # fallback keeps Y. It is a tie-break for ABSENCE, never for presence.
         self.extend = int(extend)
+        # 7.6 / D126's cull policy, PER MODULE. -1 = the array's `clip_mode`
+        # decides; 0 remove, 1 preserve, 2 slice. A window that must never be
+        # cut in half and a cladding panel that must always reach the line are
+        # one array and two policies, which is what makes it a module property
+        # rather than a generator parm.
+        self.clip = int(clip)
 
     @property
     def length(self):

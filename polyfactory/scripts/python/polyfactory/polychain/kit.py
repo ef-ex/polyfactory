@@ -137,7 +137,7 @@ def _ensure(geo, cls, name, default):
 
 def add_module(geo, name, source, size=None, pad=(0.0, 0.0),
                deform=DEFORM_RIGID, zmode="adaptive", roles="default",
-               variant="", weight=1.0, tilt=-1, extend=-1):
+               variant="", weight=1.0, tilt=-1, extend=-1, clip=-1):
     """Pack `source` into `geo` as one module and write its manifest point."""
     for attr, default, _kind in MODULE_ATTRS:
         _ensure(geo, hou.attribType.Point, attr, default)
@@ -159,6 +159,9 @@ def add_module(geo, name, source, size=None, pad=(0.0, 0.0),
     if int(extend) >= 0:            # 7.3.1, and only when it is authored: a
         _ensure(geo, hou.attribType.Point, "pc_extend", -1)   # phase-1 kit
         pt.setAttribValue("pc_extend", int(extend))           # gains nothing
+    if int(clip) >= 0:              # 7.6 / D126, written the same way and for
+        _ensure(geo, hou.attribType.Point, "pc_clip", -1)     # the same reason
+        pt.setAttribValue("pc_clip", int(clip))
     return prim
 
 
@@ -312,7 +315,10 @@ def read(geo):
             # MODULE_ATTRS, so a phase-1 kit neither carries it nor warns
             # about not carrying it) and D6's three-state default: -1 is
             # "the generator decides".
-            extend=_iattr(pt, "pc_extend", -1)))
+            extend=_iattr(pt, "pc_extend", -1),
+            # 7.6 / D126 - the cull policy, read the same optional way: a kit
+            # that says nothing about clipping lets the array's parm decide.
+            clip=_iattr(pt, "pc_clip", -1)))
         sources[name] = src
     kit = Kit(str(manifest.get("kitId", "")),
               int(manifest.get("version", 1) or 1), modules,

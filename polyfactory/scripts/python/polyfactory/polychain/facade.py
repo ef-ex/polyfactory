@@ -33,7 +33,7 @@ DECISIONS TAKEN HERE (recorded in polychain.md 12):
 
 import hou
 
-from . import DEFAULTS, Params
+from . import CLIP_POLICIES, CLIP_REMOVE, DEFAULTS, Params
 from . import array2d as _array2d
 from . import kit as _kit
 from . import place as _place
@@ -192,7 +192,8 @@ def _y_params(style, y_params):
 
 def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
           y_params=None, extend="x", closed=True, corner_flags=None,
-          area=False, clip_mode="remove", auto_align="to_spline", expand=0.0,
+          area=False, clip_mode="remove", clip_modes=None,
+          auto_align="to_spline", expand=0.0,
           out=None, surface_geo=None, overrides=None):
     """One footprint + a height -> a facade. Returns (geometry, report).
 
@@ -215,7 +216,8 @@ def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
                       profile=profile, array_ids=[array_id],
                       y_params=y_params, extend=extend, closed=closed,
                       corner_flags=corner_flags, area=area,
-                      clip_mode=clip_mode, auto_align=auto_align,
+                      clip_mode=clip_mode, clip_modes=clip_modes,
+                      auto_align=auto_align,
                       expand=expand, out=out, surface_geo=surface_geo,
                       overrides=overrides)
 
@@ -223,8 +225,8 @@ def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
 def build_many(footprints, kit_geo, style, height=None, heights=None,
                profile=None, array_ids=None, y_params=None, extend="x",
                closed=True, corner_flags=None, area=False,
-               clip_mode="remove", auto_align="to_spline", expand=0.0,
-               out=None, surface_geo=None, overrides=None):
+               clip_mode="remove", clip_modes=None, auto_align="to_spline",
+               expand=0.0, out=None, surface_geo=None, overrides=None):
     """N footprints -> ONE `place.build`. D115 / PC-G7's one-call rule, shipped.
 
     ⚠️ THIS IS THE ENTRY POINT THE ONE-CALL RULE IS ABOUT, and until it
@@ -253,6 +255,16 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
 
     per_flags = bool(corner_flags) and isinstance(corner_flags[0],
                                                   (list, tuple))
+    # 7.6 / D125 - EVERY CLOSED SUB-SPLINE AT ONCE, then even-odd nesting, and
+    # only then one array per ROOT. A loop inside another is a hole in that
+    # array and builds nothing of its own; a loop inside the hole is an island
+    # and builds again (depth 2). That is what makes editing sub-spline B move
+    # zero of sub-spline A's `pc_elem_id`s: they were never one array.
+    depth = include = parent = members = hook = None
+    if area:
+        depth, include, parent, _chart = _array2d.nest(footprints, clip_modes)
+        members = _array2d.array_members(parent)
+        hook = _array2d.ClipHook(CLIP_POLICIES.get(clip_mode, CLIP_REMOVE))
     loops, arrays, flag_col = [], [], []
     for i, footprint in enumerate(footprints):
         array_id = (array_ids[i] if array_ids is not None
@@ -261,12 +273,20 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
         flags = corner_flags[i] if per_flags else corner_flags
         frame, unbuilt = None, []
         if area:
+            if i not in members:
+                continue                     # a hole, or an island in one
             frame = _array2d.area_frame(footprint, auto_align, expand)
+            mine_loops = members[i]
+            region = _array2d.region_for(
+                frame, [footprints[j] for j in mine_loops],
+                [include[j] for j in mine_loops],
+                [depth[j] for j in mine_loops])
             rows = _array2d.plan_rows(
                 profile if profile is not None
                 else (h if h is not None else frame.height),
                 kit, y_style, y_params, array_id)
-            mine = _array2d.area_rows(frame, rows, clip_mode, unbuilt)
+            mine = _array2d.area_rows(frame, rows, clip_mode, unbuilt,
+                                      region, hook)
         else:
             rows = _array2d.plan_rows(profile if profile is not None else h,
                                       kit, y_style, y_params, array_id)
@@ -285,7 +305,7 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
     geo, report = _place.build(
         rows_geometry(loops, flag_col if any(flag_col) else None), kit_geo2,
         x_style, params=x_style.params, out=out, surface_geo=surface_geo,
-        overrides=overrides)
+        overrides=overrides, clip=hook)
     report["arrays"] = arrays
     one = arrays[0] if len(arrays) == 1 else None
     report["rows"] = one["rows"] if one else [r for a in arrays
@@ -305,6 +325,8 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
         list(collisions) + \
         ["%s: array %s row %d has no span left inside the clip boundary - "
          "not built" % (_ROW_CLIPPED, a, i) for a, i in unbuilt] + \
+        ["%s: %d piece(s) removed by the clip boundary" % (w, n)
+         for w, n in sorted(report.get("clip_warns", {}).items())] + \
         _array2d.fallback_lines(dict((k, v) for k, v in fallbacks.items()
                                      if _used(k, report)))
     return (geo, report)

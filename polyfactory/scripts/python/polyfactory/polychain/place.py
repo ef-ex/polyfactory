@@ -1913,11 +1913,18 @@ def analyse(curve_geo, params=DEFAULTS, kit=None, style=None,
 
 
 def build(curve_geo, kit_geo, style, params=None, out=None,
-          surface_geo=None, overrides=None, report_frames=False):
+          surface_geo=None, overrides=None, report_frames=False, clip=None):
     """Curves + kit -> placed geometry. Never raises (warn-never-block).
 
     Returns (geometry, report) where the report carries the plan, the kit
     validation warnings and the counts the scene checks record.
+
+    D144 - `clip` is 7.6's per-piece cull, and it is a CALLABLE rather than a
+    boundary: the kernel knows an arc length along a curve and a module, and
+    that is exactly what the question needs. It is asked once per placement,
+    on the PLAN, before any geometry exists - so a removed piece is never
+    built and a preserved one never runs a verb. `None` on every 1D build and
+    on every un-clipped array, which is why nothing else in this file changes.
     """
     params = params or (style.params if style is not None else None) or DEFAULTS
     out = out if out is not None else hou.Geometry()
@@ -2026,6 +2033,11 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
     # per-query Python path exactly as before, so this is additive.
     _conform.prefetch_all([(pl[0], pl[5]) for pl in plans if pl[5]])
 
+    # D144 - a piece the clip REMOVED has no element to carry a warning (D142's
+    # problem one level down), so its count and its reasons ride out on the
+    # build's own channels instead.
+    n_clipped_out = 0
+    clip_warns = {}
     for (path, remap, placements, by_section, fillet_warns, _spans,
          row_band, row_scale) in plans:
         for p in placements:
@@ -2095,6 +2107,23 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                     warns.append(w)
             if module.missing and WARN_KIT_GAP not in warns:
                 warns.append(WARN_KIT_GAP)
+            if clip is not None:
+                # D144 - the clip decides BEFORE the deform gate, the conform
+                # probe and the proto: a piece the boundary removes must cost
+                # nothing at all, which is 7.6's stated cost discipline and
+                # the reason this is not a filter over the finished plan.
+                keep, cuts, cwarns = clip(
+                    getattr(path, "pc_curve_id", ""), s0f, s1f, module)
+                if not keep:
+                    n_clipped_out += 1
+                    for w in cwarns:
+                        clip_warns[w] = clip_warns.get(w, 0) + 1
+                    continue
+                if cuts:
+                    p.cuts = p.cuts + tuple(cuts)
+                for w in cwarns:
+                    if w not in warns:
+                        warns.append(w)
             band = _band(proto, zmode, params)
             # D100: the camber's own rotation is part of the budget, so the
             # per-station normal has to reach `_needs_deform` - which means
@@ -2345,6 +2374,11 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         "packed": n_packed,
         "deformed": n_deformed,
         "corner_cuts": n_cut,
+        # 7.6 / D144 - what the clip boundary did, as three numbers PC-G6 can
+        # read: pieces it dropped, pieces it cut, and why it dropped them.
+        "clipped_out": n_clipped_out,
+        "clip_sliced": getattr(clip, "sliced", 0),
+        "clip_warns": dict(clip_warns),
         "bevels": bevels,
         "sections": all_sections,
         "warn_names": warn_names,
