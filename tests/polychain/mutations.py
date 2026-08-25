@@ -440,6 +440,21 @@ MUTATIONS = (
         "        include.append(d % 2 == 0)"),),
       rebuild=False),
 
+    M("2d_clip_convex_never_warns", "2d",
+      ("warnings",),
+      "D145's channel, and the reason it is PINNED rather than merely "
+      "declared. An intersection of half-spaces equals the polygon only "
+      "where the polygon is locally convex, so a REFLEX vertex of the region "
+      "inside one piece takes too much material away - a gap, never a "
+      "breach, so PC-G6's containment condition passes and the defect is "
+      "silent. This stops the detection firing; `warnings` compares the "
+      "EXACT set, so it goes red on an absence.",
+      ((PY % "array2d.py",
+        "            if (cross < -EPS) if self.include[pi] else "
+        "(cross > EPS):",
+        "            if False:"),),
+      rebuild=False),
+
     # ---- the artist face: the four input ports -----------------------------
     M("kit_input_unplugged", "hda",
       ("input2_is_the_kit",),
@@ -902,7 +917,6 @@ UNPROVEN.update(dict.fromkeys((
     "2d/corner_abut_m",
     "2d/corner_breach_m",
     "2d/packed_pieces",
-    "2d/warnings",
     "generated/generated_cases_reach_the_native_chain",
     "hda/evenly_clears_the_corner_adjust_to_end",
     "hda/evenly_clears_the_corner_justify_center",

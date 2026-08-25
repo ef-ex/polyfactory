@@ -1267,6 +1267,18 @@
         0,
         7
       ]
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "pc_warn_clip_convex",
+          1
+        ]
+      ]
     }
   ],
   "ZZ_2d_tripwires": [

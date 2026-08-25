@@ -154,6 +154,13 @@ def gate_pc_g6():
         C.clip_policy(scene),
         C.clip_independence(a, cases2d.clip_case(moved), "A000"),
         C.clip_mode_override(a, over),
+        # D145's channel, PINNED. `pc_warn_clip_convex` fires on exactly one
+        # element of this figure - a piece the diamond's own vertex falls
+        # inside, where an intersection of half-spaces takes more than the
+        # polygon does. A declared warning that no run raises is a warning
+        # that gets deleted by accident (D139, FT/FU's whole reason), and the
+        # exact-set form here also fails if a warning nobody expected appears.
+        C.warnings(scene, ("pc_warn_clip_convex",)),
     ]
 
 
