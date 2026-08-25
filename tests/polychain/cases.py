@@ -1236,6 +1236,28 @@ def build_all():
               params=Params(fill="adaptive", zmode="stepped")),
         surface_geo=both)
 
+    # BO - A DEBUG CURVE MERGED INTO THE TERRAIN (the C4 audit's F1). Three
+    # open POLYLINES 0.5 m over a ramp, which is what a citygen graph hands
+    # polyChain when curves and terrain share a merge. The reference will not
+    # hit a zero-area primitive (`tolerance = 1e-6`); VEX's `intersect()` has
+    # no tolerance and hits 0.1 m off the line, so `Stage = output` built a
+    # fence 1.7042 m away with both guard levels reading 1. Level 1 refuses it
+    # now (`_surface_is_droppable`) and `output_guard_parity` is the check -
+    # this case is the ONLY one in the suite whose surface is not all closed
+    # polygons, and `gen_cases._sheet` cannot build one.
+    strays = hou.Geometry()
+    strays.merge(surface(ramp_x))
+    for j in range(3):
+        polyline(strays, [(-8.0 + 3.0 * i, 0.5, -3.0 + 3.0 * j)
+                          for i in range(11)])
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="BO")
+    built["BO_conform_strays"] = _case(
+        g, kit_geo,
+        Style("strays", 1, 3, rules=[Rule("default", "first", ["panel"])],
+              params=Params(fill="adaptive", zmode="adaptive")),
+        surface_geo=strays)
+
     # CG - A RESAMPLED STRAIGHT LINE, BENDABLE MODULE (D69): CF's rigid beam
     # short-circuits `_needs_deform` at D27, so CF cannot see D69. Measured
     # revert: CF and the 67-case suite stayed green while PC-G3's 20 km run

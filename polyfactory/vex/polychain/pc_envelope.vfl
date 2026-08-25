@@ -63,6 +63,18 @@
 // half whether there is one.
 //
 //   * [vex:ok] anything `config` refused, namely:
+//       [cfg:surface_type]    A SURFACE THAT IS NOT ALL CLOSED POLYGONS, and
+//                             this row is the C4 audit's F1 - the one thing
+//                             the conform port shipped WRONG.  The reference
+//                             passes `tolerance = 1e-6` to
+//                             `hou.Geometry.intersect` and VEX's `intersect()`
+//                             takes no tolerance, which cannot matter to a
+//                             primitive that HAS AREA and is the whole answer
+//                             for one that does not: a debug polyline merged
+//                             into a terrain (a citygen graph does exactly
+//                             that) put the two 1.7042 m apart with both guard
+//                             levels reading 1.  `hda._surface_is_droppable`
+//                             is the test and `BO_conform_strays` the case.
 //       [cfg:conform_tilt]    D55's CAMBER, which is 4.5's ONE unported half:
 //                             a tilt hands `normal_at` to `span_deviation` and
 //                             turns on D100's camber rotation and D104's extra

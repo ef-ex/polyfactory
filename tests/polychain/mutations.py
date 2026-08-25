@@ -191,6 +191,21 @@ MUTATIONS = (
         '        if getattr(params, "conform_tilt", False):',
         "        if True:"),)),
 
+    # ⚠️ AND THE SECOND ONE IS THE C4 AUDIT'S F1 - the one thing the port
+    # shipped WRONG rather than merely slowly, and the only mutation here
+    # that reddens on a hand fixture because `gen_cases._sheet` builds
+    # nothing but closed polygons and so cannot reach it.
+    M("conform_surface_type_admitted", "native",
+      ("output_guard_parity",),
+      "Level 1 stops asking what the surface is MADE OF, so a terrain with "
+      "three debug polylines merged into it ships the NATIVE drape: the "
+      "reference's `tolerance = 1e-6` will not hit a zero-area primitive and "
+      "VEX's `intersect()` hits 0.1 m off the line, measured 1.7042 m apart "
+      "on `BO_conform_strays` with both guard levels reading 1.",
+      ((PY % "hda.py",
+        "        if not _surface_is_droppable(surface):",
+        "        if False:"),)),
+
     M("conform_drop_biased_vex", "generated",
       ("conform_parity_spends_its_tolerance",),
       "The native drape stretched by 1e-11 RELATIVE to the drop - far under "

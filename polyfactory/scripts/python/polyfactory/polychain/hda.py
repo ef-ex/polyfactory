@@ -585,11 +585,62 @@ def config_resolved(node):
     # a row that stops mattering is visible rather than merely harmless.
     out["native_ok"] = 1.0 if _native_ok(
         parms, params, style, kit, out,
-        list(kit_warns) + list(style_warns)) else 0.0
+        list(kit_warns) + list(style_warns), surface) else 0.0
     return (out, style, kit)
 
 
-def _native_ok(parms, params, style, kit, cfg, warns):
+def _surface_is_droppable(geo):
+    """Is this surface one the two ray tests are KNOWN to answer alike?
+
+    ⚠️ THE C4 AUDIT'S F1, AND IT SHIPPED WRONG GEOMETRY FOR A CYCLE.  Merge
+    three open POLYLINES into a terrain - a debug curve, a street centreline,
+    which is exactly what polyChain's first consumer hands it, since citygen
+    keeps curves and terrain in one graph - and `Stage = output` built a fence
+    **1.7042 m** away from `Stage = reference` on a 91-prim build, with both
+    levels of the guard reading 1.  The same three ribbons as thin QUADS, half
+    width down to 1e-4 m, are bit-identical: the trigger is the primitive TYPE,
+    not the placement.
+
+    ROOT CAUSE, and it is `pc_conform.h`'s own declared blind spot arriving:
+    `Surface._cast` passes `tolerance = 1e-6` to `hou.Geometry.intersect` and
+    VEX's `intersect()` takes no tolerance at all.  On a POLYGON the tolerance
+    cannot matter - the primitive has area and the ray either crosses it or
+    does not.  On a ZERO-AREA primitive the tolerance IS the hit radius, so the
+    reference stops hitting a polyline ~1e-6 m off it while VEX still hits at
+    1e-4 m and at 0.1 m off it (162 of 162 and 78 of 78 queries disagree).
+
+    So the row is fail-safe and it is the guard's law, not a new policy: the
+    drop is ported for CLOSED POLYGONS, every other primitive is refused BY
+    NAME, and the build takes the reference.  ⚠️ It is deliberately wider than
+    the demonstrated class - a NURBS or Bezier surface, a packed grid and a VDB
+    were all measured identical by the audit, and they are refused anyway,
+    because four fixtures are not a port.  Widening it back is a cycle with a
+    differential behind it, not an edit here.
+
+    COST: three calls, none of them a Python loop over the surface.
+    `countPrimType` is O(1); `globPrims` scans in C++ and builds a wrapper only
+    for what it MATCHES, so the admitted case pays 0.4 ms at 60 000 prims
+    (measured) and the refused case pays for a refusal.  The per-prim
+    `isClosed()` loop this replaces was 67 ms at 124 000.
+    """
+    if geo is None:
+        return False
+    nprim = geo.intrinsicValue("primitivecount")
+    if not nprim:
+        return False
+    if geo.countPrimType(hou.primType.Polygon) != nprim:
+        return False                          # NURBS, Bezier, packed, VDB, ...
+    # an OPEN polygon is a polyline: no area, and the reference will not hit it
+    if geo.globPrims("@intrinsic:closed=0"):
+        return False
+    # ...and a CLOSED polygon of two points is the same 1-D primitive wearing
+    # the closed flag, which `closed=0` alone does not catch.
+    if geo.globPrims("@intrinsic:vertexcount<3"):
+        return False
+    return True
+
+
+def _native_ok(parms, params, style, kit, cfg, warns, surface=None):
     """13.9 N10 level 1 - see `config_resolved`. True when nothing in the
     parameters, the style or the kit needs a stage that is still Python."""
     # ⚠️ 13.9 N6 - `has_surface` USED TO BE THE FIRST ROW HERE AND IT IS GONE.
@@ -607,7 +658,12 @@ def _native_ok(parms, params, style, kit, cfg, warns):
     #     off a tilted axis because the reconstruction the VEX drop also uses
     #     cannot remove the divergence there (measured 1.9e-06 m at fixture
     #     scale, 1.5e-05 m at 20 km, against 0.0 for every coordinate axis).
+    #   * a SURFACE THAT IS NOT ALL CLOSED POLYGONS (`_surface_is_droppable`,
+    #     and read its docstring - it is the C4 audit's F1, the one thing this
+    #     cycle shipped WRONG rather than merely slowly).
     if cfg.get("has_surface"):
+        if not _surface_is_droppable(surface):
+            return False                              # F1 - a 1-D primitive
         if getattr(params, "conform_tilt", False):
             return False                              # D55 camber - not ported
         axis = tuple(float(c) for c in
