@@ -193,13 +193,21 @@ MUTATIONS = (
 
     M("conform_drop_biased_vex", "generated",
       ("conform_parity_spends_its_tolerance",),
-      "The native drape displaced 5e-13 m along the drop axis - UNDER the "
-      "1e-12 m the conformed comparison states, so only the row that MEASURES "
-      "what that tolerance is being spent can see it.  A stated tolerance "
-      "nothing reads back is a number any later cycle widens for free.",
+      "The native drape stretched by 1e-11 RELATIVE to the drop - far under "
+      "the float32 `P` the fence ships, so the only things that can see it are "
+      "the packed 3x3 read as a double and the row that MEASURES what the "
+      "stated tolerance is being spent on. A stated tolerance nothing reads "
+      "back is a number any later cycle widens for free. "
+      "⚠️ RELATIVE, and that is not decoration: a CONSTANT bias along "
+      "the axis CANCELS in the chord `b - a` the packed frame is built from, "
+      "and every POSITION in this comparison is float32 - measured, 1e-10 m of "
+      "constant bias moved NOTHING over 45 cases and 5e-13 m moved nothing "
+      "over 405. Only a drop that varies along the run reaches a compared "
+      "double.",
       ((VEX % "pc_conform.h",
         "    if (!hit) return;",
-        "    if (!hit) return;\n    best = best + axis * 5e-13;"),)),
+        "    if (!hit) return;\n"
+        "    best = best + axis * (dot(best - q, axis) * 1e-11);"),)),
 
     M("conform_deviates_never_fires", "native",
       ("gate_parity",),
