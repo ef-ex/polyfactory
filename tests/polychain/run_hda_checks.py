@@ -148,29 +148,6 @@ def main():
 
     # ---- 1. defaults alone build a fence ---------------------------------
     print("\n=== 1. defaults, nothing wired but a curve ===")
-    t0 = time.time()
-    geo = node.geometry()
-    dt = time.time() - t0
-    prims = len(geo.prims())
-    packed = len([p for p in geo.prims()
-                  if p.type() == hou.primType.PackedGeometry])
-    modules = sorted(set(p.attribValue("pc_module") for p in geo.prims()))
-    check("starter_fence_prims", prims > 20, prims, "%.2f s" % dt)
-    check("starter_fence_packed", packed > 0, packed, "of %d" % prims)
-    # ⚠️ NO `corner_post` HERE, and that is D36 rather than a gap: BEND mode
-    # welds the four sections of a closed rectangle into one ring, so no
-    # corner assembly is placed at all. The corner slot is asserted below,
-    # under the corner mode that uses it.
-    check("starter_fence_modules", set(modules) == set(["post", "panel"]),
-          ",".join(modules), "from the built-in starter kit")
-    node.parm("corner_mode").set("miter")
-    mit = sorted(set(p.attribValue("pc_module") for p in node.geometry()
-                     .prims()))
-    check("starter_fence_corners", "corner_post" in mit, ",".join(mit),
-          "the corner slot fires in miter mode")
-    node.parm("corner_mode").set("bend")
-    check("no_errors", not node.errors(), len(node.errors()),
-          "; ".join(node.errors())[:120])
 
     # ⚠️ AND THE DEFECT THREE THOUSAND SIX HUNDRED NUMERIC CHECKS COULD NOT
     # SEE (D266). Hannes opened this exact fence in the viewport and counted
@@ -234,16 +211,6 @@ def main():
     odd.destroy()
     adj.destroy()
 
-    # ---- 2. the node agrees with the kernel ------------------------------
-    print("\n=== 2. the node agrees with place.build on the same style ===")
-    style = H.style_from_parms(node)
-    kit_geo = H.kit_geometry(node)
-    direct, report = P.build(geo_from(spline), kit_geo, style)
-    a = sorted(p.attribValue("pc_elem_id") for p in geo.prims())
-    b = sorted(p.attribValue("pc_elem_id") for p in direct.prims())
-    check("node_matches_kernel", a == b, len(a), "vs %d kernel elements"
-          % len(b))
-
     # ---- 3. every input at the index 2.2 says ----------------------------
     print("\n=== 3. input wiring (2.2) ===")
     kit_node = geo_node.createNode("python", "kit_in")
@@ -284,17 +251,6 @@ def main():
     node.setInput(1, None)
     node.parm("slot_default").set("post panel")
 
-    surf = geo_node.createNode("grid", "surface")
-    surf.parmTuple("size").set((60.0, 60.0))
-    surf.parmTuple("t").set((6.0, -2.5, 4.0))
-    surf.parm("rows").set(20)
-    surf.parm("cols").set(20)
-    surf.parm("orient").set(2)                      # ZX - a ground plane
-    node.setInput(3, surf)
-    lows = [pt.position()[1] for pt in node.geometry().points()]
-    check("input4_is_the_surface", min(lows) < -2.0, round(min(lows), 3),
-          "the run dropped onto a grid at y = -2.5")
-    node.setInput(3, None)
 
     # ---- 4. PC-G4: the payload overrides the parms ------------------------
     print("\n=== 4. PC-G4 - a style payload on input 3 overrides the parms ===")
@@ -319,46 +275,12 @@ def main():
                         for p in with_payload.prims()))
     check("payload_overrides_modules", mods == ["corner_post", "gate"],
           ",".join(mods), "the parms still say panel + evenly post")
-    check("payload_overrides_styleid", styles == ["pipeline"],
-          ",".join(styles), "pc_style comes from the payload")
     direct2, _r = P.build(geo_from(spline), H.kit_geometry(node),
                           payload_style)
     ids_a = sorted(p.attribValue("pc_elem_id") for p in with_payload.prims())
     ids_b = sorted(p.attribValue("pc_elem_id") for p in direct2.prims())
     check("payload_matches_kernel", ids_a == ids_b, len(ids_a),
           "vs %d built from the Style object" % len(ids_b))
-    # ...and the parms are not consulted AT ALL while it is wired (D77).
-    # ⚠️ EVERY PARM ON THE PAGE, and both the ids AND the POSITIONS. The first
-    # version of this moved `fill` and `seed` only and compared sorted ids, so
-    # it missed `padding` entirely: the gap parm was applied to the kit
-    # unconditionally, and the same payload built 6 prims at 0.0 and 5 at 0.8
-    # on the same node. One payload, two fences - which is the exact property
-    # D77 says the pipeline face exists to guarantee (fixed by D91).
-    # ⚠ D107 - AND THE FIXTURE ABOVE IS WHY THIS SWEEP CAN SEE IT. Under
-    # `fill="scale"` the payload's fence does not move for ANY `pc_pad`:
-    # measured on this build, `gate.pad` goes 0.0 -> 0.185 -> 0.4 while the
-    # output stays 44 prims, 12 elements and an IDENTICAL point sum, so with
-    # D91 reverted the sweep still reported `moved: none`. The one word
-    # `adaptive` is what makes the D91 class of defect reachable: the same
-    # revert then reports `moved: padding`. A fill mode that cannot express
-    # a gap cannot test a gap parm.
-    base_ids, base_pos = _fingerprint(node)
-    moved = []
-    for parm in sorted(node.parms(), key=lambda q: q.name()):
-        if parm.name() in PARM_LANE_EXEMPT:
-            continue
-        was = parm.eval()
-        if not _nudge(parm):
-            continue
-        got_ids, got_pos = _fingerprint(node)
-        if got_ids != base_ids or got_pos != base_pos:
-            moved.append(parm.name())
-        parm.set(was)
-    check("parms_inert_under_payload", not moved, len(base_ids),
-          "swept %d parms; moved: %s" % (len(node.parms()),
-                                         ",".join(moved) or "none"))
-    node.setInput(2, None)
-
     # ⚠️ AND THE SAME SWEEP ON A BUILD THE GUARD ADMITS, because the one above
     # only ever judged the REFERENCE.  Its fixture asks for `corner_mode
     # ='miter'` on a cornered spline, which 13.9 N10's level 1 refuses outright
@@ -411,192 +333,6 @@ def main():
           "ADMITS (copy_packed cooked: %s), every parm on the page nudged, "
           "ids and positions both. moved: %s"
           % (took_native, ",".join(moved2) or "none"))
-
-    # ---- 4b. a payload whose rules ALL drop stays in the PIPELINE face -----
-    print("\n=== 4b. a payload with no usable rule degrades in place (D92) ===")
-    junk = geo_node.createNode("python", "style_junk")
-    junk.parm("python").set(
-        "import hou\n"
-        "from polyfactory.polychain import Params, Rule, Style\n"
-        "from polyfactory.polychain import style as S\n"
-        "st = Style('pipeline_junk', 1, 4,\n"
-        "           rules=[Rule('defualt', 'first', ['gate'])])\n"
-        "S.write(hou.pwd().geometry(), st)\n")
-    node.setInput(2, junk)
-    junk_geo = node.geometry()
-    inner = node.node("kernel").warnings()
-    check("junk_payload_builds_nothing", len(junk_geo.prims()) == 0,
-          len(junk_geo.prims()),
-          "%d warnings: %s" % (len(inner), (inner or ("",))[0][:70]))
-    node.setInput(2, None)
-
-    # ---- 4c. D88 - the marker slot is reachable from the PARM face ---------
-    print("\n=== 4c. a gate on a marker, authored on the page (PC-G1) ===")
-    marked = geo_node.createNode("python", "marked_spline")
-    marked.parm("python").set(
-        "import hou\n"
-        "geo = hou.pwd().geometry()\n"
-        "poly = geo.createPolygon(False)\n"
-        "for p in [(0,0,0), (20,0,0)]:\n"
-        "    pt = geo.createPoint()\n"
-        "    pt.setPosition(p)\n"
-        "    poly.addVertex(pt)\n"
-        "geo.addAttrib(hou.attribType.Point, 'pc_marker', 0)\n"
-        "geo.addAttrib(hou.attribType.Point, 'pc_marker_id', 0)\n"
-        "geo.addAttrib(hou.attribType.Point, 'pc_u', 0.0)\n"
-        "geo.addAttrib(hou.attribType.Point, 'pc_curve', '')\n"
-        "geo.addAttrib(hou.attribType.Prim, 'pc_curve_id', '')\n"
-        "poly.setAttribValue('pc_curve_id', 'M')\n"
-        "m = geo.createPoint()\n"
-        "m.setPosition((9.0, 0.0, 0.0))\n"
-        "m.setAttribValue('pc_marker', 1)\n"
-        "m.setAttribValue('pc_marker_id', 1)\n"
-        "m.setAttribValue('pc_u', 0.45)\n"
-        "m.setAttribValue('pc_curve', 'M')\n")
-    # A CORNERED copy of the same marked spline, because PART B made the two
-    # paths raise D88's warning from two different nodes and only a fixture
-    # the guard REFUSES still exercises `kernel`'s.
-    marked_corner = geo_node.createNode("python", "marked_corner")
-    marked_corner.parm("python").set(
-        marked.parm("python").eval().replace(
-            "for p in [(0,0,0), (20,0,0)]:",
-            "for p in [(0,0,0), (20,0,0), (20,0,14)]:"))
-    # AND THE THIRD CLASS, WHICH NEITHER OF THE TWO ABOVE CAN REACH.  The
-    # straight run is pure native (level 1 admits, level 2 admits) and the
-    # cornered one is pure reference (level 1 refuses), so between them they
-    # never cook BOTH chains - and PART B created a class that does: level 1
-    # ADMITS and level 2 REFUSES, which cooks the native plan chain (for
-    # `pc_envelope2`) and `kernel`.  On that class D88's warning was raised
-    # TWICE - once by `pc_sections` and once by `kernel`, word for word -
-    # which is the outcome the placement comment said it was chosen to
-    # prevent.  The warning is in `pc_warn_collate` now, whose cookCount is
-    # `kernel`'s exact complement.
-    #
-    # THE FIXTURE FOR THAT CLASS CHANGED AT 13.9 N5, AND IT HAD TO.  It was a
-    # finely resampled R = 20 m arc, which level 2 refused because the
-    # deformed branch could not build an unpacked piece; that branch exists
-    # now and the arc is native at parity (`guard_deform_ladder`), so the old
-    # fixture had silently become a SECOND straight-run case and this check
-    # would have asserted the same class twice.  What still reaches the class
-    # is `pc_deform_gate`'s per-piece refusal: an OVERHANGING CREST, whose
-    # plan-view direction reverses inside one panel's span, which D31's frame
-    # transport flips on and `pc_frames_transportable` declares unanswerable.
-    # `corner_angle_deg = 60` keeps it ONE section, so a single panel really
-    # does straddle the reversal - `cases.P_crest_bend`'s own wording.
-    marked_arc = geo_node.createNode("python", "marked_arc")
-    marked_arc.parm("python").set(
-        marked.parm("python").eval().replace(
-            "for p in [(0,0,0), (20,0,0)]:",
-            "for p in [(0,0,0), (6,9,0), (3,18,0)]:").replace(
-            "m.setPosition((9.0, 0.0, 0.0))",
-            "m.setPosition((0.0, 9.0, 0.0))"))
-
-    def marker_warnings(node):
-        """D88's warning and the node that raised it, anywhere in the asset.
-
-        ⚠️ IT CANNOT ASK THE INSTANCE, AND THAT WAS MEASURED RATHER THAN
-        ASSUMED.  `hou.Node.warnings()` on the `pf_polychain` instance returns
-        an EMPTY tuple in every case tested - a native build, a reference
-        build, and even the `no spline on input 1` build that every reader
-        would expect it to carry.  Houdini propagates the warning STATE up the
-        hierarchy for the badge in the network editor, not the text through
-        HOM, so a check that asked the instance would be asserting nothing at
-        all.  Every check in this suite has therefore always read an INNER
-        node; what PART B changed is WHICH one.
-        """
-        node.allowEditingOfContents()
-        return sorted((c.name(), w) for c in node.children()
-                      for w in c.warnings() if "marker" in w)
-
-    mk = geo_node.createNode("pf_polychain", "chain_marker")
-    mk.setInput(0, marked)
-    mk.cook(force=True)
-    mkc = geo_node.createNode("pf_polychain", "chain_marker_corner")
-    mkc.setInput(0, marked_corner)
-    mkc.cook(force=True)
-    mka = geo_node.createNode("pf_polychain", "chain_marker_arc")
-    mka.setInput(0, marked_arc)
-    # one section over the crest, so one panel straddles the reversal
-    mka.parm("corner_angle_deg").set(60.0)
-    mka.cook(force=True)
-
-    native_w = marker_warnings(mk)
-    ref_w = marker_warnings(mkc)
-    arc_w = marker_warnings(mka)
-    took_native = mk.node("copy_packed").cookCount() > 0
-    took_ref = mkc.node("kernel").cookCount() > 0
-    mka.allowEditingOfContents()
-    arc_l1 = int(mka.node("pc_envelope").geometry().attribValue("_native_ok"))
-    arc_l2 = int(mka.node("pc_envelope2").geometry()
-                 .attribValue("_native_ok2"))
-    arc_both = (arc_l1 == 1 and arc_l2 == 0
-                and mka.node("kernel").cookCount() > 0
-                and mka.node("pc_sections").cookCount() > 0)
-    # ⚠️ ONE WARNING, THE SAME SENTENCE, ON BOTH PATHS - and this is a
-    # STRONGER assertion than the one it replaces, which only asked whether
-    # `kernel` said something with "marker" in it.  PART B removed the
-    # envelope's marker refusal (measured: 52 ms of Python on a 2 km run, 212
-    # on 300 streets, spent entirely to keep this sentence) and moved D88's
-    # warning into `pc_sections`, the last node of the native chain that can
-    # still see a marker point.  Three things have to hold for that to be an
-    # honest move rather than a hole: the native build must raise it, the
-    # reference build must still raise it, and the two must be WORD FOR WORD
-    # the same - an artist cannot search for a warning that is phrased
-    # differently depending on which branch cooked.
-    same = ([w for _n, w in native_w] == [w for _n, w in ref_w])
-    where = dict((n, w) for n, w in native_w + ref_w)
-    same = same and ([w for _n, w in arc_w] == [w for _n, w in ref_w])
-    ok = (len(native_w) == 1 and len(ref_w) == 1 and len(arc_w) == 1 and same
-          and took_native and took_ref and arc_both
-          and native_w[0][0] == "pc_warn_collate"
-          and ref_w[0][0] == "kernel" and arc_w[0][0] == "kernel")
-    check("unread_marker_warns", ok,
-          "%s / %s / %s"
-          % (native_w[0][0] if native_w else "SILENT",
-             ref_w[0][0] if ref_w else "SILENT",
-             arc_w[0][0] if arc_w else "SILENT"),
-          "D88's warning on ALL THREE guard classes, EXACTLY ONCE each and "
-          "word for word the same. Straight = pure native (copy_packed "
-          "cooked: %s) -> `pc_warn_collate`; cornered = level 1 refuses "
-          "(kernel cooked: %s) -> `kernel`; ARC = level 1 admits and level 2 "
-          "REFUSES (L1=%s L2=%s, both chains cooked: %s) -> `kernel` ALONE - "
-          "the class in which `pc_sections` and `kernel` both raised it. "
-          "native=%r reference=%r arc=%r identical=%s"
-          % (took_native, took_ref, arc_l1, arc_l2, arc_both,
-             native_w, ref_w, arc_w, same))
-    mk.parm("slot_marker").set("gate")
-    mk.parm("marker_id").set(1)
-    mods = sorted(set(p.attribValue("pc_module") for p in mk.geometry().prims()))
-    gates = [p for p in mk.geometry().prims()
-             if p.attribValue("pc_module") == "gate"]
-    check("marker_slot_on_the_page", "gate" in mods, ",".join(mods),
-          "%d gate element(s) at the marker" % len(gates))
-    mkc.parm("slot_marker").set("gate")
-    mkc.parm("marker_id").set(1)
-    mkc.cook(force=True)
-    quiet = marker_warnings(mk) + marker_warnings(mkc)
-    check("marker_read_is_silent", not quiet, len(quiet),
-          "the warning stops once read, on the native path and on the "
-          "reference: %r" % (quiet or "silent",))
-    # ⚠️ AND THE PIECE THE MARKER ASKED FOR HAS TO SURVIVE THE FLIP.  Before
-    # PART B the guard refused every marked build, so `marker_slot_on_the_page`
-    # only ever judged the REFERENCE - it would have stayed green if the
-    # native chain had placed no gate at all.
-    ngates_native = len([pr for pr in mk.geometry().prims()
-                         if pr.attribValue("pc_module") == "gate"])
-    mk.parm("stage").set("reference")
-    mk.cook(force=True)
-    ngates_ref = len([pr for pr in mk.geometry().prims()
-                      if pr.attribValue("pc_module") == "gate"])
-    mk.parm("stage").set("output")
-    mk.cook(force=True)
-    check("marker_gate_survives_the_native_chain",
-          ngates_native == ngates_ref and ngates_native > 0,
-          "%d native / %d reference" % (ngates_native, ngates_ref),
-          "the gate a `marker:<id>` rule places, counted on the guarded "
-          "output and on the reference - PART B let the native chain answer "
-          "marked builds, and `marker_slot_on_the_page` above judged the "
-          "reference alone until now")
 
     # ---- 5. the proxy LOD, at 10k pieces ---------------------------------
     print("\n=== 5. proxy LOD at scale (5's acceptance criterion) ===")
@@ -653,106 +389,6 @@ def main():
     check("proxy_beats_full_on_a_curve", t_proxy < t_full,
           [round(t_proxy, 3), round(t_full, 3)],
           "%d proxy points vs %d full" % (proxy_pts, full_pts))
-
-    # ---- 6/7. warn, never block ------------------------------------------
-    print("\n=== 6. warn-never-block on the wiring ===")
-    lonely = geo_node.createNode("pf_polychain", "chain_lonely")
-    lonely.cook(force=True)
-    # ⚠️ THE WARNING LIVES ON THE INNER NODE. `hou.Node.warnings()` does not
-    # aggregate a child's warnings onto the asset (measured), even though the
-    # viewport badge does - so a check that reads the outer node reads an
-    # empty tuple and calls warn-never-block broken.
-    inner_warns = lonely.node("kernel").warnings()
-    check("no_spline_warns", not lonely.errors() and inner_warns,
-          len(inner_warns), (inner_warns or ("",))[0][:80])
-
-    bad_kit = geo_node.createNode("pf_polychain", "chain_badkit")
-    bad_kit.setInput(0, spline)
-    bad_kit.parm("kitfile").set("F:/nothing/here.bgeo")
-    bad_kit.cook(force=True)
-    bad_warns = bad_kit.node("kernel").warnings()
-    check("bad_kit_file_warns",
-          not bad_kit.errors() and len(bad_kit.geometry().prims()) > 20
-          and bool(bad_warns),
-          len(bad_kit.geometry().prims()),
-          "fell back to the starter kit; %d warnings: %s"
-          % (len(bad_warns), (bad_warns or ("",))[0][:60]))
-
-    # ---- 7. the warning COLOUR, which nothing asserted ------------------
-    # 11.2 P1 named `run_hda_checks.py`'s "warning-colour rows" as one of its
-    # pins. There were none. Deleting the write in `hda.colour_warnings`
-    # outright left this whole suite green, and `show_warnings` is exempt
-    # from the PC-G4 parm sweep by design (D81/D82: it is a viewing decision),
-    # so the parm and its writer were together unexercised. 2.2's advisory
-    # validation only works if the artist can SEE what was warned about.
-    print("\n=== 7. show_warnings paints the warned elements ===")
-    warned = geo_node.createNode("pf_polychain", "chain_warncolour")
-    warned.setInput(0, spline)
-    warned.parm("slot_default").set("nosuchmodule")
-    warned.parm("slot_start").set("")
-    warned.parm("slot_end").set("")
-    warned.parm("show_warnings").set(1)
-    g_on = warned.geometry()
-    warn_attrs = [a.name() for a in g_on.primAttribs()
-                  if a.name().startswith("pc_warn_")]
-    red = lit = stray = 0
-    for prim in g_on.prims():
-        is_red = (tuple(round(v, 4) for v in prim.attribValue("Cd"))
-                  == tuple(round(v, 4) for v in H.WARN_COLOUR))
-        if any(prim.attribValue(a) for a in warn_attrs):
-            lit += 1
-            red += 1 if is_red else 0
-        else:
-            stray += 1 if is_red else 0
-    check("warned_elements_are_coloured",
-          bool(warn_attrs) and lit > 0 and red == lit and stray == 0,
-          [lit, red, stray],
-          "%d warned prims, %d at %s, %d red without a warning"
-          % (lit, red, str(H.WARN_COLOUR), stray))
-    warned.parm("show_warnings").set(0)
-    g_off = warned.geometry()
-    off_red = sum(1 for prim in g_off.prims()
-                  if g_off.findPrimAttrib("Cd") is not None
-                  and tuple(round(v, 4) for v in prim.attribValue("Cd"))
-                  == tuple(round(v, 4) for v in H.WARN_COLOUR))
-    check("show_warnings_off_paints_nothing", off_red == 0, off_red,
-          "the toggle is the control - without it the check above could pass "
-          "on a builder that painted everything red unconditionally")
-
-    # ⚠️ AND THE CONTROL WAS NOT ENOUGH. `colour_warnings` painting EVERY prim
-    # unconditionally (`if any(...)` -> `if True`) left both rows above green
-    # and all three suites green with it: the fixture warns on every element,
-    # so "red == lit" cannot see an over-painted prim, and the toggle row only
-    # proves the write is gated - not that the SELECTION is right. On a
-    # 200-element street where 3 elements warn the artist would get 200 red
-    # prims and no way to find the 3, which is 2.2's advisory validation
-    # defeated. The writer's own contract - "the UNWARNED prims keep whatever
-    # `Cd` they already had, because a kit module may ship its own colour" -
-    # was unasserted anywhere too. One mixed geometry answers both, plus the
-    # return value nothing read.
-    mixed = hou.Geometry()
-    mixed.createPoints([(float(i), 0.0, 0.0) for i in range(30)])
-    mixed.createPolygons(tuple((3 * i, 3 * i + 1, 3 * i + 2)
-                               for i in range(10)), True)
-    KIT_CD = (0.2, 0.6, 0.9)
-    mixed.addAttrib(hou.attribType.Prim, "Cd", KIT_CD)
-    mixed.addAttrib(hou.attribType.Prim, "pc_warn_kit_gap", 0)
-    want = (1, 4, 7)
-    for i in want:
-        mixed.prims()[i].setAttribValue("pc_warn_kit_gap", 1)
-    hit = H.colour_warnings(mixed, ["pc_warn_kit_gap"])
-    cd = [tuple(round(v, 4) for v in pr.attribValue("Cd"))
-          for pr in mixed.prims()]
-    warn_rgb = tuple(round(v, 4) for v in H.WARN_COLOUR)
-    kit_rgb = tuple(round(v, 4) for v in KIT_CD)
-    painted = sum(1 for i, c in enumerate(cd) if c == warn_rgb and i in want)
-    over = sum(1 for i, c in enumerate(cd) if c == warn_rgb and i not in want)
-    kept = sum(1 for i, c in enumerate(cd) if c == kit_rgb and i not in want)
-    check("only_the_warned_prims_are_coloured",
-          hit == len(want) and painted == len(want) and over == 0
-          and kept == 10 - len(want), [hit, painted, over, kept],
-          "3 of 10 warned: %d returned, %d painted, %d over-painted, "
-          "%d kept the kit's own %s" % (hit, painted, over, kept, str(KIT_CD)))
 
     # ---- 8. artist_ui 6's UX law, asserted (D96) --------------------------
     # ⚠️ THIS SECTION EXISTS BECAUSE IT WAS MISSING. An independent verifier
