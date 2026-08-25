@@ -2415,3 +2415,117 @@ def wrapper_reads(build_fn, hou_mod, expect_max, name=None):
                   "%d wrapper reads (`Prim.points` + `Point.position` + "
                   "`*.attribValue`) in one build (ceiling %d)"
                   % (got[0], expect_max))
+def rows_wrappers_built(build_fn, hou_mod, expect_max=0, name=None):
+    """11.9 RULE 1, ON THE ROW EMITTER - the one new loop phase 2 adds.
+
+    `prims_wrappers_built` counts wrappers MATERIALISED; this counts wrappers
+    TOUCHED, which is the defect class rule 1 actually names: one
+    `Prim.setAttribValue` per row is what a straightforward emitter writes,
+    and it is invisible to a wrapper COUNT because `createPoints` returns the
+    same tuple either way. The ceiling is 0 and it is meant to stay 0: every
+    row attribute goes in as one `setPrim*AttribValues` over the whole stream.
+    """
+    real_p = hou_mod.Prim.setAttribValue
+    real_pt = hou_mod.Point.setAttribValue
+    calls = [0]
+
+    def spy_p(self, *a, **k):
+        calls[0] += 1
+        return real_p(self, *a, **k)
+
+    def spy_pt(self, *a, **k):
+        calls[0] += 1
+        return real_pt(self, *a, **k)
+    hou_mod.Prim.setAttribValue = spy_p
+    hou_mod.Point.setAttribValue = spy_pt
+    try:
+        build_fn()
+    finally:
+        hou_mod.Prim.setAttribValue = real_p
+        hou_mod.Point.setAttribValue = real_pt
+    return Result(name or "rows_wrappers_built", calls[0] <= expect_max,
+                  calls[0], "%d wrapper attribute writes during row emission "
+                  "(ceiling %d)" % (calls[0], expect_max))
+
+
+# --- phase 2 (the 2D array) -------------------------------------------------
+
+CELL_STRINGS = ("pc_cell", "pc_yclass", "pc_array")
+
+
+def _cells(geo):
+    """[{pc_cell, pc_yclass, pc_array, pc_row, pc_elem_id, ...}] per element."""
+    out, order = {}, []
+    if geo.findPrimAttrib("pc_cell") is None:
+        return []
+    for prim in geo.prims():
+        try:
+            eid = prim.attribValue("pc_elem_id")
+        except hou.OperationFailed:
+            continue
+        if eid in out:
+            continue
+        rec = {"pc_elem_id": eid}
+        for name in CELL_STRINGS:
+            try:
+                rec[name] = prim.attribValue(name)
+            except hou.OperationFailed:
+                rec[name] = ""
+        for name in ("pc_row", "pc_section", "pc_corner_cut", "pc_deformed",
+                     "pc_clipped"):
+            try:
+                rec[name] = int(prim.attribValue(name))
+            except (hou.OperationFailed, TypeError, ValueError):
+                rec[name] = -1
+        try:
+            rec["pc_module"] = prim.attribValue("pc_module")
+        except hou.OperationFailed:
+            rec["pc_module"] = ""
+        out[eid] = rec
+        order.append(eid)
+    return [out[e] for e in order]
+
+
+
+
+def clip_stamp(scene):
+    """7.3.3's `pc_clipped` (0/1), which the first cut of 7.6 never stamped.
+
+    [elements on a clipped row, elements total]. Under D137 the clip is a SPAN
+    rather than a cull, so "clipped" means "this piece sits on a row whose
+    span the boundary trimmed" - the rectangle case reads 0 because a
+    rectangle is the identity, the taper and the U read every element.
+    ⚠️ NOT the per-module `pc_clip` policy of 7.3.1 (remove/preserve/slice per
+    module): that arrives with real slicing in P2-7 and does not exist yet.
+
+    ⚠️ AND IT ASSERTS, IT DOES NOT MERELY RECORD. This used to be
+    `ok = area or n == 0`, i.e. on an area build - the only kind where the
+    stamp can legitimately be 1, and therefore the only kind the check was
+    written for - `ok` was `True` no matter what the value was. Setting
+    `p.clipped = 0` for every placement left the whole suite green with only a
+    baseline line to show for it. The assertion is now the TRANSFER: the row
+    curve carries `pc_clipped` per row and every element of that row must
+    carry the same number, which is the step `plan.classify` performs and the
+    step that silently stopped happening.
+    """
+    recs = _cells(scene.geo)
+    if not recs:
+        return _skip("clip_stamp", "no pc_cell - a 1D build")
+    n = sum(1 for r in recs if r.get("pc_clipped") == 1)
+    curve = scene.case.get("curve")
+    want = {}
+    if curve is not None and curve.findPrimAttrib("pc_clipped") is not None:
+        rows = list(curve.primIntAttribValues("pc_row"))
+        clip = list(curve.primIntAttribValues("pc_clipped"))
+        for y, c in zip(rows, clip):
+            want[y] = max(want.get(y, 0), int(c))
+    bad = sum(1 for r in recs
+              if r["pc_row"] in want
+              and int(r.get("pc_clipped") or 0) != want[r["pc_row"]])
+    ok = bad == 0 and (scene.frame is not None or n == 0)
+    return Result("clip_stamp", ok, [n, len(recs)],
+                  "%d of %d elements on a clipped row%s"
+                  % (n, len(recs),
+                     "" if ok else
+                     " - %d disagree with their row curve" % bad if bad
+                     else " - but this is not an area build"))

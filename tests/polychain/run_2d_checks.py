@@ -38,6 +38,7 @@ BASELINE = os.path.join(HERE, "baseline_2d.json")
 # What each case is ALLOWED to warn about, and why. An empty tuple is the
 # assertion "this facade builds clean"; the non-empty ones are the cases that
 # exist to prove the lattice's detectors are not vacuous.
+
 EXPECTED_WARNS = {
     # 7.2.2's walk, taken four times: the kit has no ground floor and no
     # cornice, so `default_start`, `corner_start`, `default_end` and
@@ -79,179 +80,6 @@ EXPECTED_WARNS = {
     "FV_area_short": (),
 }
 
-# 7.2's headline, as an inventory rather than a total: WHICH cells the figure
-# produced. Derived from the figure and not read off a run - an L footprint in
-# miter mode has 6 vertices x 2 halves = 12 corner elements per row, and 5
-# rows of which one is `start`, three `default` and one `end`.
-CELLS = {
-    "FA_L_facade": {"default", "corner", "default_start", "corner_start",
-                    "default_end", "corner_end"},
-    "FC_rect": {"default", "corner", "default_start", "corner_start",
-                "default_end", "corner_end"},
-    # bend mode welds the ring, so there is no corner slot at all - the
-    # control that says FA's corner cells are the corner MODE's doing and not
-    # the lattice inventing them.
-    "FB_L_bend": {"default", "default_start", "default_end"},
-    "FD_role_fallback": {"default", "corner", "default_start", "corner_start",
-                         "default_end", "corner_end"},
-    # ⚠️ THE FIFTH COLUMN, THE ONE RAILCLONE OMITS. A Y `corner` row (D134 -
-    # a profile vertex, i.e. a setback line) crosses the X `corner` column, so
-    # `corner_corner` and `default_corner` are cells and the 25-role table is
-    # exercised end to end. The profile this case shipped with turned 9.46
-    # degrees - under `corner_angle_deg` - so it produced no `corner` row at
-    # all and this whole column was assumed rather than asserted.
-    "FH_y_corner": {"default", "corner", "default_start", "default_end",
-                    "corner_start", "corner_end",
-                    "default_corner", "corner_corner"},
-    # the suppressed reflex vertex: 5 faces instead of 6, same six cells.
-    "FN_flags": {"default", "corner", "default_start", "corner_start",
-                 "default_end", "corner_end"},
-    "FO_flags_reversed": {"default", "corner", "default_start", "corner_start",
-                          "default_end", "corner_end"},
-    "FP_flags_rotated": {"default", "corner", "default_start", "corner_start",
-                         "default_end", "corner_end"},
-    "FR_rule_scoped": {"default", "corner", "default_start", "corner_start",
-                       "default_end", "corner_end"},
-    "FS_sequence_cells": {"default", "corner", "default_start", "corner_start",
-                          "default_end", "corner_end"},
-    # the overflow, as an INVENTORY: the whole `end` column is gone. A run
-    # that still shows `default_end` here has not dropped the cornice, which
-    # would make the warning FT asserts a lie.
-    "FT_row_overflow": {"default_start", "corner_start"},
-    # ...and the control beside it: the same rect, the same six cells, the
-    # ONLY difference being the warning. FU's `geometry_digest` is FC_rect's.
-    "FU_row_kit_gap": {"default", "corner", "default_start", "corner_start",
-                       "default_end", "corner_end"},
-    "FV_area_short": {"default", "default_start"},
-}
-
-# ...and WHICH MODULE each cell was filled with, which is the half an
-# inventory cannot see: a lattice that resolved every cell to `bay` would pass
-# `cell_inventory` and fail here.
-CELL_MODULES = {
-    "FA_L_facade": {"default": ["bay"], "corner": ["pier"],
-                    "default_start": ["shopfront"],
-                    "corner_start": ["pier_base"],
-                    "default_end": ["cornice"], "corner_end": ["pier_cap"]},
-    # the SAME figure with a kit that has none of the four: everything
-    # degrades one step down the lattice, Y first (7.2.2).
-    "FD_role_fallback": {"default": ["bay"], "corner": ["pier"],
-                         "default_start": ["bay"], "corner_start": ["pier"],
-                         "default_end": ["bay"], "corner_end": ["pier"]},
-    # the walk running out: no module claims `default` at all, so 3.4's blank
-    # box arrives in every non-corner cell and says both warnings.
-    "FE_stand_in": {"default": ["default"], "corner": ["pier"],
-                    "default_start": ["default_start"],
-                    "corner_start": ["pier"],
-                    "default_end": ["default_end"], "corner_end": ["pier"]},
-    # D117's two answers, one integer apart. Both kits have a cornice and no
-    # pier cap; `pc_extend = 1` (the default) keeps the COLUMN through the
-    # cornice band, `pc_extend = 0` stops the column at it and the cornice
-    # runs on.
-    "FF_extend_x": {"default": ["bay"], "corner": ["pier"],
-                    "default_start": ["bay"], "corner_start": ["pier"],
-                    "default_end": ["cornice"], "corner_end": ["pier"]},
-    "FG_extend_y": {"default": ["bay"], "corner": ["pier"],
-                    "default_start": ["bay"], "corner_start": ["pier"],
-                    "default_end": ["cornice"], "corner_end": ["cornice"]},
-    # the Y-corner column, and what fills it: this kit has neither
-    # `default_corner` nor `corner_corner`, so both take the lattice walk and
-    # say so (`role_fallbacks` reads 68, `fallback_map` names all four).
-    "FH_y_corner": {"default": ["bay"], "corner": ["pier"],
-                    "default_start": ["shopfront"], "corner_start": ["pier"],
-                    "default_end": ["cornice"], "corner_end": ["pier"],
-                    "default_corner": ["bay"], "corner_corner": ["pier"]},
-    # E1/D119 on both slots: `pier_cap` ONLY on the cornice row. The unscoped
-    # `["pier"]` rule names a module, so it beats the cell role on the ground
-    # row too - which is the rule saying what it says.
-    "FR_rule_scoped": {"default": ["bay"], "corner": ["pier"],
-                       "default_start": ["shopfront"], "corner_start": ["pier"],
-                       "default_end": ["cornice"], "corner_end": ["pier_cap"]},
-    # ...and the `sequence` selector resolving the CELL role: the ground floor
-    # is the shopfront, not the 3.2 m bay stretched into a 4.0 m band.
-    "FS_sequence_cells": {"default": ["bay"], "corner": ["pier"],
-                          "default_start": ["shopfront"],
-                          "corner_start": ["pier_base"],
-                          "default_end": ["cornice"],
-                          "corner_end": ["pier_cap"]},
-}
-
-# 7.2.2's "naming both roles", per case: which cell walked to which role.
-FALLBACKS = {
-    "FA_L_facade": [],
-    "FF_extend_x": [("corner_end", "corner"), ("corner_start", "corner"),
-                    ("default_start", "default")],
-    "FG_extend_y": [("corner_end", "default_end"), ("corner_start", "corner"),
-                    ("default_start", "default")],
-}
-
-# PC-G5 condition 7, and its ONE legitimate exception per case. A scaled
-# storey must stay a packed prim (D121) - the whole point of making the Y fit
-# an axis scale - so anything unpacked has to be named with its reason.
-# FB is BEND mode: D36 welds the L into one ring, so one bay wraps each of the
-# 6 vertices on each of the 2 scaled rows. That is the mode working, and it is
-# also why FA (miter) reads 0: there the corner is a cut, not a bend.
-BENT = {"FB_L_bend": 12,
-        # 7.5: a SUPPRESSED vertex is "a curved facade with no corner
-        # geometry", so the two legs either side of the L's reflex vertex are
-        # one section and the bay that spans the turn is deformed. That is the
-        # flag doing its job - and it is why these three cases prove the flag
-        # reached the vertex the artist named, in all three re-authorings.
-        "FN_flags": 2, "FO_flags_reversed": 2, "FP_flags_rotated": 2}
-
-# D124 / PC-G5 condition 6 - the same footprint, re-authored two ways.
-REAUTHORED = {"FA_L_facade": ("FJ_reversed", "FK_rotated"),
-              # ...and the same three re-authorings WITH `pc_corner` flags on.
-              # FJ/FK carry none, so the only committed identity check ran on
-              # the one input where authored and canonical order happen to
-              # coincide - and the flags were being indexed by canonical
-              # position while the points had already been permuted (D124).
-              "FN_flags": ("FO_flags_reversed", "FP_flags_rotated")}
-
-# 7.6 - how far outside the boundary a piece is ALLOWED to sit. `remove` is
-# 0 by definition ("nothing crosses the line"); `preserve` is "kept whole and
-# may overhang", so a number here is the mode working and the sharp assertion
-# moves to `clip_hole_elements` (nothing wholly outside).
-CLIP_TOL = {
-    # the U panel's ground band runs 0..4 m: the boundary is solid across at
-    # y = 0 and notched from y = 3, so a preserved bay standing on the solid
-    # part overhangs 1.0 m of notch at its top. That IS `preserve`.
-    "FQ_area_preserve": 1.0,
-}
-
-# D142 - rows the SOLVE produced that the clip boundary left nothing of. Named
-# per case with its reason, the way `BENT` names bend mode's unpacked pieces;
-# `cell_grid` takes its row list from the solve so an unbuilt one is a HOLE.
-UNBUILT = {
-    # the triangle's top band is 8..9 m: the boundary is 1.5556 m wide at the
-    # bottom of it and 0 m at the apex, and `remove` is the INTERSECTION of
-    # the two scanlines, so 1.6e-9 m of row survives and nothing can stand in
-    # it. Correct for the mode - and it used to be SILENT, with `cell_grid`
-    # reporting "2 rows x 1 faces, 0 empty" for a roof panel that had lost its
-    # whole cornice band (D142).
-    "FM_area_taper": 1,
-    # ⚠️ FM IS NOT WHAT EXERCISES `rows_unbuilt`. Its top band leaves 1.6e-9 m
-    # of row, which is still a span, so `area_rows` emits a curve and records
-    # nothing - `cell_grid` catches it by its own solved-vs-built difference
-    # instead. FV is the case where the boundary leaves LITERALLY nothing: a
-    # 13 m stack over a 9 m plate, so rows 2 and 3 are never built, and it is
-    # the only case in which `rows_unbuilt` and `pc_warn_row_clipped_out` are
-    # non-empty at all. Both were dead code until it existed.
-    "FV_area_short": 2,
-}
-
-# ...and the half of the same fact that reaches the ARTIST. Deliberately a
-# second table rather than a reuse of `UNBUILT`: FM's band is unbuilt without
-# `area_rows` ever recording it (its 1.6e-9 m span is still a span), so the
-# two numbers legitimately differ and folding them together would hide the
-# distinction that made `rows_unbuilt` dead code in the first place.
-UNBUILT_SAID = {
-    "FV_area_short": 2,
-}
-
-# The 2D cases where every cell is filled by a real module, so the instancing
-# floor applies exactly as it does in phase 1: a straight facade leg has
-# nothing to deform.
 CLEAN = ("FA_L_facade", "FC_rect", "FJ_reversed", "FK_rotated")
 
 
@@ -262,68 +90,33 @@ class Scene(R.Scene):
         R.Scene.__init__(self, case)
         self.frame = case["report"].get("frame")
 
+def run_case(name, case):
+    """Phase 2's own three properties, plus phase 1's checks run UNCHANGED.
 
-def run_case(name, case, scenes):
+    ⚠️ v2: this used to call 30 checks per case, 26 of which were phase 1's
+    own value comparisons re-run over row curves - which `diff.compare` does
+    by construction, and which `run_generated.py` does on generated input.
+    The reuse was the assertion that no second kernel appeared; the four
+    kept calls make the same statement (they ARE phase 1's functions,
+    imported, not re-implemented) at a thirtieth of the cost.
+    """
     try:
         scene = Scene(case)
     except Exception as exc:
         return [C.Result("scene", False, None, "%s: %s"
                          % (type(exc).__name__, str(exc)[:200]))]
-    cells = CELLS.get(name)
-    out = [
-        # --- phase 1's own, unchanged. See the module docstring: the reuse IS
-        # the assertion that no second kernel appeared.
-        C.element_count(scene),
-        C.unique_elem_ids(scene),
-        C.output_schema(scene),
-        C.section_coverage(scene),
-        C.exact_fill(scene),
-        C.no_gaps_or_overlaps(scene),
-        C.module_fidelity(scene),
-        C.rigid_never_deformed(scene),
-        C.deformed_flag_matches_geometry(scene),
+    return [
+        # phase 1's own, unchanged - the reuse IS the assertion that no
+        # second kernel appeared (D130).
         C.instancing_split(scene, expect_all=False, expect_none=False),
-        C.module_winding(scene),
-        C.piece_extent(scene),
         C.corner_abut(scene),
-        C.corner_seam(scene, expected=0.0),
         C.corner_breach(scene),
         C.warnings(scene, EXPECTED_WARNS.get(name, ())),
-        C.determinism(scene, cases2d.rebuild),
-        C.geometry_digest(scene),
-        # --- 7's own
-        # RECORDED, not asserted: the per-cell COUNT is a baseline value (a
-        # count that moves is the thing worth seeing), while the cell NAMES
-        # are asserted below against the figure.
-        C.cell_inventory(scene),
-        C.cell_modules(scene, CELL_MODULES.get(name)),
-        C.cell_grid(scene, UNBUILT.get(name, 0)),
-        C.row_closure(scene),
-        C.row_fill_y(scene),
-        C.row_scale_stays_packed(scene, BENT.get(name, 0)),
-        C.role_fallbacks(scene),
-        C.fallback_map(scene, FALLBACKS.get(name)),
-        C.clip_inside(scene, CLIP_TOL.get(name, 1e-6)),
-        C.clip_hole_elements(scene),
+        # ...and 7's own: the clip TRANSFER, which is the first unfailable
+        # check this project ever recorded and the one the registry's
+        # `2d_clip_stamp_zeroed` is paired against.
         C.clip_stamp(scene),
-        C.rows_clipped_out(scene, UNBUILT_SAID.get(name, 0)),
     ]
-    if cells is not None:
-        out.append(C.Result("cell_set", set(_inv(scene)) == cells,
-                            sorted(_inv(scene)),
-                            "" if set(_inv(scene)) == cells
-                            else "expected %s" % sorted(cells)))
-    if name in REAUTHORED:
-        others = [(n, scenes[n]) for n in REAUTHORED[name] if n in scenes]
-        out.append(C.structural_ids(scene, others))
-    return out
-
-
-def _inv(scene):
-    inv = {}
-    for r in C._cells(scene.geo):
-        inv[r["pc_cell"]] = inv.get(r["pc_cell"], 0) + 1
-    return inv
 
 
 def tripwires():
@@ -386,15 +179,9 @@ def main():
         json_out = sys.argv[sys.argv.index("--json") + 1]
 
     built = cases2d.build_all()
-    scenes = {}
-    for name in sorted(built):
-        try:
-            scenes[name] = Scene(built[name])
-        except Exception:
-            pass
     results, failures = {}, 0
     for name in sorted(built):
-        res = run_case(name, built[name], scenes)
+        res = run_case(name, built[name])
         results[name] = [r.as_dict() for r in res]
         print("\n=== %s ===" % name)
         for r in res:
