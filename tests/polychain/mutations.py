@@ -457,14 +457,18 @@ MUTATIONS = (
 
     M("2d_clip_preserve_is_remove", "2d",
       ("clip_preserve",),
-      "D126's three policies collapse to two: `preserve` becomes `remove`, "
-      "so a piece that should be kept whole and allowed to overhang is "
-      "dropped instead. The numbers an artist types are the contract, and "
-      "this is the edit that breaks it without touching a line of logic.",
-      ((PY % "__init__.py",
-        "CLIP_REMOVE, CLIP_PRESERVE, CLIP_SLICE = 0, 1, 2",
-        "CLIP_REMOVE, CLIP_PRESERVE, CLIP_SLICE = 0, 0, 2"),),
-      rebuild=False),
+      "D126's three policies collapse to two: `preserve` stops being reached, "
+      "so a piece that should be kept whole and allowed to overhang falls "
+      "through to `remove` and is dropped instead.",
+      ((PY % "array2d.py",
+        "        if policy == CLIP_PRESERVE:",
+        "        if False:  # the preserve mutation"),),
+      rebuild=False,
+      note="⚠️ THE OBVIOUS EDIT IS INERT, and it is the dev-loop's "
+           "own rule about mutating something the code does not read "
+           "symmetrically: setting `CLIP_PRESERVE = 0` in the constants "
+           "changes NOTHING, because `CLIP_POLICIES[\"preserve\"]` and the "
+           "test against it both move together. It SURVIVED a full sweep."),
 
     # ---- the artist face: the four input ports -----------------------------
     M("kit_input_unplugged", "hda",
