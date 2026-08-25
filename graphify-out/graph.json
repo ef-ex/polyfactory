@@ -460,7 +460,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_load_pixmap_cached",
-      "community": 55,
+      "community": 78,
       "norm_label": "_load_pixmap_cached()"
     },
     {
@@ -510,7 +510,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_paintevent",
-      "community": 55,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -540,7 +540,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_paintevent",
-      "community": 55,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -700,7 +700,7 @@
       "source_location": "L417",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget",
-      "community": 55,
+      "community": 78,
       "norm_label": "assetthumbnailwidget"
     },
     {
@@ -720,7 +720,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_set_size",
-      "community": 55,
+      "community": 78,
       "norm_label": ".set_size()"
     },
     {
@@ -730,7 +730,7 @@
       "source_location": "L475",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_apply_cached_pixmap",
-      "community": 55,
+      "community": 78,
       "norm_label": "._apply_cached_pixmap()"
     },
     {
@@ -740,7 +740,7 @@
       "source_location": "L486",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_set_selected",
-      "community": 55,
+      "community": 78,
       "norm_label": ".set_selected()"
     },
     {
@@ -750,7 +750,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_paintevent",
-      "community": 55,
+      "community": 78,
       "norm_label": ".paintevent()"
     },
     {
@@ -760,7 +760,7 @@
       "source_location": "L509",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_load_static_frame",
-      "community": 55,
+      "community": 78,
       "norm_label": "._load_static_frame()"
     },
     {
@@ -770,7 +770,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousepressevent",
-      "community": 55,
+      "community": 78,
       "norm_label": ".mousepressevent()"
     },
     {
@@ -780,7 +780,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousemoveevent",
-      "community": 55,
+      "community": 78,
       "norm_label": ".mousemoveevent()"
     },
     {
@@ -790,7 +790,7 @@
       "source_location": "L570",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_mousedoubleclickevent",
-      "community": 55,
+      "community": 78,
       "norm_label": ".mousedoubleclickevent()"
     },
     {
@@ -810,7 +810,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_29",
-      "community": 55,
+      "community": 78,
       "norm_label": "return a cached, pre-scaled pixmap for path, loading from disk on miss."
     },
     {
@@ -960,7 +960,7 @@
       "source_location": "L418",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_418",
-      "community": 55,
+      "community": 78,
       "norm_label": "individual asset thumbnail with animated hover outline"
     },
     {
@@ -970,7 +970,7 @@
       "source_location": "L468",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_468",
-      "community": 55,
+      "community": 78,
       "norm_label": "update thumbnail size dynamically without re-reading disk"
     },
     {
@@ -980,7 +980,7 @@
       "source_location": "L476",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_476",
-      "community": 55,
+      "community": 78,
       "norm_label": "scale the cached pixmap to the current thumb size (no disk i/o)"
     },
     {
@@ -990,7 +990,7 @@
       "source_location": "L487",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_487",
-      "community": 55,
+      "community": 78,
       "norm_label": "toggle selection highlight on this thumbnail."
     },
     {
@@ -1000,7 +1000,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_492",
-      "community": 55,
+      "community": 78,
       "norm_label": "draw widget with selection highlight and animated hover outline."
     },
     {
@@ -1010,7 +1010,7 @@
       "source_location": "L510",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_510",
-      "community": 55,
+      "community": 78,
       "norm_label": "load frame 5 for static display, using the module-level pixmap cache."
     },
     {
@@ -1020,7 +1020,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_533",
-      "community": 55,
+      "community": 78,
       "norm_label": "handle single-click \u2014 also record drag start position."
     },
     {
@@ -1030,7 +1030,7 @@
       "source_location": "L541",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_541",
-      "community": 55,
+      "community": 78,
       "norm_label": "start a drag if the mouse has moved far enough from the press point."
     },
     {
@@ -1560,7 +1560,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "asset_library_batch_importer_export_batch_group",
-      "community": 0,
+      "community": 205,
       "norm_label": "export_batch_group()"
     },
     {
@@ -1650,7 +1650,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_221",
-      "community": 0,
+      "community": 205,
       "norm_label": "export a single asset group detected by detect_asset_groups.      converts pri"
     },
     {
@@ -1840,7 +1840,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_browser_ui",
-      "community": 250,
+      "community": 78,
       "norm_label": "browser_ui.py"
     },
     {
@@ -1920,7 +1920,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_on_thumbnail_dropped_at",
-      "community": 250,
+      "community": 78,
       "norm_label": "._on_thumbnail_dropped_at()"
     },
     {
@@ -1930,7 +1930,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qpoint",
-      "community": 250,
+      "community": 78,
       "norm_label": "qpoint"
     },
     {
@@ -2050,7 +2050,7 @@
       "source_location": "L688",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog",
-      "community": 250,
+      "community": 78,
       "norm_label": "assetbrowserdialog"
     },
     {
@@ -2060,7 +2060,7 @@
       "source_location": "L691",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog_init",
-      "community": 250,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -2070,7 +2070,7 @@
       "source_location": "L733",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserdialog_on_asset_selected",
-      "community": 250,
+      "community": 78,
       "norm_label": "._on_asset_selected()"
     },
     {
@@ -2080,7 +2080,7 @@
       "source_location": "L739",
       "_origin": "ast",
       "id": "asset_library_browser_ui_show_asset_browser",
-      "community": 250,
+      "community": 78,
       "norm_label": "show_asset_browser()"
     },
     {
@@ -2090,7 +2090,7 @@
       "source_location": "L751",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler",
-      "community": 250,
+      "community": 78,
       "norm_label": "assetdrophandler"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L764",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_init",
-      "community": 250,
+      "community": 78,
       "norm_label": ".__init__()"
     },
     {
@@ -2120,7 +2120,7 @@
       "source_location": "L769",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_install",
-      "community": 250,
+      "community": 78,
       "norm_label": ".install()"
     },
     {
@@ -2130,7 +2130,7 @@
       "source_location": "L772",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_uninstall",
-      "community": 250,
+      "community": 78,
       "norm_label": ".uninstall()"
     },
     {
@@ -2140,7 +2140,7 @@
       "source_location": "L775",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_handle_dropped_at",
-      "community": 250,
+      "community": 78,
       "norm_label": ".handle_dropped_at()"
     },
     {
@@ -2150,7 +2150,7 @@
       "source_location": "L799",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetdrophandler_handle_drop",
-      "community": 250,
+      "community": 78,
       "norm_label": "._handle_drop()"
     },
     {
@@ -2160,7 +2160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_1",
-      "community": 250,
+      "community": 78,
       "norm_label": "asset browser ui - grid view of assets with search and filtering"
     },
     {
@@ -2220,7 +2220,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_383",
-      "community": 250,
+      "community": 78,
       "norm_label": "forward thumbnail drop to the browser-level signal."
     },
     {
@@ -2340,7 +2340,7 @@
       "source_location": "L689",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_689",
-      "community": 250,
+      "community": 78,
       "norm_label": "standalone asset browser dialog"
     },
     {
@@ -2350,7 +2350,7 @@
       "source_location": "L734",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_734",
-      "community": 250,
+      "community": 78,
       "norm_label": "double-click in the floating browser: create and connect the         asset plac"
     },
     {
@@ -2360,7 +2360,7 @@
       "source_location": "L740",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_740",
-      "community": 250,
+      "community": 78,
       "norm_label": "show the asset browser dialog"
     },
     {
@@ -2370,7 +2370,7 @@
       "source_location": "L752",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_752",
-      "community": 250,
+      "community": 78,
       "norm_label": "handles drops from the asset browser onto houdini's viewport or network     edi"
     },
     {
@@ -2380,7 +2380,7 @@
       "source_location": "L770",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_770",
-      "community": 250,
+      "community": 78,
       "norm_label": "no-op \u2014 wiring is done via signal connections."
     },
     {
@@ -2390,7 +2390,7 @@
       "source_location": "L776",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_776",
-      "community": 250,
+      "community": 78,
       "norm_label": "called after a drag completes. if the cursor is outside our own         window,"
     },
     {
@@ -2400,7 +2400,7 @@
       "source_location": "L800",
       "_origin": "ast",
       "id": "asset_library_browser_ui_rationale_800",
-      "community": 250,
+      "community": 78,
       "norm_label": "create a pf_asset_place node in the current network, wire it to the         cur"
     },
     {
@@ -2420,7 +2420,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase",
-      "community": 78,
+      "community": 55,
       "norm_label": "assetdatabase"
     },
     {
@@ -2430,7 +2430,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_init",
-      "community": 78,
+      "community": 55,
       "norm_label": ".__init__()"
     },
     {
@@ -2440,7 +2440,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_ensure_directory",
-      "community": 78,
+      "community": 55,
       "norm_label": "._ensure_directory()"
     },
     {
@@ -2450,7 +2450,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_connect",
-      "community": 78,
+      "community": 55,
       "norm_label": "._connect()"
     },
     {
@@ -2460,7 +2460,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_initialize_schema",
-      "community": 78,
+      "community": 55,
       "norm_label": "._initialize_schema()"
     },
     {
@@ -2470,7 +2470,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_asset",
-      "community": 78,
+      "community": 55,
       "norm_label": ".add_asset()"
     },
     {
@@ -2480,7 +2480,7 @@
       "source_location": "L181",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_tags_to_asset",
-      "community": 78,
+      "community": 55,
       "norm_label": "._add_tags_to_asset()"
     },
     {
@@ -2490,7 +2490,7 @@
       "source_location": "L204",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_asset",
-      "community": 78,
+      "community": 55,
       "norm_label": ".get_asset()"
     },
     {
@@ -2500,7 +2500,7 @@
       "source_location": "L225",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_asset_tags",
-      "community": 78,
+      "community": 55,
       "norm_label": ".get_asset_tags()"
     },
     {
@@ -2510,7 +2510,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_search_assets",
-      "community": 78,
+      "community": 55,
       "norm_label": ".search_assets()"
     },
     {
@@ -2520,7 +2520,7 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_categories",
-      "community": 78,
+      "community": 55,
       "norm_label": ".get_all_categories()"
     },
     {
@@ -2530,7 +2530,7 @@
       "source_location": "L312",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_tags",
-      "community": 78,
+      "community": 55,
       "norm_label": ".get_all_tags()"
     },
     {
@@ -2540,7 +2540,7 @@
       "source_location": "L323",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_get_all_names",
-      "community": 78,
+      "community": 55,
       "norm_label": ".get_all_names()"
     },
     {
@@ -2550,7 +2550,7 @@
       "source_location": "L334",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_update_asset",
-      "community": 78,
+      "community": 55,
       "norm_label": ".update_asset()"
     },
     {
@@ -2560,7 +2560,7 @@
       "source_location": "L367",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_delete_asset",
-      "community": 78,
+      "community": 55,
       "norm_label": ".delete_asset()"
     },
     {
@@ -2570,7 +2570,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_add_tags_to_assets",
-      "community": 78,
+      "community": 55,
       "norm_label": ".add_tags_to_assets()"
     },
     {
@@ -2580,7 +2580,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_remove_tags_from_assets",
-      "community": 78,
+      "community": 55,
       "norm_label": ".remove_tags_from_assets()"
     },
     {
@@ -2590,7 +2590,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_close",
-      "community": 78,
+      "community": 55,
       "norm_label": ".close()"
     },
     {
@@ -2600,7 +2600,7 @@
       "source_location": "L416",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_enter",
-      "community": 78,
+      "community": 55,
       "norm_label": ".__enter__()"
     },
     {
@@ -2610,7 +2610,7 @@
       "source_location": "L419",
       "_origin": "ast",
       "id": "asset_library_database_assetdatabase_exit",
-      "community": 78,
+      "community": 55,
       "norm_label": ".__exit__()"
     },
     {
@@ -2630,7 +2630,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "asset_library_database_rationale_12",
-      "community": 78,
+      "community": 55,
       "norm_label": "manages the asset library sqlite database"
     },
     {
@@ -2640,7 +2640,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "asset_library_database_rationale_15",
-      "community": 78,
+      "community": 55,
       "norm_label": "initialize database connection                  args:             db_path: pa"
     },
     {
@@ -2650,7 +2650,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "asset_library_database_rationale_35",
-      "community": 78,
+      "community": 55,
       "norm_label": "create database directory if it doesn't exist"
     },
     {
@@ -2660,7 +2660,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "asset_library_database_rationale_65",
-      "community": 78,
+      "community": 55,
       "norm_label": "establish database connection"
     },
     {
@@ -2670,7 +2670,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "asset_library_database_rationale_78",
-      "community": 78,
+      "community": 55,
       "norm_label": "create database tables if they don't exist"
     },
     {
@@ -2680,7 +2680,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "asset_library_database_rationale_139",
-      "community": 78,
+      "community": 55,
       "norm_label": "add a new asset to the database                  args:             name: asse"
     },
     {
@@ -2690,7 +2690,7 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "asset_library_database_rationale_182",
-      "community": 78,
+      "community": 55,
       "norm_label": "associate tags with an asset"
     },
     {
@@ -2700,7 +2700,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "asset_library_database_rationale_205",
-      "community": 78,
+      "community": 55,
       "norm_label": "get asset by id                  args:             asset_id: asset id"
     },
     {
@@ -2710,7 +2710,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "asset_library_database_rationale_226",
-      "community": 78,
+      "community": 55,
       "norm_label": "get all tags for an asset                  args:             asset_id: asset"
     },
     {
@@ -2720,7 +2720,7 @@
       "source_location": "L244",
       "_origin": "ast",
       "id": "asset_library_database_rationale_244",
-      "community": 78,
+      "community": 55,
       "norm_label": "search assets with various filters                  args:             search_"
     },
     {
@@ -2730,7 +2730,7 @@
       "source_location": "L302",
       "_origin": "ast",
       "id": "asset_library_database_rationale_302",
-      "community": 78,
+      "community": 55,
       "norm_label": "get all unique categories                  returns:             list of categ"
     },
     {
@@ -2740,7 +2740,7 @@
       "source_location": "L313",
       "_origin": "ast",
       "id": "asset_library_database_rationale_313",
-      "community": 78,
+      "community": 55,
       "norm_label": "get all unique tags                  returns:             list of tag strings"
     },
     {
@@ -2750,7 +2750,7 @@
       "source_location": "L324",
       "_origin": "ast",
       "id": "asset_library_database_rationale_324",
-      "community": 78,
+      "community": 55,
       "norm_label": "get all unique asset names                  returns:             list of asse"
     },
     {
@@ -2760,7 +2760,7 @@
       "source_location": "L335",
       "_origin": "ast",
       "id": "asset_library_database_rationale_335",
-      "community": 78,
+      "community": 55,
       "norm_label": "update asset fields                  args:             asset_id: asset id"
     },
     {
@@ -2770,7 +2770,7 @@
       "source_location": "L368",
       "_origin": "ast",
       "id": "asset_library_database_rationale_368",
-      "community": 78,
+      "community": 55,
       "norm_label": "delete an asset from the database                  args:             asset_id"
     },
     {
@@ -2780,7 +2780,7 @@
       "source_location": "L377",
       "_origin": "ast",
       "id": "asset_library_database_rationale_377",
-      "community": 78,
+      "community": 55,
       "norm_label": "add tags to multiple assets.  existing tag associations are left intact."
     },
     {
@@ -2790,7 +2790,7 @@
       "source_location": "L388",
       "_origin": "ast",
       "id": "asset_library_database_rationale_388",
-      "community": 78,
+      "community": 55,
       "norm_label": "remove specific tags from multiple assets.          tags that do not exist on"
     },
     {
@@ -2800,7 +2800,7 @@
       "source_location": "L412",
       "_origin": "ast",
       "id": "asset_library_database_rationale_412",
-      "community": 78,
+      "community": 55,
       "norm_label": "close database connection"
     },
     {
@@ -12800,7 +12800,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_toggle_py_toggle_pytoggle_hitbutton",
-      "community": 250,
+      "community": 78,
       "norm_label": ".hitbutton()"
     },
     {
@@ -24277,7 +24277,7 @@
       "label": "M",
       "file_type": "code",
       "source_file": "tests/polychain/mutations.py",
-      "source_location": "L72",
+      "source_location": "L77",
       "_origin": "ast",
       "id": "polychain_mutations_m",
       "community": 15,
@@ -24287,7 +24287,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "tests/polychain/mutations.py",
-      "source_location": "L87",
+      "source_location": "L92",
       "_origin": "ast",
       "id": "polychain_mutations_m_init",
       "community": 15,
@@ -24307,9 +24307,9 @@
       "label": "One registered mutation.      `edits`   ((repo-relative path, exact old text, ne",
       "file_type": "rationale",
       "source_file": "tests/polychain/mutations.py",
-      "source_location": "L73",
+      "source_location": "L78",
       "_origin": "ast",
-      "id": "polychain_mutations_rationale_73",
+      "id": "polychain_mutations_rationale_78",
       "community": 15,
       "norm_label": "one registered mutation.      `edits`   ((repo-relative path, exact old text, ne"
     },
@@ -25840,7 +25840,7 @@
       "source_location": "L4723",
       "_origin": "ast",
       "id": "polychain_run_native_checks_stage_is_really_native",
-      "community": 229,
+      "community": 3,
       "norm_label": "stage_is_really_native()"
     },
     {
@@ -25850,7 +25850,7 @@
       "source_location": "L4847",
       "_origin": "ast",
       "id": "polychain_run_native_checks_native_stage_check",
-      "community": 229,
+      "community": 3,
       "norm_label": "native_stage_check()"
     },
     {
@@ -25860,7 +25860,7 @@
       "source_location": "L4881",
       "_origin": "ast",
       "id": "polychain_run_native_checks_native_stage_mutation",
-      "community": 229,
+      "community": 3,
       "norm_label": "native_stage_mutation()"
     },
     {
@@ -26230,7 +26230,7 @@
       "source_location": "L7796",
       "_origin": "ast",
       "id": "polychain_run_native_checks_module_kit",
-      "community": 278,
+      "community": 229,
       "norm_label": "_module_kit()"
     },
     {
@@ -26240,7 +26240,7 @@
       "source_location": "L7819",
       "_origin": "ast",
       "id": "polychain_run_native_checks_config_cost_per_module",
-      "community": 278,
+      "community": 229,
       "norm_label": "config_cost_per_module()"
     },
     {
@@ -27060,7 +27060,7 @@
       "source_location": "L4725",
       "_origin": "ast",
       "id": "polychain_run_native_checks_rationale_4725",
-      "community": 229,
+      "community": 3,
       "norm_label": "cook the shipped asset at each native stage and ask the graph, not the     label"
     },
     {
@@ -27070,7 +27070,7 @@
       "source_location": "L4882",
       "_origin": "ast",
       "id": "polychain_run_native_checks_rationale_4882",
-      "community": 229,
+      "community": 3,
       "norm_label": "m4b, applied to the built asset: point the `plan_native` menu entry at     the p"
     },
     {
@@ -27420,7 +27420,7 @@
       "source_location": "L7797",
       "_origin": "ast",
       "id": "polychain_run_native_checks_rationale_7797",
-      "community": 278,
+      "community": 229,
       "norm_label": "a kit of `count` modules that the parm page's slots can resolve.      the first"
     },
     {
@@ -27430,7 +27430,7 @@
       "source_location": "L7820",
       "_origin": "ast",
       "id": "polychain_run_native_checks_rationale_7820",
-      "community": 278,
+      "community": 229,
       "norm_label": "d206's rule, applied to the one python sop that is allowed to cook.      `config"
     },
     {
@@ -39660,7 +39660,7 @@
       "source_location": "L4610",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6b_shipped_v1_assets",
-      "community": 154,
+      "community": 102,
       "norm_label": "6b. shipped v1 assets"
     },
     {
@@ -39670,7 +39670,7 @@
       "source_location": "L4612",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_old_chain_is_being_retired_status_2026_08_12",
-      "community": 154,
+      "community": 102,
       "norm_label": "the old chain is being retired \u2014 status 2026-08-12"
     },
     {
@@ -39680,7 +39680,7 @@
       "source_location": "L4645",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_retirement_finished_2026_08_12",
-      "community": 154,
+      "community": 102,
       "norm_label": "the retirement, finished \u2014 2026-08-12"
     },
     {
@@ -39690,7 +39690,7 @@
       "source_location": "L4652",
       "_origin": "ast",
       "id": "ideas_citygen_streets_every_promoted_parameter_measured_by_who_reads_it",
-      "community": 154,
+      "community": 102,
       "norm_label": "every promoted parameter, measured by who reads it"
     },
     {
@@ -39700,7 +39700,7 @@
       "source_location": "L4736",
       "_origin": "ast",
       "id": "ideas_citygen_streets_audit_of_the_trim_and_the_monolith_was_not_a_control_it_was_a_divergence_hazard",
-      "community": 154,
+      "community": 102,
       "norm_label": "\u2705 audit of the trim \u2014 and the monolith was not a control, it was a divergence hazard"
     },
     {
@@ -39710,7 +39710,7 @@
       "source_location": "L4777",
       "_origin": "ast",
       "id": "ideas_citygen_streets_closure_gate_py_ported_onto_tracer_segmenter",
-      "community": 154,
+      "community": 102,
       "norm_label": "`closure_gate.py` ported onto `tracer \u2192 segmenter`"
     },
     {
@@ -39720,7 +39720,7 @@
       "source_location": "L4832",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_original_v1_assets",
-      "community": 154,
+      "community": 102,
       "norm_label": "the original v1 assets"
     },
     {
@@ -39730,7 +39730,7 @@
       "source_location": "L4846",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_boundary_moved_2026_08_10_it_is_now_between_data_and_geometry",
-      "community": 154,
+      "community": 102,
       "norm_label": "\u26a0\ufe0f the boundary moved \u2014 2026-08-10. it is now between data and geometry"
     },
     {
@@ -39850,7 +39850,7 @@
       "source_location": "L5180",
       "_origin": "ast",
       "id": "ideas_citygen_streets_never_change_a_shared_vex_signature_under_existing_callers_2026_08_11",
-      "community": 154,
+      "community": 102,
       "norm_label": "\u26a0\ufe0f never change a shared vex signature under existing callers \u2014 2026-08-11"
     },
     {
@@ -41600,7 +41600,7 @@
       "source_location": "L204",
       "_origin": "ast",
       "id": "ideas_polychain_3_data_contracts",
-      "community": 12,
+      "community": 154,
       "norm_label": "3. data contracts"
     },
     {
@@ -41610,7 +41610,7 @@
       "source_location": "L208",
       "_origin": "ast",
       "id": "ideas_polychain_3_1_input_spline_schema",
-      "community": 12,
+      "community": 154,
       "norm_label": "3.1 input spline schema"
     },
     {
@@ -41620,7 +41620,7 @@
       "source_location": "L226",
       "_origin": "ast",
       "id": "ideas_polychain_3_2_kit_format",
-      "community": 12,
+      "community": 154,
       "norm_label": "3.2 kit format"
     },
     {
@@ -41630,7 +41630,7 @@
       "source_location": "L245",
       "_origin": "ast",
       "id": "ideas_polychain_3_2b_prototype_identity_reuse_pf_merge_enum_and_keep_it_distinct_from_element_identity",
-      "community": 12,
+      "community": 154,
       "norm_label": "3.2b prototype identity \u2014 reuse `pf::merge_enum`, and keep it distinct from element identity"
     },
     {
@@ -41640,7 +41640,7 @@
       "source_location": "L280",
       "_origin": "ast",
       "id": "ideas_polychain_3_3_style_payload",
-      "community": 12,
+      "community": 154,
       "norm_label": "3.3 style payload"
     },
     {
@@ -41650,7 +41650,7 @@
       "source_location": "L297",
       "_origin": "ast",
       "id": "ideas_polychain_3_4_output",
-      "community": 12,
+      "community": 154,
       "norm_label": "3.4 output"
     },
     {
@@ -44920,7 +44920,7 @@
       "source_location": "L10797",
       "_origin": "ast",
       "id": "ideas_polychain_25_native_network_build_log_cycle_n_4d_d206_d210_re_verified_and_the_brief_was_stale",
-      "community": 240,
+      "community": 12,
       "norm_label": "25. native network build log \u2014 cycle n-4d (d206\u2013d210 re-verified, and the brief was stale)"
     },
     {
@@ -44930,7 +44930,7 @@
       "source_location": "L10814",
       "_origin": "ast",
       "id": "ideas_polychain_25_0_the_scoreboard_five_mutations_re_run_five_reddened",
-      "community": 240,
+      "community": 12,
       "norm_label": "25.0 the scoreboard \u2014 five mutations re-run, five reddened"
     },
     {
@@ -44940,7 +44940,7 @@
       "source_location": "L10827",
       "_origin": "ast",
       "id": "ideas_polychain_25_1_d210_and_the_twelve_claims_re_checked_from_scratch_a_second_time",
-      "community": 240,
+      "community": 12,
       "norm_label": "25.1 d210 \u2014 and the twelve claims, re-checked from scratch a second time"
     },
     {
@@ -44950,7 +44950,7 @@
       "source_location": "L10870",
       "_origin": "ast",
       "id": "ideas_polychain_25_2_d209_s_other_half_the_flakiness_not_just_the_floor",
-      "community": 240,
+      "community": 12,
       "norm_label": "25.2 d209's other half \u2014 the flakiness, not just the floor"
     },
     {
@@ -44960,7 +44960,7 @@
       "source_location": "L10884",
       "_origin": "ast",
       "id": "ideas_polychain_25_3_one_thing_the_d206_re_run_exposes_and_it_is_minor",
-      "community": 240,
+      "community": 12,
       "norm_label": "25.3 one thing the d206 re-run exposes, and it is minor"
     },
     {
@@ -44970,7 +44970,7 @@
       "source_location": "L10892",
       "_origin": "ast",
       "id": "ideas_polychain_25_4_what_this_cycle_asks_of_the_next_agent",
-      "community": 240,
+      "community": 12,
       "norm_label": "25.4 what this cycle asks of the next agent"
     },
     {
@@ -46207,7 +46207,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/asset_library/browser_ui.py",
       "source_location": "L799",
-      "community": 250,
+      "community": 78,
       "norm_label": "_handle_drop()",
       "id": "asset_library_browser_ui_handle_drop"
     },
@@ -93948,9 +93948,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L149",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases",
-      "target": "polychain_gen_cases_box",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_box"
     },
     {
       "relation": "contains",
@@ -93958,9 +93958,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L97",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases",
-      "target": "polychain_gen_cases_curve_geo",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_curve_geo"
     },
     {
       "relation": "contains",
@@ -93968,9 +93968,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L229",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases",
-      "target": "polychain_gen_cases_describe",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_describe"
     },
     {
       "relation": "contains",
@@ -93978,9 +93978,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L155",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases",
-      "target": "polychain_gen_cases_kit_geo",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_kit_geo"
     },
     {
       "relation": "contains",
@@ -93988,9 +93988,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L217",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases",
-      "target": "polychain_gen_cases_make",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_make"
     },
     {
       "relation": "contains",
@@ -93998,9 +93998,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L132",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases",
-      "target": "polychain_gen_cases_markers",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_markers"
     },
     {
       "relation": "contains",
@@ -94008,9 +94008,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases",
-      "target": "polychain_gen_cases_points",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_points"
     },
     {
       "relation": "contains",
@@ -94018,9 +94018,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases",
-      "target": "polychain_gen_cases_rng",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_rng"
     },
     {
       "relation": "contains",
@@ -94028,9 +94028,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L238",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases",
-      "target": "polychain_gen_cases_seeds",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_seeds"
     },
     {
       "relation": "contains",
@@ -94038,9 +94038,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L193",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases",
-      "target": "polychain_gen_cases_style",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_style"
     },
     {
       "relation": "rationale_for",
@@ -94048,9 +94048,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_rationale_1",
-      "target": "polychain_gen_cases",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases"
     },
     {
       "relation": "calls",
@@ -94059,9 +94059,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L219",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_make",
-      "target": "polychain_gen_cases_rng",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_rng"
     },
     {
       "relation": "calls",
@@ -94070,9 +94070,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_curve_geo",
-      "target": "polychain_gen_cases_points",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_points"
     },
     {
       "relation": "rationale_for",
@@ -94080,9 +94080,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L80",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_rationale_80",
-      "target": "polychain_gen_cases_points",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_points"
     },
     {
       "relation": "calls",
@@ -94091,9 +94091,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L220",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_make",
-      "target": "polychain_gen_cases_curve_geo",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_curve_geo"
     },
     {
       "relation": "rationale_for",
@@ -94101,9 +94101,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L98",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_rationale_98",
-      "target": "polychain_gen_cases_curve_geo",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_curve_geo"
     },
     {
       "relation": "calls",
@@ -94112,9 +94112,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L223",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_make",
-      "target": "polychain_gen_cases_markers",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_markers"
     },
     {
       "relation": "rationale_for",
@@ -94122,9 +94122,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_rationale_133",
-      "target": "polychain_gen_cases_markers",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_markers"
     },
     {
       "relation": "calls",
@@ -94133,9 +94133,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L166",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_kit_geo",
-      "target": "polychain_gen_cases_box",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_box"
     },
     {
       "relation": "calls",
@@ -94144,9 +94144,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L221",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_make",
-      "target": "polychain_gen_cases_kit_geo",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_kit_geo"
     },
     {
       "relation": "rationale_for",
@@ -94154,9 +94154,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L156",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_rationale_156",
-      "target": "polychain_gen_cases_kit_geo",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_kit_geo"
     },
     {
       "relation": "calls",
@@ -94165,9 +94165,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L222",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_make",
-      "target": "polychain_gen_cases_style",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_style"
     },
     {
       "relation": "calls",
@@ -94176,9 +94176,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L225",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_make",
-      "target": "polychain_gen_cases_describe",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_describe"
     },
     {
       "relation": "rationale_for",
@@ -94186,9 +94186,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L218",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_rationale_218",
-      "target": "polychain_gen_cases_make",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_make"
     },
     {
       "relation": "calls",
@@ -94218,9 +94218,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L230",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_rationale_230",
-      "target": "polychain_gen_cases_describe",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_describe"
     },
     {
       "relation": "rationale_for",
@@ -94228,9 +94228,9 @@
       "source_file": "tests/polychain/gen_cases.py",
       "source_location": "L239",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gen_cases_rationale_239",
-      "target": "polychain_gen_cases_seeds",
-      "confidence_score": 1.0
+      "target": "polychain_gen_cases_seeds"
     },
     {
       "relation": "contains",
@@ -94266,11 +94266,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/polychain/mutations.py",
-      "source_location": "L73",
+      "source_location": "L78",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_mutations_rationale_73",
-      "target": "polychain_mutations_m"
+      "source": "polychain_mutations_rationale_78",
+      "target": "polychain_mutations_m",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -94738,9 +94738,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated",
-      "target": "polychain_run_generated_arg",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_arg"
     },
     {
       "relation": "contains",
@@ -94748,9 +94748,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L104",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated",
-      "target": "polychain_run_generated_cook",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_cook"
     },
     {
       "relation": "contains",
@@ -94758,9 +94758,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated",
-      "target": "polychain_run_generated_file_sop",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_file_sop"
     },
     {
       "relation": "contains",
@@ -94768,9 +94768,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated",
-      "target": "polychain_run_generated_known",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_known"
     },
     {
       "relation": "contains",
@@ -94778,9 +94778,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L182",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated",
-      "target": "polychain_run_generated_main",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_main"
     },
     {
       "relation": "contains",
@@ -94788,9 +94788,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L116",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated",
-      "target": "polychain_run_generated_run",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_run"
     },
     {
       "relation": "contains",
@@ -94798,9 +94798,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L99",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated",
-      "target": "polychain_run_generated_write",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_write"
     },
     {
       "relation": "rationale_for",
@@ -94808,9 +94808,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated_rationale_1",
-      "target": "polychain_run_generated",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated"
     },
     {
       "relation": "rationale_for",
@@ -94818,9 +94818,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L72",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated_rationale_72",
-      "target": "polychain_run_generated_known",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_known"
     },
     {
       "relation": "calls",
@@ -94829,9 +94829,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L153",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated_run",
-      "target": "polychain_run_generated_known",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_known"
     },
     {
       "relation": "calls",
@@ -94840,9 +94840,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L188",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated_main",
-      "target": "polychain_run_generated_arg",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_arg"
     },
     {
       "relation": "calls",
@@ -94851,9 +94851,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L122",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated_run",
-      "target": "polychain_run_generated_file_sop",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_file_sop"
     },
     {
       "relation": "calls",
@@ -94862,9 +94862,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L137",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated_run",
-      "target": "polychain_run_generated_write",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_write"
     },
     {
       "relation": "rationale_for",
@@ -94872,9 +94872,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L105",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated_rationale_105",
-      "target": "polychain_run_generated_cook",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_cook"
     },
     {
       "relation": "calls",
@@ -94883,9 +94883,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L142",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated_run",
-      "target": "polychain_run_generated_cook",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_cook"
     },
     {
       "relation": "calls",
@@ -94894,9 +94894,9 @@
       "source_file": "tests/polychain/run_generated.py",
       "source_location": "L191",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_run_generated_main",
-      "target": "polychain_run_generated_run",
-      "confidence_score": 1.0
+      "target": "polychain_run_generated_run"
     },
     {
       "relation": "contains",
@@ -111236,9 +111236,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties",
-      "target": "unit_test_polychain_properties_params",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_params"
     },
     {
       "relation": "contains",
@@ -111246,9 +111246,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L121",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties",
-      "target": "unit_test_polychain_properties_test_adaptive_never_slices",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_adaptive_never_slices"
     },
     {
       "relation": "contains",
@@ -111256,9 +111256,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L250",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties",
-      "target": "unit_test_polychain_properties_test_decompose_tiles_the_curve_and_never_raises",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_decompose_tiles_the_curve_and_never_raises"
     },
     {
       "relation": "contains",
@@ -111266,9 +111266,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L145",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties",
-      "target": "unit_test_polychain_properties_test_evenly_anchors_are_ordered_and_inside_the_span",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_evenly_anchors_are_ordered_and_inside_the_span"
     },
     {
       "relation": "contains",
@@ -111276,9 +111276,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L157",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties",
-      "target": "unit_test_polychain_properties_test_evenly_center_is_symmetric_about_the_span",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_evenly_center_is_symmetric_about_the_span"
     },
     {
       "relation": "contains",
@@ -111286,9 +111286,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L78",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties",
-      "target": "unit_test_polychain_properties_test_every_mode_fills_the_span_exactly",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_every_mode_fills_the_span_exactly"
     },
     {
       "relation": "contains",
@@ -111296,9 +111296,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L132",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties",
-      "target": "unit_test_polychain_properties_test_fit_warns_but_never_blocks",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_fit_warns_but_never_blocks"
     },
     {
       "relation": "contains",
@@ -111306,9 +111306,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L180",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties",
-      "target": "unit_test_polychain_properties_test_padding_moves_the_neighbour_not_the_padded_piece",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_padding_moves_the_neighbour_not_the_padded_piece"
     },
     {
       "relation": "contains",
@@ -111316,9 +111316,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L210",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties",
-      "target": "unit_test_polychain_properties_test_plan_section_reaches_both_ends_and_is_deterministic",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_plan_section_reaches_both_ends_and_is_deterministic"
     },
     {
       "relation": "contains",
@@ -111326,9 +111326,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L271",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties",
-      "target": "unit_test_polychain_properties_test_the_kernel_never_imports_hou",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_the_kernel_never_imports_hou"
     },
     {
       "relation": "contains",
@@ -111336,9 +111336,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties",
-      "target": "unit_test_polychain_properties_total",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_total"
     },
     {
       "relation": "rationale_for",
@@ -111346,9 +111346,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_rationale_1",
-      "target": "unit_test_polychain_properties",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties"
     },
     {
       "relation": "calls",
@@ -111357,9 +111357,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_test_adaptive_never_slices",
-      "target": "unit_test_polychain_properties_params",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_params"
     },
     {
       "relation": "calls",
@@ -111368,9 +111368,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L259",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_test_decompose_tiles_the_curve_and_never_raises",
-      "target": "unit_test_polychain_properties_params",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_params"
     },
     {
       "relation": "calls",
@@ -111379,9 +111379,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L146",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_test_evenly_anchors_are_ordered_and_inside_the_span",
-      "target": "unit_test_polychain_properties_params",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_params"
     },
     {
       "relation": "calls",
@@ -111390,9 +111390,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L169",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_test_evenly_center_is_symmetric_about_the_span",
-      "target": "unit_test_polychain_properties_params",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_params"
     },
     {
       "relation": "calls",
@@ -111401,9 +111401,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_test_every_mode_fills_the_span_exactly",
-      "target": "unit_test_polychain_properties_params",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_params"
     },
     {
       "relation": "calls",
@@ -111412,9 +111412,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L134",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_test_fit_warns_but_never_blocks",
-      "target": "unit_test_polychain_properties_params",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_params"
     },
     {
       "relation": "calls",
@@ -111423,9 +111423,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L217",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_test_plan_section_reaches_both_ends_and_is_deterministic",
-      "target": "unit_test_polychain_properties_params",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_params"
     },
     {
       "relation": "rationale_for",
@@ -111433,9 +111433,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L63",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_rationale_63",
-      "target": "unit_test_polychain_properties_total",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_total"
     },
     {
       "relation": "calls",
@@ -111444,9 +111444,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L98",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_test_every_mode_fills_the_span_exactly",
-      "target": "unit_test_polychain_properties_total",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_total"
     },
     {
       "relation": "rationale_for",
@@ -111454,9 +111454,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_rationale_79",
-      "target": "unit_test_polychain_properties_test_every_mode_fills_the_span_exactly",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_every_mode_fills_the_span_exactly"
     },
     {
       "relation": "rationale_for",
@@ -111464,9 +111464,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L122",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_rationale_122",
-      "target": "unit_test_polychain_properties_test_adaptive_never_slices",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_adaptive_never_slices"
     },
     {
       "relation": "rationale_for",
@@ -111474,9 +111474,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_rationale_133",
-      "target": "unit_test_polychain_properties_test_fit_warns_but_never_blocks",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_fit_warns_but_never_blocks"
     },
     {
       "relation": "rationale_for",
@@ -111484,9 +111484,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L158",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_rationale_158",
-      "target": "unit_test_polychain_properties_test_evenly_center_is_symmetric_about_the_span",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_evenly_center_is_symmetric_about_the_span"
     },
     {
       "relation": "rationale_for",
@@ -111494,9 +111494,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L182",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_rationale_182",
-      "target": "unit_test_polychain_properties_test_padding_moves_the_neighbour_not_the_padded_piece",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_padding_moves_the_neighbour_not_the_padded_piece"
     },
     {
       "relation": "rationale_for",
@@ -111504,9 +111504,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L251",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_rationale_251",
-      "target": "unit_test_polychain_properties_test_decompose_tiles_the_curve_and_never_raises",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_decompose_tiles_the_curve_and_never_raises"
     },
     {
       "relation": "rationale_for",
@@ -111514,9 +111514,9 @@
       "source_file": "tests/unit/test_polychain_properties.py",
       "source_location": "L272",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_properties_rationale_272",
-      "target": "unit_test_polychain_properties_test_the_kernel_never_imports_hou",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_properties_test_the_kernel_never_imports_hou"
     },
     {
       "relation": "contains",
@@ -123773,5 +123773,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "110bd5da76c251213b41b44d6a6c2634662b9749"
+  "built_at_commit": "443bfaa8df791e431de3796e9227a688bd58a8a2"
 }

@@ -60,6 +60,11 @@ RUNNERS = {
     "2d":     "tests/polychain/run_2d_checks.py",
     "hda":    "tests/polychain/run_hda_checks.py",
     "images": "tests/polychain/gate_images.py",
+    # v2's differential oracle over GENERATED input, on the shipped asset.
+    # It prints exactly two names, deliberately: seed numbers are diagnostics,
+    # not check names (a sweep that moves its range would silently retire and
+    # invent hundreds of them).
+    "generated": "tests/polychain/run_generated.py",
 }
 
 # `run_scene_checks` and `run_2d_checks` carry a baseline, and D210 made a
@@ -99,6 +104,7 @@ class M(object):
         self.note = note
 
 
+GEN = "tests/polychain/run_generated.py"
 VEX = "polyfactory/vex/polychain/%s"
 PY = "polyfactory/scripts/python/polyfactory/polychain/%s"
 RIG = "tests/polychain/native.py"
@@ -108,6 +114,33 @@ IMG = "tests/polychain/gate_images.py"
 
 
 MUTATIONS = (
+
+    # ---- v2: the generated differential, on the SHIPPED asset -------------
+    M("generated_pc_local_scaled", "generated",
+      ("generated_output_matches_the_reference",),
+      "The v2 oracle's own proof. `pc_deform` writes `v@pc_local = local`; "
+      "scaling it 1.5x is a divergence on the NATIVE side of every deformed "
+      "build, and `run_generated` compares the shipped node's `Stage = "
+      "output` against its `Stage = reference` over generated scenes. The "
+      "same edit is `pc_local_scaled` for `native`; registered twice on "
+      "purpose, because a mutation is evidence about the pairing it was "
+      "examined against and these are two different instruments.",
+      ((VEX % "pc_deform.vfl",
+        "v@pc_local = local;", "v@pc_local = local * 1.5;"),)),
+
+    M("generated_known_pattern_broken", "generated",
+      ("known_divergences_still_occur",
+       "generated_output_matches_the_reference"),
+      "The other half of a KNOWN divergence: an entry that stops occurring "
+      "has either been fixed (delete it deliberately) or stopped being "
+      "REACHED, which is the fixture-blindness class the generator exists to "
+      "attack. Editing the pattern to one that cannot match must redden BOTH "
+      "names - the five pinned seeds lose their exemption and the entry goes "
+      "unreached. Measured live before it was registered: 5 red, `0 of 1 "
+      "reached`, exit 1.",
+      ((GEN, "\".prim: 'pc_module' only on the RIGHT\"",
+        "\".prim: 'pc_NEVER' only on the RIGHT\""),),
+      rebuild=False),
 
     # ---- 13.9 N10, the guard switch: the flip, and its undo ----------------
     M("stage_output_repointed", "native",
@@ -727,6 +760,7 @@ EXPECT_CHECKS = {
     "images": 43,
     "2d": 40,
     "hda": 37,
+    "generated": 2,
 }
 
 # ---- the DATED DEBT ---------------------------------------------------------

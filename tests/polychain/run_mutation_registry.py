@@ -265,6 +265,12 @@ def execute(mut, control):
 def main():
     argv = sys.argv[1:]
     only = argv[argv.index("--only") + 1] if "--only" in argv else None
+    # `--index N` is `--only` by POSITION, and it exists for the PDG runner:
+    # a work item knows its own index and nothing else, and embedding thirty
+    # ids in a command template is a second place for the registry to be
+    # declared. `pdg_build.py` asserts the count it saw matches len(MUTATIONS).
+    if "--index" in argv:
+        only = REG.MUTATIONS[int(argv[argv.index("--index") + 1])].id
     want = argv[argv.index("--runner") + 1] if "--runner" in argv else None
     picked = [m for m in REG.MUTATIONS
               if (only is None or m.id == only)
@@ -325,6 +331,27 @@ def main():
             with open(state_path, "w") as fh:
                 json.dump(state, fh, indent=1, sort_keys=True)
 
+    # ⚠️ THE CONTROL IS COMPUTED ONCE AND SHARED, or 30 parallel work items
+    # each pay a pristine export + HDA rebuild + full runner for the same
+    # answer.  It is keyed to HEAD exactly as `--state` is, and a file for a
+    # different HEAD is IGNORED with a printed line rather than trusted - a
+    # stale control silently turns "this check went red" into a coin toss.
+    # `--control-only` is the upstream work item that writes it.
+    ctl_path = (argv[argv.index("--control") + 1]
+                if "--control" in argv else None)
+    ctl_loaded = False
+    if ctl_path and os.path.exists(ctl_path):
+        with open(ctl_path) as fh:
+            got = json.load(fh)
+        if got.get("head") == head:
+            ctl_loaded = True
+            state["control"] = got["control"]
+            print("control from %s (%d runners, HEAD %s)"
+                  % (ctl_path, len(got["control"]), head[:8]))
+        else:
+            print("%s is for %s, not HEAD %s - recomputing the control"
+                  % (ctl_path, got.get("head", "?")[:8], head[:8]))
+
     print("=== 0. the control build: a pristine export, %d runner(s)%s ==="
           % (len(runners), "" if full else " - PARTIAL RUN"))
     control, bad = dict(state["control"]), []
@@ -377,6 +404,14 @@ def main():
 
     state["control"] = control
     save()
+    if ctl_path and not ctl_loaded:
+        with open(ctl_path, "w") as fh:
+            json.dump({"head": head, "control": control}, fh, indent=1)
+    if "--control-only" in argv:
+        print("control written to %s: %s"
+              % (ctl_path, ", ".join("%s=%d" % (r, len(control[r]))
+                                     for r in sorted(control))))
+        return 0
 
     print("\n=== 1. the registered mutations ===")
     rows, proven = [], {}
@@ -504,6 +539,12 @@ def main():
             for n in gaps:
                 print('    "%s",' % n)
             print('), "no mutation yet"))')
+
+    if "--json" in argv:
+        with open(argv[argv.index("--json") + 1], "w") as fh:
+            json.dump([{"id": m.id, "runner": m.runner, "verdict": v,
+                        "detail": d, "ok": bool(ok), "kills": list(m.kills)}
+                       for m, v, d, ok in rows], fh, indent=1)
 
     failed = [m.id for m, _v, _d, ok in rows if not ok]
     print("\n%d mutations: %d reddened their paired check, %d did not (%s). "
