@@ -39,6 +39,7 @@ PRODUCTION = (
     ("polyfactory/scripts/python/polyfactory/polychain", (".py",)),
     ("polyfactory/vex/polychain", (".vfl", ".h")),
     ("devScripts/create_pf_polychain_hda.py", None),
+    ("devScripts/create_pf_polychain_slice_hda.py", None),
 )
 
 # Everything that exists only to test polyChain.  Images and JSON baselines
@@ -52,6 +53,7 @@ TESTS = (
     ("tests/unit/test_polychain_array2d.py", None),
     ("tests/unit/test_polychain_properties.py", None),
     ("tests/unit/test_polychain_budget.py", None),
+    ("tests/unit/test_polychain_slice.py", None),
 )
 
 

@@ -158,10 +158,20 @@ def build(mode, mut_indices, seeds=SEEDS, slots=None):
     unit = top.createNode("genericgenerator", "unit")
     unit.parm("itemcount").set(1)
     unit.parm("pdg_command").set(
-        '%s -m pytest %s %s -q -p no:cacheprovider'
+        '%s -m pytest %s %s %s -q -p no:cacheprovider'
         % (PY, _q(REPO + "/tests/unit/test_polychain_properties.py"),
-           _q(REPO + "/tests/unit/test_polychain.py")))
+           _q(REPO + "/tests/unit/test_polychain.py"),
+           _q(REPO + "/tests/unit/test_polychain_slice.py")))
     made[unit] = "the pure-Python kernel (pytest + Hypothesis)"
+
+    # 1c. 7.7's on-ramp: the SHIPPED `pf_polychain_slice` asset, the kit it
+    #     emits, and that kit through the SHIPPED `pf_polychain`.  It is in
+    #     the per-cycle gate rather than the sweep because it is 12 s and it
+    #     is the only lane that cooks two assets against each other.
+    sl = top.createNode("genericgenerator", "slice")
+    sl.parm("itemcount").set(1)
+    sl.parm("pdg_command").set(_cmd(HY, "tests/polychain/run_slice_checks.py"))
+    made[sl] = "7.7's kit slicer, on the shipped assets"
 
     # 1b. THE BUDGET, as its own node so its red is never confused with the
     #     kernel's.  It is red until the v1 deletions land, and that is what a
