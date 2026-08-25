@@ -91,6 +91,13 @@ def test_two_guides_in_one_place_are_one_cut(lo, span, size, cuts, nudge):
     assert [(c.name, c.x0, c.x1) for c in dup] == \
            [(c.name, c.x0, c.x1) for c in once], (cuts, nudge)
     assert any("same cut" in w for w in warns), warns
+    # and the merged cut KEEPS THE CLASS, whichever of the pair carried it -
+    # dropping that carry-over survived the suite (mutmut #90).
+    named, _w = S.plan((0.0, 10.0, 0.0, 4.0), 0.0, 0.0,
+                       [("x", 5.0, ""), ("x", 5.0 + 1e-10, "corner")],
+                       ycaps=False)
+    assert [c.role for c in named] == ["start", "corner"], \
+        [c.role for c in named]
 
 
 @given(lo=coords, span=spans)
@@ -102,6 +109,13 @@ def test_the_default_layout_is_three_equal_bands(lo, span):
     assert [b.cls for b in bands] == ["start", "default", "end"]
     for b in bands:
         assert abs(b.size - span / 3.0) < 1e-6 * max(1.0, abs(span))
+    # WITH THE CAPS OFF the whole chunk is one repeating piece - which is what
+    # a fence or a wall run wants, and what `Cut Side Pieces` off means.
+    # Halving that divisor survived the suite (mutmut #105): the one band
+    # would have been half the chunk with nothing said.
+    bands = S.axis_bands(lo, lo + span, 0.0, (), False)
+    assert len(bands) == 1 and bands[0].cls == "default"
+    assert abs(bands[0].size - span) < 1e-6 * max(1.0, abs(span)), bands
 
 
 # ⚠️ `SLOTS + ("",)` ALONE CANNOT REACH THE BUG THIS TEST EXISTS FOR. `pc_slot`
@@ -150,6 +164,14 @@ def test_a_guide_that_misses_the_chunk_is_ignored_and_says_so(lo, span, off):
                          True, warns)
     assert len(bands) == 3
     assert any("outside the chunk" in w for w in warns), warns
+    # ⚠️ AND IT MUST NOT TAKE THE REST WITH IT. `continue` -> `break` in that
+    # filter survived the whole suite (mutmut #71) because no case ever put a
+    # stray guide BEFORE a real one - one plane an artist left outside the
+    # chunk would then have voided every guide after it, silently.
+    mid = lo + 0.5 * span
+    bands = S.axis_bands(lo, lo + span, 0.0,
+                         [(lo + span + off, ""), (mid, "")], True, True, [])
+    assert len(bands) == 2 and bands[0].b == mid, [(b.a, b.b) for b in bands]
 
 
 def test_a_guide_names_the_band_that_starts_at_it():
@@ -164,6 +186,17 @@ def test_a_guide_names_the_band_that_starts_at_it():
                           "start_end", "corner_end", "end_end"]), got
     corner = [c for c in cells if c.role == "corner"][0]
     assert (corner.x0, corner.x1) == (2.0, 4.0)
+    # ⚠️ AND THE Y AXIS, BY EXTENT. Nothing asserted that a Y guide cuts at
+    # all: routing `gy` to a list that is always empty survived the WHOLE
+    # suite (mutmut #164), because the auto layout still emits three rows
+    # with the same class names in the same order. Found by the mutmut lane
+    # `slicer.py` had never been in.
+    cells, warns = S.plan((0.0, 6.0, 0.0, 9.0), 2.0, 3.0,
+                          [("y", 3.0, "corner")], ycaps=False)
+    rows = sorted(set((c.y0, c.y1) for c in cells))
+    assert rows == [(0.0, 3.0), (3.0, 6.0)], rows
+    assert [c.role for c in cells if c.y0 == 3.0] == \
+           ["start_corner", "default_corner", "end_corner"]
 
 
 def test_a_cap_is_free_the_first_bay_sets_the_size_and_a_repeat_is_a_variant():

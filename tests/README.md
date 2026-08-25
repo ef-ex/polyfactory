@@ -54,7 +54,7 @@ missed says so.
 | 2b. seeded scene generator | `tests/polychain/gen_cases.py` + `run_generated.py`, 400 scenes |
 | 3. PDG/TOPs runner | `tests/polychain/pdg_build.py` |
 | 4. mutmut | `setup.cfg` `[mutmut]`, **pin 2.5.0** |
-| 5. budget check | `tests/unit/test_polychain_budget.py` — **still RED at 1.05x**, see below |
+| 5. budget check | `tests/unit/test_polychain_budget.py` — **green in the working tree, RED at HEAD**, see below |
 | the deletions | **done** — 27 162 → 15 381 lines, 361 → 122 check names |
 
 ### What the deletion pass removed, and what it kept
@@ -103,7 +103,7 @@ itself a `native` one, so 430 s of native runner put a ~15 min floor under the s
 parallelism. Deleting the 126 subsumed names took the runner to 27 s and the whole sweep to
 3.3 minutes — the same 32 mutations, all still red.
 
-⚠️ **THE BUDGET IS STILL 699 LINES OVER, and the remaining candidates are coverage rather than
+⚠️ **THE BUDGET IS 843 LINES OVER AT HEAD (16 507 / 15 664 = 1.054x, re-measured from a `git archive HEAD` export on 2026-08-25 after C1a), AND GREEN IN THE WORKING TREE (15 219 / 15 664 = 0.972x, 445 lines of headroom) BECAUSE THE DELETION PASS IS NOT COMMITTED YET.** ⚠️ **AND THE GATE MEASURES THE WORKING TREE, NOT HEAD** — `pdg_build.py`'s budget node runs `tests/unit/test_polychain_budget.py` at `REPO`, so a green budget in a gate log is a statement about the tree that ran it. Export HEAD and re-run it before quoting the number. The earlier reading follows. **THE BUDGET WAS 699 LINES OVER, and the remaining candidates are coverage rather than
 accretion.** Named, so the next pass starts from the argument instead of the number:
 `test_polychain_corner.py` + `test_polychain_array2d.py` (1 418 lines) are the hand grids over
 `corner.py` and `array2d.py`, for which **no property coverage exists yet** — the Hypothesis file
@@ -212,8 +212,8 @@ hython tests/polychain/pdg_build.py
 # ... plus the mutations whose edited files actually moved (Google's policy)
 hython tests/polychain/pdg_build.py --changed HEAD~1
 
-# THE MILESTONE SWEEP - all 32 registry entries, one work item each, behind
-# one shared control build. 200 s wall for 1 647 s of work.
+# THE MILESTONE SWEEP - all 47 registry entries, one work item each, behind
+# one shared control build. 224 s wall for 1 998 s of work.
 # `--slots N` trades wall time for stability on a busy machine.
 hython tests/polychain/pdg_build.py --full
 hython tests/polychain/pdg_build.py --full --slots 6
@@ -244,10 +244,16 @@ python tests/polychain/run_mutation_registry.py --runner scene --state s.json
 # MUTMUT, on the pure-Python kernel. ⚠️ PIN 2.5.0: mutmut 3.x refuses to run
 # on native Windows ("please use the WSL") and does nothing else. ⚠️ And set
 # PYTHONIOENCODING: its banner is emoji and this machine's stdout is cp1252
-# whenever it is piped. ⚠️ And it REWRITES SOURCE FILES IN PLACE - an
-# interrupted run leaves a mutant on disk; check `git status` after one.
+# whenever it is piped. ⚠️ AND SET PYTHONUTF8=1, which is a different
+# problem: mutmut READS the source with the locale codec too, so every ⚠️ in
+# this package makes it die in a UnicodeDecodeError before it mutates a line
+# (measured on slicer.py, 2026-08-25). ⚠️ And it REWRITES SOURCE FILES IN
+# PLACE - an interrupted run leaves a mutant on disk, and a pytest run of
+# your own that races it reads the mutant; check `git status` after one, and
+# do not run anything else against the tree while it works.
 pip install "mutmut==2.5.0"
 export PYTHONIOENCODING=utf-8
+export PYTHONUTF8=1
 
 # per cycle - only the kernel files git says moved
 python -m mutmut run --paths-to-mutate "$(git diff --name-only HEAD~1 \
@@ -256,6 +262,14 @@ python -m mutmut run --paths-to-mutate "$(git diff --name-only HEAD~1 \
 # DEBT (2026-08-25): decompose.py's first run found 124 survivors; #209 (the
 # corner-threshold boundary) is killed, the other 123 are untriaged (unfiltered
 # mutant set, so an upper bound). Resume with:
+#
+# slicer.py (C1a, 2026-08-25): 191 of 237 mutants run before the lane was
+# stopped; 61 survivors, sampled rather than triaged, and FOUR of the sample
+# were substantive and are killed now - #164 (every Y guide dropped: nothing
+# asserted that a Y guide cuts AT ALL), #71 (a stray guide outside the chunk
+# taking every guide after it with it), #90 (a merged duplicate losing its
+# class), #105 (the caps-off band half the chunk). The rest of the sample was
+# string mutation of warning text. The remaining 46 are untriaged.
 #   python -m mutmut run --paths-to-mutate polyfactory/scripts/python/polyfactory/polychain/decompose.py && python -m mutmut results
 
 # at a milestone - the whole kernel, from setup.cfg's [mutmut] section
@@ -265,7 +279,7 @@ python -m mutmut show <id>          # the diff of one surviving mutant
 ```
 
 ⚠️ **mutmut only ever sees the `hou`-free kernel** — `plan`, `decompose`, `corner`, `array2d`,
-`__init__`. `place`, `conform`, `hda`, `kit`, `style` and `facade` import `hou`, so a mutant in
+`slicer` (added C1a, 2026-08-25 — it had been missing since C1 built it) and `__init__`. `place`, `conform`, `hda`, `kit`, `style` and `facade` import `hou`, so a mutant in
 them would be "killed" by an ImportError under a Houdini-less pytest: a green earned by nothing.
 Those layers belong to the hand-written registry, which is the division the skill draws.
 

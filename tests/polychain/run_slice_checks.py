@@ -98,7 +98,7 @@ def authored_kit():
         m.merge(r)
         # D20 SAYS A MODULE IS CENTRED ACROSS Z, and this fixture was not -
         # wall plane at 0, relief to +0.2, so its Z centre was 0.075. That is
-        # what D272 now normalises, and a fixture that disagrees with the
+        # what D286 now normalises, and a fixture that disagrees with the
         # frame it is testing is not a reference. Centred here, ONCE, off its
         # own bounds: the offset is not a magic number.
         zc = 0.5 * (m.boundingBox().minvec()[2] + m.boundingBox().maxvec()[2])
@@ -128,7 +128,7 @@ def tiled_chunk(kit_geo):
 
 def module_points(kit_geo, dz=0.0):
     """{name: sorted rounded point positions} - the retessellation-proof
-    fingerprint of every module in a kit. `dz` is D272's known Z offset."""
+    fingerprint of every module in a kit. `dz` is D286's known Z offset."""
     out = {}
     for prim in kit_geo.prims():
         src = prim.getEmbeddedGeometry()
@@ -229,7 +229,7 @@ def main():
     cells, pairs, sliced, warns = slice_of(chunk, xsize=W, ysize=H)
 
     # 1. THE ORACLE - every module, every point, back out of the chunk.
-    #    D272 moves the kit to a canonical Z, and the offset is EXACT and
+    #    D286 moves the kit to a canonical Z, and the offset is EXACT and
     #    known here, so the oracle stays exact: it is the authored module
     #    shifted by the chunk's own Z centre, not a comparison with Z dropped.
     zc = 0.5 * (chunk.boundingBox().minvec()[2]
@@ -494,7 +494,7 @@ def main():
           "9 cells flush with their frames; the 0.4 m chunk given a 5 m bay "
           "is %.3f m short at its %s, and says so" % (bad[0], bad[1]))
 
-    # 15. D272's CANONICAL Z, and the union that proves it matters. X and Y
+    # 15. D286's CANONICAL Z, and the union that proves it matters. X and Y
     #     were normalised and Z was not, so a facade modelled IN PLACE on a
     #     building - the normal workflow - built a fence 49.90 m behind its
     #     own curve, silently.

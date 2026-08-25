@@ -603,7 +603,7 @@ MUTATIONS = (
 
     M("slice_z_left_as_authored", "slice",
       ("slice_kit_z_is_canonical",),
-      "D272 reverted - X and Y normalised, Z left exactly where the artist "
+      "D286 reverted - X and Y normalised, Z left exactly where the artist "
       "modelled it. A facade modelled IN PLACE on a building, which is the "
       "normal workflow, then builds a fence 49.90 m behind its own curve "
       "with nothing said.",

@@ -424,7 +424,7 @@ def slice_kit(pairs, kit_id="sliced_kit", version=1,
     will take its fit origin from the bbox and place it shifted, so the gap
     is reported here, where the artist can still move a guide.
 
-    D272: Z IS CANONICALISED, ONCE, FOR THE WHOLE KIT. X and Y were
+    D286: Z IS CANONICALISED, ONCE, FOR THE WHOLE KIT. X and Y were
     normalised and Z was "left exactly as authored", which meant a facade
     modelled in place on a building - the normal workflow - produced a kit
     every piece of which sat at its authored depth: measured, a chunk at
@@ -458,7 +458,7 @@ def slice_kit(pairs, kit_id="sliced_kit", version=1,
 
 
 def _kit_z_centre(pairs):
-    """D272's single offset: the middle of the Z the kit actually occupies.
+    """D286's single offset: the middle of the Z the kit actually occupies.
 
     WHAT THIS CANNOT SEE: Z in the chunk that no cell kept. Nothing clips Z,
     so the two differ only when a whole cell was dropped as empty.
