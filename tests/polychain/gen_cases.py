@@ -61,6 +61,11 @@ PINS = (
     150,    # same, corner_mode=bend - it is not a miter-only divergence
     170,    # same, with an EMPTY-STRING curve id
     203,    # same, with no `corner` role in the kit at all
+    12,     # the +-Z WALL that WIGGLES (F3): the only shape in the corpus
+            # that reaches `pc_frames_transportable`'s conformed station set
+            # and comes out REFUSED at level 2. Pinned because the default
+            # 12-seed run reached only the GENTLE half of the lane, and
+            # `transport_stations_dropped` survived it.
 )
 
 FILLS = ("adaptive", "tile", "scale", "count")
