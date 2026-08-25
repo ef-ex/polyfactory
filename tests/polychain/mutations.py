@@ -625,6 +625,71 @@ MUTATIONS = (
         "    return (d, _cross(d, UP), UP)"),),
       rebuild=False),
 
+    # ---- C3a / D296a: the THREE yaw sites D296 did not sweep ----------------
+    #
+    # ⚠️ ALL FOUR OF THESE WERE GREEN ON THE SIX-RUNG LADDER. The ladder
+    # rotated about world X off a loop whose first edge runs along world X, so
+    # `frame.ex` was +X on every rung and each of these spellings agreed with
+    # the generalised one. The rungs that redden them are the ones that move
+    # `ex`: the same plate started at its second vertex, and the two-axis
+    # rolls.
+    M("2d_packed_chord_world_flat", "2d",
+      ("tilt_ladder_inside_m",),
+      "`_packed_transform` squashes the chord into the world XZ plane again, "
+      "one line before handing it to the frame D296 generalised - so the "
+      "piece is measured, scaled and placed along a direction the plan never "
+      "used. Measured on HEAD 1a3f1ce: 30 deg started at vertex 1, "
+      "`clip_inside_m` 0.064952 m against PC-G6's 0.010 tolerance; started at "
+      "vertex 3, 1.797003 m.",
+      ((PY % "place.py",
+        "        flat = _flat(chord, up_ref)",
+        "        flat = (chord[0], 0.0, chord[2])"),),
+      rebuild=False),
+
+    M("2d_deform_grows_world_y", "2d",
+      ("tilt_ladder_offplane_m",),
+      "The deform's yaw branch adds the module's local y to the WORLD Y "
+      "component and drops the `up` it just built - the same defect D296 "
+      "fixed in the packed writer, left standing in the writer beside it. "
+      "Measured on HEAD 1a3f1ce: a 30/20 two-axis roll is 0.906580 m off its "
+      "own plane, 90/45 is 1.339214 m.",
+      ((PY % "place.py",
+        "            out[i] = b[0] + across[0] * z + up_ref[0] * sy",
+        "            out[i] = b[0] + across[0] * z"),
+       (PY % "place.py",
+        "            out[i + 1] = b[1] + across[1] * z + up_ref[1] * sy",
+        "            out[i + 1] = b[1] + sy"),
+       (PY % "place.py",
+        "            out[i + 2] = b[2] + across[2] * z + up_ref[2] * sy",
+        "            out[i + 2] = b[2] + across[2] * z"),),
+      rebuild=False),
+
+    M("2d_shear_test_world_y", "2d",
+      ("tilt_ladder_packed",),
+      "`_needs_deform`'s `vertical` shear test asks whether the span rises in "
+      "the WORLD again. Every span of a tilted array does, so every piece "
+      "unpacks: 100 packed prims become 350 real ones on a plate whose "
+      "modules are rigid, and D121's 'a scaled storey stays packed' plus "
+      "PC-G3's instancing property stop surviving a tilt. ⚠️ IT COSTS "
+      "NOTHING VISIBLE - the geometry is still right, which is why no "
+      "containment number can see it.",
+      ((PY % "place.py",
+        "        return abs(_dot(_sub(b, a), up_ref)) > 1e-6",
+        "        return abs(b[1] - a[1]) > 1e-6"),),
+      rebuild=False),
+
+    M("2d_flat_ratio_world_xz", "2d",
+      ("tilt_ladder_warns",),
+      "D32's degenerate-frame ratio measures the span across world XZ again. "
+      "A row that runs UP its own array's slope then reads 0.0 of its span "
+      "surviving the flatten, and a perfectly buildable plate ships "
+      "`pc_warn_degenerate_frame` on all 100 elements - a detector firing on "
+      "correct work, which is the failure mode that retires a warning.",
+      ((PY % "place.py",
+        "    return _len(_flat(_sub(b, a), up_ref)) / span",
+        "    return math.hypot(b[0] - a[0], b[2] - a[2]) / span"),),
+      rebuild=False),
+
     # ---- D295: the native chain does not read C3's row attributes ----------
     M("native_reads_no_pc_bays", "native",
       ("output_guard_parity",),
@@ -1018,7 +1083,13 @@ EXPECT_CHECKS = {
     # cannot report the aligned path as proven - plus D296's two ladder rows.
     # Nothing was retired with `pc_warn_clip_tilted`: it was a NAME inside
     # `clip_input_warns`' expected set, not a check.
-    "2d": 33,
+    # C3a added two, 2026-08-25, and both are on the tilt ladder because the
+    # audit's F1 is a defect the ladder's two containment numbers could not
+    # see: `tilt_ladder_packed` (the shear test was world-Y, so a tilted
+    # array unpacked every piece and built the RIGHT geometry the expensive
+    # way) and `tilt_ladder_warns` (`_flat_ratio` was world-XZ, so a legal
+    # plate shipped `pc_warn_degenerate_frame` on all 100 elements).
+    "2d": 35,
     "generated": 3,
     "hda": 18,
     "images": 30,

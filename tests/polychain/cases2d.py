@@ -277,15 +277,33 @@ PAYLOAD_2D = {"clip_mode": "slice", "expand": 0.25, "auto_align": "x_xy"}
 # area path shipped having only ever run at 0 degrees (C2a's F5). This is the
 # ladder that made D292 a number and D296 a fix, and 0 is IN it: the row that
 # must not move is as much of the measurement as the rows that must.
-TILT_LADDER = (0.0, 2.0, 5.0, 10.0, 30.0, 90.0)
+#
+# ⚠️⚠️ AND SIX RUNGS OF ONE PARAMETER PROVED ONE PARAMETER (C3's audit, F1).
+# Rotating about world X off a loop whose first edge already runs along world
+# X leaves `frame.ex` at exactly +X on EVERY rung, so the three remaining
+# world-axis hard-codings in `place` cancelled and the ladder read green over
+# a build that was 0.96 m out of its own plane. A rung is `(rx, rz, start)`
+# now: `start` re-authors the SAME plate from a different vertex (which is all
+# it takes to swing `ex` off +X) and `rz` rolls it about a second axis. The
+# six original rungs are the first six entries, unchanged.
+TILT_LADDER = ((0.0, 0.0, 0), (2.0, 0.0, 0), (5.0, 0.0, 0), (10.0, 0.0, 0),
+               (30.0, 0.0, 0), (90.0, 0.0, 0),
+               (0.0, 0.0, 1), (5.0, 0.0, 1), (30.0, 0.0, 3),
+               (30.0, 20.0, 0), (90.0, 45.0, 0), (10.0, 90.0, 0))
 
 
-def tilt_plate(deg, size=20.0):
-    """A 20 x 20 m plate rotated `deg` about the world X axis - vertical at 0,
-    a FLOOR PLATE at 90, which is 7.6's "flat roofs, floor plates" by name."""
-    c, s = math.cos(math.radians(deg)), math.sin(math.radians(deg))
-    return [(x, y * c, y * s)
-            for (x, y) in ((0, 0), (size, 0), (size, size), (0, size))]
+def tilt_plate(rx, rz=0.0, start=0, size=20.0):
+    """A 20 x 20 m plate rolled `rx` about world X then `rz` about world Z and
+    re-authored from vertex `start`. Vertical at (0, 0, 0); a FLOOR PLATE at
+    rx = 90, which is 7.6's "flat roofs, floor plates" by name."""
+    q = [(0, 0), (size, 0), (size, size), (0, size)]
+    cx, sx = math.cos(math.radians(rx)), math.sin(math.radians(rx))
+    cz, sz = math.cos(math.radians(rz)), math.sin(math.radians(rz))
+    out = []
+    for (x, y) in q[start:] + q[:start]:
+        y, z = y * cx, y * sx
+        out.append((x * cz - y * sz, x * sz + y * cz, z))
+    return out
 
 
 def payload_build(nudge=None, payload=False, clip=None):

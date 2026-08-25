@@ -230,15 +230,16 @@ def gate_pc_g6_hostile():
 
 
 def tilt_ladder():
-    """7.6 / D296 - an area array builds inside its own region AT EVERY TILT.
+    """7.6 / D296 - an area array builds inside its own region AT EVERY TILT,
+    and stays PACKED while it does.
 
-    Two numbers over the whole ladder (0, 2, 5, 10, 30, 90 degrees), worst
-    row wins, because a per-tilt row would be six names saying one thing. The
-    0-degree rung is in the ladder deliberately: "nothing that ever ran may
-    move" is a measurement, not an assumption.
+    Three numbers over the whole ladder, worst row wins, because a per-rung
+    row would be twelve names saying one thing. The (0, 0, 0) rung is in the
+    ladder deliberately: "nothing that ever ran may move" is a measurement,
+    not an assumption.
 
-    The BEFORE column, from a pristine export of the commit that preceded the
-    fix, is what makes the AFTER column mean something:
+    The BEFORE column, from a pristine export of the commit that preceded
+    D296, on the six single-axis rungs it was written for:
 
         tilt   clip_inside_m      array_offplane_m
          0     0.0      -> 0.0    0.0      -> 0.0
@@ -247,23 +248,57 @@ def tilt_ladder():
         10     0.026047 -> 8e-08  0.345018 -> 1.3e-07
         30     0.075000 -> 7e-07  0.979905 -> 4.3e-07
         90     0.150000 -> 0.0    1.850000 -> 0.0
+
+    ⚠️ AND THAT LADDER PROVED ONE PARAMETER, WHICH IS WHY THERE ARE TWELVE
+    RUNGS AND A THIRD NUMBER (C3's audit, F1). Every rung above holds
+    `frame.ex` at exactly +X, so `place`'s three remaining world-axis
+    spellings cancelled and D296 shipped a third done. Measured on HEAD
+    1a3f1ce, the same plate started at its SECOND vertex: 5 deg
+    inside 0.013024 / offplane 0.173172, 30 deg 0.064952 / 0.962501; rolled
+    about a second axis, 30/20 offplane 0.906580, 90/45 1.339214, 10/90
+    inside 1.969616. `packed_pieces` is the third number because the shear
+    test was world-Y too: those same rungs delivered 350 REAL prims where
+    the plate is 100 packed ones, so D121's "a scaled storey stays packed"
+    and PC-G3's instancing property did not survive a tilt.
+
+    WHAT IT CANNOT SEE: whether the region itself is right (`clip_nesting`'s
+    job); anything about a tilted array that is not an axis-aligned plate -
+    the loop is always a square; and the TILTED behaviour of `_stepped_base`
+    and `_y_varies`, whose up axis was generalised with the rest - this kit is
+    rigid and unbanded so neither runs here, and what holds them is the
+    phase-1 baseline proving them bit-identical at `up_ref = UP`.
     """
-    worst_in, worst_off, res = None, None, []
-    for deg in cases2d.TILT_LADDER:
-        scene = Scene(cases2d.clip_case(loops=[cases2d.tilt_plate(deg)],
+    worst_in, worst_off, unpacked, noisy, res = None, None, [], [], []
+    for rung in cases2d.TILT_LADDER:
+        scene = Scene(cases2d.clip_case(loops=[cases2d.tilt_plate(*rung)],
                                         clip_mode="remove"))
         a, b = C.clip_inside_m(scene), C.array_offplane_m(scene)
+        # the plate is rigid modules on a straight row: every piece the
+        # region keeps must still be an instance.
+        if not C.instancing_split(scene, expect_all=True).ok:
+            unpacked.append("%g/%g/%d" % rung)
+        # ...and a legal plate at any tilt builds CLEAN. `_flat_ratio` used to
+        # measure the span across world XZ, so a row running up its own slope
+        # read 0.0 and stamped WARN_DEGENERATE_FRAME on all 100 elements.
+        if not C.warnings(scene, ()).ok:
+            noisy.append("%g/%g/%d" % rung)
         if worst_in is None or a.value > worst_in.value:
             worst_in = a
         if worst_off is None or b.value > worst_off.value:
             worst_off = b
+    rungs = " ".join("%g/%g/%d" % t for t in cases2d.TILT_LADDER)
     for r, name in ((worst_in, "tilt_ladder_inside_m"),
                     (worst_off, "tilt_ladder_offplane_m")):
         res.append(C.Result(name, r.ok, r.value,
-                            "worst of %d tilts (%s deg): %s"
-                            % (len(cases2d.TILT_LADDER),
-                               "/".join("%g" % d for d in cases2d.TILT_LADDER),
-                               r.detail)))
+                            "worst of %d rungs (rx/rz/start %s): %s"
+                            % (len(cases2d.TILT_LADDER), rungs, r.detail)))
+    for bad, name, what in ((unpacked, "tilt_ladder_packed",
+                             "unpacked a piece the region kept"),
+                            (noisy, "tilt_ladder_warns", "warned")):
+        res.append(C.Result(name, not bad, len(bad),
+                            "%d of %d rungs %s%s"
+                            % (len(bad), len(cases2d.TILT_LADDER), what,
+                               "" if not bad else ": " + ", ".join(bad))))
     return res
 
 

@@ -165,6 +165,39 @@ def _dot(a, b):
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
 
+def _flat(v, up_ref):
+    """`v` with its `up_ref` component removed - "horizontal", generalised.
+
+    D296a: EVERY yaw-only site in this file spelled that as `(v.x, 0, v.z)` or
+    read a height as `v[1]`, and C3 generalised exactly one of them
+    (`_frame`). The other five cancelled on the tilt ladder because every rung
+    of it rotates about world X off a loop whose first edge runs along world X
+    - so `frame.ex` was `+X` at every tilt and the two spellings agreed. Roll
+    the SAME plate about a second axis, or start the same loop at its second
+    vertex, and a 30 degree plate builds 0.96 m out of its own plane.
+
+    At `up_ref = UP` this is bit-identical arithmetic, not equal-to-tolerance:
+    `up_ref[0] * k` is `0.0 * k` which is `0.0`, and `v[0] - 0.0` is `v[0]`;
+    the middle term is `v[1] - 1.0 * v[1]`, exactly `0.0`. That is what lets
+    every phase-1 baseline stay where it is.
+    """
+    k = _dot(v, up_ref)
+    return (v[0] - up_ref[0] * k, v[1] - up_ref[1] * k, v[2] - up_ref[2] * k)
+
+
+def _at_height(p, up_ref, h):
+    """`p` moved along `up_ref` so its height (`dot(p, up_ref)`) is `h`.
+
+    D98's flatten-under and D99's band both replace ONE coordinate of a
+    sampled position, and world Y was that coordinate in both. Built as
+    "flatten, then add" rather than "add the difference", because at
+    `up_ref = UP` the first is exact (`(p.x, 0, p.z) + (0, h, 0)`) and the
+    second is not (`p.y + (h - p.y)` is not `h` for every float pair).
+    """
+    f = _flat(p, up_ref)
+    return (f[0] + up_ref[0] * h, f[1] + up_ref[1] * h, f[2] + up_ref[2] * h)
+
+
 # --- the sampler ------------------------------------------------------------
 
 class Path(object):
@@ -910,9 +943,7 @@ def _frame(tangent, zmode, up_ref=UP):
         else:
             across = _unit(across)
         return (d, across, _cross(across, d))
-    k = _dot(tangent, up_ref)
-    d = _unit((tangent[0] - up_ref[0] * k, tangent[1] - up_ref[1] * k,
-               tangent[2] - up_ref[2] * k))
+    d = _unit(_flat(tangent, up_ref))
     return (d, _cross(d, up_ref), up_ref)
 
 
@@ -960,7 +991,7 @@ def span_ends(path, sa, sb, ends=None):
     return (path.sample(sa), path.sample(sb, forward=False))
 
 
-def _flat_ratio(path, sa, sb, zmode, ends=None):
+def _flat_ratio(path, sa, sb, zmode, ends=None, up_ref=UP):
     """D32 - how much of a planned span survives yaw-flattening, 0..1.
 
     A yaw-only z-mode measures the piece along the horizontal, so a vertical
@@ -968,12 +999,16 @@ def _flat_ratio(path, sa, sb, zmode, ends=None):
     curve produced 25 posts of 0.0000 m along-axis width, stacked coincident,
     with `warns=[]`. The onset is continuous (0.0852 m at 45 degrees, 0.0021 m
     at 89) so this is a RATIO, not a special case for exactly vertical.
+
+    D296a - "the horizontal" is the ROW's (`up_ref`), not the world's. A row
+    of a tilted array running up its own slope read 0 here and stamped
+    WARN_DEGENERATE_FRAME on all 100 elements of a perfectly buildable plate.
     """
     span = abs(sb - sa)
     if zmode == "adaptive" or span <= EPS:
         return 1.0
     (a, _ta), (b, _tb) = span_ends(path, sa, sb, ends)
-    return math.hypot(b[0] - a[0], b[2] - a[2]) / span
+    return _len(_flat(_sub(b, a), up_ref)) / span
 
 
 def _chord_ratio(path, sa, sb, ends=None):
@@ -1036,8 +1071,13 @@ def _follows(y, band, stepped):
     return inside == stepped
 
 
-def _stepped_base(path, sa, sb, fracs, flatten, pick=min):
+def _stepped_base(path, sa, sb, fracs, flatten, pick=min, up_ref=UP):
     """D98 - the ONE elevation a `stepped` piece sits flat at.
+
+    D296a - "elevation" is measured along the ROW's up axis. On a tilted
+    array the world's Y and the row's height are two different numbers, and
+    this one has to be the one `_packed_transform` and `_deform_positions`
+    then substitute back in.
 
     OFF (RailClone's default, and every baseline before D98) it is the
     elevation at the piece's own start, which is what "constant Z" meant in
@@ -1058,21 +1098,25 @@ def _stepped_base(path, sa, sb, fracs, flatten, pick=min):
     what makes it independent of the direction the spline was drawn - the
     whole reason D98 exists.
     """
-    y = path.sample(sa)[0][1]
+    y = _dot(path.sample(sa)[0], up_ref)
     if not flatten:
         return y
     span = sb - sa
     for f in (fracs or (0.0, 0.5, 1.0)):
-        y = pick(y, path.sample(sa + f * span)[0][1])
-    return pick(y, path.sample(sb, forward=False)[0][1])
+        y = pick(y, _dot(path.sample(sa + f * span)[0], up_ref))
+    return pick(y, _dot(path.sample(sb, forward=False)[0], up_ref))
 
 
-def _y_varies(path, sa, sb, fracs):
-    """Does the ground move under this span at all? Metres of range."""
-    lo = hi = path.sample(sa)[0][1]
+def _y_varies(path, sa, sb, fracs, up_ref=UP):
+    """Does the ground move under this span at all? Metres of range.
+
+    D296a - along the ROW's up axis. Against the world's, every span of a
+    tilted array reads its own rise as ground movement and D99's band test
+    unpacks a piece that had nothing to follow."""
+    lo = hi = _dot(path.sample(sa)[0], up_ref)
     span = sb - sa
     for f in (tuple(fracs or ()) + (1.0,)):
-        y = path.sample(sa + f * span)[0][1]
+        y = _dot(path.sample(sa + f * span)[0], up_ref)
         lo, hi = min(lo, y), max(hi, y)
     return hi - lo
 
@@ -1234,7 +1278,7 @@ def span_deviation(path, sa, sb, radius=0.0, zmode="adaptive",
 
 
 def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01,
-                  band=None, normal_at=None, ends=None):
+                  band=None, normal_at=None, ends=None, up_ref=UP):
     """4.4 + the streets float32 lesson: rebuild ONLY when it changes something."""
     if placement.slice_t is not None or placement.cuts:
         return True                                     # D41 - a miter unpacks
@@ -1248,7 +1292,7 @@ def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01,
     # for: without it a stepped piece with a deforming foot stayed packed and
     # the band did nothing. `vertical` reaches the same answer one test lower
     # (its own shear test), so this only makes the reason explicit.
-    if band is not None and _y_varies(path, sa, sb, proto.fracs) > 1e-6:
+    if band is not None and _y_varies(path, sa, sb, proto.fracs, up_ref) > 1e-6:
         return True
     # D87: the budget is spent by the piece's WORST POINT, not by its spine.
     # `radius` is how far this module reaches off the spine onto the frame
@@ -1270,7 +1314,11 @@ def _needs_deform(placement, proto, path, sa, sb, zmode, tol=0.01,
         return True
     if zmode == "vertical":
         (a, _ta), (b, _tb) = span_ends(path, sa, sb, ends)
-        return abs(b[1] - a[1]) > 1e-6                  # a sheared span
+        # D296a - sheared ACROSS THE ROW's up axis. Against the world's, every
+        # span of a tilted array is "sheared" and 100 packed prims became 350
+        # real ones - D121's "a scaled storey stays packed" and PC-G3's
+        # instancing property did not survive a tilt.
+        return abs(_dot(_sub(b, a), up_ref)) > 1e-6
     return False
 
 
@@ -1357,7 +1405,12 @@ def _packed_transform(proto, path, sa, sb, zmode, up_ref=UP, base_y=None,
     chord = _sub(b, a)
     clen = _len(chord)
     if zmode != "adaptive":
-        flat = (chord[0], 0.0, chord[2])
+        # D296a - flattened against the ROW's up axis. This was the site that
+        # made the whole of D296 partial: `_frame` was generalised and the
+        # chord it is handed was still being squashed into the world's XZ
+        # plane one line earlier, so a row that ran up its own slope was
+        # measured, scaled and placed along a direction the plan never used.
+        flat = _flat(chord, up_ref)
         flen = _len(flat)
         # D32: when yaw-flattening leaves less than FLAT_RATIO of the 3D chord
         # there is nothing left to scale by, and scaling by it produced a
@@ -1374,12 +1427,12 @@ def _packed_transform(proto, path, sa, sb, zmode, up_ref=UP, base_y=None,
         d, across, up = _frame(chord, zmode, up_ref)
     scale = max(clen / proto.length, 1e-9)
     ox = proto.ax * scale
-    ay = a[1] if base_y is None else base_y
+    o = a if base_y is None else _at_height(a, up_ref, base_y)
     return hou.Matrix4([
         [d[0] * scale, d[1] * scale, d[2] * scale, 0.0],
         [up[0] * yscale, up[1] * yscale, up[2] * yscale, 0.0],
         [across[0], across[1], across[2], 0.0],
-        [a[0] - d[0] * ox, ay - d[1] * ox, a[2] - d[2] * ox, 1.0]])
+        [o[0] - d[0] * ox, o[1] - d[1] * ox, o[2] - d[2] * ox, 1.0]])
 
 
 def _anchor_transform(proto, origin, direction, length, zmode, up_ref=UP,
@@ -1595,8 +1648,8 @@ def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap,
     out = [0.0] * len(local)
     hit = samples.get(remap(s0_flat)) if samples else None
     if base_y is None:
-        base_y = (hit[0][1] if hit is not None
-                  else path.sample(remap(s0_flat))[0][1])
+        base_y = _dot(hit[0] if hit is not None
+                      else path.sample(remap(s0_flat))[0], up_ref)
     stepped = zmode == "stepped"
     ax = proto.ax
     # D31: one frame per STATION, transported along the piece in x order, then
@@ -1630,10 +1683,25 @@ def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap,
             out[i + 1] = pos[1] + across[1] * z + up[1] * sy
             out[i + 2] = pos[2] + across[2] * z + up[2] * sy
         else:
-            py = pos[1] if _follows(y, band, stepped) else base_y
-            out[i] = pos[0] + across[0] * z
-            out[i + 1] = py + sy
-            out[i + 2] = pos[2] + across[2] * z
+            # D296a - the yaw branch grows the module along the frame's OWN up
+            # axis, exactly as the adaptive branch above already did. It used
+            # to add the module's local y to the WORLD Y component and drop
+            # the `up` it had just built from `up_ref`, so a tilted array's
+            # geometry left the plane its plan was solved in - 0.96 m on a
+            # 30 degree plate, 1.85 m on a floor plate. At `up_ref = UP`,
+            # `across[1]` is exactly 0.0 and `up` is exactly (0, 1, 0), so
+            # this is the same three numbers it produced before.
+            # ⚠️ `up_ref`, NOT the transported frame's `up`. D31 flips `up`
+            # with `across` to keep the handedness when a yaw-only tangent
+            # reverses mid-piece, and the old spelling grew along world +Y
+            # through that flip - a post over an overhanging crest stayed
+            # upright. Reading `up` here would turn it upside down, which is a
+            # behaviour change this item is not making.
+            b = pos if _follows(y, band, stepped) else _at_height(pos, up_ref,
+                                                                 base_y)
+            out[i] = b[0] + across[0] * z + up_ref[0] * sy
+            out[i + 1] = b[1] + across[1] * z + up_ref[1] * sy
+            out[i + 2] = b[2] + across[2] * z + up_ref[2] * sy
     return (out, local)
 
 
@@ -2208,7 +2276,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             deformed = _needs_deform(p, proto, path, s0r, s1r, zmode,
                                      params.bend_tol, band,
                                      getattr(path, "normal", None)
-                                     if tilt else None, ends)
+                                     if tilt else None, ends, row_up)
             # 4.5 / D53: a ray that finds nothing keeps the spline elevation
             # and SAYS SO. Probed on the piece's own span rather than on the
             # whole run, so a fence that leaves the terrain at one end reports
@@ -2219,8 +2287,8 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                 warns.append(WARN_CONFORM_MISS)
             scale = 1.0 if p.slice_t is not None else (
                 ((s1f - s0f) / proto.length) if proto.length > EPS else 1.0)
-            if p.anchor is None and _flat_ratio(path, s0r, s1r, zmode,
-                                                ends) < FLAT_RATIO:
+            if p.anchor is None and _flat_ratio(path, s0r, s1r, zmode, ends,
+                                                row_up) < FLAT_RATIO:
                 warns.append(WARN_DEGENERATE_FRAME)          # D32
             if p.anchor is None and not deformed \
                     and _chord_ratio(path, s0r, s1r, ends) < COLLAPSE_RATIO \
@@ -2271,12 +2339,12 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
             if p.anchor is None                     and getattr(params, "flatten_stepped", False):
                 if zmode == "stepped":
                     base_y = packed_y = _stepped_base(
-                        path, s0r, s1r, proto.fracs, True)
+                        path, s0r, s1r, proto.fracs, True, up_ref=row_up)
                 elif band is not None:
                     base_y = _stepped_base(
                         path, s0r, s1r, proto.fracs, True,
                         max if getattr(params, "flat_band", "") == "top"
-                        else min)
+                        else min, row_up)
             jobs.append({"p": p, "proto": proto, "path": path, "hero": hero,
                          "yscale": yscale,
                          "s0f": s0f, "s0r": s0r, "s1r": s1r,
