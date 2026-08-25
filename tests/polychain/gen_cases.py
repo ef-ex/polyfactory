@@ -94,6 +94,12 @@ def _rng(seed):
 # keeps attacking everything else, which is what found the packed-contents
 # divergence.
 NATIVE_LANE = 2          # every Nth seed is built to be native-answerable
+# The native lane's turn ceiling, in degrees, and the corner angle it is
+# generated against.  A turn under the corner angle is not a corner, so
+# `_cornerpt` stays empty and the guard admits the build - while the curve is
+# still curved enough (and climbs enough) for the deform gate to unpack.
+NATIVE_TURN_DEG = 22.0
+NATIVE_CORNER_ANGLE = 45.0
 
 
 # --- the curve --------------------------------------------------------------
@@ -101,16 +107,29 @@ NATIVE_LANE = 2          # every Nth seed is built to be native-answerable
 def _points(rng, straight=False):
     """A polyline with real corners, and sometimes a degenerate one.
 
-    `straight` is the native lane: collinear points, so `_cornerpt` is empty
-    whatever the corner angle is, and no duplicates for `_clean` to eat.
+    `straight` is the native lane: GENTLY curving and gently climbing, never
+    turning more than `NATIVE_TURN_DEG`, so `_cornerpt` stays empty while the
+    geometry is still curved enough to make the deform gate unpack pieces.
+
+    ⚠️ THE FIRST NATIVE LANE WAS DEAD STRAIGHT AND FLAT, and that reached the
+    native chain's PACKED branch and nothing else.  `pc_deform.vfl` - which
+    writes `pc_local` - never ran, so `generated_pc_local_scaled` survived a
+    second time with the lane already at 52 %.  Reaching a code path is not
+    the same as reaching the branch inside it, and only the mutation could
+    tell the two apart.
     """
     if straight:
-        n = rng.randint(2, 9)
-        x = 0.0
-        pts = []
+        n = rng.randint(4, 12)
+        pts, x, z, y = [], 0.0, 0.0, 0.0
+        bear = 0.0
         for _ in range(n):
-            pts.append((round(x, 4), 0.0, 0.0))
-            x += rng.uniform(0.5, 20.0)
+            pts.append((round(x, 4), round(y, 4), round(z, 4)))
+            step = rng.uniform(0.8, 6.0)
+            bear += math.radians(rng.uniform(-NATIVE_TURN_DEG * 0.8,
+                                             NATIVE_TURN_DEG * 0.8))
+            x += step * math.cos(bear)
+            z += step * math.sin(bear)
+            y += rng.uniform(-0.4, 0.4)
         return pts
     n = rng.randint(2, 9)
     pts, x, z = [], 0.0, 0.0
@@ -232,6 +251,7 @@ def _style(rng, has_corner, nvar, native=False):
         return Style("gen%d" % rng.randint(0, 9999), seed=rng.randint(0, 9999),
                      rules=[Rule("default", "first", ["panel"])],
                      params=Params(fill="adaptive",
+                                   corner_angle_deg=NATIVE_CORNER_ANGLE,
                                    adaptive_pct=round(rng.uniform(0.0, 100.0),
                                                       2),
                                    corner_mode="bend", fillet_radius=0.0,
