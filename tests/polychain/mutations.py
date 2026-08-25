@@ -628,7 +628,7 @@ MUTATIONS = (
       rebuild=False),
 
     M("2d_footprint_not_canonical", "2d",
-      ("structural_ids_reversed",),
+      ("structural_ids",),
       "D124's canonical winding is dropped, so the same L drawn the other "
       "way round renumbers every section and moves every `pc_elem_id` - "
       "citygen_buildings 12.7's own prohibition, 7.8 condition 6, and a check "
