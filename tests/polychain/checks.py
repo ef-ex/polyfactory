@@ -2005,3 +2005,96 @@ def clip_stamp(scene):
                      "" if ok else
                      " - %d disagree with their row curve" % bad if bad
                      else " - but this is not an area build"))
+
+
+def _elem_cols(geo, names):
+    """{name: [value per ELEMENT]} - bulk reads, deduped by `pc_elem_id`.
+
+    One `prim*AttribValues` per column and no `hou.Prim` in the loop (11.9
+    rule 1), which is why this exists rather than another `_cells` pass.
+    """
+    if geo.findPrimAttrib("pc_elem_id") is None:
+        return {}
+    eid = list(geo.primStringAttribValues("pc_elem_id"))
+    cols = {}
+    for name in names:
+        a = geo.findPrimAttrib(name)
+        if a is None:
+            return {}
+        cols[name] = (list(geo.primIntAttribValues(name))
+                      if a.dataType() == hou.attribData.Int
+                      else list(geo.primFloatAttribValues(name)))
+    keep, seen = [], set()
+    for i, e in enumerate(eid):
+        if e not in seen:
+            seen.add(e)
+            keep.append(i)
+    return dict((n, [c[i] for i in keep]) for n, c in cols.items())
+
+
+def no_sliced_cells(scene):
+    """PC-G5 condition 4: [placements cut as a tile remainder, placements].
+    0 is the pass.
+
+    Adaptive on both axes fits WHOLE modules by construction, so a facade that
+    ships a half window is a fitting-solve defect - and until this check the
+    condition was true and unasserted (the gate's own words: "the cheapest
+    untested truth in the tool").
+
+    ⚠️ IT READS THE PLAN, and that is a stated compromise rather than an
+    oversight: `pc_slice_t` is a PLAN-POINT attribute (`PLAN_POINT_ATTRS`) and
+    is deliberately not on the shipped element, so the only place a slice is
+    named is `Placement.slice_t` - which is also exactly what 7.8 condition 4
+    is written about ("`slice_t is None` on 100 % of non-clip placements").
+
+    WHAT IT CANNOT SEE: (a) a slice the plan asked for and the BUILDER then
+    ignored, or the reverse - the delivered span is `exact_fill_m`'s subject,
+    not this one; (b) a piece cut by a miter or by the clip boundary, which is
+    `Placement.cuts` / `pc_corner_cut`, a different mechanism with its own
+    gates (PC-G1, PC-G6).
+    """
+    plan = list(scene.case.get("report", {}).get("plan", ()))
+    if not plan:
+        return _skip("no_sliced_cells", "no plan in the report")
+    n = sum(1 for p in plan if getattr(p, "slice_t", None) is not None)
+    return Result("no_sliced_cells", n == 0, [n, len(plan)],
+                  "%d of %d placements carry a slice_t" % (n, len(plan)))
+
+
+def bay_alignment(scene, aligned=False):
+    """PC-G5 condition 3: [rows whose bay boundaries differ from the datum's,
+    rows]. Under `free` at least one must differ; under `aligned`, none may.
+
+    A row's bay-boundary set is `(pc_section, pc_u)` per cell - the section it
+    is in and its parametric start inside that section - both stamped, so two
+    rows over the SAME footprint are directly comparable and a row that fits
+    its bays differently says so.
+
+    ⚠️ THE FIXTURE IS THE HALF THAT WAS MISSING. Every row of PC-G5's L used
+    one kit over one set of legs, so `aligned` and `free` were indistinguishable
+    on it however `aligned` were implemented - the check would have passed on
+    both and measured nothing. `FW_y_free` gives the ground floor a WIDER
+    module, which is the smallest thing that makes the two modes different.
+
+    WHAT IT CANNOT SEE: whether the boundaries are in the right PLACE. It
+    compares rows to each other; `exact_fill_m` and `max_gap_m` are what say
+    the fill is correct in the first place.
+    """
+    cols = _elem_cols(scene.geo, ("pc_row", "pc_section", "pc_u"))
+    if not cols:
+        return _skip("bay_alignment", "no pc_row - a 1D build")
+    rows = {}
+    for r, s, u in zip(cols["pc_row"], cols["pc_section"], cols["pc_u"]):
+        rows.setdefault(int(r), set()).add((int(s), round(float(u), 6)))
+    if len(rows) < 2:
+        return _skip("bay_alignment", "one row - nothing to align against")
+    datum = rows[min(rows)]
+    differ = sorted(r for r in rows if rows[r] != datum)
+    ok = (not differ) if aligned else bool(differ)
+    return Result("bay_alignment", ok, [len(differ), len(rows)],
+                  "%d of %d rows differ from row %d%s"
+                  % (len(differ), len(rows), min(rows),
+                     "" if ok else
+                     " - `aligned` must make every row share the datum's bays"
+                     if aligned else
+                     " - the fixture does not distinguish aligned from free"))

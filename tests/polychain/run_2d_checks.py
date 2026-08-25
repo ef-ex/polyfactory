@@ -115,7 +115,20 @@ def run_case(name, case):
         # check this project ever recorded and the one the registry's
         # `2d_clip_stamp_zeroed` is paired against.
         C.clip_stamp(scene),
-    ]
+        # PC-G5 condition 4, on every case rather than on the gate figure
+        # alone: adaptive on both axes fits whole modules, so a slice_t
+        # anywhere in phase 2 is a defect wherever it appears.
+        C.no_sliced_cells(scene),
+    ] + ([C.bay_alignment(scene, aligned=Y_ALIGNED.get(name, False))]
+         if name in Y_ALIGNED else [])
+
+
+# PC-G5 condition 3, and it runs on ONE case on purpose: it is a comparison
+# between rows, and it says something only where the rows CAN differ. False =
+# the `free` mode's inverted form ("at least one row differs, or the fixture
+# is not exercising the mode" - 7.8). D122's `aligned` will add its own entry
+# at True when C3 lands.
+Y_ALIGNED = {"FW_y_free": False}
 
 
 def tripwires():

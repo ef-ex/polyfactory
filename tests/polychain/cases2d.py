@@ -61,7 +61,7 @@ def _box(x, y, z=0.30, divx=1):
     return g
 
 
-def facade_kit(roles=None, kit_id="pf_facade"):
+def facade_kit(roles=None, kit_id="pf_facade", ground_x=BAY_X):
     """The PC-G5 starter facade kit: 6 of the 25 cells, authored by role.
 
     `roles` keeps only the named roles. ⚠️ IT DEMOTES THE OTHER MODULES, IT
@@ -76,7 +76,10 @@ def facade_kit(roles=None, kit_id="pf_facade"):
         # name          x       y           deform zmode       role
         ("bay",         BAY_X,  BAY_Y,      1, "vertical", "default"),
         ("pier",        PIER_X, BAY_Y,      0, "vertical", "corner"),
-        ("shopfront",   BAY_X,  GROUND_Y,   1, "vertical", "default_start"),
+        # `ground_x` is PC-G5 condition 3's fixture knob and nothing else: a
+        # ground floor whose bay is WIDER than the storeys above it is the
+        # smallest thing that makes `aligned` and `free` distinguishable.
+        ("shopfront",   ground_x, GROUND_Y, 1, "vertical", "default_start"),
         ("pier_base",   PIER_X, GROUND_Y,   0, "vertical", "corner_start"),
         ("cornice",     BAY_X,  CORNICE_Y,  1, "vertical", "default_end"),
         ("pier_cap",    PIER_X, CORNICE_Y,  0, "vertical", "corner_end"),
@@ -335,6 +338,17 @@ def build_all():
     built["FV_area_short"] = case(
         [(0, 0, 0), (12, 0, 0), (12, 9, 0), (0, 9, 0)], kit, facade_style(),
         height=TOWER_H, area=True)
+
+    # FW - PC-G5 CONDITION 3's MISSING HALF. The gate asks whether the Y fit's
+    # `aligned` mode makes every row share the datum row's bay boundaries; on
+    # every other case here the rows share them anyway, because one kit fits
+    # one set of legs the same way five times over. A 4.5 m shopfront under a
+    # 3.0 m bay makes the ground row fit DIFFERENTLY, so `free` is now visibly
+    # free - and when D122's `aligned` lands (C3) this is the fixture that can
+    # tell the two apart. PC-G5's own L, so the condition is judged on the
+    # gate's own figure.
+    built["FW_y_free"] = case(L_FOOTPRINT, facade_kit(ground_x=4.5),
+                              facade_style())
 
     return built
 

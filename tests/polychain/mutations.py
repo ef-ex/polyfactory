@@ -330,6 +330,32 @@ MUTATIONS = (
            "reads its expectation from - the mutation and the oracle would "
            "move together."),
 
+    # ---- PC-G5's two conditions that had nothing behind them ---------------
+    M("2d_adaptive_slices", "2d",
+      ("no_sliced_cells",),
+      "PC-G5 condition 4 was TRUE AND UNASSERTED - 0 of 176 placements carry "
+      "a slice_t and no check said so. This sends the adaptive fit down "
+      "`tile`'s branch, which cuts the remainder, so a facade ships half "
+      "windows.",
+      ((PY % "plan.py",
+        '    if mode == "tile":',
+        '    if mode in ("tile", "adaptive"):'),),
+      rebuild=False),
+
+    M("2d_cell_role_dropped", "2d",
+      ("bay_alignment",),
+      "PC-G5 condition 3 needed a FIXTURE as well as a check: every row of "
+      "the L fitted the same kit over the same legs, so `aligned` and `free` "
+      "were indistinguishable. `FW_y_free` gives the ground floor a wider "
+      "module; dropping the CELL role from the fill's candidate lookup - the "
+      "exact regression `FS_sequence_cells` was written for - resolves the "
+      "bare `default` slot on every row and the rows fit identically again.",
+      ((PY % "plan.py",
+        '        mods = candidates(rule, kit, cell_role(ctx, ctx.get("slot",'
+        ' rule.slot)))',
+        "        mods = candidates(rule, kit)"),),
+      rebuild=False),
+
     # ---- the artist face: the four input ports -----------------------------
     M("kit_input_unplugged", "hda",
       ("input2_is_the_kit",),
@@ -676,7 +702,9 @@ EXEMPT = {
 # Measured 2026-08-25 from a pristine `git archive HEAD` export, all six
 # runners green, AFTER the v2 deletion pass (was 144/97/43/40/37/3 = 361).
 EXPECT_CHECKS = {
-    "2d": 13,
+    # C2 added two, 2026-08-25: `no_sliced_cells` on every case (PC-G5
+    # condition 4) and `bay_alignment` on `FW_y_free` alone (condition 3).
+    "2d": 15,
     "generated": 3,
     "hda": 18,
     "images": 30,
