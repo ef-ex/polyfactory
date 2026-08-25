@@ -286,12 +286,33 @@ def tilt_ladder():
             worst_in = a
         if worst_off is None or b.value > worst_off.value:
             worst_off = b
+    # ...and the SECOND writer. `_packed_transform` and `_deform_positions`
+    # both grow the module along the up axis and they are two functions, so a
+    # ladder that never cuts a piece proves one of them - measured: the plate
+    # is 100 packed / 0 deformed at every rung, and the deform writer's own
+    # mutation survived the twelve rungs above by reddening nothing at all.
+    n_deformed = 0
+    for rung in cases2d.TILT_DEFORM:
+        scene = Scene(cases2d.clip_case(loops=cases2d.tilt_loops(*rung)))
+        n_deformed += scene.report["deformed"]
+        a, b = C.clip_inside_m(scene), C.array_offplane_m(scene)
+        if a.value > worst_in.value:
+            worst_in = a
+        if b.value > worst_off.value:
+            worst_off = b
+    res.append(C.Result("tilt_ladder_deformed", n_deformed > 0, n_deformed,
+                        "%d cut pieces took the deform writer over %d rungs "
+                        "of PC-G6's own loops (floor 1 - a ladder that cuts "
+                        "nothing measures one of the two writers)"
+                        % (n_deformed, len(cases2d.TILT_DEFORM))))
     rungs = " ".join("%g/%g/%d" % t for t in cases2d.TILT_LADDER)
     for r, name in ((worst_in, "tilt_ladder_inside_m"),
                     (worst_off, "tilt_ladder_offplane_m")):
         res.append(C.Result(name, r.ok, r.value,
-                            "worst of %d rungs (rx/rz/start %s): %s"
-                            % (len(cases2d.TILT_LADDER), rungs, r.detail)))
+                            "worst of %d plate + %d cut rungs (rx/rz/start "
+                            "%s): %s" % (len(cases2d.TILT_LADDER),
+                                         len(cases2d.TILT_DEFORM), rungs,
+                                         r.detail)))
     for bad, name, what in ((unpacked, "tilt_ladder_packed",
                              "unpacked a piece the region kept"),
                             (noisy, "tilt_ladder_warns", "warned")):

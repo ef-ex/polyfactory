@@ -291,6 +291,35 @@ TILT_LADDER = ((0.0, 0.0, 0), (2.0, 0.0, 0), (5.0, 0.0, 0), (10.0, 0.0, 0),
                (0.0, 0.0, 1), (5.0, 0.0, 1), (30.0, 0.0, 3),
                (30.0, 20.0, 0), (90.0, 45.0, 0), (10.0, 90.0, 0))
 
+# ...and the same rungs on PC-G6's OWN loops, which is where the CUT pieces
+# are - the packed writer and the deformed writer are two different functions
+# and the plate only ever reaches the first (see `tilt_loops`).
+TILT_DEFORM = ((0.0, 0.0, 0), (30.0, 0.0, 1), (30.0, 20.0, 0),
+               (90.0, 45.0, 0))
+
+
+def tilt_loops(rx, rz=0.0, start=0, loops=None):
+    """PC-G6's OWN loops taken out of the world plane, same rung vocabulary.
+
+    ⚠️ THE PLATE CANNOT REACH THE DEFORM WRITER and that is measured, not
+    assumed: on a rectangle whose rows end exactly on the region boundary an
+    adaptive fill never straddles it, so `tilt_plate` builds 100 packed prims
+    at every tilt and 0 deformed - which is how `2d_deform_grows_world_y`
+    SURVIVED the twelve-rung ladder by reddening nothing at all. PC-G6's
+    diamond and hole cut 6-8 pieces per rung, and a cut piece is the only
+    thing on the area path that takes `_deform_positions`.
+    """
+    cx, sx = math.cos(math.radians(rx)), math.sin(math.radians(rx))
+    cz, sz = math.cos(math.radians(rz)), math.sin(math.radians(rz))
+    out = []
+    for loop in (loops if loops is not None else CLIP_LOOPS):
+        rot = []
+        for (x, y, z) in loop[start:] + loop[:start]:
+            y2, z2 = y * cx - z * sx, y * sx + z * cx
+            rot.append((x * cz - y2 * sz, x * sz + y2 * cz, z2))
+        out.append(rot)
+    return out
+
 
 def tilt_plate(rx, rz=0.0, start=0, size=20.0):
     """A 20 x 20 m plate rolled `rx` about world X then `rz` about world Z and

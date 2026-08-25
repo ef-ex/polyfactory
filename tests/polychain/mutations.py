@@ -1083,13 +1083,16 @@ EXPECT_CHECKS = {
     # cannot report the aligned path as proven - plus D296's two ladder rows.
     # Nothing was retired with `pc_warn_clip_tilted`: it was a NAME inside
     # `clip_input_warns`' expected set, not a check.
-    # C3a added two, 2026-08-25, and both are on the tilt ladder because the
-    # audit's F1 is a defect the ladder's two containment numbers could not
-    # see: `tilt_ladder_packed` (the shear test was world-Y, so a tilted
-    # array unpacked every piece and built the RIGHT geometry the expensive
-    # way) and `tilt_ladder_warns` (`_flat_ratio` was world-XZ, so a legal
-    # plate shipped `pc_warn_degenerate_frame` on all 100 elements).
-    "2d": 35,
+    # C3a added three, 2026-08-25, and all three are on the tilt ladder
+    # because the audit's F1 is a defect the ladder's two containment numbers
+    # could not see: `tilt_ladder_packed` (the shear test was world-Y, so a
+    # tilted array unpacked every piece and built the RIGHT geometry the
+    # expensive way), `tilt_ladder_warns` (`_flat_ratio` was world-XZ, so a
+    # legal plate shipped `pc_warn_degenerate_frame` on all 100 elements) and
+    # `tilt_ladder_deformed` - the anti-vacuity row, because the plate reaches
+    # only ONE of the two writers and the deform writer's own mutation
+    # SURVIVED the twelve-rung ladder by reddening nothing at all.
+    "2d": 36,
     "generated": 3,
     "hda": 18,
     "images": 30,

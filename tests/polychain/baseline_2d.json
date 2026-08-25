@@ -1494,14 +1494,21 @@
   ],
   "ZY_tilt_ladder": [
     {
-      "detail": "worst of 12 rungs (rx/rz/start 0/0/0 2/0/0 5/0/0 10/0/0 30/0/0 90/0/0 0/0/1 5/0/1 30/0/3 30/20/0 90/45/0 10/90/0): 736 points, worst 0.0000 m outside the region (tol 0.010)",
+      "detail": "28 cut pieces took the deform writer over 4 rungs of PC-G6's own loops (floor 1 - a ladder that cuts nothing measures one of the two writers)",
+      "name": "tilt_ladder_deformed",
+      "ok": true,
+      "skipped": false,
+      "value": 28
+    },
+    {
+      "detail": "worst of 12 plate + 4 cut rungs (rx/rz/start 0/0/0 2/0/0 5/0/0 10/0/0 30/0/0 90/0/0 0/0/1 5/0/1 30/0/3 30/20/0 90/45/0 10/90/0): 284 points, worst 0.0000 m outside the region (tol 0.010)",
       "name": "tilt_ladder_inside_m",
       "ok": true,
       "skipped": false,
-      "value": 8.61e-07
+      "value": 1.776e-06
     },
     {
-      "detail": "worst of 12 rungs (rx/rz/start 0/0/0 2/0/0 5/0/0 10/0/0 30/0/0 90/0/0 0/0/1 5/0/1 30/0/3 30/20/0 90/45/0 10/90/0): 736 points, worst 0.0000 m off the array plane beyond the module's own 0.150 m half-thickness (tol 0.0001)",
+      "detail": "worst of 12 plate + 4 cut rungs (rx/rz/start 0/0/0 2/0/0 5/0/0 10/0/0 30/0/0 90/0/0 0/0/1 5/0/1 30/0/3 30/20/0 90/45/0 10/90/0): 736 points, worst 0.0000 m off the array plane beyond the module's own 0.150 m half-thickness (tol 0.0001)",
       "name": "tilt_ladder_offplane_m",
       "ok": true,
       "skipped": false,
