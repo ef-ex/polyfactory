@@ -1,3 +1,55 @@
+# polyfactory tests — the v2 regime (2026-08-24)
+
+**Why v2:** v1 grew to 25 137 lines guarding a ~6 000-line tool, with 80-minute mutation sweeps.
+It caught real bugs, but by accretion: every audit added checks, nothing was ever deleted, and the
+machinery itself became the main cost (and, twice, the main defect). v2 replaces accretion with
+four standard techniques. The incident evidence is `ideas/build_retrospective.md`.
+
+## The five pieces
+
+1. **One oracle: differential testing against the reference.** The Python reference implementation
+   IS the baseline. One generic comparator — every attribute, every value, storage, order,
+   groups — over both paths. Comparing EVERYTHING by construction is what makes it impossible to
+   forget an attribute (the `_snapshot`-by-name defect class). This replaces the recorded-value
+   baselines and most bespoke assertions in `checks.py`. Golden numbers survive only where a
+   number IS the contract (a gate criterion, a measured ceiling).
+2. **Generated inputs, not hand fixtures.** Hypothesis for the pure-Python solve; a seeded scene
+   generator for hython (curves with random corners, duplicate points, shared points, attribute
+   storages, non-ASCII ids). Every fixture-blindness miss in the retrospective — shared points,
+   int `edge_id`, absent variants — was "no fixture reached it"; generation attacks that
+   mechanically, and shrinks failures to minimal repros.
+3. **Google's mutation policy: changed code per cycle, everything at milestones.** Google runs
+   mutation analysis per-changelist, on changed+covered lines only, arid lines filtered, mutants
+   per line capped. Ours: per cycle, run only registry entries whose touched files changed
+   (entries already carry digests) plus `mutmut` (coverage-guided, incremental) over the changed
+   pure-Python kernel files. The FULL registry sweep runs at gate closures and releases only.
+   The hand-written registry is capped at ~30 entries, HDA/VEX layer only (no tool can mutate
+   that layer), one-line notes.
+4. **PDG/TOPs as the runner.** Scene cases and mutations become TOP work items: parallel,
+   out-of-process (a clean hython per item — isolation we previously scripted by hand), cached
+   with dependency-aware dirtying so only affected items recook. Sequential 80 min → parallel
+   ~10-15 min on this machine, and the test graph is itself an inspectable Houdini artifact.
+5. **A hard budget.** Test code may not exceed tool code — enforced by a check, and adding means
+   deleting. Audits target production code only; the test machinery is never itself the subject
+   of an audit cycle (that recursion is where the days went).
+
+## What stays from v1
+
+- The independent audit before any "done" (dev-loop Rule 0) — one round per cycle, mutation-armed.
+- The mutation *idea*: a check is not written until it has been seen to fail.
+- Human eyes at milestones: the viewport found what 3 600 checks could not, twice.
+- Fast pure-logic tests under plain python; scene work headless under hython; never save a .hip.
+
+## v1 → v2 migration
+
+One bounded consolidation cycle: generic comparator + generated-input harness in, subsumed checks
+and recorded baselines deleted, registry trimmed to the HDA/VEX layer, mutmut configured, TOP net
+built, budget check added. Until it runs, v1 remains authoritative.
+
+---
+
+# The v1 notes (historical)
+
 # polyfactory tests
 
 Two layers. Run the fast one constantly, the slow one before you believe a fix.
