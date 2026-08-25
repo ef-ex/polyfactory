@@ -2119,6 +2119,39 @@ def clip_nesting(scene, hole=1, island=2):
                   % (n_hole, n_island))
 
 
+def clip_mode_override(default_case, override_case, loop=1, island=2):
+    """7.6's per-sub-spline `pc_clip_mode`: [elements in the hole by even-odd,
+    elements in it once it is marked `include`]. 0 then non-zero is the pass.
+
+    RC's `None` hierarchy mode, per spline instead of globally, and the only
+    check that runs the whole `pc_clip_mode` prim attribute from the artist's
+    geometry through `nest` to the built pieces. Without it the override is a
+    branch nothing executes.
+
+    ⚠️ THE ISLAND IS SUBTRACTED, and leaving it in made the check read
+    [2, 10] and fail: the two pieces on the depth-2 island are geometrically
+    inside the hole, so "elements in loop 1" counts them whatever the
+    override does. The question is what lies in the hole and NOT on the
+    island.
+
+    WHAT IT CANNOT SEE: `exclude` on a loop even-odd already excludes - the
+    override and the default agree there, so only the polarity that FLIPS is
+    evidence.
+    """
+    loops = default_case.get("clip_loops") or []
+    if len(loops) <= max(loop, island):
+        return _skip("clip_mode_override", "no nested clip loop to override")
+
+    def inside(case):
+        return sum(1 for rec in elements(case["out"])
+                   if _pip(loops[loop], *_centre(rec)[:2])
+                   and not _pip(loops[island], *_centre(rec)[:2]))
+    a, b = inside(default_case), inside(override_case)
+    return Result("clip_mode_override", a == 0 and b > 0, [a, b],
+                  "%d element(s) in loop %d by even-odd, %d once it says "
+                  "include" % (a, loop, b))
+
+
 def clip_caps_closed(scene):
     """PC-G6 condition 2: [open boundary edges on clip-cut elements, cut
     elements, cut prims tagged as a cap without a cap material].

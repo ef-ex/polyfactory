@@ -173,6 +173,72 @@ def close_kit(kit_geo, extend="x", extra_roles=()):
     return (geo, fallbacks, kit2.role_collisions)
 
 
+# --- 7.6: the clip input, as geometry ---------------------------------------
+
+CLIP_MODE_ATTR = "pc_clip_mode"      # "" (even-odd) / "include" / "exclude"
+CLIP_GROUP_ATTR = "pc_clip_group"    # RC's By Material ID, renamed - NOT YET
+
+
+def clip_loops(geo):
+    """A clip input -> ([closed loops], [per-loop mode], [warnings]).
+
+    7.6's data contract, read off the geometry the artist wires in: one
+    closed polygon per sub-spline, `pc_clip_mode` per PRIM overriding that
+    loop's even-odd polarity. Open prims are skipped - a clip boundary that
+    does not close cannot define an area, and warn-never-block means saying
+    so rather than guessing where it ends.
+
+    ⚠️ `pc_clip_group` IS READ AND NOT HONOURED. Merging several roots into
+    ONE array needs a frame spanning all of them and a row stack over that
+    frame, which is a different solve from "one array per root"; PC-G6 does
+    not ask for it and C2 did not build it. It warns rather than silently
+    building the arrays separately, because a silent wrong answer is the
+    failure mode this project keeps recording.
+    """
+    loops, modes, warns = [], [], []
+    if geo is None:
+        return (loops, modes, warns)
+    has_mode = geo.findPrimAttrib(CLIP_MODE_ATTR) is not None
+    has_group = geo.findPrimAttrib(CLIP_GROUP_ATTR) is not None
+    grouped = 0
+    for prim in geo.prims():
+        try:
+            pts = [v.point().position() for v in prim.vertices()]
+        except hou.OperationFailed:
+            continue
+        if len(pts) < 3:
+            continue
+        if not prim.isClosed():
+            warns.append("pc_warn_clip_open: prim %d is not a closed loop - "
+                         "a clip boundary must close" % prim.number())
+            continue
+        loops.append([(p[0], p[1], p[2]) for p in pts])
+        modes.append(str(prim.attribValue(CLIP_MODE_ATTR)) if has_mode else "")
+        if has_group and int(prim.attribValue(CLIP_GROUP_ATTR)):
+            grouped += 1
+    if grouped:
+        warns.append("pc_warn_clip_group_ignored: %d sub-spline(s) carry "
+                     "%s and it is not implemented - each root sub-spline is "
+                     "still its own array" % (grouped, CLIP_GROUP_ATTR))
+    return (loops, modes, warns)
+
+
+def build_clipped(clip_geo, kit_geo, style, **kw):
+    """7.6's whole primitive in one call: a clip input -> N arrays.
+
+    The 2D path's artist face until phase 2 has an HDA of its own (C3): the
+    boundary arrives as GEOMETRY carrying its own per-sub-spline attributes,
+    and `clip_mode` is the decision-named cull policy for every module that
+    does not carry its own `pc_clip`.
+    """
+    loops, modes, warns = clip_loops(clip_geo)
+    kw.setdefault("clip_mode", "remove")
+    geo, report = build_many(loops, kit_geo, style, area=True,
+                             clip_modes=modes, **kw)
+    report["kit_warnings"] = list(report.get("kit_warnings", [])) + warns
+    return (geo, report)
+
+
 def _y_params(style, y_params):
     """7.3.2's `pc_style_meta["y_params"]`, read by the SAME `params_from_dict`.
 

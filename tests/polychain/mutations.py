@@ -429,6 +429,17 @@ MUTATIONS = (
         "        out.setdefault(0, []).append(i)"),),
       rebuild=False),
 
+    M("2d_clip_mode_override_ignored", "2d",
+      ("clip_mode_override",),
+      "7.6's per-sub-spline `pc_clip_mode` stops overriding the even-odd "
+      "result, so RC's `None` hierarchy mode silently does nothing and the "
+      "whole attribute is a branch the build never executes.",
+      ((PY % "array2d.py",
+        '        include.append(True if m == "include" else\n'
+        '                       False if m == "exclude" else (d % 2 == 0))',
+        "        include.append(d % 2 == 0)"),),
+      rebuild=False),
+
     # ---- the artist face: the four input ports -----------------------------
     M("kit_input_unplugged", "hda",
       ("input2_is_the_kit",),
@@ -777,8 +788,10 @@ EXEMPT = {
 EXPECT_CHECKS = {
     # C2 added two, 2026-08-25: `no_sliced_cells` on every case (PC-G5
     # condition 4) and `bay_alignment` on `FW_y_free` alone (condition 3).
-    # ...and five more with PC-G6, one per pass condition in 7.8.
-    "2d": 20,
+    # ...and six more with PC-G6: one per pass condition in 7.8, plus
+    # 7.6's per-sub-spline `pc_clip_mode` override, which no condition
+    # names and which nothing else executes.
+    "2d": 21,
     "generated": 3,
     "hda": 18,
     "images": 30,

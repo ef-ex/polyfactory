@@ -59,8 +59,43 @@ def _one_prim(geo, prim):
     return out
 
 
-def coloured(geo):
-    """(display geometry, colour_of) - the unpacked copy plus its cell colour.
+# PC-G6: the same figure keyed on the CLIP POLICY instead of on the cell, so
+# what the picture shows is what the boundary did to each piece. The pieces the
+# boundary REMOVED are not in it - that is the point of drawing it: a removal
+# is a gap, and a gap is only judgeable by eye.
+CLIP_CUT = (120, 235, 140)       # cut on the line
+CLIP_WHOLE = (150, 160, 180)     # inside, untouched
+CLIP_RIGID = (235, 170, 90)      # a rigid module that stayed whole
+
+
+def _cell_colour(prim):
+    try:
+        cell = prim.attribValue("pc_cell")
+    except hou.OperationFailed:
+        cell = ""
+    try:
+        gap = int(prim.attribValue("pc_warn_kit_gap"))
+    except (hou.OperationFailed, TypeError, ValueError):
+        gap = 0
+    return MISSING if gap else CELL_COLOUR.get(cell, (185, 195, 212))
+
+
+def _clip_colour(prim):
+    try:
+        cut = int(prim.attribValue("pc_corner_cut"))
+    except (hou.OperationFailed, TypeError, ValueError):
+        cut = 0
+    if cut:
+        return CLIP_CUT
+    try:
+        rigid = prim.attribValue("pc_module") == "block"
+    except hou.OperationFailed:
+        rigid = False
+    return CLIP_RIGID if rigid else CLIP_WHOLE
+
+
+def coloured(geo, colour_for=_cell_colour):
+    """(display geometry, colour_of) - the unpacked copy plus its colour.
 
     The colour has to survive the unpack, so it is baked onto the flattened
     polygons as a point attribute rather than looked up per prim afterwards:
@@ -69,15 +104,7 @@ def coloured(geo):
     out = hou.Geometry()
     out.addAttrib(hou.attribType.Prim, "pc_rgb", (0.0, 0.0, 0.0))
     for prim in geo.prims():
-        try:
-            cell = prim.attribValue("pc_cell")
-        except hou.OperationFailed:
-            cell = ""
-        try:
-            gap = int(prim.attribValue("pc_warn_kit_gap"))
-        except (hou.OperationFailed, TypeError, ValueError):
-            gap = 0
-        col = MISSING if gap else CELL_COLOUR.get(cell, (185, 195, 212))
+        col = colour_for(prim)
         piece = hou.Geometry()
         if prim.type() == hou.primType.PackedGeometry:
             piece.merge(prim.getEmbeddedGeometry())
@@ -127,6 +154,10 @@ def main():
     if not os.path.isdir(OUT):
         os.makedirs(OUT)
     built = cases2d.build_all()
+    # PC-G6's figure, 7.8: "top view of the plate with its hole, elements
+    # coloured by clip policy". The fixture is drawn flat in the world XY
+    # plane, so its plan view IS the (x, y) elevation.
+    built["clip_plate"] = cases2d.clip_case()
     fail = []
     for name, view, axes, crop in (
             ("FA_L_facade", "iso", "iso", None),
@@ -134,13 +165,17 @@ def main():
             ("FA_L_facade", "reflex", "iso", ((12.0, 12.0), 5.0)),
             ("FD_role_fallback", "iso", "iso", None),
             ("FE_stand_in", "front", ("x", "y"), None),
-            ("FM_area_taper", "front", ("x", "y"), None)):
-        geo, colour_of = coloured(built[name]["out"])
+            ("FM_area_taper", "front", ("x", "y"), None),
+            ("clip_plate", "plan", ("x", "y"), None)):
+        geo, colour_of = coloured(
+            built[name]["out"],
+            _clip_colour if name == "clip_plate" else _cell_colour)
         if crop is not None:
             geo = near(geo, crop[0], crop[1])
-        drawn = G.rasterise(os.path.join(OUT, "PCG5_%s_%s.png" % (name, view)),
-                            geo, axes=axes, w=1400, h=900,
-                            colour_of=colour_of)
+        drawn = G.rasterise(os.path.join(
+            OUT, "%s_%s_%s.png" % ("PCG6" if name == "clip_plate"
+                                   else "PCG5", name, view)),
+            geo, axes=axes, w=1400, h=900, colour_of=colour_of)
         # D194's rule, `drawn_covers_packed`'s shape: the image must CONTAIN
         # its subject before anyone judges it. Every polygon of n vertices
         # contributes n segments, so drawn < prims (or an empty build) means

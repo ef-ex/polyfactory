@@ -1257,6 +1257,16 @@
         3,
         20
       ]
+    },
+    {
+      "detail": "0 element(s) in loop 1 by even-odd, 7 once it says include",
+      "name": "clip_mode_override",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        7
+      ]
     }
   ],
   "ZZ_2d_tripwires": [

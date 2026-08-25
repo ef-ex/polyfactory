@@ -169,13 +169,30 @@ def clip_style(fill="adaptive", seed=5):
         meta={"y_params": {"fill": "adaptive"}})
 
 
+def clip_geometry(loops, modes=None):
+    """The clip input as GEOMETRY - one closed polygon per sub-spline, with
+    7.6's `pc_clip_mode` on the prim. The shipped contract, so the gate runs
+    over the door an artist will use rather than over a Python list."""
+    geo = hou.Geometry()
+    geo.addAttrib(hou.attribType.Prim, F.CLIP_MODE_ATTR, "")
+    for i, loop in enumerate(loops):
+        poly = geo.createPolygon(True)
+        for p in loop:
+            pt = geo.createPoint()
+            pt.setPosition(p)
+            poly.addVertex(pt)
+        if modes and i < len(modes) and modes[i]:
+            poly.setAttribValue(F.CLIP_MODE_ATTR, str(modes[i]))
+    return geo
+
+
 def clip_case(loops=None, clip_mode="slice", modes=None, array_ids=None):
-    """One `build_many` over N closed sub-splines - PC-G6's whole fixture."""
+    """One `build_clipped` over N closed sub-splines - PC-G6's whole fixture."""
     loops = list(loops if loops is not None else CLIP_LOOPS)
     kit_geo, style = clip_kit(), clip_style()
-    out, report = F.build_many(loops, kit_geo, style, height=None, area=True,
-                               clip_mode=clip_mode, clip_modes=modes,
-                               array_ids=array_ids)
+    out, report = F.build_clipped(clip_geometry(loops, modes), kit_geo, style,
+                                  height=None, clip_mode=clip_mode,
+                                  array_ids=array_ids)
     return {"curve": hou.Geometry(), "kit": report["kit_geo"],
             "kit_src": kit_geo, "style": style, "out": out, "report": report,
             "surface": None, "overrides": None, "paths": [],

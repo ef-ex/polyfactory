@@ -144,12 +144,16 @@ def gate_pc_g6():
     # disjoint A003 must not move one id.
     moved = list(cases2d.CLIP_LOOPS)
     moved[1] = [(6, 2.0, 0), (9.5, 5, 0), (6, 8.0, 0), (2.5, 5, 0)]
+    # ...and the same input with sub-spline B told to INCLUDE, which is 7.6's
+    # per-spline override of the even-odd result - a branch nothing else runs.
+    over = cases2d.clip_case(modes=["", "include", "", ""])
     return [
         C.clip_inside_m(scene),
         C.clip_nesting(scene),
         C.clip_caps_closed(scene),
         C.clip_policy(scene),
         C.clip_independence(a, cases2d.clip_case(moved), "A000"),
+        C.clip_mode_override(a, over),
     ]
 
 
