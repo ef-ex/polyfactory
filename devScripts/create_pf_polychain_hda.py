@@ -436,8 +436,9 @@ valid.setInput(0, frames)
 valid.setPosition(hou.Vector2(22.0, -2.0))
 valid.setComment(
     "The pieces the native frame is ANSWERABLE for. A piece on a filleted\n"
-    "or conformed path is dropped here rather than handed a wrong frame -\n"
-    "warn-never-block, while 13.9 N6 and N8 are still ahead.")
+    "path is dropped here rather than handed a wrong frame - warn-never-\n"
+    "block, while 13.9 N8 is still ahead. A CONFORMED path is answerable\n"
+    "since N6: pc_conform.h samples it and only D55's camber is refused.")
 valid.setGenericFlag(hou.nodeFlag.DisplayComment, True)
 
 out_frames = net.createNode("null", "OUT_frames")
@@ -908,7 +909,14 @@ note.setText(
     "                                values both ways, 471 prims). Slice\n"
     "                                caps and the hero replacement are\n"
     "                                NOT started.\n"
-    "  4.5  conform              N6  NOT STARTED - `ray` as a node\n"
+    "  4.5  conform              N6  THE DRAPE IS DONE - pc_conform.h,\n"
+    "                                VEX intersect() on IN_SURFACE. 70 of\n"
+    "                                70 generated terrains run native and\n"
+    "                                300 conformed streets went 930.7 ms\n"
+    "                                to 93.4 ms. Tilt to Surface (D55's\n"
+    "                                camber) and a non-coordinate Conform\n"
+    "                                Direction are REFUSED by name and\n"
+    "                                take the reference.\n"
     "  4.3  corners              N8  NOT STARTED - so a run with corners\n"
     "                                is refused by the guard and takes\n"
     "                                the reference.\n"
