@@ -636,6 +636,51 @@ class TestStyleSplit(unittest.TestCase):
     def test_an_unknown_axis_is_an_X_rule(self):
         self.assertEqual(Rule("default", axis="diagonal").axis, "x")
 
+    # --- 7.3.2 / D293: the 2D block, and D223's storage rule on it ----------
+
+    def _read(self, meta):
+        warns = []
+        return (A.payload_2d(Style("s", 1, 0, rules=[], meta=meta), warns),
+                warns)
+
+    def test_only_what_the_payload_declares_comes_back(self):
+        got, warns = self._read({"y_mode": "aligned",
+                                 "clip": {"mode": "slice", "expand": 2}})
+        self.assertEqual(got, {"y_mode": "aligned", "clip_mode": "slice",
+                               "expand": 2.0})
+        self.assertEqual(warns, [])
+        self.assertEqual(self._read({})[0], {})
+
+    def test_the_wrong_storage_is_refused_not_coerced(self):
+        # D223: `float("0.25")` succeeds and says nothing, `float(True)` is
+        # 1.0 and says nothing. Both are dropped and named instead.
+        for block in ({"expand": "0.25"}, {"expand": True},
+                      {"mode": 0}, {"auto_align": 3.0}):
+            got, warns = self._read({"clip": block})
+            self.assertEqual(got, {}, block)
+            self.assertEqual(len(warns), 1, block)
+            self.assertIn("pc_warn_payload_malformed", warns[0])
+
+    def test_an_unknown_value_degrades_and_an_unknown_key_is_named(self):
+        for meta in ({"y_mode": "welded"}, {"clip": {"mode": "carve"}},
+                     {"clip": {"nosuchkey": 1}}, {"clip": "not a dict"}):
+            got, warns = self._read(meta)
+            self.assertEqual(got, {}, meta)
+            self.assertTrue(warns and "pc_warn_payload_malformed" in warns[0])
+
+    def test_what_the_2d_path_cannot_express_is_refused_by_name(self):
+        for key, ok, bad in (("projection", "planar", "cylindrical"),
+                             ("hierarchy", "complete", "none"),
+                             ("cap_holes", 1, 0)):
+            self.assertEqual(self._read({"clip": {key: ok}})[1], [], key)
+            warns = self._read({"clip": {key: bad}})[1]
+            self.assertEqual(len(warns), 1, key)
+            self.assertIn("pc_warn_payload_refused", warns[0])
+            self.assertIn(key, warns[0])
+        # `cap_holes = True` is 1 in Python and is NOT the int the contract
+        # names - the same storage trap, on the refusal side.
+        self.assertEqual(len(self._read({"clip": {"cap_holes": True}})[1]), 1)
+
 
 class TestNoHoudini(unittest.TestCase):
 

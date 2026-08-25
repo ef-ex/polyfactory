@@ -213,6 +213,37 @@ def gate_pc_g6_hostile():
     ]
 
 
+def payload_face():
+    """2.1's PIPELINE FACE on the 2D path - P2-4, D293.
+
+    Three questions, and the middle one is the gate: does a 7.3.2 payload
+    express everything the 2D entry point's keywords express (round trip),
+    does it OVERRIDE them (the sweep, with its own control), and does it
+    refuse by name what 7.6 does not build instead of answering wrong.
+    """
+    def build(nudge, payload):
+        return cases2d.payload_build(nudge, payload)[0]
+    return [
+        C.payload_round_trip_2d(build(None, False), build(None, True)),
+        C.parms_inert_under_payload(build, [{"clip_mode": "remove"},
+                                            {"expand": 1.5},
+                                            {"auto_align": "to_spline"}]),
+        # 7.3.2's six `clip` keys, hostile: one the 2D path cannot build at
+        # the value asked (`cap_holes = 0`), one whose only buildable value is
+        # the default (`hierarchy`), and one that is not a 7.3.2 key at all.
+        # ⚠️ NO `pc_warn_clip_tilted` HERE, and the reason is the fixture's:
+        # `x_xy` forces the frame's +X horizontal, so its `ey` IS the world up
+        # axis whatever the plate is spun by. `to_spline` on the same plate is
+        # what tilts it, which is exactly why the sweep row above can move.
+        C.clip_input_warns(
+            {"report": cases2d.payload_build(
+                payload=True, clip={"cap_holes": 0, "hierarchy": "none",
+                                    "nosuchkey": 1})[1]},
+            ("pc_warn_payload_malformed", "pc_warn_payload_refused"),
+            name="payload_input_warns"),
+    ]
+
+
 def tripwires():
     """11.9's rules 1 and 2, on the shapes phase 2 actually has.
 
@@ -285,6 +316,7 @@ def main():
 
     for label, fn in (("ZY_gate_pc_g6", gate_pc_g6),
                       ("ZY_gate_pc_g6_hostile", gate_pc_g6_hostile),
+                      ("ZY_payload_face", payload_face),
                       ("ZZ_2d_tripwires", tripwires)):
         res = fn()
         results[label] = [r.as_dict() for r in res]

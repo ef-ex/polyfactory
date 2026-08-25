@@ -215,12 +215,26 @@ WARN_CLIP_NONPLANAR = "pc_warn_clip_nonplanar"
 # grows modules along, so every piece leaves the band it was solved into. The
 # tilt-aware solve is C3's; this is the channel that stops it being silent.
 WARN_CLIP_TILTED = "pc_warn_clip_tilted"
+# 7.3.2 / D293 - the 2D payload's own two complaints, and they are deliberately
+# two names and not one. A MALFORMED field degrades to the kernel default and
+# says which key it dropped - D78's rule, on the 2D axis. A field asking for
+# behaviour the 2D path does not have is REFUSED BY NAME instead, because
+# ignoring it is answering wrong: a payload that says `cap_holes = 0` and gets
+# capped holes back has been told nothing, and a silent wrong answer is the
+# failure mode this project keeps recording.
+WARN_PAYLOAD_MALFORMED = "pc_warn_payload_malformed"
+WARN_PAYLOAD_REFUSED = "pc_warn_payload_refused"
+# 7.4 / D122 - the row could not take the datum row's bay count (a section so
+# short the count does not fit, or a section with anchors on it, where the
+# default fill is several runs and one count cannot say which). Warn, never
+# block: the row falls back to its own free solve and says so.
+WARN_Y_ALIGN_LOST = "pc_warn_y_align_lost"
 WARN_VOCAB = (WARN_KIT_GAP, WARN_CORNER_DEGENERATE, WARN_OVERFLOW,
               WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD,
               WARN_BEND_RESOLUTION, WARN_DEGENERATE_FRAME, WARN_FILLET_CLAMPED,
               WARN_CONFORM_MISS, WARN_REPLACED, WARN_CURVE_ID_DUP,
               WARN_ROLE_FALLBACK, WARN_ROW_OVERFLOW, WARN_ROW_KIT_GAP,
-              WARN_CLIP_UNSLICEABLE, WARN_CLIP_CONVEX)
+              WARN_CLIP_UNSLICEABLE, WARN_CLIP_CONVEX, WARN_Y_ALIGN_LOST)
 
 # 7.6 / D126 - the cull policy, RailClone's "For No Slice" three, as decisions
 # rather than as numbers. -1 on a module means "the array's own parm decides",

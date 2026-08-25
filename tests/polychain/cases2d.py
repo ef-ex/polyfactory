@@ -38,6 +38,7 @@ import hou                                                       # noqa: E402
 from polyfactory.polychain import Params, Rule, Style             # noqa: E402
 from polyfactory.polychain import array2d as A                    # noqa: E402
 from polyfactory.polychain import facade as F                     # noqa: E402
+from polyfactory.polychain import style as S                      # noqa: E402
 from polyfactory.polychain import kit as K                        # noqa: E402
 from polyfactory.polychain import place as P                      # noqa: E402
 from polyfactory.polychain import style as S                      # noqa: E402
@@ -97,7 +98,7 @@ def facade_kit(roles=None, kit_id="pf_facade", ground_x=BAY_X):
 
 
 def facade_style(fill="adaptive", corner_mode="miter", seed=11,
-                 y_fill="adaptive", extra=()):
+                 y_fill="adaptive", extra=(), meta=None):
     """Four rules and no module names: the kit's roles decide every cell.
 
     The Y half is three `pc_axis = y` rules - a ground floor, a repeating
@@ -111,7 +112,7 @@ def facade_style(fill="adaptive", corner_mode="miter", seed=11,
         Rule("default", "first", ["bay"], axis="y"),
         Rule("end", "first", ["cornice"], axis="y"),
     ], params=Params(fill=fill, corner_mode=corner_mode),
-        meta={"y_params": {"fill": y_fill}})
+        meta=dict({"y_params": {"fill": y_fill}}, **(meta or {})))
 
 
 # --- PC-G6: the clipped area (7.6 / P2-7) -----------------------------------
@@ -254,6 +255,47 @@ def clip_case(loops=None, clip_mode="slice", modes=None, array_ids=None,
             "array_id": "", "kw": {}}
 
 
+# --- 2.1's PIPELINE FACE on the 2D path (P2-4 / D293) -----------------------
+
+# ⚠️ THE PLATE IS SPUN, AND THE SWEEP IS WHY. `to_spline` and `x_xy` name the
+# SAME +X on the shipped fixture - its first segment is already horizontal -
+# so an `auto_align` row over two identical frames would be decoration.
+# Measured: 30 degrees in the plate's own plane, and `to_spline` tilts the
+# frame 30 degrees off the world up axis while `x_xy` keeps its +X horizontal
+# and its `ey` exactly UP - two different frames, two different builds.
+def spun_loops(deg=30.0, loops=None):
+    c, s = math.cos(math.radians(deg)), math.sin(math.radians(deg))
+    return [[(p[0] * c - p[1] * s, p[0] * s + p[1] * c, p[2]) for p in loop]
+            for loop in (loops if loops is not None else CLIP_LOOPS)]
+
+
+PAYLOAD_2D = {"clip_mode": "slice", "expand": 0.25, "auto_align": "x_xy"}
+
+
+def payload_build(nudge=None, payload=False, clip=None):
+    """PC-G6's clip input with its 2D settings on ONE of 2.1's two faces.
+
+    `payload=False` puts them in the KEYWORDS - which is the 2D path's parm
+    face, 7.6's own wording. `payload=True` writes them into a 7.3.2
+    `pc_style_meta` block through `facade.meta_2d`, puts THAT on geometry with
+    `style.write` and reads it back with `style.read`, so the pipeline face is
+    exercised as geometry and not as a `Style` object a test built by hand.
+    `nudge` always goes to the keywords: under a payload it must be inert.
+    """
+    kw = dict(PAYLOAD_2D)
+    style = clip_style()
+    if payload:
+        geo = hou.Geometry()
+        S.write(geo, Style(style.style_id, style.version, style.seed,
+                           style.rules, style.params,
+                           dict(style.meta, **F.meta_2d(clip=clip, **kw))))
+        style = S.read(geo)[0]
+        kw = {}
+    kw.update(nudge or {})
+    return F.build_clipped(clip_geometry(spun_loops()), clip_kit(clip=2),
+                           style, height=None, **kw)
+
+
 def clip_arrays(loops, modes=None):
     """{array_id: (frame, region, [member loop indices])} - the SAME nesting
     the builder used, re-derived for the checks to measure against.
@@ -305,17 +347,26 @@ def _loops(footprint, kit_geo, style, height, array_id, kw):
     phase-1 checks against the same stream the kernel saw.
     """
     kit, _s, _w = K.read(kit_geo)
-    _x, y_style = A.split_style(style, kw.get("y_params"))
+    # D293 - the SAME precedence the builder used, resolved by the builder's
+    # own functions. Re-spelling it here is how the re-derived stream and the
+    # built one drift apart, which is the seam every phase-1 check would then
+    # be measuring instead of the build.
+    yp = F._y_params(style, kw.get("y_params"))
+    settings = A.payload_2d(style)
+    _x, y_style = A.split_style(style, yp)
     if kw.get("area"):
-        frame = A.area_frame(footprint, kw.get("auto_align", "to_spline"),
-                             kw.get("expand", 0.0))
+        frame = A.area_frame(
+            footprint, settings.get("auto_align",
+                                    kw.get("auto_align", "to_spline")),
+            settings.get("expand", kw.get("expand", 0.0)))
         rows = A.plan_rows(kw.get("profile") if kw.get("profile") is not None
                            else (height if height is not None else
                                  frame.height),
-                           kit, y_style, kw.get("y_params"), array_id)
-        return A.area_rows(frame, rows, kw.get("clip_mode", "remove"))
-    rows = A.plan_rows(kw.get("profile", height), kit, y_style,
-                       kw.get("y_params"), array_id)
+                           kit, y_style, yp, array_id)
+        return A.area_rows(frame, rows,
+                           settings.get("clip_mode",
+                                        kw.get("clip_mode", "remove")))
+    rows = A.plan_rows(kw.get("profile", height), kit, y_style, yp, array_id)
     return A.row_loops(footprint, rows, kw.get("closed", True))
 
 
@@ -396,8 +447,9 @@ def build_all():
     # with the same `evenly()` the X axis has always used.
     built["FI_y_evenly"] = case(
         L_FOOTPRINT, kit,
-        facade_style(extra=[Rule("evenly", "first", ["cornice"], axis="y")]),
-        y_params=Params(fill="adaptive", evenly_spacing=6.0))
+        facade_style(extra=[Rule("evenly", "first", ["cornice"], axis="y")],
+                     meta={"y_params": {"fill": "adaptive",
+                                        "evenly_spacing": 6.0}}))
 
     # FJ / FK - D124. The SAME footprint re-authored: reversed, and started at
     # a different vertex. Every `pc_elem_id` must be identical to FA's.

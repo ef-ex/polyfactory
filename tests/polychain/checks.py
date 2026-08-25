@@ -2081,6 +2081,49 @@ def clip_input_warns(case, expected=(), name="clip_input_warns"):
                   else "expected %s" % (sorted(expected),))
 
 
+def payload_round_trip_2d(a, b, name="payload_round_trip_2d"):
+    """2.1 ON THE 2D AXIS: a facade authored on the PARM face, written out as
+    a 7.3.2 payload and read back in, is the same geometry - byte for byte at
+    tol 0, not merely the same shape. `diff.compare` is the oracle.
+
+    WHAT IT CANNOT SEE: whether either build is CORRECT. It compares two faces
+    of one tool; `clip_inside_m` and `exact_fill_m` say the geometry is right.
+    """
+    import diff as _diff
+    diffs = _diff.compare(_diff.snapshot(a), _diff.snapshot(b))
+    return Result(name, not diffs, [len(diffs)], "; ".join(diffs[:3]))
+
+
+def parms_inert_under_payload(build, nudges,
+                              name="parms_inert_under_payload"):
+    """PC-G4's parm sweep on the 2D page (D293): [parms that reached the build
+    THROUGH a payload, parms that moved it without one, parms swept].
+
+    `build(nudge, payload)` -> geometry. The SECOND number is the control and
+    it is the half that makes this falsifiable: "nothing moved" passes just as
+    well when the parm was never live, which is exactly the shape D107 found
+    in PC-G4's own sweep - a `scale` fixture that did not move for any padding
+    and made the inertness claim vacuous for four cycles.
+
+    WHAT IT CANNOT SEE: a parm that is not in `nudges`.
+    """
+    import diff as _diff
+    under = _diff.snapshot(build(None, True))
+    free = _diff.snapshot(build(None, False))
+    moved = live = 0
+    for kw in nudges:
+        if _diff.compare(under, _diff.snapshot(build(kw, True))):
+            moved += 1
+        if _diff.compare(free, _diff.snapshot(build(kw, False))):
+            live += 1
+    ok = moved == 0 and live == len(nudges)
+    return Result(name, ok, [moved, live, len(nudges)],
+                  "" if ok else
+                  "%d of %d parms reached the build through the payload, and "
+                  "%d of %d moved it without one"
+                  % (moved, len(nudges), live, len(nudges)))
+
+
 def clip_inside_m(scene, tol=1e-2, name="clip_inside_m"):
     """PC-G6 condition 1: [worst metres a delivered point lies OUTSIDE the
     clip region, points measured]. `bend_tol` is 0.01 m.

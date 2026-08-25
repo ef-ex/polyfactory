@@ -1342,6 +1342,38 @@
       ]
     }
   ],
+  "ZY_payload_face": [
+    {
+      "detail": "",
+      "name": "payload_round_trip_2d",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "parms_inert_under_payload",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        3,
+        3
+      ]
+    },
+    {
+      "detail": "",
+      "name": "payload_input_warns",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        "pc_warn_payload_malformed",
+        "pc_warn_payload_refused"
+      ]
+    }
+  ],
   "ZZ_2d_tripwires": [
     {
       "detail": "0 wrapper attribute writes during row emission (ceiling 0)",

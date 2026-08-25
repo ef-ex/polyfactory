@@ -369,6 +369,32 @@ MUTATIONS = (
         "    cand = candidates(rule, kit)"),),
       rebuild=False),
 
+    # ---- P2-4 / D293: 2.1's pipeline face on the 2D path --------------------
+    M("2d_payload_does_not_override", "2d",
+      ("payload_round_trip_2d", "parms_inert_under_payload"),
+      "The payload stops overriding the 2D path's own keywords, which is "
+      "2.1's pipeline face deleted: the same payload then builds differently "
+      "on two nodes because each keeps whatever its keywords happened to say. "
+      "⚠️ ONE EDIT, TWO PAIRED CHECKS, DELIBERATELY: they are the two halves "
+      "of one property and no edit separates them - a payload that does not "
+      "override cannot round-trip either, because the parm face's own "
+      "settings are exactly what the round trip is carrying.",
+      ((PY % "facade.py",
+        '    clip_mode = settings.get("clip_mode", clip_mode)',
+        "    clip_mode = clip_mode"),),
+      rebuild=False),
+
+    M("2d_payload_refusal_silent", "2d",
+      ("payload_input_warns",),
+      "7.3.2's three unbuildable `clip` keys stop being refused and are "
+      "ignored instead, so a payload asking for `cap_holes = 0` gets capped "
+      "holes back and is told nothing. D294's whole point is that ignoring "
+      "is answering wrong.",
+      ((PY % "array2d.py",
+        "            if isinstance(value, bool) or value != CLIP_FIXED[key]:",
+        "            if False:"),),
+      rebuild=False),
+
     # ---- PC-G6: the clipped area (7.6 / P2-7) ------------------------------
     M("2d_clip_slice_becomes_preserve", "2d",
       ("clip_inside_m",),
@@ -916,7 +942,9 @@ EXPECT_CHECKS = {
     # 500 m out), `clip_input_warns` + its clean control on the validation
     # station's five channels, and `caps_closed_mitered` on the district -
     # phase 1's own corner cut, whose closure nothing had ever measured.
-    "2d": 27,
+    # C3 added three, 2026-08-25: P2-4's pipeline face - the round trip, the
+    # parm sweep with its own control, and 7.3.2's refusal set.
+    "2d": 30,
     "generated": 3,
     "hda": 18,
     "images": 30,

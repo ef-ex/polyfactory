@@ -271,19 +271,51 @@ def build_clipped(clip_geo, kit_geo, style, **kw):
     return (geo, report)
 
 
-def _y_params(style, y_params):
+def meta_2d(y_params=None, y_mode=None, clip_mode=None, auto_align=None,
+            expand=None, clip=None):
+    """The inverse of `array2d.payload_2d`: the 2D settings as a 7.3.2 meta
+    block, so 2.1's *"the parm face's own Style expressed as a payload"* is one
+    call on this axis too and the round trip is the TOOL's code in both
+    directions rather than a dict a test happened to spell right.
+
+    `clip` carries 7.3.2's three fixed keys through unaltered, which is what
+    makes a REFUSAL reachable from a caller instead of only from hostile
+    input.
+    """
+    meta = {}
+    if y_params is not None:
+        meta["y_params"] = _style.params_to_dict(y_params)
+    if y_mode is not None:
+        meta["y_mode"] = y_mode
+    block = dict(clip or {})
+    for key, value in (("mode", clip_mode), ("auto_align", auto_align),
+                       ("expand", expand)):
+        if value is not None:
+            block[key] = value
+    if block:
+        meta["clip"] = block
+    return meta
+
+
+def _y_params(style, y_params, warns=None):
     """7.3.2's `pc_style_meta["y_params"]`, read by the SAME `params_from_dict`.
 
     `y_fill`, `y_count`, `y_evenly_spacing`... are not new parms: they are the
-    same `Params` fields on the other axis, so an explicit argument wins, then
-    the payload's own dict, then the X params.
+    same `Params` fields on the other axis.
+
+    ⚠️ THE PAYLOAD WINS, AND IT DID NOT USE TO (D293). This read "an explicit
+    argument wins, then the payload's own dict" - which makes 2.1's pipeline
+    face impossible on the Y axis, because a node's parm arrives here AS an
+    explicit argument and would beat the payload every time. It is the same
+    precedence as the X axis now: the payload's own block, then the keyword,
+    then the X params. A payload that says nothing about Y still leaves the
+    keyword alone, so "the payload overrides the parms" and "the payload was
+    silent" stay two different states.
     """
-    if y_params is not None:
-        return y_params
     data = (getattr(style, "meta", None) or {}).get("y_params")
-    if not data:
-        return None
-    return _style.params_from_dict(dict(data))
+    if data:
+        return _style.params_from_dict(dict(data), warns)
+    return y_params
 
 
 # --- the build (D115: one call) ---------------------------------------------
@@ -291,7 +323,7 @@ def _y_params(style, y_params):
 def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
           y_params=None, extend="x", closed=True, corner_flags=None,
           area=False, clip_mode="remove", clip_modes=None,
-          auto_align="to_spline", expand=0.0,
+          auto_align="to_spline", expand=0.0, y_mode="free",
           out=None, surface_geo=None, overrides=None):
     """One footprint + a height -> a facade. Returns (geometry, report).
 
@@ -315,8 +347,8 @@ def build(footprint, kit_geo, style, height=None, profile=None, array_id="A",
                       y_params=y_params, extend=extend, closed=closed,
                       corner_flags=corner_flags, area=area,
                       clip_mode=clip_mode, clip_modes=clip_modes,
-                      auto_align=auto_align,
-                      expand=expand, out=out, surface_geo=surface_geo,
+                      auto_align=auto_align, expand=expand, y_mode=y_mode,
+                      out=out, surface_geo=surface_geo,
                       overrides=overrides)
 
 
@@ -324,7 +356,8 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
                profile=None, array_ids=None, y_params=None, extend="x",
                closed=True, corner_flags=None, area=False,
                clip_mode="remove", clip_modes=None, auto_align="to_spline",
-               expand=0.0, out=None, surface_geo=None, overrides=None):
+               expand=0.0, y_mode="free", out=None, surface_geo=None,
+               overrides=None):
     """N footprints -> ONE `place.build`. D115 / PC-G7's one-call rule, shipped.
 
     ⚠️ THIS IS THE ENTRY POINT THE ONE-CALL RULE IS ABOUT, and until it
@@ -346,7 +379,20 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
     top level so `build`'s report shape is unchanged.
     """
     kit, _sources, _kw = _kit.read(kit_geo)
-    x_style, y_style = _array2d.split_style(style, _y_params(style, y_params))
+    # 2.1 / D293 - THE PAYLOAD FACE, ON BOTH AXES. Every keyword below this
+    # line is the 2D path's parm face (7.6: "there is no HDA on the 2D path at
+    # all, so a parm here means an argument on the shipped entry point"), and
+    # a payload that names a setting overrides it entirely. What the payload
+    # does NOT name is left to the keyword, which is what keeps "overridden"
+    # and "not mentioned" two distinguishable states.
+    pay_warns = []
+    settings = _array2d.payload_2d(style, pay_warns)
+    clip_mode = settings.get("clip_mode", clip_mode)
+    auto_align = settings.get("auto_align", auto_align)
+    expand = settings.get("expand", expand)
+    y_mode = settings.get("y_mode", y_mode)
+    x_style, y_style = _array2d.split_style(
+        style, _y_params(style, y_params, pay_warns))
     named = [m for r in style.rules for m in r.modules] + \
             [r.slot for r in style.rules]
     kit_geo2, fallbacks, collisions = close_kit(kit_geo, extend, named)
@@ -367,7 +413,7 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
         depth, include, parent, _chart = _array2d.nest(footprints, clip_modes)
         members = _array2d.array_members(parent)
         hook = _array2d.ClipHook(CLIP_POLICIES.get(clip_mode, CLIP_REMOVE))
-    loops, arrays, flag_col, frame_warns = [], [], [], []
+    loops, arrays, flag_col, frame_warns = [], [], [], list(pay_warns)
     for i, footprint in enumerate(footprints):
         array_id = (array_ids[i] if array_ids is not None
                     else ("A" if len(footprints) == 1 else "A%03d" % i))

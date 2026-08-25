@@ -59,7 +59,8 @@ import math
 
 from . import (CLIP_PRESERVE, CLIP_REMOVE, CLIP_SLICE, DEFAULTS, EPS, POS_EPS,
                ROLES_2D, SLOTS, UP, WARN_CLIP_CONVEX, WARN_CLIP_UNSLICEABLE,
-               WARN_KIT_GAP, WARN_OVERFLOW, WARN_ROW_KIT_GAP,
+               WARN_KIT_GAP, WARN_OVERFLOW, WARN_PAYLOAD_MALFORMED,
+               WARN_PAYLOAD_REFUSED, WARN_ROW_KIT_GAP,
                WARN_ROW_OVERFLOW, Curve, Kit, Module, Style, _is_slot,
                canonical_role, role_2d, split_role)
 from . import decompose as _decompose
@@ -248,6 +249,91 @@ def split_style(style, y_params=None):
     y = Style(style.style_id, style.version, style.seed, y_rules,
               y_params or style.params, meta)
     return (x, y)
+
+
+# 7.4's Y Mode and 7.6's Auto Align, as vocabularies rather than as strings
+# spelled twice. `x_horizontal` is D20's axis translation of RC's `x_xy`, kept
+# because both spellings are already accepted by `area_frame`.
+Y_MODES = ("free", "aligned")
+AUTO_ALIGNS = ("to_spline", "x_xy", "x_horizontal")
+
+# 7.3.2 names six `clip` keys. THREE the 2D path builds; the other three name
+# behaviour it does not have, and each has exactly one value that is what it
+# already does anyway - the projection is planar (D290: a non-planar loop is
+# solved on its projection), the hierarchy is even-odd complete (D125), and a
+# slice always caps (D126). A payload asking for that value is answered; a
+# payload asking for anything else is REFUSED BY NAME (D294).
+CLIP_FIXED = {"projection": "planar", "hierarchy": "complete", "cap_holes": 1}
+_CLIP_WORDS = {"mode": ("preserve", "remove", "slice"),
+               "auto_align": AUTO_ALIGNS}
+
+
+def payload_2d(style, warns=None):
+    """7.3.2's 2D block -> only the settings the payload actually DECLARED.
+
+    `{y_mode, clip_mode, auto_align, expand}`, any subset of them. Only
+    declared keys come back, and that is the whole design: a caller's keyword
+    IS the 2D path's parm face, so "the payload overrides the parms" (2.1 /
+    D77) and "the payload said nothing about this" have to stay
+    distinguishable. A payload silent about `expand` must leave the parm
+    alone; a payload that names it must win.
+
+    ⚠️ D223 ON THE PAYLOAD. A dict attribute preserves int, float and str
+    distinctly - probed on 22.0.398: `3` comes back `int`, `3.0` `float`,
+    `"3"` `str` - so a string where a number belongs is an authoring error and
+    coercing it is exactly the trap D223 names. `float("0.25")` succeeds and
+    tells nobody that the generator wrote the wrong storage, so the field is
+    dropped and named instead. `bool` is refused for a number for the same
+    reason and it is the sharper case: `float(True)` is 1.0, silently.
+
+    WHAT IT CANNOT SEE: whether the value is any GOOD. `expand = 900.0` is a
+    number of metres and is honoured; only `area_frame` knows it is absurd.
+    """
+    warns = warns if warns is not None else []
+    meta = getattr(style, "meta", None) or {}
+    out = {}
+    mode = meta.get("y_mode")
+    if mode is not None:
+        if isinstance(mode, str) and mode in Y_MODES:
+            out["y_mode"] = mode
+        else:
+            warns.append("%s: pc_style_meta.y_mode=%r - dropped, the Y fit "
+                         "stays free (known: %s)"
+                         % (WARN_PAYLOAD_MALFORMED, mode, ", ".join(Y_MODES)))
+    block = meta.get("clip")
+    if block is None:
+        return out
+    if not isinstance(block, dict):
+        warns.append("%s: pc_style_meta.clip=%r is not a dict - the whole 7.6 "
+                     "block is dropped" % (WARN_PAYLOAD_MALFORMED, block))
+        return out
+    for key in sorted(block):
+        value = block[key]
+        if key in CLIP_FIXED:
+            if isinstance(value, bool) or value != CLIP_FIXED[key]:
+                warns.append("%s: pc_style_meta.clip.%s=%r - the 2D path only "
+                             "builds %r (7.6) and will not answer as though "
+                             "it had" % (WARN_PAYLOAD_REFUSED, key, value,
+                                         CLIP_FIXED[key]))
+        elif key == "expand":
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                warns.append("%s: pc_style_meta.clip.expand=%r is a %s, not a "
+                             "number - dropped" % (WARN_PAYLOAD_MALFORMED,
+                                                   value,
+                                                   type(value).__name__))
+            else:
+                out["expand"] = float(value)
+        elif key in _CLIP_WORDS:
+            if not isinstance(value, str) or value not in _CLIP_WORDS[key]:
+                warns.append("%s: pc_style_meta.clip.%s=%r - dropped (known: "
+                             "%s)" % (WARN_PAYLOAD_MALFORMED, key, value,
+                                      ", ".join(_CLIP_WORDS[key])))
+            else:
+                out["clip_mode" if key == "mode" else key] = value
+        else:
+            warns.append("%s: pc_style_meta.clip.%s is not a 7.3.2 key - "
+                         "ignored" % (WARN_PAYLOAD_MALFORMED, key))
+    return out
 
 
 # --- 7.1: the Y solve -------------------------------------------------------
