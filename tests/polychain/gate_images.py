@@ -178,7 +178,7 @@ def rasterise(path, geo, axes=("x", "z"), w=1200, h=680, extra=(),
             segs.append((colour, project(axes, poly[i]),
                          project(axes, poly[i + 1])))
     if not segs:
-        return
+        return 0
     xs = [p[0] for _c, p, q in segs] + [q[0] for _c, p, q in segs]
     ys = [p[1] for _c, p, q in segs] + [q[1] for _c, p, q in segs]
     lo_x, hi_x, lo_y, hi_y = min(xs), max(xs), min(ys), max(ys)
@@ -203,6 +203,7 @@ def rasterise(path, geo, axes=("x", "z"), w=1200, h=680, extra=(),
     png(path, w, h, pix)
     print("      image: %s  (%d segments)" % (os.path.basename(path),
                                               len(segs)))
+    return len(segs)
 
 
 # --- driving the parm face --------------------------------------------------

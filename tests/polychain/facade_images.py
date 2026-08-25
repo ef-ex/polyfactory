@@ -127,6 +127,7 @@ def main():
     if not os.path.isdir(OUT):
         os.makedirs(OUT)
     built = cases2d.build_all()
+    fail = []
     for name, view, axes, crop in (
             ("FA_L_facade", "iso", "iso", None),
             ("FA_L_facade", "front", ("x", "y"), None),
@@ -137,8 +138,25 @@ def main():
         geo, colour_of = coloured(built[name]["out"])
         if crop is not None:
             geo = near(geo, crop[0], crop[1])
-        G.rasterise(os.path.join(OUT, "PCG5_%s_%s.png" % (name, view)),
-                    geo, axes=axes, w=1400, h=900, colour_of=colour_of)
+        drawn = G.rasterise(os.path.join(OUT, "PCG5_%s_%s.png" % (name, view)),
+                            geo, axes=axes, w=1400, h=900,
+                            colour_of=colour_of)
+        # D194's rule, `drawn_covers_packed`'s shape: the image must CONTAIN
+        # its subject before anyone judges it. Every polygon of n vertices
+        # contributes n segments, so drawn < prims (or an empty build) means
+        # pieces the picture cannot show - the V4 audit fed every facade an
+        # empty hou.Geometry() and this script wrote zero PNGs and exited 0,
+        # PC-G5's only image evidence unable to fail.
+        prims = geo.intrinsicValue("primitivecount")
+        ok = prims > 0 and drawn >= prims
+        print("  [%s] facade_image_has_geometry_%s_%s  %d prims, %d segments"
+              % ("PASS" if ok else "FAIL", name, view, prims, drawn))
+        if not ok:
+            fail.append("%s_%s" % (name, view))
+    print("\n%d failing facade images" % len(fail))
+    if fail:
+        print("  " + ", ".join(fail))
+    sys.exit(1 if fail else 0)
 
 
 if __name__ == "__main__":

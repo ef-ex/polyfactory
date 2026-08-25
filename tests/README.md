@@ -147,6 +147,9 @@ Three things the audit found that the build report did not say:
    that reason, and the discipline it breaks — *an image check must prove the image contains
    its subject* — is one `gate_images.py` itself honours (`image_shows_packed_*`). The fix is
    a drawn-segment floor per image, and it is the cheapest thing left in the suite.
+   **FIXED 2026-08-25**: every image now asserts prims > 0 and drawn segments >= prims
+   (D194's shape) and the runner exits non-zero; the empty-`hou.Geometry()` mutation was
+   re-run and seen red — 6 FAIL rows, exit 1.
 2. ⚠️ **`--full` CANNOT BE RUN FROM AN EXPORT** — it resolves `git rev-parse HEAD` at `REPO`
    and dies with `not a git repository`. The pristine-export guarantee is real but it is
    **per work item and internal**: `run_mutation_registry.export()` archives HEAD for the
