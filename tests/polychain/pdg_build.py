@@ -169,6 +169,16 @@ def build(mode, mut_indices, seeds=SEEDS, slots=None):
            _q(REPO + "/tests/unit/test_polychain.py")))
     made[unit] = "the pure-Python kernel (pytest + Hypothesis)"
 
+    # 1b. THE BUDGET, as its own node so its red is never confused with the
+    #     kernel's.  It is red until the v1 deletions land, and that is what a
+    #     budget is for - see the file's own docstring.
+    budget = top.createNode("genericgenerator", "budget")
+    budget.parm("itemcount").set(1)
+    budget.parm("pdg_command").set(
+        '%s -m pytest %s -q -p no:cacheprovider'
+        % (PY, _q(REPO + "/tests/unit/test_polychain_budget.py")))
+    made[budget] = "the size budget (test lines <= tool lines)"
+
     # 2. the comparator's own mutation battery - the oracle everything else
     #    is judged by, so it is judged first.
     selftest = top.createNode("genericgenerator", "diff_selftest")
