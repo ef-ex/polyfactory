@@ -399,11 +399,13 @@ MUTATIONS = (
       "Every patch `polyfill` appended is treated as a stray and deleted, so "
       "a clip cut opens a hole and never closes it. The C1 trap's exact "
       "mirror image - that one capped boundaries the cut never opened, this "
-      "one caps nothing at all - and both are invisible in a wireframe.",
+      "one caps nothing at all - and both are invisible in a wireframe. "
+      "⚠️ `deletePrims` takes hou.Prim OBJECTS: the index spelling aborted "
+      "the runner instead of reddening anything (21.5).",
       ((PY % "place.py",
         "        stray = _off_plane_patches(filled, n_cut, n_all, origin, "
         "normal)",
-        "        stray = list(range(n_cut, n_all))"),),
+        "        stray = [filled.prim(i) for i in range(n_cut, n_all)]"),),
       rebuild=False),
 
     M("2d_clip_unsliceable_cut_anyway", "2d",
