@@ -24,7 +24,9 @@ WHAT THIS CANNOT SEE:
 """
 
 import os
+import shutil
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
@@ -50,6 +52,25 @@ ROLES = ("start_start", "default_start", "end_start",
          "start_end", "default_end", "end_end")
 
 RESULTS = []
+_SCRATCH = []
+
+
+def scratch(name):
+    """A geometry file NOBODY ELSE CAN WRITE.
+
+    ⚠️ THIS WAS `$TEMP/pc_slice_<tag>.bgeo`, AND THE SWEEP CAUGHT IT. Under
+    the parallel runner fifteen mutation items run at once, every one of them
+    exporting `pc_slice_sliced.bgeo` to the SAME shared `$TEMP` - so a
+    mutated item's kit was overwritten by a clean one before it could be
+    loaded, and `sliced_kit_builds_the_same_fence` reported IDENTICAL on two
+    mutations that had genuinely broken it. Two SURVIVED verdicts, both
+    false, both from one shared filename. "Namespace scratchpad files per
+    agent" is a standing project rule; it applies to processes too.
+    """
+    if not _SCRATCH:
+        _SCRATCH.append(tempfile.mkdtemp(
+            prefix="pc_slice_%d_" % os.getpid()).replace("\\", "/"))
+    return "%s/%s.bgeo" % (_SCRATCH[0], name)
 
 
 def check(name, ok, value="", detail=""):
@@ -130,8 +151,7 @@ def slice_of(chunk, **kw):
 
 def chain_node(geo_node, name, kit_geo, tag):
     kit = geo_node.createNode("python", "kit_" + tag)
-    path = os.path.join(hou.text.expandString("$TEMP"),
-                        "pc_slice_%s.bgeo" % tag).replace("\\", "/")
+    path = scratch("kit_" + tag)
     kit_geo.saveToFile(path)
     kit.parm("python").set(
         "import hou\nhou.pwd().geometry().loadFromFile(%r)\n" % path)
@@ -157,8 +177,7 @@ def unpacked_points(geo):
 
 def slice_node(geo_node, name, chunk_geo, guides=None, **parms):
     src = geo_node.createNode("python", "chunk_" + name)
-    path = os.path.join(hou.text.expandString("$TEMP"),
-                        "pc_chunk_%s.bgeo" % name).replace("\\", "/")
+    path = scratch("chunk_" + name)
     chunk_geo.saveToFile(path)
     src.parm("python").set(
         "import hou\nhou.pwd().geometry().loadFromFile(%r)\n" % path)
@@ -402,6 +421,8 @@ def main():
           "%d prims of %d cells drawn" % (nprim, len(names)))
 
     geo_node.destroy()
+    if _SCRATCH:
+        shutil.rmtree(_SCRATCH[0], ignore_errors=True)
     bad_n = sum(1 for _n, ok, _v, _d in RESULTS if not ok)
     print("\n%d check(s), %d failure(s)" % (len(RESULTS), bad_n))
     sys.exit(1 if bad_n else 0)

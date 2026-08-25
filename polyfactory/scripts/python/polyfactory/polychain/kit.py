@@ -39,7 +39,8 @@ DECISIONS TAKEN HERE:
 
 import hou
 
-from . import DEFORM_RIGID, EPS, Kit, Module, Z_MODES
+from . import (DEFORM_BEND, DEFORM_RIGID, DEFORM_SLICE, EPS, Kit, Module,
+               Z_MODES, split_role)
 
 # The manifest, in one list so the builder, the reader and the validator can
 # never disagree about it: (attribute, default, kind).
@@ -371,11 +372,10 @@ def _deform_for(role, mode):
     cap or corner piece holds its shape at a joint (rigid, and so stays
     instanced), the fill panel follows the run (bendable)."""
     if mode != "auto":
-        return {"rigid": DEFORM_RIGID, "bend": 1, "slice": 2}.get(mode,
-                                                                 DEFORM_RIGID)
-    from . import split_role
-    x = split_role(role)[0]
-    return DEFORM_RIGID if x in ("start", "end", "corner") else 1
+        return {"rigid": DEFORM_RIGID, "bend": DEFORM_BEND,
+                "slice": DEFORM_SLICE}.get(mode, DEFORM_RIGID)
+    return (DEFORM_RIGID if split_role(role)[0] in ("start", "end", "corner")
+            else DEFORM_BEND)
 
 
 def slice_cells(chunk, cells, texel=1.0):
