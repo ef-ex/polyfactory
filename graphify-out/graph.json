@@ -4560,7 +4560,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "citygen_plan_node",
-      "community": 174,
+      "community": 42,
       "norm_label": "node"
     },
     {
@@ -4570,7 +4570,7 @@
       "source_location": "L167",
       "_origin": "ast",
       "id": "citygen_plan_node_init",
-      "community": 174,
+      "community": 42,
       "norm_label": ".__init__()"
     },
     {
@@ -13150,7 +13150,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 60,
+      "community": 204,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -13160,7 +13160,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_normal_indicator",
-      "community": 204,
+      "community": 60,
       "norm_label": "draw_normal_indicator()"
     },
     {
@@ -13180,7 +13180,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 60,
+      "community": 204,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -13190,7 +13190,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_50",
-      "community": 204,
+      "community": 60,
       "norm_label": "draw line indicating surface normal.          args:         drawable: houdini"
     },
     {
@@ -13450,7 +13450,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_init",
-      "community": 174,
+      "community": 42,
       "norm_label": ".__init__()"
     },
     {
@@ -13590,7 +13590,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_27",
-      "community": 174,
+      "community": 42,
       "norm_label": "initialize binding manager for a node.                  args:             nod"
     },
     {
@@ -13980,7 +13980,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel",
-      "community": 174,
+      "community": 35,
       "norm_label": "parm_panel.py"
     },
     {
@@ -13990,7 +13990,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_floating_parm_panel",
-      "community": 174,
+      "community": 35,
       "norm_label": "show_floating_parm_panel()"
     },
     {
@@ -14000,7 +14000,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_selected_node_parms",
-      "community": 174,
+      "community": 35,
       "norm_label": "show_selected_node_parms()"
     },
     {
@@ -14010,7 +14010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_1",
-      "community": 174,
+      "community": 35,
       "norm_label": "parameter panel utilities - helper functions for creating floating parameter win"
     },
     {
@@ -14020,7 +14020,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_11",
-      "community": 174,
+      "community": 35,
       "norm_label": "open a floating parameter panel for a node using houdini's native api."
     },
     {
@@ -14030,7 +14030,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_50",
-      "community": 174,
+      "community": 35,
       "norm_label": "show floating parameter panel for currently selected node.          useful for"
     },
     {
@@ -15760,7 +15760,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring",
-      "community": 35,
+      "community": 20,
       "norm_label": "parmstring"
     },
     {
@@ -15780,7 +15780,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 35,
+      "community": 20,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -15790,7 +15790,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_on_changed",
-      "community": 35,
+      "community": 20,
       "norm_label": "._on_changed()"
     },
     {
@@ -15800,7 +15800,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_widget_value",
-      "community": 168,
+      "community": 170,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -15810,7 +15810,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_expression_style",
-      "community": 35,
+      "community": 20,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -15850,7 +15850,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_widget_value",
-      "community": 168,
+      "community": 170,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -15920,7 +15920,7 @@
       "source_location": "L322",
       "_origin": "ast",
       "id": "widgets_widgets_parmmenu_update_widget_value",
-      "community": 168,
+      "community": 170,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -15960,7 +15960,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor",
-      "community": 35,
+      "community": 170,
       "norm_label": "parmcolor"
     },
     {
@@ -15970,7 +15970,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_init",
-      "community": 51,
+      "community": 170,
       "norm_label": ".__init__()"
     },
     {
@@ -15980,7 +15980,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "parmtuple",
-      "community": 51,
+      "community": 170,
       "norm_label": "parmtuple"
     },
     {
@@ -15990,7 +15990,7 @@
       "source_location": "L449",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_on_color_changed",
-      "community": 35,
+      "community": 170,
       "norm_label": "._on_color_changed()"
     },
     {
@@ -16000,7 +16000,7 @@
       "source_location": "L462",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_get_parm_value",
-      "community": 35,
+      "community": 170,
       "norm_label": "._get_parm_value()"
     },
     {
@@ -16010,7 +16010,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_widget_value",
-      "community": 168,
+      "community": 170,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -16020,7 +16020,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_expression_style",
-      "community": 168,
+      "community": 170,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -16030,7 +16030,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_reset_to_default",
-      "community": 35,
+      "community": 170,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -16070,7 +16070,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_28",
-      "community": 35,
+      "community": 20,
       "norm_label": "string input widget with enhanced label."
     },
     {
@@ -16080,7 +16080,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 35,
+      "community": 20,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -16090,7 +16090,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_101",
-      "community": 35,
+      "community": 20,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -16170,7 +16170,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_409",
-      "community": 35,
+      "community": 170,
       "norm_label": "color picker widget using houdini's native colorfield."
     },
     {
@@ -16180,7 +16180,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_450",
-      "community": 35,
+      "community": 170,
       "norm_label": "handle color change from colorfield."
     },
     {
@@ -16190,7 +16190,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_467",
-      "community": 168,
+      "community": 170,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -16200,7 +16200,7 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_480",
-      "community": 168,
+      "community": 170,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -16210,7 +16210,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_493",
-      "community": 35,
+      "community": 170,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -22617,7 +22617,7 @@
       "label": "M",
       "file_type": "code",
       "source_file": "tests/polychain/mutations.py",
-      "source_location": "L77",
+      "source_location": "L57",
       "_origin": "ast",
       "id": "polychain_mutations_m",
       "community": 282,
@@ -22627,7 +22627,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "tests/polychain/mutations.py",
-      "source_location": "L92",
+      "source_location": "L72",
       "_origin": "ast",
       "id": "polychain_mutations_m_init",
       "community": 282,
@@ -22647,9 +22647,9 @@
       "label": "One registered mutation.      `edits`   ((repo-relative path, exact old text, ne",
       "file_type": "rationale",
       "source_file": "tests/polychain/mutations.py",
-      "source_location": "L78",
+      "source_location": "L58",
       "_origin": "ast",
-      "id": "polychain_mutations_rationale_78",
+      "id": "polychain_mutations_rationale_58",
       "community": 282,
       "norm_label": "one registered mutation.      `edits`   ((repo-relative path, exact old text, ne"
     },
@@ -42445,7 +42445,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 35,
+      "community": 20,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -85457,11 +85457,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/polychain/mutations.py",
-      "source_location": "L78",
+      "source_location": "L58",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_mutations_rationale_78",
-      "target": "polychain_mutations_m"
+      "source": "polychain_mutations_rationale_58",
+      "target": "polychain_mutations_m",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -95512,9 +95512,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_default_style",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -95841,9 +95841,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L77",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_77",
-      "target": "unit_test_polychain_plan_covers",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_covers"
     },
     {
       "relation": "calls",
@@ -96081,9 +96081,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L358",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testdeterminism_plan",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96092,9 +96092,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L425",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testdeterminism_test_section_scope_does_not_correlate_across_sections",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96103,9 +96103,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L379",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_curves_are_reordered",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96114,9 +96114,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L392",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_markers_are_reordered",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96125,9 +96125,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L413",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testdeterminism_test_two_sections_of_one_spline_correlate_under_spline_scope",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96136,9 +96136,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L266",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testselection_test_conditional_reads_the_data_and_declines_to_the_next_rule",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96147,9 +96147,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L276",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testselection_test_conditional_with_two_modules_is_its_own_else_branch",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96158,9 +96158,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L339",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testselection_test_the_corner_angle_at_the_section_start_is_a_readable_subject",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96169,9 +96169,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L112",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testslots_test_a_closed_section_uses_no_start_or_end",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96180,9 +96180,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testslots_test_a_closed_spline_gets_no_caps_on_any_side",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96191,9 +96191,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testslots_test_a_corner_is_not_an_end_and_gets_no_caps",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96202,9 +96202,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L189",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testslots_test_a_marker_places_its_module_exactly_at_the_marker",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96213,9 +96213,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L202",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testslots_test_a_marker_rule_is_evaluated_at_the_marker_not_at_the_section_start",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96224,9 +96224,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L224",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testslots_test_a_marker_with_no_rule_places_nothing_and_does_not_disturb_the_fill",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96235,9 +96235,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L145",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testslots_test_a_pc_section_limit_does_cap_like_a_spline_end",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96246,9 +96246,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L156",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testslots_test_an_evenly_anchor_never_grows_through_the_end_module",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96257,9 +96257,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L214",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testslots_test_an_evenly_rule_is_evaluated_at_each_anchor",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96268,9 +96268,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L173",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testslots_test_evenly_anchors_are_centred_and_the_fill_runs_between_them",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96279,9 +96279,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L101",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testslots_test_start_and_end_are_reserved_before_the_fill",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96290,9 +96290,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L233",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testslots_test_the_default_index_runs_continuously_across_the_anchors",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96301,9 +96301,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L493",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testwholecurves_test_a_closed_fence_covers_every_section_of_the_rectangle",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "calls",
@@ -96312,9 +96312,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L520",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_testwholecurves_test_the_style_carries_its_own_params_when_none_are_passed",
-      "target": "unit_test_polychain_plan_testslots_style",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_style"
     },
     {
       "relation": "rationale_for",
@@ -96322,9 +96322,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L110",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_110",
-      "target": "unit_test_polychain_plan_testslots_test_a_closed_section_uses_no_start_or_end",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_test_a_closed_section_uses_no_start_or_end"
     },
     {
       "relation": "rationale_for",
@@ -96332,9 +96332,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_117",
-      "target": "unit_test_polychain_plan_testslots_test_a_corner_is_not_an_end_and_gets_no_caps",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_test_a_corner_is_not_an_end_and_gets_no_caps"
     },
     {
       "relation": "rationale_for",
@@ -96342,9 +96342,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L128",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_128",
-      "target": "unit_test_polychain_plan_testslots_test_a_closed_spline_gets_no_caps_on_any_side",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_test_a_closed_spline_gets_no_caps_on_any_side"
     },
     {
       "relation": "rationale_for",
@@ -96352,9 +96352,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L137",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_137",
-      "target": "unit_test_polychain_plan_testslots_test_a_pc_section_limit_does_cap_like_a_spline_end",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_test_a_pc_section_limit_does_cap_like_a_spline_end"
     },
     {
       "relation": "rationale_for",
@@ -96362,9 +96362,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L150",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_150",
-      "target": "unit_test_polychain_plan_testslots_test_an_evenly_anchor_never_grows_through_the_end_module",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_test_an_evenly_anchor_never_grows_through_the_end_module"
     },
     {
       "relation": "rationale_for",
@@ -96372,9 +96372,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L184",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_184",
-      "target": "unit_test_polychain_plan_testslots_test_a_marker_places_its_module_exactly_at_the_marker",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_test_a_marker_places_its_module_exactly_at_the_marker"
     },
     {
       "relation": "rationale_for",
@@ -96382,9 +96382,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L197",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_197",
-      "target": "unit_test_polychain_plan_testslots_test_a_marker_rule_is_evaluated_at_the_marker_not_at_the_section_start",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_test_a_marker_rule_is_evaluated_at_the_marker_not_at_the_section_start"
     },
     {
       "relation": "rationale_for",
@@ -96392,9 +96392,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L211",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_211",
-      "target": "unit_test_polychain_plan_testslots_test_an_evenly_rule_is_evaluated_at_each_anchor",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_test_an_evenly_rule_is_evaluated_at_each_anchor"
     },
     {
       "relation": "rationale_for",
@@ -96402,9 +96402,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L229",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_229",
-      "target": "unit_test_polychain_plan_testslots_test_the_default_index_runs_continuously_across_the_anchors",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testslots_test_the_default_index_runs_continuously_across_the_anchors"
     },
     {
       "relation": "method",
@@ -96502,9 +96502,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L249",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_249",
-      "target": "unit_test_polychain_plan_testselection_test_sequence_walks_the_list_and_still_fills_exactly",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testselection_test_sequence_walks_the_list_and_still_fills_exactly"
     },
     {
       "relation": "rationale_for",
@@ -96512,9 +96512,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L294",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_294",
-      "target": "unit_test_polychain_plan_testselection_test_a_custom_prim_attr_reaches_a_conditional",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testselection_test_a_custom_prim_attr_reaches_a_conditional"
     },
     {
       "relation": "method",
@@ -96697,9 +96697,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L369",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_369",
-      "target": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_module_list_is_reordered",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_module_list_is_reordered"
     },
     {
       "relation": "rationale_for",
@@ -96707,9 +96707,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L441",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_441",
-      "target": "unit_test_polychain_plan_testdeterminism_test_pc_u_is_the_position_along_the_parent_curve",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testdeterminism_test_pc_u_is_the_position_along_the_parent_curve"
     },
     {
       "relation": "method",
@@ -96757,9 +96757,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L452",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_452",
-      "target": "unit_test_polychain_plan_testzmodes_test_the_module_z_mode_is_the_default_and_the_style_overrides_it",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testzmodes_test_the_module_z_mode_is_the_default_and_the_style_overrides_it"
     },
     {
       "relation": "rationale_for",
@@ -96767,9 +96767,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L465",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_465",
-      "target": "unit_test_polychain_plan_testzmodes_test_an_unknown_style_z_mode_degrades_to_the_module_not_to_adaptive",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testzmodes_test_an_unknown_style_z_mode_degrades_to_the_module_not_to_adaptive"
     },
     {
       "relation": "rationale_for",
@@ -96777,9 +96777,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L487",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_487",
-      "target": "unit_test_polychain_plan_testwholecurves",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testwholecurves"
     },
     {
       "relation": "method",
@@ -96827,9 +96827,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L515",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_515",
-      "target": "unit_test_polychain_plan_testwholecurves_test_the_style_carries_its_own_params_when_none_are_passed",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testwholecurves_test_the_style_carries_its_own_params_when_none_are_passed"
     },
     {
       "relation": "rationale_for",
@@ -96837,9 +96837,9 @@
       "source_file": "tests/unit/test_polychain_plan.py",
       "source_location": "L533",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_polychain_plan_rationale_533",
-      "target": "unit_test_polychain_plan_testwholecurves_test_ten_thousand_pieces_stay_addressable_and_unique",
-      "confidence_score": 1.0
+      "target": "unit_test_polychain_plan_testwholecurves_test_ten_thousand_pieces_stay_addressable_and_unique"
     },
     {
       "relation": "contains",
@@ -109476,5 +109476,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "02ac8fdcb60d67a5fd8ddccff0c0bd1c36cfceec"
+  "built_at_commit": "745619dfbcac3facd0cf318b2a48865c3deb5d9e"
 }
