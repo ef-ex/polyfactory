@@ -103,9 +103,9 @@ import re
 
 import hou
 
-from . import (DEFAULTS, EPS, WARN_BEND_RESOLUTION, WARN_CORNER_DEGENERATE,
-               WARN_DEGENERATE_FRAME, WARN_KIT_GAP, Curve, Marker, Z_MODES,
-               elem_key, stand_in)
+from . import (DEFAULTS, EPS, UP, WARN_BEND_RESOLUTION,
+               WARN_CORNER_DEGENERATE, WARN_DEGENERATE_FRAME, WARN_KIT_GAP,
+               Curve, Marker, Z_MODES, elem_key, stand_in)
 from . import (WARN_CONFORM_MISS, WARN_CURVE_ID_DUP, WARN_REPLACED,
                WARN_TILE_FALLBACK)
 from . import conform as _conform
@@ -113,8 +113,6 @@ from . import corner as _corner
 from . import decompose as _decompose
 from . import kit as _kit
 from . import plan as _plan
-
-UP = (0.0, 1.0, 0.0)
 
 # 3.4's output schema. One list, so the builder and the checks read the same
 # names: (attribute, default).
@@ -1480,6 +1478,20 @@ def _off_plane_patches(geo, n_cut, n_all, origin, normal):
     WHAT THIS CANNOT SEE: an open boundary the artist modelled that happens to
     lie exactly in a cut plane. That one is capped, as before.
 
+    ⚠️ THE TOLERANCE SCALES WITH THE WORLD POSITION, NOT WITH THE PIECE (D148).
+    The error it has to absorb is float32 round-off on `P`, which grows with
+    the absolute coordinate; scaled by the module's own 2 x 2 x 0.3 bbox it was
+    2e-06 m, and PC-G6's own fixture moved 500 m from the origin measured
+    1.3e-05..2.0e-05 m on GENUINE caps and had seven of eight deleted -
+    `clip_caps_closed` reading [18 open boundary edges, 5 cut, 0 untagged],
+    i.e. closed-box modules cut open and never sealed. citygen builds districts
+    at hundreds of metres, so the fixture's two accidents (45 degree cuts, on
+    the origin) were the only reason the shipped number was zero. Capped under
+    a quarter of the piece's thinnest axis so the far end of the same scaling
+    cannot swallow the discrimination: what the guard exists to delete is a
+    patch a WHOLE MODULE off the plane (0.249 m measured), and 1e-6 x reach
+    only reaches that at 250 km.
+
     ⚠️ ONE BULK READ OF `P`, NOT `Point.position` PER VERTEX. The obvious
     spelling moved `wrapper_reads_mitered` 164 -> 196 - 11.9 rule 1's whole
     point, and the tripwire caught it the first time it ran.
@@ -1488,8 +1500,11 @@ def _off_plane_patches(geo, n_cut, n_all, origin, normal):
     nx, ny, nz = (float(normal[0]) / m, float(normal[1]) / m,
                   float(normal[2]) / m)
     d0 = float(origin[0]) * nx + float(origin[1]) * ny + float(origin[2]) * nz
-    size = geo.boundingBox().sizevec()
-    tol = 1e-6 * max(1.0, size[0], size[1], size[2])
+    bbox = geo.boundingBox()
+    size = bbox.sizevec()
+    reach = max(abs(v) for v in tuple(bbox.minvec()) + tuple(bbox.maxvec()))
+    thin = min([v for v in size if v > EPS] or [1.0])
+    tol = min(1e-6 * max(1.0, reach, size[0], size[1], size[2]), 0.25 * thin)
     pos = geo.pointFloatAttribValues("P")
     stray = []
     for i in range(n_cut, n_all):

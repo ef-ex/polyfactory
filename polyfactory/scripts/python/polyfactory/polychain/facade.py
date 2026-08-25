@@ -33,7 +33,8 @@ DECISIONS TAKEN HERE (recorded in polychain.md 12):
 
 import hou
 
-from . import CLIP_POLICIES, CLIP_REMOVE, DEFAULTS, Params
+from . import (CLIP_POLICIES, CLIP_REMOVE, DEFAULTS, WARN_CLIP_NONPLANAR,
+               WARN_CLIP_SELFX, WARN_CLIP_TILTED, Params)
 from . import array2d as _array2d
 from . import kit as _kit
 from . import place as _place
@@ -178,6 +179,15 @@ def close_kit(kit_geo, extend="x", extra_roles=()):
 CLIP_MODE_ATTR = "pc_clip_mode"      # "" (even-odd) / "include" / "exclude"
 CLIP_GROUP_ATTR = "pc_clip_group"    # RC's By Material ID, renamed - NOT YET
 
+# ⚠️ THE INPUT'S OWN COMPLAINTS, ON THEIR OWN CHANNEL. They also go onto
+# `kit_warnings` where an artist reads them, but a loop the validation
+# REJECTED has no element to carry an attribute and no `warn_names` entry
+# either (that list is the union of warnings that fired on a BUILT piece), so
+# there was no way to ask "what did the input say" that did not mean parsing
+# prose and guessing which strings were element summaries. C3's node reads
+# this to route them out per D289.
+CLIP_INPUT_WARNINGS = "clip_input_warnings"
+
 
 def clip_loops(geo):
     """A clip input -> ([closed loops], [per-loop mode], [warnings]).
@@ -187,6 +197,16 @@ def clip_loops(geo):
     loop's even-odd polarity. Open prims are skipped - a clip boundary that
     does not close cannot define an area, and warn-never-block means saying
     so rather than guessing where it ends.
+
+    ⚠️ D147 - CLOSURE WAS THE ONLY THING THIS EVER TESTED, and 7.6's contract
+    is a closed PLANAR sub-spline. Two more now, and they are deliberately
+    treated differently: a SELF-INTERSECTING loop is skipped like an unclosed
+    one, because its lobes wind opposite ways and the array breached its own
+    region by 0.88 m with nothing said - a gap is a defect an artist sees and
+    fixes, an overhang is one they ship (D126's own argument). A NON-PLANAR
+    loop is built and warned, because a hand-drawn spline is never exactly
+    planar; what the warning says is that the boundary being trimmed to is the
+    loop's projection, not the loop.
 
     ⚠️ `pc_clip_group` IS READ AND NOT HONOURED. Merging several roots into
     ONE array needs a frame spanning all of them and a row stack over that
@@ -212,7 +232,18 @@ def clip_loops(geo):
             warns.append("pc_warn_clip_open: prim %d is not a closed loop - "
                          "a clip boundary must close" % prim.number())
             continue
-        loops.append([(p[0], p[1], p[2]) for p in pts])
+        loop = [(p[0], p[1], p[2]) for p in pts]
+        if not _array2d.is_simple(loop):
+            warns.append("%s: prim %d crosses itself - a clip boundary with "
+                         "no consistent inside is skipped"
+                         % (WARN_CLIP_SELFX, prim.number()))
+            continue
+        planar, off = _array2d.is_planar(loop)
+        if not planar:
+            warns.append("%s: prim %d is %.4f m off its own plane - the array "
+                         "is solved on the projection, not on the loop"
+                         % (WARN_CLIP_NONPLANAR, prim.number(), off))
+        loops.append(loop)
         modes.append(str(prim.attribValue(CLIP_MODE_ATTR)) if has_mode else "")
         if has_group and int(prim.attribValue(CLIP_GROUP_ATTR)):
             grouped += 1
@@ -236,6 +267,7 @@ def build_clipped(clip_geo, kit_geo, style, **kw):
     geo, report = build_many(loops, kit_geo, style, area=True,
                              clip_modes=modes, **kw)
     report["kit_warnings"] = list(report.get("kit_warnings", [])) + warns
+    report[CLIP_INPUT_WARNINGS] += warns
     return (geo, report)
 
 
@@ -327,11 +359,15 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
     # and builds again (depth 2). That is what makes editing sub-spline B move
     # zero of sub-spline A's `pc_elem_id`s: they were never one array.
     depth = include = parent = members = hook = None
-    if area:
+    # ...and `footprints` CAN be empty now: D147 rejects a self-intersecting
+    # sub-spline at the door, so a clip input made only of bad loops arrives
+    # here as no loops at all. Warn-never-block means an empty build, not a
+    # traceback.
+    if area and footprints:
         depth, include, parent, _chart = _array2d.nest(footprints, clip_modes)
         members = _array2d.array_members(parent)
         hook = _array2d.ClipHook(CLIP_POLICIES.get(clip_mode, CLIP_REMOVE))
-    loops, arrays, flag_col = [], [], []
+    loops, arrays, flag_col, frame_warns = [], [], [], []
     for i, footprint in enumerate(footprints):
         array_id = (array_ids[i] if array_ids is not None
                     else ("A" if len(footprints) == 1 else "A%03d" % i))
@@ -342,6 +378,13 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
             if i not in members:
                 continue                     # a hole, or an island in one
             frame = _array2d.area_frame(footprint, auto_align, expand)
+            tilt = _array2d.frame_tilt_deg(frame)
+            if tilt > _array2d.CLIP_TILT_DEG:
+                frame_warns.append(
+                    "%s: array %s is solved in a plane tilted %.2f deg from "
+                    "the axis modules are built along - every piece leaves "
+                    "its own band by that much" % (WARN_CLIP_TILTED,
+                                                   array_id, tilt))
             mine_loops = members[i]
             region = _array2d.region_for(
                 frame, [footprints[j] for j in mine_loops],
@@ -387,8 +430,9 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
     report["kit_geo"] = kit_geo2
     # 7.2.2's "naming both roles" - the per-element attribute says a fallback
     # happened, and this says which one, once per (role, kit).
+    report[CLIP_INPUT_WARNINGS] = list(frame_warns)
     report["kit_warnings"] = list(report.get("kit_warnings", [])) + \
-        list(collisions) + \
+        list(collisions) + frame_warns + \
         ["%s: array %s row %d has no span left inside the clip boundary - "
          "not built" % (_ROW_CLIPPED, a, i) for a, i in unbuilt] + \
         ["%s: %d piece(s) removed by the clip boundary" % (w, n)

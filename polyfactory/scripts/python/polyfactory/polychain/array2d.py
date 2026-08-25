@@ -58,7 +58,7 @@ DECISIONS TAKEN HERE (recorded in polychain.md 12):
 import math
 
 from . import (CLIP_PRESERVE, CLIP_REMOVE, CLIP_SLICE, DEFAULTS, EPS, POS_EPS,
-               ROLES_2D, SLOTS, WARN_CLIP_CONVEX, WARN_CLIP_UNSLICEABLE,
+               ROLES_2D, SLOTS, UP, WARN_CLIP_CONVEX, WARN_CLIP_UNSLICEABLE,
                WARN_KIT_GAP, WARN_OVERFLOW, WARN_ROW_KIT_GAP,
                WARN_ROW_OVERFLOW, Curve, Kit, Module, Style, _is_slot,
                canonical_role, role_2d, split_role)
@@ -550,7 +550,21 @@ def _newell(points):
 
 
 def area_frame(points, auto_align="to_spline", expand=0.0):
-    """A closed planar spline -> `AreaFrame`. Never raises."""
+    """A closed planar spline -> `AreaFrame`. Never raises.
+
+    ⚠️ THE PLANE NORMAL'S SIGN IS THE AUTHORED WINDING AND THE KERNEL'S IS NOT
+    (D147). `_newell` flips with the direction the artist drew the loop, so a
+    CLOCKWISE boundary gave `ey = -Y` while `place.build` kept growing every
+    module along `UP` - the geometry came out one module-height below its own
+    row datum, i.e. OUT of the footprint the plan had trimmed, with the plan
+    and the geometry consistent with each other and both wrong. On the clipped
+    plate that filled the hole and removed nothing, and every clip check
+    passed, because all four gate loops were wound the other way. The closed
+    1D path normalises winding in `canonical_order`; this is the area path's
+    equivalent, and it is expressed against `UP` itself so the array frame and
+    the kernel's up axis cannot drift apart again. A loop drawn IN the ground
+    plane has `ey` perpendicular to `UP` and is left exactly as it was.
+    """
     pts = [tuple(float(c) for c in p) for p in points]
     if len(pts) > 1 and _dist(pts[0], pts[-1]) <= POS_EPS:
         pts.pop()
@@ -564,6 +578,9 @@ def area_frame(points, auto_align="to_spline", expand=0.0):
         ex = _unit3((pts[1][0] - pts[0][0], pts[1][1] - pts[0][1],
                      pts[1][2] - pts[0][2])) if len(pts) > 1 else (1.0, 0.0, 0.0)
     ey = _unit3(_cross3(ez, ex))
+    if _dot(ey, UP) < -EPS:
+        ez = (-ez[0], -ez[1], -ez[2])
+        ey = (-ey[0], -ey[1], -ey[2])
     o = pts[0]
     flat = [(_dot((p[0] - o[0], p[1] - o[1], p[2] - o[2]), ex),
              _dot((p[0] - o[0], p[1] - o[1], p[2] - o[2]), ey)) for p in pts]
@@ -576,6 +593,27 @@ def area_frame(points, auto_align="to_spline", expand=0.0):
               o[2] + ex[2] * x0 + ey[2] * y0)
     poly = [(f[0] - x0, f[1] - y0) for f in flat]
     return AreaFrame(origin, ex, ey, ez, x1 - x0, y1 - y0, poly)
+
+
+# 7.6 / D149 - THE ARRAY IS SOLVED IN ITS OWN PLANE AND BUILT ALONG `UP`, and
+# those two agree only when the plane contains the world up axis. Every row
+# datum is a line in the frame's chart at `row.y0`, and the kernel then grows
+# the module along `UP`; where the frame's own `ey` is tilted away from `UP`
+# the piece leaves its band by the difference. MEASURED on a 20 x 20 m plate
+# with a 2 m module: 2 deg -> 0.0052 m, 5 deg -> 0.0131 m, 10 deg -> 0.0260 m,
+# 30 deg -> 0.0750 m outside the region, against PC-G6's 0.010 m. Found while
+# closing D147 - a NON-PLANAR loop was breaching by 0.0112 m and the cause
+# turned out not to be the non-planarity at all. Every committed area case and
+# PC-G6's own fixture stand exactly vertical, so the whole area path had only
+# ever run at 0 deg. The tilt-aware solve (the row's up reference is the
+# array's `ey`, not the world's) is a kernel change and is C3's; this says so
+# instead of shipping a silent 7.5 cm.
+CLIP_TILT_DEG = 0.5
+
+
+def frame_tilt_deg(frame):
+    """Degrees between an array's own up axis and the kernel's (D149)."""
+    return math.degrees(math.acos(max(-1.0, min(1.0, _dot(frame.ey, UP)))))
 
 
 def scanline(poly, y):
@@ -658,6 +696,103 @@ def open_loop(points):
     return pts
 
 
+def _contains(polys):
+    """`contains[i][j]` - is loop `i` nested inside loop `j`? One chart.
+
+    ⚠️ THE AREA RULE IS NOT A TIE-BREAK, IT IS THE WHOLE TEST. Concentric
+    loops - a window in a wall, an island in a hole - share ONE centroid, so
+    the bare "centroid inside the other" relation makes each of three nested
+    squares contain both others: depth came back [2, 2, 2] and the plate, its
+    hole and its island were three separate arrays with the hole FILLED. A
+    loop can only be nested inside a strictly LARGER one.
+    """
+    cents = [centroid(p) for p in polys]
+    areas = [abs(_area2(p)) for p in polys]
+    return [[j != i and areas[j] > areas[i] + EPS
+             and point_in_poly(polys[j], cents[i][0], cents[i][1])
+             for j in range(len(polys))] for i in range(len(polys))]
+
+
+def is_planar(points, rel_tol=1e-3):
+    """(planar?, worst metres off the loop's own best plane) - 7.6's contract.
+
+    7.6 specifies a "closed PLANAR sub-spline" and until D147 nothing tested
+    it: a 20 x 20 m plate with one corner lifted 3 m built with no word said
+    and delivered points 0.0112 m outside the region against PC-G6's own
+    0.010 m tolerance - a gate condition failing silently on input the spec
+    already excluded. The solve projects the loop into ONE plane, so the
+    boundary an array trims to is not the boundary drawn, and the deviation is
+    how far apart the two are.
+
+    The tolerance is RELATIVE (0.1 % of the loop's own bounding diagonal,
+    28 mm on a 20 m plate) because an absolute one is either hostile to a
+    hand-drawn spline at building scale or blind at district scale.
+    """
+    pts = open_loop(points)
+    if len(pts) < 4:
+        return (True, 0.0)          # three points are a plane by definition
+    n = _newell(pts)
+    if n == (0.0, 0.0, 0.0):
+        return (True, 0.0)
+    d0 = _dot(n, pts[0])
+    worst = max(abs(_dot(n, p) - d0) for p in pts)
+    diag = math.sqrt(sum((max(p[k] for p in pts) - min(p[k] for p in pts)) ** 2
+                         for k in range(3)))
+    return (worst <= rel_tol * max(1.0, diag), worst)
+
+
+def is_simple(points):
+    """Does the loop avoid crossing itself? 7.6's other unstated contract.
+
+    A self-intersecting boundary has no consistent winding - its two lobes
+    wind opposite ways, `_area2` of a symmetric one is exactly 0.0 so `_ccw`
+    is a no-op, and the half-planes `Region.cuts` emits then point OUT of one
+    lobe: a bowtie plate breached its own region by 0.8839 m with nothing
+    warned and `clip_inside_m` measuring the breach against the very region
+    the builder used. D145's reflex channel cannot see it either, because a
+    self-intersection is never a VERTEX. So it is rejected at the door like an
+    unclosed loop rather than half-built (D147).
+
+    O(n^2) on a sub-spline's own vertices, and it runs once per loop at read
+    time - not in any per-piece path.
+    """
+    pts = open_loop(points)
+    n = len(pts)
+    if n < 4:
+        return True
+    flat = [(p[0], p[1], p[2]) for p in pts]
+    for i in range(n):
+        a, b = flat[i], flat[(i + 1) % n]
+        for j in range(i + 1, n):
+            if j == i or (j + 1) % n == i or j == (i + 1) % n:
+                continue
+            if _segments_cross(a, b, flat[j], flat[(j + 1) % n]):
+                return False
+    return True
+
+
+def _segments_cross(a, b, c, d):
+    """Do two 3-D segments properly cross, seen in the plane they best share?
+
+    Projected onto the two axes with the largest spread, which is the same
+    chart `area_frame` will flatten the loop into - so this answers the
+    question the SOLVE will face rather than a 3-D one the solve never asks.
+    """
+    pts = (a, b, c, d)
+    spread = sorted(range(3),
+                    key=lambda k: -(max(p[k] for p in pts)
+                                    - min(p[k] for p in pts)))
+    u, v = spread[0], spread[1]
+
+    def side(p, q, r):
+        return ((q[u] - p[u]) * (r[v] - p[v])
+                - (q[v] - p[v]) * (r[u] - p[u]))
+    d1, d2 = side(a, b, c), side(a, b, d)
+    d3, d4 = side(c, d, a), side(c, d, b)
+    return ((d1 > EPS and d2 < -EPS) or (d1 < -EPS and d2 > EPS)) and \
+           ((d3 > EPS and d4 < -EPS) or (d3 < -EPS and d4 > EPS))
+
+
 def nest(loops, modes=None, chart=None):
     """D125's even-odd nesting: ([depth], [include?], [parent], chart).
 
@@ -672,17 +807,7 @@ def nest(loops, modes=None, chart=None):
     """
     chart = chart if chart is not None else area_frame(loops[0])
     polys = [[chart.local(p) for p in open_loop(l)] for l in loops]
-    cents = [centroid(p) for p in polys]
-    # ⚠️ THE AREA RULE IS NOT A TIE-BREAK, IT IS THE WHOLE TEST. Concentric
-    # loops - a window in a wall, an island in a hole - share ONE centroid, so
-    # the bare "centroid inside the other" relation makes each of three nested
-    # squares contain both others: depth came back [2, 2, 2] and the plate,
-    # its hole and its island were three separate arrays with the hole FILLED.
-    # A loop can only be nested inside a strictly LARGER one.
-    areas = [abs(_area2(p)) for p in polys]
-    contains = [[j != i and areas[j] > areas[i] + EPS
-                 and point_in_poly(polys[j], cents[i][0], cents[i][1])
-                 for j in range(len(polys))] for i in range(len(polys))]
+    contains = _contains(polys)
     depth = [sum(1 for c in row if c) for row in contains]
     parent = []
     for i, row in enumerate(contains):
@@ -729,8 +854,14 @@ class Region(object):
                       for p in polys]
         self.include = list(include if include is not None
                             else [True] * len(self.polys))
+        # ⚠️ THE DEFAULT USED TO BE `range(len(polys))` - the loop's INDEX read
+        # as its nesting depth, so a caller that omitted `depth` got the
+        # polarity of every multi-loop region decided by authoring order. Every
+        # shipped caller passes real depths; the default is now derived from
+        # the loops themselves, so there is no wrong answer left to inherit.
         self.depth = list(depth if depth is not None
-                          else range(len(self.polys)))
+                          else [sum(1 for c in row if c)
+                                for row in _contains(self.polys)])
 
     def inside(self, x, y):
         best, hit = -1, False
