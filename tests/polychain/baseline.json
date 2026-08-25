@@ -11662,7 +11662,7 @@
       ]
     },
     {
-      "detail": "warm 0.75 us at 10 verts, 0.92 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 6.5 us at 10, 14596.4 us at 20 001 (1.1x per vertex, O(n), expected O(n))",
+      "detail": "warm 0.88 us at 10 verts, 0.92 us at 20 001 (1x, O(1), expected O(1)); COLD construct+1 sample 6.6 us at 10, 15560.3 us at 20 001 (1.2x per vertex, O(n), expected O(n))",
       "name": "curve_sample_scaling",
       "ok": true,
       "skipped": false,
@@ -11750,18 +11750,18 @@
       "value": 11
     },
     {
-      "detail": "164 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 4000)",
+      "detail": "169 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 4000)",
       "name": "wrapper_reads_mitered",
       "ok": true,
       "skipped": false,
-      "value": 164
+      "value": 169
     },
     {
-      "detail": "330 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 2000)",
+      "detail": "335 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 2000)",
       "name": "wrapper_reads_streets",
       "ok": true,
       "skipped": false,
-      "value": 330
+      "value": 335
     },
     {
       "detail": "16 compiled SOP executions in one build (ceiling 64)",

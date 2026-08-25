@@ -369,6 +369,64 @@ MUTATIONS = (
         "    cand = candidates(rule, kit)"),),
       rebuild=False),
 
+    # ---- PC-G6: the clipped area (7.6 / P2-7) ------------------------------
+    M("2d_clip_slice_becomes_preserve", "2d",
+      ("clip_inside_m",),
+      "The `slice` policy stops cutting and keeps the piece whole instead, "
+      "so every straddler overhangs the boundary. PC-G6 condition 1 is the "
+      "distance a delivered point lies outside the region and this is the "
+      "bluntest way to move it off zero.",
+      ((PY % "array2d.py",
+        "        if policy == CLIP_PRESERVE:",
+        "        if policy != CLIP_REMOVE:"),),
+      rebuild=False),
+
+    M("2d_clip_nesting_area_rule", "2d",
+      ("clip_nesting",),
+      "THE INCIDENT, AS A MUTATION. Nesting drops the rule that a loop can "
+      "only sit inside a strictly LARGER one - and three concentric squares "
+      "share one centroid, so the plate, its hole and its island each "
+      "'contain' the other two, depth comes back [2, 2, 2] and the hole is "
+      "built solid. Found by looking at the array ids, not by a check, which "
+      "is why there is a check now.",
+      ((PY % "array2d.py",
+        "    contains = [[j != i and areas[j] > areas[i] + EPS",
+        "    contains = [[j != i and True"),),
+      rebuild=False),
+
+    M("2d_clip_caps_deleted", "2d",
+      ("clip_caps_closed",),
+      "Every patch `polyfill` appended is treated as a stray and deleted, so "
+      "a clip cut opens a hole and never closes it. The C1 trap's exact "
+      "mirror image - that one capped boundaries the cut never opened, this "
+      "one caps nothing at all - and both are invisible in a wireframe.",
+      ((PY % "place.py",
+        "        stray = _off_plane_patches(filled, n_cut, n_all, origin, "
+        "normal)",
+        "        stray = list(range(n_cut, n_all))"),),
+      rebuild=False),
+
+    M("2d_clip_unsliceable_cut_anyway", "2d",
+      ("clip_policy",),
+      "D126's degrade-to-remove is lifted, so a RIGID module asked to slice "
+      "is cut anyway: nothing warns and the kit's own `pc_deform` stops "
+      "meaning anything at the boundary.",
+      ((PY % "array2d.py",
+        "        if not module.sliceable:",
+        "        if False:"),),
+      rebuild=False),
+
+    M("2d_clip_arrays_merged", "2d",
+      ("clip_independence",),
+      "Every sub-spline is folded into ONE array instead of one array per "
+      "depth-0 loop, so D125's independence is gone: the disjoint plate "
+      "beside the first one stops having an `arrayId` of its own and its "
+      "`pc_elem_id`s move whenever anything else is edited.",
+      ((PY % "array2d.py",
+        "        out.setdefault(r, []).append(i)",
+        "        out.setdefault(0, []).append(i)"),),
+      rebuild=False),
+
     # ---- the artist face: the four input ports -----------------------------
     M("kit_input_unplugged", "hda",
       ("input2_is_the_kit",),
@@ -717,7 +775,8 @@ EXEMPT = {
 EXPECT_CHECKS = {
     # C2 added two, 2026-08-25: `no_sliced_cells` on every case (PC-G5
     # condition 4) and `bay_alignment` on `FW_y_free` alone (condition 3).
-    "2d": 15,
+    # ...and five more with PC-G6, one per pass condition in 7.8.
+    "2d": 20,
     "generated": 3,
     "hda": 18,
     "images": 30,
