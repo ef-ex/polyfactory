@@ -80,7 +80,6 @@ EXPECTED_WARNS = {
     "FV_area_short": (),
 }
 
-CLEAN = ("FA_L_facade", "FC_rect", "FJ_reversed", "FK_rotated")
 
 
 class Scene(R.Scene):

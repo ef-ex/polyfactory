@@ -1,6 +1,7 @@
-# polyfactory tests — the v2 regime (2026-08-24)
+# polyfactory tests — the v2 regime (2026-08-25)
 
-**Why v2:** v1 grew to 25 137 lines guarding a ~6 000-line tool, with 80-minute mutation sweeps.
+**Why v2:** v1 grew to 27 162 lines guarding a tool that turned out to be 14 682
+(the retrospective's "~6 000" was never measured), with 80-minute mutation sweeps.
 It caught real bugs, but by accretion: every audit added checks, nothing was ever deleted, and the
 machinery itself became the main cost (and, twice, the main defect). v2 replaces accretion with
 four standard techniques. The incident evidence is `ideas/build_retrospective.md`.
@@ -40,44 +41,85 @@ four standard techniques. The incident evidence is `ideas/build_retrospective.md
 - Human eyes at milestones: the viewport found what 3 600 checks could not, twice.
 - Fast pure-logic tests under plain python; scene work headless under hython; never save a .hip.
 
-## v1 → v2 migration — HALF DONE (2026-08-25)
+## v1 → v2 migration — DONE (2026-08-25)
 
-The five v2 pieces are **built, measured and committed**. The v1 **deletions are not**, and that
-is deliberate: a replacement gets proven before anything is removed. So both regimes are live at
-once and the budget check is red, which is exactly what it is for.
+The five pieces landed first and were proven before anything was removed; the deletion pass
+then removed what they subsume. Both halves are measured below, and the one target that was
+missed says so.
 
 | | state |
 |---|---|
 | 1. generic differential comparator | `tests/polychain/diff.py`, 19 mutations all seen red |
-| 2a. Hypothesis over the kernel | `tests/unit/test_polychain_properties.py`, 11 properties, 1.8 s |
-| 2b. seeded scene generator | `tests/polychain/gen_cases.py` + `run_generated.py` |
+| 2a. Hypothesis over the kernel | `tests/unit/test_polychain_properties.py`, 11 properties, 1.6 s |
+| 2b. seeded scene generator | `tests/polychain/gen_cases.py` + `run_generated.py`, 400 scenes |
 | 3. PDG/TOPs runner | `tests/polychain/pdg_build.py` |
 | 4. mutmut | `setup.cfg` `[mutmut]`, **pin 2.5.0** |
-| 5. budget check | `tests/unit/test_polychain_budget.py` — **RED: 1.84x** |
-| **the deletions** | **not started** — `run_native_checks.py` (9 066) and `checks.py` (5 111) are the targets |
+| 5. budget check | `tests/unit/test_polychain_budget.py` — **still RED at 1.05x**, see below |
+| the deletions | **done** — 27 162 → 15 381 lines, 361 → 122 check names |
 
-### What the first full sweep measured (2026-08-25, 16-core machine)
+### What the deletion pass removed, and what it kept
 
-| | |
-|---|---|
-| full sweep, 32 mutations, PDG | **1 757 s wall (29.3 min)** for **16 280 s (4 h 31 m) of work** — 9.3x |
-| of which the shared control | 425 s, and 430 s of that is `run_native_checks.py` alone |
-| per-cycle gate (no mutations) | **13.5 s wall** for 88 s of work |
-| result | 30 of 32 mutations RED; both survivors chased down, see below |
+| file | before | after |
+|---|---|---|
+| `run_native_checks.py` | 9 065 | 2 240 |
+| `checks.py` | 5 110 | 2 532 |
+| `mutations.py` | 1 087 | 632 |
+| `test_polychain_plan.py` | 1 060 | 548 |
+| `run_hda_checks.py` | 812 | 448 |
+| `run_scene_checks.py` | 711 | 476 |
+| `run_2d_checks.py` | 442 | 228 |
+| `cases.py` | 1 829 | 1 728 |
+| `conform_bench.py`, `facade_bench.py` | 488 | **deleted** |
 
-⚠️ **THE 15-MINUTE TARGET IS NOT REACHABLE WHILE `run_native_checks.py` COSTS 430 s, and the
-reason is arithmetic rather than scheduling.** The control must finish before any mutation
-starts (425 s), and the longest mutation is a `native` one (430 s + export + HDA rebuild). That
-is a **~15 min floor at infinite parallelism**, and 13 of the 32 entries are `native`. The lever
-is the deletion cycle, not the runner: `run_native_checks.py` is 9 066 lines, 144 checks and the
-single largest item in the budget overrun, and the differential oracle plus generated inputs are
-exactly what subsume most of it.
+The rule applied, in one sentence: **a bespoke assertion that compares a subset of what the
+comparator compares is subsumed by it.** 126 of `run_native_checks`' 144 names and two thirds
+of `checks.py` were exactly that — the built geometry against the plan that built it, attribute
+by remembered attribute, over 92 hand-written cases — and `diff.compare` does it over EVERY
+attribute by construction, on 400 generated scenes, against the SHIPPED asset.
 
-⚠️ **AND PARALLELISM CAN TURN A RED INTO A FALSE SURVIVOR.** In that sweep
+Three categories were kept on purpose, and they are the reason the budget is still red:
+
+* **the names with a registered mutation** — all 44 of them;
+* **the measured COST ceilings** (`checks.py`'s port tripwires, the proxy LOD rows). A ceiling is
+  a contract, and every one of those rows was bought by a regression that left every geometry
+  check green;
+* **the gate figures** — PC-G1/PC-G2's images and D194's drawn-primitive counts — and the
+  artist-facing parameter page, neither of which any comparator can see.
+
+### What the sweep measured after the deletion (2026-08-25, 16-core machine)
+
+| | before | after | target |
+|---|---|---|---|
+| full sweep, 32 mutations, PDG | 1 757 s (29.3 min) | **200 s (3.3 min)** | < 15 min ✅ |
+| the shared control (6 runners, pristine export) | 425 s | **68 s** | |
+| `run_native_checks.py` alone | 430 s | **27 s** | |
+| per-cycle gate (no mutations) | 13.5 s | **~13 s** | < 5 min ✅ |
+| mutations RED | 32 of 32 | **32 of 32, 0 unreached names** | all ✅ |
+| tests vs tool | 27 162 / 14 682 = 1.85x | **15 381 / 14 682 = 1.05x** | ≤ 1.0 ❌ |
+
+⚠️ **THE 15-MINUTE FLOOR WAS `run_native_checks.py`, AND IT WAS ARITHMETIC RATHER THAN
+SCHEDULING.** The control must finish before any mutation starts, and the longest mutation was
+itself a `native` one, so 430 s of native runner put a ~15 min floor under the sweep at infinite
+parallelism. Deleting the 126 subsumed names took the runner to 27 s and the whole sweep to
+3.3 minutes — the same 32 mutations, all still red.
+
+⚠️ **THE BUDGET IS STILL 699 LINES OVER, and the remaining candidates are coverage rather than
+accretion.** Named, so the next pass starts from the argument instead of the number:
+`test_polychain_corner.py` + `test_polychain_array2d.py` (1 418 lines) are the hand grids over
+`corner.py` and `array2d.py`, for which **no property coverage exists yet** — the Hypothesis file
+covers `plan` and `decompose` only, so mutmut's kill rate on those two kernel files rests
+entirely on them, and deleting them would be deleting coverage to make a number. And
+`tests/polychain/native.py` (644) is counted on the TEST side while
+`devScripts/create_pf_polychain_hda.py`, which is on the PRODUCTION side, imports it to build
+the shipped asset's stages: that single mis-attribution is a 1 288-line swing. It was left where
+it is rather than reclassified, because moving it is a production change and reclassifying it
+without moving it would be arithmetic rather than deletion.
+
+⚠️ **AND PARALLELISM CAN TURN A RED INTO A FALSE SURVIVOR.** In the first 32-item sweep
 `piece_key_within_piece_dropped` came back **SURVIVED with 15 of `native`'s check names never
-printed**; run on its own it is **RED in 354 s**. Fifteen concurrent hython processes made the
+printed**; run on its own it was **RED in 354 s**. Fifteen concurrent hython processes made the
 native runner lose checks, and a lost check reads exactly like a check that cannot fail. The
-runner now **re-runs any SURVIVED verdict that has unreached names** before believing it, and
+runner **re-runs any SURVIVED verdict that has unreached names** before believing it, and
 `--slots N` is the blunt instrument for a machine that is also doing something else.
 
 ## The v2 commands
@@ -85,16 +127,15 @@ runner now **re-runs any SURVIVED verdict that has unreached names** before beli
 ```bash
 # THE PER-CYCLE GATE - kernel + comparator battery + budget + 400 generated
 # scenes through the differential oracle, cooked as one parallel TOP graph.
-# 13.5 s wall for ~88 s of work. Exits non-zero on any red work item.
+# ~13 s wall for ~90 s of work. Exits non-zero on any red work item.
 hython tests/polychain/pdg_build.py
 
 # ... plus the mutations whose edited files actually moved (Google's policy)
 hython tests/polychain/pdg_build.py --changed HEAD~1
 
 # THE MILESTONE SWEEP - all 32 registry entries, one work item each, behind
-# one shared control build. `--slots N` trades wall time for stability;
-# `run_native_checks.py` holds wall-clock ceilings, so full parallelism is a
-# real risk of spurious reds, not a free speedup.
+# one shared control build. 200 s wall for 1 647 s of work.
+# `--slots N` trades wall time for stability on a busy machine.
 hython tests/polychain/pdg_build.py --full
 hython tests/polychain/pdg_build.py --full --slots 6
 
@@ -105,11 +146,25 @@ python -m pytest tests/unit/test_polychain_budget.py -q          # 0.3 s
 hython tests/polychain/run_diff_selftest.py                      # 1.9 s
 hython tests/polychain/run_generated.py --seeds 400 --quiet      # 41 s
 hython tests/polychain/run_generated.py --seeds 1 --start 27     # one seed
+hython tests/polychain/run_native_checks.py                      # 27 s
+hython tests/polychain/run_scene_checks.py                       #  4 s
+hython tests/polychain/run_2d_checks.py                          # 14 s
+hython tests/polychain/run_hda_checks.py                         # 10 s
+hython tests/polychain/gate_images.py [outdir]                   #  4 s
+
+# the registry on its own, sequentially - the meta-check the PDG sweep does
+# NOT make: every printed check name PROVEN / EXEMPT / UNPROVEN, both
+# directions of the inventory pinned, and no dead or stale declaration.
+python tests/polychain/run_mutation_registry.py
+python tests/polychain/run_mutation_registry.py --list
+python tests/polychain/run_mutation_registry.py --only pc_local_scaled
+python tests/polychain/run_mutation_registry.py --runner scene --state s.json
 
 # MUTMUT, on the pure-Python kernel. ⚠️ PIN 2.5.0: mutmut 3.x refuses to run
 # on native Windows ("please use the WSL") and does nothing else. ⚠️ And set
 # PYTHONIOENCODING: its banner is emoji and this machine's stdout is cp1252
-# whenever it is piped.
+# whenever it is piped. ⚠️ And it REWRITES SOURCE FILES IN PLACE - an
+# interrupted run leaves a mutant on disk; check `git status` after one.
 pip install "mutmut==2.5.0"
 export PYTHONIOENCODING=utf-8
 
@@ -130,21 +185,27 @@ Those layers belong to the hand-written registry, which is the division the skil
 
 ---
 
-# The v1 notes (historical)
+# The v1 history
 
-# polyfactory tests
+polyChain's v1 test regime — 25 137 lines of checks around a tool nobody had
+measured, 80-minute sweeps, ~20 checks that could not fail — is **not
+summarised here**. It is one document, with the incident log that earned every
+rule in v2: [`ideas/build_retrospective.md`](../ideas/build_retrospective.md),
+§2a (the unfailable checks) and §3–§4 (what to read before an autonomous
+cycle). `ideas/polychain.md` carries the cycle-by-cycle build log. This file
+describes what runs **now**.
 
-Two layers. Run the fast one constantly, the slow one before you believe a fix.
+---
+
+# The other runners
+
+Everything above is polyChain. citygen and the shared HDA hygiene suite are
+unchanged by v2 and run on their own:
 
 ```bash
-# pure logic — no Houdini, ~0.002s
-python tests/unit/test_citygen.py
-python tests/unit/test_plan.py            # the S5 planner, ~0.02s
-python tests/unit/test_polychain.py       # polyChain contracts + decompose
-python tests/unit/test_polychain_plan.py  # polyChain's fitting solve, ~0.2s
-python tests/unit/test_polychain_array2d.py   # phase 2's row stack + the 25
-                                              # cell roles; asserts `hou` was
-                                              # never imported
+# pure logic — no Houdini, milliseconds
+python tests/unit/test_citygen.py         # cross-section profile maths
+python tests/unit/test_plan.py            # the S5 planner + its calibration
 
 # re-measure what the builder's plates actually consume (rewrites the fixture
 # tests/unit/test_plan.py calibrates against)
@@ -155,85 +216,28 @@ hython tests/citygen/dump_trims.py
 # because `verts`, `scalefactor` and `__scalefactor` were all invisible at
 # defaults. Asserts conventions.md §2 (no output name begins with `_`), that no
 # retired spelling survives in any library file (the only check that can reach
-# a Vop), and diffs every published name against tests/hda/baseline.json — the
-# `_*` law alone catches only leaks honest enough to be named `_*`. A baseline
-# move FAILS the run; --update-baseline is how you accept one.
+# a Vop), and diffs every published name against tests/hda/baseline.json. A
+# baseline move FAILS the run; --update-baseline is how you accept one.
 hython tests/hda/run_attrib_checks.py
 hython tests/hda/run_attrib_checks.py --update-baseline
 
-# geometry — throwaway Houdini session, never saves a .hip
+# citygen geometry — throwaway Houdini session, never saves a .hip
 hython tests/citygen/run_scene_checks.py
 hython tests/citygen/run_scene_checks.py --update-baseline
-
-# polyChain geometry — throwaway session, no .hip, no node network, ~9 s
-hython tests/polychain/run_scene_checks.py
-hython tests/polychain/run_scene_checks.py --update-baseline
-
-# polyChain PHASE 2 - the 2D array, its own cases and its own baseline so a
-# phase-2 movement can never be confused with a phase-1 one. Most of the
-# checks in it are phase 1's own, run unchanged: a 2D array IS a phase-1 build
-# over row curves, and the reuse is the assertion that no second kernel
-# appeared (D130).
-hython tests/polychain/run_2d_checks.py
-hython tests/polychain/run_2d_checks.py --update-baseline
-
-# what the ROW STACK costs, on the two shapes that decide it: one large facade
-# and 100 buildings x 8 storeys = 800 SHORT rows, the second measured through
-# ONE `place.build` call and through 100 of them. 11.9 rule 2 says the fixture
-# an implementer writes first (one tall tower) cannot see this.
-hython tests/polychain/facade_bench.py
-hython tests/polychain/facade_bench.py --reps 5 --json out.json
-
-# PC-G5's images, on gate_images.py's rasteriser - the L in three-quarter
-# view, the reflex corner ground-to-cornice, and the facade coloured by
-# `pc_cell` so the 5 x 5 role table is visible as a pattern
-hython tests/polychain/facade_images.py [outdir]
-
-# polyChain's NATIVE stages vs the Python reference, in ONE process - the only
-# suite that can see whether a stage ported to VEX still answers the same
-# question as the Python it replaced. 92 cases (89 + 3 topology fixtures the
-# scene suite structurally cannot hold), the mutation battery, the graph's own
-# readability rules, and `asset_decompose_matches_the_rig` - which diffs the
-# SHIPPED asset's wrangles against the rig's, because they are two independent
-# declarations of one chain and an audit caught them drifting silently. ~9 s
-hython tests/polychain/run_native_checks.py
-
-# polyChain's HDA, cooked as a node - the only thing that can see a mis-wired
-# input, a parm that reads nothing, or a style payload that does not override
-hython tests/polychain/run_hda_checks.py
-
-# polyChain at scale: PC-G3's 10k-piece run and D75's curvature budget across
-# radii (packed vs deformed, points, seconds, RSS) - ~30 s
-hython tests/polychain/scale_gate.py
-hython tests/polychain/scale_gate.py --json out.json
-
-# what a CONFORMED build costs, laddered over the two variables that decide
-# it - the terrain's prim count and its roughness. `--ab` toggles the `ray`
-# batch, which is a pure cache fill, so the output is identical either way.
-# ~1 min / ~3 min with --ab
-hython tests/polychain/conform_bench.py
-hython tests/polychain/conform_bench.py --reps 5 --ab --json out.json
-
-# PC-G1 and PC-G2 driven THROUGH THE HDA's parm page, with PNGs to judge them
-# on - the headless substitute for the wedged live bridge. ~40 s
-hython tests/polychain/gate_images.py [outdir]
-
-# THE MUTATION REGISTRY - break the thing each check guards and watch it go
-# red. Every check in the polyChain runners is PROVEN (a registered mutation
-# was seen to redden it), EXEMPT (it IS a mutation, one line saying so) or a
-# dated DEBT entry; a name in none of the three fails the run. Each mutation
-# runs in its own `git archive HEAD` export with the .hda rebuilt from that
-# copy, so the working tree is never touched. ~80 min - a weekly/audit tool,
-# not a per-commit one; `--state FILE` makes it resumable and `--only <id>`
-# runs one. Plain `python`, not hython: it spawns hython per suite.
-python tests/polychain/run_mutation_registry.py
-python tests/polychain/run_mutation_registry.py --list
-python tests/polychain/run_mutation_registry.py --only pc_local_scaled
-python tests/polychain/run_mutation_registry.py --runner scene --state s.json
 
 # the loop-closure gate, swept over a sep/step ladder — ~1 min / ~20 min
 hython tests/citygen/closure_gate.py
 hython tests/citygen/closure_gate.py --full --table
+
+# polyChain at scale: PC-G3's 10k-piece run and D75's curvature budget across
+# radii (packed vs deformed, points, seconds, RSS) - ~30 s. Out of the
+# registry's scope by construction: it prints a failing-ROW count, not check
+# names, so there is nothing to pair a mutation against.
+hython tests/polychain/scale_gate.py
+
+# PC-G5's images - the L in three-quarter view, the reflex corner
+# ground-to-cornice, and the facade coloured by `pc_cell`
+hython tests/polychain/facade_images.py [outdir]
 ```
 
 ## Why this exists
@@ -241,120 +245,104 @@ hython tests/citygen/closure_gate.py --full --table
 Four review passes over CityGen each rewrote the *same* measurements from
 scratch — self-intersection counts, the sidewalk-wrap test, degenerate-poly
 counts, lot double-coverage — because they lived nowhere. That cost roughly
-850k tokens. Every check in `citygen/checks.py` caught a real bug; each one is
-now written down so the next pass starts where the last finished.
+850k tokens.
 
-**A measurement written during a review belongs in `checks.py` afterwards.**
-That is the whole point: round N's ad-hoc query becomes round N+1's standing
-assertion, and reviews get cheaper instead of repeating themselves.
+**A measurement written during a review belongs in the suite afterwards.**
+Round N's ad-hoc query becomes round N+1's standing assertion, and reviews get
+cheaper instead of repeating themselves. v2 adds the other half of that rule,
+learned the hard way: **it belongs there as an assertion with a ceiling and a
+mutation, not as a script that prints.** Two wall-clock benches were deleted in
+the v2 pass for exactly that reason — they could not fail.
 
 ## Numbers first, renders second
 
-Nearly every real defect was *diagnosed* numerically. Renders showed that
-something was wrong; the numbers said what. The arc-fit bug came from counting
-degenerate corner segments, the group-name collision from comparing winding
-counts, the duplicate lots from prim count vs distinct footprints.
+Nearly every real defect is *diagnosed* numerically. Renders show that
+something is wrong; the numbers say what. So the scene checks run headless and
+cheap, and rendering is a separate step for whatever they flag plus the fixed
+gate set a human looks at.
 
-So the scene checks run headless and cheap, and rendering is a separate,
-GUI-only step for whatever they flag. Rendering everything is the expensive and
-least diagnostic half.
+⚠️ An image check must prove the image CONTAINS its subject before anything
+judges it — a gate image that "showed" a 3 388-segment fence contained 188,
+because a packed prim has one vertex and the wireframe was drawn off it.
+`gate_images.py` counts drawn primitives against the packed count (D194).
 
 ⚠️ The flipbook render path needs a UI and **will not run in hython**. The
-offscreen OpenGL ROP was tried and is unreliable on some drivers. Headless
-rendering would need husk/Karma and has not been proven here.
+offscreen OpenGL ROP was tried and is unreliable on some drivers.
 
-## The baseline
+## The baselines
 
-`citygen/baseline.json` records every value, not just pass/fail. Several
-regressions were only ever visible as *"this number got worse"*: a lot-winding
-group collision, a block count that tripled during a failed fix. Bare pass/fail
-misses those. The runner diffs against the baseline and prints movement even
-where a check still passes — **read that list, and confirm each move is an
-improvement before running `--update-baseline`.**
+`citygen/baseline.json`, `polychain/baseline.json` and
+`polychain/baseline_2d.json` record every value, not just pass/fail: several
+regressions were only ever visible as *"this number got worse"*. The runner
+diffs against the baseline and prints movement even where a check still passes
+— **read that list and confirm each move is an improvement before running
+`--update-baseline`** — and a moved value FAILS the run (D210: it used to print
+the movement and exit 0).
+
+⚠️ v2 shrank polyChain's baseline from 967 KB to 244 KB, because a recorded
+value is only worth its weight where a NUMBER is the contract. Where the
+question is "do the two implementations agree", the reference IS the baseline
+and `diff.compare` asks it directly, on generated input, every run.
 
 ## Layout
 
 ```
 tests/
   unit/                  pure Python, no Houdini
-    test_citygen.py      cross-section profile maths (22 tests)
-    test_plan.py         the S5 planner + its calibration (40 tests)
-    trim_calibration.json  measured junction footprints, 545 arms
-    test_polychain.py    polyChain contracts + 4.1 decompose (48 tests)
-    test_polychain_plan.py  polyChain 4.2, the fitting solve (89 tests)
-  citygen/
-    checks.py            the assertion library — add to this
-    cases.py             scene construction + headless env setup
-    run_scene_checks.py  the runner
-    baseline.json        recorded values
-    dump_trims.py        writes trim_calibration.json from the live solve
-    closure_gate.py      the loop-closure sweep — harness AND its own checks
-  polychain/             same four files, same philosophy
-    checks.py            24 checks over placed geometry — add to this
-    cases.py             13 scenes, built as hou.Geometry (no .hip, no nodes)
-    run_scene_checks.py  the runner
-    baseline.json        305 recorded values
-    scale_gate.py        PC-G3's ladder, both z-modes, with its own expectations
-    run_hda_checks.py    the ASSET: wiring, the parm face, PC-G4's payload sweep
-    gate_images.py       PC-G1/PC-G2 through the parm page + a PNG rasteriser
-    conform_bench.py     the conformed ladder: prim count x roughness, with
-                         the packed/deformed split and the peak working set
+    test_citygen.py            cross-section profile maths
+    test_plan.py               the S5 planner + its calibration
+    trim_calibration.json      measured junction footprints, 545 arms
+    test_polychain*.py         polyChain's kernel: contracts, the fitting
+                               solve's lookup tables, corners, the 2D array
+    test_polychain_properties.py  v2: Hypothesis over the hou-free kernel
+    test_polychain_budget.py      v2: tests <= tool, enforced
+  citygen/               checks.py / cases.py / run_scene_checks.py + baseline
+  polychain/
+    diff.py                v2: THE comparator - every attribute, both paths
+    gen_cases.py           v2: a whole scene from one integer
+    run_generated.py       v2: generated scenes through the oracle, on the .hda
+    run_diff_selftest.py   v2: the comparator's own 19-mutation battery
+    pdg_build.py           v2: the parallel cached runner (a TOP net)
+    mutations.py           the registry: every check paired with its mutation
+    run_mutation_registry.py   the meta-runner
+    checks.py              the 16 geometric properties + the cost tripwires
+    cases.py               the hand fixtures, each named for the defect that
+                           created it - and what 22 of the 32 mutations reach
+                           their target THROUGH, which is what keeps them
+    run_scene_checks.py    the scene runner + baseline
+    run_2d_checks.py       phase 2, its own cases and its own baseline
+    run_native_checks.py   the native stages vs the reference, in ONE process
+    run_hda_checks.py      the ASSET: wiring, the parm face, the artist page
+    gate_images.py         PC-G1/PC-G2 through the parm page + a rasteriser
+    scale_gate.py          PC-G3's ladder, both z-modes
 ```
 
 ## The planner's calibration is a baseline too
 
-`plan.crossing_trims` predicts what a junction cuts off each arm without cooking
-anything, so `standing` is checkable before the geometry exists (§11.4). It is
-only worth something if it agrees with the plates the builder really lays down,
-so `dump_trims.py` exports `trim_start` / `trim_end` from
+`plan.crossing_trims` predicts what a junction cuts off each arm without
+cooking anything, so `standing` is checkable before the geometry exists
+(§11.4). It is only worth something if it agrees with the plates the builder
+really lays down, so `dump_trims.py` exports `trim_start` / `trim_end` from
 `junction_solve/s5j_solve` on all sixteen cases and `test_plan.py` asserts the
 model against every one of the 545 arms.
 
 The residual is **pinned per case, not tolerated globally**: exact (≤ 1e-4 m)
-on the ten cases whose arms are straight — Q_junction_ring among them, dispatched
-through `node_trims`, which since the 2026-08-17 ruling asserts type-INVARIANCE
-(every vocabulary type builds the crossing solve; the uncut-principal junction
-render was ruled a bug and reverted), and up to 4.58 m either way on the six
-with curved ones, because `s5j_solve` re-solves each corner in the frame at its
-own cut and the planner has no arm shape to do that with. Read those numbers as a
-recorded state, the same way `baseline.json` is read.
+on the ten cases whose arms are straight — Q_junction_ring among them,
+dispatched through `node_trims`, which since the 2026-08-17 ruling asserts
+type-INVARIANCE (every vocabulary type builds the crossing solve; the
+uncut-principal junction render was ruled a bug and reverted), and up to 4.58 m
+either way on the six with curved ones, because `s5j_solve` re-solves each
+corner in the frame at its own cut and the planner has no arm shape to do that
+with. Read those numbers as a recorded state, the same way `baseline.json` is
+read.
 
 ⚠️ **But the metre is not the property, and the M1 audit caught this file
-implying it was.** What the planner is FOR is the answer — does this street still
-stand? Over all 322 edges the planner's `standing > 0` verdict never disagrees
-with the builder's: **0 false-OK, 0 false-BAD**. That is asserted directly, and
-it is the assertion to keep green. The per-case residuals are a tripwire on the
-model drifting, not a safety margin — treating them as one is how a 5.88 m
-optimistic error got recorded as a 2.02 m bound.
-
-### polyChain closed the loop without a calibration fixture, and that is the point
-
-`test_polychain_plan.py` pins **invariants**, not measurements — exact fill to
-1e-9 m in all four modes, `adaptive` never slicing, padding moving the
-neighbour rather than the padded piece, determinism under shuffle,
-warn-never-block on every degenerate input. This file used to say the fixture
-arrived with §4.4 as `tests/polychain/dump_placements.py`, the way
-`dump_trims.py` arrived for the planner. **It did not, and it should not.**
-
-`dump_trims.py` exists because `plan.crossing_trims` *predicts* what a junction
-cuts off without cooking anything, and a prediction is worth nothing until it
-is compared with the thing it predicts. polyChain's plan is not a prediction:
-`place.py` builds directly from it, so `tests/polychain/checks.py` compares the
-built geometry with the plan **on every case, every run** — `exact_fill_m`,
-`axis_on_curve_m` and `module_fidelity_m` are that comparison. A dumped fixture
-would be a stale copy of a number the suite already re-measures each time.
-
-What `baseline.json` records instead is what the citygen baseline records:
-values, not verdicts — 305 of them, including a `geometry_digest` per case, so
-a change that only shows up in another session moves a recorded value.
-
-Both halves are mutation-tested, which is the pressure that matters when the
-numbers are invariants rather than measurements: the kernel **13 mutations, 13
-killed**, the builder **14 mutations, 14 killed** — and the builder's first
-pass killed only 10. All four survivors were holes in the CHECKS, not in the
-code, and what closed each one is listed in `ideas/polychain.md` §10. That is
-the loop this directory is for: the sweep that finds a survivor leaves a
-standing assertion behind.
+implying it was.** What the planner is FOR is the answer — does this street
+still stand? Over all 322 edges the planner's `standing > 0` verdict never
+disagrees with the builder's: **0 false-OK, 0 false-BAD**. That is asserted
+directly, and it is the assertion to keep green. The per-case residuals are a
+tripwire on the model drifting, not a safety margin — treating them as one is
+how a 5.88 m optimistic error got recorded as a 2.02 m bound.
 
 ## The node schema, and why a closed vocabulary is not enough
 

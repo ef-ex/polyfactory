@@ -97,7 +97,6 @@ def marker(geo, position, curve_id, marker_id, dist=None, u=None, data=None):
     return pt
 
 
-GATE_LENGTH = 1.60                  # the starter kit gate's pc_size.x
 
 # --- the hill: an arc on a constant grade -----------------------------------
 # Sampled at 0.5 m on R = 30 m, so each vertex turns 0.95 degrees - far below
@@ -1584,73 +1583,18 @@ def build_all():
     return built
 
 
-def duplicate_curve_ids(case):
-    """TWO CURVES AUTHORED WITH ONE `pc_curve_id` - D74's control build.
-
-    ⚠️ NOT A SCENE CASE, ON PURPOSE. Colliding `pc_elem_id`s are the whole
-    point here, and every id-keyed check in the suite (element_count,
-    unique_elem_ids, exact_fill, max_gap, plan_geometry...) reads a merged
-    scene and reports nonsense on it - ten red checks describing one condition
-    the tool deliberately only WARNS about. So the case is cooked by the check
-    that needs it, the way `with_extra_curve` and `rebuild_plain` are, and
-    what is asserted is the warning plus the size of the collision.
-    """
-    g = hou.Geometry()
-    polyline(g, [(0, 0, 0), (8, 0, 0)], curve_id="dup")
-    polyline(g, [(0, 0, 10), (8, 0, 10)], curve_id="dup")
-    out, report = P.build(g, case["kit"], case["style"])
-    return (out, report)
-
-
-def with_extra_curve(case):
-    """The same case with an UNRELATED curve merged into input 1.
-
-    3.4's id rule is that `pc_elem_id` is a structural address and not cook
-    order, so adding a second spline upstream must not renumber the first
-    one's elements. Nothing else in the suite can see that: `determinism`
-    cooks the SAME inputs twice, which a cook-order id would also survive.
-    """
-    g = hou.Geometry()
-    g.merge(case["curve"])
-    polyline(g, [(0, -50, 40), (9, -50, 40), (9, -50, 47)],
-             curve_id="ZZ_unrelated")
-    out, report = P.build(g, case["kit"], case["style"],
-                          surface_geo=case.get("surface"),
-                          overrides=case.get("overrides"))
-    return (out, report)
-
-
-
-
-# ---- 3.3's warn-never-block half, as an input rather than as a claim -------
-# One rule per documented failure mode, in payload order. The expected results
-# are in `checks.style_payload_degrades`, which is where the numbers live.
-MALFORMED_RULES = (
-    {"pc_slot": "wobble", "pc_modules": "post"},              # unknown slot
-    {"pc_slot": "", "pc_modules": "post"},                    # no slot at all
-    {"pc_slot": "default", "pc_select": "shuffle",            # unknown select
-     "pc_modules": "post panel"},
-    {"pc_slot": "end", "pc_select": "conditional",            # cond, no dict
-     "pc_modules": ""},                                       # + no modules
-    {"pc_slot": "start", "pc_select": "first",                # cond ignored,
-     "pc_modules": "post",                                    # unknown subject
-     "pc_cond": {"subject": "weather", "op": "zz", "value": 1}},   # + op
-    {"pc_slot": "marker:7", "pc_select": "random",            # weight for a
-     "pc_modules": "gate", "pc_weights": {"ghost": 2.0},      # module not in
-     "pc_vexpr": "@u > 0.5"},                                 # the list + D3
-)
 
 
 
 
 
 
-def rebuild_plain(case):
-    """The same case with the OVERRIDE input unwired - the control the swap
-    and replace round-trips are measured against."""
-    out, report = P.build(case["curve"], case["kit"], case["style"],
-                          surface_geo=case.get("surface"))
-    return (out, report)
+
+
+
+
+
+
 
 
 def rebuild(case):

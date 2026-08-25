@@ -78,10 +78,6 @@ def hilo(x):
     return head, f32(float(x) - head)
 
 
-def transported(x):
-    """`x` as it ARRIVES at the wrangle after crossing the point attributes."""
-    head, lo = hilo(x)
-    return head + lo
 
 
 def ulp32(x):
