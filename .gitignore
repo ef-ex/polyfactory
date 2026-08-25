@@ -152,3 +152,8 @@ graphify-out/cost.json
 
 # polyChain gate renders - regenerate with `hython tests/polychain/gate_images.py`
 tests/polychain/gate_images/
+
+# mutmut 2.5 cache (per-machine, and it rewrites source files in place -
+# see the warning in setup.cfg)
+.mutmut-cache
+.hypothesis/
