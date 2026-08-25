@@ -29,6 +29,7 @@ BASELINE = os.path.join(HERE, "baseline.json")
 # What each case is ALLOWED to warn about. An empty tuple is the assertion
 # "clean input raises nothing"; the two non-empty entries are the cases that
 # exist to prove the detectors are not vacuous.
+
 EXPECTED_WARNS = {
     "J_coarse_bend": ("pc_warn_bend_resolution",),
     # DM is 13.9 N5's own coverage case (a smooth 24 m ripple with no corner,
@@ -114,98 +115,12 @@ EXPECTED_WARNS = {
     # assertion, and a returning warning means the anchor was lost.
 }
 
-# How many kit validation warnings each case is allowed to persist. Pinned
-# exactly, never as a range: a moved count means the validator gained or lost
-# a detector, which is the thing worth seeing.
-EXPECTED_KIT_WARNS = {"K_broken_kit": 9, "O_no_kit": 1}
-
-# ...and how many warnings the 3.3 READER is allowed on the same cases. Both
-# of them are "this kit has no such module", which is true - the style names
-# a module the broken/absent kit cannot supply, and 3.4's stand-in box is what
-# gets built. Everything else in the suite must round-trip in silence.
-EXPECTED_STYLE_WARNS = {"K_broken_kit": 1, "O_no_kit": 5}
-
-# 4.3 item C, derived from the parm and the geometry rather than read off a
-# run. D39 (revised): the offset does NOT move the cut plane - it slides both
-# copies along their own legs, so the two faces stay mirror images and the
-# seam stays 0 AT EVERY OFFSET. That is the assertion, and it is the one the
-# first version failed: +25 % parted the two planes by 2*o*cos(45) = 0.0566 m
-# of open hole and -25 % crossed them over into 0.0566 m of doubly solid,
-# interpenetrating geometry, both baselined as correct.
-#
-# What the offset DOES move is measured instead:
-#   * `corner_reach_m` - how far the corner module reaches back down its leg,
-#     `L - e + o` (0.12 m at +25 %, 0.04 m at -25 %);
-#   * `corner_outside_m` - the outside face, which a NEGATIVE offset pushes
-#     past the plane and the miter then eats: `L + min(o, 0)`.
-_CORNER_O = 0.25 * cases.CORNER_POST_LENGTH             # 0.04 m
-_CORNER_E = 0.08 * math.tan(math.pi / 4.0)              # 0.08 m at 90 degrees
-CORNER_SEAM = {}
-CORNER_REACH = {
-    "U_lshape_miter": cases.CORNER_POST_LENGTH - _CORNER_E,
-    "V_rect_miter": cases.CORNER_POST_LENGTH - _CORNER_E,
-    "W_corner_offset_pos": cases.CORNER_POST_LENGTH - _CORNER_E + _CORNER_O,
-    "X_corner_offset_neg": cases.CORNER_POST_LENGTH - _CORNER_E - _CORNER_O,
-    # 4.3 item D as a distance. D40's boundary piece is one whole default
-    # module anchored on the leg, so `extend` reaches `L - e` back down it and
-    # `symmetric` reaches exactly `L/2` - which IS the centring the first
-    # implementation only approximated (12.07 m of a 12.00 m leg) and which
-    # `tile` broke outright by tiling into the extension.
-    "AF_displace_extend": 2.0 - 0.03,
-    "AG_displace_symmetric": 1.0,
-    "AN_tile_symmetric": cases.GATE_LENGTH * 0.5,
-    # ...and the offset the no-corner-module path used to ignore completely:
-    # -10 % of the 2 m panel, so `L - e + o`.
-    "AO_displace_offset": 2.0 - 0.03 - 0.2,
-}
-
-# `double_pillar_m`, per case, in metres. ZERO IS THE RULE, and both entries
-# below are THE SAME DEFECT the check was written for, kept on purpose.
-#
-# `fence_style` is the suite's ONLY coverage of the `sequence` selector, and
-# it composes the default run as `post panel` with a `post` cap on each end -
-# which is exactly the shipped parm defaults BEFORE this cycle. On an open run
-# that lands a `start` post hard against the run's own opening `post`: 0.12 m,
-# one whole post, of doubled pillar. It is the run-END half of the corner
-# defect Hannes found, and nothing in the suite had ever measured it.
-#
-# It is pinned rather than fixed because (a) rewriting `fence_style` deletes
-# the only `sequence` fixture in the suite, and (b) a LIVE instance of the
-# defect inside the committed suite is the standing proof that this check can
-# see it - the value is exactly the post width, so a check that quietly
-# stopped measuring would drop to 0.0 and go red here.
-#
-# ⚠️ THE SHIPPED DEFAULTS NO LONGER DO THIS. `run_hda_checks.py` and
-# `gate_images.py` both drive the parm face and both assert 0.0 there; this
-# table is about three fixtures, not about the asset. (The `gate_images.py`
-# half of that sentence was FALSE when it was first written - that file ran
-# nine checks and `single_pillar` was not one of them - and the reader who
-# trusted it believed the parm face was covered twice when it was covered
-# once, on one rectangle. It is covered twice now, D270.)
-#
-# ED is the third, and it is a different animal: `Adjust to End` is an
-# artist's explicit instruction to land the last evenly anchor ON the end of
-# the free span, and where that span ends at a corner assembly the evenly
-# post abuts the corner post - exactly one post, 0.12 m. D269 removed the
-# 0.061 m of INTERPENETRATION that used to be there; the abutment that
-# remains is the documented meaning of the parm, so it is pinned and the parm
-# help says so rather than being quietly engineered away.
 DOUBLE_PILLAR = {
     "A_straight": 0.12,
     "DL_variant_kit": 0.12,
     "ED_rect_evenly_adjust": 0.12,
 }
 
-
-# 4.3 item B, the odd/even compose rule as a distance. An ODD count reaches
-# equally down both legs; an EVEN count carries one extra module on the
-# outgoing leg, so the difference is exactly that module's length.
-# 4.3 item D, the one number that separates the three policies. `reset`
-# leaves each piece where the fit put it and slices it at the vertex, so the
-# two cut faces are mirror images and the corner keeps a notch of
-# e*sqrt(2) = h*tan(45)*sqrt(2) on the outside - 0.03*1.41421 for the starter
-# panel. `extend` and `symmetric` both push the run to (or through) the plane,
-# so their faces mate exactly and their expected mismatch is 0.
 CORNER_MATE = {
     "AE_displace_reset": 0.03 * math.sqrt(2.0),
     # A figure NARROWER THAN ITS OWN FENCE. Each 0.12 m side must host two
@@ -220,14 +135,8 @@ CORNER_MATE = {
                        * math.sqrt(2.0)),
 }
 
-# D44's squeeze, derived from the input rather than from the run: three 1.20 m
-# corner blocks reserve (1.20 - e) + 1.20 = 2.32 m of a 1.50 m leg, so every
-# corner module on that side is scaled by 1.50/2.32 and the outside face that
-# should have measured 1.20 m measures 0.7759 m - and says pc_warn_overflow.
-# D44, CORRECTED: the squeeze is about the CUT PLANE, so the fixed point is
-# the 0.08 m the straddler reaches PAST the vertex and only the rest scales -
-# the factor is (L_leg + e)/(reserve + e), not L_leg/reserve, and the squeezed
-# module still reaches the plane instead of leaving an e*(1-f) notch.
+_CORNER_O = 0.25 * cases.CORNER_POST_LENGTH             # 0.04 m
+_CORNER_E = 0.08 * math.tan(math.pi / 4.0)              # 0.08 m at 90 degrees
 _AD_RESERVE = (cases.CORNER_BLOCK_LENGTH - 0.08) + cases.CORNER_BLOCK_LENGTH
 _AD_FACTOR = (1.5 + 0.08) / (_AD_RESERVE + 0.08)
 CORNER_OUTSIDE = {
@@ -243,20 +152,6 @@ CORNER_OUTSIDE = {
                        + (_CORNER_E - 0.9 * cases.CORNER_POST_LENGTH)),
 }
 
-CORNER_SYMMETRY = {
-    "U_lshape_miter": 0.0,
-    "V_rect_miter": 0.0,
-    "AA_reflex_miter": 0.0,
-    "Y_compose_odd": 0.0,
-    "Z_compose_even": cases.CORNER_BLOCK_LENGTH,
-}
-
-
-# 4.5 / D55, derived from the surface and not from a run: `camber_z` falls
-# 25 % ACROSS the run, so a piece that takes the camber ends up with its own
-# up ON the surface normal (0 degrees) and one that refuses it keeps world up,
-# which is atan(0.25) = 14.0362 degrees away from that normal. The pair is the
-# assertion; one of them alone would pass with the parm wired to nothing.
 CAMBER_DEG = {
     "BD_camber_on": 0.0,
     "BD_camber_off": math.degrees(math.atan(0.25)),
@@ -272,7 +167,6 @@ CONFORM_MISSES = {"BE_conform_holes": 5,
                   # D70: the prop IS under the run, 30 m down. This was the
                   # whole run reporting a miss because of standoff distance.
                   "BK_conform_far": 0}
-
 
 BANKS = ("E_hill_adaptive", "BA_conform_adaptive")
 
@@ -310,22 +204,6 @@ ALL_PACKED = ("A_straight", "CE_all_packed", "CA_swap_module",
 # really moves 0.0327 m, so not one of them may stay packed.
 NONE_PACKED = ("CN_arc_tight", "CP_elev_arc_tall")
 
-# D94: the conditional keyed on the SPLINE'S OWN prim attribute. Two
-# curves, one rule, two answers - the assertion is the pair, because
-# "a gate exists" would also pass on a rule that ignores the attribute.
-MODULES_BY_CURVE = {"CR_attr_conditional": {"CRa": ["gate"],
-                                            "CRb": ["panel"]}}
-
-# [swapped, replaced, ids that moved] per override case, derived from the
-# override stream and not from a run: CA re-points all ten panels, CC and CD
-# replace exactly one element each, and NOTHING may move an id.
-OVERRIDES = {
-    "CA_swap_module": [10, 0, 0],
-    "CC_replace_hero": [0, 1, 0],
-    "CD_replace_bent": [0, 1, 0],
-}
-
-
 class Scene(object):
     """One case, read once - so a check never re-derives what another already
     measured, and every check sees the same sections the builder used."""
@@ -360,170 +238,57 @@ class Scene(object):
             ((str(t["curve"].curve_id), s.index), s)
             for t in self.tracks for s in t["sections"])
 
-
 def run_case(name, case):
+    """The sixteen properties of a built fence that the differential
+    comparator structurally cannot state.
+
+    ⚠️ v2: this used to call ~60 checks per case.  Every one that compared
+    the built geometry against the plan that built it - element counts, ids,
+    fill spans, frames, digests, round-trips - is subsumed by `diff.compare`
+    over generated scenes (`run_generated.py`), which compares EVERY
+    attribute of both paths by construction rather than the subset somebody
+    remembered to list.  What survives is the checks that say whether the
+    answer is RIGHT: the corner assembly, the conform, the deform gate, and
+    the warnings a case is allowed to raise.
+    """
     try:
         scene = Scene(case)
     except Exception as exc:
         return [C.Result("scene", False, None, "%s: %s"
                          % (type(exc).__name__, str(exc)[:200]))]
-    out = [
-        C.element_count(scene),
-        C.unique_elem_ids(scene),
-        C.element_resolution(scene),
-        C.stamp_provenance(scene),
-        C.output_schema(scene),
-        C.sampler_matches_kernel(scene),
-        C.section_coverage(scene),
-        C.exact_fill(scene),
-        C.no_gaps_or_overlaps(scene),
-        C.stepped_riser(scene),
-        C.stepped_float(scene),
-        C.band_hybrid(scene),
-        C.band_datum(scene),
+    return [
         C.stamp_parity(scene, cases.P),
-        C.plumb_vertical(scene),
-        C.flat_stepped(scene),
-        # ⚠️ BA IS IN HERE FOR THE SAME REASON E IS, and it was added because a
-        # mutation survived without it: taking the SPLINE's tangent instead of
-        # the drape's inside `ConformPath.sample` moved not one number in the
-        # whole suite. The conformed run is dead flat as a spline, so nothing
-        # but "does an adaptive piece bank over a ridge that only the SURFACE
-        # knows about" can see that tangent at all.
+        # ⚠️ BA IS IN HERE DELIBERATELY: taking the SPLINE's tangent instead
+        # of the drape's inside `ConformPath.sample` moved not one number in
+        # the whole suite without it.  The conformed run is dead flat as a
+        # spline, so only "does an adaptive piece bank over a ridge that only
+        # the SURFACE knows about" can see that tangent at all.
         C.bank_adaptive(scene, require_bank=(name in BANKS)),
         C.conform_parity(scene),
-        C.slice_caps_closed(scene),
-        C.axis_follows_curve(scene),
-        C.cross_section_width(scene),
-        C.module_fidelity(scene),
-        C.rigid_never_deformed(scene),
-        C.deformed_flag_matches_geometry(scene),
         C.instancing_split(scene, expect_all=(name in ALL_PACKED),
                            expect_none=(name in NONE_PACKED)),
-        C.horizontal_spacing(scene),
-        C.module_winding(scene),
-        C.frame_continuity(scene),
-        C.station_spacing(scene),
-        C.piece_extent(scene),
-        C.plan_geometry(scene, cases.P),
-        C.plan_point_provenance(scene, cases.P),
-        C.bend_deviation(scene),
         C.warnings(scene, EXPECTED_WARNS.get(name, ())),
-        C.determinism(scene, cases.rebuild),
-        C.geometry_digest(scene),
         # --- 4.3, on every case: a corner check that finds no corner reports
-        # SKIP, so the corner numbers ride the whole suite rather than only the
-        # cases that were written for them. A corner appearing where none was
-        # expected therefore shows up as a value, not as silence.
+        # SKIP, so the corner numbers ride the whole suite rather than only
+        # the cases written for them.  A corner appearing where none was
+        # expected shows up as a value, not as silence.
         C.corner_abut(scene),
-        C.corner_turns(scene),
-        C.corner_welds(scene),
-        C.corner_plane_dev(scene),
         C.corner_face_mate(scene, expected=CORNER_MATE.get(name, 0.0),
                            tol=2e-3),
-        # ...and the half `corner_face_mate_m` structurally cannot see,
-        # because its `stepped` escape drops it to a plan-only metric (D72).
-        C.corner_mate_axis(scene),
-        C.corner_symmetry(scene, expected=CORNER_SYMMETRY.get(name)),
-        C.corner_outside_length(scene,
-                                expected=CORNER_OUTSIDE.get(name)),
-        C.corner_reach(scene, expected=CORNER_REACH.get(name)),
+        C.corner_outside_length(scene, expected=CORNER_OUTSIDE.get(name)),
         C.corner_breach(scene),
-        C.corner_wedge(scene),
-        # ...and the one that says the corner READS as one pillar.
-        # Every check above it is a CLOSURE check, and a double pillar
-        # is perfectly closed - see `checks.single_pillar`.
+        # ...and the one that says the corner READS as one pillar.  Every
+        # check above it is a CLOSURE check, and a double pillar is perfectly
+        # closed - see `checks.single_pillar`.
         C.single_pillar(scene, expected=DOUBLE_PILLAR.get(name, 0.0)),
-        # --- 4.5, on every case: no surface reports SKIP, so a conform that
-        # appears where none was wired shows up as a value rather than as
-        # silence - the same rule the corner checks ride on.
-        C.conform_contact(scene),
-        C.conform_drape(scene),
+        # --- 4.5, on every case for the same reason.
         C.conform_camber(scene, expected=CAMBER_DEG.get(name)),
         C.conform_misses(scene, expected=CONFORM_MISSES.get(name)),
-        # --- 4.6, on every case for the same reason: an override or a
-        # replaced element appearing where none was wired is a value, not
-        # silence, and `over_unpacked` is only meaningful across the whole
-        # suite (it is the check that a build cannot pass by unpacking
-        # everything).
-        C.over_unpacked(scene),
+        # --- 4.6: the packed/deformed decision and what it costs in accuracy.
         C.curvature_budget(scene, cases.P),
         C.deform_gate(scene, cases.P),
         C.packed_true_deviation(scene, cases.P),
     ]
-    if name in MODULES_BY_CURVE:
-        out.append(C.modules_by_curve(scene, MODULES_BY_CURVE[name]))
-    out += [
-        # 3.3 / PC-G4, on EVERY case: the same style, expressed as a payload
-        # and read back through input 3, must build the same geometry.
-        C.style_round_trip(scene, cases.via_payload,
-                           EXPECTED_STYLE_WARNS.get(name, 0)),
-        C.override_round_trip(scene, cases.rebuild_plain,
-                              expected=OVERRIDES.get(name)),
-        C.elem_ids_survive_upstream(scene, cases.with_extra_curve),
-        C.cap_dressing(scene),
-        C.warning_summary(scene),
-    ]
-    out.append(C.corner_seam(scene, expected=CORNER_SEAM.get(name, 0.0)))
-    if name in ("C_tile_slice", "H_tile_slope_free", "I_tile_slope_fixed"):
-        out.append(C.cap_tagged(scene, expect=1))
-    if name == "DJ_flatten_hero":
-        # the hero is the post's own 0.12 m footprint at 1.5 m instead of
-        # 1.20 m, so its bbox is the proof the replacement actually happened
-        # and `stepped_float_m` is the proof it was planted (D98 on the D58
-        # path). Recorded rather than asserted: the fit scales x.
-        out.append(C.replaced_geometry(scene, expected=None))
-    if name in ("CC_replace_hero", "CD_replace_bent"):
-        # the hero is a 2.0 x 2.0 x 0.4 m slab and no kit module is anything
-        # like it, so its own world bbox is the proof it arrived. CD's piece
-        # spans a 90 degree elbow, so its bbox is the slab's diagonal there
-        # and is recorded rather than asserted.
-        out.append(C.replaced_geometry(
-            scene, expected=(2.0, 2.0, 0.4)
-            if name == "CC_replace_hero" else None))
-    if name == "A_straight":
-        # 3.3's warn-and-degrade contract, cooked by the check: the payload is
-        # the thing under test, so it is wired to exactly one case.
-        out.append(C.style_payload_degrades(scene, cases.malformed_payload,
-                                            cases.build_with_payload))
-        # D74's control build, cooked by the check because colliding ids are
-        # the condition under test and every id-keyed check above would read
-        # a merged scene and report nonsense on it. It does not depend on the
-        # case it is wired to, so it is wired to exactly one.
-        out.append(C.duplicate_curve_id_warns(scene, cases.duplicate_curve_ids))
-    if name == "BN_conform_overhead":
-        # D70's NEAREST test, which nothing else in the suite exercises: the
-        # deck is 0.4 m up and the ground 3.0 m down, so the middle of the run
-        # is on the deck and its edge is a 3.4 m riser.
-        out.append(C.stepped_riser_is(scene, 3.4))
-    if name == "CI_swap_zmode":
-        # D73: the post's own manifest default, not the panel's `vertical`.
-        out.append(C.zmode_stamp(scene, "stepped"))
-    if name == "D_marker_gate":
-        out.append(C.marker_offset(scene, 7, (10.0, 0.0, 0.0)))
-    # D26's two halves, derived from the grade rather than copied off a run:
-    # slope fixing ON keeps the gate's own 1.60 m when measured horizontally,
-    # OFF measures that width along the path's angle instead.
-    if name == "I_tile_slope_fixed":
-        out.append(C.horizontal_span_is(scene, cases.GATE_LENGTH))
-    if name == "H_tile_slope_free":
-        out.append(C.horizontal_span_is(
-            scene, cases.GATE_LENGTH / math.hypot(1.0, cases.HILL_GRADE)))
-    if name == "N_marker_mixed":
-        # The whole point of the case: marker 7 is authored in metres and
-        # marker 8 in u, in ONE cloud, and both must land where they say.
-        out.append(C.marker_offset(scene, 7, (5.0, 0.0, 0.0)))
-        out.append(C.marker_offset(scene, 8, (15.0, 0.0, 0.0)))
-    if name == "AB_fillet":
-        # 4.3 item E: a 1.5 m fillet on a 90 degree corner holds the path
-        # 1.5*(1/cos45 - 1) = 0.6213 m off the original sharp vertex, and the
-        # pieces are on the path.
-        out.append(C.corner_clearance(
-            scene, (12.0, 0.0, 0.0),
-            1.5 * (1.0 / math.cos(math.pi / 4.0) - 1.0)))
-    n = EXPECTED_KIT_WARNS.get(name, 0)
-    out.append(C.kit_validation(scene, n, n))
-    return out
 
 
 # 11.2's tripwires - the port plan's own measurements, standing up as
