@@ -245,6 +245,11 @@ export PYTHONIOENCODING=utf-8
 python -m mutmut run --paths-to-mutate "$(git diff --name-only HEAD~1 \
   -- 'polyfactory/scripts/python/polyfactory/polychain/*.py' | paste -sd,)"
 
+# DEBT (2026-08-25): decompose.py's first run found 124 survivors; #209 (the
+# corner-threshold boundary) is killed, the other 123 are untriaged (unfiltered
+# mutant set, so an upper bound). Resume with:
+#   python -m mutmut run --paths-to-mutate polyfactory/scripts/python/polyfactory/polychain/decompose.py && python -m mutmut results
+
 # at a milestone - the whole kernel, from setup.cfg's [mutmut] section
 python -m mutmut run
 python -m mutmut results

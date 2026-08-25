@@ -147,6 +147,25 @@ class TestCorners(unittest.TestCase):
         c = self.L(90.0, corner_flags=[0, "not an int", 0])
         self.assertEqual(len(dc.resolve_corners(c)), 1)      # auto still applies
 
+    def test_a_turn_exactly_ON_the_threshold_is_not_a_corner(self):
+        """The docstring contract is `turn > corner_angle_deg` spawns a corner,
+        so the boundary itself does NOT. mutmut survivor #209 (`<=` -> `<`)
+        lived exactly here: no fixture or generator ever landed a turn ON the
+        threshold. Axis-aligned legs make the turn EXACTLY 90.0 (dot is 0.0,
+        degrees(acos(0.0)) == 90.0), asserted below so the fixture cannot
+        drift off the boundary and go decorative."""
+        right = pc.Curve("c", [(-10.0, 0.0, 0.0), (0.0, 0.0, 0.0),
+                               (0.0, 0.0, 10.0)])
+        got = dc.resolve_corners(right, pc.Params(corner_angle_deg=89.0))
+        self.assertEqual(got[0].turn_angle, 90.0)            # exact, no places=
+        for threshold, corners in ((90.0, 0),                # ON: not a corner
+                                   (90.0 - 1e-9, 1),         # under: a corner
+                                   (90.0 + 1e-9, 0)):        # over: not one
+            self.assertEqual(
+                len(dc.resolve_corners(
+                    right, pc.Params(corner_angle_deg=threshold))),
+                corners, "threshold %r" % threshold)
+
 
 class TestSections(unittest.TestCase):
 
