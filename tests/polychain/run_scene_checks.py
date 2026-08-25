@@ -4,10 +4,9 @@
     hython tests/polychain/run_scene_checks.py --update-baseline
     hython tests/polychain/run_scene_checks.py --json results.json
 
-Nothing is saved and no .hip exists. Numbers first, renders second: every
-check records a value, and the runner diffs every value against baseline.json
-and prints movement even where a check still passes. Read that list and
-confirm each move is an improvement before running --update-baseline.
+Nothing is saved and no .hip exists. Every check records a value, diffed
+against baseline.json; confirm each move is an improvement before
+--update-baseline.
 """
 
 import json
@@ -32,13 +31,8 @@ BASELINE = os.path.join(HERE, "baseline.json")
 
 EXPECTED_WARNS = {
     "J_coarse_bend": ("pc_warn_bend_resolution",),
-    # DM is 13.9 N5's own coverage case (a smooth 24 m ripple with no corner,
-    # which is what `place_deformed_covers_the_reference` compares a real
-    # element set on).  Five of its thirteen panels wrap a crest their own
-    # 0.25 m stations cannot resolve inside `bend_tol` - 0.0153 m against
-    # 0.0100 - so D25's warning is the RIGHT answer here for exactly the
-    # reason `P_crest_bend`'s is, and a clean build would mean the fixture
-    # had stopped bending anything.
+    # DM - 13.9 N5's coverage case: 5 of 13 panels wrap a crest 0.25 m
+    # stations cannot resolve (0.0153 vs 0.0100 m), so D25's warning is right.
     "DM_ripple_deformed": ("pc_warn_bend_resolution",),
     "K_broken_kit": ("pc_warn_kit_gap",),
     "O_no_kit": ("pc_warn_kit_gap",),
@@ -48,10 +42,8 @@ EXPECTED_WARNS = {
     "P_crest_bend": ("pc_warn_bend_resolution",),
     "Q_vertical_stepped": ("pc_warn_degenerate_frame",),
     "R_hairpin": ("pc_warn_corner_degenerate",),
-    # 4.3/D36: bend welds the four sections of the rectangle into one ring, so
-    # a 2 m panel now WRAPS each 90 degree vertex - and its own 0.25 m stations
-    # cannot resolve a right angle inside `bend_tol`. D25's warning is the
-    # correct answer, and it is also the argument for reaching for miter.
+    # 4.3/D36: bend welds the rectangle into one ring, so a panel wraps each
+    # 90 degree vertex; D25's warning is correct (and the argument for miter).
     "B_rect_closed": ("pc_warn_bend_resolution",),
     "AB_fillet": ("pc_warn_bend_resolution",),
     # The 170 degree fallback is bend, so a panel wraps a 10 degree included
@@ -60,22 +52,16 @@ EXPECTED_WARNS = {
     "AC_degenerate_corner": ("pc_warn_bend_resolution",
                              "pc_warn_corner_degenerate"),
     "AD_short_legs": ("pc_warn_overflow",),
-    # AS is 3v's own figure: twenty 2 m panels fit the 40 m ring exactly, so
-    # every corner is a BUTT JOINT and no piece is asked to wrap one. A clean
-    # build is the assertion - the wedge those joints leave is measured by
-    # `corner_wedge_m2`, not warned about (D36: it is inherent, miter is the
-    # fix).
+    # AS - 3v's figure: every corner is a butt joint, no piece wraps one. A
+    # clean build IS the assertion; the wedge is `corner_wedge_m2`'s (D36).
     "AS_rect_bend_butt": (),
     # D58: hero geometry cannot follow a bend, and the piece this replaces is
     # the one that wraps the elbow. The warning IS the feature.
     "CD_replace_bent": ("pc_warn_bend_resolution",
                         "pc_warn_replace_deformed"),
-    # 4.5's own two. BE leaves the terrain twice by construction (a hole and
-    # an edge), which is D53's warning and nothing else; the two
-    # `bend_resolution` pieces are the ones STRADDLING those boundaries, where
-    # the drape steps by the full ramp height inside one panel and 0.25 m
-    # stations cannot follow a cliff - D25 measuring the conform, exactly as
-    # D56 says it should.
+    # 4.5's own two. BE leaves the terrain twice by construction (hole + edge,
+    # D53); the two `bend_resolution` pieces straddle those boundaries, where
+    # the drape steps by the full ramp height (D25 measuring the conform, D56).
     "BE_conform_holes": ("pc_warn_bend_resolution", "pc_warn_conform_miss"),
     # BH is the coarse surface: only the panel ON the crease cannot resolve it.
     "BH_conform_crease": ("pc_warn_bend_resolution",),
@@ -92,27 +78,19 @@ EXPECTED_WARNS = {
     # drape steps by the full ramp height inside one panel, exactly as on BE.
     "BM_conform_station_hole": ("pc_warn_bend_resolution",
                                 "pc_warn_conform_miss"),
-    # The cycle-3 review cases. Every one of these overflows for a REASON the
-    # case name gives, and every one of them used to build silently:
-    # AH  a 140 degree turn is sharper than the 0.16 m post's own 0.2198 m
-    #     miter overhang, so D49 pulls the post back onto the vertex;
-    # AI  a 1.5 m triangle leaves 0.0215 m of reserve against a 0.03 m panel
-    #     half-thickness, so the run itself has to be cut on the plane;
-    # AP  a 12 x 0.12 m figure is narrower than one corner post (D44);
-    # AQ  a 1.5 m leg against a 12 m one, squeezed on the short side only;
-    # AR  a -100 % offset would push the post clean past the vertex (D49).
+    # Cycle-3 review cases - each overflows for the reason its name gives and
+    # used to build silently: AH 140 deg turn vs the post's 0.2198 m miter
+    # overhang (D49); AI 0.0215 m reserve vs 0.03 m panel half-thickness;
+    # AP figure narrower than one corner post (D44); AQ squeezed on the short
+    # side only; AR -100 % offset clamped (D49).
     "AH_sharp_turn": ("pc_warn_overflow",),
     "AI_triangle": ("pc_warn_overflow",),
     "AP_narrow_rect": ("pc_warn_overflow",),
     "AQ_asym_squeeze": ("pc_warn_overflow",),
     "AR_offset_past": ("pc_warn_overflow",),
-    # ⚠️ AF/AG USED TO WARN `pc_warn_bend_resolution` HERE and no longer do.
-    # That was D40's first implementation extending the FILL SPAN past the
-    # vertex, so the straddling panel rode the welded kink and could not
-    # resolve a right angle with its own 0.25 m stations. The boundary piece
-    # is now ANCHORED on the straight leg like every other 4.3 piece, so
-    # there is no bend left to fail to resolve - a clean build is the
-    # assertion, and a returning warning means the anchor was lost.
+    # ⚠️ AF/AG used to warn `pc_warn_bend_resolution` (D40's first cut
+    # extended the fill span past the vertex). The boundary piece is anchored
+    # now: clean build is the assertion; a returning warning = anchor lost.
 }
 
 DOUBLE_PILLAR = {
@@ -123,13 +101,10 @@ DOUBLE_PILLAR = {
 
 CORNER_MATE = {
     "AE_displace_reset": 0.03 * math.sqrt(2.0),
-    # A figure NARROWER THAN ITS OWN FENCE. Each 0.12 m side must host two
-    # corner posts of 0.16 m, so D44 squeezes them to L*(0.12+2e)/(2L-... )
-    # - concretely (0.12 + 0.16)/(0.16 + 0.16) = 0.875 of 0.16 m = 0.14 m -
-    # and a 0.14 m module cannot span the 2e = 0.16 m mating diagonal. What is
-    # left over is exactly the shortfall, on the diagonal: (L - L*f)*sqrt(2).
-    # It is a squeeze artefact and it says `pc_warn_overflow`; it is here as a
-    # NUMBER so that a squeeze that gets worse cannot pass as this one.
+    # AP: D44 squeezes each 0.16 m post to (0.12 + 0.16)/(0.16 + 0.16) =
+    # 0.875 -> 0.14 m, which cannot span the 2e = 0.16 m mating diagonal;
+    # leftover is (L - L*f)*sqrt(2), warned `pc_warn_overflow`. A NUMBER so
+    # a worse squeeze cannot pass as this one.
     "AP_narrow_rect": (cases.CORNER_POST_LENGTH
                        * (1.0 - (0.12 + 0.16) / (0.16 + 0.16))
                        * math.sqrt(2.0)),
@@ -144,10 +119,8 @@ CORNER_OUTSIDE = {
     # A negative offset pushes the post PAST the plane and the miter eats the
     # overhang off its outside face: L + o, read off the built face.
     "X_corner_offset_neg": cases.CORNER_POST_LENGTH - _CORNER_O,
-    # D49's clamp, as a distance: -100 % is out of range, so the offset stops
-    # at `e - 0.9*L` and the outside face is `L + o` = 0.9*L - e + L... i.e.
-    # the post keeps a tenth of its length on its leg and the miter has eaten
-    # the rest of the overhang.
+    # D49's clamp: -100 % stops at `e - 0.9*L`, so the outside face is
+    # `L + o` - the post keeps a tenth of its length on its leg.
     "AR_offset_past": (cases.CORNER_POST_LENGTH
                        + (_CORNER_E - 0.9 * cases.CORNER_POST_LENGTH)),
 }
@@ -177,31 +150,21 @@ ALL_PACKED = ("A_straight", "CE_all_packed", "CA_swap_module",
               # D69: a straight line authored at 1 m spacing is still a
               # straight line. Before the kink test this built 0 % packed.
               "CF_resampled_straight",
-              # ...and the same line with a BENDABLE module, which is the
-              # path D69 actually fixed - CF's rigid beam short-circuits
-              # `_needs_deform` at D27 before the vertex test is reached, so
-              # CF alone left the fix unguarded (a mutation survived it).
+              # ...and the same line with a BENDABLE module - the path D69
+              # actually fixed; CF's rigid beam short-circuits `_needs_deform`
+              # at D27, so CF alone left the fix unguarded.
               "CG_resampled_bendable",
-              # D75: THE CURVATURE BUDGET. A resampled arc has a real interior
-              # vertex in every span, so the binary vertex test unpacked all
-              # three of these; the deviation they would actually suffer is
-              # 4.2e-05 m, 2.5e-04 m and 6.2e-03 m, every one of them under
-              # `bend_tol`. CN_arc_tight is the control that keeps this from
-              # being vacuous - 0.05 m, five times the budget, and it must
-              # unpack all of them.
+              # D75: THE CURVATURE BUDGET. Deviations 4.2e-05, 2.5e-04 and
+              # 6.2e-03 m, all under `bend_tol`; CN_arc_tight (0.05 m, five
+              # times the budget) is the control that must unpack all.
               "CK_arc_12000", "CL_arc_2000", "CM_arc_80",
-              # D87's own control: the SAME 1.2 m tall rail on a plan arc,
-              # where `across` barely turns and `up` is world up - so the
-              # off-spine term is real but tiny and every piece may stay
-              # packed. Without it the D87 fix could simply unpack everything
-              # and pass CP.
+              # D87's control: the same tall rail on a plan arc, where the
+              # off-spine term is tiny and every piece may stay packed.
               "CQ_plan_arc_tall")
 
-# ...and the other side of D75: the tight arc may not keep a single piece
-# packed. Without this the budget could be widened until nothing ever bends.
-# D87: a 1.2 m tall bendable rail on an R = 55 m ELEVATION arc. The spine
-# sagitta is 0.0091 m, inside `bend_tol` - and the piece's top corner
-# really moves 0.0327 m, so not one of them may stay packed.
+# The other side of D75: the tight arc may not keep a single piece packed.
+# D87: the tall rail on the R = 55 m ELEVATION arc - spine sagitta 0.0091 m,
+# inside `bend_tol`, top corner moves 0.0327 m, so none may stay packed.
 NONE_PACKED = ("CN_arc_tight", "CP_elev_arc_tall")
 
 class Scene(object):
@@ -218,16 +181,10 @@ class Scene(object):
         self.plan_by_id = dict((p.elem_id, p) for p in self.plan)
         self.warns = C.collect_warns(self.geo, self.report["warn_names"])
         self.kit, self.sources, _kw = cases.K.read(case["kit"])
-        # 4.3 lives between decompose and plan, so the tracks must be read
-        # THROUGH it: in bend mode it welds sections (D36) and in miter mode
-        # it reserves span for the corner assembly. Re-deriving the raw 4.1
-        # list here would measure the builder against a section list the
-        # builder never used.
-        # ⚠️ THE SURFACE GOES IN HERE TOO (4.5). `analyse` wraps the Path in
-        # the conform, so a check that omits input 4 measures the built
-        # geometry against the UNDRAPED spline: `axis_on_curve_m` and
-        # `plan_points` both read 0.800 m on the ridge cases - which is the
-        # ridge amplitude, i.e. the conform working, reported as a failure.
+        # Tracks must be read THROUGH 4.3 (bend welds sections D36, miter
+        # reserves span) - the raw 4.1 list is one the builder never used.
+        # The surface goes in too (4.5): omitting input 4 reads 0.800 m (the
+        # ridge amplitude, the conform working) as a failure.
         self.tracks = cases.P.analyse(case["curve"], self.params,
                                       kit=cases.K.read(case["kit"])[0],
                                       style=case["style"],
@@ -239,17 +196,11 @@ class Scene(object):
             for t in self.tracks for s in t["sections"])
 
 def run_case(name, case):
-    """The sixteen properties of a built fence that the differential
-    comparator structurally cannot state.
+    """The sixteen properties the differential comparator cannot state.
 
-    ⚠️ v2: this used to call ~60 checks per case.  Every one that compared
-    the built geometry against the plan that built it - element counts, ids,
-    fill spans, frames, digests, round-trips - is subsumed by `diff.compare`
-    over generated scenes (`run_generated.py`), which compares EVERY
-    attribute of both paths by construction rather than the subset somebody
-    remembered to list.  What survives is the checks that say whether the
-    answer is RIGHT: the corner assembly, the conform, the deform gate, and
-    the warnings a case is allowed to raise.
+    v2: was ~60 checks per case; everything comparing built geometry against
+    its own plan is subsumed by `diff.compare` over generated scenes
+    (`run_generated.py`). What survives says whether the answer is RIGHT.
     """
     try:
         scene = Scene(case)
@@ -258,20 +209,16 @@ def run_case(name, case):
                          % (type(exc).__name__, str(exc)[:200]))]
     return [
         C.stamp_parity(scene, cases.P),
-        # ⚠️ BA IS IN HERE DELIBERATELY: taking the SPLINE's tangent instead
-        # of the drape's inside `ConformPath.sample` moved not one number in
-        # the whole suite without it.  The conformed run is dead flat as a
-        # spline, so only "does an adaptive piece bank over a ridge that only
-        # the SURFACE knows about" can see that tangent at all.
+        # BA is in here deliberately: only "does an adaptive piece bank over
+        # a ridge only the SURFACE knows about" can see the drape's tangent
+        # (vs the spline's) inside `ConformPath.sample` at all.
         C.bank_adaptive(scene, require_bank=(name in BANKS)),
         C.conform_parity(scene),
         C.instancing_split(scene, expect_all=(name in ALL_PACKED),
                            expect_none=(name in NONE_PACKED)),
         C.warnings(scene, EXPECTED_WARNS.get(name, ())),
-        # --- 4.3, on every case: a corner check that finds no corner reports
-        # SKIP, so the corner numbers ride the whole suite rather than only
-        # the cases written for them.  A corner appearing where none was
-        # expected shows up as a value, not as silence.
+        # --- 4.3, on every case: no corner -> SKIP, so corner numbers ride
+        # the whole suite; a surprise corner shows as a value, not silence.
         C.corner_abut(scene),
         C.corner_face_mate(scene, expected=CORNER_MATE.get(name, 0.0),
                            tol=2e-3),
@@ -291,34 +238,24 @@ def run_case(name, case):
     ]
 
 
-# 11.2's tripwires - the port plan's own measurements, standing up as
-# assertions (tests/README.md's compounding rule). They belong to no scene
-# case, so they run once under their own pseudo-case and land in the baseline
-# beside everything else.
-#
-# ⚠️ THE EXPECTATION LIVES ON THE CALL, `scale_gate.py`'s LADDER device: when
-# an expectation still describes a DEFECT, green here means "still the shape
-# the audit measured", and the commit that lands the port flips it - the flip
-# IS the proof. Two have flipped so far: P1 took `stamp_calls_per_piece`'s
-# ceiling from 15.0 to 1.0 (14.005 -> 0.005) and P2 took
-# `curve_sample_scaling` from `O(n)` to `O(1)` (2 339x -> ~1x). Restoring
-# either implementation turns its own row red.
+# 11.2's tripwires - the port plan's measurements standing as assertions,
+# run once under their own pseudo-case. The expectation lives on the call
+# (`scale_gate.py`'s LADDER): green on a defect-shaped expectation means
+# "still the shape the audit measured"; the landing commit flips it. Flipped
+# so far: P1 `stamp_calls_per_piece` 15.0 -> 1.0 (14.005 -> 0.005), P2
+# `curve_sample_scaling` O(n) -> O(1) (2 339x -> ~1x).
 def port_tripwires():
     return [
         C.stamp_calls_per_piece(cases.tripwire_packed_run, expect_max=1.0),
-        # ⚠️ AND THE DEFORMED ROW. The packed fixture reports `deformed == 0`,
-        # so the one branch where a per-prim stamp costs 14 x the piece's PRIM
-        # COUNT was the branch the tripwire could not reach: the D102-era
-        # writer restored there is an 8.4x regression on `scale_gate` arc_10
-        # (2.361 -> 19.854 s) with every suite green and this row unmoved.
+        # The DEFORMED row: a per-prim stamp there costs 14 x the PRIM COUNT
+        # - the restored D102-era writer was an 8.4x regression on arc_10
+        # (2.361 -> 19.854 s) with every suite green and the packed row unmoved.
         C.stamp_calls_per_piece(cases.tripwire_deformed_run, expect_max=1.0,
                                 name="stamp_calls_per_piece_deformed"),
         C.station_share_hit_rate(cases.tripwire_deformed_run, cases.P,
                                  cases.CONFORM),
-        # P5R's `span_ends` had no tripwire at all: forcing the threaded pair
-        # to `None` left all three suites AND the baseline green while the
-        # packed fixture went 3.0 -> 13.0 calls per piece. Both branches, the
-        # way `stamp_calls_per_piece` learned to run on both.
+        # P5R's `span_ends` had no tripwire: forcing the threaded pair to
+        # `None` left everything green while packed went 3.0 -> 13.0 calls.
         C.path_sample_calls_per_piece(cases.tripwire_packed_run, cases.P,
                                       expect_max=4.0),
         C.path_sample_calls_per_piece(cases.tripwire_deformed_run, cases.P,
@@ -330,18 +267,12 @@ def port_tripwires():
         C.curve_sample_scaling(cases.Curve, expect="O(1)", cold_expect="O(n)"),
         C.conform_cache_per_element(cases.tripwire_conformed_run,
                                     cases.CONFORM, expect_max=30.0),
-        # ⚠️ TWO ROWS, AND THE CEILING IS THE FIXTURE'S OWN. The fallback
-        # keys are the gap midpoints of whatever fraction of the run
-        # DEFORMS, so the 100 %-deformed single curve reads 0.69 and the
-        # 87 %-packed street row reads 0.11 - and the `used` floor is 1.0
-        # on both, which is the direction the first version of this check
-        # structurally could not test (it read `fallback / batched`, which
-        # is 0.0 by construction when the batch over-fetches).
-        # ⚠️ AND THE `used` FLOOR IS 0.99 ON THIS ROW AND 1.0 ON THE OTHER,
-        # for ONE named key: `s = 20.001`, the forward `delta` partner of the
-        # last station of the last piece of an OPEN run. Nothing reads it,
-        # because the end of a run is read BACKWARD (`span_ends`). It is one
-        # key per open curve at worst; the street row reads exactly 1.0.
+        # Two rows, ceilings the fixture's own: fallback keys are the gap
+        # midpoints of the deforming fraction (0.69 single curve, 0.11
+        # street) - the direction `fallback / batched` structurally could not
+        # test. The `used` floor is 0.99 here (1.0 on streets) for one key,
+        # `s = 20.001`: the forward `delta` partner of an open run's last
+        # station, unread because run ends are read BACKWARD (`span_ends`).
         C.conform_prefetch_hit_rate(cases.tripwire_conformed_run,
                                     cases.CONFORM, expect_max_fallback=0.8,
                                     expect_min_used=0.99),
@@ -364,14 +295,10 @@ def port_tripwires():
                                 name="points_wrappers_built_streets"),
         C.prims_wrappers_built(cases.tripwire_deformed_run, hou,
                                name="prims_wrappers_built_deformed"),
-        # ⚠️ THE MITER ROW WAS 11.2 P7's SHAPE, AND P7 HAS NOW LANDED.
-        # `clip_plane`'s cap tagging and `dress_caps`' cap search were
-        # REAL per-prim loops - 280 wrappers each on this fixture, 571
-        # in total against a 600 ceiling, and 156 000 on a phase-2
-        # district. Both read in bulk now (`polyfill` appends its
-        # patches at the tail, and `pc_cap` is an int column), so the
-        # row is at the class boundary a genuine regression would have
-        # to cross rather than 5 % above the value.
+        # The miter row was 11.2 P7's shape; P7 landed. `clip_plane` and
+        # `dress_caps` were real per-prim loops (571 wrappers vs a 600
+        # ceiling; 156 000 on a phase-2 district); both read in bulk now,
+        # so the ceiling sits at the class boundary.
         C.prims_wrappers_built(cases.tripwire_mitered_run, hou,
                                expect_max=200,
                                name="prims_wrappers_built_mitered"),
@@ -396,11 +323,8 @@ def port_tripwires():
 def baseline_movement(results, base):
     """Every baselined value this run did not reproduce, as text.
 
-    D210 - THIS USED TO BE ADVISORY.  The block printed and the run still
-    exited 0, so every "no baselined value moved" claim in the build log was
-    resting on an exit code that structurally could not carry it.  Pulled out
-    of `main` so `exit_code` below is a testable rule and not a line nobody
-    can reach without a Houdini session.
+    D210: used to be advisory (printed, still exited 0). Pulled out of `main`
+    so `exit_code` below is a testable rule.
     """
     moved = []
     for case in sorted(results):
@@ -414,10 +338,8 @@ def baseline_movement(results, base):
 
 
 def exit_code(failures, moved, update):
-    """D210 - a MOVED baselined value fails the run exactly like a failing
-    check does.  `--update-baseline` is the one path that accepts movement,
-    because that is a human saying "I read it and it is an improvement".
-    """
+    """D210 - a moved baselined value fails the run like a failing check;
+    `--update-baseline` is the one path that accepts movement."""
     return 1 if (failures or moved) and not update else 0
 
 

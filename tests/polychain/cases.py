@@ -1,21 +1,10 @@
 """polyChain scene cases - every scene the checks run against.
 
-Built from scratch in a fresh hython session and never saved, for exactly the
-reason `tests/citygen/cases.py` gives: a live, mutating .hip was a real source
-of false findings (stale cooks, leftover scratch nodes, display flags one pass
-changed and the next read).
-
-There is no .hip and no node network here at all. 4.4 is a geometry-level
-adapter, so a case is three `hou.Geometry` objects and a `Style` - which also
-means the checks measure the builder and nothing else.
-
-⚠️ EVERY MODULE IN THE STARTER KIT RUNS EXACTLY FROM LOCAL x = 0 TO
-`pc_size.x`, WITH NO OVERHANG. That is deliberate and the checks depend on it:
-it makes the piece's start and end FACES its fit planes, so "did this piece
-land where the plan said" is a distance between two points of real geometry
-rather than a restatement of the plan. A kit with overhang is legal (D20) and
-would need the checks to carry the overhang; the starter kit does not, so they
-do not.
+No .hip and no node network (see tests/citygen/cases.py for why): a case is
+three `hou.Geometry` objects and a `Style`, so the checks measure the builder
+and nothing else. Every starter-kit module runs exactly local x = 0 to
+`pc_size.x` with NO overhang - deliberate, the checks depend on it (a kit
+with overhang is legal, D20, and would need the checks to carry it).
 """
 
 import math
@@ -61,14 +50,9 @@ def polyline(geo, pts, closed=False, curve_id=None):
 
 
 def marker(geo, position, curve_id, marker_id, dist=None, u=None, data=None):
-    """One 3.1 marker point, authored through `pc_dist` OR `pc_u`.
-
-    ⚠️ AUTHORING ONLY ONE OF THE TWO IS THE POINT. A Houdini attribute is
-    geometry-wide, so as soon as one marker in the cloud carries `pc_dist`
-    every other marker carries it too, with the default 0.0 - which is exactly
-    how a u-authored gate ended up built at the start of its curve. Mixing the
-    two conventions in one cloud is what `N_marker_mixed` is for.
-    """
+    """One 3.1 marker point, authored through `pc_dist` OR `pc_u` - never
+    both: attributes are geometry-wide, so mixing conventions in one cloud
+    is `N_marker_mixed`'s case."""
     for name, default in (("pc_marker", 0), ("pc_marker_id", 0)):
         if geo.findPointAttrib(name) is None:
             geo.addAttrib(hou.attribType.Point, name, default)
@@ -87,10 +71,8 @@ def marker(geo, position, curve_id, marker_id, dist=None, u=None, data=None):
     if u is not None:
         pt.setAttribValue("pc_u", float(u))
     if data is not None:
-        # 3.3's `markerData:<key>` bag. A DICT point attribute, which is what
-        # `place.read_curves` reads and what the VEX solve has to type without
-        # a `dicttype` function - so an EMPTY-STRING value here is the fixture
-        # that separates "the string \"\"" from "the number 0".
+        # 3.3's `markerData:<key>` DICT bag; an EMPTY-STRING value is the
+        # fixture separating "the string \"\"" from "the number 0".
         if geo.findPointAttrib("pc_marker_data") is None:
             geo.addAttrib(hou.attribType.Point, "pc_marker_data", {})
         pt.setAttribValue("pc_marker_data", dict(data))
@@ -99,29 +81,22 @@ def marker(geo, position, curve_id, marker_id, dist=None, u=None, data=None):
 
 
 # --- the hill: an arc on a constant grade -----------------------------------
-# Sampled at 0.5 m on R = 30 m, so each vertex turns 0.95 degrees - far below
-# `corner_angle_deg`, so it is ONE section, and fine enough that a 2 m panel's
-# own 0.25 m stations resolve it inside `bend_tol` (measured: no warning).
+# 0.5 m sampling on R = 30 m: 0.95 degrees per vertex - ONE section, and fine
+# enough that a 2 m panel's 0.25 m stations resolve it inside `bend_tol`.
 HILL_RADIUS = 30.0
 HILL_SPACING = 0.5
 HILL_SWEEP = math.pi / 3.0          # 60 degrees -> 31.4 m of horizontal arc
-HILL_GRADE = 0.25                   # 25 %, 14.04 degrees of bank in adaptive.
-                                    # ⚠️ It was 5 % and that was too gentle to
-                                    # be diagnostic: a 2.86 degree bank sits
-                                    # close enough to zero that a half-wired
-                                    # Z-mode would still look plausible.
+HILL_GRADE = 0.25                   # 25 %, 14.04 degrees of bank in adaptive
+                                    # (5 % was too gentle to be diagnostic).
 
 
 def arc_points(radius, spacing=1.0, length=20.0):
-    """A circular arc in XZ, RESAMPLED at `spacing` - one interior vertex per
-    metre, which is what a street polyline looks like (D75).
+    """A circular arc in XZ, RESAMPLED at `spacing` - a street polyline (D75).
 
-    The sagitta a span of `c` metres leaves is c*c/(8*radius), so a 2 m panel
-    on these four radii deviates 4.2e-05, 2.5e-04, 6.2e-03 and 5.0e-02 m -
-    three of them under the 0.01 m `bend_tol` and the last one five times over
-    it. That ladder is the whole point: the budget has to keep the first three
-    packed AND still bend the fourth.
-    """
+    Sagitta c*c/(8*radius): a 2 m panel on the four radii deviates 4.2e-05,
+    2.5e-04, 6.2e-03 and 5.0e-02 m - three under the 0.01 m `bend_tol`, the
+    last five times over. The budget must keep three packed AND bend the
+    fourth."""
     n = int(round(length / spacing))
     pts = []
     for i in range(n + 1):
@@ -142,24 +117,19 @@ def hill_points():
 
 
 # --- 4.5's surfaces ---------------------------------------------------------
-# Every one of them is ANALYTIC, so the expected drape is trigonometry on the
-# input rather than a number read off a build: a ramp of grade g puts the
-# fence at y = g*x, a tent's crease is at a known x, and a hole is a hole.
+# All ANALYTIC, so the expected drape is trigonometry on the input rather
+# than a number read off a build.
 
 CONFORM_GRADE = 0.25            # 25 %, 14.036 degrees - PC-G2's own grade
 RIDGE_AMP = 0.8
-RIDGE_WAVE = 8.0                # metres per full wave: a 2 m panel cannot
-                                # cross it as a chord, which is the point
+RIDGE_WAVE = 8.0                # m per wave: a 2 m panel cannot chord it
 
 
 def surface(fn, x0=-4.0, x1=24.0, z0=-6.0, z1=6.0, nx=28, nz=12,
             flip=False, holes=()):
-    """A quad grid over [x0,x1] x [z0,z1] with y = fn(x, z).
-
-    `flip` reverses the winding (D52's back-facing case) and `holes` drops
-    (i, j) cells (D53's hole). Hand-built for the same reason `kit.box_mesh`
-    is: the Grid SOP's own output is not the thing under test here.
-    """
+    """A quad grid over [x0,x1] x [z0,z1] with y = fn(x, z); `flip` reverses
+    winding (D52), `holes` drops (i, j) cells (D53). Hand-built: the Grid SOP
+    is not under test."""
     geo = hou.Geometry()
     pts = {}
     for i in range(nx + 1):
@@ -193,11 +163,9 @@ BUMP_HEIGHT = 0.5
 
 
 def bump(x, _z):
-    """A ridge NARROWER THAN A QUARTER OF A PIECE, on flat ground at y = -1.
-
-    D71's case: the feature that a fixed five-sample gate cannot see and the
-    module's own 0.25 m stations resolve perfectly.
-    """
+    """A ridge NARROWER THAN A QUARTER OF A PIECE on flat ground at y = -1
+    (D71): invisible to a fixed five-sample gate, resolved by 0.25 m
+    stations."""
     d = abs(x - BUMP_CENTRE)
     if d >= BUMP_WIDTH / 2.0:
         return -1.0
@@ -220,17 +188,10 @@ TENT_PEAK = 10.2
 def tent(x, _z):
     """TWO FACETS AND A CREASE - the surface coarser than the pieces (D56).
 
-    Built with `nx = 2`, so this is literally two quads 14 m across: one 2 m
-    panel spans a fourteenth of a facet, and the crease is the only feature.
-
-    ⚠️ THE PEAK IS AT 10.2 m AND NOT AT 10 m, and that is the whole case. At
-    10 m the crease lands on a PIECE BOUNDARY (ten 2 m panels on a 20 m run)
-    and at 11 m on a panel's own station - and in both of those the drape is
-    resolved exactly and nothing warns, which is the right answer and no test
-    at all. 10.2 m puts it between two 0.25 m stations, which is D25's
-    condition measured against the conformed path: the piece is built, it cuts
-    0.014 m off the ridge, and it says `pc_warn_bend_resolution`.
-    """
+    Peak at 10.2 m, NOT 10: at 10 m (piece boundary) or 11 m (panel station)
+    the drape resolves exactly and nothing warns. 10.2 sits between two
+    0.25 m stations - D25 measured against the conformed path: the piece cuts
+    0.014 m off the ridge and says `pc_warn_bend_resolution`."""
     return 0.3 * x if x <= TENT_PEAK else (
         3.06 + (0.3 * (2.0 * TENT_PEAK - 24.4) - 3.06)
         * (x - TENT_PEAK) / (24.4 - TENT_PEAK))
@@ -253,13 +214,9 @@ def coarse_kit():
 
 
 def tall_kit(height=1.2, depth=0.06, length=2.0, zmode="adaptive"):
-    """A TALL bendable rail - the module the spine-only budget could not see.
-
-    D87: `span_deviation` measured the spine, so a module whose points sit far
-    off it spent a budget nobody was counting. Height is the whole point here;
-    the starter kit's panel is 0.05 m deep and rides `vertical`, which is
-    exactly the shape that made the spine measure look exact for a cycle.
-    """
+    """A TALL bendable rail - the module the spine-only budget could not see
+    (D87: `span_deviation` measured the spine, so off-spine points spent a
+    budget nobody counted). Height is the whole point."""
     geo = hou.Geometry()
     rail = hou.Geometry()
     K.box_mesh(rail, 0.0, length, 0.0, height, -0.5 * depth, 0.5 * depth, 8)
@@ -271,12 +228,8 @@ def tall_kit(height=1.2, depth=0.06, length=2.0, zmode="adaptive"):
 
 
 def elevation_arc_points(radius=55.0, spacing=1.0, length=30.0):
-    """An arc that climbs - curvature in ELEVATION, dead straight in plan.
-
-    `arc_points` turns in plan, where an `adaptive` frame's `across` barely
-    moves; this one turns in the vertical plane, where `up` swings by the full
-    turn and a tall piece's top corner pays for it.
-    """
+    """An arc that climbs - curvature in ELEVATION, dead straight in plan:
+    `up` swings by the full turn and a tall piece's top corner pays for it."""
     n = int(round(length / spacing))
     return [(radius * math.sin(spacing * i / radius),
              radius * (1.0 - math.cos(spacing * i / radius)), 0.0)
@@ -305,14 +258,9 @@ def rigid_kit():
 def variant_kit():
     """The starter kit's two workhorses, each authored with a `pc_variant`.
 
-    ⚠️ NOTHING IN THE 87-CASE SUITE AUTHORED ONE. Found while closing standing
-    finding (10) by mutation: `pc_variant` was not merely unasserted, it was
-    never EXERCISED - every module of every kit carries "", so blanking the
-    stamp in BOTH writers changed no value anywhere and no check could have
-    caught it however it was written. 3.2's variant group is what 3.4's swap
-    re-points, so a suite that never sets one leaves the whole column vacuous.
-    (tests/README.md: adding a value means adding a case.)
-    """
+    Standing finding (10), found by mutation: nothing in the 87-case suite
+    ever authored one, so blanking the stamp in BOTH writers changed no value
+    anywhere - the whole column was vacuous."""
     geo = hou.Geometry()
     post = hou.Geometry()
     K.box_mesh(post, 0.0, 0.12, 0.0, 1.20, -0.06, 0.06, 1)
@@ -329,16 +277,10 @@ def variant_kit():
 
 
 def broken_kit():
-    """Deliberately malformed - one distinct fault per module, so the
-    validator's count is a fingerprint and not a lump sum. It must report all
-    of them, raise none of them, and `build` must still produce geometry
-    (warn-never-block).
-
-    Seven faults: three mandatory manifest fields missing, an unknown zmode, a
-    module with no name, a duplicate name, a zero pc_size, an out-of-range
-    pc_deform and a negative pc_weight. That is 9 warnings; the module with no
-    name is not inspected further, which is why it carries no second fault.
-    """
+    """Deliberately malformed - one distinct fault per module, so the count
+    is a fingerprint. Seven faults -> 9 warnings (the nameless module is not
+    inspected further); `build` must still produce geometry
+    (warn-never-block)."""
     geo = hou.Geometry()
     slab = hou.Geometry()
     K.box_mesh(slab, 0.0, 1.0, 0.0, 0.5, -0.05, 0.05, 1)
@@ -374,16 +316,12 @@ def panel_style(zmode="", seed=5, fix_slope=False):
 
 
 # --- 4.3's own inputs -------------------------------------------------------
-# One L, one rectangle and one zigzag, shared by every corner case so the only
-# thing that changes between them is the corner PARAMETERS.
+# One L, one rectangle, one zigzag - shared so only corner PARAMETERS vary.
 
 L_SHAPE = [(0.0, 0.0, 0.0), (12.0, 0.0, 0.0), (12.0, 0.0, 12.0)]
 RECT = [(0.0, 0.0, 0.0), (12.0, 0.0, 0.0), (12.0, 0.0, 8.0), (0.0, 0.0, 8.0)]
-# LEFT, then RIGHT. The first version of this turned left twice - both
-# vertices scored `Bevel.side = +1` - so the case called itself "reflex" and
-# tested nothing that the L-shape did not. `corner_turns` records the two
-# signs now, so a reflex case that contains no reflex corner cannot pass as
-# coverage again.
+# LEFT, then RIGHT - the first version turned left twice and tested nothing
+# the L-shape did not; `corner_turns` records the two signs now.
 ZIGZAG = [(0.0, 0.0, 0.0), (8.0, 0.0, 0.0), (12.0, 0.0, 4.0),
           (20.0, 0.0, 4.0)]
 # The same rectangle with legs that are NOT a multiple of the 2 m evenly
@@ -404,15 +342,9 @@ def corner_style(mode="miter", offset=0.0, fillet=0.0, fill="adaptive",
                  marker=""):
     """The PC-G1 fence, with 4.3's parms exposed. Same kit, same rules.
 
-    `evenly` is D269's fixture repair. §28.1(c) diagnosed the original double
-    pillar as "the one composition the parameter page actually shipped was in
-    no corner case in the suite" - and after D266 that sentence was STILL
-    true, of the NEW defaults: `evenly` appeared zero times in this file, so
-    the ~35 corner and closure checks ran on a composition the asset does not
-    ship. The gap had been inverted, not closed. These arguments are what let
-    the EA..EI cases put `panel` fill + `evenly post` @ 2 m + a corner piece
-    through the corner battery, under every justification.
-    """
+    `evenly` is D269's fixture repair (§28.1(c)): the shipped composition
+    (`panel` fill + `evenly post` @ 2 m) appeared in no corner case; these
+    arguments let EA..EI run it through the corner battery."""
     rules = [
         Rule("default", "first", ["panel"]),
         Rule("start", "first", ["post"]),
@@ -432,14 +364,10 @@ def corner_style(mode="miter", offset=0.0, fillet=0.0, fill="adaptive",
 
 
 def compose_kit():
-    """The starter fence plus a second, LONGER corner module.
-
-    Compose symmetry is only visible when the composed modules differ in
-    length: with three identical blocks an even count and an odd count reach
-    the same distance down one leg by accident. `corner_block` is 1.20 m
-    against `corner_post`'s 0.16 m, so the odd/even difference is 1.20 m and
-    not a rounding artefact.
-    """
+    """The starter fence plus a second, LONGER corner module: compose
+    symmetry needs modules of differing length - `corner_block` 1.20 m vs
+    `corner_post` 0.16 m, so odd/even differ by 1.20 m, not a rounding
+    artefact."""
     geo = K.starter_kit()
     block = hou.Geometry()
     K.box_mesh(block, 0.0, CORNER_BLOCK_LENGTH, 0.0, 1.30, -0.08, 0.08, 1)
@@ -455,10 +383,8 @@ def compose_kit():
 # --- the cases --------------------------------------------------------------
 
 def _case(curve_geo, kit_geo, style, surface_geo=None, overrides=None):
-    # 11.2 P5: the `ConformPath`s the build made are KEPT, so `conform_parity`
-    # can ask the batched `ray` answer and the per-query `hou.Geometry.
-    # intersect` answer the same question in one process (11.3 rule 4) instead
-    # of diffing two runs. Costs nothing when there is no surface.
+    # 11.2 P5: the `ConformPath`s are KEPT so `conform_parity` can ask the
+    # batched `ray` and per-query `intersect` in one process (11.3 rule 4).
     made = []
     real = CONFORM.ConformPath.__init__
 
@@ -477,34 +403,19 @@ def _case(curve_geo, kit_geo, style, surface_geo=None, overrides=None):
 
 
 # --- 13.10 TOPOLOGY FIXTURES - the shapes 4.1's parity rig could not see ----
-#
-# ⚠️ THESE ARE NOT IN `build_all()` ON PURPOSE. They exist to make three
-# DECOMPOSE checks capable of failing, and two of the three build no geometry
-# at all (a curve the reference declines has nothing to dress), so putting
-# them in the scene suite would add cases whose only assertion is "nothing
-# happened". `run_native_checks.py` merges them into its own case set.
-#
-# Every one of them was a HOLE, found by an audit and measured before it was
-# closed:
-#   * `T1_fused_junction` - 0 of the 89 scene cases has a point in more than
-#     one primitive, and citygen's pipeline ends in `graph_fuse`, so a street
-#     network is nothing BUT this shape. Before `pc_unshare`, curve A's real
-#     90 degree corner vanished in both primitive orders and the junction's
-#     metre flipped from 0.000 to 10.000 with the order alone.
-#   * `T2_marker_in_prim` - `read_curves` refuses to build a curve on a prim
-#     that contains a marker point; the VEX built one anyway, complete with a
-#     sampler table and a marker at s = 0 on a curve that does not exist.
-#   * `T3_dup_id_marker` - the reference fans a marker out onto EVERY curve
-#     sharing its id (2 rows here, s = 5 and s = 20); a point wrangle can only
-#     move the point it is on, so the native stage answers for the first and
-#     WARNS (D169). No case in the suite had a duplicate id AND a marker.
+# NOT in `build_all()`: they make three DECOMPOSE checks fail-able, and two
+# build no geometry; `run_native_checks.py` merges them. Each was a measured
+# hole:
+#   * `T1_fused_junction` - shared-point junction (graph_fuse's shape): before
+#     `pc_unshare` the 90 degree corner vanished and the junction metre
+#     flipped 0.000 -> 10.000 with primitive order alone.
+#   * `T2_marker_in_prim` - the VEX built a curve `read_curves` refuses.
+#   * `T3_dup_id_marker` - duplicate id + marker: the reference fans out
+#     (s = 5 and s = 20), the native stage answers the first and WARNS (D169).
 
 def fused_pair(geo):
-    """Two polylines that SHARE their junction point, as `graph_fuse` emits.
-
-    A turns 90 degrees AT the shared vertex, so the corner the sharing used to
-    destroy is a real one with a number attached (turn = 90.000 deg, s = 10).
-    """
+    """Two polylines SHARING their junction point, as `graph_fuse` emits; A
+    turns 90 degrees AT the shared vertex (turn = 90.000 deg, s = 10)."""
     if geo.findPrimAttrib("pc_curve_id") is None:
         geo.addAttrib(hou.attribType.Prim, "pc_curve_id", "")
     shared = geo.createPoint()
@@ -597,28 +508,14 @@ def build_all():
         polyline(g, hill_points(), curve_id="H")
         built[name] = _case(g, kit_geo, panel_style(zmode=zmode))
 
-    # DA/DB/DC/DD/DE - 4.4's FLATTEN-UNDER and its two hybrid BANDS (D98, D99),
-    # every one of them read against G_hill_stepped, which is the same hill,
-    # the same style and the same kit with the new parms off.
-    #
-    #  * DA is the flatten alone: `stepped_float_m` is the number it moves and
-    #    `stepped_riser_m` is the number it must NOT, because the step between
-    #    two flat pieces IS stepped mode and removing it would remove the mode.
-    #  * DB is the SAME curve drawn BACKWARDS. Taking the datum from the
-    #    piece's start makes a fence that depends on which way the artist drew
-    #    the spline; taking it from the low point cannot, and the pair is the
-    #    only way to see that.
-    #  * DD is iToo's picket hybrid - a `vertical` panel whose TOP band is
-    #    held level while the rest follows the ground.
-    #  * DE is the other one - a `stepped` panel whose BOTTOM band follows the
-    #    ground while the rest stays flat. The module is `panel` rather than
-    #    `post` because a rigid module cannot express a band at all (D27), and
-    #    that is the honest limit rather than a hidden one.
-    #  * DC is the BEFORE, and it is the reversed curve rather than the
-    #    forward one because the defect only shows going DOWNHILL: taking the
-    #    datum from the piece's start buries the run on a climb (where
-    #    G_hill_stepped reads it) and floats it on a descent. DC is the
-    #    number DA and DB take to zero.
+    # DA/DB/DC/DD/DE - 4.4's FLATTEN-UNDER and its two hybrid BANDS (D98,
+    # D99), all read against G_hill_stepped (same hill/style/kit, parms off).
+    # DA: flatten alone - `stepped_float_m` moves, `stepped_riser_m` must not.
+    # DB: same curve REVERSED - the datum comes from the low point, so drawing
+    # direction cannot matter. DD: `vertical` panel, TOP band held level.
+    # DE: `stepped` panel, BOTTOM band follows ground (`panel` because a rigid
+    # module cannot express a band, D27). DC: the BEFORE, reversed because the
+    # defect only shows downhill - the number DA and DB take to zero.
     for name, pts, kw in (
             ("DA_hill_flatten", hill_points(),
              dict(flatten_stepped=True)),
@@ -640,14 +537,10 @@ def build_all():
             params=Params(fill="adaptive", zmode=zmode, flat_band=band,
                           flat_band_m=0.25)))
 
-    # DH/DI - D105. DD above is the band with the flatten OFF, and its level
-    # top rail takes its one elevation from the piece's START: `band_datum_m`
-    # reads 0.490874 m on it, the drop across a piece, so the SAME curve drawn
-    # backwards puts every rail somewhere else. These two are that pair with
-    # the flatten ON - the forward hill and the reversed one - and the datum
-    # is an extremum over the piece's own span, so the number is 0 on both.
-    # A single case cannot see this: 0.490874 m passes any check that only
-    # asks whether the band is level, which is what `band_hybrid_m` asks.
+    # DH/DI - D105: DD's level top rail took its datum from the piece's START
+    # (`band_datum_m` 0.490874 m), so the reversed curve moved every rail.
+    # This pair runs the flatten ON, forward + reversed; the datum is now an
+    # extremum over the piece's span, so the number is 0 on both.
     for name, pts in (("DH_band_flat_datum", hill_points()),
                       ("DI_band_flat_datum_rev", list(reversed(hill_points())))):
         g = hou.Geometry()
@@ -657,16 +550,10 @@ def build_all():
             params=Params(fill="adaptive", zmode="vertical", flat_band="top",
                           flat_band_m=0.25, flatten_stepped=True)))
 
-    # DJ - D98's datum on a REPLACED piece. DA proves the flatten plants a
-    # stepped piece; this proves the D58 hero path reads the same datum,
-    # because it did not: hero geometry lands packed at "the transform this
-    # element would have had", and that transform was built without the datum,
-    # so a replaced post floated 0.490874 m above its planted neighbours (one
-    # full piece-drop) with no warning and nothing in the suite combining the
-    # two. Reversed, because that is the direction the float shows in.
-    # the hero keeps the post's own 0.12 m footprint and is 1.5 m tall
-    # instead of 1.2 m, so it is unmistakably NOT the kit module while
-    # `module_fidelity_m` and `max_gap_m` still measure what they measure.
+    # DJ - D98's datum on a REPLACED piece: the D58 hero transform was built
+    # without the datum, so a replaced post floated 0.490874 m above its
+    # planted neighbours, unwarned. Reversed (the float's direction). Hero is
+    # 1.5 m tall vs 1.2 m, so it is unmistakably NOT the kit module.
     hero_post = hou.Geometry()
     K.box_mesh(hero_post, 0.0, 0.12, 0.0, 1.5, -0.06, 0.06, 1)
     ov4 = hou.Geometry()
@@ -678,20 +565,11 @@ def build_all():
         params=Params(fill="adaptive", zmode="stepped",
                       flatten_stepped=True)), overrides=ov4)
 
-    # DF/DG - D100's CAMBER OFF-SPINE BUDGET GAP, as a pair.
-    #
-    # The surface is `y = k*x*z` and the run is straight along +X at z = 0, so
-    # ALONG THE SPINE it is dead flat: `Surface.deviates` reads zero, D87's
-    # spine term reads zero, and nothing in the pre-D100 budget could see
-    # anything at all. What DOES move is the cross-fall, and with it the
-    # surface normal the camber rolls onto - atan(k*x) - which a packed piece
-    # takes ONCE at its midpoint and a deformed one takes per station.
-    #
-    #  * DF is the worst case, k = 0.2: before D100 all 10 panels stayed
-    #    packed at 0.2126 m of true deviation, 21x `bend_tol`.
-    #  * DG is k = 0.005, deliberately INSIDE the budget (0.0055 m): it is
-    #    the anti-vacuity half, because a budget that simply unpacked every
-    #    cambered piece would pass DF and cost PC-G3 everything.
+    # DF/DG - D100's CAMBER OFF-SPINE BUDGET GAP, as a pair. Surface
+    # y = k*x*z, run straight along +X at z = 0: the spine reads dead flat,
+    # only the cross-fall roll atan(k*x) moves. DF k = 0.2: pre-D100 all 10
+    # panels stayed packed at 0.2126 m, 21x `bend_tol`. DG k = 0.005
+    # (0.0055 m, inside budget) is the anti-vacuity half.
     for name, k in (("DF_camber_crossfall", 0.2),
                     ("DG_camber_gentle", 0.005)):
         g = hou.Geometry()
@@ -704,18 +582,12 @@ def build_all():
                                 x0=-2.0, x1=22.0, z0=-6.0, z1=6.0,
                                 nx=48, nz=24))
 
-    # DK - D104, and it is DF's own defect one level down. DF's cross-fall
-    # grows MONOTONICALLY, so reading the camber at the span's two ends and
-    # its kinks catches it. This one is a superelevation TRANSITION,
-    # `y = 0.2 sin(pi x) z`: the roll is exactly ZERO at every 2 m piece
-    # boundary AND at every midpoint, and it reaches +/-11.3 degrees at the
-    # quarter-span in between. Measured before D104: 10 of 10 panels stayed
-    # PACKED at 0.197164 m of true deviation, 19.7x `bend_tol` - the same
-    # magnitude D100's own mutation test treats as the gate failing - and a
-    # 1 m-resampled spline was defeated identically (the ripple's period puts
-    # a zero-roll vertex on every kink), so a dense street polyline is not
-    # automatically safe. `deform_gate_m`'s middle number is what keeps this
-    # case honest: 10 pieces over budget, 0 of them packed.
+    # DK - D104, DF's defect one level down: a superelevation TRANSITION,
+    # `y = 0.2 sin(pi x) z` - roll is ZERO at every 2 m boundary and
+    # midpoint, +/-11.3 degrees at quarter-span. Pre-D104: 10/10 panels
+    # PACKED at 0.197164 m (19.7x `bend_tol`); a 1 m-resampled spline was
+    # defeated identically. `deform_gate_m`'s middle number keeps it honest:
+    # 10 over budget, 0 packed.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (20.0, 0, 0)], curve_id="CB")
     built["DK_camber_ripple"] = _case(g, kit_geo, Style(
@@ -725,18 +597,10 @@ def build_all():
             lambda x, z: 0.2 * math.sin(math.pi * x) * z,
             x0=-2.0, x1=22.0, z0=-6.0, z1=6.0, nx=240, nz=48))
 
-    # H and I - slope fixing (D26), as a PAIR, because one of them alone
-    # proves nothing.
-    #
-    # ⚠️ THE OBVIOUS SLOPE-FIXING CASE MEASURES NOTHING, AND THIS ONE WAS IT
-    # BEFORE IT WAS MEASURED. Under `adaptive` fill every piece is rescaled to
-    # fill whatever length it is given, so fitting on the horizontal arc and
-    # fitting on the 3D arc produce THE SAME 16 pieces at the same horizontal
-    # spacing - the two differ only where a piece keeps its own length. So the
-    # pair runs TILE, where whole pieces are unscaled: free gives 1.55 m of
-    # horizontal reach per 1.6 m gate (the width measured along the path's
-    # angle) and fixed gives 1.60 m (measured on the horizontal axis), which
-    # is iToo's documented sentence turned into two numbers.
+    # H and I - slope fixing (D26) as a PAIR, under TILE: adaptive rescales
+    # every piece, so both fits give the same 16 pieces and measure nothing.
+    # Tile keeps whole pieces unscaled: free gives 1.55 m of horizontal reach
+    # per 1.6 m gate, fixed gives 1.60 m - iToo's sentence as two numbers.
     tile_gate = Style("tiled_hill", 1, 8,
                       rules=[Rule("default", "first", ["gate"])],
                       params=Params(fill="tile"))
@@ -749,25 +613,17 @@ def build_all():
         polyline(g, hill_points(), curve_id="H")
         built[name] = _case(g, kit_geo, style)
 
-    # L - a STRAIGHT ramp. The only case where a sloped span holds no interior
-    # vertex, which is the one shape that separates `vertical` from `stepped`
-    # for a bendable module: the piece has to shear to keep its verticals
-    # plumb while its ends sit on the slope. Every other sloped case here
-    # bends anyway, so without this the vertical branch of `_needs_deform`
-    # is never the thing under test.
+    # L - a STRAIGHT ramp: the only sloped span with no interior vertex, the
+    # one shape separating `vertical` from `stepped` for a bendable module -
+    # otherwise the vertical branch of `_needs_deform` is never under test.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (12.0, 3.0, 0)], curve_id="L")
     built["L_ramp_vertical"] = _case(g, kit_geo, panel_style(zmode="vertical"))
 
-    # M - a RIGID 2.5 m beam straddling a 33.7 degree vertex, with the corner
-    # threshold raised to 45 so the vertex does not break the section.
-    #
-    # ⚠️ THIS CASE EXISTS BECAUSE A MUTATION SURVIVED WITHOUT IT. Building a
-    # packed piece from the START TANGENT instead of the chord (D21 deleted)
-    # changed nothing anywhere else, because everywhere else a packed piece
-    # sits on a straight span where the two are the same vector. A rigid
-    # module is the ONLY thing that stays packed across a bend, so it is the
-    # only input that can tell the chord from the tangent.
+    # M - a RIGID 2.5 m beam over a 33.7 degree vertex, corner threshold 45
+    # so the section holds. Exists because a mutation survived: packing from
+    # the START TANGENT instead of the chord (D21) changed nothing elsewhere
+    # - only a rigid module stays packed across a bend and can tell them apart.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (3.0, 0, 0), (6.0, 0, 2.0)], curve_id="M")
     built["M_rigid_over_bend"] = _case(g, rigid_kit(), Style(
@@ -795,10 +651,9 @@ def build_all():
     # on a build before it was written down here (tests/README.md: a
     # measurement written during a review belongs in checks.py afterwards).
 
-    # N - one marker cloud, two authoring conventions. Marker 7 is authored in
-    # metres and marker 8 in u, and because a Houdini attribute is
-    # geometry-wide marker 8 also carries pc_dist = 0.0. Reading dist first
-    # without asking whether it was AUTHORED built the second gate at s = 0.
+    # N - one marker cloud, two conventions: marker 7 in metres, marker 8 in
+    # u (so it also carries pc_dist = 0.0, geometry-wide). Reading dist
+    # without asking if it was AUTHORED built the second gate at s = 0.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="N")
     marker(g, (5, 0, 0), "N", 7, dist=5.0)
@@ -816,11 +671,9 @@ def build_all():
     polyline(g, [(0, 0, 0), (8, 0, 0)], curve_id="O")
     built["O_no_kit"] = _case(g, None, fence_style())
 
-    # P - an OVERHANGING CREST: the path turns back on itself in the vertical
-    # plane, so the tangent's horizontal direction reverses mid-piece. That is
-    # where a frame derived per point from cross(tangent, up) flips 180
-    # degrees and the panel twists through itself. corner_angle_deg = 60 keeps
-    # it one section, so one panel really does straddle the reversal.
+    # P - an OVERHANGING CREST: the tangent's horizontal direction reverses
+    # mid-piece, where a per-point cross(tangent, up) frame flips 180 degrees.
+    # corner_angle_deg = 60 keeps it one section, so one panel straddles it.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (2, 3, 0), (1, 6, 0)], curve_id="P")
     built["P_crest_bend"] = _case(g, kit_geo, Style(
@@ -828,20 +681,18 @@ def build_all():
         params=Params(fill="adaptive", zmode="adaptive",
                       corner_angle_deg=60.0)))
 
-    # Q - a PURELY VERTICAL run in a yaw-only z-mode. The flattened chord has
-    # no length, so the scale used to collapse to 1e-9 and the posts became 25
-    # invisible prims with no warning. D32: they keep their 3D length and say
-    # `pc_warn_degenerate_frame`.
+    # Q - a PURELY VERTICAL run in a yaw-only z-mode: the flattened chord has
+    # no length; the scale collapsed to 1e-9, 25 invisible prims. D32: pieces
+    # keep their 3D length and say `pc_warn_degenerate_frame`.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (0, 3, 0)], curve_id="Q")
     built["Q_vertical_stepped"] = _case(g, kit_geo, Style(
         "vert", 1, 1, rules=[Rule("default", "first", ["post"])],
         params=Params(fill="adaptive")))
 
-    # R - a SUPPRESSED HAIRPIN under a rigid module: the beam is asked to
-    # cover 4 m of a there-and-back polyline whose two ends are 0.10 m apart.
-    # Cutting the corner is what rigid means, but a 25x collapse is a
-    # measurable degeneration and warn-never-block says it must be visible.
+    # R - a SUPPRESSED HAIRPIN under a rigid module: 4 m of there-and-back
+    # polyline whose ends are 0.10 m apart - a 25x collapse is a measurable
+    # degeneration and warn-never-block says it must be visible.
     g = hou.Geometry()
     poly = polyline(g, [(0, 0, 0), (2, 0, 0), (0, 0, 0.1)], curve_id="R")
     g.addAttrib(hou.attribType.Point, "pc_corner", 0)
@@ -851,10 +702,9 @@ def build_all():
         params=Params(fill="scale", corner_angle_deg=170.0,
                       min_included_angle_deg=1.0)))
 
-    # S - a gate marked at 19.7 m of a 20.006 m curve, so the 1.6 m module
-    # legitimately OVERHANGS the end (D20 allows exactly that). The sampler
-    # used to clamp, and the last 0.49 m of the gate was crushed into the end
-    # plane - measured as two distinct stations landing on one point.
+    # S - a gate at 19.7 m of a 20.006 m curve: the 1.6 m module legitimately
+    # OVERHANGS the end (D20). The sampler used to clamp, crushing the last
+    # 0.49 m of the gate into the end plane.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (20.006, 0, 0)], curve_id="S")
     marker(g, (19.7, 0, 0), "S", 7, dist=19.7)
@@ -863,49 +713,40 @@ def build_all():
                                  Rule("marker:7", "first", ["gate"])],
         params=Params(fill="adaptive")))
 
-    # ---- 4.3 CORNERS. PC-G1's own figure is the closed rectangle, so it is
-    # here twice - once per corner mode - and the L-shape is here three times,
-    # once per displacement policy. Every corner case is measured, never
-    # looked at: the numbers are `corner_*` in checks.py.
+    # ---- 4.3 CORNERS. Measured, never looked at: the numbers are
+    # `corner_*` in checks.py.
 
-    # T - the L-shape in BEND mode. D36: the elbow does NOT break the run, so
-    # this is ONE section of 24 m and a panel wraps the 90 degree vertex. The
-    # corner rule in `fence_style` is deliberately present and deliberately
-    # unused (D37) - that is what bend means.
+    # T - the L-shape in BEND mode (D36: one 24 m section, a panel wraps the
+    # vertex; the corner rule is deliberately present and unused, D37).
     g = hou.Geometry()
     polyline(g, L_SHAPE, curve_id="T")
     built["T_lshape_bend"] = _case(g, kit_geo, corner_style("bend"))
 
-    # U - the same L in MITER mode with a corner post. The post is duplicated
-    # both sides of the vertex and each copy is sliced on the bisector, so
-    # `corner_outside_m` must read the post's own 0.16 m and `corner_seam_m`
-    # must read 0.
+    # U - the same L in MITER mode: the post is duplicated both sides,
+    # sliced on the bisector - `corner_outside_m` must read the post's own
+    # 0.16 m and `corner_seam_m` 0.
     g = hou.Geometry()
     polyline(g, L_SHAPE, curve_id="U")
     built["U_lshape_miter"] = _case(g, kit_geo, corner_style("miter"))
 
-    # V - PC-G1's closed rectangle, mitered. FOUR corners, and the fourth is
-    # the one RailClone documents it cannot offset: the wrap corner where the
-    # last section rejoins the first (D45). It is measured with the other
-    # three and nothing about it is special-cased.
+    # V - PC-G1's closed rectangle, mitered. The fourth corner is the wrap
+    # corner RailClone documents it cannot offset (D45); nothing here
+    # special-cases it.
     g = hou.Geometry()
     polyline(g, RECT, closed=True, curve_id="V")
     built["V_rect_miter"] = _case(g, kit_geo, corner_style("miter"))
 
-    # W, X - the corner offset, +25 % and -25 % of the corner module's length.
-    # Positive parts the two cut planes and leaves a gap of
-    # 2*o*cos(turn/2); negative crosses them over and cuts each piece deeper
-    # into the corner. Both are read off the built cut faces.
+    # W, X - the corner offset, +/-25 % of the module length: positive leaves
+    # a gap of 2*o*cos(turn/2), negative cuts each piece deeper into the
+    # corner. Both read off the built cut faces.
     for name, pct in (("W_corner_offset_pos", 25.0),
                       ("X_corner_offset_neg", -25.0)):
         g = hou.Geometry()
         polyline(g, L_SHAPE, curve_id=name[0])
         built[name] = _case(g, kit_geo, corner_style("miter", offset=pct))
 
-    # Y, Z - COMPOSE SYMMETRY, the odd/even rule. Y wires three corner modules
-    # and Z wires two, off the same kit, so the only difference between the
-    # two numbers is the count. Odd -> the assembly reaches equally down both
-    # legs; even -> one leg carries one module more.
+    # Y, Z - COMPOSE SYMMETRY, the odd/even rule: odd reaches equally down
+    # both legs, even puts one module more on one leg.
     for name, mods in (("Y_compose_odd", ["corner_post", "corner_block",
                                           "corner_post"]),
                        ("Z_compose_even", ["corner_post", "corner_block"])):
@@ -917,27 +758,22 @@ def build_all():
                    Rule("corner", "sequence", mods)],
             params=Params(fill="adaptive", corner_mode="miter")))
 
-    # AA - a REFLEX corner. The Z-bend turns left then right, so one vertex
-    # has the outside face on the opposite side from the other. Nothing in
-    # 4.3 special-cases it - `Bevel.side` is a sign - and this case is what
-    # proves that claim rather than asserting it.
+    # AA - a REFLEX corner: left then right, so the outside faces sit on
+    # opposite sides. `Bevel.side` is a sign; this case proves it.
     g = hou.Geometry()
     polyline(g, ZIGZAG, curve_id="A")
     built["AA_reflex_miter"] = _case(g, kit_geo, corner_style("miter"))
 
-    # AB - the FILLET. The path is rounded before anything is fitted, so the
-    # section lengths are recomputed off the real arc (4.3 item E) and the
-    # pieces follow it. `corner_clearance_m` is the acceptance: at a 90
-    # degree corner filleted by 1.5 m nothing may come closer to the original
-    # sharp vertex than 1.5*(1/cos45 - 1) = 0.6213 m.
+    # AB - the FILLET (4.3 item E). `corner_clearance_m` is the acceptance:
+    # at 90 degrees filleted by 1.5 m nothing may come closer to the sharp
+    # vertex than 1.5*(1/cos45 - 1) = 0.6213 m.
     g = hou.Geometry()
     polyline(g, L_SHAPE, curve_id="B")
     built["AB_fillet"] = _case(g, kit_geo, corner_style("bend", fillet=1.5))
 
-    # AC - a DEGENERATE corner: a 170 degree turn leaves an included angle of
-    # 10 degrees, under the 15 degree threshold, so 4.3 falls back to bend and
-    # says pc_warn_corner_degenerate. It must still build a closed chain -
-    # warn, never fail, always build something.
+    # AC - a DEGENERATE corner: 10 degrees included, under the 15 degree
+    # threshold, so 4.3 falls back to bend and says
+    # pc_warn_corner_degenerate. It must still build.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (6, 0, 0), (0.5, 0, 1.05)], curve_id="C")
     built["AC_degenerate_corner"] = _case(g, kit_geo,
@@ -955,10 +791,8 @@ def build_all():
                                            "corner_block"])],
         params=Params(fill="adaptive", corner_mode="miter")))
 
-    # AE, AF, AG - the DISPLACEMENT POLICY, on a style with NO corner rule so
-    # the default run is what meets the bisector. Read as a TRIPLE: the three
-    # must not agree, and how far each pushes its last piece past the vertex
-    # is the whole of item D.
+    # AE, AF, AG - the DISPLACEMENT POLICY with NO corner rule, read as a
+    # TRIPLE: the three must not agree (item D).
     for name, policy in (("AE_displace_reset", "reset"),
                          ("AF_displace_extend", "extend"),
                          ("AG_displace_symmetric", "symmetric")):
@@ -969,27 +803,22 @@ def build_all():
             params=Params(fill="adaptive", corner_mode="miter",
                           corner_displacement=policy)))
 
-    # ---- the cycle-3 REVIEW cases. Every one of these was a measured defect
-    # before it was a case: they are here so the measurement that found it
-    # stays standing (tests/README.md's rule).
+    # ---- the cycle-3 REVIEW cases: each a measured defect before it was a
+    # case (tests/README.md's rule).
 
-    # AH - A TURN SHARPER THAN THE CORNER MODULE. At 140 degrees the 0.16 m
-    # post's own miter overhang is 0.2198 m, so `L_c - e` is NEGATIVE: the
-    # reserve used to go negative, the negative trim ran the default fill
-    # through the vertex, and `place` bent it around the kink into an
-    # inside-out panel interpenetrating the other leg by 0.031 m - silently.
-    # The reserve is clamped at 0 now, the run is cut on the plane, and
-    # `corner_breach_m` is what asserts the pieces stay on their own sides.
+    # AH - A TURN SHARPER THAN THE CORNER MODULE: at 140 degrees the 0.16 m
+    # post's miter overhang is 0.2198 m, so the reserve went negative and a
+    # panel interpenetrated the other leg by 0.031 m, silently. Clamped at 0
+    # now; `corner_breach_m` asserts pieces stay on their own sides.
     a = math.radians(140.0)
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (12, 0, 0),
                  (12 + 12 * math.cos(a), 0, 12 * math.sin(a))], curve_id="AH")
     built["AH_sharp_turn"] = _case(g, kit_geo, corner_style("miter"))
 
-    # AI - A LEG SHORTER THAN TWICE THE OVERHANG. All three turns of a 1.5 m
-    # equilateral triangle are 120 degrees, so the reserve is 0.0215 m against
-    # a 0.03 m panel half-thickness: the two legs' square panel ends crossed
-    # inside the corner post's footprint, hidden from every outside view.
+    # AI - A LEG SHORTER THAN TWICE THE OVERHANG: a 1.5 m equilateral
+    # triangle leaves 0.0215 m of reserve against a 0.03 m panel
+    # half-thickness - panel ends crossed inside the post's footprint.
     _tri = 1.5
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (_tri, 0, 0),
@@ -997,12 +826,9 @@ def build_all():
              closed=True, curve_id="AI")
     built["AI_triangle"] = _case(g, kit_geo, corner_style("miter"))
 
-    # AJ, AK - TWO CLOSED FIGURES THAT WERE ALWAYS CLEAN AND ALWAYS
-    # MISMEASURED. `_frame_of` recovered a face's affine map from the first
-    # y-varying point pair without requiring it to share local z, so on a
-    # clipped corner post it folded `across` into `up`: `corner_abut_m`
-    # reported a 0.160 m phantom gap on the reflex L and 0.129 m on the
-    # pentagon, on corners whose own points prove they are shut.
+    # AJ, AK - closed figures always clean, always MISMEASURED: `_frame_of`
+    # folded `across` into `up` on clipped corner posts - phantom gaps of
+    # 0.160 m (reflex L) and 0.129 m (pentagon) on shut corners.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (10, 0, 0), (10, 0, 6), (4, 0, 6),
                  (4, 0, 10), (0, 0, 10)], closed=True, curve_id="AJ")
@@ -1015,13 +841,10 @@ def build_all():
                  for i in range(5)], closed=True, curve_id="AK")
     built["AK_pentagon"] = _case(g, kit_geo, corner_style("miter"))
 
-    # AL, AM - NON-PLANAR CORNERS, which the starter kit meets with a
-    # `stepped` corner post - i.e. a piece built PLUMB, on the horizontal
-    # projection. A bevel taken from the 3D tangents cut it on a tilted plane:
-    # the crest kink anchored its two copies 0.055 m apart in Y and mated
-    # their faces to only 0.0548 m, and the graded corner sliced the 1.30 m
-    # post obliquely and left a 0.345 m stump beside a full-height mate.
-    # Neither warned. D48 flattens the bevel for yaw-only pieces.
+    # AL, AM - NON-PLANAR CORNERS met with a `stepped` (plumb) corner post.
+    # A bevel from the 3D tangents cut on a tilted plane: crest copies
+    # 0.055 m apart in Y, faces mated to 0.0548 m; the graded corner left a
+    # 0.345 m stump. Neither warned. D48 flattens the bevel for yaw-only.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (7.52, 2.74, 0), (15.04, 0, 0)], curve_id="AL")
     built["AL_crest_corner"] = _case(g, kit_geo, corner_style("miter"))
@@ -1030,13 +853,10 @@ def build_all():
     polyline(g, [(0, 0, 0), (8, 2, 0), (8, 4, 8)], curve_id="AM")
     built["AM_graded_corner"] = _case(g, kit_geo, corner_style("miter"))
 
-    # AN - THE DISPLACEMENT POLICY UNDER `tile`, with a SLICEABLE default
-    # module so tile really does slice. D40's first implementation extended
-    # the FILL SPAN, so tile tiled INTO the extension: `symmetric` planted a
-    # whole new sliced piece entirely past the vertex (the clip then
-    # annihilated it to a 3 cm wedge with its own `pc_elem_id`) and `extend` a
-    # 0.03 m sliver. The boundary piece is one anchored module now, so the
-    # policy reads the same in every fill mode.
+    # AN - THE DISPLACEMENT POLICY UNDER `tile`, sliceable default. D40's
+    # first cut extended the FILL SPAN, so tile tiled into the extension (a
+    # whole sliced piece past the vertex; a 0.03 m sliver under `extend`).
+    # The boundary piece is one anchored module now.
     g = hou.Geometry()
     polyline(g, L_SHAPE, curve_id="AN")
     built["AN_tile_symmetric"] = _case(g, kit_geo, Style(
@@ -1044,10 +864,9 @@ def build_all():
         params=Params(fill="tile", corner_mode="miter",
                       corner_displacement="symmetric")))
 
-    # AO - THE CORNER OFFSET ON A STYLE WITH NO CORNER MODULE. It was
-    # provably dead: `build_assembly` set `bevel.offset` only after the
-    # empty-mods early return, so 0 %, 25 % and 50 % built byte-identical
-    # geometry. It moves D40's boundary piece now, and AO differs from
+    # AO - THE CORNER OFFSET WITH NO CORNER MODULE: `bevel.offset` was set
+    # after the empty-mods early return, so 0/25/50 % built byte-identical
+    # geometry. Moves D40's boundary piece now; differs from
     # AF_displace_extend by nothing but the parm.
     g = hou.Geometry()
     polyline(g, L_SHAPE, curve_id="AO")
@@ -1056,21 +875,17 @@ def build_all():
         params=Params(fill="adaptive", corner_mode="miter",
                       corner_displacement="extend", corner_offset_pct=-10.0)))
 
-    # AP - A FIGURE NARROWER THAN ITS OWN FENCE: 12 m by 0.12 m, so both
-    # 0.12 m sides are shorter than one corner post and D44 squeezes all four
-    # corners. The squeeze used to scale about the VERTEX, which pulled the
-    # squeezed copy's cut face back off the plane and left an e*(1-f) notch;
-    # it scales about the PLANE CONTACT now, so what is left over is only the
-    # part of the mating diagonal a shortened module cannot span.
+    # AP - A FIGURE NARROWER THAN ITS OWN FENCE (12 m x 0.12 m): D44
+    # squeezes all four corners. Scaling about the VERTEX left an e*(1-f)
+    # notch; it scales about the PLANE CONTACT now.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (12, 0, 0), (12, 0, 0.12), (0, 0, 0.12)],
              closed=True, curve_id="AP")
     built["AP_narrow_rect"] = _case(g, kit_geo, corner_style("miter"))
 
-    # AQ - AN ASYMMETRICALLY SQUEEZED CORNER: a 12 m leg meets a 1.5 m one, so
-    # D44 squeezes ONE side only. That is the case AD_short_legs cannot see,
-    # because both of its legs squeeze equally - and it is where scaling about
-    # the vertex left a 1.20 m cut face mating against a 0.776 m one.
+    # AQ - AN ASYMMETRICALLY SQUEEZED CORNER (D44, one side only) - the case
+    # AD_short_legs cannot see; vertex-scaling left a 1.20 m cut face mating
+    # against a 0.776 m one.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (12, 0, 0), (12, 0, 1.5)], curve_id="AQ")
     built["AQ_asym_squeeze"] = _case(g, compose_kit(), Style(
@@ -1080,10 +895,9 @@ def build_all():
                                            "corner_block"])],
         params=Params(fill="adaptive", corner_mode="miter")))
 
-    # AR - THE OFFSET DIALLED PAST THE CORNER MODULE. At -100 % the whole post
-    # sits past the vertex, so its reserve is negative: the run used to be
-    # handed that negative as a trim and the corner opened a 23 cm hole with
-    # an EMPTY warning list. Clamped and warned now.
+    # AR - THE OFFSET DIALLED PAST THE CORNER MODULE (-100 %): the negative
+    # reserve opened a 23 cm hole with an empty warning list. Clamped and
+    # warned now.
     g = hou.Geometry()
     polyline(g, L_SHAPE, curve_id="AR")
     built["AR_offset_past"] = _case(g, kit_geo,
@@ -1091,40 +905,24 @@ def build_all():
 
     # ---- the cycle-4 cases.
 
-    # AS - CYCLE 3v'S OWN FIGURE: PC-G1's 12 x 8 m rectangle in BEND mode with
-    # a panel-only default, so twenty 2 m panels fit the 40 m ring EXACTLY and
-    # ALL FOUR corners land on a piece boundary. That is the one shape where
-    # no piece wraps a vertex and every corner is a butt joint - which is what
-    # `corner_breach_m`'s bend branch and `corner_wedge_m2` were written for.
-    # B_rect_closed cannot cover it: its post/panel sequence wraps three of
-    # its four corners, so only the seam is ever a joint.
+    # AS - cycle 3v's own figure: PC-G1's rectangle in BEND mode, panel-only,
+    # so twenty 2 m panels fit the 40 m ring EXACTLY and every corner is a
+    # butt joint - what `corner_breach_m`'s bend branch and
+    # `corner_wedge_m2` were written for. B_rect_closed cannot cover it.
     g = hou.Geometry()
     polyline(g, RECT, closed=True, curve_id="AS")
     built["AS_rect_bend_butt"] = _case(g, kit_geo, corner_style("bend"))
 
     # ---- EA..EI - THE COMPOSITION THE ASSET ACTUALLY SHIPS, ON A CORNER.
-    #
-    # ⚠️ D269, and it is §28.1(c) caught doing the SAME THING ONE CYCLE
-    # LATER. The original double pillar shipped because `corner_style` filled
-    # with `panel` alone while the parm page shipped `post panel` - the one
-    # composition on the page was in no corner case. D266 changed the page to
-    # `panel` fill + `evenly post` @ 2 m... and `evenly` then appeared ZERO
-    # times in this file, so the ~35 corner and closure checks were once
-    # again running a composition the asset does not ship. The gap was
-    # inverted, not closed, and the only assertion on the new defaults was
-    # two rows of `run_hda_checks` on one rectangle.
-    #
-    # These nine cases put the shipped composition through the corner
-    # battery on four shapes, under all three justifications and with
-    # `adjust_to_end` on, plus the two shapes the check itself could not see:
-    # a BLOCKY corner module (EH) and a MARKER landing at a corner (EI).
-    # ⚠️ THE LEG LENGTHS ARE THE FIXTURE. On the 12 x 8 m rectangle every
-    # justification measures 0.0 BOTH BEFORE AND AFTER D269 - 12 m is an
-    # exact multiple of the 2 m spacing, so the leftover never approaches
-    # zero and the defect is unreachable. `RECT_ODD` is 12.161 x 8.161 m,
-    # where the leftover is ~0: before D269 `Evenly Justify = From the end`
-    # drove the evenly post 0.061 m INTO the mitered corner post there. A
-    # fixture on the round number would have been green on the broken build.
+    # D269 (§28.1(c) again): after D266 the shipped `panel` fill + `evenly
+    # post` @ 2 m appeared ZERO times here, so the ~35 corner/closure checks
+    # ran a composition the asset does not ship. Nine cases: four shapes, all
+    # three justifications, `adjust_to_end`, a blocky corner module (EH), a
+    # marker at a corner (EI). THE LEG LENGTHS ARE THE FIXTURE: on 12 x 8 m
+    # every justification measures 0.0 before AND after D269 (12 m is a
+    # multiple of the 2 m spacing); `RECT_ODD` (12.161 x 8.161 m) puts the
+    # leftover ~0, where `From the end` drove the post 0.061 m INTO the
+    # mitered corner post pre-D269.
     for name, cid, pts, closed, kw in (
             ("EA_rect_miter_evenly", "EA", RECT, True, {}),
             ("EB_rect_evenly_start", "EB", RECT_ODD, True,
@@ -1138,14 +936,11 @@ def build_all():
         built[name] = _case(g, kit_geo, corner_style(
             "miter", evenly="post", evenly_spacing=2.0, **kw))
 
-    # ED - `Adjust to End` DELIBERATELY lands the last anchor on the end of
-    # the free span, and at a corner that span ends against the corner
-    # assembly. D269 shed the half module that used to let the post grow
-    # 0.061 m INTO the corner post; what is left is an exact ABUTMENT, one
-    # whole 0.12 m post, and it is the artist's own instruction rather than a
-    # defect. Pinned in `DOUBLE_PILLAR`, named there, and warned about on the
-    # parm page. 12.66 m leaves a leftover under the 1 m `adjust_to_end`, so
-    # the adjust branch actually fires - on 12 m it never does.
+    # ED - `Adjust to End` lands the last anchor against the corner assembly:
+    # after D269 what is left is an exact ABUTMENT, one whole 0.12 m post -
+    # the artist's instruction, not a defect (pinned in `DOUBLE_PILLAR`).
+    # 12.66 m leaves a leftover under the 1 m `adjust_to_end` so the branch
+    # fires; on 12 m it never does.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (12.66, 0, 0), (12.66, 0, 8.66), (0, 0, 8.66)],
              closed=True, curve_id="ED")
@@ -1160,44 +955,29 @@ def build_all():
     built["EG_pentagon_evenly"] = _case(g, kit_geo, corner_style(
         "miter", evenly="post", evenly_spacing=2.0))
 
-    # EH - A CORNER MODULE THAT IS NOT SLENDER. `corner_block` is
-    # 1.20 x 1.30 x 0.16 m, aspect 1.08, so the first cut of `single_pillar`
-    # classified it as not-upright, never entered it into the sweep at all,
-    # and measured 0.0 on a build that doubled every corner. Most real kits
-    # have a blocky corner piece - a plinth, a pier cap, a wall return - so
-    # that false negative was on the check's own reason for existing. D270
-    # protects a RESERVED piece whatever its aspect; this is the fixture that
-    # keeps it protected.
+    # EH - A CORNER MODULE THAT IS NOT SLENDER: `corner_block` aspect 1.08,
+    # so `single_pillar`'s first cut classified it not-upright and measured
+    # 0.0 on a build that doubled every corner. D270 protects a RESERVED
+    # piece whatever its aspect; this fixture keeps it protected.
     g = hou.Geometry()
     polyline(g, L_SHAPE, curve_id="EH")
     built["EH_block_corner_evenly"] = _case(g, compose_kit(), corner_style(
         "miter", evenly="post", evenly_spacing=2.0, corner="corner_block"))
 
-    # EI - A MARKER SLOT ON A CORNERED CURVE, which no marker case reached:
-    # all four of them (T2/T3/D/N) run straight curves with no corner rule,
-    # so a marker had never met a corner assembly, an evenly rhythm or the
-    # ~35 corner checks. `marker:<id>` is a RESERVED slot, so it is protected
-    # by `single_pillar` here exactly as `corner` and `evenly` are.
-    #
-    # ⚠️ The marker is mid-leg ON PURPOSE. Dropped 0.4 m short of the vertex
-    # instead, it lands INSIDE the corner assembly's reserve: measured
-    # `pc_warn_overflow`, `corner_abut_m` 0.040, `corner_face_mate_m` 0.113
-    # and `double_pillar_m` 0.0767 (`marker:7:gate` + `corner:corner_post`).
-    # The engine reserves nothing for a marker against a corner - `trim` is
-    # the corner's alone - so the two assemblies share ground and the seam
-    # opens. That is a recorded standing finding (§28.7), not a pin: it fails
-    # `corner_abut`, which carries no `expected` and should not grow one for
-    # a fixture's convenience.
+    # EI - A MARKER SLOT ON A CORNERED CURVE, which no marker case reached.
+    # `marker:<id>` is a RESERVED slot, protected by `single_pillar` like
+    # `corner` and `evenly`. Marker mid-leg ON PURPOSE: 0.4 m short of the
+    # vertex it lands in the corner reserve (measured `pc_warn_overflow`,
+    # `corner_abut_m` 0.040, `corner_face_mate_m` 0.113, `double_pillar_m`
+    # 0.0767) - standing finding §28.7, not a pin.
     g = hou.Geometry()
     polyline(g, L_SHAPE, curve_id="EI")
     marker(g, (5.0, 0, 0), "EI", 7, 5.0)
     built["EI_marker_at_corner"] = _case(g, kit_geo, corner_style(
         "miter", evenly="post", evenly_spacing=2.0, marker="gate"))
 
-    # ---- 4.5 SURFACE CONFORM (input 4). The spline is DEAD FLAT and dead
-    # straight in every one of these, at y = 0 along +X, so everything
-    # vertical in the result came from the surface and nothing came from the
-    # curve - which is the only way to tell a conform from a hill.
+    # ---- 4.5 SURFACE CONFORM (input 4). The spline is dead flat/straight
+    # in all of these, so everything vertical came from the surface.
 
     def conform_line(cid, x1=20.0):
         g = hou.Geometry()
@@ -1225,10 +1005,9 @@ def build_all():
                           conform_tilt=tilt)),
             surface_geo=surface(camber_z))
 
-    # BE - A HOLE, AND AN EDGE. The surface stops at x = 12 and has a hole
-    # punched at x ~ 5, so the run leaves the terrain twice: D53 keeps the
-    # spline elevation there and says `pc_warn_conform_miss`, and NOTHING
-    # raises. The pieces over solid ground must still be draped.
+    # BE - A HOLE, AND AN EDGE: the run leaves the terrain twice - D53 keeps
+    # spline elevation there, says `pc_warn_conform_miss`, NOTHING raises;
+    # pieces over solid ground must still drape.
     built["BE_conform_holes"] = _case(
         conform_line("BE"), kit_geo, Style(
             "holed", 1, 3, rules=[Rule("default", "first", ["panel"])],
@@ -1236,10 +1015,8 @@ def build_all():
         surface_geo=surface(ramp_x, x0=-2.0, x1=12.0, nx=14,
                             holes=set((7, j) for j in range(12))))
 
-    # BF - A BACK-FACING SURFACE (D52). Identical ramp, wound the other way.
-    # RailClone does not ask an artist to flip their terrain, and neither does
-    # this: the drape must come out the same, which `conform_contact_m` and
-    # `plumb_deg` measure and `geometry_digest` pins against BG.
+    # BF - A BACK-FACING SURFACE (D52): identical ramp, wound the other way.
+    # The drape must come out the same; `geometry_digest` pins it against BG.
     built["BF_conform_flipped"] = _case(
         conform_line("BF"), kit_geo, Style(
             "flipped", 1, 3, rules=[Rule("default", "first", ["panel"])],
@@ -1251,12 +1028,9 @@ def build_all():
             params=Params(fill="adaptive", zmode="vertical")),
         surface_geo=surface(ramp_x))
 
-    # BH - A SURFACE COARSER THAN THE PIECES, with a hard crease in the middle
-    # (D56). Two facets over 20 m, so a 2 m panel straddles the ridge and its
-    # own 0.25 m stations are what decide whether it follows: the piece ON the
-    # crease says `pc_warn_bend_resolution` - the SAME detector D25 already
-    # owns, measured against the conformed path - and every other piece is
-    # clean.
+    # BH - A SURFACE COARSER THAN THE PIECES, hard crease (D56): the piece ON
+    # the crease says `pc_warn_bend_resolution` (D25's detector measured
+    # against the conformed path); every other piece is clean.
     built["BH_conform_crease"] = _case(
         conform_line("BH"), kit_geo, Style(
             "crease", 1, 3, rules=[Rule("default", "first", ["panel"])],
@@ -1272,17 +1046,12 @@ def build_all():
                                        surface_geo=surface(ramp_x, z0=-2.0,
                                                            z1=12.0, nz=14))
 
-    # BJ - A TILTED `conform_axis` (D51, D111). The axis is a free direction
-    # vector and every conformed case above casts straight down, so the whole
-    # suite ran ONE configuration of it. It is also the configuration where
-    # the batched `ray` and the per-query path stop agreeing: on a tilted axis
-    # the float32 ray origin does not lie on the double ray, the divergence is
-    # ALONG the ray (1.9e-06 m at 20 m, 1.5e-05 m at 20 km) and no
-    # reconstruction removes it - so `Surface.batchable` declines the batch
-    # and the reference serves this case alone. What is asserted here is that
-    # the drape still HAPPENS: the run lands on the ramp, offset up-slope by
-    # the tilt, and `conform_parity` reports the declined batch as a skip
-    # rather than as agreement it never tested.
+    # BJ - A TILTED `conform_axis` (D51, D111): the one configuration where
+    # batched `ray` and per-query stop agreeing (float32 origin off the
+    # double ray; divergence ALONG the ray, 1.9e-06 m at 20 m, 1.5e-05 m at
+    # 20 km), so `Surface.batchable` declines and the reference serves it.
+    # Asserted: the drape still happens; `conform_parity` reports the
+    # declined batch as a skip.
     built["BJ_tilted_axis"] = _case(
         conform_line("BJ"), kit_geo, Style(
             "tilted", 1, 3, rules=[Rule("default", "first", ["panel"])],
@@ -1292,22 +1061,18 @@ def build_all():
 
     # ---- 4.6 FINALIZE: the override cascade, and the instancing floor.
 
-    # CA - SWAP. The style says `panel` and never stops saying it; an override
-    # point re-points every panel to `gate` WITHOUT the style being touched
-    # (3.4's own requirement). The ids must be identical to CB's - that is
-    # what "round-trip" means here, and D1 is why it is even possible: the
-    # module is not part of the address, and `override_round_trip` cooks the
-    # control itself rather than needing a twin case here.
+    # CA - SWAP: an override re-points every panel to `gate` WITHOUT touching
+    # the style (3.4). Ids identical to CB's; possible because the module is
+    # not part of the address (D1).
     ov = hou.Geometry()
     P.write_override(ov, module="panel", to_module="gate")
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="CA")
     built["CA_swap_module"] = _case(g, kit_geo, panel_style(), overrides=ov)
 
-    # CC - REPLACE. One element, keyed by its own `pc_elem_id`, becomes hero
-    # geometry: a 2 m x 2 m x 0.4 m slab that no kit contains, so "did the
-    # hero actually arrive" is a question the built bbox answers rather than
-    # the attribute.
+    # CC - REPLACE: one element, keyed by `pc_elem_id`, becomes a
+    # 2 x 2 x 0.4 m hero slab no kit contains - the built bbox answers "did
+    # it arrive", not the attribute.
     hero = hou.Geometry()
     K.box_mesh(hero, 0.0, 2.0, 0.0, 2.0, -0.2, 0.2, 1)
     ov2 = hou.Geometry()
@@ -1316,10 +1081,8 @@ def build_all():
     polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="CC")
     built["CC_replace_hero"] = _case(g, kit_geo, panel_style(), overrides=ov2)
 
-    # CD - A REPLACE ON A DEFORMED PIECE. Hero geometry cannot follow a bend
-    # (D58), so this is the case that must WARN rather than silently
-    # straighten the run - the same figure as T_lshape_bend, with the piece
-    # that wraps the elbow replaced.
+    # CD - A REPLACE ON A DEFORMED PIECE: hero geometry cannot follow a bend
+    # (D58), so this must WARN rather than silently straighten the run.
     ov3 = hou.Geometry()
     P.write_override(ov3, elem_id="CD|0|default|5|corner", hero=hero)
     g = hou.Geometry()
@@ -1328,39 +1091,29 @@ def build_all():
                                      overrides=ov3)
 
     # CE - THE INSTANCING FLOOR: a straight run of RIGID modules must be
-    # 100 % packed. PC-G3's whole claim in one case, and the one number that
-    # a builder which unpacked everything would fail while staying
-    # geometrically perfect.
+    # 100 % packed - the one number an unpack-everything builder fails.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (25, 0, 0)], curve_id="CE")
     built["CE_all_packed"] = _case(g, rigid_kit(), Style(
         "rigid", 1, 6, rules=[Rule("default", "first", ["beam"])],
         params=Params(fill="adaptive")))
 
-    # ---- cycle 5: every one of these is a review measurement turned into a
-    # standing assertion (tests/README.md's rule). Each names the defect it
-    # was written against, because a case whose reason is not written down is
-    # a case the next cycle deletes.
+    # ---- cycle 5: review measurements turned standing assertions
+    # (tests/README.md's rule); each names its defect.
 
-    # CF - A RESAMPLED STRAIGHT LINE IS STILL A STRAIGHT LINE (D69). The same
-    # 25 m run as CE, authored at 1 m spacing - which is the shape citygen
-    # streets, this tool's first consumer, hands it. Every interior vertex is
-    # collinear, so nothing bends and nothing may unpack: measured before the
-    # fix, the identical line as two points built 1000/1000 packed and this
-    # one built 0/1000 packed and 1000 deformed. It is in ALL_PACKED.
+    # CF - A RESAMPLED STRAIGHT LINE IS STILL STRAIGHT (D69): CE's 25 m run
+    # at 1 m spacing (the citygen street shape). Pre-fix: the two-point line
+    # built 1000/1000 packed, this one 0/1000. In ALL_PACKED.
     g = hou.Geometry()
     polyline(g, [(float(x), 0.0, 0.0) for x in range(26)], curve_id="CF")
     built["CF_resampled_straight"] = _case(g, rigid_kit(), Style(
         "rigid", 1, 6, rules=[Rule("default", "first", ["beam"])],
         params=Params(fill="adaptive")))
 
-    # CH - A SWAP ONTO A TILE REMAINDER (D73). `tile` fills the 5 m run with
-    # three whole 1.6 m gates and cuts the last one at 0.125 of its length;
-    # the override then re-points every gate to the RIGID post. The old code
-    # kept the gate's slice fraction and cut the post at 0.125 of ITS 0.12 m,
-    # filling 0.015 m of a 0.2 m span - a silent 0.185 m hole at the end of
-    # the fence with `warn_counts` empty. The remainder now takes D11's other
-    # answer (the whole module scaled into the span) and says so, so this case
+    # CH - A SWAP ONTO A TILE REMAINDER (D73): the old code kept the gate's
+    # slice fraction and cut the RIGID post at 0.125 of ITS 0.12 m - a
+    # silent 0.185 m hole with `warn_counts` empty. The remainder now takes
+    # D11's other answer (whole module scaled into the span) and warns;
     # asserts both `pc_warn_tile_fallback` and an intact run.
     ov = hou.Geometry()
     P.write_override(ov, module="gate", to_module="post")
@@ -1370,12 +1123,9 @@ def build_all():
         "tile", 1, 4, rules=[Rule("default", "first", ["gate"])],
         params=Params(fill="tile")), overrides=ov)
 
-    # CI - A SWAP RE-DERIVES THE Z-MODE (D73). The style leaves `zmode` empty,
-    # so 3.2's per-module default decides; the panel's is `vertical` and the
-    # post's is `stepped`. Swapping panel -> post on a sloped curve used to
-    # build and stamp every post `vertical` - the module that is no longer
-    # there. `zmode_stamp` asserts the stamp, and the curve is on a SLOPE so
-    # that the wrong mode is a geometric difference and not only a label.
+    # CI - A SWAP RE-DERIVES THE Z-MODE (D73): panel -> post on a slope used
+    # to stamp every post `vertical` (the departed module's default).
+    # `zmode_stamp` asserts it; the SLOPE makes the wrong mode geometric.
     ov = hou.Geometry()
     P.write_override(ov, module="panel", to_module="post")
     g = hou.Geometry()
@@ -1384,12 +1134,10 @@ def build_all():
         "swapz", 1, 4, rules=[Rule("default", "first", ["panel"])],
         params=Params(fill="adaptive")), overrides=ov)
 
-    # CJ - A BEND BUTT JOINT THAT IS NOT 90 DEGREES. `corner_breach_m` allows
-    # a square-ended butt joint exactly `h*sin(turn/2)` of bisector crossing,
-    # and every other butt case in this suite turns 90 degrees - where sin and
-    # cos are equal and the wrong one of the two passes anyway. This turns
-    # 120, where the correct allowance is 0.025981 m and the old `cos` one was
-    # 0.015 m: a legitimate joint failed by 1.10e-02 m.
+    # CJ - A BEND BUTT JOINT AT 120 DEGREES: the allowance is h*sin(turn/2),
+    # and at 90 degrees sin and cos agree - only this case separates them.
+    # Correct allowance 0.025981 m, the old `cos` one 0.015 m: a legitimate
+    # joint failed by 1.10e-02 m.
     g = hou.Geometry()
     ang = math.radians(120.0)
     polyline(g, [(0, 0, 0), (4, 0, 0),
@@ -1399,13 +1147,10 @@ def build_all():
 
     # ---- and 4.5's four, all of them measured on the built fence.
 
-    # BJ - GROUND UNDER A BRIDGE DECK (D70). A ground sheet at y = -2 under
-    # the whole run and a deck sheet at y = +2 over its middle. The drop takes
-    # the NEAREST surface, and a tie goes down-axis, so the whole fence is on
-    # the ground; the first version cast from beyond the far side and took the
-    # FIRST hit, which is "topmost", and put six of ten pieces on top of the
-    # deck with two 3.9 m cliff pieces at its edges. `no_gaps_or_overlaps` and
-    # `conform_contact_m` are what see it.
+    # BJ - GROUND UNDER A BRIDGE DECK (D70): the drop takes the NEAREST
+    # surface, ties go down-axis. The first version took the FIRST (topmost)
+    # hit and put six of ten pieces on the deck with two 3.9 m cliff pieces.
+    # `no_gaps_or_overlaps` and `conform_contact_m` see it.
     both = hou.Geometry()
     both.merge(surface(lambda x, z: -2.0, x0=-4.0, x1=24.0, nx=28))
     both.merge(surface(lambda x, z: 2.0, x0=4.0, x1=16.0, nx=12))
@@ -1414,12 +1159,9 @@ def build_all():
     built["BJ_conform_deck"] = _case(g, kit_geo, panel_style(zmode="vertical"),
                                      surface_geo=both)
 
-    # BK - A SMALL SURFACE FAR BELOW THE SPLINE (D70). The reach used to come
-    # from the surface's own bbox alone, so a 5 x 5 m prop (diagonal 7.07 m)
-    # could not be reached from 30 m up and the whole run reported
-    # `pc_warn_conform_miss` with the surface directly beneath it - the drape
-    # flipping on standoff distance and nothing else. `conform_misses` is
-    # pinned at 0 here and the run has to sit on the prop.
+    # BK - A SMALL SURFACE FAR BELOW THE SPLINE (D70): reach came from the
+    # surface bbox alone, so a 5 x 5 m prop was unreachable from 30 m up.
+    # `conform_misses` pinned at 0; the run must sit on the prop.
     g = hou.Geometry()
     polyline(g, [(1.0, 30.0, 0.0), (4.0, 30.0, 0.0)], curve_id="BK")
     built["BK_conform_far"] = _case(
@@ -1427,13 +1169,10 @@ def build_all():
         surface_geo=surface(lambda x, z: 0.0, x0=0.0, x1=5.0, z0=-2.5, z1=2.5,
                             nx=5, nz=5))
 
-    # BL - A BUMP NARROWER THAN THE OLD PROBE SPACING (D71). 0.3 m wide and
-    # 0.5 m tall, centred at x = 0.75 - between the five fixed samples the
-    # unpack gate used to take across a 2 m panel, and ON that panel's own
-    # 0.25 m station. The gate said "flat" and the panel shipped PACKED as a
-    # straight chord with the bump 0.400 m through its bottom edge, unwarned.
-    # `conform_drape_m` is the assertion: it scores every station of every
-    # deformable piece, so a panel that ignored the bump reads 0.4 m.
+    # BL - A BUMP NARROWER THAN THE OLD PROBE SPACING (D71): 0.3 m wide,
+    # 0.5 m tall at x = 0.75 - between the five fixed samples, ON a 0.25 m
+    # station. The panel shipped PACKED with the bump 0.400 m through its
+    # bottom edge, unwarned. `conform_drape_m` scores every station.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="BL")
     built["BL_conform_bump"] = _case(g, kit_geo,
@@ -1441,13 +1180,10 @@ def build_all():
                                      surface_geo=surface(bump, x0=-1.0,
                                                          x1=21.0, nx=440))
 
-    # BM - A HOLE ON A DEFORM STATION (D71). The 0.1 m hole at x = 0.70..0.80
-    # falls between the five fixed probes `missed()` used to take and squarely
-    # on the panel's own station at 0.75, so the built rail dipped to spline
-    # elevation - a 0.1875 m V-notch - while `pc_warn_conform_miss` stayed
-    # absent, which is D53's contract broken exactly where the drape stopped.
-    # The warning is the assertion; the notch itself is D53's documented
-    # behaviour and is what the warning is FOR.
+    # BM - A HOLE ON A DEFORM STATION (D71): the 0.1 m hole at x = 0.70..0.80
+    # missed the five fixed probes and hit the 0.75 station - a 0.1875 m
+    # V-notch with `pc_warn_conform_miss` absent (D53's contract broken). The
+    # warning is the assertion; the notch is D53's documented behaviour.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="BM")
     nx = 220
@@ -1458,22 +1194,12 @@ def build_all():
         g, kit_geo, panel_style(zmode="vertical"),
         surface_geo=surface(ramp_x, x0=-1.0, x1=21.0, nx=nx, holes=holed))
 
-    # BN - A SURFACE OVERHEAD, AND NEARER THAN THE ONE BELOW (D70). Ground at
-    # y = -3, a deck at y = +0.4 over the middle of the run, spline at y = 0:
-    # the deck is 0.4 m up and the ground 3 m down, so "the NEAREST hit along
-    # the axis" puts the middle of the fence ON THE DECK.
-    #
-    # ⚠️ WRITTEN BECAUSE A MUTATION SURVIVED. `BJ_conform_deck` looks like it
-    # covers this and does not: its deck and its ground are EQUIDISTANT, so
-    # the tie-break (down-axis) decides and the comparison never runs. Cutting
-    # `drop`'s nearest test down to "use the up-axis hit only when there is no
-    # down-axis hit" moved not one number in the whole suite - the up-axis
-    # cast won 12 405 times across the suite and every single one of those was
-    # because nothing was found below. This case is the one where both
-    # directions hit and the nearer one has to win.
-    # STEPPED POSTS, so the answer is a NUMBER and not a warning:
-    # `stepped_riser_m` records the 3.4 m step at the deck edge, which exists
-    # only if the run climbed onto the deck at all.
+    # BN - A SURFACE OVERHEAD, NEARER THAN THE ONE BELOW (D70): deck 0.4 m
+    # up, ground 3 m down - the NEAREST hit puts the fence ON THE DECK.
+    # Written because a mutation survived: BJ_conform_deck's deck and ground
+    # are EQUIDISTANT, so the tie-break decides (the up-axis cast won 12 405
+    # times suite-wide, all with nothing below). STEPPED POSTS so the answer
+    # is a NUMBER: `stepped_riser_m` records the 3.4 m step at the deck edge.
     both = hou.Geometry()
     both.merge(surface(lambda x, z: -3.0, x0=-4.0, x1=24.0, nx=28))
     both.merge(surface(lambda x, z: 0.4, x0=6.0, x1=14.0, nx=8))
@@ -1485,48 +1211,32 @@ def build_all():
               params=Params(fill="adaptive", zmode="stepped")),
         surface_geo=both)
 
-    # CG - A RESAMPLED STRAIGHT LINE, BENDABLE MODULE (D69). CF is the same
-    # geometry with a RIGID beam, and rigid short-circuits `_needs_deform` at
-    # D27 before the vertex test is ever consulted - so CF cannot see D69 at
-    # all. Measured: putting every interior vertex back into `kink_s` left CF
-    # green and the whole 67-case suite at 0 failures, while the same revert
-    # took PC-G3's resampled 20 km run from 10 005 packed / 0.60 s to
-    # 0 packed / 10 005 deformed / 360 180 points / 21.9 s. This case uses the
-    # starter kit's BENDABLE panel, which is the path D69 actually fixed, and
-    # it is in ALL_PACKED.
+    # CG - A RESAMPLED STRAIGHT LINE, BENDABLE MODULE (D69): CF's rigid beam
+    # short-circuits `_needs_deform` at D27, so CF cannot see D69. Measured
+    # revert: CF and the 67-case suite stayed green while PC-G3's 20 km run
+    # went 10 005 packed / 0.60 s to 0 packed / 360 180 points / 21.9 s.
+    # In ALL_PACKED.
     g = hou.Geometry()
     polyline(g, [(float(x), 0.0, 0.0) for x in range(21)], curve_id="CG")
     built["CG_resampled_bendable"] = _case(g, kit_geo, panel_style())
 
-    # ---- cycle 7 / D75: THE CURVATURE BUDGET, across radii.
-    # CF and CG proved a resampled STRAIGHT line stays packed. These are the
-    # shape citygen streets actually hands this tool - a resampled ARC - and
-    # before the budget every one of them unpacked every piece for a
-    # deformation smaller than 4.6's own `over_unpacked` tolerance (measured:
-    # R = 12 000 m unpacked 8 of 150 pieces for 4.2e-05 m and over_unpacked
-    # FAILED). One case per decade of radius, so the budget is measured on a
-    # ladder rather than at one point, plus the control that must still bend.
+    # ---- cycle 7 / D75: THE CURVATURE BUDGET, across radii - resampled
+    # ARCs, the citygen street shape. Pre-budget (measured: R = 12 000 m
+    # unpacked 8/150 pieces for 4.2e-05 m and over_unpacked FAILED). One case
+    # per decade of radius, plus the control that must still bend.
     for cid, radius in (("CK_arc_12000", 12000.0), ("CL_arc_2000", 2000.0),
                         ("CM_arc_80", 80.0), ("CN_arc_tight", 10.0)):
         g = hou.Geometry()
         polyline(g, arc_points(radius), curve_id=cid.split("_")[0])
         built[cid] = _case(g, kit_geo, panel_style())
 
-    # ---- cycle 8 / D87: THE BUDGET IS SPENT BY POINTS, NOT BY THE SPINE.
-    # A 1.2 m tall bendable rail on an R = 55 m arc that climbs. The spine
-    # sagitta is 0.0091 m - inside `bend_tol` - so the D75 measure kept all
-    # 15 pieces PACKED while their top corners had really moved 0.0327 m,
-    # 3.3x the budget, leaving a visible wedge between neighbours. CP is the
-    # case that reads it; CQ is the same figure with the SAME rail on a plan
-    # arc, where `across` barely turns and the pieces are allowed to stay
-    # packed - without it a fix could simply unpack everything and pass.
-    # ---- cycle 8 / D94: A CONDITIONAL KEYED ON THE SPLINE'S OWN ATTRIBUTE.
-    # 3.3 says `attr:<name>` "reads any spline prim attr" and it read exactly
-    # two, because nothing harvested them - so the hook the first consumer
-    # (streets, selecting off edge data) reaches for declined every piece in
-    # silence. Two curves in one stream carrying different `road_width`s, one
-    # rule: the wide one gets gates, the narrow one panels. Two curves rather
-    # than one, so the attribute is proved to be read PER PRIM.
+    # ---- cycle 8 / D87: THE BUDGET IS SPENT BY POINTS, NOT THE SPINE. A
+    # 1.2 m rail on an R = 55 m climbing arc: spine sagitta 0.0091 m (inside
+    # `bend_tol`) yet top corners really moved 0.0327 m, 3.3x the budget. CP
+    # reads it; CQ (plan arc) is the control allowed to stay packed.
+    # ---- cycle 8 / D94: `attr:<name>` read exactly two attrs because
+    # nothing harvested them. Two curves with different `road_width`s (wide
+    # gets gates, narrow panels), proving the attribute is read PER PRIM.
     g = hou.Geometry()
     g.addAttrib(hou.attribType.Prim, "road_width", 0.0)
     wide = polyline(g, [(0, 0, 0), (12, 0, 0)], curve_id="CRa")
@@ -1561,19 +1271,11 @@ def build_all():
                Rule("end", "first", ["post"])],
         params=Params(fill="adaptive")))
 
-    # DM - 13.9 N5's OWN COVERAGE, AND IT IS ONE ROW LONG FOR A REASON.
-    # `place_deformed_covers_the_reference` compares the elements the
-    # reference UNPACKS against the elements the native deformed branch
-    # unpacks - and over all 92 cases it was comparing THREE, two of which the
-    # gate refuses, i.e. about one element.  A set comparison on one element
-    # is satisfied by almost any implementation that unpacks anything at all.
-    # The reason is SCOPE, not a shortage of hilly cases: every hilly fixture
-    # in this file has a CORNER (`_place_out_of_scope` -> "4.3 corners"), a
-    # surface, a fillet or a slope flatten, and each of those is skipped.
-    # This is a smooth 24 m ripple with none of them - level 1 admits it, most
-    # of the run unpacks, and it is the same shape `gate_images` draws and
-    # `piece_order_key_is_total` measures the order key on, so the three rows
-    # agree about their fixture.
+    # DM - 13.9 N5's OWN COVERAGE: `place_deformed_covers_the_reference` was
+    # comparing ~one element over 92 cases (every hilly fixture is out of
+    # scope: corner, surface, fillet or flatten). A smooth 24 m ripple with
+    # none - level 1 admits it, most of the run unpacks; same shape as
+    # `gate_images` and `piece_order_key_is_total` use.
     g = hou.Geometry()
     polyline(g, [(0.5 * i, 0.45 * math.sin(i * 0.55), 0.0)
                  for i in range(49)], curve_id="DM")
@@ -1606,10 +1308,8 @@ def rebuild(case):
 
 
 # --- 11.2's tripwire fixtures ----------------------------------------------
-#
-# Not scene cases: they carry no geometry assertion, only the port plan's own
-# measurements (checks.py, "11.2's own tripwires"). Built here so the numbers
-# are re-derived from one description rather than from a scratchpad.
+# Not scene cases: no geometry assertion, only the port plan's measurements
+# (checks.py, "11.2's own tripwires").
 
 def tripwire_packed_run():
     """200 x 2 m panels on a 400 m straight - PC-G3's shape, small enough to
@@ -1623,15 +1323,10 @@ def tripwire_packed_run():
 
 
 def tripwire_deformed_run():
-    """The same panels on a 10 m-radius arc - 100 % DEFORMED, the branch
-    `tripwire_packed_run` cannot reach.
-
-    `scale_gate`'s `arc_10` in miniature: 5.0e-02 m of sagitta per 2 m span,
-    five times `bend_tol`, so every piece unpacks. It exists because the
-    deformed branch is where a per-prim stamp costs 14 x THE PIECE'S PRIM
-    COUNT rather than 14 - restoring the D102-era writer there was an 8.4x
-    wall-clock regression (arc_10 2.361 -> 19.854 s) that the packed tripwire
-    read as 0.005 either way, with every suite green.
+    """The same panels on a 10 m arc - 100 % DEFORMED (`arc_10` in miniature:
+    5.0e-02 m sagitta per span, 5x `bend_tol`). The deformed branch is where
+    a per-prim stamp costs 14 x the PRIM COUNT: restoring the D102-era writer
+    was 8.4x wall-clock (2.361 -> 19.854 s) with the packed tripwire unmoved.
     """
     g = hou.Geometry()
     r, n = 10.0, 60
@@ -1653,12 +1348,9 @@ def tripwire_out_build(out):
 
 
 def tripwire_mitered_run():
-    """A closed rectangle in MITER mode - every corner is a `clip` cut, which
-    is the only branch that reaches `clip_plane`. It exists so
-    `prims_wrappers_built` can see that site: the packed, deformed and
-    conformed fixtures all have zero corners, so `len(cut.prims())` there was
-    unreachable by every tripwire in the file.
-    """
+    """A closed rectangle in MITER mode - the only branch reaching
+    `clip_plane`, so `prims_wrappers_built` can see `len(cut.prims())`
+    (unreachable from the corner-less packed/deformed/conformed fixtures)."""
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (12, 0, 0), (12, 0, 8), (0, 0, 8)],
              closed=True, curve_id="TWM")
@@ -1701,22 +1393,13 @@ def heightfield(cell, amp, wave, x0, x1, z0, z1):
 
 
 def tripwire_streets_conformed():
-    """40 x 20 m conformed runs - MANY SHORT CURVES over one gentle terrain,
-    which is the citygen shape and the one shape `tripwire_conformed_run`
-    cannot stand in for.
+    """40 x 20 m conformed runs - MANY SHORT CURVES over gentle terrain, the
+    citygen shape a single long curve cannot stand in for.
 
-    It exists because two facts about the conform batch are properties of the
-    ROW and are invisible on a single long curve:
-
-      * `ray` rebuilds its surface input on every execution, so a batch taken
-        once per CURVE pays that fixed cost 40 times here and once on the
-        fence. Measured on 300 x 60 m streets, per-curve batching was 0.94x -
-        SLOWER than not batching at all - and per-build is 1.20-1.39x.
-      * this run is **87 % PACKED**, so the gap midpoints a deformed piece
-        needs are dead weight on it. 11.8 P6's "the citygen street case is
-        100 % deformed the moment a terrain is connected" is a property of one
-        rough terrain, not of connecting one.
-    """
+    `ray` rebuilds its surface input per execution: per-curve batching was
+    0.94x (SLOWER than none) on 300 x 60 m streets, per-build 1.20-1.39x.
+    This run is 87 % PACKED, so deformed-piece gap midpoints are dead weight
+    on it."""
     g = hou.Geometry()
     for i in range(40):
         r, c = divmod(i, 8)

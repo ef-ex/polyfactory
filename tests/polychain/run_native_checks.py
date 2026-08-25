@@ -2,22 +2,12 @@
 
     hython tests/polychain/run_native_checks.py
 
-THE REFERENCE STAYS LIVE IN THE SAME PROCESS AND PARITY IS PROVEN BY ASKING
-BOTH, NOT BY DIFFING TWO RUNS.  Every stage cooks as the real SOP nodes
-`devScripts/create_pf_polychain_hda.py` installs, on the same `hou.Geometry`
-the reference was handed, and the guard checks cook the SHIPPED asset.
-
-⚠️ v2, 2026-08-25: this file was 9 066 lines and 144 checks.  126 of those
-names had no mutation paired against them, and the whole class of
-"native output equals reference output" assertions is what the differential
-comparator (`diff.py`) plus generated input (`run_generated.py`) do by
-construction over 400 scenes instead of over 92 hand-written ones.  What is
-left is the 19 names that either have a registered mutation, or state a
-property `compare()` structurally cannot: which BRANCH cooked, what the
-guard refused, and whether a wrangle is reached at all.
-
+The reference stays live in-process; every stage cooks the real SOP nodes
+`devScripts/create_pf_polychain_hda.py` installs, and the guard checks cook
+the SHIPPED asset.  v2, 2026-08-25: trimmed from 9 066 lines / 144 checks to
+the 19 names that have a registered mutation or state a property `compare()`
+(diff.py + run_generated.py) structurally cannot.
 WHAT IT CANNOT SEE: whether either path is right - it is a parity instrument.
-The gate images and the human at the milestone are what judge correctness.
 """
 
 import io
@@ -64,9 +54,8 @@ def check(name, ok, value="", detail=""):
 def f32(x):
     """`x` as Houdini stores it in a float32 attribute.
 
-    Used as an ASSERTION, not as a tolerance: `native == f32(reference)` is a
-    statement about storage that cannot be satisfied by luck, where
-    `abs(native - reference) < 1e-6` can be satisfied by two different bugs.
+    An ASSERTION, not a tolerance: `native == f32(reference)` cannot be
+    satisfied by luck.
     """
     return struct.unpack("f", struct.pack("f", float(x)))[0]
 
@@ -81,12 +70,7 @@ def hilo(x):
 
 
 def ulp32(x):
-    """One float32 ULP at `x` - the smallest number float32 can express there.
-
-    D111's lesson, applied as a unit rather than as a tolerance: a distance
-    rounds at the size of a drop and a position at the size of the world, so
-    "1 ULP" means something at both and "1e-6 m" means something at only one.
-    """
+    """One float32 ULP at `x` (D111: a unit, not a tolerance)."""
     if x == 0.0:
         return math.ldexp(1.0, -149)
     return math.ldexp(1.0, math.frexp(abs(x))[1] - 24)
@@ -122,14 +106,9 @@ def decompose_parity(root, built):
         curves, markers = P.read_curves(case["curve"])
         prims = out.prims()
 
-        # (a) THE ID RULE AND THE CURVE SET, against `read_curves` ITSELF.
-        # ⚠️ THIS USED TO COMPARE TWO COPIES OF THE SAME RULE. It asked
-        # `hda.curve_prim_index`, which re-implemented D29/D64 and applied
-        # none of `read_curves`' filters - so it could agree with the VEX
-        # while both disagreed with the curve set the builder plans on.
-        # There is one rule now (`curve_prim_index` reads `read_curves`) and
-        # this asks the builder's own answer, prim by prim, INCLUDING the
-        # prims the reference declined.
+        # (a) THE ID RULE AND THE CURVE SET, against `read_curves` ITSELF -
+        # one rule now (D29/D64), asked prim by prim, INCLUDING the prims
+        # the reference declined.
         ref_by_prim = dict((c.prim_number, str(c.curve_id)) for c in curves)
         iscurve = out.primIntAttribValues("pc_iscurve")
         got_ids = out.primStringAttribValues("pc_curve_id_r")
@@ -171,10 +150,8 @@ def decompose_parity(root, built):
                 if bool(degen[got[i]]) != ref[i].degenerate:
                     bad_corner.append((name, str(curve.curve_id), "degen", i))
 
-        # (b) MARKERS, keyed by the PRIM each one landed on.
-        # D169: where two prims claim one id the reference places the marker
-        # on BOTH and one point wrangle can place it on one, so the native
-        # stage owes a WARNING there rather than a second point. That is
+        # (b) MARKERS, keyed by the PRIM each one landed on.  D169: on a
+        # duplicated id the first prim keeps the marker and owes a WARNING -
         # asserted, not excused.
         seen = {}
         for cid in got_ids:
@@ -246,18 +223,11 @@ def frame_calls(case):
 
     def spy_pt(proto, path, sa, sb, zmode, up_ref=P.UP, base_y=None,
                ends=None, yscale=1.0):
-        # ⚠️ THE SPANS GO THROUGH THE REAL TRANSPORT ON *BOTH* SIDES,
-        # deliberately, and that makes the two checks below ARITHMETIC-ONLY.
-        # The rig carries the plan to the wrangle through point attributes,
-        # which are float32 storage; asking the reference in float64 and the
-        # wrangle in float32 would measure the transport instead of the
-        # maths. Rounding both isolates the maths - and the TRANSPORT is
-        # measured on its own, unrounded, by `plan_span_transport_at_20km`,
-        # which is the check that used not to exist.
-        # ⚠️ THE PAIR IS RECORDED, NOT JUST THE SUM. Splitting `head + lo`
-        # a SECOND time in `frames_geometry` gives a different pair - the sum
-        # is not itself float32-representable - and the 3x3 then disagreed by
-        # 2.220e-16 for no reason but the double transport.
+        # The spans go through the real float32 transport on BOTH sides, so
+        # the two checks below are ARITHMETIC-ONLY; the transport itself is
+        # measured unrounded by `plan_span_transport_at_20km`.  The PAIR is
+        # recorded, not just the sum: re-splitting `head + lo` gives a
+        # different pair (3x3 then disagreed by 2.220e-16).
         (ha, la), (hb, lb) = hilo(sa), hilo(sb)
         sa, sb = ha + la, hb + lb
         matrix = real_pt(proto, path, sa, sb, zmode, up_ref, base_y, None,
@@ -329,10 +299,9 @@ def frames_parity(root, built, snippet=None, quiet=False):
         rows = [c for c in calls if not c["conform"] and c["pidx"] >= 0]
         if not rows:
             continue
-        # ONE polyline per recorded `Path`, in `Path` order, so the prim
-        # number IS the index the call recorded. The reference's Path may be
-        # a FILLETED or slope-flattened polyline - feeding the raw input
-        # spline instead would be asking about a curve that does not exist.
+        # ONE polyline per recorded `Path`, in `Path` order - the Path may
+        # be a FILLETED or slope-flattened polyline, so the prim number IS
+        # the recorded index.
         curve_geo = hou.Geometry()
         for curve in registry:
             cases.polyline(curve_geo, curve.points, closed=curve.closed,
@@ -366,9 +335,7 @@ def frames_parity(root, built, snippet=None, quiet=False):
                     want = matrix.at(r, c)
                     got = xform[i * 9 + r * 3 + c]
                     # RELATIVE, floored at 1.0 - the entries are direction
-                    # components times a scale, so 1.0 is their natural unit
-                    # and a bare absolute error means two things at two
-                    # magnitudes (D111's lesson).
+                    # components times a scale (D111).
                     worst_lin = max(worst_lin,
                                     abs(got - want) / max(abs(want), 1.0))
             for k in range(3):
@@ -429,8 +396,7 @@ def trial_parity(root):
 def mutation(root, built):
     """Corrupt each new node and confirm the parity check goes red.
 
-    A node whose removal leaves the suite green is untested, not correct -
-    which is exactly what cycle P2-3V found six times.
+    A node whose removal leaves the suite green is untested (P2-3V, x6).
     """
     from polyfactory.polychain import vexsrc
     from polyfactory.polychain import decompose as D
@@ -458,10 +424,8 @@ def mutation(root, built):
     sub = root.createNode("subnet", "mut")
     src = native.feed(sub, geo, "IN")
     cfg = native.config_stub(sub, DEFAULTS)
-    # ⚠️ THE WHOLE CHAIN, not `pc_arclength` alone. Since D167 the arclength
-    # node writes nothing to a prim `pc_curveid` did not call a curve, so a
-    # rig that skips the upstream nodes measures the gate rather than the
-    # mutation - and the check then fails for a reason that is not a defect.
+    # THE WHOLE CHAIN, not `pc_arclength` alone (D167: skipping the upstream
+    # nodes measures the gate rather than the mutation).
     node, nodes = native.stage_decompose(sub, src, cfg)
     nodes["pc_arclength"].parm("snippet").set(broken)
     node.cook(force=True)
@@ -476,11 +440,8 @@ def mutation(root, built):
           "[0, 1, -1, 2])")
     sub.destroy()
 
-    # (c) pc_unshare: BYPASS it, and the fused junction must go wrong.
-    # D165's whole justification in one assertion. Without the split, curve
-    # FA's real 90 degree corner disappears (`pointprims()[0]` resolves the
-    # junction to whichever prim is first) and its metre at the junction is
-    # whatever the other curve wrote there.
+    # (c) pc_unshare: BYPASS it, and the fused junction must go wrong -
+    # D165's whole justification in one assertion.
     fused = cases.topology_cases()["T1_fused_junction"]
     sub = root.createNode("subnet", "mut_unshare")
     src = native.feed(sub, fused["curve"], "IN")
@@ -502,23 +463,13 @@ def mutation(root, built):
 
 
 def sixty_four_bit(root):
-    """13.8's design rule, as an assertion rather than an intention.
-
-    "No intermediate is allowed to round-trip through float32."  A 64-bit
-    wrangle writes a FLOAT64 attribute (measured: 20000.0 + 4.883e-4 reads
-    back with error 0.0), and a 32-bit one does not - so the rule is testable,
-    and this is the test.  The reason it matters is R2: every new intermediate
-    must stay 64-bit or the tool becomes WORSE at world scale than the Python
-    it is replacing.
+    """13.8's design rule, asserted: no intermediate may round-trip through
+    float32 (measured: 20000.0 + 4.883e-4 reads back with error 0.0 from a
+    64-bit wrangle).  R2: intermediates must stay 64-bit at world scale.
     """
-    # ⚠️ THIS CANNOT BE TESTED THROUGH `P`, AND THAT IS THE FIRST THING TO
-    # SAY ABOUT IT. `P` is float32 storage: a vertex authored at
-    # 20000.0004883 comes back as 20000.0 before any wrangle has run, so a
-    # curve cannot even CARRY the number the rule is about. That floor is R2,
-    # it is unchanged from today, and it is where the REFERENCE already lives
-    # too - `frames_arithmetic_position_parity` is what measures it. What this checks is
-    # the thing that IS new: an intermediate the network computes must not be
-    # rounded to float32 at every node boundary on its way to the next stage.
+    # Cannot be tested through `P` (float32 storage - R2's floor, measured by
+    # `frames_arithmetic_position_parity`); this checks that a computed
+    # intermediate is not rounded to float32 at node boundaries.
     sub = root.createNode("subnet", "prec")
     geo = hou.Geometry()
     cases.polyline(geo, [(0.0, 0.0, 0.0), (12.0, 0.0, 0.0)], curve_id="P")
@@ -536,11 +487,8 @@ def sixty_four_bit(root):
     reader.cook(force=True)
     prim = reader.geometry().prims()[0]
     survived = abs(prim.attribValue("pc_probe") - 20000.0004883)
-    # ⚠️ COMPARE AGAINST THE SAME SUBTRACTION, not against the decimal
-    # literal: (20000.0 + 4.883e-4) - 20000.0 is 4.8830000001...e-04 in
-    # float64, and measuring the wrangle against `4.883e-4` reports 1.4e-13 of
-    # the comparand's OWN cancellation as if it were the node's error. That is
-    # the same shape of mistake D115's headline had.
+    # COMPARE AGAINST THE SAME SUBTRACTION, not the decimal literal - else
+    # 1.4e-13 of the comparand's own cancellation reads as node error (D115).
     crossed = abs(prim.attribValue("pc_probe_err")
                   - ((20000.0 + 4.883e-4) - 20000.0))
 
@@ -645,14 +593,9 @@ def fixture_cases():
     out = []
 
     # --- 3.3's `markerData:<key>`, by VALUE TYPE ---------------------------
-    # ⚠️ THE EMPTY STRING IS THE WHOLE POINT.  VEX has no `dicttype`, so the
-    # solve used to infer a dict slot's type by READING it, and a value that
-    # is "" reads as "" through the string port AND as 0.0 through the numeric
-    # one.  It was taken as numeric, so `markerData:tag eq ""` could never
-    # match: measured, a 0.12 m post where the reference puts a 1.6 m gate,
-    # and every downstream piece 0.21 m out.  `json_dumps(dict, 0)` names the
-    # type and is what the solve reads now; the other four rows are the
-    # controls that say the naming did not break the easy cases.
+    # THE EMPTY STRING IS THE POINT: "" cross-read as numeric 0.0 (measured:
+    # 0.12 m post where the reference puts a 1.6 m gate, downstream 0.21 m
+    # out).  `json_dumps(dict, 0)` names the type now; other rows = controls.
     for tag, data, value in (("empty", {"tag": ""}, ""),
                              ("str", {"tag": "x"}, "x"),
                              ("num", {"tag": 3.0}, 3.0),
@@ -671,36 +614,13 @@ def fixture_cases():
 
     # --- D242: a `markerData:` slot that is NOT A SCALAR, and a KEY THAT
     # --- `json_dumps` ESCAPES ----------------------------------------------
-    #
-    # ⚠️ THESE ROWS EXIST BECAUSE A SOURCE MUTATION SURVIVED THE WHOLE
-    # SUITE.  The five rows above cover the four SCALAR types; the type probe
-    # had only two outcomes ("string" or "read it as a float"), so a vector, a
-    # list or a nested dict cross-type-read as 0.0 and was published as a
-    # READABLE NUMERIC subject where the reference holds a tuple/list/dict.
-    # Measured on the shipped .hda before the fix, level 1 and level 2 both
-    # admitting: `{"v": (1.0, 2.0, 3.0)}` under `markerData:v eq 0.0` built
-    # 1 gate + 10 panels natively against the reference's 10 panels, and `lt`
-    # and `ge` diverged the same way.  With the fix in place and NO row here,
-    # reverting the `!unreadable:` branch to `float v = md[k]` left
-    # `run_native_checks` at 144 [PASS] / 0 - a guard hole closed by a fix
-    # nothing could see, which is the same thing as an unfixed guard hole one
-    # edit later.
-    #
-    # ⚠️ THE ESCAPED-KEY HALF IS NOT HERE AND THAT IS A PROPERTY OF THE
-    # RIG, not of the tool.  `native.config_full` marshals the style through a
-    # GENERATED PYTHON SOP BODY set on a string parm, and a Houdini string
-    # parm treats a backslash as an escape - so a key with a quote or a
-    # backslash cannot survive the rig's own transport, while the SHIPPED
-    # asset reads the payload off geometry and handles it correctly (measured
-    # both ways).  `guard_marker_data_types` is that half, on the asset.
-    #
-    # ⚠️ AND THE KEY ROWS ARE THE OTHER HALF.  The probe used to search the
-    # whole marker's dump for the key's SOURCE spelling; `json_dumps` escapes,
-    # so a key carrying a quote, a backslash or a non-ASCII character never
-    # matched its own probe and fell to the numeric read.  Measured, that
-    # fired a gate the artist never asked for on `{'a"b': "x"}` and DROPPED
-    # the gate the artist did ask for on `{u"k\u00e9": "x"}` - the failure runs
-    # in both directions, so both directions are fixtures.
+    # These rows exist because a source mutation survived the whole suite:
+    # a vector/list/nested dict cross-type-read as 0.0 and published as a
+    # READABLE numeric subject (measured: 1 gate + 10 panels vs the
+    # reference's 10 panels; `lt`/`ge` diverged too).  The escaped-KEY half
+    # cannot survive the rig's string-parm transport; `guard_marker_data_
+    # types` covers it on the shipped asset (a quoted key fired a gate never
+    # asked for; a non-ASCII key dropped one that was - both directions).
     for tag, data, op, value in (
             ("vector", {"v": hou.Vector3(1.0, 2.0, 3.0)}, "eq", 0.0),
             ("vector_lt", {"v": hou.Vector3(1.0, 2.0, 3.0)}, "lt", 1.0),
@@ -721,11 +641,8 @@ def fixture_cases():
                    Rule("default", "first", ["panel"])],
             params=Params(fill="adaptive"))))
     # --- D7's per-POINT `pc_section`, by TYPE ------------------------------
-    # A STRING per-point key was read as a float (always 0.0), so the
-    # mid-curve break vanished: 1 section and 12 pieces natively against the
-    # reference's 2 sections and 14, with both interior caps gone.
-    # `read_curves` reads whatever type the artist authored, so both rows are
-    # inside the contract.
+    # A STRING key read as float (always 0.0): 1 section / 12 pieces vs the
+    # reference's 2 / 14.  Both types are inside the contract.
     for tag, keys in (("string", ("a", "a", "b", "b")),
                       ("int", (0, 0, 1, 1))):
         geo = hou.Geometry()
@@ -743,13 +660,8 @@ def fixture_cases():
             params=Params(fill="adaptive"))))
 
     # --- two primitives, ONE curve id --------------------------------------
-    # The only topology where primitive order genuinely decides the answer:
-    # `decompose_all` sorts by `(str(curve_id), index)` and Python's sort is
-    # STABLE, so the two curves' sections INTERLEAVE (A0, B0, A1, B1) in prim
-    # order.  `plan_distinct_ids_are_input_order_free` builds its two orders out of three
-    # DISTINCT ids, so it cannot reach this; the merge sort in `pc_sections`
-    # breaks the tie on the prim number, and this row is what says the two
-    # agree.
+    # The only topology where prim order decides: sections INTERLEAVE
+    # (A0, B0, A1, B1); `pc_sections`' merge sort ties on the prim number.
     geo = hou.Geometry()
     cases.polyline(geo, [(0.0, 0.0, 0.0), (10.0, 0.0, 0.0),
                          (10.0, 0.0, 8.0)], curve_id="A")
@@ -760,11 +672,8 @@ def fixture_cases():
         params=Params(fill="adaptive"))))
 
     # --- non-ASCII ids, through the RANDOM selector ------------------------
-    # `pc_crc32` folded CODE POINTS where `zlib.crc32` folds UTF-8 BYTES, so a
-    # German styleId or curve id moved the pick on roughly half the curves -
-    # a 47-piece picket run where the reference builds a 5-piece panel run.
-    # The `random` selector is what makes this visible: `pc_seed_for` runs
-    # through the same crc as `pc_elem_key`.
+    # `pc_crc32` folded CODE POINTS where `zlib.crc32` folds UTF-8 BYTES -
+    # measured, a 47-piece picket run vs the reference's 5-piece panel run.
     geo = hou.Geometry()
     for i in range(8):
         cases.polyline(geo, [(0.0, 0.0, 3.0 * i), (11.0, 0.0, 3.0 * i)],
@@ -778,11 +687,7 @@ def fixture_cases():
         cases.polyline(geo, [(0.0, 0.0, 3.0 * i), (11.0, 0.0, 3.0 * i)],
                        curve_id=u"\u00e9tage%d" % i)
     # --- a kit in the HUNDREDS, resolved by ROLE ---------------------------
-    # 7.2's 25 cell roles imply a facade kit of this size, and every other
-    # fixture in the suite uses five modules - which is why nothing saw
-    # `pc_choose` rebuilding and re-sorting the whole pool on every piece.
-    # This row is the PARITY half (the pool's sort order and its weights have
-    # to be the reference's at scale, on 220 modules);
+    # 7.2's 25 cell roles imply this size.  The PARITY half on 220 modules;
     # `plan_cost_is_flat_in_kit_size` is the cost half, at 151.
     big = [Module("m%03d" % i, (0.5 + 0.01 * i, 1.0, 0.1), pad=(0.0, 0.0),
                   deform=1, roles="default", variant="v%d" % (i % 7),
@@ -805,40 +710,18 @@ def fixture_cases():
         params=Params(fill="adaptive"))))
 
     # --- D202: an `attr:` SUBJECT THAT IS NOT A SCALAR ---------------------
-    # `prim(0, name, pr)` READS COMPONENT 0.  `place._prim_attrs` hands the
-    # reference `prim.attribValue(name)` - the WHOLE tuple - and
-    # `evaluate_cond`'s TypeError guard makes every ordered comparison on it
-    # False, so the two sides were answering different questions on a build
-    # the guard ADMITS.  Measured on the shipped asset before the fix, a 20 m
-    # line with `vecattr = (7.5, 1.0, 2.0)`: `gt 5.0` built 12 `gate` prims at
-    # `Stage = output` against the reference's 10 `panel` prims, and
-    # `lt 100.0` diverged the other way.  `eq`/`ne` agreed by luck (a tuple is
-    # never equal to a float on either side), and they are the controls here.
-    # Every operator is present because WHICH ones agreed was an accident of
-    # the value, not a property of the code.
-    #
-    # ⚠️ D257 - AND THE TWO ROWS THAT CLAIMED TO COVER *ARRAYS* DID NOT.
-    # `geo.addAttrib(Prim, "vecattr", [8, 1, 2])` builds a fixed-size TUPLE,
-    # not an array: probed on 22.0.398, `attrib.isArrayType()` is False for it
-    # and `size()` is 3.  So all five rows were caught by the
-    # `primattribsize != 1` half of the refusal and the ARRAY half - which was
-    # written `t == 3` - was DEAD CODE in every run of the suite.  Re-probed,
-    # `primattribtype` is 0 int / 1 float / 2 string / 3 int-array /
-    # 4 float-array / 5 string-array / 6 dict, and an array reports
-    # `primattribsize == 1` - so a float array, a string array and a dict all
-    # fell through to a float read of 0.0 and shipped as READABLE numeric
-    # subjects.  Measured on the shipped .hda before the fix: a float array
-    # `w = (7.5, 1.0)` under `eq 0.0` built 12 `gate` prims natively against
-    # the reference's 10 `panel` prims, and a string array and a dict did the
-    # same; the int array is the control and was correctly refused.
-    #
-    # The array rows are built with `addArrayAttrib` now and the fixture
-    # ASSERTS `isArrayType()`, so a row that stops being an array fails
-    # instead of silently degrading to a tuple.  The operand set gains
-    # `eq 0.0` / `lt 1.0` / `ge 0.0` because the shipped one (`gt 5.0`,
-    # `lt 100.0`, `eq 5.0`, `ne 5.0`) happens to agree with a 0.0 cross-type
-    # read on four of six operators - which is how this shipped wrong for a
-    # cycle under five PASSing rows.
+    # `prim(0, ...)` reads component 0 while the reference gets the WHOLE
+    # tuple (measured: `gt 5.0` built 12 gate prims vs the reference's 10
+    # panel; `lt 100.0` diverged the other way; eq/ne agreed by luck and are
+    # the controls).  Every operator present - which ones agreed was an
+    # accident of the value.
+    # D257: `addAttrib` with a list builds a fixed-size TUPLE, not an array
+    # (probed 22.0.398: isArrayType() False), so the ARRAY half was DEAD
+    # CODE; float/string arrays and dicts (primattribsize == 1) fell to a
+    # 0.0 float read (measured: 12 gate vs 10 panel; int array correctly
+    # refused).  Array rows now use `addArrayAttrib` and ASSERT
+    # isArrayType(); the operand set gains eq 0.0 / lt 1.0 / ge 0.0 because
+    # the shipped set agreed with a 0.0 cross-read on four of six operators.
     ARRAY_ROWS = (("iarray", hou.attribData.Int, (8, 1, 2)),
                   ("farray", hou.attribData.Float, (7.5, 1.0)),
                   ("sarray", hou.attribData.String, ("a", "b")))
@@ -887,16 +770,9 @@ def fixture_cases():
         out.append(_attr_case("dict", op, want, _dict))
 
     # --- D202: `ctx_base`'s own DICT-VALUED keys ---------------------------
-    # `cond_subject` ends in `ctx.get(subject)`, and `attrs` / `marker_data`
-    # are real keys of `ctx_base` whose value is a DICT - not None, so Python
-    # reaches the operator and answers True to `ne`.  `pc_cond_subject` had no
-    # answer but "absent", which is False under every operator: measured,
-    # `{"subject": "attrs", "op": "ne", "value": "zzz"}` planned 10 pieces
-    # natively against `plan.plan_sections`' 12.  It could not reach
-    # `Stage = output` because `style._check_cond` calls `attrs` an unknown
-    # subject and `_native_ok` refuses on any style warning - protection by
-    # coincidence, one keystroke from being lost, which is why the parity is
-    # asserted here rather than left to the warning.
+    # `attrs` / `marker_data` are dict-valued ctx keys, not None (measured:
+    # `ne "zzz"` planned 10 pieces vs the reference's 12).  The style
+    # warning that blocks output is coincidence, so parity is asserted here.
     for subj in ("attrs", "marker_data"):
         for op, want in (("ne", "zzz"), ("eq", "zzz"), ("gt", 5.0),
                          ("in", ["zzz"])):
@@ -962,13 +838,9 @@ def asset_on(root, case, stage, tag):
         style_geo = hou.Geometry()
         STYLE.write(style_geo, case["style"])
         node.setInput(2, native.feed(root, style_geo, "AS_%s" % tag))
-    # ⚠️ AND THE SURFACE, WHICH THIS HELPER USED TO DROP ON THE FLOOR. Every
-    # `B*_conform_*` case was cooked with input 4 UNWIRED, so a check asking
-    # "did the guard hand this build to the native chain" was answering about
-    # a build with no terrain in it - and 4.5 is the largest thing the native
-    # chain cannot do. `place_packed_parity` never noticed because it skips
-    # those cases by name; `output_guard_parity` would have counted eleven of
-    # them as native successes.
+    # AND THE SURFACE, which this helper used to drop on the floor: every
+    # `B*_conform_*` case cooked with input 4 UNWIRED - and 4.5 is the
+    # largest thing the native chain cannot do.
     surface = case.get("surface")
     if surface is not None:
         node.setInput(3, native.feed(root, surface, "AF_%s" % tag))
@@ -985,9 +857,8 @@ def asset_on(root, case, stage, tag):
 def _place_out_of_scope(case, params):
     """Why this case cannot be compared yet, or "" when it can.
 
-    ⚠️ EVERY ROW HERE IS AN UNPORTED STAGE, NAMED, AND THE CHECK PRINTS THE
-    LIST - a scope that quietly shrinks until the check is green is the
-    "unfailable" pattern cycle P2-3V found six times.
+    Every row is an UNPORTED stage, named; the check prints the list
+    (otherwise the "unfailable" pattern P2-3V found six times).
     """
     from polyfactory.polychain import decompose as D
     if case["kit"] is None:
@@ -1006,9 +877,8 @@ def _place_out_of_scope(case, params):
         return "4.6 overrides - N7"
     curves, markers = P.read_curves(case["curve"])
     if any(D.resolve_corners(c, params) for c in curves):
-        # 4.3 reserves span off both ends of every leg, so the SAME element
-        # address names a different span in the two plans. That is N8, and it
-        # is a different question from the one this check asks.
+        # 4.3 reserves span off both ends of every leg: the SAME element
+        # address names a different span in the two plans (N8).
         return "4.3 corners - N8"
     ids = [str(c.curve_id) for c in curves]
     if len(set(ids)) != len(ids):
@@ -1019,24 +889,12 @@ def _place_out_of_scope(case, params):
 def gate_parity(root, built):
     """13.9 N5 - the deform gate, against `place._needs_deform` itself.
 
-    ⚠️ THIS IS A BOOLEAN PER PIECE AND IT DECIDES THE WHOLE COST MODEL.  A
-    piece the gate keeps packed is one packed prim sharing one `geometryid`; a
-    piece it unpacks is ~36 real points.  D69 measured the difference on
-    PC-G3's own shape: 10 005 packed at 0.42 s and +12 MB against 10 005
-    deformed at 21.9 s and 360 180 points.  So a gate that is 99 % right is
-    not 99 % right, it is a tool that silently costs fifty times what it
-    should on the exact input citygen hands it.
-
-    The reference's answer is read where it SHIPS - `pc_deformed` on the built
-    prim - and not from calling `_needs_deform` again, because the question is
-    whether the two implementations segregate the same elements, not whether
-    two calls of one function agree.  A deformed element is many prims, so the
-    reference's answer is the max over the element's own prims.
-
-    Cases where the gate declares itself unanswerable (`_gate_valid = 0`) are
-    counted and printed separately - that is D99's band and 4.5's drape, both
-    named in `pc_deform_gate.vfl` - and a piece that is never judged is not
-    quietly scored as agreeing.
+    A boolean per piece that decides the whole cost model (D69: 10 005
+    packed at 0.42 s / +12 MB vs 10 005 deformed at 21.9 s / 360 180
+    points).  The reference's answer is read where it SHIPS (`pc_deformed`
+    on the built prim, max over the element's prims).  `_gate_valid = 0`
+    cases (D99's band, 4.5's drape) are counted separately, never quietly
+    scored as agreeing.
     """
     agree = disagree = unjudged = 0
     per_case = {}
@@ -1104,12 +962,8 @@ def gate_parity(root, built):
 
 # (stage token, the null it must be served by, the nodes on the SPLINE side
 #  that must cook, the Python SOPs allowed to cook).
-#
-# ⚠️ THE KIT-SIDE NODES ARE NOT ON THE "MUST COOK" LIST AND THAT IS NOT
-# LENIENCY.  The dirtying lever is the SPLINE (see `stage_is_really_native`),
-# and `kit_starter` / `pc_kit_id` / `kit_unpack` hang off input 1, so
-# asserting they re-cook would be asserting a cache miss - `plan_benches`
-# excludes them for the same reason and by the same name.
+# Kit-side nodes are NOT on the must-cook list: they hang off input 1 and the
+# dirtying lever is the SPLINE, so asserting them asserts a cache miss.
 NATIVE_STAGES = (
     ("sections", "OUT_sections",
      ("pc_unshare", "pc_curveid", "pc_curve_index", "pc_arclength",
@@ -1129,14 +983,9 @@ NATIVE_STAGES = (
      ("config", "kit_starter")),
 )
 
-# ⚠️ AND THE STAGE THE WHOLE CYCLE IS ABOUT, WHICH HAD NO ROW (D203).
-# `NATIVE_STAGES` watched three stages and named no node this cycle added -
-# not `pc_deform_gate`, `pc_packed_only`, `pc_finalize`, `pc_out_cast`,
-# `pc_warn_collate` or either guard switch - and there was no row for `output`
-# at all.  It gets its own tuple because it needs its own FIXTURE: the L-shape
-# below has a corner, 4.3 is N8, so level 1 refuses it outright and the whole
-# native branch is correctly idle on it.  A straight flat run is what the
-# guard admits.
+# D203 - the `output` stage had no row.  Its own tuple because it needs its
+# own FIXTURE: the L-shape has a corner (4.3 is N8) so level 1 refuses it; a
+# straight flat run is what the guard admits.
 OUTPUT_STAGE = (
     ("output", "OUT_final",
      ("pc_deform_gate", "pc_packed_only", "pc_finalize", "pc_out_cast",
@@ -1144,23 +993,9 @@ OUTPUT_STAGE = (
      ("config",)),
 )
 
-# ⚠️ D250 - AND THE SAME SENTENCE WAS TRUE OF 13.9 N5's TEN NODES.  The block
-# above says `NATIVE_STAGES` "watched three stages and named no node this
-# cycle added"; the cycle that landed the DEFORMED branch added
-# `pc_kit_rank`, `pc_kit_meta`, `pc_deformed_only`, `pc_deform_prep`,
-# `copy_deformed`, `pc_deform`, `pc_pieces`, `pc_built`, `pc_piece_key` and
-# `pc_order` and extended neither table.
-#
-# It needs its OWN FIXTURE and that is why it is its own tuple: every row
-# above runs on `D192_STRAIGHT`, where the `pc_built` switch legitimately
-# bypasses the deformed branch, so extending them would assert that nodes
-# which correctly do not cook did cook.  `N5_RIPPLE` is the shape the branch
-# exists for - level 1 admits it, level 2 admits it, and `copy_deformed`
-# builds real geometry on it.
-#
-# `pc_kit_rank` and `pc_kit_meta` are NOT on the list for the reason the block
-# above gives for `kit_starter`: they hang off input 1 and the dirtying lever
-# is the SPLINE, so asserting they re-cook would be asserting a cache miss.
+# D250 - same for 13.9 N5's ten DEFORMED-branch nodes, on `N5_RIPPLE` (the
+# shape the branch exists for; on `D192_STRAIGHT` `pc_built` legitimately
+# bypasses it).  `pc_kit_rank` / `pc_kit_meta` hang off input 1 (see above).
 OUTPUT_DEFORMED_STAGE = (
     ("output", "OUT_final",
      ("pc_deform_gate", "pc_deformed_only", "pc_deform_prep", "copy_deformed",
@@ -1170,40 +1005,17 @@ OUTPUT_DEFORMED_STAGE = (
      ("config",)),
 )
 
-# --- D208: THE SIX STAGES WITH NO INDEPENDENT EXPECTATION AT ALL ------------
-#
-# §21.5.  D203 made `native.STAGES` the ONE declaration the build script and
-# the checks both read, which is the right shape for consistency and has a
-# cost nobody wrote down: a mutation of the DECLARATION moves the asset and
-# its oracle together, so `every_stage_entry_serves_the_node_it_names` can
-# only ever see the asset DRIFTING from the declaration, never the
-# declaration being wrong.  Reproduced at source this cycle - the `reference`
-# row re-pointed at `OUT_final` / `guard_envelope`, .hda rebuilt (md5
-# 37f1e344 -> 92b0d456) - and that check printed **PASS**.
-#
-# `NATIVE_STAGES` and `OUTPUT_STAGE` above are the second voice for five
-# stages, and they work because they are BEHAVIOURAL: they name nodes that
-# must cook and Python that must not, so they are an expectation about the
-# GRAPH rather than a copy of the table.  The other five - `reference`,
-# `config`, `plan`, `frames`, `gate` - had nothing.
-#
-# These are those five, in the same behavioural shape, plus a fifth column:
-# the nodes that must NOT cook.  A stage on the Python side cannot be asserted
-# by "no Python cooked", so it is asserted by what the OTHER branch would do
-# if the entry were re-pointed at it - `copy_packed` is the native branch's
-# materialiser and `kernel` is the reference, and on a straight admitted run
-# exactly one of them cooks.
-#
-# ⚠️ THE FIXTURE IS THE STRAIGHT RUN, and it has to be: on the L-shape the
-# guard REFUSES, so `Stage = output` runs the reference and `copy_packed`
-# never cooks whatever the entry is wired to - the forbidden column would be
-# vacuous on exactly the mutation it exists to catch.
-#
-# ⚠️ `config` HAS NO must-cook LIST, and that is a property of the node, not
-# leniency: `config` is wired to IN_KIT / IN_STYLE / IN_SURFACE and not to the
-# spline, so the dirtying lever cannot reach it.  Its row is the forbidden
-# column alone, which is still enough - re-pointing the `config` entry at
-# either neighbour makes something on this list cook.
+# --- D208: THE SIX STAGES WITH NO INDEPENDENT EXPECTATION AT ALL (§21.5) ----
+# D203 made `native.STAGES` the one declaration both sides read, so a
+# mutation of the DECLARATION moves the asset and its oracle together
+# (reproduced: `reference` row re-pointed, .hda md5 37f1e344 -> 92b0d456,
+# check printed PASS).  These rows give the five uncovered stages the same
+# BEHAVIOURAL shape plus a fifth column: nodes that must NOT cook
+# (`copy_packed` = native materialiser, `kernel` = reference; exactly one
+# cooks on a straight admitted run).  The fixture must be the straight run -
+# on the L-shape the guard refuses and the forbidden column is vacuous.
+# `config` has no must-cook list (not wired to the spline); its forbidden
+# column alone is enough.
 BRIDGE_STAGES = (
     ("reference", "OUT_reference", ("kernel",), ("config", "kernel"),
      ("copy_packed", "pc_finalize", "pc_out_cast")),
@@ -1231,36 +1043,19 @@ def stage_is_really_native(root, tag, rewire=None, rows=NATIVE_STAGES,
     """Cook the SHIPPED asset at each NATIVE Stage and ask the graph, not the
     label, whether that stage is native.
 
-    ⚠️ THIS IS THE CHECK CYCLE N-2V2's MUTATION M4b SURVIVED FOR WANT OF.
-    Pointing the `plan_native` entry of `STAGES` at `OUT_plan` makes the menu
-    entry labelled "2 - Plan, NATIVE (4.2 - the VEX fitting solve)" serve
-    `pc_plan_bridge`'s PYTHON plan, and the suite stayed at 77 / 0: every
-    parity check runs on `native.py`'s RIG, `asset_stages_match_the_rig`
-    compares node PARAMETERS and not WIRING, and the one row that mentioned the
-    native place stage asserted the opposite direction.
-    Nothing asserted that a native stage IS native.
-
-    Two assertions, and both are needed - the first alone would pass a stage
-    whose wrangles cook into a null nobody reads, and the second alone would
-    pass a stage that cooks nothing at all:
-
+    The check cycle N-2V2's mutation M4b survived for want of: nothing
+    asserted that a native stage IS native.  Two assertions, both needed:
       1. every node the stage is made of advanced its `cookCount`;
       2. no Python SOP outside the named allowance advanced its `cookCount`.
-
-    `rewire` is (stage token, null name) - the mutation lever. It moves the
-    switch input that serves that stage onto another null, which is M4b
-    exactly, applied to the built asset rather than to the build script.
-
-    Returns a list of complaint strings; empty is the sound build.
+    `rewire` is (stage token, null name) - the mutation lever (M4b applied
+    to the built asset).  Returns complaint strings; empty is sound.
     """
     node = root.createNode("pf_polychain", "d192_" + tag)
     geo = hou.Geometry()
     cases.polyline(geo, pts or D192_CORNER, curve_id="D192")
     src = native.feed(root, geo, "D192IN_" + tag)
-    # ⚠️ THE DIRTYING LEVER IS THE SPLINE, NOT A PARM.  D164: a cook that is a
-    # no-op measures nothing, and `corner_angle_deg` only dirties `config`, so
-    # `pc_curveid` and `pc_arclength` - which do not read it - would never
-    # re-cook and the check would read them as idle on a sound build.
+    # THE DIRTYING LEVER IS THE SPLINE, NOT A PARM (D164: `corner_angle_deg`
+    # only dirties `config`, so non-readers would read as idle when sound).
     dirt = root.createNode("attribwrangle", "d192_dirty_" + tag)
     dirt.parm("class").set(2)
     group = dirt.parmTemplateGroup()
@@ -1278,15 +1073,9 @@ def stage_is_really_native(root, tag, rewire=None, rows=NATIVE_STAGES,
         switch = node.node("stage_switch")
         moved = [i for i, inp in enumerate(switch.inputs())
                  if inp is not None and inp.name() == served]
-        # ⚠️ THIS USED TO BE `assert len(moved) == 1` AND IT IS D208's OTHER
-        # HALF.  Under §21.4's M10 - the `reference` row of `native.STAGES`
-        # re-pointed at `OUT_final` at SOURCE - no switch input serves
-        # `OUT_reference` any more, the assert fired, and the run ABORTED with
-        # a traceback: 94 [PASS], **0 [FAIL]**, and `every_stage_entry_serves
-        # _the_node_it_names` printing PASS on the way past.  The exit code
-        # was 1, so a caller that checks it was safe; every summary in this
-        # build log counts [FAIL] lines, and would have read that as green.
-        # A missing switch input is a COMPLAINT now, not an exception.
+        # D208's other half: this was `assert len(moved) == 1`, and under
+        # §21.4's M10 the assert ABORTED the run showing 0 [FAIL].  A
+        # missing switch input is a COMPLAINT now, not an exception.
         if len(moved) != 1:
             bad.append("%s: %d switch inputs serve %s (want exactly 1) - the "
                        "declaration and the asset disagree about which null "
@@ -1317,21 +1106,9 @@ def stage_is_really_native(root, tag, rewire=None, rows=NATIVE_STAGES,
         busy = [n for n in forbidden
                 if node.node(n) is not None
                 and node.node(n).cookCount() > before[n]]
-        # ⚠️ AND A NAME THAT RESOLVES TO NO NODE IS A COMPLAINT, NOT A SKIP.
-        # `busy` used to read `node.node(n) is not None and ...`, so a
-        # RENAMED node silently turned the forbidden column off - and that
-        # column is the whole of D208's fix, the only behavioural assertion
-        # the `config` row has (its `must_cook` list is empty by design).
-        # Demonstrated: replace the forbidden entries of `config`, `plan` and
-        # `frames` with `kernelXX` / `copy_packedXX` / `pc_plan_solveXX` -
-        # simulating a rename of `copy_packed` - and the suite prints
-        # `every_stage_has_a_second_source` PASS 10/10, `native_stages_are_
-        # really_native` PASS, all five `mutation_*_unplugged` PASS, 0
-        # failing. With the column blinded, re-pointing the `config` Stage
-        # entry at `OUT_final` yields NO complaint where the sound table
-        # yields `config: copy_packed,pc_plan_solve cooked and must not`.
-        # `must_cook` has complained about a missing name since D208; the two
-        # halves of the same row disagreed about it for a cycle.
+        # A NAME THAT RESOLVES TO NO NODE IS A COMPLAINT, NOT A SKIP: a
+        # renamed node silently turned the forbidden column off (demonstrated
+        # - with it blinded, a re-pointed `config` entry drew NO complaint).
         gone = [n for n in tuple(forbidden) + tuple(allowed)
                 if node.node(n) is None]
         if idle:
@@ -1387,15 +1164,9 @@ def native_stage_check(root):
 def _storage(attribs):
     """(dataType, NUMERIC STORAGE WIDTH, size, isArray) per attribute.
 
-    ⚠️ D246 - `dataType()` CANNOT SEE A PRECISION CHANGE, AND STORAGE IS PART
-    OF THE CONTRACT (D223, on the input side).  Probed on 22.0.398:
-    `hou.Attrib.dataType()` returns `attribData.Float` for BOTH fpreal32 and
-    fpreal64, so the old `prim_types` dimension read the same string either
-    way - and `pc_out_cast.numcasts` 2 -> 1, which ships `pc_local` at
-    fpreal64 where the reference ships fpreal32, moved NOTHING in this
-    snapshot.  `numericDataType()` is the accessor that separates them
-    (`numericData.Float32` / `numericData.Float64`), it is one call per
-    attribute, and it is what makes the output side of D223's rule assertable.
+    D246: `dataType()` cannot see a precision change (Float for both
+    fpreal32/fpreal64, probed 22.0.398); `numericDataType()` separates them
+    and makes the output side of D223's storage-is-contract rule assertable.
     """
     out = {}
     for a in attribs:
@@ -1411,14 +1182,9 @@ def _storage(attribs):
 def _columns(geo, attribs, bulk):
     """{name: the whole column}, read in BULK - one call per attribute.
 
-    ⚠️ D246 - THE POINT ATTRIBUTES USED TO BE COMPARED BY NAME ALONE, so
-    `pc_local` - the one output attribute 13.9 N5 added - was compared by
-    NOTHING in the entire safety net.  Demonstrated on the ripple fixture:
-    mutating the shipped `pc_deform` to `v@pc_local = local * 1.5`, and again
-    to `set(0,0,0)` (worst |native - ref| 2.0 m), left `_first_difference`
-    EMPTY.  The columns are read with `point*AttribValues` rather than per
-    point because a deformed 20 km build carries ~300 000 points and a Python
-    loop over them would be the check nobody runs.
+    D246: point attributes used to be compared by NAME alone (a 2.0 m
+    `pc_local` mutation left `_first_difference` EMPTY).  Bulk reads because
+    a deformed 20 km build carries ~300 000 points.
     """
     out = {}
     for a in attribs:
@@ -1444,13 +1210,9 @@ def _columns(geo, attribs, bulk):
 def _snapshot(geo):
     """Everything about a polyChain output that a consumer can see.
 
-    Not a digest: a digest tells you two builds differ and nothing else, and
-    the whole point of this comparison is that a divergence has to be
-    NAMEABLE - which attribute, which element, which number.
-
-    ⚠️ D246 - AND "EVERYTHING" NOW INCLUDES THE POINT ATTRIBUTES' VALUES AND
-    EVERY ATTRIBUTE'S STORAGE WIDTH.  See `_columns` and `_storage` for the
-    two demonstrations that the sentence above was false before this cycle.
+    Not a digest: a divergence has to be NAMEABLE - which attribute, which
+    element, which number.  D246: includes the point attributes' VALUES and
+    every attribute's STORAGE WIDTH (see `_columns` / `_storage`).
     """
     names = sorted(a.name() for a in geo.primAttribs())
     prims = []
@@ -1517,21 +1279,10 @@ def output_guard_parity(root, built):
     """13.9 N10 - `Stage = output` takes the NATIVE chain, and it had better
     build the same fence.
 
-    ⚠️ THIS IS THE CHECK THE WHOLE CYCLE RESTS ON.  Until this commit
-    `Stage = output` was the Python reference and nothing else, so 88-95 % of
-    what an artist cooked was Python however much of the tool had been ported
-    (18.2).  It is a guarded fork now, and a guard that is wrong in either
-    direction is worse than no guard at all: too generous and the artist gets
-    a different fence than yesterday, too mean and the rebuild still does not
-    ship.
-
-    So EVERY case is cooked twice, at `Stage = output` and at the new
-    `Stage = reference`, and the two are compared on EVERYTHING a consumer can
-    see - the prim attribute NAMES, their TYPES, every value on every prim in
-    ORDER, every packed prim's world bounds, every point position, the detail
-    warning arrays and the prim groups.  Where the guard chose the reference
-    the two are the same node and agree trivially; the row that matters is the
-    count of cases where it chose the NATIVE chain, and it is printed.
+    Every case cooks at `Stage = output` and `Stage = reference`, compared
+    on EVERYTHING a consumer can see; a guard wrong in either direction is
+    worse than none.  The row that matters is the count of cases where the
+    guard chose the NATIVE chain, and it is printed.
     """
     took_native, took_ref, bad, fallback = [], [], [], []
     for name in sorted(built):
@@ -1542,15 +1293,9 @@ def output_guard_parity(root, built):
             continue
         node.allowEditingOfContents()
         got = _snapshot(geo)
-        # ⚠️ THE TALLY IS EVIDENCE, NOT THE ENVELOPE'S OWN CLAIM (D203).  It
-        # used to be read off `pc_envelope2`'s `_native_ok2` detail int, which
-        # cooks whether or not anything downstream is wired to it - so with
-        # the `output` entry re-pointed at `OUT_reference` (the exact undo of
-        # this cycle) this row still printed "9 native / 83 reference ...
-        # identical" and PASSED.  `copy_packed` is the node that assembles the
-        # native fence and it is INSIDE level 2's branch, so a switch that did
-        # not select that branch leaves it at cookCount 0.  The envelope is
-        # kept as a CROSS-CHECK and a disagreement fails the row.
+        # THE TALLY IS EVIDENCE, NOT THE ENVELOPE'S OWN CLAIM (D203):
+        # `copy_packed` is INSIDE level 2's branch, so its cookCount is what
+        # is observed; the envelope is kept as a cross-check.
         native_cooked = node.node("copy_packed").cookCount() > 0
         env = node.node("pc_envelope").geometry()
         level1 = int(env.attribValue("_native_ok")) if \
@@ -1582,34 +1327,14 @@ def output_guard_parity(root, built):
           "bounds, every point position, the detail arrays and the groups. "
           "%s" % (len(built),
                   "; ".join("%s %s" % b for b in bad[:3]) or "identical"))
-    # ⚠️ AND WHAT MAKES THE 1.15x REFUSED CEILING HONEST.  A build that passes
-    # level 1 and is refused by level 2 cooks the native chain AND the
-    # reference - measured at 1.43x (2 km) and 1.54x (20 km) by
-    # `bench_guard_fallback`.
-    #
-    # ⚠️ THE FALLBACK PATH IS REACHABLE ON THE SHIPPED BUILD, and this comment
-    # said the opposite for a cycle.  It was written when level 1 answered the
-    # deform question with an UPPER bound, which refused every arc in
-    # existence; PART B turned it into a LOWER bound in the same cycle that
-    # added `GUARD_BEND_LADDER`, two of whose rows (`arc_R20_step0.05`,
-    # `arc_R50_step0.1`) are legitimate inputs that pass level 1 and are
-    # refused by level 2.  A kit whose module names no rule matches used to be
-    # a third such class and cost 2.35x at 18.9 km; `_native_ok` refuses it
-    # now (`guard_kit_mismatch`).
-    #
-    # So this row's "0 of 92" is a statement about the 92 FIXTURES' shapes and
-    # kits, not about the tool - it says no case in the scene suite pays the
-    # double cook, and `GUARD_BEND_LADDER` is where the shapes that do are
-    # pinned.
-    # ⚠️ THIS ROW WENT FROM "none" TO A NAMED SET AT 13.9 N5, and the named
-    # set is the assertion.  `P_crest_bend` is an OVERHANGING CREST - the
-    # path's plan-view direction reverses inside one panel's span - which is
-    # exactly the shape D31's frame transport flips on and exactly what
-    # `pc_frames_transportable` declares unanswerable.  It is correct that it
-    # pays the double cook: the output is the reference's, and refusing it at
-    # level 1 would mean modelling a per-piece question with a per-build test.
-    # What must not happen is the set GROWING quietly, so it is compared
-    # against a declaration rather than against zero.
+    # What makes the 1.15x refused ceiling honest: a level-1-pass /
+    # level-2-refuse build cooks BOTH chains (measured 1.43x at 2 km, 1.54x
+    # at 20 km by `bench_guard_fallback`).  The fallback path IS reachable
+    # (`GUARD_BEND_LADDER` rows `arc_R20_step0.05`, `arc_R50_step0.1`).
+    # Since 13.9 N5 the set is NAMED: `P_crest_bend` (overhanging crest,
+    # `pc_frames_transportable` declares it unanswerable) correctly pays the
+    # double cook; comparing against a declaration rather than zero keeps
+    # the set from GROWING quietly.
     check("no_case_pays_the_guard_fallback",
           sorted(fallback) == sorted(GUARD_FALLBACK_CASES),
           "%d of %d" % (len(fallback), len(built)),
@@ -1637,30 +1362,13 @@ N5_RIPPLE = [(0.5 * i, 0.45 * math.sin(i * 0.55), 0.0) for i in range(49)]
 def output_snapshot_sees_the_deformed_branch(root):
     """D246 - the parity ORACLE has to be able to see `pc_local`.
 
-    ⚠️ `output_guard_parity`'s docstring says the two sides are compared on
-    "EVERYTHING a consumer can see", and until this cycle that sentence was
-    false in two ways at once, both of them exactly over the one output
-    attribute 13.9 N5 added:
-
-      * `_snapshot` recorded point attributes by NAME only, so every VALUE of
-        `pc_local` (1 338 floats on this fixture) was compared by nothing.
-        Demonstrated: `v@pc_local = local * 1.5` and `v@pc_local = set(0,0,0)`
-        both left `_first_difference` EMPTY, the second one 2.0 m out.
-      * the "types" dimension read `hou.Attrib.dataType()`, which is
-        `attribData.Float` for fpreal32 AND fpreal64, so `pc_out_cast` losing
-        its second cast shipped `pc_local` at TWICE the reference's storage
-        and moved nothing.  That is D223's own rule - the storage of an
-        attribute is part of its contract - on the output side.
-
-    Nothing else in the tree covers it: `place_packed_parity` compares PACKED
-    prims, `place_deformed_covers_the_reference` compares element-id SETS, and
-    `run_scene_checks` / `run_2d_checks` call `place.build` directly and never
-    instantiate the HDA, so `checks.py`'s three `pc_local` readers never see
-    the native branch at all.
-
-    So this row mutates the SHIPPED asset twice and demands the snapshot names
-    each one.  A row that only asserted the sound build is identical would be
-    satisfied by a snapshot that compares nothing, which is what shipped.
+    `_snapshot` recorded point attributes by NAME only (a 2.0 m `pc_local`
+    mutation left `_first_difference` EMPTY), and `dataType()` cannot see
+    fpreal32 vs fpreal64, so `pc_out_cast` losing a cast moved nothing
+    (D223's storage-is-contract rule, output side).  Nothing else in the
+    tree covers it.  So this row mutates the SHIPPED asset twice and demands
+    the snapshot names each one - a sound-build-only row would be satisfied
+    by a snapshot that compares nothing, which is what shipped.
     """
     geo = guard_polyline_geo(N5_RIPPLE)
     node = root.createNode("pf_polychain", "snapmut")
@@ -1727,11 +1435,9 @@ def output_snapshot_sees_the_deformed_branch(root):
              "; ".join(bad[:3]) or "each one named"))
 
 
-# 13.9 N5 - the scene cases that legitimately pay the LEVEL-1-PASS /
-# LEVEL-2-REFUSE double cook, declared rather than counted.  `P_crest_bend` is
-# the overhanging crest whose plan-view direction reverses inside one panel's
-# span - `pc_frames_transportable` refuses that piece and level 2 refuses the
-# build.  A case joining this set is a widening somebody has to look at.
+# 13.9 N5 - the scene cases that legitimately pay the level-1-pass /
+# level-2-refuse double cook, declared rather than counted (`P_crest_bend`:
+# overhanging crest).  A case joining this set is a widening to look at.
 GUARD_FALLBACK_CASES = ("P_crest_bend",)
 
 
@@ -1744,22 +1450,10 @@ def guard_polyline_geo(pts):
 def piece_order_key_is_total(root):
     """13.9 N5 - the order key must be UNIQUE per prim and per point.
 
-    THIS CHECK EXISTS BECAUSE TWO MUTATIONS SURVIVED THE WHOLE SUITE.  Dropping
-    the within-piece term from either key - `f@_pkey = (float)_pk0` and
-    `f@_pkeyp = (float)i@_pkey0`, so every prim and every point of one deformed
-    piece carries the SAME key - left `run_native_checks` at 136 [PASS] / 0,
-    `output_guard_parity` included.
-
-    The reason it survived is that Houdini's `sort` happens to be STABLE here,
-    so equal keys kept the order `copytopoints` emitted them in, which is
-    already the reference's.  That is luck resting on an undocumented property:
-    the whole point of the second term is that the key is TOTAL, so the result
-    does not depend on how the sort breaks ties.  Nothing asserted totality, so
-    nothing could see the term go.
-
-    So this asserts the property directly rather than its consequence: on a
-    build with deformed pieces, no two prims and no two points may share a key.
-    It is independent of the sort, of stability, and of the fixture's shape.
+    Exists because two mutations dropping the within-piece term survived the
+    whole suite (136 [PASS] / 0) on Houdini's sort happening to be STABLE.
+    So the property (totality) is asserted directly: no two prims and no two
+    points may share a key - independent of sort, stability, and shape.
     """
     geo = hou.Geometry()
     cases.polyline(geo, [(0.5 * i, 0.45 * math.sin(i * 0.55), 0.0)
@@ -1797,15 +1491,9 @@ def piece_order_key_is_total(root):
 
 
 # D242 - the marker-data rows that have to run on the SHIPPED ASSET.
-#
-# (label, the marker's data dict, the subject, op, value).  The first block is
-# a slot that is NOT A SCALAR - a vector, a list, a nested dict - which the
-# type probe used to cross-type-read as 0.0 and publish as READABLE.  The
-# second is a KEY that `json_dumps` ESCAPES, which the old probe searched for
-# by its SOURCE spelling and therefore never matched.  Both were measured on
-# the shipped .hda with level 1 and level 2 admitting, and both diverge in
-# BOTH directions - the quote key fired a gate the artist never asked for and
-# the non-ASCII key dropped one that was asked for.
+# (label, marker data dict, subject, op, value).  Block 1: non-scalar slots
+# the probe cross-type-read as 0.0; block 2: keys `json_dumps` escapes.
+# Both measured diverging in BOTH directions on the shipped .hda.
 GUARD_MARKER_DATA_ROWS = (
     ("vector_eq", {"v": (1.0, 2.0, 3.0)}, u"markerData:v", "eq", 0.0),
     ("vector_lt", {"v": (1.0, 2.0, 3.0)}, u"markerData:v", "lt", 1.0),
@@ -1827,32 +1515,19 @@ GUARD_MARKER_DATA_ROWS = (
 def guard_marker_data_types(root):
     """D242 - `markerData:<k>` on the SHIPPED asset, by value type and by key.
 
-    ⚠️ THIS CHECK EXISTS BECAUSE A SOURCE MUTATION SURVIVED THE WHOLE
-    SUITE.  The fix was landed and `run_native_checks` was 144 [PASS] / 0;
-    reverting the `!unreadable:` branch back to `float v = md[k]` at source,
-    rebuilding the .hda and re-running left it at **144 [PASS] / 0**.  A guard
-    hole closed by a fix that nothing can see is the same thing as an unfixed
-    guard hole one edit later, which is this project's own recorded lesson.
-
-    `plan_fixture_parity` carries the non-scalar VALUE rows through the rig;
-    the KEY rows cannot go there, because `native.config_full` marshals the
-    style through a generated Python SOP body on a string parm and Houdini
-    string parms treat a backslash as an escape.  The asset reads its payload
-    GEOMETRY, so this is the transport an artist actually uses - and it is the
-    transport the divergence was measured on.
+    Exists because a source mutation survived the whole suite (reverting the
+    `!unreadable:` branch left 144 [PASS] / 0).  The KEY rows cannot go
+    through the rig (string-parm backslash escaping); the asset reads its
+    payload off GEOMETRY - the transport the divergence was measured on.
     """
     from polyfactory.polychain import Rule, Style
     from polyfactory.polychain import style as STYLE
     rows, bad = [], []
     for i, (label, data, subject, op, value) in enumerate(
             GUARD_MARKER_DATA_ROWS):
-        # ⚠️ THE CURVE ID HAS TO MATCH THE MARKER'S `pc_curve`, and the
-        # first version of this fixture used `guard_polyline_geo`, whose id is
-        # "GC".  The marker then bound to no curve, no gate was placed on
-        # EITHER side, and all fourteen rows agreed on ten panels - the check
-        # passed under the very source mutation it was written to catch.
-        # A fixture that cannot reach the code path proves nothing, twice in
-        # one cycle.
+        # THE CURVE ID HAS TO MATCH THE MARKER'S `pc_curve`: with "GC" the
+        # marker bound to no curve and all fourteen rows agreed on ten
+        # panels - passing under the very mutation this was written to catch.
         geo = hou.Geometry()
         cases.polyline(geo, [(0.0, 0.0, 0.0), (20.0, 0.0, 0.0)],
                        curve_id="S")
@@ -1913,21 +1588,12 @@ def guard_marker_data_types(root):
 
 
 def native_reach(root):
-    """WHO cooks on `Stage = output` now - and it is the ladder this cycle
-    had to climb.
+    """WHO cooks on `Stage = output` now.
 
-    ⚠️ THIS CHECK USED TO ASSERT THE OPPOSITE, AND ITS OWN COMMENT SAID WHEN
-    TO EDIT IT: "the day 13.9 N10 retires `kernel`, this check has to be
-    edited on the same commit".  Until this commit the answer was "none of
-    them" - the solve and the packed branch were at parity behind a Stage menu
-    nobody sets, which is why 18.2 measured the shipped default at 88-95 %
-    Python.  The guard switch changes that, and what has to be asserted
-    changes with it: not that the native chain is idle, but that it runs on a
-    build inside the envelope AND THAT `kernel` DOES NOT.
-
-    Both directions, because either one alone is satisfiable by an accident:
-    a guard that always chose the reference would pass the second half, and a
-    guard that always chose the native chain would pass the first.
+    Used to assert the opposite (18.2: shipped default was 88-95 % Python).
+    Now: the native chain runs on a build inside the envelope AND `kernel`
+    does not - both directions, since either alone is an accident away from
+    passing.
     """
     watched = ("pc_sections", "pc_plan_solve", "pc_plan_emit", "pc_proto",
                "pc_deform_gate", "pc_frames_native", "copy_packed",
@@ -1981,36 +1647,14 @@ def native_reach(root):
 
 
 # 13.9 N6 - THE DECIDING EXPERIMENT FOR THE CONFORM PORT, COMMITTED.
-#
-# ⚠️ THIS CHECK GUARDS A DECISION, NOT A FEATURE, and that is why it exists on
-# a build where nothing conforms natively.  4.5 is the largest refused class
-# left by a factor of 4.5 - measured on the shipped asset with `hou.perfMon`,
-# 300 conformed streets over a terrain that COVERS them cost 3 645 ms of
-# Python and the curved variant 4 225 ms, against 806 ms for the cornered
-# class - so the next cycle's first question is whether N6 is a PORT of the
-# drape's numbers or a REWRITE of them.
-#
-# `conform.Surface.drop` is `hou.Geometry.intersect` twice (down-axis, then
-# back, nearest wins, `tolerance = 1e-6`, `min_hit = 0.0`), and `drop_many` is
-# the `ray` VERB, already measured bit-identical to it.  A native conform would
-# be a THIRD implementation - VEX's own `intersect()` - and if that one does
-# not reproduce `drop`, every conformed fence the guard admitted would be a
-# different fence.
-#
-# ⚠️ AND THE FIRST READING OF THIS EXPERIMENT SAID NO.  Compared as DOUBLES the
-# two disagree by 3.8e-07 m at fixture scale and 9.4e-04 m at 20 km - which
-# would fail `_first_difference`'s 1e-9 rounding outright.  The whole
-# divergence is in x and z, the two components a -Y drop never moves: VEX's
-# `intersect` in a 64-bit wrangle hands back the query's own double
-# coordinates, and `hou.Geometry.intersect` hands back float32 ones.  It is
-# D111's finding from the other side - the REFERENCE is the quantised one -
-# and it disappears the moment both land in the float32 `P` storage the output
-# is actually compared on.
-#
-# So the answer is YES, with a condition, and the condition is recorded here
-# rather than rediscovered: read the drop off the AXIS COMPONENT and rebuild
-# the position from the query (`drop_many`'s own reconstruction), and compare
-# in float32.
+# Guards a DECISION, not a feature: 4.5 is the largest refused class
+# (perfMon: 300 conformed streets 3 645 ms Python, curved 4 225 ms, vs
+# 806 ms cornered).  A native conform (VEX `intersect()`) would be a THIRD
+# implementation of `conform.Surface.drop`.  As doubles the two disagree
+# (3.8e-07 m fixture, 9.4e-04 m at 20 km) - entirely in x/z, because
+# `hou.Geometry.intersect` returns float32 coordinates (D111 from the other
+# side).  Answer: YES, on condition - read the drop off the AXIS COMPONENT,
+# rebuild the position from the query, and compare in float32.
 CONFORM_DROP_VEX = r'''
 // `conform.Surface.drop`, in VEX. Down-axis, then back no further than the
 // hit already found, nearest wins, ties go DOWN-axis (D70).
@@ -2037,37 +1681,18 @@ i@_hit  = hit;
 # what survives float32 `P` storage.  Both sides round into the same 24 bits,
 # so anything above this is a DIFFERENT number in the storage the output ships.
 CONFORM_DROP_CEILING_M = 1e-12
-# ⚠️ D247 - AND THE RAW DOUBLE DIFFERENCE, WHICH THE f32 ROW WAS HIDING.
-# `f32()` was applied to BOTH sides before the subtraction, so the advertised
-# 1e-12 m ceiling was really a half-float32-ULP tolerance - about 0.98 mm at
-# 20 km - and the row that decides N6 printed `ramp_20km 0.000e+00` while the
-# two implementations disagreed by 9.375e-04 m, 96 % of the way to the next
-# float32 bucket.  Re-measured raw, before `f32()`: flat 3.815e-07 m,
-# irrational 4.578e-07 m, ramp_20km 9.375e-04 m.
-#
-# That divergence is NOT noise and it is not a bug either: Houdini's
-# `intersect()` is a float32 ray test, so the raw agreement is bounded by the
-# float32 RELATIVE precision of the query magnitude, not by float64's.  The
-# measured worst is 4.93e-08 relative (9.375e-04 / 19 012), which is 0.83 of
-# one float32 ULP.  So the raw row is asserted RELATIVE - two float32 ULP -
-# and the f32 row keeps its exact ceiling as the "survives storage" statement.
-# A degradation that lands in the next float32 bucket would move the f32 row
-# from 0.000e+00 to 1e-3 with no intermediate warning; this one grows
-# smoothly and says so first.
-#
-# ⚠️ AND WHAT THE RAW ROW CANNOT DO, stated rather than left to be assumed
-# (retrospective 4a rule 2).  It is not an independent DETECTOR of a
-# disagreement the f32 row would miss, and the arithmetic says so: f32
-# rounding separates two doubles once they are about half a float32 ULP apart
-# (2^-25 = 2.98e-8 relative), which is FOUR TIMES TIGHTER than the 2-ULP
-# relative ceiling below.  Anything big enough to trip the raw ceiling is
-# therefore big enough to have tripped the f32 one first.  What the raw row IS
-# for is the other two things D247 asked of it: it REPORTS the real number
-# where the f32 row printed `0.000e+00` on a genuine 9.375e-04 m
-# disagreement, and it is deterministic where f32 detection is a coin toss in
-# the last bit - two doubles a full ULP apart can still round to the same
-# float32.  The registered mutation is `conform_drop_biased`
-# (`tests/polychain/mutations.py`), which biases the drop by 1e-5 m.
+# D247 - the RAW double difference the f32 row was hiding: `f32()` on both
+# sides made the 1e-12 m ceiling really a half-float32-ULP tolerance
+# (~0.98 mm at 20 km); ramp_20km printed 0.000e+00 on a genuine 9.375e-04 m
+# disagreement.  Re-measured raw: flat 3.815e-07 m, irrational 4.578e-07 m,
+# ramp_20km 9.375e-04 m.  Not a bug: `intersect()` is a float32 ray test;
+# worst is 4.93e-08 relative = 0.83 float32 ULP, so the raw row is asserted
+# RELATIVE (two ULP) and the f32 row keeps its exact ceiling.  WHAT THE RAW
+# ROW CANNOT DO: it is not an independent detector (f32 rounding separates
+# at 2^-25, four times tighter than the 2-ULP ceiling) - it REPORTS the real
+# number and is deterministic where f32 detection is a last-bit coin toss.
+# Registered mutation: `conform_drop_biased` (tests/polychain/mutations.py),
+# biases the drop by 1e-5 m.
 CONFORM_DROP_REL_CEILING = 1.192e-7      # 2 x 2^-24
 
 
@@ -2094,13 +1719,9 @@ def _conform_sheet(y, x0, x1, z0, z1, n=8, slope=0.0, reverse=False):
 def conform_drop_is_portable_to_vex(root):
     """13.9 N6 - can VEX's `intersect()` reproduce `conform.Surface.drop`?
 
-    See the block above for why this is committed on a build that conforms
-    nothing.  Five surfaces, chosen for the four things that have broken a
-    drop in this codebase before: an exact-tie flat sheet, a rational slope,
-    an IRRATIONAL slope (the fixtures' own 0.25x is exactly representable and
-    hid a real divergence for a cycle - D111), a REVERSED winding (D52), and
-    the same irrational ramp at 20 km, where float32 world coordinates are
-    2 mm apart.
+    Five surfaces, one per past drop-breaker: exact-tie flat sheet, rational
+    slope, IRRATIONAL slope (D111), REVERSED winding (D52), and the same
+    irrational ramp at 20 km (float32 world coordinates 2 mm apart).
     """
     surfaces = (
         ("flat", _conform_sheet(0.0, -5.0, 25.0, -5.0, 5.0),

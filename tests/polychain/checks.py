@@ -1,55 +1,38 @@
 """polyChain geometry checks - the assertions, in one place.
 
-Each check returns a `Result` carrying a NUMBER, never a bare pass/fail: some
-regressions are only ever visible as "this number got worse".  Nothing raises;
-a check that cannot run reports `skipped`, because a crashed check hides the
-others.
+Each check returns a `Result` carrying a NUMBER, never a bare pass/fail;
+nothing raises - a check that cannot run reports `skipped`.
 
-⚠️ v2, 2026-08-25: this file was 5 111 lines and ~130 checks.  Two thirds of
-them were per-attribute comparisons of the built geometry against the plan
-that built it - which is precisely what `diff.compare` does over EVERY
-attribute by construction, on generated scenes, in `run_generated.py`.  A
-bespoke assertion that compares a subset of what the comparator compares is
-subsumed by it, and those are gone.  What is left is two kinds of check the
-comparator structurally cannot make:
-
-  * the sixteen GEOMETRIC properties with a registered mutation - the corner
-    assembly, the conform, the deform gate, the warnings - which are
-    statements about whether the answer is RIGHT, not about whether two paths
-    agree on it;
-  * the port TRIPWIRES, which are measured COST ceilings.  A ceiling is a
-    contract (skill: "a cost check needs a measured ceiling, on every stage"),
-    and every row below was bought by a regression that left every geometry
-    check green.
+v2, 2026-08-25: cut from 5 111 lines / ~130 checks. Per-attribute comparisons
+of built geometry against the plan are subsumed by `diff.compare` in
+`run_generated.py` and are gone. What remains: the geometric properties with a
+registered mutation (is the answer RIGHT), and the port tripwires - measured
+COST ceilings, each bought by a regression that left every geometry check
+green.
 
 WHAT THE NUMBERS MEAN
-  packed_pieces      how many pieces shipped packed rather than deformed.
+  packed_pieces      pieces shipped packed rather than deformed.
   warnings           the warning names a case is ALLOWED to raise, exactly.
-  stamp_parity       [attribute values compared, differing] between the D102
-                     BULK stamp and the per-prim writer it replaced.
-  bank_deg           the tilt of an ADAPTIVE piece's up axis away from world
-                     up: it must be NON-ZERO on a slope, or a builder that
-                     ignored the Z-mode entirely would pass everything else.
+  stamp_parity       [values compared, differing] - D102 BULK stamp vs the
+                     per-prim writer it replaced.
+  bank_deg           tilt of an ADAPTIVE piece's up axis off world up; must
+                     be NON-ZERO on a slope.
   camber_deg         the cross-slope a conformed piece takes from the surface.
   conform_misses     pieces whose drape left the terrain (D53), warned.
   conform_parity     the built drape against `conform.Surface` itself.
   curvature_budget_m worst deviation a PACKED piece leaves against its budget.
-  deform_gate_m      [worst deviation left packed, over budget, of those still
-                     packed] - D100's dangerous direction, as a triple.
+  deform_gate_m      [worst deviation left packed, over budget, still packed]
+                     - D100's dangerous direction.
   packed_true_dev_m  the same deviation measured on the delivered geometry.
   corner_abut_m      the gap between a corner assembly and the run it joins.
   corner_outside_m   the outside-length of a mitered corner against the plan.
   corner_breach_m    how far a corner piece breaches its neighbour's span.
   corner_face_mate_m the mating faces of a corner, coplanar.
-  double_pillar_m    the corner reads as ONE pillar - every other corner check
-                     is a CLOSURE check, and a double pillar is perfectly
-                     closed.
+  double_pillar_m    the corner reads as ONE pillar (the other corner checks
+                     are closure checks; a double pillar is perfectly closed).
   *_per_piece / *_per_build / *_wrappers_built / wrapper_reads / *_hit_rate /
   *_peak_kb / *_scaling
-                     11.9's cost tripwires: fixed cost per PIECE, per BUILD,
-                     per verb EXECUTION and per `hou` wrapper OBJECT, each
-                     with a measured ceiling and each bought by a regression
-                     that left every geometry check green.
+                     11.9's cost tripwires, each with a measured ceiling.
 """
 
 import math
@@ -170,25 +153,16 @@ def _face(rec, target, tol=LOCAL_TOL):
 def _frame_of(face):
     """(origin, up, across) of one face, read off the built geometry.
 
-    The face map is AFFINE - every point of one face shares one arc position
-    and therefore one frame - so `world = A + up*y + across*z` is recovered
-    exactly from three point pairs. `_axis_of` wants only A; `frame_continuity`
-    wants `across`, which is the vector that used to flip 180 degrees mid
-    piece.
+    The face map is AFFINE (`world = A + up*y + across*z`), recovered exactly
+    from point pairs.
     """
     if not face:
         return (None, None, None)
     (l0, w0) = face[0]
     up, across = (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)
-    # ⚠ EACH PAIR MUST VARY IN ONE LOCAL AXIS ONLY. Taking the first
-    # y-varying pair whatever its z does folds an `across` component into `up`,
-    # and the recovered origin is then wrong by that much: on a clipped corner
-    # post whose point order interleaves z across y (which `clip` + `polyfill`
-    # produce), `corner_abut_m` reported a phantom 0.160 m gap on a corner that
-    # point-by-point is perfectly closed, and the same fragility can MASK a
-    # real gap. So: `up` off a pair sharing local z, `across` off a pair
-    # sharing local y - and only then the affine map is the one the builder
-    # actually used.
+    # EACH PAIR MUST VARY IN ONE LOCAL AXIS ONLY: mixing folds `across` into
+    # `up` (phantom 0.160 m corner_abut_m gap on a closed clipped post, and
+    # the same fragility can MASK a real gap).
     fit = _affine_fit(face)
     if fit is not None:
         return fit
@@ -208,12 +182,9 @@ def _frame_of(face):
             got_across = True
             break
     if not (got_up and got_across):
-        # ⚠️ NOT a silent default. A clip leaves faces that vary in ONE local
-        # axis - the outside edge of a mitered post is a single z column - and
-        # assuming world up/across there put the recovered axis point up to
-        # h*sqrt(2) away: a closed pentagon read a 0.129 m corner "gap" that
-        # its own points prove is 0. No recoverable frame means no
-        # measurement, and every caller already handles None.
+        # NOT a silent default: assuming world up/across on a one-axis clipped
+        # face read a 0.129 m "gap" on a closed pentagon. No recoverable frame
+        # means no measurement; every caller handles None.
         return (None, None, None)
     origin = tuple(w0[k] - up[k] * l0[1] - across[k] * l0[2] for k in range(3))
     return (origin, up, across)
@@ -222,15 +193,9 @@ def _frame_of(face):
 def _affine_fit(face):
     """Least-squares (origin, up, across) over EVERY point of the face.
 
-    The pair-picking below is only a fallback now, because picking pairs is
-    what made the measurement fragile: a clipped corner post's point order
-    interleaves local z across local y, so the first y-varying pair also
-    varied in z and folded an `across` component into `up`. `corner_abut_m`
-    then reported a 0.160 m phantom gap on a closed reflex corner and a
-    0.129 m one on a closed pentagon - and the same fragility can equally MASK
-    a real gap. Fitting `world = A + up*y + across*z` over all points has no
-    pair to pick wrong, and on a face whose (y, z) spread is degenerate the
-    normal matrix is singular and this returns None.
+    No pair to pick wrong (pair-picking caused phantom 0.160/0.129 m corner
+    gaps); a degenerate (y, z) spread makes the normal matrix singular and
+    this returns None.
     """
     if len(face) < 3:
         return None
@@ -269,12 +234,8 @@ def _inv3(m):
 def _element_frame(rec):
     """(up, across) recovered from whichever face of this element has both.
 
-    A mitered piece loses half of its end cross-section to the clip, so the
-    face at its outside tip varies in local y only and has no recoverable
-    `across` of its own. The piece is rigid and anchored, so its frame is the
-    same at every x - borrowing it from a face that does have one is exact,
-    and it is what keeps `piece_extent` and `station_spacing` measuring corner
-    pieces at all instead of skipping them.
+    A clipped end face may have no recoverable `across`; the piece is rigid,
+    so borrowing the frame from a face that does is exact.
     """
     for x in sorted(set(rec["local"][0::3])):
         _o, up, across = _frame_of(_face(rec, x))
@@ -286,13 +247,9 @@ def _element_frame(rec):
 def _axis_of(face, frame=None):
     """The world point at the face's local (x, 0, 0).
 
-    ⚠️ THE OBVIOUS MEASUREMENT - the centroid of the face - IS WRONG, and was
-    measured to be wrong before this existed: a post's cross-section centre
-    sits 0.60 m up and a panel's 0.55 m, so two pieces that met perfectly
-    reported a 0.050 m gap and a run starting exactly on its section reported
-    a 0.575 m error. Every point of one face shares one arc position and
-    therefore one frame, so the face map is AFFINE - world = A + U*y + V*z -
-    and the cross-section offsets divide out exactly from two point pairs.
+    NOT the face centroid - cross-section centres differ per module (measured
+    0.050 m phantom gap, 0.575 m phantom start error); the affine face map
+    divides the offsets out exactly.
     """
     origin = _frame_of(face)[0]
     if origin is not None or frame is None or not face:
@@ -376,30 +333,13 @@ STAMP_PIECE_PRIMS = 3
 
 
 def stamp_parity(scene, place):
-    """The BULK stamp the build runs against the per-prim writer it replaced,
-    re-proved on THIS build rather than in a scratchpad that ran once.
+    """The BULK stamp vs the per-prim writer it replaced (D102, 11.2 P1),
+    re-proved on THIS build.
 
-    The parity was measured when D102 landed - 83 cases, 163 115 prim
-    attribute values, 0 differences - and then nothing in the repo re-asked
-    it. Every other check reads a stamp from the FIRST prim of an element
-    (`elements` takes `_attrs` from the first prim it sees), so a bulk writer
-    that corrupted prims 2..n of a deformed piece would leave every case and
-    the 9-row ladder green.
-
-    ⚠️ REWRITTEN FOR 11.2 P1, AND THE SHAPE IS THE POINT. D102's writer
-    stamped ONE PIECE at a time, so this used to compare one piece's
-    geometry; P1's `_stamp_bulk` accumulates across the WHOLE OUTPUT and
-    writes one array per attribute at the end, and its named risk is exactly
-    that those arrays stop lining up with `out`'s prim numbering. So the
-    whole case is stamped in ONE `_stamp_bulk` call, every element given
-    `STAMP_PIECE_PRIMS` prims, and the per-prim writer fills a twin geometry
-    element by element. A column shifted by one element is then a difference
-    on nearly every prim; on the old per-piece shape it was invisible.
-
-    Comparison is over 3.4's whole name set plus every warn name in the case,
-    not over the names the element itself carries - an element that did NOT
-    warn has to read 0 where its neighbour reads 1, which is the half a
-    per-element comparison cannot ask.
+    The whole case goes through ONE `_stamp_bulk` call so a column shifted by
+    one element differs on nearly every prim. Comparison is over 3.4's whole
+    name set plus every warn name in the case - a non-warning element must
+    read 0 where its neighbour reads 1.
     """
     plan = scene.report["plan"]
     if not plan:
@@ -472,15 +412,10 @@ def warnings(scene, expected=()):
 
 
 def instancing_split(scene, expect_all=False, expect_none=False):
-    """4.6's segregation, measured: how many pieces stayed packed. A build
-    that unpacked everything would still be geometrically correct and would
-    still be a defect.
+    """4.6's segregation: how many pieces stayed packed.
 
-    `expect_all` is the INSTANCING FLOOR, asserted on the cases that have no
-    excuse: a straight run of rigid modules must be 100 % packed. Every other
-    case records the count and lets the baseline catch a drift, because what
-    the right fraction IS depends on the figure - which is what
-    `over_unpacked` measures instead.
+    `expect_all` is the INSTANCING FLOOR (a straight rigid run must be 100 %
+    packed); other cases record the count and let the baseline catch drift.
     """
     packed = scene.report["packed"]
     total = packed + scene.report["deformed"]
@@ -509,16 +444,8 @@ def _station_xs(rec):
 def curvature_budget(scene, place):
     """D75 - the deviation the packed pieces are SPENDING, in metres.
 
-    `over_unpacked` is the other half of this: it catches a piece that
-    unpacked for nothing. This catches the opposite mistake and records the
-    number both of them are arguing about - for every bendable, uncut,
-    un-anchored piece, how far its span leaves the chord it would be packed
-    on. A PACKED piece may spend up to `bend_tol` (that is the budget); over
-    that it is a piece the gate should have unpacked and did not.
-
-    The value is [worst spent by a packed piece, worst over all pieces], so a
-    gentle-arc case reads as a real number rather than as silence, and the
-    tight-arc control reads a large second number with a small first one.
+    A PACKED piece may spend up to `bend_tol`; over that, the gate should have
+    unpacked it. Value: [worst spent by a packed piece, worst over all].
     """
     worst_packed, worst_all, over = 0.0, 0.0, []
     tol = scene.params.bend_tol
@@ -552,21 +479,12 @@ def curvature_budget(scene, place):
 
 def deform_gate(scene, place):
     """D100 - [worst deviation left PACKED, pieces over budget, of those
-    still packed]. The last number is the one that may not move off zero.
+    still packed]. The last number may not move off zero.
 
-    `packed_true_dev_m` measures the same defect and goes SILENT the moment
-    the gate starts working: with nothing packed there is nothing to report,
-    so a case built to prove a budget term reads `skip` once the term is
-    added and proves nothing ever again. This one is never silent, because
-    the MIDDLE number says how many pieces the case actually put over the
-    budget - a case that stopped exercising anything shows a 0 there and is
-    visible as vacuous rather than as green.
-
-    The assertion is the dangerous direction only: a piece may unpack for
-    reasons the budget never measured (4.5's drape, D65's shear), and
-    over-unpacking costs a deform, but a piece that stayed PACKED while its
-    own geometry disagrees with its transform SHIPS. That is D87's elevation
-    arc and D100's rolling cross-fall, and it is what this closes.
+    Never silent (unlike `packed_true_dev_m`): the middle number shows a case
+    that stopped exercising anything as vacuous. Asserts the dangerous
+    direction only - a piece that stays PACKED while its geometry disagrees
+    with its transform SHIPS (D87, D100).
     """
     tol = scene.params.bend_tol
     worst, where, over, over_packed, seen = 0.0, "", 0, 0, 0
@@ -621,20 +539,10 @@ def deform_gate(scene, place):
 def packed_true_deviation(scene, place):
     """D87 - the deviation a PACKED piece really carries, at its WORST POINT.
 
-    `curvature_budget` asks `span_deviation` what a span is spending, which
-    makes it blind to anything `span_deviation` itself cannot see - and for a
-    whole cycle that was every point off the spine. This check never calls the
-    budget: it BUILDS both answers for every packed piece (the packed 4x4
-    applied to the module, and the positions `_deform_positions` would have
-    produced for the same piece) and reports the largest distance between
-    them. Over `bend_tol` means a piece stayed packed while its geometry was
-    visibly wrong - the direction that ships, and the one that shipped: a
-    1.2 m tall bendable rail on an R = 55 m elevation arc read 0.0091 m on the
-    spine and 0.0327 m at its top corner, 30 of 30 pieces packed.
-
-    Anchored, cut, sliced, rigid and replaced pieces are exempt for the same
-    reasons `over_unpacked` exempts them - they are not the module on the
-    path.
+    Builds both answers (packed 4x4 vs `_deform_positions`) and never calls
+    the budget; over `bend_tol` means packed-but-wrong, the direction that
+    shipped (R = 55 m arc: 0.0091 m on the spine, 0.0327 m at the top corner,
+    30/30 packed). Anchored/cut/sliced/rigid/replaced pieces are exempt.
     """
     tol = scene.params.bend_tol
     worst, worst_id, over = 0.0, None, []
@@ -706,10 +614,7 @@ def _axis_stations(rec):
 
 def conform_camber(scene, expected=None, tol=0.05):
     """D55 - the angle between a piece's own up and the surface normal.
-
-    The piece's up comes from `_element_frame`, i.e. off the built geometry,
-    and the normal from a fresh ray cast - so nothing here reads the builder's
-    own opinion of either.
+    Both read independently of the builder (built geometry + fresh ray cast).
     """
     surf = _surface_of(scene)
     if surf is None:
@@ -797,11 +702,8 @@ def _centroid(rec):
 
 
 def _assembly_recs(scene):
-    """[(eid, rec)] for every piece 4.3 ANCHORED on a leg.
-
-    The corner slot, plus D40's displacement boundary piece - which is a
-    `default` piece made of the default module but laid out by exactly the
-    same assembly machinery, so the corner measurements apply to it verbatim.
+    """[(eid, rec)] for every piece 4.3 ANCHORED on a leg - the corner slot,
+    plus D40's displacement boundary piece (same assembly machinery).
     """
     out = []
     for eid, rec in scene.by_id.items():
@@ -814,11 +716,8 @@ def _assembly_recs(scene):
 
 def _corner_sides(scene):
     """[(bevel, {"in": [(eid, rec)], "out": [...]})] over every mitered corner.
-
-    An element is assigned to the NEAREST vertex and then to a side by the sign
-    of its centroid against the bisector plane - both read off geometry, so a
-    corner piece built on the wrong leg cannot be quietly filed under the right
-    one.
+    Assignment (nearest vertex, centroid sign vs bisector) is read off
+    geometry, so a piece on the wrong leg cannot be filed under the right one.
     """
     bevels = [b for b in _bevels(scene) if b.mode == "miter"]
     if not bevels:
@@ -842,14 +741,9 @@ def _corner_caps(scene):
     """[(bevel, {"in": [world pts], "out": [...]})] - every CUT-FACE POINT
     filed under the corner that cut it.
 
-    Per POINT, not per element: once a default piece may be cut at BOTH of its
-    ends (which is what happens as soon as a leg is shorter than twice the
-    miter overhang - a 1.5 m equilateral triangle does it), filing the whole
-    element under its nearest vertex measured half its cap points against the
-    wrong corner's plane and scored a 0.73 m "plane deviation" on a piece that
-    is exactly on both of its own planes. The SIDE still comes from the
-    element's centroid, read against each bevel separately, so one piece is
-    legitimately "out" of one corner and "in" of the next.
+    Per POINT, not per element: a piece cut at BOTH ends filed per element
+    scored a 0.73 m phantom plane deviation. The SIDE comes from the centroid
+    read against each bevel separately.
     """
     bevels = [b for b in _bevels(scene) if b.mode == "miter"]
     if not bevels:
@@ -862,11 +756,8 @@ def _corner_caps(scene):
             continue
         rec = scene.by_id.get(eid)
         cen = _centroid(rec) if rec is not None else None
-        # ⚠️ THE CANDIDATES ARE THE PIECE'S OWN CUT PLANES, not "the nearest
-        # vertex". On a figure narrower than its own fence - 12 m by 0.12 m -
-        # two vertices sit 0.12 m apart and a cap cut at one of them is nearer
-        # the other, which scored a 0.028 m "plane deviation" on a face that
-        # is exactly on the plane it was cut with.
+        # The candidates are the piece's OWN cut planes, not the nearest
+        # vertex (0.028 m phantom deviation on a 12 m x 0.12 m figure).
         mine = [groups[id(b)] for b in bevels
                 if any(cut[0] is b.plane_in()[0] or _dist(cut[0], b.v) < 1e-9
                        for cut in placement.cuts)]
@@ -883,19 +774,12 @@ def _corner_caps(scene):
 
 
 def corner_face_mate(scene, expected=0.0, tol=TOL_M):
-    """The two cut faces are the SAME polygon once slid together.
+    """The two cut faces are the SAME polygon once slid together, compared
+    point for point (coplanar-but-displaced passes the other corner checks).
 
-    Coplanar faces that do not overlap - two pieces mitered on one plane but
-    displaced sideways - pass `corner_plane_dev_m` and `corner_seam_m` and
-    still leave the corner open, so the faces are compared point for point.
-
-    ⚠️ AND IT IS NOT ALWAYS SUPPOSED TO BE ZERO. The `reset` displacement
-    policy leaves each default piece "in its default position, simply sliced
-    at the corner vertex", so the two cut faces are MIRROR images rather than
-    the same face and a notch of e*sqrt(2) is left on the outside of the
-    corner - measured 0.0424 m for the starter panel at 90 degrees. That is
-    RailClone's documented Reset, so the number is compared against the notch
-    the policy asks for, and it is `extend` that has to come back 0.
+    NOT always zero: the `reset` displacement policy leaves an e*sqrt(2) notch
+    by design - measured 0.0424 m for the starter panel at 90 degrees - so the
+    number is compared against `expected`; `extend` has to come back 0.
     """
     groups = _corner_caps(scene)
     if not groups:
@@ -904,10 +788,8 @@ def corner_face_mate(scene, expected=0.0, tol=TOL_M):
     for bevel, sides in groups:
         pts = dict((side, [pt for pt, _rec in sides[side]])
                    for side in ("in", "out"))
-        # Same reason `corner_abut_m` and `max_gap_m` do it: a `stepped` piece
-        # is flat at its own start elevation, so two of them meeting at a
-        # PITCHED corner step vertically by design (4.4's deferred
-        # flatten-under). The joint is judged in plan there.
+        # `stepped` pieces step vertically by design at a pitched corner
+        # (4.4's deferred flatten-under) - judged in plan, like corner_abut_m.
         stepped = any(rec is not None and rec["pc_zmode"] == "stepped"
                       for side in ("in", "out") for _pt, rec in sides[side])
         metric = _dist_xz if stepped else _dist
@@ -934,12 +816,9 @@ def corner_face_mate(scene, expected=0.0, tol=TOL_M):
 
 
 def corner_outside_length(scene, expected=None, tol=2e-3):
-    """iToo's own acceptance for Bevel Corner: the segment is "sliced to
-    maintain its full length on the OUTSIDE of the corner".
-
-    Measured on the mitered piece's own outside half in module-local x - a
-    corner piece is placed at scale 1, so local x IS metres - which means the
-    number never passes through the solver's idea of where the plane went.
+    """iToo's acceptance for Bevel Corner: the segment is "sliced to
+    maintain its full length on the OUTSIDE of the corner". Measured off the
+    built geometry, never through the solver's idea of where the plane went.
     """
     groups = _corner_sides(scene)
     if not groups:
@@ -955,10 +834,8 @@ def corner_outside_length(scene, expected=None, tol=2e-3):
                     continue
                 loc, wrl = rec["local"], rec["world"]
                 axis = bevel.tin if side == "in" else bevel.tout
-                # WORLD metres, not local x: D44 may have squeezed the module
-                # onto a short leg, and local x is scale-invariant - it read a
-                # clean 1.200 m on a corner block the builder had scaled to
-                # 0.776 m, so the check agreed with a squeeze it never saw.
+                # WORLD metres, not scale-invariant local x: D44's squeeze
+                # read a clean 1.200 m on a block scaled to 0.776 m.
                 outer = [_dot3(_sub3((wrl[i], wrl[i + 1], wrl[i + 2]),
                                      bevel.v), axis)
                          for i in range(0, len(loc), 3)
@@ -967,12 +844,8 @@ def corner_outside_length(scene, expected=None, tol=2e-3):
                     continue
                 seen += 1
                 got = max(outer) - min(outer)
-                # The piece's OWN length, not the module's nominal one: D44
-                # may have squeezed this copy and not its mate (a 12 m leg
-                # meeting a 1.5 m one squeezes on the short side only), and
-                # comparing both against the nominal length asserted that the
-                # squeeze had not happened. `corner_reach_m` is what asserts
-                # the squeeze factor itself.
+                # The piece's OWN (possibly D44-squeezed) length, not the
+                # nominal one; `corner_reach_m` asserts the squeeze itself.
                 planned = module.length * (scene.plan_by_id[eid].scale
                                            if eid in scene.plan_by_id else 1.0)
                 want = expected if expected is not None else planned
@@ -989,45 +862,21 @@ def corner_outside_length(scene, expected=None, tol=2e-3):
 
 
 def corner_breach(scene, tol=1e-4):
-    """NO PIECE CROSSES A CORNER'S CUT PLANE UNCUT.
+    """NO PIECE CROSSES A CORNER'S CUT PLANE UNCUT - the interpenetration
+    detector, invisible to every other corner check and to `max_gap_m`.
 
-    ⚠️ THE INTERPENETRATION DETECTOR, and every corner check above it was
-    blind to this. Two ways to reach it were measured on the built geometry:
-
-      * the corner module SHORTER THAN ITS OWN MITER OVERHANG (`e >= L_c`,
-        which is any turn past 126.87 degrees for the starter kit's 0.16 m
-        post). The reserve went negative, the negative was handed to the fill
-        as a negative trim, and the two legs' panels ran through the vertex
-        UNCUT and into each other by 0.031 m - warning list empty.
-      * a leg SHORTER THAN TWICE THE OVERHANG (a 1.5 m equilateral triangle:
-        reserve 0.0215 m against a 0.03 m panel half-thickness), where the
-        default piece stops short of the vertex and still reaches across the
-        plane, so the two legs' square ends cross inside the corner post.
-
-    IN BEND MODE THE SAME NUMBER IS NOT ZERO AND IS NOT A DEFECT (D36,
-    extended). There is no cut plane there because nothing is cut: two
-    square-ended pieces butt at the vertex, so each of them crosses the
-    bisector by `half_width * cos(turn/2)` - 0.021213 m for the starter
-    panel's 0.03 m half-width at 90 degrees. That is inherent to a butt
-    joint; `corner_wedge_m2` measures the solid it leaves, `BUTT_BREACH_M` is
-    the accepted limit, and miter is the fix.
-
-    Both miter failures are invisible from outside the fence and invisible to
-    `max_gap_m`, which walks one run at a time. This walks the plane instead: a piece is
-    filed on the side its centroid is on, and every one of its points must
-    stay there. Pieces further than a couple of module lengths from the vertex
-    are out of scope - a bisector plane is infinite and a far leg may
-    legitimately straddle it.
+    Two measured miter routes: corner module shorter than its own miter
+    overhang (`e >= L_c`, any turn past 126.87 deg for the 0.16 m post; 0.031 m
+    interpenetration, warning list empty), and a leg shorter than twice the
+    overhang (1.5 m equilateral triangle). In BEND mode a butt joint crosses
+    the bisector by design (D36 extended); `BUTT_BREACH_M` is the limit.
+    Pieces far from the vertex are out of scope - a bisector is infinite.
     """
     bevels = [b for b in _bevels(scene) if b.mode == "miter"]
     worst, where, seen = 0.0, "", 0
-    # --- THE BEND BRANCH (cycle 3v's open finding, D36 extended). A bend
-    # corner has no bevel to filter on, so this walked past every bend case
-    # and reported SKIP while a butt joint was crossing the bisector by
-    # 0.0212 m. The dissolved vertex carries the same plane a miter would have
-    # cut on; what changes is that NOTHING cuts on it, which is exactly the
-    # thing to measure. A SPANNED weld is not a joint (one bent piece) and is
-    # counted, not scored.
+    # THE BEND BRANCH (D36 extended): a dissolved vertex carries the same
+    # plane a miter would cut on - NOTHING cuts on it, so measure it. A
+    # SPANNED weld (one bent piece) is counted, not scored.
     excess = 0.0
     for v, n, cos_half, pieces, spanned in _welds(scene):
         if spanned:
@@ -1036,26 +885,10 @@ def corner_breach(scene, tol=1e-4):
             sign = 1.0 if side == "in" else -1.0
             d = max(sign * _dot3(_sub3(q, v), n) for q in _pts_of(rec))
             seen += 1
-            # ...AND WHAT IT IS ALLOWED TO BE, derived from the piece and the
-            # turn rather than from the run: a square-ended piece of across
-            # half-extent `h` butting at a turn `t` crosses the bisector by
-            # exactly `h*sin(t/2)` - 0.021213 m for the starter panel at 90
-            # degrees, 0.042426 m for the fatter post. Anything MORE is a
-            # piece running past the vertex uncut, which is the defect the
-            # miter branch below hunts. So the recorded number is the physical
-            # breach and the assertion is the excess over the butt geometry.
-            #
-            # ⚠️ SIN, NOT COS, AND THE TWO AGREE ONLY AT 90 DEGREES - which is
-            # the turn every asserted butt case in this suite happens to make,
-            # so the first version of this line was right nowhere else. The
-            # end face is perpendicular to the arriving tangent and spans
-            # `+-h` ACROSS it, the bisector normal sits at `t/2` off that
-            # tangent, so the corner of the face projects onto the normal at
-            # `h*sin(t/2)`. Measured at four turns (30/60/90/120 deg) on a
-            # bend butt joint: the breach is `h*sin(t/2)` to six decimals
-            # every time, and `AB_fillet`'s own recorded 0.005853 is
-            # `0.03*sin(11.25 deg)`. Under `cos` a 120 degree butt joint
-            # failed by 1.10e-02 m for being a butt joint.
+            # The allowed butt breach is `h*sin(t/2)` - SIN, not cos; the two
+            # agree only at 90 deg. Verified at 30/60/90/120 deg to six
+            # decimals (`AB_fillet`'s 0.005853 is `0.03*sin(11.25 deg)`).
+            # Recorded number = physical breach; assertion = excess over it.
             sin_half = math.sqrt(max(0.0, 1.0 - cos_half * cos_half))
             excess = max(excess, d - _half_across(rec) * sin_half)
             if d > worst:
@@ -1073,12 +906,8 @@ def corner_breach(scene, tol=1e-4):
                 legs.add((str(leg.curve_id), leg.index))
         for eid, rec in scene.by_id.items():
             placement = scene.plan_by_id.get(eid)
-            # ONLY the two legs that meet here. A bisector plane is infinite,
-            # and on a triangle or a rectangle the OPPOSITE side crosses it
-            # perfectly legitimately - scoring it scored a 0.73 m "breach" on
-            # a panel two corners away. Everything on the corner's own two
-            # legs is strictly on its own side of the plane except within the
-            # miter overhang of the vertex, which is the thing being measured.
+            # ONLY the two legs that meet here - scoring the whole scene read
+            # a 0.73 m "breach" on a panel two corners away.
             if placement is None or (str(placement.curve_id),
                                      placement.section_index) not in legs:
                 continue
@@ -1102,14 +931,9 @@ def corner_breach(scene, tol=1e-4):
 
 
 def _welds(scene, tol=1e-4):
-    """[(v, n, section, welded pieces...)] - one entry per DISSOLVED corner.
-
-    Returns (vertex, bisector normal, cos(turn/2), [(side, eid, rec)],
-    spanned) where
-    `side` is "in" for the piece ARRIVING at the vertex and "out" for the one
-    leaving it, and `spanned` is True when ONE piece covers the vertex - in
-    which case there is no butt joint to measure and the geometry is
-    continuous by construction (4.3's "deformed across the vertex").
+    """One entry per DISSOLVED corner: (vertex, bisector normal, cos(turn/2),
+    [(side, eid, rec)], spanned). `side` is "in"/"out" by arrival; `spanned`
+    means ONE piece covers the vertex - no butt joint to measure (4.3).
     """
     out = []
     for track in scene.tracks:
@@ -1123,14 +947,9 @@ def _welds(scene, tol=1e-4):
             for w in welds:
                 s_real = remap(section.s0 + w)
                 v, tout = path.sample(s_real)
-                # ⚠️ THE RING'S OWN SEAM IS A WELD AT s = 0, and `Path.sample`
-                # only pushes a backward read onto the closing segment when
-                # the ASKED s was non-zero (it cannot know that a literal 0
-                # meant "arriving"). Reading it as it stands returns the
-                # FIRST segment's tangent for both sides, so `n` came out as
-                # the outgoing tangent rather than the bisector and the
-                # closed rectangle's seam scored 0.030 m against a plane no
-                # corner has. Ask for the arriving side at `total`.
+                # A closed ring's seam is a weld at s = 0: read the arriving
+                # side at `total`, or `n` is the outgoing tangent instead of
+                # the bisector (seam scored 0.030 m against a phantom plane).
                 s_in = s_real
                 if path.closed and s_real <= 1e-9:
                     s_in = path.total
@@ -1161,12 +980,8 @@ def _welds(scene, tol=1e-4):
 
 
 def _half_across(rec):
-    """The piece's own across half-extent, in METRES of module local space.
-
-    D20 puts across on local +Z, and `pc_local` rides through the deform and
-    the clip, so this reads the same number off a packed prim and off a bent
-    one. It is what makes the butt allowance a fact about the KIT rather than
-    a tolerance someone picked.
+    """The piece's own across half-extent, in METRES of module local space
+    (D20: across is local +Z; `pc_local` survives deform and clip).
     """
     loc = rec["local"]
     zs = [abs(loc[i + 2]) for i in range(0, len(loc), 3)]
@@ -1178,14 +993,11 @@ def _pts_of(rec):
     return [(w[i], w[i + 1], w[i + 2]) for i in range(0, len(w), 3)]
 
 
-UPRIGHT_ASPECT = 3.0    # height / widest footprint side, in the MODULE's own
-                        # space. post 10.0, corner_post 8.1, panel 0.48,
-                        # gate 0.66 - the two families are an order of
-                        # magnitude apart, so the threshold is not tuned, it
-                        # is a gulf.
-TOUCH_M = 1e-3          # footprints this close are touching. Bigger than the
-                        # float32 noise on P and far smaller than any gap an
-                        # artist would read as deliberate spacing.
+UPRIGHT_ASPECT = 3.0    # height / widest footprint side in MODULE space.
+                        # post 10.0, corner_post 8.1, panel 0.48, gate 0.66 -
+                        # a gulf, not a tuned threshold.
+TOUCH_M = 1e-3          # footprints this close are touching: above float32
+                        # noise on P, far under deliberate spacing.
 RESERVED_SLOTS = ("corner", "start", "end", "evenly")
 
 
@@ -1214,12 +1026,9 @@ def _is_upright(rec):
 
 
 def _touching(a, b):
-    """Footprints within TOUCH_M on both horizontal axes AND overlapping in Y.
-
-    The Y clause only excludes pieces at genuinely different heights (a coping
-    course over a plinth); a finial whose base sits exactly on a post's top
-    still satisfies it. What makes a concentric stack score zero is the
-    per-axis `span - own` form of the metric, not this term.
+    """Footprints within TOUCH_M on both horizontal axes AND overlapping in Y
+    (the Y clause only excludes genuinely different heights; concentric
+    stacks score zero via `_pair_excess`, not this term).
     """
     return (a[0] - TOUCH_M <= b[1] and b[0] - TOUCH_M <= a[1]
             and a[4] - TOUCH_M <= b[5] and b[4] - TOUCH_M <= a[5]
@@ -1235,46 +1044,19 @@ def _pair_excess(a, b):
 
 
 def single_pillar(scene, expected=0.0, tol=2e-3):
-    """`double_pillar_m` - how much ground a RESERVED piece and a touching
-    UPRIGHT from a different slot cover beyond the wider of the two. 0.0 means
-    every reserved piece stands alone, which is what "one pillar at a corner"
-    means when nobody is allowed to name the modules.
+    """`double_pillar_m` - ground a RESERVED piece and a touching UPRIGHT from
+    a different slot cover beyond the wider of the two; 0.0 means every
+    reserved piece stands alone. A distance in metres, PAIRWISE and bounded by
+    one module's footprint (D270), never a cluster span.
 
-    The number is a distance in metres, so a corner doubled by half a post
-    reads as half a post and not as a boolean, and (D270) it is a PAIRWISE
-    quantity bounded by one module's footprint - never a cluster span.
-
-    WHAT IT CANNOT SEE, stated because the checks it joins could not see the
-    defect it was written for:
-      * a SEPARATED double pillar - two uprights 50 mm apart look just as
-        wrong and read here as deliberate spacing (`TOUCH_M` is 1 mm);
-      * a doubling at or under the 2 mm `tol`. That tolerance is there because
-        a pillar standing on a bend is measured on its AABB and reads slightly
-        wide; the price is that a genuine 2 mm overshoot passes. Measured:
-        0.0015 and 0.0019 pass, 0.0021 fails;
-      * a MISSING pillar, an empty corner, or a corner dressed in the wrong
-        module - it never asks what SHOULD be there, only that what is there
-        is not doubled;
-      * doubling WITHIN one slot: two corner assemblies squeezed onto a leg
-        shorter than both (`AP_narrow_rect`) are all slot `corner` and pass
-        here. That case is covered by `pc_warn_overflow` and
-        `corner_face_mate_m`, and this check deliberately does not
-        second-guess them;
-      * two touching pieces that are BOTH reserved and both non-upright - a
-        blocky corner return abutting a blocky end cap. The doubler side of
-        the rule is the aspect test, and a plinth is not an upright;
-      * duplication among non-reserved members - two coincident panels, or a
-        fill post butted against another fill post, are invisible to it;
-      * it FLAGS any upright from another slot touching a reserved piece,
-        including compositions the tool advertises: `slot_evenly`'s own help
-        names "lamps on a railing, bollards on a kerb", and a kit whose fill
-        piece is a bollard and whose evenly piece is a lamp reds here
-        (measured 0.08 m on a synthetic `default:post` + `evenly:lamp`
-        abutment). `expected` is the escape hatch for such kits, and every
-        non-zero expectation in the runner is named;
-      * it is a PHASE-1 check: `run_2d_checks` does not call it, because a
-        facade's mullions are uprights in different cells by design and the
-        rule would need a 2D reading before it means anything there.
+    WHAT IT CANNOT SEE: a SEPARATED double pillar (reads as spacing); a
+    doubling at or under the 2 mm `tol` (AABB-on-a-bend allowance; measured
+    0.0015/0.0019 pass, 0.0021 fails); a MISSING/wrong-module pillar;
+    doubling WITHIN one slot (`pc_warn_overflow` + `corner_face_mate_m` own
+    that); two touching reserved non-uprights; duplication among non-reserved
+    members. It FLAGS advertised compositions like `evenly:lamp` on a post
+    (0.08 m measured) - `expected` is the escape hatch, every non-zero
+    expectation named. PHASE-1 only: `run_2d_checks` does not call it.
     """
     boxes = []
     for eid, rec in scene.by_id.items():
@@ -1288,13 +1070,10 @@ def single_pillar(scene, expected=0.0, tol=2e-3):
     if len(boxes) < 2:
         return _skip("double_pillar_m", "%d candidate members" % len(boxes))
 
-    # D270: bucket the footprints instead of sweeping every pair. The old
-    # O(n^2) sweep measured 33.9 s on 16 667 uprights (2 km of `post` fill) -
-    # affordable on the 270-piece hill cases it was written against and not on
-    # the long-run fixtures `run_native_checks` already builds. The cell is
-    # the WIDEST candidate, so a kit mixing a 20 m wall module with 0.12 m
-    # posts degrades back towards the pairwise sweep - stated rather than
-    # claimed away, because nothing in the suite has that shape today.
+    # D270: bucket the footprints - the O(n^2) sweep measured 33.9 s on
+    # 16 667 uprights. Cell = WIDEST candidate, so a kit mixing 20 m walls
+    # with 0.12 m posts degrades back towards the sweep (stated, not claimed
+    # away).
     cell = max(max(b[1] - b[0], b[5] - b[4]) for _e, _r, b, _s, _u in boxes)
     cell = max(cell, TOL_M) + TOUCH_M
     grid = {}
@@ -1341,17 +1120,9 @@ def single_pillar(scene, expected=0.0, tol=2e-3):
 
 
 def corner_abut(scene):
-    """The seam between the corner assembly and the fill that runs up to it.
-
-    The mitered joint at the vertex is measured by `corner_seam_m`; this is
-    the OTHER joint the corner creates, one per leg, where the corner
-    assembly's outer end meets the last default piece. It is the one a
-    reserve computed slightly wrong opens, and it is invisible to
-    `max_gap_m`, which walks consecutive pieces of one run and stops where
-    the run does.
-
-    Both points are read off built geometry: the corner piece's own outermost
-    axis point on the leg, and the nearest default-piece axis endpoint.
+    """The seam between the corner assembly and the fill that runs up to it -
+    the joint a slightly-wrong reserve opens, invisible to `max_gap_m`.
+    Both points are read off built geometry.
     """
     bevels = [b for b in _bevels(scene) if getattr(b, "assembly", None)
               and b.assembly.pieces]
@@ -1366,11 +1137,8 @@ def corner_abut(scene):
         placement = scene.plan_by_id.get(eid)
         if placement is None:
             continue
-        # ⚠️ PER SECTION. A corner between a long leg and a SQUEEZED short one
-        # leaves the short leg with no default run at all, and scanning every
-        # piece in the scene then measured the 1.5 m gap to the other leg's
-        # run as an abutment failure. A leg with nothing on it has no
-        # abutment; it has `pc_warn_overflow`.
+        # PER SECTION: a leg with no default run has no abutment, it has
+        # `pc_warn_overflow` (scene-wide scan misread a 1.5 m cross-leg gap).
         key = (str(placement.curve_id), placement.section_index)
         a, b = axis_points(rec)
         for pt in (a, b):
@@ -1389,10 +1157,7 @@ def corner_abut(scene):
             far, far_t, far_stepped = None, None, False
             for eid, rec in _assembly_recs(scene):
                 cen = _centroid(rec)
-                # ...of THIS corner. A closed rectangle has four assemblies of
-                # the same module on the same legs, and scanning all of them
-                # picked the post at the far end of the 8 m side: a 0.226 m
-                # "abutment gap" that was really two different corners.
+                # ...of THIS corner only (far-corner scan misread 0.226 m).
                 if cen is None or min(bevels,
                                       key=lambda b: _dist(cen, b.v)) is not bevel:
                     continue
@@ -1410,10 +1175,8 @@ def corner_abut(scene):
             if far is None:
                 continue
             seen += 1
-            # A `stepped` piece is FLAT at its own start elevation, so two of
-            # them meeting on a PITCHED leg step vertically by design (D24's
-            # riser, and 4.4's deferred flatten-under). Measured in XZ, like
-            # `max_gap_m` and `exact_fill_m` already do for the same reason.
+            # `stepped` pieces step vertically by design on a pitched leg
+            # (D24, 4.4) - measured in XZ like `max_gap_m`.
             metric = _dist_xz if far_stepped else _dist
             d = min(metric(far, e) for e in here)
             if d > worst:
@@ -1424,26 +1187,11 @@ def corner_abut(scene):
 
 
 def stamp_calls_per_piece(build_fn, expect_max=1.0, name=None):
-    """HOM per-element attribute writes per placed piece - what P1 is for.
-
-    RUN IT ON BOTH BRANCHES. Until the third review round this had ONE row, on
-    a 100 % packed fixture, and the deformed branch is where the per-prim
-    stamp costs 14 x the piece's PRIM COUNT rather than 14: restoring the
-    D102-era writer there took `scale_gate` arc_10 from 2.361 s to 19.854 s
-    (8.4x) with the scene suite, the unit tests, the HDA suite and the ladder
-    ALL green, because `tripwire_packed_run` reports `deformed == 0` and this
-    number read 0.005 either way. `name` is what lets the two rows share one
-    baseline.
-
-    62 % of the real node cook was `hou.Prim.setAttribValue`, 14 calls per
-    packed piece (11.2 P1). Deterministic - a COUNT, not a timing - so it
-    sits in the baseline without churning.
-
-    ⚠️ THE CEILING WAS 15.0 AND IS NOW 1.0. P1 landed: the stamp is
-    accumulated across the whole output and written once per attribute, so
-    this reads 0.005 (the one remaining call is `dress_caps` tagging a cap,
-    which is not a stamp). Restoring the per-piece writer puts it back at
-    14.005 and this goes red - which is what the ceiling is for.
+    """HOM per-element attribute writes per placed piece (11.2 P1). A COUNT,
+    not a timing. RUN IT ON BOTH BRANCHES - restoring the per-prim writer on
+    the deformed branch took arc_10 from 2.361 s to 19.854 s (8.4x) with all
+    suites green. Ceiling 1.0 (was 15.0): P1 reads 0.005, the per-piece
+    writer reads 14.005 and goes red.
     """
     calls = {"n": 0}
     real = hou.Prim.setAttribValue
@@ -1468,26 +1216,11 @@ def stamp_calls_per_piece(build_fn, expect_max=1.0, name=None):
 
 def path_sample_calls_per_piece(build_fn, place_mod, expect_max=4.0,
                                 name=None):
-    """`Path.sample` calls per placed piece - what P5R's `span_ends` is for.
-
-    ⚠️ THIS EXISTS BECAUSE THE PORT'S LARGEST PACKED-BRANCH FIX WAS PINNED BY
-    NOTHING. P5R threaded one forward/backward pair through `_flat_ratio`,
-    `_chord_ratio`, `span_deviation`, `_needs_deform`, `_packed_transform` and
-    `plan_pos` instead of letting each re-ask the sampler, and measured
-    169 232 -> 69 232 calls on the 20 km packed row. `span_ends(..., ends)` is
-    a pure cache - a miss re-samples and returns the identical value - so
-    dropping the threading is invisible to every geometry assertion: with
-    `ends` forced to `None` the whole scene suite, the HDA suite, the unit
-    tests AND the baseline diff stay completely green while the packed
-    fixture goes from **3.0 to 13.0 calls per piece (4.33x)**.
-
-    That is exactly the shape `stamp_calls_per_piece` was written for one
-    item earlier and `station_share_hit_rate` one item after it, and P5R
-    added neither for its own fix. A COUNT, so it sits in the baseline
-    without churning.
-
-    Both fixtures are surface-free, so `place.Path` is the only sampler in
-    play; a conformed run would need `ConformPath.sample` counted too.
+    """`Path.sample` calls per placed piece - pins P5R's `span_ends`
+    threading (169 232 -> 69 232 calls on the 20 km packed row; dropping it
+    is green everywhere while the fixture goes 3.0 -> 13.0 calls/piece).
+    A COUNT, not a timing. Fixtures are surface-free, so `place.Path` is the
+    only sampler; a conformed run would need `ConformPath.sample` counted too.
     """
     real = place_mod.Path.sample
     calls = {"n": 0}
@@ -1512,29 +1245,13 @@ def path_sample_calls_per_piece(build_fn, place_mod, expect_max=4.0,
 
 def curve_sample_scaling(curve_cls, expect="O(n)", samples=200,
                          cold_expect=None):
-    """Does `Curve.sample` cost depend on the curve's VERTEX COUNT - P2.
-
-    `__init__.py`'s sampler rebuilds its whole per-segment table on every
-    call, so it is O(n) per call: 3.2 us at 10 verts against 8 218 us at
-    20 001 (11.2 P2), 83 % of the worst case either audit found.
-
-    ⚠️ THE VALUE IS THE CLASS, NOT THE MICROSECONDS. A timing in
-    `baseline.json` would move on every run and drown the movement list that
-    every port commit has to read; a two-valued label moves exactly once, in
-    the commit that earns it. The raw numbers ride in `detail`, which the
-    runner records but does not diff.
-
-    AND THE SECOND READING IS THE COLD ONE, which this check did not have.
-    Warming the cache before timing measures only the path a MANY-SAMPLES
-    curve takes. The shape citygen actually hands the tool is the opposite -
-    hundreds of separate short polylines with `Curve.sample` called exactly
-    twice per section - so what it pays is table CONSTRUCTION, once per curve,
-    and P2 made that first call ~9 % SLOWER rather than faster (it now builds
-    `his` alongside `segs`). Construction cannot be O(1) - an arclength table
-    is linear in vertices by definition - so the cold expectation is `O(n)`
-    and what it pins is that it stays LINEAR: a rebuild-per-segment regression
-    reads quadratic here and goes red, where the warm reading cannot see it at
-    all. `cold_expect=None` keeps the old one-value shape.
+    """Does `Curve.sample` cost depend on VERTEX COUNT - 11.2 P2 (pre-fix:
+    3.2 us at 10 verts vs 8 218 us at 20 001). The VALUE is the complexity
+    class, not microseconds - a label moves once, a timing churns the
+    baseline; raw numbers ride in `detail`. The COLD reading pins table
+    construction staying LINEAR (a rebuild-per-segment regression reads
+    quadratic, invisible to the warm reading). `cold_expect=None` keeps the
+    old one-value shape.
     """
     us, cold = {}, {}
     for n in (10, 20001):
@@ -1572,20 +1289,11 @@ def curve_sample_scaling(curve_cls, expect="O(n)", samples=200,
 
 def conform_cache_per_element(build_fn, conform_mod, expect_max=30.0,
                               name=None):
-    """Entries `ConformPath._cache` holds per placed element - P5's cost.
-
-    The memo is unbounded and keyed on `(round(s,9), forward)`: 53 861
-    entries / 24 MB on one 2 km curve (11.2 P5), and a 300-street conformed
-    citygen run carries several hundred MB of it.
-
-    ⚠️ P5 DID NOT DELETE THE CACHE, WHICH THIS DOCSTRING USED TO PROMISE AND
-    11.2 P5 STILL DOES. It kept it, made it the batch's destination and filled
-    it EAGERLY - which took this reading UP, 17.55 -> 18.7, and took the peak
-    working set of the conformed street row up with it. Dropping the gap
-    midpoints from the enumeration is what brings it back down (18.7 -> 17.6
-    here, and -191 MB of peak working set on 300 conformed streets); the
-    ceiling stays where it was because what it guards is the memo growing
-    without anyone noticing, not the exact figure.
+    """Entries `ConformPath._cache` holds per placed element - P5's cost
+    (unbounded memo: 53 861 entries / 24 MB on one 2 km curve). Dropping gap
+    midpoints from the enumeration read 18.7 -> 17.6 here and -191 MB on 300
+    conformed streets; the ceiling guards the memo growing unnoticed, not the
+    exact figure.
     """
     made = []
     real = conform_mod.ConformPath.__init__
@@ -1613,22 +1321,11 @@ def conform_cache_per_element(build_fn, conform_mod, expect_max=30.0,
 
 def station_share_hit_rate(build_fn, place_mod, conform_mod,
                            expect_max_misses=0.0):
-    """Does P3's station cache actually get HIT - and would a miss be seen?
-
-    P3's safety argument is "a miss just samples, so it is slower and never
-    wrong", and the third review round instrumented it: 2 691 hits, 0 misses,
-    0 wrong hits across all 88 cases. The fallback branch is therefore DEAD as
-    tested, which cuts both ways - it is never wrong, and nobody would notice
-    if it started being taken. A key drifting by one ULP (a different `remap`
-    composition order, a resample of `proto.stations`, a float32 round trip of
-    module P) sends EVERY station through a fresh sample: still correct, and
-    P3's whole win silently gone.
-
-    Counted, not timed: every `sample` call made from inside
-    `_deform_positions` is a miss, because a hit reads the dict pass A filled.
-    `[stations offered, misses per piece]` - the first is the liveness the
-    second cannot report, so a build that stopped populating the cache at all
-    fails here instead of quietly reading `0 misses` off an empty dict.
+    """Does P3's station cache actually get HIT (measured 2 691 hits, 0
+    misses over 88 cases) - a key drifting one ULP is still correct with the
+    whole win silently gone. Counted, not timed: every `sample` inside
+    `_deform_positions` is a miss. `[stations offered, misses per piece]` -
+    the first is the liveness the second cannot report.
     """
     state = {"depth": 0, "offered": 0, "miss": 0, "pieces": 0}
     real_dp = place_mod._deform_positions
@@ -1685,21 +1382,10 @@ _PEAK_ROW = (("pc_elem_id", ""), ("pc_module", "panel"), ("pc_variant", ""),
 
 def stamp_bulk_peak_kb(place_mod, pieces=1000, prims=34, expect_max=1200.0):
     """Python bytes `_stamp_bulk` holds live at its peak - P1's memory cost.
-
-    P1 traded memory for the 2x: it accumulates the whole output's stamp and
-    writes it at the end. Materialising ALL FIFTEEN columns before writing any
-    of them cost **+97 MB of peak working set (61 %)** on the 340 000-prim
-    deformed row, and nothing measured it - `scale_gate` prints a dRSS column
-    but asserts only packed counts, and `baseline.json` carries no memory
-    value at all, so the gate's own number moved unseen. Measured directly on
-    the writer: 49.5 MB of Python peak for one `arc_10` build, against 7.6 MB
-    once the columns are expanded one at a time.
-
-    `tracemalloc` counts PYTHON allocations exactly, so this is deterministic
-    for the same input - a number, not a timing, and it baselines the way
-    `stamp_calls_per_piece` does. The fixture is synthetic on purpose: it is
-    the writer's own shape (pieces x prims-per-piece x the 3.4 name set), so
-    it cannot drift with the kit.
+    Materialising all fifteen columns at once cost +97 MB (61 %) on the
+    340 000-prim deformed row; measured 49.5 MB vs 7.6 MB expanded one at a
+    time. `tracemalloc` is deterministic, and the fixture is synthetic (the
+    writer's own shape) so it cannot drift with the kit.
     """
     import tracemalloc
     n = pieces * prims
@@ -1733,27 +1419,11 @@ def stamp_bulk_peak_kb(place_mod, pieces=1000, prims=34, expect_max=1200.0):
 
 
 def path_read_direction_m(place_mod, curve_cls, expect_max=1e-12):
-    """How far apart `Path.sample(s)` and `Path.sample(s, forward=False)` land
-    AT A VERTEX - the number P3's docstring used to state as zero.
-
-    P3's one semantic change is that a station gap's END is now the next
-    station's FORWARD read where it used to be a BACKWARD one, and it was
-    written up as "bit-identical by construction... 0 differing, worst 0 m".
-    It is not. That measurement was taken on PC-G3's arc, which is
-    axis-aligned with round coordinates; in general the backward branch lands
-    on the PREVIOUS segment with t clamped to 1.0 and returns `a + d*1.0`,
-    which is float-exactly `pts[k]` only when the two endpoints are within a
-    factor of 2 (Sterbenz).
-
-    So the claim becomes a measurement: every vertex arclength of seven
-    curves - open, closed, diagonal, hairpin, climbing, sub-millimetre, and
-    one axis-aligned control - read both ways. Worst |dP| here is **4.4e-16 m**
-    (2 of 166 differing); an independent sweep of seven other curves read
-    7.1e-15 m. Both are double-precision ULP on a segment endpoint, seven
-    orders below `bend_tol` and below `bend_deviation_m`'s own `_round(dev, 9)`.
-    The ceiling is 1e-12 m: a REAL divergence - a dropped sub-EPS segment
-    picked differently by the two branches, say - is metres, not ULPs.
-
+    """How far apart `Path.sample(s)` and `Path.sample(s, forward=False)`
+    land AT A VERTEX - P3's "bit-identical" claim, made a measurement over
+    seven curve shapes. Worst measured |dP|: 4.4e-16 m here, 7.1e-15 m on an
+    independent sweep - double-precision ULP, seven orders below `bend_tol`.
+    Ceiling 1e-12 m: a REAL divergence is metres, not ULPs.
     `[vertex arclengths read, how many differ]`, worst in `detail`.
     """
     made = {
@@ -1789,28 +1459,12 @@ def path_read_direction_m(place_mod, curve_cls, expect_max=1e-12):
 
 
 def build_out_keeps_upstream_stamps(build_fn, place_mod):
-    """`build(out=...)`'s `base` machinery, exercised - dev-loop Rule 0.
+    """`build(out=...)`'s `base` machinery, exercised - both branches were
+    dead as tested (no caller passes `out=`).
 
-    `_stamp_bulk`'s `base` argument and `plan_points`' twin exist so a
-    CALLER-SUPPLIED `out` keeps the stamps it already carried, and no caller
-    in the package or in the suite passes `out=` - so both branches were dead
-    as tested and a later item could have blanked the head with the whole
-    suite green. One build into a pre-populated geometry, and the upstream
-    prim's own stamp read back afterwards.
-
-    ⚠️ HOM TRAP FOUND WHILE MUTATION-TESTING THIS:
-    `hou.Geometry.setPrimStringAttribValues` treats `""` as LEAVE UNCHANGED -
-    writing `("", "NEW")` over `("KEEP", "ALSO")` yields `("KEEP", "NEW")`,
-    not `("", "NEW")`. So a mutation that blanks the string head is invisible,
-    and a string column can never clear a value a caller-supplied `out`
-    already carried. Harmless here (`build`'s own `out` is fresh, so every
-    default is already `""`), and it is why the mutation that proves this
-    check corrupts the head rather than blanking it. Houdini catches the other
-    half itself: dropping the head outright is a length mismatch and
-    `setPrimStringAttribValues` raises `Incorrect attribute value sequence
-    size`.
-
-    `[upstream prims kept, new prims stamped]`.
+    HOM trap found mutation-testing this: `setPrimStringAttribValues` treats
+    `""` as LEAVE UNCHANGED, so a blanked string head is invisible - the
+    proving mutation corrupts the head instead. `[kept, stamped]`.
     """
     pre = hou.Geometry()
     pre.createPoints([(0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 1.0)])
@@ -1840,46 +1494,16 @@ def build_out_keeps_upstream_stamps(build_fn, place_mod):
 
 
 def conform_parity(scene, tol_m=1e-9, tol_n=1e-9):
-    """11.2 P5 / 11.3 rule 1: the batched `ray` and the per-query
-    `hou.Geometry.intersect` answer every drop this case made THE SAME.
+    """11.2 P5 / 11.3 rule 1: the batched `ray` and per-query
+    `hou.Geometry.intersect` answer every drop this case made THE SAME -
+    every key the build cached is re-dropped through the Python path.
 
-    `ConformPath.prefetch` fills `_cache` from one `ray` execution and `_at`
-    fills anything it missed from `Surface.drop`. Both implementations are
-    therefore live in one process, and this asks BOTH: every key the build
-    actually cached is re-dropped through the Python path here and the two
-    answers are compared. A key the prefetch missed compares exactly 0.0 - it
-    IS the Python path - so what this reports is the batch's own divergence.
-
-    ⚠️ WHAT DIVERGES AND WHY. The verb and `intersect` are the same
-    intersector - `ray_verb_semantics` asserts that on the surfaces that could
-    tell them apart, at exactly 0. What differs is the WIDTH OF THE NUMBER:
-    the verb's ray origins and its answer both live in a point cloud, i.e.
-    float32, while `hou.Vector3` is double (probed - it round-trips
-    2000.1234567890123 exactly). `drop_many` therefore reads the verb's
-    DISTANCE and not its POSITION, and rebuilds the drop as `q + axis*dist`
-    from the double query - one float32 rounding at the magnitude of a DROP
-    instead of one at the magnitude of a WORLD COORDINATE (D111).
-
-    ⚠️ AND THE 0.0 THIS READS IS NOW A PROPERTY OF THE CODE, WHICH IT WAS NOT
-    BEFORE. P5 read the POSITION, and that is bit-identical only when the true
-    answer happens to be exactly representable in float32 - which every
-    committed conform case is, because their surfaces are `y = 0.25x` and
-    their stations are multiples of 0.25 m. On an irrational-slope ramp the
-    position route reads 2.4e-07 m at x < 24 and 6.1e-05 m at x = 20 000,
-    against 0.0 for the distance route at both. So this check read 0.0 as a
-    property of the SCENES; `ray_verb_semantics`' `dirty_ramp` and
-    `dirty_ramp_20km` trials are what tell those two apart, and they are the
-    reason the tolerance can honestly stay at 1e-09 m rather than at 11.3's
-    declared 1e-06.
-
-    ⚠️ A TILTED `conform_axis` IS NOT BATCHED AT ALL (D111) and this reports
-    it as a skip: the float32 ray origin does not lie on the double ray, the
-    divergence is ALONG the ray and the reconstruction cannot remove it
-    (1.9e-06 m on the same ramp, 1.5e-05 m at 20 km), so `drop_many` declines
-    and the per-query path - the reference - is the only implementation
-    running. `BJ_tilted_axis` is the case that builds in that configuration.
-
-    Reported as `[max |dP| m, hit-flag mismatches, max |dN| after D52's flip]`.
+    `drop_many` reads the verb's DISTANCE, not its float32 POSITION, and
+    rebuilds the drop from the double query (D111) - which is why the
+    tolerance can honestly stay at 1e-09 m (position route: 2.4e-07 m near
+    origin, 6.1e-05 m at 20 km; `ray_verb_semantics`' dirty_ramp trials tell
+    the routes apart). A tilted `conform_axis` is not batched at all (D111)
+    and reports as a skip. `[max |dP| m, hit mismatches, max |dN|]`.
     """
     paths = scene.case.get("paths") or []
     live = [p for p in paths if getattr(p, "_cache", None)]
@@ -1891,11 +1515,8 @@ def conform_parity(scene, tol_m=1e-9, tol_n=1e-9):
     total = 0
     for path in live:
         surf = path.surface
-        # the points this build actually visited, re-asked of BOTH paths.
-        # (`_cache` keys are `round(s, 9)`, and `_at` samples the RAW s, so
-        # comparing against the stored value would measure the key's rounding
-        # rather than the drop - 3.7e-09 m of it. Both are asked at the same
-        # `p` here instead, which is the question worth answering.)
+        # BOTH paths asked at the same `p` - comparing against the stored
+        # value would measure the key's rounding (3.7e-09 m), not the drop.
         qs = [path.base.sample(s, forward)[0]
               for (s, forward) in sorted(path._cache)]
         batched = surf.drop_many(qs)
@@ -1928,32 +1549,13 @@ def conform_parity(scene, tol_m=1e-9, tol_n=1e-9):
 
 def conform_prefetch_hit_rate(build_fn, conform_mod, expect_max_fallback=0.2,
                               expect_min_used=1.0, name=None):
-    """11.2 P5's tripwire, in BOTH directions: is the batch serving the drops,
-    and is it fetching drops nobody wants?
-
-    P5's safety argument is P3's - "a key the prefetch missed is slow, never
-    wrong" - and P5V's X1 is the lesson that goes with it: a pure cache whose
-    fill is silently disabled leaves every suite green and every number
-    unmoved while the work goes back to where it was.
-
-    ⚠️ AND THE FIRST VERSION OF THIS CHECK COULD ONLY SEE ONE OF THE TWO WAYS
-    TO GET IT WRONG. It reported `fallback / batched`, which is 0.0 BY
-    CONSTRUCTION when the batch over-fetches - so a prefetch enumerating
-    thousands of keys nothing asks for read as a perfect score. It did: over
-    the whole conformed ladder the gap midpoints were **0 % consumed on a 2 km
-    fence and 9 % on 300 conformed streets**, 47 % of every batch and 47 % of
-    the memo it fills. They are not enumerated any more (they are only ever
-    read for a piece that DEFORMS, which the enumeration cannot know), and
-    `used / batched` is the number that says so.
-
-    Reported as `[used/batched, fallback/batched, batched]`, both ceilings on
-    the call - `scale_gate.py`'s LADDER device - because the second one is a
-    property of the FIXTURE: it is the gap midpoints of whatever fraction of
-    that fixture's pieces deform, near 1.0 on a 100 %-deformed run and near
-    0.1 on the packed-dominant street row.
-
-    `used` needs the keys `_at` was actually asked for, so `_at` is wrapped -
-    which is why this is a check and not something the kernel counts.
+    """11.2 P5's tripwire, in BOTH directions: is the batch serving the
+    drops, and is it fetching drops nobody wants? `fallback/batched` alone is
+    0.0 by construction when the batch over-fetches (gap midpoints measured
+    0 % consumed on a 2 km fence, 9 % on 300 streets, 47 % of every batch);
+    `used/batched` is the number that says so. `[used/batched,
+    fallback/batched, batched]`, both ceilings per call - the second is a
+    property of the FIXTURE.
     """
     made = []
     asked = set()
@@ -1999,59 +1601,21 @@ def conform_prefetch_hit_rate(build_fn, conform_mod, expect_max_fallback=0.2,
 
 
 def ray_verb_semantics(conform_mod, cases_mod):
-    """The `ray` verb IS `hou.Geometry.intersect`, on the eight surfaces that
-    could tell them apart. 11.2 P5's load-bearing measurement, standing up.
+    """The `ray` verb IS `hou.Geometry.intersect`, on the surfaces that could
+    tell them apart - 11.2 P5's load-bearing measurement, standing up.
 
-    ⚠️ AND THE EIGHT WERE NOT ENOUGH, WHICH IS THE LESSON THIS CHECK CARRIES.
-    Every one of them is an ANALYTIC surface with a round slope, sampled at
-    round stations under 25 m, so its true answer is exactly representable in
-    float32 - and a reading taken off the verb's POSITION attribute is
-    bit-identical there whether or not it is bit-identical anywhere else. It
-    is not: on an irrational-slope ramp the position route reads 2.4e-07 m,
-    and at x = 20 000 m it reads 6.1e-05 m. Reading the verb's DISTANCE
-    instead is 0.0 on both (D111). `dirty_ramp` and `dirty_ramp_20km` are
-    those two trials, and they are the only rows here that can tell the two
-    readings apart - restore the position route and they go red at 2.4e-07 /
-    6.1e-05 while all eight originals stay at exactly 0.
-
-    ⚠️ AND `tilted_axis_declines` IS AN ASSERTION ABOUT THE GATE, not about a
-    drop. `Params.conform_axis` is a free direction vector (D51), and on a
-    tilted axis the float32 ray origin no longer lies on the double ray: the
-    divergence is ALONG the ray, the reconstruction cannot remove it, and it
-    is 1.9e-06 m on the dirty ramp and 1.5e-05 m at 20 km - 1 000x this
-    check's own tolerance and above `conform_parity`'s. `Surface.batchable`
-    therefore declines it and the per-query path serves that configuration
-    alone, which is what this row asserts.
-
-    Everything P5 rests on is that the batched verb answers the same question
-    the per-query HOM call does. 11.2 P5 predicted three named differences and
-    two of the three are simply not there on 22.0.398 once the verb is
-    configured to say what `Surface.drop` says: `reverserays=bidirectional` +
-    `bidirectionalresult=closest` is D70's "look both ways, nearest wins",
-    `rtolerance=1e-6` is `intersect`'s own `tolerance`, `bias=0` is its
-    `min_hit`, and `maxraydistcheck=0` cannot cut a hit off because every
-    surface point lies within `radius` of the centre. The third IS there and
-    is re-added in `drop_many`: the verb hands back the polygon's own normal,
-    so D52's flip-to-oppose-the-axis is applied on read.
-
-    The eight, each of which a naive port gets wrong in a different way:
-      * D70's bridge deck - ground at y=-2 with a deck at y=+2 over part of
-        the run. A `first hit` port puts the road on the deck.
-      * ...and the same deck at an UNEQUAL standoff (ground -2, deck +3),
-        because the first two are equidistant and therefore cannot see
-        `bidirectionalresult` at all (D113 - an audit mutation flipped it to
-        `farthest` and all ten original trials stayed at exactly 0.0).
-      * An EXACT TIE - two sheets at y=+/-2 with the query between them. D70
-        says the tie goes DOWN-axis because the stage is a drop.
-      * D52's reversed winding, and a query from BELOW the surface - facing is
-        ignored for the hit itself.
-      * D53's hole and its edge - a miss must keep the unprojected position.
-      * Two COINCIDENT sheets - the degenerate tie.
-      * The camber cross-fall and the two-facet tent - the normal, and a
-        surface coarser than the pieces.
-
-    Reported as `[max |dP| m, hit-flag mismatches, max |dN| after the flip]`,
-    all three asserted at exactly 0.
+    The eight analytic trials are float32-exact by construction; only
+    `dirty_ramp` / `dirty_ramp_20km` can tell the DISTANCE reading from the
+    POSITION one (restore the position route: 2.4e-07 / 6.1e-05 m red, D111).
+    `tilted_axis_declines` asserts the GATE: on a tilted axis the divergence
+    is along the ray (1.9e-06 m / 1.5e-05 m), so `Surface.batchable` declines
+    and the per-query path serves it alone. The verb's one real difference -
+    it hands back the polygon's own normal - is re-added in `drop_many` as
+    D52's flip. Trials cover: D70 bridge deck, unequal-standoff deck (D113 -
+    equidistant hits cannot see `bidirectionalresult`), exact tie, D52
+    reversed winding + from-below, D53 hole/edge, coincident sheets, camber,
+    tent. `[max |dP| m, hit-flag mismatches, max |dN|]`, all asserted at
+    exactly 0.
     """
     axis = (0.0, -1.0, 0.0)
     S = cases_mod.surface
@@ -2064,17 +1628,9 @@ def ray_verb_semantics(conform_mod, cases_mod):
         return g
 
     def deck_offcentre():
-        """The deck at a DIFFERENT standoff from the ground, which `deck()`
-        is not - and that is the whole point of this trial (D113).
-
-        `deck()` puts the ground at y = -2 and the deck at y = +2 with the
-        query at y = 0, so the two hits are EQUIDISTANT: `closest` and
-        `farthest` return the same point and the trial cannot see the parm
-        that chooses between them. Mutation-tested: flipping
-        `bidirectionalresult` to `farthest` left all ten original trials at
-        exactly 0.0 and was caught only by `conform_parity` on one scene case.
-        Here the deck is at +3 against ground at -2, so nearest is the ground
-        and farthest is the deck, 5 m apart.
+        """Deck at an UNEQUAL standoff (D113): `deck()`'s hits are
+        equidistant, so it cannot see `bidirectionalresult` - here nearest is
+        the ground and farthest the deck, 5 m apart.
         """
         g = S(lambda x, z: -2.0, x0=-2.0, x1=24.0, z0=-4.0, z1=4.0,
               nx=26, nz=4)
@@ -2163,22 +1719,11 @@ def ray_verb_semantics(conform_mod, cases_mod):
 
 
 def prims_wrappers_built(build_fn, hou_mod, expect_max=64, name=None):
-    """How many `hou.Prim` WRAPPERS a build materialises through `geo.prims()`.
-
-    `geo.prims()` builds a tuple of one wrapper per primitive, so the cost is
-    the geometry's size and not the call. P5R cut three `len(geo.prims())`
-    sites that only wanted a NUMBER and the fourth survived because nothing
-    counted them: `conform.Surface.__init__` runs once per CURVE, on the
-    SURFACE, and on 300 conformed streets over a 7 712-prim terrain it built
-    300 x 7 712 = 2.3 M wrappers - **0.530 s of a 3.46 s row, 15 %, the
-    largest single entry in that profile** - to ask whether the geometry was
-    empty. `intrinsicValue("primitivecount")` answers that for free.
-
-    ⚠️ THE VALUE IS WRAPPERS, NOT CALLS, and that is the whole point: three
-    legitimate `for prim in geo.prims()` loops remain (kit validation, kit
-    read, `read_curves`) and they are bounded by the KIT and the INPUT, which
-    is what a ceiling can be set against. A count of calls would read 3 on a
-    one-curve fixture whether the surface was being wrapped or not.
+    """How many `hou.Prim` WRAPPERS a build materialises through
+    `geo.prims()` (the surviving `len(geo.prims())` in `Surface.__init__`
+    built 2.3 M wrappers on 300 streets - 0.530 s of a 3.46 s row, 15 %).
+    The value is WRAPPERS, not calls: the three legitimate loops are bounded
+    by the kit and the input, which a ceiling can be set against.
     """
     real = hou_mod.Geometry.prims
     built = [0]
@@ -2198,25 +1743,11 @@ def prims_wrappers_built(build_fn, hou_mod, expect_max=64, name=None):
 
 
 def ray_executions_per_build(build_fn, hou_mod, expect_max=1, name=None):
-    """How many `ray` verb EXECUTIONS one build takes. 11.2 P5, corrected.
-
-    ⚠️ THE VERB'S COST IS NOT ALL MARGINAL, AND THAT IS WHAT THIS PINS. `ray`
-    rebuilds its second input on every execution, so each call carries a fixed
-    cost that scales with the SURFACE and not with the query count - measured
-    on this build, minimum of five calls on one warm `Surface`: **0.34 ms at
-    5 022 terrain prims, 0.71 ms at 20 088, 2.25 ms at 80 352**, against a
-    marginal ~2 us per query. P5 paid it once per CURVE, which is free on the
-    one-curve fence it was measured on and is a LOSS on the many-curve shape
-    it was aimed at: 300 x 60 m conformed streets read **0.94-0.99x** with the
-    batch on - slower than not batching at all - and 1.20-1.39x once the batch
-    is taken once for the whole build.
-
-    A count, not a time, and P5R's rule 3 applies: a call count is evidence of
-    a call count. What makes it worth asserting is that the count is the thing
-    that changed sign. (The wall-clock bench that used to sit beside it
-    is deleted: it printed and could not fail.)
-
-    Counted through `Surface.drop_many`, which is one execution by definition.
+    """How many `ray` verb EXECUTIONS one build takes (11.2 P5, corrected).
+    Each execution carries a fixed cost scaling with the SURFACE (0.34 ms at
+    5 022 prims, 2.25 ms at 80 352, vs ~2 us marginal per query): per-curve
+    batching read 0.94-0.99x on 300 streets, once-per-build 1.20-1.39x.
+    A count, not a time; counted through `Surface.drop_many`.
     """
     from polyfactory.polychain import conform as _conform
     real = _conform.Surface.drop_many
@@ -2236,19 +1767,10 @@ def ray_executions_per_build(build_fn, hou_mod, expect_max=1, name=None):
 
 
 def verb_executions_per_build(build_fn, place_mod, expect_max, name=None):
-    """How many COMPILED SOP EXECUTIONS one build takes, per verb name.
-
-    `ray_executions_per_build` pins the conform batch because P5 proved a
-    per-execute fixed cost can invert a batch's sign. `clip` and `polyfill`
-    carry the same kind of cost - each rebuilds its own input - and nothing
-    counted them, so phase 2 multiplied them by the ROW COUNT unwatched: a
-    phase-1 rectangle is 4 corners x 2 halves = 8 mitered pieces, a
-    100-building district is 100 x 4 x 8 rows x 2 = 6 400, i.e. 12 800
-    executions against the 100 `ray` calls the cycle went to war over.
-
-    The value is a sorted [name, count] list so a new verb appearing in the
-    kernel is visible as a NAME (11.9: "the only compiled SOPs it reaches are
-    three verbs"), not as a total that happens to match.
+    """COMPILED SOP EXECUTIONS per build, per verb name - `clip`/`polyfill`
+    carry the same per-execute fixed cost as `ray`, and phase 2 multiplies
+    them by ROW COUNT (a 100-building district: 12 800 executions vs the 100
+    `ray` calls). Sorted [name, count] so a new verb is visible as a NAME.
     """
     import hou as _hou
     real = _hou.SopVerb.execute
@@ -2278,14 +1800,9 @@ def verb_executions_per_build(build_fn, place_mod, expect_max, name=None):
 
 
 def polyfill_appends_its_patches(place_mod, hou_mod):
-    """THE VERB PROPERTY `clip_plane`'s BULK CAP TAG RESTS ON.
-
-    P7's fix replaced a per-prim, per-point plane test with "the caps are the
-    tail", which is true because `polyfill` appends the primitives it creates
-    contiguously after the ones it was given. That was probed on this build
-    rather than recalled - and a probe that is not committed is a probe that
-    silently stops being true, so this re-runs it: three disjoint boxes cut by
-    one plane, the tail range compared against the ORIGINAL plane test.
+    """The verb property `clip_plane`'s bulk cap tag rests on (P7): polyfill
+    appends its created prims contiguously at the tail. Re-probed here -
+    three disjoint boxes cut by one plane, tail range vs the plane test.
     """
     from polyfactory.polychain import kit as _kit
     cat = hou_mod.sopNodeTypeCategory()
@@ -2317,24 +1834,11 @@ def polyfill_appends_its_patches(place_mod, hou_mod):
 
 
 def points_wrappers_built(build_fn, hou_mod, expect_max=8, name=None):
-    """The same question for `hou.Point`, because the same defect came back.
-
-    P5b closed `len(geo.prims())`; P5 had ALREADY reopened it one object down.
-    `drop_many`'s hit test read the `ray` verb's output point GROUP -
-    `set(pt.number() for pt in grp.points())` - which builds one `hou.Point`
-    wrapper per query. Timed on 34 002 queries against a 3 481-prim grid:
-    `verb.execute` 0.0016 s, the group read **0.0081 s** - five times the work
-    it was decorating - and 306 600 wrappers on the conformed street row.
-    `prims_wrappers_built` could not see it: it counts prims.
-
-    The verb answers it for free instead. `useprimnumattrib` writes `hitprim`,
-    -1 on a miss and the primitive number on a hit; measured against the group
-    over three surfaces including 40 ZERO-DISTANCE hits they disagree on 0
-    points. (`putdist` + `dist != 0` is NOT a substitute - it calls all 40 of
-    those a miss.)
-
-    Both sources are counted, because the group read never touched
-    `hou.Geometry.points` at all.
+    """The same question for `hou.Point` wrappers (the group read in
+    `drop_many` cost 5x the verb it decorated: 0.0081 s vs 0.0016 s, 306 600
+    wrappers on the street row; `hitprim` via `useprimnumattrib` answers it
+    for free - `putdist` + `dist != 0` is NOT a substitute, it calls the 40
+    zero-distance hits misses). Both wrapper sources are counted.
     """
     real_g = hou_mod.Geometry.points
     real_p = hou_mod.PointGroup.points
@@ -2362,22 +1866,11 @@ def points_wrappers_built(build_fn, hou_mod, expect_max=8, name=None):
 
 
 def wrapper_reads(build_fn, hou_mod, expect_max, name=None):
-    """THE HOLE THE OTHER FOUR TRIPWIRES LEFT: reads through a `hou.Prim`.
-
-    `prims_wrappers_built` and `points_wrappers_built` count wrappers
-    MATERIALISED through `hou.Geometry` / `hou.PointGroup`, and
-    `stamp_calls_per_piece` / `rows_wrappers_built` count wrapper WRITES.
-    A read through a wrapper is neither, so `points_wrappers_built` read 0
-    (PASS, ceiling 8) on a phase-2 district that materialised 159 242
-    `hou.Point` objects through `hou.Prim.points` and called
-    `Point.position` 220 488 times - i.e. 11.9 rule 1's instruction "if a
-    phase-2 row is slow, COUNT WRAPPERS" was unanswerable with the counters
-    that existed. This is that number: `Prim.points` (by length),
-    `Point.position`, `Point.attribValue` and `Prim.attribValue`.
-
-    The ceiling is a CLASS boundary, not a floor - three legitimate wrapper
-    loops remain (kit validation, kit read, `read_curves`) and they are
-    bounded by the kit and the input.
+    """The hole the other four tripwires left: READS through a wrapper
+    (`Prim.points` by length, `Point.position`, `*.attribValue`) - a phase-2
+    district read 0 on `points_wrappers_built` while materialising 159 242
+    points via `Prim.points` and calling `Point.position` 220 488 times.
+    The ceiling is a CLASS boundary, not a floor.
     """
     real_pp = hou_mod.Prim.points
     real_pos = hou_mod.Point.position
@@ -2417,14 +1910,9 @@ def wrapper_reads(build_fn, hou_mod, expect_max, name=None):
                   "`*.attribValue`) in one build (ceiling %d)"
                   % (got[0], expect_max))
 def rows_wrappers_built(build_fn, hou_mod, expect_max=0, name=None):
-    """11.9 RULE 1, ON THE ROW EMITTER - the one new loop phase 2 adds.
-
-    `prims_wrappers_built` counts wrappers MATERIALISED; this counts wrappers
-    TOUCHED, which is the defect class rule 1 actually names: one
-    `Prim.setAttribValue` per row is what a straightforward emitter writes,
-    and it is invisible to a wrapper COUNT because `createPoints` returns the
-    same tuple either way. The ceiling is 0 and it is meant to stay 0: every
-    row attribute goes in as one `setPrim*AttribValues` over the whole stream.
+    """11.9 rule 1 on the row emitter: wrapper attribute WRITES during row
+    emission. Ceiling 0, meant to stay 0 - every row attribute goes in as one
+    `setPrim*AttribValues` over the whole stream.
     """
     real_p = hou_mod.Prim.setAttribValue
     real_pt = hou_mod.Point.setAttribValue
@@ -2490,24 +1978,11 @@ def _cells(geo):
 
 
 def clip_stamp(scene):
-    """7.3.3's `pc_clipped` (0/1), which the first cut of 7.6 never stamped.
-
-    [elements on a clipped row, elements total]. Under D137 the clip is a SPAN
-    rather than a cull, so "clipped" means "this piece sits on a row whose
-    span the boundary trimmed" - the rectangle case reads 0 because a
-    rectangle is the identity, the taper and the U read every element.
-    ⚠️ NOT the per-module `pc_clip` policy of 7.3.1 (remove/preserve/slice per
-    module): that arrives with real slicing in P2-7 and does not exist yet.
-
-    ⚠️ AND IT ASSERTS, IT DOES NOT MERELY RECORD. This used to be
-    `ok = area or n == 0`, i.e. on an area build - the only kind where the
-    stamp can legitimately be 1, and therefore the only kind the check was
-    written for - `ok` was `True` no matter what the value was. Setting
-    `p.clipped = 0` for every placement left the whole suite green with only a
-    baseline line to show for it. The assertion is now the TRANSFER: the row
-    curve carries `pc_clipped` per row and every element of that row must
-    carry the same number, which is the step `plan.classify` performs and the
-    step that silently stopped happening.
+    """7.3.3's `pc_clipped` (0/1): [elements on a clipped row, total]. Under
+    D137 the clip is a SPAN, not a cull; NOT 7.3.1's per-module `pc_clip`
+    policy (arrives with P2-7). The assertion is the TRANSFER - every element
+    must match its row curve's `pc_clipped` - because `ok = area or n == 0`
+    was vacuously True on the only builds where the stamp can be 1.
     """
     recs = _cells(scene.geo)
     if not recs:
