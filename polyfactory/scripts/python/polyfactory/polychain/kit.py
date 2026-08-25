@@ -335,6 +335,190 @@ def source_for(sources, module, nominal_y=1.0):
     return box
 
 
+# --- 7.7: slicing one chunk into a kit (`pf_polychain_slice`) ---------------
+#
+# The GEOMETRY half of the on-ramp; `slicer.py` is the decision half and owns
+# every number that reaches here. It lives in this file because 13.6's Python
+# list says "kit AUTHORING and validation" and a sliced kit is a kit - the
+# format has one owner, and a second module writing `pc_role` and `pc_size`
+# would be a second declaration of 3.2.
+
+def _clip(chunk, cell, texel=1.0):
+    """One cell cut out of the chunk, still IN THE CHUNK'S OWN SPACE.
+
+    Four half-space clips of the same `clip` verb 4.3 already uses (D131), so
+    the tool reaches no verb the kernel does not already reach. Returns None
+    when the cell is empty - a plane grid over a chunk with a courtyard in it
+    legitimately has empty cells, and that is a warning, not a failure (D24).
+    """
+    # ⚠️ IMPORTED HERE, NOT AT MODULE SCOPE: `place` imports `kit`, so a
+    # module-level import would be a cycle. This is the only call either way.
+    from . import place as _place
+    geo = hou.Geometry()
+    geo.merge(chunk)
+    for org, nrm, sign in (((cell.x0, 0.0, 0.0), (1.0, 0.0, 0.0), +1),
+                           ((cell.x1, 0.0, 0.0), (1.0, 0.0, 0.0), -1),
+                           ((0.0, cell.y0, 0.0), (0.0, 1.0, 0.0), +1),
+                           ((0.0, cell.y1, 0.0), (0.0, 1.0, 0.0), -1)):
+        geo = _place.clip_plane(geo, org, nrm, sign, cell.name, texel)
+        if not geo.intrinsicValue("primitivecount"):
+            return None
+    return geo
+
+
+def _deform_for(role, mode):
+    """`pc_deform` per D268's cap/fill split, matching the starter kit: a
+    cap or corner piece holds its shape at a joint (rigid, and so stays
+    instanced), the fill panel follows the run (bendable)."""
+    if mode != "auto":
+        return {"rigid": DEFORM_RIGID, "bend": 1, "slice": 2}.get(mode,
+                                                                 DEFORM_RIGID)
+    from . import split_role
+    x = split_role(role)[0]
+    return DEFORM_RIGID if x in ("start", "end", "corner") else 1
+
+
+def slice_cells(chunk, cells, texel=1.0):
+    """([(Cell, geometry in the chunk's space)], [warnings]).
+
+    The one place the clipping happens; both HDA stages read this list, so
+    the preview an artist judges and the kit they ship cannot disagree.
+    """
+    out, warns = [], []
+    for cell in cells:
+        geo = _clip(chunk, cell, texel)
+        if geo is None:
+            warns.append("pc_slice: cell %r is empty - the chunk has no "
+                         "geometry in x [%.4f %.4f] y [%.4f %.4f]"
+                         % (cell.name, cell.x0, cell.x1, cell.y0, cell.y1))
+            continue
+        out.append((cell, geo))
+    if not out:
+        warns.append("pc_slice: nothing was sliced - check that the chunk "
+                     "runs along +X with +Y up (D20)")
+    return (out, warns)
+
+
+def slice_preview(pairs):
+    """The cells where they were cut, one `pc_cell` per prim - the display
+    that answers "where did the cuts land" before anything is packed."""
+    geo = hou.Geometry()
+    geo.addAttrib(hou.attribType.Prim, "pc_cell", "")
+    for cell, piece in pairs:
+        n0 = geo.intrinsicValue("primitivecount")
+        geo.merge(piece)
+        col = list(geo.primStringAttribValues("pc_cell"))
+        col[n0:] = [cell.name] * (len(col) - n0)
+        geo.setPrimStringAttribValues("pc_cell", col)
+    return geo
+
+
+def slice_kit(pairs, kit_id="sliced_kit", version=1,
+              human_scale_reference=1.8, deform="auto", zmode="adaptive",
+              geo=None):
+    """`slicer.plan`'s cells + their geometry -> a 3.2 kit. (geo, warnings).
+
+    D270: each cell is translated by its OWN low corner, not by its
+    geometry's, so the module's fit origin is the cell. When the geometry
+    does not reach that corner the module is still built - `place._Proto`
+    will take its fit origin from the bbox and place it shifted, so the gap
+    is reported here, where the artist can still move a guide.
+    """
+    geo = geo if geo is not None else hou.Geometry()
+    warns = []
+    for cell, piece in pairs:
+        src = hou.Geometry()
+        src.merge(piece)
+        src.transform(hou.hmath.buildTranslate(-cell.x0, -cell.y0, 0.0))
+        bb = src.boundingBox()
+        gap = max(bb.minvec()[0], bb.minvec()[1])
+        if gap > 1e-6:
+            warns.append("pc_slice: cell %r does not reach its own low "
+                         "corner (%.4f m of void) - it will be placed that "
+                         "far off its bay" % (cell.name, gap))
+        add_module(geo, cell.name, src,
+                   size=(cell.x1 - cell.x0, cell.y1 - cell.y0,
+                         bb.sizevec()[2]),
+                   deform=_deform_for(cell.role, deform), zmode=zmode,
+                   roles=cell.role, variant=cell.variant)
+    write_manifest(geo, kit_id, version,
+                   sources=("pf_polychain_slice",),
+                   human_scale_reference=human_scale_reference)
+    return (geo, warns)
+
+
+def _guides(geo):
+    """Input 2, read as 7.7 guide planes. ([(axis, coord, class)], warnings).
+
+    A guide is a POINT WITH A NORMAL and, optionally, `pc_slot` naming the
+    class of the band that starts at it - the same `pc_slot` vocabulary 3.3
+    already uses for rules, so the artist learns one word list, not two.
+    """
+    from . import slicer as _slicer
+    if geo is None or not geo.intrinsicValue("pointcount"):
+        return ([], [])
+    n = geo.intrinsicValue("pointcount")
+    flat = list(geo.pointFloatAttribValues("P"))
+    pos = [flat[3 * i:3 * i + 3] for i in range(n)]
+    if geo.findPointAttrib("N") is None:
+        return ([], ["pc_slice: the guides carry no N - a guide is a point "
+                     "plus the direction it cuts, so nothing was used"])
+    fn = list(geo.pointFloatAttribValues("N"))
+    nrm = [fn[3 * i:3 * i + 3] for i in range(n)]
+    cls = (list(geo.pointStringAttribValues("pc_slot"))
+           if geo.findPointAttrib("pc_slot") is not None else [])
+    return _slicer.guides_from_points(pos, nrm, cls)
+
+
+def sop_slice(node, mode="kit"):
+    """`pf_polychain_slice`'s whole cook: parms in, a 3.2 kit out.
+
+    13.6's sanctioned Python - parameter marshalling plus one call. Every
+    number comes from `slicer.plan`, every polygon from the `clip` verb, and
+    every warning reaches the artist as a NODE warning rather than a print.
+    """
+    from . import slicer as _slicer
+    # ⚠️ THE PARMS ARE ONE LEVEL UP. `hou.pwd()` inside the HDA is the Python
+    # SOP, which has two parms of its own, so every read here returned None
+    # and the page silently read as empty - the same trap `hda._parm_owner`
+    # carries, hit again on the first cook of the new asset.
+    parms = node if node.parm("bay") is not None else node.parent()
+    geo = node.geometry()
+    # ⚠️ A PYTHON SOP'S GEOMETRY ARRIVES AS A COPY OF INPUT 0. Without this
+    # the kit shipped as nine packed prims MERGED INTO THE CHUNK, and every
+    # kit-level check still passed because it reads modules by `pc_name` and
+    # the chunk's prims all answer "" - one extra row, nine right answers.
+    geo.clear()
+    ins = node.inputs()
+    chunk = node.inputGeometry(0) if ins and ins[0] is not None else None
+    if chunk is None or not chunk.intrinsicValue("primitivecount"):
+        node.addWarning("pc_slice: nothing on input 1 - wire the chunk to "
+                        "slice. It should run along +X with +Y up (D20).")
+        return
+    guides, warns = _guides(node.inputGeometry(1)
+                            if len(ins) > 1 and ins[1] is not None else None)
+    bb = chunk.boundingBox()
+    cells, w = _slicer.plan(
+        (bb.minvec()[0], bb.maxvec()[0], bb.minvec()[1], bb.maxvec()[1]),
+        parms.evalParm("bay"), parms.evalParm("storey"), guides,
+        bool(parms.evalParm("sides")), bool(parms.evalParm("capstop")),
+        bool(parms.evalParm("jigsaw")))
+    warns += w
+    pairs, w = slice_cells(chunk, cells)
+    warns += w
+    if mode == "cells":
+        geo.merge(slice_preview(pairs))
+    else:
+        out, w = slice_kit(pairs, parms.evalParm("kitid"), 1,
+                           parms.evalParm("humanscale"),
+                           parms.parm("deform").evalAsString(),
+                           parms.parm("zmode").evalAsString())
+        warns += w
+        geo.merge(out)
+    for line in warns:
+        node.addWarning(line)
+
+
 # --- the starter kit (6, "one fence/railing kit ... shipped with the HDA") ---
 
 def starter_kit():
