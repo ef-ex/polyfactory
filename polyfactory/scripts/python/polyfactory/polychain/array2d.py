@@ -264,7 +264,12 @@ AUTO_ALIGNS = ("to_spline", "x_xy", "x_horizontal")
 # slice always caps (D126). A payload asking for that value is answered; a
 # payload asking for anything else is REFUSED BY NAME (D294).
 CLIP_FIXED = {"projection": "planar", "hierarchy": "complete", "cap_holes": 1}
-_CLIP_WORDS = {"mode": ("preserve", "remove", "slice"),
+# ⚠️ `none` IS THE FOURTH CULL POLICY AND IT IS NOT IN `CLIP_POLICIES`.
+# `build_clipped`'s own wording is "remove / preserve / slice / none", and
+# `none` is answered by `row_spans` (the whole width, no boundary test) rather
+# than by a per-piece policy - so a vocabulary built from `CLIP_POLICIES`
+# alone would have refused a value the shipped keyword accepts.
+_CLIP_WORDS = {"mode": ("none", "preserve", "remove", "slice"),
                "auto_align": AUTO_ALIGNS}
 
 

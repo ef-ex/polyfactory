@@ -225,7 +225,16 @@ def payload_face():
         return cases2d.payload_build(nudge, payload)[0]
     return [
         C.payload_round_trip_2d(build(None, False), build(None, True)),
-        C.parms_inert_under_payload(build, [{"clip_mode": "remove"},
+        # ⚠️ `none`, AND TWO MEASUREMENTS PICKED IT. `remove` is
+        # `build_clipped`'s own default, so a payload that stopped overriding
+        # `clip_mode` left the base build on exactly the value this row nudges
+        # to and the sweep read [0, 3, 3] with the payload deleted -
+        # `2d_payload_does_not_override` SURVIVED it. And `preserve` is not a
+        # nudge either: it and `slice` produce identical ROW SPANS, and this
+        # kit's modules carry `pc_clip = 2`, so the array's policy never
+        # decides anything - [0, 2, 3], the parm measurably not live. `none`
+        # is the one value neither a default nor a module can coincide with.
+        C.parms_inert_under_payload(build, [{"clip_mode": "none"},
                                             {"expand": 1.5},
                                             {"auto_align": "to_spline"}]),
         # 7.3.2's six `clip` keys, hostile: one the 2D path cannot build at
