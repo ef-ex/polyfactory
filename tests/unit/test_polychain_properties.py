@@ -143,6 +143,12 @@ def test_fit_warns_but_never_blocks(L, s, mode, gap, fixed, count):
        j=st.sampled_from(sorted(pc.JUSTIFY)), ate=st.floats(0.0, 5.0))
 @settings(max_examples=EX * 2, deadline=None)
 def test_evenly_anchors_are_ordered_and_inside_the_span(L, d, n, j, ate):
+    # ⚠️ BOUNDED, AND THE BOUND IS ITSELF A FINDING - see
+    # `test_evenly_ignores_the_MAX_UNITS_ceiling` below.  `evenly` returns one
+    # anchor per step with NO ceiling, so `d` a few orders below `L` hangs the
+    # process rather than failing it.  Hypothesis at 1500 examples reached it
+    # and the run stopped being a test.
+    assume(d <= 0.0 or L / d <= 20000.0)
     a = plan.evenly(L, params(evenly_spacing=d, evenly_count=n, justify=j,
                               adjust_to_end=ate))
     assume(a)
@@ -169,6 +175,29 @@ def test_evenly_center_is_symmetric_about_the_span(L, d):
     a = plan.evenly(L, params(evenly_spacing=d, justify="center"))
     assume(a)
     assert abs(a[0] - (L - a[-1])) <= REL * max(L, 1.0)
+
+
+def test_evenly_ignores_the_MAX_UNITS_ceiling():
+    """RECORDED DEFECT, 2026-08-25, found by the property above at 1500
+    examples: `plan.fit` clamps its count to `MAX_UNITS` and warns; `evenly`
+    does not clamp at all.
+
+    `Evenly Spacing` is an artist parm in metres.  Typing 0.000001 into it
+    asks `evenly` to build a list of one million floats on a 1 m span, and a
+    smaller value asks for more than memory holds - measured: `evenly(1000.0,
+    spacing=1e-6)` does not return within 60 s.  There is no exception and no
+    warning, so `warn-never-block` is not what happens either; the node hangs.
+
+    This test asserts what the build DOES, not what it should do - the M2
+    "cases before mechanism" convention.  It is fast (1e6 floats, ~0.1 s) and
+    it FAILS the day a ceiling lands, which is when this whole docstring gets
+    deleted along with it.  Not fixed here: this is the test cycle.
+    """
+    n = len(plan.evenly(1.0, params(evenly_spacing=1e-6)))
+    assert n == 999999, "the anchor count changed: %d" % n
+    assert n > pc.MAX_UNITS, (
+        "`evenly` now respects a ceiling - delete this test and the note in "
+        "`test_evenly_anchors_are_ordered_and_inside_the_span`")
 
 
 # --- pack: padding moves the NEIGHBOUR --------------------------------------
@@ -221,6 +250,11 @@ def test_plan_section_reaches_both_ends_and_is_deterministic(L, mode, gap,
     assert plan.plan_dicts(got) == plan.plan_dicts(again), "not deterministic"
     assume(got)
     assume(not any(pl.warns for pl in got))
+    # ⚠️ EXCLUDED, AND THE EXCLUSION IS ITSELF A FINDING - see
+    # `test_count_mode_overhangs_the_section_on_negative_padding`.  `count`
+    # mode with an overlapping pad places pieces OUTSIDE the section, with no
+    # warning.  Every other mode holds the contract at every pad.
+    assume(not (mode == "count" and gap < 0.0))
     assert abs(min(pl.s0 for pl in got)) <= REL * max(L, 1.0)
     end = max(pl.s1 for pl in got)
     if mode == "tile":
@@ -232,6 +266,35 @@ def test_plan_section_reaches_both_ends_and_is_deterministic(L, mode, gap,
         assert abs(end - L) <= REL * max(L, 1.0)
     for a, b in zip(got, got[1:]):
         assert b.s0 >= a.s0, "placements are not in span order"
+
+
+def test_count_mode_overhangs_the_section_on_negative_padding():
+    """RECORDED DEFECT, 2026-08-25, found by the property above.
+
+    `fill = count` with a NEGATIVE pad (RailClone's legal overlap) lays the
+    run outside its own section and says nothing.  Measured on a 0.5 m
+    section, module 2.0 m, pad -0.5 both sides, count 2: the pieces land at
+    (-0.25, 0.5) and (0.0, 0.75) - a 0.25 m overhang at BOTH ends, a run
+    extent of 1.0 m over a 0.5 m span, and no `warns` entry at all.  At
+    pad -1.0 the same input DOES warn (`pc_warn_degenerate_pad`), and
+    `adaptive`, `tile` and `scale` all stay inside the section at every pad,
+    so this is neither the degenerate-pad guard firing nor a general property
+    of overlap - it is `count`'s own.
+
+    Asserted as what the build DOES (M2's "cases before mechanism"), so the
+    day the run is clamped or the overhang is warned, this test fails and
+    gets deleted with its finding.  Not fixed here: this is the test cycle.
+    """
+    kit = pc.Kit("k", human_scale_reference=1.8, modules=[
+        pc.Module("panel", (2.0, 1.0, 0.1), deform=pc.DEFORM_BEND,
+                  roles="default", pad=(-0.5, -0.5))])
+    style = pc.Style("s", seed=0,
+                     rules=[pc.Rule("default", "first", ["panel"])])
+    got = plan.plan_section(dc.Section("c", 0, 0.0, 0.5, 0.5), kit, style,
+                            params(fill="count", count=2))
+    spans = [(round(p.s0, 4), round(p.s1, 4)) for p in got]
+    assert spans == [(-0.25, 0.5), (0.0, 0.75)], spans
+    assert not any(p.warns for p in got), "it warns now - delete this test"
 
 
 # --- decompose, on generated topology ---------------------------------------
