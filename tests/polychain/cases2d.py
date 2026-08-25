@@ -158,7 +158,7 @@ def clip_loops_hostile():
             for loop in CLIP_LOOPS]
 
 
-# 7.6's contract is a closed PLANAR sub-spline, and D147/D149 are the four
+# 7.6's contract is a closed PLANAR sub-spline, and D290/D292 are the four
 # ways an artist breaks it in one input: an OPEN prim, a BOWTIE (skipped - its
 # lobes wind opposite ways and the array breached its own region by 0.88 m),
 # a loop 1 m off its own plane (built, warned) and one carrying
@@ -167,7 +167,7 @@ def clip_loops_hostile():
 CLIP_BAD_OPEN = [(0, 12, 0), (12, 12, 0), (12, 16, 0)]
 CLIP_BAD_BOWTIE = [(30, 0, 0), (42, 12, 0), (42, 0, 0), (30, 12, 0)]
 CLIP_BAD_NONPLANAR = [(50, 0, 0), (62, 0, 0), (62, 10, 1.0), (50, 10, 0)]
-# ...and D149's, which is PLANAR and legal and still wrong: a plate tilted 10
+# ...and D292's, which is PLANAR and legal and still wrong: a plate tilted 10
 # degrees out of vertical is solved in its own plane and built along the world
 # up axis, so every piece leaves its band by 0.0260 m (measured) against
 # PC-G6's 0.010 m. Nothing in the suite had ever tilted an area array.

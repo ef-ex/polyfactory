@@ -2057,8 +2057,8 @@ def clip_input_warns(case, expected=(), name="clip_input_warns"):
     was asserted anywhere: `pc_warn_clip_open` and `pc_warn_clip_group_ignored`
     appeared in no case, no expectation and no unit test, which is the exact
     shape D139 (FT/FU) exists to prevent - a declared warning nothing runs is a
-    warning that can be deleted with the suite green. D147 added two more
-    (self-intersecting, non-planar) and D149 a fifth (a tilted array plane).
+    warning that can be deleted with the suite green. D290 added two more
+    (self-intersecting, non-planar) and D292 a fifth (a tilted array plane).
 
     These live on the build report's own `clip_input_warnings`, not on an
     element: a loop the validation REJECTED produces no geometry to carry an

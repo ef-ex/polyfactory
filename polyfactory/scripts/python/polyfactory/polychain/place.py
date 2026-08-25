@@ -1478,7 +1478,7 @@ def _off_plane_patches(geo, n_cut, n_all, origin, normal):
     WHAT THIS CANNOT SEE: an open boundary the artist modelled that happens to
     lie exactly in a cut plane. That one is capped, as before.
 
-    ⚠️ THE TOLERANCE SCALES WITH THE WORLD POSITION, NOT WITH THE PIECE (D148).
+    ⚠️ THE TOLERANCE SCALES WITH THE WORLD POSITION, NOT WITH THE PIECE (D291).
     The error it has to absorb is float32 round-off on `P`, which grows with
     the absolute coordinate; scaled by the module's own 2 x 2 x 0.3 bbox it was
     2e-06 m, and PC-G6's own fixture moved 500 m from the origin measured

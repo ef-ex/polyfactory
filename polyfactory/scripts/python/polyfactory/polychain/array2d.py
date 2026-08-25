@@ -553,7 +553,7 @@ def area_frame(points, auto_align="to_spline", expand=0.0):
     """A closed planar spline -> `AreaFrame`. Never raises.
 
     ⚠️ THE PLANE NORMAL'S SIGN IS THE AUTHORED WINDING AND THE KERNEL'S IS NOT
-    (D147). `_newell` flips with the direction the artist drew the loop, so a
+    (D290). `_newell` flips with the direction the artist drew the loop, so a
     CLOCKWISE boundary gave `ey = -Y` while `place.build` kept growing every
     module along `UP` - the geometry came out one module-height below its own
     row datum, i.e. OUT of the footprint the plan had trimmed, with the plan
@@ -595,14 +595,14 @@ def area_frame(points, auto_align="to_spline", expand=0.0):
     return AreaFrame(origin, ex, ey, ez, x1 - x0, y1 - y0, poly)
 
 
-# 7.6 / D149 - THE ARRAY IS SOLVED IN ITS OWN PLANE AND BUILT ALONG `UP`, and
+# 7.6 / D292 - THE ARRAY IS SOLVED IN ITS OWN PLANE AND BUILT ALONG `UP`, and
 # those two agree only when the plane contains the world up axis. Every row
 # datum is a line in the frame's chart at `row.y0`, and the kernel then grows
 # the module along `UP`; where the frame's own `ey` is tilted away from `UP`
 # the piece leaves its band by the difference. MEASURED on a 20 x 20 m plate
 # with a 2 m module: 2 deg -> 0.0052 m, 5 deg -> 0.0131 m, 10 deg -> 0.0260 m,
 # 30 deg -> 0.0750 m outside the region, against PC-G6's 0.010 m. Found while
-# closing D147 - a NON-PLANAR loop was breaching by 0.0112 m and the cause
+# closing D290 - a NON-PLANAR loop was breaching by 0.0112 m and the cause
 # turned out not to be the non-planarity at all. Every committed area case and
 # PC-G6's own fixture stand exactly vertical, so the whole area path had only
 # ever run at 0 deg. The tilt-aware solve (the row's up reference is the
@@ -612,7 +612,7 @@ CLIP_TILT_DEG = 0.5
 
 
 def frame_tilt_deg(frame):
-    """Degrees between an array's own up axis and the kernel's (D149)."""
+    """Degrees between an array's own up axis and the kernel's (D292)."""
     return math.degrees(math.acos(max(-1.0, min(1.0, _dot(frame.ey, UP)))))
 
 
@@ -716,7 +716,7 @@ def _contains(polys):
 def is_planar(points, rel_tol=1e-3):
     """(planar?, worst metres off the loop's own best plane) - 7.6's contract.
 
-    7.6 specifies a "closed PLANAR sub-spline" and until D147 nothing tested
+    7.6 specifies a "closed PLANAR sub-spline" and until D290 nothing tested
     it: a 20 x 20 m plate with one corner lifted 3 m built with no word said
     and delivered points 0.0112 m outside the region against PC-G6's own
     0.010 m tolerance - a gate condition failing silently on input the spec
@@ -751,7 +751,7 @@ def is_simple(points):
     warned and `clip_inside_m` measuring the breach against the very region
     the builder used. D145's reflex channel cannot see it either, because a
     self-intersection is never a VERTEX. So it is rejected at the door like an
-    unclosed loop rather than half-built (D147).
+    unclosed loop rather than half-built (D290).
 
     O(n^2) on a sub-spline's own vertices, and it runs once per loop at read
     time - not in any per-piece path.

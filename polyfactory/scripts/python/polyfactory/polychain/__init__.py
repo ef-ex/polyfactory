@@ -201,7 +201,7 @@ WARN_CLIP_UNSLICEABLE = "pc_warn_clip_unsliceable"
 # inside one piece's own footprint takes more material away than the polygon
 # does: a gap, never a breach, and it says so rather than being discovered.
 WARN_CLIP_CONVEX = "pc_warn_clip_convex"
-# 7.6 / D147 - the clip input's own contract, which said "closed PLANAR
+# 7.6 / D290 - the clip input's own contract, which said "closed PLANAR
 # sub-spline" and only ever tested the closure. A self-intersecting loop is
 # SKIPPED like an unclosed one (its two lobes have opposite windings, so the
 # half-planes `Region.cuts` emits point OUT of one of them and the array
@@ -211,7 +211,7 @@ WARN_CLIP_CONVEX = "pc_warn_clip_convex"
 # solved, so the boundary the array trims to is not the boundary drawn.
 WARN_CLIP_SELFX = "pc_warn_clip_selfx"
 WARN_CLIP_NONPLANAR = "pc_warn_clip_nonplanar"
-# 7.6 / D149 - the array's own plane is tilted away from the axis the kernel
+# 7.6 / D292 - the array's own plane is tilted away from the axis the kernel
 # grows modules along, so every piece leaves the band it was solved into. The
 # tilt-aware solve is C3's; this is the channel that stops it being silent.
 WARN_CLIP_TILTED = "pc_warn_clip_tilted"
@@ -234,7 +234,7 @@ CURVE_ATTRS = ("pc_corner", "pc_section", "pc_style", "pc_marker")
 ELEM_ATTRS = ("pc_elem_id", "pc_elem_key", "pc_slot", "pc_module", "pc_variant",
               "pc_section", "pc_u", "pc_generated", "pc_deformed")
 
-# ⚠️ THE KERNEL'S UP AXIS, AND IT IS ONE CONSTANT ON PURPOSE (D147). `place`
+# ⚠️ THE KERNEL'S UP AXIS, AND IT IS ONE CONSTANT ON PURPOSE (D290). `place`
 # grows every module along it and `array2d.area_frame` orients an array's plane
 # by it; while they were two unrelated facts a clip loop authored CLOCKWISE
 # gave the frame an `ey` of -Y, and every piece was built one module-height

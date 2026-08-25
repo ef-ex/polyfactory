@@ -533,7 +533,7 @@ MUTATIONS = (
 
     M("2d_clip_tilt_never_warns", "2d",
       ("clip_input_warns",),
-      "D149's channel, which is NOT one of the audit's four - it was found "
+      "D292's channel, which is NOT one of the audit's four - it was found "
       "closing F4, when the non-planar plate's residual breach turned out to "
       "be the TILT and not the non-planarity. An array is solved in its own "
       "plane and built along the world up axis; where the two differ every "

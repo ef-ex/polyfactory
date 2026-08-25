@@ -198,7 +198,7 @@ def clip_loops(geo):
     does not close cannot define an area, and warn-never-block means saying
     so rather than guessing where it ends.
 
-    ⚠️ D147 - CLOSURE WAS THE ONLY THING THIS EVER TESTED, and 7.6's contract
+    ⚠️ D290 - CLOSURE WAS THE ONLY THING THIS EVER TESTED, and 7.6's contract
     is a closed PLANAR sub-spline. Two more now, and they are deliberately
     treated differently: a SELF-INTERSECTING loop is skipped like an unclosed
     one, because its lobes wind opposite ways and the array breached its own
@@ -359,7 +359,7 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
     # and builds again (depth 2). That is what makes editing sub-spline B move
     # zero of sub-spline A's `pc_elem_id`s: they were never one array.
     depth = include = parent = members = hook = None
-    # ...and `footprints` CAN be empty now: D147 rejects a self-intersecting
+    # ...and `footprints` CAN be empty now: D290 rejects a self-intersecting
     # sub-spline at the door, so a clip input made only of bad loops arrives
     # here as no loops at all. Warn-never-block means an empty build, not a
     # traceback.
