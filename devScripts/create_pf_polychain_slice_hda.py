@@ -52,6 +52,7 @@ HDA_PATH = os.path.join(POLYFACTORY, "otls",
                         "pf_polychain_slice.hda").replace("\\", "/")
 
 from polyfactory.polychain import Z_MODES                        # noqa: E402
+from polyfactory.polychain.kit import NOTES_ATTR                 # noqa: E402
 
 # The house TAB-menu declaration, read off the shipped `pf_kitbash.hda`
 # rather than written from memory (5.1's table names the submenu).
@@ -182,9 +183,14 @@ net.layoutChildren()
 # --- the parameter page (5 / artist_ui.md 6, two disclosure levels) ---------
 
 def _float(name, label, default, lo, hi, help_text):
+    """⚠️ `units` IS A PARMTAG AND NOTHING ELSE SETS IT. "(m)" in a label is a
+    caption; the tag is what makes Houdini offer the unit menu and convert a
+    value an artist types as `12in`. Every float here is a length in metres
+    (house rule), and all three shipped without the tag."""
     t = hou.FloatParmTemplate(name, label, 1, default_value=(default,),
                               min=lo, max=hi, min_is_strict=True)
     t.setHelp(help_text)
+    t.setTags({"units": "m"})
     return t
 
 
@@ -219,6 +225,22 @@ ptg.append(_imenu(
     "Where The Cuts Land: the same pieces left in place and unpacked, so you "
     "can see whether the bay width and the guides put the planes where you "
     "meant them."))
+
+# ⚠️ THE ONLY SURFACE THE TOOL'S WARNINGS CAN REACH. A Python SOP inside an
+# HDA cannot warn on the HDA - probed every way on 22.0.398, and `kit`'s
+# `write_notes` carries the finding - so the lines ride out on the geometry as
+# a detail string and this parm reads them back. Read-only by `disable_when`,
+# because the node writes it and the artist does not.
+_notes = hou.StringParmTemplate(
+    "notes", "Notes", 1,
+    default_value=('`details("./OUT", "%s")`' % NOTES_ATTR,))
+_notes.setHelp(
+    "What this node has to say about the chunk it was given: an input that is "
+    "not wired, a bay too wide for the chunk, a guide it could not use, a "
+    "cell with no geometry in it. 'ok' means it had nothing to report. This "
+    "node never refuses to build - it builds and tells you here.")
+_notes.setDisableWhen("{ show >= 0 }")
+ptg.append(_notes)
 
 ptg.append(_float(
     "bay", "Bay Width (m)", 0.0, 0.0, 20.0,
@@ -321,5 +343,8 @@ for i, label in enumerate(INPUT_LABELS):
     assert 'inputlabel\t%d\t"%s"' % (i + 1, label) in saved, \
         "input %d unlabelled" % (i + 1)
 assert 'outputlabel\t1\t"%s"' % OUTPUT_LABEL in saved, "output unlabelled"
+for _p in ("bay", "storey", "humanscale"):
+    assert back.parmTemplateGroup().find(_p).tags().get("units") == "m", \
+        "%s carries no units tag" % _p
 
 print("[pf_polychain_slice] created: " + HDA_PATH)

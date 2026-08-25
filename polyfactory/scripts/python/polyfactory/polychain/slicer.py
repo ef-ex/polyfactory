@@ -40,7 +40,7 @@ DECISIONS TAKEN HERE (recorded in polychain.md 10):
        is reported (`pc_slice: ... does not reach`) rather than hidden.
 """
 
-from . import EPS, role_2d, split_role
+from . import EPS, POS_EPS, SLOTS, _is_slot, role_2d
 
 # Cap classes, per D268. A cap's extent on its own axis is the artist's.
 CAPS = ("start", "end")
@@ -68,14 +68,24 @@ class Band(object):
 
 
 class Cell(object):
-    """One emitted module: a role, a name and the box to clip it out of."""
+    """One emitted module: a role, a name and the box to clip it out of.
 
-    __slots__ = ("role", "name", "variant", "x0", "x1", "y0", "y1")
+    `xcap` / `ycap` are carried from the BANDS, never re-derived from the
+    composed role: `split_role` cannot parse a class an artist invented, so
+    re-deriving read a Y `start` cap as fill and made `jigsaw_report` return
+    7.0 m on a layout that was perfectly consistent.
+    """
 
-    def __init__(self, role, name, variant, x0, x1, y0, y1):
+    __slots__ = ("role", "name", "variant", "x0", "x1", "y0", "y1",
+                 "xcap", "ycap")
+
+    def __init__(self, role, name, variant, x0, x1, y0, y1,
+                 xcap=False, ycap=False):
         self.role = role
         self.name = name
         self.variant = variant
+        self.xcap = bool(xcap)
+        self.ycap = bool(ycap)
         self.x0, self.x1, self.y0, self.y1 = (float(x0), float(x1),
                                               float(y0), float(y1))
 
@@ -123,9 +133,45 @@ def axis_bands(lo, hi, size=0.0, guides=(), caps=True, jigsaw=True,
                          "[%.4f %.4f] - ignored" % (WARN, axis, c, lo, hi))
             continue
         cuts.append(c)
+        # ⚠️ A GUIDE CLASS IS A `SLOTS` MEMBER, AND IT IS CHECKED. `pc_slot`
+        # went straight into `role_2d`, so `default_end` on an X guide
+        # composed to the SAME role as (`default` x, `end` y) - two
+        # structurally different cells merged into one variant group by D269 -
+        # and `default_end_start` parses under no grammar at all. A class
+        # outside the vocabulary also stopped the last band being a run cap,
+        # so the jigsaw trimmed it (D268). Rejected, warned, band keeps its
+        # automatic class - D24, warn-never-block.
         if cls:
-            named[c] = str(cls)
+            cls = str(cls)
+            if _is_slot(cls):
+                named[c] = cls
+            else:
+                warns.append(
+                    "%s: %s guide at %.4f names %r, which is not a cell "
+                    "class - use one of %s or marker:<n>. The band keeps its "
+                    "automatic class." % (WARN, axis, c, cls,
+                                          ", ".join(SLOTS)))
     cuts.sort()
+    # ⚠️ TWO GUIDES IN ONE PLACE ARE ONE CUT. Undeduped they made a zero-width
+    # band, which the jigsaw then grew to a full cell - shipping a byte-
+    # identical duplicate module into the same `pc_variant` group (doubling
+    # that geometry's weight in every random pick) and an `end` cap holding
+    # the default bay. `set()` is not enough: the pair measured 5.0 and
+    # 5.0000000001, so the merge is by POS_EPS, the distance below which the
+    # kernel already calls two points one point.
+    merged = []
+    for c in cuts:
+        if merged and c - merged[-1] <= POS_EPS:
+            keep = merged[-1]
+            if c != keep:                       # same key = already merged
+                if c in named and keep not in named:
+                    named[keep] = named[c]
+                named.pop(c, None)
+            warns.append("%s: two %s guides at %.4f are the same cut - the "
+                         "duplicate was merged" % (WARN, axis, c))
+            continue
+        merged.append(c)
+    cuts = merged
     # ⚠️ ONE `w` FOR BOTH JOBS. The bay size decides where the auto cuts go
     # AND how wide a fill cell is, and computing it twice let the overlap
     # fallback below fix the cut planes while the jigsaw pass went on using
@@ -202,7 +248,7 @@ def plan(bbox, xsize=0.0, ysize=0.0, guides=(), xcaps=True, ycaps=True,
         cells.append(Cell(role,
                           role if k == 0 else "%s_%d" % (role, k + 1),
                           role if counts[role] > 1 else "",
-                          x.a, x.b, y.a, y.b))
+                          x.a, x.b, y.a, y.b, x.cap, y.cap))
     return (cells, warns)
 
 
@@ -228,24 +274,33 @@ def guides_from_points(positions, normals, classes=()):
     return (out, warns)
 
 
-def jigsaw_report(cells, jigsaw=True):
-    """D131's assertion, computed rather than asserted: the worst deviation
-    (metres) between a non-cap cell's extent and the default cell's size, per
-    axis. `{"x": float, "y": float, "cells": int}`.
+def jigsaw_report(cells, jigsaw=True, want=None):
+    """D131's assertion, computed rather than asserted, per axis, in metres.
+    `{"x": float, "y": float, "cells": int, "jigsaw": int}`.
+
+    `want` is `(x size, y size)` - THE SIZE THE ARTIST ASKED FOR - and when
+    given it is what every non-cap cell is measured against. That is the only
+    form of this number that is evidence: with the jigsaw on, `axis_bands`
+    sets every fill band to `a + w` by construction, so the SPREAD of the fill
+    extents is structurally zero and a reading of 0.000e+00 means nothing at
+    all (measured: worst 8.882e-16 over sixteen layouts). Measured against the
+    artist's own bay width it moves the moment the layout stops honouring it.
+    Without `want` - an auto layout, where there is no requested size - it
+    falls back to the spread, and the caller must not read that as proof.
 
     WHAT IT CANNOT SEE: whether the GEOMETRY inside a cell fills the cell.
-    That is `kit.slice_chunk`'s `does not reach` warning, measured there
-    because only there does geometry exist.
+    That is `slice_kit`'s `does not reach` warning, measured there because
+    only there does geometry exist.
     """
-    dx = _spread([c.x1 - c.x0 for c in cells if not _is_cap(c.role, 0)])
-    dy = _spread([c.y1 - c.y0 for c in cells if not _is_cap(c.role, 1)])
+    wx, wy = (want if want else (0.0, 0.0))
+    dx = _deviation([c.x1 - c.x0 for c in cells if not c.xcap], wx)
+    dy = _deviation([c.y1 - c.y0 for c in cells if not c.ycap], wy)
     return {"x": dx, "y": dy, "cells": len(cells), "jigsaw": int(bool(jigsaw))}
 
 
-def _is_cap(role, axis):
-    """Is `role`'s X (axis 0) or Y (axis 1) class a run cap?"""
-    return split_role(role)[axis] in CAPS
-
-
-def _spread(values):
-    return (max(values) - min(values)) if values else 0.0
+def _deviation(values, want):
+    if not values:
+        return 0.0
+    if float(want) > EPS:
+        return max(abs(v - float(want)) for v in values)
+    return max(values) - min(values)

@@ -423,19 +423,29 @@ def slice_kit(pairs, kit_id="sliced_kit", version=1,
     does not reach that corner the module is still built - `place._Proto`
     will take its fit origin from the bbox and place it shifted, so the gap
     is reported here, where the artist can still move a guide.
+
+    D272: Z IS CANONICALISED, ONCE, FOR THE WHOLE KIT. X and Y were
+    normalised and Z was "left exactly as authored", which meant a facade
+    modelled in place on a building - the normal workflow - produced a kit
+    every piece of which sat at its authored depth: measured, a chunk at
+    z = 49.9 .. 50.1 built a fence 49.90 m off its own curve, silently.
+    `houdini-tool-design` 3 asks for a canonical space; one offset for the
+    whole kit gives it without touching the relative depth of one module
+    against another, which is the thing the artist actually authored.
     """
     geo = geo if geo is not None else hou.Geometry()
     warns = []
+    zc = _kit_z_centre(pairs)
     for cell, piece in pairs:
         src = hou.Geometry()
         src.merge(piece)
-        src.transform(hou.hmath.buildTranslate(-cell.x0, -cell.y0, 0.0))
+        src.transform(hou.hmath.buildTranslate(-cell.x0, -cell.y0, -zc))
         bb = src.boundingBox()
-        gap = max(bb.minvec()[0], bb.minvec()[1])
+        gap, side = _cell_gap(bb, cell.x1 - cell.x0, cell.y1 - cell.y0)
         if gap > 1e-6:
-            warns.append("pc_slice: cell %r does not reach its own low "
-                         "corner (%.4f m of void) - it will be placed that "
-                         "far off its bay" % (cell.name, gap))
+            warns.append("pc_slice: cell %r does not reach its own %s edge "
+                         "(%.4f m of void) - the piece will not fill its bay"
+                         % (cell.name, side, gap))
         add_module(geo, cell.name, src,
                    size=(cell.x1 - cell.x0, cell.y1 - cell.y0,
                          bb.sizevec()[2]),
@@ -445,6 +455,38 @@ def slice_kit(pairs, kit_id="sliced_kit", version=1,
                    sources=("pf_polychain_slice",),
                    human_scale_reference=human_scale_reference)
     return (geo, warns)
+
+
+def _kit_z_centre(pairs):
+    """D272's single offset: the middle of the Z the kit actually occupies.
+
+    WHAT THIS CANNOT SEE: Z in the chunk that no cell kept. Nothing clips Z,
+    so the two differ only when a whole cell was dropped as empty.
+    """
+    lo = hi = None
+    for _cell, piece in pairs:
+        bb = piece.boundingBox()
+        z0, z1 = bb.minvec()[2], bb.maxvec()[2]
+        lo = z0 if lo is None else min(lo, z0)
+        hi = z1 if hi is None else max(hi, z1)
+    return 0.0 if lo is None else 0.5 * (lo + hi)
+
+
+def _cell_gap(bb, sx, sy):
+    """The worst of the FOUR distances between a cell's frame and the
+    geometry in it, and which side it is on. (metres, side name).
+
+    ⚠️ THIS USED TO READ `max(bb.minvec()[0], bb.minvec()[1])` - the low
+    corner only. Nothing measured the high corner, and `axis_bands` anchors a
+    fill cell at its own low edge with no clamp to the chunk, so a 0.4 m chunk
+    asked for a 5 m bay emitted `pc_size = (5, 5, 0.1)` around 0.4 m of
+    geometry, validated clean, and would have laid out 5 m bays holding
+    0.4 m of wall.
+    """
+    lo, hi = bb.minvec(), bb.maxvec()
+    return max(((lo[0], "low x"), (lo[1], "low y"),
+                (sx - hi[0], "high x"), (sy - hi[1], "high y")),
+               key=lambda g: g[0])
 
 
 def _guides(geo):
@@ -474,8 +516,7 @@ def sop_slice(node, mode="kit"):
     """`pf_polychain_slice`'s whole cook: parms in, a 3.2 kit out.
 
     13.6's sanctioned Python - parameter marshalling plus one call. Every
-    number comes from `slicer.plan`, every polygon from the `clip` verb, and
-    every warning reaches the artist as a NODE warning rather than a print.
+    number comes from `slicer.plan` and every polygon from the `clip` verb.
     """
     from . import slicer as _slicer
     # ⚠️ THE PARMS ARE ONE LEVEL UP. `hou.pwd()` inside the HDA is the Python
@@ -489,34 +530,66 @@ def sop_slice(node, mode="kit"):
     # kit-level check still passed because it reads modules by `pc_name` and
     # the chunk's prims all answer "" - one extra row, nine right answers.
     geo.clear()
+    warns = []
     ins = node.inputs()
     chunk = node.inputGeometry(0) if ins and ins[0] is not None else None
     if chunk is None or not chunk.intrinsicValue("primitivecount"):
-        node.addWarning("pc_slice: nothing on input 1 - wire the chunk to "
-                        "slice. It should run along +X with +Y up (D20).")
-        return
-    guides, warns = _guides(node.inputGeometry(1)
-                            if len(ins) > 1 and ins[1] is not None else None)
-    bb = chunk.boundingBox()
-    cells, w = _slicer.plan(
-        (bb.minvec()[0], bb.maxvec()[0], bb.minvec()[1], bb.maxvec()[1]),
-        parms.evalParm("bay"), parms.evalParm("storey"), guides,
-        bool(parms.evalParm("sides")), bool(parms.evalParm("capstop")),
-        bool(parms.evalParm("jigsaw")))
-    warns += w
-    pairs, w = slice_cells(chunk, cells)
-    warns += w
-    if mode == "cells":
-        geo.merge(slice_preview(pairs))
+        warns.append("pc_slice: nothing on input 1 - wire the chunk to "
+                     "slice. It should run along +X with +Y up (D20).")
     else:
-        out, w = slice_kit(pairs, parms.evalParm("kitid"), 1,
-                           parms.evalParm("humanscale"),
-                           parms.parm("deform").evalAsString(),
-                           parms.parm("zmode").evalAsString())
+        guides, w = _guides(node.inputGeometry(1)
+                            if len(ins) > 1 and ins[1] is not None else None)
         warns += w
-        geo.merge(out)
+        bb = chunk.boundingBox()
+        cells, w = _slicer.plan(
+            (bb.minvec()[0], bb.maxvec()[0], bb.minvec()[1], bb.maxvec()[1]),
+            parms.evalParm("bay"), parms.evalParm("storey"), guides,
+            bool(parms.evalParm("sides")), bool(parms.evalParm("capstop")),
+            bool(parms.evalParm("jigsaw")))
+        warns += w
+        pairs, w = slice_cells(chunk, cells)
+        warns += w
+        if mode == "cells":
+            geo.merge(slice_preview(pairs))
+        else:
+            out, w = slice_kit(pairs, parms.evalParm("kitid"), 1,
+                               parms.evalParm("humanscale"),
+                               parms.parm("deform").evalAsString(),
+                               parms.parm("zmode").evalAsString())
+            warns += w
+            geo.merge(out)
     for line in warns:
         node.addWarning(line)
+    write_notes(geo, warns)
+
+
+NOTES_ATTR = "pc_slice_notes"
+NOTES_OK = "ok"
+
+
+def write_notes(geo, warns):
+    """D24's warnings, on the geometry, so the HDA's `Notes` parm can read
+    them back with `details()`.
+
+    ⚠️ A CHILD CANNOT WARN ON ITS HDA, AND NOTHING PROPAGATES IT EITHER.
+    Probed on 22.0.398, every door: `parent().addWarning(...)` from inside a
+    cook silently decorates the COOKING node instead of the one it was called
+    on; a subnet aggregates a child's ERRORS ("Invalid source ... (Error: ...)")
+    and never its warnings; `warnings()`, `errors()` and `messages()` on the
+    parent are all empty, and there is no aggregating API. So every `pc_slice:`
+    line the tool has ever raised was written on a Python SOP inside the asset,
+    where an artist who has not dived in cannot see it - which made the whole
+    warn-never-block contract decorative on the shipped node. This is the
+    surface that is actually in front of them: the parameter page.
+
+    WHAT THIS CANNOT SEE: whether the artist reads it. It is text on the page,
+    not a badge - the badge stays on the inner stage, which is the most
+    Houdini offers.
+    """
+    _ensure(geo, hou.attribType.Global, NOTES_ATTR, "")
+    text = NOTES_OK if not warns else "%d note(s):  %s" % (
+        len(warns), "   |   ".join(warns))
+    geo.setGlobalAttribValue(NOTES_ATTR, text[:900])
 
 
 # --- the starter kit (6, "one fence/railing kit ... shipped with the HDA") ---

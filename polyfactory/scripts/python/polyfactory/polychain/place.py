@@ -781,9 +781,11 @@ def _texel(source):
 def dress_caps(geo, module_name="", texel=1.0, local_attr=None):
     """Box-UV every `pc_cap` prim and tag it with the cap material (D59).
 
-    The cap plane is perpendicular to the module's own +X (D20), so the box
-    projection for it is (local z, local y) - no axis choice to get wrong and
-    no seam, because a cap is one planar polygon. `local_attr` names the point
+    A cap is one planar polygon, so the box projection is its own two
+    in-plane axes and there is no seam. The axis to DROP is the flattest one
+    of the cap's own points - a miter cap perpendicular to the module's +X
+    (D20) keeps the (local z, local y) projection it always had, and a cut on
+    Y or Z gets the projection that does not collapse. `local_attr` names the
     attribute holding module-local coordinates: `_Proto.sliced` still IS in
     local space and passes None, while a world-space miter cut carries
     `pc_local` through the clip and passes that.
@@ -810,6 +812,7 @@ def dress_caps(geo, module_name="", texel=1.0, local_attr=None):
     geo.setPrimStringAttribValues(CAP_MATERIAL_ATTR, col)
     for i in caps:
         prim = geo.prim(i)
+        pts = []
         for vtx in prim.vertices():
             pt = vtx.point()
             local = pt.position()
@@ -818,7 +821,21 @@ def dress_caps(geo, module_name="", texel=1.0, local_attr=None):
                     local = pt.attribValue(local_attr)
                 except hou.OperationFailed:
                     pass
-            vtx.setAttribValue("uv", (local[2] * inv, local[1] * inv, 0.0))
+            pts.append((vtx, local))
+        # ⚠️ THE PROJECTION AXES ARE MEASURED, NOT ASSUMED. The docstring
+        # above was written for the miter cut, where the cap plane IS
+        # perpendicular to +X - but `kit._clip` cuts on Y as well, and there
+        # `local[1]` is constant across the whole cap, so HALF of every
+        # sliced module's cut faces shipped a zero-area UV island (measured:
+        # uv=[(0.1,1.0),(0.1,1.0),(-0.1,1.0),(-0.1,1.0)] on a real 0.6 m2
+        # face). The flattest axis of the cap's own points is the one to
+        # drop; ties resolve to X, so an X-normal cap keeps (z, y) exactly.
+        flat = min(range(3),
+                   key=lambda k: (max(p[k] for _v, p in pts)
+                                  - min(p[k] for _v, p in pts), k))
+        u, v = (flat + 2) % 3, (flat + 1) % 3
+        for vtx, local in pts:
+            vtx.setAttribValue("uv", (local[u] * inv, local[v] * inv, 0.0))
     return geo
 
 
@@ -1423,7 +1440,23 @@ def clip_plane(geo, origin, normal, keep_sign, module_name="", texel=1.0):
     # old per-prim loop only ever SET the flag, so overwriting the column
     # cleared the first cap - `corner_face_mate_m` on `AI_triangle` went from
     # 1.29e-07 to 0.0352 m, which is what that check is for.
+    #
+    # ⚠️ AND `polyfill` CLOSES EVERY OPEN BOUNDARY, NOT ONLY THE ONE THE CUT
+    # OPENED. For a closed module being mitered that distinction never
+    # arises; for `kit._clip`, whose input is whatever the artist modelled, it
+    # is the difference between a kit and a lie. A plain single-sided 9x6 wall
+    # quad came out of the slicer at 108 m2 - every cell carrying a mirrored
+    # copy of itself - and a wall with a 2 m x 2 m window came out with the
+    # WINDOW FILLED IN plus ten zero-area polygons. `validate()` was clean,
+    # nothing warned, and a wireframe cannot draw a filled hole, so the gate
+    # image looked right. The patches the cut created are the ones lying IN
+    # THE CUT PLANE; everything else polyfill volunteered is deleted.
     n_all = filled.intrinsicValue("primitivecount")
+    if n_all > n_cut:
+        stray = _off_plane_patches(filled, n_cut, n_all, origin, normal)
+        if stray:
+            filled.deletePrims(stray)
+            n_all = filled.intrinsicValue("primitivecount")
     if n_all > n_cut:
         col = list(filled.primIntAttribValues("pc_cap"))
         col[n_cut:] = [1] * (n_all - n_cut)
@@ -1434,6 +1467,40 @@ def clip_plane(geo, origin, normal, keep_sign, module_name="", texel=1.0):
                local_attr="pc_local"
                if filled.findPointAttrib("pc_local") is not None else None)
     return filled
+
+
+def _off_plane_patches(geo, n_cut, n_all, origin, normal):
+    """The prims `polyfill` appended that the CUT did not open.
+
+    A patch belongs to the cut exactly when every one of its points lies in
+    the cutting plane - measured, and the two populations are not close: on a
+    9 x 6 sheet cut at x = 3 the volunteered patch sat 6.000e+00 m off the
+    plane while the genuine cap on a closed slab measured 0.000e+00.
+
+    WHAT THIS CANNOT SEE: an open boundary the artist modelled that happens to
+    lie exactly in a cut plane. That one is capped, as before.
+
+    ⚠️ ONE BULK READ OF `P`, NOT `Point.position` PER VERTEX. The obvious
+    spelling moved `wrapper_reads_mitered` 164 -> 196 - 11.9 rule 1's whole
+    point, and the tripwire caught it the first time it ran.
+    """
+    m = math.sqrt(sum(float(v) * float(v) for v in normal)) or 1.0
+    nx, ny, nz = (float(normal[0]) / m, float(normal[1]) / m,
+                  float(normal[2]) / m)
+    d0 = float(origin[0]) * nx + float(origin[1]) * ny + float(origin[2]) * nz
+    size = geo.boundingBox().sizevec()
+    tol = 1e-6 * max(1.0, size[0], size[1], size[2])
+    pos = geo.pointFloatAttribValues("P")
+    stray = []
+    for i in range(n_cut, n_all):
+        prim = geo.prim(i)
+        for vtx in prim.vertices():
+            k = 3 * vtx.point().number()
+            if abs(pos[k] * nx + pos[k + 1] * ny + pos[k + 2] * nz
+                   - d0) > tol:
+                stray.append(prim)
+                break
+    return stray
 
 
 def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap,
