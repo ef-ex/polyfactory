@@ -141,8 +141,15 @@ vector pc_unit(const vector v) {
 
 // `place._frame` - (dir, across, up) for one sample.
 //   `up_ref` is 4.5's CAMBER (D55): hand it the surface normal and the frame
-//   rolls onto the surface.  Only the `adaptive` branch reads it - a yaw-only
-//   mode is PLUMB BY DEFINITION.
+//   rolls onto the surface.
+//   ⚠️ D296 - THE YAW BRANCH READS IT TOO.  "Yaw-only is PLUMB BY DEFINITION"
+//   was two world-axis literals, and it made a 2D array solved in its own
+//   plane grow its modules along an axis the plan knew nothing about.  The
+//   generalisation is: project the tangent into the plane PERPENDICULAR to
+//   `up_ref`, and grow along `up_ref`.  At `up_ref = (0,1,0)` the two
+//   spellings are the same arithmetic, not merely equal to tolerance -
+//   `t - UP*dot(t,UP)` IS `(t.x, 0, t.z)` and `cross(d, UP)` IS
+//   `(-d.z, 0, d.x)` - so `frames_parity` cannot move on any phase-1 build.
 void pc_frame(const vector tangent; const string zmode; const vector up_ref;
               export vector dir; export vector across; export vector up) {
     if (zmode == "adaptive") {
@@ -152,9 +159,9 @@ void pc_frame(const vector tangent; const string zmode; const vector up_ref;
         up = cross(across, dir);
         return;
     }
-    dir = pc_unit(set(tangent.x, 0.0, tangent.z));
-    across = set(-dir.z, 0.0, dir.x);
-    up = set(0.0, 1.0, 0.0);
+    dir = pc_unit(tangent - up_ref * dot(tangent, up_ref));
+    across = cross(dir, up_ref);
+    up = up_ref;
 }
 
 #endif

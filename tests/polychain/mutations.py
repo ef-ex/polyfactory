@@ -579,32 +579,79 @@ MUTATIONS = (
         "        planar, off = True, 0.0"),),
       rebuild=False),
 
-    M("2d_clip_tilt_never_warns", "2d",
-      ("clip_input_warns",),
-      "D292's channel, which is NOT one of the audit's four - it was found "
-      "closing F4, when the non-planar plate's residual breach turned out to "
-      "be the TILT and not the non-planarity. An array is solved in its own "
-      "plane and built along the world up axis; where the two differ every "
-      "piece leaves its band by the difference (2 deg -> 0.0052 m, 10 deg -> "
-      "0.0260 m, 30 deg -> 0.0750 m, measured). Every committed area case and "
-      "PC-G6's own fixture stand exactly vertical, so the whole area path had "
-      "only ever run at 0 deg.",
+    # ⚠️ `2d_clip_tilt_never_warns` IS DELETED, NOT MOVED. It paired
+    # `clip_input_warns` with `CLIP_TILT_DEG`, and D296 RETIRED that warning
+    # by fixing the defect it announced - a tilted array builds inside its own
+    # region now. The channel it proved is covered by the four remaining
+    # detectors; the tilt itself is `tilt_ladder_*` below, on numbers rather
+    # than on a warning name.
+
+    M("2d_clip_nonplanar_warns_always", "2d",
+      ("clip_input_warns_clean",),
+      "THE CONTROL, AND IT IS INHERITED FROM THE ROW D296 DELETED. A detector "
+      "that fires on EVERYTHING passes an exact-set check that only ever "
+      "looks at hostile input, so the shipped fixture asserts the validation "
+      "station says NOTHING - and this is the edit that makes that assertion "
+      "falsifiable rather than decorative. The planarity tolerance is the "
+      "cheapest detector to jam open now that the tilt one is gone.",
       ((PY % "array2d.py",
-        "CLIP_TILT_DEG = 0.5",
-        "CLIP_TILT_DEG = 400.0"),),
+        "def is_planar(points, rel_tol=1e-3):",
+        "def is_planar(points, rel_tol=-1.0):"),),
       rebuild=False),
 
-    M("2d_clip_tilt_warns_always", "2d",
-      ("clip_input_warns_clean",),
-      "THE OTHER DIRECTION, and the reason the clean row exists. A detector "
-      "that fires on everything passes an exact-set check that only ever "
-      "looks at hostile input, so the shipped fixture asserts the five "
-      "channels say NOTHING - and this is the edit that makes that assertion "
-      "falsifiable rather than decorative.",
+    # ---- P2-5 / D296: the row's own up reference ----------------------------
+    M("2d_row_up_is_world_up", "2d",
+      ("tilt_ladder_offplane_m",),
+      "The row stops carrying the ARRAY's up axis and takes the world's, "
+      "which is the state C2a shipped and warned about. Measured on the "
+      "ladder before the fix: 2 deg 0.0697 m, 5 deg 0.1737, 10 deg 0.3450, "
+      "30 deg 0.9799, 90 deg 1.8500 m off the array's own plane - a 2 m "
+      "module standing vertically out of its own floor plate.",
       ((PY % "array2d.py",
-        "CLIP_TILT_DEG = 0.5",
-        "CLIP_TILT_DEG = -1.0"),),
+        '            attrs["pc_upref"] = frame.ey',
+        '            attrs["pc_upref"] = UP'),),
       rebuild=False),
+
+    M("2d_yaw_frame_world_up", "2d",
+      ("tilt_ladder_inside_m",),
+      "The attribute is stamped, harvested and passed in, and the KERNEL "
+      "throws it away: the yaw-only branch grows the module along the world "
+      "up axis again. The subtler half of the same defect, and the one a "
+      "reader would call a harmless simplification - `clip_inside_m` goes "
+      "0.0052 / 0.0131 / 0.0260 / 0.0750 m across the ladder against PC-G6's "
+      "0.010 m tolerance.",
+      ((PY % "place.py",
+        "    return (d, _cross(d, up_ref), up_ref)",
+        "    return (d, _cross(d, UP), UP)"),),
+      rebuild=False),
+
+    # ---- D295: the native chain does not read C3's row attributes ----------
+    M("native_reads_no_pc_bays", "native",
+      ("output_guard_parity",),
+      "The envelope stops refusing a curve carrying `pc_bays`, so the native "
+      "chain builds a FREE fence where the reference builds an ALIGNED one - "
+      "D122's count has no term in `pc_plan_solve` and a missing term reads "
+      "as no constraint. `T4_row_attrs_1d` is the case; the guard's rule is "
+      "that a build this chain cannot answer takes the reference, and a bay "
+      "count it cannot read is exactly that (D223's own argument).",
+      ((VEX % "pc_envelope.vfl",
+        'if (primattribtype(0, "pc_bays") >= 0) row_2d = 1;',
+        'if (0) row_2d = 1;'),)),
+
+    M("native_reads_no_pc_upref", "native",
+      ("output_guard_parity",),
+      "The same refusal's other half: a curve carrying D296's per-row up axis "
+      "is admitted, and `pc_proto.vfl` writes the WORLD up axis there as a "
+      "constant - so the native fence is built along an axis the reference "
+      "did not use. On `T4_row_attrs_1d` that is a 45 degree difference on "
+      "every piece.",
+      ((VEX % "pc_envelope.vfl",
+        "if (up_t >= 0) {",
+        "if (0) {"),),
+      note="⚠️ THE EDIT IS THE OUTER `if`, not the inner storage test. "
+           "Jamming the storage branch shut only sends every input to the "
+           "VALUE test, which refuses on its own - the mutation SURVIVES and "
+           "reports the refusal as unproven while it is working."),
 
     # ---- the artist face: the four input ports -----------------------------
     M("kit_input_unplugged", "hda",
@@ -964,12 +1011,14 @@ EXPECT_CHECKS = {
     # 500 m out), `clip_input_warns` + its clean control on the validation
     # station's five channels, and `caps_closed_mitered` on the district -
     # phase 1's own corner cut, whose closure nothing had ever measured.
-    # C3 added four, 2026-08-25: P2-4's pipeline face - the round trip, the
+    # C3 added six, 2026-08-25: P2-4's pipeline face - the round trip, the
     # parm sweep with its own control, and 7.3.2's refusal set - plus D122's
     # `bay_alignment_aligned`, which is `bay_alignment`'s other direction on
     # the same fixture and needs its own NAME so the free case's mutation
-    # cannot report the aligned path as proven.
-    "2d": 31,
+    # cannot report the aligned path as proven - plus D296's two ladder rows.
+    # Nothing was retired with `pc_warn_clip_tilted`: it was a NAME inside
+    # `clip_input_warns`' expected set, not a check.
+    "2d": 33,
     "generated": 3,
     "hda": 18,
     "images": 30,

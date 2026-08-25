@@ -1335,13 +1335,13 @@ def station_share_hit_rate(build_fn, place_mod, conform_mod,
 
     def wrapped(src, proto, path, s0_flat, scale, zmode, remap,
                 tilt=False, base_y=None, band=None, samples=None,
-                yscale=1.0):
+                yscale=1.0, *rest):
         state["pieces"] += 1
         state["offered"] += len(samples or ())
         state["depth"] += 1
         try:
             return real_dp(src, proto, path, s0_flat, scale, zmode, remap,
-                           tilt, base_y, band, samples, yscale)
+                           tilt, base_y, band, samples, yscale, *rest)
         finally:
             state["depth"] -= 1
 
@@ -2160,6 +2160,56 @@ def clip_inside_m(scene, tol=1e-2, name="clip_inside_m"):
     return Result(name, worst <= tol and n > 0, _round(worst),
                   "%d points, worst %.4f m outside the region (tol %.3f)"
                   % (n, worst, tol))
+
+
+def array_offplane_m(scene, tol=1e-4, name="array_offplane_m"):
+    """7.6 / D296: [worst metres a delivered point lies off its array's own
+    PLANE, beyond the module's own half-thickness].
+
+    ⚠️ THIS EXISTS BECAUSE `clip_inside_m` CANNOT SEE THE 90 DEGREE CASE, and
+    that was measured before the row was written. A floor plate solved in the
+    XZ plane with its modules grown along world +Y has every piece standing
+    vertically OUT of its own array - and every one of those pieces PROJECTS
+    onto its own row datum line, which is inside the region, so
+    `clip_inside_m` read 0.1500 m (the module's own 0.30 m thickness, half
+    each way) on an array that was completely wrong. The tilt ladder before
+    D296: 2 deg 0.0052, 5 deg 0.0131, 10 deg 0.0260, 30 deg 0.0750,
+    90 deg 0.1500 - which is a ladder that stops meaning anything exactly
+    where 7.6's promise ("flat roofs, floor plates") lives.
+
+    The distance along the frame's own normal is the measurement that does
+    not lose its meaning: a piece that grows along the array's `ey` stays
+    within its own thickness of the plane at every tilt, and one that grows
+    along the world's leaves by a whole module height at 90 degrees.
+
+    WHAT IT CANNOT SEE: WHERE in the plane the piece is. It is one component
+    of three; `clip_inside_m` is what judges the other two, and the pair is
+    what makes a tilted array's containment a complete statement.
+    """
+    pairs = _by_array(scene)
+    if not pairs:
+        return _skip(name, "no clip_arrays - not a clipped build")
+    worst, n, half = 0.0, 0, 0.0
+    for rec, frame, _region in pairs:
+        w = rec["world"]
+        o, ez = frame.origin, frame.ez
+        for i in range(0, len(w), 3):
+            n += 1
+            worst = max(worst, abs((w[i] - o[0]) * ez[0]
+                                   + (w[i + 1] - o[1]) * ez[1]
+                                   + (w[i + 2] - o[2]) * ez[2]))
+    # the module's own half-thickness is IN the plane's normal direction by
+    # construction (D20 centres a module across Z), so it is subtracted rather
+    # than tolerated: what is left is the part the frame did not account for.
+    kit = scene.case.get("kit")
+    if kit is not None and kit.findPointAttrib("pc_size") is not None:
+        sizes = kit.pointFloatAttribValues("pc_size")
+        half = 0.5 * max(list(sizes[2::3]) or [0.0])
+    off = max(worst - half, 0.0)
+    return Result(name, off <= tol and n > 0, _round(off),
+                  "%d points, worst %.4f m off the array plane beyond the "
+                  "module's own %.3f m half-thickness (tol %.4f)"
+                  % (n, off, half, tol))
 
 
 def clip_nesting(scene, hole=1, island=2):

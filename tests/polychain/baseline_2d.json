@@ -1438,8 +1438,7 @@
         "pc_warn_clip_group_ignored",
         "pc_warn_clip_nonplanar",
         "pc_warn_clip_open",
-        "pc_warn_clip_selfx",
-        "pc_warn_clip_tilted"
+        "pc_warn_clip_selfx"
       ]
     },
     {
@@ -1491,6 +1490,22 @@
         "pc_warn_payload_malformed",
         "pc_warn_payload_refused"
       ]
+    }
+  ],
+  "ZY_tilt_ladder": [
+    {
+      "detail": "worst of 6 tilts (0/2/5/10/30/90 deg): 800 points, worst 0.0000 m outside the region (tol 0.010)",
+      "name": "tilt_ladder_inside_m",
+      "ok": true,
+      "skipped": false,
+      "value": 6.9e-07
+    },
+    {
+      "detail": "worst of 6 tilts (0/2/5/10/30/90 deg): 800 points, worst 0.0000 m off the array plane beyond the module's own 0.150 m half-thickness (tol 0.0001)",
+      "name": "tilt_ladder_offplane_m",
+      "ok": true,
+      "skipped": false,
+      "value": 4.33e-07
     }
   ],
   "ZZ_2d_tripwires": [

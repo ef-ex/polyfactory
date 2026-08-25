@@ -271,6 +271,23 @@ def spun_loops(deg=30.0, loops=None):
 PAYLOAD_2D = {"clip_mode": "slice", "expand": 0.25, "auto_align": "x_xy"}
 
 
+# --- 7.6 / D296: the tilt ladder --------------------------------------------
+#
+# ⚠️ EVERY COMMITTED AREA CASE STANDS EXACTLY VERTICAL, which is how the whole
+# area path shipped having only ever run at 0 degrees (C2a's F5). This is the
+# ladder that made D292 a number and D296 a fix, and 0 is IN it: the row that
+# must not move is as much of the measurement as the rows that must.
+TILT_LADDER = (0.0, 2.0, 5.0, 10.0, 30.0, 90.0)
+
+
+def tilt_plate(deg, size=20.0):
+    """A 20 x 20 m plate rotated `deg` about the world X axis - vertical at 0,
+    a FLOOR PLATE at 90, which is 7.6's "flat roofs, floor plates" by name."""
+    c, s = math.cos(math.radians(deg)), math.sin(math.radians(deg))
+    return [(x, y * c, y * s)
+            for (x, y) in ((0, 0), (size, 0), (size, size), (0, size))]
+
+
 def payload_build(nudge=None, payload=False, clip=None):
     """PC-G6's clip input with its 2D settings on ONE of 2.1's two faces.
 

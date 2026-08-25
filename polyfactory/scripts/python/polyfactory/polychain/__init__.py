@@ -211,10 +211,12 @@ WARN_CLIP_CONVEX = "pc_warn_clip_convex"
 # solved, so the boundary the array trims to is not the boundary drawn.
 WARN_CLIP_SELFX = "pc_warn_clip_selfx"
 WARN_CLIP_NONPLANAR = "pc_warn_clip_nonplanar"
-# 7.6 / D292 - the array's own plane is tilted away from the axis the kernel
-# grows modules along, so every piece leaves the band it was solved into. The
-# tilt-aware solve is C3's; this is the channel that stops it being silent.
-WARN_CLIP_TILTED = "pc_warn_clip_tilted"
+# ⚠️ `pc_warn_clip_tilted` IS RETIRED (D296, C3) and the NAME IS DELETED WITH
+# IT. It announced D292's defect - an array solved in its own plane and built
+# along the world's - and the row's up reference is the array's own `ey` now,
+# so a tilted plate and a floor plate build inside their region (the ladder is
+# in `array2d.frame_tilt_deg`'s note). A warning kept after its defect is
+# fixed is a warning that fires on correct work.
 # 7.3.2 / D293 - the 2D payload's own two complaints, and they are deliberately
 # two names and not one. A MALFORMED field degrades to the kernel default and
 # says which key it dropped - D78's rule, on the 2D axis. A field asking for

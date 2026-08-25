@@ -744,24 +744,36 @@ def area_frame(points, auto_align="to_spline", expand=0.0):
     return AreaFrame(origin, ex, ey, ez, x1 - x0, y1 - y0, poly)
 
 
-# 7.6 / D292 - THE ARRAY IS SOLVED IN ITS OWN PLANE AND BUILT ALONG `UP`, and
-# those two agree only when the plane contains the world up axis. Every row
-# datum is a line in the frame's chart at `row.y0`, and the kernel then grows
-# the module along `UP`; where the frame's own `ey` is tilted away from `UP`
-# the piece leaves its band by the difference. MEASURED on a 20 x 20 m plate
-# with a 2 m module: 2 deg -> 0.0052 m, 5 deg -> 0.0131 m, 10 deg -> 0.0260 m,
-# 30 deg -> 0.0750 m outside the region, against PC-G6's 0.010 m. Found while
-# closing D290 - a NON-PLANAR loop was breaching by 0.0112 m and the cause
-# turned out not to be the non-planarity at all. Every committed area case and
-# PC-G6's own fixture stand exactly vertical, so the whole area path had only
-# ever run at 0 deg. The tilt-aware solve (the row's up reference is the
-# array's `ey`, not the world's) is a kernel change and is C3's; this says so
-# instead of shipping a silent 7.5 cm.
-CLIP_TILT_DEG = 0.5
+# 7.6 / D292, CLOSED BY D296 - the array is solved in its own plane and it is
+# BUILT in its own plane now: `area_rows` stamps the frame's `ey` onto every
+# row as `pc_upref` and `place._frame`'s yaw branch grows the module along it.
+# The tilt ladder on a 20 x 20 m plate with a 2 m module, before and after,
+# both numbers measured on the same fixture:
+#
+#   tilt   clip_inside_m      array_offplane_m
+#    0     0.0      -> 0.0    0.0      -> 0.0
+#    2     0.005235 -> 0.0    0.069708 -> 4.8e-08
+#    5     0.013073 -> 6e-07  0.173741 -> 1.3e-07
+#   10     0.026047 -> 8e-08  0.345018 -> 1.3e-07
+#   30     0.075000 -> 7e-07  0.979905 -> 4.3e-07
+#   90     0.150000 -> 0.0    1.850000 -> 0.0
+#
+# ⚠️ AND THE RIGHT-HAND COLUMN IS WHY THERE ARE TWO. `clip_inside_m` reads a
+# nearly innocent 0.1500 m on the FLOOR PLATE, where every module was standing
+# vertically out of its own array: the pieces project onto their own row datum
+# line, which is inside the region, so 0.1500 m is just the module's own
+# thickness. The error was 1.85 m. `pc_warn_clip_tilted` is RETIRED with the
+# defect it announced.
 
 
 def frame_tilt_deg(frame):
-    """Degrees between an array's own up axis and the kernel's (D292)."""
+    """Degrees between an array's own up axis and the world's.
+
+    D296 made this a DESCRIPTION rather than a defect - a tilted array builds
+    correctly now - and it is kept because the tilt ladder is measured with it
+    and because "how far from upright is this array" is a question a check and
+    an artist both ask.
+    """
     return math.degrees(math.acos(max(-1.0, min(1.0, _dot(frame.ey, UP)))))
 
 
@@ -1192,6 +1204,15 @@ def area_rows(frame, rows, mode="remove", unbuilt=None, region=None,
         for k, (x0, x1) in enumerate(spans):
             pts = [frame.world(x0, row.y0), frame.world(x1, row.y0)]
             attrs = row.as_dict()
+            # 7.6 / D296 - THE ROW'S UP REFERENCE IS THE ARRAY'S OWN `ey`.
+            # Every number above this line is in the frame's chart: the row
+            # datum is a line at `row.y0` and the band it was solved into runs
+            # to `row.y1` ALONG `ey`. Until this attribute existed the kernel
+            # then grew the module along the world up axis, so the plan and
+            # the geometry disagreed by the tilt between them - and a floor
+            # plate, which 7.6 promises by name, is that disagreement at 90
+            # degrees.
+            attrs["pc_upref"] = frame.ey
             # 7.3.3's `pc_clipped`, under D137's reading of it: this row's own
             # span was trimmed by the boundary, so every piece on it is a
             # piece the clip decided about.

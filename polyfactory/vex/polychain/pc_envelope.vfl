@@ -96,6 +96,18 @@
 //     could see until D258 stopped `place.build` raising on the input that
 //     found it.  Refused whenever any prim carries a non-empty value, and
 //     refused outright at a storage VEX cannot read.
+//   * [vex:row_2d] A ROW CURVE CARRYING `pc_bays` OR `pc_upref` - C3's two
+//     new row attributes, and this chain reads neither.  `pc_bays` is D122's
+//     ALIGNED bay count (the datum row's piece count per section, which
+//     `pc_plan_solve` has no term for, so the native fence would be FREE and
+//     the reference's ALIGNED); `pc_upref` is D296's per-row up axis, and
+//     `pc_proto.vfl` writes the world up axis there as a CONSTANT, so a
+//     tilted or floor-plate array would be built out of its own plane - 1.85 m
+//     at 90 degrees, measured.  Presence is the whole test for `pc_bays` (a
+//     row only carries it in `aligned`); `pc_upref` is tested by VALUE against
+//     the world up axis, so an array that happens to stand upright stays
+//     native.  Refused outright at a storage VEX cannot read, exactly like
+//     `pc_row_warns` above.
 //   * [vex:nprimitives] nothing to build.  With no primitive the reference
 //     warns "no spline on input 1" and returns empty; that warning is worth
 //     keeping.
@@ -282,9 +294,29 @@ if (rw_t >= 0) {
     }
 }
 
+// D295 - C3's two ROW attributes, which this chain does not read either.  See
+// the header.  `pc_bays` refuses on PRESENCE (a row carries it only under
+// `aligned`); `pc_upref` refuses on VALUE, so an upright array stays native
+// and a tilted one takes the reference.
+int row_2d = 0;
+if (primattribtype(0, "pc_bays") >= 0) row_2d = 1;
+int up_t = primattribtype(0, "pc_upref");
+if (up_t >= 0) {
+    if (up_t == 2 || primattribsize(0, "pc_upref") != 3) {
+        row_2d = 1;                 // a storage VEX cannot read as a vector
+    } else {
+        int nprim = nprimitives(0);
+        for (int i = 0; i < nprim; i++) {
+            vector u = prim(0, "pc_upref", i);
+            if (distance(u, set(0.0, 1.0, 0.0)) > 1e-6) { row_2d = 1; break; }
+        }
+    }
+}
+
 i@_native_ok = (ok && corners == 0 && ndup == 0
-                && !marker_in_prim && type_bad == "" && !row_warns
+                && !marker_in_prim && type_bad == "" && !row_warns && !row_2d
                 && nprimitives(0) > 0);
+i@_guard_row_2d = row_2d;
 i@_guard_row_warns = row_warns;
 i@_guard_markers = markers;
 i@_guard_marker_in_prim = marker_in_prim;

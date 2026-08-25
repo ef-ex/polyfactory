@@ -165,6 +165,16 @@ def main():
     # shows whether the two figures are the same drawing.
     built["clip_hostile"] = cases2d.clip_case(
         loops=cases2d.clip_loops_hostile())
+    # D296's two, and they are drawn EDGE-ON on purpose. A tilted array's
+    # failure is that its modules leave the array's own plane, and the one
+    # view in which "in the plane" is a straight line and "out of it" is a
+    # 2 m thick band is the one looking ALONG the plane. The floor plate is
+    # the same picture at 90 degrees, where the world up axis is the plate's
+    # own normal and the before-build stood every module on end.
+    built["clip_tilt30"] = cases2d.clip_case(
+        loops=[cases2d.tilt_plate(30.0)], clip_mode="remove")
+    built["clip_floor"] = cases2d.clip_case(
+        loops=[cases2d.tilt_plate(90.0)], clip_mode="remove")
     fail = []
     for name, view, axes, crop in (
             ("FA_L_facade", "iso", "iso", None),
@@ -174,7 +184,9 @@ def main():
             ("FE_stand_in", "front", ("x", "y"), None),
             ("FM_area_taper", "front", ("x", "y"), None),
             ("clip_plate", "plan", ("x", "y"), None),
-            ("clip_hostile", "plan", ("x", "y"), None)):
+            ("clip_hostile", "plan", ("x", "y"), None),
+            ("clip_tilt30", "edge", ("z", "y"), None),
+            ("clip_floor", "edge", ("z", "y"), None)):
         geo, colour_of = coloured(
             built[name]["out"],
             _clip_colour if name.startswith("clip_") else _cell_colour)

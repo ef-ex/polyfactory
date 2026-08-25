@@ -33,8 +33,8 @@ DECISIONS TAKEN HERE (recorded in polychain.md 12):
 
 import hou
 
-from . import (CLIP_POLICIES, CLIP_REMOVE, DEFAULTS, WARN_CLIP_NONPLANAR,
-               WARN_CLIP_SELFX, WARN_CLIP_TILTED, Params)
+from . import (CLIP_POLICIES, CLIP_REMOVE, DEFAULTS, UP, WARN_CLIP_NONPLANAR,
+               WARN_CLIP_SELFX, Params)
 from . import array2d as _array2d
 from . import kit as _kit
 from . import place as _place
@@ -55,6 +55,12 @@ _ROW_CLIPPED = "pc_warn_row_clipped_out"
 ROW_STR_ATTRS = ("pc_curve_id", "pc_yclass", "pc_row_warns", "pc_bays")
 ROW_INT_ATTRS = ("pc_row", "pc_clipped")
 ROW_FLT_ATTRS = ("pc_row_y0", "pc_row_y1", "pc_row_scale")
+# 7.6 / D296 - the array's own up axis, per row. DECLARED ONLY WHEN A ROW
+# CARRIES ONE, unlike the three lists above: a 1D build and a footprint facade
+# grow along the world up axis by definition, and an attribute present on
+# every row would make the native chain's D295 refusal fire on every 2D build
+# there is and cost D94's harvest a wrapper read per row for a constant.
+ROW_VEC_ATTRS = ("pc_upref",)
 
 
 # --- row emission (11.9 rule 1) ---------------------------------------------
@@ -106,6 +112,14 @@ def rows_geometry(loops, corner_flags=None, geo=None):
         _ensure(geo, hou.attribType.Prim, name, 0.0)
         geo.setPrimFloatAttribValues(name, [float(a.get(name, 0.0))
                                             for a in attrs])
+    for name in ROW_VEC_ATTRS:
+        if not any(name in a for a in attrs):
+            continue
+        _ensure(geo, hou.attribType.Prim, name, UP)
+        col = []
+        for a in attrs:
+            col.extend(float(c) for c in a.get(name, UP))
+        geo.setPrimFloatAttribValues(name, col)
     if corner_flags:
         # either ONE flag list for the whole stream, or one PER LOOP - which
         # is what a district of differently-authored footprints needs, and the
@@ -428,14 +442,11 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
         if area:
             if i not in members:
                 continue                     # a hole, or an island in one
+            # D296 - a TILTED array is no longer a defect to announce. The
+            # row carries the frame's own `ey` and the kernel grows the module
+            # along it, so `pc_warn_clip_tilted` is retired with the 7.5 cm it
+            # used to warn about.
             frame = _array2d.area_frame(footprint, auto_align, expand)
-            tilt = _array2d.frame_tilt_deg(frame)
-            if tilt > _array2d.CLIP_TILT_DEG:
-                frame_warns.append(
-                    "%s: array %s is solved in a plane tilted %.2f deg from "
-                    "the axis modules are built along - every piece leaves "
-                    "its own band by that much" % (WARN_CLIP_TILTED,
-                                                   array_id, tilt))
             mine_loops = members[i]
             region = _array2d.region_for(
                 frame, [footprints[j] for j in mine_loops],

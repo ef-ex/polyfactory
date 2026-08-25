@@ -463,6 +463,22 @@ def topology_cases():
     polyline(g, [(0.0, 0.0, 5.0), (40.0, 0.0, 5.0)], curve_id="DUP")
     marker(g, (0.0, 3.0, 0.0), "DUP", 1, u=0.5)
     out["T3_dup_id_marker"] = _case(g, kit_geo, fence_style())
+
+    # T4 - C3's two ROW attributes on a 1D spline, which is exactly how an
+    # artist reaches D295's refusal: the 2D path has no HDA, so the only way
+    # `pc_bays` or `pc_upref` arrives at `pf_polychain` is on a wired curve.
+    # The native chain reads NEITHER - `pc_plan_solve` has no term for a bay
+    # count and `pc_proto` writes the world up axis as a constant - so the
+    # guard must send this build to the reference. Both attributes are on ONE
+    # curve and the registry has one mutation per half, so each is proven
+    # separately by `output_guard_parity` diverging.
+    g = hou.Geometry()
+    poly = polyline(g, [(0.0, 0.0, 0.0), (12.0, 0.0, 0.0)], curve_id="T4")
+    g.addAttrib(hou.attribType.Prim, "pc_bays", "")
+    g.addAttrib(hou.attribType.Prim, "pc_upref", (0.0, 1.0, 0.0))
+    poly.setAttribValue("pc_bays", "0:3")
+    poly.setAttribValue("pc_upref", (0.0, 0.70710678, 0.70710678))
+    out["T4_row_attrs_1d"] = _case(g, kit_geo, fence_style())
     return out
 
 

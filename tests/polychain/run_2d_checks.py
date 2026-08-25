@@ -203,11 +203,14 @@ def gate_pc_g6_hostile():
     return [
         C.clip_inside_m(hostile, name="clip_inside_m_hostile"),
         C.clip_caps_closed(hostile, name="clip_caps_closed_hostile"),
+        # ⚠️ FOUR NAMES, NOT FIVE: `pc_warn_clip_tilted` is RETIRED with the
+        # defect it announced (D296). `CLIP_BAD_TILTED` stays in the input and
+        # is now simply a legal loop - the array it defines builds inside its
+        # own region, which `tilt_ladder_offplane_m` is what says.
         C.clip_input_warns(bad, ("pc_warn_clip_group_ignored",
                                  "pc_warn_clip_nonplanar",
                                  "pc_warn_clip_open",
-                                 "pc_warn_clip_selfx",
-                                 "pc_warn_clip_tilted")),
+                                 "pc_warn_clip_selfx")),
         # ...and the control: the SHIPPED fixture says none of the five, so
         # the row above is proving detection rather than a constant.
         C.clip_input_warns(cases2d.clip_case(), (),
@@ -224,6 +227,44 @@ def gate_pc_g6_hostile():
         C.clip_caps_closed(cases2d.build_many_buildings(True)[0],
                            name="caps_closed_mitered"),
     ]
+
+
+def tilt_ladder():
+    """7.6 / D296 - an area array builds inside its own region AT EVERY TILT.
+
+    Two numbers over the whole ladder (0, 2, 5, 10, 30, 90 degrees), worst
+    row wins, because a per-tilt row would be six names saying one thing. The
+    0-degree rung is in the ladder deliberately: "nothing that ever ran may
+    move" is a measurement, not an assumption.
+
+    The BEFORE column, from a pristine export of the commit that preceded the
+    fix, is what makes the AFTER column mean something:
+
+        tilt   clip_inside_m      array_offplane_m
+         0     0.0      -> 0.0    0.0      -> 0.0
+         2     0.005235 -> 0.0    0.069708 -> 4.8e-08
+         5     0.013073 -> 6e-07  0.173741 -> 1.3e-07
+        10     0.026047 -> 8e-08  0.345018 -> 1.3e-07
+        30     0.075000 -> 7e-07  0.979905 -> 4.3e-07
+        90     0.150000 -> 0.0    1.850000 -> 0.0
+    """
+    worst_in, worst_off, res = None, None, []
+    for deg in cases2d.TILT_LADDER:
+        scene = Scene(cases2d.clip_case(loops=[cases2d.tilt_plate(deg)],
+                                        clip_mode="remove"))
+        a, b = C.clip_inside_m(scene), C.array_offplane_m(scene)
+        if worst_in is None or a.value > worst_in.value:
+            worst_in = a
+        if worst_off is None or b.value > worst_off.value:
+            worst_off = b
+    for r, name in ((worst_in, "tilt_ladder_inside_m"),
+                    (worst_off, "tilt_ladder_offplane_m")):
+        res.append(C.Result(name, r.ok, r.value,
+                            "worst of %d tilts (%s deg): %s"
+                            % (len(cases2d.TILT_LADDER),
+                               "/".join("%g" % d for d in cases2d.TILT_LADDER),
+                               r.detail)))
+    return res
 
 
 def payload_face():
@@ -339,6 +380,7 @@ def main():
     for label, fn in (("ZY_gate_pc_g6", gate_pc_g6),
                       ("ZY_gate_pc_g6_hostile", gate_pc_g6_hostile),
                       ("ZY_payload_face", payload_face),
+                      ("ZY_tilt_ladder", tilt_ladder),
                       ("ZZ_2d_tripwires", tripwires)):
         res = fn()
         results[label] = [r.as_dict() for r in res]

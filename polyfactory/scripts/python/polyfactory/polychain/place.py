@@ -161,6 +161,10 @@ def _cross(a, b):
             a[0] * b[1] - a[1] * b[0])
 
 
+def _dot(a, b):
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+
 # --- the sampler ------------------------------------------------------------
 
 class Path(object):
@@ -376,7 +380,35 @@ ROW_ATTRS_2D = ("pc_yclass", "pc_row", "pc_row_y0", "pc_row_y1",
                 # 7.4 / D122 - the ALIGNED datum's bay count per section,
                 # which `plan._fill` reads off `Section.attrs` exactly the way
                 # `pc_yclass` reaches the fitting solve.
-                "pc_bays")
+                "pc_bays",
+                # 7.6 / D296 - THE ROW'S OWN UP AXIS. An area array is solved
+                # in its own plane; this is that plane's up, so the kernel
+                # grows the module along the axis the plan measured it on
+                # rather than along the world's. Absent on every 1D curve and
+                # on every footprint facade, where the two are the same.
+                "pc_upref")
+
+
+def _row_up(curve):
+    """7.6 / D296 - the axis this curve's modules grow along.
+
+    `pc_upref` on the ROW PRIM is the array's own `ey`; anything else is a 1D
+    build, a footprint facade or a spline an artist wired in, and takes `UP`.
+    A degenerate or absent value takes `UP` too, because a zero up axis is a
+    collapsed frame and `warn-never-block` means the fence still gets built.
+
+    WHAT IT CANNOT SEE: whether the value is the array's REAL plane. It is
+    data on the curve, so a caller writing the wrong vector is obeyed -
+    `array_offplane_m` is what says the geometry ended up in its own plane.
+    """
+    v = (getattr(curve, "attrs", None) or {}).get("pc_upref")
+    if v is None:
+        return UP
+    try:
+        u = (float(v[0]), float(v[1]), float(v[2]))
+    except (TypeError, ValueError, IndexError):
+        return UP
+    return _unit(u, UP) if _len(u) > EPS else UP
 
 
 def _prim_attrs(geo, prim):
@@ -849,9 +881,26 @@ def _frame(tangent, zmode, up_ref=UP):
     `up_ref` is 4.5's CAMBER (D55): hand it the surface normal and the frame
     rolls onto the surface, because `up` is rebuilt as `cross(across, d)` and
     `across` is what `up_ref` decides. With the default it is world up and
-    this is byte-for-byte the frame every earlier cycle measured. Only the
-    `adaptive` branch reads it - a yaw-only mode is PLUMB BY DEFINITION and a
-    picket that leans with the camber is not a picket (D55, D27's precedent).
+    this is byte-for-byte the frame every earlier cycle measured.
+
+    ⚠️ D296 - THE YAW BRANCH READS IT TOO NOW, AND THAT IS C3's KERNEL CHANGE.
+    "Yaw-only" used to mean "flatten the tangent into the world XZ plane and
+    grow the module along world +Y", spelled as two literals. A 2D array
+    solved in its OWN plane then had its geometry grown along an axis the plan
+    knew nothing about, so every piece left the band it was solved into in
+    proportion to the tilt - MEASURED on a 20 x 20 m plate with a 2 m module,
+    2 deg 0.0052 m, 5 deg 0.0131 m, 10 deg 0.0260 m, 30 deg 0.0750 m - and
+    7.6's "flat roofs, floor plates" promise is that case at 90 degrees, where
+    the whole array stands vertically out of its own floor.
+
+    Generalised, "yaw-only" is: project the tangent into the plane
+    PERPENDICULAR TO `up_ref` and grow along `up_ref`. At `up_ref = UP` the
+    two spellings are identical arithmetic and not merely equal to tolerance -
+    `t - UP * dot(t, UP)` is exactly `(t.x, 0, t.z)` and `cross(d, UP)` is
+    exactly `(-d.z, 0, d.x)` - so not one phase-1 value can move. A degenerate
+    projection (the run is parallel to its own up axis) collapses to the zero
+    vector exactly as the literal form did, and D32's FLAT_RATIO warning is
+    what says so.
     """
     if zmode == "adaptive":
         d = _unit(tangent)
@@ -861,8 +910,10 @@ def _frame(tangent, zmode, up_ref=UP):
         else:
             across = _unit(across)
         return (d, across, _cross(across, d))
-    d = _unit((tangent[0], 0.0, tangent[2]))
-    return (d, (-d[2], 0.0, d[0]), UP)
+    k = _dot(tangent, up_ref)
+    d = _unit((tangent[0] - up_ref[0] * k, tangent[1] - up_ref[1] * k,
+               tangent[2] - up_ref[2] * k))
+    return (d, _cross(d, up_ref), up_ref)
 
 
 def _transport(frame, prev_across):
@@ -1524,7 +1575,7 @@ def _off_plane_patches(geo, n_cut, n_all, origin, normal):
 
 def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap,
                       tilt=False, base_y=None, band=None, samples=None,
-                      yscale=1.0):
+                      yscale=1.0, up_ref=UP):
     """Every point of `src` re-read at its own arc position. Returns
     (flat world positions, flat local positions).
 
@@ -1561,8 +1612,10 @@ def _deform_positions(src, proto, path, s0_flat, scale, zmode, remap,
         prev_across = None if prev is None else prev[1]
         # D55: the camber is read PER STATION, so a bent rail rolls along the
         # surface instead of taking one roll from its start.
-        up_ref = normal_at(s_x) if normal_at is not None else UP
-        frame = _transport(_frame(tan, zmode, up_ref), prev_across)
+        # D55's camber wins where there is a surface; D296's row axis is
+        # what the piece grows along everywhere else.
+        at = normal_at(s_x) if normal_at is not None else up_ref
+        frame = _transport(_frame(tan, zmode, at), prev_across)
         frames[x] = (pos, frame)
         prev = frame
     for i in range(0, len(local), 3):
@@ -2025,6 +2078,10 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                 - float(curve.attrs.get("pc_row_y0", 0.0) or 0.0)) \
             if "pc_row_y1" in curve.attrs else 0.0
         row_scale = float(curve.attrs.get("pc_row_scale", 1.0) or 1.0)
+        # 7.6 / D296 - the ROW's own up axis, off the row prim. A curve that
+        # does not carry one takes `UP`, which is every 1D build and every
+        # footprint facade, so nothing that ever ran can move.
+        row_up = _row_up(curve)
         _plan.classify(placements, kit, yclass,
                        warn_tokens(curve.attrs.get("pc_row_warns")),
                        int(curve.attrs.get("pc_clipped", 0) or 0))
@@ -2045,7 +2102,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                               remap(section.s0 + p.s1),
                               proto_for(module).fracs))
         plans.append((path, remap, placements, by_section, fillet_warns,
-                      spans, row_band, row_scale))
+                      spans, row_band, row_scale, row_up))
 
     # ...and the batch, once, before ANY placement asks anything. It is a
     # cache fill and nothing else - every key it misses is served by the
@@ -2058,7 +2115,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
     n_clipped_out = 0
     clip_warns = {}
     for (path, remap, placements, by_section, fillet_warns, _spans,
-         row_band, row_scale) in plans:
+         row_band, row_scale, row_up) in plans:
         for p in placements:
             section = by_section.get(p.section_index)
             if section is None:
@@ -2227,6 +2284,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                          "base_y": base_y, "packed_y": packed_y,
                          "deformed": deformed, "warns": tuple(warns),
                          "remap": remap, "tilt": tilt, "ends": ends,
+                         "row_up": row_up,
                          # the plan position, taken off the pair now so pass B
                          # can drop the pair itself the moment it is consumed
                          # - `stamp_rows` is already the build's memory high
@@ -2272,7 +2330,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
         p, proto, path = job["p"], job["proto"], job["path"]
         zmode, warns = job["zmode"], job["warns"]
         ends = job.pop("ends", None)            # consumed here, not retained
-        up_ref = UP
+        up_ref = job["row_up"]
         normal_at = getattr(path, "normal", None) if job["tilt"] else None
         if normal_at is not None:
             # the MIDPOINT normal for a rigid piece: its two ends can sit on
@@ -2344,7 +2402,7 @@ def build(curve_geo, kit_geo, style, params=None, out=None,
                                              job["remap"], job["tilt"],
                                              job["base_y"], job["band"],
                                              job.pop("stations", None),
-                                             job["yscale"])
+                                             job["yscale"], job["row_up"])
             piece.setPointFloatAttribValues("P", world)
             piece.setPointFloatAttribValues("pc_local", local)
         if p.cuts:
