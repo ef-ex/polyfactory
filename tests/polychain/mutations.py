@@ -364,9 +364,9 @@ MUTATIONS = (
       "exact regression `FS_sequence_cells` was written for - resolves the "
       "bare `default` slot on every row and the rows fit identically again.",
       ((PY % "plan.py",
-        '        mods = candidates(rule, kit, cell_role(ctx, ctx.get("slot",'
+        '    cand = candidates(rule, kit, cell_role(ctx, ctx.get("slot",'
         ' rule.slot)))',
-        "        mods = candidates(rule, kit)"),),
+        "    cand = candidates(rule, kit)"),),
       rebuild=False),
 
     # ---- the artist face: the four input ports -----------------------------
