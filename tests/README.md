@@ -222,6 +222,7 @@ hython tests/polychain/pdg_build.py --full --slots 6
 python -m pytest tests/unit/test_polychain_properties.py -q      # 1.8 s
 PC_EXAMPLES=1500 python -m pytest tests/unit/test_polychain_properties.py -q   # 23 s
 python -m pytest tests/unit/test_polychain_budget.py -q          # 0.3 s
+python -m pytest tests/unit/test_polychain_slice.py -q            # 0.7 s
 hython tests/polychain/run_diff_selftest.py                      # 1.9 s
 hython tests/polychain/run_generated.py --seeds 400 --quiet      # 41 s
 hython tests/polychain/run_generated.py --seeds 1 --start 27     # one seed
@@ -229,6 +230,7 @@ hython tests/polychain/run_native_checks.py                      # 27 s
 hython tests/polychain/run_scene_checks.py                       #  4 s
 hython tests/polychain/run_2d_checks.py                          # 14 s
 hython tests/polychain/run_hda_checks.py                         # 10 s
+hython tests/polychain/run_slice_checks.py                        #  6 s
 hython tests/polychain/gate_images.py [outdir]                   #  4 s
 
 # the registry on its own, sequentially - the meta-check the PDG sweep does
@@ -397,6 +399,9 @@ tests/
     run_2d_checks.py       phase 2, its own cases and its own baseline
     run_native_checks.py   the native stages vs the reference, in ONE process
     run_hda_checks.py      the ASSET: wiring, the parm face, the artist page
+    run_slice_checks.py    7.7's kit slicer, on BOTH shipped assets - the
+                           slicer's own inverse as the oracle, then the kit
+                           it emits through pf_polychain
     gate_images.py         PC-G1/PC-G2 through the parm page + a rasteriser
     scale_gate.py          PC-G3's ladder, both z-modes
 ```
