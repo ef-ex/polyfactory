@@ -334,13 +334,26 @@ MUTATIONS = (
     M("2d_adaptive_slices", "2d",
       ("no_sliced_cells",),
       "PC-G5 condition 4 was TRUE AND UNASSERTED - 0 of 176 placements carry "
-      "a slice_t and no check said so. This sends the adaptive fit down "
-      "`tile`'s branch, which cuts the remainder, so a facade ships half "
-      "windows.",
+      "a slice_t and no check said so. This gives the adaptive fit a "
+      "remainder to cut, so a facade ships half windows.",
       ((PY % "plan.py",
-        '    if mode == "tile":',
-        '    if mode in ("tile", "adaptive"):'),),
-      rebuild=False),
+        '    return {"count": n, "scale": scale, "remainder": 0.0, '
+        '"slice": False,\n            "warns": warns}',
+        '    return {"count": n, "scale": scale, "remainder": s * 0.5, '
+        '"slice": True,\n            "warns": warns}'),
+       (PY % "plan.py",
+        "            elif not m.sliceable:",
+        "            elif False:")),
+      rebuild=False,
+      note="⚠️ TWO EDITS, AND THE SECOND ONE IS WHY. The facade kit's bay is "
+           "`pc_deform = 1` (BEND), so the remainder alone sends the run "
+           "through `fallback()` - which re-enters the fill and aborted the "
+           "runner with a RecursionError rather than reddening anything "
+           "(21.5: a crash is not a red). Lifting the sliceable veto is what "
+           "makes the remainder become a CUT. ⚠️ And it also says what the "
+           "check cannot claim: on this kit 4.2 could not slice even under "
+           "`tile`, so `no_sliced_cells` is asserting the FIT's choice, not "
+           "the slicer's veto."),
 
     M("2d_cell_role_dropped", "2d",
       ("bay_alignment",),
