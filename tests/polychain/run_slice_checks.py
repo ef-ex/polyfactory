@@ -169,13 +169,17 @@ def slice_node(geo_node, name, chunk_geo, guides=None, **parms):
         g.parm("python").set(
             "import hou\n"
             "geo = hou.pwd().geometry()\n"
-            "geo.addAttrib(hou.attribType.Point, 'N', (0.0, 0.0, 0.0))\n"
+            # `n = None` authors a guide with NO normal at all, which is the
+            # commonest thing an artist hands this input.
+            "if any(n is not None for _p, n, _s in %r):\n"
+            "    geo.addAttrib(hou.attribType.Point, 'N', (0.0, 0.0, 0.0))\n"
             "geo.addAttrib(hou.attribType.Point, 'pc_slot', '')\n"
             "for p, n, s in %r:\n"
             "    pt = geo.createPoint()\n"
             "    pt.setPosition(p)\n"
-            "    pt.setAttribValue('N', n)\n"
-            "    pt.setAttribValue('pc_slot', s)\n" % (guides,))
+            "    if n is not None:\n"
+            "        pt.setAttribValue('N', n)\n"
+            "    pt.setAttribValue('pc_slot', s)\n" % (guides, guides))
         node.setInput(1, g)
     for parm, value in parms.items():
         node.parm(parm).set(value)
@@ -333,7 +337,40 @@ def main():
     check("slice_hda_metadata", ok, defn.icon(),
           "TAB submenu, icon and every port label, off the .hda")
 
-    # 10. THE FACADE - the nine cells doing the job they were sliced FOR.
+    # 10. D24's WARN-NEVER-BLOCK, on the five things an artist gets wrong.
+    #     Every one of these was measured by hand while building C1; the
+    #     compounding rule says a measurement made during a cycle becomes a
+    #     standing check or is deliberately discarded, and a tool whose whole
+    #     job is ingesting hand-modelled input cannot discard this one.
+    flat = hou.Geometry()                     # a chunk with no volume at all
+    poly = flat.createPolygon()
+    for p in ((0, 0, 0), (3 * W, 0, 0), (3 * W, 3 * H, 0), (0, 3 * H, 0)):
+        pt = flat.createPoint()
+        pt.setPosition(p)
+        poly.addVertex(pt)
+    bad = []
+    for tag, chunk_geo, guides in (
+            ("unwired", None, None),
+            ("empty", hou.Geometry(), None),
+            ("flat", flat, None),
+            ("guide_no_normal", chunk, [((2 * W, 0, 0), None, "")]),
+            ("guide_flat_normal", chunk,
+             [((2 * W, 0, 0), (0.0, 0.0, 1.0), "")])):
+        n = (geo_node.createNode("pf_polychain_slice", "degen_" + tag)
+             if chunk_geo is None
+             else slice_node(geo_node, "degen_" + tag, chunk_geo,
+                             guides=guides))
+        g = n.geometry()
+        if g is None or n.errors():
+            bad.append("%s: %s" % (tag, "; ".join(n.errors())[:60] or "None"))
+        elif not n.node("sl_kit").warnings() and \
+                not g.intrinsicValue("primitivecount"):
+            bad.append("%s: nothing built and nothing said" % tag)
+    check("slice_degenerates_warn_never_block", not bad, "%d bad" % len(bad),
+          "; ".join(bad)[:100] or "unwired, empty, flat, and two malformed "
+          "guides - all warn, none error")
+
+    # 11. THE FACADE - the nine cells doing the job they were sliced FOR.
     #     A 1D fence never asks for an intersection cell; a closed footprint
     #     four storeys tall asks for all nine, which is 7.2's whole point.
     fp = [(0, 0, 0), (3 * W, 0, 0), (3 * W, 0, 2 * W), (0, 0, 2 * W)]

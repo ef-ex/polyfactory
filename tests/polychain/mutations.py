@@ -553,6 +553,16 @@ MUTATIONS = (
         "                   human_scale_reference=-1.0)"),),
       rebuild=False),
 
+    M("slice_guide_normal_unguarded", "slice",
+      ("slice_degenerates_warn_never_block",),
+      "D24 is warn-never-block, and the input this tool exists to ingest is "
+      "hand-authored. A guide point with no `N` at all is the commonest "
+      "thing an artist wires in; without the guard the bulk read raises and "
+      "the node goes red instead of saying what is wrong.",
+      ((PY % "kit.py", "    if geo.findPointAttrib(\"N\") is None:",
+        "    if False:"),),
+      rebuild=False),
+
     M("slice_input_label_lost", "slice",
       ("slice_hda_metadata",),
       "5.1b on the new asset - a port label an artist meets before any "
@@ -614,8 +624,8 @@ EXPECT_CHECKS = {
     "images": 30,
     "native": 19,
     "scene": 39,
-    # 7.7, added 2026-08-25 with 9 mutations covering all 13 names.
-    "slice": 13,
+    # 7.7, added 2026-08-25 with 10 mutations covering all 14 names.
+    "slice": 14,
 }
 
 
