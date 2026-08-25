@@ -297,6 +297,54 @@ def _sheet(kind, x0, x1, z0, z1, n, phase, y0=0.0, reverse=False, skip=None):
     return geo
 
 
+WALL_LANE = 3            # one conformed seed in three drops onto a WALL
+
+
+def _wall(curve_geo, wiggly):
+    """A near-vertical sheet BESIDE the run, dropped onto along +-Z (F3).
+
+    ⚠️ THIS EXISTS TO REACH ONE BRANCH, and the C4 audit is what found it
+    unreached: `pc_frames_transportable` adds the piece's OWN STATIONS to its
+    sample set on a conformed build, arguing that a conformed tangent turns
+    with the terrain and so a span with no kink can still reverse.  Deleting
+    that `foreach` SURVIVED the entire suite - 405 generated scenes and every
+    committed case - because with a +-Y axis the drop selects x and z FROM THE
+    QUERY, so the conformed horizontal tangent direction IS the spline's and
+    the stations can add nothing.  Only a +-X or +-Z axis can reach it, and no
+    fixture ever set one: `make` wrote `(0,-1,0)` or the refused `(0.2,-1,0.13)`
+    and nothing else.
+
+    `wiggly` is the half that reverses: the tangent follows the wall's own
+    z-wiggle, so a straight span turns through more than 90 degrees inside one
+    piece and the transport is declared unanswerable.  Those seeds are NAMED in
+    the label, because a level-2 refusal is not a native case and the conformed
+    floor must not be asked to count it.
+    """
+    bb = curve_geo.boundingBox()
+    lo, hi = bb.minvec(), bb.maxvec()
+    x0, x1 = lo[0] - 4.0, hi[0] + 4.0
+    if x1 - x0 < 1.0:
+        x0, x1 = x0 - 1.0, x1 + 1.0
+    zc = lo[2] - 4.0
+    k, amp, n = (20.0, 0.6, 240) if wiggly else (0.35, 0.6, 24)
+    geo = hou.Geometry()
+    pts = {}
+    for i in range(n + 1):
+        x = x0 + (x1 - x0) * i / float(n)
+        for j in range(3):
+            pt = geo.createPoint()
+            pt.setPosition((x, lo[1] - 3.0 + 3.0 * j,
+                            zc + amp * math.sin(k * x)))
+            pts[(i, j)] = pt
+    for i in range(n):
+        for j in range(2):
+            poly = geo.createPolygon()
+            for pt in (pts[(i, j)], pts[(i, j + 1)],
+                       pts[(i + 1, j + 1)], pts[(i + 1, j)]):
+                poly.addVertex(pt)
+    return geo
+
+
 def _surface(rng, curve_geo):
     """(geometry, label) for one seed, or (None, "") for a bare spline.
 
@@ -397,6 +445,16 @@ def make(seed):
     surface, skind = (None, "")
     if native and (seed // NATIVE_LANE) % SURFACE_LANE == 0:
         surface, skind = _surface(rng, curve)
+        # THE +-Z LANE (the C4 audit's F3) - see `_wall`. It draws NO random
+        # number on purpose: the seed arithmetic leaves every other seed's
+        # scene bit-identical, which a `rng.random()` here would not.
+        lane = seed // (NATIVE_LANE * SURFACE_LANE)
+        if lane % WALL_LANE == 0:
+            wiggly = bool((lane // WALL_LANE) % 2)
+            surface = _wall(curve, wiggly)
+            skind = "wall+wiggle" if wiggly else "wall"
+            style.params.conform_axis = (0.0, 0.0, -1.0) if (lane % 2) \
+                else (0.0, 0.0, 1.0)
         # D55's TILT and a NON-AXIS-ALIGNED axis are both level-1 refusals, so
         # a share of the lane asks for them ON PURPOSE - a refusal nothing ever
         # requests is a refusal nothing tests.

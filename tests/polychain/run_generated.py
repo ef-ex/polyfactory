@@ -157,8 +157,16 @@ def _write(geo, path):
     return path
 
 
-def _envelope(node):
+def _envelope(node, attrib="_native_ok"):
     """The internal wrangle that holds the guard's verdict.
+
+    ⚠️ `attrib` IS THE C4 AUDIT'S F6.  Both floors below used to read
+    `_native_ok` - LEVEL 1 - while the switch that decides what
+    `Stage = output` actually returns reads `_native_ok2` off `pc_envelope2`.
+    A level-2 refusal was therefore invisible to the tripwire, which is the
+    exact Python-vs-Python vacuity this function exists to prevent, one level
+    down.  Measured over 405 seeds at the time: 178/178 and 70/70 agreed, so
+    nothing was being hidden yet - and "not yet" is what a tripwire is for.
 
     ⚠️ WITHOUT THIS THE WHOLE FILE CAN BE A CHECK THAT CANNOT FAIL.
     `Stage = output` is a GUARDED fork - a refused build falls back to the
@@ -175,7 +183,7 @@ def _envelope(node):
             geo = child.geometry()
         except hou.OperationFailed:
             continue
-        if geo is not None and geo.findGlobalAttrib("_native_ok") is not None:
+        if geo is not None and geo.findGlobalAttrib(attrib) is not None:
             return child
     return None
 
@@ -240,6 +248,15 @@ def run(seeds, verbose=True):
                 g = env.geometry()
                 if g is not None and g.findGlobalAttrib("_native_ok"):
                     answered = int(g.attribValue("_native_ok"))
+            # ...and level 2, which is the one the switch reads (F6). A build
+            # level 1 admits and level 2 refuses ships the REFERENCE, so it is
+            # not a case the native chain answered.
+            if answered:
+                env2 = _envelope(node, "_native_ok2")
+                g2 = env2.geometry() if env2 is not None else None
+                answered = int(g2.attribValue("_native_ok2")) \
+                    if (g2 is not None
+                        and g2.findGlobalAttrib("_native_ok2")) else 0
 
             worst = []
             if ref is None or out is None:
@@ -328,8 +345,13 @@ def main():
     # actually answered.  `tilt` and a tilted `conform_axis` are DELIBERATE
     # refusals (D55, D111), so they are excluded from the denominator by name
     # rather than by lowering the floor to hide them.
+    # `wiggle` joins `tilt` in the exclusion list and for the same reason: the
+    # +-Z wall lane (F3) exists to reach a LEVEL-2 REFUSAL - a conformed span
+    # whose frame transport can flip - so those seeds are declared refusals,
+    # not a narrowing envelope. The gentle half of the lane stays counted.
     surf_rows = [r for r in rows if r.get("surface")
-                 and "tilt" not in r["surface"]]
+                 and "tilt" not in r["surface"]
+                 and "wiggle" not in r["surface"]]
     surf_ok = len([r for r in surf_rows if r.get("native")])
     sfloor = 0.90
     sshare = float(surf_ok) / max(len(surf_rows), 1)

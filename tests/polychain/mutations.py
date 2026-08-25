@@ -225,6 +225,25 @@ MUTATIONS = (
         "    if (!hit) return;\n"
         "    best = best + axis * (dot(best - q, axis) * 1e-11);"),)),
 
+    # ⚠️ THE AUDIT'S F3: THIS SURVIVED THE WHOLE SUITE, and it is not dead
+    # code - it is production code no fixture could reach.  With a +-Y axis
+    # the drop SELECTS x and z from the query, so the conformed horizontal
+    # tangent direction is the spline's own and the stations can add nothing;
+    # only a +-X or +-Z axis can reach the branch, and no committed or
+    # generated case ever set one.  `gen_cases._wall` sets one now.
+    M("transport_stations_dropped", "generated",
+      ("generated_output_matches_the_reference",),
+      "`pc_frames_transportable` stops adding the piece's OWN STATIONS to its "
+      "sample set on a conformed build, so a dead-straight span over a "
+      "wiggling wall reads as un-reversed, the native chain BUILDS the pieces "
+      "it should have declared unanswerable, and they are wrong by up to "
+      "0.059 m.",
+      ((VEX % "pc_gate.h",
+        "    if (conformed)\n"
+        "        foreach (float x; st) push(ss, s0 + (x - ax) * scale);",
+        "    if (0)\n"
+        "        foreach (float x; st) push(ss, s0 + (x - ax) * scale);"),)),
+
     M("conform_deviates_never_fires", "native",
       ("gate_parity",),
       "4.5's drape test switched off - `deviates` returns 0, so a bendable "
