@@ -390,9 +390,14 @@ MUTATIONS = (
       "built solid. Found by looking at the array ids, not by a check, which "
       "is why there is a check now.",
       ((PY % "array2d.py",
-        "    contains = [[j != i and areas[j] > areas[i] + EPS",
-        "    contains = [[j != i and True"),),
-      rebuild=False),
+        "    return [[j != i and areas[j] > areas[i] + EPS",
+        "    return [[j != i and True"),),
+      rebuild=False,
+      note="⚠️ D208 CAUGHT THIS ONE MOVING. C2a extracted the containment "
+           "matrix into `_contains` (so `Region`'s own `depth` default stops "
+           "being the loop INDEX) and the registered line changed its "
+           "indentation and its keyword. The sweep reported STALE - 'the "
+           "registered edit matches 0 times' - rather than a green."),
 
     M("2d_clip_caps_deleted", "2d",
       ("clip_caps_closed",),
