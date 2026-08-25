@@ -269,8 +269,16 @@ def main():
     # a work item knows its own index and nothing else, and embedding thirty
     # ids in a command template is a second place for the registry to be
     # declared. `pdg_build.py` asserts the count it saw matches len(MUTATIONS).
+    # `--selection FILE` narrows the registry to a list of indices first, so
+    # `--index` counts within THAT list. It exists so a PDG work item needs
+    # nothing but its own index: no expression language in the command
+    # template, and the registry is still the one declaration.
+    pool = REG.MUTATIONS
+    if "--selection" in argv:
+        with open(argv[argv.index("--selection") + 1]) as fh:
+            pool = [REG.MUTATIONS[i] for i in json.load(fh)]
     if "--index" in argv:
-        only = REG.MUTATIONS[int(argv[argv.index("--index") + 1])].id
+        only = pool[int(argv[argv.index("--index") + 1])].id
     want = argv[argv.index("--runner") + 1] if "--runner" in argv else None
     picked = [m for m in REG.MUTATIONS
               if (only is None or m.id == only)
