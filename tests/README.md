@@ -40,11 +40,69 @@ four standard techniques. The incident evidence is `ideas/build_retrospective.md
 - Human eyes at milestones: the viewport found what 3 600 checks could not, twice.
 - Fast pure-logic tests under plain python; scene work headless under hython; never save a .hip.
 
-## v1 → v2 migration
+## v1 → v2 migration — HALF DONE (2026-08-25)
 
-One bounded consolidation cycle: generic comparator + generated-input harness in, subsumed checks
-and recorded baselines deleted, registry trimmed to the HDA/VEX layer, mutmut configured, TOP net
-built, budget check added. Until it runs, v1 remains authoritative.
+The five v2 pieces are **built, measured and committed**. The v1 **deletions are not**, and that
+is deliberate: a replacement gets proven before anything is removed. So both regimes are live at
+once and the budget check is red, which is exactly what it is for.
+
+| | state |
+|---|---|
+| 1. generic differential comparator | `tests/polychain/diff.py`, 19 mutations all seen red |
+| 2a. Hypothesis over the kernel | `tests/unit/test_polychain_properties.py`, 11 properties, 1.8 s |
+| 2b. seeded scene generator | `tests/polychain/gen_cases.py` + `run_generated.py` |
+| 3. PDG/TOPs runner | `tests/polychain/pdg_build.py` |
+| 4. mutmut | `setup.cfg` `[mutmut]`, **pin 2.5.0** |
+| 5. budget check | `tests/unit/test_polychain_budget.py` — **RED: 1.84x** |
+| **the deletions** | **not started** — `run_native_checks.py` (9 066) and `checks.py` (5 111) are the targets |
+
+## The v2 commands
+
+```bash
+# THE PER-CYCLE GATE - kernel + comparator battery + budget + 400 generated
+# scenes through the differential oracle, cooked as one parallel TOP graph.
+# 13.5 s wall for ~88 s of work. Exits non-zero on any red work item.
+hython tests/polychain/pdg_build.py
+
+# ... plus the mutations whose edited files actually moved (Google's policy)
+hython tests/polychain/pdg_build.py --changed HEAD~1
+
+# THE MILESTONE SWEEP - all 32 registry entries, one work item each, behind
+# one shared control build. `--slots N` trades wall time for stability;
+# `run_native_checks.py` holds wall-clock ceilings, so full parallelism is a
+# real risk of spurious reds, not a free speedup.
+hython tests/polychain/pdg_build.py --full
+hython tests/polychain/pdg_build.py --full --slots 6
+
+# the pieces on their own, when a red needs looking at
+python -m pytest tests/unit/test_polychain_properties.py -q      # 1.8 s
+PC_EXAMPLES=1500 python -m pytest tests/unit/test_polychain_properties.py -q   # 23 s
+python -m pytest tests/unit/test_polychain_budget.py -q          # 0.3 s
+hython tests/polychain/run_diff_selftest.py                      # 1.9 s
+hython tests/polychain/run_generated.py --seeds 400 --quiet      # 41 s
+hython tests/polychain/run_generated.py --seeds 1 --start 27     # one seed
+
+# MUTMUT, on the pure-Python kernel. ⚠️ PIN 2.5.0: mutmut 3.x refuses to run
+# on native Windows ("please use the WSL") and does nothing else. ⚠️ And set
+# PYTHONIOENCODING: its banner is emoji and this machine's stdout is cp1252
+# whenever it is piped.
+pip install "mutmut==2.5.0"
+export PYTHONIOENCODING=utf-8
+
+# per cycle - only the kernel files git says moved
+python -m mutmut run --paths-to-mutate "$(git diff --name-only HEAD~1 \
+  -- 'polyfactory/scripts/python/polyfactory/polychain/*.py' | paste -sd,)"
+
+# at a milestone - the whole kernel, from setup.cfg's [mutmut] section
+python -m mutmut run
+python -m mutmut results
+python -m mutmut show <id>          # the diff of one surviving mutant
+```
+
+⚠️ **mutmut only ever sees the `hou`-free kernel** — `plan`, `decompose`, `corner`, `array2d`,
+`__init__`. `place`, `conform`, `hda`, `kit`, `style` and `facade` import `hou`, so a mutant in
+them would be "killed" by an ImportError under a Houdini-less pytest: a green earned by nothing.
+Those layers belong to the hand-written registry, which is the division the skill draws.
 
 ---
 

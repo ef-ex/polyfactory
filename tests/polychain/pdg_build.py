@@ -48,12 +48,6 @@ import mutations as REG                                           # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(HERE)).replace("\\", "/")
 HYTHON = sys.executable.replace("\\", "/")
-# ⚠️ NOT hython.  `hypothesis`, `pytest` and `mutmut` live in the SYSTEM
-# python, not in Houdini's - the first cycle run failed here with hython
-# reporting no module named `hypothesis`, having found pytest and nothing
-# else. The kernel tests import no `hou` by design (their last assertion is
-# exactly that), so the system interpreter is the right one and the one the
-# README documents.
 def _system_python():
     """A python that can actually import the test tooling.
 
