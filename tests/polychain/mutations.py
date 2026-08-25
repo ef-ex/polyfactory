@@ -470,6 +470,89 @@ MUTATIONS = (
            "changes NOTHING, because `CLIP_POLICIES[\"preserve\"]` and the "
            "test against it both move together. It SURVIVED a full sweep."),
 
+    # ---- C2a: the audit's findings, each as the edit that reddens ----------
+    M("2d_clip_frame_winding", "2d",
+      ("clip_inside_m_hostile",),
+      "FINDING F1, AS A MUTATION. The array's plane normal goes back to being "
+      "whatever the artist's WINDING made it, so a clockwise clip loop gives "
+      "the frame an `ey` of -Y while the kernel keeps growing modules along "
+      "+Y: every piece lands one module-height below its own row datum, out "
+      "of the footprint the plan trimmed, with the hole FILLED and the clip "
+      "removing nothing. `clip_inside_m` read 2.0 m on the reversed plate and "
+      "0.0 on the shipped one - all four gate loops were wound the same way.",
+      ((PY % "array2d.py",
+        "    if _dot(ey, UP) < -EPS:",
+        "    if False:  # the winding mutation"),),
+      rebuild=False),
+
+    M("2d_clip_cap_tol_unscaled", "2d",
+      ("clip_caps_closed_hostile", "caps_closed_mitered"),
+      "FINDING F2, AS A MUTATION. The cap guard's tolerance goes back to "
+      "scaling with the PIECE (2e-06 m on a 2 x 2 x 0.3 module) while the "
+      "error it must absorb is float32 round-off on the WORLD position. "
+      "PC-G6's own fixture 500 m out measured 1.3e-05..2.0e-05 m on GENUINE "
+      "caps and lost seven of eight; the district's 6 400 mitered elements "
+      "shipped 18 776 open boundary edges. ⚠️ IT REDDENS ON THE DISTRICT AND "
+      "NOT ON PC-G5's L: 0..24 m is too near the origin for the round-off to "
+      "reach 2e-06, which is why the mitered row is not measured on the L.",
+      ((PY % "place.py",
+        "    tol = min(1e-6 * max(1.0, reach, size[0], size[1], size[2]),"
+        " 0.25 * thin)",
+        "    tol = 1e-6 * max(1.0, size[0], size[1], size[2])"),),
+      rebuild=False),
+
+    M("2d_clip_selfx_accepted", "2d",
+      ("clip_input_warns",),
+      "FINDING F3, AS A MUTATION. A self-intersecting boundary is taken as a "
+      "region again: its lobes wind opposite ways, `_area2` of a symmetric "
+      "one is exactly 0.0 so `_ccw` is a no-op, and the half-planes "
+      "`Region.cuts` emits point OUT of one lobe - a bowtie plate breached "
+      "its own region by 0.8839 m with nothing warned. D145's reflex channel "
+      "structurally cannot see it: a self-intersection is never a VERTEX.",
+      ((PY % "facade.py",
+        "        if not _array2d.is_simple(loop):",
+        "        if False:  # the self-intersection mutation"),),
+      rebuild=False),
+
+    M("2d_clip_nonplanar_accepted", "2d",
+      ("clip_input_warns",),
+      "FINDING F4, AS A MUTATION. 7.6 says a closed PLANAR sub-spline and "
+      "nothing tested the second word: a 20 x 20 m plate with one corner "
+      "lifted built with no word said and delivered points 0.0112 m outside "
+      "the region against PC-G6's own 0.010 m - a gate condition failing "
+      "silently on input the spec already excluded.",
+      ((PY % "facade.py",
+        "        planar, off = _array2d.is_planar(loop)",
+        "        planar, off = True, 0.0"),),
+      rebuild=False),
+
+    M("2d_clip_tilt_never_warns", "2d",
+      ("clip_input_warns",),
+      "D149's channel, which is NOT one of the audit's four - it was found "
+      "closing F4, when the non-planar plate's residual breach turned out to "
+      "be the TILT and not the non-planarity. An array is solved in its own "
+      "plane and built along the world up axis; where the two differ every "
+      "piece leaves its band by the difference (2 deg -> 0.0052 m, 10 deg -> "
+      "0.0260 m, 30 deg -> 0.0750 m, measured). Every committed area case and "
+      "PC-G6's own fixture stand exactly vertical, so the whole area path had "
+      "only ever run at 0 deg.",
+      ((PY % "array2d.py",
+        "CLIP_TILT_DEG = 0.5",
+        "CLIP_TILT_DEG = 400.0"),),
+      rebuild=False),
+
+    M("2d_clip_tilt_warns_always", "2d",
+      ("clip_input_warns_clean",),
+      "THE OTHER DIRECTION, and the reason the clean row exists. A detector "
+      "that fires on everything passes an exact-set check that only ever "
+      "looks at hostile input, so the shipped fixture asserts the five "
+      "channels say NOTHING - and this is the edit that makes that assertion "
+      "falsifiable rather than decorative.",
+      ((PY % "array2d.py",
+        "CLIP_TILT_DEG = 0.5",
+        "CLIP_TILT_DEG = -1.0"),),
+      rebuild=False),
+
     # ---- the artist face: the four input ports -----------------------------
     M("kit_input_unplugged", "hda",
       ("input2_is_the_kit",),
@@ -823,7 +906,12 @@ EXPECT_CHECKS = {
     # names and which nothing else executes.
     # ...and `clip_preserve`, which is the only run that takes D126's
     # array-decides branch and the only one that exercises `preserve`.
-    "2d": 22,
+    # C2a added five, 2026-08-25: `clip_inside_m_hostile` and
+    # `clip_caps_closed_hostile` on the fixture PC-G6 could not be (reversed,
+    # 500 m out), `clip_input_warns` + its clean control on the validation
+    # station's five channels, and `caps_closed_mitered` on the district -
+    # phase 1's own corner cut, whose closure nothing had ever measured.
+    "2d": 27,
     "generated": 3,
     "hda": 18,
     "images": 30,
