@@ -1269,6 +1269,16 @@
       ]
     },
     {
+      "detail": "worst overhang 0.8575 m, 0 piece(s) removed",
+      "name": "clip_preserve",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0.857492926,
+        0
+      ]
+    },
+    {
       "detail": "",
       "name": "warnings",
       "ok": true,

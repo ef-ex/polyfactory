@@ -2152,6 +2152,47 @@ def clip_mode_override(default_case, override_case, loop=1, island=2):
                   "include" % (a, loop, b))
 
 
+def clip_preserve(scene):
+    """D126's `preserve`, and the array-decides half of its three-state
+    pattern: [worst metres a piece overhangs the boundary, pieces removed].
+    Non-zero and zero is the pass.
+
+    `preserve` is "kept whole and may overhang", so the number `clip_inside_m`
+    requires to be ZERO under `remove`/`slice` must be POSITIVE here - the
+    same measurement read the other way round, which is the only way to tell
+    "preserve works" from "nothing straddled". And nothing may be removed: a
+    removal under `preserve` is `remove` leaking through.
+
+    ⚠️ THE KIT SAYS NOTHING ABOUT CLIPPING IN THIS CASE (`pc_clip = -1`), so
+    this is also the only run that takes `module.clip >= 0`'s false branch.
+    PC-G6's own fixture pins every module at `slice`, which left both the
+    array-decides path and the whole `preserve` policy as code nothing
+    executed.
+
+    WHAT IT CANNOT SEE: how far an overhang is ALLOWED to go. `preserve` has
+    no bound by definition; what bounds it is the row span, and that is
+    `row_spans`' own per-interval rule (FQ_area_preserve).
+    """
+    pairs = _by_array(scene)
+    if not pairs:
+        return _skip("clip_preserve", "no clip_arrays - not a clipped build")
+    worst = 0.0
+    for rec, frame, region in pairs:
+        w = rec["world"]
+        for i in range(0, len(w), 3):
+            x, y = frame.local((w[i], w[i + 1], w[i + 2]))
+            if region.inside(x, y):
+                continue
+            worst = max(worst, min(
+                _seg_dist(x, y, p[k][0], p[k][1],
+                          p[(k + 1) % len(p)][0], p[(k + 1) % len(p)][1])
+                for p in region.polys for k in range(len(p))))
+    out = int((scene.case.get("report") or {}).get("clipped_out", 0))
+    return Result("clip_preserve", worst > 1e-3 and out == 0,
+                  [_round(worst), out],
+                  "worst overhang %.4f m, %d piece(s) removed" % (worst, out))
+
+
 def clip_caps_closed(scene):
     """PC-G6 condition 2: [open boundary edges on clip-cut elements, cut
     elements, cut prims tagged as a cap without a cap material].

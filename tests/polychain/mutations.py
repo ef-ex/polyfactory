@@ -455,6 +455,17 @@ MUTATIONS = (
         "            if False:"),),
       rebuild=False),
 
+    M("2d_clip_preserve_is_remove", "2d",
+      ("clip_preserve",),
+      "D126's three policies collapse to two: `preserve` becomes `remove`, "
+      "so a piece that should be kept whole and allowed to overhang is "
+      "dropped instead. The numbers an artist types are the contract, and "
+      "this is the edit that breaks it without touching a line of logic.",
+      ((PY % "__init__.py",
+        "CLIP_REMOVE, CLIP_PRESERVE, CLIP_SLICE = 0, 1, 2",
+        "CLIP_REMOVE, CLIP_PRESERVE, CLIP_SLICE = 0, 0, 2"),),
+      rebuild=False),
+
     # ---- the artist face: the four input ports -----------------------------
     M("kit_input_unplugged", "hda",
       ("input2_is_the_kit",),
@@ -806,7 +817,9 @@ EXPECT_CHECKS = {
     # ...and six more with PC-G6: one per pass condition in 7.8, plus
     # 7.6's per-sub-spline `pc_clip_mode` override, which no condition
     # names and which nothing else executes.
-    "2d": 21,
+    # ...and `clip_preserve`, which is the only run that takes D126's
+    # array-decides branch and the only one that exercises `preserve`.
+    "2d": 22,
     "generated": 3,
     "hda": 18,
     "images": 30,

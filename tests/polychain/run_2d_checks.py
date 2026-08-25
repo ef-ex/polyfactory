@@ -154,6 +154,11 @@ def gate_pc_g6():
         C.clip_policy(scene),
         C.clip_independence(a, cases2d.clip_case(moved), "A000"),
         C.clip_mode_override(a, over),
+        # ...and the OTHER cull policy, on a kit that says nothing about
+        # clipping. Without it `preserve` and D126's array-decides branch are
+        # both code that no committed run reaches.
+        C.clip_preserve(Scene(cases2d.clip_case(clip_mode="preserve",
+                                                kit_clip=-1))),
         # D145's channel, PINNED. `pc_warn_clip_convex` fires on exactly one
         # element of this figure - a piece the diamond's own vertex falls
         # inside, where an intersection of half-spaces takes more than the

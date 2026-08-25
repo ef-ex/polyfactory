@@ -141,7 +141,7 @@ CLIP_LOOPS = [CLIP_PLATE, CLIP_HOLE, CLIP_ISLAND, CLIP_BESIDE]
 CLIP_X = CLIP_Y = 2.0
 
 
-def clip_kit(kit_id="pf_clip"):
+def clip_kit(kit_id="pf_clip", clip=2):
     """A tile kit with one SLICEABLE and one RIGID module, both `slice`.
 
     Both carry `pc_clip = 2`, which is the assertion: the rigid one CANNOT be
@@ -153,7 +153,7 @@ def clip_kit(kit_id="pf_clip"):
     for name, deform in (("panel", 2), ("block", 0)):
         K.add_module(geo, name, _box(CLIP_X, CLIP_Y, divx=1),
                      size=(CLIP_X, CLIP_Y, 0.30), deform=deform,
-                     zmode="vertical", roles="default", clip=2)
+                     zmode="vertical", roles="default", clip=clip)
     K.write_manifest(geo, kit_id, 1, sources=("cases2d.clip_kit",),
                      human_scale_reference=1.8)
     return geo
@@ -186,10 +186,17 @@ def clip_geometry(loops, modes=None):
     return geo
 
 
-def clip_case(loops=None, clip_mode="slice", modes=None, array_ids=None):
-    """One `build_clipped` over N closed sub-splines - PC-G6's whole fixture."""
+def clip_case(loops=None, clip_mode="slice", modes=None, array_ids=None,
+              kit_clip=2):
+    """One `build_clipped` over N closed sub-splines - PC-G6's whole fixture.
+
+    `kit_clip = -1` is the OTHER half of D126's three-state pattern: the kit
+    says nothing and the array's own `clip_mode` decides. Without a case that
+    passes it, the `module.clip >= 0` branch and the `preserve` policy are
+    both code no run executes.
+    """
     loops = list(loops if loops is not None else CLIP_LOOPS)
-    kit_geo, style = clip_kit(), clip_style()
+    kit_geo, style = clip_kit(clip=kit_clip), clip_style()
     out, report = F.build_clipped(clip_geometry(loops, modes), kit_geo, style,
                                   height=None, clip_mode=clip_mode,
                                   array_ids=array_ids)
