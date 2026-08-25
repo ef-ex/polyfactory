@@ -2213,7 +2213,8 @@ def ray_executions_per_build(build_fn, hou_mod, expect_max=1, name=None):
 
     A count, not a time, and P5R's rule 3 applies: a call count is evidence of
     a call count. What makes it worth asserting is that the count is the thing
-    that changed sign, and that `conform_bench.py` carries the wall clock.
+    that changed sign. (The wall-clock bench that used to sit beside it
+    is deleted: it printed and could not fail.)
 
     Counted through `Surface.drop_many`, which is one execution by definition.
     """

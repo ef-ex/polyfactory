@@ -170,7 +170,8 @@ def test_evenly_center_is_symmetric_about_the_span(L, d):
     # `evenly` returns ONE ANCHOR PER STEP, so a 20 km span at 1 mm spacing
     # builds a 20-million-element list.  Bounded here because this property is
     # about symmetry, not about the list's size; the cost of a dense run is a
-    # BENCH question and belongs in `facade_bench.py`, not in an assertion.
+    # COST question, and it belongs in a ceiling with a number on it
+    # (`checks.py`'s tripwires), not in a correctness assertion.
     assume(L / d <= 20000.0)
     a = plan.evenly(L, params(evenly_spacing=d, justify="center"))
     assume(a)

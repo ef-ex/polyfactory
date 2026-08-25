@@ -1620,25 +1620,6 @@ def with_extra_curve(case):
     return (out, report)
 
 
-def via_payload(case):
-    """THE SAME CASE DRIVEN BY A 3.3 STYLE PAYLOAD instead of by its `Style`.
-
-    This is gate PC-G4 as a measurement rather than as a claim: the style is
-    written to geometry (`style.write`), read back through the pipeline face
-    (`style.read`) and rebuilt. 2.1 says the payload OVERRIDES the parms
-    entirely, so the returned build must be byte-identical to the one the
-    object produced - and `style_round_trip` compares the digests, not the
-    element count.
-    """
-    payload = hou.Geometry()
-    S.write(payload, case["style"])
-    back, warns = S.read(payload, kit=K.read(case["kit"])[0])
-    if back is None:
-        raise ValueError("payload read back as no style: %s" % warns)
-    out, report = P.build(case["curve"], case["kit"], back,
-                          surface_geo=case.get("surface"),
-                          overrides=case.get("overrides"))
-    return (out, report, warns)
 
 
 # ---- 3.3's warn-never-block half, as an input rather than as a claim -------
@@ -1660,34 +1641,8 @@ MALFORMED_RULES = (
 )
 
 
-def malformed_payload():
-    """A 3.3 payload with one distinct fault per rule, plus a junk meta dict.
-
-    Cooked by the check that needs it (the `duplicate_curve_ids` pattern):
-    the assertion is that NOTHING raises, that every fault is named, and that
-    what survives still builds a fence.
-    """
-    geo = hou.Geometry()
-    for name, default in S.RULE_ATTRS:
-        geo.addAttrib(hou.attribType.Point, name, default)
-    geo.addAttrib(hou.attribType.Global, S.STYLE_DETAIL, {})
-    geo.setGlobalAttribValue(S.STYLE_DETAIL, {
-        "styleId": "malformed", "version": "two", "seed": 4,
-        "params": {"fill": "sideways", "count": "many", "nonsense": 1}})
-    for row in MALFORMED_RULES:
-        pt = geo.createPoint()
-        for key, value in row.items():
-            pt.setAttribValue(key, value)
-    return geo
 
 
-def build_with_payload(case, payload):
-    """`case` built by whatever `payload` turns out to mean. Never raises."""
-    style, warns = S.read(payload, kit=K.read(case["kit"])[0])
-    if style is None:
-        return (None, warns)
-    out, _report = P.build(case["curve"], case["kit"], style)
-    return (out, warns)
 
 
 def rebuild_plain(case):
@@ -1779,7 +1734,7 @@ def tripwire_conformed_run():
 
 def heightfield(cell, amp, wave, x0, x1, z0, z1):
     """A quad heightfield, `cell` m per quad, `y = amp*sin(kx)*sin(kz)`. The
-    conformed bench's terrain (`conform_bench.terrain`) at fixture size."""
+    conformed terrain at fixture size."""
     geo = hou.Geometry()
     nx = int(round((x1 - x0) / cell))
     nz = int(round((z1 - z0) / cell))
