@@ -1687,15 +1687,20 @@ def native_reach(root):
           % (len(watched), "; ".join(bad) or "both directions hold"))
 
 
-# 13.9 N6 - THE DECIDING EXPERIMENT FOR THE CONFORM PORT, COMMITTED.
-# Guards a DECISION, not a feature: 4.5 is the largest refused class
-# (perfMon: 300 conformed streets 3 645 ms Python, curved 4 225 ms, vs
-# 806 ms cornered).  A native conform (VEX `intersect()`) would be a THIRD
-# implementation of `conform.Surface.drop`.  As doubles the two disagree
-# (3.8e-07 m fixture, 9.4e-04 m at 20 km) - entirely in x/z, because
-# `hou.Geometry.intersect` returns float32 coordinates (D111 from the other
-# side).  Answer: YES, on condition - read the drop off the AXIS COMPONENT,
-# rebuild the position from the query, and compare in float32.
+# 13.9 N6 - THE DECIDING EXPERIMENT FOR THE CONFORM PORT, AND THE PORT LANDED.
+# It guarded a DECISION - 4.5 was the largest refused class - and it stays as
+# the unit-level floor under a stage the generated differential now exercises
+# end to end.  A native conform is a THIRD implementation of
+# `conform.Surface.drop`, and the answer is YES on one condition: read the drop
+# off the AXIS COMPONENT and SELECT the other two from the query.
+#
+# ⚠️ THIS COMMENT USED TO SAY THE TWO DISAGREE BY 3.8e-07 m at fixture scale
+# and 9.4e-04 m at 20 km, "entirely in x/z, because `hou.Geometry.intersect`
+# returns float32 coordinates".  BOTH HALVES ARE WRONG and the probe that says
+# so is one wrangle: `hou.Geometry.intersect` returns the query's own DOUBLE x
+# and z (0.000e+00 difference at 0 m, 100 m, 2 km and 20 km), and the numbers
+# came from this check's own float32 `v@_hitP` readout.  The real disagreement
+# is one DOUBLE ULP on the axis component - see `CONFORM_DROP_REL_CEILING`.
 CONFORM_DROP_VEX = r'''
 // `conform.Surface.drop`, in VEX. Down-axis, then back no further than the
 // hit already found, nearest wins, ties go DOWN-axis (D70).
