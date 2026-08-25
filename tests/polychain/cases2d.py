@@ -305,13 +305,11 @@ TILT_DEFORM = ((0.0, 0.0, 0), (30.0, 0.0, 1), (30.0, 20.0, 0),
 def tilt_loops(rx, rz=0.0, start=0, loops=None):
     """PC-G6's OWN loops taken out of the world plane, same rung vocabulary.
 
-    ⚠️ THE PLATE CANNOT REACH THE DEFORM WRITER, measured not assumed: on a
-    rectangle whose rows end exactly on the region boundary an adaptive fill
-    never straddles it, so `tilt_plate` is 100 packed / 0 deformed at every
-    tilt - which is how `2d_deform_grows_world_y` SURVIVED the twelve-rung
-    ladder by reddening nothing at all. A cut piece is the only thing on the
-    area path that takes `_deform_positions`, and PC-G6's diamond cuts 6-8.
-    """
+    ⚠️ THE PLATE CANNOT REACH THE DEFORM WRITER, measured not assumed: an
+    adaptive fill on a rectangle never straddles its own region boundary, so
+    `tilt_plate` is 100 packed / 0 deformed at every tilt - which is how
+    `2d_deform_grows_world_y` SURVIVED the twelve-rung ladder by reddening
+    nothing at all. A CUT piece is the only thing here that reaches it."""
     cx, sx = math.cos(math.radians(rx)), math.sin(math.radians(rx))
     cz, sz = math.cos(math.radians(rz)), math.sin(math.radians(rz))
     out = []
@@ -338,7 +336,7 @@ def tilt_plate(rx, rz=0.0, start=0, size=20.0):
     return out
 
 
-def payload_build(nudge=None, payload=False, clip=None):
+def payload_build(nudge=None, payload=False, clip=None, meta=None):
     """PC-G6's clip input with its 2D settings on ONE of 2.1's two faces.
 
     `payload=False` puts them in the KEYWORDS - which is the 2D path's parm
@@ -347,19 +345,21 @@ def payload_build(nudge=None, payload=False, clip=None):
     `style.write` and reads it back with `style.read`, so the pipeline face is
     exercised as geometry and not as a `Style` object a test built by hand.
     `nudge` always goes to the keywords: under a payload it must be inert.
-    """
+    `meta` adds TOP-LEVEL keys (D300); the third return value is what
+    `style.read` said about them."""
     kw = dict(PAYLOAD_2D)
-    style = clip_style()
+    style, read_warns = clip_style(), []
     if payload:
         geo = hou.Geometry()
         S.write(geo, Style(style.style_id, style.version, style.seed,
                            style.rules, style.params,
-                           dict(style.meta, **F.meta_2d(clip=clip, **kw))))
-        style = S.read(geo)[0]
+                           dict(style.meta, **dict(F.meta_2d(clip=clip, **kw),
+                                                   **(meta or {})))))
+        style, read_warns = S.read(geo)
         kw = {}
     kw.update(nudge or {})
     return F.build_clipped(clip_geometry(spun_loops()), clip_kit(clip=2),
-                           style, height=None, **kw)
+                           style, height=None, **kw) + (read_warns,)
 
 
 def clip_arrays(loops, modes=None):

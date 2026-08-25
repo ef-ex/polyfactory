@@ -175,6 +175,7 @@ class Scene(object):
         self.case = case
         self.geo = case["out"]
         self.report = case["report"]
+        self.frame = self.report.get("frame")   # 7.6's array frame, 2D only
         self.plan = self.report["plan"]
         self.params = case["style"].params
         self.by_id = dict((r["pc_elem_id"], r) for r in C.elements(self.geo))

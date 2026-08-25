@@ -625,6 +625,17 @@ MUTATIONS = (
         "    return (d, _cross(d, UP), UP)"),),
       rebuild=False),
 
+    # ---- C3a / D300: the payload layer that named nothing ------------------
+    M("2d_payload_meta_unchecked", "2d",
+      ("payload_meta_warns",),
+      "`style.read` stops naming an unknown TOP-LEVEL `pc_style_meta` key - "
+      "the state C3 shipped, where every layer below said what it did not "
+      "know and the dict an author writes FIRST took anything in silence.",
+      ((PY % "style.py",
+        "    for key in sorted(k for k in meta if k not in META_KEYS):",
+        "    for key in ():"),),
+      rebuild=False),
+
     # ---- C3a / D297-D299: ALIGNED, where 7.4 says it changes nothing --------
     M("2d_align_count_is_units", "2d",
       ("align_no_op_sequence",),
@@ -640,11 +651,9 @@ MUTATIONS = (
       ("align_no_op_floor", "align_no_op_area"),
       "7.4's named degrade loses its threshold and can then not fire at all "
       "on a kit without padding: `fit(0.5, 3.0, 'count', count=7)` returns 7 "
-      "units at scale 0.02381 with no warning, and its drop loop only runs "
-      "when `fixed` or `gap` is non-zero. It kills the AREA row too, and that "
-      "is D297's whole answer: the audit asked for `aligned` to be refused on "
-      "the area path, and this is the measurement that declines it - the "
-      "holed plate's 4 m strips build at 0.125 m because the FLOOR is gone, "
+      "units at scale 0.02381, and its drop loop only runs when `fixed` or "
+      "`gap` is non-zero. It kills the AREA row too, which IS D297's answer: "
+      "the holed plate's strips build at 0.125 m because the FLOOR is gone, "
       "not because the datum is a span.",
       ((PY % "plan.py",
         '                              or res["scale"] < MIN_ALIGN_SCALE):',
@@ -1110,7 +1119,9 @@ EXPECT_CHECKS = {
     # "Aligned IS free on congruent rows" where it was FALSE.
     # `bay_alignment_aligned` sees none of the three: it compares rows to EACH
     # OTHER and all three defects move every row by the same factor.
-    "2d": 39,
+    # ...and one with D300 on the payload's TOP-LEVEL dict, the one layer that
+    # named nothing; it carries its own control in its second number.
+    "2d": 40,
     "generated": 3,
     "hda": 18,
     "images": 30,

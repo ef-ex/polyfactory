@@ -2081,6 +2081,25 @@ def clip_input_warns(case, expected=(), name="clip_input_warns"):
                   else "expected %s" % (sorted(expected),))
 
 
+def payload_meta_warns(hostile, clean, expected=(),
+                       name="payload_meta_warns"):
+    """D300 - [names `style.read` raised on a payload with an unknown TOP-LEVEL
+    `pc_style_meta` key, names it raised on a legal one]. That layer named
+    nothing it did not know, and `clip_mode` / `expand` / `auto_align` are the
+    2D entry point's own KEYWORD names, so mis-nesting them one level up built
+    silently on the defaults. The SECOND list is the control ("it named my
+    key" passes just as well when the reader names every key).
+
+    WHAT IT CANNOT SEE: WHICH key - it reads names."""
+    def names(ws):
+        return sorted(set(w.split(":")[0] for w in ws
+                          if w.startswith("pc_warn")))
+    got, noise = names(hostile), names(clean)
+    ok = got == sorted(expected) and not noise
+    return Result(name, ok, [got, noise], "" if ok else
+                  "expected %s and a silent control" % (sorted(expected),))
+
+
 def payload_round_trip_2d(a, b, ignore=(), name="payload_round_trip_2d"):
     """TWO BUILDS THAT MUST BE THE SAME GEOMETRY, byte for byte at tol 0 and
     not merely the same shape. `diff.compare` is the oracle, so it compares

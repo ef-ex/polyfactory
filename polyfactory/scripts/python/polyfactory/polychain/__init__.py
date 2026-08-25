@@ -231,12 +231,18 @@ WARN_PAYLOAD_REFUSED = "pc_warn_payload_refused"
 # default fill is several runs and one count cannot say which). Warn, never
 # block: the row falls back to its own free solve and says so.
 WARN_Y_ALIGN_LOST = "pc_warn_y_align_lost"
-WARN_VOCAB = (WARN_KIT_GAP, WARN_CORNER_DEGENERATE, WARN_OVERFLOW,
-              WARN_TILE_FALLBACK, WARN_VEXPR_IGNORED, WARN_DEGENERATE_PAD,
-              WARN_BEND_RESOLUTION, WARN_DEGENERATE_FRAME, WARN_FILLET_CLAMPED,
-              WARN_CONFORM_MISS, WARN_REPLACED, WARN_CURVE_ID_DUP,
-              WARN_ROLE_FALLBACK, WARN_ROW_OVERFLOW, WARN_ROW_KIT_GAP,
-              WARN_CLIP_UNSLICEABLE, WARN_CLIP_CONVEX, WARN_Y_ALIGN_LOST)
+
+# ⚠️ `WARN_VOCAB` IS DELETED (C3a, the audit's F5). It was a tuple of every
+# warning name and NOTHING read it - one grep hit, its own definition - so it
+# had already drifted: C3 added `WARN_Y_ALIGN_LOST` to it and left
+# `WARN_PAYLOAD_MALFORMED` and `WARN_PAYLOAD_REFUSED` out, with no consequence
+# and no check able to have one. The warning names that ARE enforced are
+# enforced as data: `report["warn_names"]` is what `hda.colour_warnings`
+# reads, `place._collate_warnings` is what publishes the counts, and
+# `run_2d_checks.EXPECTED_WARNS` is what pins the set per case. An unread
+# tuple beside those is not a second enforcement, it is a third place for a
+# name to be wrong. (`style.META_KEYS` is the shape a vocabulary takes when it
+# is live: the reader refuses what is not in it.)
 
 # 7.6 / D126 - the cull policy, RailClone's "For No Slice" three, as decisions
 # rather than as numbers. -1 on a module means "the array's own parm decides",

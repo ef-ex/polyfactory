@@ -49,11 +49,9 @@ EXPECTED_WARNS = {
     # ...and the Y `corner` row's own two cells, which no kit in the suite has
     # (`default_corner`, `corner_corner`).
     "FH_y_corner": ("pc_warn_role_fallback",),
-    # ...and the end of the walk. A kit with only a corner column has no
-    # `default` at all, so 3.4's blank box arrives - WITH the fallback warning
-    # beside it, which is PC-G5 condition 5 (`role_fallbacks` asserts the
-    # second number is 0).
-    # ...and the end of the walk, which also OVERFLOWS: 3.4's stand-in is a
+    # ...and the end of the walk: a kit with only a corner column has no
+    # `default` at all, so 3.4's blank box arrives WITH the fallback warning
+    # beside it (PC-G5 condition 5). It also OVERFLOWS: 3.4's stand-in is a
     # 1 m nominal box, so a 0.6 m corner reserve on a 12 m leg leaves the run
     # asking for more than the section holds. D13's cascade doing its job, and
     # the honest cost of a kit with nothing in it.
@@ -87,12 +85,8 @@ EXPECTED_WARNS = {
 }
 
 
-class Scene(R.Scene):
-    """`run_scene_checks.Scene` plus the two things only a 2D build has."""
+Scene = R.Scene
 
-    def __init__(self, case):
-        R.Scene.__init__(self, case)
-        self.frame = case["report"].get("frame")
 
 def run_case(name, case):
     """Phase 2's own three properties, plus phase 1's checks run UNCHANGED.
@@ -243,12 +237,12 @@ def tilt_ladder():
 
     ⚠️ AND THAT LADDER PROVED ONE PARAMETER (C3's audit, F1): every rung
     of it holds `frame.ex` at exactly +X, so `place`'s three remaining
-    world-axis spellings cancelled. Measured on HEAD 1a3f1ce, the same plate
-    started at its SECOND vertex: 5 deg inside 0.013024 / offplane 0.173172,
-    30 deg 0.064952 / 0.962501; rolled about a second axis, 30/20 offplane
-    0.906580, 90/45 1.339214, 10/90 inside 1.969616. The shear test was
-    world-Y too, so those rungs delivered 350 REAL prims where the plate is
-    100 packed ones - `tilt_ladder_packed`, which no containment number sees.
+    world-axis spellings cancelled. On HEAD 1a3f1ce the same plate started at
+    its SECOND vertex read inside 0.064952 / offplane 0.962501 at 30 deg, and
+    a two-axis roll read up to 1.969616 - 12's Cycle C3a has the table. The
+    shear test was world-Y too, so those rungs delivered 350 REAL prims where
+    the plate is 100 packed ones (`tilt_ladder_packed`, which no containment
+    number sees).
 
     WHAT IT CANNOT SEE: whether the region itself is right (`clip_nesting`'s
     job); any tilted array that is not an axis-aligned plate; and the TILTED
@@ -261,24 +255,22 @@ def tilt_ladder():
         scene = Scene(cases2d.clip_case(loops=[cases2d.tilt_plate(*rung)],
                                         clip_mode="remove"))
         a, b = C.clip_inside_m(scene), C.array_offplane_m(scene)
-        # the plate is rigid modules on a straight row: every piece the
-        # region keeps must still be an instance.
+        # the plate is rigid modules on a straight row, so every piece the
+        # region keeps must still be an instance - and a legal plate at any
+        # tilt builds CLEAN (`_flat_ratio` measured the span across world XZ,
+        # so a row running up its own slope warned on all 100 elements).
         if not C.instancing_split(scene, expect_all=True).ok:
             unpacked.append("%g/%g/%d" % rung)
-        # ...and a legal plate at any tilt builds CLEAN. `_flat_ratio` used to
-        # measure the span across world XZ, so a row running up its own slope
-        # read 0.0 and stamped WARN_DEGENERATE_FRAME on all 100 elements.
         if not C.warnings(scene, ()).ok:
             noisy.append("%g/%g/%d" % rung)
         if worst_in is None or a.value > worst_in.value:
             worst_in = a
         if worst_off is None or b.value > worst_off.value:
             worst_off = b
-    # ...and the SECOND writer. `_packed_transform` and `_deform_positions`
-    # both grow the module along the up axis and they are two functions, so a
-    # ladder that never cuts a piece proves one of them - measured: the plate
-    # is 100 packed / 0 deformed at every rung, and the deform writer's own
-    # mutation survived the twelve rungs above by reddening nothing at all.
+    # ...and the SECOND writer: `_packed_transform` and `_deform_positions`
+    # are two functions, so a ladder that never cuts a piece proves one of
+    # them - the deform writer's own mutation survived the rungs above by
+    # reddening nothing at all.
     n_deformed = 0
     for rung in cases2d.TILT_DEFORM:
         scene = Scene(cases2d.clip_case(loops=cases2d.tilt_loops(*rung)))
@@ -348,6 +340,13 @@ def payload_face():
                                     "nosuchkey": 1})[1]},
             ("pc_warn_payload_malformed", "pc_warn_payload_refused"),
             name="payload_input_warns"),
+        # D300 - and the TOP LEVEL, where those same settings live under their
+        # KEYWORD names one nesting level up.
+        C.payload_meta_warns(
+            cases2d.payload_build(payload=True,
+                                  meta={"expand": 3.0, "y_parms": {}})[2],
+            cases2d.payload_build(payload=True)[2],
+            ("pc_warn_payload_malformed",)),
     ]
 
 
@@ -369,10 +368,9 @@ def align_scope():
             y_mode="aligned" if aligned else "free")[0]
     seq = [cases2d.Rule("default", "sequence", ["bay", "pier"])]
     # D297 the area path, where the datum is a SPAN: refusing `aligned` there
-    # was proposed and DECLINED, and this row is the measurement - with D298
-    # and D299 closed the holed plate is byte-identical to free and warns on
-    # the 24 elements that lost the alignment, not on all 88. D298 a SEQUENCE
-    # rule (`pc_bays` counts bays, `fit` units); D299 a 0.6 m ground bay.
+    # was proposed and DECLINED, and this row is the measurement (12's Cycle
+    # C3a). D298 a SEQUENCE rule (`pc_bays` counts bays, `fit` units); D299 a
+    # 0.6 m ground bay the storeys above it cannot hold.
     return [C.payload_round_trip_2d(a, b, ("y_align_lost", "pc_warnings"), n)
             for a, b, n in (
                 (area(False), area(True), "align_no_op_area"),

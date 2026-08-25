@@ -68,10 +68,18 @@ DECISIONS TAKEN HERE (recorded in polychain.md 10):
 
 import hou
 
-from . import (DEFAULTS, SELECTORS, SLOTS, Params, Rule, Style)
+from . import (DEFAULTS, SELECTORS, SLOTS, WARN_PAYLOAD_MALFORMED,
+               Params, Rule, Style)
 from . import plan as _plan
 
 STYLE_DETAIL = "pc_style_meta"
+
+# 3.3 + 7.3.2's WHOLE top-level vocabulary, in one place so the reader can name
+# what it does not know (D300). `styleId`/`version`/`seed`/`params` are 3.3's;
+# `y_params`/`y_mode`/`clip` are 7.3.2's second axis. A name added to the
+# payload without a line here is refused, which is the point.
+META_KEYS = ("clip", "params", "seed", "styleId", "version", "y_mode",
+             "y_params")
 
 # The rule schema, in one list so the writer, the reader and any future
 # validator cannot disagree about it: (attribute, default).
@@ -325,6 +333,21 @@ def read(geo, kit=None):
     else:
         warns.append("no %s detail dict - styleId, version and seed default"
                      % STYLE_DETAIL)
+    # C3a / D300 - THE ONE PAYLOAD LAYER THAT NAMED NOTHING. Every layer below
+    # this says what it does not know - `params` ("unknown key %r ignored"),
+    # `clip` ("is not a 7.3.2 key"), `pc_slot`, `pc_select`, `pc_weights` - and
+    # the TOP LEVEL, the dict an author writes FIRST, took anything in silence.
+    # The likeliest authoring error there is MIS-NESTING: `clip_mode`, `expand`
+    # and `auto_align` are the 2D entry point's own KEYWORD names, so writing
+    # them one level up instead of inside `clip` read as a payload that asked
+    # for nothing and got the defaults, and a misspelt `y_params` lost the
+    # whole Y `Params` block the same way. D294's rule, on the layer it
+    # skipped. WHAT IT CANNOT SEE: a key that IS in the vocabulary carrying
+    # something absurd - `payload_2d` and `params_from_dict` judge values.
+    for key in sorted(k for k in meta if k not in META_KEYS):
+        warns.append("%s: %s.%s is not a 3.3 or 7.3.2 key - ignored (known: "
+                     "%s)" % (WARN_PAYLOAD_MALFORMED, STYLE_DETAIL, key,
+                              ", ".join(sorted(META_KEYS))))
     params = params_from_dict(meta.get("params"), warns)
 
     rules = []

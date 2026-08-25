@@ -1,16 +1,16 @@
 # Graph Report - polyfactory  (2026-08-25)
 
 ## Corpus Check
-- 181 files · ~749,242 words
+- 181 files · ~749,750 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4463 nodes · 6859 edges · 263 communities (245 shown, 18 thin omitted)
-- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 367 edges (avg confidence: 0.7)
+- 4462 nodes · 6857 edges · 260 communities (243 shown, 17 thin omitted)
+- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 371 edges (avg confidence: 0.7)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b9fca051`
+- Built from commit: `fad6861b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -262,11 +262,8 @@
 - [[_COMMUNITY_Community 248|Community 248]]
 - [[_COMMUNITY_Community 249|Community 249]]
 - [[_COMMUNITY_Community 250|Community 250]]
-- [[_COMMUNITY_Community 251|Community 251]]
 - [[_COMMUNITY_Community 253|Community 253]]
 - [[_COMMUNITY_Community 254|Community 254]]
-- [[_COMMUNITY_Community 257|Community 257]]
-- [[_COMMUNITY_Community 258|Community 258]]
 - [[_COMMUNITY_Community 259|Community 259]]
 - [[_COMMUNITY_Community 261|Community 261]]
 - [[_COMMUNITY_Community 262|Community 262]]
@@ -276,7 +273,7 @@
 - [[_COMMUNITY_Community 275|Community 275]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `Result` - 52 edges
+1. `Result` - 53 edges
 2. `Result` - 50 edges
 3. `Rule` - 43 edges
 4. `AssetBrowserWidget` - 37 edges
@@ -305,15 +302,15 @@
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/ui_framework/__init__.py -> polyfactory/scripts/python/polyfactory/ui_framework/__init__.py`
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/viewer_utils/__init__.py -> polyfactory/scripts/python/polyfactory/viewer_utils/__init__.py`
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
-- 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
-- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
-- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/polychain/array2d.py -> polyfactory/scripts/python/polyfactory/polychain/kit.py -> polyfactory/scripts/python/polyfactory/polychain/place.py -> polyfactory/scripts/python/polyfactory/polychain/array2d.py`
 - 4-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 
-## Communities (263 total, 18 thin omitted)
+## Communities (260 total, 17 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.10
@@ -340,8 +337,8 @@ Cohesion: 0.14
 Nodes (14): 12.0 How to pick this up, 12.10 Prototype gates — in order, before any B-stage build, 12.11 v1 acceptance, 12.12 Open questions carried into the build, 12.1 Scope and non-goals, 12.2 Inherited constraints — binding, with sources, 12.3 Architecture, 12.4 B0 — the site contract (+6 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.14
-Nodes (6): PyCircularProgress, _ToolTip, _ToolTip, QColor, QLabel, Set background color for expression state.
+Cohesion: 0.13
+Nodes (7): PyCircularProgress, _ToolTip, _ToolTip, _ToolTip, QColor, QLabel, Set background color for expression state.
 
 ### Community 7 - "Community 7"
 Cohesion: 0.06
@@ -364,8 +361,8 @@ Cohesion: 0.14
 Nodes (29): float2, float3, float4, pf_hash1(), pf_hash21(), pf_hash22(), pf_hash2d(), pf_hash43() (+21 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.12
-Nodes (17): 0.0 BUILD STATE — resume pointer (read this first, keep it current), 0. Instructions to the implementing agent, 1. Scope and non-goals, 2.1 The two-face principle (load-bearing), 2.2 Node family (working names; `pf_` per suite convention), 2.3 Chain SOP seed — gate PC-G0, 2. Architecture, 5.1 HDA metadata — REQUIRED, not polish (Hannes, 2026-08-22, looking at the built node) (+9 more)
+Cohesion: 0.09
+Nodes (23): 0.0 BUILD STATE — resume pointer (read this first, keep it current), 0. Instructions to the implementing agent, 1. Scope and non-goals, 25.0 The scoreboard — five mutations re-run, five reddened, 25.1 D210 — and the twelve claims, re-checked from scratch a second time, 25.2 D209's other half — the flakiness, not just the floor, 25.3 One thing the D206 re-run exposes, and it is minor, 25.4 What this cycle asks of the next agent (+15 more)
 
 ### Community 13 - "Community 13"
 Cohesion: 0.10
@@ -376,16 +373,16 @@ Cohesion: 0.12
 Nodes (22): Parm, copy_parameter(), delete_expression(), get_expression_language(), get_expression_string(), get_parm_color(), get_parm_display_value(), has_expression() (+14 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.09
-Nodes (5): Ui_RightColumn, Themes, MainFunctions, SetupMainWindow, UI_MainWindow
+Cohesion: 0.10
+Nodes (9): Ui_RightColumn, Settings, Themes, SetupMainWindow, UI_MainWindow, object, Ui_MainPages, PyWindow (+1 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.05
 Nodes (41): Accessing Package Assets, Asset Database, Branch Structure, Code Quality - Error Handling, Code Style: Functional Over Object-Oriented, Common Patterns, Creative / Procedural Tool Requests Require Design Breakdown First, Critical Conventions (+33 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.09
-Nodes (22): 4. Stage design, ⚠️ A CONNECTION WAS BEING REFUSED FOR BEING TOO CLOSE — fixed 2026-08-10, ⚠️ AREA WAS NOT ENOUGH EITHER. The fifth wrong seam — 2026-08-10, Chaotic / organic patterns — clarified, not scrapped, Dead ends are the exception, not the norm — and the fix is in the papers, Higher-degree junctions — untested, and structurally unreachable from the field, Plazas and roundabouts at degenerate points, S0 — Domain (+14 more)
+Cohesion: 0.13
+Nodes (15): 4. Stage design, ⚠️ A CONNECTION WAS BEING REFUSED FOR BEING TOO CLOSE — fixed 2026-08-10, ⚠️ AREA WAS NOT ENOUGH EITHER. The fifth wrong seam — 2026-08-10, Chaotic / organic patterns — clarified, not scrapped, Dead ends are the exception, not the norm — and the fix is in the papers, S0 — Domain, S1 — Field (pluggable generators), S2 — Trace (+7 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.09
@@ -400,8 +397,8 @@ Cohesion: 0.11
 Nodes (12): ParmFloat, Handle value change from InputField., Update widget from parameter value., Update visual feedback for expression state., Reset parameter to default value (Ctrl+MMB on label)., Toggle slider visibility (LMB on label)., Float parameter widget using Enhanced InputField with slider.          Combine, Update widget from parameter value. (+4 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.08
-Nodes (16): AssetThumbnailWidget, HoverComboBox, HoverSlider, _load_pixmap_cached(), Asset Browser Widgets - Low-level widget classes extracted from browser_ui.py., Return a cached, pre-scaled pixmap for path, loading from disk on miss., Individual asset thumbnail with animated hover outline, Update thumbnail size dynamically without re-reading disk (+8 more)
+Cohesion: 0.05
+Nodes (30): AssetThumbnailWidget, HoverComboBox, HoverSlider, _load_pixmap_cached(), Asset Browser Widgets - Low-level widget classes extracted from browser_ui.py., Return a cached, pre-scaled pixmap for path, loading from disk on miss., Individual asset thumbnail with animated hover outline, Update thumbnail size dynamically without re-reading disk (+22 more)
 
 ### Community 22 - "Community 22"
 Cohesion: 0.10
@@ -412,8 +409,8 @@ Cohesion: 0.12
 Nodes (17): 15.0 What actually exists now, 15.1 Parity — the numbers, all of them, 15.2 §13 was wrong about the speed — and so was §15.2's first answer, 15.3 The load-bearing tripwire — inverted, and why, 15.4 Three Houdini behaviours found this cycle — and one of them was a misdiagnosis, 15.5 Decisions, 15.6 What is NOT done — the complete Python inventory, not just the stages, 15.7 The audit — seventeen findings, and what each one cost (+9 more)
 
 ### Community 24 - "Community 24"
-Cohesion: 0.13
-Nodes (10): object, AreaFrame, array_members(), ClipHook, `place.build`'s clip callable: (curve_id, s0, s1, module) -> verdict.      7.6 s, A closed sub-spline's own plane, as a frame plus 2-D extents.      7.6's "Extend, {root loop index: [every loop in that root's tree]} - D125's "each     closed su, M (+2 more)
+Cohesion: 0.12
+Nodes (12): area_rows(), array_members(), ClipHook, ([(px, py, nx, ny)], reflex?) - the boundary edges that cross the         rect,, Liang-Barsky: does segment a->b meet the axis-aligned rect at all?, [(points, closed, attrs)] - the row curves of a clipped area.      Each row is a, `place.build`'s clip callable: (curve_id, s0, s1, module) -> verdict.      7.6 s, (keep?, ((origin, normal, keep_sign), ...), (warning, ...)). (+4 more)
 
 ### Community 25 - "Community 25"
 Cohesion: 0.05
@@ -444,8 +441,8 @@ Cohesion: 0.14
 Nodes (11): Best Use Cases, Code Structure Example, Comparison: WebSocket Bridge vs Native Agent, Concept Overview, Conclusion, Fundamental Limitation, Key Advantage Over WebSocket Bridge, Native Houdini AI Agent - Architecture Design (+3 more)
 
 ### Community 32 - "Community 32"
-Cohesion: 0.09
-Nodes (23): conform_cache_per_element(), conform_parity(), conform_prefetch_hit_rate(), curvature_budget(), deform_gate(), packed_true_deviation(), path_sample_calls_per_piece(), HOM per-element attribute writes per placed piece (11.2 P1). A COUNT,     not a (+15 more)
+Cohesion: 0.07
+Nodes (34): clip_caps_closed(), clip_mode_override(), clip_policy(), conform_cache_per_element(), conform_misses(), conform_parity(), conform_prefetch_hit_rate(), curvature_budget() (+26 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.06
@@ -460,8 +457,12 @@ Cohesion: 0.08
 Nodes (28): BaseParmWidget, Binding Manager - Central coordinator for parameter-widget synchronization  Ma, Hover Outline Mixin - Animated blue outline on hover for any widget, Polyfactory Widgets Module  Qt widgets for Houdini workflows.  Submodules:, EnhancedInputField, ExpressionDialog, Base Parameter Widgets - Label, InputField, BaseParmWidget, ExpressionDialog, Dialog for editing parameter expressions. (+20 more)
 
 ### Community 36 - "Community 36"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (13): AssetInfoPanel, Handle resize to update preview image size, Create styled label for form, Load turntable frames for animation, Display a specific frame, Display asset information, Load full turntable sequence on hover, Return to frame 5 on leave (+5 more)
+
+### Community 37 - "Community 37"
+Cohesion: 0.13
+Nodes (3): PyIcon, PyLeftMenuButton, QPixmap
 
 ### Community 38 - "Community 38"
 Cohesion: 0.20
@@ -540,8 +541,8 @@ Cohesion: 0.17
 Nodes (8): The pieces, on numbers computed by hand rather than dumped., G_tongue's own sizing note, cases.py: at the perpendicular corner the         ke, ...and the same node once the tongue is dropped: three 26.8 m         arterials,, The collinear branch: kerbs parallel, angle ~ pi, nothing to trim., Without the clamp the kerb-line corner spikes to infinity as the gap         clo, `pfsj_corner_lines` gives up at |sin(gap)| < 0.02 — about 1.146         degrees, E_short_t's binding condition: r = 4 x 2.5 = 10 m of radius wants         10 m o, TestCornerModel
 
 ### Community 58 - "Community 58"
-Cohesion: 0.06
-Nodes (32): 10.1 Forest strategy — unique sim vs instancing, 10. Performance envelope, 11. Validation & acceptance, 12. Milestones, 13. Open questions, 1. Vision and goals (Hannes, 2026-08-15), 2. Principles, 3. Prior art in one paragraph (+24 more)
+Cohesion: 0.10
+Nodes (21): 10.1 Forest strategy — unique sim vs instancing, 10. Performance envelope, 11. Validation & acceptance, 12. Milestones, 13. Open questions, 1. Vision and goals (Hannes, 2026-08-15), 2. Principles, 3. Prior art in one paragraph (+13 more)
 
 ### Community 59 - "Community 59"
 Cohesion: 0.14
@@ -572,8 +573,8 @@ Cohesion: 0.11
 Nodes (19): 7.10 Build order for the implementation cycles, 7.1 The row stack — how the 2D generator drives N rows through the 1D kernel, 7.2.1 Resolution order — which role wins when two claims overlap, 7.2.2 The fallback chain — a lattice walk, warn and stand in, never fail, 7.2 The cell-role inventory — 25 first-class roles, and where they come from, 7.3.1 Kit (§3.2 + ), 7.3.2 Style payload (§3.3 + ), 7.3.3 Output stamp (§3.4 + ) — the structural address, now 4-dimensional (+11 more)
 
 ### Community 67 - "Community 67"
-Cohesion: 0.17
-Nodes (11): 0. Agent onboarding — read before implementing anything, 1. Goal, 2. Architecture (KB §14.3, validated by rtstitch — KB §21.2), 3.1 Stitch mesh schema (SOP geometry, and its USD mirror), 3.2 Stitch template library (ours, versioned in repo), 3.3 File readers (small, pure Python), 3. Data model, 5. Component summary (+3 more)
+Cohesion: 0.10
+Nodes (20): 0. Agent onboarding — read before implementing anything, 1. Goal, 2. Architecture (KB §14.3, validated by rtstitch — KB §21.2), 3.1 Stitch mesh schema (SOP geometry, and its USD mirror), 3.2 Stitch template library (ours, versioned in repo), 3.3 File readers (small, pure Python), 3. Data model, 4. Milestones (+12 more)
 
 ### Community 69 - "Community 69"
 Cohesion: 0.11
@@ -603,17 +604,13 @@ Nodes (11): _arc_lengths(), culdesac_bulbs_are_circles(), every_corner_is_an_arc
 Cohesion: 0.14
 Nodes (14): 1. Architecture & transport, 2. Tool surface — structured tools **and** a code hatch, 4. The skills layer — tools vs recipes vs HDAs (proven by the Copernicus guide), 5. The "natural-language → real-world-accurate setup" capability, 6. Concrete recommendations for the polyfactory Houdini bridge, 7. Anti-patterns to avoid, Best Practices for a DCC MCP — Making an LLM Actually Operate Houdini, Don't fight the API surface with tool sprawl (+6 more)
 
-### Community 76 - "Community 76"
-Cohesion: 0.11
-Nodes (16): axis_bands(), Band, Cell, _deviation(), _fill_width(), guides_from_points(), jigsaw_report(), plan() (+8 more)
-
 ### Community 77 - "Community 77"
 Cohesion: 0.14
 Nodes (24): _bend_deviation(), _chord_ratio(), _flat_ratio(), _len(), _needs_deform(), _packed_transform(), Path, How much of a planned span the straight chord across it covers.      A rigid pie (+16 more)
 
 ### Community 78 - "Community 78"
-Cohesion: 0.22
-Nodes (9): 4. Milestones, M0 — Look test (GO/NO-GO gate), M1 — Swatch generator (flat, no shaping), M2 — Templates fitted + rest-shape relaxation, M3 — Panels + shaping, M4 — Seams, M5 — Pattern language, M6 — Hydra generative procedural (+1 more)
+Cohesion: 0.18
+Nodes (11): 6.0 Initialise (first tick only), 6.1 Bud inventory, 6.2 Light exposure, 6.3 Vigor: gather down, allocate up (the hormone core), 6.4 Auxin suppression, 6.5 Bud fate, 6.6 Shoot construction + energy ledger, 6.7 Direction integrator (+3 more)
 
 ### Community 79 - "Community 79"
 Cohesion: 0.09
@@ -621,15 +618,15 @@ Nodes (41): accepted(), accepted_seam_distribution(), build_trace(), configs(), 
 
 ### Community 80 - "Community 80"
 Cohesion: 0.06
-Nodes (47): elem_id(), The structural address (D1). Collision-free by construction., rng_for(), _aligned_count(), _anchor_placement(), candidates(), cell_role(), choose() (+39 more)
+Nodes (48): elem_id(), The structural address (D1). Collision-free by construction., _aligned_count(), _anchor_placement(), candidates(), cell_role(), choose(), classify() (+40 more)
 
 ### Community 82 - "Community 82"
 Cohesion: 0.14
 Nodes (7): The closed form against a literal walk of the grid it stands in for.      `pfsg_, ⚠️ `clear_of_vertex` is only allowed in the planner at all because the         v, ⚠️ The fixture cannot pin this and the test that claimed to did not.          `r, `graph_prune_min_edge_len` (13 m) means no such arm reaches the solve         to, `clear_of_vertex`'s two branches differ, and `crossing_trims` picks         betw, The VEX declines when the push would land closer to the next vertex         than, TestClearOfVertex
 
 ### Community 83 - "Community 83"
-Cohesion: 0.26
-Nodes (3): Settings, PyWindow, Styles
+Cohesion: 0.20
+Nodes (10): 6b. The study applied across every polyfactory tool — audit of the other studies, Asset library / kitbash — [`asset_library_redesign.md`](asset_library_redesign.md), planning, Buildings — [`citygen_buildings.md`](citygen_buildings.md), research only, Fabric / polyKnit — [`fabric.md`](fabric.md), design complete, parked, Foliage — [`foliage.md`](foliage.md), design complete, parked, Hair grooming — [`hair_grooming.md`](hair_grooming.md), research, parked, Streets — [`citygen_streets.md`](citygen_streets.md), in build, Terrain presets — [`terrain_presets.md`](terrain_presets.md), parked (+2 more)
 
 ### Community 84 - "Community 84"
 Cohesion: 0.25
@@ -676,8 +673,8 @@ Cohesion: 0.20
 Nodes (10): ⚠️ `2aba0a9` raised six numbers and recorded one — 2026-08-10, 4c. Implementation status — 2026-08-09, ⚠️ C's east sector subdivides into long ribbons, and `ac64636` recorded only the improvements, Every promoted parameter, measured — 2026-08-10, Overnight run — 2026-08-09/10, Recorded, not fixed — from the same audit, The loop-closure gate, per-gate — measured, and two entries in `80dc19c` were wrong, ⚠️ The road-under-chord metric was ill-posed. Use the pavement deficit (+2 more)
 
 ### Community 97 - "Community 97"
-Cohesion: 0.08
-Nodes (24): 0. The one-paragraph answer, 1. RailClone, dissected — why the named good example works, 1a. Three layers with an escalating skill gradient — and the artist layer is *authored*, 1b. The exposure mechanism — the load-bearing part, 1c. The ramp, not the wall, 1d. Where the money went — the strongest tell, 1e. Verified negatives — recorded honestly, 2. The good end — what each praised tool's mechanism actually is (+16 more)
+Cohesion: 0.14
+Nodes (14): 0. The one-paragraph answer, 1. RailClone, dissected — why the named good example works, 1a. Three layers with an escalating skill gradient — and the artist layer is *authored*, 1b. The exposure mechanism — the load-bearing part, 1c. The ramp, not the wall, 1d. Where the money went — the strongest tell, 1e. Verified negatives — recorded honestly, 2. The good end — what each praised tool's mechanism actually is (+6 more)
 
 ### Community 98 - "Community 98"
 Cohesion: 0.14
@@ -708,12 +705,12 @@ Cohesion: 0.33
 Nodes (6): _junction_graph(), junctions_not_too_close(), no_multileg_junctions(), Endpoint degree, edge lengths, and the clusters a multi-leg junction hides, No edge may join two junctions closer together than `floor` metres.      THE J, No junction may carry more than `cap` arms - counted AFTER near-coincident
 
 ### Community 105 - "Community 105"
-Cohesion: 0.13
-Nodes (12): kit_of(), 7.1 - the row list IS a phase-1 plan, so it inherits phase-1's fit., EXACT FILL ON THE Y AXIS. Every band meets the next to 1e-9 m and         the s, D114 - RailClone's documented wart does not survive, because the Y         solv, The compatibility claim on the other axis: a phase-1 payload is one         row, 7.1's third row mode, and D134's Y `corner`., 7.2.1's Y order: `start`/`end` beat `corner`. A profile that turns         imme, D128 is P2-8. The offset must be READ now - a number nothing uses         is st (+4 more)
+Cohesion: 0.10
+Nodes (16): kit_of(), polyChain 7 ARRAY2D - the row stack and the cell lattice. No Houdini.      pyt, 7.1 - the row list IS a phase-1 plan, so it inherits phase-1's fit., EXACT FILL ON THE Y AXIS. Every band meets the next to 1e-9 m and         the s, D114 - RailClone's documented wart does not survive, because the Y         solv, The compatibility claim on the other axis: a phase-1 payload is one         row, 7.1's third row mode, and D134's Y `corner`., 7.2.1's Y order: `start`/`end` beat `corner`. A profile that turns         imme (+8 more)
 
 ### Community 106 - "Community 106"
-Cohesion: 0.05
-Nodes (25): HoverOutlineMixin, QEvent, QObject, FlowLayout, Tag Input Widget - Autocompleting tag input with removable chips Similar to Sho, Layout that wraps widgets to multiple lines like text flow, Custom paint to draw rounded background with darker blue + animated hover outlin, Handle remove button click (+17 more)
+Cohesion: 0.06
+Nodes (19): QEvent, QObject, FlowLayout, Layout that wraps widgets to multiple lines like text flow, Tag input widget with autocomplete and chip display, Set the list of available tags for autocomplete                  Args:, Get current list of tags                  Returns:             List of tag st, Set the current tags                  Args:             tags: List of tag str (+11 more)
 
 ### Community 107 - "Community 107"
 Cohesion: 0.20
@@ -721,7 +718,7 @@ Nodes (11): junction_schema(), _junction_vocab(), _node_schema_attrs(), node_sch
 
 ### Community 108 - "Community 108"
 Cohesion: 0.06
-Nodes (29): build_out_keeps_upstream_stamps(), clip_independence(), curve_sample_scaling(), instancing_split(), parms_inert_under_payload(), path_read_direction_m(), points_wrappers_built(), polyfill_appends_its_patches() (+21 more)
+Nodes (33): build_out_keeps_upstream_stamps(), clip_independence(), curve_sample_scaling(), instancing_split(), parms_inert_under_payload(), path_read_direction_m(), payload_meta_warns(), payload_round_trip_2d() (+25 more)
 
 ### Community 109 - "Community 109"
 Cohesion: 0.20
@@ -793,7 +790,7 @@ Nodes (12): clip_plane(), dress_caps(), _Proto, Cut `geo` on a WORLD half-space 
 
 ### Community 127 - "Community 127"
 Cohesion: 0.10
-Nodes (32): _add(), _assembly_placements(), Bevel, _bevel_between(), _cross(), _dot(), fillet(), _len() (+24 more)
+Nodes (21): _add(), _assembly_placements(), Bevel, _mul(), _piece_span(), plan_curve(), 4.1 -> 4.3 -> 4.2 for ONE curve. -> (placements, [Bevel], [Section]).      Thi, Metres one corner assembly takes off one leg's default fill.      NEVER NEGATI (+13 more)
 
 ### Community 128 - "Community 128"
 Cohesion: 0.17
@@ -807,9 +804,13 @@ Nodes (4): APIs, Houdini APIs, Resources & References, Similar Projects
 Cohesion: 0.50
 Nodes (4): Cost Analysis, Cost Optimization, Development Costs, Operational Costs
 
-### Community 132 - "Community 132"
+### Community 131 - "Community 131"
 Cohesion: 0.12
-Nodes (3): PyDiv, PyLeftMenu, PyDiv
+Nodes (3): MainFunctions, PyTableWidget, QTableWidget
+
+### Community 132 - "Community 132"
+Cohesion: 0.13
+Nodes (3): PyDiv, PyLeftMenu, Polyfactory UI Framework =========================  Modern Qt widget library
 
 ### Community 134 - "Community 134"
 Cohesion: 0.25
@@ -821,15 +822,15 @@ Nodes (10): The orchestrator, end to end - still no geometry., Exactly, in EVERY
 
 ### Community 136 - "Community 136"
 Cohesion: 0.08
-Nodes (41): _area2(), area_frame(), canonical_loop(), canonical_order(), _ccw(), centroid(), _contains(), _cross3() (+33 more)
+Nodes (36): align_rows(), area_frame(), AreaFrame, canonical_loop(), canonical_order(), _cross3(), datum_bays(), _dist() (+28 more)
 
 ### Community 137 - "Community 137"
 Cohesion: 0.06
 Nodes (34): AssetInstanceWidget, createInterface(), HoverListWidget, KitbashNodeUI, PlacedAssetsListWidget, Kitbash HDA UI - Python Panel interface for pf_kitbash node  NEW WORKFLOW: -, Create styled spinbox, Load values from node parameters (+26 more)
 
 ### Community 138 - "Community 138"
-Cohesion: 0.11
-Nodes (29): _clean(), decompose(), decompose_all(), _flag(), _native_cfg_matches(), polyChain 4.1 DECOMPOSE - a polyline becomes an ordered section list.  A SECTI, (kept original indices, positions, cumulative metres) - D8.      For a closed, Deviation from straight at `b`, in degrees. 0 = collinear. (+21 more)
+Cohesion: 0.14
+Nodes (23): _clean(), decompose(), decompose_all(), _flag(), _native_cfg_matches(), polyChain 4.1 DECOMPOSE - a polyline becomes an ordered section list.  A SECTI, (kept original indices, positions, cumulative metres) - D8.      For a closed, Deviation from straight at `b`, in degrees. 0 = collinear. (+15 more)
 
 ### Community 139 - "Community 139"
 Cohesion: 0.33
@@ -840,8 +841,8 @@ Cohesion: 0.25
 Nodes (8): 1. The shape that reaches it, 2. The sweep, before the fix, 3. The sweep, after the fix, 4. Proving the dangerous direction is closed, 5. Files, 6. The baseline, moved deliberately and audited, Cycle 10b - the camber's off-spine rotation, brought into the budget (2026-08-22), Decisions taken
 
 ### Community 141 - "Community 141"
-Cohesion: 0.13
-Nodes (5): Ui_LeftColumn, PyIcon, PyLeftColumn, PySlider, QSlider
+Cohesion: 0.10
+Nodes (5): Ui_LeftColumn, PyCredits, PyLeftColumn, PySlider, QSlider
 
 ### Community 142 - "Community 142"
 Cohesion: 0.40
@@ -865,31 +866,31 @@ Nodes (4): 3. The paper map, 3a. Vehicles — three levels of detail, and only o
 
 ### Community 147 - "Community 147"
 Cohesion: 0.12
-Nodes (16): area_rows(), _intersect(), _merge(), The clip boundary of ONE array, in that array's own frame.      `polys` are the, [(x0, x1)] of the horizontal line `y` INSIDE the region.          Every loop's c, ([(px, py, nx, ny)], reflex?) - the boundary edges that cross the         rect,, Liang-Barsky: does segment a->b meet the axis-aligned rect at all?, The x intervals row `row` may occupy inside the boundary (D137).      7.6's cost (+8 more)
+Nodes (21): _area2(), _ccw(), centroid(), _contains(), _intersect(), _merge(), nest(), point_in_poly() (+13 more)
 
 ### Community 148 - "Community 148"
 Cohesion: 0.06
 Nodes (38): Arm, clear_of_vertex(), _corner(), corner_radius(), crossing_trims(), default_junction_type(), default_principal(), graph_trims() (+30 more)
 
 ### Community 149 - "Community 149"
-Cohesion: 0.11
-Nodes (6): One 3.3 rule point.      D119 (E1) - `yclass` scopes the rule to ONE row class, Rule, 7.6 / D137 - enough of the clipped area to fill a facade panel., E1/E2/E3 seen from the kernel's side - the three named things only., TestClippedArea, TestKernelExtensions
+Cohesion: 0.10
+Nodes (13): polyline(), 200 x 2 m panels on a 400 m straight - PC-G3's shape, small enough to     run in, The same panels on a 10 m arc - 100 % DEFORMED (`arc_10` in miniature:     5.0e-, `tripwire_packed_run`'s fence, built INTO a caller-supplied geometry -     `buil, A closed rectangle in MITER mode - the only branch reaching     `clip_plane`, so, tripwire_deformed_run(), tripwire_mitered_run(), tripwire_out_build() (+5 more)
 
 ### Community 150 - "Community 150"
 Cohesion: 0.67
 Nodes (3): 12.4 L0 — the lane graph, 12.4a L0-lite — the only pre-streets work; belongs to streets §6 when it lands, 12.4b L0 proper — the processor stage (after streets)
 
 ### Community 151 - "Community 151"
-Cohesion: 0.05
-Nodes (53): arc_points(), broken_kit(), build_all(), bump(), camber_z(), _case(), coarse_kit(), compose_kit() (+45 more)
+Cohesion: 0.06
+Nodes (44): arc_points(), broken_kit(), build_all(), bump(), camber_z(), _case(), coarse_kit(), compose_kit() (+36 more)
 
 ### Community 152 - "Community 152"
 Cohesion: 0.33
 Nodes (6): 1. Vision and question (Hannes, 2026-08-21), 2. The answer, 3. Feasibility — is the simulation too heavy for an artist tool? No., 4. Terrain integration — the natural habitat, not an add-on, 5. What makes this approach different (the differentiators to protect), Rocks, Cliffs & Minerals — Formation-Based Generation Study
 
 ### Community 153 - "Community 153"
-Cohesion: 0.11
-Nodes (19): close_roles(), fallback_chain(), (kit, {role asked: role supplied}) - E3, pure data expansion.      Every cell ro, The ordered walk for a missing cell, 7.2.2.      `<x>_<y>` -> drop the Y class -, canonical_role(), _is_slot(), An authored role name -> the 7.2 vocabulary. Unknown names survive., `<x>_<y>`, with the Y-`default` column written as the phase-1 name. (+11 more)
+Cohesion: 0.07
+Nodes (35): close_roles(), fallback_chain(), (kit, {role asked: role supplied}) - E3, pure data expansion.      Every cell ro, The ordered walk for a missing cell, 7.2.2.      `<x>_<y>` -> drop the Y class -, canonical_role(), _is_slot(), polyChain - the contracts the 1D kernel is written against. No `hou`.  Spec: `, An authored role name -> the 7.2 vocabulary. Unknown names survive. (+27 more)
 
 ### Community 154 - "Community 154"
 Cohesion: 0.10
@@ -909,7 +910,7 @@ Nodes (6): D2. A 31 deg turn is a corner at the 30 deg default; its INCLUDED    
 
 ### Community 158 - "Community 158"
 Cohesion: 0.11
-Nodes (22): analyse(), _blank_to_none(), _native_for(), _native_tables(), Override, _override_for(), _pattr(), plan_points() (+14 more)
+Nodes (23): analyse(), _blank_to_none(), _identity_remap(), _native_for(), _native_tables(), _pattr(), plan_points(), _prattr() (+15 more)
 
 ### Community 159 - "Community 159"
 Cohesion: 0.12
@@ -932,8 +933,8 @@ Cohesion: 0.20
 Nodes (4): The house rule: same inputs + seed => identical output, across     processes an, The one that would have been missed. `hash("x")` differs per         PROCESS, s, D1. It must be reproducible from the structure alone, and two         different, TestDeterminism
 
 ### Community 164 - "Community 164"
-Cohesion: 0.13
-Nodes (13): Assembly, compose_modules(), _corner_rule(), _default_module(), D48 - re-solve this corner on YAW-FLATTENED tangents.          A `vertical` or, The whole corner: its pieces, what each leg lends it, and its warnings., |reserve_in - reserve_out|: 0 for an odd compose, L for an even one         (D3, The composed corner module list, in payload order (3.3's `sequence`).      A ` (+5 more)
+Cohesion: 0.29
+Nodes (4): Assembly, D48 - re-solve this corner on YAW-FLATTENED tangents.          A `vertical` or, The whole corner: its pieces, what each leg lends it, and its warnings., |reserve_in - reserve_out|: 0 for an odd compose, L for an even one         (D3
 
 ### Community 165 - "Community 165"
 Cohesion: 0.13
@@ -944,8 +945,8 @@ Cohesion: 0.09
 Nodes (22): 7.7's decision half - `polychain/slicer.py`, under plain python.      python -m, D267 - nothing set turns any chunk into start | default | end, which     is what, The vocabulary claim: slicing invents no role. D269's variants are     NAMES, an, Reachability, stated: a plane outside the bounding box cuts nothing,     and a s, The corner cell an artist actually wants, and the intersection cells     that co, Three decisions in one layout, because they only exist together.      D268: a ru, The rule that keeps the tool predictable, asserted rather than left in     a hel, The degenerate the auto layout can be handed: two caps that would     overlap. F (+14 more)
 
 ### Community 167 - "Community 167"
-Cohesion: 0.15
-Nodes (3): Functions, Ui_MainPages, PyTitleBar
+Cohesion: 0.36
+Nodes (9): _cross(), _dot(), fillet(), _len(), Rodrigues. Used only by the fillet, to walk the arc., Round every corner of `curve` by `params.fillet_radius`. Never raises.      Re, _rotate(), _sub() (+1 more)
 
 ### Community 168 - "Community 168"
 Cohesion: 0.10
@@ -956,8 +957,8 @@ Cohesion: 0.18
 Nodes (11): 18.1 Everything, from clean — the actual runs, 18.2 THE NUMBER HANNES ASKED FOR — how much of the tool has left Python, 18.3 MUTATION — six applied, TWO SURVIVED, 18.4 THE BLIND GATE — PC-G1 and PC-G2 were judged on images that could not show the fence, 18.5 The gates, re-confirmed on the corrected images, 18.6 Two smaller things, recorded so they are not rediscovered, 18.7 Decisions, 18.8 What is NOT done (+3 more)
 
 ### Community 170 - "Community 170"
-Cohesion: 0.16
-Nodes (12): _apply_cuts(), build_assembly(), CornerPiece, displacement(), _half_width(), _overflow(), Hand the miter plane to every default piece whose GEOMETRY can cross it., A default piece cut by a corner it was supposed to stop short of.      With no (+4 more)
+Cohesion: 0.12
+Nodes (23): _apply_cuts(), _bevel_between(), build_assembly(), compose_modules(), _corner_rule(), CornerPiece, _default_module(), displacement() (+15 more)
 
 ### Community 171 - "Community 171"
 Cohesion: 0.15
@@ -976,12 +977,12 @@ Cohesion: 0.09
 Nodes (39): dict, export, float(), j(), s1(), scale(), zmode(), pc_unit() (+31 more)
 
 ### Community 176 - "Community 176"
-Cohesion: 0.10
-Nodes (21): 0. The one-paragraph answer, 2.1 Tonic — volumes, not curves, 2.2 The hierarchy — the crown jewel, 2.3 iGroom and Disney's XGen, 2.4 Where Houdini already crept into Disney's pipeline, 2.5 Sim-side artist features worth stealing, 2. Disney: Tonic + iGroom + Disney's XGen, 3.1 ⭐ Volume/tube sculpting with a persistent hierarchy and a length-preserving deformer (+13 more)
+Cohesion: 0.06
+Nodes (31): 0. The one-paragraph answer, 1.1 Lineage and status, 1.2 The paradigm — why this is not Houdini, 1.3 Grooming tools, 1.4 Clumping — a first-class subsystem, not a modifier, 1.5 Coils and braids, 1.6 Selection and masking, 1.7 The animation side — the part Houdini has no equivalent for (+23 more)
 
 ### Community 177 - "Community 177"
-Cohesion: 0.14
-Nodes (24): _bevels(), _caps_by_element(), _centroid(), corner_abut(), corner_breach(), _corner_caps(), corner_face_mate(), corner_outside_length() (+16 more)
+Cohesion: 0.12
+Nodes (28): _assembly_recs(), _bevels(), _caps_by_element(), _centroid(), corner_abut(), corner_breach(), _corner_caps(), corner_face_mate() (+20 more)
 
 ### Community 178 - "Community 178"
 Cohesion: 0.12
@@ -992,8 +993,8 @@ Cohesion: 0.22
 Nodes (7): Node, Initialize binding manager for a node.                  Args:             nod, Parameter Panel Utilities - Helper functions for creating floating parameter win, Open a floating parameter panel for a node using Houdini's native API., Show floating parameter panel for currently selected node.          Useful for, show_floating_parm_panel(), show_selected_node_parms()
 
 ### Community 181 - "Community 181"
-Cohesion: 0.08
-Nodes (30): _assembly_recs(), _attrs(), bank_adaptive(), _by_zmode(), _centre(), clip_nesting(), collect_warns(), elements() (+22 more)
+Cohesion: 0.10
+Nodes (26): _attrs(), bank_adaptive(), _by_zmode(), _centre(), clip_nesting(), collect_warns(), elements(), _is_upright() (+18 more)
 
 ### Community 182 - "Community 182"
 Cohesion: 0.22
@@ -1040,7 +1041,7 @@ Cohesion: 0.40
 Nodes (5): heightfield(), The same run draped over a surface - one `ConformPath`, so its memo     cache is, A quad heightfield, `cell` m per quad, `y = amp*sin(kx)*sin(kz)`. The     confor, 40 x 20 m conformed runs - MANY SHORT CURVES over gentle terrain, the     cityge, tripwire_streets_conformed()
 
 ### Community 195 - "Community 195"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (5): _inside_xz(), D124 - ids survive re-authoring, or 12.7's identity rule is a wish., D141 - THE SIGN, MEASURED AS THE THING IT DECIDES.          `place._frame` bui, Even-odd point-in-polygon in the plan, for the winding assertion., TestCanonicalFootprint
 
 ### Community 197 - "Community 197"
@@ -1056,16 +1057,16 @@ Cohesion: 0.22
 Nodes (9): 1. Where the 11 s actually went, 2. What shipped instead (D102), 3. The ladder, before and after - both runs in ONE process, 4. Parity - bit-identical, on every case in the suite, 5. Why NOT VEX or OpenCL, measured, 6. Files, Cycle 10 - final state, Cycle 10c - the deform path's rewrite, profiled first (2026-08-22) (+1 more)
 
 ### Community 201 - "Community 201"
-Cohesion: 0.10
-Nodes (12): HoverOutlineMixin, PyLineEdit, Fallback if hover_outline not available, QLineEdit, HoverOutlineMixin, Initialize hover outline animation.                  Args:             color:, Get current hover outline opacity (0.0 to 1.0), Set hover outline opacity (0.0 to 1.0) (+4 more)
+Cohesion: 0.27
+Nodes (4): HoverOutlineMixin, PyLineEdit, Fallback if hover_outline not available, QLineEdit
 
 ### Community 202 - "Community 202"
 Cohesion: 0.18
 Nodes (19): check(), drawn_covers_packed(), ground_y(), main(), png(), project(), rasterise(), PC-G1 and PC-G2 re-confirmed THROUGH THE PARM FACE, headless, with images. (+11 more)
 
 ### Community 203 - "Community 203"
-Cohesion: 0.20
-Nodes (10): 11.0 Two corrections, and one trap, 11.1 The verdict, per module and per kernel stage, 11.2 The ordered work list, 11.3 Parity strategy - how each port is proven equivalent, 11.4 What must NOT change, 11.5 Honest risks, 11.6 The Chain SOP question - PC-G0's fork decision should be RETIRED, 11.7 The one-paragraph summary for whoever implements this (+2 more)
+Cohesion: 0.29
+Nodes (7): Higher-degree junctions — untested, and structurally unreachable from the field, Plazas and roundabouts at degenerate points, S5 — Intersections, The invariant that was violated: **every corner is an arc, always**, Three constructions adopted from the civil sweep — 2026-08-09, Two rules the design left open, decided 2026-08-09, What the literature adds
 
 ### Community 204 - "Community 204"
 Cohesion: 0.38
@@ -1096,12 +1097,16 @@ Cohesion: 0.31
 Nodes (3): ⚠️ The one a naive weighted pick fails. Iterating the payload order         make, D16. A section halfway down a curve must not report u from 0., TestDeterminism
 
 ### Community 211 - "Community 211"
-Cohesion: 0.09
-Nodes (17): plan_rows(), The synthetic Y curve: a two-point line of the requested height., 7.2.1's Y precedence, in its documented order (D134).      `start`/`end` (the ar, [Row] for one array. `profile` is a height in metres or a `Curve`.      A `Curve, The same modules, fitted on their HEIGHT. Data, not a second solver., transpose_kit(), vertical_profile(), y_class() (+9 more)
+Cohesion: 0.12
+Nodes (9): Kit, kit_from_records(), Module, One kit piece (3.2). `size` is the nominal FITTED size in metres., D55 - does THIS module take the surface camber?, Payload order preserved - deterministic, never set iteration., Name first, then role, then a stand-in. Never returns None/[]., Build a Kit from the manifest dicts the adapter reads off points.      D4: `pc (+1 more)
 
 ### Community 212 - "Community 212"
 Cohesion: 0.24
 Nodes (8): coloured(), main(), near(), _one_prim(), The 2D array, looked at - PC-G5's images, headless.      hython tests/polychain/, The pieces within `radius` of a plan position - PC-G5's close-up.      A crop, n, A one-primitive copy - the deformed branch's piece, in world space., (display geometry, colour_of) - the unpacked copy plus its colour.      The colo
+
+### Community 213 - "Community 213"
+Cohesion: 0.09
+Nodes (5): Functions, PyDiv, PyTitleBar, PyTitleButton, _ToolTip
 
 ### Community 214 - "Community 214"
 Cohesion: 0.15
@@ -1116,8 +1121,8 @@ Cohesion: 0.25
 Nodes (4): polyChain 4.2 PLAN - what generation cannot state. No Houdini, ~0.03 s.      pyt, D122's `pc_bays` reader - a STRING an artist can author, so junk in it     degra, spans(), TestAlignedBays
 
 ### Community 217 - "Community 217"
-Cohesion: 0.20
-Nodes (5): ONE row of the stack: a band, a Y class, and what fills the band.      `s0`/`s1`, 7.3.3 - the row half of the 4D address: `<arrayId>#<row>`., [(points, closed, attrs)] - one entry per row, ready for the adapter.      The w, Row, row_loops()
+Cohesion: 0.13
+Nodes (11): plan_rows(), The synthetic Y curve: a two-point line of the requested height., ONE row of the stack: a band, a Y class, and what fills the band.      `s0`/`s1`, 7.3.3 - the row half of the 4D address: `<arrayId>#<row>`., 7.2.1's Y precedence, in its documented order (D134).      `start`/`end` (the ar, [Row] for one array. `profile` is a height in metres or a `Curve`.      A `Curve, The same modules, fitted on their HEIGHT. Data, not a second solver., Row (+3 more)
 
 ### Community 218 - "Community 218"
 Cohesion: 0.25
@@ -1144,12 +1149,12 @@ Cohesion: 0.12
 Nodes (16): 0. Status — DONE vs PENDING, so the next reader starts from truth, 1. Every attribute that leaves a node is prefixed `pf_`, 2. Internal attributes start with `_` and must not survive the output, 3. Migration — new code now, existing tools when next touched, 4. What this does not change, 5. Groups obey both rules, exactly as attributes do, 6. `_*` and `__*` are the same rule — do not add a third spelling, 7. Enforcement — `tests/hda/run_attrib_checks.py` (+8 more)
 
 ### Community 224 - "Community 224"
-Cohesion: 0.12
-Nodes (7): E3 / D118 - the walk, performed once as data at kit read., a kit with only `default` builds every cell and warns" - §7.10., 7.2.1's Extend To Side: `pc_extend = 0` means "this column STOPS at         the, 7.2's alias-collision rule, which nothing ran.          Two modules claim `def, ...and the control: only an ALIAS loses. Two modules authoring the         same, `facade.build` hands the style's module NAMES in as `extra_roles`.         Taki, TestRoleClosure
+Cohesion: 0.11
+Nodes (8): E3 / D118 - the walk, performed once as data at kit read., a kit with only `default` builds every cell and warns" - §7.10., 7.2.1's Extend To Side: `pc_extend = 0` means "this column STOPS at         the, 7.2's alias-collision rule, which nothing ran.          Two modules claim `def, ...and the control: only an ALIAS loses. Two modules authoring the         same, 7.2's marker cells are legal BY GRAMMAR and therefore unbounded, so         the, `facade.build` hands the style's module NAMES in as `extra_roles`.         Taki, TestRoleClosure
 
 ### Community 225 - "Community 225"
-Cohesion: 0.14
-Nodes (18): align_scope(), gate_pc_g6(), gate_pc_g6_hostile(), main(), payload_face(), Run every polyChain PHASE 2 check in a throwaway Houdini session.      hython te, PC-G6, 7.8's five conditions, each as a number.      Its own function rather tha, PC-G6's own conditions on the input the SHIPPED FIXTURE cannot be.      C2a's au (+10 more)
+Cohesion: 0.09
+Nodes (27): align_scope(), gate_pc_g6(), gate_pc_g6_hostile(), main(), payload_face(), Run every polyChain PHASE 2 check in a throwaway Houdini session.      hython te, PC-G6, 7.8's five conditions, each as a number.      Its own function rather tha, PC-G6's own conditions on the input the SHIPPED FIXTURE cannot be.      C2a's au (+19 more)
 
 ### Community 226 - "Community 226"
 Cohesion: 0.18
@@ -1164,8 +1169,8 @@ Cohesion: 0.50
 Nodes (4): bay_alignment(), _elem_cols(), {name: [value per ELEMENT]} - bulk reads, deduped by `pc_elem_id`.      One `pri, PC-G5 condition 3: [rows whose bay boundaries differ from the datum's,     rows]
 
 ### Community 229 - "Community 229"
-Cohesion: 0.09
-Nodes (26): array_offplane_m(), _by_array(), clip_caps_closed(), clip_input_warns(), clip_inside_m(), clip_mode_override(), clip_policy(), clip_preserve() (+18 more)
+Cohesion: 0.17
+Nodes (13): array_offplane_m(), _by_array(), clip_input_warns(), clip_inside_m(), clip_preserve(), no_sliced_cells(), [(element, frame, region)] - each element beside the clip data of its     OWN ar, The EXACT set of `pc_warn_*` names the clip INPUT raised, sorted.      7.6's val (+5 more)
 
 ### Community 230 - "Community 230"
 Cohesion: 0.50
@@ -1179,17 +1184,13 @@ Nodes (6): curve_prim_index(), _f32(), plan_geometry(), `x` as float32 storage w
 Cohesion: 0.25
 Nodes (4): End to end: geometry-shaped input, a plan out, nothing in between., 2.1's two-face principle: a style payload wired into input 3         "overrides, PC-G3's own scale target, on the plan side: `pc_elem_id` is the key         the, TestWholeCurves
 
-### Community 234 - "Community 234"
-Cohesion: 0.12
-Nodes (6): polyChain 7 ARRAY2D - the row stack and the cell lattice. No Houdini.      pyt, 7.2.2 - the lattice walk, and why Y sheds first., D120 - one payload, two axes, and `Style` itself does not change., TestFallbackChain, TestNoHoudini, TestStyleSplit
-
 ### Community 235 - "Community 235"
 Cohesion: 0.33
 Nodes (6): digest(), generic(), main(), Does every promoted parameter on the CityGen HDAs actually do anything?  ⚠️ It s, (geometry digest, attribute digest) for one output.      Split so an attribute-o, A perturbation for a parm nobody has written a value for yet.
 
 ### Community 236 - "Community 236"
-Cohesion: 0.14
-Nodes (14): 11.8 Port build log — P0..P5c, and P5V/P5cV's verifications of them, P0 — the three unasserted stamps closed, and the port's own tripwires committed (2026-08-22), P1 — the packed stamp bulk-written, and two more writers nobody was watching (2026-08-22), P2 — `Curve.sample`'s segment table cached and bisected (2026-08-22), P3 — the bend-resolution warning stops sampling the path three times a gap (2026-08-22), P4 — DECLINED, with the measurement that declines it (2026-08-22), P5 — the `ray` verb, batched: LANDED, with the port's first ZERO-movement conform (2026-08-22), P5b — the fourth `len(geo.prims())`, found while re-measuring for P6 (2026-08-22) (+6 more)
+Cohesion: 0.08
+Nodes (24): 11.0 Two corrections, and one trap, 11.1 The verdict, per module and per kernel stage, 11.2 The ordered work list, 11.3 Parity strategy - how each port is proven equivalent, 11.4 What must NOT change, 11.5 Honest risks, 11.6 The Chain SOP question - PC-G0's fork decision should be RETIRED, 11.7 The one-paragraph summary for whoever implements this (+16 more)
 
 ### Community 238 - "Community 238"
 Cohesion: 0.29
@@ -1200,7 +1201,7 @@ Cohesion: 0.29
 Nodes (4): ⚠️ THE MIRROR DUTY, post-ruling form. The M4 audit's headline was         a 12.9, ⚠️ Three tests iterate `JUNCTION_TYPE_VOCAB` and one asserts         membership, ⚠️ THE GAP THE REVERT'S AUDIT FOUND: `default_junction_type` had NO         unit, TestJunctionType
 
 ### Community 240 - "Community 240"
-Cohesion: 0.50
+Cohesion: 0.40
 Nodes (3): Marker, 3.1's marker point. `u` (0-1) OR `dist` (m, negative = from the end)., Resolve to metres along `curve`. Out-of-range values are clamped.
 
 ### Community 241 - "Community 241"
@@ -1224,20 +1225,16 @@ Cohesion: 0.25
 Nodes (8): 17.1 The scoreboard — 17 findings, 17 verdicts, 17.2 The parity half — five divergences, and why the suite could not see any of them, 17.3 The performance half — three findings, and the cycle's own attribution was wrong, 17.4 What the suite gained, and the checks that would have caught these, 17.5 conventions.md §2 and §5, adopted, 17.6 Decisions, 17.7 What is NOT done, 17. Native network build log — cycle N-2V (the independent review, worked through)
 
 ### Community 246 - "Community 246"
-Cohesion: 0.22
-Nodes (11): baseline_movement(), exit_code(), main(), port_tripwires(), Run every polyChain geometry check in a throwaway Houdini session.      hython t, One case, read once - so a check never re-derives what another already     measu, The sixteen properties the differential comparator cannot state.      v2: was ~6, Every baselined value this run did not reproduce, as text.      D210: used to be (+3 more)
+Cohesion: 0.33
+Nodes (4): Override, _override_for(), [Override] off the override input, in payload order (D63).      An unconnected i, read_overrides()
 
 ### Community 247 - "Community 247"
 Cohesion: 0.29
 Nodes (4): (X `Style`, Y `Style`) off one payload. `Style` itself is unchanged.      Rules, split_style(), Payload order preserved: the first rule that yields wins.          D119 - with, Style
 
-### Community 248 - "Community 248"
-Cohesion: 0.50
-Nodes (4): align_rows(), datum_bays(), {section index: default-fill piece count} for ONE row curve.      7.4's own sent, D122 ALIGNED, stamped as data: every row but the datum carries the     datum's b
-
-### Community 251 - "Community 251"
-Cohesion: 0.20
-Nodes (10): 1.1 Lineage and status, 1.2 The paradigm — why this is not Houdini, 1.3 Grooming tools, 1.4 Clumping — a first-class subsystem, not a modifier, 1.5 Coils and braids, 1.6 Selection and masking, 1.7 The animation side — the part Houdini has no equivalent for, 1.8 Transferring a groom (+2 more)
+### Community 249 - "Community 249"
+Cohesion: 0.40
+Nodes (3): M, THE MUTATION REGISTRY - every polyChain check paired with the edit that proves i, One registered mutation.      `edits`   ((repo-relative path, exact old text, ne
 
 ### Community 253 - "Community 253"
 Cohesion: 0.40
@@ -1246,14 +1243,6 @@ Nodes (5): Docs, Multi-agent / shared-branch rules, Non-negotiable working rules
 ### Community 254 - "Community 254"
 Cohesion: 0.50
 Nodes (4): _cells(), clip_stamp(), [{pc_cell, pc_yclass, pc_array, pc_row, pc_elem_id, ...}] per element., 7.3.3's `pc_clipped` (0/1): [elements on a clipped row, total]. Under     D137 t
-
-### Community 257 - "Community 257"
-Cohesion: 0.33
-Nodes (6): 25.0 The scoreboard — five mutations re-run, five reddened, 25.1 D210 — and the twelve claims, re-checked from scratch a second time, 25.2 D209's other half — the flakiness, not just the floor, 25.3 One thing the D206 re-run exposes, and it is minor, 25.4 What this cycle asks of the next agent, 25. Native network build log — cycle N-4D (D206–D210 re-verified, and the brief was stale)
-
-### Community 258 - "Community 258"
-Cohesion: 0.29
-Nodes (5): _identity_remap(), _prepare(), (kernel curve, Path on the REAL curve, flat->real remap, fillet warns).      4.5, s on the flattened curve -> s on the real one (D26, slope fixing).      Both cur, _Remap
 
 ### Community 259 - "Community 259"
 Cohesion: 0.25
@@ -1282,22 +1271,22 @@ Nodes (22): _anchor_transform(), _at_height(), _cross(), _deform_positions(), _d
 ## Knowledge Gaps
 - **994 isolated node(s):** `Project Overview`, `Package Structure`, `Environment Variables`, `Temporary / One-Off Scripts`, `Houdini Bridge - AI Agent Integration` (+989 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **18 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Node` connect `Community 179` to `Community 0`, `Community 24`, `Community 148`, `Community 239`?**
-  _High betweenness centrality (0.101) - this node is a cross-community bridge._
-- **Why does `Rule` connect `Community 149` to `Community 161`, `Community 194`, `Community 3`, `Community 103`, `Community 8`, `Community 73`, `Community 138`, `Community 186`, `Community 234`, `Community 105`, `Community 135`, `Community 54`, `Community 151`, `Community 24`, `Community 154`, `Community 188`?**
-  _High betweenness centrality (0.095) - this node is a cross-community bridge._
-- **Why does `Result` connect `Community 108` to `Community 32`, `Community 228`, `Community 229`, `Community 177`, `Community 181`, `Community 24`, `Community 156`, `Community 254`?**
-  _High betweenness centrality (0.077) - this node is a cross-community bridge._
+- **Why does `Node` connect `Community 179` to `Community 0`, `Community 239`, `Community 148`, `Community 15`?**
+  _High betweenness centrality (0.102) - this node is a cross-community bridge._
+- **Why does `Rule` connect `Community 149` to `Community 161`, `Community 194`, `Community 3`, `Community 103`, `Community 8`, `Community 73`, `Community 186`, `Community 105`, `Community 234`, `Community 135`, `Community 15`, `Community 54`, `Community 151`, `Community 153`, `Community 154`, `Community 188`?**
+  _High betweenness centrality (0.096) - this node is a cross-community bridge._
+- **Why does `Result` connect `Community 108` to `Community 32`, `Community 228`, `Community 229`, `Community 15`, `Community 177`, `Community 181`, `Community 156`, `Community 254`?**
+  _High betweenness centrality (0.078) - this node is a cross-community bridge._
 - **Are the 35 inferred relationships involving `Rule` (e.g. with `build_all()` and `clip_style()`) actually correct?**
   _`Rule` has 35 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 16 inferred relationships involving `AssetBrowserWidget` (e.g. with `AssetPlaceNodeUI` and `._setup_ui()`) actually correct?**
   _`AssetBrowserWidget` has 16 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `123.py - Auto-loaded on Houdini startup Registers custom viewer states`, `Register all Polyfactory viewer states`, `get the context where the drop happened      Returns:         hou.NetowrkEdit` to the rest of the system?**
-  _2094 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _2095 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.0967741935483871 - nodes in this community are weakly interconnected._
