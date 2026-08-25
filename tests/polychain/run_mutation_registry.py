@@ -84,12 +84,21 @@ RANK = {"SKIP": 0, "PASS": 1, "FAIL": 2}
 
 # --- the throwaway copy ------------------------------------------------------
 
-def export(dest):
-    """`git archive HEAD` into `dest`.  Read-only against the real repo."""
+def export(dest, rev="HEAD"):
+    """`git archive <rev>` into `dest`.  Read-only against the real repo.
+
+    ⚠️ `rev` IS NOT DECORATION.  The parallel sweep shares ONE control build
+    across 32 work items and keys it to a commit; if a commit lands on the
+    branch while the sweep runs, every later item reads a different `HEAD`,
+    decides the control is stale, and recomputes it - 32 x 8.5 minutes for an
+    answer that was already on disk.  Observed live during this cycle, with
+    two commits landing mid-sweep.  `pdg_build.py` therefore resolves the
+    commit ONCE and passes `--head <sha>` to every item.
+    """
     assert os.path.abspath(dest) != os.path.abspath(REPO)
     os.makedirs(dest)
     tar = subprocess.Popen(["tar", "-x", "-C", dest], stdin=subprocess.PIPE)
-    arc = subprocess.Popen(["git", "archive", "HEAD"], cwd=REPO,
+    arc = subprocess.Popen(["git", "archive", rev], cwd=REPO,
                            stdout=tar.stdin)
     arc.wait()
     tar.stdin.close()
@@ -214,12 +223,12 @@ def apply(root, mut):
     return "; ".join(notes)
 
 
-def execute(mut, control):
+def execute(mut, control, head="HEAD"):
     """One mutation, in its own export.  -> (verdict, detail, reddened set)"""
     root = tempfile.mkdtemp(prefix="pcmut_")
     root = os.path.join(root, "tree")
     try:
-        export(root)
+        export(root, head)
         detail = apply(root, mut)
         if mut.rebuild:
             rebuild(root)
@@ -320,8 +329,12 @@ def main():
     # `--state` correctly printed `SURVIVED ... nothing at all`, exit 1.
     state_path = (argv[argv.index("--state") + 1]
                   if "--state" in argv else None)
-    head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO)
-    head = head.decode().strip()
+    # `--head SHA` freezes the subject commit for the whole sweep - see
+    # `export`.  Without it a commit landing mid-run invalidates the shared
+    # control for every item that has not started yet.
+    head = (argv[argv.index("--head") + 1] if "--head" in argv else
+            subprocess.check_output(["git", "rev-parse", "HEAD"],
+                                    cwd=REPO).decode().strip())
     state = {"head": head, "control": {}, "results": {}}
     if state_path and os.path.exists(state_path):
         with open(state_path) as fh:
@@ -369,7 +382,7 @@ def main():
     root = os.path.join(tempfile.mkdtemp(prefix="pcmut_ctl_"), "tree")
     try:
         if todo:
-            export(root)
+            export(root, head)
             rebuild(root)
         for r in todo:
             # ⚠️ THE CONTROL IS RE-RUN BEFORE IT IS DECLARED BROKEN, and its
@@ -435,7 +448,7 @@ def main():
                 cached[2])
         else:
             try:
-                verdict, detail, red = execute(mut, control)
+                verdict, detail, red = execute(mut, control, head)
             except Exception as exc:                            # noqa: BLE001
                 verdict, detail, red = "STALE", "%s: %s" % (
                     type(exc).__name__, str(exc)[:300]), set()

@@ -198,6 +198,14 @@ def build(mode, mut_indices, seeds=SEEDS, slots=None):
     #    shared file each of the 32 items pays a pristine export, an HDA
     #    rebuild and a full runner for the same answer; measured, the control
     #    alone is 8 min 24 s because `run_native_checks.py` is 430 s.
+    # ⚠️ THE SUBJECT COMMIT IS RESOLVED ONCE AND PASSED TO EVERY ITEM.  Two
+    # commits landed on the branch during this cycle's first full sweep; each
+    # later item would have read a different HEAD, called the shared control
+    # stale and recomputed it - 32 x 8.5 minutes for an answer already on
+    # disk.  Freezing it also means the sweep reports on ONE tree, which is
+    # the only thing that makes its verdicts comparable to each other.
+    head = subprocess.check_output(["git", "rev-parse", "HEAD"],
+                                   cwd=REPO).decode().strip()
     ctl = "%s/control.json" % OUT
     if os.path.exists(ctl):
         os.remove(ctl)
@@ -209,8 +217,8 @@ def build(mode, mut_indices, seeds=SEEDS, slots=None):
     # that has to survive an 8-minute cook.
     control.parm("pdg_command").set(_cmd(
         HY, "tests/polychain/run_mutation_registry.py",
-        "--control-only", "--control", _q(ctl)))
-    made[control] = "the pristine control, shared by every mutation"
+        "--control-only", "--head", head, "--control", _q(ctl)))
+    made[control] = "the pristine control at %s, shared by every mutation" % head[:8]
 
     # 5. one work item per selected mutation, downstream of the control so
     #    PDG serialises that dependency for us.
@@ -227,7 +235,7 @@ def build(mode, mut_indices, seeds=SEEDS, slots=None):
     muts.parm("pdg_command").set(_cmd(
         HY, "tests/polychain/run_mutation_registry.py",
         "--selection", _q(sel), "--index", "`@pdg_index`",
-        "--control", _q(ctl),
+        "--head", head, "--control", _q(ctl),
         "--json", _q("%s/mut_`@pdg_index`.json" % OUT)))
     made[muts] = "%d of %d registered mutations" % (len(mut_indices),
                                                     len(REG.MUTATIONS))
