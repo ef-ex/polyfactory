@@ -355,10 +355,20 @@ def main():
         g = big.geometry()
         times[mode] = time.time() - t0
         counts[mode] = (len(g.prims()), len(g.points()))
-    check("proxy_is_interactive", times["proxy"] < 1.0,
+    # V4 finding 4: an ABSOLUTE wall-clock ceiling is load-sensitive, and this
+    # one reddened as collateral under the 32-way sweep while passing alone -
+    # a flaky check is a defect in the check. Under pdg_build's parallel sweep
+    # (PC_PARALLEL=1) the ceiling is not enforced; the sequential registry and
+    # a solo run still enforce it, which is the lane a timing contract belongs
+    # to. What this cannot see under the sweep: a real interactivity regression
+    # - the solo lane is what catches that.
+    loaded = os.environ.get("PC_PARALLEL") == "1"
+    check("proxy_is_interactive", loaded or times["proxy"] < 1.0,
           round(times["proxy"], 3),
-          "full %.3f s, plan %.3f s, %d pieces"
-          % (times["full"], times["plan"], counts["full"][0]))
+          "full %.3f s, plan %.3f s, %d pieces%s"
+          % (times["full"], times["plan"], counts["full"][0],
+             " (ceiling not enforced under the parallel sweep)"
+             if loaded else ""))
     check("plan_is_one_point_per_piece",
           counts["plan"][1] == counts["full"][0], counts["plan"][1],
           "vs %d pieces" % counts["full"][0])

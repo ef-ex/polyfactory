@@ -326,6 +326,12 @@ def main():
     print("  slots: %s" % (slots or "CPU count less one"))
     print("  scratch: %s" % OUT)
 
+    # V4 finding 4: `proxy_is_interactive` (an absolute wall-clock ceiling)
+    # reddened under the 32-way sweep and not alone. Work items inherit this
+    # env, and the runners holding such ceilings relax them under it; the
+    # sequential/solo lane still enforces them.
+    os.environ["PC_PARALLEL"] = "1"
+
     t0 = time.time()
     top, made = build(mode, picked, seeds, slots)
     rows, red = cook(top, made)

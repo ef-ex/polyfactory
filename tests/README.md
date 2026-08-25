@@ -186,6 +186,9 @@ Three things the audit found that the build report did not say:
    when the same mutation ran alone. It credits nothing, so no verdict moved — but by the
    skill's own rule a flaky check is a defect in the check, and this is the second time
    contention has moved a `native`/`hda` result (see the false survivor above).
+   **FIXED 2026-08-25**: `pdg_build.py` exports `PC_PARALLEL=1` and `proxy_is_interactive`
+   does not enforce its absolute wall-clock ceiling under it — the sequential registry and
+   a solo run still do.
 
 The three PRODUCTION defects the new instruments found are **recorded, not fixed** — this was a
 test cycle — and each is a standing check that fails the day it is fixed, so none can be closed

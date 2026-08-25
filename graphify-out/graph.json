@@ -13440,7 +13440,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager",
-      "community": 56,
+      "community": 42,
       "norm_label": "bindingmanager"
     },
     {
@@ -13540,7 +13540,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_poll_parm_changes",
-      "community": 56,
+      "community": 42,
       "norm_label": "._poll_parm_changes()"
     },
     {
@@ -13560,7 +13560,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_cleanup",
-      "community": 56,
+      "community": 42,
       "norm_label": ".cleanup()"
     },
     {
@@ -13580,7 +13580,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_14",
-      "community": 56,
+      "community": 42,
       "norm_label": "manages parameter bindings for an hda python panel ui.          coordinates up"
     },
     {
@@ -13680,7 +13680,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_160",
-      "community": 56,
+      "community": 42,
       "norm_label": "poll for external parameter changes (from ui, expressions, etc)."
     },
     {
@@ -13700,7 +13700,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_192",
-      "community": 56,
+      "community": 42,
       "norm_label": "stop polling and clean up resources."
     },
     {
@@ -41697,7 +41697,7 @@
       "label": "The v2 commands",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L201",
+      "source_location": "L204",
       "_origin": "ast",
       "id": "tests_readme_the_v2_commands",
       "community": 72,
@@ -41707,7 +41707,7 @@
       "label": "The v1 history",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L269",
+      "source_location": "L272",
       "_origin": "ast",
       "id": "tests_readme_the_v1_history",
       "community": 62,
@@ -41717,7 +41717,7 @@
       "label": "The other runners",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L281",
+      "source_location": "L284",
       "_origin": "ast",
       "id": "tests_readme_the_other_runners",
       "community": 62,
@@ -41727,7 +41727,7 @@
       "label": "Why this exists",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L324",
+      "source_location": "L327",
       "_origin": "ast",
       "id": "tests_readme_why_this_exists",
       "community": 62,
@@ -41737,7 +41737,7 @@
       "label": "Numbers first, renders second",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L338",
+      "source_location": "L341",
       "_origin": "ast",
       "id": "tests_readme_numbers_first_renders_second",
       "community": 62,
@@ -41747,7 +41747,7 @@
       "label": "The baselines",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L353",
+      "source_location": "L356",
       "_origin": "ast",
       "id": "tests_readme_the_baselines",
       "community": 62,
@@ -41757,7 +41757,7 @@
       "label": "Layout",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L368",
+      "source_location": "L371",
       "_origin": "ast",
       "id": "tests_readme_layout",
       "community": 62,
@@ -41767,7 +41767,7 @@
       "label": "The planner's calibration is a baseline too",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L401",
+      "source_location": "L404",
       "_origin": "ast",
       "id": "tests_readme_the_planner_s_calibration_is_a_baseline_too",
       "community": 62,
@@ -41777,7 +41777,7 @@
       "label": "The node schema, and why a closed vocabulary is not enough",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L428",
+      "source_location": "L431",
       "_origin": "ast",
       "id": "tests_readme_the_node_schema_and_why_a_closed_vocabulary_is_not_enough",
       "community": 62,
@@ -41787,7 +41787,7 @@
       "label": "And a second check, because the first one's blind spot had already bitten",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L473",
+      "source_location": "L476",
       "_origin": "ast",
       "id": "tests_readme_and_a_second_check_because_the_first_one_s_blind_spot_had_already_bitten",
       "community": 62,
@@ -41797,7 +41797,7 @@
       "label": "The closure sweep, and why it is a file rather than a habit",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L531",
+      "source_location": "L534",
       "_origin": "ast",
       "id": "tests_readme_the_closure_sweep_and_why_it_is_a_file_rather_than_a_habit",
       "community": 62,
@@ -41807,7 +41807,7 @@
       "label": "Test the union, and every branch",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L561",
+      "source_location": "L564",
       "_origin": "ast",
       "id": "tests_readme_test_the_union_and_every_branch",
       "community": 62,
@@ -41817,7 +41817,7 @@
       "label": "The cases",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L580",
+      "source_location": "L583",
       "_origin": "ast",
       "id": "tests_readme_the_cases",
       "community": 62,
@@ -41827,7 +41827,7 @@
       "label": "Known-failing \u2014 27 rows (re-measured 2026-08-17, post-M5.3)",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L632",
+      "source_location": "L635",
       "_origin": "ast",
       "id": "tests_readme_known_failing_27_rows_re_measured_2026_08_17_post_m5_3",
       "community": 62,
@@ -42054,7 +42054,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/widgets/__init__.py",
       "source_location": "L1",
-      "community": 56,
+      "community": 35,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_widgets_init_py"
     }
@@ -84143,9 +84143,9 @@
       "source_file": "tests/polychain/gate_images.py",
       "source_location": "L225",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gate_images_rationale_225",
-      "target": "polychain_gate_images_terrain_node",
-      "confidence_score": 1.0
+      "target": "polychain_gate_images_terrain_node"
     },
     {
       "relation": "calls",
@@ -84175,9 +84175,9 @@
       "source_file": "tests/polychain/gate_images.py",
       "source_location": "L256",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "polychain_gate_images_rationale_256",
-      "target": "polychain_gate_images_through_the_face",
-      "confidence_score": 1.0
+      "target": "polychain_gate_images_through_the_face"
     },
     {
       "relation": "contains",
@@ -108509,5 +108509,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "f11b38ecbe755c611b3dc34b38fcbd1c11d606c4"
+  "built_at_commit": "fb8311d779008c3faec5059ca4f89e0927437b96"
 }
