@@ -96,6 +96,13 @@ def authored_kit():
         K.box_mesh(r, 0.2 + 0.1 * col, W - 0.2, 0.3 + 0.2 * row,
                    H - 0.4 - 0.1 * row, 0.05, D / 2.0, 1)
         m.merge(r)
+        # D20 SAYS A MODULE IS CENTRED ACROSS Z, and this fixture was not -
+        # wall plane at 0, relief to +0.2, so its Z centre was 0.075. That is
+        # what D272 now normalises, and a fixture that disagrees with the
+        # frame it is testing is not a reference. Centred here, ONCE, off its
+        # own bounds: the offset is not a magic number.
+        zc = 0.5 * (m.boundingBox().minvec()[2] + m.boundingBox().maxvec()[2])
+        m.transform(hou.hmath.buildTranslate(0.0, 0.0, -zc))
         # pc_size.z is the module's DEPTH and the slicer measures it off the
         # geometry, so the fixture states the geometry's own depth rather
         # than a round number - the check compares all three components.
@@ -119,15 +126,16 @@ def tiled_chunk(kit_geo):
     return geo
 
 
-def module_points(kit_geo):
+def module_points(kit_geo, dz=0.0):
     """{name: sorted rounded point positions} - the retessellation-proof
-    fingerprint of every module in a kit."""
+    fingerprint of every module in a kit. `dz` is D272's known Z offset."""
     out = {}
     for prim in kit_geo.prims():
         src = prim.getEmbeddedGeometry()
         flat = list(src.pointFloatAttribValues("P"))
         out[prim.points()[0].attribValue("pc_name")] = sorted(
-            tuple(round(v, 6) for v in flat[3 * i:3 * i + 3])
+            (round(flat[3 * i], 6), round(flat[3 * i + 1], 6),
+             round(flat[3 * i + 2] + dz, 6))
             for i in range(src.intrinsicValue("pointcount")))
     return out
 
@@ -221,7 +229,12 @@ def main():
     cells, pairs, sliced, warns = slice_of(chunk, xsize=W, ysize=H)
 
     # 1. THE ORACLE - every module, every point, back out of the chunk.
-    want, got = module_points(hand), module_points(sliced)
+    #    D272 moves the kit to a canonical Z, and the offset is EXACT and
+    #    known here, so the oracle stays exact: it is the authored module
+    #    shifted by the chunk's own Z centre, not a comparison with Z dropped.
+    zc = 0.5 * (chunk.boundingBox().minvec()[2]
+                + chunk.boundingBox().maxvec()[2])
+    want, got = module_points(hand, dz=-zc), module_points(sliced)
     missing = sorted(set(want) - set(got))
     dev = 0.0
     for name in sorted(set(want) & set(got)):
@@ -243,15 +256,28 @@ def main():
 
     # 2. D131's JIGSAW, on a chunk whose bands are NOT already equal - the
     #    even fixture above cannot fail this and would be decoration.
+    #
+    #    ⚠️ AGAINST THE NUMBER THE ARTIST TYPED, NOT AGAINST THE OTHER CELLS.
+    #    This measured the SPREAD of the fill extents, and `axis_bands` sets
+    #    every fill band to `a + w` by construction, so the spread is
+    #    structurally zero and `0.000e+00 m` was a constant rather than
+    #    evidence (worst 8.882e-16 over sixteen layouts, measured). 1.5 m is
+    #    an input, not a derived quantity, and the bands it has to overrule
+    #    are 1.30 / 1.80 / 1.30.
+    #
+    #    The CAP FLAGS come from the plan's own bands. Re-deriving them by
+    #    `split_role`-ing the composed name read a cap as fill whenever a
+    #    class did not parse.
     uneven = [("x", 1.3, ""), ("x", 3.1, ""), ("x", 4.4, "")]
-    _c, _p, ukit, _w = slice_of(chunk, xsize=0.0, ysize=H, guides=uneven)
+    ucells, _p, ukit, _w = slice_of(chunk, xsize=1.5, ysize=H, guides=uneven)
     sizes = module_attr(ukit, "pc_size")
-    fill = [v for k, v in sizes.items()
-            if S.split_role(k.split("_2")[0])[0] not in S.CAPS]
-    spread = (max(v[0] for v in fill) - min(v[0] for v in fill)) if fill else -1
-    check("slice_jigsaw_size_m", 0.0 <= spread <= 1e-6, "%.3e m" % spread,
-          "%d fill cells of %d, bands 1.30 / 1.80 / 1.30 wide before the "
-          "jigsaw" % (len(fill), len(sizes)))
+    fill = [sizes[c.name][0] for c in ucells if not c.xcap]
+    dev = max(abs(v - 1.5) for v in fill) if fill else -1.0
+    check("slice_jigsaw_size_m", len(fill) >= 2 and 0.0 <= dev <= 1e-6,
+          "%.3e m" % dev,
+          "%d fill cells of %d measured against the 1.5 m bay the artist "
+          "asked for; the bands under it are 1.30 / 1.80 / 1.30"
+          % (len(fill), len(sizes)))
 
     # 3. THE REFIT - the two sides of every cut plane, measured on geometry.
     gap, seen = 0.0, 0
@@ -327,12 +353,11 @@ def main():
     # as the badge and the message an artist reads. Reading the stage inside
     # the SHIPPED instance is still the shipped artifact, not a rig.
     vnode.geometry()                     # warnings exist only after a cook
-    said = [w for w in vnode.node("sl_kit").warnings()
-            if "does not reach" in w]
+    said = vnode.evalParm("notes")
     check("slice_reports_a_void",
-          bool(said) and "0.5000 m of void" in said[0],
-          "%d warn" % len(said),
-          said[0][:80] if said else "the void detector said nothing")
+          "does not reach" in said and "0.5000 m of void" in said,
+          "%d char" % len(said),
+          said[:80] if said else "the void detector said nothing")
 
     # 8. THE SECOND BRANCH - `Show = Where The Cuts Land` actually cooks.
     cnode = slice_node(geo_node, "cellview", chunk, show=1)
@@ -347,14 +372,24 @@ def main():
     # 9. 5.1's METADATA, read off the SAVED asset - never off this script.
     defn = hou.hda.definitionsInFile(SLICE_HDA)[0]
     ds = defn.sections()["DialogScript"].contents()
+    # ⚠️ `units` IS A PARMTAG. "(m)" in a LABEL is a caption an artist reads
+    # and Houdini does not: no unit menu, no conversion of a typed `12in`.
+    # All three lengths shipped without it while the cycle report called the
+    # page "ranged/united/helped".
+    ptg = defn.parmTemplateGroup()
+    united = [p for p in ("bay", "storey", "humanscale")
+              if ptg.find(p) is not None
+              and ptg.find(p).tags().get("units") == "m"]
     ok = ("Poly Factory/Modeling" in
           defn.sections().get("Tools.shelf", _Empty()).contents()
           and defn.icon() == "SOP_clip"
           and 'inputlabel\t1\t"Chunk"' in ds
           and 'inputlabel\t2\t"Guides (optional)"' in ds
-          and 'outputlabel\t1\t"Kit"' in ds)
+          and 'outputlabel\t1\t"Kit"' in ds
+          and len(united) == 3)
     check("slice_hda_metadata", ok, defn.icon(),
-          "TAB submenu, icon and every port label, off the .hda")
+          "TAB submenu, icon, every port label and %d/3 metre units, off "
+          "the .hda" % len(united))
 
     # 10. D24's WARN-NEVER-BLOCK, on the five things an artist gets wrong.
     #     Every one of these was measured by hand while building C1; the
@@ -402,6 +437,88 @@ def main():
           "%d cell" % len(freport["plan"]),
           "%d distinct roles, %d fallbacks - every cell a real module"
           % (len(cellset), len(fell)))
+
+    # 12. THE ARTIST'S OWN SURFACE, AREA IN VS AREA OUT.
+    #     ⚠️ THE ORACLE ABOVE CANNOT REACH THIS AND NEITHER COULD ANY IMAGE.
+    #     Its nine modules are CLOSED SOLIDS cut on planes that coincide with
+    #     faces they already have, so it never runs `polyfill`'s open-boundary
+    #     branch. A plain single-sided wall - the commonest facade chunk there
+    #     is - came back at 108.000 m2 from 54.000 (every cell carrying a
+    #     mirrored copy of itself), and a wall with a window came back with
+    #     the WINDOW FILLED IN plus ten zero-area polygons. `validate()` was
+    #     clean and `PC-C1_facade.png` looked right, because a wireframe
+    #     cannot draw a filled hole. One number kills both.
+    surf = []
+    for tag, holes, want_area in (("plain", False, 54.0),
+                                  ("window", True, 50.0)):
+        n = slice_node(geo_node, "sheet_" + tag, sheet(holes), bay=3.0,
+                       storey=2.0)
+        got, degen = _kit_area(n.geometry())
+        surf.append((tag, want_area, got, degen))
+    worst = max(abs(a - g) for _t, a, g, _d in surf)
+    degen = sum(d for _t, _a, _g, d in surf)
+    check("slice_keeps_the_artists_surface",
+          len(surf) == 2 and worst <= 1e-4 and degen == 0,
+          "%.4f m2" % worst,
+          "; ".join("%s %.3f -> %.3f m2, %d degenerate prim"
+                    % (t, a, g, d) for t, a, g, d in surf))
+
+    # 13. D24 REACHING THE ARTIST. Not one `pc_slice:` line did: a Python SOP
+    #     inside an HDA cannot warn on the HDA and nothing propagates it, so
+    #     the shipped node read CLEAN on an unwired input, a bay wider than
+    #     the chunk and a malformed guide alike. The `Notes` parm is the
+    #     surface, and this reads it off the SHIPPED node.
+    unwired = geo_node.createNode("pf_polychain_slice", "notes_unwired")
+    unwired.geometry()
+    said, clean = unwired.evalParm("notes"), node.evalParm("notes")
+    check("slice_notes_reach_the_artist",
+          "nothing on input 1" in said and clean == "ok",
+          "%d char" % len(said),
+          "unwired says %r; a chunk it can slice says %r"
+          % (said[:44], clean[:20]))
+
+    # 14. THE CELL FRAME AGAINST THE GEOMETRY IN IT, ON BOTH CORNERS.
+    #     `slice_kit` measured the LOW corner only and nothing clamps a fill
+    #     band to the chunk, so a 0.4 m chunk asked for a 5 m bay emitted
+    #     `pc_size = (5, 5, 0.1)` around 0.4 m of wall and validated clean.
+    tiny = hou.Geometry()
+    K.box_mesh(tiny, 0.0, 0.4, 0.0, 0.4, -0.05, 0.05, 1)
+    short = slice_node(geo_node, "frame_short", tiny, bay=5.0, storey=5.0,
+                       sides=0, capstop=0)
+    flush = _frame_gap(out)
+    bad = _frame_gap(short.geometry())
+    check("slice_cell_frame_gap_m",
+          flush[0] <= 1e-6 and abs(bad[0] - 4.6) <= 1e-4
+          and "high" in short.evalParm("notes"),
+          "%.3e m" % flush[0],
+          "9 cells flush with their frames; the 0.4 m chunk given a 5 m bay "
+          "is %.3f m short at its %s, and says so" % (bad[0], bad[1]))
+
+    # 15. D272's CANONICAL Z, and the union that proves it matters. X and Y
+    #     were normalised and Z was not, so a facade modelled IN PLACE on a
+    #     building - the normal workflow - built a fence 49.90 m behind its
+    #     own curve, silently.
+    far = hou.Geometry()
+    K.box_mesh(far, 120.0, 130.0, 8.0, 11.0, 49.9, 50.1, 1)
+    fnode = slice_node(geo_node, "zfar", far)
+    lo, hi = _kit_z(fnode.geometry())
+    fbb = chain_node(geo_node, "chain_far", fnode.geometry(),
+                     "far").geometry().boundingBox()
+    check("slice_kit_z_is_canonical",
+          abs(lo + hi) <= 1e-5 and abs(fbb.minvec()[2]) <= 0.11,
+          "%.3e m" % (0.5 * (lo + hi)),
+          "modules span z [%.3f %.3f]; the fence they build sits at z %.2f, "
+          "not 49.90 m behind the curve" % (lo, hi, fbb.minvec()[2]))
+
+    # 16. THE CUT FACES' UV. `dress_caps` was written for the miter cut and
+    #     projects (local z, local y); on a Y cut plane `local y` is constant
+    #     across the whole face, so HALF of every sliced module's cut faces
+    #     shipped a zero-area UV island - on real, visible 0.6 m2 faces.
+    span, ncap = _worst_cap_uv(fnode.geometry())
+    check("slice_cap_uv_spans_two_axes", ncap >= 4 and span > 1e-6,
+          "%.4f m" % span,
+          "%d cut faces measured (0 would make this vacuous); the narrowest "
+          "UV island is %.4f m across" % (ncap, span))
 
     # 11. THE IMAGES - and the count that proves they contain their subject.
     if not os.path.isdir(IMAGES):
@@ -452,6 +569,84 @@ def _by_cell(geo):
                     120 + (i * 31) % 130)) for i, n in enumerate(names))
     values = list(geo.primStringAttribValues("pc_cell"))
     return lambda prim: col.get(values[prim.number()], (200, 200, 200))
+
+
+def sheet(holes=False):
+    """One single-sided wall, optionally with a 2 x 2 m window modelled as a
+    hole. 9 x 6 m = 54 m2, or 50 m2 with the window. NOT a closed solid - and
+    that is the whole point, because the 3 x 3 oracle fixture is."""
+    geo = hou.Geometry()
+    xs, ys = (0.0, 3.5, 5.5, 9.0), (0.0, 2.0, 4.0, 6.0)
+    pts = {}
+    for i, x in enumerate(xs):
+        for j, y in enumerate(ys):
+            p = geo.createPoint()
+            p.setPosition((x, y, 0.0))
+            pts[(i, j)] = p
+    for i in range(3):
+        for j in range(3):
+            if holes and (i, j) == (1, 1):
+                continue
+            poly = geo.createPolygon()
+            for k in ((i, j), (i + 1, j), (i + 1, j + 1), (i, j + 1)):
+                poly.addVertex(pts[k])
+    return geo
+
+
+def _modules(kit_geo):
+    for prim in kit_geo.prims():
+        yield (prim.points()[0], prim.getEmbeddedGeometry())
+
+
+def _kit_area(kit_geo):
+    """(total surface area of every module, count of zero-area prims)."""
+    total, degen = 0.0, 0
+    for _pt, src in _modules(kit_geo):
+        for prim in src.prims():
+            a = prim.intrinsicValue("measuredarea")
+            total += a
+            degen += 1 if a < 1e-9 else 0
+    return (total, degen)
+
+
+def _frame_gap(kit_geo):
+    """The worst of the four distances between a module's own frame
+    (0 .. `pc_size`) and the geometry in it. (metres, "<name> <side>")."""
+    worst = (0.0, "none")
+    for pt, src in _modules(kit_geo):
+        size, bb = pt.attribValue("pc_size"), src.boundingBox()
+        lo, hi = bb.minvec(), bb.maxvec()
+        for gap, side in ((lo[0], "low x"), (lo[1], "low y"),
+                          (size[0] - hi[0], "high x"),
+                          (size[1] - hi[1], "high y")):
+            if gap > worst[0]:
+                worst = (gap, "%s %s" % (pt.attribValue("pc_name"), side))
+    return worst
+
+
+def _kit_z(kit_geo):
+    """(lowest, highest) module-local Z across the whole kit."""
+    lo, hi = 1e30, -1e30
+    for _pt, src in _modules(kit_geo):
+        bb = src.boundingBox()
+        lo, hi = min(lo, bb.minvec()[2]), max(hi, bb.maxvec()[2])
+    return (lo, hi)
+
+
+def _worst_cap_uv(kit_geo):
+    """(narrowest UV span over every `pc_cap` face, number of faces seen)."""
+    worst, seen = 1e30, 0
+    for _pt, src in _modules(kit_geo):
+        if src.findPrimAttrib("pc_cap") is None:
+            continue
+        for i, flag in enumerate(src.primIntAttribValues("pc_cap")):
+            if not flag:
+                continue
+            uv = [vtx.attribValue("uv") for vtx in src.prim(i).vertices()]
+            seen += 1
+            worst = min(worst, min(max(v[k] for v in uv)
+                                   - min(v[k] for v in uv) for k in (0, 1)))
+    return (0.0 if not seen else worst, seen)
 
 
 def _plane_points(geo, axis, value, tol=1e-6):

@@ -484,9 +484,9 @@ MUTATIONS = (
       "origin 10 mm and the kit still validates, still carries every "
       "manifest field, and lays a fence with a 10 mm gap at every joint.",
       ((PY % "kit.py",
-        "src.transform(hou.hmath.buildTranslate(-cell.x0, -cell.y0, 0.0))",
+        "src.transform(hou.hmath.buildTranslate(-cell.x0, -cell.y0, -zc))",
         "src.transform(hou.hmath.buildTranslate(-cell.x0 + 0.01, -cell.y0, "
-        "0.0))"),),
+        "-zc))"),),
       rebuild=False),
 
     M("slice_top_clip_missing", "slice",
@@ -563,6 +563,64 @@ MUTATIONS = (
         "    if False:"),),
       rebuild=False),
 
+    # ---- C1's audit: five findings, five checks, five mutations. Every one
+    #      of these was invisible to the acceptance evidence C1 shipped with,
+    #      and four of the five were invisible to every image as well.
+    M("slice_polyfill_closes_everything", "slice",
+      ("slice_keeps_the_artists_surface",),
+      "`polyfill` closing EVERY open boundary in the chunk again, not only "
+      "the ones the clip opened - C1's shipped behaviour. A plain single-"
+      "sided 9 x 6 wall came back at 108.000 m2 from 54.000 and a wall with "
+      "a window came back with the WINDOW FILLED IN plus ten zero-area "
+      "polygons, kit valid and gate image unchanged. Nothing else in the "
+      "suite moves: the oracle's nine modules are closed solids cut on "
+      "planes their own faces already lie in, so it cannot reach this.",
+      ((PY % "place.py",
+        "        stray = _off_plane_patches(filled, n_cut, n_all, origin, "
+        "normal)",
+        "        stray = []"),),
+      rebuild=False),
+
+    M("slice_notes_never_reach_the_page", "slice",
+      ("slice_notes_reach_the_artist", "slice_reports_a_void",
+       "slice_cell_frame_gap_m"),
+      "D24 made decorative, which is the state C1 shipped in: every warning "
+      "still computed, every one of them written on a Python SOP inside the "
+      "asset, and the artist's node clean on an unwired input.",
+      ((PY % "kit.py", "    write_notes(geo, warns)",
+        "    write_notes(geo, [])"),),
+      rebuild=False),
+
+    M("slice_high_corner_unmeasured", "slice",
+      ("slice_cell_frame_gap_m",),
+      "The cell-frame gap back to the LOW corner only. A 0.4 m chunk asked "
+      "for a 5 m bay then ships `pc_size = (5, 5, 0.1)` around 0.4 m of "
+      "wall, validates clean, and pf_polychain lays out 5 m bays.",
+      ((PY % "kit.py",
+        '                (sx - hi[0], "high x"), (sy - hi[1], "high y")),',
+        '                (lo[0], "low x"), (lo[1], "low y")),'),),
+      rebuild=False),
+
+    M("slice_z_left_as_authored", "slice",
+      ("slice_kit_z_is_canonical",),
+      "D272 reverted - X and Y normalised, Z left exactly where the artist "
+      "modelled it. A facade modelled IN PLACE on a building, which is the "
+      "normal workflow, then builds a fence 49.90 m behind its own curve "
+      "with nothing said.",
+      ((PY % "kit.py", "    zc = _kit_z_centre(pairs)", "    zc = 0.0"),),
+      rebuild=False),
+
+    M("slice_cap_uv_collapsed", "slice",
+      ("slice_cap_uv_spans_two_axes",),
+      "`dress_caps` back to the fixed (local z, local y) projection it was "
+      "written for on the miter cut. On a Y cut plane local y is constant "
+      "across the face, so half of every sliced module's cut faces ship a "
+      "zero-area UV island - on real, visible 0.6 m2 faces.",
+      ((PY % "place.py",
+        "        u, v = (flat + 2) % 3, (flat + 1) % 3",
+        "        u, v = 2, 1"),),
+      rebuild=False),
+
     M("slice_input_label_lost", "slice",
       ("slice_hda_metadata",),
       "5.1b on the new asset - a port label an artist meets before any "
@@ -625,7 +683,8 @@ EXPECT_CHECKS = {
     "native": 19,
     "scene": 39,
     # 7.7, added 2026-08-25 with 10 mutations covering all 14 names.
-    "slice": 14,
+    # C1's audit added five, 2026-08-25: 19 names, 15 mutations.
+    "slice": 19,
 }
 
 

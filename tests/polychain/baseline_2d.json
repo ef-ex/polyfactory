@@ -964,11 +964,11 @@
       "value": 0
     },
     {
-      "detail": "65816 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 100000)",
+      "detail": "28264 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 100000)",
       "name": "wrapper_reads_2d_rows",
       "ok": true,
       "skipped": false,
-      "value": 65816
+      "value": 28264
     },
     {
       "detail": "12800 compiled SOP executions in one build (ceiling 20000)",
