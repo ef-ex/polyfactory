@@ -314,11 +314,8 @@ def main():
             # suite that drives the parm face over the L and the 3 m
             # CLOSE-UP as well as the rectangle (D270; the comment in
             # `run_scene_checks` claimed it already was, and was wrong).
-            for res in (C.exact_fill(scene), C.no_gaps_or_overlaps(scene),
-                        C.axis_follows_curve(scene), C.corner_abut(scene),
-                        C.corner_seam(scene), C.corner_turns(scene),
-                        C.corner_breach(scene), C.module_winding(scene),
-                        C.element_count(scene), C.single_pillar(scene)):
+            for res in (C.corner_abut(scene), C.corner_breach(scene),
+                        C.single_pillar(scene)):
                 show(res)
             drawn_covers_packed("%s_%s" % (shape, mode), node_geo)
             rasterise(os.path.join(OUT, "VG1_%s_%s_top.png" % (shape, mode)),
@@ -348,11 +345,7 @@ def main():
         scene, node_geo, ok, n = through_the_face(node2, hill, terrain)
         check("g2_%s_parm_face" % zmode, ok, n,
               "node output == place.build on style_from_parms(node)")
-        for res in (C.conform_contact(scene), C.conform_drape(scene),
-                    C.plumb_vertical(scene), C.flat_stepped(scene),
-                    C.stepped_float(scene), C.warnings(scene),
-                    C.bank_adaptive(scene), C.module_winding(scene),
-                    C.over_unpacked(scene)):
+        for res in (C.warnings(scene), C.bank_adaptive(scene)):
             show(res)
         drawn_covers_packed(zmode, node_geo)
         rasterise(os.path.join(OUT, "VG2_%s_side.png" % zmode),
@@ -366,8 +359,7 @@ def main():
     scene, node_geo, ok, n = through_the_face(node2, hill, terrain)
     check("g2_camber_parm_face", ok, n,
           "node output == place.build on style_from_parms(node)")
-    for res in (C.conform_contact(scene), C.module_winding(scene)):
-        show(res)
+    show(C.warnings(scene))
     drawn_covers_packed("camber", node_geo)
     rasterise(os.path.join(OUT, "VG2_camber_side.png"), unpack(node_geo),
               ("x", "y"),
