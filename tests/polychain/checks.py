@@ -2050,7 +2050,38 @@ def _centre(rec):
     return (sum(w[0::3]) / n, sum(w[1::3]) / n, sum(w[2::3]) / n)
 
 
-def clip_inside_m(scene, tol=1e-2):
+def clip_input_warns(case, expected=(), name="clip_input_warns"):
+    """The EXACT set of `pc_warn_*` names the clip INPUT raised, sorted.
+
+    7.6's validation station has four channels and until C2a not one of them
+    was asserted anywhere: `pc_warn_clip_open` and `pc_warn_clip_group_ignored`
+    appeared in no case, no expectation and no unit test, which is the exact
+    shape D139 (FT/FU) exists to prevent - a declared warning nothing runs is a
+    warning that can be deleted with the suite green. D147 added two more
+    (self-intersecting, non-planar) and D149 a fifth (a tilted array plane).
+
+    These live on the build report's own `clip_input_warnings`, not on an
+    element: a loop the validation REJECTED produces no geometry to carry an
+    attribute and never reaches `warn_names` either, which is why
+    `checks.warnings` cannot see any of them and why reading them off the
+    prose in `kit_warnings` meant guessing which strings were element
+    summaries (`pc_warn_clip_unsliceable` is one, and it fires on removed
+    pieces - so it is on that list and in no element's attributes).
+
+    WHAT IT CANNOT SEE: what the loop was rejected FOR. It reads names, not
+    prim numbers, so a warning naming the wrong sub-spline reads identical -
+    the geometric consequence is `clip_inside_m`'s to state.
+    """
+    rep = case.get("report") or {}
+    if "clip_input_warnings" not in rep:
+        return _skip(name, "no report - not a facade build")
+    got = sorted(set(w.split(":")[0] for w in rep["clip_input_warnings"]))
+    return Result(name, got == sorted(expected), got,
+                  "" if got == sorted(expected)
+                  else "expected %s" % (sorted(expected),))
+
+
+def clip_inside_m(scene, tol=1e-2, name="clip_inside_m"):
     """PC-G6 condition 1: [worst metres a delivered point lies OUTSIDE the
     clip region, points measured]. `bend_tol` is 0.01 m.
 
@@ -2069,7 +2100,7 @@ def clip_inside_m(scene, tol=1e-2):
     """
     pairs = _by_array(scene)
     if not pairs:
-        return _skip("clip_inside_m", "no clip_arrays - not a clipped build")
+        return _skip(name, "no clip_arrays - not a clipped build")
     worst, n = 0.0, 0
     for rec, frame, region in pairs:
         w = rec["world"]
@@ -2083,7 +2114,7 @@ def clip_inside_m(scene, tol=1e-2):
                               p[(i2 + 1) % len(p)][1])
                     for p in region.polys for i2 in range(len(p)))
             worst = max(worst, d)
-    return Result("clip_inside_m", worst <= tol and n > 0, _round(worst),
+    return Result(name, worst <= tol and n > 0, _round(worst),
                   "%d points, worst %.4f m outside the region (tol %.3f)"
                   % (n, worst, tol))
 
@@ -2193,7 +2224,7 @@ def clip_preserve(scene):
                   "worst overhang %.4f m, %d piece(s) removed" % (worst, out))
 
 
-def clip_caps_closed(scene):
+def clip_caps_closed(scene, name="clip_caps_closed"):
     """PC-G6 condition 2: [open boundary edges on clip-cut elements, cut
     elements, cut prims tagged as a cap without a cap material].
 
@@ -2212,9 +2243,9 @@ def clip_caps_closed(scene):
     wrong plane is still closed; `clip_inside_m` is what says where the cut
     landed.
     """
-    geo = scene.geo
+    geo = scene.geo if hasattr(scene, "geo") else scene
     if geo.findPrimAttrib("pc_corner_cut") is None:
-        return _skip("clip_caps_closed", "no pc_corner_cut - not a cut build")
+        return _skip(name, "no pc_corner_cut - not a cut build")
     edges, cut, untagged, caps = {}, set(), 0, 0
     for prim in geo.prims():
         try:
@@ -2238,7 +2269,7 @@ def clip_caps_closed(scene):
             edges[key] = edges.get(key, 0) + 1
     open_edges = sum(1 for v in edges.values() if v == 1)
     ok = open_edges == 0 and len(cut) > 0 and caps > 0 and untagged == 0
-    return Result("clip_caps_closed", ok, [open_edges, len(cut), untagged],
+    return Result(name, ok, [open_edges, len(cut), untagged],
                   "%d open boundary edge(s) on %d clip-cut element(s), "
                   "%d cap prim(s), %d untagged"
                   % (open_edges, len(cut), caps, untagged))

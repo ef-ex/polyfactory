@@ -158,6 +158,13 @@ def main():
     # coloured by clip policy". The fixture is drawn flat in the world XY
     # plane, so its plan view IS the (x, y) elevation.
     built["clip_plate"] = cases2d.clip_case()
+    # ...and the SAME plate wound the other way, 500 m from the origin - the
+    # two properties the shipped fixture had by accident and citygen will not
+    # (C2a). Reversed, the array was built one module-height out of its own
+    # footprint with the hole FILLED; a plan view is exactly the picture that
+    # shows whether the two figures are the same drawing.
+    built["clip_hostile"] = cases2d.clip_case(
+        loops=cases2d.clip_loops_hostile())
     fail = []
     for name, view, axes, crop in (
             ("FA_L_facade", "iso", "iso", None),
@@ -166,14 +173,15 @@ def main():
             ("FD_role_fallback", "iso", "iso", None),
             ("FE_stand_in", "front", ("x", "y"), None),
             ("FM_area_taper", "front", ("x", "y"), None),
-            ("clip_plate", "plan", ("x", "y"), None)):
+            ("clip_plate", "plan", ("x", "y"), None),
+            ("clip_hostile", "plan", ("x", "y"), None)):
         geo, colour_of = coloured(
             built[name]["out"],
-            _clip_colour if name == "clip_plate" else _cell_colour)
+            _clip_colour if name.startswith("clip_") else _cell_colour)
         if crop is not None:
             geo = near(geo, crop[0], crop[1])
         drawn = G.rasterise(os.path.join(
-            OUT, "%s_%s_%s.png" % ("PCG6" if name == "clip_plate"
+            OUT, "%s_%s_%s.png" % ("PCG6" if name.startswith("clip_")
                                    else "PCG5", name, view)),
             geo, axes=axes, w=1400, h=900, colour_of=colour_of)
         # D194's rule, `drawn_covers_packed`'s shape: the image must CONTAIN

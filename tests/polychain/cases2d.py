@@ -141,6 +141,42 @@ CLIP_LOOPS = [CLIP_PLATE, CLIP_HOLE, CLIP_ISLAND, CLIP_BESIDE]
 CLIP_X = CLIP_Y = 2.0
 
 
+# ⚠️ PC-G6's FIXTURE HAD TWO ACCIDENTAL PROPERTIES AND BOTH WERE LOAD-BEARING
+# (C2a's audit). Every loop above is wound COUNTER-CLOCKWISE and the whole
+# plate sits ON THE ORIGIN. Reversed, the array frame's up axis flipped and
+# every piece was built one module-height out of its own footprint - hole
+# filled, `clip_inside_m` 2.0 m, and nothing failing because no fixture was
+# ever wound the other way. Moved 500 m out, the cap guard's piece-scaled
+# tolerance deleted 7 of 8 GENUINE caps and shipped closed boxes cut open.
+# citygen builds districts at hundreds of metres and does not promise a
+# winding, so this is the fixture the consumer actually has.
+CLIP_FAR_X = 500.0
+
+
+def clip_loops_hostile():
+    return [[(p[0] + CLIP_FAR_X, p[1], p[2]) for p in reversed(loop)]
+            for loop in CLIP_LOOPS]
+
+
+# 7.6's contract is a closed PLANAR sub-spline, and D147/D149 are the four
+# ways an artist breaks it in one input: an OPEN prim, a BOWTIE (skipped - its
+# lobes wind opposite ways and the array breached its own region by 0.88 m),
+# a loop 1 m off its own plane (built, warned) and one carrying
+# `pc_clip_group` (D146, read and not honoured). The good plate is first so
+# the build still produces an array.
+CLIP_BAD_OPEN = [(0, 12, 0), (12, 12, 0), (12, 16, 0)]
+CLIP_BAD_BOWTIE = [(30, 0, 0), (42, 12, 0), (42, 0, 0), (30, 12, 0)]
+CLIP_BAD_NONPLANAR = [(50, 0, 0), (62, 0, 0), (62, 10, 1.0), (50, 10, 0)]
+# ...and D149's, which is PLANAR and legal and still wrong: a plate tilted 10
+# degrees out of vertical is solved in its own plane and built along the world
+# up axis, so every piece leaves its band by 0.0260 m (measured) against
+# PC-G6's 0.010 m. Nothing in the suite had ever tilted an area array.
+CLIP_BAD_TILTED = [(70, 0, 0), (82, 0, 0), (82, 9.848, 1.736),
+                   (70, 9.848, 1.736)]
+CLIP_BAD_LOOPS = [CLIP_PLATE, CLIP_BAD_OPEN, CLIP_BAD_BOWTIE,
+                  CLIP_BAD_NONPLANAR, CLIP_BAD_TILTED]
+
+
 def clip_kit(kit_id="pf_clip", clip=2):
     """A tile kit with one SLICEABLE and one RIGID module, both `slice`.
 
@@ -169,25 +205,33 @@ def clip_style(fill="adaptive", seed=5):
         meta={"y_params": {"fill": "adaptive"}})
 
 
-def clip_geometry(loops, modes=None):
+def clip_geometry(loops, modes=None, open_at=(), groups=()):
     """The clip input as GEOMETRY - one closed polygon per sub-spline, with
     7.6's `pc_clip_mode` on the prim. The shipped contract, so the gate runs
-    over the door an artist will use rather than over a Python list."""
+    over the door an artist will use rather than over a Python list.
+
+    `open_at` / `groups` are loop indices: an UNCLOSED prim and one carrying
+    `pc_clip_group`, i.e. the two validation channels that were declared in
+    C2 and asserted nowhere."""
     geo = hou.Geometry()
     geo.addAttrib(hou.attribType.Prim, F.CLIP_MODE_ATTR, "")
+    if groups:
+        geo.addAttrib(hou.attribType.Prim, F.CLIP_GROUP_ATTR, 0)
     for i, loop in enumerate(loops):
-        poly = geo.createPolygon(True)
+        poly = geo.createPolygon(i not in open_at)
         for p in loop:
             pt = geo.createPoint()
             pt.setPosition(p)
             poly.addVertex(pt)
         if modes and i < len(modes) and modes[i]:
             poly.setAttribValue(F.CLIP_MODE_ATTR, str(modes[i]))
+        if i in groups:
+            poly.setAttribValue(F.CLIP_GROUP_ATTR, 1)
     return geo
 
 
 def clip_case(loops=None, clip_mode="slice", modes=None, array_ids=None,
-              kit_clip=2):
+              kit_clip=2, open_at=(), groups=()):
     """One `build_clipped` over N closed sub-splines - PC-G6's whole fixture.
 
     `kit_clip = -1` is the OTHER half of D126's three-state pattern: the kit
@@ -197,13 +241,15 @@ def clip_case(loops=None, clip_mode="slice", modes=None, array_ids=None,
     """
     loops = list(loops if loops is not None else CLIP_LOOPS)
     kit_geo, style = clip_kit(clip=kit_clip), clip_style()
-    out, report = F.build_clipped(clip_geometry(loops, modes), kit_geo, style,
-                                  height=None, clip_mode=clip_mode,
-                                  array_ids=array_ids)
+    out, report = F.build_clipped(
+        clip_geometry(loops, modes, open_at, groups), kit_geo, style,
+        height=None, clip_mode=clip_mode, array_ids=array_ids)
+    kept = [l for i, l in enumerate(loops)
+            if i not in open_at and A.is_simple(l)]
     return {"curve": hou.Geometry(), "kit": report["kit_geo"],
             "kit_src": kit_geo, "style": style, "out": out, "report": report,
             "surface": None, "overrides": None, "paths": [],
-            "clip_arrays": clip_arrays(loops, modes),
+            "clip_arrays": clip_arrays(kept, modes) if kept else {},
             "clip_loops": loops, "footprint": loops[0], "height": None,
             "array_id": "", "kw": {}}
 

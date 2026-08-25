@@ -1291,6 +1291,57 @@
       ]
     }
   ],
+  "ZY_gate_pc_g6_hostile": [
+    {
+      "detail": "310 points, worst 0.0000 m outside the region (tol 0.010)",
+      "name": "clip_inside_m_hostile",
+      "ok": true,
+      "skipped": false,
+      "value": 2.0275e-05
+    },
+    {
+      "detail": "0 open boundary edge(s) on 5 clip-cut element(s), 6 cap prim(s), 0 untagged",
+      "name": "clip_caps_closed_hostile",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        5,
+        0
+      ]
+    },
+    {
+      "detail": "",
+      "name": "clip_input_warns",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        "pc_warn_clip_group_ignored",
+        "pc_warn_clip_nonplanar",
+        "pc_warn_clip_open",
+        "pc_warn_clip_selfx",
+        "pc_warn_clip_tilted"
+      ]
+    },
+    {
+      "detail": "",
+      "name": "clip_input_warns_clean",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "0 open boundary edge(s) on 6400 clip-cut element(s), 6400 cap prim(s), 0 untagged",
+      "name": "caps_closed_mitered",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        6400,
+        0
+      ]
+    }
+  ],
   "ZZ_2d_tripwires": [
     {
       "detail": "0 wrapper attribute writes during row emission (ceiling 0)",
@@ -1328,11 +1379,11 @@
       "value": 0
     },
     {
-      "detail": "28282 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 100000)",
+      "detail": "65834 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 100000)",
       "name": "wrapper_reads_2d_rows",
       "ok": true,
       "skipped": false,
-      "value": 28282
+      "value": 65834
     },
     {
       "detail": "12800 compiled SOP executions in one build (ceiling 20000)",

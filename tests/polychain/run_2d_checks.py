@@ -169,6 +169,50 @@ def gate_pc_g6():
     ]
 
 
+def gate_pc_g6_hostile():
+    """PC-G6's own conditions on the input the SHIPPED FIXTURE cannot be.
+
+    C2a's audit: every loop in `CLIP_LOOPS` is wound counter-clockwise and the
+    plate sits on the origin, and both accidents were load-bearing. Reversed,
+    the array frame's up axis flipped and the whole array was built one
+    module-height out of its footprint - hole filled, `clip_inside_m` 2.0 m,
+    57 mutations green. Moved 500 m out, the cap guard's piece-scaled
+    tolerance deleted 7 of 8 genuine caps and `clip_caps_closed` read
+    [18 open boundary edges, 5 cut]. One build carries both, because citygen
+    -the stated consumer - has both.
+
+    ...and the validation station, whose five channels were declared over two
+    cycles and asserted nowhere.
+    """
+    hostile = Scene(cases2d.clip_case(loops=cases2d.clip_loops_hostile()))
+    bad = cases2d.clip_case(loops=cases2d.CLIP_BAD_LOOPS,
+                            open_at=(1,), groups=(0,))
+    return [
+        C.clip_inside_m(hostile, name="clip_inside_m_hostile"),
+        C.clip_caps_closed(hostile, name="clip_caps_closed_hostile"),
+        C.clip_input_warns(bad, ("pc_warn_clip_group_ignored",
+                                 "pc_warn_clip_nonplanar",
+                                 "pc_warn_clip_open",
+                                 "pc_warn_clip_selfx",
+                                 "pc_warn_clip_tilted")),
+        # ...and the control: the SHIPPED fixture says none of the five, so
+        # the row above is proving detection rather than a constant.
+        C.clip_input_warns(cases2d.clip_case(), (),
+                           name="clip_input_warns_clean"),
+        # ⚠️ THE CLOSURE CHECK BELONGS ON THE MITER PATH TOO, ON THE DISTRICT.
+        # The same piece-scaled tolerance left 6 400 mitered elements carrying
+        # 18 776 OPEN BOUNDARY EDGES - phase 1's own corner cut, cut open and
+        # never sealed, with every corner check green because they all measure
+        # where a face LANDS and none of them asked whether the solid closed.
+        # It has to be the DISTRICT: PC-G5's own L spans 0..24 m, which is too
+        # near the origin for float32 round-off to reach the old tolerance, so
+        # the check reads [0 open] there under the mutation and proves nothing
+        # - measured, before this row was written.
+        C.clip_caps_closed(cases2d.build_many_buildings(True)[0],
+                           name="caps_closed_mitered"),
+    ]
+
+
 def tripwires():
     """11.9's rules 1 and 2, on the shapes phase 2 actually has.
 
@@ -240,6 +284,7 @@ def main():
                 failures += 1
 
     for label, fn in (("ZY_gate_pc_g6", gate_pc_g6),
+                      ("ZY_gate_pc_g6_hostile", gate_pc_g6_hostile),
                       ("ZZ_2d_tripwires", tripwires)):
         res = fn()
         results[label] = [r.as_dict() for r in res]
