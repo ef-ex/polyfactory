@@ -45,6 +45,9 @@ RUNNERS = {
     # diagnostics, not check names (a sweep that moves its range would
     # silently retire and invent hundreds of them).
     "generated": "tests/polychain/run_generated.py",
+    # 7.7's on-ramp, on BOTH shipped assets: the slicer's own inverse as the
+    # oracle, then the kit it emits through `pf_polychain`.
+    "slice": "tests/polychain/run_slice_checks.py",
 }
 
 # `run_scene_checks` and `run_2d_checks` carry a baseline, and D210 made a
@@ -90,6 +93,7 @@ PY = "polyfactory/scripts/python/polyfactory/polychain/%s"
 RIG = "tests/polychain/native.py"
 RUNNER_NATIVE = "tests/polychain/run_native_checks.py"
 BUILD = "devScripts/create_pf_polychain_hda.py"
+SLICE_BUILD = "devScripts/create_pf_polychain_slice_hda.py"
 IMG = "tests/polychain/gate_images.py"
 
 
@@ -466,6 +470,96 @@ MUTATIONS = (
         "    return False            # the mutation: one answer, not two\n"
         "    if placement.slice_t is not None or placement.cuts:"),),
       rebuild=False),
+
+    # ---- 7.7, the kit slicer. `rebuild=False` on every entry that edits the
+    #      PACKAGE, and that is not a rig exemption: `pf_polychain_slice`'s
+    #      two Python SOPs each import `polychain.kit` at cook time, so the
+    #      committed .hda plus the mutated package IS the shipped path. Only
+    #      the entry that edits the BUILD SCRIPT needs the rebuild, and it
+    #      gets it (`BUILD_SCRIPTS` now covers both assets).
+    M("slice_cell_frame_offset", "slice",
+      ("slice_recovers_the_authored_kit", "slice_keeps_the_manifest",
+       "sliced_kit_builds_the_same_fence", "slice_reports_a_void"),
+      "D270's whole claim: the cell frame is the CELL. Move the module "
+      "origin 10 mm and the kit still validates, still carries every "
+      "manifest field, and lays a fence with a 10 mm gap at every joint.",
+      ((PY % "kit.py",
+        "src.transform(hou.hmath.buildTranslate(-cell.x0, -cell.y0, 0.0))",
+        "src.transform(hou.hmath.buildTranslate(-cell.x0 + 0.01, -cell.y0, "
+        "0.0))"),),
+      rebuild=False),
+
+    M("slice_top_clip_missing", "slice",
+      ("slice_recovers_the_authored_kit", "sliced_kit_builds_the_same_fence"),
+      "One of the four half-spaces pushed out of reach - the cell keeps "
+      "everything above its own top edge. The oracle is what sees it: a "
+      "count-based check would still report nine modules.",
+      ((PY % "kit.py", "((0.0, cell.y1, 0.0), (0.0, 1.0, 0.0), -1)",
+        "((0.0, cell.y1 + 100.0, 0.0), (0.0, 1.0, 0.0), -1)"),),
+      rebuild=False),
+
+    M("slice_cut_plane_short", "slice",
+      ("slice_refit_gap_m", "slice_recovers_the_authored_kit",
+       "sliced_kit_builds_the_same_fence"),
+      "The X cut 10 mm short of the band boundary - the jigsaw failure the "
+      "tool exists to prevent, and the one D131 asserts against.",
+      ((PY % "kit.py", "((cell.x1, 0.0, 0.0), (1.0, 0.0, 0.0), -1)",
+        "((cell.x1 - 0.01, 0.0, 0.0), (1.0, 0.0, 0.0), -1)"),),
+      rebuild=False),
+
+    M("slice_jigsaw_off", "slice",
+      ("slice_jigsaw_size_m",),
+      "D131's rule deleted. It reddens ONE name, and that is the point: the "
+      "jigsaw check runs on an UNEVEN-band fixture on purpose, because the "
+      "even one it would naturally be written against cannot fail.",
+      ((PY % "slicer.py", "    if not jigsaw:\n        return bands",
+        "    if True:\n        return bands"),),
+      rebuild=False),
+
+    M("slice_role_forced_default", "slice",
+      ("slice_keeps_the_manifest", "slice_defaults_build_a_kit",
+       "slice_guides_name_a_cell", "sliced_kit_fills_a_facade"),
+      "Every cell shipped as `default`. The kit still validates and still "
+      "has nine modules; what dies is 7.2's vocabulary and, downstream, the "
+      "closed facade's corner.",
+      ((PY % "kit.py", "roles=cell.role, variant=cell.variant)",
+        "roles=\"default\", variant=cell.variant)"),),
+      rebuild=False),
+
+    M("slice_void_detector_off", "slice",
+      ("slice_reports_a_void",),
+      "D270's other half: a cell whose geometry does not reach its own low "
+      "corner is placed that far off its bay, silently.",
+      ((PY % "kit.py", "        if gap > 1e-6:", "        if False:"),),
+      rebuild=False),
+
+    M("slice_preview_empty", "slice",
+      ("slice_cells_view_draws_every_cell", "slice_image_shows_the_kit"),
+      "The `Where The Cuts Land` branch emits nothing. It is paired with "
+      "the IMAGE check deliberately - that check scored `0 >= 4 * 0` on a "
+      "black frame until it also asserted a prim floor.",
+      ((PY % "kit.py", "        geo.merge(piece)\n        col = list(",
+        "        col = list("),),
+      rebuild=False),
+
+    M("slice_human_scale_negative", "slice",
+      ("slice_hda_kit_is_valid", "slice_keeps_the_manifest",
+       "sliced_kit_builds_the_same_fence"),
+      "buildings 12.9's mandatory manifest field, written nonsense. The "
+      "kit reader's own validator is what catches it, on the SHIPPED node's "
+      "output rather than on a kit built in the check.",
+      ((PY % "kit.py",
+        "                   human_scale_reference=human_scale_reference)",
+        "                   human_scale_reference=-1.0)"),),
+      rebuild=False),
+
+    M("slice_input_label_lost", "slice",
+      ("slice_hda_metadata",),
+      "5.1b on the new asset - a port label an artist meets before any "
+      "parameter. The ONLY slice entry that rebuilds, because the labels "
+      "are written into the .hda at build time and nowhere else.",
+      ((SLICE_BUILD, 'INPUT_LABELS = ("Chunk", "Guides (optional)")',
+        'INPUT_LABELS = ("Input 1", "Guides (optional)")'),)),
 )
 
 # ⚠️ IDS ARE UNIQUE, ASSERTED HERE. Two entries shared the id
@@ -520,6 +614,8 @@ EXPECT_CHECKS = {
     "images": 30,
     "native": 19,
     "scene": 39,
+    # 7.7, added 2026-08-25 with 9 mutations covering all 13 names.
+    "slice": 13,
 }
 
 

@@ -355,10 +355,14 @@ def main():
     drawn2 = GI.rasterise(IMAGES + "/PC-C1_fence.png", GI.unpack(gb),
                           ("x", "y"))
     GI.rasterise(IMAGES + "/PC-C1_facade.png", GI.unpack(fgeo), "iso")
+    # ⚠️ `nprim >= len(ROLES)` IS PART OF THE CHECK, NOT COLOUR. Without it a
+    # preview that merged nothing scored `0 >= 4 * 0` and the image check
+    # passed on a black frame - the exact failure the rule exists to stop.
+    nprim = cgeo.intrinsicValue("primitivecount")
     check("slice_image_shows_the_kit",
-          drawn >= 4 * cgeo.intrinsicValue("primitivecount") and drawn2 > 0,
+          drawn >= 4 * nprim and nprim >= len(ROLES) and drawn2 > 0,
           "%d + %d seg" % (drawn, drawn2),
-          "every prim of %d cells is drawn" % len(names))
+          "%d prims of %d cells drawn" % (nprim, len(names)))
 
     geo_node.destroy()
     bad_n = sum(1 for _n, ok, _v, _d in RESULTS if not ok)

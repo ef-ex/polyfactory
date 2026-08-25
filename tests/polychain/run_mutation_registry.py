@@ -65,6 +65,12 @@ HYTHON = os.environ.get(
     "HYTHON",
     "C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe")
 BUILD_SCRIPT = "devScripts/create_pf_polychain_hda.py"
+# ⚠️ EVERY SHIPPED ASSET IS REBUILT, NOT JUST THE FIRST ONE. 7.7 added a
+# second HDA with its own build script, and a mutation of THAT script (an
+# input label, the TAB submenu) reaches an artist only through a rebuild -
+# 21.4's rule, applied to the asset the mutation is actually about.
+BUILD_SCRIPTS = (BUILD_SCRIPT,
+                 "devScripts/create_pf_polychain_slice_hda.py")
 
 # ⚠️ THE NAME IS CAPTURED WHOLE, and an unparseable one is reported rather
 # than trimmed.  `([A-Za-z_0-9]+)` stopped at the first character outside the
@@ -116,11 +122,12 @@ def rebuild(root):
     """
     env = dict(os.environ)
     env["POLYFACTORY"] = os.path.join(root, "polyfactory").replace("\\", "/")
-    p = subprocess.Popen([HYTHON, BUILD_SCRIPT], cwd=root, env=env,
-                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    out = p.communicate()[0].decode("utf-8", "replace")
-    if p.returncode != 0:
-        raise RuntimeError("hda rebuild failed:\n" + out[-2000:])
+    for script in BUILD_SCRIPTS:
+        p = subprocess.Popen([HYTHON, script], cwd=root, env=env,
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        out = p.communicate()[0].decode("utf-8", "replace")
+        if p.returncode != 0:
+            raise RuntimeError("%s failed:\n%s" % (script, out[-2000:]))
 
 
 def run(root, runner):
