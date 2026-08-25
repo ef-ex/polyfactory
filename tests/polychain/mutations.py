@@ -61,9 +61,9 @@ RUNNERS = {
     "hda":    "tests/polychain/run_hda_checks.py",
     "images": "tests/polychain/gate_images.py",
     # v2's differential oracle over GENERATED input, on the shipped asset.
-    # It prints exactly two names, deliberately: seed numbers are diagnostics,
-    # not check names (a sweep that moves its range would silently retire and
-    # invent hundreds of them).
+    # It prints exactly THREE names, deliberately: seed numbers are
+    # diagnostics, not check names (a sweep that moves its range would
+    # silently retire and invent hundreds of them).
     "generated": "tests/polychain/run_generated.py",
 }
 
