@@ -68,7 +68,8 @@ FURTHER DECISIONS TAKEN HERE:
 
 import math
 
-from . import (DEFAULTS, EPS, MAX_UNITS, WARN_DEGENERATE_PAD, WARN_KIT_GAP,
+from . import (DEFAULTS, EPS, MAX_UNITS, MIN_ALIGN_SCALE,
+               WARN_DEGENERATE_PAD, WARN_KIT_GAP,
                WARN_OVERFLOW, WARN_ROLE_FALLBACK, WARN_TILE_FALLBACK,
                WARN_VEXPR_IGNORED, WARN_Y_ALIGN_LOST, elem_id, elem_key,
                rng_for, role_2d)
@@ -509,20 +510,46 @@ def _fill(a, b, rule, kit, style, ctx_base, params, section, index0,
     # datum row's piece count and scales its own modules into the span, which
     # is RC's "all segments along the Y path are scaled to maintain the same
     # alignment as on X" said in this solver's own vocabulary.
+    #
+    # ⚠️ C3a / D298 - AND `pc_bays` COUNTS BAYS WHILE `fit` COUNTS UNITS.
+    # `array2d.datum_bays` counts the datum's default PLACEMENTS; a unit is
+    # `len(mods)` of them, so a two-module sequence rule multiplied the whole
+    # alignment by two - 16 bays became 32 pieces on the row that was already
+    # congruent with the datum, i.e. exactly the case 7.4 promises is a no-op.
+    # This is the only place `mods` is known, so it is the only place the two
+    # currencies can be reconciled. A count that is not a whole number of
+    # units is a datum whose run ended in a `tile` remainder: no row can
+    # reproduce it, so it degrades rather than rounding.
+    mode0, lost = mode, ()
+    if count is not None:
+        count, rem = divmod(int(count), len(mods))
+        if rem or count < 1:
+            count, lost = None, (WARN_Y_ALIGN_LOST,)
     mode = "count" if count is not None else (mode or params.fill)
     lead = 0.0
     if cyclic and L - gap > EPS:                 # D19: fold the wrap gap in
         L -= gap
         lead = gap * 0.5
     res = fit(L, s, mode, params, gap=gap, fixed=fixed, count=count)
-    extra_warns = tuple(extra_warns) + tuple(res["warns"])
-    if count is not None and res["count"] != count:
+    extra_warns = tuple(extra_warns) + tuple(res["warns"]) + lost
+    if count is not None and (res["count"] != count
+                              or res["scale"] < MIN_ALIGN_SCALE):
         # 7.4's own case: "where a row physically cannot hold the datum's
         # count (a setback so deep the section is shorter than the count's
-        # minimum), the row degrades to its own solve and says so". `fit`
-        # already dropped units until the padding stopped eating the span;
-        # this is what makes that visible instead of silently unaligned.
-        extra_warns = extra_warns + (WARN_Y_ALIGN_LOST,)
+        # minimum), the row degrades to its own solve and says so".
+        #
+        # ⚠️ C3a / D299 - AND WITHOUT `MIN_ALIGN_SCALE` THAT COULD NOT FIRE ON
+        # ANY KIT WITHOUT PADDING. `fit`'s count branch has no minimum: it
+        # returns the count asked for at whatever scale it takes, and its
+        # drop loop only runs when `fixed` or `gap` is non-zero. Measured:
+        # `fit(0.5, 3.0, "count", count=7)` returns 7 units at scale 0.02381
+        # with no warning, and on real geometry that shipped a 2.0 m module
+        # at 0.125 m. The row's own solve is the answer 7.4 names, so this is
+        # a re-solve and not just a label.
+        return _fill(a, b, rule, kit, style, ctx_base, params, section,
+                     index0, lead_pad, trail_pad, mode=mode0,
+                     extra_warns=extra_warns + (WARN_Y_ALIGN_LOST,),
+                     cyclic=cyclic)
 
     def fallback():
         """D11: the whole run falls back to adaptive, and says so on each piece."""

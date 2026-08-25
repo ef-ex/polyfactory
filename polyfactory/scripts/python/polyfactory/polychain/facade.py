@@ -34,7 +34,7 @@ DECISIONS TAKEN HERE (recorded in polychain.md 12):
 import hou
 
 from . import (CLIP_POLICIES, CLIP_REMOVE, DEFAULTS, UP, WARN_CLIP_NONPLANAR,
-               WARN_CLIP_SELFX, Params)
+               WARN_CLIP_SELFX, WARN_Y_ALIGN_LOST, Params)
 from . import array2d as _array2d
 from . import kit as _kit
 from . import place as _place
@@ -465,8 +465,24 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
             flags = canonical_flags(footprint, flags, closed)
         # 7.4 / D122 - ALIGNED, per array, because bay boundaries are a
         # property of ONE footprint's rows and two arrays share nothing.
+        #
+        # ⚠️ C3a / D297 - AND NOT ON THE AREA PATH, WHERE THE DATUM IS A SPAN
+        # AND NOT A ROW. 7.4 defines Aligned over one footprint's congruent
+        # rows; a clipped area row is whatever the region left of it, so one
+        # row can be several spans of different lengths and "the datum row's
+        # bay count" names nothing they share. Measured on a 30 x 20 m plate
+        # with a 22 x 12 m hole: the two 4 m strips took the 30 m datum's bay
+        # count and delivered 2.0 m modules at 0.125 m - 6.25 % of nominal,
+        # 5.6x the cook, and not one warning anywhere. Refused by name, warn
+        # never block: the array builds FREE and every element says so.
         if y_mode == "aligned":
-            _array2d.align_rows(mine, kit_closed, x_style, x_style.params)
+            if area:
+                for loop in mine:
+                    loop[2]["pc_row_warns"] = (
+                        "%s %s" % (loop[2].get("pc_row_warns", ""),
+                                   WARN_Y_ALIGN_LOST)).strip()
+            else:
+                _array2d.align_rows(mine, kit_closed, x_style, x_style.params)
         loops.extend(mine)
         # one flag list PER LOOP, because `rows_geometry` reorders the stream
         # (closed rows first) and a flat column could not follow it.

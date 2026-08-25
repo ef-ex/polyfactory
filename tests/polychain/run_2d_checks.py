@@ -238,35 +238,24 @@ def tilt_ladder():
     ladder deliberately: "nothing that ever ran may move" is a measurement,
     not an assumption.
 
-    The BEFORE column, from a pristine export of the commit that preceded
-    D296, on the six single-axis rungs it was written for:
+    The BEFORE column for the six single-axis rungs is in
+    `array2d.frame_tilt_deg`'s note (0.005235 -> 0.0 at 2 deg through
+    1.850000 -> 0.0 at 90) and is what makes the AFTER column mean something.
 
-        tilt   clip_inside_m      array_offplane_m
-         0     0.0      -> 0.0    0.0      -> 0.0
-         2     0.005235 -> 0.0    0.069708 -> 4.8e-08
-         5     0.013073 -> 6e-07  0.173741 -> 1.3e-07
-        10     0.026047 -> 8e-08  0.345018 -> 1.3e-07
-        30     0.075000 -> 7e-07  0.979905 -> 4.3e-07
-        90     0.150000 -> 0.0    1.850000 -> 0.0
-
-    ⚠️ AND THAT LADDER PROVED ONE PARAMETER, WHICH IS WHY THERE ARE TWELVE
-    RUNGS AND A THIRD NUMBER (C3's audit, F1). Every rung above holds
-    `frame.ex` at exactly +X, so `place`'s three remaining world-axis
-    spellings cancelled and D296 shipped a third done. Measured on HEAD
-    1a3f1ce, the same plate started at its SECOND vertex: 5 deg
-    inside 0.013024 / offplane 0.173172, 30 deg 0.064952 / 0.962501; rolled
-    about a second axis, 30/20 offplane 0.906580, 90/45 1.339214, 10/90
-    inside 1.969616. `packed_pieces` is the third number because the shear
-    test was world-Y too: those same rungs delivered 350 REAL prims where
-    the plate is 100 packed ones, so D121's "a scaled storey stays packed"
-    and PC-G3's instancing property did not survive a tilt.
+    ⚠️ AND THAT LADDER PROVED ONE PARAMETER (C3's audit, F1): every rung
+    of it holds `frame.ex` at exactly +X, so `place`'s three remaining
+    world-axis spellings cancelled. Measured on HEAD 1a3f1ce, the same plate
+    started at its SECOND vertex: 5 deg inside 0.013024 / offplane 0.173172,
+    30 deg 0.064952 / 0.962501; rolled about a second axis, 30/20 offplane
+    0.906580, 90/45 1.339214, 10/90 inside 1.969616. The shear test was
+    world-Y too, so those rungs delivered 350 REAL prims where the plate is
+    100 packed ones - `tilt_ladder_packed`, which no containment number sees.
 
     WHAT IT CANNOT SEE: whether the region itself is right (`clip_nesting`'s
-    job); anything about a tilted array that is not an axis-aligned plate -
-    the loop is always a square; and the TILTED behaviour of `_stepped_base`
-    and `_y_varies`, whose up axis was generalised with the rest - this kit is
-    rigid and unbanded so neither runs here, and what holds them is the
-    phase-1 baseline proving them bit-identical at `up_ref = UP`.
+    job); any tilted array that is not an axis-aligned plate; and the TILTED
+    behaviour of `_stepped_base` / `_y_varies`, which this rigid unbanded kit
+    never runs - what holds those is the phase-1 baseline proving them
+    bit-identical at `up_ref = UP`.
     """
     worst_in, worst_off, unpacked, noisy, res = None, None, [], [], []
     for rung in cases2d.TILT_LADDER:
@@ -363,6 +352,35 @@ def payload_face():
     ]
 
 
+def align_scope():
+    """7.4's ALIGNED where it must change NOTHING - C3a's D297/D298/D299.
+    Three pairs one `y_mode` apart, each against its own free twin;
+    `FW_y_aligned`'s [0, 4] is the control that says the mode is live."""
+    def facade(aligned, ground_x=cases2d.BAY_X, extra=()):
+        return cases2d.case(
+            cases2d.L_FOOTPRINT, cases2d.facade_kit(ground_x=ground_x),
+            cases2d.facade_style(extra=list(extra),
+                                 meta={"y_mode": "aligned"} if aligned
+                                 else None))["out"]
+
+    def area(aligned):
+        return cases2d.F.build_clipped(
+            cases2d.clip_geometry(cases2d.HOLED_PLATE), cases2d.clip_kit(),
+            cases2d.clip_style(), height=None, clip_mode="remove",
+            y_mode="aligned" if aligned else "free")[0]
+    seq = [cases2d.Rule("default", "sequence", ["bay", "pier"])]
+    # D297 the area path (the datum is a SPAN there); D298 a SEQUENCE default
+    # rule (`pc_bays` counts bays, `fit` counts units); D299 a 0.6 m ground bay,
+    # whose count the 3.0 m storeys above cannot hold - 7.4's own degrade.
+    return [C.payload_round_trip_2d(a, b, ("y_align_lost", "pc_warnings"), n)
+            for a, b, n in (
+                (area(False), area(True), "align_no_op_area"),
+                (facade(False, extra=seq), facade(True, extra=seq),
+                 "align_no_op_sequence"),
+                (facade(False, ground_x=0.6), facade(True, ground_x=0.6),
+                 "align_no_op_floor"))]
+
+
 def tripwires():
     """11.9's rules 1 and 2, on the shapes phase 2 actually has.
 
@@ -433,7 +451,8 @@ def main():
             if not r.ok and not r.skipped:
                 failures += 1
 
-    for label, fn in (("ZY_gate_pc_g6", gate_pc_g6),
+    for label, fn in (("ZY_align_scope", align_scope),
+                      ("ZY_gate_pc_g6", gate_pc_g6),
                       ("ZY_gate_pc_g6_hostile", gate_pc_g6_hostile),
                       ("ZY_payload_face", payload_face),
                       ("ZY_tilt_ladder", tilt_ladder),

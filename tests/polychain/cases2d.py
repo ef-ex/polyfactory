@@ -138,6 +138,12 @@ CLIP_HOLE = [(6, 1, 0), (10.5, 5, 0), (6, 9, 0), (1.5, 5, 0)]
 CLIP_ISLAND = [(4.5, 3.5, 0), (7.5, 3.5, 0), (7.5, 6.5, 0), (4.5, 6.5, 0)]
 CLIP_BESIDE = [(16, 0, 0), (24, 0, 0), (24, 10, 0), (16, 10, 0)]
 CLIP_LOOPS = [CLIP_PLATE, CLIP_HOLE, CLIP_ISLAND, CLIP_BESIDE]
+
+# C3a / D297 - the audit's F2: a 30 x 20 m plate holed 22 x 12, so a row is a
+# 30 m band or two 4 m strips. Under `aligned` the strips took the 30 m row's
+# 16 bays: a 2.0 m module at 0.125 m, 496 prims against free's 88.
+HOLED_PLATE = [[(0, 0, 0), (30, 0, 0), (30, 20, 0), (0, 20, 0)],
+               [(4, 4, 0), (26, 4, 0), (26, 16, 0), (4, 16, 0)]]
 CLIP_X = CLIP_Y = 2.0
 
 
@@ -274,18 +280,16 @@ PAYLOAD_2D = {"clip_mode": "slice", "expand": 0.25, "auto_align": "x_xy"}
 # --- 7.6 / D296: the tilt ladder --------------------------------------------
 #
 # ⚠️ EVERY COMMITTED AREA CASE STANDS EXACTLY VERTICAL, which is how the whole
-# area path shipped having only ever run at 0 degrees (C2a's F5). This is the
-# ladder that made D292 a number and D296 a fix, and 0 is IN it: the row that
-# must not move is as much of the measurement as the rows that must.
+# area path shipped having only ever run at 0 degrees (C2a's F5), and 0 is IN
+# the ladder: the row that must not move is as much of the measurement as the
+# rows that must.
 #
 # ⚠️⚠️ AND SIX RUNGS OF ONE PARAMETER PROVED ONE PARAMETER (C3's audit, F1).
 # Rotating about world X off a loop whose first edge already runs along world
-# X leaves `frame.ex` at exactly +X on EVERY rung, so the three remaining
-# world-axis hard-codings in `place` cancelled and the ladder read green over
-# a build that was 0.96 m out of its own plane. A rung is `(rx, rz, start)`
-# now: `start` re-authors the SAME plate from a different vertex (which is all
-# it takes to swing `ex` off +X) and `rz` rolls it about a second axis. The
-# six original rungs are the first six entries, unchanged.
+# X leaves `frame.ex` at exactly +X on EVERY rung, so three more world-axis
+# hard-codings in `place` cancelled and the ladder read green over a build
+# 0.96 m out of its own plane. A rung is `(rx, rz, start)` now; the six
+# original ones are the first six entries, unchanged.
 TILT_LADDER = ((0.0, 0.0, 0), (2.0, 0.0, 0), (5.0, 0.0, 0), (10.0, 0.0, 0),
                (30.0, 0.0, 0), (90.0, 0.0, 0),
                (0.0, 0.0, 1), (5.0, 0.0, 1), (30.0, 0.0, 3),
@@ -301,13 +305,12 @@ TILT_DEFORM = ((0.0, 0.0, 0), (30.0, 0.0, 1), (30.0, 20.0, 0),
 def tilt_loops(rx, rz=0.0, start=0, loops=None):
     """PC-G6's OWN loops taken out of the world plane, same rung vocabulary.
 
-    ⚠️ THE PLATE CANNOT REACH THE DEFORM WRITER and that is measured, not
-    assumed: on a rectangle whose rows end exactly on the region boundary an
-    adaptive fill never straddles it, so `tilt_plate` builds 100 packed prims
-    at every tilt and 0 deformed - which is how `2d_deform_grows_world_y`
-    SURVIVED the twelve-rung ladder by reddening nothing at all. PC-G6's
-    diamond and hole cut 6-8 pieces per rung, and a cut piece is the only
-    thing on the area path that takes `_deform_positions`.
+    ⚠️ THE PLATE CANNOT REACH THE DEFORM WRITER, measured not assumed: on a
+    rectangle whose rows end exactly on the region boundary an adaptive fill
+    never straddles it, so `tilt_plate` is 100 packed / 0 deformed at every
+    tilt - which is how `2d_deform_grows_world_y` SURVIVED the twelve-rung
+    ladder by reddening nothing at all. A cut piece is the only thing on the
+    area path that takes `_deform_positions`, and PC-G6's diamond cuts 6-8.
     """
     cx, sx = math.cos(math.radians(rx)), math.sin(math.radians(rx))
     cz, sz = math.cos(math.radians(rz)), math.sin(math.radians(rz))

@@ -625,22 +625,47 @@ MUTATIONS = (
         "    return (d, _cross(d, UP), UP)"),),
       rebuild=False),
 
-    # ---- C3a / D296a: the THREE yaw sites D296 did not sweep ----------------
-    #
-    # ⚠️ ALL FOUR OF THESE WERE GREEN ON THE SIX-RUNG LADDER. The ladder
-    # rotated about world X off a loop whose first edge runs along world X, so
-    # `frame.ex` was +X on every rung and each of these spellings agreed with
-    # the generalised one. The rungs that redden them are the ones that move
-    # `ex`: the same plate started at its second vertex, and the two-axis
-    # rolls.
+    # ---- C3a / D297-D299: ALIGNED, where 7.4 says it changes nothing --------
+    M("2d_align_on_area_arrays", "2d",
+      ("align_no_op_area",),
+      "`align_rows` runs on the AREA path again, where the datum is a SPAN "
+      "and not a row: on a holed plate the 4 m strips take the 30 m row's bay "
+      "count and deliver a 2.0 m module at 0.125 m, 496 prims against 88, "
+      "with every warning channel empty.",
+      ((PY % "facade.py", "            if area:", "            if False:"),),
+      rebuild=False),
+
+    M("2d_align_count_is_units", "2d",
+      ("align_no_op_sequence",),
+      "`pc_bays` (BAYS) is handed to `fit` (UNITS) again, so a SEQUENCE "
+      "default rule doubles every non-datum row - 120 / 168 / 168 / 168 "
+      "against free's 120 four times, on CONGRUENT rows.",
+      ((PY % "plan.py",
+        "        count, rem = divmod(int(count), len(mods))",
+        "        count, rem = int(count), 0"),),
+      rebuild=False),
+
+    M("2d_align_no_minimum_scale", "2d",
+      ("align_no_op_floor",),
+      "7.4's named degrade loses its threshold and can then not fire at all "
+      "on a kit without padding: `fit(0.5, 3.0, 'count', count=7)` returns 7 "
+      "units at scale 0.02381 with no warning, and its drop loop only runs "
+      "when `fixed` or `gap` is non-zero.",
+      ((PY % "plan.py",
+        '                              or res["scale"] < MIN_ALIGN_SCALE):',
+        '                              or res["scale"] < 0.0):'),),
+      rebuild=False),
+
+    # ---- C3a / D296a: the yaw sites D296 did not sweep ----------------------
+    # ⚠️ ALL FOUR WERE GREEN ON THE SIX-RUNG LADDER, whose `frame.ex` is
+    # +X at every rung, so each spelling agreed with the generalised one. What
+    # reddens them is a rung that moves `ex`.
     M("2d_packed_chord_world_flat", "2d",
       ("tilt_ladder_inside_m",),
       "`_packed_transform` squashes the chord into the world XZ plane again, "
-      "one line before handing it to the frame D296 generalised - so the "
-      "piece is measured, scaled and placed along a direction the plan never "
-      "used. Measured on HEAD 1a3f1ce: 30 deg started at vertex 1, "
-      "`clip_inside_m` 0.064952 m against PC-G6's 0.010 tolerance; started at "
-      "vertex 3, 1.797003 m.",
+      "one line before handing it to the frame D296 generalised. On HEAD "
+      "1a3f1ce: 30 deg started at vertex 1 reads `clip_inside_m` 0.064952 m "
+      "against PC-G6's 0.010 tolerance, at vertex 3 1.797003 m.",
       ((PY % "place.py",
         "        flat = _flat(chord, up_ref)",
         "        flat = (chord[0], 0.0, chord[2])"),),
@@ -649,10 +674,9 @@ MUTATIONS = (
     M("2d_deform_grows_world_y", "2d",
       ("tilt_ladder_offplane_m",),
       "The deform's yaw branch adds the module's local y to the WORLD Y "
-      "component and drops the `up` it just built - the same defect D296 "
-      "fixed in the packed writer, left standing in the writer beside it. "
-      "Measured on HEAD 1a3f1ce: a 30/20 two-axis roll is 0.906580 m off its "
-      "own plane, 90/45 is 1.339214 m.",
+      "component and drops the `up` it just built - D296's own fix, left "
+      "standing in the writer beside the one it edited. On HEAD 1a3f1ce a "
+      "30/20 roll is 0.906580 m off its own plane, 90/45 1.339214 m.",
       ((PY % "place.py",
         "            out[i] = b[0] + across[0] * z + up_ref[0] * sy",
         "            out[i] = b[0] + across[0] * z"),
@@ -667,12 +691,10 @@ MUTATIONS = (
     M("2d_shear_test_world_y", "2d",
       ("tilt_ladder_packed",),
       "`_needs_deform`'s `vertical` shear test asks whether the span rises in "
-      "the WORLD again. Every span of a tilted array does, so every piece "
-      "unpacks: 100 packed prims become 350 real ones on a plate whose "
-      "modules are rigid, and D121's 'a scaled storey stays packed' plus "
-      "PC-G3's instancing property stop surviving a tilt. ⚠️ IT COSTS "
-      "NOTHING VISIBLE - the geometry is still right, which is why no "
-      "containment number can see it.",
+      "the WORLD again. Every span of a tilted array does, so 100 packed "
+      "prims become 350 real ones and D121's 'a scaled storey stays packed' "
+      "stops surviving a tilt. ⚠️ THE GEOMETRY IS STILL RIGHT, which is "
+      "why no containment number can see it.",
       ((PY % "place.py",
         "        return abs(_dot(_sub(b, a), up_ref)) > 1e-6",
         "        return abs(b[1] - a[1]) > 1e-6"),),
@@ -680,11 +702,10 @@ MUTATIONS = (
 
     M("2d_flat_ratio_world_xz", "2d",
       ("tilt_ladder_warns",),
-      "D32's degenerate-frame ratio measures the span across world XZ again. "
-      "A row that runs UP its own array's slope then reads 0.0 of its span "
-      "surviving the flatten, and a perfectly buildable plate ships "
-      "`pc_warn_degenerate_frame` on all 100 elements - a detector firing on "
-      "correct work, which is the failure mode that retires a warning.",
+      "D32's degenerate-frame ratio measures the span across world XZ again, "
+      "so a row running UP its own array's slope reads 0.0 surviving the "
+      "flatten and a buildable plate ships `pc_warn_degenerate_frame` on all "
+      "100 elements - a detector firing on correct work.",
       ((PY % "place.py",
         "    return _len(_flat(_sub(b, a), up_ref)) / span",
         "    return math.hypot(b[0] - a[0], b[2] - a[2]) / span"),),
@@ -1083,16 +1104,18 @@ EXPECT_CHECKS = {
     # cannot report the aligned path as proven - plus D296's two ladder rows.
     # Nothing was retired with `pc_warn_clip_tilted`: it was a NAME inside
     # `clip_input_warns`' expected set, not a check.
-    # C3a added three, 2026-08-25, and all three are on the tilt ladder
-    # because the audit's F1 is a defect the ladder's two containment numbers
-    # could not see: `tilt_ladder_packed` (the shear test was world-Y, so a
-    # tilted array unpacked every piece and built the RIGHT geometry the
+    # C3a added three on the tilt ladder, all defects its two containment
+    # numbers could not see: `tilt_ladder_packed` (the shear test was world-Y,
+    # so a tilted array unpacked every piece and built the RIGHT geometry the
     # expensive way), `tilt_ladder_warns` (`_flat_ratio` was world-XZ, so a
-    # legal plate shipped `pc_warn_degenerate_frame` on all 100 elements) and
-    # `tilt_ladder_deformed` - the anti-vacuity row, because the plate reaches
-    # only ONE of the two writers and the deform writer's own mutation
-    # SURVIVED the twelve-rung ladder by reddening nothing at all.
-    "2d": 36,
+    # legal plate warned on all 100 elements) and `tilt_ladder_deformed`, the
+    # anti-vacuity row - the plate reaches only ONE of the two writers.
+    # ...and three more with C3a's D297-D299 (`align_no_op_area`,
+    # `align_no_op_sequence`, `align_no_op_floor`), which assert 7.4's own
+    # "Aligned IS free on congruent rows" where it was FALSE.
+    # `bay_alignment_aligned` sees none of the three: it compares rows to EACH
+    # OTHER and all three defects move every row by the same factor.
+    "2d": 39,
     "generated": 3,
     "hda": 18,
     "images": 30,

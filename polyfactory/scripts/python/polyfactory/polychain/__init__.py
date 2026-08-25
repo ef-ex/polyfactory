@@ -260,6 +260,16 @@ UP = (0.0, 1.0, 0.0)
 
 EPS = 1e-9          # metres; a chord shorter than this is not a segment
 POS_EPS = 1e-6      # metres; two points closer than this are one point
+# 7.4 / D299 - the smallest a module may be squeezed to in order to hold the
+# ALIGNED datum's bay count, as a fraction of its own nominal size. 7.4 says a
+# row that "physically cannot hold the datum's count" degrades to its own solve
+# and warns, and on a kit without padding there is no physical limit at all -
+# `fit`'s count mode returns the count it was asked for at whatever scale that
+# takes, so a 2.0 m module shipped at 0.125 m with nothing said. Half is the
+# threshold because below it the bay is not the module the artist chose any
+# more; alignment is what was asked for, not a different building.
+MIN_ALIGN_SCALE = 0.5
+
 MAX_UNITS = 100000  # pieces in ONE run; a ceiling, not a target (D17). PC-G3
                     # plans 10k in one section legitimately, so this is 10x
                     # that - it exists only so degenerate padding degrades

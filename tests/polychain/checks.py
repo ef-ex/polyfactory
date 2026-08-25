@@ -2081,17 +2081,25 @@ def clip_input_warns(case, expected=(), name="clip_input_warns"):
                   else "expected %s" % (sorted(expected),))
 
 
-def payload_round_trip_2d(a, b, name="payload_round_trip_2d"):
-    """2.1 ON THE 2D AXIS: a facade authored on the PARM face, written out as
-    a 7.3.2 payload and read back in, is the same geometry - byte for byte at
-    tol 0, not merely the same shape. `diff.compare` is the oracle.
+def payload_round_trip_2d(a, b, ignore=(), name="payload_round_trip_2d"):
+    """TWO BUILDS THAT MUST BE THE SAME GEOMETRY, byte for byte at tol 0 and
+    not merely the same shape. `diff.compare` is the oracle, so it compares
+    every value, storage and order rather than a count. [differences]
+
+    Under its own name it is 2.1 on the 2D axis: a facade authored on the PARM
+    face, written out as a 7.3.2 payload and read back in. Under
+    `align_no_op_*` (C3a, 7.4's D297-D299) it is *"when the rows are congruent
+    Aligned IS free"*, asserted at the three places it was FALSE; `ignore` is
+    the degrade's own warning, excluded BECAUSE it is the difference, and the
+    control is `bay_alignment_aligned` ([3, 4] -> [0, 4] on one fixture).
 
     WHAT IT CANNOT SEE: whether either build is CORRECT. It compares two faces
     of one tool; `clip_inside_m` and `exact_fill_m` say the geometry is right.
     """
     import diff as _diff
-    diffs = _diff.compare(_diff.snapshot(a), _diff.snapshot(b))
-    return Result(name, not diffs, [len(diffs)], "; ".join(diffs[:3]))
+    diffs = [d for d in _diff.compare(_diff.snapshot(a), _diff.snapshot(b))
+             if not any(k in d for k in ignore)]
+    return Result(name, not diffs, [len(diffs)], "; ".join(diffs[:3])[:200])
 
 
 def parms_inert_under_payload(build, nudges,
