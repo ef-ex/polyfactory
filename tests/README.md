@@ -122,6 +122,79 @@ native runner lose checks, and a lost check reads exactly like a check that cann
 runner **re-runs any SURVIVED verdict that has unreached names** before believing it, and
 `--slots N` is the blunt instrument for a machine that is also doing something else.
 
+### Independently verified — cycle V4 audit, 2026-08-25, HEAD `7fabfff`
+
+A fresh agent that wrote none of this re-ran everything from a pristine `git archive HEAD`
+export and measured its own numbers. **The build report's timings reproduce.**
+
+| | audit's own measurement | target |
+|---|---|---|
+| per-cycle gate, `hython tests/polychain/pdg_build.py` | **12.9 s wall / 84.2 s summed work** | < 5 min ✅ |
+| full sweep, `--full`, 32 mutations | **186.8 s = 3.1 min wall / 1 526 s work (8.2x)** | < 15 min ✅ |
+| mutations red | **32 of 32 `[ok] RED`, 0 unreached names, 0 survivors** | all ✅ |
+| six of them re-run ALONE on the lean suite | all RED — `corner_style_composed_default` 11.1 s, `corner_bisector_negated` 10.9 s, `out_cast_ints_int64` 58.6 s (storage), `piece_key_within_piece_dropped` 59.0 s, `generated_pc_local_scaled` 10.7 s, `hda_input_ports_swapped` 24.0 s | ✅ |
+| gates | `gate_images.py` 0 failing / 3.5 s, `scale_gate.py` 9 rows 0 failing / 7.0 s, `run_hda_checks.py` 18 checks 0 failing / 9.4 s; **PC-G1..G4 pass, PC-G5 unchanged and still does not pass** | ✅ |
+| the tool | `git diff --stat 20a9179 HEAD -- polyfactory devScripts otls` is **EMPTY** — this cycle was tests-only | ✅ |
+| budget | **red**, re-counted independently with `wc -l`: **15 357 test / 14 643 tool = 1.05x, 714 over** (the check's own counter, +1 per file on both sides, says 15 381 / 14 682 = 699 over) | ≤ 1.0 ❌ |
+
+Three things the audit found that the build report did not say:
+
+1. ⚠️ **`facade_images.py` — PC-G5's ONLY image evidence — CANNOT FAIL, and it is 145 lines
+   inside the budget.** `rasterise` returns early on `if not segs`, and `facade_images.main()`
+   returns `None`. Demonstrated: with every facade's geometry replaced by an empty
+   `hou.Geometry()`, the script writes **zero PNGs, prints nothing and exits 0**. It is the
+   same class as `conform_bench.py` / `facade_bench.py`, which this cycle deleted for exactly
+   that reason, and the discipline it breaks — *an image check must prove the image contains
+   its subject* — is one `gate_images.py` itself honours (`image_shows_packed_*`). The fix is
+   a drawn-segment floor per image, and it is the cheapest thing left in the suite.
+2. ⚠️ **`--full` CANNOT BE RUN FROM AN EXPORT** — it resolves `git rev-parse HEAD` at `REPO`
+   and dies with `not a git repository`. The pristine-export guarantee is real but it is
+   **per work item and internal**: `run_mutation_registry.export()` archives HEAD for the
+   control and for every mutation. So run the *gate* wherever you like; run the *sweep* in
+   the repo.
+3. ⚠️⚠️ **THE `mutmut` LANE HAD NEVER BEEN RUN, AND ITS FIRST RUN FINDS REAL
+   SURVIVORS IN PRODUCTION CODE.** `setup.cfg`'s `[mutmut]` section is configured and 2.5.0 does
+   work on native Windows as documented, but nothing in the cycle report shows it having been
+   executed. The auditor ran it on **one** of the five configured kernel files, `decompose.py`
+   (387 lines), inside the throwaway export: **352 mutants, 227 killed, 124 SURVIVED, 1
+   suspicious — a 64.5 % kill rate — in 600 s.** The first five survivors opened were
+   all substantive rather than arid, and one was chased to the end:
+
+   > **mutant #209, `resolve_corners`: `if not forced and turn <= params.corner_angle_deg`
+   > → `turn <`.** The docstring one line above states the contract as *corner iff
+   > `turn > corner_angle_deg`*, so the mutant moves the corner-detection threshold onto its own
+   > boundary. On an EXACT 90° turn with `corner_angle_deg = 90.0` the shipped code finds
+   > **0 corners** and the mutant finds **1** — a corner post placed or not placed.
+   > **It survives the ENTIRE lean suite**: 238 pytest tests, the properties at
+   > `PC_EXAMPLES=1500`, 405 generated scenes through the differential oracle (`0 RED`),
+   > `run_native_checks.py` (`0 failing`) and `run_scene_checks.py` (`0 failing, 0 moved`) —
+   > every one of them exit 0. Neither the 89 hand fixtures nor `gen_cases` ever lands a turn
+   > exactly on the threshold, and no property asserts the boundary. This is principle 2's own
+   > failure mode surviving into v2: **generated inputs do not reach a boundary unless the
+   > generator is told the boundary exists.**
+
+   Two caveats stated rather than buried: mutmut's 2.5.0 mutant set is unfiltered (Google's
+   policy filters arid lines; `setup.cfg` does not), so 124 is an upper bound on real gaps, and
+   mutmut can only run pytest — some survivors may be killed by the hython lanes, though
+   #209 demonstrably is not. And **600 s for one of five files** means the milestone form of
+   this lane is on the order of hours, which no target in this file budgets for.
+4. ⚠️ **A wall-clock ceiling flaked under the 32-way sweep.** `proxy_is_interactive` reddened
+   as collateral for `hda_input_ports_swapped` in the parallel sweep and did **not** redden
+   when the same mutation ran alone. It credits nothing, so no verdict moved — but by the
+   skill's own rule a flaky check is a defect in the check, and this is the second time
+   contention has moved a `native`/`hda` result (see the false survivor above).
+
+The three PRODUCTION defects the new instruments found are **recorded, not fixed** — this was a
+test cycle — and each is a standing check that fails the day it is fixed, so none can be closed
+by accident: `pc_module` inside the packed geometry on the native path only
+(`run_generated.KNOWN`, 207 of the 208 cases the guard admits); `plan.evenly` with **no
+`MAX_UNITS` ceiling** where `plan.fit` clamps and warns
+(`test_evenly_ignores_the_MAX_UNITS_ceiling`; re-measured by the audit — 999 999 anchors on a
+1 km span at 1 mm spacing, 0.039 s, no warning, and the artist-facing *Evenly Spacing (m)* parm
+is `min_is_strict=False`, so the value is typeable); and `fill = count` with a negative pad
+laying the run outside its own section in silence
+(`test_count_mode_overhangs_the_section_on_negative_padding`).
+
 ## The v2 commands
 
 ```bash

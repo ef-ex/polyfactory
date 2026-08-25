@@ -255,3 +255,63 @@ git half arguably cannot be from inside an agent.
 convenience; acceptance criteria include what an artist meets first; verify by reading the built
 asset back). One is partly enforced: `run_hda_checks.py` reads the BUILT asset rather than the
 build script, and `kit_input_unplugged` / `hda_input_ports_swapped` are its registered mutations.
+
+### 6e. §1 and §5, MEASURED: what the v2 regime did to v1 (2026-08-25, cycle V4, verified independently on HEAD `7fabfff`)
+
+§1's finding was that the suite had become the main cost; v2 replaced accretion with four
+standard techniques (a generic differential comparator against the reference, generated inputs,
+Google's changed-code mutation policy, PDG/TOPs as the parallel cached runner) and then **deleted
+what they subsume**, and the result is now a measurement rather than a claim: **27 162 test lines
+became 15 381** and **361 printed check names became 122**, while **every one of the 32 registered
+mutations is still `[ok] RED` with 0 unreached names and 0 survivors** — so the cut removed
+weight, not the rail. The **80-minute sequential sweep is 3.1 minutes** (186.8 s wall for 1 526 s
+of work, 8.2x on 16 cores) and the per-cycle gate is **12.9 s**; the 15-minute floor turned out to
+be arithmetic rather than scheduling — the shared control must finish before any mutation
+starts and the longest mutation was itself a `native` one, so deleting the 126 subsumed names in
+`run_native_checks.py` (9 065 → 2 240 lines, 430 s → 27 s) removed the floor that no
+scheduler could have out-run. **The budget is the one target missed, and it is red at 1.05x**
+(15 381 against a tool that measures **14 682** — this document's own “~6 000-line
+tool” was never measured and is wrong by 2.4x in the direction that matters); the residue is
+coverage rather than accretion, and the cheapest real fix is a layering one —
+`devScripts/create_pf_polychain_hda.py` **imports `tests/polychain/native.py`** to build the
+shipped asset, so 645 lines of production source are counted, and stored, on the test side.
+**Four gaps in `~/.claude/skills/testing/SKILL.md` are worth folding back, each earned here.**
+(i) *“An image check must prove the image contains its subject” is stated for checks but
+the failure is in the RASTERISER*: `gate_images.rasterise` returns early on empty input, which
+silently turned `facade_images.py` — PC-G5's only image evidence — into 145 committed
+lines that write zero PNGs and exit 0, the same class as the two benches this cycle deleted; the
+rule should be *the renderer raises on zero drawn segments*, so every script downstream of it
+inherits the floor. (ii) *“Run parallel” and the wall-clock ceilings CONFLICT, silently*:
+contention does not make a runner slow, it makes it **drop checks**, which is indistinguishable
+from a check that cannot fail — a SURVIVED verdict with unreached names is not a survivor
+until it has been re-run alone, and a cost ceiling that reddens only under load is a flaky check,
+i.e. a defect in the check. (iii) *“Generate inputs” is not enough when the system under
+test has a GUARD*: 97 % of the generated differential was reference-against-reference because the
+native envelope refused the cases, and only a mutation could tell “reached the code path”
+from “reached the branch inside it” — measure the fraction of generated input that
+actually reaches the compared path and **assert a floor**. (iv) *The skill's own ordering
+(replacements first, deletions later) guarantees a window in which the budget check is red*, and
+it should say so, or the first person to run it treats a working gate as a broken one; the
+corollary it also omits is that a deletion pass **ends** by re-measuring the control and rebuilding
+the EXEMPT/UNPROVEN declarations from it, because deleting checks breaks the pinned inventory,
+orphans declarations and strands a mutation's `kills` — all three are good failures, and all
+three read as a broken instrument to anyone not expecting them. Two practical notes belong with
+them: **mutmut 3.x refuses to run on native Windows** (2.5.0 works, needs `PYTHONIOENCODING=utf-8`,
+and **rewrites source files in place** — an interrupted run leaves a mutant on disk), and a
+sweep that exports pristine per work item still needs a real `.git` to run **from**.
+
+**And the audit's own headline, which is §2's P1 one level further down:** the `mutmut` lane
+— the only automated mutation coverage over the pure-Python kernel, and the half of principle 3
+no hand-written registry covers — **was configured and never run**. Its first execution, on
+one of the five configured files (`decompose.py`, 387 lines), returned **352 mutants, 227 killed,
+124 survived — a 64.5 % kill rate in 600 s**, and the first survivor chased to the end,
+`turn <= params.corner_angle_deg` → `turn <`, **survives everything**: 238 pytest tests, the
+properties at 1 500 Hypothesis examples, 405 generated scenes through the differential oracle,
+`run_native_checks.py` and `run_scene_checks.py`, all exit 0 — while changing whether an exact
+90° turn at `corner_angle_deg = 90.0` gets a corner post (0 corners vs 1). Neither the 89 hand
+fixtures nor the seeded generator ever lands a turn exactly on the threshold. That is §3's
+fixture-blindness pattern surviving into v2 in its generated form, and it is the sentence the skill
+is missing: **generated inputs do not reach a boundary unless the generator is told the boundary
+exists** — so a generator over a thresholded system must sample the threshold itself, and a
+mutation lane that is configured but never executed buys exactly as much confidence as a check that
+cannot fail.
