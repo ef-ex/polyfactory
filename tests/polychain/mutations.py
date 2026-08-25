@@ -631,7 +631,7 @@ MUTATIONS = (
       "The envelope stops refusing a curve carrying `pc_bays`, so the native "
       "chain builds a FREE fence where the reference builds an ALIGNED one - "
       "D122's count has no term in `pc_plan_solve` and a missing term reads "
-      "as no constraint. `T4_row_attrs_1d` is the case; the guard's rule is "
+      "as no constraint. `T4_row_bays_1d` is the case; the guard's rule is "
       "that a build this chain cannot answer takes the reference, and a bay "
       "count it cannot read is exactly that (D223's own argument).",
       ((VEX % "pc_envelope.vfl",
@@ -643,7 +643,7 @@ MUTATIONS = (
       "The same refusal's other half: a curve carrying D296's per-row up axis "
       "is admitted, and `pc_proto.vfl` writes the WORLD up axis there as a "
       "constant - so the native fence is built along an axis the reference "
-      "did not use. On `T4_row_attrs_1d` that is a 45 degree difference on "
+      "did not use. On `T5_row_upref_1d` that is a 45 degree difference on "
       "every piece.",
       ((VEX % "pc_envelope.vfl",
         "if (up_t >= 0) {",
