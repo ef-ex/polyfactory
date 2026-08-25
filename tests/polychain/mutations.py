@@ -760,7 +760,7 @@ EXPECT_CHECKS = {
     "images": 43,
     "2d": 40,
     "hda": 37,
-    "generated": 2,
+    "generated": 3,   # matches / known-still-occur / reaches-the-native-chain
 }
 
 # ---- the DATED DEBT ---------------------------------------------------------
