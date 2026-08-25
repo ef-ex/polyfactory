@@ -8,13 +8,10 @@ Same contract as `run_scene_checks.py` - numbers first, baseline diffed, no
 .hip - and its own baseline file so a phase-2 movement can never be confused
 with a phase-1 one.
 
-⚠️ MOST OF THE CHECKS HERE ARE PHASE 1'S OWN, RUN UNCHANGED. That is the point
-of the whole architecture: a 2D array IS a phase-1 build over a stream of row
-curves, so `exact_fill_m`, `max_gap_m`, `corner_seam_m`, `instancing_split`,
-`determinism` and `geometry_digest` apply to it verbatim. If a check in that
-list had to be forked to pass on a facade, the row stack would have stopped
-being a row stack and become a second kernel (D130) - so the reuse is not a
-convenience, it is the assertion.
+⚠️ MOST OF THE CHECKS HERE ARE PHASE 1'S OWN, RUN UNCHANGED, and that is
+the architecture: a 2D array IS a phase-1 build over a stream of row curves.
+A check that had to be FORKED to pass on a facade would mean the row stack had
+become a second kernel (D130), so the reuse is the assertion.
 """
 
 import json
@@ -128,22 +125,17 @@ def run_case(name, case):
          if name in Y_ALIGNED else [])
 
 
-# PC-G5 condition 3, and it runs on TWO cases on purpose: it is a comparison
-# between rows, and it says something only where the rows CAN differ. False =
-# the `free` mode's inverted form ("at least one row differs, or the fixture
-# is not exercising the mode" - 7.8). D122's `aligned` is the True entry, on
-# the SAME fixture, so the pair is one variable apart and the condition is
-# answered in both directions rather than asserted in one.
+# PC-G5 condition 3 on TWO cases: it compares rows to each other and says
+# something only where they CAN differ. False is the `free` mode's inverted
+# form (7.8); D122's `aligned` is the True entry on the SAME fixture, so the
+# condition is answered in both directions rather than asserted in one.
 Y_ALIGNED = {"FW_y_free": False, "FW_y_aligned": True}
 
 
 def gate_pc_g6():
-    """PC-G6, 7.8's five conditions, each as a number.
-
-    Its own function rather than a `build_all` case because condition 4 needs
-    TWO builds of the same clip input with one sub-spline edited, which is a
-    property of a pair and not of a scene.
-    """
+    """PC-G6, 7.8's five conditions, each as a number. Its own function
+    rather than a `build_all` case because condition 4 is a property of a
+    PAIR of builds - the same clip input with one sub-spline edited."""
     a = cases2d.clip_case()
     scene = Scene(a)
     # sub-spline B (the hole) grown 0.5 m: array A000 must change and the
@@ -165,12 +157,10 @@ def gate_pc_g6():
         # both code that no committed run reaches.
         C.clip_preserve(Scene(cases2d.clip_case(clip_mode="preserve",
                                                 kit_clip=-1))),
-        # D145's channel, PINNED. `pc_warn_clip_convex` fires on exactly one
-        # element of this figure - a piece the diamond's own vertex falls
-        # inside, where an intersection of half-spaces takes more than the
-        # polygon does. A declared warning that no run raises is a warning
-        # that gets deleted by accident (D139, FT/FU's whole reason), and the
-        # exact-set form here also fails if a warning nobody expected appears.
+        # D145's channel, PINNED: `pc_warn_clip_convex` fires on exactly one
+        # element here - a piece the diamond's vertex falls inside, where an
+        # intersection of half-spaces takes more than the polygon does. A
+        # declared warning no run raises gets deleted by accident (D139).
         C.warnings(scene, ("pc_warn_clip_convex",)),
     ]
 
@@ -178,23 +168,19 @@ def gate_pc_g6():
 def gate_pc_g6_hostile():
     """PC-G6's own conditions on the input the SHIPPED FIXTURE cannot be.
 
-    C2a's audit: every loop in `CLIP_LOOPS` is wound counter-clockwise and the
-    plate sits on the origin, and both accidents were load-bearing. Reversed,
-    the array frame's up axis flipped and the whole array was built one
-    module-height out of its footprint - hole filled, `clip_inside_m` 2.0 m,
-    57 mutations green. Moved 500 m out, the cap guard's piece-scaled
-    tolerance deleted 7 of 8 genuine caps and `clip_caps_closed` read
-    [18 open boundary edges, 5 cut]. One build carries both, because citygen
-    -the stated consumer - has both.
-
-    ...and the validation station, whose five channels were declared over two
-    cycles and asserted nowhere.
-    """
+    C2a's audit: every loop in `CLIP_LOOPS` is counter-clockwise and on the
+    origin, and both accidents were load-bearing - reversed, the whole array
+    was built one module-height out of its footprint with 57 mutations green;
+    500 m out, the cap guard's piece-scaled tolerance deleted 7 of 8 genuine
+    caps. One build carries both, because citygen has both. ...and the
+    validation station, declared over two cycles and asserted nowhere."""
     hostile = Scene(cases2d.clip_case(loops=cases2d.clip_loops_hostile()))
     bad = cases2d.clip_case(loops=cases2d.CLIP_BAD_LOOPS,
                             open_at=(1,), groups=(0,))
     return [
         C.clip_inside_m(hostile, name="clip_inside_m_hostile"),
+        # D290's own number, on the fixture that carries the reversed winding.
+        C.array_offplane_m(hostile, name="array_offplane_m_hostile"),
         C.clip_caps_closed(hostile, name="clip_caps_closed_hostile"),
         # ⚠️ FOUR NAMES, NOT FIVE: `pc_warn_clip_tilted` is RETIRED with the
         # defect it announced (D296). `CLIP_BAD_TILTED` stays in the input and
@@ -208,15 +194,13 @@ def gate_pc_g6_hostile():
         # the row above is proving detection rather than a constant.
         C.clip_input_warns(cases2d.clip_case(), (),
                            name="clip_input_warns_clean"),
-        # ⚠️ THE CLOSURE CHECK BELONGS ON THE MITER PATH TOO, ON THE DISTRICT.
-        # The same piece-scaled tolerance left 6 400 mitered elements carrying
-        # 18 776 OPEN BOUNDARY EDGES - phase 1's own corner cut, cut open and
-        # never sealed, with every corner check green because they all measure
-        # where a face LANDS and none of them asked whether the solid closed.
-        # It has to be the DISTRICT: PC-G5's own L spans 0..24 m, which is too
-        # near the origin for float32 round-off to reach the old tolerance, so
-        # the check reads [0 open] there under the mutation and proves nothing
-        # - measured, before this row was written.
+        # ⚠️ AND ON THE MITER PATH, ON THE DISTRICT. The same piece-scaled
+        # tolerance left 6 400 mitered elements carrying 18 776 OPEN BOUNDARY
+        # EDGES, with every corner check green because they measure where a
+        # face LANDS and none asked whether the solid closed. It has to be the
+        # DISTRICT: PC-G5's L spans 0..24 m, too near the origin for float32
+        # round-off to reach the old tolerance, so the check reads [0 open]
+        # there under the mutation - measured before this row was written.
         C.clip_caps_closed(cases2d.build_many_buildings(True)[0],
                            name="caps_closed_mitered"),
     ]
@@ -330,10 +314,6 @@ def payload_face():
         # 7.3.2's six `clip` keys, hostile: one the 2D path cannot build at
         # the value asked (`cap_holes = 0`), one whose only buildable value is
         # the default (`hierarchy`), and one that is not a 7.3.2 key at all.
-        # ⚠️ NO `pc_warn_clip_tilted` HERE, and the reason is the fixture's:
-        # `x_xy` forces the frame's +X horizontal, so its `ey` IS the world up
-        # axis whatever the plate is spun by. `to_spline` on the same plate is
-        # what tilts it, which is exactly why the sweep row above can move.
         C.clip_input_warns(
             {"report": cases2d.payload_build(
                 payload=True, clip={"cap_holes": 0, "hierarchy": "none",
@@ -347,6 +327,30 @@ def payload_face():
                                   meta={"expand": 3.0, "y_parms": {}})[2],
             cases2d.payload_build(payload=True)[2],
             ("pc_warn_payload_malformed",)),
+    ]
+
+
+def gate_pc_g5():
+    """PC-G5's two conditions the v2 deletion pass left with no check at all.
+
+    C3a measured all seven on the shipped build; five already have standing
+    names (1 `corner_abut`/`corner_breach`, 3 `bay_alignment*`, 4
+    `no_sliced_cells`, 5 `warnings` with an EMPTY set on the gate figure, 7
+    `packed_pieces`). Conditions 2 and 6 had `cell_grid` and `structural_ids`,
+    both deleted in the v2 pass with 7.8 still pointing at them."""
+    def facade(footprint):
+        return cases2d.case(footprint, cases2d.facade_kit(),
+                            cases2d.facade_style())
+    L = cases2d.L_FOOTPRINT
+    rev = list(reversed(L))
+    return [
+        C.row_closure(Scene(facade(L))),
+        # condition 6, and BYTE-IDENTICAL is stronger than the id SET it asks
+        # for. The comparand is reversed AND re-authored from another vertex,
+        # so one name covers both of D124's permutations.
+        C.payload_round_trip_2d(facade(L)["out"],
+                                facade(rev[2:] + rev[:2])["out"],
+                                name="structural_ids"),
     ]
 
 
@@ -451,6 +455,7 @@ def main():
                 failures += 1
 
     for label, fn in (("ZY_align_scope", align_scope),
+                      ("ZY_gate_pc_g5", gate_pc_g5),
                       ("ZY_gate_pc_g6", gate_pc_g6),
                       ("ZY_gate_pc_g6_hostile", gate_pc_g6_hostile),
                       ("ZY_payload_face", payload_face),

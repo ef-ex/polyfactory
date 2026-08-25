@@ -7,35 +7,29 @@
 
 ⚠️ THIS RUNNER IS SLOW ON PURPOSE - it is a weekly / audit tool, not a
 per-commit one.  It exports the repo once per mutation and re-runs a whole
-suite inside the export, and `run_native_checks` alone is ~6 minutes.  What it
-buys is the one thing 15 build cycles proved the fast suites cannot buy:
-evidence that a green check is a check that CAN go red.
+suite inside the export (`run_native_checks` alone is ~6 minutes).  What it
+buys is what 15 build cycles proved the fast suites cannot: evidence that a
+green check is a check that CAN go red.
 
-⚠️ IT NEVER TOUCHES THE WORKING TREE.  Every mutation is applied inside its own
-`git archive HEAD` export under the system temp directory, and the export is
-deleted afterwards.  There is nothing to restore, which is the point: 21.4
-recorded a tree-wide `git checkout` from one agent silently reverting
-another's uncommitted work, and a mutation sweep that edits real files is that
-accident waiting for a crash to happen in the middle of it.
+⚠️ IT NEVER TOUCHES THE WORKING TREE.  Every mutation is applied inside its
+own `git archive HEAD` export under the system temp directory and the export
+is deleted afterwards - 21.4 recorded a tree-wide `git checkout` from one
+agent silently reverting another's uncommitted work.
 
-WHAT IT ASSERTS, and each one is a recorded incident:
+WHAT IT ASSERTS, each one a recorded incident:
 
-  1. **Every registered edit still matches its source exactly once.**  A
-     mutation whose target line has moved reports a green forever (D208).
-  2. **Every registered mutation reddens the check it is paired with.**  Not
-     "reddens something" - 21.4 M10 was killed by an `AssertionError` raised
-     inside a check while the check credited with the catch printed PASS, so a
-     run that ABORTS counts as a failure unless the entry says `expect="abort"`.
-  3. **Every check name a runner prints is PROVEN, EXEMPT or UNPROVEN.**  A
-     name in none of the three fails the run, so a check cannot be added to
-     this project without a decision about how it can fail.  Retrospective 4a
-     rule 1, mechanised.  PROVEN means *a mutation registered against that
-     name reddened it* - the rest of a mutation's blast radius is printed and
-     credits nothing, because only the declared pairing was examined.
-  4. **The inventory is pinned both ways.**  A new name is UNDECLARED and
-     fails; a name that stops being printed trips `EXPECT_CHECKS`.  A check
-     that quietly stops being emitted used to be deleted from the meta-check
-     in silence, with its debt entry left describing nothing.
+  1. **Every registered edit still matches its source exactly once** - a
+     mutation whose target line has moved reports green forever (D208).
+  2. **Every registered mutation reddens the check it is PAIRED with** - not
+     "reddens something", and a run that ABORTS counts as a failure unless the
+     entry says `expect="abort"` (21.4 M10 was killed by an `AssertionError`
+     raised inside a check while the check credited with the catch passed).
+  3. **Every check name a runner prints is PROVEN, EXEMPT or UNPROVEN**, so a
+     check cannot be added without a decision about how it can fail.  PROVEN
+     means the mutation registered against THAT NAME reddened it; the rest of
+     a mutation's blast radius is printed and credits nothing.
+  4. **The inventory is pinned both ways** - a new name is UNDECLARED and
+     fails; a name that stops being printed trips `EXPECT_CHECKS`.
   5. **Every EXEMPT / UNPROVEN key names a live check**, and no debt entry
      also has a mutation.  Declarations rot as fast as checks do.
 

@@ -262,12 +262,10 @@ def clip_case(loops=None, clip_mode="slice", modes=None, array_ids=None,
 
 # --- 2.1's PIPELINE FACE on the 2D path (P2-4 / D293) -----------------------
 
-# ⚠️ THE PLATE IS SPUN, AND THE SWEEP IS WHY. `to_spline` and `x_xy` name the
-# SAME +X on the shipped fixture - its first segment is already horizontal -
-# so an `auto_align` row over two identical frames would be decoration.
-# Measured: 30 degrees in the plate's own plane, and `to_spline` tilts the
-# frame 30 degrees off the world up axis while `x_xy` keeps its +X horizontal
-# and its `ey` exactly UP - two different frames, two different builds.
+# ⚠️ THE PLATE IS SPUN, AND THE SWEEP IS WHY. `to_spline` and `x_xy` name
+# the SAME +X on the shipped fixture, so an `auto_align` row over two
+# identical frames would be decoration. Spun 30 degrees in its own plane,
+# `to_spline` tilts the frame off UP while `x_xy` keeps `ey` exactly UP.
 def spun_loops(deg=30.0, loops=None):
     c, s = math.cos(math.radians(deg)), math.sin(math.radians(deg))
     return [[(p[0] * c - p[1] * s, p[0] * s + p[1] * c, p[2]) for p in loop]

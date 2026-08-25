@@ -4,32 +4,22 @@ proves it can fail.
     hython tests/polychain/run_mutation_registry.py          # the meta-runner
     hython tests/polychain/pdg_build.py --full               # in parallel
 
-⚠️ WHY THIS FILE EXISTS. `ideas/build_retrospective.md`: across ~15 build
-cycles the dominant recurring failure was not a bug in the tool - it was a
-check that COULD NOT FAIL. ~20 instances, one in almost every cycle, every
-one found by an independent auditor running a mutation by hand and never by
-the suite, which was green through all twenty. This file is "a check is not
-written until its mutation has been seen to fail" as DATA; the meta-runner is
-it as a RUNNER.
+⚠️ WHY THIS FILE EXISTS: `ideas/build_retrospective.md` 2a - ~20 checks
+that COULD NOT FAIL across ~15 cycles, every one found by an auditor running a
+mutation by hand and never by the green suite. This file is "a check is not
+written until its mutation has been seen to fail" as DATA.
 
-WHAT AN ENTRY IS. One `M(...)`: an id, the runner that owns the paired
-checks, exact source edits, and `kills` - the check names that MUST go red.
-Three properties, each an incident:
+WHAT AN ENTRY IS. One `M(...)`: an id, the runner that owns the paired checks,
+exact source edits, and `kills` - the check names that MUST go red. Three
+properties, each an incident: the edit is an exact string swap the runner
+asserts matched EXACTLY ONCE (a moved target line reports green forever,
+D208); ONLY the declared pairing is credited (crediting a blast radius
+silently marked 47 unexamined names as proven); and A CRASH IS NOT A RED
+(21.5) - an abort fails the run unless the entry says `expect="abort"`.
 
-  * the edit is an exact string swap and the runner asserts it matched
-    EXACTLY ONCE - a mutation whose target line has moved reports a green
-    forever (D208);
-  * `kills` names the check, so the pairing is falsifiable, and ONLY the
-    declared pairing is credited - crediting a mutation's blast radius
-    silently marked 47 unexamined names as proven;
-  * A CRASH IS NOT A RED (21.5): an `AssertionError` raised inside a check
-    while the check credited with the catch printed PASS. That is ABORT and
-    it fails the run unless the entry says `expect="abort"` and why.
-
-OUT OF SCOPE BY CONSTRUCTION: `scale_gate.py` prints a failing-ROW count and
-`tests/hda/run_attrib_checks.py` prints a name only when it FAILS, so neither
-has an inventory a green run can be asked for and there is no name to pair
-against. That is a property of their output format, not a judgement.
+OUT OF SCOPE BY CONSTRUCTION: `scale_gate.py` and `tests/hda/
+run_attrib_checks.py` print no green-run inventory, so there is no name to
+pair against - a property of their output format, not a judgement.
 """
 
 # --- the runners the registry can pair against ------------------------------
@@ -50,10 +40,8 @@ RUNNERS = {
     "slice": "tests/polychain/run_slice_checks.py",
 }
 
-# `run_scene_checks` and `run_2d_checks` carry a baseline, and D210 made a
-# MOVED baselined value fail the run exactly like a failing check.  Movement
-# has no check name, so it gets a reserved one and a mutation can be paired
-# against it.
+# D210 made a MOVED baselined value fail the run like a failing check.
+# Movement has no check name, so it gets a reserved one to pair against.
 BASELINE_MOVED = "ZZ_BASELINE_MOVED"
 
 
@@ -525,14 +513,16 @@ MUTATIONS = (
 
     # ---- C2a: the audit's findings, each as the edit that reddens ----------
     M("2d_clip_frame_winding", "2d",
-      ("clip_inside_m_hostile",),
-      "FINDING F1, AS A MUTATION. The array's plane normal goes back to being "
+      ("array_offplane_m_hostile",),
+      "C2a's F1 AS A MUTATION: the array's plane normal goes back to being "
       "whatever the artist's WINDING made it, so a clockwise clip loop gives "
-      "the frame an `ey` of -Y while the kernel keeps growing modules along "
-      "+Y: every piece lands one module-height below its own row datum, out "
-      "of the footprint the plan trimmed, with the hole FILLED and the clip "
-      "removing nothing. `clip_inside_m` read 2.0 m on the reversed plate and "
-      "0.0 on the shipped one - all four gate loops were wound the same way.",
+      "the frame an `ey` of -Y. ⚠️ RE-PAIRED IN C3a, and the re-pairing "
+      "is the finding: it used to kill `clip_inside_m_hostile` at 2.0 m "
+      "because the kernel grew every module along +Y while the plan trimmed "
+      "against -Y. D296a made the kernel follow the ROW's up axis, so a "
+      "flipped array is now built consistently INSIDE its own footprint - "
+      "upside down - and this mutation SURVIVED the C3a sweep reddening "
+      "nothing at all. What D290 guarantees is ORIENTATION, not containment.",
       ((PY % "array2d.py",
         "    if _dot(ey, UP) < -EPS:",
         "    if False:  # the winding mutation"),),
@@ -623,6 +613,29 @@ MUTATIONS = (
       ((PY % "place.py",
         "    return (d, _cross(d, up_ref), up_ref)",
         "    return (d, _cross(d, UP), UP)"),),
+      rebuild=False),
+
+    # ---- C3a: PC-G5's two conditions the v2 deletion pass left unchecked ----
+    M("2d_row_band_published_wrong", "2d",
+      ("row_closure",),
+      "`pc_row_y1` is published 0.05 m high, so the band an element is "
+      "stamped with stops matching the band it was BUILT in. 7.8 condition 2 "
+      "asks for that seam at 1e-6 m and nothing had re-run it since the v2 "
+      "pass deleted `cell_grid`.",
+      ((PY % "array2d.py",
+        '                "pc_row_y1": self.y1, "pc_row_scale": self.scale,',
+        '                "pc_row_y1": self.y1 + 0.05, "pc_row_scale": self.scale,'),),
+      rebuild=False),
+
+    M("2d_footprint_not_canonical", "2d",
+      ("structural_ids_reversed",),
+      "D124's canonical winding is dropped, so the same L drawn the other "
+      "way round renumbers every section and moves every `pc_elem_id` - "
+      "citygen_buildings 12.7's own prohibition, 7.8 condition 6, and a check "
+      "the v2 pass deleted.",
+      ((PY % "array2d.py",
+        "    if _signed_area_xz(pts) > 0.0:",
+        "    if False:"),),
       rebuild=False),
 
     # ---- C3a / D300: the payload layer that named nothing ------------------
@@ -844,13 +857,10 @@ MUTATIONS = (
       (("tests/polychain/baseline_2d.json", None, None),),
       rebuild=False),
 
-    # ---- the two entries that were EXEMPT until an audit wrote them --------
-    #
-    # ⚠️ BOTH OF THESE WERE ON THE EXEMPT LIST, and the list said a mutation
-    # for them was impractical. An independent auditor wrote both on the first
-    # correct attempt. That is the whole argument for keeping EXEMPT small and
-    # attacking it: an exemption is a claim, and a claim in this project is
-    # something to falsify, not something to file.
+    # ---- the two that were EXEMPT until an audit wrote them ----------------
+    # ⚠️ The list said a mutation for both was impractical; an auditor wrote
+    # both on the first correct attempt. An exemption is a claim, and a claim
+    # in this project is something to falsify, not something to file.
 
     M("exempt_frames_injection_neutered", "native",
       ("mutation_pc_frames",),
@@ -1043,11 +1053,9 @@ MUTATIONS = (
         'INPUT_LABELS = ("Input 1", "Guides (optional)")'),)),
 )
 
-# ⚠️ IDS ARE UNIQUE, ASSERTED HERE. Two entries shared the id
-# `conform_drop_biased` for one sweep - one on `native`, one on `scene` - and
-# the resumable state file is keyed by id, so the second silently REPLAYED the
-# first's verdict and was never run. A registry whose own keys collide is the
-# defect it exists to catch, one level up.
+# ⚠️ IDS ARE UNIQUE, ASSERTED HERE. Two entries once shared an id, and the
+# resumable state file is keyed by id, so the second silently REPLAYED the
+# first's verdict and was never run.
 _ids = [m.id for m in MUTATIONS]
 assert len(_ids) == len(set(_ids)),     "duplicate mutation id: %s" % sorted(set(i for i in _ids
                                              if _ids.count(i) > 1))
@@ -1055,20 +1063,13 @@ assert len(_ids) == len(set(_ids)),     "duplicate mutation id: %s" % sorted(set
 
 # ---- the coverage meta-check ------------------------------------------------
 #
-# Every check name a runner prints is in exactly one of three states: PROVEN
-# (a registered mutation was SEEN to redden it), EXEMPT (a mutation is
-# impractical, or the check IS a mutation), or UNPROVEN (declared, dated
-# debt). A name in none of the three FAILS the meta-runner, so a check cannot
-# be added without a decision about how it can fail.
-#
-# ⚠️ EXEMPT IS A CLAIM, WHICH MAKES IT A TARGET. It held 36 rows; an auditor
-# attacked two of the "impractical" ones and both fell on the first correct
-# attempt (`exempt_frames_injection_neutered`, `exempt_gate_parity_collapsed`
-# are registered mutations now). The v2 deletion took the rest with the
-# checks they described. Two remain, and both are safe in the same direction:
-# each applies its own in-line edit and asserts the break SHOWS, so if the
-# edit stops matching, the "broken" build equals the sound one, the asserted
-# difference is zero and the check goes RED.
+# Every check name a runner prints is PROVEN (a registered mutation was SEEN
+# to redden it), EXEMPT (a mutation is impractical, or the check IS one) or
+# UNPROVEN (declared, dated debt); a name in none of the three FAILS the
+# meta-runner. ⚠️ EXEMPT IS A CLAIM AND THEREFORE A TARGET: it held 36 rows,
+# an auditor attacked two of the "impractical" ones and both fell on the first
+# correct attempt. The two that remain each apply their own in-line edit and
+# assert the break SHOWS, so an edit that stops matching goes RED.
 
 EXEMPT = {
     "native/mutation_pc_arclength":
@@ -1081,47 +1082,19 @@ EXEMPT = {
 # ---- the INVENTORY, pinned --------------------------------------------------
 #
 # ⚠️ HOW MANY CHECK NAMES EACH RUNNER MUST PRINT. Growth already fails the
-# sweep (a new name is UNDECLARED), but SHRINKAGE was silent: filtering one
-# check out of every 2d case took the control from 40 names to 39 and the
-# sweep still reported `0 UNDECLARED`, exit 0. Moving a number here is a
-# deliberate act.
-#
-# Measured 2026-08-25 from a pristine `git archive HEAD` export, all six
-# runners green, AFTER the v2 deletion pass (was 144/97/43/40/37/3 = 361).
+# sweep (a new name is UNDECLARED); SHRINKAGE was silent until this existed -
+# filtering one check out of every 2d case took 40 names to 39 with the sweep
+# reporting `0 UNDECLARED`, exit 0.
 EXPECT_CHECKS = {
-    # C2 added two, 2026-08-25: `no_sliced_cells` on every case (PC-G5
-    # condition 4) and `bay_alignment` on `FW_y_free` alone (condition 3).
-    # ...and six more with PC-G6: one per pass condition in 7.8, plus
-    # 7.6's per-sub-spline `pc_clip_mode` override, which no condition
-    # names and which nothing else executes.
-    # ...and `clip_preserve`, which is the only run that takes D126's
-    # array-decides branch and the only one that exercises `preserve`.
-    # C2a added five, 2026-08-25: `clip_inside_m_hostile` and
-    # `clip_caps_closed_hostile` on the fixture PC-G6 could not be (reversed,
-    # 500 m out), `clip_input_warns` + its clean control on the validation
-    # station's five channels, and `caps_closed_mitered` on the district -
-    # phase 1's own corner cut, whose closure nothing had ever measured.
-    # C3 added six, 2026-08-25: P2-4's pipeline face - the round trip, the
-    # parm sweep with its own control, and 7.3.2's refusal set - plus D122's
-    # `bay_alignment_aligned`, which is `bay_alignment`'s other direction on
-    # the same fixture and needs its own NAME so the free case's mutation
-    # cannot report the aligned path as proven - plus D296's two ladder rows.
-    # Nothing was retired with `pc_warn_clip_tilted`: it was a NAME inside
-    # `clip_input_warns`' expected set, not a check.
-    # C3a added three on the tilt ladder, all defects its two containment
-    # numbers could not see: `tilt_ladder_packed` (the shear test was world-Y,
-    # so a tilted array unpacked every piece and built the RIGHT geometry the
-    # expensive way), `tilt_ladder_warns` (`_flat_ratio` was world-XZ, so a
-    # legal plate warned on all 100 elements) and `tilt_ladder_deformed`, the
-    # anti-vacuity row - the plate reaches only ONE of the two writers.
-    # ...and three more with C3a's D297-D299 (`align_no_op_area`,
-    # `align_no_op_sequence`, `align_no_op_floor`), which assert 7.4's own
-    # "Aligned IS free on congruent rows" where it was FALSE.
-    # `bay_alignment_aligned` sees none of the three: it compares rows to EACH
-    # OTHER and all three defects move every row by the same factor.
-    # ...and one with D300 on the payload's TOP-LEVEL dict, the one layer that
-    # named nothing; it carries its own control in its second number.
-    "2d": 40,
+    # ⚠️ THE PER-CYCLE CHANGELOG THAT USED TO LIVE HERE IS DELETED (C3a). It
+    # duplicated polychain.md 12 line for line, it grew by a paragraph every
+    # cycle, and the budget it was spending is the budget PC-G5's own missing
+    # checks needed. 12's cycle entries name every check each cycle added and
+    # why; this is the pinned COUNT, and moving a number here is a deliberate
+    # act - growth already fails the sweep, shrinkage used not to.
+    # ...`array_offplane_m_hostile` is where D290's property moved when
+    # D296a stopped it being a containment failure.
+    "2d": 43,
     "generated": 3,
     "hda": 18,
     "images": 30,
@@ -1136,13 +1109,10 @@ EXPECT_CHECKS = {
 # ---- the DATED DEBT ---------------------------------------------------------
 #
 # ⚠️ NOT AN EXEMPTION LIST. An EXEMPTION says "a mutation for this is
-# genuinely impractical, and here is the reason". A DEBT ENTRY says "nobody
-# has written the mutation yet", which is a different sentence.
-#
-# 2026-08-25, after the v2 deletion pass: **76 names of 122**, against 32
-# mutations and 2 exemptions. It was 283 of 361. The list did not shrink by
-# being proven - it shrank because the checks it described were DELETED, and
-# what is left falls into four groups, each with its own reason below.
+# genuinely impractical, and here is the reason"; a DEBT ENTRY says "nobody
+# has written the mutation yet". After the v2 deletion pass it holds 76 names
+# of 122 (it was 283 of 361), and it shrank because the checks it described
+# were DELETED, not because they were proven. Four groups, reasons below.
 
 UNPROVEN = {}
 UNPROVEN.update(dict.fromkeys((
@@ -1181,9 +1151,8 @@ UNPROVEN.update(dict.fromkeys((
     "scene/verb_executions_per_build_mitered",
     "scene/wrapper_reads_mitered",
     "scene/wrapper_reads_streets",
-), "a measured COST ceiling. The number IS the assertion and the row "
-    "goes red when a build crosses it - but nothing yet MUTATES the "
-    "code path to prove the ceiling bites, so it is debt, not proof."))
+), "a measured COST ceiling: the number IS the assertion, but nothing "
+    "yet MUTATES the code path to prove it bites - debt, not proof."))
 
 UNPROVEN.update(dict.fromkeys((
     "images/bank_deg",
@@ -1213,20 +1182,18 @@ UNPROVEN.update(dict.fromkeys((
     "images/partb_curved_is_native",
     "images/partb_curved_matches_the_reference",
     "images/warnings",
-), "a gate figure's own row. The gate is the IMAGE plus D194's "
-    "drawn-primitive count, and the human at the milestone is what "
-    "judges it; only the three `image_shows_packed_*` rows have a "
-    "mutation."))
+), "a gate figure's own row: the gate is the IMAGE plus D194's drawn-"
+    "primitive count and the human at the milestone judges it; only the "
+    "`image_shows_packed_*` rows have a mutation."))
 
 UNPROVEN.update(dict.fromkeys((
     "hda/every_number_has_a_range",
     "hda/every_parm_has_help",
     "hda/two_disclosure_levels",
     "hda/units_in_the_label",
-), "artist_ui 6 on the built asset - the page an artist meets first. "
-    "An independent verifier once stripped the help, the ranges and "
-    "the units and every other check stayed green, which is why these "
-    "exist; no mutation is registered for them yet."))
+), "artist_ui 6 on the built asset. A verifier once stripped the help, "
+    "the ranges and the units with every other check green, which is why "
+    "these exist; no mutation is registered for them yet."))
 
 UNPROVEN.update(dict.fromkeys((
     "2d/corner_abut_m",

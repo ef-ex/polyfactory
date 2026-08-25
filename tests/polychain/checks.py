@@ -2081,6 +2081,36 @@ def clip_input_warns(case, expected=(), name="clip_input_warns"):
                   else "expected %s" % (sorted(expected),))
 
 
+def row_closure(scene, tol=0.01, name="row_closure"):
+    """PC-G5 condition 2: [worst metres between one row's top and the next
+    row's bottom, worst metres a cell's GEOMETRY crosses its own band]. The
+    second is the half only built geometry can answer - whether D121's row
+    scale filled the band rather than the module's nominal height - and
+    `pc_extend` cells are skipped because 7.2 licenses them to cross.
+
+    WHAT IT CANNOT SEE: a row missing altogether; it measures the rows the
+    report lists, and `pc_warn_row_clipped_out` names a band that built none.
+    """
+    rows = dict((int(r["pc_row"]), (r["pc_row_y0"], r["pc_row_y1"]))
+                for r in scene.report.get("rows", []) if "pc_row" in r)
+    if len(rows) < 2:
+        return _skip(name, "fewer than two rows - a 1D build")
+    seam = max(abs(rows[i][1] - rows[i + 1][0])
+               for i in sorted(rows)[:-1] if i + 1 in rows)
+    over = 0.0
+    for rec in elements(scene.geo):
+        band = rows.get(int(rec.get("pc_row", -1) or -1))
+        if band is None or int(rec.get("pc_extend", 0) or 0):
+            continue
+        ys = rec["world"][1::3]
+        over = max(over, band[0] - min(ys), max(ys) - band[1])
+    ok = seam <= 1e-6 and over <= tol
+    return Result(name, ok, [_round(seam), _round(max(over, 0.0))],
+                  "worst row seam %.3e m (tol 1e-6), worst band overrun "
+                  "%.6f m over %d rows (tol %.3f)"
+                  % (seam, over, len(rows), tol))
+
+
 def payload_meta_warns(hostile, clean, expected=(),
                        name="payload_meta_warns"):
     """D300 - [names `style.read` raised on a payload with an unknown TOP-LEVEL
@@ -2216,10 +2246,16 @@ def array_offplane_m(scene, tol=1e-4, name="array_offplane_m"):
     pairs = _by_array(scene)
     if not pairs:
         return _skip(name, "no clip_arrays - not a clipped build")
-    worst, n, half = 0.0, 0, 0.0
+    worst, n, half, down = 0.0, 0, 0.0, 1.0
     for rec, frame, _region in pairs:
         w = rec["world"]
         o, ez = frame.origin, frame.ez
+        # ...and D290's own property, which lives here since C3a because it
+        # stopped being a containment failure: the kernel grows the module
+        # along the row's `ey` now, so a clockwise loop no longer builds the
+        # array OUT of its footprint (`clip_inside_m` reads 0.0 on it) - it
+        # builds it UPSIDE DOWN inside it, and only the frame says so.
+        down = min(down, frame.ey[1])
         for i in range(0, len(w), 3):
             n += 1
             worst = max(worst, abs((w[i] - o[0]) * ez[0]
@@ -2232,7 +2268,7 @@ def array_offplane_m(scene, tol=1e-4, name="array_offplane_m"):
     if kit is not None and kit.findPointAttrib("pc_size") is not None:
         sizes = kit.pointFloatAttribValues("pc_size")
         half = 0.5 * max(list(sizes[2::3]) or [0.0])
-    off = max(worst - half, 0.0)
+    off = max(worst - half, 0.0) if down >= -1e-9 else 9.99
     return Result(name, off <= tol and n > 0, _round(off),
                   "%d points, worst %.4f m off the array plane beyond the "
                   "module's own %.3f m half-thickness (tol %.4f)"
