@@ -62,9 +62,13 @@ KNOWN = (
      "packed geometry; the Python reference's packed contents carry `P` and "
      "nothing else. Same outer attributes on both, so no v1 check could see "
      "it: `_snapshot` never descended into a packed prim. What a consumer "
-     "sees differs after an `unpack`. 5 of 400 seeds, every one of them "
-     "`id_storage=string`, both corner modes. Not diagnosed here - this is "
-     "the test cycle; it is a production finding for polychain's owner."),
+     "sees differs after an `unpack`. ⚠️ IT READ '5 of 400 seeds' UNTIL THE "
+     "NATIVE LANE LANDED, AND THAT NUMBER WAS AN ARTEFACT OF THE GENERATOR, "
+     "NOT OF THE TOOL: the guard was refusing 97 % of cases, so 97 % of the "
+     "differential was Python against Python. With the lane it is 207 of the "
+     "208 cases the native chain actually answers - i.e. it is what the "
+     "native path DOES, not an edge case. Not diagnosed here - this is the "
+     "test cycle; it is a production finding for polyChain's owner."),
 )
 
 
@@ -101,6 +105,29 @@ def _write(geo, path):
     return path
 
 
+def _envelope(node):
+    """The internal wrangle that holds the guard's verdict.
+
+    ⚠️ WITHOUT THIS THE WHOLE FILE CAN BE A CHECK THAT CANNOT FAIL.
+    `Stage = output` is a GUARDED fork - a refused build falls back to the
+    same Python kernel `Stage = reference` runs, so a refused case compares
+    Python WITH PYTHON and is identical by construction.  The first version of
+    this suite ran 400 seeds of which the native chain answered 3 %, and the
+    registry proved it: `generated_pc_local_scaled` scaled the native
+    `pc_local` by 1.5x and "reddened nothing at all".
+    `_native_ok` is `_`-prefixed and deleted before the output, so it has to
+    be read off `pc_envelope` inside the instance.
+    """
+    for child in node.children():
+        try:
+            geo = child.geometry()
+        except hou.OperationFailed:
+            continue
+        if geo is not None and geo.findGlobalAttrib("_native_ok") is not None:
+            return child
+    return None
+
+
 def _cook(node, stage):
     """Cook the asset at one stage.  Node errors/warnings ARE part of the
     answer, so they travel in the snapshot rather than being swallowed."""
@@ -128,6 +155,7 @@ def run(seeds, verbose=True):
 
     tmp = tempfile.mkdtemp(prefix="pcgen_")
     rows, red = [], []
+    env = None
     try:
         for seed in seeds:
             case = gen_cases.make(seed)
@@ -144,6 +172,12 @@ def run(seeds, verbose=True):
             out_geo, out_msg = _cook(node, "output")
             out = snapshot(out_geo, warnings=out_msg) if out_geo else None
             took = time.time() - t0
+            env = env or _envelope(node)
+            answered = 0
+            if env is not None:
+                g = env.geometry()
+                if g is not None and g.findGlobalAttrib("_native_ok"):
+                    answered = int(g.attribValue("_native_ok"))
 
             if ref is None or out is None:
                 bad = ["one stage produced no geometry: reference=%r "
@@ -152,7 +186,7 @@ def run(seeds, verbose=True):
                 bad = compare(ref, out)
             known = _known(bad)
             rows.append({"seed": seed, "label": case["label"],
-                         "ok": not bad, "known": known,
+                         "native": answered, "ok": not bad, "known": known,
                          "seconds": round(took, 3), "diff": bad[:6],
                          "prims": (out or {}).get("counts", {})
                                   .get("primitivecount")})
@@ -197,7 +231,23 @@ def main():
     seen = set(r["known"] for r in rows if r["known"])
     missing = [h + t for h, t, _w in KNOWN if h + t not in seen]
     nknown = len([r for r in rows if r["known"]])
+    answered = len([r for r in rows if r.get("native")])
     print("")
+    # ⚠️ THE FLOOR IS THE POINT, NOT THE PERCENTAGE.  A run in which the guard
+    # refuses everything is a run that compared the Python kernel with itself
+    # on every case and printed a green.  Measured: 3 % before the native lane
+    # existed, 52 % after.  40 % is a floor with room under it for a build
+    # that legitimately narrows the envelope, and a failure here says "the
+    # oracle stopped being an oracle", not "the tool regressed".
+    floor = 0.40
+    share = float(answered) / max(len(rows), 1)
+    if share < floor:
+        red = list(red) + ["only %.0f%% of cases reached the native chain"
+                           % (100 * share)]
+    print("  [%s] generated_cases_reach_the_native_chain    %d of %d "
+          "(%.0f%%, floor %.0f%%)"
+          % ("FAIL" if share < floor else "PASS", answered, len(rows),
+             100 * share, 100 * floor))
     print("  [%s] generated_output_matches_the_reference   %d clean, %d known,"
           " %d red" % ("FAIL" if red else "PASS",
                        len(rows) - len(red) - nknown, nknown, len(red)))

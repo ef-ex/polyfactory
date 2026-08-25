@@ -74,10 +74,44 @@ def _rng(seed):
     return random.Random(seed * 2654435761 % (2 ** 61 - 1))
 
 
+# ⚠️ HALF THE SEEDS ARE GENERATED IN THE **NATIVE LANE**, AND THAT IS THE
+# MOST IMPORTANT LINE IN THIS FILE.
+#
+# `Stage = output` is a GUARDED fork: `pc_envelope` refuses a build that the
+# native chain cannot answer and falls back to the same Python kernel
+# `Stage = reference` runs.  A refused case therefore compares Python WITH
+# PYTHON and cannot fail - and the first version of this generator produced
+# almost nothing but refused cases.  MEASURED, by reading `_native_ok` off
+# `pc_envelope` on 60 seeds: **the native chain answered 2 of them, 3 %.**
+# The registry found it: `generated_pc_local_scaled` (a 1.5x scale on the
+# native `pc_local`) SURVIVED the whole 400-seed differential and "reddened
+# nothing at all".
+#
+# `_native_ok` requires: no corners, no duplicate curve ids, no marker inside
+# a prim, no type-bad attribute, no row warnings, at least one prim, and a
+# CONFIG the resolver admits (no surface, no fillet, no fix_slope, no
+# flatten, no flat band).  The native lane builds exactly that; the wide lane
+# keeps attacking everything else, which is what found the packed-contents
+# divergence.
+NATIVE_LANE = 2          # every Nth seed is built to be native-answerable
+
+
 # --- the curve --------------------------------------------------------------
 
-def _points(rng):
-    """A polyline with real corners, and sometimes a degenerate one."""
+def _points(rng, straight=False):
+    """A polyline with real corners, and sometimes a degenerate one.
+
+    `straight` is the native lane: collinear points, so `_cornerpt` is empty
+    whatever the corner angle is, and no duplicates for `_clean` to eat.
+    """
+    if straight:
+        n = rng.randint(2, 9)
+        x = 0.0
+        pts = []
+        for _ in range(n):
+            pts.append((round(x, 4), 0.0, 0.0))
+            x += rng.uniform(0.5, 20.0)
+        return pts
     n = rng.randint(2, 9)
     pts, x, z = [], 0.0, 0.0
     for _ in range(n):
@@ -94,12 +128,15 @@ def _points(rng):
     return pts
 
 
-def _curve_geo(rng):
+def _curve_geo(rng, native=False):
     """One or two prims, sometimes SHARING a point, ids at a random storage."""
     geo = hou.Geometry()
-    storage = rng.choice(["string", "string", "int", "float"])
+    storage = "string" if native else rng.choice(
+        ["string", "string", "int", "float"])
     ids = [rng.choice(IDS) for _ in range(2)]
-    if rng.random() < 0.25:                              # DUPLICATE curve ids
+    if native:
+        ids = ["N%d" % rng.randint(0, 9999), "N%d" % rng.randint(0, 9999)]
+    elif rng.random() < 0.25:                            # DUPLICATE curve ids
         ids[1] = ids[0]
     if storage == "string":
         geo.addAttrib(hou.attribType.Prim, "pc_curve_id", "")
@@ -111,11 +148,11 @@ def _curve_geo(rng):
         geo.addAttrib(hou.attribType.Prim, "pc_curve_id", 0.0)
         vals = [float(rng.randint(-3, 3)) for _ in ids]
 
-    nprims = 1 if rng.random() < 0.55 else 2
+    nprims = 1 if (native or rng.random() < 0.55) else 2
     shared = None
     for k in range(nprims):
-        pts = _points(rng)
-        poly = geo.createPolygon(bool(rng.random() < 0.30))
+        pts = _points(rng, straight=native)
+        poly = geo.createPolygon(False if native else bool(rng.random() < 0.30))
         for j, p in enumerate(pts):
             if shared is not None and j == 0 and rng.random() < 0.7:
                 poly.addVertex(shared)          # graph_fuse's junction point
@@ -152,7 +189,7 @@ def _box(x, y, z, divx=1):
     return g
 
 
-def _kit_geo(rng):
+def _kit_geo(rng, native=False):
     """A kit whose ROLES, VARIANTS and corner width are all generated.
 
     The three branches a fixed starter kit cannot reach, in one place: no
@@ -171,14 +208,14 @@ def _kit_geo(rng):
     K.add_module(geo, "post", _box(0.12, 1.2, 0.12),
                  size=(0.12, 1.2, 0.12), deform=0, zmode="stepped",
                  roles="default post start end")
-    has_corner = rng.random() < 0.7
+    has_corner = False if native else rng.random() < 0.7
     if has_corner:
         # WIDER than a short leg, on purpose, one time in three.
         cw = round(rng.choice([0.16, 0.16, rng.uniform(2.0, 9.0)]), 3)
         K.add_module(geo, "corner_post", _box(cw, 1.3, cw),
                      size=(cw, 1.3, cw), deform=0, zmode="stepped",
                      roles="corner")
-    nvar = rng.choice([0, 0, 2, 3])
+    nvar = 0 if native else rng.choice([0, 0, 2, 3])
     for i in range(nvar):
         K.add_module(geo, "panel_v%d" % i, _box(panel_len, 1.0, 0.06, 4),
                      size=(panel_len, 0.9, 0.06), deform=1, zmode="vertical",
@@ -190,7 +227,18 @@ def _kit_geo(rng):
 
 # --- the style and the parm face --------------------------------------------
 
-def _style(rng, has_corner, nvar):
+def _style(rng, has_corner, nvar, native=False):
+    if native:
+        return Style("gen%d" % rng.randint(0, 9999), seed=rng.randint(0, 9999),
+                     rules=[Rule("default", "first", ["panel"])],
+                     params=Params(fill="adaptive",
+                                   adaptive_pct=round(rng.uniform(0.0, 100.0),
+                                                      2),
+                                   corner_mode="bend", fillet_radius=0.0,
+                                   evenly_spacing=0.0, evenly_count=0,
+                                   justify=rng.choice(JUSTIFY),
+                                   zmode=rng.choice(ZMODES),
+                                   fix_slope=False))
     rules = [Rule("default", rng.choice(["first", "random", "weighted"]),
                   ["panel"] + ["panel_v%d" % i for i in range(nvar)])]
     if rng.random() < 0.6:
@@ -217,13 +265,16 @@ def _style(rng, has_corner, nvar):
 def make(seed):
     """One whole scene from one integer.  Deterministic, and the ONLY entry."""
     rng = _rng(seed)
-    curve, storage, ids = _curve_geo(rng)
-    kit_geo, has_corner, nvar = _kit_geo(rng)
-    style = _style(rng, has_corner, nvar)
-    nmark = _markers(rng, curve, ids)
+    native = (seed % NATIVE_LANE) == 0
+    curve, storage, ids = _curve_geo(rng, native)
+    kit_geo, has_corner, nvar = _kit_geo(rng, native)
+    style = _style(rng, has_corner, nvar, native)
+    nmark = 0 if native else _markers(rng, curve, ids)
     return {"seed": seed, "curve": curve, "kit": kit_geo, "style": style,
-            "label": describe(seed, storage, ids, has_corner, nvar, nmark,
-                              style)}
+            "native_lane": native,
+            "label": ("[%s] " % ("native" if native else "wide "))
+                     + describe(seed, storage, ids, has_corner, nvar, nmark,
+                                style)}
 
 
 def describe(seed, storage, ids, has_corner, nvar, nmark, style):
