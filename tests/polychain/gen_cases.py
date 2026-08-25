@@ -22,6 +22,10 @@ not contain, and each of them is a dimension of this generator:
     wider than the leg it must fit - the branches a fixed starter kit skips.
   * parm/payload combinations, including corner modes, fill modes and z-modes
     that no committed case pairs together.
+  * a SURFACE on input 4 - 4.5's drape, and its own family of past
+    drop-breakers: a hill and a ripple a dead-straight spline knows nothing
+    about, a HOLE, a sheet the run leaves the EDGE of, D70's bridge deck over
+    a ground plane, two COINCIDENT sheets, and D52's reversed winding.
 
 The seed is the whole fixture: a failing run prints it, and the repro is
 `make(<seed>)`.  A seed worth keeping goes in `PINS` below - one line, the
@@ -244,6 +248,106 @@ def _kit_geo(rng, native=False):
     return geo, has_corner, nvar
 
 
+# --- the surface (4.5, input 4) ---------------------------------------------
+
+# Every Nth NATIVE-lane seed gets a surface.  Not every one, because a run with
+# no terrain has to stay the majority: it is the shape that proves the conform
+# port cannot move a build that has no surface.
+SURFACE_LANE = 2
+SURFACES = ("flat", "slope", "hill", "ripple", "hole", "edge", "deck",
+            "coincident", "reversed")
+
+
+def _height(kind, x, z, rng_phase):
+    """The terrain's own y at (x, z).  One expression per past drop-breaker."""
+    if kind == "slope":
+        return 0.25 * x
+    if kind == "hill":
+        # A RIDGE, and it is the shape `deviates` exists for: a dead-straight
+        # spline over it has no interior vertex at all, so the curvature budget
+        # says "nothing to follow" and a bendable rail crosses it as one rigid
+        # chord with its two ends on the ground.
+        return 2.5 * math.exp(-((x - rng_phase) ** 2) / 18.0)
+    if kind == "ripple":
+        # short-wavelength, so the piece's OWN stations resolve what five even
+        # probes do not - D71's measurement, as a generated shape.
+        return 0.35 * math.sin(0.9 * x + rng_phase) + 0.2 * math.cos(1.7 * z)
+    return 0.0
+
+
+def _sheet(kind, x0, x1, z0, z1, n, phase, y0=0.0, reverse=False, skip=None):
+    geo = hou.Geometry()
+    pts = {}
+    for i in range(n + 1):
+        for j in range(n + 1):
+            x = x0 + (x1 - x0) * i / float(n)
+            z = z0 + (z1 - z0) * j / float(n)
+            pt = geo.createPoint()
+            pt.setPosition((x, y0 + _height(kind, x, z, phase), z))
+            pts[(i, j)] = pt
+    for i in range(n):
+        for j in range(n):
+            if skip is not None and skip(i, j):
+                continue                      # D53's HOLE, cut as missing quads
+            poly = geo.createPolygon()
+            ring = [pts[(i, j)], pts[(i, j + 1)],
+                    pts[(i + 1, j + 1)], pts[(i + 1, j)]]
+            for pt in (reversed(ring) if reverse else ring):
+                poly.addVertex(pt)
+    return geo
+
+
+def _surface(rng, curve_geo):
+    """(geometry, label) for one seed, or (None, "") for a bare spline.
+
+    ⚠️ THE EXTENT IS TAKEN OFF THE CURVE, WHICH IS D239.  A conform fixture
+    whose runs are off the surface measures D53's MISS path and nothing else -
+    the first pass of 26.1 ran 300 streets 1 600 m across over a 660 m terrain
+    and reported half the cost it really has.  So the sheet covers the curve's
+    own bounding box with a margin, and the two kinds that deliberately do NOT
+    (`hole`, `edge`) are named rather than accidental.
+    """
+    kind = rng.choice(SURFACES)
+    bb = curve_geo.boundingBox()
+    lo, hi = bb.minvec(), bb.maxvec()
+    pad = 4.0
+    x0, x1 = lo[0] - pad, hi[0] + pad
+    z0, z1 = lo[2] - pad, hi[2] + pad
+    if x1 - x0 < 1.0:
+        x0, x1 = x0 - 1.0, x1 + 1.0
+    if z1 - z0 < 1.0:
+        z0, z1 = z0 - 1.0, z1 + 1.0
+    # under the run, not through it: the spline sits at y = 0 +- 0.4 (see
+    # `_points`), so a terrain built at -1.2 is reached by a -Y drop.
+    y0 = lo[1] - 1.2
+    n = rng.randint(6, 20)
+    phase = rng.uniform(0.0, 6.0)
+    if kind == "hole":
+        # one interior quad removed, somewhere the run has to cross
+        hi_j = rng.randrange(max(n, 1))
+        hi_i = rng.randrange(max(n, 1))
+        geo = _sheet("hill", x0, x1, z0, z1, n, phase, y0,
+                     skip=lambda i, j: i == hi_i and j == hi_j)
+    elif kind == "edge":
+        # the sheet stops HALF WAY along the run, so the fence leaves it
+        geo = _sheet("slope", x0, 0.5 * (x0 + x1), z0, z1, n, phase, y0)
+    elif kind == "deck":
+        # D70 - a ground sheet UNDER the run and a partial deck OVER part of
+        # it.  The nearest hit must win: taking the FIRST hit put six of ten
+        # pieces on top of the deck, a 4 m jump with no warning anywhere.
+        geo = _sheet("flat", x0, x1, z0, z1, n, phase, y0)
+        geo.merge(_sheet("flat", x0, 0.5 * (x0 + x1), z0, z1, n, phase,
+                         hi[1] + 2.0))
+    elif kind == "coincident":
+        geo = _sheet("slope", x0, x1, z0, z1, n, phase, y0)
+        geo.merge(_sheet("slope", x0, x1, z0, z1, n, phase, y0))
+    elif kind == "reversed":
+        geo = _sheet("hill", x0, x1, z0, z1, n, phase, y0, reverse=True)
+    else:
+        geo = _sheet(kind, x0, x1, z0, z1, n, phase, y0)
+    return geo, kind
+
+
 # --- the style and the parm face --------------------------------------------
 
 def _style(rng, has_corner, nvar, native=False):
@@ -290,20 +394,32 @@ def make(seed):
     kit_geo, has_corner, nvar = _kit_geo(rng, native)
     style = _style(rng, has_corner, nvar, native)
     nmark = 0 if native else _markers(rng, curve, ids)
+    surface, skind = (None, "")
+    if native and (seed // NATIVE_LANE) % SURFACE_LANE == 0:
+        surface, skind = _surface(rng, curve)
+        # D55's TILT and a NON-AXIS-ALIGNED axis are both level-1 refusals, so
+        # a share of the lane asks for them ON PURPOSE - a refusal nothing ever
+        # requests is a refusal nothing tests.
+        style.params.conform_tilt = bool(rng.random() < 0.25)
+        if rng.random() < 0.15:
+            style.params.conform_axis = (0.2, -1.0, 0.13)
+            skind += "+tiltaxis"
+        if style.params.conform_tilt:
+            skind += "+tilt"
     return {"seed": seed, "curve": curve, "kit": kit_geo, "style": style,
-            "native_lane": native,
+            "native_lane": native, "surface": surface, "surface_kind": skind,
             "label": ("[%s] " % ("native" if native else "wide "))
                      + describe(seed, storage, ids, has_corner, nvar, nmark,
-                                style)}
+                                style, skind)}
 
 
-def describe(seed, storage, ids, has_corner, nvar, nmark, style):
+def describe(seed, storage, ids, has_corner, nvar, nmark, style, skind=""):
     """The one line a failure prints, so the repro needs no other artifact."""
     return ("seed=%d id_storage=%s ids=%r corner_role=%s variants=%d "
-            "markers=%d fill=%s corner_mode=%s zmode=%r justify=%s"
+            "markers=%d fill=%s corner_mode=%s zmode=%r justify=%s surface=%s"
             % (seed, storage, ids, has_corner, nvar, nmark, style.params.fill,
                style.params.corner_mode, style.params.zmode,
-               style.params.justify))
+               style.params.justify, skind or "-"))
 
 
 def seeds(count, start=0):

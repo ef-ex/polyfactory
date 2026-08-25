@@ -22,7 +22,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import hou                                                       # noqa: E402
-from diff import snapshot, compare                               # noqa: E402
+from diff import snapshot, compare, ulp32                        # noqa: E402
 
 
 def build(shared=True, reverse=False):
@@ -176,7 +176,28 @@ def main():
     else:
         print("[PASS] diff_tolerance_is_honoured -> %s" % tight[-1][:80])
 
-    print("\n%d mutation(s), %d failure(s)" % (len(MUTATIONS) + 2, len(fails)))
+    # ...and 13.9 N6's `ulp` rule STOPS AT ONE ULP, which is the whole reason
+    # it is allowed to exist.  A weakening that is not bounded is a tolerance,
+    # and a tolerance nothing tests is a hole: this moves a value by exactly
+    # one float32 ULP (must be admitted) and by two (must still be rejected).
+    lhs, rhs = snapshot(build()), snapshot(build())
+    base = lhs["values"]["point"]["pc_local"][1]
+    one = ulp32(base)
+    rhs["values"]["point"]["pc_local"][1] = base + one
+    admits = compare(lhs, rhs, ulp=True)
+    rhs["values"]["point"]["pc_local"][1] = base + 2.5 * one
+    rejects = compare(lhs, rhs, ulp=True)
+    exact = compare(lhs, rhs)
+    if admits or not rejects or not exact:
+        fails.append("ulp: one float32 ULP must be admitted and 2.5 rejected, "
+                     "and ulp=False must reject both; got %r / %r / %r"
+                     % (admits[:1], rejects[:1], exact[:1]))
+        print("[FAIL] diff_ulp_rule_stops_at_one_ulp")
+    else:
+        print("[PASS] diff_ulp_rule_stops_at_one_ulp -> 1 ULP (%.3e) admitted, "
+              "2.5 rejected" % one)
+
+    print("\n%d mutation(s), %d failure(s)" % (len(MUTATIONS) + 3, len(fails)))
     for f in fails:
         print("  !! %s" % f)
     return 1 if fails else 0

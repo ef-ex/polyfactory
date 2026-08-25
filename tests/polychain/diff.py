@@ -33,6 +33,8 @@ WHAT IT CANNOT SEE (stated, per the discipline, rather than implied):
     compared as a wrapper at depth 0.
 """
 
+import math
+
 import hou
 
 # Session identity, not contract: excluded by name because two byte-identical
@@ -223,11 +225,30 @@ def snapshot(geo, packed_depth=1, warnings=()):
 
 # --- the comparison ---------------------------------------------------------
 
+def ulp32(v):
+    """The gap between adjacent float32 at |v| - the last bit of the storage
+    the output actually ships.
+
+    A tolerance expressed in these is not a fudge factor: it says the two
+    answers are THE SAME NUMBER in float32 `P`, which is the only place a
+    consumer ever sees them.  It is also tight - two float32 apart is a
+    different number and still fails.
+    """
+    v = abs(float(v))
+    if v == 0.0 or v != v or v == float("inf"):
+        return math.ldexp(1.0, -149)
+    return math.ldexp(1.0, max(math.frexp(v)[1], -125) - 24)
+
+
 class _Report(object):
     """Differences, most structural first, with the float magnitudes kept."""
 
-    def __init__(self, tol, limit):
+    def __init__(self, tol, limit, ulp=False):
         self.tol, self.limit = float(tol), int(limit)
+        # `ulp` additionally tolerates a difference of at most ONE float32 ULP
+        # at the value's own magnitude - see `compare`.
+        self.ulp = bool(ulp)
+        self.tolerated = 0
         self.rows, self.total, self.worst = [], 0, (0.0, 0.0, "")
 
     def say(self, fmt, *a):
@@ -244,8 +265,12 @@ class _Report(object):
         that is really 0.98 mm at 20 km cannot hide.
         """
         d = abs(float(u) - float(v))
+        mag = max(abs(float(u)), abs(float(v)))
+        if d > self.tol and self.ulp and d <= ulp32(mag):
+            self.tolerated += 1
+            return
         if d > self.worst[0]:
-            self.worst = (d, max(abs(float(u)), abs(float(v))), where)
+            self.worst = (d, mag, where)
         if d > self.tol:
             self.say("%s: %r != %r (|d| %.6g)", where, u, v, d)
 
@@ -287,16 +312,52 @@ def _seq(rep, where, u, v):
         rep.say("%s: %r != %r", where, u, v)
 
 
-def compare(a, b, tol=0.0, limit=25):
+def compare(a, b, tol=0.0, limit=25, worst=None, ulp=False, skip=()):
     """-> [] when the two snapshots are identical, else NAMED differences.
 
     `tol` is an ABSOLUTE tolerance on every float, and it is printed with the
     worst deviation and that value's magnitude.  Default 0.0: exact, because a
     port that is supposed to answer the same question should answer it
     bit-for-bit until somebody states why it cannot.
+
+    `worst` is a list the report appends its `(|d|, magnitude, where)` into,
+    and it exists so a caller that STATES a tolerance can also MEASURE what it
+    is actually spending - otherwise a stated tolerance is a number nothing
+    ever reads and any future widening of it is free.  `rep.tolerated` rides
+    with it as the second element, for the same reason.
+
+    `ulp` additionally tolerates a difference of at most ONE float32 ULP at
+    the value's own magnitude - i.e. "these are the same number in the storage
+    the output ships".  13.9 N6 is what needs it and its reason is exact: VEX's
+    `intersect()` and `hou.Geometry.intersect` are two ray-triangle tests and
+    disagree by about one DOUBLE ULP, which is invisible in float32 EXCEPT
+    where the value lands on an f32 rounding tie - and a query at a grid-cell
+    midpoint lands there systematically, because the hit is then the exact mean
+    of two float32 vertices.  Two ULP still fails, so this cannot hide a port
+    error; what it cannot see is a defect BOTH sides share.
+
+    `skip` drops named intrinsics.  Its one use is the same one: `measuredarea`
+    and `measuredvolume` are pure FUNCTIONS of `P` and the topology, both of
+    which are compared exhaustively here, so they carry no information of their
+    own - but they are products of coordinates, so cancellation amplifies a
+    last-bit `P` difference past any ULP rule stated about `P`.
     """
-    rep = _Report(tol, limit)
+    rep = _Report(tol, limit, ulp)
     for key in ("counts", "attribs", "values", "topology", "groups",
                 "intrinsics", "packed", "warnings"):
-        _seq(rep, key, a.get(key), b.get(key))
-    return rep.finish()
+        u, v = a.get(key), b.get(key)
+        if key == "intrinsics" and skip:
+            u, v = _drop(u, skip), _drop(v, skip)
+        _seq(rep, key, u, v)
+    rows = rep.finish()
+    if worst is not None:
+        worst.append(rep.worst + (rep.tolerated,))
+    return rows
+
+
+def _drop(rows, names):
+    """`rows` with `names` removed from every dict in it."""
+    if not isinstance(rows, list):
+        return rows
+    return [dict((k, v) for k, v in r.items() if k not in names)
+            if isinstance(r, dict) else r for r in rows]

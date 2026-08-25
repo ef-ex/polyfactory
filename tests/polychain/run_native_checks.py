@@ -23,6 +23,7 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 
 import cases                                                     # noqa: E402
+from diff import ulp32 as diff_ulp32                             # noqa: E402
 cases.setup_env()
 
 import hou                                                       # noqa: E402
@@ -863,8 +864,14 @@ def _place_out_of_scope(case, params):
     from polyfactory.polychain import decompose as D
     if case["kit"] is None:
         return "no kit (3.4's stand-in has no geometry to measure)"
-    if case.get("surface") is not None:
-        return "4.5 conform - N6"
+    # ⚠️ `4.5 conform - N6` WAS A ROW HERE AND IT IS DELETED, NOT RELAXED.  It
+    # took every `B*_conform_*` case out of `gate_parity` - which is the check
+    # that measures the very thing 13.9 N6 adds to the gate, `deviates`, the
+    # rule that unpacks a bendable piece over a hill a dead-straight spline
+    # knows nothing about.  A stale scope row is how a new branch ships
+    # unmeasured.  D55's TILT is still out of scope, and by name.
+    if params.conform_tilt:
+        return "D55 camber - not ported"
     if params.fillet_radius > 0.0:
         return "4.3 fillet - N8"
     if params.fix_slope:
@@ -892,9 +899,15 @@ def gate_parity(root, built):
     A boolean per piece that decides the whole cost model (D69: 10 005
     packed at 0.42 s / +12 MB vs 10 005 deformed at 21.9 s / 360 180
     points).  The reference's answer is read where it SHIPS (`pc_deformed`
-    on the built prim, max over the element's prims).  `_gate_valid = 0`
-    cases (D99's band, 4.5's drape) are counted separately, never quietly
-    scored as agreeing.
+    on the built prim, max over the element's prims).  `pc_gate_valid = 0`
+    cases (D99's band) are counted separately, never quietly scored as
+    agreeing.
+
+    ⚠️ 13.9 N6 - AND EVERY `B*_conform_*` CASE IS IN IT NOW.  `_place_out_of_
+    scope` used to drop them, which took the drape out of the one check that
+    measures what the drape does to the gate: `deviates`, the rule that unpacks
+    a bendable piece over a hill a dead-straight spline has no vertex for.
+    31 cases / 612 pieces -> 45 / 1058.
     """
     agree = disagree = unjudged = 0
     per_case = {}
@@ -947,8 +960,8 @@ def gate_parity(root, built):
     check("gate_parity", not disagree and not bad, "%d cases / %d pieces"
           % (ncase, agree + disagree),
           "`pc_deformed` at the gate against the reference's own `pc_deformed`, matched "
-          "on pc_elem_id: %d agree, %d disagree, %d unjudged (D99's band or "
-          "4.5's drape - the gate declares those). %s"
+          "on pc_elem_id: %d agree, %d disagree, %d unjudged (D99's band - "
+          "the gate declares it rather than guessing). %s"
           % (agree, disagree, unjudged,
              "; ".join("%s %s" % b for b in bad[:3]) or "identical"))
     # ⚠️ AND BOTH ANSWERS HAVE TO APPEAR.  A gate that returned 0 for
@@ -1244,7 +1257,33 @@ def _snapshot(geo):
         prims=prims)
 
 
-def _first_difference(a, b):
+def _same(u, v, ulp):
+    """`u == v`, or - on a CONFORMED build only - the same number in the
+    float32 storage the output ships.
+
+    ⚠️ 13.9 N6, AND IT IS A DELIBERATE WEAKENING WITH A MEASURED REASON.  VEX's
+    `intersect()` and `hou.Geometry.intersect` are two ray-triangle tests and
+    disagree by about one DOUBLE ULP.  That is invisible in float32 - except
+    where the double lands on an f32 rounding TIE, which a query at a grid-cell
+    midpoint does systematically (the hit is then the exact mean of two float32
+    vertices).  `BB_conform_vertical` is that case: FOUR point coordinates of
+    1 302, all the same adjacent float32 pair.  TWO ULP still fails here, so
+    this cannot hide a port error; nested lists recurse so `prims` rows are
+    covered too.  It applies ONLY when the build has a surface.
+    """
+    if u == v:
+        return True
+    if not ulp:
+        return False
+    if isinstance(u, (list, tuple)) and isinstance(v, (list, tuple)):
+        return len(u) == len(v) and all(_same(x, y, ulp)
+                                        for x, y in zip(u, v))
+    if isinstance(u, float) and isinstance(v, float):
+        return abs(u - v) <= diff_ulp32(max(abs(u), abs(v)))
+    return False
+
+
+def _first_difference(a, b, ulp=False):
     for key in ("prim_attribs", "prim_types", "point_attribs", "point_types",
                 "detail", "groups", "npoints"):
         if a[key] != b[key]:
@@ -1257,20 +1296,20 @@ def _first_difference(a, b):
         if not isinstance(u, list) or not isinstance(v, list)                 or len(u) != len(v):
             return "point %s: %r != %r" % (name, u, v)
         for i, (x, y) in enumerate(zip(u, v)):
-            if x != y:
+            if not _same(x, y, ulp):
                 return "point %s[%d]: %r != %r" % (name, i, x, y)
     if len(a["prims"]) != len(b["prims"]):
         return "prim count %d != %d" % (len(a["prims"]), len(b["prims"]))
     for i, (x, y) in enumerate(zip(a["prims"], b["prims"])):
         if x != y:
             for j, (u, v) in enumerate(zip(x, y)):
-                if u != v:
+                if not _same(u, v, ulp):
                     field = ("type", "P", "bounds")[j] if j < 3 \
                         else a["prim_attribs"][j - 3]
                     return "prim %d %s: %r != %r" % (i, field, u, v)
     if a["P"] != b["P"]:
         for i, (u, v) in enumerate(zip(a["P"], b["P"])):
-            if u != v:
+            if not _same(u, v, ulp):
                 return "P[%d]: %r != %r" % (i, u, v)
     return ""
 
@@ -1314,7 +1353,9 @@ def output_guard_parity(root, built):
         node.parm("stage").set("reference")
         node.cook(force=True)
         want = _snapshot(node.geometry())
-        diff = _first_difference(want, got)
+        # 13.9 N6 - only a build with a SURFACE gets the ULP rule.
+        diff = _first_difference(want, got,
+                                 ulp=case.get("surface") is not None)
         (took_native if native_cooked else took_ref).append(name)
         if diff:
             bad.append((name, ("NATIVE" if native_cooked else "reference")
@@ -1671,29 +1712,47 @@ vector best = q;
 int hit = 0;
 if (h0 >= 0) { best = p0; hit = 1; }
 if (h1 >= 0 && (h0 < 0 || d1 < d0 - 1e-9)) { best = p1; hit = 1; }
-// D111's reconstruction: the hit POSITION is quantised at the magnitude of a
-// WORLD COORDINATE, the drop is quantised at the magnitude of a DROP.
-if (hit) { float t = dot(best - q, a); best = q + a * t; }
-v@_hitP = best;
+// D111's reconstruction, as `pc_conform.h` ships it: a drop MOVES only the
+// components the axis has, and every other one is the query's own DOUBLE
+// coordinate - which is exactly what `hou.Geometry.intersect` hands back.
+if (hit) best = set((a.x != 0.0) ? best.x : q.x,
+                    (a.y != 0.0) ? best.y : q.y,
+                    (a.z != 0.0) ? best.z : q.z);
+// ⚠️ THE DIFFERENCE IS WHAT LEAVES, NOT THE POSITION, AND THAT IS D247
+// CORRECTED.  `v@_hitP` is a FLOAT32 point attribute: a 20 km world coordinate
+// loses 9.8e-04 m on its way out of the wrangle, so the "raw" row this check
+// used to print was measuring its own READOUT and not the two implementations.
+// It read 9.375e-04 m at 20 km and concluded `intersect()` is a float32 ray
+// test to two ULP.  Read as the DIFFERENCE it actually is, the two agree to
+// 0.0 m on the two components the axis does not move and to about one DOUBLE
+// ULP of the query on the one it does.
+v@_hitD = best - q;
 i@_hit  = hit;
 '''
 
 # what survives float32 `P` storage.  Both sides round into the same 24 bits,
 # so anything above this is a DIFFERENT number in the storage the output ships.
 CONFORM_DROP_CEILING_M = 1e-12
-# D247 - the RAW double difference the f32 row was hiding: `f32()` on both
-# sides made the 1e-12 m ceiling really a half-float32-ULP tolerance
-# (~0.98 mm at 20 km); ramp_20km printed 0.000e+00 on a genuine 9.375e-04 m
-# disagreement.  Re-measured raw: flat 3.815e-07 m, irrational 4.578e-07 m,
-# ramp_20km 9.375e-04 m.  Not a bug: `intersect()` is a float32 ray test;
-# worst is 4.93e-08 relative = 0.83 float32 ULP, so the raw row is asserted
-# RELATIVE (two ULP) and the f32 row keeps its exact ceiling.  WHAT THE RAW
-# ROW CANNOT DO: it is not an independent detector (f32 rounding separates
-# at 2^-25, four times tighter than the 2-ULP ceiling) - it REPORTS the real
-# number and is deterministic where f32 detection is a last-bit coin toss.
+# ⚠️ D247 IS CORRECTED HERE, AND THE CORRECTION MADE THE CEILING 500 000x
+# TIGHTER.  D247 recorded a RAW disagreement of 9.375e-04 m at 20 km, called
+# `intersect()` a float32 ray test on the strength of it, and set this ceiling
+# at two float32 ULP.  The 9.375e-04 m was the check's OWN `v@_hitP` float32
+# point attribute rounding a 20 km world coordinate on the way out - it is
+# 9.77e-04 m, half a float32 ULP at 20 000, which is what the number is.
+#
+# Re-measured reading the DIFFERENCE out instead (probe, and it is what
+# `pc_conform.h` computes): x and z agree at 0.000e+00 m at 0 m, 100 m, 2 km
+# and 20 km, because both sides keep the query's own double coordinate there;
+# the AXIS component disagrees by ~1 DOUBLE ULP of the query - 7.105e-15 m on a
+# query at y = 50.  That is irreducible: `hou.Geometry.intersect` and VEX's
+# `intersect()` are two ray-triangle implementations, not two spellings of one.
+#
+# So the relative ceiling is a DOUBLE-ULP ceiling now.  WHAT IT CANNOT SEE:
+# the drop is still compared against the reference, so a defect BOTH sides
+# share is invisible here - `parity is not accuracy` (26.9), unchanged.
 # Registered mutation: `conform_drop_biased` (tests/polychain/mutations.py),
 # biases the drop by 1e-5 m.
-CONFORM_DROP_REL_CEILING = 1.192e-7      # 2 x 2^-24
+CONFORM_DROP_REL_CEILING = 8.882e-16      # 4 x 2^-52
 
 
 def _conform_sheet(y, x0, x1, z0, z1, n=8, slope=0.0, reverse=False):
@@ -1767,15 +1826,18 @@ def conform_drop_is_portable_to_vex(root):
         worst_rel = 0.0
         misses = 0
         for i, pt in enumerate(got.points()):
-            gp = pt.attribValue("_hitP")
+            # the DIFFERENCE, rebuilt into a position for the f32 row and read
+            # raw for the other - see `CONFORM_DROP_REL_CEILING`.
+            gd = pt.attribValue("_hitD")
+            gp = [qs[i][k] + float(gd[k]) for k in range(3)]
             if int(pt.attribValue("_hit")) != int(want[i][2]):
                 misses += 1
                 continue
             worst = max(worst, max(abs(f32(gp[k]) - f32(want[i][0][k]))
                                    for k in range(3)))
-            # D247 - the RAW double difference, and its size RELATIVE to the
-            # coordinate it is a difference of.
-            raw = max(abs(float(gp[k]) - float(want[i][0][k]))
+            # D247, corrected - the RAW double difference between the two DROPS,
+            # and its size RELATIVE to the coordinate it is a difference of.
+            raw = max(abs(float(gd[k]) - (float(want[i][0][k]) - qs[i][k]))
                       for k in range(3))
             scale = max(abs(float(c)) for c in qs[i]) or 1.0
             worst_raw = max(worst_raw, raw)
@@ -1789,7 +1851,7 @@ def conform_drop_is_portable_to_vex(root):
                        % (label, worst, CONFORM_DROP_CEILING_M))
         if worst_rel > CONFORM_DROP_REL_CEILING:
             bad.append("%s: raw %.3e m is %.3e RELATIVE, over the %.3e "
-                       "float32-ULP ceiling - the two implementations "
+                       "double-ULP ceiling - the two implementations "
                        "genuinely disagree, and the f32 row cannot see it "
                        "until it crosses a storage bucket"
                        % (label, worst_raw, worst_rel,
@@ -1799,12 +1861,12 @@ def conform_drop_is_portable_to_vex(root):
           "%d queries, f32 %.3e m / raw %.3e rel"
           % (nq, max(r[1] for r in rows), max(r[4] for r in rows)),
           "13.9 N6's deciding experiment: VEX `intersect()` against "
-          "`conform.Surface.drop`, read off the AXIS COMPONENT and rebuilt "
-          "from the query (D111's reconstruction). TWO ceilings (D247): in "
-          "float32 `P` storage %.0e m, and RAW as a fraction of the query "
-          "magnitude %.3e (two float32 ULP - `intersect()` is a float32 ray "
-          "test, so the raw agreement cannot be better than that and the f32 "
-          "row was hiding a 9.4e-4 m disagreement at 20 km). Rows "
+          "`conform.Surface.drop`, read off the AXIS COMPONENT with the other "
+          "two SELECTED from the query (D111). TWO ceilings: in float32 `P` "
+          "storage %.0e m, and RAW as a fraction of the query magnitude %.3e "
+          "(four DOUBLE ULP - D247's two-float32-ULP ceiling was measuring "
+          "this check's own `v@_hitP` float32 readout, not the two "
+          "implementations; the difference is read out now). Rows "
           "(f32 / raw m / raw rel): %s. %s"
           % (CONFORM_DROP_CEILING_M, CONFORM_DROP_REL_CEILING,
              "; ".join("%s %.3e / %.3e / %.3e" % (r[0], r[1], r[3], r[4])

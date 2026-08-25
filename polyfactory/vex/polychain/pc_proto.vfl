@@ -118,15 +118,16 @@ f@_proto_rz     = prz;
 f@_proto_y0     = py0;
 f@_proto_y1     = py1;
 f@pc_yscale    = 1.0;                    // E2 is phase 2; the identity here
-v@pc_upref     = set(0.0, 1.0, 0.0);     // D55's camber needs 4.5's normal
-i@pc_has_basey = 0;                      // D98's flatten-under needs 4.5 too
+// D55's camber is the ONE thing that would move this, and it is refused at
+// level 1 by name - so a conformed build grows along the row's up axis exactly
+// as a flat one does (13.9 N6).
+v@pc_upref     = set(0.0, 1.0, 0.0);
+i@pc_has_basey = 0;                      // D98's flatten-under, refused below
 
 // 3.4's stand-in is a real answer, not a failure - but this node cannot
 // MEASURE one, because a missing module has no geometry in the kit.  The
 // piece is declared unanswerable rather than placed at a guessed size.
 dict cfg = detail(1, "pc_cfg");
-int has_surface = 0;
-if (isvalidindex(cfg, "has_surface")) { float v = cfg["has_surface"]; has_surface = (int)v; }
 float fillet = 0.0;
 if (isvalidindex(cfg, "fillet_radius")) { float v = cfg["fillet_radius"]; fillet = v; }
 float fix_slope = 0.0;
@@ -134,10 +135,20 @@ if (isvalidindex(cfg, "fix_slope")) { float v = cfg["fix_slope"]; fix_slope = v;
 float flatten = 0.0;
 if (isvalidindex(cfg, "flatten_stepped")) { float v = cfg["flatten_stepped"]; flatten = v; }
 
-// The four the CONFIG decides for the WHOLE build, so this test is the same
+// The three the CONFIG decides for the WHOLE build, so this test is the same
 // answer on every point - which is what makes the node warning below sound.
-int unported = (has_surface || fillet > 0.0 || fix_slope != 0.0
-                || flatten != 0.0);
+//
+// ⚠️ `has_surface` WAS THE FOURTH AND IT IS GONE (13.9 N6).  It was here for
+// exactly two reasons, both named in this file's header: D55's camber
+// up-vector and D98's flatten-under datum "both come from the surface and
+// neither is derivable in the PLACE box".  The second is still true and is
+// still refused - by `flatten` below, one row down, which is where it always
+// belonged.  The first is refused at LEVEL 1 now, by name (`conform_tilt` and
+// a per-module `pc_tilt`), which is a narrower refusal than the whole of 4.5:
+// with no tilt there is no camber, `pc_upref` below is the row's own axis for a
+// conformed build exactly as it is for a flat one, and the drape reaches this
+// branch through the SAMPLER (`pc_conform.h`) rather than through the frame.
+int unported = (fillet > 0.0 || fix_slope != 0.0 || flatten != 0.0);
 i@pc_frame_valid = (found && !unported);
 // ⚠ `setpointattrib` AND NOT `i@`, AND THE DIFFERENCE IS THE OUTPUT'S
 // SCHEMA.  A bound write creates the attribute whether or not the branch
@@ -149,7 +160,7 @@ i@pc_frame_valid = (found && !unported);
 if (!found) setpointattrib(0, "pc_warn_kit_gap", @ptnum, 1);
 
 // ⚠️ AN EMPTY STAGE HAS TO SAY WHY IT IS EMPTY.  `pc_place_valid` blasts
-// every piece this node could not answer for, so with a surface, a fillet, a
+// every piece this node could not answer for, so with a fillet radius, a
 // slope fix or D98's flatten in the build the native PLACE branch shipped
 // ZERO prims with `node.warnings()` EMPTY - the same silent-empty failure
 // 16.4 point 3 had already fixed once for the unwired input, in a new place.
@@ -165,5 +176,5 @@ if (unported) {
     // reference has no such attribute. `_scrub` removes it before OUT.
     i@_warn_stage_unported = 1;
     if (@ptnum == 0)
-        warning("polyChain: the native PLACE branch cannot answer this build - a surface, a fillet radius, a slope fix or a stepped flatten needs spec 4.5, which is not ported yet (13.9 N5/N6). Set Stage = Output for the full result.");
+        warning("polyChain: the native PLACE branch cannot answer this build - a fillet radius needs spec 4.3 (13.9 N8), and a slope fix or a stepped flatten needs numbers 4.4 does not carry. Set Stage = Output for the full result.");
 }

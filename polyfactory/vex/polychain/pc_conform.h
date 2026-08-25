@@ -112,10 +112,32 @@ void pc_drop(const int surf; const vector q; const vector axis;
     vector best = q;
     if (h0 >= 0) { best = p0; hit = 1; }
     if (h1 >= 0 && (h0 < 0 || d1 < d0 - PC_EPS)) { best = p1; hit = 1; }
-    // D111's reconstruction - see the header note.
-    if (hit) {
-        float t = dot(best - q, axis);
-        pos = q + axis * t;
+    if (!hit) return;
+    // D111's reconstruction, AS A COMPONENT SELECT AND NOT AS ARITHMETIC.
+    //
+    // ⚠️ `q + axis * dot(best - q, axis)` IS THE WRONG SPELLING OF IT, AND THE
+    // GENERATED DIFFERENTIAL IS WHAT SAID SO.  On a coordinate axis it costs a
+    // subtraction and an addition the reference never performs, so the axis
+    // component comes back one double ULP off - which surfaced as
+    // `packedfulltransform` differing at 2.2e-16 on a conformed seed, i.e. a
+    // REAL parity failure produced by the fix for a different one.  A drop
+    // MOVES only the components the axis has; every other one is the query's
+    // own double coordinate, which is exactly what `hou.Geometry.intersect`
+    // hands back (probed: 0.000e+00 difference in x and z at 0 m, 100 m, 2 km
+    // and 20 km).  So they are SELECTED, not recomputed.
+    //
+    // A non-coordinate axis cannot be served this way - every component moves,
+    // so the select degenerates to `best`, which is `intersect()`'s float32
+    // position and is 9.8e-04 m off at 20 km.  Level 1 refuses that axis
+    // (D111, the reference's own `Surface.batchable` condition), and the
+    // arithmetic spelling is kept for it so this function is still correct if
+    // the refusal is ever narrowed.
+    if (abs(axis.x) + abs(axis.y) + abs(axis.z) == 1.0) {
+        pos = set((axis.x != 0.0) ? best.x : q.x,
+                  (axis.y != 0.0) ? best.y : q.y,
+                  (axis.z != 0.0) ? best.z : q.z);
+    } else {
+        pos = q + axis * dot(best - q, axis);
     }
 }
 

@@ -592,8 +592,34 @@ def config_resolved(node):
 def _native_ok(parms, params, style, kit, cfg, warns):
     """13.9 N10 level 1 - see `config_resolved`. True when nothing in the
     parameters, the style or the kit needs a stage that is still Python."""
+    # ⚠️ 13.9 N6 - `has_surface` USED TO BE THE FIRST ROW HERE AND IT IS GONE.
+    # 4.5's drape is ported (`pc_conform.h`), so a surface is no longer a reason
+    # to refuse a build.  What IS refused is the part of 4.5 that is NOT ported,
+    # and both rows are narrower than the one they replace:
+    #
+    #   * D55's CAMBER (`conform_tilt`, and a per-module `pc_tilt` override).
+    #     A tilt hands `normal_at` to `span_deviation`, which turns on D100's
+    #     camber ROTATION and D104's extra stations - the budget's two unported
+    #     terms.  Refusing tilt is what keeps the two ported terms EXACT rather
+    #     than approximate, which is the whole reason the port is cheap.
+    #   * a NON-AXIS-ALIGNED `conform_axis` (D111).  This is the REFERENCE's own
+    #     condition, not a new one: `Surface.batchable` gates its batched `ray`
+    #     off a tilted axis because the reconstruction the VEX drop also uses
+    #     cannot remove the divergence there (measured 1.9e-06 m at fixture
+    #     scale, 1.5e-05 m at 20 km, against 0.0 for every coordinate axis).
     if cfg.get("has_surface"):
-        return False                                  # 4.5 conform - N6
+        if getattr(params, "conform_tilt", False):
+            return False                              # D55 camber - not ported
+        axis = tuple(float(c) for c in
+                     getattr(params, "conform_axis", (0.0, -1.0, 0.0)))
+        if sorted(abs(c) for c in axis) != [0.0, 0.0, 1.0]:
+            return False                              # D111 - a tilted axis
+        # the per-module override is the same refusal asked of the KIT: D6's
+        # three-state pattern, where -1 means "the style decides" and the style
+        # has already said no one line up.
+        for module in (getattr(kit, "modules", ()) or ()):
+            if int(getattr(module, "tilt", -1)) > 0:
+                return False                          # D55, per module
     if float(getattr(params, "fillet_radius", 0.0) or 0.0) > EPS:
         return False                                  # 4.3 fillet - N8
     if getattr(params, "fix_slope", False):

@@ -170,11 +170,47 @@ MUTATIONS = (
     M("conform_drop_biased", "native",
       ("conform_drop_is_portable_to_vex",),
       "13.9 N6's deciding experiment, biased by 1e-5 m along the drop axis.",
-      ((RIG.replace("native.py", "run_native_checks.py"),
-        "if (hit) { float t = dot(best - q, a); best = q + a * t; }",
-        "if (hit) { float t = dot(best - q, a); "
-        "best = q + a * t + a * 1e-5; }"),),
+      ((RUNNER_NATIVE,
+        "if (hit) best = set((a.x != 0.0) ? best.x : q.x,",
+        "if (hit) best = a * 1e-5 + set((a.x != 0.0) ? best.x : q.x,"),),
       rebuild=False),
+
+    # ---- 13.9 N6, THE CONFORM PORT -----------------------------------------
+    #
+    # ⚠️ THE FIRST OF THESE IS THE ONE THAT MATTERS, and it is the shape the
+    # whole differential is built to survive: `Stage = output` is a GUARDED
+    # fork, so the day level 1 stops admitting a surface every conformed case
+    # silently goes back to comparing the Python kernel WITH ITSELF and the
+    # sweep prints a green.  This puts the refusal back and the tripwire must
+    # see it.
+    M("conform_refused_at_level_1", "generated",
+      ("conformed_cases_reach_the_native_chain",),
+      "13.9 N6 undone at level 1 - a surface refuses the build again, so "
+      "every conformed case compares Python with Python.",
+      ((PY % "hda.py",
+        '        if getattr(params, "conform_tilt", False):',
+        "        if True:"),)),
+
+    M("conform_drop_biased_vex", "generated",
+      ("conform_parity_spends_its_tolerance",),
+      "The native drape displaced 5e-13 m along the drop axis - UNDER the "
+      "1e-12 m the conformed comparison states, so only the row that MEASURES "
+      "what that tolerance is being spent can see it.  A stated tolerance "
+      "nothing reads back is a number any later cycle widens for free.",
+      ((VEX % "pc_conform.h",
+        "    if (!hit) return;",
+        "    if (!hit) return;\n    best = best + axis * 5e-13;"),)),
+
+    M("conform_deviates_never_fires", "native",
+      ("gate_parity",),
+      "4.5's drape test switched off - `deviates` returns 0, so a bendable "
+      "piece crossing a HILL a dead-straight spline has no vertex for stays "
+      "PACKED as a rigid chord with its two ends on the ground.  It is the "
+      "one term of `_needs_deform` that only a conformed build can reach.",
+      ((VEX % "pc_conform.h",
+        "    if (!pc_surf_active(surf) || abs(sb - sa) <= PC_EPS) return 0;",
+        "    return 0;\n    if (!pc_surf_active(surf) "
+        "|| abs(sb - sa) <= PC_EPS) return 0;"),)),
 
     # ---- D241 / D257, the array-and-dict subject ---------------------------
     M("array_subject_test_equals_3", "native",
@@ -1095,7 +1131,9 @@ EXPECT_CHECKS = {
     # ...`array_offplane_m_hostile` is where D290's property moved when
     # D296a stopped it being a containment failure.
     "2d": 43,
-    "generated": 3,
+    # 13.9 N6 added `conformed_cases_reach_the_native_chain` and
+    # `conform_parity_spends_its_tolerance`, both with a mutation.
+    "generated": 5,
     "hda": 18,
     "images": 30,
     "native": 19,
@@ -1204,5 +1242,4 @@ UNPROVEN.update(dict.fromkeys((
     "hda/evenly_clears_the_corner_justify_center",
     "hda/evenly_clears_the_corner_justify_start",
     "native/every_stage_has_a_second_source",
-    "native/gate_parity",
 ), "no mutation yet"))

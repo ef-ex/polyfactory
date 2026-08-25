@@ -53,8 +53,30 @@
 // term of the verdict expression, has a tag here.  A row that stops being
 // true, or a refusal added without a row, is a red check.
 //
+// ⚠️ THE `[cfg:has_surface]` ROW IS GONE, AND ITS ABSENCE IS THIS CYCLE.  It
+// refused "a surface (4.5, N6)" - the largest refused class left, 96.9-97.1 %
+// Python.  13.9 N6 PORTS the drape (`pc_conform.h`), so a surface is no longer
+// a reason to refuse anything, and what took its place is two NARROWER rows
+// naming the parts of 4.5 that are still not ported.  `has_surface` is still
+// written into `pc_cfg` - `pc_deform_gate` and the three sampler stages read
+// the surface itself off input 3, but `config` is what tells the artist-facing
+// half whether there is one.
+//
 //   * [vex:ok] anything `config` refused, namely:
-//       [cfg:has_surface]     a surface (4.5, N6)
+//       [cfg:conform_tilt]    D55's CAMBER, which is 4.5's ONE unported half:
+//                             a tilt hands `normal_at` to `span_deviation` and
+//                             turns on D100's camber rotation and D104's extra
+//                             stations, the two terms `pc_gate.h` does not
+//                             have.  The per-module `pc_tilt` override is the
+//                             same refusal asked of the KIT.
+//       [cfg:conform_axis]    a NON-AXIS-ALIGNED drop axis (D111), and it is
+//                             the REFERENCE's own condition rather than a new
+//                             one - `Surface.batchable` gates its own batched
+//                             `ray` off exactly this, because the
+//                             reconstruction cannot remove the divergence on a
+//                             tilted axis (1.9e-06 m at fixture scale,
+//                             1.5e-05 m at 20 km, 0.0 for every coordinate
+//                             axis).
 //       [cfg:fillet_radius]   a fillet radius (4.3, N8)
 //       [cfg:fix_slope]       a slope fix (D26, N5)
 //       [cfg:flatten_stepped] D98's flatten-under (N5)

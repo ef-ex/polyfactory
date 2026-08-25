@@ -72,6 +72,58 @@ KNOWN = (
 )
 
 
+# --- 13.9 N6's ONE STATED TOLERANCE -----------------------------------------
+#
+# ⚠️ EVERY OTHER CASE IS COMPARED AT 0.0, AND THIS ONE IS NOT, SO IT OWES AN
+# EXPLANATION AND A MEASUREMENT.
+#
+# `conform.Surface.drop` is `hou.Geometry.intersect`; the native drop is VEX's
+# `intersect()`.  They are two implementations of a ray-triangle test and they
+# disagree on the hit's AXIS COMPONENT by about ONE DOUBLE ULP OF THE QUERY
+# COORDINATE - probed directly, 7.105e-15 m on a query at y = 50, with x and z
+# agreeing at 0.000e+00 m at 0 m, 100 m, 2 km and 20 km (the other two
+# components are SELECTED from the query, not recomputed, exactly so that they
+# can be exact).  Nothing on either side can remove that: it is not a spelling,
+# it is two ray tests.
+#
+# ⚠️ AND IT REACHES THE OUTPUT ONLY THROUGH A DOUBLE.  A drop perturbed by one
+# ULP of a world coordinate cannot move `P`, which is float32 - it is 4e-12 m
+# at 20 km against a float32 ULP of 2e-3 m there.  What it CAN move is the
+# packed prim's `transform` / `packedfulltransform` INTRINSIC, which is stored
+# as a double and is a NORMALISED direction: the chord is `b - a`, so the
+# relative error is the coordinate ULP divided by the PIECE LENGTH, and a short
+# piece far from the origin is the worst case.  That is why the tolerance is
+# absolute and small rather than relative to the value.
+#
+# THE NUMBER IS MEASURED, NOT CHOSEN: `conform_parity_spends_its_tolerance`
+# prints the worst deviation every run and fails if it comes within 10x of this
+# ceiling, so the headroom cannot be quietly eaten.  Measured worst on this
+# sweep 2.498e-16 m; measured worst on a 20 km run of 0.3 m pieces - the shape
+# the generator cannot reach and the one where `ULP(coordinate) / piece length`
+# is largest - 2.963e-15 m.
+CONFORM_TOL = 1e-12
+
+# ...and the SECOND half of the conformed contract, which is a different kind
+# of number and so is a different mechanism (`ulp=True`, see `diff.compare`):
+# one FLOAT32 ULP at the value's own magnitude.  The two ray tests disagree by
+# about one DOUBLE ULP, which is 1e8 times under `CONFORM_TOL` and invisible -
+# EXCEPT where the double lands exactly on a float32 rounding tie, and a query
+# at a grid-cell midpoint does that systematically, because the hit is then the
+# exact mean of two float32 vertices.  Measured on `BB_conform_vertical`: FOUR
+# point coordinates of 1 302, all the same adjacent pair, and the `bounds`
+# intrinsic that quotes them.
+#
+# ⚠️ AND THESE TWO INTRINSICS ARE DROPPED ON A CONFORMED CASE, which is a
+# WEAKENING and so has to earn itself: both are pure functions of `P` and the
+# topology, and this file compares BOTH exhaustively, so they carry no
+# information of their own.  What they do carry is cancellation - they are
+# products of coordinates - so a last-bit `P` difference comes out of them
+# amplified past any ULP rule stated about `P` (measured: 1.49e-08 m on `P`
+# arriving as 6.21e-09 on a `measuredvolume` of 0.00225, which is ten float32
+# ULP of ITS magnitude).
+CONFORM_SKIP = ("measuredarea", "measuredvolume")
+
+
 def _known(diff):
     """-> the KNOWN entry every line of `diff` matches, or None.
 
@@ -149,8 +201,14 @@ def run(seeds, verbose=True):
     curve_in = _file_sop(geo_node, "curve_in")
     kit_in = _file_sop(geo_node, "kit_in")
     style_in = _file_sop(geo_node, "style_in")
+    # 13.9 N6 - INPUT 4, and it stays WIRED for every seed.  A seed with no
+    # terrain points it at a missing file, which `missingframe = 1` cooks as an
+    # empty geometry - which is exactly what an artist's unwired input looks
+    # like to `has_surface` (`primitivecount`, not `is not None`).  Rewiring per
+    # seed would test a graph no artist has.
+    surface_in = _file_sop(geo_node, "surface_in")
     node = geo_node.createNode("pf_polychain", "chain")
-    for i, src in enumerate((curve_in, kit_in, style_in)):
+    for i, src in enumerate((curve_in, kit_in, style_in, surface_in)):
         node.setInput(i, src)
 
     tmp = tempfile.mkdtemp(prefix="pcgen_")
@@ -165,6 +223,10 @@ def run(seeds, verbose=True):
             curve_in.parm("file").set(_write(case["curve"], base + "_c.bgeo"))
             kit_in.parm("file").set(_write(case["kit"], base + "_k.bgeo"))
             style_in.parm("file").set(_write(style_geo, base + "_s.bgeo"))
+            surf = case.get("surface")
+            surface_in.parm("file").set(
+                _write(surf, base + "_t.bgeo") if surf is not None
+                else base + "_absent.bgeo")
 
             t0 = time.time()
             ref_geo, ref_msg = _cook(node, "reference")
@@ -179,14 +241,20 @@ def run(seeds, verbose=True):
                 if g is not None and g.findGlobalAttrib("_native_ok"):
                     answered = int(g.attribValue("_native_ok"))
 
+            worst = []
             if ref is None or out is None:
                 bad = ["one stage produced no geometry: reference=%r "
                        "output=%r" % (ref_msg[:1], out_msg[:1])]
             else:
-                bad = compare(ref, out)
+                conf = bool(case.get("surface"))
+                bad = compare(ref, out, tol=CONFORM_TOL if conf else 0.0,
+                              worst=worst, ulp=conf,
+                              skip=CONFORM_SKIP if conf else ())
             known = _known(bad)
             rows.append({"seed": seed, "label": case["label"],
                          "native": answered, "ok": not bad, "known": known,
+                         "surface": case.get("surface_kind", ""),
+                         "worst": (worst[0] if worst else (0.0, 0.0, "", 0)),
                          "seconds": round(took, 3), "diff": bad[:6],
                          "prims": (out or {}).get("counts", {})
                                   .get("primitivecount")})
@@ -206,8 +274,10 @@ def run(seeds, verbose=True):
             elif verbose:
                 print("   ok     seed %-6d %4s prims  %.2fs  %s"
                       % (seed, rows[-1]["prims"], took, case["label"][:96]))
-            for path in (base + "_c.bgeo", base + "_k.bgeo", base + "_s.bgeo"):
-                os.remove(path)
+            for path in (base + "_c.bgeo", base + "_k.bgeo", base + "_s.bgeo",
+                         base + "_t.bgeo"):
+                if os.path.exists(path):
+                    os.remove(path)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return rows, red
@@ -248,9 +318,47 @@ def main():
           "(%.0f%%, floor %.0f%%)"
           % ("FAIL" if share < floor else "PASS", answered, len(rows),
              100 * share, 100 * floor))
+    # ⚠️ 13.9 N6 NEEDS ITS OWN FLOOR, AND FOR THE SAME REASON THE ROW ABOVE
+    # DOES.  `Stage = output` is a guarded fork, so a conformed case the guard
+    # REFUSES compares the Python kernel with itself and passes by
+    # construction - which is what every conformed case did before N6 and what
+    # they would all silently go back to doing the day level 1 stopped
+    # admitting a surface.  This row is the tripwire on that: it counts only
+    # the seeds that carry a terrain, and only the ones the native chain
+    # actually answered.  `tilt` and a tilted `conform_axis` are DELIBERATE
+    # refusals (D55, D111), so they are excluded from the denominator by name
+    # rather than by lowering the floor to hide them.
+    surf_rows = [r for r in rows if r.get("surface")
+                 and "tilt" not in r["surface"]]
+    surf_ok = len([r for r in surf_rows if r.get("native")])
+    sfloor = 0.90
+    sshare = float(surf_ok) / max(len(surf_rows), 1)
+    if surf_rows and sshare < sfloor:
+        red = list(red) + ["only %.0f%% of CONFORMED cases reached the native "
+                           "chain" % (100 * sshare)]
     print("  [%s] generated_output_matches_the_reference   %d clean, %d known,"
           " %d red" % ("FAIL" if red else "PASS",
                        len(rows) - len(red) - nknown, nknown, len(red)))
+    print("  [%s] conformed_cases_reach_the_native_chain   %d of %d "
+          "(%.0f%%, floor %.0f%%)"
+          % ("FAIL" if (surf_rows and sshare < sfloor) else "PASS",
+             surf_ok, len(surf_rows), 100 * sshare, 100 * sfloor))
+    # ⚠️ A STATED TOLERANCE THAT NOTHING MEASURES IS A NUMBER ANY LATER CYCLE
+    # CAN WIDEN FOR FREE.  This is the row that reads it back: the worst
+    # deviation actually spent on a conformed case, against a TENTH of the
+    # ceiling, so the headroom has to stay an order of magnitude.  It also
+    # counts the ULP-tie differences, which must stay a handful - a systematic
+    # port error moves thousands of values, not four.
+    spent = max([r["worst"][0] for r in rows if r.get("surface")] or [0.0])
+    ties = sum(r["worst"][3] for r in rows if r.get("surface"))
+    over = spent > CONFORM_TOL / 10.0
+    if over:
+        red = list(red) + ["the conformed tolerance is being spent: %.3e m"
+                           % spent]
+    print("  [%s] conform_parity_spends_its_tolerance      %.3e m of %.0e "
+          "(guard %.0e), %d float32 tie(s)"
+          % ("FAIL" if over else "PASS", spent, CONFORM_TOL,
+             CONFORM_TOL / 10.0, ties))
     print("  [%s] known_divergences_still_occur            %d of %d reached%s"
           % ("FAIL" if missing else "PASS", len(KNOWN) - len(missing),
              len(KNOWN), "; MISSING " + ", ".join(missing) if missing else ""))
