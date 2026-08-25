@@ -268,13 +268,19 @@ def sop_body(func):
     return BOOTSTRAP % func
 
 
-def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
+def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None,
+                surface=None):
     """4.4's packed half: the kit's copy id, the module's numbers, the frame,
     and ONE `copytopoints`.  Returns (last, {name: node}).
 
     `kit_code` is the `kit_starter` Python SOP's body; the rig passes None and
     wires the kit straight in, because a check that already has a kit does not
     need 6's standalone fallback.
+
+    `surface` is 13.9 N6's IN_SURFACE, on the fourth input of the three stages
+    that SAMPLE the path.  `None` leaves those ports unwired, which every
+    sampler call reads as "no surface" and answers with `pc_sample` itself - so
+    a caller that has no terrain gets the identical graph it got before N6.
     """
     nodes = {}
     src = kit
@@ -332,13 +338,18 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     gate.setInput(0, proto)
     gate.setInput(1, config)
     gate.setInput(2, sections)
-    gate.setInput(3, kit_meta)
+    # ⚠️ INPUT 3 WAS `pc_kit_meta` UNTIL 13.9 N6.  A wrangle has four inputs and
+    # this node used all four, so the station table travels on the PLAN POINT
+    # now (`pc_proto` writes it off the kit it already holds) and the port is
+    # free for the surface.  Without the move the conform port stalls on wiring.
+    gate.setInput(3, surface)
     nodes["pc_deform_gate"] = gate
 
     frames = wrangle(parent, "pc_frames_native" + suffix, "point", "pc_frames")
     frames.setInput(0, gate)
     frames.setInput(1, config)
     frames.setInput(2, sections)
+    frames.setInput(3, surface)
     nodes["pc_frames_native"] = frames
 
     valid = parent.createNode("blast", "pc_place_valid" + suffix)
@@ -400,6 +411,7 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
                    "pc_deform_prep")
     prep.setInput(0, deformed)
     prep.setInput(1, sections)
+    prep.setInput(2, surface)
     nodes["pc_deform_prep"] = prep
 
     copy_def = parent.createNode("copytopoints::2.0", "copy_deformed" + suffix)
@@ -426,6 +438,7 @@ def stage_place(parent, plan, config, kit, sections, suffix="", kit_code=None):
     deform.setInput(0, copy_def)
     deform.setInput(1, config)
     deform.setInput(2, sections)
+    deform.setInput(3, surface)
     nodes["pc_deform"] = deform
 
     merge = parent.createNode("merge", "pc_pieces" + suffix)

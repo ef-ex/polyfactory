@@ -543,6 +543,13 @@ def config_resolved(node):
         if value is None:
             continue
         out[key] = float(value) if isinstance(value, bool) else value
+    # 13.9 N6 - 4.5's drop axis, which is the one CONFIG value that is a VECTOR
+    # and so cannot ride `CONFIG_KEYS`' `float(value) if bool` loop.  Probed on
+    # 22.0.398: a 3-tuple stored in a dict detail attribute comes back as a
+    # `hou.Vector3` and reads in VEX as a `vector`, so no unpacking is needed on
+    # either side.  `Params.__init__` has already normalised it.
+    out["conform_axis"] = tuple(
+        float(c) for c in getattr(params, "conform_axis", (0.0, -1.0, 0.0)))
     out["style_id"] = str(getattr(style, "style_id", "")
                           or _parm_str(parms, "style_id", "pf_polychain"))
     out["seed"] = float(getattr(style, "seed", 0))

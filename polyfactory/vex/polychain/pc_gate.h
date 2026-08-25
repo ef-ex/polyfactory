@@ -17,15 +17,21 @@
 //           swings by the chord of the frame's own rotation, 2 r sin(theta/2),
 //           sampled at the span's start, at every kink and at its END;
 //   NOT     D100's CAMBER rotation (`normal_at`) - 4.5's per-station surface
-//           normal, which needs the conform this graph has not ported (N6);
+//           normal, which needs D55's TILT;
 //   NOT     D104's extra stations (`fracs`) - folded in only when `normal_at`
 //           is given, so they are the same absence.
 //
-// The gate therefore DECLARES ITSELF UNANSWERABLE whenever the build has a
-// surface, and `pc_proto` already refuses those pieces for the same reason.
-// A budget that quietly drops two of its four terms is exactly the silent
-// fallback that makes a rebuild cosmetic, so it is a declared limit with a
-// check on it, not an approximation.
+// ⚠️ 13.9 N6 CHANGED WHICH PATH THESE TWO TERMS ARE MEASURED ON, AND NOT WHAT
+// THEY ARE.  Every sample below is `pc_conform.h`'s CONFORMED sampler now, so
+// with a surface wired the budget is spent against the drape - which is
+// `place.span_deviation` handed a `ConformPath`, i.e. the reference exactly.
+// With no surface `pc_csample` IS `pc_sample`, the same call, so no phase-1
+// number can move.  The two terms above are still absent, and the refusal that
+// covers them is now precisely D55's TILT rather than the whole of 4.5:
+// `normal_at` is passed only under `conform_tilt`, so level 1 refusing tilt is
+// what keeps the two ported terms EXACT here.  A budget that quietly drops two
+// of its four terms is exactly the silent fallback that makes a rebuild
+// cosmetic, so it is a declared limit with a check on it, not an approximation.
 //
 // ⚠️ THE `_len(ref) < EPS` AND `_len(t) < EPS` GUARDS IN THE REFERENCE ARE
 // DEAD CODE AND ARE NOT PORTED AS BRANCHES.  `place._unit` returns the
@@ -37,7 +43,7 @@
 #ifndef __pc_gate_h__
 #define __pc_gate_h__
 
-#include "pc_path.h"
+#include "pc_conform.h"
 
 #define PC_KINK_TOL   1e-9      // `Path._kinks` - exact collinearity, D69
 #define PC_VERT_TOL   1e-7      // `interior_vertices` - strictly inside
@@ -118,9 +124,17 @@ int pc_interior_kinks(const int inp; const int pr; const float s0;
 }
 
 // `place.span_deviation` with `normal_at = None` - see the header note.
+//
+// ⚠️ THE KINKS ARE THE SPLINE'S, THE POSITIONS ARE THE DRAPE'S, and that is the
+// reference's own shape rather than an approximation of it:
+// `ConformPath.interior_vertices` delegates STRAIGHT to the base path, so a
+// conformed run's interior vertices are the spline's kinks while every
+// `path.sample` around them is dropped.  A ridge under a dead-straight spline
+// therefore contributes NOTHING here - `deviates` is the term that catches it,
+// and `pc_deform_gate` asks it separately for exactly that reason.
 float pc_span_deviation(const int inp; const int pr; const float sa;
                         const float sb; const float radius;
-                        const string zmode) {
+                        const string zmode; const int surf; const vector axis) {
     float span = sb - sa;
     if (abs(span) <= PC_EPS) return 0.0;
     float verts[];
@@ -128,7 +142,7 @@ float pc_span_deviation(const int inp; const int pr; const float sa;
     if (!nv && radius <= PC_EPS) return 0.0;    // the chord IS the arc (D66/D69)
 
     vector a, ta, b, tb;
-    pc_span_ends(inp, pr, sa, sb, a, ta, b, tb);
+    pc_cspan_ends(inp, pr, sa, sb, surf, axis, a, ta, b, tb);
     vector ab = b - a;
 
     // THE SPINE TERM, at every kink. The two ends sit ON the chord by
@@ -140,8 +154,7 @@ float pc_span_deviation(const int inp; const int pr; const float sa;
     spine[nv + 1] = 0.0;
     for (int k = 0; k < nv; k++) {
         float f = (verts[k] - sa) / span;
-        vector p, t;
-        pc_sample(inp, pr, verts[k], 1, p, t);
+        vector p = pc_cpos(inp, pr, verts[k], 1, surf, axis);
         spine[k + 1] = length(p - a - ab * f);
     }
     float worst = 0.0;
@@ -164,7 +177,7 @@ float pc_span_deviation(const int inp; const int pr; const float sa;
             t = ta;                     // the pair above already carries it
         } else {
             vector p;
-            pc_sample(inp, pr, s, 1, p, t);
+            pc_csample(inp, pr, s, 1, surf, axis, p, t);
         }
         t = pc_unit(flat ? set(t.x, 0.0, t.z) : t);
         float ang = acos(clamp(dot(ref, t), -1.0, 1.0));
@@ -187,29 +200,28 @@ float pc_span_deviation(const int inp; const int pr; const float sa;
 // warning a deformed piece can raise and a packed one cannot, so without it
 // the native branch ships an element the reference stamps and it does not.
 //
-// The stations come off `pc_kit_meta`'s per-module table as RAW local x; the
-// `- ax` happens here, in 64 bits, exactly as `_stations` does it.
+// The stations arrive as RAW local x (13.9 N6 moved the table onto the PLAN
+// POINT, so that the gate's fourth input is free for IN_SURFACE); the `- ax`
+// happens here, in 64 bits, exactly as `_stations` does it.
 //
 // ⚠️ THE REFERENCE'S `ps[]` CACHE IS NOT PORTED AND DOES NOT NEED TO BE.  It
 // saves a `path.sample` call per gap and returns the identical position for
 // the identical argument - the sampler is a pure function of (prim, s) - so
 // dropping it changes the cost and not one bit of the answer.  What IS ported
 // is the `s_b - s_a <= EPS` skip, which changes WHICH gaps are measured.
-float pc_bend_deviation(const int spline; const int pr; const int kit;
-                        const int kprim; const float s0f; const float scale) {
-    float st[] = prim(kit, "_st", kprim);
+float pc_bend_deviation(const int spline; const int pr; const float st[];
+                        const float ax; const float s0f; const float scale;
+                        const int surf; const vector axis) {
     int n = len(st);
     if (n < 2) return 0.0;
-    float ax = prim(kit, "_st_ax", kprim);
     float worst = 0.0;
     for (int i = 0; i + 1 < n; i++) {
         float sa = s0f + (st[i] - ax) * scale;
         float sb = s0f + (st[i + 1] - ax) * scale;
         if (sb - sa <= PC_EPS) continue;
-        vector pa, pb, pm, t;
-        pc_sample(spline, pr, sa, 1, pa, t);
-        pc_sample(spline, pr, sb, 1, pb, t);
-        pc_sample(spline, pr, 0.5 * (sa + sb), 1, pm, t);
+        vector pa = pc_cpos(spline, pr, sa, 1, surf, axis);
+        vector pb = pc_cpos(spline, pr, sb, 1, surf, axis);
+        vector pm = pc_cpos(spline, pr, 0.5 * (sa + sb), 1, surf, axis);
         worst = max(worst, length(pm - 0.5 * (pa + pb)));
     }
     return worst;
@@ -233,24 +245,43 @@ float pc_bend_deviation(const int spline; const int pr; const int kit;
 // build takes the reference, and nothing wrong ships - 13.9 N10's rule, and
 // the one both of 20.2's criticals broke by answering False instead.
 //
-// ⚠️ THE SAMPLE SET IS THE PATH'S DIRECTIONS, NOT THE MODULE'S STATIONS, AND
-// THAT IS WHY IT IS SOUND.  A station's tangent is the direction of whatever
-// segment its arclength lands in, so the set of station tangents is a SUBSET
-// of the segment directions over the span; the directions change only at a
-// KINK, so sampling the span's start, every interior kink and its end visits
-// every one of them.  Refusing on the superset can only refuse more, never
-// less.
+// ⚠️ ON A BARE SPLINE THE SAMPLE SET IS THE PATH'S DIRECTIONS, NOT THE MODULE'S
+// STATIONS, AND THAT IS WHY IT IS SOUND.  A station's tangent is the direction
+// of whatever segment its arclength lands in, so the set of station tangents is
+// a SUBSET of the segment directions over the span; the directions change only
+// at a KINK, so sampling the span's start, every interior kink and its end
+// visits every one of them.  Refusing on the superset can only refuse more,
+// never less.
+//
+// ⚠️ AND THAT ARGUMENT DOES NOT SURVIVE A CONFORM, WHICH IS WHY THE STATIONS
+// ARE ADDED BACK (13.9 N6).  A conformed tangent is a finite difference of
+// DROPPED positions, so it turns with the terrain and not with the spline's
+// segments: a dead-straight span over an overhanging crest has no kink at all
+// and still reverses.  With a surface the set becomes the kinks PLUS the
+// piece's own stations, which is exactly the frame set `_deform_positions`
+// builds and `_transport` walks - so the test is not merely conservative there,
+// it is the same set.  `st`/`ax`/`scale` are the piece's station table; an
+// EMPTY table with a surface wired is a refusal, because a set that cannot be
+// enumerated cannot be shown not to flip.
 #define PC_FLAT_TANGENT 1e-6
 int pc_frames_transportable(const int inp; const int pr; const float s0;
-                            const float s1) {
+                            const float s1; const int surf; const vector axis;
+                            const float st[]; const float ax;
+                            const float scale) {
     if (s1 - s0 <= PC_EPS) return 1;
+    int conformed = pc_surf_active(surf);
+    if (conformed && len(st) < 2) return 0;
     float verts[];
     int nv = pc_interior_kinks(inp, pr, s0, s1, verts);
+    float ss[];
+    for (int k = 0; k < nv + 2; k++)
+        push(ss, (k == 0) ? s0 : ((k <= nv) ? verts[k - 1] : s1));
+    if (conformed)
+        foreach (float x; st) push(ss, s0 + (x - ax) * scale);
     vector hs[];
-    for (int k = 0; k < nv + 2; k++) {
-        float s = (k == 0) ? s0 : ((k <= nv) ? verts[k - 1] : s1);
+    foreach (float s; ss) {
         vector p, t;
-        pc_sample(inp, pr, s, 1, p, t);
+        pc_csample(inp, pr, s, 1, surf, axis, p, t);
         vector u = pc_unit(t);
         vector h = set(u.x, 0.0, u.z);
         float hl = length(h);

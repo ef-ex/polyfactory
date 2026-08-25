@@ -423,6 +423,10 @@ frames = wrangle(
 frames.setInput(0, out_plan)
 frames.setInput(1, config)
 frames.setInput(2, out_sections)
+# 13.9 N6 - IN_SURFACE on 3, so this instance answers a CONFORMED build too.
+# On a build with nothing wired there `pc_csample` IS `pc_sample` - the same
+# call, so this branch's own parity cannot move.
+frames.setInput(3, ins[3])
 frames.setPosition(hou.Vector2(22.0, 0.0))
 
 valid = net.createNode("blast", "pc_frames_valid")
@@ -452,7 +456,8 @@ out_frames.setPosition(hou.Vector2(22.0, -4.0))
 # corners shows no corner assembly and no reserve. `Stage = output` is
 # untouched, which is what the switch is for.
 _place_last, _place_nodes = native_rig.stage_place(
-    net, out_plan_native, config, ins[1], out_sections, kit_code=KIT_CODE)
+    net, out_plan_native, config, ins[1], out_sections, kit_code=KIT_CODE,
+    surface=ins[3])
 place_native_nodes = []
 _PLACE_COMMENTS = {
     "kit_starter":

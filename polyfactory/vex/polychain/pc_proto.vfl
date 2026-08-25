@@ -84,6 +84,29 @@ i@_pkey0 = @ptnum;
 // table (`pc_kit_meta`) by index instead of walking the kit a second time.
 i@_proto_kitprim = kprim;
 
+// 13.9 N6 - AND THE STATION TABLE ITSELF TRAVELS WITH THE PIECE, because A
+// WRANGLE HAS FOUR INPUTS AND THE GATE ALREADY USED ALL FOUR.  4.5's drape
+// needs IN_SURFACE inside `pc_deform_gate`, `pc_frames` and `pc_deform`, and
+// the only free port was the one `pc_kit_meta` sat on.  This node already holds
+// the kit (input 2) AND the plan point, so it is the one place the move costs
+// nothing: `_st` is read once per piece here instead of once per piece there.
+//
+// ⚠️ RAW LOCAL x, STILL - `pc_kit_meta`'s own reason applies unchanged.  A
+// point's P is float32 and `x - ax` is a float64 subtraction of two float32s,
+// so storing the difference would quantise the very numbers the deform is built
+// on.  The consumer subtracts `ax` itself, in 64 bits, as `_stations` does.
+float st[];
+float st_ax = 0.0;
+if (kprim >= 0) {
+    st = prim(2, "_st", kprim);
+    st_ax = prim(2, "_st_ax", kprim);
+}
+f[]@_st   = st;
+f@_st_ax  = st_ax;
+// ...and the two kit-wide numbers the gate refuses on, for the same reason.
+i@_krank_max = detail(2, "_kit_rank_max");
+i@_kspan     = detail(2, "_kit_span");
+
 f@pc_proto_len = plen;
 f@pc_proto_ax  = pax;
 // `_*` because none of these is 3.4 output contract - they exist for the

@@ -5,6 +5,7 @@
 //            own `_d*` numbers
 //   input 1  CONFIG
 //   input 2  the DECOMPOSED spline (the sampler table)
+//   input 3  IN_SURFACE - 4.5's drape (13.9 N6)
 //
 // `place._deform_positions` ported.  It is the last of the three
 // materialisation paths to leave Python and the most expensive one by far:
@@ -34,14 +35,23 @@
 // ⚠️ WHAT IS ABSENT HERE IS ABSENT UPSTREAM TOO, and each one is a refusal
 // with a name: D99's BAND (`_follows`' `inside` term - `pc_deform_gate`'s
 // `has_band`), D98's FLATTEN-UNDER (`base_y` - `_native_ok`'s
-// `flatten_stepped`), 4.5's CAMBER (`normal_at` - `has_surface`), a SLICED
-// module (`pc_sliced` - `fill`), and E2's row band (`yscale`, phase 2, the
-// identity here and carried as an attribute rather than assumed).  With all
-// five refused, `_follows(y, None, stepped)` collapses to `!stepped` and
-// `base_y` to the piece's own start elevation - which is what the two
-// branches below are.
+// `flatten_stepped`), D55's CAMBER (`normal_at` - `_native_ok`'s
+// `conform_tilt`), a SLICED module (`pc_sliced` - `fill`), and E2's row band
+// (`yscale`, phase 2, the identity here and carried as an attribute rather
+// than assumed).  With all five refused, `_follows(y, None, stepped)`
+// collapses to `!stepped` and `base_y` to the piece's own start elevation -
+// which is what the two branches below are.
+//
+// ⚠️ 13.9 N6 - THE SAMPLE IS CONFORMED AND THE FRAME IS NOT.  The station is
+// read through `pc_csample`, so `pos` is the DROPPED position and `tang` is
+// the drape's own one-sided finite difference - which is what makes an
+// adaptive rail BANK onto the surface and a picket's FOOT follow it while the
+// picket stays plumb.  `up_ref` is untouched: D55's camber is the ONE thing
+// that would change it, and it is refused (see above).  So 4.5 composes with
+// the three z-modes here without a single new branch, exactly as `conform.py`'s
+// own header says it does.
 
-#include "pc_path.h"
+#include "pc_conform.h"
 
 int   pr     = i@_dprim;
 float s0     = f@_dws0;
@@ -58,9 +68,16 @@ vector up_ref = v@_dupref;
 // every deformed piece it merges.
 vector local = v@P;
 
+vector caxis = set(0.0, -1.0, 0.0);
+{
+    dict cfg = detail(1, "pc_cfg");
+    if (isvalidindex(cfg, "conform_axis")) { vector v = cfg["conform_axis"]; caxis = v; }
+}
+int surf = pc_surf_active(3) ? 3 : -1;
+
 float s_x = s0 + (local.x - ax) * scale;
 vector pos, tang;
-pc_sample(2, pr, s_x, 1, pos, tang);
+pc_csample(2, pr, s_x, 1, surf, caxis, pos, tang);
 
 vector d, across, up;
 pc_frame(tang, zmode, up_ref, d, across, up);

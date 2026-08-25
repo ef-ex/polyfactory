@@ -3,6 +3,9 @@
 //   input 0  the plan (one point per piece)
 //   input 1  CONFIG
 //   input 2  the DECOMPOSED spline (carries `pc_seg_*` - the sampler table)
+//   input 3  IN_SURFACE - 4.5's drape (13.9 N6).  Unwired, or with no
+//            primitive, every sampler call below IS `pc_sample` - the same
+//            call, not an equivalent one - so no phase-1 number can move.
 //
 // `place._packed_transform` ported: the 4x4 that maps module local space onto
 // the chord A->B (D21).  It is the single hottest per-piece computation in the
@@ -18,7 +21,7 @@
 // per-curve segment arrays.  That is 13.5's OpenCL transliterability
 // constraint (D149), and honouring it costs nothing today.
 
-#include "pc_path.h"
+#include "pc_conform.h"
 
 #define PC_FLAT_RATIO   0.01    // horizontal reach vs planned span, yaw-only
 
@@ -53,8 +56,16 @@ float yscale = (haspointattrib(0, "pc_yscale")) ? f@pc_yscale : 1.0;
 vector up_ref = (haspointattrib(0, "pc_upref")) ? v@pc_upref
                                                 : set(0.0, 1.0, 0.0);
 
+// 13.9 N6 - 4.5's drop axis (D51), and the surface input as one number.
+vector caxis = set(0.0, -1.0, 0.0);
+{
+    dict cfg = detail(1, "pc_cfg");
+    if (isvalidindex(cfg, "conform_axis")) { vector v = cfg["conform_axis"]; caxis = v; }
+}
+int surf = pc_surf_active(3) ? 3 : -1;
+
 vector a, ta, b, tb;
-pc_span_ends(2, pr, sa, sb, a, ta, b, tb);
+pc_cspan_ends(2, pr, sa, sb, surf, caxis, a, ta, b, tb);
 
 vector chord = b - a;
 float clen = length(chord);
