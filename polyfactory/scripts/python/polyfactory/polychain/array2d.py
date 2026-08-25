@@ -63,6 +63,7 @@ from . import (CLIP_PRESERVE, CLIP_REMOVE, CLIP_SLICE, DEFAULTS, EPS, POS_EPS,
                WARN_PAYLOAD_REFUSED, WARN_ROW_KIT_GAP,
                WARN_ROW_OVERFLOW, Curve, Kit, Module, Style, _is_slot,
                canonical_role, role_2d, split_role)
+from . import corner as _corner
 from . import decompose as _decompose
 from . import plan as _plan
 
@@ -498,6 +499,63 @@ classify = _plan.classify
 
 
 # --- D124: the canonical footprint ------------------------------------------
+
+# --- 7.4 / D122: the Y fit's ALIGNED mode -----------------------------------
+
+def datum_bays(loop, kit, x_style, params):
+    """{section index: default-fill piece count} for ONE row curve.
+
+    7.4's own sentence is *"the 2D stage runs `plan.plan_sections` on the
+    datum row - pure math, no geometry, microseconds - and reads the bay count
+    per section"*, with one correction it did not know it needed: it has to be
+    `corner.plan_curve`, not `plan.plan_sections`. The corner assembly is what
+    RESERVES span off both ends of every leg, so a count measured on the
+    unreserved section is a count of a span that does not exist, and on PC-G5's
+    own L that is 0.9 m of pier per leg.
+
+    WHAT IT CANNOT SEE: a fillet, a slope fix or a conform. `place.build`
+    `_prepare`s each curve before it plans it and this does not, so on those
+    three the datum's own bays move under it and the alignment is measured
+    against a curve the kernel did not use. None of them is reachable from the
+    2D entry point today; the day one is, this owes a refusal.
+    """
+    pts, closed, attrs = loop
+    curve = Curve(str(attrs.get("pc_curve_id", "datum")), pts, closed,
+                  attrs=dict(attrs))
+    sections = _decompose.decompose(curve, [], params)
+    if not sections:
+        return {}
+    placements = _corner.plan_curve(curve, sections, kit, x_style, params)[0]
+    bays = {}
+    for p in placements:
+        if p.slot == "default":
+            bays[p.section_index] = bays.get(p.section_index, 0) + 1
+    return bays
+
+
+def align_rows(loops, kit, x_style, params):
+    """D122 ALIGNED, stamped as data: every row but the datum carries the
+    datum's bay count per section as `pc_bays`, and `plan._fill` fits to it.
+
+    The datum is the BOTTOM row (`pc_row = 0`) - 7.4's own choice, because a
+    facade's ground floor is the row an artist actually looks at and it is the
+    one row that always exists. Its own solve is untouched, which is what makes
+    `aligned` a no-op on congruent rows rather than a second solve for them
+    (7.4: "when the rows are congruent Aligned IS free").
+    """
+    if len(loops) < 2:
+        return loops
+    datum = min(range(len(loops)),
+                key=lambda i: (int(loops[i][2].get("pc_row", 0) or 0), i))
+    bays = datum_bays(loops[datum], kit, x_style, params)
+    if not bays:
+        return loops
+    col = " ".join("%d:%d" % (k, bays[k]) for k in sorted(bays))
+    for i, loop in enumerate(loops):
+        if i != datum:
+            loop[2]["pc_bays"] = col
+    return loops
+
 
 def _signed_area_xz(points):
     """2 x the signed plan area. ONE fixed winding is all that is required."""

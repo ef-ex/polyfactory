@@ -1147,6 +1147,66 @@
       ]
     }
   ],
+  "FW_y_aligned": [
+    {
+      "detail": "of 120",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 72
+    },
+    {
+      "detail": "in leg, 0.450 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "pier_base at turn 90.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": []
+    },
+    {
+      "detail": "0 of 120 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        120
+      ]
+    },
+    {
+      "detail": "0 of 120 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        120
+      ]
+    },
+    {
+      "detail": "0 of 4 rows differ from row 0",
+      "name": "bay_alignment_aligned",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        4
+      ]
+    }
+  ],
   "FW_y_free": [
     {
       "detail": "of 162",
@@ -1204,6 +1264,65 @@
       "value": [
         3,
         4
+      ]
+    }
+  ],
+  "FX_y_align_lost": [
+    {
+      "detail": "of 200",
+      "name": "packed_pieces",
+      "ok": true,
+      "skipped": false,
+      "value": 152
+    },
+    {
+      "detail": "in leg, 0.450 m out",
+      "name": "corner_abut_m",
+      "ok": true,
+      "skipped": false,
+      "value": 1e-06
+    },
+    {
+      "detail": "pier_base at turn 90.0 deg",
+      "name": "corner_breach_m",
+      "ok": true,
+      "skipped": false,
+      "value": 0.0
+    },
+    {
+      "detail": "",
+      "name": "warnings",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        [
+          "pc_warn_role_fallback",
+          40
+        ],
+        [
+          "pc_warn_y_align_lost",
+          96
+        ]
+      ]
+    },
+    {
+      "detail": "0 of 200 elements on a clipped row",
+      "name": "clip_stamp",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        200
+      ]
+    },
+    {
+      "detail": "0 of 200 placements carry a slice_t",
+      "name": "no_sliced_cells",
+      "ok": true,
+      "skipped": false,
+      "value": [
+        0,
+        200
       ]
     }
   ],
@@ -1411,11 +1530,11 @@
       "value": 0
     },
     {
-      "detail": "65834 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 100000)",
+      "detail": "66634 wrapper reads (`Prim.points` + `Point.position` + `*.attribValue`) in one build (ceiling 100000)",
       "name": "wrapper_reads_2d_rows",
       "ok": true,
       "skipped": false,
-      "value": 65834
+      "value": 66634
     },
     {
       "detail": "12800 compiled SOP executions in one build (ceiling 20000)",

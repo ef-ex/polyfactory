@@ -52,7 +52,7 @@ def _ensure(geo, cls, name, default):
 # reads `report["rows"]` and counts it as a HOLE, which is the number.
 _ROW_CLIPPED = "pc_warn_row_clipped_out"
 
-ROW_STR_ATTRS = ("pc_curve_id", "pc_yclass", "pc_row_warns")
+ROW_STR_ATTRS = ("pc_curve_id", "pc_yclass", "pc_row_warns", "pc_bays")
 ROW_INT_ATTRS = ("pc_row", "pc_clipped")
 ROW_FLT_ATTRS = ("pc_row_y0", "pc_row_y1", "pc_row_scale")
 
@@ -396,6 +396,11 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
     named = [m for r in style.rules for m in r.modules] + \
             [r.slot for r in style.rules]
     kit_geo2, fallbacks, collisions = close_kit(kit_geo, extend, named)
+    # D122's datum solve needs the CLOSED kit - the one the kernel reads - or
+    # it resolves a different set of cells from the builder and counts bays
+    # nobody will build. Only `aligned` pays for it.
+    kit_closed = (_array2d.close_roles(kit, extend, named)[0]
+                  if y_mode == "aligned" else kit)
 
     per_flags = bool(corner_flags) and isinstance(corner_flags[0],
                                                   (list, tuple))
@@ -447,6 +452,10 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
                                       kit, y_style, y_params, array_id)
             mine = _array2d.row_loops(footprint, rows, closed)
             flags = canonical_flags(footprint, flags, closed)
+        # 7.4 / D122 - ALIGNED, per array, because bay boundaries are a
+        # property of ONE footprint's rows and two arrays share nothing.
+        if y_mode == "aligned":
+            _array2d.align_rows(mine, kit_closed, x_style, x_style.params)
         loops.extend(mine)
         # one flag list PER LOOP, because `rows_geometry` reorders the stream
         # (closed rows first) and a flat column could not follow it.
@@ -462,6 +471,14 @@ def build_many(footprints, kit_geo, style, height=None, heights=None,
         x_style, params=x_style.params, out=out, surface_geo=surface_geo,
         overrides=overrides, clip=hook)
     report["arrays"] = arrays
+    # ⚠️ THE ROW STREAM THE KERNEL ACTUALLY SAW, published. Every consumer that
+    # wanted it - the check harness, a debug view - was re-deriving it by
+    # re-spelling this function's own precedence, and D122 made that a third
+    # copy (the payload's `y_mode`, the closed kit, the aligned stamp). A
+    # re-derivation that drifts is a harness measuring the seam between two
+    # builds instead of the build.
+    report["loops"] = loops
+    report["row_flags"] = flag_col if any(flag_col) else None
     one = arrays[0] if len(arrays) == 1 else None
     report["rows"] = one["rows"] if one else [r for a in arrays
                                               for r in a["rows"]]

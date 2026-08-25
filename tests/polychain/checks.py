@@ -2432,7 +2432,7 @@ def no_sliced_cells(scene):
                   "%d of %d placements carry a slice_t" % (n, len(plan)))
 
 
-def bay_alignment(scene, aligned=False):
+def bay_alignment(scene, aligned=False, name="bay_alignment"):
     """PC-G5 condition 3: [rows whose bay boundaries differ from the datum's,
     rows]. Under `free` at least one must differ; under `aligned`, none may.
 
@@ -2453,16 +2453,16 @@ def bay_alignment(scene, aligned=False):
     """
     cols = _elem_cols(scene.geo, ("pc_row", "pc_section", "pc_u"))
     if not cols:
-        return _skip("bay_alignment", "no pc_row - a 1D build")
+        return _skip(name, "no pc_row - a 1D build")
     rows = {}
     for r, s, u in zip(cols["pc_row"], cols["pc_section"], cols["pc_u"]):
         rows.setdefault(int(r), set()).add((int(s), round(float(u), 6)))
     if len(rows) < 2:
-        return _skip("bay_alignment", "one row - nothing to align against")
+        return _skip(name, "one row - nothing to align against")
     datum = rows[min(rows)]
     differ = sorted(r for r in rows if rows[r] != datum)
     ok = (not differ) if aligned else bool(differ)
-    return Result("bay_alignment", ok, [len(differ), len(rows)],
+    return Result(name, ok, [len(differ), len(rows)],
                   "%d of %d rows differ from row %d%s"
                   % (len(differ), len(rows), min(rows),
                      "" if ok else

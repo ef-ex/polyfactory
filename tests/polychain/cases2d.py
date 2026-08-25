@@ -38,7 +38,6 @@ import hou                                                       # noqa: E402
 from polyfactory.polychain import Params, Rule, Style             # noqa: E402
 from polyfactory.polychain import array2d as A                    # noqa: E402
 from polyfactory.polychain import facade as F                     # noqa: E402
-from polyfactory.polychain import style as S                      # noqa: E402
 from polyfactory.polychain import kit as K                        # noqa: E402
 from polyfactory.polychain import place as P                      # noqa: E402
 from polyfactory.polychain import style as S                      # noqa: E402
@@ -98,7 +97,7 @@ def facade_kit(roles=None, kit_id="pf_facade", ground_x=BAY_X):
 
 
 def facade_style(fill="adaptive", corner_mode="miter", seed=11,
-                 y_fill="adaptive", extra=(), meta=None):
+                 y_fill="adaptive", extra=(), meta=None, **params):
     """Four rules and no module names: the kit's roles decide every cell.
 
     The Y half is three `pc_axis = y` rules - a ground floor, a repeating
@@ -111,7 +110,7 @@ def facade_style(fill="adaptive", corner_mode="miter", seed=11,
         Rule("start", "first", ["shopfront"], axis="y"),
         Rule("default", "first", ["bay"], axis="y"),
         Rule("end", "first", ["cornice"], axis="y"),
-    ], params=Params(fill=fill, corner_mode=corner_mode),
+    ], params=Params(fill=fill, corner_mode=corner_mode, **params),
         meta=dict({"y_params": {"fill": y_fill}}, **(meta or {})))
 
 
@@ -321,15 +320,13 @@ def clip_arrays(loops, modes=None):
 def case(footprint, kit_geo, style, height=TOWER_H, array_id="A", **kw):
     out, report = F.build(footprint, kit_geo, style, height=height,
                           array_id=array_id, **kw)
-    return {"curve": F.rows_geometry(
-        _loops(footprint, kit_geo, style, height, array_id, kw),
-        # the same permutation `F.build` applied, or the re-derived curve
-        # stream would carry a different vertex-type pattern from the one the
-        # kernel actually saw and every phase-1 check would measure the seam
-        # between the two instead of the build.
-        F.canonical_flags(footprint, kw.get("corner_flags"),
-                          kw.get("closed", True)) if not kw.get("area")
-        else None),
+    return {# ⚠️ THE ROW STREAM THE KERNEL SAW, off the report - not
+            # re-derived. Re-deriving it meant re-spelling `build_many`'s own
+            # precedence here, and there were three copies of it by D122 (the
+            # payload's settings, the closed kit, the aligned bay stamp); a
+            # copy that drifts makes every phase-1 check measure the seam
+            # between two builds instead of the build.
+            "curve": F.rows_geometry(report["loops"], report["row_flags"]),
             # the CLOSED kit, which is what the kernel read (D136) - a check
             # that re-read the authored kit would resolve a different set of
             # roles from the builder and report the difference as a defect.
@@ -338,36 +335,6 @@ def case(footprint, kit_geo, style, height=TOWER_H, array_id="A", **kw):
             "overrides": None, "paths": [],
             "footprint": footprint, "height": height, "array_id": array_id,
             "kw": kw}
-
-
-def _loops(footprint, kit_geo, style, height, array_id, kw):
-    """The row curves the build made, re-derived for the checks to read.
-
-    Cheap (it is the Y solve, pure maths) and it keeps `Scene` able to run the
-    phase-1 checks against the same stream the kernel saw.
-    """
-    kit, _s, _w = K.read(kit_geo)
-    # D293 - the SAME precedence the builder used, resolved by the builder's
-    # own functions. Re-spelling it here is how the re-derived stream and the
-    # built one drift apart, which is the seam every phase-1 check would then
-    # be measuring instead of the build.
-    yp = F._y_params(style, kw.get("y_params"))
-    settings = A.payload_2d(style)
-    _x, y_style = A.split_style(style, yp)
-    if kw.get("area"):
-        frame = A.area_frame(
-            footprint, settings.get("auto_align",
-                                    kw.get("auto_align", "to_spline")),
-            settings.get("expand", kw.get("expand", 0.0)))
-        rows = A.plan_rows(kw.get("profile") if kw.get("profile") is not None
-                           else (height if height is not None else
-                                 frame.height),
-                           kit, y_style, yp, array_id)
-        return A.area_rows(frame, rows,
-                           settings.get("clip_mode",
-                                        kw.get("clip_mode", "remove")))
-    rows = A.plan_rows(kw.get("profile", height), kit, y_style, yp, array_id)
-    return A.row_loops(footprint, rows, kw.get("closed", True))
 
 
 def rebuild(c):
@@ -563,6 +530,24 @@ def build_all():
     # gate's own figure.
     built["FW_y_free"] = case(L_FOOTPRINT, facade_kit(ground_x=4.5),
                               facade_style())
+
+    # FW2 - D122's `aligned`, on FW's own fixture and DRIVEN FROM THE PAYLOAD
+    # rather than from a keyword, so PC-G5 condition 3 is judged through 2.1's
+    # pipeline face. Everything else is FW's: same footprint, same 4.5 m
+    # shopfront under a 3.0 m bay, same style. The ONLY difference is
+    # `pc_style_meta["y_mode"]`, and `bay_alignment` must go [3, 4] -> [0, 4].
+    built["FW_y_aligned"] = case(L_FOOTPRINT, facade_kit(ground_x=4.5),
+                                 facade_style(meta={"y_mode": "aligned"}))
+
+    # FX - 7.4's DEGRADE, which is otherwise a branch nothing runs. An X
+    # `evenly` rule puts anchors on every section, the default fill becomes
+    # several runs, and one datum count cannot say which run holds how many -
+    # so the row falls back to its own free solve and every piece of it says
+    # `pc_warn_y_align_lost`. Warn, never block: the facade still builds.
+    built["FX_y_align_lost"] = case(
+        L_FOOTPRINT, facade_kit(ground_x=4.5),
+        facade_style(extra=[Rule("evenly", "first", ["pier"])],
+                     meta={"y_mode": "aligned"}, evenly_spacing=6.0))
 
     return built
 

@@ -70,7 +70,8 @@ import math
 
 from . import (DEFAULTS, EPS, MAX_UNITS, WARN_DEGENERATE_PAD, WARN_KIT_GAP,
                WARN_OVERFLOW, WARN_ROLE_FALLBACK, WARN_TILE_FALLBACK,
-               WARN_VEXPR_IGNORED, elem_id, elem_key, rng_for, role_2d)
+               WARN_VEXPR_IGNORED, WARN_Y_ALIGN_LOST, elem_id, elem_key,
+               rng_for, role_2d)
 
 
 class Placement(object):
@@ -140,7 +141,8 @@ class Placement(object):
 
 # --- the pure fitting maths -------------------------------------------------
 
-def fit(length, nominal, mode="adaptive", params=DEFAULTS, gap=0.0, fixed=0.0):
+def fit(length, nominal, mode="adaptive", params=DEFAULTS, gap=0.0, fixed=0.0,
+        count=None):
     """How many units fit in `length`, and by how much they stretch.
 
     `nominal` is the SCALABLE length of one unit (the module geometry);
@@ -185,7 +187,10 @@ def fit(length, nominal, mode="adaptive", params=DEFAULTS, gap=0.0, fixed=0.0):
     if mode == "scale":
         n = 1                                    # D12 - one stretched piece
     elif mode == "count":
-        n = max(int(params.count), 0)
+        # D122 - `count` is the ALIGNED datum's bay count for THIS section,
+        # and it wins over the parm because it is not a parm: it is the
+        # measurement of another row that this one has to agree with.
+        n = max(int(params.count if count is None else count), 0)
     else:                                        # adaptive, and any unknown
         exact = (L + gap) / step
         n = int(math.floor(exact + EPS))
@@ -452,9 +457,29 @@ def _unit_metrics(mods):
     return (s, fixed, gap)
 
 
+def _aligned_count(attrs, index):
+    """D122's `pc_bays`, read off the ROW CURVE: the DATUM row's default-fill
+    piece count for this section, or None where the row is the datum itself
+    (or the Y fit is `free`, which stamps nothing at all).
+
+    A STRING of `<section>:<count>` tokens, D76's convention for the third
+    time - one list format across the kit manifest, the row warnings and this,
+    and a storage every one of them can carry (D223). Junk degrades to None
+    rather than raising: it is a prim attribute and an artist can author it.
+    """
+    for tok in str(attrs.get("pc_bays", "") or "").split():
+        sec, _sep, n = tok.partition(":")
+        if sec == str(index):
+            try:
+                return max(int(n), 0)
+            except ValueError:
+                return None
+    return None
+
+
 def _fill(a, b, rule, kit, style, ctx_base, params, section, index0,
           lead_pad=None, trail_pad=None, mode=None, extra_warns=(),
-          cyclic=False):
+          cyclic=False, count=None):
     """Fill [a, b] with one run. Returns (placements, next index).
 
     `lead_pad` / `trail_pad` are the facing pads of the neighbouring pieces,
@@ -480,13 +505,24 @@ def _fill(a, b, rule, kit, style, ctx_base, params, section, index0,
         return ([], index0)
 
     s, fixed, gap = _unit_metrics(mods)
-    mode = mode or params.fill
+    # D122 - the ALIGNED row does not choose a fill mode: it is handed the
+    # datum row's piece count and scales its own modules into the span, which
+    # is RC's "all segments along the Y path are scaled to maintain the same
+    # alignment as on X" said in this solver's own vocabulary.
+    mode = "count" if count is not None else (mode or params.fill)
     lead = 0.0
     if cyclic and L - gap > EPS:                 # D19: fold the wrap gap in
         L -= gap
         lead = gap * 0.5
-    res = fit(L, s, mode, params, gap=gap, fixed=fixed)
+    res = fit(L, s, mode, params, gap=gap, fixed=fixed, count=count)
     extra_warns = tuple(extra_warns) + tuple(res["warns"])
+    if count is not None and res["count"] != count:
+        # 7.4's own case: "where a row physically cannot hold the datum's
+        # count (a setback so deep the section is shorter than the count's
+        # minimum), the row degrades to its own solve and says so". `fit`
+        # already dropped units until the padding stopped eating the span;
+        # this is what makes that visible instead of silently unaligned.
+        extra_warns = extra_warns + (WARN_Y_ALIGN_LOST,)
 
     def fallback():
         """D11: the whole run falls back to adaptive, and says so on each piece."""
@@ -752,13 +788,23 @@ def plan_section(section, kit, style, params=None, trim=(0.0, 0.0)):
         a, lead = free_a, lead_pad
         # D19: only a closed section with nothing else on it wraps as one run
         cyclic = section.closed and not anchors and not out
+        # 7.4 / D122 - the ALIGNED row's bay count for THIS section, off the
+        # row curve. ⚠️ A SECTION WITH ANCHORS ON IT CANNOT TAKE ONE COUNT:
+        # the default fill is then several runs and the datum's number says
+        # nothing about which run holds how many, so the row falls back to its
+        # own free solve and every piece of it says `pc_warn_y_align_lost` -
+        # warn, never block (7.4's own wording).
+        n_align = _aligned_count(ctx_base["attrs"], section.index)
+        lost = ()
+        if n_align is not None and anchors:
+            n_align, lost = None, (WARN_Y_ALIGN_LOST,)
         for p in anchors + [None]:
             b = p.s0 if p is not None else free_b
             # the anchor's own pad pushes its neighbours, this run included
             trail = _pad_of(kit, p.module, 0) if p is not None else trail_pad
             runs, idx = _fill(a, b, rule, kit, style, ctx_base, params,
                               section, idx, lead_pad=lead, trail_pad=trail,
-                              cyclic=cyclic)
+                              cyclic=cyclic, count=n_align, extra_warns=lost)
             out.extend(runs)
             if p is None:
                 break

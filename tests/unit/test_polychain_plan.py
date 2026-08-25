@@ -546,3 +546,18 @@ class TestWholeCurves(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TestAlignedBays(unittest.TestCase):
+    """D122's `pc_bays` reader - a STRING an artist can author, so junk in it
+    degrades to "this row is free" and never raises (warn-never-block)."""
+
+    def test_the_datum_count_is_read_per_section(self):
+        attrs = {"pc_bays": "0:3 1:12 2:0"}
+        got = [plan._aligned_count(attrs, i) for i in range(4)]
+        self.assertEqual(got, [3, 12, 0, None])
+
+    def test_junk_degrades_to_the_rows_own_solve(self):
+        for bays in ("0:", "0:x", "garbage", "", "1:4"):
+            self.assertIsNone(plan._aligned_count({"pc_bays": bays}, 0), bays)
+        self.assertIsNone(plan._aligned_count({}, 0))

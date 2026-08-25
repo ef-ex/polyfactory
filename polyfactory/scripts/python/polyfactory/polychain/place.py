@@ -372,7 +372,11 @@ _ATTR_SKIP = ("P", "N", "Cd", "uv", "v")
 # `attr:pc_yclass` a usable conditional subject. Nothing moves in phase 1: a
 # curve that does not carry the attribute never gains it.
 ROW_ATTRS_2D = ("pc_yclass", "pc_row", "pc_row_y0", "pc_row_y1",
-                "pc_row_scale", "pc_row_warns", "pc_clipped")
+                "pc_row_scale", "pc_row_warns", "pc_clipped",
+                # 7.4 / D122 - the ALIGNED datum's bay count per section,
+                # which `plan._fill` reads off `Section.attrs` exactly the way
+                # `pc_yclass` reaches the fitting solve.
+                "pc_bays")
 
 
 def _prim_attrs(geo, prim):

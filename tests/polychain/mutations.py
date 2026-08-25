@@ -369,6 +369,28 @@ MUTATIONS = (
         "    cand = candidates(rule, kit)"),),
       rebuild=False),
 
+    # ---- P2-5 / D122: the Y fit's ALIGNED mode ------------------------------
+    M("2d_aligned_never_stamped", "2d",
+      ("bay_alignment_aligned",),
+      "`aligned` stops stamping the datum row's bay count onto the other "
+      "rows, so every row solves free again and the mode is a no-op that "
+      "reads exactly like `free`. PC-G5 condition 3's whole question.",
+      ((PY % "facade.py",
+        '        if y_mode == "aligned":',
+        "        if False:"),),
+      rebuild=False),
+
+    M("2d_aligned_count_ignored", "2d",
+      ("bay_alignment_aligned",),
+      "The count REACHES the fill and the fill ignores it: `_fill` keeps the "
+      "style's own mode instead of switching to `count`. A subtler shape than "
+      "the one above and the one an optimiser would produce - the attribute "
+      "is stamped, harvested and read, and the geometry is still free.",
+      ((PY % "plan.py",
+        '    mode = "count" if count is not None else (mode or params.fill)',
+        "    mode = mode or params.fill"),),
+      rebuild=False),
+
     # ---- P2-4 / D293: 2.1's pipeline face on the 2D path --------------------
     M("2d_payload_does_not_override", "2d",
       ("payload_round_trip_2d", "parms_inert_under_payload"),
@@ -942,9 +964,12 @@ EXPECT_CHECKS = {
     # 500 m out), `clip_input_warns` + its clean control on the validation
     # station's five channels, and `caps_closed_mitered` on the district -
     # phase 1's own corner cut, whose closure nothing had ever measured.
-    # C3 added three, 2026-08-25: P2-4's pipeline face - the round trip, the
-    # parm sweep with its own control, and 7.3.2's refusal set.
-    "2d": 30,
+    # C3 added four, 2026-08-25: P2-4's pipeline face - the round trip, the
+    # parm sweep with its own control, and 7.3.2's refusal set - plus D122's
+    # `bay_alignment_aligned`, which is `bay_alignment`'s other direction on
+    # the same fixture and needs its own NAME so the free case's mutation
+    # cannot report the aligned path as proven.
+    "2d": 31,
     "generated": 3,
     "hda": 18,
     "images": 30,

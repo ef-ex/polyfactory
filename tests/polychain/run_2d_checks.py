@@ -78,6 +78,12 @@ EXPECTED_WARNS = {
     "FT_row_overflow": ("pc_warn_row_overflow",),
     "FU_row_kit_gap": ("pc_warn_row_kit_gap",),
     "FV_area_short": (),
+    # 7.4's own degrade, and both names are the assertion. An X `evenly` rule
+    # puts anchors on every section, so D122's one-count-per-section cannot
+    # say which run holds how many and the row falls back to its free solve -
+    # `pc_warn_y_align_lost` on every piece of it. The role fallback beside it
+    # is `default_evenly` / `corner_evenly`, cells this kit does not have.
+    "FX_y_align_lost": ("pc_warn_role_fallback", "pc_warn_y_align_lost"),
 }
 
 
@@ -119,16 +125,23 @@ def run_case(name, case):
         # alone: adaptive on both axes fits whole modules, so a slice_t
         # anywhere in phase 2 is a defect wherever it appears.
         C.no_sliced_cells(scene),
-    ] + ([C.bay_alignment(scene, aligned=Y_ALIGNED.get(name, False))]
+    # ⚠️ THE TWO MODES GET TWO CHECK NAMES. The registry credits a mutation to
+    # the check NAME it reddens, and `free` and `aligned` are two different
+    # claims about two different code paths - one name for both would let the
+    # `free` case's own mutation report D122 as proven.
+    ] + ([C.bay_alignment(scene, aligned=Y_ALIGNED[name],
+                          name="bay_alignment_aligned" if Y_ALIGNED[name]
+                          else "bay_alignment")]
          if name in Y_ALIGNED else [])
 
 
-# PC-G5 condition 3, and it runs on ONE case on purpose: it is a comparison
+# PC-G5 condition 3, and it runs on TWO cases on purpose: it is a comparison
 # between rows, and it says something only where the rows CAN differ. False =
 # the `free` mode's inverted form ("at least one row differs, or the fixture
-# is not exercising the mode" - 7.8). D122's `aligned` will add its own entry
-# at True when C3 lands.
-Y_ALIGNED = {"FW_y_free": False}
+# is not exercising the mode" - 7.8). D122's `aligned` is the True entry, on
+# the SAME fixture, so the pair is one variable apart and the condition is
+# answered in both directions rather than asserted in one.
+Y_ALIGNED = {"FW_y_free": False, "FW_y_aligned": True}
 
 
 def gate_pc_g6():
