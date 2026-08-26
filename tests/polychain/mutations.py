@@ -1182,6 +1182,17 @@ MUTATIONS = (
       ((PY % "hda.py", 'clip_mode=_parm_str(parms, "clip_mode", "remove"),',
         'clip_mode="remove",'),), rebuild=False),
 
+    M("facade_extend_never_reaches_the_build", "facade",
+      ("facade_extend_picks_the_fallback",),
+      "D117's `Corners Extend Into` stuck at X: the parm stops reaching "
+      "`build_many` and both directions build the corner pier. ⚠️ EVERY "
+      "OTHER FACADE CASE USES A KIT WITH ALL SIX CELLS, where 7.2.2's "
+      "fallback never runs at all - so before this pairing existed the parm "
+      "was inert on every fixture the runner had and no differential could "
+      "have seen it. The check's kit is missing `corner_end` on purpose.",
+      ((PY % "hda.py", 'extend=_parm_str(parms, "extend", "x"),',
+        'extend="x",'),), rebuild=False),
+
     M("facade_payload_port_misread", "facade",
       ("facade_matches_entry_point_payload", "facade_payload_beats_the_page"),
       "D77 on the 2D node, undone: the payload is read off input 4 instead "
@@ -1313,8 +1324,10 @@ EXPECT_CHECKS = {
     # 7.7, added 2026-08-25 with 10 mutations covering all 14 names.
     # C1's audit added five, 2026-08-25: 19 names, 15 mutations.
     "slice": 19,
-    # P2-9, added 2026-08-26: 11 names, 13 mutations, 0 unproven.
-    "facade": 11,
+    # P2-9, added 2026-08-26: 11 names, 12 mutations, 0 unproven.
+    # +1 for `facade_extend_picks_the_fallback` - D117's parm, which needed a
+    # kit with a GAP in it before any fixture could reach the fallback.
+    "facade": 12,
 }
 
 

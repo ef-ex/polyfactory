@@ -438,6 +438,34 @@ def main():
           sorted(seen.items()),
           "each entry must draw a different stage, and none may be empty")
 
+    # ---- 5b. D117's `pc_extend`, which nothing else can reach -------------
+    #
+    # ⚠️ EVERY OTHER CASE HERE USES A KIT WITH ALL SIX CELLS, WHERE THE
+    # FALLBACK NEVER RUNS - so `Corners Extend Into` would be an inert parm
+    # the differential structurally could not see (dev-loop Rule 0's second
+    # check: a toggle the suite never exercises is untested however green the
+    # run is). With `corner_end` demoted, 7.2.2's walk has to choose, and the
+    # two directions must choose DIFFERENTLY: keeping X gives the corner
+    # pier, keeping Y gives the cornice.
+    print("\n=== 5b. `pc_extend` as a parm (D117) ===")
+    gap_kit = cases2d.facade_kit(roles=("default", "corner", "default_start",
+                                        "corner_start", "default_end"))
+    mods = {}
+    for way in ("x", "y"):
+        n = build_node(geo_node, "extend_" + way,
+                       spline_geo([cases2d.L_FOOTPRINT]), gap_kit,
+                       **{"shape": "footprint", "height": 13.0,
+                          "corner_mode": "miter", "extend": way})
+        g = n.geometry()
+        tally = {}
+        for m in g.primStringAttribValues("pc_module"):
+            tally[m] = tally.get(m, 0) + 1
+        mods[way] = sorted(tally.items())
+    check("facade_extend_picks_the_fallback",
+          bool(mods["x"]) and mods["x"] != mods["y"], len(mods["x"]),
+          "the same kit-gap facade with Corners Extend Into on X and on Y: "
+          "%s  vs  %s" % (mods["x"], mods["y"]))
+
     # ---- 6. 5.1's metadata and artist_ui 6's law, on the SAVED assets -----
     print("\n=== 6. 5.1 metadata + artist_ui 6, off the .hda ===")
     UNITED = {"height": "m", "expand": "m", "bend_tol": "m",
