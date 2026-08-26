@@ -1560,7 +1560,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "asset_library_batch_importer_export_batch_group",
-      "community": 0,
+      "community": 147,
       "norm_label": "export_batch_group()"
     },
     {
@@ -1650,7 +1650,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_221",
-      "community": 0,
+      "community": 147,
       "norm_label": "export a single asset group detected by detect_asset_groups.      converts pri"
     },
     {
@@ -3300,7 +3300,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "object",
-      "community": 258,
+      "community": 155,
       "norm_label": "object"
     },
     {
@@ -5290,7 +5290,7 @@
       "source_location": "L612",
       "_origin": "ast",
       "id": "polychain_init_kit",
-      "community": 219,
+      "community": 211,
       "norm_label": "kit"
     },
     {
@@ -5300,7 +5300,7 @@
       "source_location": "L613",
       "_origin": "ast",
       "id": "polychain_init_kit_init",
-      "community": 219,
+      "community": 211,
       "norm_label": ".__init__()"
     },
     {
@@ -5310,7 +5310,7 @@
       "source_location": "L632",
       "_origin": "ast",
       "id": "polychain_init_kit_by_name",
-      "community": 219,
+      "community": 211,
       "norm_label": ".by_name()"
     },
     {
@@ -5320,7 +5320,7 @@
       "source_location": "L635",
       "_origin": "ast",
       "id": "polychain_init_kit_by_role",
-      "community": 219,
+      "community": 211,
       "norm_label": ".by_role()"
     },
     {
@@ -5330,7 +5330,7 @@
       "source_location": "L639",
       "_origin": "ast",
       "id": "polychain_init_kit_resolve",
-      "community": 219,
+      "community": 211,
       "norm_label": ".resolve()"
     },
     {
@@ -5610,7 +5610,7 @@
       "source_location": "L636",
       "_origin": "ast",
       "id": "polychain_init_rationale_636",
-      "community": 219,
+      "community": 211,
       "norm_label": "payload order preserved - deterministic, never set iteration."
     },
     {
@@ -5620,7 +5620,7 @@
       "source_location": "L640",
       "_origin": "ast",
       "id": "polychain_init_rationale_640",
-      "community": 219,
+      "community": 211,
       "norm_label": "name first, then role, then a stand-in. never returns none/[]."
     },
     {
@@ -5710,7 +5710,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "polychain_array2d_transpose_kit",
-      "community": 219,
+      "community": 211,
       "norm_label": "transpose_kit()"
     },
     {
@@ -6030,7 +6030,7 @@
       "source_location": "L780",
       "_origin": "ast",
       "id": "polychain_array2d_scanline",
-      "community": 24,
+      "community": 136,
       "norm_label": "scanline()"
     },
     {
@@ -6040,7 +6040,7 @@
       "source_location": "L807",
       "_origin": "ast",
       "id": "polychain_array2d_point_in_poly",
-      "community": 24,
+      "community": 136,
       "norm_label": "point_in_poly()"
     },
     {
@@ -6150,7 +6150,7 @@
       "source_location": "L1002",
       "_origin": "ast",
       "id": "polychain_array2d_region",
-      "community": 24,
+      "community": 136,
       "norm_label": "region"
     },
     {
@@ -6170,7 +6170,7 @@
       "source_location": "L1027",
       "_origin": "ast",
       "id": "polychain_array2d_region_inside",
-      "community": 24,
+      "community": 136,
       "norm_label": ".inside()"
     },
     {
@@ -6180,7 +6180,7 @@
       "source_location": "L1034",
       "_origin": "ast",
       "id": "polychain_array2d_region_spans",
-      "community": 24,
+      "community": 136,
       "norm_label": ".spans()"
     },
     {
@@ -6220,7 +6220,7 @@
       "source_location": "L1117",
       "_origin": "ast",
       "id": "polychain_array2d_intersect",
-      "community": 24,
+      "community": 136,
       "norm_label": "_intersect()"
     },
     {
@@ -6230,7 +6230,7 @@
       "source_location": "L1127",
       "_origin": "ast",
       "id": "polychain_array2d_row_spans",
-      "community": 24,
+      "community": 136,
       "norm_label": "row_spans()"
     },
     {
@@ -6240,7 +6240,7 @@
       "source_location": "L1173",
       "_origin": "ast",
       "id": "polychain_array2d_merge",
-      "community": 24,
+      "community": 136,
       "norm_label": "_merge()"
     },
     {
@@ -6310,7 +6310,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_74",
-      "community": 219,
+      "community": 211,
       "norm_label": "the same modules, fitted on their height. data, not a second solver."
     },
     {
@@ -6510,7 +6510,7 @@
       "source_location": "L781",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_781",
-      "community": 24,
+      "community": 136,
       "norm_label": "[(x0, x1)] where the horizontal line `y` is inside `poly`."
     },
     {
@@ -6520,7 +6520,7 @@
       "source_location": "L808",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_808",
-      "community": 24,
+      "community": 136,
       "norm_label": "even-odd crossing test, in the region's own 2-d chart."
     },
     {
@@ -6620,7 +6620,7 @@
       "source_location": "L1003",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1003",
-      "community": 24,
+      "community": 136,
       "norm_label": "the clip boundary of one array, in that array's own frame.      `polys` are the"
     },
     {
@@ -6630,7 +6630,7 @@
       "source_location": "L1035",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1035",
-      "community": 24,
+      "community": 136,
       "norm_label": "[(x0, x1)] of the horizontal line `y` inside the region.          every loop's c"
     },
     {
@@ -6670,7 +6670,7 @@
       "source_location": "L1128",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1128",
-      "community": 24,
+      "community": 136,
       "norm_label": "the x intervals row `row` may occupy inside the boundary (d137).      7.6's cost"
     },
     {
@@ -6680,7 +6680,7 @@
       "source_location": "L1174",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_1174",
-      "community": 24,
+      "community": 136,
       "norm_label": "overlapping intervals folded together, so `preserve` cannot emit two     row cur"
     },
     {
@@ -8220,7 +8220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_facade",
-      "community": 113,
+      "community": 80,
       "norm_label": "facade.py"
     },
     {
@@ -8230,7 +8230,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "polychain_facade_ensure",
-      "community": 113,
+      "community": 80,
       "norm_label": "_ensure()"
     },
     {
@@ -8240,7 +8240,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "polychain_facade_rows_geometry",
-      "community": 113,
+      "community": 80,
       "norm_label": "rows_geometry()"
     },
     {
@@ -8250,7 +8250,7 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "polychain_facade_canonical_flags",
-      "community": 113,
+      "community": 80,
       "norm_label": "canonical_flags()"
     },
     {
@@ -8260,7 +8260,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "polychain_facade_close_kit",
-      "community": 113,
+      "community": 80,
       "norm_label": "close_kit()"
     },
     {
@@ -8270,67 +8270,97 @@
       "source_location": "L206",
       "_origin": "ast",
       "id": "polychain_facade_clip_loops",
-      "community": 113,
+      "community": 80,
       "norm_label": "clip_loops()"
+    },
+    {
+      "label": "footprint_loops()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L302",
+      "_origin": "ast",
+      "id": "polychain_facade_footprint_loops",
+      "community": 80,
+      "norm_label": "footprint_loops()"
+    },
+    {
+      "label": "_keep()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L366",
+      "_origin": "ast",
+      "id": "polychain_facade_keep",
+      "community": 80,
+      "norm_label": "_keep()"
+    },
+    {
+      "label": "split_ports()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L380",
+      "_origin": "ast",
+      "id": "polychain_facade_split_ports",
+      "community": 80,
+      "norm_label": "split_ports()"
     },
     {
       "label": "build_clipped()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L271",
+      "source_location": "L439",
       "_origin": "ast",
       "id": "polychain_facade_build_clipped",
-      "community": 113,
+      "community": 80,
       "norm_label": "build_clipped()"
     },
     {
       "label": "meta_2d()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L288",
+      "source_location": "L456",
       "_origin": "ast",
       "id": "polychain_facade_meta_2d",
-      "community": 113,
+      "community": 80,
       "norm_label": "meta_2d()"
     },
     {
       "label": "_y_params()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L314",
+      "source_location": "L482",
       "_origin": "ast",
       "id": "polychain_facade_y_params",
-      "community": 113,
+      "community": 80,
       "norm_label": "_y_params()"
     },
     {
       "label": "build()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L337",
+      "source_location": "L505",
       "_origin": "ast",
       "id": "polychain_facade_build",
-      "community": 113,
+      "community": 80,
       "norm_label": "build()"
     },
     {
       "label": "build_many()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L369",
+      "source_location": "L537",
       "_origin": "ast",
       "id": "polychain_facade_build_many",
-      "community": 113,
+      "community": 80,
       "norm_label": "build_many()"
     },
     {
       "label": "_used()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L531",
+      "source_location": "L699",
       "_origin": "ast",
       "id": "polychain_facade_used",
-      "community": 113,
+      "community": 80,
       "norm_label": "_used()"
     },
     {
@@ -8340,7 +8370,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_facade_rationale_1",
-      "community": 113,
+      "community": 80,
       "norm_label": "polychain 7 facade - the 2d adapter. rows in, one `place.build`, out.  this is t"
     },
     {
@@ -8350,7 +8380,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "polychain_facade_rationale_69",
-      "community": 113,
+      "community": 80,
       "norm_label": "[(points, closed, attrs)] -> one `hou.geometry` of row curves.      written with"
     },
     {
@@ -8360,7 +8390,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "polychain_facade_rationale_142",
-      "community": 113,
+      "community": 80,
       "norm_label": "7.5's per-vertex `pc_corner`, permuted the way d124 permuted the points.      th"
     },
     {
@@ -8370,7 +8400,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "polychain_facade_rationale_161",
-      "community": 113,
+      "community": 80,
       "norm_label": "(kit geometry with every 2d cell role resolved, {asked: supplied},     [7.2's al"
     },
     {
@@ -8380,67 +8410,97 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "polychain_facade_rationale_207",
-      "community": 113,
+      "community": 80,
       "norm_label": "a clip input -> ([closed loops], [per-loop mode], [warnings]).      7.6's data c"
+    },
+    {
+      "label": "Input 1 -> ([loops], [per-loop `pc_corner` flags] | None, [ids] | None,     clos",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L303",
+      "_origin": "ast",
+      "id": "polychain_facade_rationale_303",
+      "community": 80,
+      "norm_label": "input 1 -> ([loops], [per-loop `pc_corner` flags] | none, [ids] | none,     clos"
+    },
+    {
+      "label": "A copy of `geo` holding only the prims whose `pc_purpose` is in     `wanted`, or",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L367",
+      "_origin": "ast",
+      "id": "polychain_facade_rationale_367",
+      "community": 80,
+      "norm_label": "a copy of `geo` holding only the prims whose `pc_purpose` is in     `wanted`, or"
+    },
+    {
+      "label": "The spline stream(s) -> (footprints, clip boundaries, [warnings]).      D316: th",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L381",
+      "_origin": "ast",
+      "id": "polychain_facade_rationale_381",
+      "community": 80,
+      "norm_label": "the spline stream(s) -> (footprints, clip boundaries, [warnings]).      d316: th"
     },
     {
       "label": "7.6's whole primitive in one call: a clip input -> N arrays.      The 2D path's",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L272",
+      "source_location": "L440",
       "_origin": "ast",
-      "id": "polychain_facade_rationale_272",
-      "community": 113,
+      "id": "polychain_facade_rationale_440",
+      "community": 80,
       "norm_label": "7.6's whole primitive in one call: a clip input -> n arrays.      the 2d path's"
     },
     {
       "label": "The inverse of `array2d.payload_2d`: the 2D settings as a 7.3.2 meta     block,",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L290",
+      "source_location": "L458",
       "_origin": "ast",
-      "id": "polychain_facade_rationale_290",
-      "community": 113,
+      "id": "polychain_facade_rationale_458",
+      "community": 80,
       "norm_label": "the inverse of `array2d.payload_2d`: the 2d settings as a 7.3.2 meta     block,"
     },
     {
       "label": "7.3.2's `pc_style_meta[\"y_params\"]`, read by the SAME `params_from_dict`.      `",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L315",
+      "source_location": "L483",
       "_origin": "ast",
-      "id": "polychain_facade_rationale_315",
-      "community": 113,
+      "id": "polychain_facade_rationale_483",
+      "community": 80,
       "norm_label": "7.3.2's `pc_style_meta[\"y_params\"]`, read by the same `params_from_dict`.      `"
     },
     {
       "label": "One footprint + a height -> a facade. Returns (geometry, report).      `footprin",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L342",
+      "source_location": "L510",
       "_origin": "ast",
-      "id": "polychain_facade_rationale_342",
-      "community": 113,
+      "id": "polychain_facade_rationale_510",
+      "community": 80,
       "norm_label": "one footprint + a height -> a facade. returns (geometry, report).      `footprin"
     },
     {
       "label": "N footprints -> ONE `place.build`. D115 / PC-G7's one-call rule, shipped.      \u26a0",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L375",
+      "source_location": "L543",
       "_origin": "ast",
-      "id": "polychain_facade_rationale_375",
-      "community": 113,
+      "id": "polychain_facade_rationale_543",
+      "community": 80,
       "norm_label": "n footprints -> one `place.build`. d115 / pc-g7's one-call rule, shipped.      \u26a0"
     },
     {
       "label": "Only name a fallback a CELL ACTUALLY ASKED FOR. The lattice has 25     entries a",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L532",
+      "source_location": "L700",
       "_origin": "ast",
-      "id": "polychain_facade_rationale_532",
-      "community": 113,
+      "id": "polychain_facade_rationale_700",
+      "community": 80,
       "norm_label": "only name a fallback a cell actually asked for. the lattice has 25     entries a"
     },
     {
@@ -8450,14 +8510,14 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_hda",
-      "community": 174,
+      "community": 8,
       "norm_label": "hda.py"
     },
     {
       "label": "parm_owner()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L111",
+      "source_location": "L112",
       "_origin": "ast",
       "id": "polychain_hda_parm_owner",
       "community": 8,
@@ -8467,7 +8527,7 @@
       "label": "_parm_str()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L124",
+      "source_location": "L125",
       "_origin": "ast",
       "id": "polychain_hda_parm_str",
       "community": 8,
@@ -8477,7 +8537,7 @@
       "label": "_input_geo()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L129",
+      "source_location": "L130",
       "_origin": "ast",
       "id": "polychain_hda_input_geo",
       "community": 8,
@@ -8487,7 +8547,7 @@
       "label": "kit_geometry()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L142",
+      "source_location": "L143",
       "_origin": "ast",
       "id": "polychain_hda_kit_geometry",
       "community": 8,
@@ -8497,7 +8557,7 @@
       "label": "_padded()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L165",
+      "source_location": "L171",
       "_origin": "ast",
       "id": "polychain_hda_padded",
       "community": 8,
@@ -8507,17 +8567,17 @@
       "label": "proxy_kit()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L187",
+      "source_location": "L193",
       "_origin": "ast",
       "id": "polychain_hda_proxy_kit",
-      "community": 174,
+      "community": 8,
       "norm_label": "proxy_kit()"
     },
     {
       "label": "params_from_parms()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L215",
+      "source_location": "L221",
       "_origin": "ast",
       "id": "polychain_hda_params_from_parms",
       "community": 8,
@@ -8527,7 +8587,7 @@
       "label": "style_from_parms()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L231",
+      "source_location": "L237",
       "_origin": "ast",
       "id": "polychain_hda_style_from_parms",
       "community": 8,
@@ -8537,37 +8597,37 @@
       "label": "slot_menu()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L259",
+      "source_location": "L265",
       "_origin": "ast",
       "id": "polychain_hda_slot_menu",
-      "community": 174,
+      "community": 8,
       "norm_label": "slot_menu()"
     },
     {
       "label": "colour_warnings()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L288",
+      "source_location": "L298",
       "_origin": "ast",
       "id": "polychain_hda_colour_warnings",
-      "community": 174,
+      "community": 8,
       "norm_label": "colour_warnings()"
     },
     {
       "label": "_warn_unread_markers()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L322",
+      "source_location": "L332",
       "_origin": "ast",
       "id": "polychain_hda_warn_unread_markers",
-      "community": 174,
+      "community": 8,
       "norm_label": "_warn_unread_markers()"
     },
     {
       "label": "cook()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L362",
+      "source_location": "L372",
       "_origin": "ast",
       "id": "polychain_hda_cook",
       "community": 8,
@@ -8577,17 +8637,67 @@
       "label": "build_starter_kit_file()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L423",
+      "source_location": "L433",
       "_origin": "ast",
       "id": "polychain_hda_build_starter_kit_file",
-      "community": 174,
+      "community": 260,
       "norm_label": "build_starter_kit_file()"
+    },
+    {
+      "label": "facade_kit_geometry()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L503",
+      "_origin": "ast",
+      "id": "polychain_hda_facade_kit_geometry",
+      "community": 8,
+      "norm_label": "facade_kit_geometry()"
+    },
+    {
+      "label": "facade_style_from_parms()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L508",
+      "_origin": "ast",
+      "id": "polychain_hda_facade_style_from_parms",
+      "community": 8,
+      "norm_label": "facade_style_from_parms()"
+    },
+    {
+      "label": "facade_y_params()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L541",
+      "_origin": "ast",
+      "id": "polychain_hda_facade_y_params",
+      "community": 8,
+      "norm_label": "facade_y_params()"
+    },
+    {
+      "label": "_facade_loops()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L552",
+      "_origin": "ast",
+      "id": "polychain_hda_facade_loops",
+      "community": 8,
+      "norm_label": "_facade_loops()"
+    },
+    {
+      "label": "cook_facade()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L573",
+      "_origin": "ast",
+      "id": "polychain_hda_cook_facade",
+      "community": 8,
+      "norm_label": "cook_facade()"
     },
     {
       "label": "config_dict()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L479",
+      "source_location": "L710",
       "_origin": "ast",
       "id": "polychain_hda_config_dict",
       "community": 8,
@@ -8597,7 +8707,7 @@
       "label": "config_resolved()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L490",
+      "source_location": "L721",
       "_origin": "ast",
       "id": "polychain_hda_config_resolved",
       "community": 8,
@@ -8607,27 +8717,27 @@
       "label": "_surface_is_droppable()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L592",
+      "source_location": "L823",
       "_origin": "ast",
       "id": "polychain_hda_surface_is_droppable",
-      "community": 232,
+      "community": 8,
       "norm_label": "_surface_is_droppable()"
     },
     {
       "label": "_native_ok()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L643",
+      "source_location": "L874",
       "_origin": "ast",
       "id": "polychain_hda_native_ok",
-      "community": 232,
+      "community": 8,
       "norm_label": "_native_ok()"
     },
     {
       "label": "_exact()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L796",
+      "source_location": "L1027",
       "_origin": "ast",
       "id": "polychain_hda_exact",
       "community": 214,
@@ -8637,17 +8747,17 @@
       "label": "_cond_columns()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L808",
+      "source_location": "L1039",
       "_origin": "ast",
       "id": "polychain_hda_cond_columns",
-      "community": 232,
+      "community": 214,
       "norm_label": "_cond_columns()"
     },
     {
       "label": "kit_table()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L856",
+      "source_location": "L1087",
       "_origin": "ast",
       "id": "polychain_hda_kit_table",
       "community": 214,
@@ -8657,7 +8767,7 @@
       "label": "rule_table()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L882",
+      "source_location": "L1113",
       "_origin": "ast",
       "id": "polychain_hda_rule_table",
       "community": 214,
@@ -8667,7 +8777,7 @@
       "label": "write_tables()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L970",
+      "source_location": "L1201",
       "_origin": "ast",
       "id": "polychain_hda_write_tables",
       "community": 214,
@@ -8677,7 +8787,7 @@
       "label": "cook_kit()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L992",
+      "source_location": "L1223",
       "_origin": "ast",
       "id": "polychain_hda_cook_kit",
       "community": 8,
@@ -8687,7 +8797,7 @@
       "label": "cook_config()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1023",
+      "source_location": "L1254",
       "_origin": "ast",
       "id": "polychain_hda_cook_config",
       "community": 214,
@@ -8697,7 +8807,7 @@
       "label": "_f32()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1061",
+      "source_location": "L1292",
       "_origin": "ast",
       "id": "polychain_hda_f32",
       "community": 174,
@@ -8707,7 +8817,7 @@
       "label": "curve_prim_index()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1066",
+      "source_location": "L1297",
       "_origin": "ast",
       "id": "polychain_hda_curve_prim_index",
       "community": 174,
@@ -8717,7 +8827,7 @@
       "label": "plan_geometry()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1085",
+      "source_location": "L1316",
       "_origin": "ast",
       "id": "polychain_hda_plan_geometry",
       "community": 174,
@@ -8727,7 +8837,7 @@
       "label": "cook_plan_bridge()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1132",
+      "source_location": "L1363",
       "_origin": "ast",
       "id": "polychain_hda_cook_plan_bridge",
       "community": 8,
@@ -8740,16 +8850,16 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_hda_rationale_1",
-      "community": 174,
+      "community": 8,
       "norm_label": "polychain 5 the parm face - everything `pf_polychain` does when it cooks.  the"
     },
     {
       "label": "The node the PARAMETERS live on.      \u26a0\ufe0f `hou.pwd()` inside the HDA is the Pyt",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L112",
+      "source_location": "L113",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_112",
+      "id": "polychain_hda_rationale_113",
       "community": 8,
       "norm_label": "the node the parameters live on.      \u26a0\ufe0f `hou.pwd()` inside the hda is the pyt"
     },
@@ -8757,9 +8867,9 @@
       "label": "Input `index`, or None when it is unwired (D34 - not an error).",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L130",
+      "source_location": "L131",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_130",
+      "id": "polychain_hda_rationale_131",
       "community": 8,
       "norm_label": "input `index`, or none when it is unwired (d34 - not an error)."
     },
@@ -8767,9 +8877,9 @@
       "label": "Input 2, else the kit file, else the built-in starter fence.      6's standalo",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L143",
+      "source_location": "L144",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_143",
+      "id": "polychain_hda_rationale_144",
       "community": 8,
       "norm_label": "input 2, else the kit file, else the built-in starter fence.      6's standalo"
     },
@@ -8777,9 +8887,9 @@
       "label": "D84 - `padding` metres added to every module's own `pc_pad`.      \u26a0\ufe0f IN BULK,",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L166",
+      "source_location": "L172",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_166",
+      "id": "polychain_hda_rationale_172",
       "community": 8,
       "norm_label": "d84 - `padding` metres added to every module's own `pc_pad`.      \u26a0\ufe0f in bulk,"
     },
@@ -8787,19 +8897,19 @@
       "label": "D82 - the same manifest, every module a RIGID box at its nominal size.      Ri",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L188",
+      "source_location": "L194",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_188",
-      "community": 174,
+      "id": "polychain_hda_rationale_194",
+      "community": 8,
       "norm_label": "d82 - the same manifest, every module a rigid box at its nominal size.      ri"
     },
     {
       "label": "`Params` straight off the parameter page (D80 - names match fields).",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L216",
+      "source_location": "L222",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_216",
+      "id": "polychain_hda_rationale_222",
       "community": 8,
       "norm_label": "`params` straight off the parameter page (d80 - names match fields)."
     },
@@ -8807,9 +8917,9 @@
       "label": "The parameter page as a `Style` - the standalone artist face (2.1).",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L232",
+      "source_location": "L238",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_232",
+      "id": "polychain_hda_rationale_238",
       "community": 8,
       "norm_label": "the parameter page as a `style` - the standalone artist face (2.1)."
     },
@@ -8817,39 +8927,39 @@
       "label": "The kit manifest as a menu (5's \"per-slot module menus\").      Names first, th",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L260",
+      "source_location": "L266",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_260",
-      "community": 174,
+      "id": "polychain_hda_rationale_266",
+      "community": 8,
       "norm_label": "the kit manifest as a menu (5's \"per-slot module menus\").      names first, th"
     },
     {
       "label": "Every element carrying a warning turned red, and how many there were.      2.2",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L289",
+      "source_location": "L299",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_289",
-      "community": 174,
+      "id": "polychain_hda_rationale_299",
+      "community": 8,
       "norm_label": "every element carrying a warning turned red, and how many there were.      2.2"
     },
     {
       "label": "D88 - markers arrived and NOTHING reads them. Say so.      3.1 lets a generato",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L323",
+      "source_location": "L333",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_323",
-      "community": 174,
+      "id": "polychain_hda_rationale_333",
+      "community": 8,
       "norm_label": "d88 - markers arrived and nothing reads them. say so.      3.1 lets a generato"
     },
     {
       "label": "The whole node, in one pass. Never raises (warn-never-block).",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L363",
+      "source_location": "L373",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_363",
+      "id": "polychain_hda_rationale_373",
       "community": 8,
       "norm_label": "the whole node, in one pass. never raises (warn-never-block)."
     },
@@ -8857,19 +8967,69 @@
       "label": "6's starter-kit deliverable, on disk for an artist who wants one.      Nothing",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L424",
+      "source_location": "L434",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_424",
-      "community": 174,
+      "id": "polychain_hda_rationale_434",
+      "community": 260,
       "norm_label": "6's starter-kit deliverable, on disk for an artist who wants one.      nothing"
+    },
+    {
+      "label": "Input 2, else the kit file, else 6's floor for a BUILDING (D315).",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L504",
+      "_origin": "ast",
+      "id": "polychain_hda_rationale_504",
+      "community": 8,
+      "norm_label": "input 2, else the kit file, else 6's floor for a building (d315)."
+    },
+    {
+      "label": "The 2D parameter page as a `Style` - two axes, one payload (D120).      \u26a0\ufe0f AN",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L509",
+      "_origin": "ast",
+      "id": "polychain_hda_rationale_509",
+      "community": 8,
+      "norm_label": "the 2d parameter page as a `style` - two axes, one payload (d120).      \u26a0\ufe0f an"
+    },
+    {
+      "label": "`y_fill` / `y_adaptive_pct` -> the Y half's own `Params`.",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L542",
+      "_origin": "ast",
+      "id": "polychain_hda_rationale_542",
+      "community": 8,
+      "norm_label": "`y_fill` / `y_adaptive_pct` -> the y half's own `params`."
+    },
+    {
+      "label": "(source loops, per-loop corner flags, ids, closed, clip geo, warnings).      T",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L553",
+      "_origin": "ast",
+      "id": "polychain_hda_rationale_553",
+      "community": 8,
+      "norm_label": "(source loops, per-loop corner flags, ids, closed, clip geo, warnings).      t"
+    },
+    {
+      "label": "The whole 2D node, in one pass. Never raises (warn-never-block).",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L574",
+      "_origin": "ast",
+      "id": "polychain_hda_rationale_574",
+      "community": 8,
+      "norm_label": "the whole 2d node, in one pass. never raises (warn-never-block)."
     },
     {
       "label": "13.3.0's `pc_cfg` - the resolved parameters, payload precedence applied.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L480",
+      "source_location": "L711",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_480",
+      "id": "polychain_hda_rationale_711",
       "community": 8,
       "norm_label": "13.3.0's `pc_cfg` - the resolved parameters, payload precedence applied."
     },
@@ -8877,9 +9037,9 @@
       "label": "(`pc_cfg`, the resolved Style, the resolved Kit).      13.9 N2 - the CONFIG SO",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L491",
+      "source_location": "L722",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_491",
+      "id": "polychain_hda_rationale_722",
       "community": 8,
       "norm_label": "(`pc_cfg`, the resolved style, the resolved kit).      13.9 n2 - the config so"
     },
@@ -8887,29 +9047,29 @@
       "label": "Is this surface one the two ray tests are KNOWN to answer alike?      \u26a0\ufe0f THE C",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L593",
+      "source_location": "L824",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_593",
-      "community": 232,
+      "id": "polychain_hda_rationale_824",
+      "community": 8,
       "norm_label": "is this surface one the two ray tests are known to answer alike?      \u26a0\ufe0f the c"
     },
     {
       "label": "13.9 N10 level 1 - see `config_resolved`. True when nothing in the     paramete",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L644",
+      "source_location": "L875",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_644",
-      "community": 232,
+      "id": "polychain_hda_rationale_875",
+      "community": 8,
       "norm_label": "13.9 n10 level 1 - see `config_resolved`. true when nothing in the     paramete"
     },
     {
       "label": "A float as the decimal string VEX's `atof` reads back bit for bit.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L797",
+      "source_location": "L1028",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_797",
+      "id": "polychain_hda_rationale_1028",
       "community": 214,
       "norm_label": "a float as the decimal string vex's `atof` reads back bit for bit."
     },
@@ -8917,19 +9077,19 @@
       "label": "One 3.3 condition as (kind, number, string, [(kind, num, str)]).      The LIST",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L809",
+      "source_location": "L1040",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_809",
-      "community": 232,
+      "id": "polychain_hda_rationale_1040",
+      "community": 214,
       "norm_label": "one 3.3 condition as (kind, number, string, [(kind, num, str)]).      the list"
     },
     {
       "label": "`Kit` -> the flat arrays `pc_plan.h` binds.  Payload order, unsorted.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L857",
+      "source_location": "L1088",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_857",
+      "id": "polychain_hda_rationale_1088",
       "community": 214,
       "norm_label": "`kit` -> the flat arrays `pc_plan.h` binds.  payload order, unsorted."
     },
@@ -8937,9 +9097,9 @@
       "label": "`Style` -> the flat arrays `pc_plan.h` binds.  Payload order, unsorted.      `",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L883",
+      "source_location": "L1114",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_883",
+      "id": "polychain_hda_rationale_1114",
       "community": 214,
       "norm_label": "`style` -> the flat arrays `pc_plan.h` binds.  payload order, unsorted.      `"
     },
@@ -8947,9 +9107,9 @@
       "label": "The flat arrays onto `geo` as DETAIL attributes, typed by their first     eleme",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L971",
+      "source_location": "L1202",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_971",
+      "id": "polychain_hda_rationale_1202",
       "community": 214,
       "norm_label": "the flat arrays onto `geo` as detail attributes, typed by their first     eleme"
     },
@@ -8957,9 +9117,9 @@
       "label": "The KIT STREAM the native PLACE branch copies from.      \u26a0\ufe0f IT ADDS NO PYTHON",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L993",
+      "source_location": "L1224",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_993",
+      "id": "polychain_hda_rationale_1224",
       "community": 8,
       "norm_label": "the kit stream the native place branch copies from.      \u26a0\ufe0f it adds no python"
     },
@@ -8967,9 +9127,9 @@
       "label": "The CONFIG stream: one point carrying `pc_cfg`. Never raises.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1024",
+      "source_location": "L1255",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_1024",
+      "id": "polychain_hda_rationale_1255",
       "community": 214,
       "norm_label": "the config stream: one point carrying `pc_cfg`. never raises."
     },
@@ -8977,9 +9137,9 @@
       "label": "`x` as float32 storage will hold it - the head of the split above.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1062",
+      "source_location": "L1293",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_1062",
+      "id": "polychain_hda_rationale_1293",
       "community": 174,
       "norm_label": "`x` as float32 storage will hold it - the head of the split above."
     },
@@ -8987,9 +9147,9 @@
       "label": "{curve id: primitive number} - THE ids `place.read_curves` produced.      \u26a0\ufe0f I",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1067",
+      "source_location": "L1298",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_1067",
+      "id": "polychain_hda_rationale_1298",
       "community": 174,
       "norm_label": "{curve id: primitive number} - the ids `place.read_curves` produced.      \u26a0\ufe0f i"
     },
@@ -8997,9 +9157,9 @@
       "label": "`plan_points` PLUS 13.3.4's frame inputs - the PLAN stage's output.      \u26a0\ufe0f SC",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1086",
+      "source_location": "L1317",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_1086",
+      "id": "polychain_hda_rationale_1317",
       "community": 174,
       "norm_label": "`plan_points` plus 13.3.4's frame inputs - the plan stage's output.      \u26a0\ufe0f sc"
     },
@@ -9007,9 +9167,9 @@
       "label": "The PLAN stage's output, until 13.9 N2's VEX solve replaces it.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1133",
+      "source_location": "L1364",
       "_origin": "ast",
-      "id": "polychain_hda_rationale_1133",
+      "id": "polychain_hda_rationale_1364",
       "community": 8,
       "norm_label": "the plan stage's output, until 13.9 n2's vex solve replaces it."
     },
@@ -9237,17 +9397,27 @@
       "label": "starter_kit()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
-      "source_location": "L603",
+      "source_location": "L604",
       "_origin": "ast",
       "id": "polychain_kit_starter_kit",
       "community": 113,
       "norm_label": "starter_kit()"
     },
     {
+      "label": "starter_facade_kit()",
+      "file_type": "code",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
+      "source_location": "L673",
+      "_origin": "ast",
+      "id": "polychain_kit_starter_facade_kit",
+      "community": 113,
+      "norm_label": "starter_facade_kit()"
+    },
+    {
       "label": "write_kit_file()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
-      "source_location": "L665",
+      "source_location": "L737",
       "_origin": "ast",
       "id": "polychain_kit_write_kit_file",
       "community": 113,
@@ -9417,19 +9587,29 @@
       "label": "post / panel / picket_panel / corner_post / gate - 6's starter kit.      The PC-",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
-      "source_location": "L604",
+      "source_location": "L605",
       "_origin": "ast",
-      "id": "polychain_kit_rationale_604",
+      "id": "polychain_kit_rationale_605",
       "community": 113,
       "norm_label": "post / panel / picket_panel / corner_post / gate - 6's starter kit.      the pc-"
+    },
+    {
+      "label": "6 of 7.2's 25 cells - `pf_polychain_facade`'s standalone floor.      The 1D node",
+      "file_type": "rationale",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
+      "source_location": "L674",
+      "_origin": "ast",
+      "id": "polychain_kit_rationale_674",
+      "community": 113,
+      "norm_label": "6 of 7.2's 25 cells - `pf_polychain_facade`'s standalone floor.      the 1d node"
     },
     {
       "label": "Artist convenience only - nothing in the build reads a kit file (D23).",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
-      "source_location": "L666",
+      "source_location": "L738",
       "_origin": "ast",
-      "id": "polychain_kit_rationale_666",
+      "id": "polychain_kit_rationale_738",
       "community": 113,
       "norm_label": "artist convenience only - nothing in the build reads a kit file (d23)."
     },
@@ -9490,7 +9670,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "polychain_place_cross",
-      "community": 77,
+      "community": 275,
       "norm_label": "_cross()"
     },
     {
@@ -9510,7 +9690,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "polychain_place_flat",
-      "community": 77,
+      "community": 275,
       "norm_label": "_flat()"
     },
     {
@@ -9520,7 +9700,7 @@
       "source_location": "L188",
       "_origin": "ast",
       "id": "polychain_place_at_height",
-      "community": 77,
+      "community": 275,
       "norm_label": "_at_height()"
     },
     {
@@ -9560,7 +9740,7 @@
       "source_location": "L267",
       "_origin": "ast",
       "id": "polychain_place_path_sample",
-      "community": 275,
+      "community": 77,
       "norm_label": ".sample()"
     },
     {
@@ -9820,7 +10000,7 @@
       "source_location": "L911",
       "_origin": "ast",
       "id": "polychain_place_frame",
-      "community": 77,
+      "community": 275,
       "norm_label": "_frame()"
     },
     {
@@ -9840,7 +10020,7 @@
       "source_location": "L974",
       "_origin": "ast",
       "id": "polychain_place_span_ends",
-      "community": 275,
+      "community": 77,
       "norm_label": "span_ends()"
     },
     {
@@ -9860,7 +10040,7 @@
       "source_location": "L1014",
       "_origin": "ast",
       "id": "polychain_place_chord_ratio",
-      "community": 275,
+      "community": 77,
       "norm_label": "_chord_ratio()"
     },
     {
@@ -9920,7 +10100,7 @@
       "source_location": "L1280",
       "_origin": "ast",
       "id": "polychain_place_needs_deform",
-      "community": 275,
+      "community": 77,
       "norm_label": "_needs_deform()"
     },
     {
@@ -9950,7 +10130,7 @@
       "source_location": "L1438",
       "_origin": "ast",
       "id": "polychain_place_anchor_transform",
-      "community": 87,
+      "community": 275,
       "norm_label": "_anchor_transform()"
     },
     {
@@ -9990,7 +10170,7 @@
       "source_location": "L1578",
       "_origin": "ast",
       "id": "polychain_place_off_plane_patches",
-      "community": 126,
+      "community": 275,
       "norm_label": "_off_plane_patches()"
     },
     {
@@ -10150,7 +10330,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "polychain_place_rationale_169",
-      "community": 77,
+      "community": 275,
       "norm_label": "`v` with its `up_ref` component removed - \"horizontal\", generalised.      d296a:"
     },
     {
@@ -10160,7 +10340,7 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "polychain_place_rationale_189",
-      "community": 77,
+      "community": 275,
       "norm_label": "`p` moved along `up_ref` so its height (`dot(p, up_ref)`) is `h`.      d98's fla"
     },
     {
@@ -10190,7 +10370,7 @@
       "source_location": "L268",
       "_origin": "ast",
       "id": "polychain_place_rationale_268",
-      "community": 275,
+      "community": 77,
       "norm_label": "(position, unit tangent) at `s` metres. mirrors `curve.sample`."
     },
     {
@@ -10340,7 +10520,7 @@
       "source_location": "L912",
       "_origin": "ast",
       "id": "polychain_place_rationale_912",
-      "community": 77,
+      "community": 275,
       "norm_label": "(dir, across, up) for one sample. `across` is +z when dir is +x.      `up_ref` i"
     },
     {
@@ -10360,7 +10540,7 @@
       "source_location": "L975",
       "_origin": "ast",
       "id": "polychain_place_rationale_975",
-      "community": 275,
+      "community": 77,
       "norm_label": "the two reads every span-shaped question in this file starts with.      a span i"
     },
     {
@@ -10380,7 +10560,7 @@
       "source_location": "L1015",
       "_origin": "ast",
       "id": "polychain_place_rationale_1015",
-      "community": 275,
+      "community": 77,
       "norm_label": "how much of a planned span the straight chord across it covers.      a rigid pie"
     },
     {
@@ -10440,7 +10620,7 @@
       "source_location": "L1282",
       "_origin": "ast",
       "id": "polychain_place_rationale_1282",
-      "community": 275,
+      "community": 77,
       "norm_label": "4.4 + the streets float32 lesson: rebuild only when it changes something."
     },
     {
@@ -10470,7 +10650,7 @@
       "source_location": "L1440",
       "_origin": "ast",
       "id": "polychain_place_rationale_1440",
-      "community": 87,
+      "community": 275,
       "norm_label": "4.3 - the 4x4 for a piece built on a straight leg instead of on the path.      a"
     },
     {
@@ -10510,7 +10690,7 @@
       "source_location": "L1579",
       "_origin": "ast",
       "id": "polychain_place_rationale_1579",
-      "community": 126,
+      "community": 275,
       "norm_label": "the prims `polyfill` appended that the cut did not open.      a patch belongs to"
     },
     {
@@ -11160,7 +11340,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_slicer",
-      "community": 155,
+      "community": 153,
       "norm_label": "slicer.py"
     },
     {
@@ -11250,7 +11430,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "polychain_slicer_fill_width",
-      "community": 155,
+      "community": 153,
       "norm_label": "_fill_width()"
     },
     {
@@ -11260,7 +11440,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "polychain_slicer_axis_bands",
-      "community": 155,
+      "community": 153,
       "norm_label": "axis_bands()"
     },
     {
@@ -11270,7 +11450,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "polychain_slicer_plan",
-      "community": 155,
+      "community": 153,
       "norm_label": "plan()"
     },
     {
@@ -11280,7 +11460,7 @@
       "source_location": "L255",
       "_origin": "ast",
       "id": "polychain_slicer_guides_from_points",
-      "community": 155,
+      "community": 153,
       "norm_label": "guides_from_points()"
     },
     {
@@ -11290,7 +11470,7 @@
       "source_location": "L277",
       "_origin": "ast",
       "id": "polychain_slicer_jigsaw_report",
-      "community": 155,
+      "community": 153,
       "norm_label": "jigsaw_report()"
     },
     {
@@ -11300,7 +11480,7 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "polychain_slicer_deviation",
-      "community": 155,
+      "community": 153,
       "norm_label": "_deviation()"
     },
     {
@@ -11310,7 +11490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_slicer_rationale_1",
-      "community": 155,
+      "community": 153,
       "norm_label": "polychain 7.7 - `pf_polychain_slice`, the kit on-ramp. the decision half.  mod"
     },
     {
@@ -11340,7 +11520,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "polychain_slicer_rationale_102",
-      "community": 155,
+      "community": 153,
       "norm_label": "the default cell size when the artist did not name one.      the first non-cap"
     },
     {
@@ -11350,7 +11530,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "polychain_slicer_rationale_116",
-      "community": 155,
+      "community": 153,
       "norm_label": "[band] low to high across [lo, hi].      `guides` is [(coord, class or \"\")] -"
     },
     {
@@ -11360,7 +11540,7 @@
       "source_location": "L225",
       "_origin": "ast",
       "id": "polychain_slicer_rationale_225",
-      "community": 155,
+      "community": 153,
       "norm_label": "(bbox, parms, guides) -> ([cell], [warning strings]).      `bbox` is (x0, x1,"
     },
     {
@@ -11370,7 +11550,7 @@
       "source_location": "L256",
       "_origin": "ast",
       "id": "polychain_slicer_rationale_256",
-      "community": 155,
+      "community": 153,
       "norm_label": "the second input, read: [(axis, coord, class)].      a guide is a point with a"
     },
     {
@@ -11380,7 +11560,7 @@
       "source_location": "L278",
       "_origin": "ast",
       "id": "polychain_slicer_rationale_278",
-      "community": 155,
+      "community": 153,
       "norm_label": "d131's assertion, computed rather than asserted, per axis, in metres.     `{\"x\""
     },
     {
@@ -11760,7 +11940,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_json_themes",
-      "community": 258,
+      "community": 15,
       "norm_label": "json_themes.py"
     },
     {
@@ -11770,7 +11950,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "core_json_themes_themes",
-      "community": 258,
+      "community": 15,
       "norm_label": "themes"
     },
     {
@@ -11780,7 +11960,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "core_json_themes_themes_init",
-      "community": 258,
+      "community": 15,
       "norm_label": ".__init__()"
     },
     {
@@ -11790,7 +11970,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "core_json_themes_themes_serialize",
-      "community": 258,
+      "community": 15,
       "norm_label": ".serialize()"
     },
     {
@@ -11800,7 +11980,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "core_json_themes_themes_deserialize",
-      "community": 258,
+      "community": 15,
       "norm_label": ".deserialize()"
     },
     {
@@ -11860,7 +12040,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "columns_ui_right_column",
-      "community": 132,
+      "community": 15,
       "norm_label": "ui_right_column.py"
     },
     {
@@ -11870,7 +12050,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn",
-      "community": 258,
+      "community": 15,
       "norm_label": "ui_rightcolumn"
     },
     {
@@ -11880,7 +12060,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_setupui",
-      "community": 258,
+      "community": 15,
       "norm_label": ".setupui()"
     },
     {
@@ -11890,7 +12070,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "columns_ui_right_column_ui_rightcolumn_retranslateui",
-      "community": 258,
+      "community": 15,
       "norm_label": ".retranslateui()"
     },
     {
@@ -11900,7 +12080,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pages_ui_main_pages",
-      "community": 132,
+      "community": 179,
       "norm_label": "ui_main_pages.py"
     },
     {
@@ -11910,7 +12090,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages",
-      "community": 258,
+      "community": 179,
       "norm_label": "ui_mainpages"
     },
     {
@@ -11920,7 +12100,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_setupui",
-      "community": 258,
+      "community": 179,
       "norm_label": ".setupui()"
     },
     {
@@ -11930,7 +12110,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_retranslateui",
-      "community": 258,
+      "community": 179,
       "norm_label": ".retranslateui()"
     },
     {
@@ -12150,7 +12330,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "main_window_ui_main_ui_mainwindow",
-      "community": 258,
+      "community": 15,
       "norm_label": "ui_mainwindow"
     },
     {
@@ -12160,7 +12340,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "main_window_ui_main_ui_mainwindow_setup_ui",
-      "community": 258,
+      "community": 179,
       "norm_label": ".setup_ui()"
     },
     {
@@ -12250,7 +12430,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_credits_bar_init",
-      "community": 141,
+      "community": 232,
       "norm_label": "__init__.py"
     },
     {
@@ -12260,7 +12440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits",
-      "community": 141,
+      "community": 232,
       "norm_label": "py_credits.py"
     },
     {
@@ -12270,7 +12450,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits_pycredits",
-      "community": 141,
+      "community": 232,
       "norm_label": "pycredits"
     },
     {
@@ -12280,7 +12460,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits_pycredits_init",
-      "community": 141,
+      "community": 232,
       "norm_label": ".__init__()"
     },
     {
@@ -12290,7 +12470,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits_pycredits_setup_ui",
-      "community": 141,
+      "community": 232,
       "norm_label": ".setup_ui()"
     },
     {
@@ -12660,7 +12840,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon",
-      "community": 37,
+      "community": 141,
       "norm_label": "pyicon"
     },
     {
@@ -12670,7 +12850,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_init",
-      "community": 37,
+      "community": 141,
       "norm_label": ".__init__()"
     },
     {
@@ -12680,7 +12860,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_setup_ui",
-      "community": 37,
+      "community": 141,
       "norm_label": ".setup_ui()"
     },
     {
@@ -12690,7 +12870,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "py_left_column_py_icon_pyicon_set_icon",
-      "community": 37,
+      "community": 141,
       "norm_label": ".set_icon()"
     },
     {
@@ -13460,7 +13640,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_table_widget_init",
-      "community": 15,
+      "community": 167,
       "norm_label": "__init__.py"
     },
     {
@@ -13470,7 +13650,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget",
-      "community": 15,
+      "community": 167,
       "norm_label": "py_table_widget.py"
     },
     {
@@ -13480,7 +13660,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget_pytablewidget",
-      "community": 15,
+      "community": 167,
       "norm_label": "pytablewidget"
     },
     {
@@ -13490,7 +13670,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qtablewidget",
-      "community": 15,
+      "community": 167,
       "norm_label": "qtablewidget"
     },
     {
@@ -13500,7 +13680,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget_pytablewidget_init",
-      "community": 15,
+      "community": 167,
       "norm_label": ".__init__()"
     },
     {
@@ -13510,7 +13690,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "py_table_widget_py_table_widget_pytablewidget_set_stylesheet",
-      "community": 15,
+      "community": 167,
       "norm_label": ".set_stylesheet()"
     },
     {
@@ -13520,7 +13700,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_table_widget_style",
-      "community": 15,
+      "community": 167,
       "norm_label": "style.py"
     },
     {
@@ -13540,7 +13720,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_div",
-      "community": 179,
+      "community": 132,
       "norm_label": "py_div.py"
     },
     {
@@ -13550,7 +13730,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_title_bar_py_div_pydiv",
-      "community": 179,
+      "community": 132,
       "norm_label": "pydiv"
     },
     {
@@ -13560,7 +13740,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_title_bar_py_div_pydiv_init",
-      "community": 179,
+      "community": 132,
       "norm_label": ".__init__()"
     },
     {
@@ -13570,7 +13750,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar",
-      "community": 179,
+      "community": 132,
       "norm_label": "py_title_bar.py"
     },
     {
@@ -20440,7 +20620,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "polychain_cases_setup_env",
-      "community": 151,
+      "community": 252,
       "norm_label": "setup_env()"
     },
     {
@@ -20450,7 +20630,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "polychain_cases_polyline",
-      "community": 149,
+      "community": 151,
       "norm_label": "polyline()"
     },
     {
@@ -20520,7 +20700,7 @@
       "source_location": "L185",
       "_origin": "ast",
       "id": "polychain_cases_ridge",
-      "community": 151,
+      "community": 248,
       "norm_label": "_ridge()"
     },
     {
@@ -20530,7 +20710,7 @@
       "source_location": "L195",
       "_origin": "ast",
       "id": "polychain_cases_bump",
-      "community": 151,
+      "community": 248,
       "norm_label": "bump()"
     },
     {
@@ -20540,7 +20720,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "polychain_cases_small_bump",
-      "community": 151,
+      "community": 248,
       "norm_label": "small_bump()"
     },
     {
@@ -20660,7 +20840,7 @@
       "source_location": "L369",
       "_origin": "ast",
       "id": "polychain_cases_corner_style",
-      "community": 151,
+      "community": 149,
       "norm_label": "corner_style()"
     },
     {
@@ -20730,7 +20910,7 @@
       "source_location": "L1417",
       "_origin": "ast",
       "id": "polychain_cases_tripwire_packed_run",
-      "community": 149,
+      "community": 151,
       "norm_label": "tripwire_packed_run()"
     },
     {
@@ -20740,7 +20920,7 @@
       "source_location": "L1428",
       "_origin": "ast",
       "id": "polychain_cases_tripwire_deformed_run",
-      "community": 149,
+      "community": 151,
       "norm_label": "tripwire_deformed_run()"
     },
     {
@@ -20750,7 +20930,7 @@
       "source_location": "L1443",
       "_origin": "ast",
       "id": "polychain_cases_tripwire_out_build",
-      "community": 149,
+      "community": 151,
       "norm_label": "tripwire_out_build()"
     },
     {
@@ -20760,7 +20940,7 @@
       "source_location": "L1453",
       "_origin": "ast",
       "id": "polychain_cases_tripwire_mitered_run",
-      "community": 149,
+      "community": 151,
       "norm_label": "tripwire_mitered_run()"
     },
     {
@@ -20780,7 +20960,7 @@
       "source_location": "L1474",
       "_origin": "ast",
       "id": "polychain_cases_heightfield",
-      "community": 149,
+      "community": 151,
       "norm_label": "heightfield()"
     },
     {
@@ -20790,7 +20970,7 @@
       "source_location": "L1498",
       "_origin": "ast",
       "id": "polychain_cases_tripwire_streets_conformed",
-      "community": 149,
+      "community": 151,
       "norm_label": "tripwire_streets_conformed()"
     },
     {
@@ -20810,7 +20990,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "polychain_cases_rationale_18",
-      "community": 151,
+      "community": 252,
       "norm_label": "hython has not loaded the polyfactory package, so scripts/python is not     on s"
     },
     {
@@ -20860,7 +21040,7 @@
       "source_location": "L186",
       "_origin": "ast",
       "id": "polychain_cases_rationale_186",
-      "community": 151,
+      "community": 248,
       "norm_label": "a triangular ridge `bump_width` wide at `bump_centre` on ground at     y = -1. `"
     },
     {
@@ -20870,7 +21050,7 @@
       "source_location": "L196",
       "_origin": "ast",
       "id": "polychain_cases_rationale_196",
-      "community": 151,
+      "community": 248,
       "norm_label": "narrower than a quarter of a piece (d71): invisible to a fixed     five-sample g"
     },
     {
@@ -20960,7 +21140,7 @@
       "source_location": "L373",
       "_origin": "ast",
       "id": "polychain_cases_rationale_373",
-      "community": 151,
+      "community": 149,
       "norm_label": "the pc-g1 fence, with 4.3's parms exposed. same kit, same rules.      `evenly` i"
     },
     {
@@ -21010,7 +21190,7 @@
       "source_location": "L1418",
       "_origin": "ast",
       "id": "polychain_cases_rationale_1418",
-      "community": 149,
+      "community": 151,
       "norm_label": "200 x 2 m panels on a 400 m straight - pc-g3's shape, small enough to     run in"
     },
     {
@@ -21020,7 +21200,7 @@
       "source_location": "L1429",
       "_origin": "ast",
       "id": "polychain_cases_rationale_1429",
-      "community": 149,
+      "community": 151,
       "norm_label": "the same panels on a 10 m arc - 100 % deformed (`arc_10` in miniature:     5.0e-"
     },
     {
@@ -21030,7 +21210,7 @@
       "source_location": "L1444",
       "_origin": "ast",
       "id": "polychain_cases_rationale_1444",
-      "community": 149,
+      "community": 151,
       "norm_label": "`tripwire_packed_run`'s fence, built into a caller-supplied geometry -     `buil"
     },
     {
@@ -21040,7 +21220,7 @@
       "source_location": "L1454",
       "_origin": "ast",
       "id": "polychain_cases_rationale_1454",
-      "community": 149,
+      "community": 151,
       "norm_label": "a closed rectangle in miter mode - the only branch reaching     `clip_plane`, so"
     },
     {
@@ -21060,7 +21240,7 @@
       "source_location": "L1475",
       "_origin": "ast",
       "id": "polychain_cases_rationale_1475",
-      "community": 149,
+      "community": 151,
       "norm_label": "a quad heightfield, `cell` m per quad, `y = amp*sin(kx)*sin(kz)`. the     confor"
     },
     {
@@ -21070,7 +21250,7 @@
       "source_location": "L1499",
       "_origin": "ast",
       "id": "polychain_cases_rationale_1499",
-      "community": 149,
+      "community": 151,
       "norm_label": "40 x 20 m conformed runs - many short curves over gentle terrain, the     cityge"
     },
     {
@@ -24090,7 +24270,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_mutations",
-      "community": 248,
+      "community": 155,
       "norm_label": "mutations.py"
     },
     {
@@ -24100,7 +24280,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "polychain_mutations_m",
-      "community": 248,
+      "community": 155,
       "norm_label": "m"
     },
     {
@@ -24110,7 +24290,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "polychain_mutations_m_init",
-      "community": 248,
+      "community": 155,
       "norm_label": ".__init__()"
     },
     {
@@ -24120,7 +24300,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_mutations_rationale_1",
-      "community": 248,
+      "community": 155,
       "norm_label": "the mutation registry - every polychain check paired with the edit that proves i"
     },
     {
@@ -24130,7 +24310,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "polychain_mutations_rationale_49",
-      "community": 248,
+      "community": 155,
       "norm_label": "one registered mutation.      `edits`   ((repo-relative path, exact old text, ne"
     },
     {
@@ -28920,7 +29100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d",
-      "community": 105,
+      "community": 195,
       "norm_label": "test_polychain_array2d.py"
     },
     {
@@ -29050,7 +29230,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain",
-      "community": 247,
+      "community": 195,
       "norm_label": "testfallbackchain"
     },
     {
@@ -29060,7 +29240,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_y_sheds_before_x",
-      "community": 247,
+      "community": 195,
       "norm_label": ".test_y_sheds_before_x()"
     },
     {
@@ -29070,7 +29250,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_extend_y_reverses_steps_two_and_three",
-      "community": 247,
+      "community": 195,
       "norm_label": ".test_extend_y_reverses_steps_two_and_three()"
     },
     {
@@ -29080,7 +29260,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_a_phase_1_role_is_its_own_chain_head",
-      "community": 247,
+      "community": 195,
       "norm_label": ".test_a_phase_1_role_is_its_own_chain_head()"
     },
     {
@@ -29090,7 +29270,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_every_chain_ends_at_default",
-      "community": 247,
+      "community": 195,
       "norm_label": ".test_every_chain_ends_at_default()"
     },
     {
@@ -29190,7 +29370,7 @@
       "source_location": "L233",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testroleclosure_test_a_marker_cell_closes_over_all_five_y_classes",
-      "community": 153,
+      "community": 184,
       "norm_label": ".test_a_marker_cell_closes_over_all_five_y_classes()"
     },
     {
@@ -29460,7 +29640,7 @@
       "source_location": "L474",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea",
-      "community": 105,
+      "community": 149,
       "norm_label": "testclippedarea"
     },
     {
@@ -29470,7 +29650,7 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_a_vertical_rectangle_gives_its_own_extents",
-      "community": 105,
+      "community": 149,
       "norm_label": ".test_a_vertical_rectangle_gives_its_own_extents()"
     },
     {
@@ -29480,7 +29660,7 @@
       "source_location": "L486",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_the_frame_round_trips_a_point",
-      "community": 105,
+      "community": 149,
       "norm_label": ".test_the_frame_round_trips_a_point()"
     },
     {
@@ -29490,7 +29670,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_expand_grows_the_extents_symmetrically",
-      "community": 105,
+      "community": 149,
       "norm_label": ".test_expand_grows_the_extents_symmetrically()"
     },
     {
@@ -29500,7 +29680,7 @@
       "source_location": "L498",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_a_rectangle_clips_nothing",
-      "community": 105,
+      "community": 149,
       "norm_label": ".test_a_rectangle_clips_nothing()"
     },
     {
@@ -29510,7 +29690,7 @@
       "source_location": "L507",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_a_taper_narrows_every_row_and_never_leaves_the_line",
-      "community": 105,
+      "community": 149,
       "norm_label": ".test_a_taper_narrows_every_row_and_never_leaves_the_line()"
     },
     {
@@ -29520,7 +29700,7 @@
       "source_location": "L525",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_preserve_is_wider_than_remove_and_remove_never_wider",
-      "community": 105,
+      "community": 149,
       "norm_label": ".test_preserve_is_wider_than_remove_and_remove_never_wider()"
     },
     {
@@ -29530,7 +29710,7 @@
       "source_location": "L536",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testclippedarea_test_area_rows_are_open_spans_in_world_space",
-      "community": 105,
+      "community": 149,
       "norm_label": ".test_area_rows_are_open_spans_in_world_space()"
     },
     {
@@ -29540,7 +29720,7 @@
       "source_location": "L549",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions",
-      "community": 149,
+      "community": 105,
       "norm_label": "testkernelextensions"
     },
     {
@@ -29550,7 +29730,7 @@
       "source_location": "L552",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_cell_role_is_the_identity_without_a_row_class",
-      "community": 149,
+      "community": 105,
       "norm_label": ".test_cell_role_is_the_identity_without_a_row_class()"
     },
     {
@@ -29560,7 +29740,7 @@
       "source_location": "L559",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_rules_for_without_a_class_is_the_phase_1_call",
-      "community": 149,
+      "community": 105,
       "norm_label": ".test_rules_for_without_a_class_is_the_phase_1_call()"
     },
     {
@@ -29580,7 +29760,7 @@
       "source_location": "L576",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_candidates_resolve_the_cell_when_the_rule_names_nothing",
-      "community": 149,
+      "community": 105,
       "norm_label": ".test_candidates_resolve_the_cell_when_the_rule_names_nothing()"
     },
     {
@@ -29590,7 +29770,7 @@
       "source_location": "L584",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_stamps_the_cell_and_warns_the_walk",
-      "community": 149,
+      "community": 105,
       "norm_label": ".test_classify_stamps_the_cell_and_warns_the_walk()"
     },
     {
@@ -29600,7 +29780,7 @@
       "source_location": "L592",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_is_silent_where_the_kit_has_the_cell",
-      "community": 149,
+      "community": 105,
       "norm_label": ".test_classify_is_silent_where_the_kit_has_the_cell()"
     },
     {
@@ -29610,7 +29790,7 @@
       "source_location": "L598",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_does_nothing_without_a_row_class",
-      "community": 149,
+      "community": 105,
       "norm_label": ".test_classify_does_nothing_without_a_row_class()"
     },
     {
@@ -29620,7 +29800,7 @@
       "source_location": "L604",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_the_transposed_kit_fits_on_height",
-      "community": 149,
+      "community": 105,
       "norm_label": ".test_the_transposed_kit_fits_on_height()"
     },
     {
@@ -29730,7 +29910,7 @@
       "source_location": "L685",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testnohoudini",
-      "community": 105,
+      "community": 195,
       "norm_label": "testnohoudini"
     },
     {
@@ -29740,7 +29920,7 @@
       "source_location": "L687",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testnohoudini_test_hou_was_never_imported",
-      "community": 105,
+      "community": 195,
       "norm_label": ".test_hou_was_never_imported()"
     },
     {
@@ -29750,7 +29930,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_1",
-      "community": 105,
+      "community": 195,
       "norm_label": "polychain 7 array2d - the row stack and the cell lattice. no houdini.      pyt"
     },
     {
@@ -29820,7 +30000,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_134",
-      "community": 247,
+      "community": 195,
       "norm_label": "7.2.2 - the lattice walk, and why y sheds first."
     },
     {
@@ -29880,7 +30060,7 @@
       "source_location": "L234",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_234",
-      "community": 153,
+      "community": 184,
       "norm_label": "7.2's marker cells are legal by grammar and therefore unbounded, so         the"
     },
     {
@@ -29990,7 +30170,7 @@
       "source_location": "L475",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_475",
-      "community": 105,
+      "community": 149,
       "norm_label": "7.6 / d137 - enough of the clipped area to fill a facade panel."
     },
     {
@@ -30000,7 +30180,7 @@
       "source_location": "L550",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_550",
-      "community": 149,
+      "community": 105,
       "norm_label": "e1/e2/e3 seen from the kernel's side - the three named things only."
     },
     {
@@ -31220,7 +31400,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_section",
-      "community": 109,
+      "community": 48,
       "norm_label": "section()"
     },
     {
@@ -31260,7 +31440,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_style",
-      "community": 167,
+      "community": 109,
       "norm_label": ".style()"
     },
     {
@@ -31290,7 +31470,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_corner_is_not_an_end_and_gets_no_caps",
-      "community": 167,
+      "community": 109,
       "norm_label": ".test_a_corner_is_not_an_end_and_gets_no_caps()"
     },
     {
@@ -31300,7 +31480,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_closed_spline_gets_no_caps_on_any_side",
-      "community": 167,
+      "community": 109,
       "norm_label": ".test_a_closed_spline_gets_no_caps_on_any_side()"
     },
     {
@@ -31310,7 +31490,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_pc_section_limit_does_cap_like_a_spline_end",
-      "community": 167,
+      "community": 109,
       "norm_label": ".test_a_pc_section_limit_does_cap_like_a_spline_end()"
     },
     {
@@ -31410,7 +31590,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testselection_test_sequence_walks_the_list_and_still_fills_exactly",
-      "community": 205,
+      "community": 48,
       "norm_label": ".test_sequence_walks_the_list_and_still_fills_exactly()"
     },
     {
@@ -31550,7 +31730,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_curves_are_reordered",
-      "community": 167,
+      "community": 109,
       "norm_label": ".test_the_plan_does_not_move_when_the_curves_are_reordered()"
     },
     {
@@ -31560,7 +31740,7 @@
       "source_location": "L389",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_markers_are_reordered",
-      "community": 167,
+      "community": 109,
       "norm_label": ".test_the_plan_does_not_move_when_the_markers_are_reordered()"
     },
     {
@@ -31580,7 +31760,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_two_sections_of_one_spline_correlate_under_spline_scope",
-      "community": 167,
+      "community": 109,
       "norm_label": ".test_two_sections_of_one_spline_correlate_under_spline_scope()"
     },
     {
@@ -31590,7 +31770,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_section_scope_does_not_correlate_across_sections",
-      "community": 167,
+      "community": 109,
       "norm_label": ".test_section_scope_does_not_correlate_across_sections()"
     },
     {
@@ -31710,7 +31890,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testwholecurves_test_ten_thousand_pieces_stay_addressable_and_unique",
-      "community": 233,
+      "community": 48,
       "norm_label": ".test_ten_thousand_pieces_stay_addressable_and_unique()"
     },
     {
@@ -31780,7 +31960,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_117",
-      "community": 167,
+      "community": 109,
       "norm_label": "d18. railclone puts start/end at spline ends and corner segments at         corn"
     },
     {
@@ -31790,7 +31970,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_128",
-      "community": 167,
+      "community": 109,
       "norm_label": "the corner-free loop was already covered; the rectangle was not -         it has"
     },
     {
@@ -31800,7 +31980,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_137",
-      "community": 167,
+      "community": 109,
       "norm_label": "the other half of d18: a material-id limit is where one generator         stops"
     },
     {
@@ -31860,7 +32040,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_249",
-      "community": 205,
+      "community": 48,
       "norm_label": "d14: a sequence is fitted as a pattern, so mixed sizes work. the         unit he"
     },
     {
@@ -31940,7 +32120,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_533",
-      "community": 233,
+      "community": 48,
       "norm_label": "pc-g3's own scale target, on the plan side: `pc_elem_id` is the key         the"
     },
     {
@@ -34780,7 +34960,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "ideas_artist_ui_6b_the_study_applied_across_every_polyfactory_tool_audit_of_the_other_studies",
-      "community": 252,
+      "community": 97,
       "norm_label": "6b. the study applied across every polyfactory tool \u2014 audit of the other studies"
     },
     {
@@ -34790,7 +34970,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "ideas_artist_ui_streets_citygen_streets_md_citygen_streets_md_in_build",
-      "community": 252,
+      "community": 97,
       "norm_label": "streets \u2014 [`citygen_streets.md`](citygen_streets.md), in build"
     },
     {
@@ -34800,7 +34980,7 @@
       "source_location": "L398",
       "_origin": "ast",
       "id": "ideas_artist_ui_buildings_citygen_buildings_md_citygen_buildings_md_research_only",
-      "community": 252,
+      "community": 97,
       "norm_label": "buildings \u2014 [`citygen_buildings.md`](citygen_buildings.md), research only"
     },
     {
@@ -34810,7 +34990,7 @@
       "source_location": "L413",
       "_origin": "ast",
       "id": "ideas_artist_ui_traffic_crowds_citygen_simulation_md_citygen_simulation_md_design_spec_v0",
-      "community": 252,
+      "community": 97,
       "norm_label": "traffic / crowds \u2014 [`citygen_simulation.md`](citygen_simulation.md), design spec v0"
     },
     {
@@ -34820,7 +35000,7 @@
       "source_location": "L426",
       "_origin": "ast",
       "id": "ideas_artist_ui_terrain_presets_terrain_presets_md_terrain_presets_md_parked",
-      "community": 252,
+      "community": 97,
       "norm_label": "terrain presets \u2014 [`terrain_presets.md`](terrain_presets.md), parked"
     },
     {
@@ -34830,7 +35010,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "ideas_artist_ui_foliage_foliage_md_foliage_md_design_complete_parked",
-      "community": 252,
+      "community": 97,
       "norm_label": "foliage \u2014 [`foliage.md`](foliage.md), design complete, parked"
     },
     {
@@ -34840,7 +35020,7 @@
       "source_location": "L459",
       "_origin": "ast",
       "id": "ideas_artist_ui_fabric_polyknit_fabric_md_fabric_md_design_complete_parked",
-      "community": 252,
+      "community": 97,
       "norm_label": "fabric / polyknit \u2014 [`fabric.md`](fabric.md), design complete, parked"
     },
     {
@@ -34850,7 +35030,7 @@
       "source_location": "L474",
       "_origin": "ast",
       "id": "ideas_artist_ui_hair_grooming_hair_grooming_md_hair_grooming_md_research_parked",
-      "community": 252,
+      "community": 97,
       "norm_label": "hair grooming \u2014 [`hair_grooming.md`](hair_grooming.md), research, parked"
     },
     {
@@ -34860,7 +35040,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "ideas_artist_ui_asset_library_kitbash_asset_library_redesign_md_asset_library_redesign_md_planning",
-      "community": 252,
+      "community": 97,
       "norm_label": "asset library / kitbash \u2014 [`asset_library_redesign.md`](asset_library_redesign.md), planning"
     },
     {
@@ -34870,7 +35050,7 @@
       "source_location": "L499",
       "_origin": "ast",
       "id": "ideas_artist_ui_the_cross_study_observation",
-      "community": 252,
+      "community": 97,
       "norm_label": "the cross-study observation"
     },
     {
@@ -39140,7 +39320,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_w\u0113t\u0101_barbershop_wig",
-      "community": 80,
+      "community": 176,
       "norm_label": "1. weta: barbershop \u2192 wig"
     },
     {
@@ -39150,7 +39330,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_1_lineage_and_status",
-      "community": 80,
+      "community": 176,
       "norm_label": "1.1 lineage and status"
     },
     {
@@ -39160,7 +39340,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_2_the_paradigm_why_this_is_not_houdini",
-      "community": 80,
+      "community": 176,
       "norm_label": "1.2 the paradigm \u2014 why this is not houdini"
     },
     {
@@ -39170,7 +39350,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_3_grooming_tools",
-      "community": 80,
+      "community": 176,
       "norm_label": "1.3 grooming tools"
     },
     {
@@ -39180,7 +39360,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_4_clumping_a_first_class_subsystem_not_a_modifier",
-      "community": 80,
+      "community": 176,
       "norm_label": "1.4 clumping \u2014 a first-class subsystem, not a modifier"
     },
     {
@@ -39190,7 +39370,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_5_coils_and_braids",
-      "community": 80,
+      "community": 176,
       "norm_label": "1.5 coils and braids"
     },
     {
@@ -39200,7 +39380,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_6_selection_and_masking",
-      "community": 80,
+      "community": 176,
       "norm_label": "1.6 selection and masking"
     },
     {
@@ -39210,7 +39390,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_7_the_animation_side_the_part_houdini_has_no_equivalent_for",
-      "community": 80,
+      "community": 176,
       "norm_label": "1.7 the animation side \u2014 the part houdini has no equivalent for"
     },
     {
@@ -39220,7 +39400,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_8_transferring_a_groom",
-      "community": 80,
+      "community": 176,
       "norm_label": "1.8 transferring a groom"
     },
     {
@@ -39230,7 +39410,7 @@
       "source_location": "L183",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_9_feathers_apteryx",
-      "community": 80,
+      "community": 176,
       "norm_label": "1.9 feathers \u2014 apteryx"
     },
     {
@@ -39920,7 +40100,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "ideas_polychain_3_data_contracts",
-      "community": 12,
+      "community": 231,
       "norm_label": "3. data contracts"
     },
     {
@@ -39930,7 +40110,7 @@
       "source_location": "L209",
       "_origin": "ast",
       "id": "ideas_polychain_3_1_input_spline_schema",
-      "community": 12,
+      "community": 231,
       "norm_label": "3.1 input spline schema"
     },
     {
@@ -39940,7 +40120,7 @@
       "source_location": "L227",
       "_origin": "ast",
       "id": "ideas_polychain_3_2_kit_format",
-      "community": 12,
+      "community": 231,
       "norm_label": "3.2 kit format"
     },
     {
@@ -39950,7 +40130,7 @@
       "source_location": "L246",
       "_origin": "ast",
       "id": "ideas_polychain_3_2b_prototype_identity_reuse_pf_merge_enum_and_keep_it_distinct_from_element_identity",
-      "community": 12,
+      "community": 231,
       "norm_label": "3.2b prototype identity \u2014 reuse `pf::merge_enum`, and keep it distinct from element identity"
     },
     {
@@ -39960,7 +40140,7 @@
       "source_location": "L281",
       "_origin": "ast",
       "id": "ideas_polychain_3_3_style_payload",
-      "community": 12,
+      "community": 231,
       "norm_label": "3.3 style payload"
     },
     {
@@ -39970,7 +40150,7 @@
       "source_location": "L298",
       "_origin": "ast",
       "id": "ideas_polychain_3_4_output",
-      "community": 12,
+      "community": 231,
       "norm_label": "3.4 output"
     },
     {
@@ -43500,7 +43680,7 @@
       "source_location": "L11868",
       "_origin": "ast",
       "id": "ideas_polychain_25_native_network_build_log_cycle_n_4d_d206_d210_re_verified_and_the_brief_was_stale",
-      "community": 231,
+      "community": 12,
       "norm_label": "25. native network build log \u2014 cycle n-4d (d206\u2013d210 re-verified, and the brief was stale)"
     },
     {
@@ -43510,7 +43690,7 @@
       "source_location": "L11885",
       "_origin": "ast",
       "id": "ideas_polychain_25_0_the_scoreboard_five_mutations_re_run_five_reddened",
-      "community": 231,
+      "community": 12,
       "norm_label": "25.0 the scoreboard \u2014 five mutations re-run, five reddened"
     },
     {
@@ -43520,7 +43700,7 @@
       "source_location": "L11898",
       "_origin": "ast",
       "id": "ideas_polychain_25_1_d210_and_the_twelve_claims_re_checked_from_scratch_a_second_time",
-      "community": 231,
+      "community": 12,
       "norm_label": "25.1 d210 \u2014 and the twelve claims, re-checked from scratch a second time"
     },
     {
@@ -43530,7 +43710,7 @@
       "source_location": "L11941",
       "_origin": "ast",
       "id": "ideas_polychain_25_2_d209_s_other_half_the_flakiness_not_just_the_floor",
-      "community": 231,
+      "community": 12,
       "norm_label": "25.2 d209's other half \u2014 the flakiness, not just the floor"
     },
     {
@@ -43540,7 +43720,7 @@
       "source_location": "L11955",
       "_origin": "ast",
       "id": "ideas_polychain_25_3_one_thing_the_d206_re_run_exposes_and_it_is_minor",
-      "community": 231,
+      "community": 12,
       "norm_label": "25.3 one thing the d206 re-run exposes, and it is minor"
     },
     {
@@ -43550,7 +43730,7 @@
       "source_location": "L11963",
       "_origin": "ast",
       "id": "ideas_polychain_25_4_what_this_cycle_asks_of_the_next_agent",
-      "community": 231,
+      "community": 12,
       "norm_label": "25.4 what this cycle asks of the next agent"
     },
     {
@@ -44580,7 +44760,7 @@
       "source_location": "L329",
       "_origin": "ast",
       "id": "ideas_terrain_presets_8_verification_ledger",
-      "community": 116,
+      "community": 247,
       "norm_label": "8. verification ledger"
     },
     {
@@ -44590,7 +44770,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "ideas_terrain_presets_verified_probed_live_in_houdini_22_0_398_or_parsed_from_the_downloaded_files",
-      "community": 116,
+      "community": 247,
       "norm_label": "\u2705 verified \u2014 probed live in houdini 22.0.398 or parsed from the downloaded files"
     },
     {
@@ -44600,7 +44780,7 @@
       "source_location": "L351",
       "_origin": "ast",
       "id": "ideas_terrain_presets_computed_derived_by_me_correct_method_not_vendor_stated",
-      "community": 116,
+      "community": 247,
       "norm_label": "\ud83e\uddee computed \u2014 derived by me, correct method, not vendor-stated"
     },
     {
@@ -44610,7 +44790,7 @@
       "source_location": "L356",
       "_origin": "ast",
       "id": "ideas_terrain_presets_snippet_level_read_from_docs_not_exercised",
-      "community": 116,
+      "community": 247,
       "norm_label": "\ud83d\udcc4 snippet-level \u2014 read from docs, not exercised"
     },
     {
@@ -44620,7 +44800,7 @@
       "source_location": "L362",
       "_origin": "ast",
       "id": "ideas_terrain_presets_known_gaps_do_not_assume",
-      "community": 116,
+      "community": 247,
       "norm_label": "\u26a0\ufe0f known gaps \u2014 do not assume"
     },
     {
@@ -44720,7 +44900,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_readme",
-      "community": 253,
+      "community": 62,
       "norm_label": "readme.md"
     },
     {
@@ -44730,7 +44910,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_readme_polyfactory_tests_the_v2_regime_2026_08_25",
-      "community": 253,
+      "community": 62,
       "norm_label": "polyfactory tests \u2014 the v2 regime (2026-08-25)"
     },
     {
@@ -44740,7 +44920,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_readme_the_five_pieces",
-      "community": 253,
+      "community": 62,
       "norm_label": "the five pieces"
     },
     {
@@ -44750,7 +44930,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "tests_readme_what_stays_from_v1",
-      "community": 253,
+      "community": 62,
       "norm_label": "what stays from v1"
     },
     {
@@ -44760,7 +44940,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_readme_v1_v2_migration_done_2026_08_25",
-      "community": 253,
+      "community": 62,
       "norm_label": "v1 \u2192 v2 migration \u2014 done (2026-08-25)"
     },
     {
@@ -44770,7 +44950,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "tests_readme_what_the_deletion_pass_removed_and_what_it_kept",
-      "community": 253,
+      "community": 62,
       "norm_label": "what the deletion pass removed, and what it kept"
     },
     {
@@ -44780,7 +44960,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "tests_readme_what_the_sweep_measured_after_the_deletion_2026_08_25_16_core_machine",
-      "community": 253,
+      "community": 62,
       "norm_label": "what the sweep measured after the deletion (2026-08-25, 16-core machine)"
     },
     {
@@ -44790,7 +44970,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "tests_readme_independently_verified_cycle_v4_audit_2026_08_25_head_7fabfff",
-      "community": 253,
+      "community": 62,
       "norm_label": "independently verified \u2014 cycle v4 audit, 2026-08-25, head `7fabfff`"
     },
     {
@@ -44800,7 +44980,7 @@
       "source_location": "L204",
       "_origin": "ast",
       "id": "tests_readme_the_v2_commands",
-      "community": 253,
+      "community": 62,
       "norm_label": "the v2 commands"
     },
     {
@@ -44810,7 +44990,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "tests_readme_the_v1_history",
-      "community": 253,
+      "community": 62,
       "norm_label": "the v1 history"
     },
     {
@@ -45001,7 +45181,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_credits_bar/__init__.py",
       "source_location": "L1",
-      "community": 141,
+      "community": 232,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_credits_bar_init_py"
     },
@@ -45082,7 +45262,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_table_widget/__init__.py",
       "source_location": "L1",
-      "community": 15,
+      "community": 167,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_table_widget_init_py"
     },
@@ -45091,7 +45271,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_title_bar/py_div.py",
       "source_location": "L1",
-      "community": 179,
+      "community": 132,
       "norm_label": "py_div.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_title_bar_py_div_py"
     },
@@ -45100,7 +45280,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_title_bar/__init__.py",
       "source_location": "L1",
-      "community": 179,
+      "community": 132,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_title_bar_init_py"
     },
@@ -56639,6 +56819,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L529",
+      "weight": 1.0,
+      "source": "polychain_hda_facade_style_from_parms",
+      "target": "polychain_init_rule",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
       "source_location": "L200",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -56927,6 +57118,17 @@
       "source_location": "L197",
       "weight": 1.0,
       "source": "polychain_array2d_split_style",
+      "target": "polychain_init_style"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L536",
+      "weight": 1.0,
+      "source": "polychain_hda_facade_style_from_parms",
       "target": "polychain_init_style"
     },
     {
@@ -61979,6 +62181,26 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L302",
+      "weight": 1.0,
+      "source": "polychain_facade",
+      "target": "polychain_facade_footprint_loops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L366",
+      "weight": 1.0,
+      "source": "polychain_facade",
+      "target": "polychain_facade_keep",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
       "source_location": "L274",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -61994,6 +62216,16 @@
       "confidence_score": 1.0,
       "source": "polychain_facade",
       "target": "polychain_facade_rows_geometry"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L380",
+      "weight": 1.0,
+      "source": "polychain_facade",
+      "target": "polychain_facade_split_ports",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -62059,6 +62291,17 @@
       "target": "polychain_facade"
     },
     {
+      "relation": "imports_from",
+      "context": "submodule_import",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "polychain_hda",
+      "target": "polychain_facade",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -62079,6 +62322,17 @@
       "confidence_score": 1.0,
       "source": "polychain_facade_rows_geometry",
       "target": "polychain_facade_ensure"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L414",
+      "weight": 1.0,
+      "source": "polychain_facade_split_ports",
+      "target": "polychain_facade_ensure",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -62198,6 +62452,47 @@
       "target": "polychain_facade_clip_loops"
     },
     {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L303",
+      "weight": 1.0,
+      "source": "polychain_facade_rationale_303",
+      "target": "polychain_facade_footprint_loops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L367",
+      "weight": 1.0,
+      "source": "polychain_facade_rationale_367",
+      "target": "polychain_facade_keep",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L429",
+      "weight": 1.0,
+      "source": "polychain_facade_split_ports",
+      "target": "polychain_facade_keep",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
+      "source_location": "L381",
+      "weight": 1.0,
+      "source": "polychain_facade_rationale_381",
+      "target": "polychain_facade_split_ports",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -62212,21 +62507,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L272",
+      "source_location": "L440",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_facade_rationale_272",
-      "target": "polychain_facade_build_clipped"
+      "source": "polychain_facade_rationale_440",
+      "target": "polychain_facade_build_clipped",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L290",
+      "source_location": "L458",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_facade_rationale_290",
-      "target": "polychain_facade_meta_2d"
+      "source": "polychain_facade_rationale_458",
+      "target": "polychain_facade_meta_2d",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -62254,11 +62549,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L315",
+      "source_location": "L483",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_facade_rationale_315",
-      "target": "polychain_facade_y_params"
+      "source": "polychain_facade_rationale_483",
+      "target": "polychain_facade_y_params",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -62286,11 +62581,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L342",
+      "source_location": "L510",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_facade_rationale_342",
-      "target": "polychain_facade_build"
+      "source": "polychain_facade_rationale_510",
+      "target": "polychain_facade_build",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -62307,21 +62602,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L375",
+      "source_location": "L543",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_facade_rationale_375",
-      "target": "polychain_facade_build_many"
+      "source": "polychain_facade_rationale_543",
+      "target": "polychain_facade_build_many",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/facade.py",
-      "source_location": "L532",
+      "source_location": "L700",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_facade_rationale_532",
-      "target": "polychain_facade_used"
+      "source": "polychain_facade_rationale_700",
+      "target": "polychain_facade_used",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -62397,6 +62692,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L573",
+      "weight": 1.0,
+      "source": "polychain_hda",
+      "target": "polychain_hda_cook_facade",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
       "source_location": "L740",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -62442,6 +62747,46 @@
       "confidence_score": 1.0,
       "source": "polychain_hda",
       "target": "polychain_hda_f32"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L503",
+      "weight": 1.0,
+      "source": "polychain_hda",
+      "target": "polychain_hda_facade_kit_geometry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L552",
+      "weight": 1.0,
+      "source": "polychain_hda",
+      "target": "polychain_hda_facade_loops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L508",
+      "weight": 1.0,
+      "source": "polychain_hda",
+      "target": "polychain_hda_facade_style_from_parms",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L541",
+      "weight": 1.0,
+      "source": "polychain_hda",
+      "target": "polychain_hda_facade_y_params",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -62684,11 +63029,44 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L577",
+      "weight": 1.0,
+      "source": "polychain_hda_cook_facade",
+      "target": "polychain_hda_parm_owner",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
       "source_location": "L573",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "polychain_hda_cook_plan_bridge",
       "target": "polychain_hda_parm_owner"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L520",
+      "weight": 1.0,
+      "source": "polychain_hda_facade_style_from_parms",
+      "target": "polychain_hda_parm_owner",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L543",
+      "weight": 1.0,
+      "source": "polychain_hda_facade_y_params",
+      "target": "polychain_hda_parm_owner",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -62716,11 +63094,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L112",
+      "source_location": "L113",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_112",
-      "target": "polychain_hda_parm_owner"
+      "source": "polychain_hda_rationale_113",
+      "target": "polychain_hda_parm_owner",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -62765,6 +63143,28 @@
       "confidence_score": 1.0,
       "source": "polychain_hda_cook",
       "target": "polychain_hda_parm_str"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L595",
+      "weight": 1.0,
+      "source": "polychain_hda_cook_facade",
+      "target": "polychain_hda_parm_str",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L521",
+      "weight": 1.0,
+      "source": "polychain_hda_facade_style_from_parms",
+      "target": "polychain_hda_parm_str",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -62837,6 +63237,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L606",
+      "weight": 1.0,
+      "source": "polychain_hda_cook_facade",
+      "target": "polychain_hda_input_geo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
       "source_location": "L753",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -62859,6 +63270,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L560",
+      "weight": 1.0,
+      "source": "polychain_hda_facade_loops",
+      "target": "polychain_hda_input_geo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
       "source_location": "L115",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -62869,11 +63291,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L130",
+      "source_location": "L131",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_130",
-      "target": "polychain_hda_input_geo"
+      "source": "polychain_hda_rationale_131",
+      "target": "polychain_hda_input_geo",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -62931,14 +63353,25 @@
       "target": "polychain_hda_kit_geometry"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L505",
+      "weight": 1.0,
+      "source": "polychain_hda_facade_kit_geometry",
+      "target": "polychain_hda_kit_geometry",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L143",
+      "source_location": "L144",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_143",
-      "target": "polychain_hda_kit_geometry"
+      "source": "polychain_hda_rationale_144",
+      "target": "polychain_hda_kit_geometry",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -62988,11 +63421,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L166",
+      "source_location": "L172",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_166",
-      "target": "polychain_hda_padded"
+      "source": "polychain_hda_rationale_172",
+      "target": "polychain_hda_padded",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63006,14 +63439,25 @@
       "target": "polychain_hda_proxy_kit"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L624",
+      "weight": 1.0,
+      "source": "polychain_hda_cook_facade",
+      "target": "polychain_hda_proxy_kit",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L188",
+      "source_location": "L194",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_188",
-      "target": "polychain_hda_proxy_kit"
+      "source": "polychain_hda_rationale_194",
+      "target": "polychain_hda_proxy_kit",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63038,14 +63482,25 @@
       "target": "polychain_hda_params_from_parms"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L538",
+      "weight": 1.0,
+      "source": "polychain_hda_facade_style_from_parms",
+      "target": "polychain_hda_params_from_parms",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L216",
+      "source_location": "L222",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_216",
-      "target": "polychain_hda_params_from_parms"
+      "source": "polychain_hda_rationale_222",
+      "target": "polychain_hda_params_from_parms",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63095,21 +63550,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L232",
+      "source_location": "L238",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_232",
-      "target": "polychain_hda_style_from_parms"
+      "source": "polychain_hda_rationale_238",
+      "target": "polychain_hda_style_from_parms",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L260",
+      "source_location": "L266",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_260",
-      "target": "polychain_hda_slot_menu"
+      "source": "polychain_hda_rationale_266",
+      "target": "polychain_hda_slot_menu",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63123,14 +63578,25 @@
       "target": "polychain_hda_colour_warnings"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L655",
+      "weight": 1.0,
+      "source": "polychain_hda_cook_facade",
+      "target": "polychain_hda_colour_warnings",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L289",
+      "source_location": "L299",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_289",
-      "target": "polychain_hda_colour_warnings"
+      "source": "polychain_hda_rationale_299",
+      "target": "polychain_hda_colour_warnings",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63147,11 +63613,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L323",
+      "source_location": "L333",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_323",
-      "target": "polychain_hda_warn_unread_markers"
+      "source": "polychain_hda_rationale_333",
+      "target": "polychain_hda_warn_unread_markers",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63168,21 +63634,126 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L363",
+      "source_location": "L373",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_363",
-      "target": "polychain_hda_cook"
+      "source": "polychain_hda_rationale_373",
+      "target": "polychain_hda_cook",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L424",
+      "source_location": "L434",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_424",
-      "target": "polychain_hda_build_starter_kit_file"
+      "source": "polychain_hda_rationale_434",
+      "target": "polychain_hda_build_starter_kit_file",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L605",
+      "weight": 1.0,
+      "source": "polychain_hda_cook_facade",
+      "target": "polychain_hda_facade_kit_geometry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L504",
+      "weight": 1.0,
+      "source": "polychain_hda_rationale_504",
+      "target": "polychain_hda_facade_kit_geometry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L611",
+      "weight": 1.0,
+      "source": "polychain_hda_cook_facade",
+      "target": "polychain_hda_facade_style_from_parms",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L509",
+      "weight": 1.0,
+      "source": "polychain_hda_rationale_509",
+      "target": "polychain_hda_facade_style_from_parms",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L629",
+      "weight": 1.0,
+      "source": "polychain_hda_cook_facade",
+      "target": "polychain_hda_facade_y_params",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L542",
+      "weight": 1.0,
+      "source": "polychain_hda_rationale_542",
+      "target": "polychain_hda_facade_y_params",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L598",
+      "weight": 1.0,
+      "source": "polychain_hda_cook_facade",
+      "target": "polychain_hda_facade_loops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L553",
+      "weight": 1.0,
+      "source": "polychain_hda_rationale_553",
+      "target": "polychain_hda_facade_loops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L600",
+      "weight": 1.0,
+      "source": "polychain_hda_cook_facade",
+      "target": "polychain_diff_report_say"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
+      "source_location": "L574",
+      "weight": 1.0,
+      "source": "polychain_hda_rationale_574",
+      "target": "polychain_hda_cook_facade",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63210,11 +63781,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L480",
+      "source_location": "L711",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_480",
-      "target": "polychain_hda_config_dict"
+      "source": "polychain_hda_rationale_711",
+      "target": "polychain_hda_config_dict",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63242,11 +63813,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L491",
+      "source_location": "L722",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_491",
-      "target": "polychain_hda_config_resolved"
+      "source": "polychain_hda_rationale_722",
+      "target": "polychain_hda_config_resolved",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63263,11 +63834,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L593",
+      "source_location": "L824",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_593",
-      "target": "polychain_hda_surface_is_droppable"
+      "source": "polychain_hda_rationale_824",
+      "target": "polychain_hda_surface_is_droppable",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63284,21 +63855,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L593",
+      "source_location": "L875",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_593",
-      "target": "polychain_hda_native_ok"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L644",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_644",
-      "target": "polychain_hda_native_ok"
+      "source": "polychain_hda_rationale_875",
+      "target": "polychain_hda_native_ok",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63315,11 +63876,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L797",
+      "source_location": "L1028",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_797",
-      "target": "polychain_hda_exact"
+      "source": "polychain_hda_rationale_1028",
+      "target": "polychain_hda_exact",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63336,11 +63897,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L809",
+      "source_location": "L1040",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_809",
-      "target": "polychain_hda_cond_columns"
+      "source": "polychain_hda_rationale_1040",
+      "target": "polychain_hda_cond_columns",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63368,11 +63929,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L857",
+      "source_location": "L1088",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_857",
-      "target": "polychain_hda_kit_table"
+      "source": "polychain_hda_rationale_1088",
+      "target": "polychain_hda_kit_table",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63389,11 +63950,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L883",
+      "source_location": "L1114",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_883",
-      "target": "polychain_hda_rule_table"
+      "source": "polychain_hda_rationale_1114",
+      "target": "polychain_hda_rule_table",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63410,31 +63971,31 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L971",
+      "source_location": "L1202",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_971",
-      "target": "polychain_hda_write_tables"
+      "source": "polychain_hda_rationale_1202",
+      "target": "polychain_hda_write_tables",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L993",
+      "source_location": "L1224",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_993",
-      "target": "polychain_hda_cook_kit"
+      "source": "polychain_hda_rationale_1224",
+      "target": "polychain_hda_cook_kit",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1024",
+      "source_location": "L1255",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_1024",
-      "target": "polychain_hda_cook_config"
+      "source": "polychain_hda_rationale_1255",
+      "target": "polychain_hda_cook_config",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63451,11 +64012,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1062",
+      "source_location": "L1293",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_1062",
-      "target": "polychain_hda_f32"
+      "source": "polychain_hda_rationale_1293",
+      "target": "polychain_hda_f32",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63472,11 +64033,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1067",
+      "source_location": "L1298",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_1067",
-      "target": "polychain_hda_curve_prim_index"
+      "source": "polychain_hda_rationale_1298",
+      "target": "polychain_hda_curve_prim_index",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -63493,21 +64054,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1086",
+      "source_location": "L1317",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_1086",
-      "target": "polychain_hda_plan_geometry"
+      "source": "polychain_hda_rationale_1317",
+      "target": "polychain_hda_plan_geometry",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/hda.py",
-      "source_location": "L1133",
+      "source_location": "L1364",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_hda_rationale_1133",
-      "target": "polychain_hda_cook_plan_bridge"
+      "source": "polychain_hda_rationale_1364",
+      "target": "polychain_hda_cook_plan_bridge",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -63694,6 +64255,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
+      "source_location": "L673",
+      "weight": 1.0,
+      "source": "polychain_kit",
+      "target": "polychain_kit_starter_facade_kit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
       "source_location": "L287",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -63873,6 +64444,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
+      "source_location": "L707",
+      "weight": 1.0,
+      "source": "polychain_kit_starter_facade_kit",
+      "target": "polychain_kit_add_module",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
       "source_location": "L297",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -63889,6 +64471,17 @@
       "confidence_score": 1.0,
       "source": "polychain_kit_slice_kit",
       "target": "polychain_kit_write_manifest"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
+      "source_location": "L731",
+      "weight": 1.0,
+      "source": "polychain_kit_starter_facade_kit",
+      "target": "polychain_kit_write_manifest",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -64233,11 +64826,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
-      "source_location": "L604",
+      "source_location": "L605",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_kit_rationale_604",
-      "target": "polychain_kit_starter_kit"
+      "source": "polychain_kit_rationale_605",
+      "target": "polychain_kit_starter_kit",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -64254,11 +64847,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
-      "source_location": "L666",
+      "source_location": "L674",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_kit_rationale_666",
-      "target": "polychain_kit_write_kit_file"
+      "source": "polychain_kit_rationale_674",
+      "target": "polychain_kit_starter_facade_kit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "polyfactory/scripts/python/polyfactory/polychain/kit.py",
+      "source_location": "L738",
+      "weight": 1.0,
+      "source": "polychain_kit_rationale_738",
+      "target": "polychain_kit_write_kit_file",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -116132,9 +116735,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L13915",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_30_native_network_build_log_cycle_n6_4_5_conform_ported_and_flipped",
-      "target": "ideas_polychain_30_9_cycle_c4a_the_audit_of_c4_and_its_six_findings_closed_2026_08_26",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_30_9_cycle_c4a_the_audit_of_c4_and_its_six_findings_closed_2026_08_26"
     },
     {
       "relation": "contains",
@@ -116142,9 +116745,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L14026",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_30_9_cycle_c4a_the_audit_of_c4_and_its_six_findings_closed_2026_08_26",
-      "target": "ideas_polychain_30_9a_the_measurement_re_taken_on_the_fixed_build_2026_08_26",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_30_9a_the_measurement_re_taken_on_the_fixed_build_2026_08_26"
     },
     {
       "relation": "contains",
@@ -116152,9 +116755,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L14052",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_30_9_cycle_c4a_the_audit_of_c4_and_its_six_findings_closed_2026_08_26",
-      "target": "ideas_polychain_30_9b_decisions_taken_in_c4a_30_8_and_10_continue_here",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_30_9b_decisions_taken_in_c4a_30_8_and_10_continue_here"
     },
     {
       "relation": "contains",
@@ -116951,5 +117554,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b549cfcf9ff51bb1f40ecfa05e501fd3991d8384"
+  "built_at_commit": "c4ae06c1e5b462ea920a6cf3c2e9e7a31d424ad1"
 }

@@ -268,6 +268,174 @@ def clip_loops(geo):
     return (loops, modes, warns)
 
 
+# --- D127's ports, as GEOMETRY (P2-9: the 2D node's own input contract) -----
+#
+# Until P2-9 there was no node, so `build_many` took python lists of points and
+# every caller was a test or a consumer script. These turn D127's spline ports
+# into those lists, and they live here rather than in `hda.py` because they are
+# the CONTRACT of the ports - a citygen that feeds the tool without going
+# through the parameter page reads the same functions, and a contract with two
+# implementations has none.
+#
+# D316 - THE TWO SPLINE PORTS ARRIVE AS ONE STREAM, DISCRIMINATED BY
+# `pc_purpose`. A Python SOP has FOUR inputs on 22.0.398 (probed - the same
+# ceiling D306 hit on a wrangle) and D127 froze the generator at FIVE ports,
+# so something had to share. The two that share are the two that are both
+# SPLINES, and the discriminator is the one D127 already chose for input 5 -
+# so this is that decision applied once more rather than a new mechanism. The
+# node tags the aux branch before merging it; a caller reaching these
+# functions directly can pass the two streams separately, which is why
+# `split_ports` returns them apart again.
+
+MARKER_ATTR = "pc_marker"
+ARRAY_ATTR = "pc_array"           # 7.3.3's volume id, authored upstream
+CORNER_ATTR = "pc_corner"
+
+AUX_PURPOSE = "pc_purpose"        # D127 input 5's discriminator
+AUX_YSPLINE = "yspline"
+
+WARN_FOOTPRINT_MIXED = "pc_warn_footprint_mixed"
+WARN_MARKERS_IGNORED = "pc_warn_markers_ignored"
+WARN_YSPLINE_UNSUPPORTED = "pc_warn_yspline_unsupported"
+
+
+def footprint_loops(geo):
+    """Input 1 -> ([loops], [per-loop `pc_corner` flags] | None, [ids] | None,
+    closed, [warnings]).
+
+    7.5's whole required interface read off geometry: one closed footprint per
+    primitive, `pc_corner` per point (vertex type is data - 3.1), `pc_array`
+    per prim (7.3.3's volume coordinate, so re-authoring a footprint does not
+    renumber a neighbour's elements).
+
+    ⚠️ CLOSURE IS ONE FLAG FOR THE WHOLE STREAM, because `build_many` takes
+    one. It is read off the FIRST usable primitive and any primitive that
+    disagrees is SKIPPED AND NAMED, rather than silently closed or silently
+    opened - a wall run and a building footprint are different products and
+    guessing which one a mixed input meant is how a silent wrong answer
+    ships.
+
+    ⚠️ MARKERS ARE REFUSED BY NAME. D127 lists a marker point cloud on this
+    port and the 2D path cannot carry one: `row_loops` emits polylines only,
+    so a marker merged in here would cook to nothing with no rule reading it -
+    D88's silent no-op, on the other axis.
+
+    WHAT THIS CANNOT SEE: whether a loop is planar, simple or wound the way
+    the artist meant. On the AREA path `clip_loops` tests all three; a
+    footprint is solved by the 1D kernel, which has its own opinions (D124
+    canonicalises the winding), so the only thing refused here is closure.
+    """
+    loops, flags, ids, warns = [], [], [], []
+    if geo is None:
+        return (loops, None, None, True, warns)
+    has_corner = geo.findPointAttrib(CORNER_ATTR) is not None
+    has_array = geo.findPrimAttrib(ARRAY_ATTR) is not None
+    closed = None
+    for prim in geo.prims():
+        try:
+            pts = [v.point() for v in prim.vertices()]
+        except hou.OperationFailed:
+            continue
+        if len(pts) < 3:
+            continue
+        shut = bool(prim.isClosed())
+        if closed is None:
+            closed = shut
+        elif shut != closed:
+            warns.append("%s: prim %d is %s where the first footprint is %s - "
+                         "skipped, wire one or the other"
+                         % (WARN_FOOTPRINT_MIXED, prim.number(),
+                            "closed" if shut else "open",
+                            "closed" if closed else "open"))
+            continue
+        loops.append([tuple(p.position()) for p in pts])
+        flags.append([int(p.attribValue(CORNER_ATTR)) for p in pts]
+                     if has_corner else None)
+        ids.append(str(prim.attribValue(ARRAY_ATTR)) if has_array else "")
+    if geo.findPointAttrib(MARKER_ATTR) is not None:
+        warns.append("%s: input 1 carries %s points and the 2D path builds "
+                     "rows, not markers - they are ignored (7.9)"
+                     % (WARN_MARKERS_IGNORED, MARKER_ATTR))
+    return (loops,
+            flags if any(f for f in flags) else None,
+            ids if all(ids) and len(set(ids)) == len(ids) else None,
+            True if closed is None else closed,
+            warns)
+
+
+def _keep(geo, wanted):
+    """A copy of `geo` holding only the prims whose `pc_purpose` is in
+    `wanted`, or None when that is none of them."""
+    out = hou.Geometry()
+    out.merge(geo)
+    dead = [p for p in out.prims()
+            if str(p.attribValue(AUX_PURPOSE)).strip().lower() not in wanted]
+    if len(dead) == out.intrinsicValue("primitivecount"):
+        return None
+    if dead:
+        out.deletePrims(dead, True)
+    return out
+
+
+def split_ports(geo, aux=None):
+    """The spline stream(s) -> (footprints, clip boundaries, [warnings]).
+
+    D316: the node merges input 5 into input 1 and tags it, so this takes ONE
+    geometry and splits it again; a caller with two streams passes both and
+    the tagging is skipped. Either way the two things that come back are the
+    two things D127 named.
+
+    Two conversions happen here, both so an artist never has to know that a
+    port-level word and a prim-level word mean the same thing:
+    `pc_purpose = exclude` becomes D125's per-spline `pc_clip_mode` override,
+    and an untagged aux spline is a clip boundary.
+
+    ⚠️ `pc_purpose = yspline` IS REFUSED BY NAME. D128 is a height AND an
+    outward plan offset; `row_loops` applies the height and ignores the
+    offset, so half of D128 is not D128 - a batter or a setback authored on a
+    Y spline would build a straight tower and say nothing about it. D294's
+    rule: asking for behaviour the tool does not have is answered, not
+    ignored.
+
+    WHAT THIS CANNOT SEE: whether any loop is usable. `clip_loops` owns
+    closure, simplicity and planarity on the boundaries and `footprint_loops`
+    owns closure on the footprints; both run after this.
+    """
+    warns = []
+    if aux is not None:
+        # ⚠️ A COPY. `node.inputGeometry()` is frozen, so adding the tag to
+        # the caller's own geometry raises - and on the node's path the tag is
+        # already there anyway (`aux_tag` puts it on before the merge).
+        merged = hou.Geometry()
+        if geo is not None:
+            merged.merge(geo)
+        first = merged.intrinsicValue("primitivecount")
+        merged.merge(aux)
+        _ensure(merged, hou.attribType.Prim, AUX_PURPOSE, "")
+        merged.setPrimStringAttribValues(AUX_PURPOSE, [
+            v if (i < first or str(v).strip()) else "clip"
+            for i, v in enumerate(merged.primStringAttribValues(AUX_PURPOSE))])
+        geo = merged
+    if geo is None or geo.findPrimAttrib(AUX_PURPOSE) is None:
+        return (geo, None, warns)
+    purposes = [str(v).strip().lower()
+                for v in geo.primStringAttribValues(AUX_PURPOSE)]
+    yspline = purposes.count(AUX_YSPLINE)
+    if yspline:
+        warns.append("%s: %d spline(s) ask to be a Y profile - D128 is a "
+                     "height AND an outward plan offset and only the height "
+                     "is built, so the whole profile is refused rather than "
+                     "half answered" % (WARN_YSPLINE_UNSUPPORTED, yspline))
+    clip = _keep(geo, ("clip", "exclude"))
+    if clip is not None:
+        _ensure(clip, hou.attribType.Prim, CLIP_MODE_ATTR, "")
+        was = list(clip.primStringAttribValues(CLIP_MODE_ATTR))
+        clip.setPrimStringAttribValues(CLIP_MODE_ATTR, [
+            "exclude" if str(p).strip().lower() == "exclude" else c
+            for p, c in zip(clip.primStringAttribValues(AUX_PURPOSE), was)])
+    return (_keep(geo, ("",)), clip, warns)
+
+
 def build_clipped(clip_geo, kit_geo, style, **kw):
     """7.6's whole primitive in one call: a clip input -> N arrays.
 

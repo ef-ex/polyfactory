@@ -82,6 +82,7 @@ import time
 import hou
 
 from . import DEFAULTS, EPS, Params, Rule, SELECTORS, Style, Z_MODES
+from . import facade as _facade
 from . import kit as _kit
 from . import place as _place
 from . import style as _style
@@ -139,14 +140,19 @@ def _input_geo(node, index):
 
 # --- the kit (3.2, and 6's "shipped with the HDA") --------------------------
 
-def kit_geometry(node, parms=None):
+def kit_geometry(node, parms=None, fallback=None):
     """Input 2, else the kit file, else the built-in starter fence.
 
     6's standalone-usability floor: a curve into input 1 and NOTHING else must
     make a fence. `starter_kit()` is a builder rather than a shipped .bgeo
     (D23), so the fallback costs no file and cannot go stale.
+
+    `fallback` is what P2-9 needed: the 2D node's floor is a FACADE kit, not a
+    fence, and forking this function to change one call would have forked the
+    kit-file lane and its warning with it.
     """
     parms = parms if parms is not None else parm_owner(node)
+    fallback = fallback or _kit.starter_kit
     geo = _input_geo(node, 1)
     if geo is not None and geo.intrinsicValue("primitivecount"):
         return geo
@@ -159,7 +165,7 @@ def kit_geometry(node, parms=None):
         except hou.OperationFailed as exc:
             node.addWarning("kit file %r could not be read (%s) - using the "
                             "built-in starter kit" % (path, str(exc)[:80]))
-    return _kit.starter_kit()
+    return fallback()
 
 
 def _padded(kit_geo, padding):
@@ -256,14 +262,18 @@ def style_from_parms(node):
                  rules, params_from_parms(node))
 
 
-def slot_menu(node):
+def slot_menu(node, geometry=None):
     """The kit manifest as a menu (5's "per-slot module menus").
 
     Names first, then the roles they answer to, so an artist can point a slot
     at `panel` (one module) or at `default` (whatever the kit tags that way).
+
+    `geometry` is the reader to use when input 2 is unwired - P2-9's node
+    falls back to a facade kit, and a menu offering the fence's `post` on a
+    building is worse than no menu.
     """
     try:
-        kit, _sources, _warns = _kit.read(kit_geometry(node))
+        kit, _sources, _warns = _kit.read((geometry or kit_geometry)(node))
     except Exception:
         return []
     items = []
@@ -433,6 +443,227 @@ def build_starter_kit_file(path=None):
     if folder and not os.path.isdir(folder):
         os.makedirs(folder)
     return _kit.write_kit_file(path)
+
+
+# --- P2-9: `pf_polychain_facade`, the 2D node's face -------------------------
+#
+# D314 - IT IS A SECOND NODE, NOT A MODE ON `pf_polychain`. Four reasons, in
+# the order they decided it:
+#
+#   1. THE PORTS DISAGREE. D127 froze the 2D generator at five inputs and
+#      input 1 means something else on each node - a path to build ALONG
+#      against a footprint to build AROUND - while input 5 (auxiliary splines)
+#      does not exist on the 1D node at all. A mode toggle that changes what a
+#      wire means is the shape `houdini-tool-design` 3 calls "surprising
+#      bounds", and it breaks every graph the node is already dropped into.
+#   2. THE UX LAW WOULD HAVE HAD TO BREAK. `artist_ui.md` 6 rule 4 allows
+#      exactly TWO disclosure levels and `pf_polychain` already spends both.
+#      The 2D page adds the Y solve, the cull policy, `pc_extend` and the
+#      boundary controls; hosting them means a third level or a page where
+#      half the parms are greyed out, which is failure pattern 3.
+#   3. THE BODIES SHARE NOTHING TO SHARE. `pf_polychain` is 13's native chain
+#      with a guard and a reference; the 2D stage is `array2d` + `facade` ->
+#      ONE `place.build` call into that same node's kernel. The reuse is
+#      already at the kernel, which is where D130 says it belongs.
+#   4. IT IS THE HOUSE PATTERN. `pf_polychain_slice` is the third product on
+#      the same kernel and it ships as its own asset for the same reason.
+#
+# What this costs, stated: two assets to keep in step on 5.1's metadata and on
+# the UX law. Both are asserted on the SAVED files, for both assets, by one
+# check each.
+
+FACADE_SHAPES = ("footprint", "area")
+
+# D289's route: the detail string the `Notes` parm reads back with `details()`.
+FACADE_NOTES = "pc_facade_notes"
+
+# 13.7 rule 1 on a node whose body is one Python SOP: the tokens are the same
+# shape as `native.STAGES` and every entry is REACHABLE - `output` is the
+# build, `rows` is 7.1's row curve stream (the one thing about a 2D build that
+# no 1D stage can show), `input` is the loops the ports actually yielded after
+# validation dropped what it dropped.
+FACADE_STAGES = (
+    ("output", "Output - the finished facade"),
+    ("rows", "1 - Rows (7.1 - the row curves the kernel is handed)"),
+    ("input", "0 - Input (the loops the ports actually yielded)"))
+
+# X on the left, Y on the right, and BOTH are 3.3 slots - 7.2's whole claim is
+# that a cell role is the ordered pair of one slot from each list.
+X_SLOT_PARMS = (("default", "slot_default"), ("corner", "slot_corner"),
+                ("start", "slot_start"), ("end", "slot_end"))
+Y_SLOT_PARMS = (("start", "yslot_start"), ("default", "yslot_default"),
+                ("end", "yslot_end"))
+
+# 7.3.2's `y_params` as a parm face. Two fields, not twenty: the Y solve is
+# the SAME solve, so every other `Params` field already has a meaning on this
+# page and duplicating the whole block would be twenty parms nobody turns.
+Y_PARAM_PARMS = (("fill", "y_fill"), ("adaptive_pct", "y_adaptive_pct"))
+
+
+def facade_kit_geometry(node, parms=None):
+    """Input 2, else the kit file, else 6's floor for a BUILDING (D315)."""
+    return kit_geometry(node, parms, fallback=_kit.starter_facade_kit)
+
+
+def facade_style_from_parms(node):
+    """The 2D parameter page as a `Style` - two axes, one payload (D120).
+
+    ⚠️ AN EMPTY X SLOT IS A RULE, NOT A SKIPPED RULE, and that is the opposite
+    of `style_from_parms`' behaviour one axis over. A rule naming NO module
+    resolves its cell role against the kit (3.3's documented degrade, D78), so
+    `default` + `corner` with both fields blank is what makes the 25-role
+    lattice do the work: `default_start` picks the shopfront and `corner_end`
+    the pier cap, from the kit, with no parm per cell. Naming a module in the
+    field overrides that for every row at once, which is the art direction the
+    field is for.
+    """
+    node = parm_owner(node)
+    select = _parm_str(node, "variety", "first")
+    if select not in SELECTORS:
+        select = "first"
+    rules = []
+    for slot, parm in X_SLOT_PARMS:
+        modules = _parm_str(node, parm).split()
+        if not modules and slot not in ("default", "corner"):
+            continue
+        rules.append(Rule(slot, select if slot == "default" else "first",
+                          modules, None, "segment"))
+    for slot, parm in Y_SLOT_PARMS:
+        modules = _parm_str(node, parm).split()
+        if not modules:
+            continue
+        rules.append(Rule(slot, "first", modules, None, "segment", axis="y"))
+    return Style(_parm_str(node, "style_id", "pf_polychain_facade"), 1,
+                 int(node.evalParm("seed") if node.parm("seed") else 0),
+                 rules, params_from_parms(node))
+
+
+def facade_y_params(node):
+    """`y_fill` / `y_adaptive_pct` -> the Y half's own `Params`."""
+    node = parm_owner(node)
+    kw = {}
+    for key, parm in Y_PARAM_PARMS:
+        tup = node.parmTuple(parm)
+        if tup is not None:
+            kw[key] = tup.eval()[0]
+    return _style.params_from_dict(kw, [])
+
+
+def _facade_loops(node, shape):
+    """(source loops, per-loop corner flags, ids, closed, clip geo, warnings).
+
+    The two shapes read the two halves D316's discriminator splits input 0
+    into, and the fallback is deliberate: BOUNDARY SHAPE with no aux spline
+    wired reads the same closed loops off the footprint port, so flipping the
+    menu on a wired plate does what it says instead of building nothing.
+    """
+    foot, clip, warns = _facade.split_ports(_input_geo(node, 0))
+    if shape == "area":
+        clip_geo = clip if clip is not None else foot
+        loops, _modes, clip_warns = _facade.clip_loops(clip_geo)
+        return (loops, None, None, True, clip_geo, warns + clip_warns)
+    loops, flags, ids, closed, fw = _facade.footprint_loops(foot)
+    if clip is not None:
+        warns.append("input 5 carries clip boundaries and What To Build is "
+                     "Footprint + Height - set it to Boundary Shape for them "
+                     "to define and trim the array (7.6)")
+    return (loops, flags, ids, closed, None, warns + fw)
+
+
+def cook_facade(node):
+    """The whole 2D node, in one pass. Never raises (warn-never-block)."""
+    geo = node.geometry()
+    geo.clear()
+    parms = parm_owner(node)
+    # ⚠️ THE NOTES PARM IS THE ONLY SURFACE THESE LINES REACH, and it is not a
+    # nicety. Re-probed on 22.0.398 for this node: an open clip loop and a
+    # bowtie raised THREE warnings on `fc_build` and `node.warnings()` on the
+    # HDA instance came back EMPTY - `kit.write_notes` records the same finding
+    # for `pf_polychain_slice` and every door it tried. `addWarning` is still
+    # called, because an artist who dives in should see the badge on the stage
+    # that raised it; the page is what an artist who has not dived in reads.
+    said = []
+
+    def say(line):
+        said.append(str(line))
+        node.addWarning(str(line))
+
+    def done(report=None):
+        _kit.write_notes(geo, said, FACADE_NOTES)
+        return report
+
+    shape = _parm_str(parms, "shape", "footprint")
+    if shape not in FACADE_SHAPES:
+        shape = "footprint"
+    loops, flags, ids, closed, clip_geo, warns = _facade_loops(node, shape)
+    for warn in warns:
+        say(warn)
+    if not loops:
+        say("no closed shape on input 1 - nothing to dress")
+        return done()
+
+    kit_geo = facade_kit_geometry(node, parms)
+    style, style_warns = _style.read(_input_geo(node, 2),
+                                     kit=_kit.read(kit_geo)[0])
+    for warn in style_warns:
+        say(warn)
+    if style is None:
+        style = facade_style_from_parms(parms)
+    if not style.rules:
+        say("no modules assigned - fill at least Repeating Bay")
+
+    stage = _parm_str(parms, "stage", "output")
+    if stage == "input":
+        geo.merge(_facade.rows_geometry([(p, closed, {}) for p in loops]))
+        return done()
+
+    display = _parm_str(parms, "display", "full")
+    if display not in DISPLAY_MODES:
+        display = "full"
+    if display != "full":
+        kit_geo = proxy_kit(kit_geo)                              # D82
+
+    # D293's own sentence: every keyword here IS this path's parm face, and a
+    # wired payload that names one of them overrides it inside `build_many`.
+    kw = dict(kit_geo=kit_geo, style=style,
+              y_params=facade_y_params(parms),
+              extend=_parm_str(parms, "extend", "x"),
+              y_mode=_parm_str(parms, "y_mode", "free"),
+              clip_mode=_parm_str(parms, "clip_mode", "remove"),
+              auto_align=_parm_str(parms, "auto_align", "to_spline"),
+              expand=(parms.evalParm("expand") if parms.parm("expand") else 0.0),
+              surface_geo=_input_geo(node, 3))
+    t0 = time.time()
+    if shape == "area":
+        out, report = _facade.build_clipped(clip_geo, **kw)
+    else:
+        out, report = _facade.build_many(
+            loops, height=parms.evalParm("height"), array_ids=ids,
+            corner_flags=flags, closed=closed, **kw)
+    cook_s = time.time() - t0
+    if display == "full" and cook_s > SLOW_COOK_S:
+        say("this build took %.1f s - set Display to 'Proxy Boxes' while "
+            "dragging (it is exact, just boxes)" % cook_s)
+
+    if stage == "rows":
+        geo.merge(_facade.rows_geometry(report["loops"], report["row_flags"]))
+    elif display == "plan":                                       # D81
+        _place.plan_points(geo, report)
+    else:
+        geo.merge(out)
+        if parms.parm("show_warnings") and parms.evalParm("show_warnings"):
+            colour_warnings(geo, report["warn_names"])
+    # D289's route, and it is why 7.6 said the node owes one: a loop the
+    # validation REJECTED has no element to carry an attribute and never
+    # reaches `warn_names` either, so `clip_input_warnings` is the only way an
+    # artist hears that their boundary was skipped. `kit_warnings` already
+    # carries these, so this asserts the ROUTE by ordering, not by repeating.
+    for name in report["kit_warnings"]:
+        say(name)
+    for name, count in sorted(report["warn_counts"].items()):
+        if count:
+            say("%s on %d elements" % (name, count))
+    return done(report)
 
 
 # --- 13.3 THE NODE NETWORK: the two Python SOPs the graph still contains ----

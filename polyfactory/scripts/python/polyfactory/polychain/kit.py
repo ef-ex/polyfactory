@@ -573,7 +573,7 @@ NOTES_ATTR = "pc_slice_notes"
 NOTES_OK = "ok"
 
 
-def write_notes(geo, warns):
+def write_notes(geo, warns, attr=None):
     """D24's warnings, on the geometry, so the HDA's `Notes` parm can read
     them back with `details()`.
 
@@ -592,10 +592,11 @@ def write_notes(geo, warns):
     not a badge - the badge stays on the inner stage, which is the most
     Houdini offers.
     """
-    _ensure(geo, hou.attribType.Global, NOTES_ATTR, "")
+    attr = attr or NOTES_ATTR
+    _ensure(geo, hou.attribType.Global, attr, "")
     text = NOTES_OK if not warns else "%d note(s):  %s" % (
-        len(warns), "   |   ".join(warns))
-    geo.setGlobalAttribValue(NOTES_ATTR, text[:900])
+        len(warns), "   |   ".join(str(w) for w in warns))
+    geo.setGlobalAttribValue(attr, text[:900])
 
 
 # --- the starter kit (6, "one fence/railing kit ... shipped with the HDA") ---
@@ -658,6 +659,77 @@ def starter_kit():
 
     write_manifest(geo, "pf_fence_starter", 1,
                    sources=("polyfactory/polychain/kit.py:starter_kit",),
+                   human_scale_reference=1.8)
+    return geo
+
+
+FACADE_BAY = (3.00, 3.20)         # the default cell, metres
+FACADE_PIER_X = 0.60              # the corner column
+FACADE_GROUND_Y = 4.00
+FACADE_CORNICE_Y = 1.00
+FACADE_Z = 0.30                   # wall thickness
+
+
+def starter_facade_kit():
+    """6 of 7.2's 25 cells - `pf_polychain_facade`'s standalone floor.
+
+    The 1D node's floor is a fence and a fence has no rows, so the 2D node
+    needed its own or "a footprint into input 1 and NOTHING else" would have
+    dressed a building in fence panels. Six modules is the minimum that makes
+    the lattice visible: a field bay and a corner pier in three Y bands
+    (`default_start` ground floor, `default` storey, `default_end` cornice),
+    which is exactly the kit 7.8's PC-G5 fixture demands.
+
+    ⚠️ THE WALL IS A SOLID SLAB AND THE WINDOW IS IN FRONT OF IT, not cut out
+    of it. D86 measured the alternative on the fence: a module with VOIDS
+    along its span cannot mate at a mitered corner, and `corner_face_mate_m`
+    went 0.0424 -> 0.1849 m because the bisector plane cut through a gap. A
+    reveal standing PROUD of the wall reads as a window from any angle a
+    wireframe is judged in and leaves the mating face solid.
+
+    Every module obeys D20: base at y = 0, running x = 0 to `pc_size.x`,
+    centred across Z - so a cell's start and end faces ARE its fit planes.
+    """
+    bx, by = FACADE_BAY
+    hz = 0.5 * FACADE_Z
+    geo = hou.Geometry()
+
+    def slab(x, y, divx=1, reveal=None):
+        g = hou.Geometry()
+        box_mesh(g, 0.0, x, 0.0, y, -hz, hz, divx)
+        if reveal is not None:
+            x0, x1, y0, y1 = reveal
+            win = hou.Geometry()
+            box_mesh(win, x0, x1, y0, y1, hz, hz + 0.06, 1)
+            g.merge(win)
+        return g
+
+    add_module(geo, "bay", slab(bx, by, 4,
+                                (0.55, bx - 0.55, 0.90, by - 0.55)),
+               size=(bx, by, FACADE_Z), deform=1, zmode="vertical",
+               roles="default")
+    add_module(geo, "pier", slab(FACADE_PIER_X, by),
+               size=(FACADE_PIER_X, by, FACADE_Z), deform=0,
+               zmode="vertical", roles="corner")
+    add_module(geo, "shopfront", slab(bx, FACADE_GROUND_Y, 4,
+                                      (0.35, bx - 0.35, 0.30, 3.10)),
+               size=(bx, FACADE_GROUND_Y, FACADE_Z), deform=1,
+               zmode="vertical", roles="default_start")
+    add_module(geo, "pier_base", slab(FACADE_PIER_X, FACADE_GROUND_Y),
+               size=(FACADE_PIER_X, FACADE_GROUND_Y, FACADE_Z), deform=0,
+               zmode="vertical", roles="corner_start")
+    # the cornice OVERHANGS, so the top band reads as a top band and not as a
+    # short storey - `pc_size` stays the fit box, the geometry may exceed it.
+    add_module(geo, "cornice", slab(bx, FACADE_CORNICE_Y, 4,
+                                    (0.0, bx, 0.55, FACADE_CORNICE_Y)),
+               size=(bx, FACADE_CORNICE_Y, FACADE_Z), deform=1,
+               zmode="vertical", roles="default_end")
+    add_module(geo, "pier_cap", slab(FACADE_PIER_X, FACADE_CORNICE_Y),
+               size=(FACADE_PIER_X, FACADE_CORNICE_Y, FACADE_Z), deform=0,
+               zmode="vertical", roles="corner_end")
+
+    write_manifest(geo, "pf_facade_starter", 1,
+                   sources=("polyfactory/polychain/kit.py:starter_facade_kit",),
                    human_scale_reference=1.8)
     return geo
 
