@@ -304,6 +304,26 @@ def _int(value, default, name, warns):
         return default
 
 
+def kit_gaps(index, slot, modules, kit):
+    """Rule modules the kit has neither a module nor a role for.
+
+    ⚠️ EXTRACTED SO BOTH FACES CAN USE IT (P2-9a F1). This validation lived
+    inside `read` and therefore only ever ran on the PAYLOAD face, so the 2D
+    node's parameter page - the artist face, the default one - named modules
+    at the kit and checked nothing. The first thing an artist does after the
+    defaults is wire their own kit into input 2, and every storey then
+    collapsed to the 1 m stand-in with `pc_facade_notes` saying `ok`.
+
+    WHAT IT CANNOT SEE: a name that IS in the kit but is the wrong PIECE -
+    `by_role` accepts a role token, so `default` resolves wherever the kit
+    tags it, which is the whole point of the role vocabulary.
+    """
+    return ["rule %d (%s): kit %r has no module or role %r - a stand-in box "
+            "will be built" % (index, slot, kit.kit_id, name)
+            for name in modules
+            if kit.by_name(name) is None and not kit.by_role(name)]
+
+
 def read(geo, kit=None):
     """A 3.3 payload -> (`Style` or None, warnings).
 
@@ -382,11 +402,7 @@ def read(geo, kit=None):
                 warns.append("rule %d (%s): pc_weights names %r, which is not "
                              "in pc_modules" % (index, slot, name))
         if kit is not None:
-            for name in modules:
-                if kit.by_name(name) is None and not kit.by_role(name):
-                    warns.append("rule %d (%s): kit %r has no module or role "
-                                 "%r - a stand-in box will be built"
-                                 % (index, slot, kit.kit_id, name))
+            warns.extend(kit_gaps(index, slot, modules, kit))
         yclass = str(_sattr(pt, "pc_yclass", ""))
         if yclass and yclass not in SLOTS and not yclass.startswith("marker:"):
             warns.append("rule %d (%s): unknown pc_yclass %r - the rule is "

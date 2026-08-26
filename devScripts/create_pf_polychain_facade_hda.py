@@ -44,8 +44,9 @@ if os.path.isdir(_PKG) and _PKG not in sys.path:
 HDA_PATH = os.path.join(POLYFACTORY, "otls",
                         "pf_polychain_facade.hda").replace("\\", "/")
 
-from polyfactory.polychain import CLIP_POLICIES                  # noqa: E402
-from polyfactory.polychain.hda import FACADE_STAGES              # noqa: E402
+from polyfactory.polychain.array2d import CLIP_WORDS             # noqa: E402
+from polyfactory.polychain.hda import (FACADE_DISABLE,           # noqa: E402
+                                       FACADE_STAGES)
 
 TOOLS_SHELF = """<?xml version="1.0" encoding="UTF-8"?>
 <shelfDocument>
@@ -251,7 +252,6 @@ _notes.setHelp(
     "what it used instead, a storey that would not fit. 'ok' means it had "
     "nothing to report. This node never refuses to build - it builds and "
     "tells you here.")
-_notes.setDisableWhen("{ shape != nothing }")
 ptg.append(_notes)
 
 ptg.append(hou.StringParmTemplate(
@@ -281,9 +281,6 @@ _height = _float(
     "own heights and whole storeys fill the rest, stretched a little rather "
     "than cut. Ignored in Boundary Shape, where the shape gives the height.",
     units="m")
-# Greyed out rather than hidden where it is meaningless: artist_ui 6's ramp,
-# and a hidden parm is one an artist cannot find in the help.
-_height.setDisableWhen("{ shape != footprint }")
 ptg.append(_height)
 ptg.append(_slot(
     "slot_default", "Repeating Bay", "",
@@ -298,21 +295,32 @@ ptg.append(_slot(
     "what a facade wants: a pier base on the ground floor, a pier cap under "
     "the cornice. Clear the kit's corner role instead to have no column."))
 
+# ⚠️ THE THREE Y DEFAULTS NAME 7.2's ROLES, NOT THE BUILT-IN KIT'S MODULES
+# (P2-9a F1). They used to read `shopfront` / `bay` / `cornice`, which are the
+# starter kit's own module names - so the first thing an artist does, wiring
+# their OWN kit into input 2, resolved all three against nothing and collapsed
+# a four-storey building into thirteen 1 m stand-in bands. A role is the KIT
+# CONTRACT (7.2) and every conforming kit answers it whatever it calls its
+# pieces; measured on a kit renamed `mine_*`, the role defaults rebuild the
+# same 264-piece facade the starter kit gives. Empty is still no special row -
+# the Y solve reads a HEIGHT here (D132) and cannot invent one, which is why
+# these three are not blank the way the X slots are.
 ptg.append(_slot(
-    "yslot_start", "Ground Floor", "shopfront",
-    "The module whose HEIGHT sets the bottom row - a shopfront, a plinth, a "
-    "podium. This names a module rather than a cell because the storey stack "
-    "is solved on heights; which piece fills each bay of that row is still "
-    "the kit's decision. Empty means no special bottom row."))
+    "yslot_start", "Ground Floor", "default_start",
+    "What sets the HEIGHT of the bottom row - a shopfront, a plinth, a "
+    "podium. Leave it at the kit ROLE and any kit answers; name a module to "
+    "pin it to one piece. Either way the storey stack is solved on heights "
+    "and which piece fills each bay of that row is still the kit's decision. "
+    "Empty means no special bottom row."))
 ptg.append(_slot(
-    "yslot_default", "Repeating Storey", "bay",
-    "The module whose height sets every ordinary storey. The stack fits "
-    "whole storeys into the height left over and scales them slightly to "
-    "fill it exactly - a storey is never sliced."))
+    "yslot_default", "Repeating Storey", "default",
+    "What sets the height of every ordinary storey. The stack fits whole "
+    "storeys into the height left over and scales them slightly to fill it "
+    "exactly - a storey is never sliced."))
 ptg.append(_slot(
-    "yslot_end", "Cornice", "cornice",
-    "The module whose height sets the top row - a cornice, a parapet, an "
-    "eaves band. Empty means the building just stops at the last storey."))
+    "yslot_end", "Cornice", "default_end",
+    "What sets the height of the top row - a cornice, a parapet, an eaves "
+    "band. Empty means the building just stops at the last storey."))
 
 ptg.append(_menu(
     "fill", "Bay Fit",
@@ -352,21 +360,30 @@ ptg.append(_menu(
     "the default here for that reason. BEND deforms the bay around the "
     "vertex, which suits a curved or chamfered facade."))
 
-# ⚠️ THREE ENTRIES, NOT FOUR. `facade.build_clipped`'s own docstring offers a
-# fourth, `none` - and `CLIP_POLICIES.get(clip_mode, CLIP_REMOVE)` resolves it
-# to REMOVE, so a menu entry saying "ignore the boundary" would have deleted
-# every straddling piece instead. D126's cull policy is three.
+# ⚠️ FOUR ENTRIES, AND IT USED TO BE THREE FOR A REASON THAT WAS FALSE
+# (P2-9a F3). The comment here claimed `CLIP_POLICIES.get(clip_mode,
+# CLIP_REMOVE)` resolved `none` to REMOVE, so offering it would have deleted
+# every straddling piece. It does not: `array2d.row_spans` short-circuits on
+# `mode == "none"` BEFORE any boundary test, and measured through this node it
+# builds 284 prims straight across the hole against `remove`'s 76. So the
+# payload face accepted a policy the parm face could not express - 2.1's two
+# faces disagreeing - and the menu is built from `CLIP_WORDS`, the same
+# vocabulary `payload_2d` validates against, so they cannot drift again.
+_CLIP_LABELS = {"remove": "Remove - drop any piece it touches",
+                "preserve": "Preserve - keep it whole, overhanging",
+                "slice": "Slice - cut it to the boundary",
+                "none": "Ignore - build the full rows, trim nothing"}
 _clip = _menu(
     "clip_mode", "Boundary Treatment",
-    [(k, l) for k, l in (("remove", "Remove - drop any piece it touches"),
-                         ("preserve", "Preserve - keep it whole, overhanging"),
-                         ("slice", "Slice - cut it to the boundary"))
-     if k in CLIP_POLICIES], "remove",
+    [(k, _CLIP_LABELS[k]) for k in ("remove", "preserve", "slice", "none")
+     if k in CLIP_WORDS["mode"]], "remove",
     "In Boundary Shape, what the boundary does to a piece that straddles it. "
     "REMOVE leaves a clean gap; SLICE cuts the piece and caps the hole, and "
     "falls back to Remove on a module the kit says cannot be cut; PRESERVE "
-    "lets it overhang. A kit module carrying its own policy overrides this.")
-_clip.setDisableWhen("{ shape != area }")
+    "lets it overhang; IGNORE trims nothing at all, so the rows run the full "
+    "width of the shape's extents and straight through any hole - it is the "
+    "one to reach for when the boundary is only there to place and orient the "
+    "array. A kit module carrying its own policy overrides this.")
 ptg.append(_clip)
 
 ptg.append(_int(
@@ -437,7 +454,6 @@ _expand = _float(
     "fraction short of it at the perimeter. It grows the AREA the rows span, "
     "not the trim - pieces are still cut or dropped at the real boundary.",
     units="m")
-_expand.setDisableWhen("{ shape != area }")
 adv.addParmTemplate(_expand)
 _align = _menu(
     "auto_align", "Array Direction",
@@ -447,7 +463,6 @@ _align = _menu(
     "follows the shape the artist drew; HORIZONTAL keeps the rows level "
     "whatever the shape's own rotation is, which is what a tilted wall "
     "panel wants.")
-_align.setDisableWhen("{ shape != area }")
 adv.addParmTemplate(_align)
 
 adv.addParmTemplate(_float(
@@ -515,6 +530,19 @@ adv.addParmTemplate(_menu(
     "loops the ports yielded after validation dropped what it dropped."))
 
 ptg.append(adv)
+
+# artist_ui 6's RAMP, applied from `hda.FACADE_DISABLE` in ONE place (P2-9a
+# F5). Scattering `setDisableWhen` across the page is how five mode-conditional
+# parms - the two adaptive thresholds and the three MITER-only corner controls -
+# shipped live and turnable in a mode where they mean nothing, with the runner
+# checking the four it happened to name. The declaration is the tool's now and
+# the gate check compares it to the SAVED asset in both directions.
+for _name, _cond in sorted(FACADE_DISABLE.items()):
+    _tpl = ptg.find(_name)
+    assert _tpl is not None, "FACADE_DISABLE names %r, the page does not" % _name
+    _tpl.setConditional(hou.parmCondType.DisableWhen, _cond)
+    ptg.replace(_name, _tpl)
+
 defn.setParmTemplateGroup(ptg)
 
 defn.setExtraFileOption("polychain/source", __file__.replace("\\", "/"))

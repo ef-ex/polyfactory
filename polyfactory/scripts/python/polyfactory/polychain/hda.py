@@ -140,7 +140,7 @@ def _input_geo(node, index):
 
 # --- the kit (3.2, and 6's "shipped with the HDA") --------------------------
 
-def kit_geometry(node, parms=None, fallback=None):
+def kit_geometry(node, parms=None, fallback=None, say=None):
     """Input 2, else the kit file, else the built-in starter fence.
 
     6's standalone-usability floor: a curve into input 1 and NOTHING else must
@@ -150,9 +150,17 @@ def kit_geometry(node, parms=None, fallback=None):
     `fallback` is what P2-9 needed: the 2D node's floor is a FACADE kit, not a
     fence, and forking this function to change one call would have forked the
     kit-file lane and its warning with it.
+
+    ⚠️ `say` IS NOT OPTIONAL POLISH ON THE 2D NODE (P2-9a F2). This was the one
+    warning in the facade cook path still going out on `addWarning` alone, and
+    `cook_facade`'s own block records that `addWarning` on that asset reaches
+    NOBODY - so a typo'd Kit File built a plausible building out of the starter
+    kit, said `ok`, and `node.warnings()` came back empty. The caller that owns
+    a page passes its `say`; the callers that do not keep `addWarning`.
     """
     parms = parms if parms is not None else parm_owner(node)
     fallback = fallback or _kit.starter_kit
+    say = say or node.addWarning
     geo = _input_geo(node, 1)
     if geo is not None and geo.intrinsicValue("primitivecount"):
         return geo
@@ -163,8 +171,8 @@ def kit_geometry(node, parms=None, fallback=None):
             loaded.loadFromFile(path)
             return loaded
         except hou.OperationFailed as exc:
-            node.addWarning("kit file %r could not be read (%s) - using the "
-                            "built-in starter kit" % (path, str(exc)[:80]))
+            say("kit file %r could not be read (%s) - using the built-in "
+                "starter kit" % (path, str(exc)[:80]))
     return fallback()
 
 
@@ -494,15 +502,43 @@ X_SLOT_PARMS = (("default", "slot_default"), ("corner", "slot_corner"),
 Y_SLOT_PARMS = (("start", "yslot_start"), ("default", "yslot_default"),
                 ("end", "yslot_end"))
 
+# artist_ui 6's RAMP, DECLARED ONCE (P2-9a F5). A parm meaningless in the
+# current mode is greyed out, not hidden, and the condition used to live only
+# in the build script - where the runner could check the four it happened to
+# name and nothing else. Here it is the tool's own declaration: the build
+# script applies it and the gate check asserts the SAVED asset's set of
+# conditions equals this dict exactly, in both directions.
+#
+# ⚠️ `conform_axis` / `conform_tilt` ARE MISSING ON PURPOSE and it is not an
+# oversight: they are meaningless when input 4 is unwired, which is an INPUT
+# and not a parm, and a disable condition can only read parms. Probed on
+# 22.0.398 - `hou.Parm.isDisabled()` does not answer for a saved condition in
+# hython either, so an input-testing form could not have been verified even if
+# one existed. Their help says "the surface on input 4" instead.
+#
+# WHAT THIS CANNOT SEE: a parm that is mode-conditional and appears in NEITHER
+# this dict nor the asset. The declaration is by hand; only drift between the
+# two is caught.
+FACADE_DISABLE = {"height": "{ shape != footprint }",
+                  "clip_mode": "{ shape != area }",
+                  "expand": "{ shape != area }",
+                  "auto_align": "{ shape != area }",
+                  "adaptive_pct": "{ fill != adaptive }",
+                  "y_adaptive_pct": "{ y_fill != adaptive }",
+                  "min_included_angle_deg": "{ corner_mode != miter }",
+                  "corner_displacement": "{ corner_mode != miter }",
+                  "corner_offset_pct": "{ corner_mode != miter }",
+                  "notes": "{ shape != nothing }"}
+
 # 7.3.2's `y_params` as a parm face. Two fields, not twenty: the Y solve is
 # the SAME solve, so every other `Params` field already has a meaning on this
 # page and duplicating the whole block would be twenty parms nobody turns.
 Y_PARAM_PARMS = (("fill", "y_fill"), ("adaptive_pct", "y_adaptive_pct"))
 
 
-def facade_kit_geometry(node, parms=None):
+def facade_kit_geometry(node, parms=None, say=None):
     """Input 2, else the kit file, else 6's floor for a BUILDING (D315)."""
-    return kit_geometry(node, parms, fallback=_kit.starter_facade_kit)
+    return kit_geometry(node, parms, fallback=_kit.starter_facade_kit, say=say)
 
 
 def facade_style_from_parms(node):
@@ -564,9 +600,14 @@ def _facade_loops(node, shape):
         return (loops, None, None, True, None, clip_geo, warns + clip_warns)
     loops, flags, ids, closed, heights, fw = _facade.footprint_loops(foot)
     if clip is not None:
-        warns.append("input 5 carries clip boundaries and What To Build is "
-                     "Footprint + Height - set it to Boundary Shape for them "
-                     "to define and trim the array (7.6)")
+        # ⚠️ NOT "input 5". D316 gives the two spline ports ONE stream, so a
+        # `pc_purpose = clip` prim reaching here may have arrived on input 1
+        # just as well as on input 5, and blaming a wire the artist may not
+        # have used sends them to the wrong place (P2-9a F4).
+        warns.append("%d spline(s) are tagged as clip boundaries and What To "
+                     "Build is Footprint + Height - set it to Boundary Shape "
+                     "for them to define and trim the array (7.6)"
+                     % clip.intrinsicValue("primitivecount"))
     return (loops, flags, ids, closed, heights, None, warns + fw)
 
 
@@ -603,18 +644,25 @@ def cook_facade(node):
         say("no closed shape on input 1 - nothing to dress")
         return done()
 
-    kit_geo = facade_kit_geometry(node, parms)
+    kit_geo = facade_kit_geometry(node, parms, say)
     # D127's other two ports, named rather than indexed at the point of use -
     # a registered mutation has to be able to say WHICH port it unplugs, and
     # `_input_geo(node, 3)` reads identically in four places in this file.
     payload_geo = _input_geo(node, 2)
     surface_geo = _input_geo(node, 3)
-    style, style_warns = _style.read(payload_geo,
-                                     kit=_kit.read(kit_geo)[0])
+    kit = _kit.read(kit_geo)[0]
+    style, style_warns = _style.read(payload_geo, kit=kit)
     for warn in style_warns:
         say(warn)
     if style is None:
         style = facade_style_from_parms(parms)
+        # P2-9a F1 - THE SAME KIT VALIDATION THE PAYLOAD FACE HAS HAD SINCE
+        # C3a, on the face an artist actually uses. Without it, wiring a kit
+        # whose module names are not the built-in ones collapsed every storey
+        # to a 1 m stand-in and the page still said `ok`.
+        for index, rule in enumerate(style.rules):
+            for warn in _style.kit_gaps(index, rule.slot, rule.modules, kit):
+                say(warn)
     if not style.rules:
         say("no modules assigned - fill at least Repeating Bay")
 

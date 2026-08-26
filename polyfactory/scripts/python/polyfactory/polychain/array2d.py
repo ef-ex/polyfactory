@@ -270,7 +270,13 @@ CLIP_FIXED = {"projection": "planar", "hierarchy": "complete", "cap_holes": 1}
 # `none` is answered by `row_spans` (the whole width, no boundary test) rather
 # than by a per-piece policy - so a vocabulary built from `CLIP_POLICIES`
 # alone would have refused a value the shipped keyword accepts.
-_CLIP_WORDS = {"mode": ("none", "preserve", "remove", "slice"),
+#
+# P2-9a F3 - AND THIS IS WHY IT IS PUBLIC. The 2D node's Boundary Treatment
+# menu was built from `CLIP_POLICIES` and therefore offered three entries, so
+# a policy the payload face accepts and the kernel builds was unreachable from
+# the parm face - the two faces of 2.1 disagreeing about the vocabulary. The
+# menu is built from THIS dict now, and the gate check compares the two.
+CLIP_WORDS = {"mode": ("none", "preserve", "remove", "slice"),
                "auto_align": AUTO_ALIGNS}
 
 
@@ -329,11 +335,11 @@ def payload_2d(style, warns=None):
                                                    type(value).__name__))
             else:
                 out["expand"] = float(value)
-        elif key in _CLIP_WORDS:
-            if not isinstance(value, str) or value not in _CLIP_WORDS[key]:
+        elif key in CLIP_WORDS:
+            if not isinstance(value, str) or value not in CLIP_WORDS[key]:
                 warns.append("%s: pc_style_meta.clip.%s=%r - dropped (known: "
                              "%s)" % (WARN_PAYLOAD_MALFORMED, key, value,
-                                      ", ".join(_CLIP_WORDS[key])))
+                                      ", ".join(CLIP_WORDS[key])))
             else:
                 out["clip_mode" if key == "mode" else key] = value
         else:

@@ -304,6 +304,12 @@ AUX_YSPLINE = "yspline"
 WARN_FOOTPRINT_MIXED = "pc_warn_footprint_mixed"
 WARN_MARKERS_IGNORED = "pc_warn_markers_ignored"
 WARN_YSPLINE_UNSUPPORTED = "pc_warn_yspline_unsupported"
+WARN_PURPOSE_UNKNOWN = "pc_warn_purpose_unknown"
+
+# D316's whole vocabulary, in one place because the discriminator and its
+# refusal must not be able to disagree about what a known token is. The
+# UNTAGGED prim is the footprint, which is why the empty string is in here.
+AUX_PURPOSES = ("", "clip", "exclude", AUX_YSPLINE)
 
 
 def footprint_loops(geo):
@@ -435,6 +441,21 @@ def split_ports(geo, aux=None):
         return (geo, None, warns)
     purposes = [str(v).strip().lower()
                 for v in geo.primStringAttribValues(AUX_PURPOSE)]
+    # ⚠️ D88's SILENT NO-OP, ON THE PORT D316 BUILT (P2-9a F4). `_keep(geo,
+    # ("",))` keeps the UNTAGGED prims, so any token this vocabulary does not
+    # know deleted the geometry and said nothing - a footprint helpfully
+    # tagged `pc_purpose = "footprint"` came back as `no closed shape on input
+    # 1`, which names the wrong cause. `yspline` is refused BY NAME two lines
+    # down; D294 says every other unknown gets the same courtesy.
+    unknown = sorted(set(purposes) - set(AUX_PURPOSES))
+    if unknown:
+        warns.append("%s: %d spline(s) carry pc_purpose %s - the footprint is "
+                     "the UNTAGGED spline and the only tags are %s, so these "
+                     "are dropped rather than guessed at"
+                     % (WARN_PURPOSE_UNKNOWN,
+                        sum(purposes.count(u) for u in unknown),
+                        ", ".join(repr(u) for u in unknown),
+                        ", ".join(repr(p) for p in AUX_PURPOSES if p)))
     yspline = purposes.count(AUX_YSPLINE)
     if yspline:
         warns.append("%s: %d spline(s) ask to be a Y profile - D128 is a "
