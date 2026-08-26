@@ -75,17 +75,23 @@ RESERVED_JUNCTION_TYPES = ("roundabout",)   # in vocab, no builder yet.
 #
 # `s5j_solve` re-reads each arm's frame at the current cut and re-solves the
 # corner THERE, eight times. On a straight arm that is a fixed point and the
-# closed form below is exact — measured to 3.4e-5 m on the NINE straight cases
-# (E_short_t, F_bend, G_tongue, J_five_star, K_stub_triangle, and M2's
-# M_shallow_y_24, N_shallow_y_32, O_shallow_y_host_dies, P_stub_chain). On a
-# curved arm the tangent at the cut is not the tangent at the node, and the
-# corner moves.
+# closed form below is exact — measured to 6.8e-4 m on the NINE cases in
+# `test_plan.STRAIGHT_CASES` (E_short_t, F_bend, G_tongue, J_five_star,
+# K_stub_triangle, N_shallow_y_32, P_stub_chain, Q_junction_ring and M2's
+# R_shallow_y_12_subfloor). On a curved arm the tangent at the cut is not the
+# tangent at the node, and the corner moves.
+#
+# ⚠️ M_shallow_y_24 and O_shallow_y_host_dies are STRAIGHT and are NOT in that
+# list. A merge landing is a third thing: the MOVER re-routes the leg, so the
+# node frame and the cut frame disagree about the pair's angle even though both
+# arms are straight. R is the control that proves it — same rig as O, 12°, and
+# exact, because below the mover's arrival floor the mover does not fire.
 #
 # ⚠️ **AND IT IS TWO-SIGNED. The builder does not always cut more.** The VEX
 # latches monotone only from its third pass — `dist[i] = (iter < 3) ? dd :
 # max(dist[i], dd)` — so passes 1 and 2 are free to RETREAT below the node-frame
 # value, and the fixed point lands on either side of it. Measured, predicted
-# minus measured, over all 545 arms:
+# minus measured, over all 557 arms:
 #
 #   A_drawn / D_offset / H_offset_strict   -0.347 .. +2.024
 #   B_grid                                 -3.995 .. +2.404
@@ -101,13 +107,36 @@ RESERVED_JUNCTION_TYPES = ("roundabout",)   # in vocab, no builder yet.
 # leave. That bound is below, and the calibration test pins it against the
 # fixture so it cannot rot the way its first value did.
 #
-# ⚠️ Both are bounds on the RESIDUAL, not on the verdict. Measured over all 322
+# ⚠️ Both are bounds on the RESIDUAL, not on the verdict. Measured over all 331
 # edges of the suite, the planner's `standing > 0` answer never disagrees with
 # the builder's — 0 false-OK, 0 false-BAD — and THAT is the property downstream
 # milestones actually rely on. `test_plan.py` asserts it directly; do not
 # substitute the metres below for it.
 STANDING_OPTIMISM_M = 5.88          # measured 5.8763, C_radial / I_offset_radial
 CURVED_ARM_RESIDUAL_M = 4.58        # measured 4.5750, worst per-arm either way
+
+# ⚠️ A MERGE LANDING IS ITS OWN CLASS, and lumping it in with the curved
+# arms above would have quietly tripled a published bound. M5.3's mover
+# creates a node whose two shallow arms sit 13.55° apart in the NODE frame
+# and 22.00° at the cut, so `crossing_trims` mis-reads the corner there by
+# far more than any curve does - and unlike a curve, the arms are STRAIGHT,
+# so nothing about the arm's shape explains it.
+#
+# ⚠️ THE GORE FIX MADE THIS WORSE, AND ONLY HERE. A gore nose's reach is
+# `(h + gore_radius) / tan(theta/2)`, which is far more sensitive to theta than
+# the class fillet was, so the SAME frame gap now costs more: O's node-frame
+# 13.55° predicts 121 m where the builder cuts 78 m. M moved the other way
+# (15.96 -> 4.11) because at M the node frame is the shallow one. Measured
+# worst per arm: M 4.1121, O 43.3467, both PESSIMISTIC ONLY (the planner
+# under-claims standing street at a merge; the optimistic tail is exactly
+# 0.0000, and the standing VERDICT still agrees with the builder on all 331
+# edges). What closes it is the planner seeing the CUT frame - the §9 segment
+# shape - not a smaller number here.
+#
+# ⚠️ It is a MERGE bound, not a shallow-angle bound: R_shallow_y_12_subfloor is
+# a 12° gore and is reproduced to 0.0007 m, because below the mover's arrival
+# floor the mover does not fire and the two frames coincide.
+MERGE_LANDING_RESIDUAL_M = 43.35    # measured 43.3467 on O_shallow_y_host_dies
 
 
 class Params(object):
@@ -120,12 +149,18 @@ class Params(object):
 
     def __init__(self, miter_limit=4.0, corner_radius_scale=1.0,
                  max_fillet_fraction=0.4, min_end_segment=1.0,
-                 resample_step=4.0):
+                 resample_step=4.0, gore_radius=1.0, min_standing_widths=1.0):
         self.miter_limit = miter_limit
         self.corner_radius_scale = corner_radius_scale
         self.max_fillet_fraction = max_fillet_fraction
         self.min_end_segment = min_end_segment
         self.resample_step = resample_step
+        # ⚠️ the two the gore rule reads. They are LAST and keyword-only in
+        # practice because `test_plan.case_nodes` builds this positionally from
+        # the calibration fixture; adding them in the middle would have silently
+        # bound `gore_radius` to `min_end_segment`'s value.
+        self.gore_radius = gore_radius
+        self.min_standing_widths = min_standing_widths
 
 
 DEFAULTS = Params()
@@ -180,7 +215,7 @@ def _corner(a, b, params):
 
     Returns (reach_a, reach_b): how far along each arm the cut must go to clear
     this corner, tangent run included. This is `pfsj_corner_lines` + the miter
-    clamp + `pfsj_fillet` solved once instead of intersected numerically.
+    REGIME TEST + `pfsj_fillet` solved once instead of intersected numerically.
 
     With arm A on the x axis, A's kerb line is offset +hA across it and B's is
     offset -hB across B, so their intersection K sits at (u, hA) with
@@ -209,19 +244,14 @@ def _corner(a, b, params):
     raw_b = (hb * cos_phi + ha) / sin_phi
 
     # The miter spike is measured from where the two street AXES cross, which in
-    # the node frame IS the node. Above the limit the corner is clamped along its
-    # own direction rather than collapsed onto the node — using the bevel points
-    # there made the trim ~0 and drove a kerb wall across the carriageway.
+    # the node frame IS the node. K IS NEVER MOVED: the clamp that used to pull
+    # it in to `miter_limit x half-width` put the corner on NEITHER kerb line,
+    # and that fiction is what the builder deleted. `miter_limit` still decides
+    # the corner's REGIME, exactly as it does in `s5j_solve` — above the limit
+    # the corner is a GORE NOSE, not a street corner.
     max_half = max(a.width, b.width) * 0.5
     k_len = math.hypot(raw_a, ha)
-    if max_half < EPS:
-        ratio = 1e9
-    else:
-        ratio = k_len / max_half
-    if ratio > params.miter_limit and k_len > EPS:
-        scale = (params.miter_limit * max_half) / k_len
-        raw_a *= scale
-        raw_b *= scale
+    gore = max_half < EPS or k_len > params.miter_limit * max_half
 
     ka = max(raw_a, 0.0)
     kb = max(raw_b, 0.0)
@@ -233,13 +263,37 @@ def _corner(a, b, params):
     if math.sin(half) < COLLINEAR_SIN or math.tan(half) < EPS:
         return ka, kb                         # no arc exists; the cut is the corner
 
-    r = min(corner_radius(a.street_class),
-            corner_radius(b.street_class)) * params.corner_radius_scale
-    run = r / math.tan(half)
+    tn = math.tan(half)
+    if gore:
+        # a nose between two diverging carriageways is not a turn onto anything,
+        # so the class radius is the wrong number; the floor is the radius below
+        # which the mouths land inside the carriageway overlap.
+        r = max(params.gore_radius, max_half * tn * tn)
+    else:
+        r = min(corner_radius(a.street_class),
+                corner_radius(b.street_class)) * params.corner_radius_scale
+    run = r / tn
     max_run = params.max_fillet_fraction * min(a.length, b.length)
     if max_run > 0.0 and run > max_run:
         run = max_run
-    return max(raw_a + run, ka), max(raw_b + run, kb)
+    reach_a = max(raw_a + run, ka)
+    reach_b = max(raw_b + run, kb)
+
+    # ...and the bound, which is on the gore branch ONLY. Below the miter limit
+    # the corner is already bounded by the limit itself; above it nothing bounds
+    # K, so the reach is capped against each arm's OWN LENGTH, leaving
+    # `min_standing_widths x width` (or `min_end_segment`) standing. When it
+    # binds there is no corner — the builder closes the plate straight across
+    # between two points that each lie on their own kerb line — so the planner
+    # returns the capped kerb-line reaches and no fillet run.
+    if gore:
+        cap_a = max(a.length - max(params.min_end_segment,
+                                   params.min_standing_widths * a.width), 0.0)
+        cap_b = max(b.length - max(params.min_end_segment,
+                                   params.min_standing_widths * b.width), 0.0)
+        if reach_a > cap_a or reach_b > cap_b:
+            return min(ka, cap_a), min(kb, cap_b)
+    return reach_a, reach_b
 
 
 def resample_segments(length, params=DEFAULTS):

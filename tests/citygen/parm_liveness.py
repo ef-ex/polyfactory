@@ -105,7 +105,23 @@ PERTURB = {
     ("trace", "street_params_region_size"): [600.0],
     ("trace", "street_params_zone_inner"): [0.35],
     ("trace", "street_params_zone_core"): [0.10],
+    # ⚠️ 1.5 is not a mid-range probe, it is the value that makes the GORE
+    # branch fire on an ordinary city: the limit turns over at
+    # 2*asin(1/limit), so 4.0 gores below ~29 degrees and 1.5 below ~84, i.e.
+    # nearly every corner C_radial has. Raising it instead would sweep the one
+    # direction in which the threshold cannot bite (the corpus has exactly one
+    # corner over 4.0 and it is not on C_radial).
     ("trace", "s5j_params_miter_limit"): [1.5],
+    # ...and its partner, which only exists above the limit. 3.0 is inside the
+    # {0.2 5} range and 3x the default, so the nose grows visibly; 0.2 is the
+    # range floor and is BELOW the geometric floor
+    # (max half-width * tan^2(half-angle) = 0.51 m at O), so the second value
+    # sweeps the clamp as well as the parm.
+    ("trace", "s5j_params_gore_radius"): [3.0, 0.2],
+    # ...and BOTH ENDS of the range for the mover's run, because generic()'s
+    # cur*2 = 8.0 is a mid-range probe of a term that only ever appears inside
+    # a feasibility SUM. See KNOWN_DEAD.
+    ("trace", "graph_params_merge_parallel_run"): [0.0, 30.0],
     ("trace", "s5j_params_corner_radius_scale"): [2.5],
     ("trace", "s5j_params_arc_steps"): [12],
     ("trace", "s5j_params_max_fillet_fraction"): [0.15],
@@ -160,6 +176,24 @@ KNOWN_DEAD = {
     ("tracer", "organic_amp"): "no `organic` field generator ships (S1)",
     ("tracer", "organic_scale"): "no `organic` field generator ships (S1)",
     ("tracer", "close_min_pts"): "wired, never the binding gate in range",
+    # ⚠️ MEASURED, not assumed, and only after O joined STREET_CASES so the
+    # sweep could reach a merge landing at all. `merge_parallel_run` is a term
+    # in the mover's FEASIBILITY sum (`merge_feasible`: need = swing + run); it
+    # does not place the landing, which snaps to the host's first resample
+    # vertex (the weld-safe landing, §11.6). Swept 0.0 / 1 / 2 / 8 / 15 / 30 —
+    # the whole shipped range — and 50 outside it, on M, N and O: not one
+    # geometry OR attribute digest moves on any of the four outputs. Same
+    # category as `close_min_pts`: wired, never the binding gate.
+    #
+    # It is NOT unasserted. `merge_route_control_rig` supplies the envelope no
+    # case reaches and sweeps it {1, 2, 4, 8}, measuring the feasibility flip
+    # at 8x — the turn-clamp precedent. If this entry ever goes STALE, a case
+    # has started sitting near the feasibility boundary and that is worth
+    # knowing.
+    ("trace", "graph_params_merge_parallel_run"): (
+        "a term in the mover's feasibility sum only; the landing snaps to a "
+        "host resample vertex. Swept 0-30 (and 50) on M/N/O: nothing moves. "
+        "The envelope is asserted by merge_route_control_rig instead"),
     ("mesh", "s5b_params_pier_spacing"): "no case has layer > 0, so no bridge",
     ("mesh", "s5b_params_max_span"): "no case has layer > 0, so no bridge",
     ("mesh", "s5b_params_pier_clearance"): "no case has layer > 0, so no bridge",
@@ -202,8 +236,16 @@ TRACE_CASES = ["C_radial", "B_grid"]
 # ⚠️ G_tongue belongs here. `s5j_params_min_standing_widths` is swept over this
 # list, and G_tongue is the case that was WRITTEN for it (cases.py) — the sweep
 # was running the tongue parameter on every case except the tongue.
+# ⚠️ AND O_shallow_y_host_dies BELONGS HERE FOR THE SAME REASON, one milestone
+# later. Two segmenter parameters only exist at a MERGE LANDING —
+# `graph_params_merge_parallel_run`, which M5.3's mover reads, and
+# `s5j_params_gore_radius`, which the corner solve reads above the miter limit —
+# and not one case in the list above has a merge landing in it, so both swept as
+# DEAD while both are read by shipped VEX. O is the cheapest case that has one.
+# It is LAST because the sweep stops at the first case that classifies, so it
+# costs a cook only for parms the seven before it cannot reach.
 STREET_CASES = ["C_radial", "A_drawn", "B_grid", "D_offset", "E_short_t",
-                "F_bend", "G_tongue"]
+                "F_bend", "G_tongue", "O_shallow_y_host_dies"]
 
 # The SEGMENTER's parms fall into two populations: it is reached both by the
 # two generated cases (through the tracer) and by every drawn case, which enters
@@ -220,6 +262,8 @@ GRAPH_PARMS = {
     "s5j_params_corner_radius_scale", "s5j_params_arc_steps",
     "s5j_params_max_fillet_fraction", "s5j_params_min_end_segment",
     "s5j_params_min_standing_widths", "s5j_params_culdesac_radius",
+    # the two that need a merge landing, so they need O in STREET_CASES
+    "s5j_params_gore_radius", "graph_params_merge_parallel_run",
 }
 
 

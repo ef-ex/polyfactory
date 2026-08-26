@@ -162,6 +162,10 @@ def run_case(name, built, field=None):
     out.append(C.turn_clamp_control_rig(trace))
     # M5: the mover's contract, same mould. See merge_route_control_rig().
     out.append(C.merge_route_control_rig(trace))
+    # M5.5: the 75-90 deg T landing lives in graph_realign, not in the
+    # mover - a station on the merge rig would test nothing. Sibling rig,
+    # swept across turn_radius_scale per 11.6.
+    out.append(C.realign_route_control_rig(trace))
 
     patches = inner("patches")
     surface = inner("surface")
@@ -170,11 +174,19 @@ def run_case(name, built, field=None):
     maxfrac = parm("s5j_params_max_fillet_fraction")
     if patches and surface:
         out.append(C.no_degenerate_corner_segments(patches.geometry()))
+        # ⚠️ the two new arguments index STRAIGHT THROUGH and raise, per this
+        # file's own rule further down: `parm(x).eval() if parm(x) else
+        # <default>` fails OPEN, and for these it would fail open in the worst
+        # way — a missing `gore_radius` leaves the check asserting the class
+        # rule the solver no longer applies at a gore, which reads as an
+        # ordinary red row rather than as a missing parameter.
         out.append(C.every_corner_is_an_arc(
             patches.geometry(),
             solve.geometry() if solve else None,
             rscale.eval() if rscale else 1.0,
-            maxfrac.eval() if maxfrac else 0.4))
+            maxfrac.eval() if maxfrac else 0.4,
+            parm("s5j_params_gore_radius").eval(),
+            parm("s5j_params_miter_limit").eval()))
         out.append(C.sidewalk_bands_match_corners(patches.geometry(),
                                                   surface.geometry()))
         out.append(C.junction_boundary_is_simple(patches.geometry()))
@@ -266,6 +278,11 @@ def run_case(name, built, field=None):
     # LAST, because it re-cooks the city: the loop's own verdict is written by
     # the same person who wrote the loop, so ask the pipeline instead — disable
     # the early out, run one pass more than it wanted, and see what ships.
+    out.append(C.calibration_is_not_stale(
+        name, built,
+        os.path.join(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))), "unit",
+            "trim_calibration.json")))
     out.append(C.forced_extra_repair_pass(trace, city))
     return out
 

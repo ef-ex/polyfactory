@@ -427,14 +427,24 @@ and `diff.compare` asks it directly, on generated input, every run.
 ```
 tests/
   unit/                  pure Python, no Houdini
-    test_citygen.py            cross-section profile maths
-    test_plan.py               the S5 planner + its calibration
-    trim_calibration.json      measured junction footprints, 545 arms
+    test_citygen.py      cross-section profile maths (22 tests)
+    test_plan.py         the S5 planner + its calibration (52 tests)
+    trim_calibration.json  measured junction footprints, 557 arms over 17 cases
+                           ⚠️ REGENERATE IT with any builder change that
+                           moves a trim - it went stale for a whole
+                           milestone and 49 tests stayed green on the
+                           topology the builder had stopped producing
     test_polychain*.py         polyChain's kernel: contracts, the fitting
                                solve's lookup tables, corners, the 2D array
     test_polychain_properties.py  v2: Hypothesis over the hou-free kernel
     test_polychain_budget.py      v2: tests <= tool, enforced
-  citygen/               checks.py / cases.py / run_scene_checks.py + baseline
+  citygen/
+    checks.py            the assertion library — add to this
+    cases.py             scene construction + headless env setup
+    run_scene_checks.py  the runner
+    baseline.json        recorded values
+    dump_trims.py        writes trim_calibration.json from the live solve
+    closure_gate.py      the loop-closure sweep — harness AND its own checks
   polychain/
     diff.py                v2: THE comparator - every attribute, both paths
     gen_cases.py           v2: a whole scene from one integer
@@ -460,22 +470,26 @@ tests/
 
 ## The planner's calibration is a baseline too
 
-`plan.crossing_trims` predicts what a junction cuts off each arm without
-cooking anything, so `standing` is checkable before the geometry exists
-(§11.4). It is only worth something if it agrees with the plates the builder
-really lays down, so `dump_trims.py` exports `trim_start` / `trim_end` from
-`junction_solve/s5j_solve` on all sixteen cases and `test_plan.py` asserts the
-model against every one of the 545 arms.
+`plan.crossing_trims` predicts what a junction cuts off each arm without cooking
+anything, so `standing` is checkable before the geometry exists (§11.4). It is
+only worth something if it agrees with the plates the builder really lays down,
+so `dump_trims.py` exports `trim_start` / `trim_end` from
+`junction_solve/s5j_solve` on all seventeen cases and `test_plan.py` asserts the
+model against every one of the 557 arms.
 
-The residual is **pinned per case, not tolerated globally**: exact (≤ 1e-4 m)
-on the ten cases whose arms are straight — Q_junction_ring among them,
-dispatched through `node_trims`, which since the 2026-08-17 ruling asserts
-type-INVARIANCE (every vocabulary type builds the crossing solve; the
-uncut-principal junction render was ruled a bug and reverted), and up to 4.58 m
-either way on the six with curved ones, because `s5j_solve` re-solves each
-corner in the frame at its own cut and the planner has no arm shape to do that
-with. Read those numbers as a recorded state, the same way `baseline.json` is
-read.
+The residual is **pinned per case, not tolerated globally**: exact (≤ 1e-3 m)
+on the nine cases whose arms are straight — Q_junction_ring among them, dispatched
+through `node_trims`, which since the 2026-08-17 ruling asserts type-INVARIANCE
+(every vocabulary type builds the crossing solve; the uncut-principal junction
+render was ruled a bug and reverted), up to 4.58 m either way on the six with
+curved ones, because `s5j_solve` re-solves each corner in the frame at its own
+cut and the planner has no arm shape to do that with — and a third class since
+M5.4b, the two MERGE LANDINGS (M 4.11 m, O 43.35 m), whose arms are straight and
+whose frames still disagree because the mover re-routed the leg.
+⚠️ `R_shallow_y_12_subfloor` is the control that keeps those two honest: same
+rig as O, 12°, deep in the gore regime, and reproduced to 0.0007 m — because
+below the mover's arrival floor the mover does not fire. Read those numbers as a
+recorded state, the same way `baseline.json` is read.
 
 ⚠️ **But the metre is not the property, and the M1 audit caught this file
 implying it was.** What the planner is FOR is the answer — does this street
@@ -656,16 +670,17 @@ a case.
 | **N** `N_shallow_y_32` | a 32° leg, over the floor | the control: nothing deleted, and the junction is still broken |
 | **O** `O_shallow_y_host_dies` | 22°, but the leg is LONGER than the host's east half | the other branch: `graph_min_angle` takes the **host's own arterial**, published as a 599.77 m survivor |
 | **P** `P_stub_chain` | four junctions on three 30 m links | the flood fill PAST a 3-cycle; 3 edges of 9 ship |
+| **R** `R_shallow_y_12_subfloor` | O's rig at 12°, below the mover's arrival floor | the SUB-FLOOR case. The mover parks the pair and it reaches `s5j_solve` as drawn, so an unbounded corner reach eats a whole 200 m arterial — red on `trim_leaves_road_standing` (−59.98 m), `every_mouth_has_a_road` and `block_boundary_closes` before M5.4b, green after |
 | **Q** `Q_junction_ring` | two AUTHORED `junction` Ts on a ring | the S7 T-case. Since the 2026-08-17 ruling the type moves NO geometry (builds as crossing; type + principal booleans are markings/identity data) — Q now proves the authored schema flows while the build stays the crossing's |
 
 ⚠️ **This table listed seven cases while the suite ran eleven** — found by the M1
 audit, 2026-08-15, alongside a stale block count for B. Two of the four missing
 ones — J and K — are the only cases that carry the S5a junction work at all, so a
-reader looking for them found nothing. Whole suite: **sixteen**.
+reader looking for them found nothing. Whole suite: **seventeen**.
 
-Five of the sixteen exist because a mechanism shipped green and unexercised at
+Six of the seventeen exist because a mechanism shipped green and unexercised at
 its design amplitude — `max_fillet_fraction` (E), the S3b clamp (F), the tongue
-drop (G), the realign (J) and its refusal (K). Adding a parameter means adding a
+drop (G), the realign (J), its refusal (K) and the gore bound (R). Adding a parameter means adding a
 case.
 
 **M–P are M2, and they are CASES BEFORE MECHANISM.** They document what today's
@@ -689,7 +704,20 @@ D reuses A's input rather than sweeping the mode over all three: the mode only
 changes S8, so a sweep would re-run every street and junction check for no new
 information. Whole suite: ~17 s.
 
-## Known-failing — 27 rows (re-measured 2026-08-17, post-M5.3)
+⛔ **THE UNIT SUITE IS RED AS OF 2026-08-27: 11 of 74 fail, all on one site.** This is a real
+defect in M5.5, not a broken suite — `graph_realign`'s landing was changed in the builder and
+never mirrored in `plan.py`. `J_five_star`, node (48.000, 0.000), edge `E_00005`, residual
+−8.671534 m. The standing VERDICT still agrees with the builder, so nothing is wrongly called
+standing; the pinned error tails are what break. **Do not re-pin the bound to go green** — see
+`ideas/citygen_streets.md` §0.0. It was invisible until `calibration_is_not_stale` landed.
+
+## Known-failing — 25 rows on the 16 original cases, 26 over all 17
+(re-measured 2026-08-17, post-M5.4b)
+
+⚠️ The 17th case, `R_shallow_y_12_subfloor`, is a 12° sub-floor shallow-Y added by M5.4b
+so the gate can SEE the shallow-corner blowup at all. Its one failing row
+(`selfx_city_merged`) is the case's own and is not a regression; compare against the 16
+when asking whether a change moved anything.
 
 Not noise — real, tracked defects, most of them findings in
 `ideas/citygen_streets.md` §4e. **Do not `--update-baseline` these away.**
@@ -748,8 +776,8 @@ of them N's, fixed 2026-08-17 and no longer in the table below**:
 |---|---|---|---|
 | M O N | `selfx_city_merged` | 6 / 19 / 6 | the v1 non-goal again, see above — mostly. The row read 4 / 5 / 6 pre-merge; M and O rose because their legs now SHIP (more seams), and O's 19 is dominated by the ~100 m gore wedge overlapping its own mouth — the same defect as O's two rows above, counted a second way. Goes down with the merge mouth contract, not with Wang tiles alone |
 | Q | `selfx_city_merged` | 4 | the v1 non-goal, ordinary seams. It read **122** while M4's junction plate spanned the through principal (coplanar overlap — the z-fight the artist saw); the 2026-08-17 revert took 118 of those with it |
-| O | `selfx_junction_surface` | 2 | **the merge MOUTH, M5.3's recorded open half.** The mover ships O's leg as a merge (nothing deleted, `killed_in_pass0` 0) and the landing builds as a crossing — an ~12° arterial pair, **below the 25° floor the corner solve was designed against** (`min_junction_angle` used to guarantee it). The ~100 m miter-clamped gore wedge self-touches twice. M (collector widths) builds the same shape green; the failure is width-driven. The mouth contract in `s5j_solve` is the remaining M5 work — see §11.6 |
-| O | `every_corner_is_an_arc` | tangent **3.17** | same defect, same wedge: one corner arc's end tangent disagrees with its street. One mechanism, two rows — the N precedent |
+✅ **O's two merge-mouth rows were fixed by M5.4** (2026-08-17): `selfx_junction_surface` 2 → 0 and `every_corner_is_an_arc` tangent 3.17 → 2.5e-05, by DELETING the miter clamp rather than adding a guard — the clamp put the corner on neither kerb line and the fillet was fitted to a fiction. See §11.9's M5.4 record.
+
 | P | `connections_are_never_refused` | `graph_stub_kill` **3** pass 0 (by design), `graph_drop_orphans` **2 late** | §S5a item 5, reproduced exactly — and by the specified mechanism: `cluster 4, narm 6, ok 1` measured live. Collapse a wide cluster, let the realign work on what it makes, and two components fall off — **3 edges of 9 ship** |
 
 ✅ **N's TWO ROWS WERE ONE DEFECT AND M5.2 FIXED IT (2026-08-17), in TWO wrangles.** The

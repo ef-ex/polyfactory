@@ -12,6 +12,224 @@ Branch `cityGen`. Written 2026-08-08.
 
 ---
 
+## 0.0 RESUME POINTER — overnight run started 2026-08-17
+
+⚠️ **TARGET BRANCH IS `worldengine` — Hannes, 2026-08-17: every agent works there.** Street
+work is COMMITTED on `cityGen` and **merges into `worldengine` when M5 is green**, because git
+refuses one branch in two worktrees and `worldengine` is checked out in the shared tree that
+the buildings and polychain agents are writing to. Merging under them mid-build is the exact
+hazard this project has been bitten by. Agreed with polyfactory-c9 (they offered to hand over
+the shared checkout; declined — they are about to write assets and moving them buys nothing).
+✅ **Merge protocol, SETTLED 2026-08-27:** c9 owns the merge and runs
+`git -C F:/projects/polyfactory merge --no-ff origin/cityGen` from the shared checkout once
+their G2 agent clears it. Overlap was verified from BOTH sides — we share two directories and
+no files. If `tests/citygen/baseline.json` ever conflicts, take OURS wholesale: it is a
+regenerated 14,000-value snapshot and a hand-merged one is meaningless. **Do not merge from
+this worktree** — the hazard is two concurrent git operations on one checkout, which has
+already destroyed a staged edit on it once.
+
+⚠️ **WORKTREE, NOT THE SHARED CHECKOUT.** All street work happens in
+**`F:/projects/polyfactory-citygen`** (a `git worktree` on `cityGen`). The shared checkout at
+`F:/projects/polyfactory` belongs to OTHER AGENTS and has been on `polychain` and `worldengine`
+during this session — **never `git checkout` there, never `git worktree remove` this one while
+work is uncommitted.** Commit and push per item; interruptions are routine.
+
+**Where we are (2026-08-27, tip `627b6e2`) — THIS PARAGRAPH IS THE ONE TO TRUST; everything
+below it that predates M5.4b is kept for reasoning and is marked where it is superseded.**
+
+* **M5.4b (the gore fix) is LANDED AND AUDITED.** Cut at 6° went 1121.72 → 249.71 m; no street
+  is deleted at any angle 22→ 2°.
+* ⛔ **M5.5 IS NOT SOUND. THE UNIT SUITE IS RED: 11 of 74**, all at `J_five_star` node
+  (48.000, 0.000). **Do NOT re-pin the bound to go green** — see the M5.5 block below for the
+  corrected per-arm diagnosis and the right fix.
+* **Gate: 26 failing** over **17** cases (25 on the original 16; the 17th, `R_shallow_y_12_subfloor`,
+  contributes its own row and is not a regression). **74 unit tests** (52 of them `test_plan.py`).
+* **Baseline is current** — a fresh gate prints **0 moved rows**. `trim_calibration.json` is
+  current too, and `calibration_is_not_stale` now enforces that every run.
+* **The merge to `worldengine` is agreed and pending c9**, who runs it once their G2 agent clears
+  the shared checkout. Expect gate **26** / unit **11 of 74**; both are expected, neither is a
+  regression.
+
+**Commands, from the worktree root:**
+```
+python tests/unit/test_plan.py
+POLYFACTORY="F:/projects/polyfactory-citygen/polyfactory" \
+HOUDINI_PATH="F:/projects/polyfactory-citygen/polyfactory;&" \
+  "C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe" \
+  tests/citygen/run_scene_checks.py --json <scratch>.json
+```
+
+⚠️ **SUPERSEDED BY M5.4b — kept for the reasoning, NOT for its numbers.** The block below was
+written before any mouth code landed. Its census (finding 1) still holds. **Finding 2's
+arithmetic does NOT: the "~94 m" separation is wrong.** Two ribbons of half-width `h` diverging
+at θ overlap in a rhombus whose far vertex is the kerb-line intersection, so the separation is
+`h·cot(θ/2)` — not `2h/sin θ` — and the width is the built ribbon **26.80 m**, not 32.80
+(`streetWidth` already contains the sidewalks). O's true figure is **68.94 m**. And its "next
+construction to try" was not what shipped: M5.4b gave the gore nose a GORE radius instead, which
+is why the cut is 78 m and not 94. Read it as history.
+
+⭐ **MEASURED 2026-08-17, BEFORE ANY MOUTH CODE LANDS — two findings that shaped the fix:**
+
+1. **The miter clamp fires ONLY on M and O.** Instrumented over all 16 cases: **9 fires in
+   3,721 corner pairs**, every one at a merge landing (15.5° on M, 22.0° on O). So the mouth
+   construction can be changed inside that branch with a blast radius of exactly two cases —
+   proven, not assumed.
+2. ⚠️ **THE MOUTH IS A TRADE, and both ends of it are red.** Two variants were built and
+   gated (both reverted, HDA is back at HEAD):
+   * cut BOTH streets short (26.8 m) and close there → `selfx_junction_surface` **2 → 0**,
+     but `selfx_roads` **0 → red**: two carriageways leaving at 22° do not physically
+     separate until **~94 m**, so a short cut leaves ~67 m of DOUBLED asphalt.
+   * keep the long clamped cut and close straight across (no fillet) → **identical result**,
+     because dropping the fillet's tangent reach also shortens the cut.
+   The two failures are the same fact seen twice: **at 22° the paved region genuinely IS a
+   ~94 m gore, and the only question is who owns it — the plate or the two roads.** Today the
+   roads own it and overlap; before, the plate owned it and self-intersected.
+   → **The next construction to try: the plate owns the gore, but as a SIMPLE polygon** — two
+   outer kerbs plus one straight closing cross-section at the divergence station, with the two
+   inner kerbs suppressed (they are what cross). That is the shared bisected cross-section of
+   KB §4c, applied to the plate rather than to the cut. Measure `selfx_roads` AND
+   `selfx_junction_surface` together; fixing one by moving the overlap into the other is not
+   progress, and this is the trap that ate two variants.
+
+⛔ **M5.5 IS NOT SOUND, AND A NEW CHECK FOUND IT (2026-08-27). THE UNIT SUITE IS RED: 11 of 74.**
+`graph_realign`'s cubic Hermite T landing changed what the BUILDER cuts and was never mirrored in
+`plan.py` — a straight §11.5 violation, "build the mouth AND mirror it in the planner, in the same
+commit". Every one of the 11 failures traces to **one site**: `J_five_star`, node (48.000, 0.000).
+
+⚠️ **AND MY FIRST DIAGNOSIS OF IT WAS WRONG — corrected here, because the wrong version names
+the wrong fix.** I wrote that "the planner still predicts the pre-M5.5 trim of 5.000 while the
+builder cuts 12.529". That is the FIXTURE's staleness (`E_00000.trim_end 5.0000 → 12.5290`), not
+the planner's error, and I conflated the two because they surfaced in the same output. Measured
+per arm at that node:
+
+| arm | planner | builder | residual |
+|---|---|---|---|
+| `E_00000` — the realigned 48 m arterial stub | 12.4828 | 12.5290 | **−0.046** |
+| `E_00004` — the 152 m arterial through | 14.6599 | 20.2145 | −5.555 |
+| `E_00005` — the collector at **86.79°** | 20.1908 | 28.8623 | **−8.672** |
+
+**So the planner is NOT ignorant of the realign — it models the realigned arm almost exactly.**
+The fixture already carries `E_00005`'s direction as `(0.0560, 0.9984)`, which is M5.5's
+86.788° to three decimals, so `node_trims` sees the post-realign geometry and gets `E_00000`
+right to 46 mm. **What it under-charges is the other two arms.** Squaring the T makes the corner
+that the OTHER arms must accommodate, and the builder charges them 5.55 and 8.67 m more than the
+model expects — in the OPTIMISTIC direction (planner over-claims standing street), though not
+by enough to flip any verdict.
+
+⚠️ **This is why the fix is planner-side and why the fixture will NOT move again**: `plan.py`
+already receives every input it needs (`dir`, `width`, `street_class` per arm) — it predicts
+`E_00000` correctly from exactly that data. Nothing about the BUILDER changes, and
+`trim_calibration.json` records the builder.
+
+✅ **The safety property still holds, and that is the only reason this is not an emergency:**
+`test_the_standing_VERDICT_never_disagrees_with_the_builder` **passes** — no street is wrongly
+called standing; the error is not large enough to flip a verdict. What fails is the pinned error
+TAILS (8.67 against 5.88 and 4.58) and `STRAIGHT_CASES` membership. Also surfaced:
+`328 != 331 — the planner did not see every street`, three edges unaccounted for, not yet explained.
+
+⛔ **THE FIX IS TO MIRROR THE REALIGN IN THE PLANNER, NOT TO WIDEN THE BOUND.** Re-pinning
+8.67 into a constant would make the suite green and erase the finding — the planner would go on
+mis-modelling a landing it does not know happened. `graph_realign` squares the T, and a square
+corner charges the 11.8–13.0 m every other near-perpendicular arm in J already pays; the planner
+must learn that the arm's angle changed. Deliberately NOT attempted at 4am unaudited, which is
+how M5.4 got into trouble in the first place.
+
+⭐ **AND THIS IS WHY THE SUITE IS RED RATHER THAN GREEN: `calibration_is_not_stale` is new, and
+it caught a REAL staleness on its first run.** The stale-fixture rule had been PROSE since M5.4
+("regenerate that fixture in the same commit as any builder change that moves a trim") — and
+prose is exactly what failed, twice, one milestone apart. The check re-derives with
+`dump_trims.dump_case`, **the same function that writes the fixture**, so there is no second
+derivation to drift and quietly agree with a stale file. Both branches mutation-proven: dropping
+an edge from a case reports `TOPOLOGY MOVED: fixture has 4 edges/2 nodes, the builder makes 5/2`,
+and the trim branch was proven by the real J staleness it found unprompted.
+
+⚠️ **A stale subject passes "is it there?" and still proves nothing** — presence-checking, the
+cheap fix for a missing subject, is exactly what this shape survives. **A recorded baseline is a
+subject too, and it can go missing while every check still passes.** Re-blessing is not
+maintenance, it is erasure: a baseline that moves unexpectedly is a FINDING, never a number to
+accept. (Named with `polyfactory-c9` the same night, from two independent instances in two
+subsystems; the log entry is `build_retrospective.md` §2a.)
+
+✅ **M5.4b DONE — the gore fix is landed and audited (gate 25, unit 52, parm_liveness 0).
+M5 IS COMPLETE.** Cut at 6° went 1121.72 → 249.71 m and no street is deleted at any angle.
+
+⛔ **NEXT ITEM — M5.4c, FINDING C: give the gore cap an epsilon.** It targets
+`trim_leaves_road_standing`'s floor exactly and already lands `under_ratio_all` at 1 (6°) and
+2 (2°); it is green only because those arms are outside the asserted droppable population.
+One line, but it moves geometry, so it needs its own gate + audit round. Full statement in
+§11.9's M5.4b record and §11.6's gore branch.
+
+⛔ **AND THE MERGE IS NOT HOUSEKEEPING — `cityGen` IS MISSING TWO DOCS `CLAUDE.md` CALLS
+BINDING.** Found 2026-08-27, after M5 was already built. `origin/worldengine` carries seven
+`ideas/*.md` that this branch does not, and two of them are named as non-negotiable in
+`CLAUDE.md`: **`conventions.md`** ("data conventions are law", rule 3) and
+**`build_retrospective.md`** ("read the incident history before running autonomous cycles",
+rule 6). M5 was built all night on a branch where neither could be read. Also absent:
+`polychain.md`, `artist_ui.md`, `citygen_simulation.md`, `railclone.md`, `rocks.md`.
+
+✅ **Audited after the fact rather than assumed, and M5 is clean.** Read from
+`git show origin/worldengine:ideas/conventions.md`: §2's `_*` law (LAW, and DONE) — **no `_*`
+attribute survives to any output on any of the 17 cases**, checked across point / prim / vertex
+/ detail on every built node. And §1's `pf_` prefix does not condemn the streets schema either,
+because §**9c** formally defers exactly that rename — it is blocked on the polyChain native
+rebuild reaching parity, and §9 says plainly that none of it is started. So M5 extended a
+knowingly-unprefixed schema in a knowingly-deferred area, which is allowed; it did not add a new
+violation. ⚠️ **But that was luck, not process** — the compliance was verified only because the
+merge coordination happened to surface the missing file. **A branch that cannot see the project's
+law should not be a branch autonomous work runs on for a night.**
+
+⚠️ **BLOCKED, not forgotten: merge `cityGen` → `worldengine`.** Attempted 2026-08-27 and
+stopped deliberately. `worldengine` is checked out in the SHARED checkout `F:/projects/polyfactory`
+and `polyfactory-c9` has it dirty (`polyfactory/vex/citygen/pf_mass.vfl` modified, `pf_eave.vfl`
+untracked). One branch cannot be checked out in two worktrees, and `--ignore-other-worktrees`
+corrupts (two working copies, one index) — so there is NO safe path to the merge from here that
+does not touch another agent's tree. `cityGen` is pushed at **eeeb0b8**, 9 commits ahead;
+`worldengine` is 263 ahead of it. c9 has been messaged with the file list and the OURS rule.
+**Original note:** Coordinate with `polyfactory-c9` FIRST (protocol
+in this section); `tests/citygen/baseline.json` conflicts take **OURS** wholesale.
+
+**M5.4, done — kept for the reasoning:** The landing builds as a crossing at ~12°,
+below the 25° floor the corner solve was designed against; at arterial widths O ships a ~100 m
+gore wedge, 2 self-intersections, corner-arc tangent 3.17. Build the mouth in `s5j_solve` AND
+its mirror in `plan.node_trims` **in the same commit** (§11.5's rule). ⭐ The candidate
+construction is §4c of the KB (`polyfactory/resources/citygen/README.md`): at a shallow handoff
+give both sides **ONE shared bisected cross-section axis** instead of a plate — an independent
+implementation's rule, and its companion "no transverse cap" was already our fixed bug. Exit:
+O's two rows green, no other case moved, audited.
+
+✅ **M5.5 DONE** — §S5a item 4's approach angle closed (56.701° → 86.788°); its
+LANDING FLOOR is the open half, and it is an artist call.
+
+⚠️ **`merge_parallel_run` IS NOT AN ARTIST DECISION, and this doc said it was for two
+milestones.** It is a term in the mover's FEASIBILITY sum (`merge_feasible`: need = swing +
+run); it does not place the landing, which snaps to the host's first resample vertex. Swept
+0 / 4 / 20 m on M, N and O the point set comes back **bit-identical** — four identical pictures.
+`parm_liveness.py` has had it in `KNOWN_DEAD` with exactly this cause since 2026-08-10, which
+means the "reserved for the artist" line above was written without reading the file that
+already answered it. Nothing to rule on until a case sits near the feasibility boundary.
+
+⛔ **AND THE MOVER HAS NO ABLATION I COULD FIND, so its before/after could not be drawn.**
+Three attempts, all measured: (1) `min_junction_angle` 25° → 5° moves the digest but draws a
+visually IDENTICAL picture; (2) bypassing `graph_merge_route` + `merge_polypath` +
+`merge_split_switch` leaves **R bit-identical**, and moves O 3261 → 3278 points and M
+3611 → 3625 with the street extent unchanged in all three — and lands on the SAME digest as
+attempt (1); (3) overlaying the two kerb outlines at 22° shows them coincident. So either the
+mover's effect at shipped angles is far smaller than §11.9's M5.3 record implies, or its real
+switch is upstream in `graph_plan` and those three nodes are plumbing. **Either way
+`merge_route_control_rig` is currently the ONLY thing asserting the mover**, and a feature with
+no reachable off-switch is a feature nobody can show an artist. Worth resolving before M6.
+
+**RESERVED FOR THE ARTIST, do not decide alone:** the gore/mouth LOOK (renders live at
+`/obj/M5_merge_M` and `/obj/M5_merge_O` in Hannes' session; M4's render ruling was overturned
+by his eye after every check went green). Also the `merge_parallel_run` value.
+
+**Recovery:** `git -C F:/projects/polyfactory-citygen status` — if dirty and the change is not
+understood, `git stash` NAMED PATHS only. Verify any brief against `git log` first; briefs go
+stale. HDA edits follow §11.11 (unexpandedString, definition-level parm templates, `hotl -X`
+verification, no `__pycache__` reuse across mutations).
+
+---
+
 ## 1. Hard constraints
 
 Set by Hannes, 2026-08-08. These are not negotiable and every decision below respects them.
@@ -1598,6 +1816,15 @@ Radius clamping stays, but it clamps the *radius* against the shorter incident s
 not eat more than `max_fillet_fraction` of a street), and the clamp changes the tangent points too.
 Below the miter limit the corner becomes a **bevel** — a deliberate, straight, documented case, and
 the only one.
+
+⚠️ **ABOVE the miter limit the corner is a GORE NOSE, and since M5.4b that is the branch that
+matters (§11.9).** It takes `max(gore_radius, max(hA,hB)·tan²(θ/2))`, and its tangent lengths
+are capped per-arm at `elen - max(minseg, min_standing_widths·wid)`. **That cap has ZERO
+MARGIN** — it targets `trim_leaves_road_standing`'s floor exactly, and at 6°/2° already lands
+`under_ratio_all` at 1/2. It passes only because those arms are outside the asserted droppable
+population. **The next change here is to add the epsilon**, and the reason to write it down
+rather than patch it quietly is that the same mistake is available at every other bound in this
+file: a bound set to its target has no direction to fail in.
 
 #### Two rules the design left open, decided 2026-08-09
 
@@ -5456,9 +5683,14 @@ that follows from those failures:
    `min_node_dist + one resample step`. What is still unbuilt is **re-routing the last stretch** to
    meet the host at 75–90° inside S3b's `R > halfwidth`. Today the T's approach is whatever the
    crowded pair's angle was, softened by the blend: 48.25° on the artist's scene, 56.70° on
-   `J_five_star`. Both clear `min_junction_angle` by construction; neither is a right-angled T, and
-   re-routing is what would let the landing floor come down and make the dense C_radial sites
-   reachable.
+   `J_five_star`. Both clear `min_junction_angle` by construction; neither is a right-angled T. ✅ **BUILT
+   2026-08-17 (M5.5): 56.701° → 86.788°.** ⚠️ But "re-routing is what would let the landing
+   floor come down" was BACKWARDS — squaring the T charges a square corner, so the required
+   distance goes UP (J's landing-end trim 5.000 → 12.529, ratio ≥ 1 now needs ≈49.7 m against
+   a 45 m floor). The landing floor is the open half. ⚠️ **AND "K — the gate refuses it" is
+   wrong about WHICH gate**: `K_stub_triangle` never forms a degree-5 node (its junctions are
+   4/4/3, declined by the STUB-COLLAPSE gate), so `graph_realign` never sees it and the
+   realign's own `d < lo` refusal has never executed on any case in the corpus.
 5. **Roundabout is NOT the fallback it was assumed to be.** At 32.5° two mouths need 37.4 m of
    separation; an ICD inside §S5's 21–67 m band gives a radius of 10.5–33.5 m and cannot deliver
    it either. It remains right for *wide-angle* five-ways; it does not rescue a crowded pair.
@@ -5997,6 +6229,304 @@ widths (O) ship a ~100 m gore wedge with 2 surface self-intersections and a 3.17
 tangent error — O's two rows in the known-failing table. The merge mouth in `s5j_solve` (and
 its `node_trims` mirror, same commit) is the remaining M5 work, and the artist has not yet
 ruled on the gore look at all.
+
+**M5.4 BUILT 2026-08-17 — the merge mouth, and the clamp that was inventing the defect.
+Gate 27 → 25 failing.** O's two mouth rows are GREEN: `selfx_junction_surface` **2 → 0**,
+`every_corner_is_an_arc` tangent **3.17 → 2.5e-05**. Nothing newly broken, and only O moved.
+
+⭐ **THE FIX WAS TO DELETE A SAFETY, NOT TO ADD ONE.** `s5j_solve` clamped the runaway miter
+spike to `miter_limit × half-width` along its own direction — a point lying on **neither kerb
+line**. The plate boundary therefore missed the real block corner and the fillet was fitted to
+a fiction, which is where both of O's failures came from. With the TRUE kerb intersection every
+boundary point is a real kerb point again and the plate is a long but SIMPLE gore.
+
+⚠️ **AND THE CUT HAD TO GET LONGER, WHICH IS THE OPPOSITE OF THE INSTINCT.** O's full ribbon
+is 26.8 + 3.0 + 3.0 = 32.80 m, so its two carriageways only separate at
+`32.80 / sin 22°` = **87.56 m**. The clamped cut was 102.92 m and the honest one is 121.00 m;
+both clear it. **Every shorter construction tried fell inside it and turned `selfx_roads` red**
+— cut-at-`max(wid)` (26.8 m), and "close straight across with no fillet" (72.94 m). The trade
+was measured from three sides before it was believed: `selfx_roads` and
+`selfx_junction_surface` must be read TOGETHER, because moving the overlap from one into the
+other looks exactly like progress.
+
+**Chosen by measurement, not by argument — three constructions were built in parallel
+worktrees and gated against the same baseline:** (A) plate owns the gore with the inner kerbs
+suppressed → 27 → 26, one row green, `every_corner_is_an_arc` still red because the check has
+no doctrine for a gore nose; (B) delete the clamp → 27 → 25, **both** rows green; (C) fuse the
+shallow pair into one virtual arm — the most ambitious, reported separately. B won outright.
+
+**Blast radius, measured BEFORE the change:** the clamp fired **9 times in 3,721 corner pairs**
+across all 16 cases, all at merge landings — once on M (iteration 0 only, discarded by the
+retreat-allowed passes, so M does not move at all) and on all 8 iterations at O's. That census
+is what made the change safe to attempt.
+
+⚠️ **TWO THINGS LEFT LOOSE, recorded rather than hidden.** `miter_limit` is now a parm that
+nothing reads — it must be retired from the interface or repurposed, and `parm_liveness` will
+call it DEAD. And the miter is no longer bounded at all: `pfsj_corner_lines` gives up below
+|sin| < 0.02 (~1.15°), so `K` could in principle reach `(hA + hB)/0.02` before anything catches
+it. Nothing in the suite approaches that and the mover's own arrival floor parks pairs below
+~17.25°, so it is unexercised risk, not a measured failure. **If the bound comes back, bound it
+against the ARM'S OWN LENGTH** — `trim_leaves_road_standing`'s currency — not a width multiple,
+because a width multiple is exactly what produced the fiction.
+
+⛔ **AND M5.4 EXPOSED A HOLE OF MY OWN MAKING, which is the more important finding.**
+`tests/unit/trim_calibration.json` was never regenerated after M5.3's mover: it recorded M and
+O with **three edges and one node** — the pre-mover topology, where `graph_min_angle` DELETED
+the shallow leg — while the shipped build had five edges and two plated nodes. **49 unit tests
+stayed green against a shape the builder had stopped producing a milestone earlier**, and the
+scene baseline being current was no evidence at all that this fixture was. Regenerated, the
+suite showed 19 failures, every one on M and O.
+
+What those failures actually say: **the planner does not model a merge landing.**
+`crossing_trims` solves in the NODE frame, where O's shallow pair reads 13.55°, while
+`s5j_solve` re-solves at the cut where it reads 22.00° — the same frame-refinement gap the
+curved cases have always had, arriving for the first time on STRAIGHT arms. So M and O leave
+`STRAIGHT_CASES` and take measured two-sided bounds (M 15.97 m, O 8.08 m), and a merge landing
+gets its own published constant, `MERGE_LANDING_RESIDUAL_M`, rather than quietly tripling
+`CURVED_ARM_RESIDUAL_M`. ✅ **What is NOT broken, checked before re-pinning anything: the
+standing VERDICT still agrees with the builder on all 326 edges — 0 false-OK, 0 false-BAD —
+and both residuals are PESSIMISTIC ONLY (optimistic tail exactly 0.0000).** The planner
+under-claims how much street stands at a merge; it never over-claims, which is the only
+direction §11.4 calls dangerous. Counts move 322 → 326 edges and 545 → 551 arms, because the
+mover keeps two legs that used to be deleted — and the legs come back LONGER than drawn
+(M 120 → 123.75, O 300 → 303.79), which is `merge_arc_length`'s prediction showing up in the
+fixture. **Regenerate that fixture in the same commit as any builder change that moves a
+trim.**
+
+✅ **M5.4b BUILT 2026-08-17 — THE GORE FIX. The blocker is closed and the audit cleared it.
+Gate 25 → 25 on the shared 16 cases** (26 over 17, the one new row being the sub-floor case's
+own `selfx_city_merged`), 74 unit tests green (52 of them the planner's), and `parm_liveness.py` **exit 1 → exit 0**.
+
+**A gore nose is not a street corner, and that was the whole bug.** `s5j_solve` now asks
+`pfsj_miter_ratio > miter_limit` whether the corner is a NOSE, and if it is, takes
+`max(gore_radius, max(hA,hB)·tan²(θ/2))` instead of the class corner radius. The floor is the
+carriageway-overlap clearance derived in the audit's item 2, so the nose can never be rounded
+inside its own gore. M5.4 had DELETED the miter clamp and left the shallow corner unbounded;
+the bound is back, but against **the arm's own length** — `trim_leaves_road_standing`'s
+currency — not a width multiple, which is what put the corner on neither kerb line originally.
+
+**Measured, cut distance before → after, on drawn sub-floor shallow-Ys** (the population M5.4
+was blind to, because the corpus' shallowest corner is O's 13.55° and O is only safe there
+because the mover fires): **22° 121.00 → 78.08 · 12° 259.98 → 137.01 · 8° 686.35 → 187.66 ·
+6° 1121.72 → 249.71 m.** And `every_mouth_has_a_road` is **0 at every angle 22→ 2°**, where
+before the fix 1/1/2/2/2 streets were deleted outright. O's plate: **5,743 m² / 121.3 m span
+→ 3,133 m² / 78.4 m** — the 46.30 m of fillet run that `9.0 / tan 11°` was buying is gone.
+
+**`R_shallow_y_12_subfloor` is new and is the point of the exercise:** a 12° case the gate can
+see, verified RED before the fix and GREEN after. The corpus is 17 cases.
+
+⚠️ **FINDING C, CLEARED TO LAND BUT NOT FIXED — THE CAP HAS ZERO MARGIN, AND ALREADY LANDS
+UNDER ITS OWN TARGET.** The per-arm cap is written as
+`elen - max(minseg, min_standing_widths·wid)`, which targets `trim_leaves_road_standing`'s
+floor **exactly** rather than the floor plus an epsilon. Measured: at 6° `under_ratio_all`
+is **1**, at 2° it is **2**. It ships green today only because those arms are not in the
+droppable population the check ASSERTS on — one such arm becoming droppable, or a 1-ulp shift,
+turns the row red. **This is the most likely way the gore fix surprises us later.** Root cause
+is stated plainly because it generalises: *a bound written as an exact target is a bound that
+has already failed half the time.* Fixing it is a behaviour change and therefore its own item,
+not a rider on the landing.
+
+⚠️ **AND A GREEN GATE AT 1.0° MEANS NOTHING — READ `counts` BEFORE BELIEVING ONE.** At 1.0°
+the leg is eaten by `graph_fuse` upstream (the weld law: a curve at angle α keeps points inside
+the 0.5 m radius for ~`0.5/sin α` of approach), `counts.edges` comes back **3**, and every row
+passes because there is nothing left to fail. A gate row is only evidence if the geometry it
+grades still exists.
+
+⚠️ **Two riders, named rather than shipped silently.** (1) The junction HDA's tab-menu label
+became `CityGen Junction (internal helper)` — defensible, since it is nested inside the
+segmenter and an artist should not drop it bare, but it was not part of the fix. (2) The
+`gore_radius` help text originally claimed 1.0 m clears the floor; **it clears it for
+`arterial` (0.893) and everything narrower, but NOT for `highway` (needs 1.083) or
+`boulevard_bus_bike` (needs 1.333)** — the justification had been derived from the widest class
+in the TEST CORPUS, not the widest in the shipped width table. The geometry was never wrong
+(the solver floors it regardless); the *claim* was. Help text corrected on all three HDAs.
+
+⚠️ **O's `selfx_city_merged` went 9 → 10, and it is the same cluster MOVED, not a new one.**
+Attributed by ablation — `miter_limit` raised past O's ratio turns the whole gore branch off in
+the shipped build (the cap lives inside `if (gore)`), which is the M5.4 path exactly. The fix
+**removes** the sites at `(117.0, ±1.0)` and `(109.0, 42.9)` and **adds** `(74.1, ±1.0)` and
+`(68.3, 28.7)×2`: the mouth cluster relocating from the 121 m cut to the 78 m one, with the
+leg-side point counting twice instead of once. Every one of O's ten sits on a ribbon
+CENTRELINE — six at `z = ±1.0` on the principal (the same three-station pattern M shows, and M
+is the clean reference at 6/6) and four on the leg's own centreline. That is the declared v1
+non-goal, not gore overlap. ⚠️ **And the first ablation attempt was WRONG and said "no change":**
+it found case A's segmenter by scanning siblings, so it ablated a different city. The rerun
+walks O's own input chain and now asserts the ablation moved something before it is believed —
+*an ablation that reports no difference has two explanations, and "the knob is not connected"
+is the likelier one.*
+
+⚠️ **R's ablation reads 11 → 6 with the fix OFF, and that is the deletion trap, not a win.**
+At 12° the unfixed cut is 259.98 m and takes streets with it; six intersections is what is
+left when the geometry is gone. Same lesson as the 1.0° green above. R does carry a cluster of
+three at `(-2.4, ±1.0)` — at the NODE rather than at a mouth — which is unexplained and is
+worth a look before the sub-floor band is called finished.
+
+✅ **What the audit checked and confirmed:** both control rigs survive
+(`merge_route_control_rig`, `realign_route_control_rig`); the landed VEX is byte-identical to
+the independently-replayed build; every `.def` difference in both HDAs is a timestamp, so no
+display/render flag rode along; and the gore rule fires on exactly **two** corner pairs in the
+17-case corpus — O and R — which is now what `checks.py` says (it said "one", stale from when
+the corpus was 16).
+
+⛔ **M5.4's AUDIT REFUTED M5.4, and the verdict is NOT SOUND AS LANDED (2026-08-17).** Four
+of its published numbers were wrong and one of its safety claims does not hold. Recorded here
+in full because three of them were load-bearing:
+
+1. ⛔ **THE BLOCKER: the shallow corner now has NO bound, and it is REACHABLE.** M5.4 recorded
+   the risk as "unexercised, because the mover's arrival floor parks pairs below ~17.25°". That
+   floor gates **the mover, not the solver** — and since M5.3 stopped `graph_min_angle`
+   deleting shallow pairs, a parked pair now reaches `s5j_solve` unchanged and unbounded.
+   Measured on drawn sub-floor shallow-Ys, cut distance before → after the clamp deletion:
+   **17° 113 → 150 m · 12° 133 → 260 m · 8° 128 → 686 m · 6° 123 → 1122 m** — on a 192 m
+   street — and **up to two streets deleted**, which the old clamp never did. The corpus is
+   blind to it because its shallowest corner is O's 13.55° and O is only safe because the
+   mover fires there. The fix is a bound against the ARM'S OWN LENGTH plus a sub-floor case so
+   the gate can see it.
+2. ⚠️ **THE SEPARATION ARITHMETIC WAS WRONG TWICE, and it is the reason the junction is
+   twice as long as it needs to be.** Two ribbons of half-width `h` diverging at θ overlap in a
+   rhombus whose far vertex is the kerb-line intersection, so the axial separation is
+   **`h·cot(θ/2)`** — not `2h/sin θ`, which overstates it by `1/cos²(θ/2)`. And the width is
+   the built ribbon **26.80 m**, not 32.80: `streetWidth` 26.8 ALREADY CONTAINS the 3.0 m
+   sidewalks (measured by `elem_type`: lane ±8.0, parking ±10.4, sidewalk out to ±13.4). So
+   O's true separation is **68.94 m**, and with the node's 4.0 m offset a cut of **72.94 m is
+   exactly the separation point** — not the "14.6 m short" that M5.4's record claims. Every
+   place this doc, `plan.py` or the VEX says `26.8 + 3.0 + 3.0 = 32.80` is wrong.
+3. ⚠️ **`selfx_roads` IS STRUCTURALLY BLIND TO COPLANAR OVERLAP — control-proven.** Two
+   overlapping coplanar quads through `intersectionanalysis` report **0** points; two genuinely
+   crossing quads report 3. So its green was never evidence either way, and the whole
+   plate-versus-roads "trade" was argued partly on a check that cannot see one side of it. The
+   audit measured the ribbons directly instead (exact per-quad clipping, positive control: a
+   1 m transverse shift shows 1.24 m², a 3 m shift 11.14 m²) and found **0.0 m² overlap at
+   BOTH cuts**, with the 73 m cut touching at exactly one point (min gap 7e-06 m). **When a
+   check's silence is the argument, prove the check can speak.**
+4. ⚠️ **THE JUNCTION GOT BIGGER, WHICH IS THE OPPOSITE OF THE POINT.** O's plate went
+   **4,528 m² / 103.3 m span → 5,743 m² / 121.4 m**. An ordinary crossing on the same street is
+   857 m² / 27.1 m. And the extra 48 m is **one fillet run at the wrong radius**: `arterial`
+   corner radius 9.0 m at an 11° half-angle gives `9.0/tan 11° = 46.30 m`, and
+   72.94 + 46.30 ≈ 121. **A junction corner radius was applied to a gore nose.** Civil practice
+   rounds a gore nose at 0.6–1.0 m, which lands the cut at **~76–78 m with a real arc** —
+   short like C, honest like B, and needing no check to be widened.
+5. ⚠️ **`MERGE_LANDING_RESIDUAL_M` PINS A COINCIDENCE, and its comment is false.**
+   `plan._corner` **still applies the clamp the builder deleted**, so the planner agrees to
+   15.97 m only because it runs a mechanism the builder no longer has; mirrored properly the
+   residuals become M 39.68 and O 67.65. The constant still earns a keep (collapsing it into
+   `CURVED_ARM_RESIDUAL_M` would silently loosen the curved bound from 4.58 to 15.97 for C and
+   I) but it must be renamed for what it measures. Its stated reason is also wrong on its face:
+   it says "the arms are STRAIGHT", and the same commit's own fixture shows O's leg at
+   **303.79 m where it was drawn 300** — the mover replaced its last stretch with an arc, so it
+   is a CURVED arm.
+6. ⚠️ **`miter_limit` is now DEAD** — read by nothing, absent from `parm_liveness.py`'s
+   `KNOWN_DEAD`, so **`tests/citygen/parm_liveness.py` exits 1 today and nobody ran it.** A
+   sweep at 1.0 / 1.5 / 8.0 moves zero geometry and zero attributes on all 16 cases.
+
+**AND CANDIDATE C's 25 WAS BOUGHT WITH A CHECK EDIT, NOT WITH GEOMETRY.** Re-gated against the
+SHIPPED `checks.py`, C scores **26**, not 25. Its `after_corner = 2` throat marker required
+widening `trim_metric_is_consistent`'s mouth detector, and of the five consumers that read
+`after_corner == 1`, **two are NOT right to skip a throat**: `no_degenerate_corner_segments`
+(whose entire subject is collapsed fillets — and C's throat IS one, reported as 0) and
+`every_corner_is_an_arc` (population drops 6 corners/4 arcs → 5/3, exempting the one corner
+§S5's "every corner is an arc, always" forbids). **A marker that excuses a corner from the
+checks written to catch it is disqualifying**, however good the length is. C's length was
+right; C's implementation was not.
+
+✅ **WHAT THE AUDIT CONFIRMED, so it is not all bad news:** the re-pinning is honest — 326
+edges / 551 arms, 0 false-OK and 0 false-BAD recomputed independently, both residuals
+pessimistic-only with the optimistic tail exactly 0.0000, and the closest-to-flip edge in the
+whole suite is 3.00 m away (E_short_t), so the verdict margin is not luck. 13 of 13 expected
+mutations of the new bounds died. The HDA write itself is clean by `hotl -X`, flags unmoved.
+
+**THE FIX, prescribed and under construction:** give the gore nose a GORE radius instead of the
+class corner radius (short cut, real arc, no check widened, no exempted corner), and restore a
+bound against the arm's own length rather than a width multiple — a width multiple is what put
+the corner on neither kerb line in the first place. Plus a sub-floor case (θ ≈ 12°) so the gate
+can finally see the blowup, verified to FAIL before the fix and PASS after.
+
+⚠️ **AND CANDIDATE C REACHED 25 TOO, BY THE OPPOSITE MEANS — an OPEN measured
+contradiction, under adjudication.** C fuses the shallow pair instead of deleting the clamp:
+K stays on both kerb lines, the fillet is dropped, and both arms' inner cap corners land
+exactly ON K — one shared endpoint on the bisector, no arc, no spike, marked by a new
+`after_corner = 2` ("throat"). Same score (25), both O rows green, only O moved,
+`every_corner_is_an_arc` tangent 7.3e-06 and `selfx_city_merged` 8 (marginally better than B's
+2.5e-05 / 9). C also MIRRORS `plan._corner`, which §11.5 requires and B did not.
+
+**The contradiction is worth resolving properly, because it decides the SHIPPED LENGTH of every
+merge junction.** B cuts O at **121.00 m**; C cuts it at **72.94 m** — 40% shorter. B argued
+short cuts are the trap, computing that O's 32.80 m ribbon separates only at
+`32.80 / sin 22°` = 87.56 m, and PREDICTED that a 72.94 m cut would red `selfx_roads`. **B
+never gated that variant. C gated one and reports `selfx_roads` 0, unmoved.** A gate run beats
+arithmetic, but `selfx_roads` is exactly the check that has been blind to coplanar overlap
+before (the 2026-08-09 incident: `selfx_junction_surface` and `selfx_roads` both passed while
+the MERGED city carried 102 intersections), so "the check is green" is not yet "the geometry is
+clean". An adjudicating agent is deriving the separation formula independently and testing the
+two ribbons for real 2D overlap outside the check. ⚠️ **Do not treat B's 121 m as settled
+until that returns** — and note that a 121 m "junction" is the harder thing to defend when the
+artist looks at it.
+
+C's other trade, recorded so the adjudication has both sides: `after_corner = 2` required
+widening `trim_metric_is_consistent`'s mouth detector from `== 1` to `!= 0`, and C
+self-declared the blind spot — a genuine corner mislabelled `2` would then be skipped by every
+corner check. That is the "a check that can no longer fail" hazard this project keeps paying
+for, and it is the strongest argument against C as it stands.
+
+**M5.5 BUILT 2026-08-17 — ⛔ §S5a item 4's approach angle is CLOSED. Gate unmoved at 25;
+only `J_five_star` moves, and the prediction in the spec was BACKWARDS.**
+
+`graph_realign` lands a crowded leg into its own T, but the approach was whatever the crowded
+pair's angle happened to be, softened by a translation blend — **56.701°** measured, which
+confirms the spec's 56.70° exactly. It is now a **cubic Hermite** pinned at the landing
+(tangent ⊥ the host's LOCAL tangent, flipped onto the leg's side) and at the leg's own vertex
+`blend` out (tangent = the leg's onward direction, so the far end still never moves and the
+join is C1), gated on `pfsg_turn_residual(chain, rmin, 0) <= 1.0` — **the exact expression
+`graph_turn_clamp` solves against** — with the old translation blend kept as the fallback.
+Result: **56.701° → 86.788°**, and the clamp measurably STOPPED fighting the leg
+(`graph_turn_fuse` moved it 0.000000 m, `graph_turn_clamp` returned it bit-identical).
+
+⚠️ **AND THE 0° AND 75–90° TARGETS GENUINELY NEED SEPARATE CODE PATHS — §11.6 hoped they
+were one mechanism, and the WELD LAW is why they are not.** `0.5/sin α` is unbounded at 0° and
+just 0.50 m at 86.8°. So the merge's mechanism is defined by *not* writing a shape (every
+attempt to author one was dragged by the fuse), while here **the shape IS the entire
+mechanism**. Unifying them would mean sharing a branch neither takes.
+
+⚠️ **§S5a item 4's PREDICTION WAS BACKWARDS, and this is the finding to keep.** The spec said
+re-routing "is what would let the landing floor come DOWN". Measured: it pushes the required
+distance UP. On J's 48.000 m arterial stub the node-end trim is unchanged at 10.339 while the
+LANDING-end trim goes **5.000 → 12.529** — the same 11.8–13.0 m every other near-perpendicular
+arm in J pays, because **squaring a T charges a square corner**. `trim_leaves_road_standing`
+min_ratio therefore falls **1.219 → 0.938** and `under_ratio_all` goes 0 → 1 (the ASSERTED
+`under_ratio` stays 0, and C_radial's two-junction arterials already ship at 0.82–0.85, so it
+is inside the check's own precedent). Ratio ≥ 1 needs ≈**49.7 m** against a 45 m floor snapped
+to the 48 m vertex — **1.7 m short.** The landing floor is now the open half of item 4, and
+which way to resolve it is the artist's call.
+
+⚠️ **THE MILESTONE WAS NEARLY UNREACHABLE, and that bounds what this verifies.**
+`graph_realign` fires **exactly once in the entire 16-case corpus** — J_five_star, gap
+31.999°, landing (48, 0). So M5.5 rests on ONE measured site. A second is wanted, and the
+48.25° artist-scene site is not in the corpus and is unmeasured after this change.
+
+**Verification: `realign_route_control_rig`** (new, sibling to the merge rig — the 75–90°
+target lives in `graph_realign`, so a station on the MOVER's rig would have tested nothing).
+Six stations 600 m apart — re-routes / reversed prim / gate-refuses / curved host / degree-4 /
+leg on the −z side — **swept across `turn_radius_scale` {1, 2, 4, 8}** per §11.6, asserted as
+invariants rather than pinned values. **Eleven mutations of the production VEX were each seen
+to go red**, including both `n < 5` degree gates, the side-flip test, the curved-host oracle,
+the reversed-prim oracle, and the fallback's decay.
+
+⚠️ **Two audit rounds, and the second one is the lesson: I had asserted ATTACHMENT but not
+SHAPE.** Deleting the fallback's body was caught; HALVING its decay was not — that mutant tears
+the leg (last blended vertex ~30 m from a pin that never moved, curvature 0.975 → **12.20**)
+and shipped green at every scale, because the guard was vacuous on every fallback. Round 1 had
+separately caught the curved station passing its own mutation. Both are killed now. ⚠️ Also
+found and fixed: two mutants were "killed" by a margin of **1.0000000000047748e-3** against a
+1e-3 threshold on 3-dp-rounded values — a float coin flip, i.e. a kill that proved nothing and
+a latent flake that could fire on any 1-ulp shift.
+
+**Recorded gaps, unguarded and now known:** `need = (wA+wB)/(4·sin(gap/2))` — the formula that
+decides WHERE the T goes, and the whole basis of §S5a's "42 m plates on a 32 m gap" — can be
+HALVED with the corpus bit-identical; the crowding rail can be disabled with the corpus
+bit-identical; and `d < lo`, the realign's own refusal, **has never executed on any case**.
+`.OPfallbacks` records the nested junction HDA by ABSOLUTE path and now names this worktree —
+inert (the relative record is unchanged, and any edit from any checkout rewrites it), recorded
+so it is not mistaken for a real diff.
 
 **STILL OPEN after the mover shipped:** the merge MOUTH contract in `s5j_solve` and its
 `plan.node_trims` mirror, in one commit — the landing builds as a crossing at ~12°, below the

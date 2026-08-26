@@ -6,7 +6,15 @@
 `s5j_solve` cuts off each arm, as a function of arms, widths, classes and
 angles, so `standing` is checkable before any geometry exists. The measured
 plates it is checked against live in `trim_calibration.json`, written by
-`hython tests/citygen/dump_trims.py` on all sixteen cases — 545 arms.
+`hython tests/citygen/dump_trims.py` on all sixteen cases — 551 arms.
+
+⚠️ **THE FIXTURE WENT STALE ONCE AND HID A MILESTONE.** It was not
+regenerated after M5.3's mover, so it recorded M and O with THREE edges -
+the pre-mover topology where the shallow leg was DELETED - while the build
+shipped five. 49 tests stayed green against a shape the builder had stopped
+producing. **Regenerate this fixture in the same commit as any builder
+change that moves a trim**; the scene baseline being current is not
+evidence that this one is.
 
 MUTATION-TESTED across four audit rounds (10, then 16, then 1 real survivor).
 The tables, the tolerances and the dust epsilon are all two-sided-pinned.
@@ -104,9 +112,35 @@ RESIDUAL_M = {
     "G_tongue":        0.001,   # measured 0.000000
     "J_five_star":     0.001,   # measured 0.000034
     "K_stub_triangle": 0.001,   # measured 0.000007
-    "M_shallow_y_24":  0.001,   # M2, measured 0.000000
     "N_shallow_y_32":  0.001,   # M2, measured 0.000000
-    "O_shallow_y_host_dies": 0.001,   # M2, measured 0.000000
+    # ⚠️ M AND O ARE NO LONGER EXACT, and this is the first time a
+    # STRAIGHT-armed case has not been. Both carry a merge landing (M5.3),
+    # and `crossing_trims` solves it in the NODE frame - O's shallow pair
+    # reads 13.55° there against 22.00° at the cut where `s5j_solve`
+    # re-solves it. Same frame-refinement gap the curved cases always had;
+    # it has simply arrived on a straight one. Two-sided-pinned like them.
+    # ⚠️ BOTH MOVED WITH THE GORE FIX, IN OPPOSITE DIRECTIONS, and the reason
+    # is the same fact seen from two sides: the planner solves in the NODE
+    # frame and the builder re-solves at the CUT, and the gore radius makes
+    # the reach far more sensitive to which angle you use. M's landing reads
+    # 15.5 deg at the node and 24.0 at the cut - the node frame is the shallow
+    # one, so the planner used to over-run the fillet and now does not (15.96
+    # -> 4.11, a 4x improvement). O's reads 13.55 at the node and 22.0 at the
+    # cut, and 13.55 deg is DEEP in the gore regime while 22.0 is only just
+    # inside it: the planner's reach is (h + r)/tan(6.775) = 121 m against the
+    # builder's 78 m, so the residual grows (8.07 -> 43.35).
+    #
+    # ⚠️ Both are PESSIMISTIC ONLY - see STANDING_ERROR_M, whose optimistic
+    # tail for both is exactly 0.0000. The planner under-claims standing street
+    # at a merge; §11.4 calls only the other direction dangerous. Closing this
+    # needs the planner to see the CUT frame, which is the §9 segment shape,
+    # not a number in this table.
+    "M_shallow_y_24":  4.12,    # M5.3 merge landing, measured 4.1121
+    "O_shallow_y_host_dies": 43.35,   # measured 43.3467 (8.0704 before the
+                                #  gore radius; the frame gap, not the fix)
+    "R_shallow_y_12_subfloor": 0.001,  # sub-floor, mover does NOT fire, so the
+                                #  node frame IS the cut frame - measured
+                                #  0.000682, exact
     "P_stub_chain":    0.001,   # M2, measured 0.000000
     "Q_junction_ring": 0.001,   # M4 case; crossing build since the 2026-08-17
                                 # revert, measured 0.000079
@@ -124,8 +158,8 @@ OVER_HALF_METRE = {
     "A_drawn": 2, "B_grid": 24, "C_radial": 97, "D_offset": 2,
     "E_short_t": 0, "F_bend": 0, "G_tongue": 0, "H_offset_strict": 2,
     "I_offset_radial": 97, "J_five_star": 0, "K_stub_triangle": 0,
-    "M_shallow_y_24": 0, "N_shallow_y_32": 0, "O_shallow_y_host_dies": 0,
-    "P_stub_chain": 0, "Q_junction_ring": 0,
+    "M_shallow_y_24": 2, "N_shallow_y_32": 0, "O_shallow_y_host_dies": 3,
+    "P_stub_chain": 0, "Q_junction_ring": 0, "R_shallow_y_12_subfloor": 0,
 }
 
 # ⚠️ The residual on an ARM is not the number a consumer needs, and reporting it
@@ -146,17 +180,31 @@ STANDING_ERROR_M = {
     "G_tongue":       (0.001, -0.001),
     "J_five_star":    (0.001, -0.001),
     "K_stub_triangle": (0.001, -0.001),
-    "M_shallow_y_24": (0.001, -0.001),
     "N_shallow_y_32": (0.001, -0.001),
-    "O_shallow_y_host_dies": (0.001, -0.001),
+    # ⚠️ Both merge landings are PESSIMISTIC ONLY - the optimistic tail is
+    # exactly 0.0000. The planner under-claims how much street stands at a
+    # merge, never over-claims, which is the safe direction and the only
+    # one this table exists to police.
+    "M_shallow_y_24": (0.001, -4.12),
+    "O_shallow_y_host_dies": (0.001, -43.35),
     "P_stub_chain": (0.001, -0.001),
     "Q_junction_ring": (0.001, -0.001),
+    "R_shallow_y_12_subfloor": (0.001, -0.001),
 }
 
+# ⚠️ M and O LEFT this list with M5.4: they are straight-armed and still
+# not reproduced exactly, because a merge landing is a node whose frame
+# refines between the planner and the builder. Membership is derived from
+# the data by a test below, so this list cannot quietly drift from it.
+#
+# ⚠️ R JOINED IT, and that is the sharpest single piece of evidence that the
+# frame gap - not the gore rule - is what M and O's residuals measure. R is the
+# same rig as O at 12 deg, deep in the gore regime, and it is reproduced to
+# 0.7 mm. The difference is that below the mover's arrival floor the mover does
+# not fire, so R's node frame IS its cut frame.
 STRAIGHT_CASES = ("E_short_t", "F_bend", "G_tongue", "J_five_star",
-                  "K_stub_triangle", "M_shallow_y_24", "N_shallow_y_32",
-                  "O_shallow_y_host_dies", "P_stub_chain",
-                  "Q_junction_ring")
+                  "K_stub_triangle", "N_shallow_y_32", "P_stub_chain",
+                  "Q_junction_ring", "R_shallow_y_12_subfloor")
 
 
 def load():
@@ -167,8 +215,15 @@ def load():
 def case_nodes(case):
     """The dumped case as planner data, plus the params the builder used."""
     pp = case["params"]
-    params = plan.Params(pp["miter_limit"], pp["corner_radius_scale"],
-                         pp["max_fillet_fraction"], pp["min_end_segment"])
+    # ⚠️ BY KEYWORD, not by position. This call used to be positional and the
+    # gore fix added two parameters to `Params`; a positional call is exactly
+    # how a new argument silently binds to the wrong slot.
+    params = plan.Params(miter_limit=pp["miter_limit"],
+                         corner_radius_scale=pp["corner_radius_scale"],
+                         max_fillet_fraction=pp["max_fillet_fraction"],
+                         min_end_segment=pp["min_end_segment"],
+                         gore_radius=pp["gore_radius"],
+                         min_standing_widths=pp["min_standing_widths"])
     nodes = []
     for nd in case["nodes"]:
         arms = [plan.Arm(a["edge_id"], a["dir"], a["width"], a["street_class"],
@@ -300,7 +355,7 @@ class TestCalibration(unittest.TestCase):
         that is 0.1 m out and flips a verdict is not, and no residual table can
         tell the two apart.
 
-        Measured over all 322 edges of the suite: zero false-OK (planner says
+        Measured over all 331 edges of the suite: zero false-OK (planner says
         the street stands, the builder ate it) and zero false-BAD. That result
         was found by the M1 audit and was not asserted anywhere, which is
         exactly how a good property rots.
@@ -320,7 +375,7 @@ class TestCalibration(unittest.TestCase):
                     false_ok.append((name, e["edge_id"], mine, theirs))
                 elif theirs > 0 >= mine:
                     false_bad.append((name, e["edge_id"], mine, theirs))
-        self.assertEqual(edges, 322)
+        self.assertEqual(edges, 331)
         self.assertEqual(false_ok, [])
         self.assertEqual(false_bad, [])
 
@@ -361,8 +416,25 @@ class TestCalibration(unittest.TestCase):
         for name in sorted(self.data["cases"]):
             worst = max(worst, max(abs(r[0])
                                    for r in residuals(self.data["cases"][name])))
-        self.assertLessEqual(worst, plan.CURVED_ARM_RESIDUAL_M)
-        self.assertGreater(worst, plan.CURVED_ARM_RESIDUAL_M - 0.01)
+        # ⚠️ TWO CLASSES SINCE M5.4, and collapsing them would have
+        # tripled a published number. The curved arms are still bounded by
+        # `CURVED_ARM_RESIDUAL_M`; the merge landings are their own thing -
+        # STRAIGHT arms that the planner still mis-reads, because the node
+        # frame and the cut frame disagree about the shallow pair's angle.
+        merges = ("M_shallow_y_24", "O_shallow_y_host_dies")
+        curved = 0.0
+        for name in sorted(self.data["cases"]):
+            if name in merges:
+                continue
+            curved = max(curved, max(abs(r[0])
+                                     for r in residuals(self.data["cases"][name])))
+        self.assertLessEqual(curved, plan.CURVED_ARM_RESIDUAL_M)
+        self.assertGreater(curved, plan.CURVED_ARM_RESIDUAL_M - 0.01)
+        self.assertLessEqual(worst, plan.MERGE_LANDING_RESIDUAL_M)
+        self.assertGreater(worst, plan.MERGE_LANDING_RESIDUAL_M - 0.01)
+        # ...and the merge landing really is the worse of the two, which is
+        # the fact the two constants exist to keep visible
+        self.assertGreater(worst, curved)
 
     def test_graph_trims_lands_each_cut_on_the_right_END_of_the_right_street(self):
         """The assembly, not the corner — a different code path with its own way
@@ -373,7 +445,7 @@ class TestCalibration(unittest.TestCase):
         junction at both. Swapping `trim_start` for `trim_end` leaves every
         per-arm comparison above green and makes every `standing` on a
         two-junction street garbage. Asserted against the builder's own
-        `trim_start` / `trim_end` on all 545 arms — and every street the builder
+        `trim_start` / `trim_end` on all 557 arms — and every street the builder
         cut must be a street the planner saw, which is the coverage half of the
         same claim: an arm silently dropped in node extraction would leave the
         per-arm comparison green and simply not be checked.
@@ -398,7 +470,7 @@ class TestCalibration(unittest.TestCase):
                         self.assertEqual(e["trim_end"], 0.0)
                     else:
                         seen += 1
-        self.assertEqual(seen, 322, "the planner did not see every street")
+        self.assertEqual(seen, 331, "the planner did not see every street")
 
 
 class TestKVerdict(unittest.TestCase):
@@ -538,29 +610,145 @@ class TestCornerModel(unittest.TestCase):
         # left is the corner with the arterial: 13.4 + 4.0
         self.assertAlmostEqual(trims["east"], 17.4, places=6)
 
-    def test_a_shallow_corner_is_clamped_by_the_miter_limit(self):
-        """Without the clamp the kerb-line corner spikes to infinity as the gap
-        closes, so the cut must be finite and bounded by the clamped corner plus
-        the fillet run.
+    def _shallow_node(self, length):
+        """An arterial against a local at 10 degrees — a GORE, not a corner.
 
-        ⚠️ **THE WIDTHS HERE MUST DIFFER, and the first version's did not.** The
-        clamp reads `max(wA, wB)` in two places, and with three identical arms
-        `max` and `min` are the same number and `hypot(raw_a, ha)` and
-        `hypot(raw_a, hb)` are the same length — so two wrong clamps passed. The
-        M1 audit found both by mutation. An arterial against a local at 10
-        degrees separates all three: correct 98.9748, `min`-width 74.3346,
-        `hb`-in-the-hypot 101.0. The window is 1e-4, not 46 m.
+        ⚠️ **THE WIDTHS MUST DIFFER, and the first version's did not.** The
+        regime test reads `max(wA, wB)`, and with three identical arms `max`
+        and `min` are the same number and `hypot(raw_a, ha)` and
+        `hypot(raw_a, hb)` are the same length — so two wrong tests passed. The
+        M1 audit found both by mutation.
+        """
+        return plan.Node("m", (0, 0), [
+            self._arm(0, 26.8, "arterial", length, "a"),
+            self._arm(10, 14.4, "local", length, "b"),
+            self._arm(180, 14.4, "local", 400.0, "c"),
+        ])
+
+    def test_a_shallow_corner_takes_the_GORE_radius_not_the_class_radius(self):
+        """Above the miter limit the corner is a gore nose, and the nose radius
+        is `gore_radius` (1.0 m), NOT `min(class radii)`.
+
+        Three answers separate here and the window between them is tens of
+        metres, not a tolerance:
+
+            gore radius   128.8884   (117.46 kerb corner + 1.0/tan 5 = 11.43)
+            class radius  163.1846   (117.46 + 4.0/tan 5 = 45.72) — the local's
+                                      4 m is what the mixed-class rule picks
+            old clamp      98.9748   — the deleted `miter_limit x half-width`
+                                      clamp, which put K on neither kerb line
 
         `min_end_segment` is off so the vertex push cannot mask the term.
         """
-        node = plan.Node("m", (0, 0), [
-            self._arm(0, 26.8, "arterial", 400.0, "a"),
-            self._arm(10, 14.4, "local", 400.0, "b"),
-            self._arm(180, 14.4, "local", 400.0, "c"),
-        ])
-        trims = plan.crossing_trims(node, plan.Params(min_end_segment=0.0))
-        self.assertAlmostEqual(trims["a"], 98.9748, places=4)
-        self.assertAlmostEqual(trims["b"], 99.2207, places=4)
+        p = plan.Params(min_end_segment=0.0)
+        trims = plan.crossing_trims(self._shallow_node(400.0), p)
+        self.assertAlmostEqual(trims["a"], 128.8884, places=4)
+        self.assertAlmostEqual(trims["b"], 129.4308, places=4)
+        # ...and raising the gore radius has to move it by exactly the run it
+        # buys, or the parm is not the thing being read
+        wide = plan.crossing_trims(self._shallow_node(400.0),
+                                   plan.Params(min_end_segment=0.0,
+                                               gore_radius=3.0))
+        self.assertAlmostEqual(wide["a"] - trims["a"],
+                               2.0 / math.tan(math.radians(5.0)), places=4)
+
+    def test_the_gore_reach_is_bounded_by_the_arms_OWN_LENGTH(self):
+        """⚠️ THE BRANCH NO SCENE CASE REACHES, and the blocker's whole point.
+
+        An unbounded gore reach is what deleted streets: on the drawn
+        shallow-Ys it cut 686 m off a 196 m arm at 8 degrees and 1122 m off a
+        192 m arm at 6. The bound is against the arm's OWN LENGTH, in
+        `trim_leaves_road_standing`'s currency — the reach may not leave less
+        than `min_standing_widths x width` (or `min_end_segment`) standing —
+        and it applies ONLY on the gore branch, because below the miter limit
+        the limit itself already bounds the corner.
+
+        At 400 m the corner is 128.89 m and nothing binds. At 120 m the same
+        corner would still want 128.89 m, which is more than the arm has: the
+        arterial is capped at 120 - 26.8 and the local at 120 - 14.4, exactly,
+        so each arm keeps one full width of standing street.
+
+        R_shallow_y_12_subfloor is the scene case for the gore RADIUS; it
+        deliberately does not reach this bound (its cap is 173.2 m against a
+        137 m reach). Nothing else in the repo exercises it.
+        """
+        p = plan.Params(min_end_segment=0.0)
+        loose = plan.crossing_trims(self._shallow_node(400.0), p)
+        self.assertAlmostEqual(loose["a"], 128.8884, places=4)
+        tight = plan.crossing_trims(self._shallow_node(120.0), p)
+        self.assertAlmostEqual(tight["a"], 120.0 - 26.8, places=6)
+        self.assertAlmostEqual(tight["b"], 120.0 - 14.4, places=6)
+        # every street survives its own junction, which is the property
+        self.assertGreater(120.0 - tight["a"], 0.0)
+        self.assertGreater(120.0 - tight["b"], 0.0)
+        # ...and the standing floor is the parm, not a constant
+        half = plan.crossing_trims(
+            self._shallow_node(120.0),
+            plan.Params(min_end_segment=0.0, min_standing_widths=0.5))
+        self.assertAlmostEqual(half["a"], 120.0 - 13.4, places=6)
+
+    def test_the_miter_limit_is_where_the_two_regimes_meet(self):
+        """`miter_limit` 4.0 turns over at 2*asin(1/4) = 28.955 degrees for two
+        equal-width arms, and the two regimes give answers 30 m apart there —
+        so the constant is pinned by a measurement rather than by a comment.
+
+        ⚠️ The jump is UPWARD as the angle OPENS, which looks wrong until you
+        see that it is the 9 m class radius arriving, not the corner moving.
+        """
+        p = plan.Params(min_end_segment=0.0)
+
+        def cut(gap, params=p):
+            node = plan.Node("g", (0, 0), [
+                self._arm(0, 26.8, "arterial", 400.0, "a"),
+                self._arm(gap, 26.8, "arterial", 400.0, "b"),
+                self._arm(180, 26.8, "arterial", 400.0, "c"),
+            ])
+            return plan.crossing_trims(node, params)["a"]
+
+        self.assertAlmostEqual(cut(28.9), 55.8818, places=4)     # gore
+        self.assertAlmostEqual(cut(29.0), 86.6144, places=4)     # class fillet
+        # ...and the LIMIT is what moves the boundary, not the angle: at 2.0 the
+        # turnover is 60 degrees, so 29 degrees becomes a gore too
+        self.assertAlmostEqual(
+            cut(29.0, plan.Params(min_end_segment=0.0, miter_limit=2.0)),
+            55.6807, places=4)
+
+    def test_the_gore_radius_floor_puts_the_mouths_past_the_overlap(self):
+        """⚠️ THE FLOOR IS NOT DECORATION, and at the default it never fires —
+        so without this test it would be an unexercised branch.
+
+        Two carriageways of half-width h leave a node at theta and stop
+        overlapping at `(hA + hB) / sin(theta)` along each axis. A gore nose of
+        radius r puts the mouth at `ka + r/tan(theta/2)`, and the difference
+        works out to exactly `r/tan(half) - max(h) * tan(half)` — so the mouths
+        land INSIDE the overlap whenever `r < max(h) * tan^2(half)`, and the two
+        roads then interpenetrate past their own junction. That is the floor.
+
+        Asserted as a DIFFERENTIAL against the separation distance, computed
+        here from the widths and the angle rather than read off the model: with
+        the floor the cut lands ON the separation point to 1e-4 m at every
+        angle; with the raw 1.0 m gore radius it lands 1.05 / 2.13 / 3.14 m
+        short of it.
+
+        `miter_limit` is 2.0 so the gore branch is reachable at angles where the
+        floor bites at all — at the shipped 4.0 the two windows do not overlap
+        for a 26.8 m arterial, which is why 1.0 m is the default and why this
+        needs a hand fixture rather than a case.
+        """
+        p = plan.Params(min_end_segment=0.0, miter_limit=2.0)
+        for gap in (35.0, 40.0, 45.0):
+            half = math.radians(gap) * 0.5
+            node = plan.Node("f", (0, 0), [
+                self._arm(0, 26.8, "arterial", 400.0, "a"),
+                self._arm(gap, 26.8, "arterial", 400.0, "b"),
+                self._arm(180, 26.8, "arterial", 400.0, "c"),
+            ])
+            got = plan.crossing_trims(node, p)["a"]
+            separation = 26.8 / math.sin(math.radians(gap))
+            unfloored = 14.4 / math.tan(half)      # ka + 1.0/tan(half)
+            with self.subTest(gap=gap):
+                self.assertAlmostEqual(got, separation, places=4)
+                self.assertLess(unfloored, separation - 1.0)
 
     def test_the_collinear_threshold_is_where_the_builder_puts_it(self):
         """`pfsj_corner_lines` gives up at |sin(gap)| < 0.02 — about 1.146
@@ -673,7 +861,7 @@ class TestClearOfVertex(unittest.TestCase):
         `ceil(L / 4)` equal segments. That premise was verified once, by hand,
         and asserted nowhere — while `plan.py` carries a note that the two ways
         of counting it (chord-sum here, input arc length in the SOP) could
-        disagree, and **19 of the 322 edges sit exactly on an integer L/4**,
+        disagree, and **28 of the 331 edges sit exactly on an integer L/4**,
         where one ulp flips `nseg` and shifts the whole grid.
 
         The fixture already records `npts`, so the premise is free to check.
@@ -692,8 +880,8 @@ class TestClearOfVertex(unittest.TestCase):
                                  e["npts"] - 1,
                                  "%s %s L=%r" % (name, e["edge_id"],
                                                  e["length"]))
-        self.assertEqual(checked, 322)
-        self.assertEqual(on_integer, 21)     # the ones the epsilon protects
+        self.assertEqual(checked, 331)
+        self.assertEqual(on_integer, 28)     # the ones the epsilon protects
 
     def test_the_dust_epsilon_is_pinned_on_BOTH_sides(self):
         """⚠️ The fixture cannot pin this and the test that claimed to did not.
@@ -701,7 +889,7 @@ class TestClearOfVertex(unittest.TestCase):
         `resample_segments` subtracts 1e-9 before `ceil` so a length that is
         arithmetically `4n`, arriving a few ulps over, does not gain a segment
         and shift every vertex. Round 3 deleted the epsilon and all 38 tests
-        stayed green: of the 322 edges, the 21 "on an integer L/4" sit at
+        stayed green: of the 331 edges, the 28 "on an integer L/4" sit at
         exactly 0.0 deviation, where `ceil` needs no help, and **zero** sit in
         the band where it does. So it is pinned here, directly, on both sides —
         dust is absorbed, a real overshoot is not.
@@ -1179,14 +1367,20 @@ class TestMerge(unittest.TestCase):
                 need, places=4, msg=label)
             self.assertTrue(plan.merge_feasible(minor_len, width, th), label)
             self.assertGreater(minor_len / need, 11.0, label)
-        # ...and O's leg, the arm that SURVIVES, is an arterial too - the class
-        # the fixture ships. If this ever reads collector the case has changed
-        # shape and the paragraph above is stale.
-        o_leg = [e for e in load()["cases"]["O_shallow_y_host_dies"]["edges"]
-                 if abs(e["length"] - 599.77) < 0.01]
-        self.assertEqual(len(o_leg), 1)
-        self.assertEqual(o_leg[0]["street_class"], "arterial")
-        self.assertAlmostEqual(o_leg[0]["width"], 26.8, places=3)
+        # ⚠️ AND THE MOVER CHANGED WHAT THIS GUARD SHOULD ASSERT. It used to
+        # look for O's 599.77 m FUSED arterial - west host + leg welded into
+        # one street because `graph_min_angle` had deleted the east arm. M5.3
+        # stopped that deletion, so no fused street exists any more and both
+        # legs SHIP. The guard now asserts the thing the milestone is for:
+        # each leg survives as its own edge, and it is LONGER than drawn
+        # because the merge swings it (M 120 -> 123.75, O 300 -> 303.79).
+        for case, drawn, cls in (("M_shallow_y_24", 120.0, "collector"),
+                                 ("O_shallow_y_host_dies", 300.0, "arterial")):
+            legs = [e for e in load()["cases"][case]["edges"]
+                    if drawn < e["length"] < drawn + 10.0
+                    and e["street_class"] == cls]
+            self.assertEqual(len(legs), 1, case)
+            self.assertGreater(legs[0]["length"], drawn, case)
         # ...and M's leg, from N's fixture entry, which is the identically
         # drawn 120 m leg. Both halves of the paragraph go stale loudly or
         # neither does.
