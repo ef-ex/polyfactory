@@ -1241,6 +1241,15 @@ MUTATIONS = (
       ((FACADE_BUILD, '"height", "Building Height (m)"',
         '"height", "Building Height"'),)),
 
+    M("facade_height_never_greys_out", "facade",
+      ("facade_parm_page_obeys_the_ux_law",),
+      "artist_ui 6's RAMP: Building Height means nothing in Boundary Shape "
+      "and stops saying so. Greyed out rather than hidden is the rule, and "
+      "`hou.Parm.isDisabled()` does not answer it in hython - the assertion "
+      "is the saved DialogScript's own `disablewhen`, per parm and by VALUE.",
+      ((FACADE_BUILD, '_height.setDisableWhen("{ shape != footprint }")',
+        '_height.setHelp(_height.help())'),)),
+
     M("polychain_icon_back_to_subnet", "facade",
       ("polychain_assets_carry_5_1_metadata",),
       "5.1a undone on the 1D node - the exact state it SHIPPED in for four "
@@ -1304,7 +1313,7 @@ EXPECT_CHECKS = {
     # 7.7, added 2026-08-25 with 10 mutations covering all 14 names.
     # C1's audit added five, 2026-08-25: 19 names, 15 mutations.
     "slice": 19,
-    # P2-9, added 2026-08-26: 11 names, 12 mutations, 0 unproven.
+    # P2-9, added 2026-08-26: 11 names, 13 mutations, 0 unproven.
     "facade": 11,
 }
 

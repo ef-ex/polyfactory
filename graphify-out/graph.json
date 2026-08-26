@@ -14420,7 +14420,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_crosshair",
-      "community": 204,
+      "community": 60,
       "norm_label": "draw_crosshair()"
     },
     {
@@ -14430,7 +14430,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_normal_indicator",
-      "community": 60,
+      "community": 204,
       "norm_label": "draw_normal_indicator()"
     },
     {
@@ -14450,7 +14450,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_11",
-      "community": 204,
+      "community": 60,
       "norm_label": "draw simple crosshair at position.          args:         drawable: houdini d"
     },
     {
@@ -14460,7 +14460,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_50",
-      "community": 60,
+      "community": 204,
       "norm_label": "draw line indicating surface normal.          args:         drawable: houdini"
     },
     {
@@ -24967,7 +24967,7 @@
       "label": "check()",
       "file_type": "code",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L60",
+      "source_location": "L61",
       "_origin": "ast",
       "id": "polychain_run_facade_hda_checks_check",
       "community": 79,
@@ -24977,7 +24977,7 @@
       "label": "feed()",
       "file_type": "code",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L67",
+      "source_location": "L68",
       "_origin": "ast",
       "id": "polychain_run_facade_hda_checks_feed",
       "community": 79,
@@ -24987,7 +24987,7 @@
       "label": "payload_geo()",
       "file_type": "code",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L78",
+      "source_location": "L79",
       "_origin": "ast",
       "id": "polychain_run_facade_hda_checks_payload_geo",
       "community": 79,
@@ -24997,7 +24997,7 @@
       "label": "spline_geo()",
       "file_type": "code",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L84",
+      "source_location": "L85",
       "_origin": "ast",
       "id": "polychain_run_facade_hda_checks_spline_geo",
       "community": 79,
@@ -25007,7 +25007,7 @@
       "label": "gen_footprints()",
       "file_type": "code",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L100",
+      "source_location": "L101",
       "_origin": "ast",
       "id": "polychain_run_facade_hda_checks_gen_footprints",
       "community": 79,
@@ -25017,7 +25017,7 @@
       "label": "build_node()",
       "file_type": "code",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L125",
+      "source_location": "L126",
       "_origin": "ast",
       "id": "polychain_run_facade_hda_checks_build_node",
       "community": 79,
@@ -25027,7 +25027,7 @@
       "label": "oracle()",
       "file_type": "code",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L141",
+      "source_location": "L142",
       "_origin": "ast",
       "id": "polychain_run_facade_hda_checks_oracle",
       "community": 79,
@@ -25037,7 +25037,7 @@
       "label": "differential()",
       "file_type": "code",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L160",
+      "source_location": "L161",
       "_origin": "ast",
       "id": "polychain_run_facade_hda_checks_differential",
       "community": 79,
@@ -25047,7 +25047,7 @@
       "label": "main()",
       "file_type": "code",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L190",
+      "source_location": "L191",
       "_origin": "ast",
       "id": "polychain_run_facade_hda_checks_main",
       "community": 79,
@@ -25067,9 +25067,9 @@
       "label": "A Python SOP that hands the node one `hou.Geometry` we already hold.",
       "file_type": "rationale",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L68",
+      "source_location": "L69",
       "_origin": "ast",
-      "id": "polychain_run_facade_hda_checks_rationale_68",
+      "id": "polychain_run_facade_hda_checks_rationale_69",
       "community": 79,
       "norm_label": "a python sop that hands the node one `hou.geometry` we already hold."
     },
@@ -25077,9 +25077,9 @@
       "label": "Closed polygons from point lists - D127's spline ports as geometry.",
       "file_type": "rationale",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L85",
+      "source_location": "L86",
       "_origin": "ast",
-      "id": "polychain_run_facade_hda_checks_rationale_85",
+      "id": "polychain_run_facade_hda_checks_rationale_86",
       "community": 79,
       "norm_label": "closed polygons from point lists - d127's spline ports as geometry."
     },
@@ -25087,9 +25087,9 @@
       "label": "Seeded footprints: a rectangle, an L, and n random convex rings.      Generated",
       "file_type": "rationale",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L101",
+      "source_location": "L102",
       "_origin": "ast",
-      "id": "polychain_run_facade_hda_checks_rationale_101",
+      "id": "polychain_run_facade_hda_checks_rationale_102",
       "community": 79,
       "norm_label": "seeded footprints: a rectangle, an l, and n random convex rings.      generated"
     },
@@ -25097,9 +25097,9 @@
       "label": "The shipped entry point, called with the arguments the page carries.",
       "file_type": "rationale",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L142",
+      "source_location": "L143",
       "_origin": "ast",
-      "id": "polychain_run_facade_hda_checks_rationale_142",
+      "id": "polychain_run_facade_hda_checks_rationale_143",
       "community": 79,
       "norm_label": "the shipped entry point, called with the arguments the page carries."
     },
@@ -25107,9 +25107,9 @@
       "label": "Cook each case both ways and compare EVERYTHING at tolerance 0.",
       "file_type": "rationale",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L161",
+      "source_location": "L162",
       "_origin": "ast",
-      "id": "polychain_run_facade_hda_checks_rationale_161",
+      "id": "polychain_run_facade_hda_checks_rationale_162",
       "community": 79,
       "norm_label": "cook each case both ways and compare everything at tolerance 0."
     },
@@ -93223,11 +93223,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L68",
+      "source_location": "L69",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_run_facade_hda_checks_rationale_68",
-      "target": "polychain_run_facade_hda_checks_feed"
+      "source": "polychain_run_facade_hda_checks_rationale_69",
+      "target": "polychain_run_facade_hda_checks_feed",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -93255,11 +93255,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L85",
+      "source_location": "L86",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_run_facade_hda_checks_rationale_85",
-      "target": "polychain_run_facade_hda_checks_spline_geo"
+      "source": "polychain_run_facade_hda_checks_rationale_86",
+      "target": "polychain_run_facade_hda_checks_spline_geo",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -93276,11 +93276,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L101",
+      "source_location": "L102",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_run_facade_hda_checks_rationale_101",
-      "target": "polychain_run_facade_hda_checks_gen_footprints"
+      "source": "polychain_run_facade_hda_checks_rationale_102",
+      "target": "polychain_run_facade_hda_checks_gen_footprints",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -93319,11 +93319,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L142",
+      "source_location": "L143",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_run_facade_hda_checks_rationale_142",
-      "target": "polychain_run_facade_hda_checks_oracle"
+      "source": "polychain_run_facade_hda_checks_rationale_143",
+      "target": "polychain_run_facade_hda_checks_oracle",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -93340,11 +93340,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/polychain/run_facade_hda_checks.py",
-      "source_location": "L161",
+      "source_location": "L162",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "polychain_run_facade_hda_checks_rationale_161",
-      "target": "polychain_run_facade_hda_checks_differential"
+      "source": "polychain_run_facade_hda_checks_rationale_162",
+      "target": "polychain_run_facade_hda_checks_differential",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -118297,5 +118297,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "d24f3c0199c250f373a1cb1040517001bb443eb8"
+  "built_at_commit": "cebb9f2b3909916e0c93ebab1c4aa19cb64d8bdf"
 }

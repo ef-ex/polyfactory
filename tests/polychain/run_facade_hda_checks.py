@@ -29,6 +29,7 @@ and the port checks below are what cover them.
 """
 
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -470,6 +471,25 @@ def main():
             else:
                 yield (folder, tpl)
 
+    # artist_ui 6's RAMP: a parm that means nothing in the current mode is
+    # GREYED OUT, not hidden - an artist can still read its help and see why
+    # it is off. ⚠️ `hou.Parm.isDisabled()` DOES NOT ANSWER THIS in hython
+    # (probed: it returned False for all five on a node where the conditions
+    # are in the saved file), so the assertion is the DialogScript's own
+    # `disablewhen` line, per parm and by VALUE - a count would pass with all
+    # four conditions pointing at the wrong mode.
+    EXPECTED_DISABLE = {"height": "{ shape != footprint }",
+                        "clip_mode": "{ shape != area }",
+                        "expand": "{ shape != area }",
+                        "auto_align": "{ shape != area }"}
+    # ⚠️ THE BLOCKS ARE SPLIT, NOT REGEXED ACROSS. `default { 13 }` puts a
+    # closing brace INSIDE a parm block, so a `name "x"[^}]*disablewhen` match
+    # stops at the default and reports every condition missing - which is how
+    # the first spelling of this failed on a page that had all four.
+    blocks = dict((b.split('"')[1], b) for b in ds.split("    parm {")[1:]
+                  if b.strip().startswith("name"))
+    wrong = [n for n, cond in sorted(EXPECTED_DISABLE.items())
+             if 'disablewhen "%s"' % cond not in blocks.get(n, "")]
     rows = list(walk(defn.parmTemplateGroup()))
     byname = dict((t.name(), t) for _f, t in rows)
     nohelp = [t.name() for _f, t in rows if not (t.help() or "").strip()]
@@ -481,11 +501,13 @@ def main():
     nounit = [n for n, u in sorted(UNITED.items())
               if n in byname and ("(%s)" % u) not in byname[n].label()]
     check("facade_parm_page_obeys_the_ux_law",
-          not nohelp and depth <= 1 and not norange and not nounit,
+          not nohelp and depth <= 1 and not norange and not nounit and not wrong,
           "%d parms / %d numeric" % (len(rows), len(numeric)),
-          "no help: %s; depth %d; default range: %s; no unit in label: %s"
+          "no help: %s; depth %d; default range: %s; no unit in label: %s; "
+          "wrong or missing disablewhen: %s"
           % (",".join(nohelp) or "none", depth,
-             ",".join(norange) or "none", ",".join(nounit) or "none"))
+             ",".join(norange) or "none", ",".join(nounit) or "none",
+             ",".join(wrong) or "none"))
 
     # ⚠️ AND THE SAME TWO CRITERIA ON THE OTHER TWO ASSETS, because D314's
     # stated cost is that there are now three pages to keep in step and a
@@ -494,7 +516,6 @@ def main():
     # `SOP_subnet` icon and four `Sub-Network Input #N` labels - four cycles
     # after 5.1 was written about that exact node.
     stale = []
-    import re
     for name in ("pf_polychain", "pf_polychain_slice", "pf_polychain_facade"):
         d = hou.hda.definitionsInFile("%s/%s.hda" % (OTLS, name))[0]
         text = d.sections()["DialogScript"].contents()
