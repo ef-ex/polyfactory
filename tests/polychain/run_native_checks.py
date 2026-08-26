@@ -31,6 +31,7 @@ import native                                                    # noqa: E402
 from polyfactory.polychain import DEFAULTS                       # noqa: E402
 from polyfactory.polychain import conform as CONFORM             # noqa: E402
 from polyfactory.polychain import hda as H                       # noqa: E402
+from polyfactory.polychain import kit as K                       # noqa: E402
 from polyfactory.polychain import place as P                     # noqa: E402
 from polyfactory.polychain import style as STYLE                 # noqa: E402
 
@@ -1482,11 +1483,57 @@ def output_snapshot_sees_the_deformed_branch(root):
 # Nothing held a cost ceiling on the guard for several cycles: the v2 pass
 # deleted `bench_guard_fallback` and `output_guard_cost` while 0.0 and
 # `pc_envelope.vfl` went on citing both.  That header now owns the argument
-# and `pc_plan_solve.vfl` the root cause; measured 2026-08-26, 300 streets
-# 0.31x and one 20 km curve 2.62x.  The one-curve row is over
-# `GUARD_FALLBACK_CEILING`'s 1.8x as DECLARED DEBT (D307).
-OUTPUT_COST_CEILING = (("many_short_curves", 0.45),
-                       ("one_long_curve", 2.40))
+# and `pc_plan_solve.vfl` the root cause.
+#
+# ⚠️ AND THE HEADER SAID "one 20 km curve 2.62x" ABOVE A FIXTURE THAT IS
+# 5 km (P2-9, 2026-08-26).  26 points at 200 m is 5 000 m and 2 500 pieces;
+# D311's 2.66x was measured on the 20 km / 0.30 m-panel shape in 30.9's
+# profile table, which had no ceiling at all - so the row that was DECLARED
+# DEBT and the row that is CHECKED were two different runs, and re-measuring
+# the checked one three times gives 1.76 / 1.77 / 1.80x, not 2.66x.  The
+# shape is now a column: length and spacing are declared per row and the
+# 20 km one is here, which is what makes D311 a checked claim instead of a
+# remembered number.
+#
+# ⚠️ 1.8x IS A NAME, NOT A CEILING HERE. It is what the deleted
+# `bench_guard_fallback` measured for a build that pays BOTH chains, and D216
+# uses it as the price of a level-1 guess being wrong; 0.0 and D311 both cite
+# it in prose. A row above it is debt, and the ratio says which rows those are
+# instead of a sentence claiming it.
+GUARD_FALLBACK_CEILING = 1.8
+
+#   (label, curves, points/curve, spacing m, z amplitude m, z freq,
+#    panel length m or None for the starter kit's 2.0 m one, ceiling)
+#
+# ⚠️ THE PANEL LENGTH IS A COLUMN BECAUSE IT IS THE VARIABLE THAT MOVED THE
+# NUMBER. D311's root cause is `pc_plan_solve` at ~68 us per PIECE on one
+# thread, so the ratio is driven by the piece COUNT and not by the metres:
+# 20 km of 2.0 m panel is 10 000 pieces and reads 1.73x, and the same 20 km
+# of 0.30 m panel is 66 000 and is the row 30.9 measured at 2.66x.
+OUTPUT_COST_SHAPES = (
+    ("many_short_curves", 300, 4, 20.0, 3.0, 1.0, None, 0.45),
+    ("one_long_curve", 1, 26, 200.0, 2.0, 0.3, None, 2.10),
+    ("one_20km_curve", 1, 101, 200.0, 2.0, 0.3, None, 2.10),
+    ("one_20km_fine_panel", 1, 101, 200.0, 2.0, 0.3, 0.30, 3.20),
+)
+
+
+def _panel_kit(length):
+    """A one-module kit whose panel is `length` metres - D311's own shape.
+
+    The starter kit's panel is 2.0 m and the piece count is what the ratio
+    tracks, so the shape that loses cannot be reached by making the curve
+    longer; it needs a smaller piece.
+    """
+    geo = hou.Geometry()
+    box = hou.Geometry()
+    K.box_mesh(box, 0.0, length, 0.10, 1.00, -0.03, 0.03, 1)
+    K.add_module(geo, "panel", box, size=(length, 0.90, 0.06), deform=1,
+                 zmode="vertical", roles="default panel")
+    K.write_manifest(geo, "pf_cost_%dmm" % int(length * 1000), 1,
+                     sources=("run_native_checks._panel_kit",),
+                     human_scale_reference=1.8)
+    return geo
 
 
 def output_guard_cost(root, built):
@@ -1498,16 +1545,17 @@ def output_guard_cost(root, built):
     STYLE.write(style_geo, cases.panel_style())
     rows, bad = [], []
     relax = 1.5 if os.environ.get("PC_PARALLEL") else 1.0
-    for (label, ceiling), long_run in zip(OUTPUT_COST_CEILING, (False, True)):
+    for label, ncurve, npt, step, amp, freq, panel, ceiling in             OUTPUT_COST_SHAPES:
         curve = hou.Geometry()
-        pts = [[(i * 20.0, 0.0, k * 25.0 + 3.0 * math.sin(i))
-                for i in range(4)] for k in range(300)] if not long_run else             [[(i * 200.0, 0.0, 2.0 * math.sin(i * 0.3)) for i in range(26)]]
+        pts = [[(i * step, 0.0, k * 25.0 + amp * math.sin(i * freq))
+                for i in range(npt)] for k in range(ncurve)]
         for k, row in enumerate(pts):
             cases.polyline(curve, row, curve_id="c%d" % k)
         node = root.createNode("pf_polychain", "cost_%s" % label)
         node.setInput(0, native.feed(root, curve, "CC_%s" % label))
-        node.setInput(1, native.feed(root, built["A_straight"]["kit"],
-                                     "CK_%s" % label))
+        node.setInput(1, native.feed(
+            root, _panel_kit(panel) if panel else built["A_straight"]["kit"],
+            "CK_%s" % label))
         node.setInput(2, native.feed(root, style_geo, "CS_%s" % label))
         # ⚠️ REPOINTING THE FILE SOP IS THE ONLY REAL RECOOK - `cook(force=
         # True)` leaves the Python SOP inside the asset cached, and the audit
@@ -1534,13 +1582,15 @@ def output_guard_cost(root, built):
           "; ".join("%s %.2fx" % (r[0], r[4]) for r in rows),
           "`Stage = output` against `Stage = reference`, INTERLEAVED, best of "
           "4, as a ratio. The guard wins by parallelising ACROSS CURVES, so "
-          "the two shapes are the finding and not two samples: %s. The "
-          "one-long-curve row is over `GUARD_FALLBACK_CEILING`'s 1.8x and is "
-          "DECLARED DEBT (D307). %s"
+          "the SHAPES are the finding and not three samples: %s. Every row "
+          "over `GUARD_FALLBACK_CEILING`'s 1.8x is DECLARED DEBT (D311) and "
+          "the ratio is what says so, not this sentence: %s. %s"
           % ("; ".join("%s %d prims, ref %.0f ms, out %.0f ms, %.2fx of %.2fx"
                        % (r[0], r[1], 1000 * r[2], 1000 * r[3], r[4], r[5])
                        for r in rows),
-             "; ".join(bad) or "both inside their ceiling"))
+             ", ".join("%s %.2fx" % (r[0], r[4]) for r in rows
+                       if r[4] > GUARD_FALLBACK_CEILING) or "no row is",
+             "; ".join(bad) or "every row inside its ceiling"))
 
 # 13.9 N5 - the scene cases that legitimately pay the level-1-pass /
 # level-2-refuse double cook, declared rather than counted (`P_crest_bend`:
