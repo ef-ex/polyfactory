@@ -1727,13 +1727,16 @@ if (hit) best = set((a.x != 0.0) ? best.x : q.x,
                     (a.y != 0.0) ? best.y : q.y,
                     (a.z != 0.0) ? best.z : q.z);
 // ⚠️ THE DIFFERENCE IS WHAT LEAVES, NOT THE POSITION, AND THAT IS D247
-// CORRECTED.  `v@_hitP` is a FLOAT32 point attribute: a 20 km world coordinate
-// loses 9.8e-04 m on its way out of the wrangle, so the "raw" row this check
-// used to print was measuring its own READOUT and not the two implementations.
-// It read 9.375e-04 m at 20 km and concluded `intersect()` is a float32 ray
-// test to two ULP.  Read as the DIFFERENCE it actually is, the two agree to
-// 0.0 m on the two components the axis does not move and to about one DOUBLE
-// ULP of the query on the one it does.
+// CORRECTED - BUT NOT FOR THE REASON D303 FIRST GAVE (the C4 audit's F5).
+// D303 said the 9.375e-04 m came from a FLOAT32 `v@_hitP`.  It did not:
+// measured through `sprintf("%.17g")`, which has no storage at all, `_hitD`
+// and `_hitP` are BOTH Float64 - a 64-bit wrangle writes 64-bit attributes.
+// The float32 in the story is the INPUT.  `_q` is a Float32 point attribute
+// (HOM's `addAttrib` has no precision argument), so VEX used to be asked
+// about `float32(19000.31)` while Python was asked about the exact double,
+// and that difference cancels in `best - q` and does not cancel in `best`.
+// The queries are QUANTISED TO FLOAT32 BEFORE EITHER SIDE SEES THEM now, so
+// the two are asked the same question and the position is comparable again.
 v@_hitD = best - q;
 i@_hit  = hit;
 '''
@@ -1744,9 +1747,11 @@ CONFORM_DROP_CEILING_M = 1e-12
 # ⚠️ D247 IS CORRECTED HERE, AND THE CORRECTION MADE THE CEILING 500 000x
 # TIGHTER.  D247 recorded a RAW disagreement of 9.375e-04 m at 20 km, called
 # `intersect()` a float32 ray test on the strength of it, and set this ceiling
-# at two float32 ULP.  The 9.375e-04 m was the check's OWN `v@_hitP` float32
-# point attribute rounding a 20 km world coordinate on the way out - it is
-# 9.77e-04 m, half a float32 ULP at 20 000, which is what the number is.
+# at two float32 ULP.  D303 retracted that and MISNAMED THE MECHANISM (F5):
+# the float32 was never the readout, it was the QUERY - `_q` is a Float32
+# point attribute while `Surface.drop` was handed the exact double, and
+# 9.375e-04 m is what that difference is worth at x = 19000.31.  Both are
+# handed the float32 query now.
 #
 # Re-measured reading the DIFFERENCE out instead (probe, and it is what
 # `pc_conform.h` computes): x and z agree at 0.000e+00 m at 0 m, 100 m, 2 km
@@ -1757,7 +1762,10 @@ CONFORM_DROP_CEILING_M = 1e-12
 #
 # So the relative ceiling is a DOUBLE-ULP ceiling now.  WHAT IT CANNOT SEE:
 # the drop is still compared against the reference, so a defect BOTH sides
-# share is invisible here - `parity is not accuracy` (26.9), unchanged.
+# share is invisible here - `parity is not accuracy` (26.9), unchanged.  And
+# it cannot see a divergence that depends on the query's low bits BELOW
+# float32, because both sides are now deliberately asked a float32 question -
+# which is the question the real graph asks, since `P` ships at float32.
 # Registered mutation: `conform_drop_biased` (tests/polychain/mutations.py),
 # biases the drop by 1e-5 m.
 CONFORM_DROP_REL_CEILING = 8.882e-16      # 4 x 2^-52
@@ -1808,6 +1816,12 @@ def conform_drop_is_portable_to_vex(root):
     rows, bad = [], []
     nq = 0
     for label, surf, qs in surfaces:
+        # F5 - ONE QUESTION, ASKED OF BOTH.  `_q` is a Float32 point
+        # attribute, so quantising here is what makes the VEX side's query and
+        # the Python side's the same number; without it the check compares two
+        # implementations answering two questions and cannot see anything the
+        # query's low bits decide.
+        qs = [tuple(f32(c) for c in q) for q in qs]
         py = CONFORM.Surface(surf, (0.0, -1.0, 0.0))
         want = [py.drop(q) for q in qs]
         cloud = hou.Geometry()
@@ -1872,9 +1886,10 @@ def conform_drop_is_portable_to_vex(root):
           "`conform.Surface.drop`, read off the AXIS COMPONENT with the other "
           "two SELECTED from the query (D111). TWO ceilings: in float32 `P` "
           "storage %.0e m, and RAW as a fraction of the query magnitude %.3e "
-          "(four DOUBLE ULP - D247's two-float32-ULP ceiling was measuring "
-          "this check's own `v@_hitP` float32 readout, not the two "
-          "implementations; the difference is read out now). Rows "
+          "(four DOUBLE ULP - D247's two-float32-ULP ceiling was measuring the "
+          "float32 `_q` this check asked VEX while asking Python the exact "
+          "double, not the two implementations; both are asked the float32 "
+          "now). Rows "
           "(f32 / raw m / raw rel): %s. %s"
           % (CONFORM_DROP_CEILING_M, CONFORM_DROP_REL_CEILING,
              "; ".join("%s %.3e / %.3e / %.3e" % (r[0], r[1], r[3], r[4])
