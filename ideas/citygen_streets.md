@@ -88,6 +88,25 @@ O's two rows green, no other case moved, audited.
 ✅ **M5.5 DONE** — §S5a item 4's approach angle closed (56.701° → 86.788°); its
 LANDING FLOOR is the open half, and it is an artist call.
 
+⚠️ **`merge_parallel_run` IS NOT AN ARTIST DECISION, and this doc said it was for two
+milestones.** It is a term in the mover's FEASIBILITY sum (`merge_feasible`: need = swing +
+run); it does not place the landing, which snaps to the host's first resample vertex. Swept
+0 / 4 / 20 m on M, N and O the point set comes back **bit-identical** — four identical pictures.
+`parm_liveness.py` has had it in `KNOWN_DEAD` with exactly this cause since 2026-08-10, which
+means the "reserved for the artist" line above was written without reading the file that
+already answered it. Nothing to rule on until a case sits near the feasibility boundary.
+
+⛔ **AND THE MOVER HAS NO ABLATION I COULD FIND, so its before/after could not be drawn.**
+Three attempts, all measured: (1) `min_junction_angle` 25° → 5° moves the digest but draws a
+visually IDENTICAL picture; (2) bypassing `graph_merge_route` + `merge_polypath` +
+`merge_split_switch` leaves **R bit-identical**, and moves O 3261 → 3278 points and M
+3611 → 3625 with the street extent unchanged in all three — and lands on the SAME digest as
+attempt (1); (3) overlaying the two kerb outlines at 22° shows them coincident. So either the
+mover's effect at shipped angles is far smaller than §11.9's M5.3 record implies, or its real
+switch is upstream in `graph_plan` and those three nodes are plumbing. **Either way
+`merge_route_control_rig` is currently the ONLY thing asserting the mover**, and a feature with
+no reachable off-switch is a feature nobody can show an artist. Worth resolving before M6.
+
 **RESERVED FOR THE ARTIST, do not decide alone:** the gore/mouth LOOK (renders live at
 `/obj/M5_merge_M` and `/obj/M5_merge_O` in Hannes' session; M4's render ruling was overturned
 by his eye after every check went green). Also the `merge_parallel_run` value.
