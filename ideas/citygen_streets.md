@@ -73,7 +73,14 @@ M5 IS COMPLETE.** Cut at 6° went 1121.72 → 249.71 m and no street is deleted 
 One line, but it moves geometry, so it needs its own gate + audit round. Full statement in
 §11.9's M5.4b record and §11.6's gore branch.
 
-⚠️ **THEN: merge `cityGen` → `worldengine`.** Coordinate with `polyfactory-c9` FIRST (protocol
+⚠️ **BLOCKED, not forgotten: merge `cityGen` → `worldengine`.** Attempted 2026-08-27 and
+stopped deliberately. `worldengine` is checked out in the SHARED checkout `F:/projects/polyfactory`
+and `polyfactory-c9` has it dirty (`polyfactory/vex/citygen/pf_mass.vfl` modified, `pf_eave.vfl`
+untracked). One branch cannot be checked out in two worktrees, and `--ignore-other-worktrees`
+corrupts (two working copies, one index) — so there is NO safe path to the merge from here that
+does not touch another agent's tree. `cityGen` is pushed at **eeeb0b8**, 9 commits ahead;
+`worldengine` is 263 ahead of it. c9 has been messaged with the file list and the OURS rule.
+**Original note:** Coordinate with `polyfactory-c9` FIRST (protocol
 in this section); `tests/citygen/baseline.json` conflicts take **OURS** wholesale.
 
 **M5.4, done — kept for the reasoning:** The landing builds as a crossing at ~12°,
