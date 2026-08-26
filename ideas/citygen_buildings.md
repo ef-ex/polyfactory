@@ -67,7 +67,29 @@ S8 answers**, `B0` identity wiring + finalize/instancing.
 
 ### 0.0f G1 round-2 audit — the open queue (2026-08-26)
 
-⛔ **Item 1 blocks G1. Items 2–3 are systemic and affect G2/G3 too, so fix them now, not later.**
+⚠️ **TWO independent round-2 auditors ran in parallel and converged.** This block is auditor #1's
+queue. **Auditor #2's seven defects are `R2-1`…`R2-7` in §12.10a — read them too, they are not
+duplicates.** Both recounted the test budget independently and agree: **1.52–1.53×, not 8 %.**
+
+⛔ **Item 1 blocks G1 — AND SO DOES §12.10a's `R2-1`. FIX THEM TOGETHER.** They are one root cause
+seen from two sides: *nothing asserts where the mass is, or how big it is in plan.* Patching only
+`pf_collapse`'s guard leaves the blind spot; patching only the checks leaves a building outside its
+lot unwarned at cook time. `R2-1`: mutating **shipped VEX** so `pf_mass` cuts the bar at half the
+fraction moves the Einhof dwelling 20 m → 10 m and the barn 12.5 m → 28.8 m, and **all 16 checks
+and the baseline stay green** — `record()` snapshots no plan quantity at all.
+⭐ **This also gates G2**, whose L-footprint is a *plan* claim this suite cannot see.
+
+⛔ **`R2-2`: `image_contains_subject` CANNOT FAIL** — it compares a count against itself by
+construction, and an **8×8 pixel** render passes. It is the one check exempted from the mutation
+registry. **Consequence: Hannes' human viewport pass is currently G1's ONLY image evidence.**
+
+⚠️ **METHODOLOGY TRAP, and it is why `R2-1` survived round 1:** auditor #2's first drafts of the
+missing oracles read the template through the harness's patched `B.load`, so **oracle and geometry
+moved together** and both passed on a build they existed to reject. **A template-side mutation
+cannot prove a template-reading check.** Derive plan-dimension expectations independently of the
+code path under test.
+
+⛔ **Items 2–3 below are systemic and affect G2/G3 too, so fix them now, not later.**
 
 1. ⛔ **`pf_collapse.vfl` builds outside the lot, silently. BLOCKING.** Via a *legal* cascade
    level-6 override (`citygen.md` §2.1) on a 20×10 lot — front 0, rear 12, sideStreet 25, alley 0 —
