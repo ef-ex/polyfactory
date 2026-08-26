@@ -64,6 +64,43 @@ HOUDINI_PATH="F:/projects/polyfactory-citygen/polyfactory;&" \
    `selfx_junction_surface` together; fixing one by moving the overlap into the other is not
    progress, and this is the trap that ate two variants.
 
+⛔ **M5.5 IS NOT SOUND, AND A NEW CHECK FOUND IT (2026-08-27). THE UNIT SUITE IS RED: 11 of 74.**
+`graph_realign`'s cubic Hermite T landing changed what the BUILDER cuts and was never mirrored in
+`plan.py` — a straight §11.5 violation, "build the mouth AND mirror it in the planner, in the same
+commit". Every one of the 11 failures traces to **one site**: `J_five_star`, node (48.000, 0.000),
+edge `region_+00_+00/E_00005`, residual **−8.671534 m**. The planner still predicts the pre-M5.5
+trim of 5.000 while the builder now cuts 12.529 — M5.5's own published number, which should have
+been the clue.
+
+✅ **The safety property still holds, and that is the only reason this is not an emergency:**
+`test_the_standing_VERDICT_never_disagrees_with_the_builder` **passes** — no street is wrongly
+called standing; the error is not large enough to flip a verdict. What fails is the pinned error
+TAILS (8.67 against 5.88 and 4.58) and `STRAIGHT_CASES` membership. Also surfaced:
+`328 != 331 — the planner did not see every street`, three edges unaccounted for, not yet explained.
+
+⛔ **THE FIX IS TO MIRROR THE REALIGN IN THE PLANNER, NOT TO WIDEN THE BOUND.** Re-pinning
+8.67 into a constant would make the suite green and erase the finding — the planner would go on
+mis-modelling a landing it does not know happened. `graph_realign` squares the T, and a square
+corner charges the 11.8–13.0 m every other near-perpendicular arm in J already pays; the planner
+must learn that the arm's angle changed. Deliberately NOT attempted at 4am unaudited, which is
+how M5.4 got into trouble in the first place.
+
+⭐ **AND THIS IS WHY THE SUITE IS RED RATHER THAN GREEN: `calibration_is_not_stale` is new, and
+it caught a REAL staleness on its first run.** The stale-fixture rule had been PROSE since M5.4
+("regenerate that fixture in the same commit as any builder change that moves a trim") — and
+prose is exactly what failed, twice, one milestone apart. The check re-derives with
+`dump_trims.dump_case`, **the same function that writes the fixture**, so there is no second
+derivation to drift and quietly agree with a stale file. Both branches mutation-proven: dropping
+an edge from a case reports `TOPOLOGY MOVED: fixture has 4 edges/2 nodes, the builder makes 5/2`,
+and the trim branch was proven by the real J staleness it found unprompted.
+
+⚠️ **A stale subject passes "is it there?" and still proves nothing** — presence-checking, the
+cheap fix for a missing subject, is exactly what this shape survives. **A recorded baseline is a
+subject too, and it can go missing while every check still passes.** Re-blessing is not
+maintenance, it is erasure: a baseline that moves unexpectedly is a FINDING, never a number to
+accept. (Named with `polyfactory-c9` the same night, from two independent instances in two
+subsystems; the log entry is `build_retrospective.md` §2a.)
+
 ✅ **M5.4b DONE — the gore fix is landed and audited (gate 25, unit 52, parm_liveness 0).
 M5 IS COMPLETE.** Cut at 6° went 1121.72 → 249.71 m and no street is deleted at any angle.
 

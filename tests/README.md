@@ -313,6 +313,13 @@ D reuses A's input rather than sweeping the mode over all three: the mode only
 changes S8, so a sweep would re-run every street and junction check for no new
 information. Whole suite: ~17 s.
 
+⛔ **THE UNIT SUITE IS RED AS OF 2026-08-27: 11 of 74 fail, all on one site.** This is a real
+defect in M5.5, not a broken suite — `graph_realign`'s landing was changed in the builder and
+never mirrored in `plan.py`. `J_five_star`, node (48.000, 0.000), edge `E_00005`, residual
+−8.671534 m. The standing VERDICT still agrees with the builder, so nothing is wrongly called
+standing; the pinned error tails are what break. **Do not re-pin the bound to go green** — see
+`ideas/citygen_streets.md` §0.0. It was invisible until `calibration_is_not_stale` landed.
+
 ## Known-failing — 25 rows on the 16 original cases, 26 over all 17
 (re-measured 2026-08-17, post-M5.4b)
 

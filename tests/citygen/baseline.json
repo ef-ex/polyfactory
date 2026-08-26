@@ -1404,6 +1404,24 @@
       }
     },
     {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          15,
+          15
+        ],
+        "moved": [],
+        "nodes": [
+          6,
+          6
+        ],
+        "worst_trim": 0.0
+      }
+    },
+    {
       "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (4 passes, not 3), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
@@ -2834,6 +2852,24 @@
       }
     },
     {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          64,
+          64
+        ],
+        "moved": [],
+        "nodes": [
+          31,
+          31
+        ],
+        "worst_trim": 0.0
+      }
+    },
+    {
       "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (10 passes, not 9), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
@@ -4260,6 +4296,24 @@
         "city": 21363,
         "edges": 86,
         "lots": 774
+      }
+    },
+    {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          86,
+          86
+        ],
+        "moved": [],
+        "nodes": [
+          47,
+          47
+        ],
+        "worst_trim": 0.0
       }
     },
     {
@@ -5701,6 +5755,24 @@
       }
     },
     {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          15,
+          15
+        ],
+        "moved": [],
+        "nodes": [
+          6,
+          6
+        ],
+        "worst_trim": 0.0
+      }
+    },
+    {
       "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (4 passes, not 3), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
@@ -7083,6 +7155,24 @@
         "city": 249,
         "edges": 3,
         "lots": 0
+      }
+    },
+    {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          3,
+          3
+        ],
+        "moved": [],
+        "nodes": [
+          1,
+          1
+        ],
+        "worst_trim": 0.0
       }
     },
     {
@@ -8477,6 +8567,24 @@
       }
     },
     {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          3,
+          3
+        ],
+        "moved": [],
+        "nodes": [
+          1,
+          1
+        ],
+        "worst_trim": 0.0
+      }
+    },
+    {
       "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (7 passes, not 6), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
@@ -9859,6 +9967,24 @@
         "city": 2291,
         "edges": 3,
         "lots": 0
+      }
+    },
+    {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          3,
+          3
+        ],
+        "moved": [],
+        "nodes": [
+          1,
+          1
+        ],
+        "worst_trim": 0.0
       }
     },
     {
@@ -11284,6 +11410,24 @@
         "city": 4437,
         "edges": 15,
         "lots": 61
+      }
+    },
+    {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          15,
+          15
+        ],
+        "moved": [],
+        "nodes": [
+          6,
+          6
+        ],
+        "worst_trim": 0.0
       }
     },
     {
@@ -12719,6 +12863,24 @@
       }
     },
     {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          86,
+          86
+        ],
+        "moved": [],
+        "nodes": [
+          47,
+          47
+        ],
+        "worst_trim": 0.0
+      }
+    },
+    {
       "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (9 passes, not 8), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
@@ -14110,6 +14272,24 @@
         "city": 1694,
         "edges": 6,
         "lots": 0
+      }
+    },
+    {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          6,
+          6
+        ],
+        "moved": [],
+        "nodes": [
+          2,
+          2
+        ],
+        "worst_trim": 0.0
       }
     },
     {
@@ -15549,6 +15729,24 @@
       }
     },
     {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          8,
+          8
+        ],
+        "moved": [],
+        "nodes": [
+          3,
+          3
+        ],
+        "worst_trim": 0.0
+      }
+    },
+    {
       "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (4 passes, not 3), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
@@ -16944,6 +17142,24 @@
       }
     },
     {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          5,
+          5
+        ],
+        "moved": [],
+        "nodes": [
+          2,
+          2
+        ],
+        "worst_trim": 0.0
+      }
+    },
+    {
       "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (5 passes, not 4), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
@@ -18335,6 +18551,24 @@
         "city": 3357,
         "edges": 5,
         "lots": 0
+      }
+    },
+    {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          5,
+          5
+        ],
+        "moved": [],
+        "nodes": [
+          2,
+          2
+        ],
+        "worst_trim": 0.0
       }
     },
     {
@@ -19733,6 +19967,24 @@
       }
     },
     {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          5,
+          5
+        ],
+        "moved": [],
+        "nodes": [
+          2,
+          2
+        ],
+        "worst_trim": 0.0
+      }
+    },
+    {
       "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (5 passes, not 4), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
@@ -21121,6 +21373,24 @@
         "city": 670,
         "edges": 3,
         "lots": 0
+      }
+    },
+    {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          3,
+          3
+        ],
+        "moved": [],
+        "nodes": [
+          1,
+          1
+        ],
+        "worst_trim": 0.0
       }
     },
     {
@@ -22549,6 +22819,24 @@
       }
     },
     {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          4,
+          4
+        ],
+        "moved": [],
+        "nodes": [
+          2,
+          2
+        ],
+        "worst_trim": 0.0
+      }
+    },
+    {
       "detail": "one pass past the loop's own verdict, with the Stop Attribute disabled: the pass must run (6 passes, not 5), must move no point further than Repair Tolerance (0.001 m) and reverse no edge, and the graph structure and the BLOCK COUNT must not move; every S8 term \u2014 lot count, parcels whose area moves > 1 m2 and the worst of those areas, city prims and points \u2014 is recorded, because S8 is chaotic at the float32 noise floor",
       "name": "forced_extra_repair_pass",
       "ok": true,
@@ -23953,6 +24241,24 @@
         "city": 2510,
         "edges": 5,
         "lots": 0
+      }
+    },
+    {
+      "detail": "the fixture still describes what the builder builds (re-derived with dump_trims.dump_case, the same function that writes it); regenerate it in the same commit as any builder change that moves a trim",
+      "name": "calibration_is_not_stale",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "edges": [
+          5,
+          5
+        ],
+        "moved": [],
+        "nodes": [
+          2,
+          2
+        ],
+        "worst_trim": 0.0
       }
     },
     {

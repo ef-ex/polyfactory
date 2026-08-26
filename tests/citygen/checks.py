@@ -5127,3 +5127,79 @@ def city_is_fully_paved(city_node, outer_node, cell=1.0, min_area=4.0,
                   "area inside the corridor that no road, junction or lot "
                   "covers (>= %g m2 each, %g m2 allowed in total)"
                   % (min_area, tol_area))
+
+
+def calibration_is_not_stale(case_name, built, fixture_path):
+    """`tests/unit/trim_calibration.json` still describes what the builder builds.
+
+    ⚠️ THE REASON THIS EXISTS: that fixture went stale for a WHOLE MILESTONE.
+    It recorded M and O with three edges and one node - the pre-mover topology,
+    where `graph_min_angle` DELETED the shallow leg - while the shipped builder
+    produced five edges and two plated nodes. **49 unit tests stayed green
+    against a shape the builder had stopped producing**, and `baseline.json`
+    being current was no evidence at all that this fixture was.
+
+    It re-derives with `dump_trims.dump_case`, the SAME function that WRITES
+    the fixture, so there is no second derivation that could drift from the
+    generator and quietly agree with a stale file.
+
+    Trims are compared exactly (1e-6): both sides come from one code path on
+    one build, so any real difference means the file predates the builder. A
+    tolerance here would be a place for staleness to hide.
+
+    ⚠️ What it CANNOT see: whether the fixture's values are RIGHT. It proves
+    only that they are CURRENT. A builder that cuts the wrong trim consistently
+    passes this and fails `test_plan.py`, which is the check that owns
+    correctness. Presence and freshness are different questions from truth -
+    and this whole class of bug survives presence-checking.
+    """
+    import json
+    import os
+    import dump_trims
+
+    if not os.path.exists(fixture_path):
+        return _skip("calibration_is_not_stale", "no fixture at %s" % fixture_path)
+    with open(fixture_path) as fh:
+        recorded = json.load(fh).get("cases", {}).get(case_name)
+    if recorded is None:
+        return Result("calibration_is_not_stale", False, {"case": case_name},
+                      "case is absent from the fixture - regenerate it "
+                      "(hython tests/citygen/dump_trims.py)")
+
+    live = dump_trims.dump_case(built)
+    info = {"edges": (len(recorded["edges"]), len(live["edges"])),
+            "nodes": (len(recorded["nodes"]), len(live["nodes"])),
+            "worst_trim": 0.0, "moved": []}
+
+    if len(recorded["edges"]) != len(live["edges"]) or \
+       len(recorded["nodes"]) != len(live["nodes"]):
+        return Result("calibration_is_not_stale", False, info,
+                      "TOPOLOGY MOVED: fixture has %d edges/%d nodes, the "
+                      "builder makes %d/%d - regenerate the fixture in this "
+                      "commit" % (len(recorded["edges"]), len(recorded["nodes"]),
+                                  len(live["edges"]), len(live["nodes"])))
+
+    by_id = dict((e["edge_id"], e) for e in live["edges"])
+    for e in recorded["edges"]:
+        got = by_id.get(e["edge_id"])
+        if got is None:
+            info["moved"].append("%s: gone" % e["edge_id"])
+            continue
+        for k in ("trim_start", "trim_end", "length"):
+            d = abs(float(e[k]) - float(got[k]))
+            if d > info["worst_trim"]:
+                info["worst_trim"] = round(d, 6)
+            if d > 1e-6:
+                info["moved"].append("%s.%s %.4f -> %.4f"
+                                     % (e["edge_id"], k, e[k], got[k]))
+    for a, b in zip(recorded["nodes"], live["nodes"]):
+        if len(a["arms"]) != len(b["arms"]) or a["junction_type"] != b["junction_type"]:
+            info["moved"].append("node %s: %d arms/%s -> %d arms/%s"
+                                 % (a["pos"], len(a["arms"]), a["junction_type"],
+                                    len(b["arms"]), b["junction_type"]))
+    info["moved"] = info["moved"][:8]
+    return Result("calibration_is_not_stale", not info["moved"], info,
+                  "the fixture still describes what the builder builds "
+                  "(re-derived with dump_trims.dump_case, the same function "
+                  "that writes it); regenerate it in the same commit as any "
+                  "builder change that moves a trim")

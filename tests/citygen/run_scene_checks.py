@@ -278,6 +278,11 @@ def run_case(name, built, field=None):
     # LAST, because it re-cooks the city: the loop's own verdict is written by
     # the same person who wrote the loop, so ask the pipeline instead — disable
     # the early out, run one pass more than it wanted, and see what ships.
+    out.append(C.calibration_is_not_stale(
+        name, built,
+        os.path.join(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))), "unit",
+            "trim_calibration.json")))
     out.append(C.forced_extra_repair_pass(trace, city))
     return out
 
