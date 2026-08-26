@@ -191,7 +191,9 @@ GROUND_Y, CORNICE_Y = 4.0, 1.0
 KIT_ROWS = 3
 
 
-def kit_geometry():
+def kit_geometry(corner_modules=True, attr="PF_G2_KIT"):
+    """The gate's kit.  `corner_modules=False` drops the three `corner*`
+    cells and is the CONTROL the cost bench needs - see `cost()`."""
     spec = (("bay", BAY_X, BAY_Y, 1, "default"),
             ("pier", PIER_X, BAY_Y, 0, "corner"),
             ("shopfront", BAY_X, GROUND_Y, 1, "default_start"),
@@ -200,6 +202,8 @@ def kit_geometry():
             ("pier_cap", PIER_X, CORNICE_Y, 0, "corner_end"))
     geo = hou.Geometry()
     for name, x, y, deform, role in spec:
+        if not corner_modules and role.startswith("corner"):
+            continue
         box = hou.Geometry()
         K.box_mesh(box, 0.0, x, 0.0, y, -0.15, 0.15, 4 if deform else 1)
         K.add_module(geo, name, box, size=(x, y, 0.30), deform=deform,
@@ -212,7 +216,7 @@ def kit_geometry():
     # the fixture resolved from this runner and vanished under any other
     # harness that imported it.  A fixture whose availability depends on who
     # is `__main__` disappears exactly when someone reuses it.
-    hou.session.PF_G2_KIT = geo
+    setattr(hou.session, attr, geo)
     return geo
 
 
@@ -465,10 +469,31 @@ def cost():
     NON-DEGENERATE corner in MITER mode, the refusal is per-BUILD, and one such
     corner sends the whole build to the Python reference.  A stopwatch alone
     cannot tell that apart from "miter simply does more work", so the third row
-    below DISCRIMINATES it: the same geometry, the same corner mode, and
-    `min_included_angle_deg` raised past 90 so the L's corners become
-    DEGENERATE - which that file says is admitted natively (D46 falls back to
-    bend).  If the cost collapses to bend's, the cost IS the refusal.
+    has to DISCRIMINATE the two.
+
+    ⛔ THE FIRST VERSION OF THAT THIRD ROW DID NOT DISCRIMINATE ANYTHING, and
+    the round-N audit's `G2-3` is why this one is different.  It raised
+    `min_included_angle_deg` past 90 to make the L's corners DEGENERATE, which
+    D46 falls back to bend - so it removed the refusal AND the entire miter
+    corner assembly in one edit and could not tell them apart.  Measured, its
+    census was 6 624 prims of `default*` cells only: bend's output reached by
+    another parameter name.  That is `build_retrospective.md` §2a's third shape,
+    two effects in one measurement attributed to each other.
+
+    ⭐ THE CONTROL THAT CHANGES ONE THING, and it is the audit's.
+    `pc_envelope.vfl` decides the refusal from `_cornerpt` + `pc_corner_degen`
+    + `corner_mode` and NEVER from the kit.  So: miter, corners left
+    non-degenerate so the refusal still fires, with a kit carrying no `corner*`
+    modules.  The refusal is unchanged and only the assembly is gone.  If the
+    penalty survives, the penalty IS the refusal - and it does survive, while
+    building MORE geometry in LESS time than full-kit miter, which is cost
+    anti-correlated with output volume across the bend/miter boundary and is
+    the signature of a different code path rather than of more work.
+
+    ⚠️ QUOTE THE WALL-CLOCK RATIO, NOT THE us/prim ONE.  The two builds emit
+    different prim counts (bend 26 496, miter 20 778 - "identical prims" was
+    true against bend and false against miter), so the denominators differ by
+    21 % and us/prim reads 3.47x where wall-clock reads 2.7x.
     """
     import cases2d
     hou.hda.installFile(os.path.join(REPO, "polyfactory", "otls",
@@ -476,12 +501,17 @@ def cost():
                         .replace("\\", "/"))
     hou.putenv("POLYFACTORY", os.path.join(REPO, "polyfactory")
                .replace("\\", "/"))
+    kit_geometry(False, "PF_G2_KIT_NOCORNER")
     parent = hou.node("/obj").createNode("geo", "g2_cost")
     src = parent.createNode("python", "loops")
     kitn = parent.createNode("python", "kit")
     kitn.parm("python").set(
         "import hou\n"
         "hou.pwd().geometry().merge(hou.session.PF_G2_KIT)\n")
+    kit0 = parent.createNode("python", "kit_no_corner")
+    kit0.parm("python").set(
+        "import hou\n"
+        "hou.pwd().geometry().merge(hou.session.PF_G2_KIT_NOCORNER)\n")
 
     print("\ncook time per corner treatment  (%s)" % hou.applicationVersionString())
     print("  %-7s %-12s %6s %9s %8s %9s" % ("loops", "treatment", "minang",
@@ -499,15 +529,16 @@ def cost():
             "        pt = g.createPoint()\n"
             "        pt.setPosition(hou.Vector3((x + i * 40.0, 0.0, z)))\n"
             "        p.addVertex(pt)\n" % (n, ell(0.0, 0.0)))
-        for label, mode, ang in (("bend", "bend", 15.0),
-                                 ("miter", "miter", 15.0),
-                                 ("miter/degen", "miter", 120.0)):
+        for label, mode, ang, feed in (("bend", "bend", 15.0, kitn),
+                                       ("miter", "miter", 15.0, kitn),
+                                       ("miter/no-corner-kit", "miter", 15.0,
+                                        kit0)):
             best, prims = 1e9, 0
             for rep in range(3):
                 node = parent.createNode("pf_polychain_facade",
                                          "c_%d_%d" % (n, rep))
                 node.setFirstInput(src)
-                node.setInput(1, kitn)
+                node.setInput(1, feed)
                 node.parm("corner_mode").set(mode)
                 node.parm("min_included_angle_deg").set(ang)
                 t0 = time.time()
@@ -518,14 +549,16 @@ def cost():
             rows[(n, label)] = best
             print("  %-7d %-12s %6.0f %9.4f %8d %9.1f"
                   % (n, label, ang, best, prims, 1e6 * best / max(prims, 1)))
-    print("\n  ratio against `bend`, by district size:")
+    print("\n  WALL-CLOCK ratio against `bend`, by district size:")
     for n in (1, 16, 64):
-        print("    %3d L-shaped buildings   miter %.2fx   miter/degen %.2fx"
+        print("    %3d L-shaped buildings   miter %.2fx   "
+              "miter/no-corner-kit %.2fx"
               % (n, rows[(n, "miter")] / rows[(n, "bend")],
-                 rows[(n, "miter/degen")] / rows[(n, "bend")]))
-    print("  -> miter/degen ~ bend is the DISCRIMINATOR: the miter cost is the"
-          "\n     [vex:corners] refusal sending the build to the reference, not"
-          "\n     the miter assembly itself.")
+                 rows[(n, "miter/no-corner-kit")] / rows[(n, "bend")]))
+    print("  -> the third column is the DISCRIMINATOR: the refusal still fires"
+          "\n     (miter, non-degenerate corners) and only the corner assembly"
+          "\n     is gone, so a penalty that SURVIVES it is the refusal taking"
+          "\n     the Python reference and not the miter assembly.")
     parent.destroy()
     return rows
 
