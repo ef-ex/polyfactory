@@ -774,21 +774,27 @@ def main():
     for res in results:
         show(res)
 
+    # ⚠️ THE DIFF IS COMPUTED BEFORE THE WRITE, ALWAYS - see the same block in
+    # `run_g2_checks.py`.  Blessing used to take an `elif` branch that never
+    # called `diff()`, so what a `--update-baseline` absorbed was invisible at
+    # the moment it was absorbed (`build_retrospective.md` §2a).
     snap = record(out)
-    if "--update-baseline" in args:
-        with io.open(BASELINE, "w", encoding="utf-8") as handle:
-            handle.write(json.dumps(snap, indent=1, sort_keys=True))
-        print("\nbaseline written:", BASELINE)
-    elif os.path.exists(BASELINE):
+    moved = None
+    if os.path.exists(BASELINE):
         with io.open(BASELINE, "r", encoding="utf-8") as handle:
             moved = diff(snap, json.load(handle))
         print("\nbaseline: %d moved value(s)" % len(moved))
         for line in moved:
             print("    MOVED", line)
-        if moved:
-            FAIL.append("baseline_movement")
     else:
         print("\nbaseline: none recorded yet")
+    if "--update-baseline" in args:
+        with io.open(BASELINE, "w", encoding="utf-8") as handle:
+            handle.write(json.dumps(snap, indent=1, sort_keys=True))
+        print("baseline written (%s moved value(s) absorbed): %s"
+              % ("no" if moved is None else len(moved), BASELINE))
+    elif moved:
+        FAIL.append("baseline_movement")
 
     if "--images" in args:
         idx = args.index("--images")

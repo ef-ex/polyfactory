@@ -582,21 +582,30 @@ def main():
     for res in results:
         show(res)
 
+    # ⚠️ THE DIFF IS COMPUTED BEFORE THE WRITE, ALWAYS, AND `--update-baseline`
+    # DOES NOT SKIP IT.  This used to be an `if`/`elif`: blessing took the
+    # write branch and `diff()` was never called, so the operator physically
+    # could not see what they were absorbing at the moment they absorbed it.
+    # `build_retrospective.md` §2a - "re-blessing is not maintenance, it is
+    # erasure", and "verified after blessing is not verified" - was not merely
+    # possible here, it was the only workflow the runner offered.
     snap = record(shell, mass)
-    if "--update-baseline" in args:
-        with io.open(BASELINE, "w", encoding="utf-8") as handle:
-            handle.write(json.dumps(snap, indent=1, sort_keys=True))
-        print("\nbaseline written:", BASELINE)
-    elif os.path.exists(BASELINE):
+    moved = None
+    if os.path.exists(BASELINE):
         with io.open(BASELINE, "r", encoding="utf-8") as handle:
             moved = diff(snap, json.load(handle))
         print("\nbaseline: %d moved value(s)" % len(moved))
         for line in moved:
             print("    MOVED", line)
-        if moved:
-            FAIL.append("baseline_movement")
     else:
         print("\nbaseline: none recorded yet")
+    if "--update-baseline" in args:
+        with io.open(BASELINE, "w", encoding="utf-8") as handle:
+            handle.write(json.dumps(snap, indent=1, sort_keys=True))
+        print("baseline written (%s moved value(s) absorbed): %s"
+              % ("no" if moved is None else len(moved), BASELINE))
+    elif moved:
+        FAIL.append("baseline_movement")
 
     if "--images" in args:
         idx = args.index("--images")
