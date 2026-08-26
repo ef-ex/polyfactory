@@ -116,6 +116,17 @@ LOTS = [
     # `inside_the_lot` reported PASS.
     (9, "at_zinshaus_row", (380.0, 0.0), (10.0, 40.0),
      ["front", "abuts", "rear", "abuts"]),
+    # Site 10 is R4-1: THE SENTINEL'S OWN FIXTURE. Round 4 measured that
+    # reverting `stamp()`'s gate from `>= 0.0` to `> 0.0` left all 28 clauses
+    # green and the baseline unmoved, because the only site authoring a zero
+    # was an `at_vienna_perimeter` lot whose template setbacks are 0 on every
+    # role - so an authored zero and the template's zero are the same number
+    # and no check could tell the two gates apart. An `at_einhof` lot asks for
+    # 2.0 / 2.5 / 43.0, and authoring 0 on all four edges is therefore a
+    # different building under each gate: the lot itself, or a 5 x 45 m bar
+    # inside it.
+    (10, "at_einhof", (420.0, 0.0), (10.0, 90.0),
+     ["front", "interiorSide", "rear", "interiorSide"]),
 ]
 # Authored per-vertex `pf_setback` - cascade level 5, which WINS over the
 # template's per-role table. Used rather than a level-6 override because the
@@ -133,14 +144,37 @@ LOTS = [
 # the built geometry is unchanged and the baseline says so.
 SETBACKS = {6: [0.0, 25.0, 12.0, 0.0],
             8: [2.0, 2.0, 2.0, 2.0],
-            9: [-1.0, 6.0, -1.0, 6.0]}
+            9: [-1.0, 6.0, -1.0, 6.0],
+            10: [0.0, 0.0, 0.0, 0.0]}
 # The sites the fixture expects to degrade -> whether the OFFSET is what went
 # wrong there. Stated here rather than read off the warning, so a collapse
 # test that flags too much, or too little, is caught instead of believed.
 DEGRADED = {5: True, 6: True, 7: False, 9: True}
-# {site: its lot ring in (x,z)} - what `inside_the_lot` measures against.
-RINGS = dict((s, [(ox, oz), (ox + sx, oz), (ox + sx, oz + sz), (ox, oz + sz)])
-             for s, _st, (ox, oz), (sx, sz), _r in LOTS)
+
+
+def ring_of(ox, oz, sx, sz, roles):
+    """A lot's polygon in (x, z) - THE ONE DEFINITION, and it used to be two.
+
+    `RINGS` built a four-corner rectangle while `LOT_CODE` built the polygon
+    the fixture actually cooks, which for site 7 has a FIFTH vertex.  Two
+    copies of one shape is how an oracle silently stops describing its own
+    fixture, and `plan_follows_data` now measures per EDGE, where a missing
+    vertex is not a rounding difference but a different edge count.  The lot
+    code below is handed the output of this function, so there is nowhere for
+    the two to disagree.
+    """
+    corner = [(ox, oz), (ox + sx, oz), (ox + sx, oz + sz), (ox, oz + sz)]
+    if len(roles) == 5:
+        corner.insert(2, (ox + sx, oz + sz * 0.5))
+    return corner
+
+
+RINGS = dict((s, ring_of(ox, oz, sx, sz, r))
+             for s, _st, (ox, oz), (sx, sz), r in LOTS)
+STYLE_OF = dict((l[0], l[1]) for l in LOTS)
+ROLES_OF = dict((l[0], l[4]) for l in LOTS)
+# What the lot SOP cooks: site, style, ring, roles.
+LOT_ROWS = [(s, st, RINGS[s], r) for s, st, _o, _z, r in LOTS]
 # de-duplicated, order kept: site 5 deliberately reuses `at_einhof`.
 STYLES = sorted(set(lot[1] for lot in LOTS),
                 key=[lot[1] for lot in LOTS].index)
@@ -179,13 +213,10 @@ g.addAttrib(hou.attribType.Prim, 'pf_seed', 0)
 g.addAttrib(hou.attribType.Vertex, 'pf_face_role', '')
 g.addAttrib(hou.attribType.Vertex, 'pf_setback', 0.0)
 setbacks = %r
-for site, style, (ox, oz), (sx, sz), roles in %r:
+for site, style, ring, roles in %r:
     p = g.createPolygon()
     p.setIsClosed(True)
-    corner = [(ox, oz), (ox + sx, oz), (ox + sx, oz + sz), (ox, oz + sz)]
-    if len(roles) == 5:
-        corner.insert(2, (ox + sx, oz + sz * 0.5))
-    for x, z in corner:
+    for x, z in ring:
         pt = g.createPoint()
         pt.setPosition(hou.Vector3((x, 0.0, z)))
         p.addVertex(pt)
@@ -201,7 +232,7 @@ for site, style, (ox, oz), (sx, sz), roles in %r:
 def scene(parent, lots=None):
     """Lots + a sloped, undulating ground; -> (lot node, B2 output node)."""
     src = parent.createNode("python", "lots")
-    src.parm("python").set(LOT_CODE % (SETBACKS, lots or LOTS))
+    src.parm("python").set(LOT_CODE % (SETBACKS, lots or LOT_ROWS))
 
     grid = parent.createNode("grid", "ground")
     grid.parm("orient").set(2)              # zx: lies in the XZ plane
@@ -256,6 +287,37 @@ def patch_vex(rows):
                 text = text.replace(old, new, 1)
         return text
     B.vex = patched
+    return original
+
+
+def patch_pysrc(old, new):
+    """A PYTHON-SOURCE door for the registry, and `R4-1` is why it exists.
+
+    The registry could patch `B.vex` and `B.load` and nothing else, so a
+    defect in `buildings.py` itself could not be mutated at all - which is how
+    the `pf_setback` sentinel came to be defended by no check: reverting
+    `stamp()`'s gate left all 28 clauses green and the baseline unmoved, and
+    there was no way to say so in a row.
+
+    ⚠️ IT EXECS A MODIFIED SOURCE STRING AND NEVER WRITES A FILE.  A registry
+    that edited `buildings.py` on disk and restored it would risk `__pycache__`
+    handing the NEXT run the mutant: bytecode is invalidated on (mtime, size),
+    and the classic mutation - `>=` to `>` - preserves size and can be undone
+    inside the same second.  A sibling session lost four phantom reds to
+    exactly that.  Nothing here touches the filesystem, so the trap cannot
+    apply.
+    """
+    original = B.stamp
+    path = os.path.join(os.path.dirname(os.path.abspath(B.__file__)),
+                        "buildings.py")
+    with io.open(path, "r", encoding="utf-8") as handle:
+        src = handle.read()
+    if old not in src:
+        raise AssertionError("mutation anchor gone from buildings.py: %r"
+                             % old[:70])
+    ns = dict(vars(B))
+    exec(compile(src.replace(old, new, 1), "buildings_mutated", "exec"), ns)
+    B.stamp = ns["stamp"]
     return original
 
 
@@ -420,7 +482,10 @@ MUTATIONS = [
     ("volume_count_matches", "volume_count_matches",
      "the collapsed footprint is skipped instead of degraded - a refusal, "
      "which §2.2 forbids",
-     vx("int ncells = degraded ? 1 :",
+     # ⚠️ ANCHOR MOVED WHEN G2 ADDED THE `solid` RULE (`degraded || whole`),
+     # and the registry's own anchor assert is what caught it - a `.replace`
+     # whose anchor has drifted is a silent no-op that "proves" the check.
+     vx("int ncells = (degraded || whole) ? 1 :",
         "if (degraded) continue;\n    int ncells = 0 ? 1 :")),
     ("volume_count_matches", "volume_count_matches",
      "the collapse warning goes back to meaning `degraded`, so site 7 - a "
@@ -463,6 +528,21 @@ MUTATIONS = [
     ("unknown_rule_warns", "unknown_rule_warns",
      "a template asks for a rails mode that does not exist",
      topo("at_einhof", "rails", "spiral")),
+    # R4-1. The `pf_setback` sentinel, defended at last. `>= 0` means AUTHORED
+    # and negative means ABSENT (§12.4, amended); reverting the gate to `> 0.0`
+    # makes an authored zero indistinguishable from no attribute at all, so
+    # site 10 - which authors 0 on all four edges of an einhof lot - stops
+    # building on its lot line and silently takes the template's 2.0 / 2.5 /
+    # 43.0 instead. No new check and no new clause: it lands on the oracle
+    # that already models the whole cascade.
+    ("plan_follows_data", "footprint",
+     "the setback sentinel reverts to `> 0.0`, so `setback(0)` - §12.6 B1's "
+     "identity op - becomes unauthorable again and site 10 quietly builds "
+     "the template's setbacks instead of the zero it was given",
+     lambda: patch_pysrc('if authored and vtx.attribValue("pf_setback") '
+                         '>= 0.0:',
+                         'if authored and vtx.attribValue("pf_setback") '
+                         '> 0.0:')),
 ]
 
 
@@ -496,10 +576,11 @@ def run_checks(out, mirror, templates, sources):
         C.no_scratch(geo),
         C.warns_on_cap_group_split(geo),
         C.volume_count_matches_template(
-            geo, by_id, dict((l[0], (l[1], len(l[4]))) for l in LOTS),
+            geo, by_id, dict((l[0], (l[1], len(RINGS[l[0]]))) for l in LOTS),
             degraded_sites=DEGRADED),
         C.masses_inside_lots(geo, RINGS),
-        C.plan_follows_data(geo, LOTS, by_id, DEGRADED, SETBACKS),
+        C.plan_follows_data(geo, STYLE_OF, RINGS, ROLES_OF, by_id,
+                            DEGRADED, SETBACKS),
         C.warns_on_unknown_rule(geo),
     ]
 
@@ -558,6 +639,13 @@ def record(out):
     return snap
 
 
+# ⚠️ THE G2 RUNNER IS IN THE NUMERATOR TOO.  A second runner that the
+# ratio does not count is how a size budget stops meaning anything, and
+# `run_g2_checks.py` prints the identical number from the identical list.
+TEST_FILES = ("checks_buildings.py", "run_building_checks.py",
+              "run_g2_checks.py")
+
+
 def budget():
     """test <= production, PRINTED EVERY RUN so it cannot drift unstated
     again - the first build recorded 8 % and was measured at 1.5x.
@@ -583,8 +671,7 @@ def budget():
                               "buildings.py"), "#")
     prod += sum(lines(os.path.join(B.VEX_DIR, f), "//")
                 for f in os.listdir(B.VEX_DIR) if f.endswith(".vfl"))
-    test = sum(lines(os.path.join(HERE, f), "#")
-               for f in ("checks_buildings.py", "run_building_checks.py"))
+    test = sum(lines(os.path.join(HERE, f), "#") for f in TEST_FILES)
     print("\nsize budget: %d test / %d production code lines = %.2fx  %s"
           % (test, prod, test / float(prod),
              "OVER (target 1.00x)" if test > prod else "ok"))
@@ -674,7 +761,7 @@ def main():
     templates = [B.resolve(B.load(s)) for s in STYLES]
 
     parent, _src, out = cook()
-    mirror, _s2, mout = cook(list(reversed(LOTS)), "g1_mirror")
+    mirror, _s2, mout = cook(list(reversed(LOT_ROWS)), "g1_mirror")
 
     print("\nG1 checks")
     results = run_checks(out, mout, templates, sources_now())
@@ -717,7 +804,7 @@ def main():
         names = [r.name for r in results]
         proven = set()
         for paired, clause, why, apply in MUTATIONS:
-            keep = (B.vex, B.load, B.CLEAN)
+            keep = (B.vex, B.load, B.CLEAN, B.stamp)
             note = ""
             try:
                 apply()
@@ -729,7 +816,7 @@ def main():
                 # structurally unable to notice their own mutation.
                 mtpl = [B.resolve(B.load(s)) for s in STYLES]
                 _p, _s, mo = cook(name="mut_a_%s_%s" % (paired, clause))
-                _q, _t, mo2 = cook(list(reversed(LOTS)),
+                _q, _t, mo2 = cook(list(reversed(LOT_ROWS)),
                                    "mut_b_%s_%s" % (paired, clause))
                 got = dict((r.name, r)
                            for r in run_checks(mo, mo2, mtpl, sources_now()))
@@ -741,7 +828,7 @@ def main():
                 ok = False
                 note = "MUTATION DID NOT APPLY: %s" % str(exc)[:140]
             finally:
-                B.vex, B.load, B.CLEAN = keep
+                B.vex, B.load, B.CLEAN, B.stamp = keep
             if ok:
                 proven.add((paired, clause))
             else:

@@ -278,6 +278,67 @@ STYLES = [
         "capFamily": {"family": "skeletonRoof", "pitchDeg": 30.0,
                       "corniceM": 0.9},
     },
+    {
+        # ⭐ GATE G2's SUBJECT, and it is NOT a vernacular style.  The four
+        # above are sourced buildings; this one is a FIXTURE, authored to put
+        # a reflex corner and an eave/gable seam in front of B4/B5/B6, and it
+        # says so in its own provenance rather than borrowing a country code
+        # for a shape.  §12.10 G2 asks for `shapeL`; `shapeL` is a B1 op and
+        # B1 has only `setback`, so the L arrives as a LOT (which is what S8
+        # produces anyway) and `setback` insets it - which is the harder of
+        # the two, because it is the reflex corner that `pf_inset.vfl` has
+        # never been asked to solve.
+        "styleId": "g2_lshape",
+        "version": 1,
+        "sources": [
+            "TYPE: none. This is gate G2's acceptance fixture (§12.10), not a "
+            "surveyed building, and every number below is chosen to exercise "
+            "a SEAM rather than to describe a place. It is listed here rather "
+            "than hidden in the test harness because a style is data and the "
+            "cascade must be able to reach it (§12.5).",
+            "setbackM per role, all four different: UNSOURCED BY DESIGN. The "
+            "reflex corner of the L is where the `rear` edge meets the "
+            "`interiorSide` edge, and two edges meeting at a reflex corner "
+            "with DIFFERENT insets is the case `pf_inset.vfl` solves "
+            "corner-by-corner and nothing has ever checked.",
+            "rails `solid`: the rule G2 added. One volume over the whole "
+            "footprint, whatever its corner count - see `pf_mass.vfl`. "
+            "Without it a non-convex footprint could only become one mass "
+            "through the DEGRADED fallback, which carries "
+            "`pf_warn_topology_arity` and would build the gate on a path that "
+            "declares itself broken.",
+            "storeys 3, storeyHeightM 3.2: UNSOURCED. Enough storeys that the "
+            "facade has more than one row to misalign, low enough that the "
+            "gate images frame.",
+            "capFamily pitchDeg 38, eaveDepthM 0.7: UNSOURCED. The pitch is "
+            "any value that makes hips and the valley visible; the eave is "
+            "non-zero ON PURPOSE, because a zero overhang makes the roof's "
+            "boundary identical to the wall top and the eave seam then closes "
+            "by construction rather than by B6 doing anything.",
+            "junctions cornerMode `miter`: this is the treatment §12.6 B6 "
+            "names as its PRIMARY strategy (a corner module from the kit), "
+            "and §0.0d records that it is also the one polyChain's native "
+            "chain refuses per-BUILD. G2 measures both; the template asks for "
+            "the one the spec prefers.",
+        ],
+        "storeyHeightM": 3.2,
+        "lotToFootprint": {
+            "op": "setback",
+            "defaultSetbackM": 2.0,
+            "setbackM": {"front": 3.0, "sideStreet": 2.0, "rear": 4.0,
+                         "interiorSide": 1.5, "alley": 2.5},
+        },
+        "volumeTopology": {
+            "rails": "solid",
+            "cutsAt": [],
+            "courtyardDepthM": 0.0,
+            "volumes": [{"role": "dwelling", "storeys": 3, "capGroup": 0}],
+            "plinth": {"mode": "none", "minM": 0.0},
+        },
+        "capFamily": {"family": "skeletonRoof", "pitchDeg": 38.0,
+                      "eaveDepthM": 0.7},
+        "junctions": {"cornerMode": "miter"},
+    },
 ]
 
 

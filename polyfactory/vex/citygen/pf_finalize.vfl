@@ -1,0 +1,44 @@
+// pf_finalize.vfl - B6's FINALIZE pass.  PRIM wrangle over the merged shell.
+//
+// §12.6 gives B6 "the finalize pass: instancing, warning collation,
+// `elem_id` stamping", and this is the third of those.  §12.7 is not a
+// suggestion: EVERY emitted element carries a `pf_elem_id` derived from
+// `pf_site_id` plus a STRUCTURAL address, and until this file ran, B4's
+// output did not - a facade module arrived carrying polyChain's `pc_*`
+// contract and nothing of citygen's, so a downstream override keyed by
+// `pf_elem_id` (citygen.md Contract 2) would simply not have found it.
+//
+// ⚠️ IT DERIVES THE ADDRESS, IT DOES NOT INVENT ONE.  `pc_array` is the
+// volume id `pf_facade_in.vfl` put there, and `pc_elem_id` is polyChain's own
+// structural address (its D1, and the same kind of value as ours -
+// `conventions.md` §3 renames `pc_elem_id` to `pf_elem_id` after polyChain's
+// parity pass, which is why this composes the two rather than replacing one
+// with the other).  The array prefix is dropped from the tail because
+// `pc_elem_id` already begins with it and repeating it would make the address
+// longer without making it more unique.
+//
+// ⚠️ ROOF FACES ARE LEFT ALONE.  `pf_cap.vfl` stamped them from the loop they
+// were raised off, which is nearer the source; this only fills in what has no
+// `pf_site_id` yet.  A prim already carrying one is never rewritten, so
+// running this twice cannot change an address - which is the property
+// §12.7's "a recook with identical inputs yields identical ids" needs.
+//
+// WHAT THIS CANNOT SEE: whether the id is UNIQUE (that is a check's job, and
+// `elem_ids_structural` is the one that does it on B2), and whether the
+// module a swap points at still exists.
+
+if (s@pf_volume_id != "") return;          // B5 already addressed this prim
+
+string vid = prim(0, "pc_array", @primnum);
+string full = prim(0, "pc_elem_id", @primnum);
+string parts[] = split(full, "#");
+string tail = (len(parts) > 1) ? join(parts[1:], "#") : full;
+
+s@pf_volume_id = vid;
+s@pf_wall_role = "facade";
+s@pf_elem_id = sprintf("%s:B4:%s", vid, tail);
+// `pf_site_id` is an INT and the volume id spells it first (`<site>:B2:v<k>`,
+// `pfb_cell`).  D223: the storage is part of the contract, so it is parsed
+// back to an int here rather than shipped as the string it was carried in.
+string head[] = split(vid, ":");
+i@pf_site_id = len(head) ? atoi(head[0]) : -1;

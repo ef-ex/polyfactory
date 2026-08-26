@@ -70,7 +70,52 @@ for (int k = 0; k < n; k++) {
     if (!in && best > 1e-3) outside = 1;
 }
 
+// ⭐ AND THE FOURTH TEST, ADDED BY GATE G2: DOES THE POLYGON CROSS ITSELF?
+//
+// Every test above is about the polygon's relationship to its PARENT - is it
+// inside it, did it keep its sign, did it vanish.  A NON-CONVEX footprint can
+// fail in a way none of them describes: one leg of an L inverts LOCALLY while
+// the rest of the ring stays exactly where it should be.  `pf_inset.vfl`'s own
+// header predicted this ("the corners still solve, the polygon folds through
+// itself") and said `_area0`'s sign change would report it.  ⚠️ MEASURED BY G2
+// AND THAT IS FALSE: on the gate's 30 x 24 m L lot, authoring front 9 m and
+// rear 4 m across a leg only 12 m deep folds the bottom leg inside out, and
+//   * every corner still lands INSIDE the lot (x 2.5..28, z 8..20 of 0..30 x
+//     0..24), so containment is silent;
+//   * the signed area SHRINKS and keeps its sign (+552 -> +118.5), so all
+//     three area terms are silent.
+// The footprint shipped, one solid volume was built on a bowtie, and the roof
+// over it had no surface at two of its own corners.  The only thing that sees
+// a fold is the fold: a PROPER crossing between two non-adjacent edges.
+//
+// ⚠️ STRICTLY PROPER (`< 0.0`, never `<= 0.0`).  `setback(0)` is §12.6 B1's
+// identity op and leaves consecutive edges touching at a shared endpoint, and
+// a lot polygon may legally have three collinear points - both give a zero
+// side test, and accepting them would flag every Viennese street edge.
+// O(n^2) in the corner count, which is a lot polygon and not a mesh, and it is
+// the same order as the containment test above.
+int crosses = 0;
+for (int e = 0; e < n && !crosses; e++) {
+    vector p1 = point(0, "P", pts[e]);
+    vector p2 = point(0, "P", pts[(e + 1) % n]);
+    for (int f = e + 2; f < n; f++) {
+        if (e == 0 && f == n - 1) continue;      // adjacent across the wrap
+        vector q1 = point(0, "P", pts[f]);
+        vector q2 = point(0, "P", pts[(f + 1) % n]);
+        float d1 = (p2.x - p1.x) * (q1.z - p1.z)
+            - (p2.z - p1.z) * (q1.x - p1.x);
+        float d2 = (p2.x - p1.x) * (q2.z - p1.z)
+            - (p2.z - p1.z) * (q2.x - p1.x);
+        float d3 = (q2.x - q1.x) * (p1.z - q1.z)
+            - (q2.z - q1.z) * (p1.x - q1.x);
+        float d4 = (q2.x - q1.x) * (p2.z - q1.z)
+            - (q2.z - q1.z) * (p2.x - q1.x);
+        if (d1 * d2 < 0.0 && d3 * d4 < 0.0) { crosses = 1; break; }
+    }
+}
+
 i@pf_warn_footprint_collapsed =
-    (outside || a * was <= 0.0 || abs(a) > abs(was) * (1.0 + 1e-6) + 1e-6
+    (outside || crosses || a * was <= 0.0
+     || abs(a) > abs(was) * (1.0 + 1e-6) + 1e-6
      || abs(a) < 1e-4) ? 1 : 0;
 f@_area0 = a;

@@ -319,19 +319,266 @@ def encloses_courtyard(geo, site, depth=None, name="encloses_courtyard"):
                      "%.2f" % depth if depth is not None else "nothing"))
 
 
-def plan_follows_data(geo, lots, templates, degraded=(), authored=None,
-                      name="plan_follows_data"):
+def elements(geo, site=None):
+    """B4/B5/B6's OUTPUT as plain records - packed facade modules and roof
+    faces in one vocabulary, so no G2 check re-derives the read.
+
+    ⚠️ A PACKED PRIM HAS ONE VERTEX (houdini-procedural-modeling §6).  Every
+    extent below therefore comes from the `bounds` INTRINSIC and never from
+    `prim.vertices()`: reading vertices would give ONE point per module and
+    turn every plan measurement into a point sample of a 3 m wall.  `pts` is
+    filled only for the roof, which is real polygons.
+
+    ⚠️ THE BOX IS AXIS-ALIGNED, and on a rectilinear footprint that is exact -
+    every wall runs along X or Z, so a module's box is the module.  On a
+    SLANTED wall it would over-report coverage by up to the box's slack, and
+    `corner_closure` would then be measuring a bound rather than the facade.
+    Stated because G2's fixture is rectilinear and a later non-rectilinear one
+    would silently weaken the check rather than fail it.
+    """
+    out = []
+    have = dict((a.name(), True) for a in geo.primAttribs())
+    for prim in geo.prims():
+        b = prim.intrinsicValue("bounds")
+        rec = {"prim": prim.number(),
+               "box": (b[0], b[4], b[1], b[5]),      # xmin, zmin, xmax, zmax
+               "ymin": b[2], "ymax": b[3]}
+        for key, default in (("pf_site_id", -1), ("pf_volume_id", ""),
+                             ("pf_wall_role", ""), ("pf_elem_id", ""),
+                             ("pc_row", -1), ("pc_cell", "")):
+            rec[key] = (prim.attribValue(key) if key in have else default)
+        rec["kind"] = "roof" if rec["pf_wall_role"] == "roof" else "facade"
+        rec["pts"] = ([(round(p.point().position()[0], 6),
+                        round(p.point().position()[1], 6),
+                        round(p.point().position()[2], 6))
+                       for p in prim.vertices()]
+                      if rec["kind"] == "roof" else [])
+        out.append(rec)
+    if site is not None:
+        out = [r for r in out if r["pf_site_id"] == site]
+    return out
+
+
+def _cap_ring(fs):
+    """A volume's footprint in (x, z), off its own cap face - which IS the
+    plan `pfb_cell` built the volume from."""
+    cap = [f for f in fs if f["pf_wall_role"] == "cap"]
+    return [(p[0], p[2]) for p in cap[0]["pts"]] if cap else []
+
+
+def _in_box(box, q, grow=0.0):
+    return (box[0] - grow <= q[0] <= box[2] + grow
+            and box[1] - grow <= q[1] <= box[3] + grow)
+
+
+def corner_closure(geo, mass, name="corner_closure", step=0.05):
+    """⭐ THE GATE'S OWN QUESTION: does the facade close at a corner?
+
+    §5 Theme 4 is unusually concrete - the one failure where independent
+    artists name the same node and the same parameter - and its first
+    complaint is *corner HOLES*.  So this walks each building's footprint
+    perimeter at 5 cm and asks, for EVERY STOREY ROW SEPARATELY, whether some
+    facade module is standing there.  A gap that exists on one row only is
+    still a hole, and a plan-only test would let the row below cover for it.
+
+    ⚠️ THE PERIMETER IS B4's OWN INPUT, NOT AN ORACLE OF THE FOOTPRINT.  It
+    is the mass's cap ring - the polygon `pf_facade_in.vfl` handed the facade
+    - so this measures B4 against what B4 was given and CANNOT be confused by
+    a wrong footprint upstream.  `plan_follows_data` is what says the footprint
+    itself is the one the data asked for; running the two together is the
+    claim, and neither alone is.
+
+    `corner_module` is §12.6 B6's PRIMARY strategy stated as an assertion:
+    in `miter` the corner is filled by a module from the kit, so every corner
+    point must lie inside some `corner*` cell's box.  Its discriminating
+    mutation is the cascade silently falling back to `bend`, which places no
+    corner module at all (polyChain D37) and yet leaves NO GAP - so the two
+    clauses separate the two treatments exactly.
+
+    CANNOT SEE: a gap narrower than `step`; a module present but at the wrong
+    DEPTH (see `elements`' axis-aligned note - and on this pipeline the Labs
+    "different ledges shift to different depths" failure cannot arise anyway,
+    because both legs of a corner belong to ONE array with ONE row solve);
+    anything about the module's own geometry inside its box; and any face of
+    the building that is not on the perimeter.
+    """
+    gaps, missing, worst, sampled = [], [], 0.0, 0
+    for vid, fs in volumes(mass).items():
+        ring = _cap_ring(fs)
+        el = [e for e in elements(geo)
+              if e["pf_volume_id"] == vid and e["kind"] == "facade"]
+        if not ring or not el:
+            gaps.append((vid, "nothing built"))
+            continue
+        n = len(ring)
+        for row in sorted(set(e["pc_row"] for e in el)):
+            boxes = [e["box"] for e in el if e["pc_row"] == row]
+            run, run_at = 0.0, None
+            for j in range(n):
+                a, b = ring[j], ring[(j + 1) % n]
+                length = math.hypot(b[0] - a[0], b[1] - a[1])
+                for k in range(int(length / step) + 1):
+                    t = min(1.0, k * step / (length or 1.0))
+                    q = (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
+                    sampled += 1
+                    if any(_in_box(box, q, TOL) for box in boxes):
+                        run = 0.0
+                        continue
+                    run += step
+                    run_at = run_at or (j, round(q[0], 2), round(q[1], 2))
+                    if run > worst:
+                        worst = run
+            if run_at:
+                gaps.append((vid, row, run_at, round(worst, 3)))
+        corner_boxes = [e["box"] for e in el
+                        if str(e["pc_cell"]).startswith("corner")]
+        for j, q in enumerate(ring):
+            if not any(_in_box(box, q, TOL) for box in corner_boxes):
+                missing.append((vid, j, round(q[0], 2), round(q[1], 2)))
+    ok = {"no_gaps": sampled > 0 and not gaps,
+          "corner_module": sampled > 0 and not missing}
+    return Result(name, ok, [sampled, len(gaps), round(worst, 3),
+                             len(missing)],
+                  "%d perimeter samples over every row; uncovered runs %s "
+                  "(worst %.3f m); corners with no corner module: %s"
+                  % (sampled, gaps[:3] or "none", worst,
+                     missing[:4] or "none"))
+
+
+def _plane_y(face, q):
+    """The y of a planar roof face at plan point `q`, or None if `q` is
+    outside it in plan.  Three non-collinear points give the plane; a straight
+    -skeleton face is planar by construction (constant pitch off one edge)."""
+    ring = [(p[0], p[2]) for p in face["pts"]]
+    if len(ring) < 3 or _inside(ring, q) < -TOL:
+        return None
+    o = face["pts"][0]
+    for i in range(1, len(face["pts"]) - 1):
+        u = tuple(face["pts"][i][k] - o[k] for k in range(3))
+        v = tuple(face["pts"][i + 1][k] - o[k] for k in range(3))
+        nx = u[1] * v[2] - u[2] * v[1]
+        ny = u[2] * v[0] - u[0] * v[2]
+        nz = u[0] * v[1] - u[1] * v[0]
+        if abs(ny) > 1e-9:
+            return o[1] - (nx * (q[0] - o[0]) + nz * (q[1] - o[2])) / ny
+    return None
+
+
+def cap_seam(geo, mass, name="cap_seam"):
+    """⭐ THE OTHER SEAM G2's pass criterion names: facade -> cap.
+
+    Three clauses, and the split between them is the point.  `pf_seam.vfl`
+    takes the roof's datum from the facade that was BUILT, which is what makes
+    the seam gapless - and it is exactly why a check that measured the roof
+    against the built facade alone would move with the defect and pass:
+
+      `eave_meets_wall`   the roof SURFACE passes through the wall's top edge.
+                          Sampled at every footprint corner and edge midpoint,
+                          so the VALLEY over the reflex corner is measured on
+                          its own account and not averaged away.
+      `height_as_asked`   the built facade top is `pf_plinth_top + storeys x
+                          storeyHeight` - B2's number, and through it the
+                          template's.  THIS is the clause that pins the seam
+                          to the data instead of to itself.
+      `roof_closed`       the roof surface's only boundary is its eave: one
+                          boundary edge per footprint edge and every one of
+                          them at the surface's lowest y.  A skeleton that
+                          cracked at the reflex corner, or that was truncated
+                          because the offset did not exceed the inradius,
+                          leaves boundary edges that are neither.
+
+    CANNOT SEE: a roof correct at the sampled points and wrong between them
+    (it samples corners and midpoints, not the whole surface); a roof that is
+    closed and inside out; gables, which this cap family does not build; and
+    whether the eave OVERHANG is the depth the template asked for - only that
+    the surface meets the wall.
+    """
+    high, floats, cracked, seen = [], [], [], 0
+    for vid, fs in volumes(mass).items():
+        ring = _cap_ring(fs)
+        asked = max(f["ymax"] for f in fs if f["pf_wall_role"] == "cap")
+        el = elements(geo)
+        fac = [e for e in el if e["pf_volume_id"] == vid
+               and e["kind"] == "facade"]
+        roof = [e for e in el if e["pf_volume_id"] == vid
+                and e["kind"] == "roof"]
+        if not ring or not fac or not roof:
+            cracked.append((vid, "facade %d roof %d" % (len(fac), len(roof))))
+            continue
+        seen += 1
+        built = max(e["ymax"] for e in fac)
+        if abs(built - asked) > TOL:
+            high.append((vid, round(built, 4), round(asked, 4)))
+        probes = list(ring) + [((ring[j][0] + ring[(j + 1) % len(ring)][0])
+                                * 0.5,
+                                (ring[j][1] + ring[(j + 1) % len(ring)][1])
+                                * 0.5) for j in range(len(ring))]
+        for q in probes:
+            ys = [y for y in (_plane_y(f, q) for f in roof) if y is not None]
+            if not ys or min(abs(y - built) for y in ys) > TOL:
+                floats.append((vid, (round(q[0], 2), round(q[1], 2)),
+                               [round(y, 3) for y in ys[:2]],
+                               round(built, 3)))
+        # ⚠️ A ZERO-LENGTH EDGE IS NOT AN EDGE, and skipping it is accounting
+        # rather than leniency.  MEASURED on 22.0.398: `polyexpand2d`'s
+        # surface output REPEATS a vertex wherever the wavefront collapses -
+        # 29 such self-edges over this fixture's 10 roof faces - and folding
+        # them into the multiset made every apex look like one edge shared by
+        # nine faces AND put a spurious (p, p) pair in the boundary set.  The
+        # first reading of this clause was "7 boundary edges for 6 footprint
+        # edges" on a roof that is closed; the seventh was the apex touching
+        # itself.  The repeated vertices are a stated limit of the B5
+        # prototype (§12.10b), not a hole.
+        edges = collections.Counter()
+        for f in roof:
+            pts = f["pts"]
+            for j in range(len(pts)):
+                a, b = pts[j], pts[(j + 1) % len(pts)]
+                if a != b:
+                    edges[tuple(sorted((a, b)))] += 1
+        border = [e for e, c in edges.items() if c == 1]
+        low = min(p[1] for f in roof for p in f["pts"])
+        if (len(border) != len(ring)
+                or any(abs(p[1] - low) > TOL for e in border for p in e)):
+            cracked.append((vid, "%d boundary edges for %d footprint edges"
+                            % (len(border), len(ring))))
+    ok = {"eave_meets_wall": seen > 0 and not floats,
+          "height_as_asked": seen > 0 and not high,
+          "roof_closed": seen > 0 and not cracked}
+    return Result(name, ok, [seen, len(floats), len(high), len(cracked)],
+                  "%d buildings; roof off the wall top at: %s; built top vs "
+                  "asked: %s; roof boundary: %s"
+                  % (seen, floats[:2] or "nowhere", high[:2] or "ok",
+                     cracked[:2] or "eave only"))
+
+
+def plan_follows_data(geo, styles, rings, roles, templates, degraded=(),
+                      authored=None, name="plan_follows_data"):
     """WHERE THE MASS IS AND HOW BIG IT IS IN PLAN - the dimension nothing in
     the first build could see, and the one G2's L-footprint is made of.
 
     Two DIFFERENTIAL ORACLES, both computed here from the fixture's own lot
-    rectangle and the template's numbers, never from the geometry:
-      * `footprint` - a rectangle inset per role is arithmetic, so the built
-        mass's plan bounds must equal `lot inset by setbackM`. `pf_inset.vfl`
-        solving corners is not consulted; the expected box is four additions.
+    RING and the template's numbers, never from the geometry:
+      * `footprint` - every lot EDGE is inset by its own role's setback, so
+        the built mass's closest approach to edge j must be exactly `s[j]`.
+        `pf_inset.vfl` solving corners is not consulted; the expected distance
+        is one number per edge.
       * `cell_split` - under `bar` the cells' plan AREAS must be in the ratio
         of the `cutsAt` intervals. Compared in `pf_volume_index` order, or its
         reverse, because the rail direction follows the longer edge.
+
+    ⭐ `footprint` WAS A BOUNDING-BOX COMPARISON UNTIL G2 AND THAT MADE IT
+    VACUOUS ON THE ONLY SHAPE G2 CARES ABOUT.  Round 4 measured it: on an L
+    lot the built mass's plan box IS the lot's plan box, so on a `setback(0)`
+    L the clause asserted nothing at all, and on any L it could see only the
+    two extremes of six edges.  The per-edge form is the generalisation: for
+    a RECTANGLE it is arithmetically the same four numbers the box compared,
+    and for an L it measures all six - including the two that meet at the
+    reflex corner, which is the pair `pf_inset` has to solve and nothing had
+    ever checked.  ⚠️ The closest approach is measured only over the points
+    that project INSIDE the edge's own segment, which is what makes it work on
+    a non-convex ring: the far leg of an L is nearest to an edge it does not
+    face, and including it would report that leg's distance instead.
 
     ⚠️ IT MODELS THE WHOLE CASCADE, NOT JUST THE TEMPLATE, and the first
     version did not: `s` came only from `lotToFootprint.setbackM`, so an
@@ -351,30 +598,47 @@ def plan_follows_data(geo, lots, templates, degraded=(), authored=None,
 
     CANNOT SEE: a degraded site (skipped - its footprint is by definition not
     the one the data asked for); anything about elevation; two cells of equal
-    area swapped; nor a `footprint` claim on a non-rectangular lot, because it
-    compares BOUNDING BOXES - exact for these four-corner lots and nearly
-    vacuous for G2's L, which is why generalising it is G2's first test task.
+    area swapped; a footprint that is right at every edge and wrong BETWEEN
+    them (a bulge in the middle of an edge is nearer, so it IS caught; a
+    notch cut out of one is not); nor whether the corner where two edges meet
+    was solved by the right rule - only that both edges arrived where the data
+    put them.
     """
     bad = []
-    for site, style, (ox, oz), (sx, sz), roles in lots:
+    seen, split_seen = 0, 0
+    for site in sorted(rings):
         if site in degraded:
             continue
-        tpl = templates[style]
+        seen += 1
+        ring, edge_roles = rings[site], roles[site]
+        tpl = templates[styles[site]]
         fp = tpl["lotToFootprint"]
         table = fp["setbackM"] if fp["op"] != "identity" else {}
         over = (authored or {}).get(site) or []
         s = [over[i] if i < len(over) and over[i] >= 0.0
              else float(table.get(r, 0.0 if fp["op"] == "identity"
                                   else fp["defaultSetbackM"]))
-             for i, r in enumerate(roles)]
-        want = (ox + s[3], oz + s[0], ox + sx - s[1], oz + sz - s[2])
-        got = plan_box(faces(geo, site))
-        if max(abs(g - w) for g, w in zip(got, want)) > TOL:
-            bad.append((site, "footprint", [round(v, 2) for v in got],
-                        [round(v, 2) for v in want]))
+             for i, r in enumerate(edge_roles)]
+        pts = [(p[0], p[2]) for f in faces(geo, site) for p in f["pts"]]
+        got = []
+        for j in range(len(ring)):
+            a, b = ring[j], ring[(j + 1) % len(ring)]
+            ex, ez = b[0] - a[0], b[1] - a[1]
+            l2 = ex * ex + ez * ez
+            # interior is to the LEFT of a CCW edge, so the inward normal is
+            # the edge turned +90 degrees in (x, z) - the same convention
+            # `pf_inset.vfl` takes off the signed area.
+            nx, nz = -ez / math.sqrt(l2), ex / math.sqrt(l2)
+            near = [(q[0] - a[0]) * nx + (q[1] - a[1]) * nz for q in pts
+                    if 0.0 <= ((q[0] - a[0]) * ex
+                               + (q[1] - a[1]) * ez) / l2 <= 1.0]
+            got.append(round(min(near), 4) if near else None)
+        if any(g is None or abs(g - w) > TOL for g, w in zip(got, s)):
+            bad.append((site, "footprint", got, [round(v, 2) for v in s]))
         topo = tpl["volumeTopology"]
         if topo["rails"] != "bar" or not topo["cutsAt"]:
             continue
+        split_seen += 1
         edge = [0.0] + sorted(float(c) for c in topo["cutsAt"]) + [1.0]
         wants = [round(edge[i + 1] - edge[i], 4)
                  for i in range(len(edge) - 1)]
@@ -386,10 +650,17 @@ def plan_follows_data(geo, lots, templates, degraded=(), authored=None,
                     and max(abs(a - b)
                             for a, b in zip(gots, wants[::-1])) > 1e-3)):
             bad.append((site, "cell_split", gots, wants))
-    return Result(name, {"footprint": not [b for b in bad if b[1] ==
-                                           "footprint"],
-                         "cell_split": not [b for b in bad if b[1] ==
-                                            "cell_split"]},
+    # ⚠️ `cell_split` IS ONLY REPORTED WHEN SOMETHING REACHED IT.  A clause
+    # that no site exercises would otherwise ship PASS forever and, worse,
+    # would be demanded by the runner's per-clause mutation sweep on a fixture
+    # that cannot produce one - G2's every template is `solid`, so the clause
+    # is not applicable there rather than satisfied there.  "Assert truth, not
+    # presence" (dev-loop §9 rule 3) applies to a clause's own existence.
+    ok = {"footprint": seen > 0 and not [b for b in bad if b[1] ==
+                                         "footprint"]}
+    if split_seen:
+        ok["cell_split"] = not [b for b in bad if b[1] == "cell_split"]
+    return Result(name, ok,
                   len(bad), "plan against the data: %s" % (bad[:2] or "ok"))
 
 

@@ -8,11 +8,26 @@
 // or it is that style's code wearing a rule's name:
 //
 //   RAILS      two matched point chains spanning the footprint.
-//              `bar`  - the two long opposite edges of a 4-gon, sampled at the
-//                       template's cut fractions.
-//              `ring` - the footprint boundary and its courtyard inset, edge
-//                       for edge (correspondence is exact: the inset is the
-//                       SAME polygon with its points moved, by `pf_inset.vfl`).
+//              `bar`   - the two long opposite edges of a 4-gon, sampled at
+//                        the template's cut fractions.
+//              `ring`  - the footprint boundary and its courtyard inset, edge
+//                        for edge (correspondence is exact: the inset is the
+//                        SAME polygon with its points moved, by
+//                        `pf_inset.vfl`).
+//              `solid` - no rails at all: ONE volume over the whole footprint,
+//                        whatever its corner count.  G2 added it, and the gap
+//                        it fills is real rather than convenient: before it,
+//                        the only way a NON-CONVEX footprint became one mass
+//                        was the DEGRADED fallback, which is the same geometry
+//                        carrying `pf_warn_topology_arity` - i.e. the vocabulary
+//                        could not say "one volume, this shape" without also
+//                        saying "something went wrong".  §12.5's `volumeTopology`
+//                        owes an artist that sentence.
+//              ⚠️ `solid` is used by ONE shipped template (`at_g2_l`), which is
+//              the shape G1's `rule_reuse` calls a style's code wearing a rule's
+//              name.  Stated rather than hidden: the argument for it is that a
+//              single-volume building is the commonest building there is, not
+//              that two of today's four templates happen to use it.
 //   ZIP        one cell per rail interval; every cell is the quad between the
 //              two rails.  Consecutive cells share their cross face - that
 //              face IS the party wall, found by construction, not by search.
@@ -187,9 +202,15 @@ for (int pr = 0; pr < np; pr++) {
     // offset is provably the identity, still shipped eighteen faces saying
     // its footprint had collapsed.  Degrading for a TOPOLOGY reason and
     // degrading because an offset folded are different facts.
-    int closed = 0, degraded = 0, yardbad = 0;
+    // `whole` is the `solid` rule and it is NOT `degraded`, which is the whole
+    // point of adding it: both build one volume over `fp`, but a degraded site
+    // never honoured its volume list and says so through
+    // `pf_warn_topology_arity`, while a solid one asked for exactly this.
+    int closed = 0, degraded = 0, yardbad = 0, whole = 0;
 
-    if (rails == 1) {                                  // ring
+    if (rails == 2 && !collapsed) {                    // solid
+        whole = 1;
+    } else if (rails == 1) {                           // ring
         int cpr = -1;
         for (int c = 0; c < nprimitives(1); c++)
             if (prim(1, "pf_site_id", c) == site) { cpr = c; break; }
@@ -242,7 +263,7 @@ for (int pr = 0; pr < np; pr++) {
         resize(sideOuter, 0); resize(sideInner, 0);
     }
 
-    int ncells = degraded ? 1 : (closed ? n : len(railA) - 1);
+    int ncells = (degraded || whole) ? 1 : (closed ? n : len(railA) - 1);
     if (ncells < 1) continue;
     // ⚠️ ARITY IS MEASURED AGAINST WHAT THE RAILS PRODUCED, WHICH IS NOTHING
     // WHEN THEY REFUSED THE FOOTPRINT.  §12.8 defines this warning as "the
@@ -275,7 +296,7 @@ for (int pr = 0; pr < np; pr++) {
     for (int i = 0; i < ncells; i++) {
         int i1 = (i + 1) % max(len(railA), 1);
         vector corner[];
-        if (degraded) corner = fp;
+        if (degraded || whole) corner = fp;
         else corner = array(railA[i], railA[closed ? i1 : i + 1],
                             railB[closed ? i1 : i + 1], railB[i]);
         lo[i] = 1e18;
@@ -306,7 +327,7 @@ for (int pr = 0; pr < np; pr++) {
     for (int i = 0; i < ncells; i++) {
         int i1 = (i + 1) % max(len(railA), 1);
         vector corner[]; string tag[], wall[], face[], shared[];
-        if (degraded) {
+        if (degraded || whole) {
             corner = fp;
             for (int j = 0; j < len(fp); j++) {
                 tag[j] = sprintf("s%d", j);

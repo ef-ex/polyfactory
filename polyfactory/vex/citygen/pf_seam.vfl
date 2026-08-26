@@ -1,0 +1,61 @@
+// pf_seam.vfl - B6, the facade -> cap seam.  DETAIL wrangle: one execution
+// over every building in the stream (input 0 = the eave loops, input 1 = the
+// built facade).
+//
+// §12.6 gives B6 every seam, and this is the one G2's pass criterion names
+// beside the corners: eave and gable.  Its whole content is one decision -
+// ⭐ **THE ROOF FOLLOWS THE FACADE THAT WAS BUILT, NOT THE HEIGHT THAT WAS
+// ASKED FOR.**  §5 Theme 4's second complaint is exactly this failure in the
+// Labs generator: *"module misalignment producing gaps because corners with
+// different ledges shift to different depths"* - a cap datum taken from the
+// REQUEST floats above, or cuts into, a facade whose row solve landed
+// somewhere else.  Taking it from the facade's own built top cannot gap.
+//
+// ⚠️ AND THAT MAKES THE SEAM CHECK'S OTHER HALF LOAD-BEARING, which is stated
+// here because it is a trap this build has walked into before: an oracle that
+// reads the same source as the geometry moves with it.  `cap_seam/eave_meets_
+// wall` measures the roof against the built wall top and therefore CANNOT see
+// a facade that came out the wrong height - `cap_seam/height_as_asked` is the
+// clause that pins the built top to `pf_plinth_top + pc_height`, i.e. to B2's
+// number and the template's.  Neither clause alone is the claim.
+//
+// ⚠️ THE ROOF DATUM IS NOT THE EAVE HEIGHT.  The wavefront starts at the
+// OVERHANG loop, `_eave` metres outside the wall, so the surface must be
+// dropped by `_eave * tan(pitch)` for it to pass through the wall top exactly
+// `_eave` metres in.  That is what an eave IS - the rafter crosses the wall
+// plate and continues out and DOWN - and it is why no soffit band is needed
+// to close this seam: the roof plane contains the wall's top edge.
+//
+// ⚠️ A BUILDING WITH NO FACADE ELEMENTS falls back to the asked height rather
+// than to y = 0.  §2.2 is advisory-never-a-wall: an empty kit must still get
+// a roof over the mass, not a roof in the ground.
+//
+// WHAT THIS CANNOT SEE: whether the facade's top row is a CORNICE or a bare
+// wall - it reads a bounding box, so an element that overshoots upward (a
+// finial, a chimney in the kit) would raise the whole roof.  §12.9's
+// `moduleRole` is where that distinction belongs, and no kit ships one yet.
+
+dict tops = {};
+int nf = nprimitives(1);
+for (int i = 0; i < nf; i++) {
+    string a = prim(1, "pc_array", i);
+    float b[] = primintrinsic(1, "bounds", i);
+    if (!isvalidindex(tops, a) || float(tops[a]) < b[3]) tops[a] = b[3];
+}
+
+int nl = nprimitives(0);
+for (int i = 0; i < nl; i++) {
+    // Typed locals: `prim()` is untyped, so adding two of them - or handing
+    // one to `radians()` - is an AMBIGUOUS call, not a silent coercion.
+    string a = prim(0, "pc_array", i);
+    float datum = prim(0, "pf_plinth_top", i);
+    float want = prim(0, "pc_height", i);
+    float pitch = prim(0, "_pitchdeg", i);
+    float eave = prim(0, "_eave", i);
+    float asked = datum + want;
+    float top = isvalidindex(tops, a) ? float(tops[a]) : asked;
+    float t = tan(radians(pitch));
+    setprimattrib(0, "_eave_y", i, top);
+    setprimattrib(0, "_tanpitch", i, t);
+    setprimattrib(0, "_roof_y0", i, top - eave * t);
+}

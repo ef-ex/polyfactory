@@ -28,6 +28,54 @@
   "vertex": []
  },
  "sites": {
+  "10_at_einhof": {
+   "capGroups": [
+    0
+   ],
+   "faces": 18,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    0
+   ],
+   "pf_warn_topology_arity": [
+    0
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    399.6,
+    250.2,
+    250.2
+   ],
+   "planBox": [
+    420.0,
+    0.0,
+    430.0,
+    90.0
+   ],
+   "roles": [
+    "barn",
+    "dwelling",
+    "stable"
+   ],
+   "seed": [
+    10000
+   ],
+   "topY": [
+    3.0
+   ],
+   "volumes": 3,
+   "wallRoles": [
+    "cap",
+    "end",
+    "exterior",
+    "floor",
+    "party"
+   ]
+  },
   "1_at_einhof": {
    "capGroups": [
     0

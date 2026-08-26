@@ -65,9 +65,9 @@
 							"capFamily":{
 								"type":"dict",
 								"value":{
-									"corniceM":{
+									"eaveDepthM":{
 										"type":"float",
-										"value":0.900000000000000022
+										"value":0.699999999999999956
 									},
 									"family":{
 										"type":"string",
@@ -75,7 +75,16 @@
 									},
 									"pitchDeg":{
 										"type":"float",
-										"value":30
+										"value":38
+									}
+								}
+							},
+							"junctions":{
+								"type":"dict",
+								"value":{
+									"cornerMode":{
+										"type":"string",
+										"value":"miter"
 									}
 								}
 							},
@@ -84,7 +93,7 @@
 								"value":{
 									"defaultSetbackM":{
 										"type":"float",
-										"value":0
+										"value":2
 									},
 									"op":{
 										"type":"string",
@@ -93,17 +102,25 @@
 									"setbackM":{
 										"type":"dict",
 										"value":{
-											"abuts":{
+											"alley":{
 												"type":"float",
-												"value":0
+												"value":2.5
 											},
 											"front":{
 												"type":"float",
-												"value":0
+												"value":3
+											},
+											"interiorSide":{
+												"type":"float",
+												"value":1.5
 											},
 											"rear":{
 												"type":"float",
-												"value":0
+												"value":4
+											},
+											"sideStreet":{
+												"type":"float",
+												"value":2
 											}
 										}
 									}
@@ -111,20 +128,19 @@
 							},
 							"sources":{
 								"type":"stringarray",
-								"value":["TYPE: Gruenderzeit Zinshaus on a mid-block plot, street tract plus a lower commercial rear tract, no courtyard.","Parzellenbreite 15-20 m: SOURCED, so the 17 m fixture lot sits inside it. OEAW, Gruenderzeitliche Wohnhaustypen Wiens - https://epub.oeaw.ac.at/0xc1aa5576_0x003df00e.pdf",
-									"Vorderhaus depth 12 m (cut 0.462 of a 26 m plot): SOURCED, the Wiener Dachstuhl span again. Fierro, Ganzheitliche Modernisierung von Gruenderzeitbauten, TU Wien 2023 (Wiener Dachstuhl span and pitch) - https://repositum.tuwien.at/bitstream/20.500.12708/176593/1/Fierro%20Alan%20Andres%20-%202023%20-%20Ganzheitliche%20Modernisierung%20von%20Gruenderzeitbauten...pdf",
-									"5 storeys, 3.5 m: SOURCED as above (1883 \u00a742; Raumhoehe band). Braun, Souterrain Hochparterre - Die Halbgeschosse der Wiener Gruenderzeit, TU Wien 2024 (quotes Bauordnung fuer Wien 1883 \u00a742 and 1829 \u00a723) - https://repositum.tuwien.at/bitstream/20.500.12708/196379/1/Braun%20Andrea%20-%202024%20-%20Souterrain%20Hochparterre%20-%20Die%20Halbgeschosse%20der...pdf",
-									"rear tract LOWER: SOURCED only qualitatively - 'meist niedrigere Hofbebauungen, in der Regel fuer die gewerbliche Nutzung'. The 3 storeys is UNSOURCED; no storey differential was found in metres or counts. OEAW, Gruenderzeitliche Wohnhaustypen Wiens - https://epub.oeaw.ac.at/0xc1aa5576_0x003df00e.pdf",
-									"setback 0 on the street and on both party edges: SOURCED. Braun, Souterrain Hochparterre - Die Halbgeschosse der Wiener Gruenderzeit, TU Wien 2024 (quotes Bauordnung fuer Wien 1883 \u00a742 and 1829 \u00a723) - https://repositum.tuwien.at/bitstream/20.500.12708/196379/1/Braun%20Andrea%20-%202024%20-%20Souterrain%20Hochparterre%20-%20Die%20Halbgeschosse%20der...pdf",
-									"\u26a0\ufe0f The side walls are the party walls to the NEIGHBOURING BUILDINGS (Feuermauern). B2 emits them as exterior walls carrying the site role `abuts`; building-to-building junctions are deferred to v2 by \u00a712.1 and are B6's to resolve."]
+								"value":["TYPE: none. This is gate G2's acceptance fixture (\u00a712.10), not a surveyed building, and every number below is chosen to exercise a SEAM rather than to describe a place. It is listed here rather than hidden in the test harness because a style is data and the cascade must be able to reach it (\u00a712.5).",
+									"setbackM per role, all four different: UNSOURCED BY DESIGN. The reflex corner of the L is where the `rear` edge meets the `interiorSide` edge, and two edges meeting at a reflex corner with DIFFERENT insets is the case `pf_inset.vfl` solves corner-by-corner and nothing has ever checked.",
+									"rails `solid`: the rule G2 added. One volume over the whole footprint, whatever its corner count - see `pf_mass.vfl`. Without it a non-convex footprint could only become one mass through the DEGRADED fallback, which carries `pf_warn_topology_arity` and would build the gate on a path that declares itself broken.",
+									"storeys 3, storeyHeightM 3.2: UNSOURCED. Enough storeys that the facade has more than one row to misalign, low enough that the gate images frame.","capFamily pitchDeg 38, eaveDepthM 0.7: UNSOURCED. The pitch is any value that makes hips and the valley visible; the eave is non-zero ON PURPOSE, because a zero overhang makes the roof's boundary identical to the wall top and the eave seam then closes by construction rather than by B6 doing anything.",
+									"junctions cornerMode `miter`: this is the treatment \u00a712.6 B6 names as its PRIMARY strategy (a corner module from the kit), and \u00a70.0d records that it is also the one polyChain's native chain refuses per-BUILD. G2 measures both; the template asks for the one the spec prefers."]
 							},
 							"storeyHeightM":{
 								"type":"float",
-								"value":3.5
+								"value":3.20000000000000018
 							},
 							"styleId":{
 								"type":"string",
-								"value":"at_zinshaus_row"
+								"value":"g2_lshape"
 							},
 							"version":{
 								"type":"int",
@@ -138,8 +154,8 @@
 										"value":0
 									},
 									"cutsAt":{
-										"type":"floatarray",
-										"value":[0.462000000000000022]
+										"type":"intarray",
+										"value":[]
 									},
 									"plinth":{
 										"type":"dict",
@@ -156,7 +172,7 @@
 									},
 									"rails":{
 										"type":"string",
-										"value":"bar"
+										"value":"solid"
 									},
 									"volumes":{
 										"type":"dictarray",
@@ -168,21 +184,7 @@
 												},
 												"role":{
 													"type":"string",
-													"value":"vorderhaus"
-												},
-												"storeys":{
-													"type":"int",
-													"value":5
-												}
-											},
-											{
-												"capGroup":{
-													"type":"int",
-													"value":1
-												},
-												"role":{
-													"type":"string",
-													"value":"gewerbeHoftrakt"
+													"value":"dwelling"
 												},
 												"storeys":{
 													"type":"int",

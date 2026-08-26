@@ -1,0 +1,137 @@
+// pf_cap.vfl - B5 CAP, `skeletonRoof`.  DETAIL wrangle over the whole stream
+// (input 0 = `polyexpand2d`'s straight-skeleton surfaces, input 1 = the eave
+// loops carrying each building's datum).
+//
+// §12.6 B5 says this is written from scratch because Labs offers nothing.
+// It is written from scratch; it is not written from FIRST PRINCIPLES, and
+// that distinction is the whole of the file.  `polyexpand2d` on 22.0.398
+// computes a straight skeleton, survives non-convex input, and publishes the
+// wavefront's travel as a VERTEX attribute - which its own help calls the way
+// to "raise the roof".  §12.6 B1 already recorded that as "a real head start
+// for B5" while rejecting the node for B1's own job (it treats a non-positive
+// Inside Scale as 1, so `setback(0)` silently became 1 m).  That rejection
+// does not transfer: B5 asks for a POSITIVE offset and never for zero.
+//
+// So the roof is one native node plus this: y = datum + travel * tan(pitch).
+// A polygon whose every edge advances at the same speed is exactly the
+// constant-pitch roof, its skeleton is the ridge/hip/valley set, and the
+// VALLEY at G2's reflex corner is produced by the same mechanism as the hips -
+// which is the point.  A weighted skeleton (per-edge speed, hence gables and
+// mixed pitches) is `uselocalinsidescale` on the same node and is deliberately
+// NOT built here: §2 Era 1's weighted variants are a style-range item, and the
+// gate needs eave and corner seams, not a roof system.
+//
+// ⚠️ THE OWNER IS FOUND WITH `xyzdist`, NOT CARRIED.  `polyexpand2d` publishes
+// `edgedist` and drops every other attribute - measured, not assumed - so a
+// roof face arrives with no idea which building it belongs to.  Its centroid
+// lies inside its own eave loop, and `xyzdist` against the loops (which are
+// closed polygons, i.e. FILLED faces to that call) returns that prim.  Native
+// and spatially accelerated, so this stays one execution over the stream
+// rather than an O(faces x buildings) scan.
+//
+// ⚠️ `edgedist` IS A VERTEX ATTRIBUTE AND IS READ AS ONE.  Measured on the
+// two-loop fixture: the spread between the vertices sharing one skeleton point
+// is exactly 0.0, which is the straight skeleton's defining property (a node
+// is equidistant from the edges that made it).  So any vertex of the point
+// gives the same answer and no promote is needed - but a point written twice
+// through two different faces must be written with the SAME value or the roof
+// cracks, and that is why the value is taken per POINT here and the check
+// `cap_seam/roof_closed` asserts the surface has no boundary but its eave.
+//
+// WHAT THIS CANNOT SEE: a skeleton `polyexpand2d` refused (it is set to WARN,
+// so a refusal arrives as an empty stream and `roof_covers_plan` is what
+// notices); dormers, hips of differing pitch, or any cap family but
+// `skeletonRoof`; and it says nothing about whether the roof is watertight
+// against the FACADE - `cap_seam` owns that.
+
+// The face's STRUCTURAL slot: which eave edge it was raised off.  One roof
+// face per input edge (measured: an L gives 6, a rectangle 4), so this is the
+// same index the wall of that edge carries as `s<j>` - `pf_inset` preserves
+// corner correspondence, so roof slot j and wall slot j name the same edge of
+// the same building.  -1 when the face has no edge on the boundary at all,
+// which a skeleton face cannot have and a degenerate one might.
+int pf_roof_slot(const int inp; const int pr; const int lin; const int owner) {
+    int pts[] = primpoints(inp, pr);
+    int n = len(pts);
+    vector mid = set(0.0, 0.0, 0.0);
+    int have = 0;
+    for (int j = 0; j < n && !have; j++) {
+        float d0 = vertex(inp, "edgedist", vertexindex(inp, pr, j));
+        float d1 = vertex(inp, "edgedist", vertexindex(inp, pr, (j + 1) % n));
+        if (d0 < 1e-5 && d1 < 1e-5) {
+            vector a = point(inp, "P", pts[j]);
+            vector b = point(inp, "P", pts[(j + 1) % n]);
+            mid = (a + b) * 0.5;
+            have = 1;
+        }
+    }
+    if (!have) return -1;
+    int lp[] = primpoints(lin, owner);
+    int m = len(lp);
+    int best = -1;
+    float bd = 1e18;
+    for (int e = 0; e < m; e++) {
+        vector a = point(lin, "P", lp[e]);
+        vector b = point(lin, "P", lp[(e + 1) % m]);
+        vector d = b - a;
+        float l2 = d.x * d.x + d.z * d.z;
+        float t = (l2 < 1e-18) ? 0.0
+            : clamp(((mid.x - a.x) * d.x + (mid.z - a.z) * d.z) / l2,
+                    0.0, 1.0);
+        float dd = length(set(mid.x - a.x - d.x * t, 0.0,
+                              mid.z - a.z - d.z * t));
+        if (dd < bd) { bd = dd; best = e; }
+    }
+    return best;
+}
+
+int np = nprimitives(0);
+for (int pr = 0; pr < np; pr++) {
+    int pts[] = primpoints(0, pr);
+    int n = len(pts);
+    if (n < 3) continue;
+
+    // typed local: `point()` is untyped and `+=` on it is ambiguous.
+    vector c = set(0.0, 0.0, 0.0);
+    foreach (int pt; pts) {
+        vector q = point(0, "P", pt);
+        c += q;
+    }
+    c /= float(n);
+
+    int owner;
+    vector uv;
+    xyzdist(1, c, owner, uv);
+    if (owner < 0) continue;
+
+    float y0 = prim(1, "_roof_y0", owner);
+    float t = prim(1, "_tanpitch", owner);
+    for (int j = 0; j < n; j++) {
+        vector p = point(0, "P", pts[j]);
+        float d = vertex(0, "edgedist", vertexindex(0, pr, j));
+        setpointattrib(0, "P", pts[j], set(p.x, y0 + d * t, p.z));
+    }
+
+    // §12.7: the address is structural - site, stage, volume, face slot - and
+    // the slot here is the EDGE the roof face was raised off, which is the
+    // skeleton's own indexing and not the order `polyexpand2d` emitted in.
+    // Typed locals throughout: `prim()` returns an untyped value, so handing
+    // one straight to `setprimattrib` is AMBIGUOUS and refuses to compile.
+    string vid = prim(1, "pf_volume_id", owner);
+    string sid = prim(1, "pf_style_id", owner);
+    string role = prim(1, "pf_volume_role", owner);
+    int site = prim(1, "pf_site_id", owner);
+    int seed = prim(1, "pf_seed", owner);
+    int vidx = prim(1, "pf_volume_index", owner);
+    int capg = prim(1, "pf_cap_group", owner);
+    setprimattrib(0, "pf_site_id", pr, site);
+    setprimattrib(0, "pf_style_id", pr, sid);
+    setprimattrib(0, "pf_seed", pr, seed);
+    setprimattrib(0, "pf_volume_id", pr, vid);
+    setprimattrib(0, "pf_volume_index", pr, vidx);
+    setprimattrib(0, "pf_volume_role", pr, role);
+    setprimattrib(0, "pf_cap_group", pr, capg);
+    setprimattrib(0, "pf_wall_role", pr, "roof");
+    setprimattrib(0, "pf_elem_id", pr, sprintf("%s:B5:r%d", vid,
+                                               pf_roof_slot(0, pr, 1, owner)));
+}

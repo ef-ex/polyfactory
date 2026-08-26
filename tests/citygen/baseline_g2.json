@@ -1,0 +1,146 @@
+{
+ "published": {
+  "detail": [
+   "pc_facade_notes:String",
+   "pc_kit_warnings:String",
+   "pc_warnings:String"
+  ],
+  "groups": [],
+  "point": [
+   "P:Float",
+   "pc_local:Float"
+  ],
+  "prim": [
+   "pc_array:String",
+   "pc_cap:Int",
+   "pc_cap_material:String",
+   "pc_cell:String",
+   "pc_clipped:Int",
+   "pc_corner_cut:Int",
+   "pc_curve_id:String",
+   "pc_deformed:Int",
+   "pc_elem_id:String",
+   "pc_elem_key:Int",
+   "pc_generated:Int",
+   "pc_height:Float",
+   "pc_module:String",
+   "pc_replaced:Int",
+   "pc_row:Int",
+   "pc_section:Int",
+   "pc_slot:String",
+   "pc_style:String",
+   "pc_u:Float",
+   "pc_variant:String",
+   "pc_yclass:String",
+   "pc_zmode:String",
+   "pf_cap_group:Int",
+   "pf_elem_id:String",
+   "pf_face_role:String",
+   "pf_plinth_top:Float",
+   "pf_seed:Int",
+   "pf_shared_with:String",
+   "pf_site_id:Int",
+   "pf_storey_height:Float",
+   "pf_storeys:Int",
+   "pf_style_id:String",
+   "pf_volume_id:String",
+   "pf_volume_index:Int",
+   "pf_volume_role:String",
+   "pf_wall_role:String",
+   "pf_warn_cap_group_split:Int",
+   "pf_warn_footprint_collapsed:Int",
+   "pf_warn_topology_arity:Int",
+   "pf_warn_unknown_rule:Int"
+  ],
+  "vertex": [
+   "edgedist:Float",
+   "uv:Float"
+  ]
+ },
+ "sites": {
+  "1_g2_lshape": {
+   "facade_elements": 294,
+   "mass_faces": 8,
+   "mass_volumes": 1,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    0
+   ],
+   "pf_warn_topology_arity": [
+    0
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    271.5
+   ],
+   "planBox": [
+    2.5,
+    3.0,
+    28.0,
+    20.0
+   ],
+   "roof_faces": 6,
+   "topY": 14.288
+  },
+  "2_g2_lshape": {
+   "facade_elements": 210,
+   "mass_faces": 6,
+   "mass_volumes": 1,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    0
+   ],
+   "pf_warn_topology_arity": [
+    0
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    258.5
+   ],
+   "planBox": [
+    52.5,
+    3.0,
+    76.0,
+    14.0
+   ],
+   "roof_faces": 4,
+   "topY": 13.897
+  },
+  "3_g2_lshape": {
+   "facade_elements": 324,
+   "mass_faces": 8,
+   "mass_volumes": 1,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    1
+   ],
+   "pf_warn_topology_arity": [
+    1
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    552.0
+   ],
+   "planBox": [
+    100.0,
+    0.0,
+    130.0,
+    24.0
+   ],
+   "roof_faces": 6,
+   "topY": 15.85
+  }
+ }
+}

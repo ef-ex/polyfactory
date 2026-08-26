@@ -1,0 +1,32 @@
+// pf_eave.vfl - B5's INPUT.  PRIM wrangle: arm the SAME inset rule for the
+// roof's overhang, and flatten the loops so one straight skeleton serves the
+// whole stream.
+//
+// ⚠️ THE OVERHANG IS AN INSET WITH A NEGATIVE DISTANCE, so B5 reuses
+// `pf_inset.vfl` unchanged - the third caller of the one rule, after B1's
+// setback and B2's courtyard tract.  That is not thrift: an OUTWARD offset of
+// a non-convex polygon is the mirror of the inward one, so the reflex corner
+// that G2 exists to test is exercised in BOTH directions by one file, and the
+// index correspondence `pf_inset` preserves is what lets the roof's eave edge
+// be matched to the wall it sits on.
+//
+// ⚠️ FLATTENED TO y = 0 ON PURPOSE.  `polyexpand2d` fits ONE plane through its
+// whole input (`planepossrc` = fitplane), so two buildings whose plinths level
+// to different datums would be skeletonised on a TILTED plane - and with this
+// fixture's flat ground they would not, which is exactly the shape of defect
+// this project keeps finding ("a fixture property was load-bearing without
+// saying so", round-1 defect 3).  `pf_cap.vfl` puts each roof back on its own
+// building's datum afterwards, so nothing depends on the loops being level.
+//
+// Same single-owner argument for the point write as `pf_facade_in.vfl`.
+float eave = f@_eave;
+int pts[] = primpoints(0, @primnum);
+int nv = primvertexcount(0, @primnum);
+
+for (int j = 0; j < nv; j++)
+    setvertexattrib(0, "_inset", @primnum, j, -eave);
+
+foreach (int pt; pts) {
+    vector p = point(0, "P", pt);
+    setpointattrib(0, "P", pt, set(p.x, 0.0, p.z));
+}

@@ -1,0 +1,47 @@
+// pf_facade_in.vfl - B4's INPUT ADAPTER.  PRIM wrangle over the mass's CAP
+// faces, which are already the footprint loop of their own volume.
+//
+// polyChain's facade port (`facade.footprint_loops`) asks for exactly three
+// things: one CLOSED footprint per primitive, prim `pc_height`, prim
+// `pc_array`.  B2 already emits all three under different names, so B4 is an
+// adapter and not a builder - which is `citygen_buildings.md` §0.0a's own
+// prediction ("B4 may be largely polyChain CONFIGURATION, not new code").
+//
+// ⚠️ THE CAP IS THE LOOP, AND IT IS THE LOOP AT THE WRONG HEIGHT.  `pfb_cell`
+// builds the cap as the plan walked CCW at `ytop`; a facade is built UPWARD
+// from its footprint, so the loop has to come back down to the floor datum.
+// `pf_plinth_top` is that datum - the ONE level for the whole building - so
+// the facade starts where the plinth ends and not at the bottom of a skirt
+// that follows the ground.
+//
+// ⚠️ A PRIM WRANGLE WRITING POINT POSITIONS DOUBLE-WRITES ANY SHARED POINT
+// (houdini-procedural-modeling §6), and the reason it is safe here is a fact
+// about the input rather than a hope: `pfb_cell` mints its own `top[]` points
+// per cell, and the blast upstream keeps only the caps - so after it every
+// point on this stream is referenced by exactly one prim.  Each point is
+// written once, with its own prim's datum.
+//
+// ⚠️ WINDING IS NOT CHECKED HERE and does not need to be.  `pfb_cell`
+// canonicalises every cell to CCW in (x,z) before it builds anything, and
+// that is the winding polyChain's own 2D fixtures are authored in
+// (`cases2d.L_FOOTPRINT`); its array frame's up axis flips if a loop arrives
+// the other way.
+float base = f@pf_plinth_top;
+int pts[] = primpoints(0, @primnum);
+// ⚠️ TYPED LOCAL FIRST.  `point()` returns an untyped value, so `max(...)` and
+// `.y` on it are AMBIGUOUS and the wrangle refuses to compile - the dev-loop
+// trap list's own first VEX entry, hit five separate times in one session
+// before it was written down.
+float ytop = -1e18;
+foreach (int pt; pts) {
+    vector q = point(0, "P", pt);
+    ytop = max(ytop, q.y);
+}
+
+f@pc_height = ytop - base;
+s@pc_array = s@pf_volume_id;
+
+foreach (int pt; pts) {
+    vector p = point(0, "P", pt);
+    setpointattrib(0, "P", pt, set(p.x, base, p.z));
+}

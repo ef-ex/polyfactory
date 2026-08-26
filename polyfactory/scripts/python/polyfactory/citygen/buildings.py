@@ -64,13 +64,24 @@ DEFAULTS = {
         "volumes": [{"role": "volume", "storeys": 1, "capGroup": 0}],
         "plinth": {"mode": "none", "minM": 0.0},
     },
-    "capFamily": {"family": "flat"},
+    "capFamily": {"family": "flat", "pitchDeg": 0.0, "eaveDepthM": 0.0},
+    # §12.6 B6: the seam strategy is "selectable through the cascade", so it is
+    # a template field like any other.  `bend` is the default because it is
+    # also polyChain's, and because `miter` costs 2.7x (see §12.10b).
+    "junctions": {"cornerMode": "bend"},
 }
 
 # The rule vocabulary.  Adding a style must never add a member here; that is
 # what gate G1 is testing.
-RAILS = {"bar": 0, "ring": 1}
+RAILS = {"bar": 0, "ring": 1, "solid": 2}
 PLINTH = {"none": 0, "levelToHighest": 1}
+# B5's cap strategies.  `flat` is "no cap built", which is what B2 already
+# leaves behind; `skeletonRoof` is `pf_cap.vfl`.  §12.5's other four families
+# (`parapet`, `platform`, `spire`, `continueUp`) are named there and not built,
+# so a template asking for one raises `pf_warn_unknown_rule` and gets `flat` -
+# §2.2, advisory and never a refusal.
+CAPS = {"flat": 0, "skeletonRoof": 1}
+CORNERS = ("bend", "miter")
 
 # conventions.md §2/§5: `_*` leaves on no class, and neither does the VERTEX
 # `pf_face_role` the lot arrived with - B2 re-emits it per PRIM on the walls
@@ -311,6 +322,162 @@ def stamp(geo, overrides=None, cache=None):
                 role = vtx.attribValue("pf_face_role")
                 vtx.setAttribValue("_inset",
                                    float(table.get(role, fallback)))
+
+
+def stamp_cap(geo, overrides=None, cache=None):
+    """B5/B6 marshalling: the cap family's numbers onto the footprint loops.
+
+    The same job `stamp()` does for B1/B2 and for the same reason - once per
+    BUILDING, never per element - but it runs one stage later, on B2's output,
+    and so it resolves the template off `pf_style_id` rather than off B0's
+    `pf_style_template`.  It has to: `CLEAN` sweeps every `_*` at B2's output
+    (conventions.md §2) and B2 publishes no cap data, so the numbers cannot
+    ride through on the mass.  Carrying them would mean publishing three more
+    `pf_*` names on every wall of every building to serve the roof.
+
+    ⚠️ An unknown `capFamily.family` raises `pf_warn_unknown_rule` - the
+    warning §12.8 already has, on a rule name it did not previously cover -
+    and builds `flat`.  No new artist-facing contract is invented here.
+    """
+    import hou
+    cache = {} if cache is None else cache
+    for name, default in (("_cap", 0),):
+        if geo.findPrimAttrib(name) is None:
+            geo.addAttrib(hou.attribType.Prim, name, default)
+    for name in ("_pitchdeg", "_eave", "_eave_y", "_roof_y0", "_tanpitch"):
+        if geo.findPrimAttrib(name) is None:
+            geo.addAttrib(hou.attribType.Prim, name, 0.0)
+    if geo.findPrimAttrib("pf_warn_unknown_rule") is None:
+        geo.addAttrib(hou.attribType.Prim, "pf_warn_unknown_rule", 0)
+
+    for prim in geo.prims():
+        style_id = prim.attribValue("pf_style_id")
+        if style_id not in cache:
+            cache[style_id] = resolve(load(style_id), overrides)
+        cap = cache[style_id]["capFamily"]
+        family = cap.get("family", "flat")
+        prim.setAttribValue("_cap", CAPS.get(family, 0))
+        prim.setAttribValue("_pitchdeg", float(cap.get("pitchDeg", 0.0)))
+        prim.setAttribValue("_eave", float(cap.get("eaveDepthM", 0.0)))
+        if family not in CAPS:
+            prim.setAttribValue("pf_warn_unknown_rule", 1)
+
+
+def corner_mode(template):
+    """§12.6 B6's seam strategy for a resolved template, validated.
+
+    ⚠️ IT IS PER BUILD, NOT PER BUILDING, and that limit is inherited rather
+    than chosen: polyChain's facade carries the corner treatment as one PARM,
+    and its own `[vex:corners]` refusal is likewise per-BUILD - one mitered
+    corner anywhere sends the whole build to the Python reference (§0.0d).  So
+    a stream mixing two templates that disagree about corners cannot be built
+    in one cook today, and B6 will have to split the stream by treatment when
+    that matters.  Named here because a silent "first template wins" is how a
+    cascade level quietly stops working.
+    """
+    want = (template.get("junctions") or {}).get(
+        "cornerMode", DEFAULTS["junctions"]["cornerMode"])
+    return want if want in CORNERS else DEFAULTS["junctions"]["cornerMode"]
+
+
+def build_shell(parent, mass, kit, overrides=None, corners="bend",
+                name="b4"):
+    """B4 facade + B5 cap + B6 junctions, wired downstream of B2's output.
+
+    -> the output node.  `mass` is `build()`'s OUT; `kit` is a SOP emitting a
+    polyChain module kit (§12.9's manifest is that kit's own contract, and no
+    citygen kit ships yet - the gate authors one).
+
+    THE SHAPE OF THIS STAGE IS THE FINDING, so it is stated here rather than
+    in a report: **B4 is an adapter, not a builder.** `citygen_buildings.md`
+    §0.0a predicted that B4 "may be largely polyChain CONFIGURATION" and it
+    is - one wrangle turns B2's cap faces into the three things
+    `facade.footprint_loops` asks for, and the shipped `pf_polychain_facade`
+    asset does the rest, corner treatment included.  What is genuinely new
+    here is B5 (`pf_cap.vfl` on a native straight skeleton) and B6's seam
+    (`pf_seam.vfl`), which is ~40 lines of VEX between them.
+
+    NOTHING in this chain branches on a style, exactly as B1/B2 do not: the
+    corner treatment is read off the template through `corner_mode()` and the
+    pitch and eave arrive as per-prim numbers.
+    """
+    import hou
+    hou.hda.installFile(os.path.join(_ROOT, "otls",
+                                     "pf_polychain_facade.hda")
+                        .replace("\\", "/"))
+    # The facade asset's VEX resolves `$POLYFACTORY` includes at cook time and
+    # hython does not set it (dev-loop trap list, the same one the runner hits
+    # for `sys.path`).
+    hou.putenv("POLYFACTORY", _ROOT.replace("\\", "/"))
+
+    def wrangle(nm, src, cls, src_input, extra=None):
+        node = parent.createNode("attribwrangle", nm)
+        node.parm("class").set(cls)
+        node.parm("snippet").set(vex(src))
+        node.setFirstInput(src_input)
+        for idx, other in (extra or ()):
+            node.setInput(idx, other)
+        return node
+
+    caps = parent.createNode("blast", name + "_caps")
+    caps.setFirstInput(mass)
+    caps.parm("group").set("@pf_wall_role=cap")
+    caps.parm("grouptype").set("prims")
+    caps.parm("negate").set(1)
+
+    loops = wrangle(name + "_loops", "pf_facade_in", 1, caps)
+    marshal = parent.createNode("python", name + "_cap_marshal")
+    marshal.setFirstInput(loops)
+    marshal.parm("python").set(
+        "import hou\n"
+        "from polyfactory.citygen import buildings\n"
+        "buildings.stamp_cap(hou.pwd().geometry(), %r)\n" % (overrides,))
+
+    facade = parent.createNode("pf_polychain_facade", name + "_facade")
+    facade.setFirstInput(marshal)
+    facade.setInput(1, kit)
+    facade.parm("corner_mode").set(corners)
+
+    eave = wrangle(name + "_eave", "pf_eave", 1, marshal)
+    area = wrangle(name + "_eave_area", "pf_area0", 1, eave)
+    ring = wrangle(name + "_eave_ring", "pf_inset", 2, area)
+    seam = wrangle(name + "_seam", "pf_seam", 0, ring, extra=[(1, facade)])
+
+    skel = parent.createNode("polyexpand2d", name + "_skeleton")
+    skel.setFirstInput(seam)
+    skel.parm("output").set("surfaces")
+    skel.parm("outputinside").set(1)
+    skel.parm("outputoutside").set(0)
+    skel.parm("doedgedistattrib").set(1)
+    # A straight skeleton terminates when its wavefront collapses, so the
+    # offset only has to EXCEED the largest inradius in the stream; taken off
+    # the input's own bounds rather than as a constant, because a constant
+    # that is too small silently truncates the roof into a flat top.
+    skel.parm("offset").setExpression(
+        'bbox("../%s", D_XSIZE) + bbox("../%s", D_ZSIZE)'
+        % (seam.name(), seam.name()))
+    skel.parm("skeletonfailure").set("warn")
+
+    roof = wrangle(name + "_cap", "pf_cap", 0, skel, extra=[(1, seam)])
+
+    merge = parent.createNode("merge", name + "_merge")
+    merge.setFirstInput(facade)
+    merge.setInput(1, roof)
+    final = wrangle(name + "_finalize", "pf_finalize", 1, merge)
+
+    clean = parent.createNode("attribdelete", name + "_clean")
+    clean.setFirstInput(final)
+    for do, pat, value in CLEAN:
+        clean.parm(do).set(1)
+        clean.parm(pat).set(value)
+    groups = parent.createNode("groupdelete", name + "_clean_groups")
+    groups.setFirstInput(clean)
+    groups.parm("group1").set("_*")
+
+    out = parent.createNode("null", name + "_OUT")
+    out.setFirstInput(groups)
+    parent.layoutChildren()
+    return out
 
 
 def build(parent, lots, ground=None, overrides=None, name="b2"):
