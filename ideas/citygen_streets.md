@@ -67,10 +67,32 @@ HOUDINI_PATH="F:/projects/polyfactory-citygen/polyfactory;&" \
 ⛔ **M5.5 IS NOT SOUND, AND A NEW CHECK FOUND IT (2026-08-27). THE UNIT SUITE IS RED: 11 of 74.**
 `graph_realign`'s cubic Hermite T landing changed what the BUILDER cuts and was never mirrored in
 `plan.py` — a straight §11.5 violation, "build the mouth AND mirror it in the planner, in the same
-commit". Every one of the 11 failures traces to **one site**: `J_five_star`, node (48.000, 0.000),
-edge `region_+00_+00/E_00005`, residual **−8.671534 m**. The planner still predicts the pre-M5.5
-trim of 5.000 while the builder now cuts 12.529 — M5.5's own published number, which should have
-been the clue.
+commit". Every one of the 11 failures traces to **one site**: `J_five_star`, node (48.000, 0.000).
+
+⚠️ **AND MY FIRST DIAGNOSIS OF IT WAS WRONG — corrected here, because the wrong version names
+the wrong fix.** I wrote that "the planner still predicts the pre-M5.5 trim of 5.000 while the
+builder cuts 12.529". That is the FIXTURE's staleness (`E_00000.trim_end 5.0000 → 12.5290`), not
+the planner's error, and I conflated the two because they surfaced in the same output. Measured
+per arm at that node:
+
+| arm | planner | builder | residual |
+|---|---|---|---|
+| `E_00000` — the realigned 48 m arterial stub | 12.4828 | 12.5290 | **−0.046** |
+| `E_00004` — the 152 m arterial through | 14.6599 | 20.2145 | −5.555 |
+| `E_00005` — the collector at **86.79°** | 20.1908 | 28.8623 | **−8.672** |
+
+**So the planner is NOT ignorant of the realign — it models the realigned arm almost exactly.**
+The fixture already carries `E_00005`'s direction as `(0.0560, 0.9984)`, which is M5.5's
+86.788° to three decimals, so `node_trims` sees the post-realign geometry and gets `E_00000`
+right to 46 mm. **What it under-charges is the other two arms.** Squaring the T makes the corner
+that the OTHER arms must accommodate, and the builder charges them 5.55 and 8.67 m more than the
+model expects — in the OPTIMISTIC direction (planner over-claims standing street), though not
+by enough to flip any verdict.
+
+⚠️ **This is why the fix is planner-side and why the fixture will NOT move again**: `plan.py`
+already receives every input it needs (`dir`, `width`, `street_class` per arm) — it predicts
+`E_00000` correctly from exactly that data. Nothing about the BUILDER changes, and
+`trim_calibration.json` records the builder.
 
 ✅ **The safety property still holds, and that is the only reason this is not an emergency:**
 `test_the_standing_VERDICT_never_disagrees_with_the_builder` **passes** — no street is wrongly
