@@ -162,5 +162,51 @@ class TestTemplates(unittest.TestCase):
         self.assertIs(get_template("highway"), STARTER_TEMPLATES["highway"])
 
 
+class TestStorableGuard(unittest.TestCase):
+    """R4-5: `buildings.assert_storable` is production code with no coverage.
+
+    It guards the ONE place a template's storage loss is still visible - the
+    authoring script, before `saveToFile` - and it imports no `hou`, so the
+    whole of its contract is checkable here.  The three shapes it must refuse
+    are the three that were MEASURED to misbehave on 22.0.398 (§12.10a round 4
+    finding 5): a nested list and a str+number list vanish from the loaded
+    template silently, and an int+float list survives with its int storage
+    gone.  The two it must ACCEPT are the ones a template already needs -
+    `volumes[]` is a list of dicts, and §12.12's per-storey height table is
+    the shape B3 will bring.
+
+    CANNOT SEE: whether the storage boundary itself is still where round 4
+    measured it - that is a Houdini fact and this test asserts the guard, not
+    the format.  A Houdini upgrade moves the boundary and leaves this green.
+    """
+
+    def setUp(self):
+        from citygen import buildings
+        self.guard = buildings.assert_storable
+
+    def test_refuses_the_three_measured_losses(self):
+        for bad in ({"v": [[1.0, 2.0]]},               # nested list
+                    {"v": ["a", 1.0]},                 # str + number
+                    {"v": [1, 2.5]}):                  # int + float
+            with self.assertRaises(ValueError):
+                self.guard(bad)
+
+    def test_names_the_path_it_refused(self):
+        with self.assertRaises(ValueError) as ctx:
+            self.guard({"volumeTopology": {"cutsAt": [[0.4]]}})
+        # the CONTAINING list is named, not the element: a nested list is a
+        # property of the list that holds it, and that is the key that goes
+        # missing from the loaded template.
+        self.assertIn("pf_style_template.volumeTopology.cutsAt",
+                      str(ctx.exception))
+
+    def test_accepts_what_the_templates_actually_carry(self):
+        self.guard({"cutsAt": [0.444, 0.722], "sources": ["a", "b"],
+                    "volumes": [{"role": "dwelling", "storeys": 1}],
+                    "storeyHeightsM": [{"n": 1, "hM": 4.5},
+                                       {"n": 2, "hM": 3.2}],
+                    "empty": []})
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
