@@ -109,7 +109,10 @@ MUTATIONS = (
     M("stage_output_repointed", "native",
       ("output_guard_takes_the_native_chain",
        "output_runs_the_native_chain_inside_the_envelope",
-       "native_stages_are_really_native"),
+       "native_stages_are_really_native",
+       # with `output` pointed back at Python both shapes read ~1.0x, over
+       # the many-short-curves ceiling of 0.45 - the direction it holds.
+       "output_guard_cost"),
       "27.7b m3 / 21.4 M1 - the exact source-level UNDO of the whole native "
       "flip: `Stage = output` pointed back at the Python reference.",
       ((RIG,
@@ -191,18 +194,12 @@ MUTATIONS = (
         '        if getattr(params, "conform_tilt", False):',
         "        if True:"),)),
 
-    # ⚠️ AND THE SECOND ONE IS THE C4 AUDIT'S F1 - the one thing the port
-    # shipped WRONG rather than merely slowly, and the only mutation here
-    # that reddens on a hand fixture because `gen_cases._sheet` builds
-    # nothing but closed polygons and so cannot reach it.
     M("conform_surface_type_admitted", "native",
       ("output_guard_parity",),
-      "Level 1 stops asking what the surface is MADE OF, so a terrain with "
-      "three debug polylines merged into it ships the NATIVE drape: the "
-      "reference's `tolerance = 1e-6` will not hit a zero-area primitive and "
-      "VEX's `intersect()` hits a few mm off the line: on `BO_conform_strays` "
-      "the reference drapes to y = -2.0 and the native chain to y = +0.5, ON "
-      "the debug curve, with both guard levels reading 1.",
+      "F1: level 1 stops asking what the surface is MADE OF, so "
+      "`BO_conform_strays`' debug polylines take the drape - the reference "
+      "drapes to y = -2.0 and the native chain to y = +0.5, ON the debug "
+      "curve, with both guard levels reading 1.",
       ((PY % "hda.py",
         "        if not _surface_is_droppable(surface):",
         "        if False:"),)),
@@ -225,35 +222,24 @@ MUTATIONS = (
         "    if (!hit) return;\n"
         "    best = best + axis * (dot(best - q, axis) * 1e-11);"),)),
 
-    # ⚠️ THE AUDIT'S F3: THIS SURVIVED THE WHOLE SUITE, and it is not dead
-    # code - it is production code no fixture could reach.  With a +-Y axis
-    # the drop SELECTS x and z from the query, so the conformed horizontal
-    # tangent direction is the spline's own and the stations can add nothing;
-    # only a +-X or +-Z axis can reach the branch, and no committed or
-    # generated case ever set one.  `gen_cases._wall` sets one now.
     M("transport_stations_dropped", "native",
       ("output_guard_parity",),
-      "`pc_frames_transportable` stops adding the piece's OWN STATIONS to its "
-      "sample set on a conformed build.  `BQ_conform_wall_bumps` is the shape "
-      "that answers: a DEAD STRAIGHT 20 m run dropped along -Z onto a wall "
-      "with a 0.6 m bump at the centre of every 2 m piece, so the conformed "
-      "tangent reverses INSIDE the piece while both of its ends still point "
-      "down the run - no kink anywhere for the spline-only sample set to "
-      "find.  Shipped: 10 planned, 0 built, level 2 refuses.  Mutated: 10 "
-      "built, level 2 ADMITS, and the native fence is not the reference's.",
+      "F3: `pc_frames_transportable` stops adding the piece's OWN STATIONS "
+      "to its sample set. `BQ_conform_wall_bumps` is the one shape that "
+      "reaches it (`pc_gate.h` says why): shipped 10 planned / 0 built, "
+      "mutated 10 built and level 2 ADMITS a fence that is not the "
+      "reference's.",
       ((VEX % "pc_gate.h",
         "    if (conformed)\n"
         "        foreach (float x; st) push(ss, s0 + (x - ax) * scale);",
         "    if (0)\n"
         "        foreach (float x; st) push(ss, s0 + (x - ax) * scale);"),)),
 
-    # ⚠️ THE AUDIT'S F4, AND IT IS `conform_deviates_never_fires`' OTHER HALF.
-    # That one proves the drape gate FIRES; this one proves it fires at the
-    # THRESHOLD IT ADVERTISES, which nothing did - every conformed fixture
-    # deviated by 50x the tolerance or by nothing.
+    # F4, `conform_deviates_never_fires`' other half: that proves the drape
+    # gate FIRES, this that it fires at the threshold it advertises.
     M("deviates_tol_10x", "native",
       ("output_guard_parity",),
-      "4.5's drape test at TEN TIMES its tolerance.  `BR_conform_bump_at_tol` "
+      "4.5's drape test at TEN TIMES its tolerance. `BR_conform_bump_at_tol` "
       "is `BL_conform_bump`'s ridge at 0.03 m instead of 0.5 m - 3x "
       "`bend_tol`, inside the mutated 10x - so its one bending panel ships "
       "PACKED and the output loses `pc_local` entirely.",
@@ -1196,7 +1182,9 @@ EXPECT_CHECKS = {
     "generated": 5,
     "hda": 18,
     "images": 30,
-    "native": 19,
+    # C4a restored `output_guard_cost` (F2) - the v2 pass deleted it and 0.0
+    # went on citing it, so nothing held a cost ceiling for several cycles.
+    "native": 20,
     "scene": 39,
     # 7.7, added 2026-08-25 with 10 mutations covering all 14 names.
     # C1's audit added five, 2026-08-25: 19 names, 15 mutations.

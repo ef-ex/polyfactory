@@ -263,6 +263,26 @@ float pc_bend_deviation(const int spline; const int pr; const float st[];
 // it is the same set.  `st`/`ax`/`scale` are the piece's station table; an
 // EMPTY table with a surface wired is a refusal, because a set that cannot be
 // enumerated cannot be shown not to flip.
+//
+// ⚠️ AND FOR A CYCLE NOTHING REACHED THIS BRANCH, which is the C4 audit's F3:
+// deleting the `foreach` below survived 405 generated scenes and every
+// committed case.  It is not dead code - it is code only ONE SHAPE can reach,
+// and three things have to be true at once for it to decide anything:
+//
+//   * a +-X or +-Z DROP AXIS.  With +-Y the drop selects x and z from the
+//     QUERY, so the conformed horizontal tangent direction IS the spline's
+//     and the stations can add nothing.  No fixture set one until C4a.
+//   * a DEAD STRAIGHT SPLINE.  A kink is already in the sample set, so the
+//     kinks refuse the piece and the stations decide nothing.
+//   * a terrain that reverses the tangent INSIDE a piece while both of its
+//     ENDS still point down the run - otherwise the endpoints refuse it on
+//     their own and level 2 keeps the reference either way, which makes the
+//     difference invisible to any differential.
+//
+// `BQ_conform_wall_bumps` is all three (a 0.6 m bump at the centre of every
+// 2 m piece on a wall dropped onto along -Z) and `transport_stations_dropped`
+// is the registered mutation: shipped 10 planned / 0 built, mutated 10 built
+// and the native fence is not the reference's.
 #define PC_FLAT_TANGENT 1e-6
 int pc_frames_transportable(const int inp; const int pr; const float s0;
                             const float s1; const int surf; const vector axis;

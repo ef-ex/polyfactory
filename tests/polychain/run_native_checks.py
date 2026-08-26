@@ -32,6 +32,7 @@ from polyfactory.polychain import DEFAULTS                       # noqa: E402
 from polyfactory.polychain import conform as CONFORM             # noqa: E402
 from polyfactory.polychain import hda as H                       # noqa: E402
 from polyfactory.polychain import place as P                     # noqa: E402
+from polyfactory.polychain import style as STYLE                 # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(HERE))
 HDA_PATH = os.path.join(REPO, "polyfactory", "otls",
@@ -1476,12 +1477,75 @@ def output_snapshot_sees_the_deformed_branch(root):
              "; ".join(bad[:3]) or "each one named"))
 
 
+# ---- D307 / the C4 audit's F2 - WHAT `Stage = output` COSTS ---------------
+#
+# Nothing held a cost ceiling on the guard for several cycles: the v2 pass
+# deleted `bench_guard_fallback` and `output_guard_cost` while 0.0 and
+# `pc_envelope.vfl` went on citing both.  That header now owns the argument
+# and `pc_plan_solve.vfl` the root cause; measured 2026-08-26, 300 streets
+# 0.31x and one 20 km curve 2.62x.  The one-curve row is over
+# `GUARD_FALLBACK_CEILING`'s 1.8x as DECLARED DEBT (D307).
+OUTPUT_COST_CEILING = (("many_short_curves", 0.45),
+                       ("one_long_curve", 2.40))
+
+
+def output_guard_cost(root, built):
+    """13.9 N10 - `Stage = output` against `Stage = reference` in WALL CLOCK,
+    INTERLEAVED and read as a RATIO (timing two stages in two blocks is how a
+    check goes flaky).  WHAT IT CANNOT SEE: which node the time went to.
+    """
+    style_geo = hou.Geometry()
+    STYLE.write(style_geo, cases.panel_style())
+    rows, bad = [], []
+    relax = 1.5 if os.environ.get("PC_PARALLEL") else 1.0
+    for (label, ceiling), long_run in zip(OUTPUT_COST_CEILING, (False, True)):
+        curve = hou.Geometry()
+        pts = [[(i * 20.0, 0.0, k * 25.0 + 3.0 * math.sin(i))
+                for i in range(4)] for k in range(300)] if not long_run else             [[(i * 200.0, 0.0, 2.0 * math.sin(i * 0.3)) for i in range(26)]]
+        for k, row in enumerate(pts):
+            cases.polyline(curve, row, curve_id="c%d" % k)
+        node = root.createNode("pf_polychain", "cost_%s" % label)
+        node.setInput(0, native.feed(root, curve, "CC_%s" % label))
+        node.setInput(1, native.feed(root, built["A_straight"]["kit"],
+                                     "CK_%s" % label))
+        node.setInput(2, native.feed(root, style_geo, "CS_%s" % label))
+        # ⚠️ REPOINTING THE FILE SOP IS THE ONLY REAL RECOOK - `cook(force=
+        # True)` leaves the Python SOP inside the asset cached, and the audit
+        # read 22 ms for a 123 922-prim build before it noticed.
+        feed = node.input(0)
+        paths = [feed.parm("file").eval()] +             [native.feed(root, curve, "CC%d_%s" % (i, label))
+             .parm("file").eval() for i in range(7)]
+        best, nprim = {}, 0
+        for k, stage in enumerate(("reference", "output") * 4):
+            feed.parm("file").set(paths[k % len(paths)])
+            node.parm("stage").set(stage)
+            t0 = time.time()
+            node.cook(force=True)
+            geo = node.geometry()
+            nprim = geo.intrinsicValue("primitivecount") if geo else -1
+            best[stage] = min(best.get(stage, 1e9), time.time() - t0)
+        ratio = best["output"] / max(best["reference"], 1e-9)
+        rows.append((label, nprim, best["reference"], best["output"], ratio,
+                     ceiling))
+        if ratio > ceiling * relax:
+            bad.append("%s %.2fx over %.2fx" % (label, ratio, ceiling * relax))
+        node.destroy()
+    check("output_guard_cost", not bad,
+          "; ".join("%s %.2fx" % (r[0], r[4]) for r in rows),
+          "`Stage = output` against `Stage = reference`, INTERLEAVED, best of "
+          "4, as a ratio. The guard wins by parallelising ACROSS CURVES, so "
+          "the two shapes are the finding and not two samples: %s. The "
+          "one-long-curve row is over `GUARD_FALLBACK_CEILING`'s 1.8x and is "
+          "DECLARED DEBT (D307). %s"
+          % ("; ".join("%s %d prims, ref %.0f ms, out %.0f ms, %.2fx of %.2fx"
+                       % (r[0], r[1], 1000 * r[2], 1000 * r[3], r[4], r[5])
+                       for r in rows),
+             "; ".join(bad) or "both inside their ceiling"))
+
 # 13.9 N5 - the scene cases that legitimately pay the level-1-pass /
 # level-2-refuse double cook, declared rather than counted (`P_crest_bend`:
-# overhanging crest; `BQ_conform_wall_bumps`: the C4 audit's F3 - a straight
-# span whose CONFORMED tangent reverses inside a piece, which is the one shape
-# `pc_frames_transportable`'s station set exists for and the one no fixture
-# reached).  A case joining this set is a widening to look at.
+# overhanging crest; `BQ_conform_wall_bumps`: F3's conformed reversal).  A
+# case joining this set is a widening to look at.
 GUARD_FALLBACK_CASES = ("P_crest_bend", "BQ_conform_wall_bumps")
 
 
@@ -1697,13 +1761,10 @@ def native_reach(root):
 # `conform.Surface.drop`, and the answer is YES on one condition: read the drop
 # off the AXIS COMPONENT and SELECT the other two from the query.
 #
-# ⚠️ THIS COMMENT USED TO SAY THE TWO DISAGREE BY 3.8e-07 m at fixture scale
-# and 9.4e-04 m at 20 km, "entirely in x/z, because `hou.Geometry.intersect`
-# returns float32 coordinates".  BOTH HALVES ARE WRONG and the probe that says
-# so is one wrangle: `hou.Geometry.intersect` returns the query's own DOUBLE x
-# and z (0.000e+00 difference at 0 m, 100 m, 2 km and 20 km), and the numbers
-# came from this check's own float32 `v@_hitP` readout.  The real disagreement
-# is one DOUBLE ULP on the axis component - see `CONFORM_DROP_REL_CEILING`.
+# ⚠️ D247 AND D303 ARE BOTH CORRECTED HERE; polychain.md 30.8 carries the
+# history.  The contract: `hou.Geometry.intersect` returns the query's own
+# DOUBLE x and z, so the drop is read off the AXIS COMPONENT and the position
+# rebuilt from the query.
 CONFORM_DROP_VEX = r'''
 // `conform.Surface.drop`, in VEX. Down-axis, then back no further than the
 // hit already found, nearest wins, ties go DOWN-axis (D70).
@@ -1726,17 +1787,14 @@ if (h1 >= 0 && (h0 < 0 || d1 < d0 - 1e-9)) { best = p1; hit = 1; }
 if (hit) best = set((a.x != 0.0) ? best.x : q.x,
                     (a.y != 0.0) ? best.y : q.y,
                     (a.z != 0.0) ? best.z : q.z);
-// ⚠️ THE DIFFERENCE IS WHAT LEAVES, NOT THE POSITION, AND THAT IS D247
-// CORRECTED - BUT NOT FOR THE REASON D303 FIRST GAVE (the C4 audit's F5).
-// D303 said the 9.375e-04 m came from a FLOAT32 `v@_hitP`.  It did not:
-// measured through `sprintf("%.17g")`, which has no storage at all, `_hitD`
-// and `_hitP` are BOTH Float64 - a 64-bit wrangle writes 64-bit attributes.
-// The float32 in the story is the INPUT.  `_q` is a Float32 point attribute
-// (HOM's `addAttrib` has no precision argument), so VEX used to be asked
-// about `float32(19000.31)` while Python was asked about the exact double,
-// and that difference cancels in `best - q` and does not cancel in `best`.
-// The queries are QUANTISED TO FLOAT32 BEFORE EITHER SIDE SEES THEM now, so
-// the two are asked the same question and the position is comparable again.
+// ⚠️ THE DIFFERENCE IS WHAT LEAVES, NOT THE POSITION (D247, and D303's
+// mechanism corrected - the C4 audit's F5).  `_hitD` and `_hitP` are BOTH
+// Float64; a 64-bit wrangle writes 64-bit attributes.  The float32 in the
+// story is the INPUT: `_q` is a Float32 point attribute, so VEX used to be
+// asked about `float32(19000.31)` while Python was asked about the exact
+// double - a difference that cancels in `best - q` and does not cancel in
+// `best`.  The queries are quantised to float32 before EITHER side sees them
+// now, so the two are asked one question.
 v@_hitD = best - q;
 i@_hit  = hit;
 '''
@@ -1744,30 +1802,16 @@ i@_hit  = hit;
 # what survives float32 `P` storage.  Both sides round into the same 24 bits,
 # so anything above this is a DIFFERENT number in the storage the output ships.
 CONFORM_DROP_CEILING_M = 1e-12
-# ⚠️ D247 IS CORRECTED HERE, AND THE CORRECTION MADE THE CEILING 500 000x
-# TIGHTER.  D247 recorded a RAW disagreement of 9.375e-04 m at 20 km, called
-# `intersect()` a float32 ray test on the strength of it, and set this ceiling
-# at two float32 ULP.  D303 retracted that and MISNAMED THE MECHANISM (F5):
-# the float32 was never the readout, it was the QUERY - `_q` is a Float32
-# point attribute while `Surface.drop` was handed the exact double, and
-# 9.375e-04 m is what that difference is worth at x = 19000.31.  Both are
-# handed the float32 query now.
-#
-# Re-measured reading the DIFFERENCE out instead (probe, and it is what
-# `pc_conform.h` computes): x and z agree at 0.000e+00 m at 0 m, 100 m, 2 km
-# and 20 km, because both sides keep the query's own double coordinate there;
-# the AXIS component disagrees by ~1 DOUBLE ULP of the query - 7.105e-15 m on a
-# query at y = 50.  That is irreducible: `hou.Geometry.intersect` and VEX's
-# `intersect()` are two ray-triangle implementations, not two spellings of one.
-#
-# So the relative ceiling is a DOUBLE-ULP ceiling now.  WHAT IT CANNOT SEE:
-# the drop is still compared against the reference, so a defect BOTH sides
-# share is invisible here - `parity is not accuracy` (26.9), unchanged.  And
-# it cannot see a divergence that depends on the query's low bits BELOW
-# float32, because both sides are now deliberately asked a float32 question -
-# which is the question the real graph asks, since `P` ships at float32.
-# Registered mutation: `conform_drop_biased` (tests/polychain/mutations.py),
-# biases the drop by 1e-5 m.
+# ⚠️ THE CORRECTION MADE THIS CEILING 500 000x TIGHTER.  D247 read a RAW
+# 9.375e-04 m at 20 km and called `intersect()` a float32 ray test; that
+# number was the float32 `_q` this check asked VEX while asking Python the
+# exact double (F5), and both are asked the float32 now.  Reading the
+# DIFFERENCE: x and z agree at 0.000e+00 m at 0 m, 100 m, 2 km and 20 km, and
+# the AXIS component disagrees by ~1 DOUBLE ULP of the query - irreducible,
+# two ray-triangle implementations rather than two spellings of one.
+# WHAT IT CANNOT SEE: a defect BOTH sides share (26.9), and anything decided
+# below float32 - the question the real graph asks, since `P` ships at
+# float32.  Registered mutation: `conform_drop_biased` (1e-5 m of bias).
 CONFORM_DROP_REL_CEILING = 8.882e-16      # 4 x 2^-52
 
 
@@ -1816,11 +1860,9 @@ def conform_drop_is_portable_to_vex(root):
     rows, bad = [], []
     nq = 0
     for label, surf, qs in surfaces:
-        # F5 - ONE QUESTION, ASKED OF BOTH.  `_q` is a Float32 point
-        # attribute, so quantising here is what makes the VEX side's query and
-        # the Python side's the same number; without it the check compares two
-        # implementations answering two questions and cannot see anything the
-        # query's low bits decide.
+        # F5 - ONE QUESTION, ASKED OF BOTH: `_q` is a Float32 point
+        # attribute, so quantising here is what makes the two sides' queries
+        # the same number.
         qs = [tuple(f32(c) for c in q) for q in qs]
         py = CONFORM.Surface(surf, (0.0, -1.0, 0.0))
         want = [py.drop(q) for q in qs]
@@ -1931,6 +1973,7 @@ def main():
 
     print("\n=== 6. the guard on `Stage = output` ===")
     output_guard_parity(root, built)
+    output_guard_cost(root, built)
     output_snapshot_sees_the_deformed_branch(root)
     gate_parity(root, built)
     piece_order_key_is_total(root)

@@ -154,15 +154,8 @@ def surface(fn, x0=-4.0, x1=24.0, z0=-6.0, z1=6.0, nx=28, nz=12,
 
 
 def wall(fn, x0=-2.0, x1=22.0, n=480):
-    """A near-VERTICAL sheet at z = fn(x), spanning y in [-3, 3].
-
-    ⚠️ THE ONLY SHAPE IN THE SUITE A +-Z DROP CAN LAND ON, and it exists for
-    one branch: `pc_frames_transportable` adds the piece's OWN STATIONS to its
-    sample set on a conformed build (13.9 N6), and with a +-Y axis that branch
-    decides NOTHING - the drop selects x and z from the QUERY, so the conformed
-    horizontal tangent direction is the spline's own. The C4 audit registered
-    the deletion of that loop as a mutation and it survived the entire suite.
-    """
+    """A near-VERTICAL sheet at z = fn(x), y in [-3, 3] - the only shape in
+    the suite a +-Z drop can land on (F3; `pc_gate.h` argues it)."""
     geo = hou.Geometry()
     pts = {}
     for i in range(n + 1):
@@ -189,32 +182,24 @@ BUMP_WIDTH = 0.3                # gate used to take, and ON a panel station
 BUMP_HEIGHT = 0.5
 
 
-def bump(x, _z):
-    """A ridge NARROWER THAN A QUARTER OF A PIECE on flat ground at y = -1
-    (D71): invisible to a fixed five-sample gate, resolved by 0.25 m
-    stations."""
+def _ridge(x, height):
+    """A triangular ridge `BUMP_WIDTH` wide at `BUMP_CENTRE` on ground at
+    y = -1. `bump` is 0.5 m, 50x `bend_tol`; `small_bump` is 0.03 m, 3x, which
+    is what tests the drape gate NEAR ITS BOUNDARY (F4)."""
     d = abs(x - BUMP_CENTRE)
     if d >= BUMP_WIDTH / 2.0:
         return -1.0
-    return -1.0 + BUMP_HEIGHT * (1.0 - d / (BUMP_WIDTH / 2.0))
+    return -1.0 + height * (1.0 - d / (BUMP_WIDTH / 2.0))
+
+
+def bump(x, _z):
+    """NARROWER THAN A QUARTER OF A PIECE (D71): invisible to a fixed
+    five-sample gate, resolved by 0.25 m stations."""
+    return _ridge(x, BUMP_HEIGHT)
 
 
 def small_bump(x, _z):
-    """The same ridge as `bump`, sized to land the drape deviation BETWEEN
-    `bend_tol` and ten times it (the C4 audit's F4).
-
-    ⚠️ `bump` is 0.5 m tall, which is 50x `bend_tol`'s 0.01 m - so the drape
-    gate's `> tol` could be `> tol * 10` and every fixture in the suite would
-    still unpack exactly the pieces it unpacks today.  The audit registered
-    that mutation and it survived everything.  A THRESHOLD IS ONLY TESTED NEAR
-    ITS BOUNDARY, and a generator does not reach a boundary unless it is told
-    the boundary exists - the same class as mutmut #209, one cycle later.
-    0.03 m is 3x the tolerance and a THIRTIETH of `bump`'s.
-    """
-    d = abs(x - BUMP_CENTRE)
-    if d >= BUMP_WIDTH / 2.0:
-        return -1.0
-    return -1.0 + 0.03 * (1.0 - d / (BUMP_WIDTH / 2.0))
+    return _ridge(x, 0.03)
 
 
 def camber_z(_x, z):
@@ -1250,10 +1235,8 @@ def build_all():
                                      surface_geo=surface(bump, x0=-1.0,
                                                          x1=21.0, nx=440))
 
-    # BR - THE SAME BUMP AT THREE TIMES THE TOLERANCE, not fifty (F4). BL
-    # proves the drape gate FIRES; only this one proves it fires at the
-    # threshold it advertises. `deviates`' `> tol` can be `> tol * 10` with
-    # every other case in the suite unmoved. `small_bump` says why.
+    # BR - THE SAME BUMP AT 3x THE TOLERANCE, not 50x (F4): BL proves the
+    # drape gate FIRES, this one that it fires where it says.
     g = hou.Geometry()
     polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="BR")
     built["BR_conform_bump_at_tol"] = _case(
@@ -1291,29 +1274,14 @@ def build_all():
               params=Params(fill="adaptive", zmode="stepped")),
         surface_geo=both)
 
-    # BO - A DEBUG CURVE MERGED INTO THE TERRAIN (the C4 audit's F1). Three
-    # open POLYLINES 0.5 m over a ramp, which is what a citygen graph hands
-    # polyChain when curves and terrain share a merge. The reference will not
-    # hit a zero-area primitive (`tolerance = 1e-6`); VEX's `intersect()` has
-    # no tolerance and hits a few mm off the line, so `Stage = output` built a
-    # fence 2.5 m away (the audit's own repro: 1.7042 m on a hill) with both
-    # guard levels reading 1. Level 1 refuses it
-    # now (`_surface_is_droppable`) and `output_guard_parity` is the check -
-    # this case is the ONLY one in the suite whose surface is not all closed
-    # polygons, and `gen_cases._sheet` cannot build one.
-    # ⚠️ AND THE GEOMETRY IS THE FIXTURE, not decoration - TWO placements of
-    # this case reddened nothing before this one, and both failures are the
-    # same question ("what can this fixture NOT reach?") asked of a drop:
-    #   * the ground has to be BELOW the run and the polyline BETWEEN them, or
-    #     the ground wins the nearest-hit on both sides and there is nothing to
-    #     disagree about;
-    #   * and the run has to pass NEAR the line rather than ALONG it. Measured
-    #     on this very surface: a query EXACTLY on a polyline is hit by both
-    #     implementations (and by the `ray` verb - 0 of 54 disagree in the
-    #     audit's own sweep), a query 0.05 m off is hit by neither, and 0.005 m
-    #     off is hit by VEX alone. So the run is 5 mm to the side of the middle
-    #     line - a debug curve laid ALONGSIDE the fence, which is what a
-    #     citygen graph actually contains.
+    # BO - A DEBUG CURVE MERGED INTO THE TERRAIN (F1), which is what a citygen
+    # graph hands polyChain; `hda._surface_is_droppable` owns the why, and
+    # this is the only case whose surface is not all closed polygons.
+    # ⚠️ THE GEOMETRY IS THE FIXTURE - two placements reddened nothing first.
+    # The ground must be BELOW the run with the polyline BETWEEN them, and the
+    # run must pass NEAR the line, not ALONG it: measured, a query exactly ON
+    # a polyline is hit by both, 0.05 m off by neither, 0.005 m off by VEX
+    # alone. So the run is 5 mm to the side of the debug curve.
     strays = hou.Geometry()
     strays.merge(surface(lambda x, _z: -2.0 - CONFORM_GRADE * x))
     for j in range(3):
@@ -1327,19 +1295,10 @@ def build_all():
               params=Params(fill="adaptive", zmode="adaptive")),
         surface_geo=strays)
 
-    # BP/BQ - A +-Z DROP ONTO A WALL (the C4 audit's F3), the same straight
-    # 20 m run twice, one wall parm apart. The spline is DEAD STRAIGHT, so
-    # `pc_frames_transportable` has no kink to sample and its conformed
-    # STATIONS are the only thing that can refuse a piece:
-    #   BP a gentle wall - every piece transportable, the build is NATIVE, and
-    #      it is the suite's only native +-Z conform;
-    #   BQ a 0.6 m bump at the CENTRE of every 2 m piece, steep enough that
-    #      the conformed tangent reverses inside the piece while both of its
-    #      ENDS still point down the run. That is the header's own "a dead
-    #      straight span over an overhanging crest reverses with no kink", as
-    #      geometry. Shipped: 10 planned, 0 built, level 2 refuses, the
-    #      reference ships. With the station loop deleted: 10 built, level 2
-    #      ADMITS, and `output_guard_parity` goes red.
+    # BP/BQ - A +-Z DROP ONTO A WALL (F3), one wall parm apart: BP gentle and
+    # NATIVE (the suite's only native +-Z conform), BQ with a 0.6 m bump at
+    # the CENTRE of every 2 m piece - the one shape that reaches
+    # `pc_frames_transportable`'s station set, and `pc_gate.h` says why.
     for name, fn in (
             ("BP_conform_wall",
              lambda x: -4.0 + 0.6 * math.sin(0.35 * x)),

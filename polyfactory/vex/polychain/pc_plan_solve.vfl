@@ -406,6 +406,19 @@ if (len(d_rules)) {
     }
 }
 
+// ⚠️ THIS NODE IS THE WHOLE OF D307, RE-MEASURED BY THE C4 AUDIT (F2).
+// `Stage = output` is 2.62x `Stage = reference` on ONE LONG CURVE with no
+// surface (20 km, 66 666 pieces) and 0.31x on 300 short streets, and the split
+// is here: `pc_plan_solve` is 4 531 ms of a 4 887 ms cook - 93 % - at 68
+// us/piece against the whole Python reference's 27.  Scaling was measured
+// too: curve LENGTH and VERTEX COUNT are irrelevant (30 us/piece at 1 segment
+// and at 960); PIECE COUNT on one curve takes it 30 -> 68.  The 101x gap
+// between 1 curve and 256 curves for identical total work is that plus THREAD
+// COUNT - this is a per-SECTION wrangle, so one curve gets one thread and
+// there is nothing to harvest.  The shape to look at is below: twelve
+// parallel dynamic arrays grown by `append` once per piece, merge-sorted, and
+// copied into twelve more.  `output_guard_cost` holds the ceiling meanwhile.
+//
 // ---- `out.sort(key=(s0, slot, index))` -------------------------------------
 int n = len(o_slot);
 int ord[], buf[];

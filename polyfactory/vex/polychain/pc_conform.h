@@ -43,12 +43,21 @@
 // than the position - 0.0 m on x and z and 7.1e-15 m on the axis component, at
 // 0 m, 100 m, 2 km and 20 km.
 //
-// ⚠️ WHAT THIS CANNOT SEE: `hou.Geometry.intersect` is called with an explicit
-// `tolerance = 1e-6` and VEX's `intersect()` takes no tolerance at all, so the
-// two are matched on principle and not by a case that distinguishes them -
-// which is the same blind spot `drop_many`'s `rtolerance` already records
-// ("a 1 mm hole in a 1 mm grid and a query 1 mm past a sheet's edge both give
-// 0 hit-flag mismatches at either setting").
+// ⚠️ THE TOLERANCE BLIND SPOT THIS HEADER DECLARED IS CLOSED, AND IT CLOSED
+// BY SHIPPING WRONG GEOMETRY FIRST (the C4 audit's F1).  It said
+// `hou.Geometry.intersect` is called with an explicit `tolerance = 1e-6`
+// while VEX's `intersect()` takes none, so the two were "matched on principle
+// and not by a case that distinguishes them".  THE CASE THAT DISTINGUISHES
+// THEM IS A ZERO-AREA PRIMITIVE: on a polygon the tolerance cannot matter,
+// and on a polyline it IS the hit radius - the reference stops hitting ~1e-6 m
+// off the line and VEX still hits a few mm off it.  A debug curve merged into
+// a terrain therefore built a fence 1.7042 m from the reference's with both
+// guard levels reading 1.  Level 1 refuses a surface that is not all closed
+// polygons now (`hda._surface_is_droppable`), so the drape is ported for
+// polygons and every other primitive is an explicit refusal.  Measured on
+// polygons, over a gap sweep from 0 to 1e-3 m INCLUDING at the 1e-6 tolerance:
+// 0 hit-flag mismatches at every gap, plus queries exactly on a shared edge
+// and on a vertex.
 
 #ifndef __pc_conform_h__
 #define __pc_conform_h__
@@ -265,6 +274,16 @@ int pc_conform_missed(const int inp; const int pr; const float sa;
 // gate strictly coarser than the thing it gates: a 0.3 m wide, 0.5 m tall bump
 // centred between them left a bendable panel PACKED as a straight chord with
 // the bump 0.400 m through its bottom edge and no warning.
+//
+// ⚠️ `> tol` IS A THRESHOLD AND A THRESHOLD IS ONLY TESTED NEAR ITS BOUNDARY.
+// The C4 audit's F4: `> tol` could be `> tol * 10` with the whole suite green,
+// because every conformed fixture deviated by 50x `bend_tol` (`bump` is 0.5 m
+// against 0.01 m) or by nothing at all.  A generator does not reach a boundary
+// unless it is told the boundary exists - the same class as the corner-angle
+// survivor one cycle earlier.  `BR_conform_bump_at_tol` is `BL`'s ridge at
+// 0.03 m, 3x the tolerance and inside the mutated 10x, and `deviates_tol_10x`
+// is the mutation: its one bending panel ships PACKED and the output loses
+// `pc_local` entirely while BL is unmoved.
 int pc_conform_deviates(const int inp; const int pr; const float sa;
                         const float sb; const float tol; const int surf;
                         const vector axis; const float fracs[]) {

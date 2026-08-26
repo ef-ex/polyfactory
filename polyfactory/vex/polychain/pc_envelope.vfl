@@ -16,8 +16,17 @@
 // cooked at all.  `pc_envelope2` then asks the expensive half (did any piece
 // come out deformed or unanswerable), and a build that passes here and fails
 // there pays for both chains.  That is the honest cost of the guard, and
-// `bench_guard_fallback` MEASURES it - 1.47x at 2 km and 1.34-1.58x at 20 km,
-// against a 1.8x ceiling.
+// `output_guard_cost` MEASURES it - as TWO SHAPES rather than one number,
+// which is the C4 audit's F2.  The native chain
+// wins by PARALLELISING ACROSS CURVES - `pc_plan_solve` is a per-SECTION
+// wrangle - so 300 short streets read 0.31x and ONE LONG RUN reads 1.79x at
+// 2 500 pieces and 2.62x at 66 666, over `GUARD_FALLBACK_CEILING`'s 1.8x.
+// That row is DECLARED DEBT (D307, 2026-08-26), not an accepted number: a
+// ceiling set where the build IS cannot make it good, it makes it unable to
+// get worse in silence, which is what was missing.  ⚠️ AND IT WAS MISSING
+// FOR SEVERAL CYCLES - `bench_guard_fallback` and `output_guard_cost` were
+// both deleted by the v2 pass while this header and polychain.md 0.0 went on
+// citing them by name.
 //
 // ⚠️ AND SINCE 13.9 N5 THE CLASS THAT PAYS IT HAS CHANGED AGAIN, which is
 // worth stating rather than leaving a reader to infer.  PART B's flat arcs at
@@ -27,8 +36,8 @@
 // is `pc_deform_gate`'s three per-piece refusals - a SLICED piece, a module
 // whose piece-local index would overflow the order key, and a span D31's
 // frame TRANSPORT could flip on.  `guard_deform_refusals` is the check that
-// pins which shapes those are, and `bench_guard_fallback` the one that pins
-// what the double cook costs.  ⚠️ This sentence used to cite a check called
+// pins which shapes those are, and `output_guard_cost` the one that pins what
+// the guard costs.  ⚠️ This sentence used to cite a check called
 // guard_fallback_classes (no backticks, because `every_cited_check_exists`
 // reads them): it never existed, and grep returned only this line.  A kit
 // whose module names no rule matches was a third such class, and
@@ -48,10 +57,12 @@
 // So each row carries a TAG.  `[cfg:<name>]` names something
 // `hda._native_ok` must actually test, `[vex:<name>]` something the
 // `i@_native_ok` expression at the bottom of this file must actually read,
-// and `guard_refusal_list_is_true` checks BOTH directions: every tag here
-// exists in the code, and every parameter the code refuses on, plus every
-// term of the verdict expression, has a tag here.  A row that stops being
-// true, or a refusal added without a row, is a red check.
+// and the tags exist to be CHECKED in both directions: every tag here exists
+// in the code, and every refusal in the code has a tag here.  ⚠️ THE CHECKER
+// THAT DID IT IS GONE - `guard_refusal_list_is_true` and
+// `every_cited_check_exists` were both deleted by the v2 pass, so this list is
+// prose again and was prose while C4 edited it.  Dated debt, 2026-08-26,
+// recorded in polychain.md 30.9; until it is back, a row here is a promise.
 //
 // ⚠️ THE `[cfg:has_surface]` ROW IS GONE, AND ITS ABSENCE IS THIS CYCLE.  It
 // refused "a surface (4.5, N6)" - the largest refused class left, 96.9-97.1 %
@@ -208,7 +219,7 @@ int ndup = len(keys(dup));
 // would overflow the order key, and a span D31's frame TRANSPORT could flip
 // on - and those cost the double cook when they fire.  They are per-piece and
 // exact, there is no cheap level-1 predicate for them, and they are rare;
-// `bench_guard_fallback` measures what that costs on the shape that reaches
+// `output_guard_cost` measures what that costs on the shape that reaches
 // it, and `guard_deform_refusals` is what proves each one bites.
 
 // ⚠️ A MARKER USED TO KEEP THE REFERENCE, AND IT WAS NEVER ABOUT GEOMETRY.

@@ -31,6 +31,8 @@ BASELINE = os.path.join(HERE, "baseline.json")
 
 EXPECTED_WARNS = {
     "J_coarse_bend": ("pc_warn_bend_resolution",),
+    # BQ - F3's wall bumps are finer than a 2 m panel's 0.25 m stations.
+    "BQ_conform_wall_bumps": ("pc_warn_bend_resolution",),
     # DM - 13.9 N5's coverage case: 5 of 13 panels wrap a crest 0.25 m
     # stations cannot resolve (0.0153 vs 0.0100 m), so D25's warning is right.
     "DM_ripple_deformed": ("pc_warn_bend_resolution",),
