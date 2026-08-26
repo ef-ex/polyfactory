@@ -30,8 +30,12 @@ docstring claimed it did.  Measured on 22.0.398: a numeric list of length 2,
 3 or 4 returns as a `hou.Vector2/3/4` and every other length returns as a
 tuple.  `_plain()` restores the SHAPE, so nothing may read the raw attribute
 and `load()` is the only door - but it does not restore element STORAGE, and
-a nested list never survives authoring at all.  Both losses are named in
-`_plain`'s own docstring; neither occurs in the four shipped templates.
+a nested list never survives authoring at all.
+⚠️ **Neither loss is detectable at LOAD time** - a dropped key is simply
+absent and `resolve()` substitutes the DEFAULTS value - so the repair is a
+guard at the only place the loss is still visible: `assert_storable()`, which
+the authoring script calls before it writes.  Neither shape occurs in the four
+shipped templates; §12.12's per-storey height tables are the shape that will.
 """
 
 import io
@@ -134,6 +138,44 @@ def _plain(value):
         return value
 
 
+def assert_storable(value, path="pf_style_template"):
+    """RAISE on a template shape this .geo format cannot carry.
+
+    ⚠️ A GUARD, NOT A CHECK, BECAUSE THE LOSS IS SILENT AT BOTH ENDS.
+    Measured on 22.0.398 through the shipped authoring path
+    (`addAttrib(Global, {})` -> `setGlobalAttribValue` -> `saveToFile` ->
+    `loadFromFile` -> `_plain`), three list shapes misbehave and not one of
+    them raises anywhere:
+      * a list containing a LIST - the whole key is ABSENT from the loaded
+        template, so `resolve()` quietly substitutes the DEFAULTS value;
+      * a list mixing STRINGS with numbers - same, key absent;
+      * a list mixing INT with FLOAT - it survives, every element float, so
+        the int storage is gone before `_plain()` ever sees the value (D223:
+        an element's storage is part of the contract).
+    Dicts nest freely and a list of DICTS is fine - `volumes[]` is one, and
+    `{"v": [{"h": [1.0, 2.0]}]}` round-trips intact.  So this raises at
+    AUTHORING, the only moment the loss is still visible.  §12.12 carries
+    per-storey height TABLES into B3; that is the shape that will hit it."""
+    if isinstance(value, dict):
+        for key, sub in value.items():
+            assert_storable(sub, "%s.%s" % (path, key))
+    elif isinstance(value, (list, tuple)):
+        kinds = set()
+        for i, sub in enumerate(value):
+            assert_storable(sub, "%s[%d]" % (path, i))
+            kinds.add("list" if isinstance(sub, (list, tuple)) else
+                      "str" if isinstance(sub, (str, bytes)) else
+                      "dict" if isinstance(sub, dict) else
+                      "float" if isinstance(sub, float) else "int")
+        bad = ("a nested list" if "list" in kinds else
+               "+".join(sorted(kinds)) + " in one list" if len(kinds) > 1
+               else "")
+        if bad:
+            raise ValueError("%s: %s - the .geo detail-dict format cannot "
+                             "carry it and loses it SILENTLY (measured on "
+                             "22.0.398)" % (path, bad))
+
+
 def load(style_id_or_path):
     """One style template -> a plain dict."""
     import hou
@@ -178,6 +220,22 @@ def stamp(geo, overrides=None, cache=None):
     The optional authored `pf_setback` is cascade level 5 and it WINS over the
     template's per-role number - "use the authored value if present, otherwise
     compute one", never compute alone (citygen.md §2.1).
+
+    ⚠️ NEGATIVE MEANS ABSENT, AND THAT IS A SCHEMA DECISION, NOT A BRANCH.
+    A Houdini float attribute has no "absent" value: every vertex carries one
+    the moment the attribute exists.  The first build gated on `> 0.0`, so
+    **`setback(0)` - the one value §12.6 B1 names as the identity op, and what
+    the Viennese block's street edges ARE - could not be authored at all.**
+    Measured on a 10 x 90 einhof lot: no attribute -> [2.5, 2.0, 7.5, 47.0];
+    authored 0.0 -> IDENTICAL; authored 1.0 -> [1.0, 1.0, 9.0, 89.0].
+    The gate is now `>= 0.0`, so a setback is authored when it is a distance
+    and absent when it is not one.  ⚠️ The alternative - attribute presence
+    alone, "the attribute exists so every vertex is authored" - was measured
+    too and REJECTED: it collapses a per-element override into a per-STREAM
+    one.  On this fixture, where only site 6 authors anything, it dragged
+    sites 1 and 3 onto their lot lines (10 x 90 and 110..172 x 0..38) because
+    their vertices carry the attribute's 0.0 default.  §12.4 is amended to say
+    so and Hannes ratifies it (§0.0g).
     """
     import hou
     cache = {} if cache is None else cache
@@ -247,7 +305,7 @@ def stamp(geo, overrides=None, cache=None):
         table = fp["setbackM"] if fp["op"] != "identity" else {}
         fallback = 0.0 if fp["op"] == "identity" else fp["defaultSetbackM"]
         for vtx in prim.vertices():
-            if authored and vtx.attribValue("pf_setback") > 0.0:
+            if authored and vtx.attribValue("pf_setback") >= 0.0:
                 vtx.setAttribValue("_inset", vtx.attribValue("pf_setback"))
             else:
                 role = vtx.attribValue("pf_face_role")

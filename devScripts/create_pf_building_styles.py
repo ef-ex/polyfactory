@@ -31,6 +31,10 @@ import sys
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(REPO, "polyfactory", "library", "citygen",
                    "styles").replace("\\", "/")
+# hython does not load the polyfactory package (dev-loop trap list), and this
+# script needs exactly one thing from it: the storability guard that owns the
+# format decision, so the rule lives with the format and not with each caller.
+sys.path.insert(0, os.path.join(REPO, "polyfactory", "scripts", "python"))
 
 # ⚠️ TWO NUMBERS WERE REJECTED RATHER THAN COMMITTED, and they are recorded
 # here so nobody re-adds them: a "Wirtschaftsteil = 1.5-1.6x Wohnteil" ratio
@@ -279,9 +283,17 @@ STYLES = [
 
 def main():
     import hou
+    from polyfactory.citygen import buildings
     if not os.path.isdir(OUT):
         os.makedirs(OUT)
     for style in STYLES:
+        # ⚠️ BEFORE THE WRITE, because after it the loss is undetectable: a
+        # nested list, or a list mixing strings with numbers, leaves the key
+        # simply ABSENT from the loaded template with no exception at either
+        # end, and `resolve()` then substitutes a DEFAULTS value nobody asked
+        # for.  Measured on 22.0.398; the rule and the measurements live in
+        # `buildings.assert_storable`.
+        buildings.assert_storable(style)
         geo = hou.Geometry()
         geo.addAttrib(hou.attribType.Global, "pf_style_template", {},
                       create_local_variable=False)
