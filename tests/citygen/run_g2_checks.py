@@ -331,6 +331,13 @@ MUTATIONS = [
      "Only an oracle reading B2's own number can see this one",
      vx("f@pc_height = ytop - base;", "f@pc_height = (ytop - base) * 0.5;",
         "pf_facade_in")),
+    ("cap_seam", "pitch_as_asked",
+     "the roof is built at TWICE the pitch the template asked for and the "
+     "eave compensates, so the surface still contains the wall-top line - "
+     "6.25 m taller at the ridge, and before this clause it was GREEN on all "
+     "five checks with only a baseline tripwire to show for it",
+     vx("float t = tan(radians(pitch));", "float t = 2.0 * tan(radians(pitch));",
+        "pf_seam")),
     ("cap_seam", "roof_closed",
      "one roof face is dropped, which is the crack a skeleton that failed on "
      "the reflex corner would leave",
@@ -389,7 +396,12 @@ def run_checks(mass, shell):
             mgeo, tpl, dict((s, (st, len(r))) for s, st, r, _ro in LOTS),
             degraded_sites=DEGRADED),
         C.corner_closure(geo, mgeo, rows=KIT_ROWS),
-        C.cap_seam(geo, mgeo),
+        # One style in this fixture, so the pitch is one number; a second
+        # style would key it by the volume's `pf_style_id`.  ⚠️ READ FROM THE
+        # TEMPLATE and never from the geometry - that is what makes it an
+        # oracle, and it is safe because no registry row below is a
+        # template-side edit.
+        C.cap_seam(geo, mgeo, pitch=tpl[STYLE]["capFamily"]["pitchDeg"]),
     ]
 
 

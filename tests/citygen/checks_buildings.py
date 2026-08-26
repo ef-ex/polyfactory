@@ -525,7 +525,26 @@ def _plane_y(face, q):
     return None
 
 
-def cap_seam(geo, mass, name="cap_seam"):
+def _plane_slope(face):
+    """A planar roof face's GRADIENT - metres of rise per metre travelled in
+    plan, i.e. `tan(pitch)` - or None if it is horizontal or degenerate.
+
+    Off the seam line on purpose.  `_plane_y` only ever answers ON it, and a
+    plane is free to rotate about a line, so no number `_plane_y` returns can
+    constrain the pitch (round-N `G2-5`)."""
+    o = face["pts"][0]
+    for i in range(1, len(face["pts"]) - 1):
+        u = tuple(face["pts"][i][k] - o[k] for k in range(3))
+        v = tuple(face["pts"][i + 1][k] - o[k] for k in range(3))
+        nx = u[1] * v[2] - u[2] * v[1]
+        ny = u[2] * v[0] - u[0] * v[2]
+        nz = u[0] * v[1] - u[1] * v[0]
+        if abs(ny) > 1e-9:
+            return math.hypot(nx, nz) / abs(ny)
+    return None
+
+
+def cap_seam(geo, mass, pitch=None, name="cap_seam"):
     """⭐ THE OTHER SEAM G2's pass criterion names: facade -> cap.
 
     Three clauses, and the split between them is the point.  `pf_seam.vfl`
@@ -547,14 +566,33 @@ def cap_seam(geo, mass, name="cap_seam"):
                           cracked at the reflex corner, or that was truncated
                           because the offset did not exceed the inradius,
                           leaves boundary edges that are neither.
+      `pitch_as_asked`    every roof face rises `tan(pitchDeg)` per metre
+                          travelled in plan - the TEMPLATE's number, measured
+                          OFF the seam line.
+
+    ⛔ `pitch_as_asked` EXISTS BECAUSE A PLANE IS FREE TO ROTATE ABOUT A LINE.
+    Every point `eave_meets_wall` probes - footprint corners and edge midpoints
+    - lies ON the seam line, so the clause constrains that line and nothing
+    else.  Measured by the round-N audit (`G2-5`): a roof built at TWICE the
+    pitch it was asked for, 6.25 m taller at the ridge, passed all five checks;
+    only `topY` in the recorded baseline moved, and a tripwire is not a check.
+    The gradient is the first quantity that is not on the line.
+    ⚠️ TOLERANCE 1e-4 IN GRADIENT, which at a 38 deg pitch is 0.0033 deg, and
+    both ends of it are MEASURED rather than estimated: over this fixture's 16
+    roof faces the worst deviation on a correct build is 5.4e-7 (float32 `P` at
+    a ~130 m domain), and the defect it exists to catch is 7.8e-1.  So the
+    tolerance sits 185x above the noise and 1450x below the defect.
 
     CANNOT SEE: a roof correct at the sampled points and wrong between them
     (it samples corners and midpoints, not the whole surface); a roof that is
     closed and inside out; gables, which this cap family does not build; and
     whether the eave OVERHANG is the depth the template asked for - only that
-    the surface meets the wall.
+    the surface meets the wall.  Nor a pitch that is wrong in the TEMPLATE:
+    the template is the oracle, so this asserts the roof obeys the data, never
+    that the data is good.
     """
-    high, floats, cracked, seen = [], [], [], 0
+    high, floats, cracked, tilt, seen = [], [], [], [], 0
+    want = math.tan(math.radians(pitch)) if pitch is not None else None
     for vid, fs in volumes(mass).items():
         ring = _cap_ring(fs)
         asked = max(f["ymax"] for f in fs if f["pf_wall_role"] == "cap")
@@ -580,6 +618,11 @@ def cap_seam(geo, mass, name="cap_seam"):
                 floats.append((vid, (round(q[0], 2), round(q[1], 2)),
                                [round(y, 3) for y in ys[:2]],
                                round(built, 3)))
+        for f in roof:
+            got = _plane_slope(f)
+            if want is not None and (got is None or abs(got - want) > 1e-4):
+                tilt.append((vid, f["pf_elem_id"], round(got or -1.0, 4),
+                             round(want, 4)))
         # ⚠️ A ZERO-LENGTH EDGE IS NOT AN EDGE, and skipping it is accounting
         # rather than leniency.  MEASURED on 22.0.398: `polyexpand2d`'s
         # surface output REPEATS a vertex wherever the wavefront collapses -
@@ -605,12 +648,14 @@ def cap_seam(geo, mass, name="cap_seam"):
                             % (len(border), len(ring))))
     ok = {"eave_meets_wall": seen > 0 and not floats,
           "height_as_asked": seen > 0 and not high,
-          "roof_closed": seen > 0 and not cracked}
-    return Result(name, ok, [seen, len(floats), len(high), len(cracked)],
+          "roof_closed": seen > 0 and not cracked,
+          "pitch_as_asked": seen > 0 and want is not None and not tilt}
+    return Result(name, ok, [seen, len(floats), len(high), len(cracked),
+                             len(tilt)],
                   "%d buildings; roof off the wall top at: %s; built top vs "
-                  "asked: %s; roof boundary: %s"
+                  "asked: %s; roof boundary: %s; gradient vs tan(pitch): %s"
                   % (seen, floats[:2] or "nowhere", high[:2] or "ok",
-                     cracked[:2] or "eave only"))
+                     cracked[:2] or "eave only", tilt[:2] or "as asked"))
 
 
 def plan_follows_data(geo, styles, rings, roles, templates, degraded=(),
