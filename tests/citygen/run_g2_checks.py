@@ -161,6 +161,17 @@ for site, style, ring, roles in %r:
 BAY_X, BAY_Y = 3.0, 3.2         # the repeating bay
 PIER_X = 0.6                    # the corner pier - B6's "corner module"
 GROUND_Y, CORNICE_Y = 4.0, 1.0
+# ⭐ HOW MANY ROWS THE FACADE MUST HAVE, STATED HERE AND NEVER READ OFF THE
+# OUTPUT.  `corner_closure` used to take the row set from the geometry it was
+# measuring, so a row with no modules was not a row and its absence was
+# invisible (round-N `G2-1`, `build_retrospective.md` §2a shape 1).  The number
+# belongs to the KIT, not to the template: the six modules below carry three
+# VERTICAL families (`*_start`, plain, `*_end`) and polyChain's row solve turns
+# exactly those into rows.  ⚠️ It is NOT the template's `storeys` and the two
+# must not be confused - measured, the bands are 4.0 / 4.6 / 1.0 m over a 9.6 m
+# wall while the template asks for 3 x 3.2, so `pc_row` is a kit row and the
+# check's own docstring used to call it a storey row.
+KIT_ROWS = 3
 
 
 def kit_geometry():
@@ -241,11 +252,43 @@ def vx(old, new, src):
 # would change nothing and the row would "prove" the clause while doing
 # nothing at all.
 FORCED = {"corners": None}
+# Undo hooks for a mutation that patches something other than `B.vex`, drained
+# by `main()` in the same `finally` that restores it.
+RESTORE = []
 
 
 def bend():
     def apply():
         FORCED["corners"] = "bend"
+    return apply
+
+
+def drop_row(row):
+    """⭐ THE AUDIT'S OWN INJECTED DEFECT, TURNED INTO A STANDING MUTATION.
+
+    Round-N `G2-1` deleted all 98 modules of site 1's ground row and
+    `corner_closure` reported `[14062, 0, 0.000, 0]` - PASS, worst gap 0.000 m
+    - because the row set was derived from the surviving geometry.  So this is
+    the exact input the old clause could not see, and it is a GEOMETRY
+    mutation rather than a VEX one on purpose: the rows are polyChain's row
+    solve, not our VEX, and the defect being guarded against is "a row came out
+    of the facade asset missing", which no edit to a `.vfl` of ours produces.
+    ⚠️ It moves the geometry and NOT the oracle - `KIT_ROWS` is a constant in
+    this file - so it discriminates rather than dragging both sides along.
+    """
+    original = B.build_shell
+
+    def patched(*args, **kw):
+        out = original(*args, **kw)
+        cut = out.parent().createNode("blast", "mut_drop_row")
+        cut.setFirstInput(out)
+        cut.parm("group").set("@pc_row=%d" % row)
+        cut.parm("grouptype").set("prims")
+        return cut
+
+    def apply():
+        B.build_shell = patched
+        RESTORE.append(lambda: setattr(B, "build_shell", original))
     return apply
 
 
@@ -265,6 +308,13 @@ MUTATIONS = [
      vx("s@pc_array = s@pf_volume_id;",
         "s@pc_array = s@pf_volume_id;\n"
         "setprimintrinsic(0, \"closed\", @primnum, 0);", "pf_facade_in")),
+    ("corner_closure", "rows_tile",
+     "the facade comes out with its GROUND ROW MISSING - the exact input the "
+     "audit injected, which the old clause could not see because it took its "
+     "row set from the geometry it was measuring; `no_gaps` stays GREEN under "
+     "it, which is what makes this the clause's own mutation and not a "
+     "borrowed one",
+     drop_row(0)),
     ("corner_closure", "corner_module",
      "the cascade drops the template's `miter` and falls back to `bend`, "
      "which places NO corner module (polyChain D37) - and leaves no gap "
@@ -338,7 +388,7 @@ def run_checks(mass, shell):
         C.volume_count_matches_template(
             mgeo, tpl, dict((s, (st, len(r))) for s, st, r, _ro in LOTS),
             degraded_sites=DEGRADED),
-        C.corner_closure(geo, mgeo),
+        C.corner_closure(geo, mgeo, rows=KIT_ROWS),
         C.cap_seam(geo, mgeo),
     ]
 
@@ -633,6 +683,8 @@ def main():
                 ok, note = False, "MUTATION DID NOT APPLY: %s" % str(exc)[:200]
             finally:
                 B.vex, FORCED["corners"] = keep, None
+                while RESTORE:
+                    RESTORE.pop()()
             if ok:
                 proven.add((paired, clause))
             else:

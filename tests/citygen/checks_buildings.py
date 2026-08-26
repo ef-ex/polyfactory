@@ -371,15 +371,39 @@ def _in_box(box, q, grow=0.0):
             and box[1] - grow <= q[1] <= box[3] + grow)
 
 
-def corner_closure(geo, mass, name="corner_closure", step=0.05):
+def corner_closure(geo, mass, name="corner_closure", step=0.05, rows=None):
     """⭐ THE GATE'S OWN QUESTION: does the facade close at a corner?
 
     §5 Theme 4 is unusually concrete - the one failure where independent
     artists name the same node and the same parameter - and its first
     complaint is *corner HOLES*.  So this walks each building's footprint
-    perimeter at 5 cm and asks, for EVERY STOREY ROW SEPARATELY, whether some
+    perimeter at 5 cm and asks, for EVERY KIT ROW SEPARATELY, whether some
     facade module is standing there.  A gap that exists on one row only is
     still a hole, and a plan-only test would let the row below cover for it.
+
+    ⛔ `rows_tile` EXISTS BECAUSE THE OTHER TWO CLAUSES COULD NOT SEE AN ABSENT
+    ROW, and that is `build_retrospective.md` §2a shape 1 sitting inside this
+    check's headline clause: the row set was `sorted(set(e["pc_row"] ...))`,
+    derived from the geometry under test, so A ROW WITH NO MODULES WAS NOT A
+    ROW and was never sampled.  Measured by the round-N audit: delete all 98
+    modules of site 1's ground row and `no_gaps` still reported
+    `0 uncovered, worst 0.000 m`.  The rule the retrospective draws from that
+    is *assert the subject exists and is where it belongs BEFORE asserting
+    anything about its properties*, so:
+
+      `rows_tile`   the number of rows is the number the CALLER states - the
+                    fixture's kit, never the output - and the rows' y bands
+                    TILE the wall: the lowest starts at the mass's own
+                    `pf_plinth_top`, each one ends where the next begins, and
+                    the highest ends at the mass's cap.  Both ends come from
+                    B2's mass, which is not the geometry under test.
+
+    ⭐ IT IS ALSO THE ONLY MEASUREMENT OF THE VERTICAL AXIS ANYWHERE IN G2.
+    `_in_box` compares x and z, so before this clause a module displaced 2.0 m
+    in Y passed every clause and moved no baseline value (round-N `G2-2`)
+    while §12.10b claimed "no hole AND NO MISALIGNMENT".  A y displacement
+    pushes its row's band past the neighbouring band's edge, and the tiling is
+    what notices.
 
     ⚠️ THE PERIMETER IS B4's OWN INPUT, NOT AN ORACLE OF THE FOOTPRINT.  It
     is the mass's cap ring - the polygon `pf_facade_in.vfl` handed the facade
@@ -395,23 +419,50 @@ def corner_closure(geo, mass, name="corner_closure", step=0.05):
     corner module at all (polyChain D37) and yet leaves NO GAP - so the two
     clauses separate the two treatments exactly.
 
-    CANNOT SEE: a gap narrower than `step`; a module present but at the wrong
-    DEPTH (see `elements`' axis-aligned note - and on this pipeline the Labs
-    "different ledges shift to different depths" failure cannot arise anyway,
-    because both legs of a corner belong to ONE array with ONE row solve);
-    anything about the module's own geometry inside its box; and any face of
-    the building that is not on the perimeter.
+    CANNOT SEE, and these are MEASURED resolutions rather than the flat "wrong
+    depth" this used to claim (round-N `G2-2`, on real SOP displacements):
+    a gap shorter than 0.06 m ALONG the wall (0.04 m passes, 0.06 m fails) and
+    a module displaced less than 0.16 m in DEPTH (0.10 m passes, 0.16 m fails)
+    - the blind band in depth is +-0.15 m, half the module depth, because the
+    sample only has to land inside SOME box.  Nor the HEIGHTS of the bands
+    `rows_tile` checks: a row solve that split the same wall 3.0/3.0/3.6
+    instead of 4.0/4.6/1.0 tiles just as well, and only the kit and polyChain's
+    solve decide that.  Nor anything about a module's own geometry inside its
+    box, nor any face of the building that is not on the perimeter.
+    ⚠️ AND `corner_module` MEASURES A POLYGON, NOT A MODULE (round-N `G2-8`):
+    every `corner*` prim on this pipeline is a raw Polygon shard from the
+    Python reference, ~12 per corner per row, not a packed kit module.  The
+    clause still discriminates presence - `bend` reddens it - but "a corner
+    module at every corner" is stronger than what is measured.
     """
-    gaps, missing, worst, sampled = [], [], 0.0, 0
+    gaps, missing, stack, worst, sampled = [], [], [], 0.0, 0
     for vid, fs in volumes(mass).items():
         ring = _cap_ring(fs)
         el = [e for e in elements(geo)
               if e["pf_volume_id"] == vid and e["kind"] == "facade"]
         if not ring or not el:
             gaps.append((vid, "nothing built"))
+            stack.append((vid, "nothing built"))
             continue
         n = len(ring)
-        for row in sorted(set(e["pc_row"] for e in el)):
+        present = sorted(set(e["pc_row"] for e in el))
+        if rows is not None and len(present) != rows:
+            stack.append((vid, "%d rows built, %d asked for" % (len(present),
+                                                                rows)))
+        cap = [f for f in fs if f["pf_wall_role"] == "cap"]
+        prev = cap[0]["pf_plinth_top"] if cap else None
+        for r in present:
+            lo = min(e["ymin"] for e in el if e["pc_row"] == r)
+            hi = max(e["ymax"] for e in el if e["pc_row"] == r)
+            if prev is not None and abs(lo - prev) > TOL:
+                stack.append((vid, r, "starts %.3f, the row below ends %.3f"
+                              % (lo, prev)))
+            prev = hi
+        top = max([f["ymax"] for f in cap] or [0.0])
+        if cap and prev is not None and abs(prev - top) > TOL:
+            stack.append((vid, "top row ends %.3f, mass cap is at %.3f"
+                          % (prev, top)))
+        for row in present:
             boxes = [e["box"] for e in el if e["pc_row"] == row]
             run, run_at = 0.0, None
             for j in range(n):
@@ -436,13 +487,23 @@ def corner_closure(geo, mass, name="corner_closure", step=0.05):
             if not any(_in_box(box, q, TOL) for box in corner_boxes):
                 missing.append((vid, j, round(q[0], 2), round(q[1], 2)))
     ok = {"no_gaps": sampled > 0 and not gaps,
-          "corner_module": sampled > 0 and not missing}
+          "corner_module": sampled > 0 and not missing,
+          "rows_tile": sampled > 0 and not stack}
+    # ⚠️ `sampled` IS NOT A COUNT OF DISTINCT MEASUREMENTS AND SAYING SO IS
+    # HONEST ACCOUNTING (round-N `G2-6`).  The rows' plan-box sets are
+    # bit-identical - 80/80/80 on site 1 - because one array, one row solve and
+    # one kit give every row the same plan footprint, so the per-row loop
+    # measures the same x/z quantity once per row.  The docstring's rationale
+    # ("a gap on one row only") is real but cannot be exercised on this
+    # pipeline, and the headline number was inflated by the row count.
     return Result(name, ok, [sampled, len(gaps), round(worst, 3),
-                             len(missing)],
-                  "%d perimeter samples over every row; uncovered runs %s "
-                  "(worst %.3f m); corners with no corner module: %s"
-                  % (sampled, gaps[:3] or "none", worst,
-                     missing[:4] or "none"))
+                             len(missing), len(stack)],
+                  "%d perimeter samples = %d plan positions x %d rows; "
+                  "uncovered runs %s (worst %.3f m); corners with no corner "
+                  "module: %s; row stack: %s"
+                  % (sampled, sampled // max(rows or 1, 1), rows or 1,
+                     gaps[:3] or "none", worst, missing[:4] or "none",
+                     stack[:2] or "tiles the wall"))
 
 
 def _plane_y(face, q):
