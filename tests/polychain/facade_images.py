@@ -179,11 +179,18 @@ def through_the_node(name, foot_loops, kit_geo, style, aux_geo=None, **parms):
 
     global NODE_FEED
     node = net.createNode("pf_polychain_facade", "facade")
-    pay = hou.Geometry()
-    _style.write(pay, style)
+    # ⚠️ `style=None` LEAVES INPUT 3 UNWIRED, AND THAT IS THE POINT OF THE
+    # THIRD FIGURE (P2-9a F1). A wired payload makes the whole parm page
+    # inert (D77), so both node figures drawn before this one showed the
+    # PAYLOAD's facade and nothing about the page an artist actually turns -
+    # which is where the collapsed-storey defect lived.
     feed = {name + "_foot": cases2d.clip_geometry(foot_loops)
             if foot_loops else hou.Geometry(),
-            name + "_kit": kit_geo, name + "_pay": pay}
+            name + "_kit": kit_geo}
+    if style is not None:
+        pay = hou.Geometry()
+        _style.write(pay, style)
+        feed[name + "_pay"] = pay
     if aux_geo is not None:
         feed[name + "_aux"] = aux_geo
     NODE_FEED.update(feed)
@@ -233,6 +240,16 @@ def main():
         "g6", [], cases2d.clip_kit(), cases2d.clip_style(),
         aux_geo=cases2d.clip_geometry(cases2d.CLIP_LOOPS), shape="area",
         clip_mode="slice")}
+    # P2-9a F1 - THE PARM PAGE'S OWN DEFAULTS, against a kit whose module
+    # names are NOT the ones on the page. No payload, nothing set but the
+    # height: this is the picture of what an artist gets the first time they
+    # wire their own kit, and before the fix it was thirteen 1 m stand-in
+    # bands. `drawn_covers_packed` asserts the image contains its subject;
+    # what a HUMAN has to see here is a four-storey building with a shopfront
+    # and a cornice, not a grid of blank boxes.
+    built["node_renamed_kit"] = {"out": through_the_node(
+        "g5r", [cases2d.L_FOOTPRINT], cases2d.facade_kit(rename="mine_"),
+        None, shape="footprint", height=cases2d.TOWER_H)}
     fail = []
     for name, view, axes, crop in (
             ("FA_L_facade", "iso", "iso", None),
@@ -247,7 +264,9 @@ def main():
             ("clip_floor", "edge", ("z", "y"), None),
             ("node_L_facade", "iso", "iso", None),
             ("node_L_facade", "reflex", "iso", ((12.0, 12.0), 5.0)),
-            ("node_clip_plate", "plan", ("x", "y"), None)):
+            ("node_clip_plate", "plan", ("x", "y"), None),
+            ("node_renamed_kit", "front", ("x", "y"), None),
+            ("node_renamed_kit", "iso", "iso", None)):
         geo, colour_of = coloured(
             built[name]["out"],
             _clip_colour if "clip_" in name else _cell_colour)
