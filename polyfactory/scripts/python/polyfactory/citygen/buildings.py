@@ -21,9 +21,15 @@ case §12 asks for.  It is not a cook-path loop over geometry.
 
 §12.12 asked "style template storage format detail: first template authored
 decides".  It is decided here: a `.geo` carrying `pf_style_template` as a
-detail dict.  Reasons - it needs no parser at cook time, it round-trips
-losslessly (measured on 22.0.398), it is ~1.6 KB, and unlike a JSON file it
-can carry §12.9's packed module prims in the same file when kits arrive.
+detail dict.  Reasons - it needs no parser at cook time, it is a few KB of
+diffable ASCII, and unlike a JSON file it can carry §12.9's packed module
+prims in the same file when kits arrive.
+
+⚠️ **It does NOT round-trip losslessly**, and an earlier version of this
+docstring claimed it did.  Measured on 22.0.398: a numeric list of length 2,
+3 or 4 returns as a `hou.Vector2/3/4` and every other length returns as a
+tuple.  `_plain()` is what makes the claim true, so nothing may read the raw
+attribute; `load()` is the only door.
 """
 
 import io
@@ -65,9 +71,16 @@ PLINTH = {"none": 0, "levelToHighest": 1}
 # that inherit it, and two classes of one contract name in one stream is
 # exactly the confusion §1 exists to prevent.  Named, because the check that
 # enforces the law is only worth having if its mutation can remove a sweep.
+#
+# `pf_style_template` goes the same way, for the same reason and one more: it
+# is B0's REQUEST, `pf_style_id` is the template that answered it, and after
+# the mass wrangle removes the footprint prims the request survives as an
+# attribute definition with an empty value on every face - a name in the
+# published-names baseline carrying nothing. B6's per-building DNA point is
+# where the template id belongs (§12.6), not on every wall.
 CLEAN = (("doptdel", "ptdel", "_*"),
          ("dovtxdel", "vtxdel", "_* pf_face_role"),
-         ("doprimdel", "primdel", "_*"),
+         ("doprimdel", "primdel", "_* pf_style_template"),
          ("dodtldel", "dtldel", "_*"))
 
 
@@ -88,13 +101,22 @@ def style_path(style_id):
 
 
 def _plain(value):
-    """Houdini hands nested dict attributes back with TUPLES where lists went
-    in (measured).  Templates are compared and merged, so normalise once."""
+    """Normalise what a Houdini dict attribute hands back into plain Python.
+
+    ⚠️ NOT just tuples-for-lists, and the difference is a trap an audit found:
+    a numeric list of length 2, 3 or 4 comes back as a `hou.Vector2/3/4`,
+    while length 1 or 5 comes back as a tuple.  So `cutsAt: [0.444, 0.722]`
+    round-trips as a Vector2 and `[0.4]` does not, and code that happens to
+    iterate the value works while code that compares it does not.  Anything
+    iterable that is not a string or a dict is flattened here."""
     if isinstance(value, dict):
         return dict((k, _plain(v)) for k, v in value.items())
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, (str, bytes)):
+        return value
+    try:
         return [_plain(v) for v in value]
-    return value
+    except TypeError:
+        return value
 
 
 def load(style_id_or_path):
@@ -108,6 +130,12 @@ def load(style_id_or_path):
 
 
 def _merge(base, over):
+    """Deep merge, so a dict-valued field is a NAMESPACE and not a value.
+
+    Decided rather than stumbled into: an override that raises the front
+    setback must not silently drop the other three roles from `setbackM`, so
+    §2.1's "last wins" applies per LEAF. The cost is that a table can only be
+    added to, never wholesale replaced - to empty one, set its keys."""
     out = dict(base)
     for key, value in over.items():
         if isinstance(value, dict) and isinstance(out.get(key), dict):

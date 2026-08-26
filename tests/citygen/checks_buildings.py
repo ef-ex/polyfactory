@@ -42,8 +42,13 @@ class Result(object):
                                       self.detail)
 
 
-def faces(geo, style=None):
-    """Every output prim as a plain record, so no check re-derives the read."""
+def faces(geo, site=None):
+    """Every output prim as a plain record, so no check re-derives the read.
+
+    Filtering is by SITE, never by style: the fixture deliberately builds one
+    template twice, once on a lot it cannot fit on, and a style filter would
+    hand the Einhof checks a fourth volume belonging to a different building.
+    """
     out = []
     for prim in geo.prims():
         rec = {"prim": prim.number()}
@@ -52,7 +57,9 @@ def faces(geo, style=None):
                      "pf_style_id"):
             rec[name] = prim.attribValue(name)
         for name in ("pf_site_id", "pf_volume_index", "pf_storeys",
-                     "pf_cap_group", "pf_warn_cap_group_split"):
+                     "pf_cap_group", "pf_warn_cap_group_split",
+                     "pf_warn_footprint_collapsed", "pf_warn_unknown_rule",
+                     "pf_warn_topology_arity"):
             rec[name] = prim.attribValue(name)
         rec["pf_plinth_top"] = prim.attribValue("pf_plinth_top")
         pts = [p.point().position() for p in prim.vertices()]
@@ -64,15 +71,15 @@ def faces(geo, style=None):
         rec["centre"] = tuple(sum(c[i] for c in pts) / float(len(pts))
                               for i in range(3))
         out.append(rec)
-    if style is not None:
-        out = [r for r in out if r["pf_style_id"] == style]
+    if site is not None:
+        out = [r for r in out if r["pf_site_id"] == site]
     return out
 
 
-def volumes(geo, style=None):
+def volumes(geo, site=None):
     """volume id -> its faces, in one pass."""
     by = collections.OrderedDict()
-    for rec in faces(geo, style):
+    for rec in faces(geo, site):
         by.setdefault(rec["pf_volume_id"], []).append(rec)
     return by
 
@@ -90,7 +97,7 @@ def _plan_key(pts):
 
 # --- the gate criteria ------------------------------------------------------
 
-def single_roof(geo, style, min_roles=3, name="single_roof"):
+def single_roof(geo, site, min_roles=3, name="single_roof"):
     """The Einhof claim: several FUNCTIONS, one continuous mass, ONE roof.
 
     Not one of these three alone is the claim - a shared cap group with a
@@ -101,9 +108,9 @@ def single_roof(geo, style, min_roles=3, name="single_roof"):
     CANNOT SEE: whether a roof could actually be built over it (that is B5),
     or whether the functions are in a sensible order along the bar.
     """
-    vols = volumes(geo, style)
+    vols = volumes(geo, site)
     if not vols:
-        return Result(name, True, None, "no %r volumes" % style, skipped=True)
+        return Result(name, True, None, "no site %r" % site, skipped=True)
     groups = set()
     tops = set()
     roles = set()
@@ -130,10 +137,11 @@ def single_roof(geo, style, min_roles=3, name="single_roof"):
                                    len(tops), joined, len(ids) - 1))
 
 
-def _loop_area(fs):
-    """(closed, enclosed area) of the base edges of a set of wall faces.
+def _loop(fs):
+    """(closed, enclosed area, ordered ring) of the base edges of a set of
+    wall faces, in (x,z).
 
-    Each wall's two lowest points are one edge of the loop; a loop is closed
+    Each wall's two lowest points are one edge of the ring; the ring is closed
     when every endpoint is used exactly twice."""
     seg = []
     for f in fs:
@@ -147,7 +155,7 @@ def _loop_area(fs):
         count[a] += 1
         count[b] += 1
     if not seg or any(v != 2 for v in count.values()):
-        return False, 0.0
+        return False, 0.0, []
     link = collections.defaultdict(list)
     for a, b in seg:
         link[a].append(b)
@@ -161,45 +169,88 @@ def _loop_area(fs):
     for i in range(len(order)):
         p, q = order[i], order[(i + 1) % len(order)]
         area += p[0] * q[1] - q[0] * p[1]
-    return True, abs(area) * 0.5
+    return True, abs(area) * 0.5, order
 
 
-def encloses_courtyard(geo, style, name="encloses_courtyard"):
+def _inside(ring, q):
+    """Signed clearance of point `q` from a closed ring in (x,z): positive
+    inside, negative outside, and its magnitude is the distance to the nearest
+    edge.  Crossing count for the sign, segment distance for the magnitude -
+    so "strictly inside by more than a tolerance" is one comparison."""
+    n = len(ring)
+    inside = False
+    best = 1e18
+    for i in range(n):
+        ax, az = ring[i]
+        bx, bz = ring[(i + 1) % n]
+        if (az > q[1]) != (bz > q[1]):
+            xx = ax + (q[1] - az) * (bx - ax) / ((bz - az) or 1e-18)
+            if q[0] < xx:
+                inside = not inside
+        ex, ez = bx - ax, bz - az
+        l2 = ex * ex + ez * ez
+        t = 0.0 if l2 < 1e-18 else max(0.0, min(
+            1.0, ((q[0] - ax) * ex + (q[1] - az) * ez) / l2))
+        best = min(best, math.hypot(q[0] - (ax + ex * t),
+                                    q[1] - (az + ez * t)))
+    return best if inside else -best
+
+
+def encloses_courtyard(geo, site, depth=None, name="encloses_courtyard"):
     """The perimeter-block claim: the volumes close a RING around a void.
 
     A ring is not "has a wall tagged courtyard" - that is a label, and a label
-    is what this project keeps being bitten by.  It is four things together:
+    is what this project keeps being bitten by.  It is five things together:
     every volume joined to two neighbours (no free end anywhere), a closed
-    courtyard loop, a closed outer loop, and a POSITIVE BAND between them.
+    courtyard loop, a closed outer loop, a positive band between them, and
+    every courtyard corner STRICTLY INSIDE the outer loop by a real margin.
 
-    ⚠️ That last clause is here because the mutation found it missing.  With
-    the courtyard depth set to 0 the inner walls sit exactly on the outer
-    ones, and the first version of this check reported the whole 2 728 m2
-    footprint as a courtyard and passed.  The docstring already claimed the
-    courtyard "lies inside the outer walls"; the code had never tested it.
+    And when `depth` is given, the last clause is not "inside" but a
+    DIFFERENTIAL ORACLE against the template: every courtyard corner stands
+    `courtyardDepthM` from the outer wall, so the built tract depth is
+    re-derived from the data file rather than compared with itself.
 
-    CANNOT SEE: a figure-of-eight, which also has no free end; nor whether the
-    courtyard is big enough to be habitable, daylit or legal.
+    ⚠️ This took three tries and each failure is worth keeping.  Version one
+    measured the courtyard's AREA, so setting the depth to 0 made the whole
+    2 728 m2 footprint read as a courtyard.  Version two added the band, which
+    closed that case and not the general one: an audit slid the whole
+    courtyard 4 m sideways, wrecking the wings underneath, and both areas came
+    back BYTE-IDENTICAL - a rigid translation preserves every area there is.
+    Version three added containment, and the shifted block was STILL 8 m
+    inside its outer wall, so it passed a check that could now see the defect
+    and had no reason to object to it.  Only measuring the depth against the
+    number that asked for it fails: 8 m and 16 m where 12 was specified.
+
+    CANNOT SEE: a figure-of-eight, which also has no free end; whether the
+    courtyard is habitable, daylit or legal; nor a courtyard correct in plan
+    and wrong in elevation.
     """
-    vols = volumes(geo, style)
+    vols = volumes(geo, site)
     if not vols:
-        return Result(name, True, None, "no %r volumes" % style, skipped=True)
+        return Result(name, True, None, "no site %r" % site, skipped=True)
     ends = sum(1 for fs in vols.values() for f in fs
                if f["pf_wall_role"] == "end")
     yard = [f for fs in vols.values() for f in fs
             if f["pf_wall_role"] == "courtyard"]
     outer = [f for fs in vols.values() for f in fs
              if f["pf_wall_role"] == "exterior"]
-    closed, area = _loop_area(yard)
-    out_closed, out_area = _loop_area(outer)
+    closed, area, ring = _loop(yard)
+    out_closed, out_area, out_ring = _loop(outer)
     band = out_area - area
+    gaps = ([_inside(out_ring, q) for q in ring]
+            if closed and out_closed else [-1.0])
+    lo, hi = min(gaps), max(gaps)
     ok = (ends == 0 and closed and out_closed and len(vols) >= 3
-          and area > TOL and band > TOL)
+          and area > TOL and band > TOL and lo > TOL
+          and (depth is None or (abs(lo - depth) <= 0.01
+                                 and abs(hi - depth) <= 0.01)))
     return Result(name, ok, [len(vols), ends, len(yard), round(area, 2),
-                             round(band, 2)],
+                             round(band, 2), round(lo, 2), round(hi, 2)],
                   "%d volumes, %d free ends, %d courtyard faces, courtyard "
-                  "%.1f m2 inside a %.1f m2 built band"
-                  % (len(vols), ends, len(yard), area, band))
+                  "%.1f m2 inside a %.1f m2 band; tract depth %.2f-%.2f m "
+                  "against %s asked for"
+                  % (len(vols), ends, len(yard), area, band, lo, hi,
+                     "%.2f" % depth if depth is not None else "nothing"))
 
 
 def rules_serve_more_than_one_style(templates, name="rule_reuse"):
@@ -209,6 +260,14 @@ def rules_serve_more_than_one_style(templates, name="rule_reuse"):
     that template's code in disguise."  So: every value the assembly rules can
     take must be reached by at least two DIFFERENT styleIds among the shipped
     templates, or this reports the rule that is a style in disguise.
+
+    ⚠️ THIS CHECK IS WEAKER THAN IT READS, and an audit was right to say so.
+    Of its four rows only TWO are independent: `lotToFootprint` is `setback`
+    in every shipped template and so can never be lonely, and `cuts` is
+    perfectly collinear with `rails` (`cutsAt` is non-empty exactly when the
+    rails are a bar).  What actually carries the G1 argument is the 2x2
+    CROSSING in the fixture - bar/ring against levelToHighest/none, with a
+    farm and an urban block in each column - not this count.
 
     CANNOT SEE: a rule that two templates use for cosmetically different but
     architecturally identical buildings.  Reuse is necessary, not sufficient;
@@ -252,34 +311,88 @@ def party_walls_are_real(geo, name="party_walls_real"):
     in the SAME PLACE.  The union, not the parts: each volume alone can be
     perfectly tagged while the two never touch.
 
-    CANNOT SEE: a party wall correct in plan but wrong in height range - it
-    compares the face polygon, so unequal-height neighbours (Vorderhaus vs
-    Hoftrakt) are reported as a mismatch, which is why the count of matched
-    faces is recorded rather than only pass/fail.
+    Matched in PLAN and then in ELEVATION, separately.  Plan alone was all
+    this had, and an audit was right to call that out: two volumes whose
+    skirts reach different depths cannot be compared as identical 3D
+    polygons, but they must still SHARE HEIGHT - a party wall whose neighbour
+    sits entirely above or below it is a party wall to nothing.  So the
+    elevation half asserts the two faces' Y ranges overlap by more than a
+    tolerance, which is the weakest true statement about them.
+
+    CANNOT SEE: how MUCH of the face is genuinely shared. An unequal-height
+    pair (Vorderhaus vs Hoftrakt) is tagged party over its whole area
+    including the part standing proud above the shorter neighbour; splitting
+    that is B6's.
     """
     vols = volumes(geo)
     party = [(vid, f) for vid, fs in vols.items() for f in fs
              if f["pf_wall_role"] == "party"]
     named = sum(1 for _v, f in party if f["pf_shared_with"])
+
+    def base(f):
+        return tuple(sorted(tuple(round(c, 3) for c in (p[0], p[2]))
+                            for p in f["pts"]))
     plan = {}
     for vid, fs in vols.items():
         for f in fs:
             if f["pf_wall_role"] == "party":
-                base = tuple(sorted(tuple(round(c, 3) for c in (p[0], p[2]))
-                                    for p in f["pts"]))
-                plan.setdefault((vid, base), 0)
-                plan[(vid, base)] += 1
-    matched = 0
+                plan.setdefault((vid, base(f)), []).append(f)
+    matched = overlapped = 0
     for vid, f in party:
-        nb = f["pf_shared_with"]
-        base = tuple(sorted(tuple(round(c, 3) for c in (p[0], p[2]))
-                            for p in f["pts"]))
-        if (nb, base) in plan:
-            matched += 1
-    ok = bool(party) and named == len(party) and matched == len(party)
-    return Result(name, ok, [len(party), named, matched],
-                  "%d party faces, %d name a neighbour, %d meet it in plan"
-                  % (len(party), named, matched))
+        peers = plan.get((f["pf_shared_with"], base(f)))
+        if not peers:
+            continue
+        matched += 1
+        if any(min(f["ymax"], p["ymax"]) - max(f["ymin"], p["ymin"]) > TOL
+               for p in peers):
+            overlapped += 1
+    ok = (bool(party) and named == len(party) and matched == len(party)
+          and overlapped == len(party))
+    return Result(name, ok, [len(party), named, matched, overlapped],
+                  "%d party faces, %d name a neighbour, %d meet it in plan, "
+                  "%d share height with it"
+                  % (len(party), named, matched, overlapped))
+
+
+def volume_count_matches_template(geo, templates, sites, degraded_sites=(),
+                                  name="volume_count_matches"):
+    """Every volume the template asks for is actually IN THE OUTPUT, and only
+    the sites the FIXTURE says are impossible are allowed to degrade.
+
+    ⚠️ A cell can vanish without a sound: `pfb_cell` refuses a non-positive
+    height and returns, and nothing downstream counts.  An audit measured 7
+    volumes built where 13 were expected and every other check stayed green,
+    because all of them reason about the volumes that exist.  This is the one
+    that reasons about the ones that do not.
+
+    ⚠️ `degraded_sites` is passed IN rather than read off the warning, and
+    that too is measured: the first version trusted the warning, so when a
+    tightened collapse test wrongly flagged every `setback(0)` footprint, two
+    perimeter blocks quietly became one solid mass each and this check called
+    it correct degradation.  A check that takes the code's word for what was
+    supposed to happen cannot catch the code being wrong about it.
+
+    CANNOT SEE: a volume that is present and in the wrong place.
+    """
+    bad = []
+    for site, style in sorted(sites.items()):
+        fs = faces(geo, site)
+        if not fs:
+            bad.append((site, 0, "nothing built"))
+            continue
+        got = len(set(f["pf_volume_id"] for f in fs))
+        warned = any(f["pf_warn_footprint_collapsed"] for f in fs)
+        if site in degraded_sites:
+            if got != 1 or not warned:
+                bad.append((site, got, "expected 1 degraded + a warning"))
+        elif got != len(templates[style]["volumeTopology"]["volumes"]):
+            bad.append((site, got,
+                        len(templates[style]["volumeTopology"]["volumes"])))
+        elif warned:
+            bad.append((site, got, "degraded when it should not have"))
+    return Result(name, not bad, len(bad),
+                  "sites whose volume count is not what the template asked "
+                  "for: %s" % (bad[:4] or "none"))
 
 
 def outward_normals(geo, name="outward_normals"):
@@ -341,7 +454,7 @@ def heights_follow_data(geo, templates, name="heights_follow_data"):
                   % (seen, bad[:3] or "none"))
 
 
-def plinth_follows_ground(geo, style, name="plinth_follows_ground"):
+def plinth_follows_ground(geo, site, name="plinth_follows_ground"):
     """`levelToHighest` on a slope: ONE floor datum for the whole building,
     and a skirt under every volume that reaches the ground it stands on - so
     the datums are identical and the SKIRT DEPTHS are not.  Both halves are
@@ -355,9 +468,9 @@ def plinth_follows_ground(geo, style, name="plinth_follows_ground"):
     cells' whole AREA - it samples the plan CORNERS only, so a hump between
     two corners is missed (polyChain's stepped-base finding, same shape).
     """
-    vols = volumes(geo, style)
+    vols = volumes(geo, site)
     if not vols:
-        return Result(name, True, None, "no %r volumes" % style, skipped=True)
+        return Result(name, True, None, "no site %r" % site, skipped=True)
     datums, depths = set(), set()
     for vid, fs in vols.items():
         walls = [f for f in fs if f["pf_wall_role"] not in ("cap", "floor")]
@@ -421,6 +534,11 @@ def no_scratch(geo, name="no_scratch"):
     """conventions.md §2/§5 - nothing beginning with `_` leaves the node, on
     any of the four attribute classes or the groups.
 
+    ⚠️ All four attribute classes AND all four group types.  This read only
+    prim and point groups until an audit measured that the sweep itself
+    covers vertex and edge groups too - the check was narrower than the law
+    it enforces, which is how a rule ends up worth nothing.
+
     CANNOT SEE: a leaked name that does NOT begin with `_`; that is what the
     baseline snapshot beside this check is for (conventions.md §7's reason).
     """
@@ -429,7 +547,9 @@ def no_scratch(geo, name="no_scratch"):
              + [a.name() for a in geo.vertexAttribs()]
              + [a.name() for a in geo.globalAttribs()]
              + [g.name() for g in geo.primGroups()]
-             + [g.name() for g in geo.pointGroups()])
+             + [g.name() for g in geo.pointGroups()]
+             + [g.name() for g in geo.vertexGroups()]
+             + [g.name() for g in geo.edgeGroups()])
     leaked = sorted(n for n in names if n.startswith("_"))
     return Result(name, not leaked, len(leaked),
                   "leaked scaffolding: %s" % (leaked or "none"))
@@ -446,6 +566,48 @@ def published_names(geo):
             "vertex": part(geo.vertexAttribs()),
             "detail": part(geo.globalAttribs()),
             "groups": sorted(g.name() for g in geo.primGroups())}
+
+
+def degrades_never_refuses(geo, site, name="degrades_never_refuses"):
+    """§2.2, asserted rather than assumed: a lot too small for its own setbacks
+    still produces a BUILDING, and that building carries the warning.
+
+    ⚠️ The second half is here because the first build failed it invisibly.
+    `pf_warn_footprint_collapsed` was written on the footprint prim, and the
+    mass wrangle then removed that prim - leaving the attribute DEFINITION,
+    so every shipped face read 0 and the published-names baseline listed the
+    warning as present. A warning that cannot be non-zero is not advisory
+    validation, it is a name.
+
+    CANNOT SEE: whether the degraded mass is a SENSIBLE building - only that
+    one exists, is closed, and says so.
+    """
+    mine = [f for f in faces(geo) if f["pf_site_id"] == site]
+    if not mine:
+        return Result(name, False, 0,
+                      "site %d produced NOTHING - a refusal, not a warning"
+                      % site)
+    vols = set(f["pf_volume_id"] for f in mine)
+    warned = [f for f in mine if f["pf_warn_footprint_collapsed"]]
+    ok = len(vols) == 1 and len(warned) == len(mine) and len(mine) >= 5
+    return Result(name, ok, [len(vols), len(mine), len(warned)],
+                  "%d volume(s), %d faces, %d carrying the collapse warning"
+                  % (len(vols), len(mine), len(warned)))
+
+
+def warns_on_unknown_rule(geo, name="unknown_rule_warns"):
+    """A template naming a rule the library does not have still BUILDS, on the
+    default rule, and says so. Clean fixtures carry none; the mutation that
+    misspells a rails mode is what proves the flag can rise.
+
+    CANNOT SEE: a rule name that is spelled correctly and means the wrong
+    thing.
+    """
+    hot = sorted(set(f["pf_style_id"] for f in faces(geo)
+                     if f["pf_warn_unknown_rule"]))
+    return Result(name, not hot, len(hot),
+                  "styles naming a rule that does not exist: %s"
+                  % (hot or "none"))
 
 
 def warns_on_cap_group_split(geo, name="cap_group_split_warns"):

@@ -11,7 +11,7 @@ images, in one throwaway hython session that never saves a .hip.
 a shared full-value snapshot from two branches silently blesses one of them
 (`citygen_buildings.md` §0.0c rule 2).  This file touches none of them.
 
-THE FOUR FIXTURES ARE THE ARGUMENT, not the coverage.  G1 asks whether two very
+THE FIXTURE IS THE ARGUMENT, not the coverage.  G1 asks whether two very
 different topologies come out of one rule library.  Two templates cannot answer
 it: a rule used by exactly ONE template is that template's code wearing a rule's
 name, and with two templates every rule is used once.  So the fixture holds two
@@ -19,6 +19,8 @@ MORE styles that recombine the same rules across the family line -
 `at_vierkanthof` is a farm that uses the perimeter block's ring, `at_zinshaus_row`
 is a Viennese apartment house that uses the farmhouse's bar - and
 `checks_buildings.rules_serve_more_than_one_style` fails if any rule is lonely.
+A fifth lot is a template on a lot it cannot fit on, because "advisory, never a
+wall" (§2.2) is a claim about the degraded path and nothing else reaches it.
 
 WHAT THIS RUN CANNOT SEE.  It exercises B2 only: no facade, no roof, no module.
 It says nothing about cook cost at district scale (one cook of four buildings),
@@ -72,9 +74,21 @@ LOTS = [
      ["front", "interiorSide", "rear", "interiorSide"]),
     (4, "at_zinshaus_row", (190.0, 0.0), (17.0, 26.0),
      ["front", "abuts", "rear", "abuts"]),
+    # Site 5 is DELIBERATELY IMPOSSIBLE: the Einhof's 2 m front and 43 m rear
+    # setback do not fit on a 6 x 6 m lot, so the footprint folds through
+    # itself. §2.2 says advisory, never a wall - so a building must still come
+    # out, carrying the warning. Nothing else in this fixture reaches the
+    # degraded path, and the degraded path is a third of the rails rule.
+    (5, "at_einhof", (215.0, 0.0), (6.0, 6.0),
+     ["front", "interiorSide", "rear", "interiorSide"]),
 ]
-STYLES = [lot[1] for lot in LOTS]
-SLOPED = "at_einhof"        # the plinth rule is judged on this one
+# The ONLY site the fixture expects to degrade. Stated here rather than read
+# off the warning, so that a collapse test which flags too much is caught
+# instead of believed.
+DEGRADED = (5,)
+# de-duplicated, order kept: site 5 deliberately reuses `at_einhof`.
+STYLES = sorted(set(lot[1] for lot in LOTS),
+                key=[lot[1] for lot in LOTS].index)
 
 FAIL = []
 
@@ -127,8 +141,11 @@ def scene(parent, lots=None):
     # Falls in both directions plus a gentle roll: the Einhof bar runs 45 m
     # along Z, so the plinth rule needs the ground to move along Z as well or
     # every cell of it sees the same datum and the check has nothing to see.
+    # ⚠️ Gentle on purpose. At 5 % along Z the level-floor rule gave the 3 m
+    # Einhof a 3.8 m plinth - arithmetically right, architecturally absurd,
+    # and a fixture that makes the output look wrong teaches the wrong thing.
     slope.parm("snippet").set(
-        "@P.y = @P.x * -0.03 + @P.z * -0.05 + sin(@P.x * 0.11) * 0.6"
+        "@P.y = @P.x * -0.02 + @P.z * -0.022 + sin(@P.x * 0.11) * 0.6"
         " + cos(@P.z * 0.07) * 0.5;")
     return src, B.build(parent, src, ground=slope)
 
@@ -228,6 +245,30 @@ MUTATIONS = [
     ("cap_group_split_warns", "one Einhof volume is given a third storey",
      lambda: patch_template(lambda s, t: s == "at_einhof"
                             and _volume(t, 1, "storeys", 3))),
+    ("degrades_never_refuses", "the collapsed footprint is skipped instead of "
+     "degraded - a refusal, which §2.2 forbids",
+     lambda: patch_vex([("pf_mass", "int ncells = degraded ? 1 :",
+                         "if (degraded) continue;\n    int ncells = 0 ? 1 :")])),
+    ("volume_count_matches", "the second cell of every building vanishes, "
+     "the way a non-positive height already can",
+     lambda: patch_vex([("pf_mass",
+                         "vector corner[]; string tag[], wall[], face[],"
+                         " shared[];",
+                         "if (i == 1) continue;\n        vector corner[]; "
+                         "string tag[], wall[], face[], shared[];")])),
+    # A SECOND mutation on the same check, and the one that matters: an audit
+    # slid the courtyard 4 m sideways, wrecking the wings underneath, and both
+    # the area and the band came back byte-identical to a correct block. Areas
+    # are invariant under a rigid translation; only containment sees it.
+    ("encloses_courtyard", "the courtyard is slid 4 m off centre",
+     lambda: patch_vex([("pf_mass", 'railB[j] = point(1, "P", cpts[j]);',
+                         'railB[j] = point(1, "P", cpts[j]) + set(4.0,0.0,0.0);'
+                         )])),
+    ("unknown_rule_warns", "a template asks for a rails mode that does not "
+     "exist",
+     lambda: patch_template(
+         lambda s, t: s == "at_einhof"
+         and t["volumeTopology"].__setitem__("rails", "spiral"))),
 ]
 
 
@@ -237,24 +278,31 @@ def run_checks(out, mirror, templates, sources):
     geo = out.geometry()
     by_id = dict((t["styleId"], t) for t in templates)
     return [
-        C.single_roof(geo, "at_einhof"),
+        C.single_roof(geo, 1),
         # The Vierkanthof is the harder half of the same claim, and it is a
         # SOURCED fact rather than a convenience: "Dachfirst auf allen vier
         # Seiten gleich hoch". Its dwelling is two storeys and its three farm
         # wings are one, so the ridge is only level because a volume carries
         # its OWN storey height - the mechanism nothing else here exercises.
-        C.single_roof(geo, "at_vierkanthof", 4, name="single_roof_ring"),
-        C.encloses_courtyard(geo, "at_vienna_perimeter"),
+        C.single_roof(geo, 3, 4, name="single_roof_ring"),
+        C.encloses_courtyard(
+            geo, 2,
+            by_id["at_vienna_perimeter"]["volumeTopology"]["courtyardDepthM"]),
         C.rules_serve_more_than_one_style(templates),
         C.no_style_names_in_code(sources, STYLES),
         C.party_walls_are_real(geo),
         C.outward_normals(geo),
         C.heights_follow_data(geo, by_id),
-        C.plinth_follows_ground(geo, SLOPED),
+        C.plinth_follows_ground(geo, 1),
         C.attribute_storage(geo),
         C.elem_ids_structural(geo, mirror.geometry()),
         C.no_scratch(geo),
         C.warns_on_cap_group_split(geo),
+        C.volume_count_matches_template(
+            geo, by_id, dict((l[0], l[1]) for l in LOTS),
+            degraded_sites=DEGRADED),
+        C.degrades_never_refuses(geo, 5),
+        C.warns_on_unknown_rule(geo),
     ]
 
 
@@ -274,10 +322,10 @@ def sources_now():
 
 def record(out, templates):
     geo = out.geometry()
-    snap = {"published": C.published_names(geo), "styles": {}}
-    for style in STYLES:
-        vols = C.volumes(geo, style)
-        snap["styles"][style] = {
+    snap = {"published": C.published_names(geo), "sites": {}}
+    for site, style, _o, _s, _r in LOTS:
+        vols = C.volumes(geo, site)
+        snap["sites"]["%d_%s" % (site, style)] = {
             "volumes": len(vols),
             "faces": sum(len(v) for v in vols.values()),
             "roles": sorted(set(f["pf_volume_role"]
@@ -332,15 +380,18 @@ def images(out, outdir):
                   % (edges, drawn)))
     G.rasterise(os.path.join(outdir, "g1_all_plan.png"), geo,
                 axes=("x", "z"), w=1500, h=560, colour_of=colour_of)
-    for style in STYLES:
+    # Per SITE, not per style - two lots share `at_einhof` and they are 215 m
+    # apart, so a style filter framed one building inside a mostly empty
+    # picture. Same bug the checks had, same cause: one-lot-per-style was
+    # load-bearing and stopped being true.
+    for site, style, _o, _s, _r in LOTS:
         keep = hou.Geometry()
         keep.merge(geo)
-        kill = [p for p in keep.prims()
-                if p.attribValue("pf_style_id") != style]
-        keep.deletePrims(kill, True)
+        keep.deletePrims([p for p in keep.prims()
+                          if p.attribValue("pf_site_id") != site], True)
         for axes in ("iso", ("x", "z")):
-            G.rasterise(os.path.join(outdir, "g1_%s_%s.png"
-                                     % (style, "iso" if axes == "iso"
+            G.rasterise(os.path.join(outdir, "g1_%d_%s_%s.png"
+                                     % (site, style, "iso" if axes == "iso"
                                         else "plan")),
                         keep, axes=axes, w=1000, h=700, colour_of=colour_of)
 

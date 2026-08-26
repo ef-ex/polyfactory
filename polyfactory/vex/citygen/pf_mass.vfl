@@ -60,7 +60,8 @@ void pfb_cell(vector plan[]; string sidetag[]; string wallrole[];
               float ybase; float ytop; float plinthtop;
               int site; int k; string role; int storeys; int capgroup;
               float storeyheight;
-              string styleid; int seed; int capsplit; int warnarity)
+              string styleid; int seed; int capsplit; int warnarity;
+              int warncollapse; int warnunknown)
 {
     int n = len(plan);
     if (n < 3 || ytop - ybase < 1e-6) return;
@@ -130,8 +131,18 @@ void pfb_cell(vector plan[]; string sidetag[]; string wallrole[];
         setprimattrib(0, "pf_wall_role", p, side < 0 ? t : wr[side]);
         setprimattrib(0, "pf_face_role", p, side < 0 ? "" : fr[side]);
         setprimattrib(0, "pf_shared_with", p, side < 0 ? "" : sh[side]);
+        // ⚠️ EVERY warning is re-stamped onto the face that ships, not left
+        // on the footprint prim this wrangle is about to remove.  Three of
+        // these rode out as NAMES WITH DEAD VALUES in the first build - the
+        // attribute definition survives `removeprim`, so the output carried
+        // `pf_warn_footprint_collapsed` and `pf_warn_unknown_rule` reading 0
+        // on every face no matter what had happened upstream.  The published
+        // -names baseline listed both and looked correct.  "The node emits X"
+        // is not "X ships".
         setprimattrib(0, "pf_warn_cap_group_split", p, capsplit);
         setprimattrib(0, "pf_warn_topology_arity", p, warnarity);
+        setprimattrib(0, "pf_warn_footprint_collapsed", p, warncollapse);
+        setprimattrib(0, "pf_warn_unknown_rule", p, warnunknown);
     }
 }
 
@@ -156,6 +167,7 @@ for (int pr = 0; pr < np; pr++) {
     int    plinth   = prim(0, "_plinth", pr);
     float  plinthmin= prim(0, "_plinthmin", pr);
     int    collapsed= prim(0, "pf_warn_footprint_collapsed", pr);
+    int    unknown  = prim(0, "pf_warn_unknown_rule", pr);
 
     int pts[] = primpoints(0, pr);
     int n = len(pts);
@@ -184,10 +196,9 @@ for (int pr = 0; pr < np; pr++) {
                 railA[j] = fp[j];
                 railB[j] = point(1, "P", cpts[j]);
                 sideOuter[j] = frole[j];
-                sideInner[j] = "courtyard";
             }
         }
-    } else if (n == 4) {                               // bar
+    } else if (n == 4 && !collapsed) {                 // bar
         float e0 = distance(fp[0], fp[1]), e1 = distance(fp[1], fp[2]);
         int a0, a1, b0, b1, ea, eb, es, ee;
         if (e0 >= e1) { a0=0; a1=1; b0=3; b1=2; ea=0; eb=2; es=3; ee=1; }
@@ -208,8 +219,17 @@ for (int pr = 0; pr < np; pr++) {
         degraded = 1;
     }
 
-    if (degraded) {          // never refuse: one volume over the whole plan
+    if (degraded) {
+        // NEVER REFUSE (§2.2): one volume over the whole plan.  And when the
+        // footprint itself is what went wrong - a setback deeper than the lot
+        // folds it through itself - build on the shape BEFORE the offset,
+        // which `pf_inset.vfl` stashed.  §12.8 asks for an OBB here; the lot
+        // polygon is the OBB's own input and is never worse than it, so it is
+        // used directly.  Falling back to the FOLDED polygon would put the
+        // building outside the lot it belongs to.
         closed = 1;
+        if (collapsed && haspointattrib(0, "_p0"))
+            for (int j = 0; j < n; j++) fp[j] = point(0, "_p0", pts[j]);
         resize(railA, 0); resize(railB, 0);
         resize(sideOuter, 0); resize(sideInner, 0);
     }
@@ -296,7 +316,8 @@ for (int pr = 0; pr < np; pr++) {
                  len(storeys) ? storeys[i % len(storeys)] : 1,
                  len(caps) ? caps[i % len(caps)] : 0,
                  len(sheight) ? sheight[i % len(sheight)] : 3.0,
-                 styleid, seed, capsplit[i], warnarity);
+                 styleid, seed, capsplit[i], warnarity,
+                 degraded ? 1 : collapsed, unknown);
         setdetailattrib(0, "_built", 1, "add");
     }
 }

@@ -16,7 +16,6 @@
    "pf_storey_height:Float",
    "pf_storeys:Int",
    "pf_style_id:String",
-   "pf_style_template:String",
    "pf_volume_id:String",
    "pf_volume_index:Int",
    "pf_volume_role:String",
@@ -28,8 +27,8 @@
   ],
   "vertex": []
  },
- "styles": {
-  "at_einhof": {
+ "sites": {
+  "1_at_einhof": {
    "capGroups": [
     0
    ],
@@ -40,7 +39,7 @@
     "stable"
    ],
    "topY": [
-    3.609
+    3.74
    ],
    "volumes": 3,
    "wallRoles": [
@@ -51,7 +50,7 @@
     "party"
    ]
   },
-  "at_vienna_perimeter": {
+  "2_at_vienna_perimeter": {
    "capGroups": [
     0
    ],
@@ -73,7 +72,7 @@
     "party"
    ]
   },
-  "at_vierkanthof": {
+  "3_at_vierkanthof": {
    "capGroups": [
     0
    ],
@@ -85,7 +84,7 @@
     "stable"
    ],
    "topY": [
-    2.044
+    3.296
    ],
    "volumes": 4,
    "wallRoles": [
@@ -96,7 +95,7 @@
     "party"
    ]
   },
-  "at_zinshaus_row": {
+  "4_at_zinshaus_row": {
    "capGroups": [
     0,
     1
@@ -117,6 +116,24 @@
     "exterior",
     "floor",
     "party"
+   ]
+  },
+  "5_at_einhof": {
+   "capGroups": [
+    0
+   ],
+   "faces": 6,
+   "roles": [
+    "dwelling"
+   ],
+   "topY": [
+    -1.36
+   ],
+   "volumes": 1,
+   "wallRoles": [
+    "cap",
+    "exterior",
+    "floor"
    ]
   }
  }

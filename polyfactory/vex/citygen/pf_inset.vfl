@@ -46,6 +46,11 @@ vector n1 = normalize(set(-d1.z, 0.0, d1.x)) * sgn;
 float s0 = vertex(0, "_inset", vertexindex(0, pr, im));
 float s1 = vertex(0, "_inset", vertexindex(0, pr, i));
 
+// Stashed before the corner moves: §12.8 wants a FALLBACK when an offset goes
+// degenerate, and once the corners have been solved the shape they came from
+// is gone. `_*`, so it is swept before the output.
+v@_p0 = p0;
+
 float c0 = dot(p0, n0) + s0;
 float c1 = dot(p0, n1) + s1;
 float det = n0.x * n1.z - n0.z * n1.x;

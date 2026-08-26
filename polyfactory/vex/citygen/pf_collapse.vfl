@@ -17,5 +17,23 @@ for (int k = 0; k < len(pts); k++) {
 }
 a *= 0.5;
 float was = f@_area0;
-i@pf_warn_footprint_collapsed = (a * was <= 0.0 || abs(a) < 1e-4) ? 1 : 0;
+
+// THREE TESTS, and the middle one is the one that was missing.  A sign flip
+// catches a single inversion; it does NOT catch a DOUBLE inversion, which
+// restores the sign and looks healthy.  Measured by an audit: with every
+// setback at 40 m, footprint areas came out [-700, 640, 756, 3402] and only
+// the first was flagged - a 17 x 26 m lot (442 m2) produced a 3 402 m2
+// "footprint" and was massed far outside the lot it belongs to.
+//
+// An inward offset of a simple polygon can only REDUCE its area.  So area
+// that GREW is proof of a fold, whatever the sign did, and it costs nothing.
+//
+// ⚠️ Strictly grew.  `>=` is wrong and was measured wrong: `setback(0)` is
+// the identity op §12.6 B1 names, the Viennese block and the row house both
+// use it on every edge, and equality flagged both of them as collapsed - two
+// perimeter blocks silently degraded to one solid mass while every other
+// check stayed green.
+i@pf_warn_footprint_collapsed =
+    (a * was <= 0.0 || abs(a) > abs(was) * (1.0 + 1e-6) + 1e-6
+     || abs(a) < 1e-4) ? 1 : 0;
 f@_area0 = a;
