@@ -123,6 +123,22 @@ native runner lose checks, and a lost check reads exactly like a check that cann
 runner **re-runs any SURVIVED verdict that has unreached names** before believing it, and
 `--slots N` is the blunt instrument for a machine that is also doing something else.
 
+⚠️ **AND `--slots N` IS A REQUEST, NOT A SETTING, SINCE 2026-08-26** (`polychain.md` §31.1).
+Fifteen concurrent hythons HARD-FROZE this machine twice, and lowering the default to 4 fixed
+a NUMBER rather than a failure mode — four of them on a machine already near its commit limit
+does it again. `tests/polychain/runguard.py` reads `MEMORYSTATUSEX.ullAvailPageFile` through
+`ctypes` (commit, not free RAM: the commit limit is what ran out with ~100 GB of RAM
+nominally free), grants `min(requested, headroom // 8 GB)` and **refuses outright** below one
+slot's worth. It prints its decision on the gate's own header line. **NEVER raise the
+default.**
+
+⚠️ **EVERY RUNNER'S TEMP IS PER-RUN AND SWEPT.** `runguard.begin()` points HOUDINI_TEMP_DIR
+*and* TEMP/TMP (where `tempfile.mkdtemp` puts the `pcmut_*` / `pcgen_*` trees) at
+`.tmp/run_<t>_<pid>` on the repo's own drive, deletes it at exit, and — because A CRASHED RUN
+CANNOT CLEAN ITSELF — sweeps `.tmp/run_*` older than 24 h at the START of every run. `.tmp/`
+is gitignored. Five days of headless sessions once left 19.9 GB orphaned on a system drive
+with 6 GB free; that is what this exists for.
+
 ### Independently verified — cycle V4 audit, 2026-08-25, HEAD `7fabfff`
 
 A fresh agent that wrote none of this re-ran everything from a pristine `git archive HEAD`
