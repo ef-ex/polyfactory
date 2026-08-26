@@ -199,6 +199,24 @@ def bump(x, _z):
     return -1.0 + BUMP_HEIGHT * (1.0 - d / (BUMP_WIDTH / 2.0))
 
 
+def small_bump(x, _z):
+    """The same ridge as `bump`, sized to land the drape deviation BETWEEN
+    `bend_tol` and ten times it (the C4 audit's F4).
+
+    ⚠️ `bump` is 0.5 m tall, which is 50x `bend_tol`'s 0.01 m - so the drape
+    gate's `> tol` could be `> tol * 10` and every fixture in the suite would
+    still unpack exactly the pieces it unpacks today.  The audit registered
+    that mutation and it survived everything.  A THRESHOLD IS ONLY TESTED NEAR
+    ITS BOUNDARY, and a generator does not reach a boundary unless it is told
+    the boundary exists - the same class as mutmut #209, one cycle later.
+    0.03 m is 3x the tolerance and a THIRTIETH of `bump`'s.
+    """
+    d = abs(x - BUMP_CENTRE)
+    if d >= BUMP_WIDTH / 2.0:
+        return -1.0
+    return -1.0 + 0.03 * (1.0 - d / (BUMP_WIDTH / 2.0))
+
+
 def camber_z(_x, z):
     """Cross-fall: the surface tilts ACROSS the run, which is what camber is.
     A run along +X on this reads a roll of atan(0.25) = 14.036 degrees."""
@@ -1231,6 +1249,16 @@ def build_all():
                                      panel_style(zmode="vertical"),
                                      surface_geo=surface(bump, x0=-1.0,
                                                          x1=21.0, nx=440))
+
+    # BR - THE SAME BUMP AT THREE TIMES THE TOLERANCE, not fifty (F4). BL
+    # proves the drape gate FIRES; only this one proves it fires at the
+    # threshold it advertises. `deviates`' `> tol` can be `> tol * 10` with
+    # every other case in the suite unmoved. `small_bump` says why.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (20, 0, 0)], curve_id="BR")
+    built["BR_conform_bump_at_tol"] = _case(
+        g, kit_geo, panel_style(zmode="vertical"),
+        surface_geo=surface(small_bump, x0=-1.0, x1=21.0, nx=440))
 
     # BM - A HOLE ON A DEFORM STATION (D71): the 0.1 m hole at x = 0.70..0.80
     # missed the five fixed probes and hit the 0.75 station - a 0.1875 m

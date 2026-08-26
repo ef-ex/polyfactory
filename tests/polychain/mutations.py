@@ -247,6 +247,20 @@ MUTATIONS = (
         "    if (0)\n"
         "        foreach (float x; st) push(ss, s0 + (x - ax) * scale);"),)),
 
+    # ⚠️ THE AUDIT'S F4, AND IT IS `conform_deviates_never_fires`' OTHER HALF.
+    # That one proves the drape gate FIRES; this one proves it fires at the
+    # THRESHOLD IT ADVERTISES, which nothing did - every conformed fixture
+    # deviated by 50x the tolerance or by nothing.
+    M("deviates_tol_10x", "native",
+      ("output_guard_parity",),
+      "4.5's drape test at TEN TIMES its tolerance.  `BR_conform_bump_at_tol` "
+      "is `BL_conform_bump`'s ridge at 0.03 m instead of 0.5 m - 3x "
+      "`bend_tol`, inside the mutated 10x - so its one bending panel ships "
+      "PACKED and the output loses `pc_local` entirely.",
+      ((VEX % "pc_conform.h",
+        "        if (length(q - u * t) > tol) return 1;",
+        "        if (length(q - u * t) > tol * 10.0) return 1;"),)),
+
     M("conform_deviates_never_fires", "native",
       ("gate_parity",),
       "4.5's drape test switched off - `deviates` returns 0, so a bendable "
