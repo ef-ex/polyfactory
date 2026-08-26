@@ -64,7 +64,11 @@ HOUDINI_PATH="F:/projects/polyfactory-citygen/polyfactory;&" \
    `selfx_junction_surface` together; fixing one by moving the overlap into the other is not
    progress, and this is the trap that ate two variants.
 
-**NEXT ITEM — M5.5 (§S5a item 4, the 75–90° T landing). M5.4 LANDED: gate 25.**
+⛔ **NEXT ITEM — M5.4b, THE GORE FIX. M5.4 IS LANDED BUT ITS AUDIT SAYS NOT SOUND:** the
+shallow corner has no bound and sub-floor angles blow the cut to 1122 m and delete
+streets. Fix = gore radius for the nose (short cut, real arc) + a bound against ARM
+LENGTH + a 12° case so the gate sees it. Full findings in §11.9's M5.4 record. M5.5
+(§S5a item 4) is in flight separately and does not depend on this.
 
 **M5.4, done — kept for the reasoning:** The landing builds as a crossing at ~12°,
 below the 25° floor the corner solve was designed against; at arterial widths O ships a ~100 m
@@ -6128,6 +6132,79 @@ mover keeps two legs that used to be deleted — and the legs come back LONGER t
 (M 120 → 123.75, O 300 → 303.79), which is `merge_arc_length`'s prediction showing up in the
 fixture. **Regenerate that fixture in the same commit as any builder change that moves a
 trim.**
+
+⛔ **M5.4's AUDIT REFUTED M5.4, and the verdict is NOT SOUND AS LANDED (2026-08-17).** Four
+of its published numbers were wrong and one of its safety claims does not hold. Recorded here
+in full because three of them were load-bearing:
+
+1. ⛔ **THE BLOCKER: the shallow corner now has NO bound, and it is REACHABLE.** M5.4 recorded
+   the risk as "unexercised, because the mover's arrival floor parks pairs below ~17.25°". That
+   floor gates **the mover, not the solver** — and since M5.3 stopped `graph_min_angle`
+   deleting shallow pairs, a parked pair now reaches `s5j_solve` unchanged and unbounded.
+   Measured on drawn sub-floor shallow-Ys, cut distance before → after the clamp deletion:
+   **17° 113 → 150 m · 12° 133 → 260 m · 8° 128 → 686 m · 6° 123 → 1122 m** — on a 192 m
+   street — and **up to two streets deleted**, which the old clamp never did. The corpus is
+   blind to it because its shallowest corner is O's 13.55° and O is only safe because the
+   mover fires there. The fix is a bound against the ARM'S OWN LENGTH plus a sub-floor case so
+   the gate can see it.
+2. ⚠️ **THE SEPARATION ARITHMETIC WAS WRONG TWICE, and it is the reason the junction is
+   twice as long as it needs to be.** Two ribbons of half-width `h` diverging at θ overlap in a
+   rhombus whose far vertex is the kerb-line intersection, so the axial separation is
+   **`h·cot(θ/2)`** — not `2h/sin θ`, which overstates it by `1/cos²(θ/2)`. And the width is
+   the built ribbon **26.80 m**, not 32.80: `streetWidth` 26.8 ALREADY CONTAINS the 3.0 m
+   sidewalks (measured by `elem_type`: lane ±8.0, parking ±10.4, sidewalk out to ±13.4). So
+   O's true separation is **68.94 m**, and with the node's 4.0 m offset a cut of **72.94 m is
+   exactly the separation point** — not the "14.6 m short" that M5.4's record claims. Every
+   place this doc, `plan.py` or the VEX says `26.8 + 3.0 + 3.0 = 32.80` is wrong.
+3. ⚠️ **`selfx_roads` IS STRUCTURALLY BLIND TO COPLANAR OVERLAP — control-proven.** Two
+   overlapping coplanar quads through `intersectionanalysis` report **0** points; two genuinely
+   crossing quads report 3. So its green was never evidence either way, and the whole
+   plate-versus-roads "trade" was argued partly on a check that cannot see one side of it. The
+   audit measured the ribbons directly instead (exact per-quad clipping, positive control: a
+   1 m transverse shift shows 1.24 m², a 3 m shift 11.14 m²) and found **0.0 m² overlap at
+   BOTH cuts**, with the 73 m cut touching at exactly one point (min gap 7e-06 m). **When a
+   check's silence is the argument, prove the check can speak.**
+4. ⚠️ **THE JUNCTION GOT BIGGER, WHICH IS THE OPPOSITE OF THE POINT.** O's plate went
+   **4,528 m² / 103.3 m span → 5,743 m² / 121.4 m**. An ordinary crossing on the same street is
+   857 m² / 27.1 m. And the extra 48 m is **one fillet run at the wrong radius**: `arterial`
+   corner radius 9.0 m at an 11° half-angle gives `9.0/tan 11° = 46.30 m`, and
+   72.94 + 46.30 ≈ 121. **A junction corner radius was applied to a gore nose.** Civil practice
+   rounds a gore nose at 0.6–1.0 m, which lands the cut at **~76–78 m with a real arc** —
+   short like C, honest like B, and needing no check to be widened.
+5. ⚠️ **`MERGE_LANDING_RESIDUAL_M` PINS A COINCIDENCE, and its comment is false.**
+   `plan._corner` **still applies the clamp the builder deleted**, so the planner agrees to
+   15.97 m only because it runs a mechanism the builder no longer has; mirrored properly the
+   residuals become M 39.68 and O 67.65. The constant still earns a keep (collapsing it into
+   `CURVED_ARM_RESIDUAL_M` would silently loosen the curved bound from 4.58 to 15.97 for C and
+   I) but it must be renamed for what it measures. Its stated reason is also wrong on its face:
+   it says "the arms are STRAIGHT", and the same commit's own fixture shows O's leg at
+   **303.79 m where it was drawn 300** — the mover replaced its last stretch with an arc, so it
+   is a CURVED arm.
+6. ⚠️ **`miter_limit` is now DEAD** — read by nothing, absent from `parm_liveness.py`'s
+   `KNOWN_DEAD`, so **`tests/citygen/parm_liveness.py` exits 1 today and nobody ran it.** A
+   sweep at 1.0 / 1.5 / 8.0 moves zero geometry and zero attributes on all 16 cases.
+
+**AND CANDIDATE C's 25 WAS BOUGHT WITH A CHECK EDIT, NOT WITH GEOMETRY.** Re-gated against the
+SHIPPED `checks.py`, C scores **26**, not 25. Its `after_corner = 2` throat marker required
+widening `trim_metric_is_consistent`'s mouth detector, and of the five consumers that read
+`after_corner == 1`, **two are NOT right to skip a throat**: `no_degenerate_corner_segments`
+(whose entire subject is collapsed fillets — and C's throat IS one, reported as 0) and
+`every_corner_is_an_arc` (population drops 6 corners/4 arcs → 5/3, exempting the one corner
+§S5's "every corner is an arc, always" forbids). **A marker that excuses a corner from the
+checks written to catch it is disqualifying**, however good the length is. C's length was
+right; C's implementation was not.
+
+✅ **WHAT THE AUDIT CONFIRMED, so it is not all bad news:** the re-pinning is honest — 326
+edges / 551 arms, 0 false-OK and 0 false-BAD recomputed independently, both residuals
+pessimistic-only with the optimistic tail exactly 0.0000, and the closest-to-flip edge in the
+whole suite is 3.00 m away (E_short_t), so the verdict margin is not luck. 13 of 13 expected
+mutations of the new bounds died. The HDA write itself is clean by `hotl -X`, flags unmoved.
+
+**THE FIX, prescribed and under construction:** give the gore nose a GORE radius instead of the
+class corner radius (short cut, real arc, no check widened, no exempted corner), and restore a
+bound against the arm's own length rather than a width multiple — a width multiple is what put
+the corner on neither kerb line in the first place. Plus a sub-floor case (θ ≈ 12°) so the gate
+can finally see the blowup, verified to FAIL before the fix and PASS after.
 
 ⚠️ **AND CANDIDATE C REACHED 25 TOO, BY THE OPPOSITE MEANS — an OPEN measured
 contradiction, under adjudication.** C fuses the shallow pair instead of deleting the clamp:
