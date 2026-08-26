@@ -226,6 +226,30 @@ def _kink(geo, closed):
     return did
 
 
+def _seckey(geo, string_keys):
+    """D336's shape: a per-point `pc_section` limit BEHIND the kink vertex.
+
+    A dissolved bend corner in FRONT of a surviving break is the only place a
+    weld can renumber a later section, and it was reachable by no generated
+    scene and no hand fixture - `pc_section` appeared in neither file - so the
+    native chain compacted `pc_sec_index` (and with it `pc_elem_id`) past 110
+    fixtures, 400 seeds and a 50/60 identical parity row.  `_kink` turns at
+    `len(pts) // 2`, so the cut is placed after it and never past the last
+    point.  Both storages, because D223 makes storage part of the contract.
+    """
+    geo.addAttrib(hou.attribType.Point, "pc_section",
+                  "" if string_keys else 0)
+    for prim in geo.prims():
+        pts = prim.points()
+        if len(pts) < 4:
+            continue
+        cut = min(len(pts) - 1, len(pts) // 2 + 2)
+        for j, p in enumerate(pts):
+            p.setAttribValue("pc_section",
+                             ("b" if j >= cut else "a") if string_keys
+                             else int(j >= cut))
+
+
 def _markers(rng, geo, ids):
     """0-2 markers, addressed by `pc_dist` OR `pc_u` - never both (D-mixed)."""
     if rng.random() < 0.55:
@@ -491,6 +515,12 @@ def make(seed):
     if native and surface is None and (seed // 4) % CORNER_LANE == 0:
         ckind = ("corner+closed" if _kink(
             curve, bool((seed // (4 * CORNER_LANE)) % 2)) else "corner")
+        # D336's sub-lane, on seed arithmetic and coarser than `closed`, so
+        # all four of open/closed x keyed/unkeyed occur.  No PIN is in the
+        # corner lane at all, so the six described scenes do not move.
+        if (seed // (4 * CORNER_LANE * 2)) % 2:
+            _seckey(curve, bool((seed // 64) % 2))
+            ckind += "+key"
     return {"seed": seed, "curve": curve, "kit": kit_geo, "style": style,
             "native_lane": native, "surface": surface, "surface_kind": skind,
             "corner_kind": ckind,

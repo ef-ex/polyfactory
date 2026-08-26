@@ -17,11 +17,25 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 def setup_env():
     """hython has not loaded the polyfactory package, so scripts/python is not
     on sys.path. Same fix as tests/citygen/cases.py, minus the VEX include
-    path - nothing here cooks VEX."""
+    path - nothing here cooks VEX.
+
+    ⚠️ AND IT CLAIMS THE PER-RUN TEMP DIRECTORY, because `$TEMP` resolves ONCE
+    at `import hou` and every runner does this before that import. `begin`
+    was called in `pdg_build` and `run_mutation_registry` alone, so the ten
+    runners `tests/README.md` documents as standalone commands - a HAND-RUN
+    headless session, which is exactly what left 19.9 GB on a system drive
+    with 6 GB free - got the system temp with no sweep. It is idempotent, so
+    a work item that inherited the environment keeps its parent's directory.
+    """
     pkg = os.path.join(REPO, "polyfactory").replace("\\", "/")
     pyp = "%s/scripts/python" % pkg
     if pyp not in sys.path:
         sys.path.insert(0, pyp)
+    here = os.path.dirname(os.path.abspath(__file__))
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    import runguard
+    runguard.begin()
 
 
 setup_env()
@@ -776,6 +790,23 @@ def build_all():
     g = hou.Geometry()
     polyline(g, L_SHAPE, curve_id="T")
     built["T_lshape_bend"] = _case(g, kit_geo, corner_style("bend"))
+
+    # TS - D336: A DISSOLVED BEND CORNER IN FRONT OF A SURVIVING BREAK.
+    # `merge_bend_sections` keeps the FIRST section's index ("welding two
+    # sections cannot renumber a third"), so the reference's post-weld indices
+    # carry GAPS - here [0, 2], where counting survivors gives [0, 1]. That
+    # index is `pc_sec_index`, and `pc_stamp` builds D1's `pc_elem_id` from
+    # it, which is the key `place`'s override/replace cascade matches on. The
+    # intersection reached NO fixture and NO generated seed: `pc_section`
+    # appeared in neither file next to a corner, and both `pt_section_*` cases
+    # are dead-straight. Corner at s = 12, `pc_section` limit at s = 24.
+    g = hou.Geometry()
+    poly = polyline(g, [(0, 0, 0), (6, 0, 0), (12, 0, 0),
+                        (12, 0, 6), (12, 0, 12), (12, 0, 18)], curve_id="TS")
+    g.addAttrib(hou.attribType.Point, "pc_section", 0)
+    for pt, key in zip(poly.points(), (0, 0, 0, 0, 1, 1)):
+        pt.setAttribValue("pc_section", key)
+    built["TS_bend_weld_renumbers"] = _case(g, kit_geo, corner_style("bend"))
 
     # U - the same L in MITER mode: the post is duplicated both sides,
     # sliced on the bisector - `corner_outside_m` must read the post's own

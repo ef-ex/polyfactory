@@ -1368,6 +1368,17 @@ MUTATIONS = (
       ((VEX % "pc_envelope.vfl",
         '    if (cmode != "bend") {', "    if (0) {"),)),
 
+    M("n8_weld_renumbers_later_sections", "native", ("output_guard_parity",),
+      "D336, the C5 audit's confirmed defect, restored: `push(r_index, k)` "
+      "counts SURVIVING spans where `decompose` numbers over ALL the breaks "
+      "and `merge_bend_sections` keeps the first section's index. A "
+      "dissolved corner in front of a surviving `pc_section` limit then "
+      "shifts `pc_sec_index` - and D1's `pc_elem_id`, the override cascade's "
+      "match key - on every later section. `TS_bend_weld_renumbers` is the "
+      "fixture; nothing else in either file reaches the intersection.",
+      ((VEX % "pc_sections.vfl",
+        "push(r_index, span_ix[k]);", "push(r_index, k);"),)),
+
     M("n8_guard_admits_degenerate", "native", ("output_guard_parity",),
       "[vex:corner_degen] dropped: a hairpin builds natively and SILENTLY.",
       ((VEX % "pc_envelope.vfl",

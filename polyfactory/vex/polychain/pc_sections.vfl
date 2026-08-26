@@ -241,11 +241,24 @@ for (int pr = 0; pr < nprim; pr++) {
     int seam = -1;
 
     // ---- the spans -------------------------------------------------------
-    int ends[];
-    int anybreak_orig = 0;
+    // ⚠️ D336 - A WELD MUST NOT RENUMBER THE SECTIONS AFTER IT.  `decompose`
+    // numbers over ALL the breaks and `merge_bend_sections` keeps the FIRST
+    // section's index ("welding two sections cannot renumber a third", its
+    // own docstring), so the reference's post-weld indices carry GAPS: a
+    // 6-point line whose corner dissolves before a surviving `pc_section`
+    // limit comes back [0, 2], not [0, 1].  Counting only the survivors here
+    // shifted `pc_sec_index`, and with it D1's `pc_elem_id` - the address
+    // `place`'s override/replace cascade matches on - so an override authored
+    // against one build addressed nothing in the other.  `ends_rank` is the
+    // pre-dissolve rank of each SURVIVING break, and it is positional rather
+    // than a `find` on the value because an open curve's cut list can repeat
+    // an index (a `pc_section` limit at 0) and both spans are real.
+    int ends[], ends_rank[];
+    int anybreak_orig = 0, norig = 0;
     for (int i = 0; i < n; i++) {
         if (!isbreak[i]) continue;
         anybreak_orig = 1;
+        norig++;
         int corner = point(0, "pc_iscorner", cpt[i]);
         if (bend && corner && !is_secbreak[i]) {
             dissolved[i] = 1;
@@ -253,18 +266,22 @@ for (int pr = 0; pr < nprim; pr++) {
             continue;
         }
         push(ends, i);
+        push(ends_rank, norig - 1);
     }
-    int span_a[], span_b[];
+    int span_a[], span_b[], span_ix[];
     if (closed) {
         if (!len(ends)) {
             int a = max(seam, 0);
             push(span_a, a); push(span_b, a + n);               // D10
+            // `_weld`'s `starts = [0]` for a ring of nothing but corners.
+            push(span_ix, 0);
         }
         else {
             int ne = len(ends);
             for (int k = 0; k < ne; k++) {
                 push(span_a, ends[k]);
                 push(span_b, ends[(k + 1) % ne] + ((k == ne - 1) ? n : 0));
+                push(span_ix, ends_rank[k]);
             }
         }
     } else {
@@ -275,6 +292,9 @@ for (int pr = 0; pr < nprim; pr++) {
         for (int k = 0; k < len(cuts) - 1; k++) {
             push(span_a, cuts[k]);
             push(span_b, cuts[k + 1]);
+            // `cuts` is `[0] + ends + [n - 1]` on both sides, so span 0 is
+            // span 0 and span k starts at the (k-1)th surviving break.
+            push(span_ix, (k == 0) ? 0 : ends_rank[k - 1] + 1);
         }
     }
     // ---- this curve's markers, in (s, marker_id) order --------------------
@@ -325,7 +345,7 @@ for (int pr = 0; pr < nprim; pr++) {
 
         push(r_cid, cid);
         push(r_prim, pr);
-        push(r_index, k);
+        push(r_index, span_ix[k]);              // D336, not `k` - see above
         push(r_s0, s0);
         push(r_s1, s1);
         push(r_total, total);
