@@ -10900,7 +10900,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "citygen_checks_obb",
-      "community": 89,
+      "community": 126,
       "norm_label": "_obb()"
     },
     {
@@ -11190,7 +11190,7 @@
       "source_location": "L1454",
       "_origin": "ast",
       "id": "citygen_checks_attrib_values",
-      "community": 127,
+      "community": 89,
       "norm_label": "_attrib_values()"
     },
     {
@@ -11200,7 +11200,7 @@
       "source_location": "L1474",
       "_origin": "ast",
       "id": "citygen_checks_input0_reaches_an_output",
-      "community": 127,
+      "community": 89,
       "norm_label": "input0_reaches_an_output()"
     },
     {
@@ -11230,7 +11230,7 @@
       "source_location": "L1655",
       "_origin": "ast",
       "id": "citygen_checks_seg_dist_xz",
-      "community": 89,
+      "community": 126,
       "norm_label": "_seg_dist_xz()"
     },
     {
@@ -11240,7 +11240,7 @@
       "source_location": "L1667",
       "_origin": "ast",
       "id": "citygen_checks_street_edge_xz",
-      "community": 89,
+      "community": 126,
       "norm_label": "_street_edge_xz()"
     },
     {
@@ -11250,7 +11250,7 @@
       "source_location": "L1712",
       "_origin": "ast",
       "id": "citygen_checks_area_xz",
-      "community": 89,
+      "community": 126,
       "norm_label": "_area_xz()"
     },
     {
@@ -11260,7 +11260,7 @@
       "source_location": "L1718",
       "_origin": "ast",
       "id": "citygen_checks_expected_reject",
-      "community": 89,
+      "community": 126,
       "norm_label": "_expected_reject()"
     },
     {
@@ -11270,7 +11270,7 @@
       "source_location": "L1758",
       "_origin": "ast",
       "id": "citygen_checks_lot_aspect_ratio",
-      "community": 89,
+      "community": 126,
       "norm_label": "lot_aspect_ratio()"
     },
     {
@@ -11280,7 +11280,7 @@
       "source_location": "L2052",
       "_origin": "ast",
       "id": "citygen_checks_street_edge_control_rig",
-      "community": 89,
+      "community": 7,
       "norm_label": "street_edge_control_rig()"
     },
     {
@@ -11660,7 +11660,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "citygen_checks_rationale_71",
-      "community": 89,
+      "community": 126,
       "norm_label": "minimum-area oriented bounding box in xz, by rotating calipers over the     edg"
     },
     {
@@ -11940,7 +11940,7 @@
       "source_location": "L1455",
       "_origin": "ast",
       "id": "citygen_checks_rationale_1455",
-      "community": 127,
+      "community": 89,
       "norm_label": "every value of one attribute, in element order.      bulk-read where the type"
     },
     {
@@ -11950,7 +11950,7 @@
       "source_location": "L1475",
       "_origin": "ast",
       "id": "citygen_checks_rationale_1475",
-      "community": 127,
+      "community": 89,
       "norm_label": "`pf_citygen_mesh` input 0 must actually reach something published.      writte"
     },
     {
@@ -11980,7 +11980,7 @@
       "source_location": "L1656",
       "_origin": "ast",
       "id": "citygen_checks_rationale_1656",
-      "community": 89,
+      "community": 126,
       "norm_label": "point-segment distance on (x, z) tuples. plain arithmetic on purpose:     this"
     },
     {
@@ -11990,7 +11990,7 @@
       "source_location": "L1668",
       "_origin": "ast",
       "id": "citygen_checks_rationale_1668",
-      "community": 89,
+      "community": 126,
       "norm_label": "`pfsl_street_edge` and `pfsl_frontage`, re-derived here in python.      \u26a0\ufe0f thi"
     },
     {
@@ -12000,7 +12000,7 @@
       "source_location": "L1721",
       "_origin": "ast",
       "id": "citygen_checks_rationale_1721",
-      "community": 89,
+      "community": 126,
       "norm_label": "the s8 ladder, recomputed from the evidence and the node's thresholds.      re"
     },
     {
@@ -12010,7 +12010,7 @@
       "source_location": "L1761",
       "_origin": "ast",
       "id": "citygen_checks_rationale_1761",
-      "community": 89,
+      "community": 126,
       "norm_label": "ribbons, not rectangles \u2014 and whether s8 both says so and shows its work."
     },
     {
@@ -12020,7 +12020,7 @@
       "source_location": "L2053",
       "_origin": "ast",
       "id": "citygen_checks_rationale_2053",
-      "community": 89,
+      "community": 7,
       "norm_label": "run the shipped `pfsl_street_edge` on cases whose answers are known.      city"
     },
     {
@@ -19107,7 +19107,7 @@
       "label": "11.7 Segment-model integration requirements",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L6141",
+      "source_location": "L6168",
       "_origin": "ast",
       "id": "ideas_citygen_streets_11_7_segment_model_integration_requirements",
       "community": 9,
@@ -19117,7 +19117,7 @@
       "label": "11.8 The cluster spread \u2014 fallback, reference implementation",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L6150",
+      "source_location": "L6177",
       "_origin": "ast",
       "id": "ideas_citygen_streets_11_8_the_cluster_spread_fallback_reference_implementation",
       "community": 9,
@@ -19127,7 +19127,7 @@
       "label": "11.9 Milestones \u2014 each ends with the full gate, a baseline compare, and an audit",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L6385",
+      "source_location": "L6412",
       "_origin": "ast",
       "id": "ideas_citygen_streets_11_9_milestones_each_ends_with_the_full_gate_a_baseline_compare_and_an_audit",
       "community": 9,
@@ -19137,7 +19137,7 @@
       "label": "11.10 Test plan",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L6889",
+      "source_location": "L6916",
       "_origin": "ast",
       "id": "ideas_citygen_streets_11_10_test_plan",
       "community": 9,
@@ -19147,7 +19147,7 @@
       "label": "11.11 Environment and traps",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L6900",
+      "source_location": "L6927",
       "_origin": "ast",
       "id": "ideas_citygen_streets_11_11_environment_and_traps",
       "community": 9,
@@ -19157,7 +19157,7 @@
       "label": "11.12 Reserved for the artist",
       "file_type": "document",
       "source_file": "ideas/citygen_streets.md",
-      "source_location": "L6968",
+      "source_location": "L6995",
       "_origin": "ast",
       "id": "ideas_citygen_streets_11_12_reserved_for_the_artist",
       "community": 9,
@@ -29836,9 +29836,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L124",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_124",
-      "target": "citygen_plan_params",
-      "confidence_score": 1.0
+      "target": "citygen_plan_params"
     },
     {
       "relation": "method",
@@ -29876,9 +29876,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L145",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_145",
-      "target": "citygen_plan_arm",
-      "confidence_score": 1.0
+      "target": "citygen_plan_arm"
     },
     {
       "relation": "method",
@@ -29951,9 +29951,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L189",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_189",
-      "target": "citygen_plan_corner",
-      "confidence_score": 1.0
+      "target": "citygen_plan_corner"
     },
     {
       "relation": "calls",
@@ -29972,9 +29972,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L256",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_256",
-      "target": "citygen_plan_resample_segments",
-      "confidence_score": 1.0
+      "target": "citygen_plan_resample_segments"
     },
     {
       "relation": "calls",
@@ -29993,9 +29993,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L282",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_282",
-      "target": "citygen_plan_clear_of_vertex",
-      "confidence_score": 1.0
+      "target": "citygen_plan_clear_of_vertex"
     },
     {
       "relation": "calls",
@@ -30014,9 +30014,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L333",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_333",
-      "target": "citygen_plan_crossing_trims",
-      "confidence_score": 1.0
+      "target": "citygen_plan_crossing_trims"
     },
     {
       "relation": "calls",
@@ -30035,9 +30035,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L367",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_367",
-      "target": "citygen_plan_default_principal",
-      "confidence_score": 1.0
+      "target": "citygen_plan_default_principal"
     },
     {
       "relation": "rationale_for",
@@ -30045,9 +30045,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L408",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_408",
-      "target": "citygen_plan_principal_of",
-      "confidence_score": 1.0
+      "target": "citygen_plan_principal_of"
     },
     {
       "relation": "rationale_for",
@@ -30055,9 +30055,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L429",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_429",
-      "target": "citygen_plan_default_junction_type",
-      "confidence_score": 1.0
+      "target": "citygen_plan_default_junction_type"
     },
     {
       "relation": "calls",
@@ -30076,9 +30076,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L449",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_449",
-      "target": "citygen_plan_node_trims",
-      "confidence_score": 1.0
+      "target": "citygen_plan_node_trims"
     },
     {
       "relation": "rationale_for",
@@ -30086,9 +30086,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L478",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_478",
-      "target": "citygen_plan_graph_trims",
-      "confidence_score": 1.0
+      "target": "citygen_plan_graph_trims"
     },
     {
       "relation": "rationale_for",
@@ -30096,9 +30096,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L503",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_503",
-      "target": "citygen_plan_standing",
-      "confidence_score": 1.0
+      "target": "citygen_plan_standing"
     },
     {
       "relation": "calls",
@@ -30139,9 +30139,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L538",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_538",
-      "target": "citygen_plan_min_turn_radius",
-      "confidence_score": 1.0
+      "target": "citygen_plan_min_turn_radius"
     },
     {
       "relation": "calls",
@@ -30171,9 +30171,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L549",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_549",
-      "target": "citygen_plan_merge_swing_length",
-      "confidence_score": 1.0
+      "target": "citygen_plan_merge_swing_length"
     },
     {
       "relation": "rationale_for",
@@ -30181,9 +30181,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L561",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_561",
-      "target": "citygen_plan_merge_feasible",
-      "confidence_score": 1.0
+      "target": "citygen_plan_merge_feasible"
     },
     {
       "relation": "calls",
@@ -30202,9 +30202,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L575",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_575",
-      "target": "citygen_plan_merge_tangent_length",
-      "confidence_score": 1.0
+      "target": "citygen_plan_merge_tangent_length"
     },
     {
       "relation": "rationale_for",
@@ -30212,9 +30212,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L598",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_598",
-      "target": "citygen_plan_merge_consumed_along_principal",
-      "confidence_score": 1.0
+      "target": "citygen_plan_merge_consumed_along_principal"
     },
     {
       "relation": "rationale_for",
@@ -30222,9 +30222,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/plan.py",
       "source_location": "L620",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_plan_rationale_620",
-      "target": "citygen_plan_merge_arc_length",
-      "confidence_score": 1.0
+      "target": "citygen_plan_merge_arc_length"
     },
     {
       "relation": "contains",
@@ -45478,9 +45478,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L191",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_191",
-      "target": "unit_test_plan_case_nodes",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_case_nodes"
     },
     {
       "relation": "calls",
@@ -45543,9 +45543,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L208",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_208",
-      "target": "unit_test_plan_residuals",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_residuals"
     },
     {
       "relation": "calls",
@@ -45608,9 +45608,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L224",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_224",
-      "target": "unit_test_plan_testcalibration",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcalibration"
     },
     {
       "relation": "method",
@@ -45728,9 +45728,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L234",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_234",
-      "target": "unit_test_plan_testcalibration_test_the_fixture_does_not_contradict_itself",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcalibration_test_the_fixture_does_not_contradict_itself"
     },
     {
       "relation": "rationale_for",
@@ -45738,9 +45738,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L255",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_255",
-      "target": "unit_test_plan_testcalibration_test_residual_is_within_its_pinned_bound_and_the_bound_is_tight",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcalibration_test_residual_is_within_its_pinned_bound_and_the_bound_is_tight"
     },
     {
       "relation": "rationale_for",
@@ -45748,9 +45748,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L284",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_284",
-      "target": "unit_test_plan_testcalibration_test_straight_cases_is_derived_from_the_data_not_asserted_over_it",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcalibration_test_straight_cases_is_derived_from_the_data_not_asserted_over_it"
     },
     {
       "relation": "rationale_for",
@@ -45758,9 +45758,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L293",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_293",
-      "target": "unit_test_plan_testcalibration_test_straight_armed_cases_are_reproduced_exactly",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcalibration_test_straight_armed_cases_are_reproduced_exactly"
     },
     {
       "relation": "rationale_for",
@@ -45768,9 +45768,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L306",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_306",
-      "target": "unit_test_plan_testcalibration_test_bulk_of_the_distribution_has_not_moved",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcalibration_test_bulk_of_the_distribution_has_not_moved"
     },
     {
       "relation": "rationale_for",
@@ -45778,9 +45778,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L317",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_317",
-      "target": "unit_test_plan_testcalibration_test_the_standing_verdict_never_disagrees_with_the_builder",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcalibration_test_the_standing_verdict_never_disagrees_with_the_builder"
     },
     {
       "relation": "rationale_for",
@@ -45788,9 +45788,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L351",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_351",
-      "target": "unit_test_plan_testcalibration_test_standing_error_stays_inside_its_pinned_tails",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcalibration_test_standing_error_stays_inside_its_pinned_tails"
     },
     {
       "relation": "rationale_for",
@@ -45798,9 +45798,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L408",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_408",
-      "target": "unit_test_plan_testcalibration_test_graph_trims_lands_each_cut_on_the_right_end_of_the_right_street",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcalibration_test_graph_trims_lands_each_cut_on_the_right_end_of_the_right_street"
     },
     {
       "relation": "rationale_for",
@@ -45808,9 +45808,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L445",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_445",
-      "target": "unit_test_plan_testkverdict",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testkverdict"
     },
     {
       "relation": "method",
@@ -45868,9 +45868,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L472",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_472",
-      "target": "unit_test_plan_testkverdict_standing",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testkverdict_standing"
     },
     {
       "relation": "calls",
@@ -45900,9 +45900,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L490",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_490",
-      "target": "unit_test_plan_testkverdict_test_crossing_overlaps_on_all_three_sides",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testkverdict_test_crossing_overlaps_on_all_three_sides"
     },
     {
       "relation": "rationale_for",
@@ -45910,9 +45910,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L502",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_502",
-      "target": "unit_test_plan_testkverdict_test_no_vocabulary_type_moves_a_trim_since_the_ruling",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testkverdict_test_no_vocabulary_type_moves_a_trim_since_the_ruling"
     },
     {
       "relation": "rationale_for",
@@ -45920,9 +45920,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L528",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_528",
-      "target": "unit_test_plan_testcornermodel",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcornermodel"
     },
     {
       "relation": "method",
@@ -46076,9 +46076,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L536",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_536",
-      "target": "unit_test_plan_testcornermodel_test_perpendicular_t_matches_the_hand_computed_tongue",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcornermodel_test_perpendicular_t_matches_the_hand_computed_tongue"
     },
     {
       "relation": "rationale_for",
@@ -46086,9 +46086,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L557",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_557",
-      "target": "unit_test_plan_testcornermodel_test_g_tongue_as_it_actually_ships",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcornermodel_test_g_tongue_as_it_actually_ships"
     },
     {
       "relation": "rationale_for",
@@ -46096,9 +46096,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L570",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_570",
-      "target": "unit_test_plan_testcornermodel_test_a_street_running_straight_through_costs_its_neighbours_nothing",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcornermodel_test_a_street_running_straight_through_costs_its_neighbours_nothing"
     },
     {
       "relation": "rationale_for",
@@ -46106,9 +46106,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L582",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_582",
-      "target": "unit_test_plan_testcornermodel_test_a_shallow_corner_is_clamped_by_the_miter_limit",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcornermodel_test_a_shallow_corner_is_clamped_by_the_miter_limit"
     },
     {
       "relation": "rationale_for",
@@ -46116,9 +46116,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L606",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_606",
-      "target": "unit_test_plan_testcornermodel_test_the_collinear_threshold_is_where_the_builder_puts_it",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcornermodel_test_the_collinear_threshold_is_where_the_builder_puts_it"
     },
     {
       "relation": "rationale_for",
@@ -46126,9 +46126,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L639",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_639",
-      "target": "unit_test_plan_testcornermodel_test_the_fillet_run_is_capped_at_max_fillet_fraction",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testcornermodel_test_the_fillet_run_is_capped_at_max_fillet_fraction"
     },
     {
       "relation": "rationale_for",
@@ -46136,9 +46136,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L661",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_661",
-      "target": "unit_test_plan_testclearofvertex",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testclearofvertex"
     },
     {
       "relation": "method",
@@ -46237,9 +46237,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L711",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_711",
-      "target": "unit_test_plan_testclearofvertex_test_the_resample_rule_the_whole_model_rests_on_holds_on_every_edge",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testclearofvertex_test_the_resample_rule_the_whole_model_rests_on_holds_on_every_edge"
     },
     {
       "relation": "rationale_for",
@@ -46247,9 +46247,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L739",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_739",
-      "target": "unit_test_plan_testclearofvertex_test_the_dust_epsilon_is_pinned_on_both_sides",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testclearofvertex_test_the_dust_epsilon_is_pinned_on_both_sides"
     },
     {
       "relation": "rationale_for",
@@ -46257,9 +46257,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L758",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_758",
-      "target": "unit_test_plan_testclearofvertex_test_a_degenerate_arm_clamps_instead_of_dividing_by_zero",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testclearofvertex_test_a_degenerate_arm_clamps_instead_of_dividing_by_zero"
     },
     {
       "relation": "rationale_for",
@@ -46267,9 +46267,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L772",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_772",
-      "target": "unit_test_plan_testclearofvertex_test_the_end_branch_is_reachable_through_crossing_trims",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testclearofvertex_test_the_end_branch_is_reachable_through_crossing_trims"
     },
     {
       "relation": "rationale_for",
@@ -46277,9 +46277,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L789",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_789",
-      "target": "unit_test_plan_testclearofvertex_test_a_grid_too_fine_to_push_into_is_left_alone",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testclearofvertex_test_a_grid_too_fine_to_push_into_is_left_alone"
     },
     {
       "relation": "method",
@@ -46485,9 +46485,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L805",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_805",
-      "target": "unit_test_plan_testprincipal_test_the_class_radius_table_is_the_builders",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testprincipal_test_the_class_radius_table_is_the_builders"
     },
     {
       "relation": "rationale_for",
@@ -46495,9 +46495,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L817",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_817",
-      "target": "unit_test_plan_testprincipal_test_a_degree_two_node_still_has_a_through_pair",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testprincipal_test_a_degree_two_node_still_has_a_through_pair"
     },
     {
       "relation": "rationale_for",
@@ -46505,9 +46505,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L832",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_832",
-      "target": "unit_test_plan_testprincipal_test_rank_tol_m_is_pinned_from_both_sides",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testprincipal_test_rank_tol_m_is_pinned_from_both_sides"
     },
     {
       "relation": "rationale_for",
@@ -46515,9 +46515,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L852",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_852",
-      "target": "unit_test_plan_testprincipal_test_a_tie_inside_the_noise_floor_falls_through_to_the_edge_id",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testprincipal_test_a_tie_inside_the_noise_floor_falls_through_to_the_edge_id"
     },
     {
       "relation": "rationale_for",
@@ -46525,9 +46525,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L869",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_869",
-      "target": "unit_test_plan_testprincipal_test_a_half_authored_pair_falls_back_rather_than_shipping_one_arm",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testprincipal_test_a_half_authored_pair_falls_back_rather_than_shipping_one_arm"
     },
     {
       "relation": "rationale_for",
@@ -46535,9 +46535,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L882",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_882",
-      "target": "unit_test_plan_testprincipal_test_a_pair_is_two_streets_so_a_self_loop_cannot_be_both_of_them",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testprincipal_test_a_pair_is_two_streets_so_a_self_loop_cannot_be_both_of_them"
     },
     {
       "relation": "rationale_for",
@@ -46545,9 +46545,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L917",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_917",
-      "target": "unit_test_plan_testprincipal_test_the_authored_pair_returns_in_edge_id_order_not_arm_order",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testprincipal_test_the_authored_pair_returns_in_edge_id_order_not_arm_order"
     },
     {
       "relation": "rationale_for",
@@ -46555,9 +46555,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L929",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_929",
-      "target": "unit_test_plan_testprincipal_test_default_principal_does_not_depend_on_arm_order",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testprincipal_test_default_principal_does_not_depend_on_arm_order"
     },
     {
       "relation": "method",
@@ -46595,9 +46595,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L963",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_963",
-      "target": "unit_test_plan_testjunctiontype_test_node_trims_is_type_invariant_and_flag_invariant",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testjunctiontype_test_node_trims_is_type_invariant_and_flag_invariant"
     },
     {
       "relation": "rationale_for",
@@ -46605,9 +46605,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L1003",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_1003",
-      "target": "unit_test_plan_testjunctiontype_test_the_vocabulary_tuples_are_pinned_by_value",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testjunctiontype_test_the_vocabulary_tuples_are_pinned_by_value"
     },
     {
       "relation": "rationale_for",
@@ -46625,9 +46625,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L1033",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_1033",
-      "target": "unit_test_plan_testjunctiontype_test_the_computed_default_is_crossing_at_every_plated_node",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testjunctiontype_test_the_computed_default_is_crossing_at_every_plated_node"
     },
     {
       "relation": "rationale_for",
@@ -46635,9 +46635,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L1065",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_1065",
-      "target": "unit_test_plan_testmerge",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testmerge"
     },
     {
       "relation": "method",
@@ -46735,9 +46735,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L1076",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_1076",
-      "target": "unit_test_plan_testmerge_test_min_turn_radius_is_s3bs_expression_not_the_corner_radius",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testmerge_test_min_turn_radius_is_s3bs_expression_not_the_corner_radius"
     },
     {
       "relation": "rationale_for",
@@ -46745,9 +46745,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L1093",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_1093",
-      "target": "unit_test_plan_testmerge_test_the_swing_reproduces_11_5s_own_worked_number",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testmerge_test_the_swing_reproduces_11_5s_own_worked_number"
     },
     {
       "relation": "rationale_for",
@@ -46755,9 +46755,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L1101",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_1101",
-      "target": "unit_test_plan_testmerge_test_the_landing_is_the_fillet_tangent_point_not_the_node",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testmerge_test_the_landing_is_the_fillet_tangent_point_not_the_node"
     },
     {
       "relation": "rationale_for",
@@ -46765,9 +46765,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L1138",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_1138",
-      "target": "unit_test_plan_testmerge_test_the_principal_pays_a_per_arm_length_not_a_straddling_span",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testmerge_test_the_principal_pays_a_per_arm_length_not_a_straddling_span"
     },
     {
       "relation": "rationale_for",
@@ -46775,9 +46775,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L1168",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_1168",
-      "target": "unit_test_plan_testmerge_test_a_merge_lengthens_the_minor",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testmerge_test_a_merge_lengthens_the_minor"
     },
     {
       "relation": "rationale_for",
@@ -46785,9 +46785,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L1184",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_1184",
-      "target": "unit_test_plan_testmerge_test_the_m5_verdict_the_deleting_cases_can_be_merged_instead",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testmerge_test_the_m5_verdict_the_deleting_cases_can_be_merged_instead"
     },
     {
       "relation": "rationale_for",
@@ -46795,9 +46795,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L1246",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_1246",
-      "target": "unit_test_plan_testmerge_test_feasibility_is_a_two_sided_floor",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testmerge_test_feasibility_is_a_two_sided_floor"
     },
     {
       "relation": "rationale_for",
@@ -46805,9 +46805,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L1275",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_1275",
-      "target": "unit_test_plan_testmerge_test_how_close_the_gate_comes_to_biting_measured_not_assumed",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testmerge_test_how_close_the_gate_comes_to_biting_measured_not_assumed"
     },
     {
       "relation": "rationale_for",
@@ -46815,9 +46815,9 @@
       "source_file": "tests/unit/test_plan.py",
       "source_location": "L1309",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_plan_rationale_1309",
-      "target": "unit_test_plan_testmerge_test_the_parallel_run_default_is_a_placeholder_not_a_measurement",
-      "confidence_score": 1.0
+      "target": "unit_test_plan_testmerge_test_the_parallel_run_default_is_a_placeholder_not_a_measurement"
     },
     {
       "relation": "contains",
@@ -51085,9 +51085,9 @@
       "source_file": "ideas/citygen_streets.md",
       "source_location": "L3854",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_streets_the_sagitta_gate_is_gone_the_seam_is_bounded_instead_2026_08_10",
-      "target": "ideas_citygen_streets_before_and_after_per_criterion_3854",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_streets_before_and_after_per_criterion_3854"
     },
     {
       "relation": "contains",
@@ -53025,9 +53025,9 @@
       "source_file": "tests/README.md",
       "source_location": "L310",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_readme_polyfactory_tests",
-      "target": "tests_readme_known_failing_25_rows_re_measured_2026_08_17_post_m5_4",
-      "confidence_score": 1.0
+      "target": "tests_readme_known_failing_25_rows_re_measured_2026_08_17_post_m5_4"
     },
     {
       "relation": "contains",
@@ -53154,5 +53154,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "dd811820a32feeece232e9d4e0ace04742a4c6f7"
+  "built_at_commit": "18eb65b100632678a57391818eb3bbe4438ff819"
 }

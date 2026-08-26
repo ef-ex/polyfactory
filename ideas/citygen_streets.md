@@ -6129,6 +6129,33 @@ mover keeps two legs that used to be deleted — and the legs come back LONGER t
 fixture. **Regenerate that fixture in the same commit as any builder change that moves a
 trim.**
 
+⚠️ **AND CANDIDATE C REACHED 25 TOO, BY THE OPPOSITE MEANS — an OPEN measured
+contradiction, under adjudication.** C fuses the shallow pair instead of deleting the clamp:
+K stays on both kerb lines, the fillet is dropped, and both arms' inner cap corners land
+exactly ON K — one shared endpoint on the bisector, no arc, no spike, marked by a new
+`after_corner = 2` ("throat"). Same score (25), both O rows green, only O moved,
+`every_corner_is_an_arc` tangent 7.3e-06 and `selfx_city_merged` 8 (marginally better than B's
+2.5e-05 / 9). C also MIRRORS `plan._corner`, which §11.5 requires and B did not.
+
+**The contradiction is worth resolving properly, because it decides the SHIPPED LENGTH of every
+merge junction.** B cuts O at **121.00 m**; C cuts it at **72.94 m** — 40% shorter. B argued
+short cuts are the trap, computing that O's 32.80 m ribbon separates only at
+`32.80 / sin 22°` = 87.56 m, and PREDICTED that a 72.94 m cut would red `selfx_roads`. **B
+never gated that variant. C gated one and reports `selfx_roads` 0, unmoved.** A gate run beats
+arithmetic, but `selfx_roads` is exactly the check that has been blind to coplanar overlap
+before (the 2026-08-09 incident: `selfx_junction_surface` and `selfx_roads` both passed while
+the MERGED city carried 102 intersections), so "the check is green" is not yet "the geometry is
+clean". An adjudicating agent is deriving the separation formula independently and testing the
+two ribbons for real 2D overlap outside the check. ⚠️ **Do not treat B's 121 m as settled
+until that returns** — and note that a 121 m "junction" is the harder thing to defend when the
+artist looks at it.
+
+C's other trade, recorded so the adjudication has both sides: `after_corner = 2` required
+widening `trim_metric_is_consistent`'s mouth detector from `== 1` to `!= 0`, and C
+self-declared the blind spot — a genuine corner mislabelled `2` would then be skipped by every
+corner check. That is the "a check that can no longer fail" hazard this project keeps paying
+for, and it is the strongest argument against C as it stands.
+
 **STILL OPEN after the mover shipped:** the merge MOUTH contract in `s5j_solve` and its
 `plan.node_trims` mirror, in one commit — the landing builds as a crossing at ~12°, below the
 25° floor the corner solve was designed against, and O's two known-failing rows are its
