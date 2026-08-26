@@ -99,17 +99,45 @@ LOTS = [
     # warned about a footprint that was provably intact.
     (7, "at_zinshaus_row", (280.0, 0.0), (20.0, 10.0),
      ["front", "abuts", "abuts", "rear", "abuts"]),
+    # Site 8 is R3-2: an authored setback on a lot that FITS. Every other
+    # authored site in this fixture degrades, so `plan_follows_data` skipped
+    # all of them and its oracle - which read `setbackM` and never the
+    # authored value - was never asked a question it could get wrong. It got
+    # it wrong: 2..38 x 2..18 is correct and it reported `[0, 0, 40, 20]`.
+    # A fixture property was load-bearing without saying so, twice now.
+    (8, "at_zinshaus_row", (320.0, 0.0), (40.0, 20.0),
+     ["front", "abuts", "rear", "abuts"]),
+    # Site 9 is R3-5, the case `pf_collapse.vfl`'s three AREA terms exist for
+    # and that nothing reached: a SINGLE inversion. 6 m off both 40 m edges of
+    # a 10 m-wide lot puts x at 6..4 - inverted, and still inside 0..10, so
+    # containment against `_p0` cannot see it and only the sign flip can. With
+    # the terms deleted, all 28 clauses stayed green and the baseline did not
+    # move, while two volumes shipped on a 2 m-wide inverted footprint and
+    # `inside_the_lot` reported PASS.
+    (9, "at_zinshaus_row", (380.0, 0.0), (10.0, 40.0),
+     ["front", "abuts", "rear", "abuts"]),
 ]
 # Authored per-vertex `pf_setback` - cascade level 5, which WINS over the
 # template's per-role table. Used rather than a level-6 override because the
 # numbers reaching `_inset` are identical, a level-6 override applies to
 # every site in the stream, and this is the only thing in the suite that
 # exercises `stamp()`'s authored-setback branch at all.
-SETBACKS = {6: [0.0, 25.0, 12.0, 0.0]}
+# ⚠️ NEGATIVE IS ABSENT (§12.4, amended for R3-3). A float attribute has no
+# "absent" value, so the fixture must spell it: the LOT_CODE default is -1.0
+# and only the numbers below are authored. It used to be 0.0 on every vertex
+# of every lot, which meant `authored` was true for all seven sites while the
+# `> 0.0` gate threw every one of those zeros away - so the suite's one claim
+# to exercise cascade level 5 rested on site 6's two NON-ZERO vertices.
+# Site 6's zeros are now authored zeros, which is `setback(0)`, the identity
+# op §12.6 B1 names - and at_vienna_perimeter's table is 0 on every role, so
+# the built geometry is unchanged and the baseline says so.
+SETBACKS = {6: [0.0, 25.0, 12.0, 0.0],
+            8: [2.0, 2.0, 2.0, 2.0],
+            9: [-1.0, 6.0, -1.0, 6.0]}
 # The sites the fixture expects to degrade -> whether the OFFSET is what went
 # wrong there. Stated here rather than read off the warning, so a collapse
 # test that flags too much, or too little, is caught instead of believed.
-DEGRADED = {5: True, 6: True, 7: False}
+DEGRADED = {5: True, 6: True, 7: False, 9: True}
 # {site: its lot ring in (x,z)} - what `inside_the_lot` measures against.
 RINGS = dict((s, [(ox, oz), (ox + sx, oz), (ox + sx, oz + sz), (ox, oz + sz)])
              for s, _st, (ox, oz), (sx, sz), _r in LOTS)
@@ -166,7 +194,7 @@ for site, style, (ox, oz), (sx, sz), roles in %r:
     p.setAttribValue('pf_seed', site * 1000)
     for i, v in enumerate(p.vertices()):
         v.setAttribValue('pf_face_role', roles[i])
-        v.setAttribValue('pf_setback', setbacks.get(site, [0.0] * 8)[i])
+        v.setAttribValue('pf_setback', setbacks.get(site, [-1.0] * 8)[i])
 """
 
 
@@ -317,12 +345,25 @@ MUTATIONS = [
      vx("corner = array(railA[i], railA[nx], railB[nx], railB[i]);",
         "corner = array(railA[i], railA[nx], railB[nx] + set(0.0,0.0,0.05), "
         "railB[i]);")),
+    # ⚠️ BOTH DATUMS MOVE, and that is the R3-1 fix rather than a flourish.
+    # Lifting `ybase` alone left `ytop` where it was, so `pfb_cell`'s
+    # `ytop - ybase < 1e-6` guard REFUSED to build those cells: 16 volumes
+    # became 10, nine clauses went red, and the paired clause went red only
+    # because `matched` fell 22 -> 0 - `overlapped` is counted inside
+    # `if peers:`, so `plan_match` fails first and the elevation half follows
+    # mechanically. The clause's own claim was never tested. Lifting both
+    # builds all 16 and yields 22 party faces, 22 matched in plan, 0 sharing
+    # height: `elevation_overlap` RED with `plan_match` GREEN, which is the
+    # only shape that proves this clause.
     ("party_walls_real", "elevation_overlap",
-     "every other cell is lifted 30 m, so a party wall names a neighbour it "
-     "meets in plan and shares no height with",
-     vx("ybase[i] = (plinth == 0) ? 0.0 : lo[i] - plinthmin;",
-        "ybase[i] = ((plinth == 0) ? 0.0 : lo[i] - plinthmin) + "
-        "(i % 2 ? 30.0 : 0.0);")),
+     "every other cell is lifted 30 m BODILY, so a party wall names a "
+     "neighbour it meets in plan and shares no height with",
+     lambda: patch_vex([
+         ("pf_mass", "ybase[i] = (plinth == 0) ? 0.0 : lo[i] - plinthmin;",
+          "ybase[i] = ((plinth == 0) ? 0.0 : lo[i] - plinthmin) + "
+          "(i % 2 ? 30.0 : 0.0);"),
+         ("pf_mass", "ytop[i] = hiall + float(st) * sh;",
+          "ytop[i] = hiall + float(st) * sh + (i % 2 ? 30.0 : 0.0);")])),
     ("outward_normals", "outward_normals", "wall quads are wound the other way",
      vx("addvertex(0, pw, base[j]);  addvertex(0, pw, base[jn]);",
         "addvertex(0, pw, base[jn]); addvertex(0, pw, base[j]);")),
@@ -347,6 +388,12 @@ MUTATIONS = [
     ("attribute_storage", "attribute_storage", "`pf_cap_group` ships as a float",
      vx('setprimattrib(0, "pf_cap_group", p, capgroup);',
         'setprimattrib(0, "pf_cap_group", p, float(capgroup));')),
+    ("attribute_storage", "attribute_storage",
+     "an undeclared `pf_*` attribute is published on every face - green on "
+     "every check before R3-7, and only the baseline said so",
+     vx('setprimattrib(0, "pf_cap_group", p, capgroup);',
+        'setprimattrib(0, "pf_cap_group", p, capgroup);\n'
+        '        setprimattrib(0, "pf_undeclared", p, 1);')),
     ("elem_ids_structural", "order_independent",
      "the element id becomes the prim number",
      vx('sprintf("%s:%s", vid, t)', 'sprintf("%s:%d", vid, p)')),
@@ -380,6 +427,39 @@ MUTATIONS = [
      "five-corner lot whose every setback is 0 - reports a footprint that "
      "collapsed when it provably did not",
      vx("(collapsed || yardbad) ? 1 : 0,", "degraded ? 1 : collapsed,")),
+    # R3-5. The three AREA terms in `pf_collapse.vfl` were deletable with all
+    # 28 clauses green and the baseline unmoved; site 9 is what reaches them.
+    ("volume_count_matches", "volume_count_matches",
+     "the collapse test keeps containment and drops its three area terms, so "
+     "site 9's SINGLE inversion - x 6..4, still inside 0..10 - ships two "
+     "volumes on a 2 m footprint that `inside_the_lot` calls fine",
+     vx("(outside || a * was <= 0.0 || abs(a) > abs(was) * (1.0 + 1e-6) + 1e-6"
+        "\n     || abs(a) < 1e-4) ? 1 : 0;", "outside ? 1 : 0;",
+        "pf_collapse")),
+    # R3-4, and it takes THREE edits because two of them are the legal input
+    # that reaches the hole and only the third is the defect. No shipped
+    # template lists exactly one volume, so the case cannot be a fixture site:
+    # `at_zinshaus_row` is cut down to one volume and no cuts, which leaves
+    # sites 4 and 8 correct at one cell each and site 7 - the five-corner lot
+    # that degrades for a TOPOLOGY reason - with `len(roles) == 1`. The third
+    # edit reverts arity to being measured against the degraded fallback's own
+    # cell, and site 7 then ships one volume with all four warnings at 0 -
+    # measured, and that is R3-4's exact signature.
+    # ⚠️ `rule_reuse` reddens too, and it is the ENABLING INPUT that does it,
+    # not the defect: emptying `cutsAt` leaves `cuts:fractions` used by one
+    # style. Structural, not avoidable - reaching the hole requires a template
+    # with one volume, and a `bar` template with one volume must have no cuts
+    # or its own non-degraded sites break for an unrelated reason. Credit goes
+    # to the named clause only (dev-loop §9), which is what the runner does.
+    ("volume_count_matches", "volume_count_matches",
+     "a five-corner lot under a one-volume bar template degrades in silence: "
+     "arity measured against the fallback's single cell instead of against "
+     "the nothing the rails produced",
+     lambda: (topo("at_zinshaus_row", "volumes",
+                   [{"role": "volume", "storeys": 1, "capGroup": 0}])(),
+              topo("at_zinshaus_row", "cutsAt", [])(),
+              patch_vex([("pf_mass", "int railcells = degraded ? 0 : ncells;",
+                          "int railcells = ncells;")]))),
     ("unknown_rule_warns", "unknown_rule_warns",
      "a template asks for a rails mode that does not exist",
      topo("at_einhof", "rails", "spiral")),
@@ -419,7 +499,7 @@ def run_checks(out, mirror, templates, sources):
             geo, by_id, dict((l[0], (l[1], len(l[4]))) for l in LOTS),
             degraded_sites=DEGRADED),
         C.masses_inside_lots(geo, RINGS),
-        C.plan_follows_data(geo, LOTS, by_id, DEGRADED),
+        C.plan_follows_data(geo, LOTS, by_id, DEGRADED, SETBACKS),
         C.warns_on_unknown_rule(geo),
     ]
 
@@ -531,13 +611,22 @@ def images(out, outdir):
     """A gate is judged on the picture.  Colour by `pf_wall_role`, so the
     party walls and the courtyard - the topology itself - are what is drawn.
 
-    ⚠️ The image must contain its subject, and the first version of that
-    assertion could not fail: `rasterise` emits exactly one segment per vertex
-    per prim and returns that count, so comparing it with the geometry's own
-    `sum(len(p.vertices()))` compared a number with itself - measured 336 vs
-    336, and an 8x8 PIXEL render passed. The degenerate render is now produced
-    on every run and the real one has to be an order of magnitude more PNG,
-    which is pixels: the thing the claim was always about."""
+    ⚠️ `image_contains_subject` IS NAMED FOR MORE THAN IT PROVES, and this is
+    the honest statement of it. The first version could not fail at all:
+    `rasterise` emits one segment per vertex per prim and returns that count,
+    so comparing it with the geometry's own `sum(len(p.vertices()))` compared
+    a number with itself - measured 336 vs 336, and an 8x8 PIXEL render
+    passed. Comparing the real render's PNG bytes against the same scene at
+    8x8 does close that hole, and closes only that one. Measured: a render of
+    1 of the 97 prims is 40.2x and PASSES, and a completely different scene -
+    a 40 x 40 grid with no building in it - is 90.7x and PASSES. So what it
+    proves is THE CANVAS IS NOT DEGENERATE, and nothing whatever about what is
+    drawn on it: not framing, not subject identity, not correctness. The
+    `> 20x` threshold has been measured once, on one Houdini and one zlib.
+    ⚠️ It is also OUTSIDE the per-clause mutation sweep - `missing` iterates
+    `run_checks`'s results and this is shown from `images()` - so it is
+    neither swept nor required to hold a registry row.
+    ⭐ Hannes' human viewport pass is G1's only image evidence (§0.0g row 3)."""
     import gate_images as G
     if not os.path.isdir(outdir):
         os.makedirs(outdir)

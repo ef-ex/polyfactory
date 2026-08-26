@@ -348,6 +348,96 @@
     "exterior",
     "floor"
    ]
+  },
+  "8_at_zinshaus_row": {
+   "capGroups": [
+    0,
+    1
+   ],
+   "faces": 12,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    0
+   ],
+   "pf_warn_topology_arity": [
+    0
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    266.112,
+    309.888
+   ],
+   "planBox": [
+    322.0,
+    2.0,
+    358.0,
+    18.0
+   ],
+   "roles": [
+    "gewerbeHoftrakt",
+    "vorderhaus"
+   ],
+   "seed": [
+    8000
+   ],
+   "topY": [
+    10.5,
+    17.5
+   ],
+   "volumes": 2,
+   "wallRoles": [
+    "cap",
+    "end",
+    "exterior",
+    "floor",
+    "party"
+   ]
+  },
+  "9_at_zinshaus_row": {
+   "capGroups": [
+    0
+   ],
+   "faces": 6,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    1
+   ],
+   "pf_warn_topology_arity": [
+    1
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    400.0
+   ],
+   "planBox": [
+    380.0,
+    0.0,
+    390.0,
+    40.0
+   ],
+   "roles": [
+    "vorderhaus"
+   ],
+   "seed": [
+    9000
+   ],
+   "topY": [
+    17.5
+   ],
+   "volumes": 1,
+   "wallRoles": [
+    "cap",
+    "exterior",
+    "floor"
+   ]
   }
  }
 }
