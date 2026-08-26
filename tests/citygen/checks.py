@@ -5167,8 +5167,13 @@ def calibration_is_not_stale(case_name, built, fixture_path):
                       "(hython tests/citygen/dump_trims.py)")
 
     live = dump_trims.dump_case(built)
-    info = {"edges": (len(recorded["edges"]), len(live["edges"])),
-            "nodes": (len(recorded["nodes"]), len(live["nodes"])),
+    # ⚠️ LISTS, NOT TUPLES. The baseline round-trips through JSON, where a
+    # tuple comes back a list and never compares equal - so a tuple here makes
+    # every run report this row as MOVED. A permanently-noisy moved-row is
+    # worse than no row: it trains the reader to skip the one report that must
+    # never be skipped. Caught the first run after this check landed.
+    info = {"edges": [len(recorded["edges"]), len(live["edges"])],
+            "nodes": [len(recorded["nodes"]), len(live["nodes"])],
             "worst_trim": 0.0, "moved": []}
 
     if len(recorded["edges"]) != len(live["edges"]) or \
