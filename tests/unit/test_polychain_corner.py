@@ -75,107 +75,6 @@ class TestBevel(unittest.TestCase):
                                       (0.0, 0.0, 0.0), tout))
         return C.Bevel(corner, (0.0, 0.0, 0.0), tin, tout, params)
 
-    def test_right_angle_normal_bisects(self):
-        b = self.bevel((1.0, 0.0, 0.0), (0.0, 0.0, 1.0))
-        self.assertAlmostEqual(b.turn, 90.0, places=9)
-        r = math.sqrt(0.5)
-        for got, want in zip(b.n, (r, 0.0, r)):
-            self.assertAlmostEqual(got, want, places=9)
-        # n.tin == n.tout == cos(turn/2) is the property the whole cut relies
-        # on: both legs meet the plane at the same angle, so the two halves
-        # of the joint are congruent.
-        self.assertAlmostEqual(C._dot(b.n, b.tin), math.cos(math.pi / 4),
-                               places=9)
-        self.assertAlmostEqual(C._dot(b.n, b.tin), C._dot(b.n, b.tout),
-                               places=12)
-
-    def test_overhang_is_half_width_times_tan_half(self):
-        for turn, tout in ((90.0, (0.0, 0.0, 1.0)),
-                           (45.0, (math.sqrt(0.5), 0.0, math.sqrt(0.5))),
-                           (120.0, (-0.5, 0.0, math.sqrt(0.75)))):
-            b = self.bevel((1.0, 0.0, 0.0), tout)
-            self.assertAlmostEqual(b.turn, turn, places=6)
-            self.assertAlmostEqual(
-                b.e_for(0.03), 0.03 * math.tan(math.radians(turn) / 2.0),
-                places=9)
-
-    def test_reflex_only_flips_the_side(self):
-        left = self.bevel((1.0, 0.0, 0.0), (0.0, 0.0, 1.0))
-        right = self.bevel((1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
-        self.assertEqual(left.side, 1.0)
-        self.assertEqual(right.side, -1.0)
-        # a reflex corner is the same miter, mirrored: same turn, same
-        # overhang, and a normal that still bisects
-        self.assertAlmostEqual(left.turn, right.turn, places=9)
-        self.assertAlmostEqual(left.e_for(0.03), right.e_for(0.03), places=12)
-
-    def test_the_offset_never_moves_the_cut_plane(self):
-        """D39, revised. The first version gave each copy its own plane and
-        parted them by 2*o*cos(t/2): a 5.7 cm hole at +25 % and 5.7 cm of
-        doubly solid geometry at -25 %. Moving ONE shared plane instead was
-        measured too and is no better - the two legs' centrelines meet only at
-        the vertex, so any other plane cuts the two boxes at different lateral
-        positions and the faces come out coplanar but slid apart by the same
-        2*o*cos(t/2). The plane stays on the vertex; the PIECES move."""
-        b = self.bevel((1.0, 0.0, 0.0), (0.0, 0.0, 1.0))
-        for offset in (0.0, 0.04, -0.04, 5.0):
-            b.offset = offset
-            self.assertEqual(b.plane_in()[0], b.plane_out()[0])
-            self.assertEqual(tuple(b.plane_in()[0]), b.v)
-        self.assertEqual(b.plane_in()[2], -1.0)     # keep sides are opposite
-        self.assertEqual(b.plane_out()[2], 1.0)
-
-    def test_a_flattened_bevel_is_vertical_and_carries_its_arc_factor(self):
-        """D48. A `stepped` piece is built plumb on the horizontal projection,
-        so the plane that cuts it has to be vertical too - a 3D bisector
-        beheaded a 1.30 m corner post on a 25 % grade and left a 0.345 m
-        stump. Flattening also makes the leg coordinate HORIZONTAL, so the
-        arc factor is what converts it back for the section's own `s`."""
-        pitch = math.radians(30.0)
-        b = self.bevel((math.cos(pitch), math.sin(pitch), 0.0),
-                       (0.0, math.sin(pitch), math.cos(pitch)))
-        self.assertNotAlmostEqual(b.n[1], 0.0, places=3)
-        b.flatten()
-        self.assertTrue(b.flat)
-        self.assertAlmostEqual(b.n[1], 0.0, places=12)
-        self.assertAlmostEqual(b.turn, 90.0, places=9)
-        self.assertAlmostEqual(b.arc_in, 1.0 / math.cos(pitch), places=9)
-        self.assertAlmostEqual(b.arc_out, 1.0 / math.cos(pitch), places=9)
-        # ...and the 3D tangents survive, because the anchor still has to sit
-        # on the real leg or the piece floats off the run's elevation
-        self.assertAlmostEqual(b.tin3[1], math.sin(pitch), places=9)
-
-    def test_a_flat_corner_is_not_flattened_twice(self):
-        b = self.bevel((1.0, 0.0, 0.0), (0.0, 0.0, 1.0))
-        b.flatten()
-        self.assertAlmostEqual(b.arc_in, 1.0, places=12)
-        self.assertAlmostEqual(b.turn, 90.0, places=9)
-
-    def test_a_plumb_leg_has_no_yaw_to_flatten_to(self):
-        b = self.bevel((0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
-        b.flatten()
-        self.assertFalse(b.flat)                  # refused, never divided by 0
-        self.assertAlmostEqual(b.arc_in, 1.0, places=12)
-
-    def test_hairpin_degenerates_and_never_divides_by_zero(self):
-        b = self.bevel((1.0, 0.0, 0.0), (-1.0, 0.0, 0.0))
-        self.assertTrue(b.degenerate)
-        self.assertEqual(b.mode, "bend")            # 4.3's own fallback
-        self.assertLessEqual(abs(b.tan_half), C.MAX_TAN_HALF)
-        self.assertTrue(all(v == v for v in b.n))   # not NaN
-        self.assertIn(WARN_CORNER_DEGENERATE, b.warns)
-
-    def test_narrow_angle_threshold_is_the_included_angle(self):
-        # 170 degrees of TURN is 10 degrees of included angle, under the
-        # 15 degree default - D2's two-angles decision, still holding
-        t = math.radians(170.0)
-        b = self.bevel((1.0, 0.0, 0.0), (math.cos(t), 0.0, math.sin(t)))
-        self.assertTrue(b.degenerate)
-        b2 = self.bevel((1.0, 0.0, 0.0), (math.cos(t), 0.0, math.sin(t)),
-                        Params(min_included_angle_deg=5.0))
-        self.assertFalse(b2.degenerate)
-
-
 class TestCompose(unittest.TestCase):
     """D38 - the odd/even rule, as an exact equality on the reserves."""
 
@@ -188,50 +87,6 @@ class TestCompose(unittest.TestCase):
         return C.build_assembly(b, mods, None,
                                 Params(corner_mode=mode,
                                        corner_offset_pct=offset))
-
-    def test_single_module_is_duplicated_both_sides(self):
-        a = self.assembly(["post"])
-        self.assertEqual(len(a.pieces), 2)
-        self.assertEqual(sorted(p.side for p in a.pieces), ["in", "out"])
-        self.assertTrue(all(p.duplicate for p in a.pieces))
-        # and each copy reaches PAST the vertex by the overhang, which is what
-        # leaves its outside face at the module's full length after the cut
-        e = a.bevel.e_for(0.08)
-        for piece in a.pieces:
-            self.assertAlmostEqual(piece.t_near, -e, places=9)
-            self.assertAlmostEqual(piece.t_far - piece.t_near, 0.16, places=9)
-
-    def test_odd_is_symmetric_even_is_not(self):
-        odd = self.assembly(["post", "block", "post"])
-        self.assertAlmostEqual(odd.symmetry, 0.0, places=12)
-        even = self.assembly(["post", "block"])
-        self.assertAlmostEqual(even.symmetry, 1.2, places=9)
-        five = self.assembly(["post", "post", "block", "post", "post"])
-        self.assertAlmostEqual(five.symmetry, 0.0, places=12)
-        four = self.assembly(["post", "block", "post", "block"])
-        self.assertGreater(four.symmetry, 1e-6)
-
-    def test_the_straddler_is_the_middle_of_an_odd_compose(self):
-        a = self.assembly(["post", "block", "post"])
-        straddlers = [p for p in a.pieces if p.duplicate]
-        self.assertEqual(len(straddlers), 2)
-        self.assertTrue(all(p.compose_index == 1 for p in straddlers))
-        self.assertTrue(all(p.module.name == "block" for p in straddlers))
-
-    def test_an_even_compose_centres_the_segment_before_the_vertex(self):
-        # iToo: "If there is an even number of inputs, RailClone centres the
-        # geometry to the 1st segment in the Compose node."
-        a = self.assembly(["post", "block"])
-        straddlers = [p for p in a.pieces if p.duplicate]
-        self.assertTrue(all(p.compose_index == 0 for p in straddlers))
-        self.assertTrue(all(p.module.name == "post" for p in straddlers))
-
-    def test_bend_neither_duplicates_nor_overhangs(self):
-        a = self.assembly(["post"], mode="bend")
-        self.assertEqual(len(a.pieces), 1)
-        self.assertFalse(a.pieces[0].duplicate)
-        self.assertAlmostEqual(a.pieces[0].t_far, 0.08, places=9)
-        self.assertAlmostEqual(a.pieces[0].t_near, -0.08, places=9)
 
     def test_offset_is_a_percentage_of_the_straddler(self):
         a = self.assembly(["post"], offset=25.0)
@@ -262,37 +117,6 @@ class TestDisplacement(unittest.TestCase):
                                places=9)
         self.assertAlmostEqual(got["symmetric"], 1.0, places=12)
         self.assertEqual(len(set(round(v, 9) for v in got.values())), 3)
-
-    def test_bend_never_displaces(self):
-        panel = fence_kit().by_name("panel")
-        for policy in ("reset", "extend", "symmetric"):
-            self.assertEqual(
-                C.displacement(self.bevel(mode="bend"), panel,
-                               Params(corner_displacement=policy)), 0.0)
-
-    def test_the_offset_is_no_longer_subtracted_here(self):
-        """D40, revised. The offset used to be folded into this number, back
-        when the policy was an EXTENSION of the fill span. It is a one-module
-        assembly now, so `build_assembly` shifts its two copies by the offset
-        exactly as it shifts a corner module's - and folding it in here as
-        well would apply it twice."""
-        panel = fence_kit().by_name("panel")
-        for policy in ("reset", "extend", "symmetric"):
-            p = Params(corner_displacement=policy)
-            self.assertAlmostEqual(
-                C.displacement(self.bevel(), panel, p),
-                C.displacement(self.bevel(offset=0.05), panel, p), places=12)
-
-    def test_a_missing_default_module_displaces_nothing(self):
-        for policy in ("reset", "extend", "symmetric"):
-            self.assertEqual(
-                C.displacement(self.bevel(), None,
-                               Params(corner_displacement=policy)), 0.0)
-
-    def test_an_unknown_policy_degrades_to_reset(self):
-        self.assertEqual(Params(corner_displacement="Extend"
-                                ).corner_displacement, "reset")
-
 
 class TestMerge(unittest.TestCase):
     """D36/D46 - bend welds, miter does not, and a degenerate corner welds
@@ -386,12 +210,6 @@ class TestFillet(unittest.TestCase):
         for p in out.points:
             self.assertLessEqual(p[0], 1.0 + 1e-9)
 
-    def test_zero_radius_is_the_identity(self):
-        curve = Curve("c", L)
-        out, warns = C.fillet(curve, Params(fillet_radius=0.0))
-        self.assertIs(out, curve)
-        self.assertEqual(warns, ())
-
     def test_a_hairpin_is_not_filleted(self):
         hairpin = [(0.0, 0.0, 0.0), (6.0, 0.0, 0.0), (0.0, 0.0, 0.001)]
         out, _w = C.fillet(Curve("c", hairpin), Params(fillet_radius=1.0))
@@ -399,11 +217,6 @@ class TestFillet(unittest.TestCase):
         # vertices on it, so 4.3's narrow-angle fallback covers the rounding
         # too and the curve comes back untouched
         self.assertEqual(len(out.points), 3)
-
-    def test_fillet_segments_is_forced_even(self):
-        self.assertEqual(Params(fillet_segments=5).fillet_segments, 6)
-        self.assertEqual(Params(fillet_segments=1).fillet_segments, 2)
-
 
 class TestPlanCurve(unittest.TestCase):
     """The orchestrator, end to end - still no geometry."""
@@ -415,14 +228,6 @@ class TestPlanCurve(unittest.TestCase):
         bend, _b, secs = run(L, style("bend"))
         self.assertEqual(len([p for p in bend if p.slot == "corner"]), 0)
         self.assertEqual(len(secs), 1)              # D36 welded it
-
-    def test_every_corner_placement_has_a_unique_address(self):
-        # a closed rectangle gives every section a corner at BOTH ends, which
-        # is where the first version collided two posts onto one elem_id
-        out, _b, _s = run(RECT, style("miter"), closed=True)
-        ids = [p.elem_id for p in out]
-        self.assertEqual(len(ids), len(set(ids)))
-        self.assertEqual(len([p for p in out if p.slot == "corner"]), 8)
 
     def test_the_closed_wrap_corner_plans_on_its_own_section(self):
         # RailClone cannot offset the last corner of a closed spline; D45 says
@@ -472,20 +277,6 @@ class TestPlanCurve(unittest.TestCase):
         self.assertTrue(out)
         self.assertTrue([p for p in out
                          if WARN_CORNER_DEGENERATE in p.warns])
-
-    def test_nothing_raises_on_any_degenerate_input(self):
-        for points, closed in (([], False), ([(0, 0, 0)], False),
-                               ([(0, 0, 0), (0, 0, 0)], False),
-                               ([(0, 0, 0), (1, 0, 0)], True),
-                               (L, True)):
-            for mode in ("bend", "miter"):
-                out, _b, _s = run(points, style(mode), closed=closed)
-                self.assertIsInstance(out, list)
-
-    def test_the_plan_is_deterministic(self):
-        a = [p.as_dict() for p in run(RECT, style("miter"), closed=True)[0]]
-        b = [p.as_dict() for p in run(RECT, style("miter"), closed=True)[0]]
-        self.assertEqual(a, b)
 
     def test_a_corner_piece_carries_exactly_one_cut_plane(self):
         out, _b, _s = run(L, style("miter"))

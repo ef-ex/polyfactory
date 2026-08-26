@@ -14932,3 +14932,74 @@ solve that parallelises WITHIN a curve — a cycle of its own.
 ⚠️ **AND RULE 0 IS NOT DISCHARGED FOR THIS CYCLE EITHER.** C5V is the response to C5's audit;
 no independent agent has audited C5V. It joins C3a's own Rule-0 audit, which is now the last
 item in the finish queue.
+
+## 33. Native network build log — cycle C6 (13.9 N8 STAGES 2+: the MITER assembly)
+
+**2026-08-26.** C5V left the budget at exactly 1.0000x and named the deletion the next
+cycle owes (D337 / 32.3). This section opens with that deletion, because it landed first
+and because everything after it is spent budget.
+
+### 33.1 D338 — THE DELETION 32.3 NAMED, PAID AND PROVEN
+
+32.3's sentence was *"property coverage for `corner.py` and `array2d.py`, which would let
+`test_polychain_corner.py` + `test_polychain_array2d.py` (1 461 lines of hand grid)
+shrink"*. Done: **eleven Hypothesis properties** in `tests/unit/test_polychain_properties.py`
+(which covered `plan` and `decompose` only) and **twenty-five hand tests deleted** across the
+two grids, which go **769 + 692 = 1 461 → 566 + 578 = 1 144**.
+
+| property | the hand tests it replaces |
+|---|---|
+| `..._bevel_bisects_overhangs_by_tan_half_and_never_nans` | `right_angle_normal_bisects`, `overhang_is_half_width_times_tan_half`, `reflex_only_flips_the_side`, `hairpin_degenerates_and_never_divides_by_zero`, `narrow_angle_threshold_is_the_included_angle`, `the_offset_never_moves_the_cut_plane` |
+| `test_flatten_is_vertical_carries_its_arc_factor_...` | `a_flattened_bevel_is_vertical_...`, `a_flat_corner_is_not_flattened_twice`, `a_plumb_leg_has_no_yaw_to_flatten_to` |
+| `test_compose_lays_out_the_odd_even_rule` | `single_module_is_duplicated_both_sides`, `odd_is_symmetric_even_is_not`, `the_straddler_is_the_middle_of_an_odd_compose`, `an_even_compose_centres_the_segment_before_the_vertex`, `bend_neither_duplicates_nor_overhangs` |
+| `test_the_three_displacement_policies_are_three_numbers` | `bend_never_displaces`, `the_offset_is_no_longer_subtracted_here`, `a_missing_default_module_displaces_nothing`, `an_unknown_policy_degrades_to_reset` |
+| `test_plan_curve_never_raises_addresses_uniquely_and_repeats` | `every_corner_placement_has_a_unique_address`, `nothing_raises_on_any_degenerate_input`, `the_plan_is_deterministic`, `zero_radius_is_the_identity`, `fillet_segments_is_forced_even` |
+| `test_role_names_round_trip_through_the_grammar` | `split_and_join_round_trip`, `marker_cells_parse_by_grammar`, `an_invented_name_survives_whole`, `default_default_is_written_default`, `twenty_five_unique_roles`, `every_alias_lands_in_the_vocabulary` |
+| `test_every_fallback_chain_starts_at_the_cell_and_ends_at_default` | `a_phase_1_role_is_its_own_chain_head`, `every_chain_ends_at_default` |
+| `test_the_y_bands_tile_the_height` | `bands_tile_the_height_exactly`, `adaptive_on_Y_never_slices`, `count_mode_places_exactly_n_rows`, `the_row_list_is_deterministic`, `a_degenerate_height_yields_a_plan_and_no_exception` |
+| `test_the_canonical_footprint_survives_rotation_and_reversal` | `rotation_and_reversal_produce_one_answer`, `the_winding_is_fixed`, `the_vertex_set_is_untouched`, `a_repeated_closing_vertex_is_dropped` |
+
+**THE DELETION IS PROVEN, NOT ASSERTED.** A one-shot harness applied **28 mutations** — one
+per invariant a deleted test guarded — to a `git archive HEAD` export **overlaid with the
+post-deletion `tests/unit`**, and ran the six unit files per mutation. Result: **28 of 28
+RED, 0 survivors, and all 28 killed BY THE PROPERTIES** (control green). The harness is not
+committed, deliberately: it is test machinery, the skill forbids auditing test machinery, and
+the standing policeman on this layer is `mutmut` plus `tests/polychain/mutations.py`.
+
+⚠️ **TWO OF THE 28 SURVIVED THE FIRST RUN, AND BOTH ARE THE LESSON.**
+
+1. **`self.side = 1.0`** — `side` asserted as `in (1.0, -1.0)` is a claim about a TYPE, not
+   about a value ("assert truth, not presence"). It is stated as the MIRROR now: reflect the
+   outgoing leg in the plane of `tin` and `UP`, and `side` flips while `turn` does not —
+   which is `reflex_only_flips_the_side`'s own sentence, expressed without re-implementing
+   `dot(tout, across) >= 0`.
+2. **`self.tan_half = t`, the clamp deleted** — the property DID assert
+   `|tan_half| <= MAX_TAN_HALF` and 400 generated leg pairs never reached the window where
+   it bites. The clamp only applies between **174.3 degrees** of turn (where `tan(t/2)`
+   passes 20) and the `179.999` guard; the 180-degree `@example` takes the guard's branch
+   instead. Two `@example`s at **178 and 176 degrees** pin it. *Generation is not coverage of
+   a window generation does not reach* — the same shape as C5V's D336, one layer down.
+
+Three tolerances moved for the honest reason (rule 4, the tolerance at its real magnitude):
+`arc_in`/`arc_out` are RELATIVE (a near-plumb leg makes them 7e4, where an absolute 1e-12 is
+a claim about float64 that is not true), and `turn` is compared at **1e-6 DEGREES** rather
+than 1e-9 because `_turn_deg` is an `acos` and a near-collinear turn carries real
+cancellation noise (measured: 2.4e-09 at 3e-04 degrees).
+
+**Budget: 18 964 / 18 948 = 0.9992x, 16 lines of headroom** — the first non-zero headroom
+since C4a. Not much, and it is deliberate: the deletion is what the doc asked for, and the
+port that follows adds PRODUCTION, which is the only thing that buys room honestly (D335).
+
+### 33.2 D339 — `fill = count` with `Count = 0` LEAVES A HOLE IN THE Y STACK
+
+Found by `test_the_y_bands_tile_the_height` on its first run, on an artist-reachable pair of
+parms. A 13 m facade kit over 6 m of height, `fill = count`, `count = 0`, comes back as
+`start 0.0..4.0` and `end 5.0..6.0` — **a 1.0 m band of nothing between the ground floor and
+the cornice, with `warns` empty on both rows**. The X axis does not have it (a capless run
+collapses to one row spanning the whole span), so it is the Y stack's own.
+
+**NOT FIXED, and the reason is scope**: this cycle is the corner port, and the fix is a
+`plan_rows` decision (does `count = 0` mean "no default bands" or "no Y fill at all") that
+wants 7.1's owner rather than a patch. Pinned as what the build DOES, so the day it is
+closed the pin goes red and is deleted with its finding — the M2 convention this file
+already uses twice. `count` is bounded at 1 in the property above BECAUSE of this.

@@ -69,10 +69,6 @@ def y_style(**kw):
 class TestVocabulary(unittest.TestCase):
     """7.2 / D116 - the 20 RC Slice pieces are a 5 x 4 product table."""
 
-    def test_twenty_five_unique_roles(self):
-        self.assertEqual(len(ROLES_2D), 25)
-        self.assertEqual(len(set(ROLES_2D)), 25)
-
     def test_bottom_row_is_the_phase_1_slot_list(self):
         """The compatibility claim, and it is checkable: a phase-1 kit is a
         valid phase-2 kit for the middle rows because the Y-`default` column
@@ -101,35 +97,6 @@ class TestVocabulary(unittest.TestCase):
         missing = set(ROLES_2D) - set(got)
         self.assertEqual(missing, set(role_2d(x, "corner") for x in SLOTS))
 
-    def test_split_and_join_round_trip(self):
-        for role in ROLES_2D:
-            x, y = split_role(role)
-            self.assertIn(x, SLOTS)
-            self.assertIn(y, SLOTS)
-            self.assertEqual(role_2d(x, y), role)
-
-    def test_marker_cells_parse_by_grammar(self):
-        self.assertEqual(split_role("marker:7"), ("marker:7", "default"))
-        self.assertEqual(split_role("default_marker:2"),
-                         ("default", "marker:2"))
-        self.assertEqual(canonical_role("marker:7"), "marker:7")
-        self.assertEqual(canonical_role("marker:7_default"), "marker:7")
-
-    def test_an_invented_name_survives_whole(self):
-        """A role the vocabulary has never heard of is a NAME, not a broken
-        role: a rule can still ask for it and the kit can still answer."""
-        self.assertEqual(canonical_role("corner_post"), "corner_post")
-        self.assertEqual(split_role("corner_post"), ("corner_post", "default"))
-
-    def test_default_default_is_written_default(self):
-        self.assertEqual(role_2d("default", "default"), "default")
-        self.assertEqual(canonical_role("default_default"), "default")
-
-    def test_every_alias_lands_in_the_vocabulary(self):
-        for alias, role in ROLE_ALIASES.items():
-            self.assertIn(role, ROLES_2D, alias)
-
-
 class TestFallbackChain(unittest.TestCase):
     """7.2.2 - the lattice walk, and why Y sheds first."""
 
@@ -140,15 +107,6 @@ class TestFallbackChain(unittest.TestCase):
     def test_extend_y_reverses_steps_two_and_three(self):
         self.assertEqual(A.fallback_chain("corner_end", extend="y"),
                          ["corner_end", "default_end", "corner", "default"])
-
-    def test_a_phase_1_role_is_its_own_chain_head(self):
-        self.assertEqual(A.fallback_chain("corner"), ["corner", "default"])
-        self.assertEqual(A.fallback_chain("default"), ["default"])
-
-    def test_every_chain_ends_at_default(self):
-        for role in ROLES_2D:
-            for extend in ("x", "y"):
-                self.assertEqual(A.fallback_chain(role, extend)[-1], "default")
 
 
 class TestRoleClosure(unittest.TestCase):
@@ -277,18 +235,6 @@ class TestYSolve(unittest.TestCase):
         self.assertAlmostEqual(rows[0].y0, 0.0, 9)
         self.assertAlmostEqual(rows[-1].y1, 13.0, 9)
 
-    def test_bands_tile_the_height_exactly(self):
-        """EXACT FILL ON THE Y AXIS. Every band meets the next to 1e-9 m and
-        the stack spans the whole height - the same property `exact_fill_m`
-        measures on X, asserted on the axis RailClone documents as clipped."""
-        for h in (9.0, 13.0, 20.0, 31.7):
-            rows = A.plan_rows(h, kit_of("default", "default_start",
-                                         "default_end"), y_style())
-            self.assertAlmostEqual(rows[0].y0, 0.0, 9)
-            self.assertAlmostEqual(rows[-1].y1, h, 9)
-            for a, b in zip(rows, rows[1:]):
-                self.assertAlmostEqual(a.y1, b.y0, 9, "band gap at %g" % h)
-
     def test_row_scale_is_the_band_over_the_nominal_height(self):
         rows = A.plan_rows(13.0, kit_of("default", "default_start",
                                         "default_end"), y_style())
@@ -297,24 +243,6 @@ class TestYSolve(unittest.TestCase):
         for r in rows[1:-1]:
             self.assertAlmostEqual(r.scale, r.height / BAY_Y, 9)
             self.assertNotAlmostEqual(r.scale, 1.0, 3)
-
-    def test_adaptive_on_Y_never_slices(self):
-        """D114 - RailClone's documented wart does not survive, because the Y
-        solve is the same solve. Whole storeys, subtly scaled, at every
-        height."""
-        for h in [7.0 + 0.37 * i for i in range(20)]:
-            rows = A.plan_rows(h, kit_of("default", "default_start",
-                                         "default_end"), y_style())
-            for r in rows:
-                self.assertGreater(r.height, 0.0)
-            self.assertAlmostEqual(sum(r.height for r in rows), h, 9)
-
-    def test_count_mode_places_exactly_n_rows(self):
-        rows = A.plan_rows(20.0, kit_of("default"), Style(
-            "y", 1, 1, rules=[Rule("default", "first", ["default"], axis="y")],
-            params=Params(fill="count", count=5)))
-        self.assertEqual(len(rows), 5)
-        self.assertAlmostEqual(sum(r.height for r in rows), 20.0, 9)
 
     def test_evenly_on_Y_is_a_string_course(self):
         rows = A.plan_rows(24.0, kit_of("default", "evenly"), Style(
@@ -331,18 +259,6 @@ class TestYSolve(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0].yclass, "")
         self.assertAlmostEqual(rows[0].height, 13.0, 9)
-
-    def test_the_row_list_is_deterministic(self):
-        a = [r.as_dict() for r in A.plan_rows(
-            13.0, kit_of("default", "default_start", "default_end"), y_style())]
-        b = [r.as_dict() for r in A.plan_rows(
-            13.0, kit_of("default", "default_start", "default_end"), y_style())]
-        self.assertEqual(a, b)
-
-    def test_a_degenerate_height_yields_a_plan_and_no_exception(self):
-        for h in (0.0, -3.0, 1e-12):
-            rows = A.plan_rows(h, kit_of("default"), y_style())
-            self.assertIsInstance(rows, list)
 
     def test_curve_ids_carry_the_row(self):
         rows = A.plan_rows(13.0, kit_of("default", "default_start",
@@ -395,24 +311,6 @@ class TestCanonicalFootprint(unittest.TestCase):
     L = [(0, 0, 0), (24, 0, 0), (24, 0, 12), (12, 0, 12), (12, 0, 24),
          (0, 0, 24)]
 
-    def test_rotation_and_reversal_produce_one_answer(self):
-        base = A.canonical_loop(self.L)
-        for k in range(len(self.L)):
-            rot = self.L[k:] + self.L[:k]
-            self.assertEqual(A.canonical_loop(rot), base, "rotation %d" % k)
-            self.assertEqual(A.canonical_loop(list(reversed(rot))), base,
-                             "reversed rotation %d" % k)
-
-    def test_the_winding_is_fixed(self):
-        # 7.3.3/D124: "always run counter-clockwise about +Y". The shoelace
-        # here is taken in the (x, z) chart, whose right-handed normal is -Y,
-        # so counter-clockwise about +Y is a NEGATIVE number in it. The code
-        # used to force the opposite sign and nothing measured the
-        # consequence, which is the next test (D141).
-        self.assertLess(A._signed_area_xz(A.canonical_loop(self.L)), 0.0)
-        self.assertLess(
-            A._signed_area_xz(A.canonical_loop(list(reversed(self.L)))), 0.0)
-
     def test_the_across_axis_points_out_of_the_building(self):
         """D141 - THE SIGN, MEASURED AS THE THING IT DECIDES.
 
@@ -443,15 +341,6 @@ class TestCanonicalFootprint(unittest.TestCase):
                                0.5 * (a[2] + b[2]) - 0.01 * az),
                     "leg %d of %s: the other side is not the interior"
                     % (i, pts[0]))
-
-    def test_the_vertex_set_is_untouched(self):
-        got = A.canonical_loop(self.L)
-        self.assertEqual(len(got), len(self.L))
-        self.assertEqual(sorted(got), sorted(tuple(float(c) for c in p)
-                                             for p in self.L))
-
-    def test_a_repeated_closing_vertex_is_dropped(self):
-        self.assertEqual(len(A.canonical_loop(self.L + [self.L[0]])), 6)
 
     def test_an_open_run_is_left_exactly_as_authored(self):
         pts = [(3, 0, 0), (0, 0, 0)]
