@@ -1161,7 +1161,7 @@ MUTATIONS = (
       "The narrow half of the same claim: only ONE generated case wires a "
       "terrain, so this reddens through that case alone and proves the "
       "fixture reaches input 4 rather than merely declaring it.",
-      ((PY % "hda.py", "surface_geo=_input_geo(node, 3))",
+      ((PY % "hda.py", "surface_geo=surface_geo)",
         "surface_geo=None)"),), rebuild=False),
 
     M("facade_clip_policy_never_reaches_the_build", "facade",
@@ -1177,8 +1177,8 @@ MUTATIONS = (
       "D77 on the 2D node, undone: the payload is read off input 4 instead "
       "of input 3, so the page builds the facade and a wired payload does "
       "nothing.",
-      ((PY % "hda.py", "style, style_warns = _style.read(_input_geo(node, 2),",
-        "style, style_warns = _style.read(_input_geo(node, 3),"),),
+      ((PY % "hda.py", "style, style_warns = _style.read(payload_geo,",
+        "style, style_warns = _style.read(surface_geo,"),),
       rebuild=False),
 
     M("facade_payload_cannot_override_expand", "facade",
@@ -1294,8 +1294,8 @@ EXPECT_CHECKS = {
     # 7.7, added 2026-08-25 with 10 mutations covering all 14 names.
     # C1's audit added five, 2026-08-25: 19 names, 15 mutations.
     "slice": 19,
-    # P2-9, added 2026-08-26: 10 names, 11 mutations, 0 unproven.
-    "facade": 10,
+    # P2-9, added 2026-08-26: 11 names, 11 mutations, 0 unproven.
+    "facade": 11,
 }
 
 

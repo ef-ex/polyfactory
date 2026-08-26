@@ -604,7 +604,12 @@ def cook_facade(node):
         return done()
 
     kit_geo = facade_kit_geometry(node, parms)
-    style, style_warns = _style.read(_input_geo(node, 2),
+    # D127's other two ports, named rather than indexed at the point of use -
+    # a registered mutation has to be able to say WHICH port it unplugs, and
+    # `_input_geo(node, 3)` reads identically in four places in this file.
+    payload_geo = _input_geo(node, 2)
+    surface_geo = _input_geo(node, 3)
+    style, style_warns = _style.read(payload_geo,
                                      kit=_kit.read(kit_geo)[0])
     for warn in style_warns:
         say(warn)
@@ -633,7 +638,7 @@ def cook_facade(node):
               clip_mode=_parm_str(parms, "clip_mode", "remove"),
               auto_align=_parm_str(parms, "auto_align", "to_spline"),
               expand=(parms.evalParm("expand") if parms.parm("expand") else 0.0),
-              surface_geo=_input_geo(node, 3))
+              surface_geo=surface_geo)
     t0 = time.time()
     if shape == "area":
         out, report = _facade.build_clipped(clip_geo, **kw)
