@@ -14674,6 +14674,12 @@ reach the native chain, closed rings included.
 
 **Mutations.** Six registered, all RED, plus `guard_never_refuses` RE-POINTED because the
 verdict line's own text moved (D208 — an edit whose target has moved reports green forever).
+The changed-code gate at `b2379e3` selected **13 of 110** and every one reddened its paired
+check: 503.6 s wall, 0 failures, and no mutation credited a name it was not paired with.
+`gate_parity` also grew, because `_place_out_of_scope`'s corner row was narrowed to MITER or
+DEGENERATE in the same cycle: **48 cases / 1088 pieces to 54 / 1217**, 0 disagree, so the
+deform gate's own answer is measured on the class this cycle flipped and not only on the
+classes that were already native.
 
 ### 31.5 Decisions taken this cycle (§10 continues here)
 
