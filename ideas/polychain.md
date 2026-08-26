@@ -1,8 +1,10 @@
 # polyChain — Implementation Spec
 
-**Status:** design spec v0, written 2026-08-21. **Nothing built. Parked behind citygen streets V1**
-(multi-leg junction is the open blocker there). Do not start this build without Hannes
-reprioritizing explicitly.
+**Status: BUILT, AUDITED, FINISHED (2026-08-26).** Three shipped nodes (pf_polychain,
+pf_polychain_facade, pf_polychain_slice), all gates passing on numbers, the Rule-0 audit queue
+empty. §0.0 is the live state; §35 is the closing cycle. Owed to HANNES, not to any agent: the
+viewport passes (PC-G1/G2, a conformed build, PC-G5/G6) and the §35.6 miter decision. The
+original v0 spec text below is HISTORY — read it as the plan this build started from.
 **What it is:** a general-purpose modular assembly tool for Houdini — the RailClone workflow
 (pieces cloned and fitted along splines, later across facades) as a standalone polyfactory member.
 **Owner doc for:** the polyChain tool. Research it is built on: [`railclone.md`](railclone.md)
@@ -26,7 +28,7 @@ Fable reviews, headless `hython` verifies, commit per cycle on branch `polychain
 
 | Field | Value |
 |---|---|
-| Branch | `polychain` (created 2026-08-21 off `cityGen`) |
+| Branch | **`worldengine`** (since 2026-08-26, commit 164cc67 — the umbrella branch; `polychain` and `cityGen` remain as historical refs) |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified working headless) |
 | Last completed |**CYCLE P3 - THE FINAL RULE-0 AUDIT, WORKED THROUGH: THE QUEUE WAS FIVE AND ONE PRODUCTION DEFECT FELL (2026-08-26). Read 35 FIRST.** **THE ONE SENTENCE: THE GUARDED NATIVE OUTPUT WROTE `pc_module` INSIDE ITS PACKED PRIMS AND THE PYTHON REFERENCE'S PACKED CONTENTS CARRIED `P` AND NOTHING ELSE** - `copy_packed` matches its pieces on `pc_module`, so `kit_unpack` transfers it and `pack = 1` bakes it in; 136 of 406 generated seeds, i.e. essentially every build the guard answers, and INVISIBLE to every check that reads a packed prim's OUTER attributes. It was the only KNOWN divergence this project ever filed and its own text called it a production finding. **THE FIX IS AT THE KIT SEAM** - `kit.source_for` stamps the module's name on the polygons where the module's geometry leaves the kit, which is exactly what `kit_unpack` has always done, one copy per MODULE per build so instancing is untouched (35.2). **THE `KNOWN DIVERGENCES` TABLE IS DELETED WITH IT, NOT LEFT EMPTY.** **TWO CLAIMS THAT HAD NO READER GOT ONE EACH**: D313's `guard_refusal_list_is_true` is back and reads BOTH directions (9 `[vex:*]` tags against 9 verdict terms, 15 `[cfg:*]` against 14 `return False`), and D341's deciding experiment is standing as `miter_cut_is_not_a_port` (0.18 / 1.00 / 1.00 float32 ULP of the world reach, ceiling 3) - and one of its mutations is a finding: deleting a whole `return False` from the guard reddened NOTHING ELSE in the suite (35.3). **THE AUDIT COULD NOT BREAK ANY OF THE FIVE FIX-PASSES** - 15 of 15 paired mutations RED, 618 adversarial cases 0 differing. **RULE 0 IS DISCHARGED FOR C3a, C4a, C5V, C6a AND P2-9a**, and P3 is the last cycle: 35.6 calls the MITER what it is, a measured refusal with ONE open design decision. |
 | Native rebuild (13/15-27, 30-35) |⚠️ **35 IS THE NEWEST ENTRY (cycle P3, 2026-08-26) AND IT IS THE CLOSING ONE: THE FINAL RULE-0 AUDIT, WORKED THROUGH. Read 35, then 34, then 33.** It enrols P2-9a (the queue said four, it was five), closes D343 - the packed CONTENTS divergence - at `kit.source_for`, deletes the KNOWN table with it, gives D313 and D341 a standing check each, records finding 5 as INFO-not-fixed, and calls the miter a MEASURED REFUSAL with the design choice it leaves open stated in 35.6. Budget 1.0000x, zero headroom, paid before it was spent. ⚠️ **34 (cycle C6a, 2026-08-26)** is the C6 audit worked through: D342, `_stamp_degenerate`'s D68 half, refused by name as `[vex:ring_corner]`. 34.4 is THE FINAL PYTHON-SHARE TABLE and P3 did not move it (35.7 says why, and says it was not re-taken). ⚠️ **33 (cycle C6, 2026-08-26)** is 13.9 N8 stage 2, the degenerate corner, and 33.4 is D341's experiment - the argument 35.4 now checks every run. |
