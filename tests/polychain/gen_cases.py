@@ -107,8 +107,7 @@ NATIVE_TURN_DEG = 22.0
 NATIVE_CORNER_ANGLE = 45.0
 # ⚠️ 13.9 N8 STAGE 1 - THE PARAGRAPH ABOVE IS NOW HALF TRUE (31.2): a BEND
 # corner is inside the envelope, so `_kink` bends a share of the surface-free
-# native seeds past NATIVE_CORNER_ANGLE, on SEED ARITHMETIC and by POST-
-# PROCESSING (a draw inside `_points` would move every other seed).
+# native seeds past it, on SEED ARITHMETIC (a draw would move every seed).
 CORNER_LANE = 4          # one surface-free native seed in four is cornered
 CORNER_TURN_DEG = 70.0   # over NATIVE_CORNER_ANGLE, under degenerate
 CLOSE_MAX_TURN = 120.0   # a sharper closure is left OPEN

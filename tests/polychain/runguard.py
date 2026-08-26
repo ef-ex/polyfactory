@@ -7,9 +7,9 @@ days of headless sessions left 19.9 GB of orphaned temp on a 6 GB-free drive.
 (1) `safe_slots` - lowering the default to 4 was a NUMBER, not a protection;
     the count is decided against the headroom the OS will actually grant.
 (2) `begin` - HOUDINI_TEMP_DIR, and TEMP/TMP where `tempfile.mkdtemp` puts
-    the export trees, point inside `.tmp/` on the repo's own roomy drive, and
-    every hython inherits it.  Deleted at exit; because A CRASHED RUN CANNOT
-    CLEAN ITSELF, a run first sweeps what a dead one left.
+    the export trees, point inside `.tmp/` on the repo's own roomy drive and
+    every hython inherits it.  Deleted at exit; and because A CRASHED RUN
+    CANNOT CLEAN ITSELF, a run sweeps what a dead one left before it starts.
 
 WHAT THIS CANNOT SEE.  Whether 8 GB a slot is right - one Houdini runtime's
 committed peak rounded up.  Nor a process ignoring the environment it was
@@ -58,8 +58,7 @@ def safe_slots(requested, headroom=None, per_slot=PER_SLOT):
     ⚠️ `headroom` IS INJECTABLE BECAUSE THE FAILURE CANNOT BE REPRODUCED ON
     PURPOSE: freezing the machine to prove the guard bites is not a test, and
     without the parameter this file is unfalsifiable on every machine healthy
-    enough to run the suite - which is every machine that does.
-    """
+    enough to run the suite."""
     if headroom is None:
         headroom = commit_headroom()
     if headroom is None:

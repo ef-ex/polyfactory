@@ -579,8 +579,7 @@ def plan_diff(got, ref):
 
 def plan_reference(case, params, style, kit):
     """⚠️ 4.3 SITS BETWEEN THE DECOMPOSE AND THE SOLVE AND THIS SKIPPED IT
-    (31.2): `place.build` runs `corner.plan_curve`, whose first act is
-    `merge_bend_sections`.  Per CURVE - two prims may share one id."""
+    (31.2).  Per CURVE - two prims may share one id."""
     from polyfactory.polychain import corner as C
     from polyfactory.polychain import decompose as D
     from polyfactory.polychain import plan as PLAN
@@ -891,9 +890,13 @@ def _place_out_of_scope(case, params):
         # the same address names a different piece in the two builds.
         return "4.6 overrides - N7"
     curves, markers = P.read_curves(case["curve"])
-    if any(D.resolve_corners(c, params) for c in curves):
-        # 4.3 reserves span off both ends of every leg: the SAME element
-        # address names a different span in the two plans (N8).
+    corner = [x for c in curves for x in D.resolve_corners(c, params)]
+    if corner and (params.corner_mode != "bend"
+                   or any(x.degenerate for x in corner)):
+        # A MITERED or DEGENERATE corner reserves span off both ends of a
+        # leg, so one element address names two spans.  A BEND one is at
+        # parity since 13.9 N8 stage 1 (31.2), and a stale scope row is how a
+        # new branch ships unmeasured: 48 cases / 1088 pieces -> 54 / 1217.
         return "4.3 corners - N8"
     ids = [str(c.curve_id) for c in curves]
     if len(set(ids)) != len(ids):
