@@ -196,18 +196,25 @@ def _curve_geo(rng, native=False):
     return geo, storage, vals
 
 
-def _kink(geo, closed):
+def _kink(geo, closed, key=None):
     """Bend a native-lane polyline into a REAL 4.3 corner.  -> did it close?
     No `rng`.  From the midpoint on everything rotates about it in XZ, so ONE
     vertex turns by `CORNER_TURN_DEG`; `closed` welds the ends - `_weld`'s
     `whole` branch.  ⚠️ THE CLOSURE'S OWN TURNS ARE MEASURED FIRST: closing a
     random walk onto its origin doubles the run back, and 152-165 degrees is
-    inside the ENVELOPE but outside `pc_frames_transportable` (31.2)."""
+    inside the ENVELOPE but outside `pc_frames_transportable` (31.2).
+    `key` ("str"/"int") lays D336's shape on the same pass: a `pc_section`
+    limit BEHIND the turning vertex, so a DISSOLVED corner stands in front of
+    a SURVIVING break - the only place a weld can renumber a later section,
+    and reached by no seed and no fixture before 32.1."""
     def turn(a, b, c):
         e0, e1 = (b - a).normalized(), (c - b).normalized()
         return math.degrees(math.acos(max(-1.0, min(1.0, e0.dot(e1)))))
 
     did = False
+    if key:
+        geo.addAttrib(hou.attribType.Point, "pc_section",
+                      "" if key == "str" else 0)
     ca, sa = math.cos(math.radians(CORNER_TURN_DEG)),         math.sin(math.radians(CORNER_TURN_DEG))
     for prim in geo.prims():
         pts = prim.points()
@@ -218,36 +225,17 @@ def _kink(geo, closed):
             d, y = p.position() - o, p.position()[1]
             p.setPosition(hou.Vector3(o[0] + d[0] * ca - d[2] * sa, y,
                                       o[2] + d[0] * sa + d[2] * ca))
+        if key:
+            cut = min(len(pts) - 1, len(pts) // 2 + 2)
+            for j, p in enumerate(pts):
+                p.setAttribValue("pc_section", ("b" if j >= cut else "a")
+                                 if key == "str" else int(j >= cut))
         q = [p.position() for p in pts]
         if closed and max(turn(q[-2], q[-1], q[0]),
                           turn(q[-1], q[0], q[1])) <= CLOSE_MAX_TURN:
             prim.setIsClosed(True)
             did = True
     return did
-
-
-def _seckey(geo, string_keys):
-    """D336's shape: a per-point `pc_section` limit BEHIND the kink vertex.
-
-    A dissolved bend corner in FRONT of a surviving break is the only place a
-    weld can renumber a later section, and it was reachable by no generated
-    scene and no hand fixture - `pc_section` appeared in neither file - so the
-    native chain compacted `pc_sec_index` (and with it `pc_elem_id`) past 110
-    fixtures, 400 seeds and a 50/60 identical parity row.  `_kink` turns at
-    `len(pts) // 2`, so the cut is placed after it and never past the last
-    point.  Both storages, because D223 makes storage part of the contract.
-    """
-    geo.addAttrib(hou.attribType.Point, "pc_section",
-                  "" if string_keys else 0)
-    for prim in geo.prims():
-        pts = prim.points()
-        if len(pts) < 4:
-            continue
-        cut = min(len(pts) - 1, len(pts) // 2 + 2)
-        for j, p in enumerate(pts):
-            p.setAttribValue("pc_section",
-                             ("b" if j >= cut else "a") if string_keys
-                             else int(j >= cut))
 
 
 def _markers(rng, geo, ids):
@@ -513,14 +501,14 @@ def make(seed):
     # seeds as CONFORMED.
     ckind = ""
     if native and surface is None and (seed // 4) % CORNER_LANE == 0:
+        # D336's key sub-lane: coarser than `closed`, so all four of
+        # open/closed x keyed/unkeyed occur, and on the FIRST block because
+        # the registry runs 12 seeds and seed 2 is the only cornered scene in
+        # that window (no PIN is).
+        key = ("str" if (seed // 64) % 2 else "int")             if not (seed // (4 * CORNER_LANE * 2)) % 2 else None
         ckind = ("corner+closed" if _kink(
-            curve, bool((seed // (4 * CORNER_LANE)) % 2)) else "corner")
-        # D336's sub-lane, on seed arithmetic and coarser than `closed`, so
-        # all four of open/closed x keyed/unkeyed occur.  No PIN is in the
-        # corner lane at all, so the six described scenes do not move.
-        if (seed // (4 * CORNER_LANE * 2)) % 2:
-            _seckey(curve, bool((seed // 64) % 2))
-            ckind += "+key"
+            curve, bool((seed // (4 * CORNER_LANE)) % 2), key) else "corner")
+        ckind += "+key" if key else ""
     return {"seed": seed, "curve": curve, "kit": kit_geo, "style": style,
             "native_lane": native, "surface": surface, "surface_kind": skind,
             "corner_kind": ckind,

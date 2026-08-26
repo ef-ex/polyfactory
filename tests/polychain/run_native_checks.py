@@ -70,13 +70,8 @@ def hilo(x):
     return head, f32(float(x) - head)
 
 
-
-
-def ulp32(x):
-    """One float32 ULP at `x` (D111: a unit, not a tolerance)."""
-    if x == 0.0:
-        return math.ldexp(1.0, -149)
-    return math.ldexp(1.0, math.frexp(abs(x))[1] - 24)
+ulp32 = diff_ulp32     # D111's unit.  The copy that stood here had no
+                       # denormal clamp: one file's ULP was not the other's.
 
 
 def stage_rows(root, case, params):
@@ -648,24 +643,8 @@ def fixture_cases():
                               "value": value}),
                    Rule("default", "first", ["panel"])],
             params=Params(fill="adaptive"))))
-    # --- D7's per-POINT `pc_section`, by TYPE ------------------------------
-    # A STRING key read as float (always 0.0): 1 section / 12 pieces vs the
-    # reference's 2 / 14.  Both types are inside the contract.
-    for tag, keys in (("string", ("a", "a", "b", "b")),
-                      ("int", (0, 0, 1, 1))):
-        geo = hou.Geometry()
-        poly = cases.polyline(geo, [(0.0, 0.0, 0.0), (5.0, 0.0, 0.0),
-                                    (12.0, 0.0, 0.0), (20.0, 0.0, 0.0)],
-                              curve_id="S")
-        geo.addAttrib(hou.attribType.Point, "pc_section", keys[0])
-        for pt, key in zip(poly.points(), keys):
-            pt.setAttribValue("pc_section", key)
-        out.append(("pt_section_%s" % tag, geo, kit, Style(
-            "ps", 1, 3,
-            rules=[Rule("start", "first", ["post"]),
-                   Rule("end", "first", ["post"]),
-                   Rule("default", "first", ["panel"])],
-            params=Params(fill="adaptive"))))
+    # (D7's per-POINT `pc_section` by storage is `_kink`'s `key` lane now,
+    # on a CORNERED curve: 32.3 bought D336's lane with these two fixtures.)
 
     # --- two primitives, ONE curve id --------------------------------------
     # The only topology where prim order decides: sections INTERLEAVE
@@ -827,10 +806,9 @@ def plan_fixture_parity(root):
     check("plan_fixture_parity", not bad, "%d builds / %d pieces"
           % (nrun, npiece),
           "the SHAPES the style matrix cannot express - a marker's "
-          "`markerData` by value type (including the empty string), a "
-          "per-point `pc_section` as a STRING and as an int, two prims "
-          "sharing one curve id, and non-ASCII curve/style ids through the "
-          "`random` selector. Mismatches: %s"
+          "`markerData` by value type (including the empty string), two "
+          "prims sharing one curve id, and non-ASCII curve/style ids through "
+          "the `random` selector. Mismatches: %s"
           % ("; ".join("%s %s" % b for b in bad[:3]) or "none"))
 
 
