@@ -104,7 +104,9 @@ itself a `native` one, so 430 s of native runner put a ~15 min floor under the s
 parallelism. Deleting the 126 subsumed names took the runner to 27 s and the whole sweep to
 3.3 minutes — the same 32 mutations, all still red.
 
-⚠️ **THE BUDGET IS 843 LINES OVER AT HEAD (16 507 / 15 664 = 1.054x, re-measured from a `git archive HEAD` export on 2026-08-25 after C1a), AND GREEN IN THE WORKING TREE (15 219 / 15 664 = 0.972x, 445 lines of headroom) BECAUSE THE DELETION PASS IS NOT COMMITTED YET.** ⚠️ **AND THE GATE MEASURES THE WORKING TREE, NOT HEAD** — `pdg_build.py`'s budget node runs `tests/unit/test_polychain_budget.py` at `REPO`, so a green budget in a gate log is a statement about the tree that ran it. Export HEAD and re-run it before quoting the number. The earlier reading follows. **THE BUDGET WAS 699 LINES OVER, and the remaining candidates are coverage rather than
+⚠️ **THE BUDGET IS AT EXACTLY 1.0000x WITH ZERO HEADROOM (18 964 / 18 964, measured at `6fa085b`, 2026-08-26 — D337, `polychain.md` §32.3), AND THAT IS A STANDING COST: the next cycle that adds a check must delete one FIRST.** There is no fat left to find by looking — a scan for unreferenced helpers across `cases`, `cases2d`, `gen_cases`, `checks`, `diff` and `native` returns nothing, and all 89 of `checks.py`'s functions are called. §32.3 names the deletion that is actually owed (property coverage for `corner.py` and `array2d.py`, which would let `test_polychain_corner.py` + `test_polychain_array2d.py` shrink) and names the two shortcuts C5V refused: reclassifying `tests/polychain/native.py` is arithmetic rather than deletion, and MOVING it is a production change that would swing the number 1 288 lines and hide a cycle of accretion. The earlier reading follows.
+
+⚠️ **THE BUDGET WAS 843 LINES OVER AT HEAD (16 507 / 15 664 = 1.054x, re-measured from a `git archive HEAD` export on 2026-08-25 after C1a), AND GREEN IN THE WORKING TREE (15 219 / 15 664 = 0.972x, 445 lines of headroom) BECAUSE THE DELETION PASS IS NOT COMMITTED YET.** ⚠️ **AND THE GATE MEASURES THE WORKING TREE, NOT HEAD** — `pdg_build.py`'s budget node runs `tests/unit/test_polychain_budget.py` at `REPO`, so a green budget in a gate log is a statement about the tree that ran it. Export HEAD and re-run it before quoting the number. The earlier reading follows. **THE BUDGET WAS 699 LINES OVER, and the remaining candidates are coverage rather than
 accretion.** Named, so the next pass starts from the argument instead of the number:
 `test_polychain_corner.py` + `test_polychain_array2d.py` (1 418 lines) are the hand grids over
 `corner.py` and `array2d.py`, for which **no property coverage exists yet** — the Hypothesis file
@@ -130,14 +132,31 @@ does it again. `tests/polychain/runguard.py` reads `MEMORYSTATUSEX.ullAvailPageF
 `ctypes` (commit, not free RAM: the commit limit is what ran out with ~100 GB of RAM
 nominally free), grants `min(requested, headroom // 8 GB)` and **refuses outright** below one
 slot's worth. It prints its decision on the gate's own header line. **NEVER raise the
-default.**
+default.** ⚠️ **AND A REQUEST UNDER ONE SLOT IS CLAMPED, NOT OBEYED** (`polychain.md`
+§32.2): `min(fits, requested)` passed a NEGATIVE through, and `--slots` is parsed with a
+bare `int()`, so `--slots -1` reached `maxprocs` — whose sibling menu spells its own -1 as
+*"Equal to CPU Count Less One"*, the 15-way configuration that froze this machine twice,
+arriving through the guard that exists to stop it.
 
-⚠️ **EVERY RUNNER'S TEMP IS PER-RUN AND SWEPT.** `runguard.begin()` points HOUDINI_TEMP_DIR
-*and* TEMP/TMP (where `tempfile.mkdtemp` puts the `pcmut_*` / `pcgen_*` trees) at
-`.tmp/run_<t>_<pid>` on the repo's own drive, deletes it at exit, and — because A CRASHED RUN
-CANNOT CLEAN ITSELF — sweeps `.tmp/run_*` older than 24 h at the START of every run. `.tmp/`
-is gitignored. Five days of headless sessions once left 19.9 GB orphaned on a system drive
-with 6 GB free; that is what this exists for.
+⚠️ **EVERY RUNNER'S TEMP IS PER-RUN AND SWEPT, AND THE MECHANISM HAS ONE OWNER.**
+`runguard.begin()` points HOUDINI_TEMP_DIR *and* TEMP/TMP (where `tempfile.mkdtemp` puts the
+`pcmut_*` / `pcgen_*` trees) at `.tmp/run_<t>_<pid>` on the repo's own drive, deletes it at
+exit, and — because A CRASHED RUN CANNOT CLEAN ITSELF — sweeps `.tmp/run_*` older than
+24 h at the START of every run. `.tmp/` is gitignored. Five days of headless sessions once
+left 19.9 GB orphaned on a system drive with 6 GB free; that is what this exists for.
+
+**Who calls it, and it matters** (`polychain.md` §32.2 — until 2026-08-26 the sentence
+above was true of `pdg_build.py` and `run_mutation_registry.py` and of NOTHING ELSE, so every
+runner listed below as a standalone command got the system `$TEMP` unswept, which is exactly
+the hand-run session that left the 19.9 GB): **`cases.setup_env()` claims the directory**, and
+every runner calls it — directly, or through `cases` / `cases2d` / `gen_cases` — ABOVE
+its `import hou`, which is where `$TEMP` resolves once and for all. `gate_images.py` and
+`run_diff_selftest.py` bootstrap without `cases` and call `runguard.begin()` themselves;
+`run_slice_checks.py` inherits it by importing `gate_images`. `begin` is idempotent across a
+process tree, so a PDG work item keeps its parent's directory.
+⚠️ **THERE IS NO CHECK ON THIS, DELIBERATELY** — the check would lint the runners,
+which is auditing the test machinery, and the budget is at 1.0000x. **A NEW RUNNER THAT
+BOOTSTRAPS WITHOUT `cases` MUST CALL `runguard.begin()` BEFORE `import hou`.**
 
 ### Independently verified — cycle V4 audit, 2026-08-25, HEAD `7fabfff`
 
