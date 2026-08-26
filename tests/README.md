@@ -1,23 +1,381 @@
-# polyfactory tests
+# polyfactory tests — the v2 regime (2026-08-25)
 
-Two layers. Run the fast one constantly, the slow one before you believe a fix.
+**Why v2:** v1 grew to 27 162 lines guarding a tool that turned out to be 14 682
+(the retrospective's "~6 000" was never measured), with 80-minute mutation sweeps.
+It caught real bugs, but by accretion: every audit added checks, nothing was ever deleted, and the
+machinery itself became the main cost (and, twice, the main defect). v2 replaces accretion with
+four standard techniques. The incident evidence is `ideas/build_retrospective.md`.
+
+## The five pieces
+
+1. **One oracle: differential testing against the reference.** The Python reference implementation
+   IS the baseline. One generic comparator — every attribute, every value, storage, order,
+   groups — over both paths. Comparing EVERYTHING by construction is what makes it impossible to
+   forget an attribute (the `_snapshot`-by-name defect class). This replaces the recorded-value
+   baselines and most bespoke assertions in `checks.py`. Golden numbers survive only where a
+   number IS the contract (a gate criterion, a measured ceiling).
+2. **Generated inputs, not hand fixtures.** Hypothesis for the pure-Python solve; a seeded scene
+   generator for hython (curves with random corners, duplicate points, shared points, attribute
+   storages, non-ASCII ids). Every fixture-blindness miss in the retrospective — shared points,
+   int `edge_id`, absent variants — was "no fixture reached it"; generation attacks that
+   mechanically, and shrinks failures to minimal repros.
+3. **Google's mutation policy: changed code per cycle, everything at milestones.** Google runs
+   mutation analysis per-changelist, on changed+covered lines only, arid lines filtered, mutants
+   per line capped. Ours: per cycle, run only registry entries whose touched files changed
+   (entries already carry digests) plus `mutmut` (coverage-guided, incremental) over the changed
+   pure-Python kernel files. The FULL registry sweep runs at gate closures and releases only.
+   The hand-written registry is capped at ~30 entries, HDA/VEX layer only (no tool can mutate
+   that layer), one-line notes.
+4. **PDG/TOPs as the runner.** Scene cases and mutations become TOP work items: parallel,
+   out-of-process (a clean hython per item — isolation we previously scripted by hand), cached
+   with dependency-aware dirtying so only affected items recook. Sequential 80 min → parallel
+   ~10-15 min on this machine, and the test graph is itself an inspectable Houdini artifact.
+5. **A hard budget.** Test code may not exceed tool code — enforced by a check, and adding means
+   deleting. Audits target production code only; the test machinery is never itself the subject
+   of an audit cycle (that recursion is where the days went).
+
+## What stays from v1
+
+- The independent audit before any "done" (dev-loop Rule 0) — one round per cycle, mutation-armed.
+- The mutation *idea*: a check is not written until it has been seen to fail.
+- Human eyes at milestones: the viewport found what 3 600 checks could not, twice.
+- Fast pure-logic tests under plain python; scene work headless under hython; never save a .hip.
+
+## v1 → v2 migration — DONE (2026-08-25)
+
+The five pieces landed first and were proven before anything was removed; the deletion pass
+then removed what they subsume. Both halves are measured below, and the one target that was
+missed says so.
+
+| | state |
+|---|---|
+| 1. generic differential comparator | `tests/polychain/diff.py`, 19 mutations all seen red |
+| 2a. Hypothesis over the kernel | `tests/unit/test_polychain_properties.py`, 11 properties, 1.6 s |
+| 2b. seeded scene generator | `tests/polychain/gen_cases.py` + `run_generated.py`, 400 scenes |
+| 3. PDG/TOPs runner | `tests/polychain/pdg_build.py` |
+| 3b. the SHIPPED assets, against the entry points | `run_slice_checks.py` (7.7) and `run_facade_hda_checks.py` (P2-9) — both in the per-cycle gate, because a parm-to-argument wire is invisible to every runner that calls the builder directly |
+| 4. mutmut | `setup.cfg` `[mutmut]`, **pin 2.5.0** |
+| 5. budget check | `tests/unit/test_polychain_budget.py` — **green in the working tree, RED at HEAD**, see below |
+| the deletions | **done** — 27 162 → 15 381 lines, 361 → 122 check names |
+
+### What the deletion pass removed, and what it kept
+
+| file | before | after |
+|---|---|---|
+| `run_native_checks.py` | 9 065 | 2 240 |
+| `checks.py` | 5 110 | 2 532 |
+| `mutations.py` | 1 087 | 632 |
+| `test_polychain_plan.py` | 1 060 | 548 |
+| `run_hda_checks.py` | 812 | 448 |
+| `run_scene_checks.py` | 711 | 476 |
+| `run_2d_checks.py` | 442 | 228 |
+| `cases.py` | 1 829 | 1 728 |
+| `conform_bench.py`, `facade_bench.py` | 488 | **deleted** |
+
+The rule applied, in one sentence: **a bespoke assertion that compares a subset of what the
+comparator compares is subsumed by it.** 126 of `run_native_checks`' 144 names and two thirds
+of `checks.py` were exactly that — the built geometry against the plan that built it, attribute
+by remembered attribute, over 92 hand-written cases — and `diff.compare` does it over EVERY
+attribute by construction, on 400 generated scenes, against the SHIPPED asset.
+
+Three categories were kept on purpose, and they are the reason the budget is still red:
+
+* **the names with a registered mutation** — all 44 of them;
+* **the measured COST ceilings** (`checks.py`'s port tripwires, the proxy LOD rows). A ceiling is
+  a contract, and every one of those rows was bought by a regression that left every geometry
+  check green;
+* **the gate figures** — PC-G1/PC-G2's images and D194's drawn-primitive counts — and the
+  artist-facing parameter page, neither of which any comparator can see.
+
+### What the sweep measured after the deletion (2026-08-25, 16-core machine)
+
+| | before | after | target |
+|---|---|---|---|
+| full sweep, 32 mutations, PDG | 1 757 s (29.3 min) | **200 s (3.3 min)** | < 15 min ✅ |
+| the shared control (6 runners, pristine export) | 425 s | **68 s** | |
+| `run_native_checks.py` alone | 430 s | **27 s** | |
+| per-cycle gate (no mutations) | 13.5 s | **~13 s** | < 5 min ✅ |
+| mutations RED | 32 of 32 | **32 of 32, 0 unreached names** | all ✅ |
+| tests vs tool | 27 162 / 14 682 = 1.85x | **15 381 / 14 682 = 1.05x** | ≤ 1.0 ❌ |
+
+⚠️ **THE 15-MINUTE FLOOR WAS `run_native_checks.py`, AND IT WAS ARITHMETIC RATHER THAN
+SCHEDULING.** The control must finish before any mutation starts, and the longest mutation was
+itself a `native` one, so 430 s of native runner put a ~15 min floor under the sweep at infinite
+parallelism. Deleting the 126 subsumed names took the runner to 27 s and the whole sweep to
+3.3 minutes — the same 32 mutations, all still red.
+
+⚠️ **THE BUDGET IS 19 113 / 19 113 = 1.0000x WITH ZERO HEADROOM AT THE TIP OF P3 (2026-08-26), AND THE NEXT CYCLE THAT ADDS A CHECK DELETES ONE FIRST.** P3 added two checks (`guard_refusal_list_is_true`, `miter_cut_is_not_a_port`) and three mutations, ~130 lines, and PAID FIRST: the `KNOWN DIVERGENCES` table with its matcher and its check row (its one entry is FIXED, in `kit.source_for` — see `polychain.md` §35.2), the per-cycle changelog that had grown back inside `EXPECT_CHECKS` (C3a deleted it once already), and D247's and D311's histories out of `run_native_checks.py`, where §12 already owns them. `run_native_checks` prints 22 names now, not 20. The C6a reading follows. ⚠️ **THE BUDGET IS 19 065 / 19 089 = 0.9987x, 24 LINES OF HEADROOM AT THE TIP OF C6a (2026-08-26)** - the C6 audit's one production finding (D342) added a guard row and its argument to `pc_envelope.vfl`, and those 37 production lines paid for the fixture (`AX_ring_one_corner`), the mutation (`n8_ring_corner_admitted`) and the `EXPECTED_WARNS` entry with room to spare. The C6 reading follows. ⚠️ **THE BUDGET IS 19 028 / 19 035 = 0.9996x, 7 LINES OF HEADROOM AT THE TIP OF C6 (2026-08-26)** - the deletion below bought 16 and N8 stage 2's two fixtures, six mutations and two scene rows spent 9 of them, the last four paid by D335's move (the argument to `polychain.md` §33, a pointer in the test file). The reading the deletion earned follows. ⚠️ **THE BUDGET IS 18 948 / 18 964 = 0.9992x, 16 LINES OF HEADROOM (2026-08-26, cycle C6 — D338, `polychain.md` §33.1), AND 32.3's DELETION IS WHAT PAID FOR IT**: eleven Hypothesis properties over `corner.py` and `array2d.py` replaced 25 hand tests, the two grids went 1 461 → 1 144 lines, and 28 mutations — one per invariant a deleted test guarded — are **28 of 28 RED with all 28 killed by the properties**. Two SURVIVED the first run and both are recorded in §33.1 (`side` asserted as a type rather than a value; a clamp whose 174.3–179.999-degree window 400 generated legs never reach). The earlier reading follows. ⚠️ **THE BUDGET WAS AT EXACTLY 1.0000x WITH ZERO HEADROOM (18 964 / 18 964, measured at `6fa085b`, 2026-08-26 — D337, `polychain.md` §32.3), AND THAT IS A STANDING COST: the next cycle that adds a check must delete one FIRST.** There is no fat left to find by looking — a scan for unreferenced helpers across `cases`, `cases2d`, `gen_cases`, `checks`, `diff` and `native` returns nothing, and all 89 of `checks.py`'s functions are called. §32.3 names the deletion that is actually owed (property coverage for `corner.py` and `array2d.py`, which would let `test_polychain_corner.py` + `test_polychain_array2d.py` shrink) and names the two shortcuts C5V refused: reclassifying `tests/polychain/native.py` is arithmetic rather than deletion, and MOVING it is a production change that would swing the number 1 288 lines and hide a cycle of accretion. The earlier reading follows.
+
+⚠️ **THE BUDGET WAS 843 LINES OVER AT HEAD (16 507 / 15 664 = 1.054x, re-measured from a `git archive HEAD` export on 2026-08-25 after C1a), AND GREEN IN THE WORKING TREE (15 219 / 15 664 = 0.972x, 445 lines of headroom) BECAUSE THE DELETION PASS IS NOT COMMITTED YET.** ⚠️ **AND THE GATE MEASURES THE WORKING TREE, NOT HEAD** — `pdg_build.py`'s budget node runs `tests/unit/test_polychain_budget.py` at `REPO`, so a green budget in a gate log is a statement about the tree that ran it. Export HEAD and re-run it before quoting the number. The earlier reading follows. **THE BUDGET WAS 699 LINES OVER, and the remaining candidates are coverage rather than
+accretion.** Named, so the next pass starts from the argument instead of the number:
+`test_polychain_corner.py` + `test_polychain_array2d.py` (1 418 lines) are the hand grids over
+`corner.py` and `array2d.py`, for which **no property coverage exists yet** — the Hypothesis file
+covers `plan` and `decompose` only, so mutmut's kill rate on those two kernel files rests
+entirely on them, and deleting them would be deleting coverage to make a number. And
+`tests/polychain/native.py` (644) is counted on the TEST side while
+`devScripts/create_pf_polychain_hda.py`, which is on the PRODUCTION side, imports it to build
+the shipped asset's stages: that single mis-attribution is a 1 288-line swing. It was left where
+it is rather than reclassified, because moving it is a production change and reclassifying it
+without moving it would be arithmetic rather than deletion.
+
+⚠️ **AND PARALLELISM CAN TURN A RED INTO A FALSE SURVIVOR.** In the first 32-item sweep
+`piece_key_within_piece_dropped` came back **SURVIVED with 15 of `native`'s check names never
+printed**; run on its own it was **RED in 354 s**. Fifteen concurrent hython processes made the
+native runner lose checks, and a lost check reads exactly like a check that cannot fail. The
+runner **re-runs any SURVIVED verdict that has unreached names** before believing it, and
+`--slots N` is the blunt instrument for a machine that is also doing something else.
+
+⚠️ **AND `--slots N` IS A REQUEST, NOT A SETTING, SINCE 2026-08-26** (`polychain.md` §31.1).
+Fifteen concurrent hythons HARD-FROZE this machine twice, and lowering the default to 4 fixed
+a NUMBER rather than a failure mode — four of them on a machine already near its commit limit
+does it again. `tests/polychain/runguard.py` reads `MEMORYSTATUSEX.ullAvailPageFile` through
+`ctypes` (commit, not free RAM: the commit limit is what ran out with ~100 GB of RAM
+nominally free), grants `min(requested, headroom // 8 GB)` and **refuses outright** below one
+slot's worth. It prints its decision on the gate's own header line. **NEVER raise the
+default.** ⚠️ **AND A REQUEST UNDER ONE SLOT IS CLAMPED, NOT OBEYED** (`polychain.md`
+§32.2): `min(fits, requested)` passed a NEGATIVE through, and `--slots` is parsed with a
+bare `int()`, so `--slots -1` reached `maxprocs` — whose sibling menu spells its own -1 as
+*"Equal to CPU Count Less One"*, the 15-way configuration that froze this machine twice,
+arriving through the guard that exists to stop it.
+
+⚠️ **EVERY RUNNER'S TEMP IS PER-RUN AND SWEPT, AND THE MECHANISM HAS ONE OWNER.**
+`runguard.begin()` points HOUDINI_TEMP_DIR *and* TEMP/TMP (where `tempfile.mkdtemp` puts the
+`pcmut_*` / `pcgen_*` trees) at `.tmp/run_<t>_<pid>` on the repo's own drive, deletes it at
+exit, and — because A CRASHED RUN CANNOT CLEAN ITSELF — sweeps `.tmp/run_*` older than
+24 h at the START of every run. `.tmp/` is gitignored. Five days of headless sessions once
+left 19.9 GB orphaned on a system drive with 6 GB free; that is what this exists for.
+
+**Who calls it, and it matters** (`polychain.md` §32.2 — until 2026-08-26 the sentence
+above was true of `pdg_build.py` and `run_mutation_registry.py` and of NOTHING ELSE, so every
+runner listed below as a standalone command got the system `$TEMP` unswept, which is exactly
+the hand-run session that left the 19.9 GB): **`cases.setup_env()` claims the directory**, and
+every runner calls it — directly, or through `cases` / `cases2d` / `gen_cases` — ABOVE
+its `import hou`, which is where `$TEMP` resolves once and for all. `gate_images.py` and
+`run_diff_selftest.py` bootstrap without `cases` and call `runguard.begin()` themselves;
+`run_slice_checks.py` inherits it by importing `gate_images`. `begin` is idempotent across a
+process tree, so a PDG work item keeps its parent's directory.
+⚠️ **THERE IS NO CHECK ON THIS, DELIBERATELY** — the check would lint the runners,
+which is auditing the test machinery, and the budget is at 1.0000x. **A NEW RUNNER THAT
+BOOTSTRAPS WITHOUT `cases` MUST CALL `runguard.begin()` BEFORE `import hou`.**
+
+### Independently verified — cycle V4 audit, 2026-08-25, HEAD `7fabfff`
+
+A fresh agent that wrote none of this re-ran everything from a pristine `git archive HEAD`
+export and measured its own numbers. **The build report's timings reproduce.**
+
+| | audit's own measurement | target |
+|---|---|---|
+| per-cycle gate, `hython tests/polychain/pdg_build.py` | **12.9 s wall / 84.2 s summed work** | < 5 min ✅ |
+| full sweep, `--full`, 32 mutations | **186.8 s = 3.1 min wall / 1 526 s work (8.2x)** | < 15 min ✅ |
+| mutations red | **32 of 32 `[ok] RED`, 0 unreached names, 0 survivors** | all ✅ |
+| six of them re-run ALONE on the lean suite | all RED — `corner_style_composed_default` 11.1 s, `corner_bisector_negated` 10.9 s, `out_cast_ints_int64` 58.6 s (storage), `piece_key_within_piece_dropped` 59.0 s, `generated_pc_local_scaled` 10.7 s, `hda_input_ports_swapped` 24.0 s | ✅ |
+| gates | `gate_images.py` 0 failing / 3.5 s, `scale_gate.py` 9 rows 0 failing / 7.0 s, `run_hda_checks.py` 18 checks 0 failing / 9.4 s; **PC-G1..G4 pass, PC-G5 unchanged and still does not pass** | ✅ |
+| the tool | `git diff --stat 20a9179 HEAD -- polyfactory devScripts otls` is **EMPTY** — this cycle was tests-only | ✅ |
+| budget | **red**, re-counted independently with `wc -l`: **15 357 test / 14 643 tool = 1.05x, 714 over** (the check's own counter, +1 per file on both sides, says 15 381 / 14 682 = 699 over) | ≤ 1.0 ❌ |
+
+Three things the audit found that the build report did not say:
+
+1. ⚠️ **`facade_images.py` — PC-G5's ONLY image evidence — CANNOT FAIL, and it is 145 lines
+   inside the budget.** `rasterise` returns early on `if not segs`, and `facade_images.main()`
+   returns `None`. Demonstrated: with every facade's geometry replaced by an empty
+   `hou.Geometry()`, the script writes **zero PNGs, prints nothing and exits 0**. It is the
+   same class as `conform_bench.py` / `facade_bench.py`, which this cycle deleted for exactly
+   that reason, and the discipline it breaks — *an image check must prove the image contains
+   its subject* — is one `gate_images.py` itself honours (`image_shows_packed_*`). The fix is
+   a drawn-segment floor per image, and it is the cheapest thing left in the suite.
+   **FIXED 2026-08-25**: every image now asserts prims > 0 and drawn segments >= prims
+   (D194's shape) and the runner exits non-zero; the empty-`hou.Geometry()` mutation was
+   re-run and seen red — 6 FAIL rows, exit 1.
+2. ⚠️ **`--full` CANNOT BE RUN FROM AN EXPORT** — it resolves `git rev-parse HEAD` at `REPO`
+   and dies with `not a git repository`. The pristine-export guarantee is real but it is
+   **per work item and internal**: `run_mutation_registry.export()` archives HEAD for the
+   control and for every mutation. So run the *gate* wherever you like; run the *sweep* in
+   the repo.
+3. ⚠️⚠️ **THE `mutmut` LANE HAD NEVER BEEN RUN, AND ITS FIRST RUN FINDS REAL
+   SURVIVORS IN PRODUCTION CODE.** `setup.cfg`'s `[mutmut]` section is configured and 2.5.0 does
+   work on native Windows as documented, but nothing in the cycle report shows it having been
+   executed. The auditor ran it on **one** of the five configured kernel files, `decompose.py`
+   (387 lines), inside the throwaway export: **352 mutants, 227 killed, 124 SURVIVED, 1
+   suspicious — a 64.5 % kill rate — in 600 s.** The first five survivors opened were
+   all substantive rather than arid, and one was chased to the end:
+
+   > **mutant #209, `resolve_corners`: `if not forced and turn <= params.corner_angle_deg`
+   > → `turn <`.** The docstring one line above states the contract as *corner iff
+   > `turn > corner_angle_deg`*, so the mutant moves the corner-detection threshold onto its own
+   > boundary. On an EXACT 90° turn with `corner_angle_deg = 90.0` the shipped code finds
+   > **0 corners** and the mutant finds **1** — a corner post placed or not placed.
+   > **It survives the ENTIRE lean suite**: 238 pytest tests, the properties at
+   > `PC_EXAMPLES=1500`, 405 generated scenes through the differential oracle (`0 RED`),
+   > `run_native_checks.py` (`0 failing`) and `run_scene_checks.py` (`0 failing, 0 moved`) —
+   > every one of them exit 0. Neither the 89 hand fixtures nor `gen_cases` ever lands a turn
+   > exactly on the threshold, and no property asserts the boundary. This is principle 2's own
+   > failure mode surviving into v2: **generated inputs do not reach a boundary unless the
+   > generator is told the boundary exists.**
+
+   Two caveats stated rather than buried: mutmut's 2.5.0 mutant set is unfiltered (Google's
+   policy filters arid lines; `setup.cfg` does not), so 124 is an upper bound on real gaps, and
+   mutmut can only run pytest — some survivors may be killed by the hython lanes, though
+   #209 demonstrably is not. And **600 s for one of five files** means the milestone form of
+   this lane is on the order of hours, which no target in this file budgets for.
+4. ⚠️ **A wall-clock ceiling flaked under the 32-way sweep.** `proxy_is_interactive` reddened
+   as collateral for `hda_input_ports_swapped` in the parallel sweep and did **not** redden
+   when the same mutation ran alone. It credits nothing, so no verdict moved — but by the
+   skill's own rule a flaky check is a defect in the check, and this is the second time
+   contention has moved a `native`/`hda` result (see the false survivor above).
+   **FIXED 2026-08-25**: `pdg_build.py` exports `PC_PARALLEL=1` and `proxy_is_interactive`
+   does not enforce its absolute wall-clock ceiling under it — the sequential registry and
+   a solo run still do.
+
+The three PRODUCTION defects the new instruments found are **recorded, not fixed** — this was a
+test cycle — and each is a standing check that fails the day it is fixed, so none can be closed
+by accident: `pc_module` inside the packed geometry on the native path only
+(`run_generated.KNOWN`, 207 of the 208 cases the guard admits); `plan.evenly` with **no
+`MAX_UNITS` ceiling** where `plan.fit` clamps and warns
+(`test_evenly_ignores_the_MAX_UNITS_ceiling`; re-measured by the audit — 999 999 anchors on a
+1 km span at 1 mm spacing, 0.039 s, no warning, and the artist-facing *Evenly Spacing (m)* parm
+is `min_is_strict=False`, so the value is typeable); and `fill = count` with a negative pad
+laying the run outside its own section in silence
+(`test_count_mode_overhangs_the_section_on_negative_padding`).
+
+## The v2 commands
 
 ```bash
-# pure logic — no Houdini, ~0.002s
-python tests/unit/test_citygen.py
-python tests/unit/test_plan.py            # the S5 planner, ~0.02s
+# THE PER-CYCLE GATE - kernel + comparator battery + budget + 400 generated
+# scenes through the differential oracle, cooked as one parallel TOP graph.
+# ~13 s wall for ~90 s of work. Exits non-zero on any red work item.
+hython tests/polychain/pdg_build.py
+
+# ... plus the mutations whose edited files actually moved (Google's policy)
+hython tests/polychain/pdg_build.py --changed HEAD~1
+
+# THE MILESTONE SWEEP - all 47 registry entries, one work item each, behind
+# one shared control build. 224 s wall for 1 998 s of work.
+# `--slots N` trades wall time for stability on a busy machine.
+hython tests/polychain/pdg_build.py --full
+hython tests/polychain/pdg_build.py --full --slots 6
+
+# the pieces on their own, when a red needs looking at
+python -m pytest tests/unit/test_polychain_properties.py -q      # 1.8 s
+PC_EXAMPLES=1500 python -m pytest tests/unit/test_polychain_properties.py -q   # 23 s
+python -m pytest tests/unit/test_polychain_budget.py -q          # 0.3 s
+python -m pytest tests/unit/test_polychain_slice.py -q            # 0.7 s
+hython tests/polychain/run_diff_selftest.py                      # 1.9 s
+hython tests/polychain/run_generated.py --seeds 400 --quiet      # 41 s
+hython tests/polychain/run_generated.py --seeds 1 --start 27     # one seed
+hython tests/polychain/run_native_checks.py                      # 27 s
+hython tests/polychain/run_scene_checks.py                       #  4 s
+hython tests/polychain/run_2d_checks.py                          # 14 s
+hython tests/polychain/run_hda_checks.py                         # 10 s
+hython tests/polychain/run_slice_checks.py                        #  6 s
+hython tests/polychain/run_facade_hda_checks.py                   #  7 s
+hython tests/polychain/facade_images.py [outdir]                 #  6 s
+hython tests/polychain/gate_images.py [outdir]                   #  4 s
+
+# the registry on its own, sequentially - the meta-check the PDG sweep does
+# NOT make: every printed check name PROVEN / EXEMPT / UNPROVEN, both
+# directions of the inventory pinned, and no dead or stale declaration.
+python tests/polychain/run_mutation_registry.py
+python tests/polychain/run_mutation_registry.py --list
+python tests/polychain/run_mutation_registry.py --only pc_local_scaled
+python tests/polychain/run_mutation_registry.py --runner scene --state s.json
+
+# MUTMUT, on the pure-Python kernel. ⚠️ PIN 2.5.0: mutmut 3.x refuses to run
+# on native Windows ("please use the WSL") and does nothing else. ⚠️ And set
+# PYTHONIOENCODING: its banner is emoji and this machine's stdout is cp1252
+# whenever it is piped. ⚠️ AND SET PYTHONUTF8=1, which is a different
+# problem: mutmut READS the source with the locale codec too, so every ⚠️ in
+# this package makes it die in a UnicodeDecodeError before it mutates a line
+# (measured on slicer.py, 2026-08-25). ⚠️ And it REWRITES SOURCE FILES IN
+# PLACE - an interrupted run leaves a mutant on disk, and a pytest run of
+# your own that races it reads the mutant; check `git status` after one, and
+# do not run anything else against the tree while it works.
+pip install "mutmut==2.5.0"
+export PYTHONIOENCODING=utf-8
+export PYTHONUTF8=1
+
+# per cycle - only the kernel files git says moved
+python -m mutmut run --paths-to-mutate "$(git diff --name-only HEAD~1 \
+  -- 'polyfactory/scripts/python/polyfactory/polychain/*.py' | paste -sd,)"
+
+# DEBT (2026-08-25): decompose.py's first run found 124 survivors; #209 (the
+# corner-threshold boundary) is killed, the other 123 are untriaged (unfiltered
+# mutant set, so an upper bound). Resume with:
+#
+# slicer.py (C1a, 2026-08-25): 191 of 237 mutants run before the lane was
+# stopped; 61 survivors, sampled rather than triaged, and FOUR of the sample
+# were substantive and are killed now - #164 (every Y guide dropped: nothing
+# asserted that a Y guide cuts AT ALL), #71 (a stray guide outside the chunk
+# taking every guide after it with it), #90 (a merged duplicate losing its
+# class), #105 (the caps-off band half the chunk). The rest of the sample was
+# string mutation of warning text. The remaining 46 are untriaged.
+#   python -m mutmut run --paths-to-mutate polyfactory/scripts/python/polyfactory/polychain/decompose.py && python -m mutmut results
+
+# at a milestone - the whole kernel, from setup.cfg's [mutmut] section
+python -m mutmut run
+python -m mutmut results
+python -m mutmut show <id>          # the diff of one surviving mutant
+```
+
+⚠️ **mutmut only ever sees the `hou`-free kernel** — `plan`, `decompose`, `corner`, `array2d`,
+`slicer` (added C1a, 2026-08-25 — it had been missing since C1 built it) and `__init__`. `place`, `conform`, `hda`, `kit`, `style` and `facade` import `hou`, so a mutant in
+them would be "killed" by an ImportError under a Houdini-less pytest: a green earned by nothing.
+Those layers belong to the hand-written registry, which is the division the skill draws.
+
+---
+
+# The v1 history
+
+polyChain's v1 test regime — 25 137 lines of checks around a tool nobody had
+measured, 80-minute sweeps, ~20 checks that could not fail — is **not
+summarised here**. It is one document, with the incident log that earned every
+rule in v2: [`ideas/build_retrospective.md`](../ideas/build_retrospective.md),
+§2a (the unfailable checks) and §3–§4 (what to read before an autonomous
+cycle). `ideas/polychain.md` carries the cycle-by-cycle build log. This file
+describes what runs **now**.
+
+---
+
+# The other runners
+
+Everything above is polyChain. citygen and the shared HDA hygiene suite are
+unchanged by v2 and run on their own:
+
+```bash
+# pure logic — no Houdini, milliseconds
+python tests/unit/test_citygen.py         # cross-section profile maths
+python tests/unit/test_plan.py            # the S5 planner + its calibration
 
 # re-measure what the builder's plates actually consume (rewrites the fixture
 # tests/unit/test_plan.py calibrates against)
 hython tests/citygen/dump_trims.py
 
-# geometry — throwaway Houdini session, never saves a .hip
+# attribute hygiene — EVERY polyfactory SOP HDA cooked in a throwaway session,
+# at defaults AND once per non-default toggle/menu value (236 branches, ~23 s),
+# because `verts`, `scalefactor` and `__scalefactor` were all invisible at
+# defaults. Asserts conventions.md §2 (no output name begins with `_`), that no
+# retired spelling survives in any library file (the only check that can reach
+# a Vop), and diffs every published name against tests/hda/baseline.json. A
+# baseline move FAILS the run; --update-baseline is how you accept one.
+hython tests/hda/run_attrib_checks.py
+hython tests/hda/run_attrib_checks.py --update-baseline
+
+# citygen geometry — throwaway Houdini session, never saves a .hip
 hython tests/citygen/run_scene_checks.py
 hython tests/citygen/run_scene_checks.py --update-baseline
 
 # the loop-closure gate, swept over a sep/step ladder — ~1 min / ~20 min
 hython tests/citygen/closure_gate.py
 hython tests/citygen/closure_gate.py --full --table
+
+# polyChain at scale: PC-G3's 10k-piece run and D75's curvature budget across
+# radii (packed vs deformed, points, seconds, RSS) - ~30 s. Out of the
+# registry's scope by construction: it prints a failing-ROW count, not check
+# names, so there is nothing to pair a mutation against.
+hython tests/polychain/scale_gate.py
+
+# PC-G5's images - the L in three-quarter view, the reflex corner
+# ground-to-cornice, and the facade coloured by `pc_cell`
+hython tests/polychain/facade_images.py [outdir]
 ```
 
 ## Why this exists
@@ -25,36 +383,44 @@ hython tests/citygen/closure_gate.py --full --table
 Four review passes over CityGen each rewrote the *same* measurements from
 scratch — self-intersection counts, the sidewalk-wrap test, degenerate-poly
 counts, lot double-coverage — because they lived nowhere. That cost roughly
-850k tokens. Every check in `citygen/checks.py` caught a real bug; each one is
-now written down so the next pass starts where the last finished.
+850k tokens.
 
-**A measurement written during a review belongs in `checks.py` afterwards.**
-That is the whole point: round N's ad-hoc query becomes round N+1's standing
-assertion, and reviews get cheaper instead of repeating themselves.
+**A measurement written during a review belongs in the suite afterwards.**
+Round N's ad-hoc query becomes round N+1's standing assertion, and reviews get
+cheaper instead of repeating themselves. v2 adds the other half of that rule,
+learned the hard way: **it belongs there as an assertion with a ceiling and a
+mutation, not as a script that prints.** Two wall-clock benches were deleted in
+the v2 pass for exactly that reason — they could not fail.
 
 ## Numbers first, renders second
 
-Nearly every real defect was *diagnosed* numerically. Renders showed that
-something was wrong; the numbers said what. The arc-fit bug came from counting
-degenerate corner segments, the group-name collision from comparing winding
-counts, the duplicate lots from prim count vs distinct footprints.
+Nearly every real defect is *diagnosed* numerically. Renders show that
+something is wrong; the numbers say what. So the scene checks run headless and
+cheap, and rendering is a separate step for whatever they flag plus the fixed
+gate set a human looks at.
 
-So the scene checks run headless and cheap, and rendering is a separate,
-GUI-only step for whatever they flag. Rendering everything is the expensive and
-least diagnostic half.
+⚠️ An image check must prove the image CONTAINS its subject before anything
+judges it — a gate image that "showed" a 3 388-segment fence contained 188,
+because a packed prim has one vertex and the wireframe was drawn off it.
+`gate_images.py` counts drawn primitives against the packed count (D194).
 
 ⚠️ The flipbook render path needs a UI and **will not run in hython**. The
-offscreen OpenGL ROP was tried and is unreliable on some drivers. Headless
-rendering would need husk/Karma and has not been proven here.
+offscreen OpenGL ROP was tried and is unreliable on some drivers.
 
-## The baseline
+## The baselines
 
-`citygen/baseline.json` records every value, not just pass/fail. Several
-regressions were only ever visible as *"this number got worse"*: a lot-winding
-group collision, a block count that tripled during a failed fix. Bare pass/fail
-misses those. The runner diffs against the baseline and prints movement even
-where a check still passes — **read that list, and confirm each move is an
-improvement before running `--update-baseline`.**
+`citygen/baseline.json`, `polychain/baseline.json` and
+`polychain/baseline_2d.json` record every value, not just pass/fail: several
+regressions were only ever visible as *"this number got worse"*. The runner
+diffs against the baseline and prints movement even where a check still passes
+— **read that list and confirm each move is an improvement before running
+`--update-baseline`** — and a moved value FAILS the run (D210: it used to print
+the movement and exit 0).
+
+⚠️ v2 shrank polyChain's baseline from 967 KB to 244 KB, because a recorded
+value is only worth its weight where a NUMBER is the contract. Where the
+question is "do the two implementations agree", the reference IS the baseline
+and `diff.compare` asks it directly, on generated input, every run.
 
 ## Layout
 
@@ -68,6 +434,10 @@ tests/
                            moves a trim - it went stale for a whole
                            milestone and 49 tests stayed green on the
                            topology the builder had stopped producing
+    test_polychain*.py         polyChain's kernel: contracts, the fitting
+                               solve's lookup tables, corners, the 2D array
+    test_polychain_properties.py  v2: Hypothesis over the hou-free kernel
+    test_polychain_budget.py      v2: tests <= tool, enforced
   citygen/
     checks.py            the assertion library — add to this
     cases.py             scene construction + headless env setup
@@ -75,6 +445,27 @@ tests/
     baseline.json        recorded values
     dump_trims.py        writes trim_calibration.json from the live solve
     closure_gate.py      the loop-closure sweep — harness AND its own checks
+  polychain/
+    diff.py                v2: THE comparator - every attribute, both paths
+    gen_cases.py           v2: a whole scene from one integer
+    run_generated.py       v2: generated scenes through the oracle, on the .hda
+    run_diff_selftest.py   v2: the comparator's own 19-mutation battery
+    pdg_build.py           v2: the parallel cached runner (a TOP net)
+    mutations.py           the registry: every check paired with its mutation
+    run_mutation_registry.py   the meta-runner
+    checks.py              the 16 geometric properties + the cost tripwires
+    cases.py               the hand fixtures, each named for the defect that
+                           created it - and what 22 of the 32 mutations reach
+                           their target THROUGH, which is what keeps them
+    run_scene_checks.py    the scene runner + baseline
+    run_2d_checks.py       phase 2, its own cases and its own baseline
+    run_native_checks.py   the native stages vs the reference, in ONE process
+    run_hda_checks.py      the ASSET: wiring, the parm face, the artist page
+    run_slice_checks.py    7.7's kit slicer, on BOTH shipped assets - the
+                           slicer's own inverse as the oracle, then the kit
+                           it emits through pf_polychain
+    gate_images.py         PC-G1/PC-G2 through the parm page + a rasteriser
+    scale_gate.py          PC-G3's ladder, both z-modes
 ```
 
 ## The planner's calibration is a baseline too
@@ -101,12 +492,12 @@ below the mover's arrival floor the mover does not fire. Read those numbers as a
 recorded state, the same way `baseline.json` is read.
 
 ⚠️ **But the metre is not the property, and the M1 audit caught this file
-implying it was.** What the planner is FOR is the answer — does this street still
-stand? Over all 322 edges the planner's `standing > 0` verdict never disagrees
-with the builder's: **0 false-OK, 0 false-BAD**. That is asserted directly, and
-it is the assertion to keep green. The per-case residuals are a tripwire on the
-model drifting, not a safety margin — treating them as one is how a 5.88 m
-optimistic error got recorded as a 2.02 m bound.
+implying it was.** What the planner is FOR is the answer — does this street
+still stand? Over all 322 edges the planner's `standing > 0` verdict never
+disagrees with the builder's: **0 false-OK, 0 false-BAD**. That is asserted
+directly, and it is the assertion to keep green. The per-case residuals are a
+tripwire on the model drifting, not a safety margin — treating them as one is
+how a 5.88 m optimistic error got recorded as a 2.02 m bound.
 
 ## The node schema, and why a closed vocabulary is not enough
 
