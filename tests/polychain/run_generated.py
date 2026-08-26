@@ -44,15 +44,12 @@ HDA_PATH = os.path.join(REPO, "polyfactory", "otls",
                         "pf_polychain.hda").replace("\\", "/")
 
 # ⚠️ THE `KNOWN DIVERGENCES` TABLE IS GONE, AND ITS ABSENCE IS THE FIX (P3,
-# 2026-08-26).  It held exactly one entry for its whole life - the guarded
-# native output wrote `pc_module` INSIDE its packed prims where the reference's
-# packed contents carried `P` and nothing else, on 136 of 406 seeds - and that
-# entry was a production finding parked in a test file.  `kit.source_for` now
-# stamps the module's name on the polygons the way `kit_unpack` always has,
-# both paths agree, and the table, its matcher and the
-# `known_divergences_still_occur` row are DELETED rather than left empty: a
-# zero-entry escape hatch is an invitation to FILE the next divergence instead
-# of fixing it.  Re-adding it is a deliberate act, visible in a diff.
+# 2026-08-26).  Its one entry for its whole life - the native path wrote
+# `pc_module` INSIDE its packed prims where the reference's contents carried
+# `P` alone, 136 of 406 seeds - was a production finding parked in a test file,
+# and `kit.source_for` now stamps it on both sides.  The table, its matcher and
+# `known_divergences_still_occur` are DELETED rather than left empty: an empty
+# escape hatch invites FILING the next divergence instead of fixing it.
 
 
 # --- 13.9 N6's ONE STATED TOLERANCE -----------------------------------------

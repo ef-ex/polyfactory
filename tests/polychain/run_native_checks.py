@@ -5,9 +5,9 @@
 The reference stays live in-process; every stage cooks the real SOP nodes
 `devScripts/create_pf_polychain_hda.py` installs, and the guard checks cook
 the SHIPPED asset.  v2, 2026-08-25: trimmed from 9 066 lines / 144 checks to
-the 19 names that have a registered mutation or state a property `compare()`
-(diff.py + run_generated.py) structurally cannot.
-WHAT IT CANNOT SEE: whether either path is right - it is a parity instrument.
+the names that have a registered mutation or state a property `compare()`
+(diff.py + run_generated.py) structurally cannot - `EXPECT_CHECKS` pins how
+many. WHAT IT CANNOT SEE: whether either path is right; it is parity only.
 """
 
 import io
@@ -1469,24 +1469,15 @@ def output_snapshot_sees_the_deformed_branch(root):
 #
 # Nothing held a cost ceiling on the guard for several cycles: the v2 pass
 # deleted `bench_guard_fallback` and `output_guard_cost` while 0.0 and
-# `pc_envelope.vfl` went on citing both.  That header now owns the argument
-# and `pc_plan_solve.vfl` the root cause.
-#
-# ⚠️ AND THE HEADER SAID "one 20 km curve 2.62x" ABOVE A FIXTURE THAT IS
-# 5 km (P2-9, 2026-08-26).  26 points at 200 m is 5 000 m and 2 500 pieces;
-# D311's 2.66x was measured on the 20 km / 0.30 m-panel shape in 30.9's
-# profile table, which had no ceiling at all - so the row that was DECLARED
-# DEBT and the row that is CHECKED were two different runs, and re-measuring
-# the checked one three times gives 1.76 / 1.77 / 1.80x, not 2.66x.  The
-# shape is now a column: length and spacing are declared per row and the
-# 20 km one is here, which is what makes D311 a checked claim instead of a
-# remembered number.
+# `pc_envelope.vfl` went on citing both.  `pc_envelope.vfl`'s header owns the
+# argument and `pc_plan_solve.vfl` the root cause; 30.9 and P2-9's entry in 12
+# own the history (a declared 2.66x and a checked 1.8x were two different
+# SHAPES, which is why length and spacing are columns below).
 #
 # ⚠️ 1.8x IS A NAME, NOT A CEILING HERE. It is what the deleted
 # `bench_guard_fallback` measured for a build that pays BOTH chains, and D216
-# uses it as the price of a level-1 guess being wrong; 0.0 and D311 both cite
-# it in prose. A row above it is debt, and the ratio says which rows those are
-# instead of a sentence claiming it.
+# uses it as the price of a level-1 guess being wrong. A row above it is debt,
+# and the ratio says which rows those are instead of a sentence claiming it.
 GUARD_FALLBACK_CEILING = 1.8
 
 #   (label, curves, points/curve, spacing m, z amplitude m, z freq,
@@ -1672,6 +1663,116 @@ GUARD_MARKER_DATA_ROWS = (
     ("key_nonascii_num", {u"k\u00e9": u"x"}, u"markerData:k\u00e9", "eq", 0.0),
     ("key_nonascii_str", {u"k\u00e9": u"x"}, u"markerData:k\u00e9", "eq", u"x"),
 )
+
+
+# D341's ceiling, in float32 ULP OF THE PIECE'S WORLD POSITION - the unit IS
+# the finding (D291: the error of a float32 round trip scales with the absolute
+# coordinate).  3 is what 33.4 measured at 500 m.
+MITER_CANONICAL_ULP = 3.0
+
+
+def miter_cut_is_not_a_port(root):
+    """D341's deciding experiment, STANDING (33.4 owns the argument).
+
+    4.3 cuts every mitered piece on its OWN world plane; the batched candidate
+    puts each plane on world `y = 0` by a PROPER rotation (det +1) and runs
+    `clip` + `polyfill` ONCE.  ⚠️ THE PREMISE IS PINNED, NOT THE PORT: the
+    decline stands on "not the same arithmetic", so a ZERO here FAILS (the
+    batch has become a port - reopen the choice) and so does a gap that GREW.
+    WHAT IT CANNOT SEE: which of 33.4's two options is right - a human's call.
+    """
+    rows, bad = [], []
+    # the plane a mitered piece is really cut on: the BISECTOR of the turn.
+    for label, turn, reach in (("90deg_origin", 90.0, 0.0),
+                               ("90deg_500m", 90.0, 500.0),
+                               ("37deg_20km", 37.0, 20000.0)):
+        box = hou.Geometry()
+        K.box_mesh(box, reach, reach + 2.0, 0.0, 0.9, -0.03, 0.03, 1)
+        a = math.radians(turn) / 2.0
+        n = hou.Vector3(math.cos(a), 0.0, math.sin(a)).normalized()
+        o = hou.Vector3(reach + 1.0, 0.0, 0.0)
+        direct = P.clip_plane(hou.Geometry(box), o, tuple(n), 1)
+        # (u, n, w) is right-handed, so the rotation is proper - no winding
+        # flip and no mirrored geometry, which is what makes it a candidate.
+        u = n.cross(hou.Vector3(1.0, 0.0, 0.0) if abs(n[0]) < 0.9
+                    else hou.Vector3(0.0, 0.0, 1.0)).normalized()
+        w = u.cross(n)
+        m = hou.hmath.buildTranslate(-o) * hou.Matrix4(
+            [[u[0], n[0], w[0], 0.0], [u[1], n[1], w[1], 0.0],
+             [u[2], n[2], w[2], 0.0], [0.0, 0.0, 0.0, 1.0]])
+        moved = hou.Geometry(box)
+        moved.transform(m)
+        batched = P.clip_plane(moved, (0.0, 0.0, 0.0), (0.0, 1.0, 0.0), 1)
+        batched.transform(m.inverted())
+        da = direct.pointFloatAttribValues("P")
+        db = batched.pointFloatAttribValues("P")
+        if len(da) != len(db):     # 33.4 measured POSITIONS, not topology
+            bad.append("%s: %d floats against %d" % (label, len(da), len(db)))
+            continue
+        n_ulp = max([abs(x - y) for x, y in zip(da, db)]) / ulp32(reach + 2.0)
+        rows.append((label, n_ulp, len(da)))
+        if n_ulp > MITER_CANONICAL_ULP:
+            bad.append("%s: %.2f ULP of the world reach, over %.1f"
+                       % (label, n_ulp, MITER_CANONICAL_ULP))
+    if rows and max(r[1] for r in rows) <= 0.0:
+        bad.append("every case is bit-identical - the batched cut has BECOME "
+                   "a port and 33.4's choice is open again")
+    check("miter_cut_is_not_a_port", not bad,
+          "%.2f ULP worst" % max([r[1] for r in rows] or [0.0]),
+          "D341, standing: the per-piece WORLD cut against the batched "
+          "CANONICAL-frame one, ceiling %.1f float32 ULP of the world reach. "
+          "Rows (ULP / floats): %s. %s"
+          % (MITER_CANONICAL_ULP,
+             ", ".join("%s %.2f/%d" % r for r in rows),
+             "; ".join(bad) if bad else "not a port, and no worse than 33.4"))
+
+
+# The only two tags that name the CONDITION where the code names the variable
+# carrying it (each an alias, therefore a claim, asserted live below), and the
+# one tag pair that is ONE `return False`.
+REFUSAL_ALIAS = {"corners": "corner_refuse",
+                 "surface_type": "_surface_is_droppable"}
+REFUSAL_PAIRED = ("flat_band_m",)
+
+
+def guard_refusal_list_is_true(_root=None):
+    """D313 - `pc_envelope.vfl`'s shipped refusal list, BOTH WAYS.
+
+    The header is what every reader believes the guard refuses, and it is
+    prose: C6 shipped a claim in it that was wrong for a whole cycle (D342)
+    because this check was deleted by the v2 pass while the header went on
+    citing it BY NAME.  A tag is a list row only when its bracket is not
+    backquoted - a RETIRED row is quoted in the note that retires it
+    (`[cfg:has_surface]`), and must not be demanded back.
+    WHAT IT CANNOT SEE: whether a refusal is RIGHT, or whether it is reached.
+    """
+    vfl = io.open(os.path.join(REPO, "polyfactory", "vex", "polychain",
+                               "pc_envelope.vfl"), encoding="utf-8").read()
+    src = io.open(H.__file__.replace(".pyc", ".py"), encoding="utf-8").read()
+    body = src.split("def _native_ok(", 1)[-1].split("\ndef ", 1)[0]
+    tags = lambda kind: set(re.findall(r"(?<!`)\[%s:([A-Za-z_0-9]+)\]" % kind,
+                                       vfl))
+    vex, cfg = tags("vex"), tags("cfg")
+    expr = re.search(r"i@_native_ok\s*=\s*\((.*?)\);", vfl, re.S).group(1)
+    terms = set(re.findall(r"[A-Za-z_][A-Za-z_0-9]*", expr))
+    want = set(REFUSAL_ALIAS.get(t, t) for t in vex)
+    bad = []
+    if want != terms:
+        bad.append("[vex:*] vs `i@_native_ok`: only in the header %s; only in "
+                   "the verdict %s" % (sorted(want - terms) or "-",
+                                       sorted(terms - want) or "-"))
+    nret = body.count("return False")
+    if len(cfg) - len(REFUSAL_PAIRED) != nret:
+        bad.append("%d [cfg:*] row(s) - %d paired - against %d `return False` "
+                   "in `_native_ok`" % (len(cfg), len(REFUSAL_PAIRED), nret))
+    for tag in sorted(cfg):
+        if REFUSAL_ALIAS.get(tag, tag) not in body:
+            bad.append("[cfg:%s] names nothing in `_native_ok`" % tag)
+    check("guard_refusal_list_is_true", not bad,
+          "%d vex / %d cfg / %d ret" % (len(vex), len(cfg), nret),
+          "D313 - the shipped header's refusal tags against the code that "
+          "refuses, in BOTH directions. %s"
+          % ("; ".join(bad) if bad else "every row maps one-for-one"))
 
 
 def guard_marker_data_types(root):
@@ -1861,16 +1962,12 @@ i@_hit  = hit;
 # what survives float32 `P` storage.  Both sides round into the same 24 bits,
 # so anything above this is a DIFFERENT number in the storage the output ships.
 CONFORM_DROP_CEILING_M = 1e-12
-# ⚠️ THE CORRECTION MADE THIS CEILING 500 000x TIGHTER.  D247 read a RAW
-# 9.375e-04 m at 20 km and called `intersect()` a float32 ray test; that
-# number was the float32 `_q` this check asked VEX while asking Python the
-# exact double (F5), and both are asked the float32 now.  Reading the
-# DIFFERENCE: x and z agree at 0.000e+00 m at 0 m, 100 m, 2 km and 20 km, and
-# the AXIS component disagrees by ~1 DOUBLE ULP of the query - irreducible,
-# two ray-triangle implementations rather than two spellings of one.
-# WHAT IT CANNOT SEE: a defect BOTH sides share (26.9), and anything decided
-# below float32 - the question the real graph asks, since `P` ships at
-# float32.  Registered mutation: `conform_drop_biased` (1e-5 m of bias).
+# ⚠️ THE C4 AUDIT'S F5 MADE THIS CEILING 500 000x TIGHTER (D247 in 12 owns the
+# story).  Reading the DIFFERENCE: x and z agree at 0.000e+00 m at 0 m, 100 m,
+# 2 km and 20 km, and the AXIS component disagrees by ~1 DOUBLE ULP of the
+# query - irreducible, two ray-triangle implementations rather than two
+# spellings of one.  WHAT IT CANNOT SEE: a defect BOTH sides share (26.9), and
+# anything decided below the float32 `P` the output ships.
 CONFORM_DROP_REL_CEILING = 8.882e-16      # 4 x 2^-52
 
 
@@ -1987,10 +2084,7 @@ def conform_drop_is_portable_to_vex(root):
           "`conform.Surface.drop`, read off the AXIS COMPONENT with the other "
           "two SELECTED from the query (D111). TWO ceilings: in float32 `P` "
           "storage %.0e m, and RAW as a fraction of the query magnitude %.3e "
-          "(four DOUBLE ULP - D247's two-float32-ULP ceiling was measuring the "
-          "float32 `_q` this check asked VEX while asking Python the exact "
-          "double, not the two implementations; both are asked the float32 "
-          "now). Rows "
+          "(four DOUBLE ULP; D247 in 12 owns why). Rows "
           "(f32 / raw m / raw rel): %s. %s"
           % (CONFORM_DROP_CEILING_M, CONFORM_DROP_REL_CEILING,
              "; ".join("%s %.3e / %.3e / %.3e" % (r[0], r[1], r[3], r[4])
@@ -2037,6 +2131,8 @@ def main():
     gate_parity(root, built)
     piece_order_key_is_total(root)
     guard_marker_data_types(root)
+    guard_refusal_list_is_true()
+    miter_cut_is_not_a_port(root)
 
     native.cleanup()
     failed = [r for r in RESULTS if not r[1]]

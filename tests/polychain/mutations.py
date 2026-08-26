@@ -30,16 +30,16 @@ RUNNERS = {
     "2d":     "tests/polychain/run_2d_checks.py",
     "hda":    "tests/polychain/run_hda_checks.py",
     "images": "tests/polychain/gate_images.py",
-    # v2's differential oracle over GENERATED input, on the shipped asset.
-    # It prints a HANDFUL of names, deliberately: seed numbers are
-    # diagnostics, not check names (a sweep that moves its range would
-    # silently retire and invent hundreds of them).
+    # v2's differential oracle over GENERATED input, on the shipped asset. It
+    # prints a HANDFUL of names, deliberately: seed numbers are diagnostics,
+    # not check names (a sweep that moved its range would silently retire and
+    # invent hundreds of them).
     "generated": "tests/polychain/run_generated.py",
     # 7.7's on-ramp, on BOTH shipped assets: the slicer's own inverse as the
     # oracle, then the kit it emits through `pf_polychain`.
     "slice": "tests/polychain/run_slice_checks.py",
-    # P2-9's node, judged against the shipped 2D entry point by the same
-    # differential comparator - plus 5.1's metadata on all THREE assets.
+    # P2-9's node against the shipped 2D entry point, same comparator - plus
+    # 5.1's metadata on all THREE assets.
     "facade": "tests/polychain/run_facade_hda_checks.py",
 }
 
@@ -98,12 +98,9 @@ MUTATIONS = (
       ((VEX % "pc_deform.vfl",
         "v@pc_local = local;", "v@pc_local = local * 1.5;"),)),
 
-    # ⚠️ `generated_known_pattern_broken` IS DELETED WITH THE TABLE IT GUARDED
-    # (P3): the one KNOWN divergence it kept honest - `pc_module` inside the
-    # native path's packed prims - is FIXED in `kit.source_for`, and the pins
-    # that reached it (`gen_cases.PINS` 27/42/150/170/203) now guard the
-    # agreement instead. `packed_module_stamp_dropped` below is what reddens
-    # if the stamp ever goes away again.
+    # P3: `generated_known_pattern_broken` is deleted with the KNOWN table it
+    # guarded - its one entry is FIXED in `kit.source_for` - and this is what
+    # reddens if the stamp goes away again.
     M("packed_module_stamp_dropped", "generated",
       ("generated_output_matches_the_reference",),
       "P3 - the packed CONTENTS, which no check saw for the whole native "
@@ -181,6 +178,29 @@ MUTATIONS = (
       "there.",
       ((VEX % "pc_deform.vfl",
         "v@pc_local = local;", "v@pc_local = set(0.0, 0.0, 0.0);"),)),
+
+    # ---- P3: the two claims that had no reader (D313, D341) ---------------
+    M("refusal_list_claims_a_row_it_has_not_got", "native",
+      ("guard_refusal_list_is_true",),
+      "D342's shape exactly: the shipped header claims a refusal the verdict "
+      "does not make. A COMMENT-only edit, so its blast radius is one name.",
+      ((VEX % "pc_envelope.vfl", "//   * [vex:ndup] a DUPLICATED curve id.",
+        "//   * [vex:ndup] [vex:invented] a DUPLICATED curve id."),)),
+
+    M("refusal_list_loses_a_refusal", "native",
+      ("guard_refusal_list_is_true",),
+      "...and the other direction: `_native_ok` stops refusing something the "
+      "header still lists (D26's slope fix).",
+      ((PY % "hda.py",
+        "        return False                                  # D26 slope",
+        "        pass                                          # D26 slope"),)),
+
+    M("miter_canonical_cut_biased", "native",
+      ("miter_cut_is_not_a_port",),
+      "D341's experiment, biased by 1e-5 m in the canonical frame - the shape "
+      "`conform_drop_biased` uses on 13.9 N6's.",
+      ((RUNNER_NATIVE, "moved, (0.0, 0.0, 0.0), (0.0, 1.0, 0.0), 1)",
+        "moved, (0.0, 1e-5, 0.0), (0.0, 1.0, 0.0), 1)"),), rebuild=False),
 
     # ---- D247, the tolerance that was disguised as exactness ---------------
     M("conform_drop_biased", "native",
@@ -1443,13 +1463,10 @@ assert len(_ids) == len(set(_ids)),     "duplicate mutation id: %s" % sorted(set
 
 # ---- the coverage meta-check ------------------------------------------------
 #
-# Every check name a runner prints is PROVEN (a registered mutation was SEEN
-# to redden it), EXEMPT (a mutation is impractical, or the check IS one) or
-# UNPROVEN (declared, dated debt); a name in none of the three FAILS the
-# meta-runner. ⚠️ EXEMPT IS A CLAIM AND THEREFORE A TARGET: it held 36 rows,
-# an auditor attacked two of the "impractical" ones and both fell on the first
-# correct attempt. The two that remain each apply their own in-line edit and
-# assert the break SHOWS, so an edit that stops matching goes RED.
+# ⚠️ EXEMPT IS A CLAIM AND THEREFORE A TARGET: it held 36 rows, an auditor
+# attacked two of the "impractical" ones and both fell on the first correct
+# attempt. The two that remain each apply their own in-line edit and assert
+# the break SHOWS, so an edit that stops matching goes RED.
 
 EXEMPT = {
     "native/mutation_pc_arclength":
@@ -1465,51 +1482,33 @@ EXEMPT = {
 # sweep (a new name is UNDECLARED); SHRINKAGE was silent until this existed -
 # filtering one check out of every 2d case took 40 names to 39 with the sweep
 # reporting `0 UNDECLARED`, exit 0.
+#
+# ⚠️ THE PER-CYCLE CHANGELOG THAT USED TO LIVE HERE IS DELETED - TWICE NOW
+# (C3a, and again in P3 after it grew back to 20 lines). It duplicates
+# polychain.md 12 line for line, it grows by a paragraph every cycle, and the
+# budget it spends is the budget the next cycle's own missing check needs.
+# 12's cycle entries name every check each cycle added and why; THIS IS THE
+# PINNED COUNT, and moving a number here is a deliberate act - growth already
+# fails the sweep, shrinkage used not to.
 EXPECT_CHECKS = {
-    # ⚠️ THE PER-CYCLE CHANGELOG THAT USED TO LIVE HERE IS DELETED (C3a). It
-    # duplicated polychain.md 12 line for line, it grew by a paragraph every
-    # cycle, and the budget it was spending is the budget PC-G5's own missing
-    # checks needed. 12's cycle entries name every check each cycle added and
-    # why; this is the pinned COUNT, and moving a number here is a deliberate
-    # act - growth already fails the sweep, shrinkage used not to.
-    # ...`array_offplane_m_hostile` is where D290's property moved when
-    # D296a stopped it being a containment failure.
     "2d": 43,
-    # 13.9 N6 added `conformed_cases_reach_the_native_chain` and
-    # `conform_parity_spends_its_tolerance`, both with a mutation.
-    # P3 deleted `known_divergences_still_occur` with the KNOWN table: its one
-    # entry was a production finding, and it is fixed rather than filed.
     "generated": 4,
     "hda": 18,
     "images": 30,
-    # C4a restored `output_guard_cost` (F2) - the v2 pass deleted it and 0.0
-    # went on citing it, so nothing held a cost ceiling for several cycles.
-    "native": 20,
+    "native": 22,
     "scene": 39,
-    # 7.7, added 2026-08-25 with 10 mutations covering all 14 names.
-    # C1's audit added five, 2026-08-25: 19 names, 15 mutations.
     "slice": 19,
-    # P2-9, added 2026-08-26: 11 names, 13 mutations, 0 unproven.
-    # +1 name / +1 mutation for `facade_extend_picks_the_fallback` - D117's
-    # parm, which needed a kit with a GAP in it before any fixture could
-    # reach 7.2.2's fallback at all. 12 names, 14 mutations.
-    # P2-9a, the audit: +5 names / +5 mutations, one per finding F1..F4 (F1
-    # is two claims and therefore two rows). All five are things the suite
-    # could not have seen, and four of the five for the SAME structural
-    # reason - every fixture kit was authored with the page's own default
-    # module names, so the page and the oracle resolved the same nothing.
-    # 17 names, 19 mutations.
     "facade": 17,
 }
 
 
 # ---- the DATED DEBT ---------------------------------------------------------
 #
-# ⚠️ NOT AN EXEMPTION LIST. An EXEMPTION says "a mutation for this is
-# genuinely impractical, and here is the reason"; a DEBT ENTRY says "nobody
-# has written the mutation yet". After the v2 deletion pass it holds 76 names
-# of 122 (it was 283 of 361), and it shrank because the checks it described
-# were DELETED, not because they were proven. Four groups, reasons below.
+# ⚠️ NOT AN EXEMPTION LIST. An EXEMPTION says "a mutation for this is genuinely
+# impractical, and here is the reason"; a DEBT ENTRY says "nobody has written
+# the mutation yet". After the v2 deletion pass it holds 76 names of 122 (it
+# was 283 of 361), and it shrank because the checks it described were DELETED,
+# not because they were proven. Four groups, reasons below.
 
 UNPROVEN = {}
 UNPROVEN.update(dict.fromkeys((
