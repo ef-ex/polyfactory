@@ -658,14 +658,12 @@ class TestSamplerCacheParity(unittest.TestCase):
 
 
 class TestRunGuard(unittest.TestCase):
-    """`tests/polychain/runguard.py` - the two protections that exist because
-    this machine hard-froze twice and left 19.9 GB of orphaned temp.
-    ⚠️ NEITHER FAILURE CAN BE REPRODUCED ON PURPOSE, so both are driven through
-    the parameters the module carries for exactly that - the headroom number
-    and the directory root.  The registry cannot pair these (it drives hython
-    runners printing `[PASS] name`), so each mutation lives here AS a test,
-    `test_polychain_budget`'s precedent.  BLIND SPOT: whether the environment
-    `begin` exports is honoured by anything."""
+    """`tests/polychain/runguard.py`.  ⚠️ NEITHER FAILURE CAN BE REPRODUCED ON
+    PURPOSE, so both are driven through the parameters the module carries for
+    exactly that.  The registry cannot pair these (it drives hython runners
+    printing `[PASS] name`), so each mutation lives here AS a test -
+    `test_polychain_budget`'s precedent.  BLIND SPOT: whether what `begin`
+    exports is honoured."""
 
     def setUp(self):
         sys.path.insert(0, os.path.join(REPO, "tests", "polychain"))

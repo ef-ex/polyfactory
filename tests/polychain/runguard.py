@@ -1,23 +1,18 @@
 """TWO STRUCTURAL PROTECTIONS FOR THE PARALLEL RUNNERS - `begin`, `safe_slots`.
 
-Both incidents are `ideas/build_retrospective.md` 2c #11, which owns the story
-and is not repeated here: fifteen concurrent hythons HARD-FROZE this machine
-twice, and five days of headless sessions left 19.9 GB of orphaned
-`houdini_temp` / `pcmut_*` / `pcgen_*` on a system drive with 6 GB free.
+Both incidents belong to `ideas/build_retrospective.md` 2c #11 and are not
+retold here: fifteen concurrent hythons HARD-FROZE this machine twice, and five
+days of headless sessions left 19.9 GB of orphaned temp on a 6 GB-free drive.
 
-(1) `safe_slots` - lowering the default to 4 was a NUMBER, not a protection:
-    the same 4 on a machine already near its commit limit is the same failure
-    with a smaller number on it.  So the count is decided against the headroom
-    the OS will actually grant.
-(2) `begin` - HOUDINI_TEMP_DIR, and TEMP/TMP where `tempfile.mkdtemp` puts the
-    export trees, point inside `.tmp/` on the repo's own roomy drive, and
-    every hython the runners spawn inherits it.  The creating process deletes
-    it at exit; because A CRASHED RUN CANNOT CLEAN ITSELF, every run first
-    sweeps what an earlier one left.
+(1) `safe_slots` - lowering the default to 4 was a NUMBER, not a protection;
+    the count is decided against the headroom the OS will actually grant.
+(2) `begin` - HOUDINI_TEMP_DIR, and TEMP/TMP where `tempfile.mkdtemp` puts
+    the export trees, point inside `.tmp/` on the repo's own roomy drive, and
+    every hython inherits it.  Deleted at exit; because A CRASHED RUN CANNOT
+    CLEAN ITSELF, a run first sweeps what a dead one left.
 
-WHAT THIS CANNOT SEE.  Whether 8 GB per slot is right - one Houdini runtime's
-committed peak rounded up, claiming only that a machine which cannot grant it
-will not be asked to run four.  Nor a process ignoring the environment it was
+WHAT THIS CANNOT SEE.  Whether 8 GB a slot is right - one Houdini runtime's
+committed peak rounded up.  Nor a process ignoring the environment it was
 handed, nor a run alive past 24 h, whose directory `sweep` takes for an orphan.
 """
 
@@ -36,9 +31,9 @@ ORPHAN_AGE_S = 24 * 3600
 
 def commit_headroom():
     """Bytes the OS will still COMMIT, or None where it cannot be asked.
-    Commit, not free RAM: Windows charges every reservation against
-    physical + pagefile touched or not, and it was the COMMIT LIMIT - ~100 GB
-    of RAM nominally free - that ran out.  `ctypes`: nothing new installed."""
+    Commit, not free RAM: Windows charges every reservation against physical +
+    pagefile touched or not, and the COMMIT LIMIT is what ran out with ~100 GB
+    of RAM nominally free.  `ctypes`: nothing new installed."""
     if os.name != "nt":
         return None
     import ctypes
@@ -61,10 +56,9 @@ def commit_headroom():
 def safe_slots(requested, headroom=None, per_slot=PER_SLOT):
     """-> (slots, one line naming the numbers it was decided on).
     ⚠️ `headroom` IS INJECTABLE BECAUSE THE FAILURE CANNOT BE REPRODUCED ON
-    PURPOSE.  Freezing the machine to prove the guard bites is not a test, so
-    the number is a parameter and `test_a_starved_machine_is_refused` hands it
-    a starved one - without which this file is unfalsifiable on every machine
-    healthy enough to run the suite, which is every machine that does.
+    PURPOSE: freezing the machine to prove the guard bites is not a test, and
+    without the parameter this file is unfalsifiable on every machine healthy
+    enough to run the suite - which is every machine that does.
     """
     if headroom is None:
         headroom = commit_headroom()
@@ -105,9 +99,8 @@ def sweep(root=TMP, now=None, max_age_s=ORPHAN_AGE_S):
 def begin(root=TMP, now=None, max_age_s=ORPHAN_AGE_S):
     """Sweep orphans, claim a per-run directory, export it.  -> (dir, swept).
     ⚠️ IDEMPOTENT ACROSS A PROCESS TREE: the work items inherit this
-    environment, so a child calling `begin` again would claim a second
-    directory AND register an `atexit` deleting the shared one while three
-    siblings are still writing into it."""
+    environment, so a child calling `begin` again would claim a second dir AND
+    register an `atexit` deleting the one its siblings are writing into."""
     have = os.environ.get("HOUDINI_TEMP_DIR", "").replace("\\", "/")
     if have.startswith(root + "/"):
         return have, []

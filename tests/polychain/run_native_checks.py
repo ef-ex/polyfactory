@@ -578,11 +578,17 @@ def plan_diff(got, ref):
 
 
 def plan_reference(case, params, style, kit):
+    """⚠️ 4.3 SITS BETWEEN THE DECOMPOSE AND THE SOLVE AND THIS SKIPPED IT
+    (31.2): `place.build` runs `corner.plan_curve`, whose first act is
+    `merge_bend_sections`.  Per CURVE - two prims may share one id."""
+    from polyfactory.polychain import corner as C
     from polyfactory.polychain import decompose as D
     from polyfactory.polychain import plan as PLAN
     curves, markers = P.read_curves(case["curve"])
-    return PLAN.plan_sections(D.decompose_all(curves, markers, params),
-                              kit, style, params)
+    secs = [s for c in sorted(curves, key=lambda c: str(c.curve_id))
+            for s in C.merge_bend_sections(D.decompose(c, markers, params),
+                                           bool(c.closed), params)]
+    return PLAN.plan_sections(secs, kit, style, params)
 
 
 def fixture_cases():
@@ -1510,11 +1516,17 @@ GUARD_FALLBACK_CEILING = 1.8
 # thread, so the ratio is driven by the piece COUNT and not by the metres:
 # 20 km of 2.0 m panel is 10 000 pieces and reads 1.73x, and the same 20 km
 # of 0.30 m panel is 66 000 and is the row 30.9 measured at 2.66x.
+# The last two rows are 13.9 N8 stage 1's and need no new machinery: the same
+# sine at an amplitude clearing `corner_angle_deg` IS a 4.3 corner run (2
+# corners per short curve, 72 over the 20 km one).  Two, because the weld's
+# cost is the two SHAPES, pointing opposite ways (31.2).
 OUTPUT_COST_SHAPES = (
     ("many_short_curves", 300, 4, 20.0, 3.0, 1.0, None, 0.45),
     ("one_long_curve", 1, 26, 200.0, 2.0, 0.3, None, 2.10),
     ("one_20km_curve", 1, 101, 200.0, 2.0, 0.3, None, 2.10),
     ("one_20km_fine_panel", 1, 101, 200.0, 2.0, 0.3, 0.30, 3.20),
+    ("many_short_corners", 300, 4, 20.0, 12.0, 2.0, None, 0.60),
+    ("one_20km_corners", 1, 101, 200.0, 130.0, 2.0, None, 2.40),
 )
 
 
@@ -1545,7 +1557,7 @@ def output_guard_cost(root, built):
     STYLE.write(style_geo, cases.panel_style())
     rows, bad = [], []
     relax = 1.5 if os.environ.get("PC_PARALLEL") else 1.0
-    for label, ncurve, npt, step, amp, freq, panel, ceiling in             OUTPUT_COST_SHAPES:
+    for label, ncurve, npt, step, amp, freq, panel, ceiling in OUTPUT_COST_SHAPES:
         curve = hou.Geometry()
         pts = [[(i * step, 0.0, k * 25.0 + amp * math.sin(i * freq))
                 for i in range(npt)] for k in range(ncurve)]
@@ -1596,7 +1608,11 @@ def output_guard_cost(root, built):
 # level-2-refuse double cook, declared rather than counted (`P_crest_bend`:
 # overhanging crest; `BQ_conform_wall_bumps`: F3's conformed reversal).  A
 # case joining this set is a widening to look at.
-GUARD_FALLBACK_CASES = ("P_crest_bend", "BQ_conform_wall_bumps")
+# ⚠️ `CJ_bend_butt_120` JOINED IT WITH 13.9 N8 STAGE 1 (31.2): DECLARED COST,
+# not a regression - a bend corner is inside level 1, so a 120 degree kink
+# reaches `pc_frames_transportable`, which refuses the straddling piece.
+GUARD_FALLBACK_CASES = ("P_crest_bend", "BQ_conform_wall_bumps",
+                        "CJ_bend_butt_120")
 
 
 def guard_polyline_geo(pts):
@@ -1756,19 +1772,24 @@ def native_reach(root):
     watched = ("pc_sections", "pc_plan_solve", "pc_plan_emit", "pc_proto",
                "pc_deform_gate", "pc_frames_native", "copy_packed",
                "pc_warn_collate")
+    L90 = [(0.0, 0.0, 0.0), (9.0, 0.0, 0.0), (9.0, 0.0, 7.0)]
+    # ⚠️ ONE CORNER ROW BECAME TWO (31.2), both directions on the SAME L: a
+    # BEND corner is native, a MITERED one still takes the reference.  One row
+    # would let the narrowing pass by admitting everything.
     shapes = (("inside", [(0.0, 0.0, 0.0), (9.0, 0.0, 0.0), (18.0, 0.0, 0.0)],
-               True),
-              # a 90 degree corner: 4.3 is N8, so level 1 refuses outright
-              ("corner", [(0.0, 0.0, 0.0), (9.0, 0.0, 0.0), (9.0, 0.0, 7.0)],
-               False))
+               True, ""),
+              ("bend_corner", L90, True, "bend"),
+              ("miter_corner", L90, False, "miter"))
     rows = []
     bad = []
-    for label, pts, want_native in shapes:
+    for label, pts, want_native, mode in shapes:
         geo = hou.Geometry()
         cases.polyline(geo, pts, curve_id="R")
         node = root.createNode("pf_polychain", "reach_" + label)
         node.setInput(0, native.feed(root, geo, "REACH_" + label))
         node.allowEditingOfContents()
+        if mode:
+            node.parm("corner_mode").set(mode)
         node.parm("stage").set("output")
         node.cook(force=True)
         before = dict((c.name(), c.cookCount()) for c in node.children())

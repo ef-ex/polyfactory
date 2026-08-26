@@ -127,9 +127,12 @@ MUTATIONS = (
       ("output_guard_parity", "no_case_pays_the_guard_fallback"),
       "27.7b m6 - level 1 admits every build, including the classes the "
       "native chain cannot answer (corners, conform, flatten).",
+      # ⚠️ RE-POINTED BY 13.9 N8 STAGE 1 - the verdict line's own text moved
+      # (`corners == 0` became `!corner_refuse`), and an edit whose target
+      # line has moved is D208 exactly: it reports green forever.
       ((VEX % "pc_envelope.vfl",
-        "i@_native_ok = (ok && corners == 0 && ndup == 0",
-        "i@_native_ok = (1 || ok && corners == 0 && ndup == 0"),)),
+        "i@_native_ok = (ok && !corner_refuse && ndup == 0",
+        "i@_native_ok = (1 || ok && !corner_refuse && ndup == 0"),)),
 
     # ---- D223 / D262, storage as a contract --------------------------------
     M("vex_precision_32", "native",
@@ -1328,6 +1331,47 @@ MUTATIONS = (
       "assertion is `icon() == ICON` and stays green through this, which is "
       "how it went unnoticed.",
       ((BUILD, 'ICON = "SOP_orientalongcurve"', 'ICON = "SOP_subnet"'),)),
+
+
+    M("n8_bend_never_welds", "native",
+      ("output_guard_parity", "plan_fixture_parity"),
+      "D36 undone: each leg is fitted separately where the reference fits "
+      "ONE run across the vertex.",
+      ((VEX % "pc_sections.vfl",
+        "        if (bend && corner && !is_secbreak[i]) {",
+        "        if (0 && bend && corner && !is_secbreak[i]) {"),)),
+
+    M("n8_ring_seam_ignored", "native", ("output_guard_parity",),
+      "`_weld` keeps the FIRST section's `s0`: a dissolved ring starts at "
+      "the FIRST CORNER, and vertex 0 is a different fill phase.",
+      ((VEX % "pc_sections.vfl",
+        "            int a = max(seam, 0);", "            int a = 0;"),)),
+
+    M("n8_weld_is_never_whole", "native", ("output_guard_parity",),
+      "`_weld`'s `whole`: a welded group closing the ring has no boundary "
+      "left to carry a corner, a cap or an angle.",
+      ((VEX % "pc_sections.vfl",
+        "        if (welded && whole) { start_cap = 0; end_cap = 0; angle = 0.0; }",
+        "        if (0) { start_cap = 0; end_cap = 0; angle = 0.0; }"),)),
+
+    M("n8_welded_markers_unsorted", "native", ("output_guard_parity",),
+      "A WELDED section re-sorts markers by `s_local`, `decompose` does not.",
+      ((VEX % "pc_sections.vfl",
+        "        if (welded) {", "        if (0) {"),)),
+
+    M("n8_guard_admits_miter", "native",
+      ("output_runs_the_native_chain_inside_the_envelope",
+       "output_guard_parity"),
+      "[vex:corners] widened too far: MITER admitted, so the chain answers a "
+      "build with no assembly and no cut plane in it.",
+      ((VEX % "pc_envelope.vfl",
+        '    if (cmode != "bend") {', "    if (0) {"),)),
+
+    M("n8_guard_admits_degenerate", "native", ("output_guard_parity",),
+      "[vex:corner_degen] dropped: a hairpin builds natively and SILENTLY.",
+      ((VEX % "pc_envelope.vfl",
+        "            if (degen) { corner_refuse = 1; break; }",
+        "            if (0) { corner_refuse = 1; break; }"),)),
 )
 
 # ⚠️ IDS ARE UNIQUE, ASSERTED HERE. Two entries once shared an id, and the

@@ -45,9 +45,8 @@ if HERE not in sys.path:
 
 import runguard                                                   # noqa: E402
 
-# ⚠️ BEFORE `import hou`, DELIBERATELY: `OUT` below expands `$TEMP`, which
-# Houdini resolves once at startup, so the per-run directory has to be in the
-# environment before the runtime reads it.
+# ⚠️ BEFORE `import hou`: `OUT` expands `$TEMP`, which Houdini resolves once at
+# startup, so the directory must be in the environment before that.
 RUN_TMP, SWEPT = runguard.begin()
 
 import hou                                                      # noqa: E402
@@ -153,11 +152,9 @@ def build(mode, mut_indices, seeds=SEEDS, slots=None):
     # the registry's own control already had to grow a 3-attempt retry because
     # a second hython on this machine reddened them.
     #
-    # ⚠️ AND THE CEILING IS THE MACHINE, NOT THE CPU - the two hard freezes,
-    # and why 4 is the default, are `runguard`'s docstring and NOT repeated
-    # here.  What matters at this line: a NUMBER is not a protection, so the
-    # count is checked against the commit headroom the OS will actually grant,
-    # and `--slots N` is a REQUEST the guard may shrink or refuse outright.
+    # ⚠️ AND THE CEILING IS THE MACHINE, NOT THE CPU (`runguard` owns that
+    # story).  A NUMBER is not a protection: the count is checked against the
+    # commit headroom the OS will grant, and `--slots N` is a REQUEST.
     granted, why = runguard.safe_slots(int(slots) if slots else 4)
     print("  headroom guard: %s" % why)
     sch.parm("maxprocsmenu").set("1")
@@ -354,9 +351,8 @@ def main():
              if picked else ""))
     print("  python: %s" % PYTHON)
     print("  scratch: %s" % OUT)
-    print("  run temp: %s (swept %d orphan(s)%s)"
-          % (RUN_TMP, len(SWEPT), (": " + ", ".join(SWEPT[:4])) if SWEPT
-             else ""))
+    print("  run temp: %s (swept %d orphan(s)%s)" % (
+        RUN_TMP, len(SWEPT), (": " + ", ".join(SWEPT[:4])) if SWEPT else ""))
 
     # V4 finding 4: `proxy_is_interactive` (an absolute wall-clock ceiling)
     # reddened under the 32-way sweep and not alone. Work items inherit this

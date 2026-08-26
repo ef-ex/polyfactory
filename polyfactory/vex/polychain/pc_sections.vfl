@@ -61,6 +61,16 @@ int npt = npoints(0);
 // bottom of this file are the only place they come from.
 string want[] = detail(1, "_attr_names");
 
+// 4.3's Corner Treatment.  A typed local off the dict, per the recorded trap -
+// `cfg["corner_mode"]` is untyped and would make the comparison below
+// ambiguous.  `bend` is `Params`' own fallback for an unknown spelling.
+string CORNER_MODE = "bend";
+dict pc_cfg_d = detail(1, "pc_cfg");
+if (isvalidindex(pc_cfg_d, "corner_mode")) {
+    string cm = pc_cfg_d["corner_mode"];
+    CORNER_MODE = cm;
+}
+
 // ---- the marker cloud, once ------------------------------------------------
 // Small N (a marker is a stand-alone point, never a curve vertex), so one
 // pass here beats re-scanning per curve.  `pc_curveprim` is `pc_markers`'
@@ -195,19 +205,61 @@ for (int pr = 0; pr < nprim; pr++) {
         for (int i = 0; i < n; i++) seckey_num[i] = sk;
     }
 
+    int dissolved[];
+    resize(dissolved, n);
     for (int i = 0; i < n; i++) {
+        dissolved[i] = 0;
         if (is_secbreak[i]) isbreak[i] = 1;
         int corner = point(0, "pc_iscorner", cpt[i]);
         if (corner && (closed || (i > 0 && i < n - 1))) isbreak[i] = 1;
     }
 
+    // ---- 4.3 D36 / 13.9 N8 STAGE 1: BEND DISSOLVES THE CORNER -------------
+    // `corner.merge_bend_sections` + `_weld`, ported.  In `bend` mode - the
+    // DEFAULT Corner Treatment - a corner is not a section boundary at all:
+    // "the default piece DEFORMS ACROSS THE VERTEX", so the two runs either
+    // side are one run and `pc_deform_gate` bends whatever piece straddles it.
+    // The reference builds both sections and welds them back; here the break
+    // is simply never made, which is the same list - a weld group is exactly a
+    // maximal run between two SURVIVING boundaries.  A `pc_section` limit is
+    // never dissolved (D18) and a spline end carries no corner (`pc_corners`
+    // needs both neighbours).  MITER is still refused whole, at the envelope.
+    //
+    // ⚠️ TWO THINGS "just do not break" DOES NOT GIVE YOU, both measured
+    // against the reference rather than reasoned about:
+    //   1. `_weld` KEEPS THE FIRST SECTION'S `s0`.  A closed ring whose every
+    //      boundary dissolves therefore starts AT THE FIRST CORNER, not at
+    //      vertex 0 - a different fill phase all the way round the ring.
+    //      `seam` carries that, and it only applies when nothing survives.
+    //   2. `_weld` IS ONLY CALLED FOR A GROUP OF MORE THAN ONE.  A closed ring
+    //      with exactly ONE corner passes its single section through
+    //      UNWELDED, so it keeps `closed = False`, its start corner and its
+    //      corner angle - where a two-corner ring comes back `whole`.  That is
+    //      what `nd` below counts, and getting it wrong is a silent phase and
+    //      rule-context divergence on the commonest closed shape there is.
+    int bend = (CORNER_MODE == "bend");
+    int seam = -1;
 
     // ---- the spans -------------------------------------------------------
     int ends[];
-    for (int i = 0; i < n; i++) if (isbreak[i]) push(ends, i);
+    int anybreak_orig = 0;
+    for (int i = 0; i < n; i++) {
+        if (!isbreak[i]) continue;
+        anybreak_orig = 1;
+        int corner = point(0, "pc_iscorner", cpt[i]);
+        if (bend && corner && !is_secbreak[i]) {
+            dissolved[i] = 1;
+            if (seam < 0) seam = i;
+            continue;
+        }
+        push(ends, i);
+    }
     int span_a[], span_b[];
     if (closed) {
-        if (!len(ends)) { push(span_a, 0); push(span_b, n); }   // D10
+        if (!len(ends)) {
+            int a = max(seam, 0);
+            push(span_a, a); push(span_b, a + n);               // D10
+        }
         else {
             int ne = len(ends);
             for (int k = 0; k < ne; k++) {
@@ -225,8 +277,6 @@ for (int pr = 0; pr < nprim; pr++) {
             push(span_b, cuts[k + 1]);
         }
     }
-    int anybreak = len(ends) > 0;
-
     // ---- this curve's markers, in (s, marker_id) order --------------------
     int my_mk[];
     float my_s[];
@@ -255,6 +305,16 @@ for (int pr = 0; pr < nprim; pr++) {
             if (i0 == 0)     { start_cap = 1; angle = 0.0; }
             if (i1 == n - 1) { end_cap = 1; }
         }
+        // D36's weld, continued.  `nd` is the number of boundaries this span
+        // SWALLOWED, so `nd > 0` is `len(run) > 1` - the only case `_weld`
+        // runs at all.  `whole` is `_weld`'s own test, spelled the same way:
+        // a welded group that closes the ring has no boundary left to carry a
+        // corner, a cap or an angle.
+        int nd = 0;
+        for (int t = i0 + 1; t < i1; t++) if (dissolved[t % n]) nd++;
+        int welded = (nd > 0);
+        int whole = closed && (abs((s1 - s0) - total) <= 1e-6);
+        if (welded && whole) { start_cap = 0; end_cap = 0; angle = 0.0; }
 
         push(r_cid, cid);
         push(r_prim, pr);
@@ -263,7 +323,10 @@ for (int pr = 0; pr < nprim; pr++) {
         push(r_s1, s1);
         push(r_total, total);
         push(r_angle, angle);
-        push(r_closed, closed && !anybreak);        // D10
+        // D10, and D36's weld: an UNWELDED section keeps `decompose`'s own
+        // answer (which counts the dissolved breaks, because `decompose` ran
+        // before the weld); a welded one takes `_weld`'s `whole`.
+        push(r_closed, welded ? whole : (closed && !anybreak_orig));
         push(r_scap, start_cap);
         push(r_ecap, end_cap);
         push(r_seckey_kind, keykind);
@@ -275,7 +338,8 @@ for (int pr = 0; pr < nprim; pr++) {
 
         // A marker on a boundary belongs to exactly ONE section - the first
         // that can hold it - so a gate is never placed twice.
-        push(r_mk0, len(flat_mk));
+        int base = len(flat_mk);
+        push(r_mk0, base);
         int count = 0;
         for (int j = 0; j < len(my_mk); j++) {
             if (taken[j]) continue;
@@ -286,6 +350,25 @@ for (int pr = 0; pr < nprim; pr++) {
                 push(flat_mk, my_mk[j]);
                 push(flat_mk_s, s - s0);
                 count++;
+            }
+        }
+        // ⚠️ AND A WELDED SECTION RE-SORTS ITS MARKERS, WHICH `decompose` DOES
+        // NOT.  `marks` is in (s, marker_id) order, so a span that WRAPS the
+        // seam collects the wrapped markers (small `s`, large `s_local`)
+        // FIRST - and `decompose` keeps that order, quirk and all, while
+        // `_weld` sorts by (s_local, marker_id).  Only the welded case sorts,
+        // or the unwelded one would stop matching the reference it copies.
+        // Insertion, stable, over the tail just pushed: `count` is the number
+        // of gates on one run.
+        if (welded) {
+            for (int a = base + 1; a < base + count; a++) {
+                int b = a;
+                while (b > base && flat_mk_s[b - 1] > flat_mk_s[b]) {
+                    float fs = flat_mk_s[b - 1]; int fp = flat_mk[b - 1];
+                    flat_mk_s[b - 1] = flat_mk_s[b]; flat_mk[b - 1] = flat_mk[b];
+                    flat_mk_s[b] = fs; flat_mk[b] = fp;
+                    b--;
+                }
             }
         }
         push(r_mkn, count);

@@ -968,6 +968,23 @@ def build_all():
     polyline(g, RECT, closed=True, curve_id="AS")
     built["AS_rect_bend_butt"] = _case(g, kit_geo, corner_style("bend"))
 
+    # AT - 13.9 N8 stage 1 (31.2): a CLOSED RING whose vertex 0 is NOT a
+    # corner, so the seam is 6.0 m, and two markers straddling it 1 m apart so
+    # a 1.6 m gate CONTESTS and the welded re-sort picks index 0.
+    g = hou.Geometry()
+    polyline(g, [(6, 0, 0), (12, 0, 0), (12, 0, 8), (0, 0, 8), (0, 0, 0)],
+             closed=True, curve_id="AT")
+    marker(g, (0.5, 2.0, 0.0), "AT", 7, dist=0.5)
+    marker(g, (11.5, 2.0, 8.0), "AT", 7, dist=39.5)
+    built["AT_ring_seam_marked"] = _case(g, kit_geo,
+                                         corner_style("bend", marker="gate"))
+
+    # AU - A DEGENERATE CORNER IN BEND MODE (31.2); AC is it in MITER, which
+    # the guard refuses on the MODE, so nothing separated the two refusals.
+    g = hou.Geometry()
+    polyline(g, [(0, 0, 0), (6, 0, 0), (0.5, 0, 1.05)], curve_id="AU")
+    built["AU_degenerate_bend"] = _case(g, kit_geo, corner_style("bend"))
+
     # ---- EA..EI - THE COMPOSITION THE ASSET ACTUALLY SHIPS, ON A CORNER.
     # D269 (§28.1(c) again): after D266 the shipped `panel` fill + `evenly
     # post` @ 2 m appeared ZERO times here, so the ~35 corner/closure checks

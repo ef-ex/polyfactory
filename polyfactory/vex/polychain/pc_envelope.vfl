@@ -115,10 +115,24 @@
 //     `hda.config_resolved` writes that verdict into `pc_cfg["native_ok"]`
 //     because it is the node that already holds the Params, the Style and the
 //     Kit - which is the half of Hannes' rule Python keeps.
-//   * [vex:corners] a CORNER. 4.3 is N8, and a corner does not merely add an
-//     assembly: it reserves span off both ends of every leg, so the same
-//     element address names a different span in the two plans.  `_cornerpt`
-//     is `pc_corners`' own group and one member is enough to refuse.
+//   * [vex:corners] a corner in MITER mode.  ⚠️ THIS ROW USED TO SAY "a
+//     CORNER", FULL STOP, AND 13.9 N8 STAGE 1 NARROWED IT.  The reason it was
+//     blanket is that a corner reserves span off both ends of every leg, so
+//     the same element address names a different span in the two plans - but
+//     that is the MITERED corner.  In `bend` mode, which is the parm page's
+//     DEFAULT Corner Treatment, D37 places no corner module, so there is no
+//     assembly, no reserve, no cut plane and no displacement policy: 4.3
+//     collapses to `merge_bend_sections`, and `pc_sections.vfl` ports it.
+//     What is still refused here is the assembly itself - compose symmetry,
+//     the offset, the displacement policy - and the whole of it is one string
+//     compare on CONFIG's `corner_mode`.
+//   * [vex:corner_degen] a DEGENERATE corner, in EITHER mode.  D46 falls back
+//     to bend and stamps WARN_CORNER_DEGENERATE onto every piece that spans
+//     the dissolved vertex (`corner._stamp_degenerate`, plus D68's flattened
+//     ones).  The WELD is ported; that warning is not, and a hairpin that
+//     builds silently is exactly what warn-never-block forbids - so it is a
+//     refusal by name rather than a dropped sentence.  `pc_corner_degen` is
+//     `pc_corners`' own per-vertex answer, so the test is one read per corner.
 //   * [vex:ndup] a DUPLICATED curve id.  D169: the reference fans a marker
 //     out onto every curve sharing the id and the native chain answers for
 //     the first, which is a DECLARED divergence with its own check.
@@ -178,7 +192,31 @@ dict cfg = detail(0, "pc_cfg");
 int ok = 0;
 if (isvalidindex(cfg, "native_ok")) { float v = cfg["native_ok"]; ok = (int)v; }
 
-int corners = len(expandpointgroup(0, "_cornerpt"));
+// [vex:corners] / [vex:corner_degen] - NARROWED BY 13.9 N8 STAGE 1.  A corner
+// used to refuse outright; what refuses now is a corner 4.3 would give an
+// ASSEMBLY, which is any corner in MITER mode (D37 - bend places no corner
+// module at all, so there is no joint to compose, offset or displace), plus a
+// DEGENERATE one in either mode (D46 falls back to bend and stamps
+// WARN_CORNER_DEGENERATE onto every piece spanning the dissolved vertex -
+// `_stamp_degenerate`, which this chain does not have).  `_cornerpt` and
+// `pc_corner_degen` are both `pc_corners`' own, so this costs one group
+// expansion and, in bend mode, one read per corner.
+int cornerpts[] = expandpointgroup(0, "_cornerpt");
+int corners = len(cornerpts);
+string cmode = "bend";
+if (isvalidindex(cfg, "corner_mode")) { string cm = cfg["corner_mode"]; cmode = cm; }
+int corner_refuse = 0;
+if (corners) {
+    if (cmode != "bend") {
+        corner_refuse = 1;
+    } else {
+        foreach (int cp; cornerpts) {
+            int degen = point(0, "pc_corner_degen", cp);
+            if (degen) { corner_refuse = 1; break; }
+        }
+    }
+}
+
 dict dup = detail(0, "pc_curve_dup");
 int ndup = len(keys(dup));
 
@@ -358,9 +396,10 @@ if (up_t >= 0) {
     }
 }
 
-i@_native_ok = (ok && corners == 0 && ndup == 0
+i@_native_ok = (ok && !corner_refuse && ndup == 0
                 && !marker_in_prim && type_bad == "" && !row_warns && !row_2d
                 && nprimitives(0) > 0);
+i@_guard_corner_refuse = corner_refuse;
 i@_guard_row_2d = row_2d;
 i@_guard_row_warns = row_warns;
 i@_guard_markers = markers;

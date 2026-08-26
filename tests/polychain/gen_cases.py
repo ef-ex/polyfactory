@@ -105,6 +105,13 @@ NATIVE_LANE = 2          # every Nth seed is built to be native-answerable
 # still curved enough (and climbs enough) for the deform gate to unpack.
 NATIVE_TURN_DEG = 22.0
 NATIVE_CORNER_ANGLE = 45.0
+# ⚠️ 13.9 N8 STAGE 1 - THE PARAGRAPH ABOVE IS NOW HALF TRUE (31.2): a BEND
+# corner is inside the envelope, so `_kink` bends a share of the surface-free
+# native seeds past NATIVE_CORNER_ANGLE, on SEED ARITHMETIC and by POST-
+# PROCESSING (a draw inside `_points` would move every other seed).
+CORNER_LANE = 4          # one surface-free native seed in four is cornered
+CORNER_TURN_DEG = 70.0   # over NATIVE_CORNER_ANGLE, under degenerate
+CLOSE_MAX_TURN = 120.0   # a sharper closure is left OPEN
 
 
 # --- the curve --------------------------------------------------------------
@@ -188,6 +195,36 @@ def _curve_geo(rng, native=False):
         if k == 0 and nprims > 1 and poly.points():
             shared = poly.points()[-1]
     return geo, storage, vals
+
+
+def _kink(geo, closed):
+    """Bend a native-lane polyline into a REAL 4.3 corner.  -> did it close?
+    No `rng`.  From the midpoint on everything rotates about it in XZ, so ONE
+    vertex turns by `CORNER_TURN_DEG`; `closed` welds the ends - `_weld`'s
+    `whole` branch.  ⚠️ THE CLOSURE'S OWN TURNS ARE MEASURED FIRST: closing a
+    random walk onto its origin doubles the run back, and 152-165 degrees is
+    inside the ENVELOPE but outside `pc_frames_transportable` (31.2)."""
+    def turn(a, b, c):
+        e0, e1 = (b - a).normalized(), (c - b).normalized()
+        return math.degrees(math.acos(max(-1.0, min(1.0, e0.dot(e1)))))
+
+    did = False
+    ca, sa = math.cos(math.radians(CORNER_TURN_DEG)),         math.sin(math.radians(CORNER_TURN_DEG))
+    for prim in geo.prims():
+        pts = prim.points()
+        if len(pts) < 4:
+            continue
+        o = pts[len(pts) // 2].position()
+        for p in pts[len(pts) // 2 + 1:]:
+            d, y = p.position() - o, p.position()[1]
+            p.setPosition(hou.Vector3(o[0] + d[0] * ca - d[2] * sa, y,
+                                      o[2] + d[0] * sa + d[2] * ca))
+        q = [p.position() for p in pts]
+        if closed and max(turn(q[-2], q[-1], q[0]),
+                          turn(q[-1], q[0], q[1])) <= CLOSE_MAX_TURN:
+            prim.setIsClosed(True)
+            did = True
+    return did
 
 
 def _markers(rng, geo, ids):
@@ -444,11 +481,24 @@ def make(seed):
             skind += "+tiltaxis"
         if style.params.conform_tilt:
             skind += "+tilt"
+    # 13.9 N8 stage 1's corner lane.  AFTER the surface block and only where
+    # there is no surface, so the three surface-free native PINS keep the
+    # scenes their one-line comments describe.
+    #
+    # ⚠️ ITS OWN KEY, NOT `surface_kind` (31.2): that row counts rows whose
+    # `surface` label is truthy, so borrowing it scored surface-free cornered
+    # seeds as CONFORMED.
+    ckind = ""
+    if native and surface is None and (seed // 4) % CORNER_LANE == 0:
+        ckind = ("corner+closed" if _kink(
+            curve, bool((seed // (4 * CORNER_LANE)) % 2)) else "corner")
     return {"seed": seed, "curve": curve, "kit": kit_geo, "style": style,
             "native_lane": native, "surface": surface, "surface_kind": skind,
+            "corner_kind": ckind,
             "label": ("[%s] " % ("native" if native else "wide "))
                      + describe(seed, storage, ids, has_corner, nvar, nmark,
-                                style, skind)}
+                                style, skind)
+                     + (" kink=%s" % ckind if ckind else "")}
 
 
 def describe(seed, storage, ids, has_corner, nvar, nmark, style, skind=""):
