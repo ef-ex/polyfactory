@@ -90,9 +90,41 @@ practical consequences already live in this project:
 - **A census that names its corpus has TWO numbers to re-measure** (instance 13 is the same defect
   in prose), and a count pinned in a README is a baseline like any other.
 
+| 29 | *(f2)* **The sub-shape above claimed its 21st instance WITHIN HOURS OF BEING NAMED — in work already declared done and audited, one milestone after the identical failure.** `trim_calibration.json` was stale for `J_five_star`: `graph_realign`'s cubic Hermite T landing changed what the builder cuts and was never mirrored in `plan.py` (§11.5 — builder and planner must move in one commit). **11 of 74 unit tests now fail, all at ONE site** — node `(48.000, 0.000)`, edge `E_00005`, residual **−8.671534 m**; the planner predicts the pre-M5.5 trim of `5.000` while the builder cuts `12.529`. **M5.5 is not sound.** | citygen streets, M5.5 |
+
+**⭐⭐ THE META-LESSON, AND IT INDICTS THIS DOCUMENT: PROSE IS WHAT FAILED — TWICE.**
+
+Instance 28 was written up as a rule. The rule was *correct*, and it did not prevent instance 29
+**one milestone later in the same subsystem**. What caught 29 was the streets owner taking the prose
+of §2a and **turning it into an executable check** — `calibration_is_not_stale`, which re-derives the
+fixture using **`dump_trims.dump_case`, the same function that writes it**, so no second derivation
+exists that could drift and quietly agree with a stale file. **It found real staleness on its first
+run**, in work that had already passed an audit.
+
+> **A rule in this document is a rule nobody executes. The only rules that hold are the ones that
+> became code.**
+
+That is what §4 and §6 of this file exist to force, and instance 29 is the cost of an entry that
+stopped at §2. **When an incident is logged here, the next question is not "is it written down" but
+"what executes it, and on what cadence".**
+
+**The transplantable pattern, which is now the standard for every recorded baseline in this repo:**
+1. **Re-derive the fixture with the generator's own function** — never a reimplementation, which is a
+   second derivation free to drift and agree with a stale file.
+2. **Compare exactly** (1e-6 where both sides come from one code path on one build). **A tolerance
+   here is just a place for staleness to live.**
+3. **Run it as a check, every run** — not as a review step, and not as a paragraph.
+
 ⚠️ **Live exposure right now:** `tests/citygen/baseline_buildings.json` and
 `tests/citygen/baseline.json` are both recorded-values snapshots carrying this risk, and
 `tests/README.md` pins unit-test counts that a new test file silently invalidates.
+**`baseline_buildings.json` has no `calibration_is_not_stale` equivalent — that is queued work, and
+it is the single highest-value check the building subsystem does not yet have.**
+
+⚠️ **And one more, recorded because its owner volunteered it against their own interest:** the same
+cycle ran `--update-baseline` and *then* read the diff to confirm it was additive. It was — but
+**verified after blessing is not verified.** The order is the control; getting away with it is not
+evidence the order does not matter.
 
 ### 2b. Wrong conclusions that propagated
 

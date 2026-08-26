@@ -1560,7 +1560,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "asset_library_batch_importer_export_batch_group",
-      "community": 208,
+      "community": 0,
       "norm_label": "export_batch_group()"
     },
     {
@@ -1650,7 +1650,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "asset_library_batch_importer_rationale_221",
-      "community": 208,
+      "community": 0,
       "norm_label": "export a single asset group detected by detect_asset_groups.      converts pri"
     },
     {
@@ -2870,7 +2870,7 @@
       "source_location": "L451",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_batch_detect",
-      "community": 92,
+      "community": 208,
       "norm_label": "._batch_detect()"
     },
     {
@@ -2910,7 +2910,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "asset_library_export_ui_assetexportdialog_run_batch_export",
-      "community": 208,
+      "community": 0,
       "norm_label": "._run_batch_export()"
     },
     {
@@ -3300,7 +3300,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "object",
-      "community": 253,
+      "community": 15,
       "norm_label": "object"
     },
     {
@@ -4140,7 +4140,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "asset_library_render_acquire_shared_panel",
-      "community": 208,
+      "community": 0,
       "norm_label": "acquire_shared_panel()"
     },
     {
@@ -4150,7 +4150,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "asset_library_render_release_shared_panel",
-      "community": 208,
+      "community": 0,
       "norm_label": "release_shared_panel()"
     },
     {
@@ -4210,7 +4210,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "asset_library_render_rationale_19",
-      "community": 208,
+      "community": 0,
       "norm_label": "create a shared floating panel for batch renders.      call once before starti"
     },
     {
@@ -4220,7 +4220,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "asset_library_render_rationale_34",
-      "community": 208,
+      "community": 0,
       "norm_label": "close the shared panel acquired by acquire_shared_panel().      call once afte"
     },
     {
@@ -4607,7 +4607,7 @@
       "label": "build()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L482",
+      "source_location": "L483",
       "_origin": "ast",
       "id": "citygen_buildings_build",
       "community": 178,
@@ -4727,9 +4727,9 @@
       "label": "Wire B1+B2 under `parent`, downstream of the `lots` SOP.  -> the output     node",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L483",
+      "source_location": "L484",
       "_origin": "ast",
-      "id": "citygen_buildings_rationale_483",
+      "id": "citygen_buildings_rationale_484",
       "community": 178,
       "norm_label": "wire b1+b2 under `parent`, downstream of the `lots` sop.  -> the output     node"
     },
@@ -4810,7 +4810,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "citygen_plan_node",
-      "community": 35,
+      "community": 188,
       "norm_label": "node"
     },
     {
@@ -4820,7 +4820,7 @@
       "source_location": "L167",
       "_origin": "ast",
       "id": "citygen_plan_node_init",
-      "community": 35,
+      "community": 188,
       "norm_label": ".__init__()"
     },
     {
@@ -5960,7 +5960,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "polychain_array2d_transpose_kit",
-      "community": 170,
+      "community": 232,
       "norm_label": "transpose_kit()"
     },
     {
@@ -6020,7 +6020,7 @@
       "source_location": "L353",
       "_origin": "ast",
       "id": "polychain_array2d_vertical_profile",
-      "community": 194,
+      "community": 232,
       "norm_label": "vertical_profile()"
     },
     {
@@ -6070,7 +6070,7 @@
       "source_location": "L391",
       "_origin": "ast",
       "id": "polychain_array2d_row_as_dict",
-      "community": 237,
+      "community": 194,
       "norm_label": ".as_dict()"
     },
     {
@@ -6090,7 +6090,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "polychain_array2d_y_class",
-      "community": 194,
+      "community": 232,
       "norm_label": "y_class()"
     },
     {
@@ -6100,7 +6100,7 @@
       "source_location": "L432",
       "_origin": "ast",
       "id": "polychain_array2d_plan_rows",
-      "community": 194,
+      "community": 232,
       "norm_label": "plan_rows()"
     },
     {
@@ -6170,7 +6170,7 @@
       "source_location": "L633",
       "_origin": "ast",
       "id": "polychain_array2d_row_loops",
-      "community": 237,
+      "community": 194,
       "norm_label": "row_loops()"
     },
     {
@@ -6330,7 +6330,7 @@
       "source_location": "L858",
       "_origin": "ast",
       "id": "polychain_array2d_open_loop",
-      "community": 284,
+      "community": 281,
       "norm_label": "open_loop()"
     },
     {
@@ -6360,7 +6360,7 @@
       "source_location": "L911",
       "_origin": "ast",
       "id": "polychain_array2d_is_simple",
-      "community": 284,
+      "community": 281,
       "norm_label": "is_simple()"
     },
     {
@@ -6370,7 +6370,7 @@
       "source_location": "L941",
       "_origin": "ast",
       "id": "polychain_array2d_segments_cross",
-      "community": 284,
+      "community": 281,
       "norm_label": "_segments_cross()"
     },
     {
@@ -6560,7 +6560,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_74",
-      "community": 170,
+      "community": 232,
       "norm_label": "the same modules, fitted on their height. data, not a second solver."
     },
     {
@@ -6620,7 +6620,7 @@
       "source_location": "L354",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_354",
-      "community": 194,
+      "community": 232,
       "norm_label": "the synthetic y curve: a two-point line of the requested height."
     },
     {
@@ -6650,7 +6650,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_410",
-      "community": 194,
+      "community": 232,
       "norm_label": "7.2.1's y precedence, in its documented order (d134).      `start`/`end` (the ar"
     },
     {
@@ -6660,7 +6660,7 @@
       "source_location": "L433",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_433",
-      "community": 194,
+      "community": 232,
       "norm_label": "[row] for one array. `profile` is a height in metres or a `curve`.      a `curve"
     },
     {
@@ -6720,7 +6720,7 @@
       "source_location": "L634",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_634",
-      "community": 237,
+      "community": 194,
       "norm_label": "[(points, closed, attrs)] - one entry per row, ready for the adapter.      the w"
     },
     {
@@ -6800,7 +6800,7 @@
       "source_location": "L859",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_859",
-      "community": 284,
+      "community": 281,
       "norm_label": "a closed point list with its duplicated last vertex dropped."
     },
     {
@@ -6830,7 +6830,7 @@
       "source_location": "L912",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_912",
-      "community": 284,
+      "community": 281,
       "norm_label": "does the loop avoid crossing itself? 7.6's other unstated contract.      a self-"
     },
     {
@@ -6840,7 +6840,7 @@
       "source_location": "L942",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_942",
-      "community": 284,
+      "community": 281,
       "norm_label": "do two 3-d segments properly cross, seen in the plane they best share?      proj"
     },
     {
@@ -9480,7 +9480,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "polychain_kit_sattr",
-      "community": 232,
+      "community": 113,
       "norm_label": "_sattr()"
     },
     {
@@ -9490,7 +9490,7 @@
       "source_location": "L187",
       "_origin": "ast",
       "id": "polychain_kit_iattr",
-      "community": 232,
+      "community": 113,
       "norm_label": "_iattr()"
     },
     {
@@ -9500,7 +9500,7 @@
       "source_location": "L194",
       "_origin": "ast",
       "id": "polychain_kit_fattr",
-      "community": 232,
+      "community": 113,
       "norm_label": "_fattr()"
     },
     {
@@ -9510,7 +9510,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "polychain_kit_vattr",
-      "community": 232,
+      "community": 113,
       "norm_label": "_vattr()"
     },
     {
@@ -9520,7 +9520,7 @@
       "source_location": "L210",
       "_origin": "ast",
       "id": "polychain_kit_validate",
-      "community": 232,
+      "community": 113,
       "norm_label": "validate()"
     },
     {
@@ -9530,7 +9530,7 @@
       "source_location": "L279",
       "_origin": "ast",
       "id": "polychain_kit_read",
-      "community": 232,
+      "community": 113,
       "norm_label": "read()"
     },
     {
@@ -9710,7 +9710,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "polychain_kit_rationale_211",
-      "community": 232,
+      "community": 113,
       "norm_label": "[warning strings]. an empty list means the kit is well formed."
     },
     {
@@ -9720,7 +9720,7 @@
       "source_location": "L280",
       "_origin": "ast",
       "id": "polychain_kit_rationale_280",
-      "community": 232,
+      "community": 113,
       "norm_label": "(kit, {module name: hou.geometry}, [validation warnings]).      never raises. a"
     },
     {
@@ -9880,7 +9880,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "polychain_place_verb",
-      "community": 158,
+      "community": 126,
       "norm_label": "_verb()"
     },
     {
@@ -9920,7 +9920,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "polychain_place_cross",
-      "community": 275,
+      "community": 77,
       "norm_label": "_cross()"
     },
     {
@@ -9940,7 +9940,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "polychain_place_flat",
-      "community": 275,
+      "community": 77,
       "norm_label": "_flat()"
     },
     {
@@ -9950,7 +9950,7 @@
       "source_location": "L188",
       "_origin": "ast",
       "id": "polychain_place_at_height",
-      "community": 275,
+      "community": 77,
       "norm_label": "_at_height()"
     },
     {
@@ -9990,7 +9990,7 @@
       "source_location": "L267",
       "_origin": "ast",
       "id": "polychain_place_path_sample",
-      "community": 77,
+      "community": 277,
       "norm_label": ".sample()"
     },
     {
@@ -10010,7 +10010,7 @@
       "source_location": "L341",
       "_origin": "ast",
       "id": "polychain_place_remap",
-      "community": 253,
+      "community": 158,
       "norm_label": "_remap"
     },
     {
@@ -10020,7 +10020,7 @@
       "source_location": "L348",
       "_origin": "ast",
       "id": "polychain_place_remap_init",
-      "community": 253,
+      "community": 158,
       "norm_label": ".__init__()"
     },
     {
@@ -10030,7 +10030,7 @@
       "source_location": "L355",
       "_origin": "ast",
       "id": "polychain_place_remap_call",
-      "community": 253,
+      "community": 158,
       "norm_label": ".__call__()"
     },
     {
@@ -10130,7 +10130,7 @@
       "source_location": "L655",
       "_origin": "ast",
       "id": "polychain_place_override",
-      "community": 253,
+      "community": 275,
       "norm_label": "override"
     },
     {
@@ -10140,7 +10140,7 @@
       "source_location": "L659",
       "_origin": "ast",
       "id": "polychain_place_override_init",
-      "community": 253,
+      "community": 275,
       "norm_label": ".__init__()"
     },
     {
@@ -10150,7 +10150,7 @@
       "source_location": "L668",
       "_origin": "ast",
       "id": "polychain_place_override_matches",
-      "community": 253,
+      "community": 275,
       "norm_label": ".matches()"
     },
     {
@@ -10170,7 +10170,7 @@
       "source_location": "L698",
       "_origin": "ast",
       "id": "polychain_place_read_overrides",
-      "community": 158,
+      "community": 275,
       "norm_label": "read_overrides()"
     },
     {
@@ -10180,7 +10180,7 @@
       "source_location": "L723",
       "_origin": "ast",
       "id": "polychain_place_override_for",
-      "community": 253,
+      "community": 275,
       "norm_label": "_override_for()"
     },
     {
@@ -10240,7 +10240,7 @@
       "source_location": "L848",
       "_origin": "ast",
       "id": "polychain_place_dress_caps",
-      "community": 158,
+      "community": 126,
       "norm_label": "dress_caps()"
     },
     {
@@ -10250,7 +10250,7 @@
       "source_location": "L911",
       "_origin": "ast",
       "id": "polychain_place_frame",
-      "community": 275,
+      "community": 77,
       "norm_label": "_frame()"
     },
     {
@@ -10260,7 +10260,7 @@
       "source_location": "L950",
       "_origin": "ast",
       "id": "polychain_place_transport",
-      "community": 275,
+      "community": 277,
       "norm_label": "_transport()"
     },
     {
@@ -10270,7 +10270,7 @@
       "source_location": "L974",
       "_origin": "ast",
       "id": "polychain_place_span_ends",
-      "community": 77,
+      "community": 277,
       "norm_label": "span_ends()"
     },
     {
@@ -10290,7 +10290,7 @@
       "source_location": "L1014",
       "_origin": "ast",
       "id": "polychain_place_chord_ratio",
-      "community": 77,
+      "community": 277,
       "norm_label": "_chord_ratio()"
     },
     {
@@ -10310,7 +10310,7 @@
       "source_location": "L1061",
       "_origin": "ast",
       "id": "polychain_place_follows",
-      "community": 275,
+      "community": 277,
       "norm_label": "_follows()"
     },
     {
@@ -10380,7 +10380,7 @@
       "source_location": "L1438",
       "_origin": "ast",
       "id": "polychain_place_anchor_transform",
-      "community": 275,
+      "community": 87,
       "norm_label": "_anchor_transform()"
     },
     {
@@ -10410,7 +10410,7 @@
       "source_location": "L1501",
       "_origin": "ast",
       "id": "polychain_place_clip_plane",
-      "community": 158,
+      "community": 126,
       "norm_label": "clip_plane()"
     },
     {
@@ -10420,7 +10420,7 @@
       "source_location": "L1578",
       "_origin": "ast",
       "id": "polychain_place_off_plane_patches",
-      "community": 158,
+      "community": 126,
       "norm_label": "_off_plane_patches()"
     },
     {
@@ -10430,7 +10430,7 @@
       "source_location": "L1629",
       "_origin": "ast",
       "id": "polychain_place_deform_positions",
-      "community": 275,
+      "community": 277,
       "norm_label": "_deform_positions()"
     },
     {
@@ -10580,7 +10580,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "polychain_place_rationale_169",
-      "community": 275,
+      "community": 77,
       "norm_label": "`v` with its `up_ref` component removed - \"horizontal\", generalised.      d296a:"
     },
     {
@@ -10590,7 +10590,7 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "polychain_place_rationale_189",
-      "community": 275,
+      "community": 77,
       "norm_label": "`p` moved along `up_ref` so its height (`dot(p, up_ref)`) is `h`.      d98's fla"
     },
     {
@@ -10620,7 +10620,7 @@
       "source_location": "L268",
       "_origin": "ast",
       "id": "polychain_place_rationale_268",
-      "community": 77,
+      "community": 277,
       "norm_label": "(position, unit tangent) at `s` metres. mirrors `curve.sample`."
     },
     {
@@ -10640,7 +10640,7 @@
       "source_location": "L342",
       "_origin": "ast",
       "id": "polychain_place_rationale_342",
-      "community": 253,
+      "community": 158,
       "norm_label": "s on the flattened curve -> s on the real one (d26, slope fixing).      both cur"
     },
     {
@@ -10710,7 +10710,7 @@
       "source_location": "L699",
       "_origin": "ast",
       "id": "polychain_place_rationale_699",
-      "community": 158,
+      "community": 275,
       "norm_label": "[override] off the override input, in payload order (d63).      an unconnected i"
     },
     {
@@ -10760,7 +10760,7 @@
       "source_location": "L849",
       "_origin": "ast",
       "id": "polychain_place_rationale_849",
-      "community": 158,
+      "community": 126,
       "norm_label": "box-uv every `pc_cap` prim and tag it with the cap material (d59).      a cap is"
     },
     {
@@ -10770,7 +10770,7 @@
       "source_location": "L912",
       "_origin": "ast",
       "id": "polychain_place_rationale_912",
-      "community": 275,
+      "community": 77,
       "norm_label": "(dir, across, up) for one sample. `across` is +z when dir is +x.      `up_ref` i"
     },
     {
@@ -10780,7 +10780,7 @@
       "source_location": "L951",
       "_origin": "ast",
       "id": "polychain_place_rationale_951",
-      "community": 275,
+      "community": 277,
       "norm_label": "d31 - the frame carried along the piece instead of re-derived per point.      `_"
     },
     {
@@ -10790,7 +10790,7 @@
       "source_location": "L975",
       "_origin": "ast",
       "id": "polychain_place_rationale_975",
-      "community": 77,
+      "community": 277,
       "norm_label": "the two reads every span-shaped question in this file starts with.      a span i"
     },
     {
@@ -10810,7 +10810,7 @@
       "source_location": "L1015",
       "_origin": "ast",
       "id": "polychain_place_rationale_1015",
-      "community": 77,
+      "community": 277,
       "norm_label": "how much of a planned span the straight chord across it covers.      a rigid pie"
     },
     {
@@ -10830,7 +10830,7 @@
       "source_location": "L1062",
       "_origin": "ast",
       "id": "polychain_place_rationale_1062",
-      "community": 275,
+      "community": 277,
       "norm_label": "does the point at local height `y` follow the ground? (d99)      one expression"
     },
     {
@@ -10900,7 +10900,7 @@
       "source_location": "L1440",
       "_origin": "ast",
       "id": "polychain_place_rationale_1440",
-      "community": 275,
+      "community": 87,
       "norm_label": "4.3 - the 4x4 for a piece built on a straight leg instead of on the path.      a"
     },
     {
@@ -10930,7 +10930,7 @@
       "source_location": "L1502",
       "_origin": "ast",
       "id": "polychain_place_rationale_1502",
-      "community": 158,
+      "community": 126,
       "norm_label": "cut `geo` on a world half-space and cap the hole. returns new geometry.      d28"
     },
     {
@@ -10940,7 +10940,7 @@
       "source_location": "L1579",
       "_origin": "ast",
       "id": "polychain_place_rationale_1579",
-      "community": 275,
+      "community": 126,
       "norm_label": "the prims `polyfill` appended that the cut did not open.      a patch belongs to"
     },
     {
@@ -10950,7 +10950,7 @@
       "source_location": "L1632",
       "_origin": "ast",
       "id": "polychain_place_rationale_1632",
-      "community": 275,
+      "community": 277,
       "norm_label": "every point of `src` re-read at its own arc position. returns     (flat world po"
     },
     {
@@ -11080,7 +11080,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "polychain_plan_placement",
-      "community": 218,
+      "community": 219,
       "norm_label": "placement"
     },
     {
@@ -11090,7 +11090,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "polychain_plan_placement_init",
-      "community": 218,
+      "community": 219,
       "norm_label": ".__init__()"
     },
     {
@@ -11100,7 +11100,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "polychain_plan_placement_length",
-      "community": 218,
+      "community": 219,
       "norm_label": ".length()"
     },
     {
@@ -11110,7 +11110,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "polychain_plan_placement_elem_id",
-      "community": 218,
+      "community": 219,
       "norm_label": ".elem_id()"
     },
     {
@@ -11120,7 +11120,7 @@
       "source_location": "L126",
       "_origin": "ast",
       "id": "polychain_plan_placement_as_dict",
-      "community": 218,
+      "community": 219,
       "norm_label": ".as_dict()"
     },
     {
@@ -11130,7 +11130,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "polychain_plan_placement_repr",
-      "community": 218,
+      "community": 219,
       "norm_label": ".__repr__()"
     },
     {
@@ -11340,7 +11340,7 @@
       "source_location": "L857",
       "_origin": "ast",
       "id": "polychain_plan_plan_dicts",
-      "community": 218,
+      "community": 219,
       "norm_label": "plan_dicts()"
     },
     {
@@ -11380,7 +11380,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "polychain_plan_rationale_79",
-      "community": 218,
+      "community": 219,
       "norm_label": "one plan point: what goes where, at what scale, and what went wrong."
     },
     {
@@ -11560,7 +11560,7 @@
       "source_location": "L858",
       "_origin": "ast",
       "id": "polychain_plan_rationale_858",
-      "community": 218,
+      "community": 219,
       "norm_label": "what the python sop adapter writes onto the plan points."
     },
     {
@@ -12090,7 +12090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init",
-      "community": 288,
+      "community": 132,
       "norm_label": "__init__.py"
     },
     {
@@ -12100,7 +12100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_framework_init_rationale_1",
-      "community": 288,
+      "community": 132,
       "norm_label": "polyfactory ui framework =========================  modern qt widget library"
     },
     {
@@ -12120,7 +12120,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "core_functions_functions",
-      "community": 195,
+      "community": 213,
       "norm_label": "functions"
     },
     {
@@ -12130,7 +12130,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "core_functions_functions_set_svg_icon",
-      "community": 195,
+      "community": 213,
       "norm_label": ".set_svg_icon()"
     },
     {
@@ -12140,7 +12140,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "core_functions_functions_set_svg_image",
-      "community": 195,
+      "community": 213,
       "norm_label": ".set_svg_image()"
     },
     {
@@ -12150,7 +12150,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "core_functions_functions_set_image",
-      "community": 195,
+      "community": 213,
       "norm_label": ".set_image()"
     },
     {
@@ -12160,7 +12160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_json_settings",
-      "community": 164,
+      "community": 15,
       "norm_label": "json_settings.py"
     },
     {
@@ -12170,7 +12170,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "core_json_settings_settings",
-      "community": 164,
+      "community": 15,
       "norm_label": "settings"
     },
     {
@@ -12180,7 +12180,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "core_json_settings_settings_init",
-      "community": 164,
+      "community": 15,
       "norm_label": ".__init__()"
     },
     {
@@ -12190,7 +12190,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "core_json_settings_settings_serialize",
-      "community": 164,
+      "community": 15,
       "norm_label": ".serialize()"
     },
     {
@@ -12200,7 +12200,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "core_json_settings_settings_deserialize",
-      "community": 164,
+      "community": 15,
       "norm_label": ".deserialize()"
     },
     {
@@ -12350,7 +12350,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pages_ui_main_pages",
-      "community": 195,
+      "community": 15,
       "norm_label": "ui_main_pages.py"
     },
     {
@@ -12360,7 +12360,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages",
-      "community": 195,
+      "community": 15,
       "norm_label": "ui_mainpages"
     },
     {
@@ -12370,7 +12370,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_setupui",
-      "community": 195,
+      "community": 15,
       "norm_label": ".setupui()"
     },
     {
@@ -12380,7 +12380,7 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "pages_ui_main_pages_ui_mainpages_retranslateui",
-      "community": 195,
+      "community": 15,
       "norm_label": ".retranslateui()"
     },
     {
@@ -12410,7 +12410,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions",
-      "community": 15,
+      "community": 167,
       "norm_label": "mainfunctions"
     },
     {
@@ -12420,7 +12420,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_init",
-      "community": 15,
+      "community": 167,
       "norm_label": ".__init__()"
     },
     {
@@ -12430,7 +12430,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_set_page",
-      "community": 15,
+      "community": 167,
       "norm_label": ".set_page()"
     },
     {
@@ -12440,7 +12440,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_set_left_column_menu",
-      "community": 15,
+      "community": 167,
       "norm_label": ".set_left_column_menu()"
     },
     {
@@ -12450,7 +12450,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_left_column_is_visible",
-      "community": 15,
+      "community": 167,
       "norm_label": ".left_column_is_visible()"
     },
     {
@@ -12460,7 +12460,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_right_column_is_visible",
-      "community": 15,
+      "community": 167,
       "norm_label": ".right_column_is_visible()"
     },
     {
@@ -12470,7 +12470,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_set_right_column_menu",
-      "community": 15,
+      "community": 167,
       "norm_label": ".set_right_column_menu()"
     },
     {
@@ -12480,7 +12480,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_get_title_bar_btn",
-      "community": 15,
+      "community": 167,
       "norm_label": ".get_title_bar_btn()"
     },
     {
@@ -12490,7 +12490,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_get_left_menu_btn",
-      "community": 15,
+      "community": 167,
       "norm_label": ".get_left_menu_btn()"
     },
     {
@@ -12500,7 +12500,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_toggle_left_column",
-      "community": 15,
+      "community": 167,
       "norm_label": ".toggle_left_column()"
     },
     {
@@ -12510,7 +12510,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_toggle_right_column",
-      "community": 15,
+      "community": 167,
       "norm_label": ".toggle_right_column()"
     },
     {
@@ -12520,7 +12520,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "main_window_functions_main_window_mainfunctions_start_box_animation",
-      "community": 15,
+      "community": 167,
       "norm_label": ".start_box_animation()"
     },
     {
@@ -12570,7 +12570,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "main_window_setup_main_window_setupmainwindow_setup_gui",
-      "community": 15,
+      "community": 167,
       "norm_label": ".setup_gui()"
     },
     {
@@ -12610,7 +12610,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "main_window_ui_main_ui_mainwindow_setup_ui",
-      "community": 195,
+      "community": 15,
       "norm_label": ".setup_ui()"
     },
     {
@@ -12620,7 +12620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_init_py_widgets_init",
-      "community": 141,
+      "community": 55,
       "norm_label": "__init__.py"
     },
     {
@@ -12700,7 +12700,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_credits_bar_init",
-      "community": 278,
+      "community": 55,
       "norm_label": "__init__.py"
     },
     {
@@ -12710,7 +12710,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits",
-      "community": 278,
+      "community": 55,
       "norm_label": "py_credits.py"
     },
     {
@@ -12720,7 +12720,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits_pycredits",
-      "community": 278,
+      "community": 55,
       "norm_label": "pycredits"
     },
     {
@@ -12730,7 +12730,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits_pycredits_init",
-      "community": 278,
+      "community": 55,
       "norm_label": ".__init__()"
     },
     {
@@ -12740,7 +12740,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "py_credits_bar_py_credits_pycredits_setup_ui",
-      "community": 278,
+      "community": 55,
       "norm_label": ".setup_ui()"
     },
     {
@@ -12750,7 +12750,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_grips_init",
-      "community": 53,
+      "community": 55,
       "norm_label": "__init__.py"
     },
     {
@@ -12760,7 +12760,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_grips_py_grips",
-      "community": 53,
+      "community": 55,
       "norm_label": "py_grips.py"
     },
     {
@@ -12770,7 +12770,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "py_grips_py_grips_pygrips",
-      "community": 53,
+      "community": 55,
       "norm_label": "pygrips"
     },
     {
@@ -12790,7 +12790,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "py_grips_py_grips_pygrips_mousereleaseevent",
-      "community": 53,
+      "community": 55,
       "norm_label": ".mousereleaseevent()"
     },
     {
@@ -12800,7 +12800,7 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "py_grips_py_grips_pygrips_resizeevent",
-      "community": 53,
+      "community": 55,
       "norm_label": ".resizeevent()"
     },
     {
@@ -13150,7 +13150,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_left_column_py_left_button",
-      "community": 165,
+      "community": 6,
       "norm_label": "py_left_button.py"
     },
     {
@@ -13160,7 +13160,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton",
-      "community": 165,
+      "community": 6,
       "norm_label": "pyleftbutton"
     },
     {
@@ -13170,7 +13170,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_init",
-      "community": 165,
+      "community": 6,
       "norm_label": ".__init__()"
     },
     {
@@ -13180,7 +13180,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_set_active",
-      "community": 165,
+      "community": 6,
       "norm_label": ".set_active()"
     },
     {
@@ -13190,7 +13190,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_is_active",
-      "community": 165,
+      "community": 6,
       "norm_label": ".is_active()"
     },
     {
@@ -13200,7 +13200,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_paintevent",
-      "community": 165,
+      "community": 6,
       "norm_label": ".paintevent()"
     },
     {
@@ -13210,7 +13210,7 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_change_style",
-      "community": 165,
+      "community": 6,
       "norm_label": ".change_style()"
     },
     {
@@ -13220,7 +13220,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_enterevent",
-      "community": 165,
+      "community": 6,
       "norm_label": ".enterevent()"
     },
     {
@@ -13230,7 +13230,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_leaveevent",
-      "community": 165,
+      "community": 6,
       "norm_label": ".leaveevent()"
     },
     {
@@ -13240,7 +13240,7 @@
       "source_location": "L167",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_mousepressevent",
-      "community": 165,
+      "community": 6,
       "norm_label": ".mousepressevent()"
     },
     {
@@ -13250,7 +13250,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_mousereleaseevent",
-      "community": 165,
+      "community": 6,
       "norm_label": ".mousereleaseevent()"
     },
     {
@@ -13260,7 +13260,7 @@
       "source_location": "L186",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_icon_paint",
-      "community": 165,
+      "community": 6,
       "norm_label": ".icon_paint()"
     },
     {
@@ -13270,7 +13270,7 @@
       "source_location": "L203",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_set_icon",
-      "community": 165,
+      "community": 6,
       "norm_label": ".set_icon()"
     },
     {
@@ -13280,7 +13280,7 @@
       "source_location": "L209",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_pyleftbutton_move_tooltip",
-      "community": 165,
+      "community": 6,
       "norm_label": ".move_tooltip()"
     },
     {
@@ -13290,7 +13290,7 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip",
-      "community": 165,
+      "community": 6,
       "norm_label": "_tooltip"
     },
     {
@@ -13300,7 +13300,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "py_left_column_py_left_button_tooltip_init",
-      "community": 165,
+      "community": 6,
       "norm_label": ".__init__()"
     },
     {
@@ -13860,7 +13860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_slider_init",
-      "community": 141,
+      "community": 55,
       "norm_label": "__init__.py"
     },
     {
@@ -13870,7 +13870,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_slider_py_slider",
-      "community": 141,
+      "community": 55,
       "norm_label": "py_slider.py"
     },
     {
@@ -13880,7 +13880,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "py_slider_py_slider_pyslider",
-      "community": 141,
+      "community": 55,
       "norm_label": "pyslider"
     },
     {
@@ -13890,7 +13890,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "qslider",
-      "community": 141,
+      "community": 55,
       "norm_label": "qslider"
     },
     {
@@ -13900,7 +13900,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "py_slider_py_slider_pyslider_init",
-      "community": 141,
+      "community": 55,
       "norm_label": ".__init__()"
     },
     {
@@ -13980,7 +13980,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_init",
-      "community": 195,
+      "community": 213,
       "norm_label": "__init__.py"
     },
     {
@@ -13990,7 +13990,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_div",
-      "community": 132,
+      "community": 213,
       "norm_label": "py_div.py"
     },
     {
@@ -14000,7 +14000,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "py_title_bar_py_div_pydiv",
-      "community": 132,
+      "community": 213,
       "norm_label": "pydiv"
     },
     {
@@ -14010,7 +14010,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "py_title_bar_py_div_pydiv_init",
-      "community": 132,
+      "community": 213,
       "norm_label": ".__init__()"
     },
     {
@@ -14020,7 +14020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar",
-      "community": 132,
+      "community": 213,
       "norm_label": "py_title_bar.py"
     },
     {
@@ -14030,7 +14030,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar",
-      "community": 195,
+      "community": 213,
       "norm_label": "pytitlebar"
     },
     {
@@ -14040,7 +14040,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_init",
-      "community": 195,
+      "community": 213,
       "norm_label": ".__init__()"
     },
     {
@@ -14050,7 +14050,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_add_menus",
-      "community": 195,
+      "community": 213,
       "norm_label": ".add_menus()"
     },
     {
@@ -14060,7 +14060,7 @@
       "source_location": "L206",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_btn_clicked",
-      "community": 195,
+      "community": 213,
       "norm_label": ".btn_clicked()"
     },
     {
@@ -14070,7 +14070,7 @@
       "source_location": "L209",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_btn_released",
-      "community": 195,
+      "community": 213,
       "norm_label": ".btn_released()"
     },
     {
@@ -14080,7 +14080,7 @@
       "source_location": "L214",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_set_title",
-      "community": 195,
+      "community": 213,
       "norm_label": ".set_title()"
     },
     {
@@ -14090,7 +14090,7 @@
       "source_location": "L220",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_maximize_restore",
-      "community": 195,
+      "community": 213,
       "norm_label": ".maximize_restore()"
     },
     {
@@ -14100,7 +14100,7 @@
       "source_location": "L252",
       "_origin": "ast",
       "id": "py_title_bar_py_title_bar_pytitlebar_setup_ui",
-      "community": 195,
+      "community": 213,
       "norm_label": ".setup_ui()"
     },
     {
@@ -14360,7 +14360,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_window_init",
-      "community": 164,
+      "community": 15,
       "norm_label": "__init__.py"
     },
     {
@@ -14370,7 +14370,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_window_py_window",
-      "community": 164,
+      "community": 15,
       "norm_label": "py_window.py"
     },
     {
@@ -14380,7 +14380,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "py_window_py_window_pywindow",
-      "community": 164,
+      "community": 15,
       "norm_label": "pywindow"
     },
     {
@@ -14400,7 +14400,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "py_window_py_window_pywindow_init",
-      "community": 164,
+      "community": 15,
       "norm_label": ".__init__()"
     },
     {
@@ -14410,7 +14410,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "py_window_py_window_pywindow_set_stylesheet",
-      "community": 164,
+      "community": 15,
       "norm_label": ".set_stylesheet()"
     },
     {
@@ -14420,7 +14420,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "py_window_styles",
-      "community": 164,
+      "community": 15,
       "norm_label": "styles.py"
     },
     {
@@ -14430,7 +14430,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "py_window_styles_styles",
-      "community": 164,
+      "community": 15,
       "norm_label": "styles"
     },
     {
@@ -14950,7 +14950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polyfactory_scripts_python_polyfactory_widgets_init_py_widgets_init",
-      "community": 35,
+      "community": 56,
       "norm_label": "__init__.py"
     },
     {
@@ -14960,7 +14960,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_init_rationale_1",
-      "community": 35,
+      "community": 56,
       "norm_label": "polyfactory widgets module  qt widgets for houdini workflows.  submodules:"
     },
     {
@@ -14970,7 +14970,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_binding_manager",
-      "community": 35,
+      "community": 56,
       "norm_label": "binding_manager.py"
     },
     {
@@ -14980,7 +14980,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager",
-      "community": 35,
+      "community": 42,
       "norm_label": "bindingmanager"
     },
     {
@@ -14990,7 +14990,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_init",
-      "community": 35,
+      "community": 188,
       "norm_label": ".__init__()"
     },
     {
@@ -15080,7 +15080,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_poll_parm_changes",
-      "community": 35,
+      "community": 42,
       "norm_label": "._poll_parm_changes()"
     },
     {
@@ -15100,7 +15100,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_cleanup",
-      "community": 35,
+      "community": 42,
       "norm_label": ".cleanup()"
     },
     {
@@ -15110,7 +15110,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_1",
-      "community": 35,
+      "community": 56,
       "norm_label": "binding manager - central coordinator for parameter-widget synchronization  ma"
     },
     {
@@ -15120,7 +15120,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_14",
-      "community": 35,
+      "community": 42,
       "norm_label": "manages parameter bindings for an hda python panel ui.          coordinates up"
     },
     {
@@ -15130,7 +15130,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_27",
-      "community": 35,
+      "community": 188,
       "norm_label": "initialize binding manager for a node.                  args:             nod"
     },
     {
@@ -15220,7 +15220,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_160",
-      "community": 35,
+      "community": 42,
       "norm_label": "poll for external parameter changes (from ui, expressions, etc)."
     },
     {
@@ -15240,7 +15240,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_192",
-      "community": 35,
+      "community": 42,
       "norm_label": "stop polling and clean up resources."
     },
     {
@@ -15250,7 +15250,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_hover_outline",
-      "community": 21,
+      "community": 56,
       "norm_label": "hover_outline.py"
     },
     {
@@ -15330,7 +15330,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_hover_outline_rationale_1",
-      "community": 21,
+      "community": 56,
       "norm_label": "hover outline mixin - animated blue outline on hover for any widget"
     },
     {
@@ -15520,7 +15520,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel",
-      "community": 35,
+      "community": 188,
       "norm_label": "parm_panel.py"
     },
     {
@@ -15530,7 +15530,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_floating_parm_panel",
-      "community": 35,
+      "community": 188,
       "norm_label": "show_floating_parm_panel()"
     },
     {
@@ -15540,7 +15540,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_selected_node_parms",
-      "community": 35,
+      "community": 188,
       "norm_label": "show_selected_node_parms()"
     },
     {
@@ -15550,7 +15550,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_1",
-      "community": 35,
+      "community": 188,
       "norm_label": "parameter panel utilities - helper functions for creating floating parameter win"
     },
     {
@@ -15560,7 +15560,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_11",
-      "community": 35,
+      "community": 188,
       "norm_label": "open a floating parameter panel for a node using houdini's native api."
     },
     {
@@ -15570,7 +15570,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_50",
-      "community": 35,
+      "community": 188,
       "norm_label": "show floating parameter panel for currently selected node.          useful for"
     },
     {
@@ -16720,7 +16720,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input",
-      "community": 21,
+      "community": 106,
       "norm_label": "tag_input.py"
     },
     {
@@ -16870,7 +16870,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip",
-      "community": 21,
+      "community": 106,
       "norm_label": "tagchip"
     },
     {
@@ -16880,7 +16880,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_init",
-      "community": 21,
+      "community": 106,
       "norm_label": ".__init__()"
     },
     {
@@ -16890,7 +16890,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_paintevent",
-      "community": 21,
+      "community": 106,
       "norm_label": ".paintevent()"
     },
     {
@@ -16900,7 +16900,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "widgets_tag_input_tagchip_on_remove",
-      "community": 21,
+      "community": 106,
       "norm_label": "._on_remove()"
     },
     {
@@ -17100,7 +17100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_1",
-      "community": 21,
+      "community": 106,
       "norm_label": "tag input widget - autocompleting tag input with removable chips similar to sho"
     },
     {
@@ -17120,7 +17120,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_90",
-      "community": 21,
+      "community": 106,
       "norm_label": "individual tag chip with remove button"
     },
     {
@@ -17130,7 +17130,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_133",
-      "community": 21,
+      "community": 106,
       "norm_label": "custom paint to draw rounded background with darker blue + animated hover outlin"
     },
     {
@@ -17140,7 +17140,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "widgets_tag_input_rationale_149",
-      "community": 21,
+      "community": 106,
       "norm_label": "handle remove button click"
     },
     {
@@ -17340,7 +17340,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_widget_value",
-      "community": 188,
+      "community": 168,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17390,7 +17390,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_widget_value",
-      "community": 188,
+      "community": 168,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17460,7 +17460,7 @@
       "source_location": "L322",
       "_origin": "ast",
       "id": "widgets_widgets_parmmenu_update_widget_value",
-      "community": 188,
+      "community": 168,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17500,7 +17500,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor",
-      "community": 188,
+      "community": 56,
       "norm_label": "parmcolor"
     },
     {
@@ -17510,7 +17510,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_init",
-      "community": 188,
+      "community": 51,
       "norm_label": ".__init__()"
     },
     {
@@ -17520,7 +17520,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "parmtuple",
-      "community": 188,
+      "community": 51,
       "norm_label": "parmtuple"
     },
     {
@@ -17530,7 +17530,7 @@
       "source_location": "L449",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_on_color_changed",
-      "community": 188,
+      "community": 56,
       "norm_label": "._on_color_changed()"
     },
     {
@@ -17540,7 +17540,7 @@
       "source_location": "L462",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_get_parm_value",
-      "community": 188,
+      "community": 56,
       "norm_label": "._get_parm_value()"
     },
     {
@@ -17550,7 +17550,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_widget_value",
-      "community": 188,
+      "community": 168,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17560,7 +17560,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_expression_style",
-      "community": 188,
+      "community": 168,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17570,7 +17570,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_reset_to_default",
-      "community": 188,
+      "community": 56,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17710,7 +17710,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_409",
-      "community": 188,
+      "community": 56,
       "norm_label": "color picker widget using houdini's native colorfield."
     },
     {
@@ -17720,7 +17720,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_450",
-      "community": 188,
+      "community": 56,
       "norm_label": "handle color change from colorfield."
     },
     {
@@ -17730,7 +17730,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_467",
-      "community": 188,
+      "community": 168,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -17740,7 +17740,7 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_480",
-      "community": 188,
+      "community": 168,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17750,7 +17750,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_493",
-      "community": 188,
+      "community": 56,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -20104,10 +20104,70 @@
       "norm_label": "encloses_courtyard()"
     },
     {
-      "label": "plan_follows_data()",
+      "label": "elements()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L322",
+      "_origin": "ast",
+      "id": "citygen_checks_buildings_elements",
+      "community": 76,
+      "norm_label": "elements()"
+    },
+    {
+      "label": "_cap_ring()",
+      "file_type": "code",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L362",
+      "_origin": "ast",
+      "id": "citygen_checks_buildings_cap_ring",
+      "community": 76,
+      "norm_label": "_cap_ring()"
+    },
+    {
+      "label": "_in_box()",
+      "file_type": "code",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L369",
+      "_origin": "ast",
+      "id": "citygen_checks_buildings_in_box",
+      "community": 76,
+      "norm_label": "_in_box()"
+    },
+    {
+      "label": "corner_closure()",
+      "file_type": "code",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L374",
+      "_origin": "ast",
+      "id": "citygen_checks_buildings_corner_closure",
+      "community": 76,
+      "norm_label": "corner_closure()"
+    },
+    {
+      "label": "_plane_y()",
+      "file_type": "code",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L448",
+      "_origin": "ast",
+      "id": "citygen_checks_buildings_plane_y",
+      "community": 76,
+      "norm_label": "_plane_y()"
+    },
+    {
+      "label": "cap_seam()",
+      "file_type": "code",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L467",
+      "_origin": "ast",
+      "id": "citygen_checks_buildings_cap_seam",
+      "community": 76,
+      "norm_label": "cap_seam()"
+    },
+    {
+      "label": "plan_follows_data()",
+      "file_type": "code",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L555",
       "_origin": "ast",
       "id": "citygen_checks_buildings_plan_follows_data",
       "community": 76,
@@ -20117,7 +20177,7 @@
       "label": "rules_serve_more_than_one_style()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L396",
+      "source_location": "L667",
       "_origin": "ast",
       "id": "citygen_checks_buildings_rules_serve_more_than_one_style",
       "community": 76,
@@ -20127,7 +20187,7 @@
       "label": "no_style_names_in_code()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L430",
+      "source_location": "L701",
       "_origin": "ast",
       "id": "citygen_checks_buildings_no_style_names_in_code",
       "community": 76,
@@ -20137,7 +20197,7 @@
       "label": "party_walls_are_real()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L449",
+      "source_location": "L720",
       "_origin": "ast",
       "id": "citygen_checks_buildings_party_walls_are_real",
       "community": 76,
@@ -20147,7 +20207,7 @@
       "label": "_wanted()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L494",
+      "source_location": "L765",
       "_origin": "ast",
       "id": "citygen_checks_buildings_wanted",
       "community": 76,
@@ -20157,7 +20217,7 @@
       "label": "volume_count_matches_template()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L506",
+      "source_location": "L777",
       "_origin": "ast",
       "id": "citygen_checks_buildings_volume_count_matches_template",
       "community": 76,
@@ -20167,7 +20227,7 @@
       "label": "outward_normals()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L571",
+      "source_location": "L842",
       "_origin": "ast",
       "id": "citygen_checks_buildings_outward_normals",
       "community": 76,
@@ -20177,7 +20237,7 @@
       "label": "heights_follow_data()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L598",
+      "source_location": "L869",
       "_origin": "ast",
       "id": "citygen_checks_buildings_heights_follow_data",
       "community": 76,
@@ -20187,7 +20247,7 @@
       "label": "plinth_follows_ground()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L630",
+      "source_location": "L901",
       "_origin": "ast",
       "id": "citygen_checks_buildings_plinth_follows_ground",
       "community": 76,
@@ -20197,7 +20257,7 @@
       "label": "attribute_storage()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L696",
+      "source_location": "L967",
       "_origin": "ast",
       "id": "citygen_checks_buildings_attribute_storage",
       "community": 76,
@@ -20207,7 +20267,7 @@
       "label": "elem_ids_structural()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L727",
+      "source_location": "L998",
       "_origin": "ast",
       "id": "citygen_checks_buildings_elem_ids_structural",
       "community": 76,
@@ -20217,7 +20277,7 @@
       "label": "no_scratch()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L745",
+      "source_location": "L1016",
       "_origin": "ast",
       "id": "citygen_checks_buildings_no_scratch",
       "community": 76,
@@ -20227,7 +20287,7 @@
       "label": "published_names()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L770",
+      "source_location": "L1041",
       "_origin": "ast",
       "id": "citygen_checks_buildings_published_names",
       "community": 76,
@@ -20237,7 +20297,7 @@
       "label": "masses_inside_lots()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L783",
+      "source_location": "L1054",
       "_origin": "ast",
       "id": "citygen_checks_buildings_masses_inside_lots",
       "community": 76,
@@ -20247,7 +20307,7 @@
       "label": "warns_on_unknown_rule()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L818",
+      "source_location": "L1089",
       "_origin": "ast",
       "id": "citygen_checks_buildings_warns_on_unknown_rule",
       "community": 76,
@@ -20257,7 +20317,7 @@
       "label": "warns_on_cap_group_split()",
       "file_type": "code",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L833",
+      "source_location": "L1104",
       "_origin": "ast",
       "id": "citygen_checks_buildings_warns_on_cap_group_split",
       "community": 76,
@@ -20384,12 +20444,62 @@
       "norm_label": "the perimeter-block claim: the volumes close a ring around a void.      a ring"
     },
     {
+      "label": "B4/B5/B6's OUTPUT as plain records - packed facade modules and roof     faces i",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L323",
+      "_origin": "ast",
+      "id": "citygen_checks_buildings_rationale_323",
+      "community": 76,
+      "norm_label": "b4/b5/b6's output as plain records - packed facade modules and roof     faces i"
+    },
+    {
+      "label": "A volume's footprint in (x, z), off its own cap face - which IS the     plan `p",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L363",
+      "_origin": "ast",
+      "id": "citygen_checks_buildings_rationale_363",
+      "community": 76,
+      "norm_label": "a volume's footprint in (x, z), off its own cap face - which is the     plan `p"
+    },
+    {
+      "label": "\u2b50 THE GATE'S OWN QUESTION: does the facade close at a corner?      \u00a75 Theme 4",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L375",
+      "_origin": "ast",
+      "id": "citygen_checks_buildings_rationale_375",
+      "community": 76,
+      "norm_label": "\u2b50 the gate's own question: does the facade close at a corner?      \u00a75 theme 4"
+    },
+    {
+      "label": "The y of a planar roof face at plan point `q`, or None if `q` is     outside it",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L449",
+      "_origin": "ast",
+      "id": "citygen_checks_buildings_rationale_449",
+      "community": 76,
+      "norm_label": "the y of a planar roof face at plan point `q`, or none if `q` is     outside it"
+    },
+    {
+      "label": "\u2b50 THE OTHER SEAM G2's pass criterion names: facade -> cap.      Three clauses,",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L468",
+      "_origin": "ast",
+      "id": "citygen_checks_buildings_rationale_468",
+      "community": 76,
+      "norm_label": "\u2b50 the other seam g2's pass criterion names: facade -> cap.      three clauses,"
+    },
+    {
       "label": "WHERE THE MASS IS AND HOW BIG IT IS IN PLAN - the dimension nothing in     the",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L324",
+      "source_location": "L557",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_324",
+      "id": "citygen_checks_buildings_rationale_557",
       "community": 76,
       "norm_label": "where the mass is and how big it is in plan - the dimension nothing in     the"
     },
@@ -20397,9 +20507,9 @@
       "label": "G1's adversarial clause, mechanised.      \"A rule library where one rule is on",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L397",
+      "source_location": "L668",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_397",
+      "id": "citygen_checks_buildings_rationale_668",
       "community": 76,
       "norm_label": "g1's adversarial clause, mechanised.      \"a rule library where one rule is on"
     },
@@ -20407,9 +20517,9 @@
       "label": "G1's PASS criterion as an assertion: `if style == \"einhof\"` anywhere is     an",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L431",
+      "source_location": "L702",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_431",
+      "id": "citygen_checks_buildings_rationale_702",
       "community": 76,
       "norm_label": "g1's pass criterion as an assertion: `if style == \"einhof\"` anywhere is     an"
     },
@@ -20417,9 +20527,9 @@
       "label": "Every face tagged party names a neighbour, and the neighbour has a face     in",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L450",
+      "source_location": "L721",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_450",
+      "id": "citygen_checks_buildings_rationale_721",
       "community": 76,
       "norm_label": "every face tagged party names a neighbour, and the neighbour has a face     in"
     },
@@ -20427,9 +20537,9 @@
       "label": "How many volumes a template asks for ON THIS FOOTPRINT.      Under `ring` the",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L495",
+      "source_location": "L766",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_495",
+      "id": "citygen_checks_buildings_rationale_766",
       "community": 76,
       "norm_label": "how many volumes a template asks for on this footprint.      under `ring` the"
     },
@@ -20437,9 +20547,9 @@
       "label": "Every volume the template asks for is actually IN THE OUTPUT, and only     the",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L508",
+      "source_location": "L779",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_508",
+      "id": "citygen_checks_buildings_rationale_779",
       "community": 76,
       "norm_label": "every volume the template asks for is actually in the output, and only     the"
     },
@@ -20447,9 +20557,9 @@
       "label": "Caps up, floors down, walls away from their own volume.  A reversed     quad re",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L572",
+      "source_location": "L843",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_572",
+      "id": "citygen_checks_buildings_rationale_843",
       "community": 76,
       "norm_label": "caps up, floors down, walls away from their own volume.  a reversed     quad re"
     },
@@ -20457,9 +20567,9 @@
       "label": "A DIFFERENTIAL ORACLE, not a snapshot: every volume's wall height is     re-der",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L599",
+      "source_location": "L870",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_599",
+      "id": "citygen_checks_buildings_rationale_870",
       "community": 76,
       "norm_label": "a differential oracle, not a snapshot: every volume's wall height is     re-der"
     },
@@ -20467,9 +20577,9 @@
       "label": "`levelToHighest` on a slope: ONE floor datum for the whole building,     and a",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L632",
+      "source_location": "L903",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_632",
+      "id": "citygen_checks_buildings_rationale_903",
       "community": 76,
       "norm_label": "`leveltohighest` on a slope: one floor datum for the whole building,     and a"
     },
@@ -20477,9 +20587,9 @@
       "label": "D223: an attribute's STORAGE is part of its contract.  An int id once     shipp",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L697",
+      "source_location": "L968",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_697",
+      "id": "citygen_checks_buildings_rationale_968",
       "community": 76,
       "norm_label": "d223: an attribute's storage is part of its contract.  an int id once     shipp"
     },
@@ -20487,9 +20597,9 @@
       "label": "\u00a712.7: the id is site + stage + structural address, NEVER generation     order.",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L728",
+      "source_location": "L999",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_728",
+      "id": "citygen_checks_buildings_rationale_999",
       "community": 76,
       "norm_label": "\u00a712.7: the id is site + stage + structural address, never generation     order."
     },
@@ -20497,9 +20607,9 @@
       "label": "conventions.md \u00a72/\u00a75 - nothing beginning with `_` leaves the node, on     any o",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L746",
+      "source_location": "L1017",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_746",
+      "id": "citygen_checks_buildings_rationale_1017",
       "community": 76,
       "norm_label": "conventions.md \u00a72/\u00a75 - nothing beginning with `_` leaves the node, on     any o"
     },
@@ -20507,9 +20617,9 @@
       "label": "The baseline snapshot: every published name and its storage.  Records     VALUE",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L771",
+      "source_location": "L1042",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_771",
+      "id": "citygen_checks_buildings_rationale_1042",
       "community": 76,
       "norm_label": "the baseline snapshot: every published name and its storage.  records     value"
     },
@@ -20517,9 +20627,9 @@
       "label": "THE ROUND-2 BLOCKING DEFECT, as a standing assertion: a building stands     on",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L784",
+      "source_location": "L1055",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_784",
+      "id": "citygen_checks_buildings_rationale_1055",
       "community": 76,
       "norm_label": "the round-2 blocking defect, as a standing assertion: a building stands     on"
     },
@@ -20527,9 +20637,9 @@
       "label": "A template naming a rule the library does not have still BUILDS, on the     def",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L819",
+      "source_location": "L1090",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_819",
+      "id": "citygen_checks_buildings_rationale_1090",
       "community": 76,
       "norm_label": "a template naming a rule the library does not have still builds, on the     def"
     },
@@ -20537,9 +20647,9 @@
       "label": "\u00a72.2: advisory, never a wall.  Two volumes told to share a roof but     given d",
       "file_type": "rationale",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L834",
+      "source_location": "L1105",
       "_origin": "ast",
-      "id": "citygen_checks_buildings_rationale_834",
+      "id": "citygen_checks_buildings_rationale_1105",
       "community": 76,
       "norm_label": "\u00a72.2: advisory, never a wall.  two volumes told to share a roof but     given d"
     },
@@ -21160,177 +21270,197 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "citygen_run_building_checks",
-      "community": 226,
+      "community": 164,
       "norm_label": "run_building_checks.py"
+    },
+    {
+      "label": "ring_of()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_building_checks.py",
+      "source_location": "L155",
+      "_origin": "ast",
+      "id": "citygen_run_building_checks_ring_of",
+      "community": 164,
+      "norm_label": "ring_of()"
     },
     {
       "label": "GROUND()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L157",
+      "source_location": "L191",
       "_origin": "ast",
       "id": "citygen_run_building_checks_ground",
-      "community": 76,
+      "community": 164,
       "norm_label": "ground()"
     },
     {
       "label": "show()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L164",
+      "source_location": "L198",
       "_origin": "ast",
       "id": "citygen_run_building_checks_show",
-      "community": 226,
+      "community": 164,
       "norm_label": "show()"
     },
     {
       "label": "scene()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L201",
+      "source_location": "L232",
       "_origin": "ast",
       "id": "citygen_run_building_checks_scene",
-      "community": 226,
+      "community": 164,
       "norm_label": "scene()"
     },
     {
       "label": "cook()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L228",
+      "source_location": "L259",
       "_origin": "ast",
       "id": "citygen_run_building_checks_cook",
-      "community": 226,
+      "community": 164,
       "norm_label": "cook()"
     },
     {
       "label": "patch_vex()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L246",
+      "source_location": "L277",
       "_origin": "ast",
       "id": "citygen_run_building_checks_patch_vex",
-      "community": 226,
+      "community": 164,
       "norm_label": "patch_vex()"
+    },
+    {
+      "label": "patch_pysrc()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_building_checks.py",
+      "source_location": "L293",
+      "_origin": "ast",
+      "id": "citygen_run_building_checks_patch_pysrc",
+      "community": 164,
+      "norm_label": "patch_pysrc()"
     },
     {
       "label": "patch_template()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L262",
+      "source_location": "L324",
       "_origin": "ast",
       "id": "citygen_run_building_checks_patch_template",
-      "community": 226,
+      "community": 164,
       "norm_label": "patch_template()"
     },
     {
       "label": "_volume()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L272",
+      "source_location": "L334",
       "_origin": "ast",
       "id": "citygen_run_building_checks_volume",
-      "community": 226,
+      "community": 164,
       "norm_label": "_volume()"
     },
     {
       "label": "vol()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L278",
+      "source_location": "L340",
       "_origin": "ast",
       "id": "citygen_run_building_checks_vol",
-      "community": 226,
+      "community": 164,
       "norm_label": "vol()"
     },
     {
       "label": "topo()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L283",
+      "source_location": "L345",
       "_origin": "ast",
       "id": "citygen_run_building_checks_topo",
-      "community": 226,
+      "community": 164,
       "norm_label": "topo()"
     },
     {
       "label": "vx()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L288",
+      "source_location": "L350",
       "_origin": "ast",
       "id": "citygen_run_building_checks_vx",
-      "community": 226,
+      "community": 164,
       "norm_label": "vx()"
     },
     {
       "label": "run_checks()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L471",
+      "source_location": "L551",
       "_origin": "ast",
       "id": "citygen_run_building_checks_run_checks",
-      "community": 226,
+      "community": 164,
       "norm_label": "run_checks()"
     },
     {
       "label": "sources_now()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L507",
+      "source_location": "L588",
       "_origin": "ast",
       "id": "citygen_run_building_checks_sources_now",
-      "community": 226,
+      "community": 164,
       "norm_label": "sources_now()"
     },
     {
       "label": "record()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L525",
+      "source_location": "L606",
       "_origin": "ast",
       "id": "citygen_run_building_checks_record",
-      "community": 226,
+      "community": 164,
       "norm_label": "record()"
     },
     {
       "label": "budget()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L561",
+      "source_location": "L649",
       "_origin": "ast",
       "id": "citygen_run_building_checks_budget",
-      "community": 226,
+      "community": 164,
       "norm_label": "budget()"
     },
     {
       "label": "diff()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L593",
+      "source_location": "L680",
       "_origin": "ast",
       "id": "citygen_run_building_checks_diff",
-      "community": 226,
+      "community": 164,
       "norm_label": "diff()"
     },
     {
       "label": "images()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L610",
+      "source_location": "L697",
       "_origin": "ast",
       "id": "citygen_run_building_checks_images",
-      "community": 226,
+      "community": 164,
       "norm_label": "images()"
     },
     {
       "label": "main()",
       "file_type": "code",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L670",
+      "source_location": "L757",
       "_origin": "ast",
       "id": "citygen_run_building_checks_main",
-      "community": 226,
+      "community": 164,
       "norm_label": "main()"
     },
     {
@@ -21340,68 +21470,308 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "citygen_run_building_checks_rationale_1",
-      "community": 226,
+      "community": 164,
       "norm_label": "gate g1 - is `volumetopology` data?  fixture, checks, baseline, mutations, image"
+    },
+    {
+      "label": "A lot's polygon in (x, z) - THE ONE DEFINITION, and it used to be two.      `RIN",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/run_building_checks.py",
+      "source_location": "L156",
+      "_origin": "ast",
+      "id": "citygen_run_building_checks_rationale_156",
+      "community": 164,
+      "norm_label": "a lot's polygon in (x, z) - the one definition, and it used to be two.      `rin"
     },
     {
       "label": "Lots + a sloped, undulating ground; -> (lot node, B2 output node).",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L202",
+      "source_location": "L233",
       "_origin": "ast",
-      "id": "citygen_run_building_checks_rationale_202",
-      "community": 226,
+      "id": "citygen_run_building_checks_rationale_233",
+      "community": 164,
       "norm_label": "lots + a sloped, undulating ground; -> (lot node, b2 output node)."
     },
     {
       "label": "A fresh /obj subtree per build, so no cook is served a stale cache.",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L229",
+      "source_location": "L260",
       "_origin": "ast",
-      "id": "citygen_run_building_checks_rationale_229",
-      "community": 226,
+      "id": "citygen_run_building_checks_rationale_260",
+      "community": 164,
       "norm_label": "a fresh /obj subtree per build, so no cook is served a stale cache."
+    },
+    {
+      "label": "A PYTHON-SOURCE door for the registry, and `R4-1` is why it exists.      The reg",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/run_building_checks.py",
+      "source_location": "L294",
+      "_origin": "ast",
+      "id": "citygen_run_building_checks_rationale_294",
+      "community": 164,
+      "norm_label": "a python-source door for the registry, and `r4-1` is why it exists.      the reg"
     },
     {
       "label": "What `no_style_branching` reads.  The .vfl files go through `B.vex` so a     mut",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L508",
+      "source_location": "L589",
       "_origin": "ast",
-      "id": "citygen_run_building_checks_rationale_508",
-      "community": 226,
+      "id": "citygen_run_building_checks_rationale_589",
+      "community": 164,
       "norm_label": "what `no_style_branching` reads.  the .vfl files go through `b.vex` so a     mut"
     },
     {
       "label": "VALUES, not pass/fail, and three families of them were missing.      \u26a0\ufe0f `pf_warn",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L526",
+      "source_location": "L607",
       "_origin": "ast",
-      "id": "citygen_run_building_checks_rationale_526",
-      "community": 226,
+      "id": "citygen_run_building_checks_rationale_607",
+      "community": 164,
       "norm_label": "values, not pass/fail, and three families of them were missing.      \u26a0\ufe0f `pf_warn"
     },
     {
       "label": "test <= production, PRINTED EVERY RUN so it cannot drift unstated     again - th",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L562",
+      "source_location": "L650",
       "_origin": "ast",
-      "id": "citygen_run_building_checks_rationale_562",
-      "community": 226,
+      "id": "citygen_run_building_checks_rationale_650",
+      "community": 164,
       "norm_label": "test <= production, printed every run so it cannot drift unstated     again - th"
     },
     {
       "label": "A gate is judged on the picture.  Colour by `pf_wall_role`, so the     party wal",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L611",
+      "source_location": "L698",
       "_origin": "ast",
-      "id": "citygen_run_building_checks_rationale_611",
-      "community": 226,
+      "id": "citygen_run_building_checks_rationale_698",
+      "community": 164,
       "norm_label": "a gate is judged on the picture.  colour by `pf_wall_role`, so the     party wal"
+    },
+    {
+      "label": "run_g2_checks.py",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks",
+      "community": 165,
+      "norm_label": "run_g2_checks.py"
+    },
+    {
+      "label": "ell()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L77",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_ell",
+      "community": 165,
+      "norm_label": "ell()"
+    },
+    {
+      "label": "show()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L117",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_show",
+      "community": 165,
+      "norm_label": "show()"
+    },
+    {
+      "label": "kit_geometry()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L162",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_kit_geometry",
+      "community": 165,
+      "norm_label": "kit_geometry()"
+    },
+    {
+      "label": "scene()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L187",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_scene",
+      "community": 165,
+      "norm_label": "scene()"
+    },
+    {
+      "label": "cook()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L199",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_cook",
+      "community": 165,
+      "norm_label": "cook()"
+    },
+    {
+      "label": "patch_vex()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L213",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_patch_vex",
+      "community": 165,
+      "norm_label": "patch_vex()"
+    },
+    {
+      "label": "vx()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L229",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_vx",
+      "community": 165,
+      "norm_label": "vx()"
+    },
+    {
+      "label": "run_checks()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L274",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_run_checks",
+      "community": 165,
+      "norm_label": "run_checks()"
+    },
+    {
+      "label": "record()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L290",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_record",
+      "community": 165,
+      "norm_label": "record()"
+    },
+    {
+      "label": "cost()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L315",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_cost",
+      "community": 165,
+      "norm_label": "cost()"
+    },
+    {
+      "label": "budget()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L394",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_budget",
+      "community": 165,
+      "norm_label": "budget()"
+    },
+    {
+      "label": "diff()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L425",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_diff",
+      "community": 165,
+      "norm_label": "diff()"
+    },
+    {
+      "label": "images()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L440",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_images",
+      "community": 165,
+      "norm_label": "images()"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L486",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_main",
+      "community": 165,
+      "norm_label": "main()"
+    },
+    {
+      "label": "Gate G2 - CAN A CORNER BE CLOSED ON A NON-RECTANGULAR FOOTPRINT?      hython tes",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_rationale_1",
+      "community": 165,
+      "norm_label": "gate g2 - can a corner be closed on a non-rectangular footprint?      hython tes"
+    },
+    {
+      "label": "Lots -> B2 mass -> B4 facade + B5 cap + B6 seam.  -> (mass, shell).",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L188",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_rationale_188",
+      "community": 165,
+      "norm_label": "lots -> b2 mass -> b4 facade + b5 cap + b6 seam.  -> (mass, shell)."
+    },
+    {
+      "label": "A fresh /obj subtree per build, so no cook is served a stale cache.",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L200",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_rationale_200",
+      "community": 165,
+      "norm_label": "a fresh /obj subtree per build, so no cook is served a stale cache."
+    },
+    {
+      "label": "VALUES, not pass/fail.",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L291",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_rationale_291",
+      "community": 165,
+      "norm_label": "values, not pass/fail."
+    },
+    {
+      "label": "Cook time per CORNER TREATMENT, and the miter/reference split.      \u2b50 THIS IS EV",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L316",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_rationale_316",
+      "community": 165,
+      "norm_label": "cook time per corner treatment, and the miter/reference split.      \u2b50 this is ev"
+    },
+    {
+      "label": "test <= production, PRINTED EVERY RUN, over ALL THREE test files.      \u26a0\ufe0f A NEW",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L395",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_rationale_395",
+      "community": 165,
+      "norm_label": "test <= production, printed every run, over all three test files.      \u26a0\ufe0f a new"
+    },
+    {
+      "label": "\u26a0\ufe0f UNPACKED FIRST.  A packed prim has ONE VERTEX     (houdini-procedural-modelin",
+      "file_type": "rationale",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L441",
+      "_origin": "ast",
+      "id": "citygen_run_g2_checks_rationale_441",
+      "community": 165,
+      "norm_label": "\u26a0\ufe0f unpacked first.  a packed prim has one vertex     (houdini-procedural-modelin"
     },
     {
       "label": "run_scene_checks.py",
@@ -21840,7 +22210,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "polychain_cases_tent",
-      "community": 151,
+      "community": 284,
       "norm_label": "tent()"
     },
     {
@@ -22000,7 +22370,7 @@
       "source_location": "L1482",
       "_origin": "ast",
       "id": "polychain_cases_rebuild",
-      "community": 151,
+      "community": 280,
       "norm_label": "rebuild()"
     },
     {
@@ -22170,7 +22540,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "polychain_cases_rationale_223",
-      "community": 151,
+      "community": 284,
       "norm_label": "two facets and a crease - the surface coarser than the pieces (d56).      peak a"
     },
     {
@@ -22280,7 +22650,7 @@
       "source_location": "L1483",
       "_origin": "ast",
       "id": "polychain_cases_rationale_1483",
-      "community": 151,
+      "community": 280,
       "norm_label": "cook the same inputs again into fresh geometry - the determinism check."
     },
     {
@@ -25400,7 +25770,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_mutations",
-      "community": 253,
+      "community": 15,
       "norm_label": "mutations.py"
     },
     {
@@ -25410,7 +25780,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "polychain_mutations_m",
-      "community": 253,
+      "community": 15,
       "norm_label": "m"
     },
     {
@@ -25420,7 +25790,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "polychain_mutations_m_init",
-      "community": 253,
+      "community": 15,
       "norm_label": ".__init__()"
     },
     {
@@ -25430,7 +25800,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_mutations_rationale_1",
-      "community": 253,
+      "community": 15,
       "norm_label": "the mutation registry - every polychain check paired with the edit that proves i"
     },
     {
@@ -25440,7 +25810,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "polychain_mutations_rationale_52",
-      "community": 253,
+      "community": 15,
       "norm_label": "one registered mutation.      `edits`   ((repo-relative path, exact old text, ne"
     },
     {
@@ -30670,7 +31040,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_kit_of",
-      "community": 105,
+      "community": 184,
       "norm_label": "kit_of()"
     },
     {
@@ -30730,7 +31100,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain",
-      "community": 269,
+      "community": 105,
       "norm_label": "testfallbackchain"
     },
     {
@@ -30740,7 +31110,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_y_sheds_before_x",
-      "community": 269,
+      "community": 105,
       "norm_label": ".test_y_sheds_before_x()"
     },
     {
@@ -30750,7 +31120,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_extend_y_reverses_steps_two_and_three",
-      "community": 269,
+      "community": 105,
       "norm_label": ".test_extend_y_reverses_steps_two_and_three()"
     },
     {
@@ -30850,7 +31220,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testroleclosure_test_a_marker_cell_closes_over_all_five_y_classes",
-      "community": 184,
+      "community": 78,
       "norm_label": ".test_a_marker_cell_closes_over_all_five_y_classes()"
     },
     {
@@ -30910,7 +31280,7 @@
       "source_location": "L247",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testysolve_test_evenly_on_y_is_a_string_course",
-      "community": 105,
+      "community": 145,
       "norm_label": ".test_evenly_on_y_is_a_string_course()"
     },
     {
@@ -31110,7 +31480,7 @@
       "source_location": "L438",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions",
-      "community": 105,
+      "community": 184,
       "norm_label": "testkernelextensions"
     },
     {
@@ -31120,7 +31490,7 @@
       "source_location": "L441",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_cell_role_is_the_identity_without_a_row_class",
-      "community": 105,
+      "community": 184,
       "norm_label": ".test_cell_role_is_the_identity_without_a_row_class()"
     },
     {
@@ -31150,7 +31520,7 @@
       "source_location": "L465",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_candidates_resolve_the_cell_when_the_rule_names_nothing",
-      "community": 105,
+      "community": 184,
       "norm_label": ".test_candidates_resolve_the_cell_when_the_rule_names_nothing()"
     },
     {
@@ -31160,7 +31530,7 @@
       "source_location": "L473",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_stamps_the_cell_and_warns_the_walk",
-      "community": 105,
+      "community": 184,
       "norm_label": ".test_classify_stamps_the_cell_and_warns_the_walk()"
     },
     {
@@ -31170,7 +31540,7 @@
       "source_location": "L481",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_is_silent_where_the_kit_has_the_cell",
-      "community": 105,
+      "community": 184,
       "norm_label": ".test_classify_is_silent_where_the_kit_has_the_cell()"
     },
     {
@@ -31180,7 +31550,7 @@
       "source_location": "L487",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_does_nothing_without_a_row_class",
-      "community": 105,
+      "community": 184,
       "norm_label": ".test_classify_does_nothing_without_a_row_class()"
     },
     {
@@ -31190,7 +31560,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_the_transposed_kit_fits_on_height",
-      "community": 105,
+      "community": 184,
       "norm_label": ".test_the_transposed_kit_fits_on_height()"
     },
     {
@@ -31330,7 +31700,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_40",
-      "community": 105,
+      "community": 184,
       "norm_label": "one module per role, each 3 m wide and named after its role."
     },
     {
@@ -31380,7 +31750,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_101",
-      "community": 269,
+      "community": 105,
       "norm_label": "7.2.2 - the lattice walk, and why y sheds first."
     },
     {
@@ -31440,7 +31810,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_192",
-      "community": 184,
+      "community": 78,
       "norm_label": "7.2's marker cells are legal by grammar and therefore unbounded, so         they"
     },
     {
@@ -31540,7 +31910,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_439",
-      "community": 105,
+      "community": 184,
       "norm_label": "e1/e2/e3 seen from the kernel's side - the three named things only."
     },
     {
@@ -36647,7 +37017,7 @@
       "label": "2b. Wrong conclusions that propagated",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L97",
+      "source_location": "L129",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2b_wrong_conclusions_that_propagated",
       "community": 244,
@@ -36657,7 +37027,7 @@
       "label": "2c. Harness and infrastructure",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L116",
+      "source_location": "L148",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2c_harness_and_infrastructure",
       "community": 244,
@@ -36667,7 +37037,7 @@
       "label": "2d. My own spec and briefing failures",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L138",
+      "source_location": "L170",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2d_my_own_spec_and_briefing_failures",
       "community": 244,
@@ -36677,7 +37047,7 @@
       "label": "3. The patterns",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L149",
+      "source_location": "L181",
       "_origin": "ast",
       "id": "ideas_build_retrospective_3_the_patterns",
       "community": 244,
@@ -36687,7 +37057,7 @@
       "label": "4. What should become a skill, an instruction, or code",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L182",
+      "source_location": "L214",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4_what_should_become_a_skill_an_instruction_or_code",
       "community": 244,
@@ -36697,7 +37067,7 @@
       "label": "4a. HIGHEST VALUE \u2014 a verification-integrity discipline (P1, P2, P3; ~20 incidents)",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L184",
+      "source_location": "L216",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4a_highest_value_a_verification_integrity_discipline_p1_p2_p3_20_incidents",
       "community": 244,
@@ -36707,7 +37077,7 @@
       "label": "4b. Houdini domain gotchas \u2192 extend `houdini-procedural-modeling`",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L206",
+      "source_location": "L238",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4b_houdini_domain_gotchas_extend_houdini_procedural_modeling",
       "community": 244,
@@ -36717,7 +37087,7 @@
       "label": "4c. Multi-agent operations \u2192 workflow-brief boilerplate (or a skill)",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L225",
+      "source_location": "L257",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4c_multi_agent_operations_workflow_brief_boilerplate_or_a_skill",
       "community": 244,
@@ -36727,7 +37097,7 @@
       "label": "4d. Spec-level rules for this project",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L237",
+      "source_location": "L269",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4d_spec_level_rules_for_this_project",
       "community": 244,
@@ -36737,7 +37107,7 @@
       "label": "5. What worked and must not be lost",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L247",
+      "source_location": "L279",
       "_origin": "ast",
       "id": "ideas_build_retrospective_5_what_worked_and_must_not_be_lost",
       "community": 244,
@@ -36747,7 +37117,7 @@
       "label": "6. Status \u2014 what of \u00a74 is ENFORCED IN CODE, what is IN SKILLS, what is still prose",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L263",
+      "source_location": "L295",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6_status_what_of_4_is_enforced_in_code_what_is_in_skills_what_is_still_prose",
       "community": 244,
@@ -36757,7 +37127,7 @@
       "label": "6a. \u00a74a \u2014 verification integrity",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L271",
+      "source_location": "L303",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6a_4a_verification_integrity",
       "community": 244,
@@ -36767,7 +37137,7 @@
       "label": "6b. \u00a74b \u2014 Houdini domain gotchas",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L296",
+      "source_location": "L328",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6b_4b_houdini_domain_gotchas",
       "community": 244,
@@ -36777,7 +37147,7 @@
       "label": "6c. \u00a74c \u2014 multi-agent operations",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L305",
+      "source_location": "L337",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6c_4c_multi_agent_operations",
       "community": 244,
@@ -36787,7 +37157,7 @@
       "label": "6d. \u00a74d \u2014 spec-level rules",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L313",
+      "source_location": "L345",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6d_4d_spec_level_rules",
       "community": 244,
@@ -36797,7 +37167,7 @@
       "label": "6e. \u00a71 and \u00a75, MEASURED: what the v2 regime did to v1 (2026-08-25, cycle V4, verified independently on HEAD `7fabfff`)",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L320",
+      "source_location": "L352",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6e_1_and_5_measured_what_the_v2_regime_did_to_v1_2026_08_25_cycle_v4_verified_independently_on_head_7fabfff",
       "community": 244,
@@ -37220,7 +37590,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_2_the_paper_map",
-      "community": 64,
+      "community": 278,
       "norm_label": "2. the paper map"
     },
     {
@@ -37230,7 +37600,7 @@
       "source_location": "L443",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_era_1_grammars_2001_2014_the_canon_still_what_production_runs_on",
-      "community": 64,
+      "community": 278,
       "norm_label": "era 1 \u2014 grammars (2001\u20132014). the canon; still what production runs on."
     },
     {
@@ -37240,7 +37610,7 @@
       "source_location": "L458",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_era_2_layout_optimisation_2010_2020_interiors_and_floor_plans",
-      "community": 64,
+      "community": 278,
       "norm_label": "era 2 \u2014 layout & optimisation (2010\u20132020). interiors and floor plans."
     },
     {
@@ -37250,7 +37620,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_era_3_neural_hybrid_llm_2023_2026_watch_don_t_adopt",
-      "community": 64,
+      "community": 278,
       "norm_label": "era 3 \u2014 neural / hybrid / llm (2023\u20132026). watch, don't adopt."
     },
     {
@@ -37430,7 +37800,7 @@
       "source_location": "L799",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_8_architectural_style_the_variance_problem",
-      "community": 287,
+      "community": 64,
       "norm_label": "8. architectural style \u2014 the variance problem"
     },
     {
@@ -37440,7 +37810,7 @@
       "source_location": "L808",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_8a_style_taxonomies_exist_and_there_are_two_incompatible_kinds",
-      "community": 287,
+      "community": 64,
       "norm_label": "8a. style taxonomies exist, and there are two incompatible kinds"
     },
     {
@@ -37450,7 +37820,7 @@
       "source_location": "L839",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_8b_style_specific_grammars_exist_are_proven_and_are_hand_written_each_time",
-      "community": 287,
+      "community": 64,
       "norm_label": "8b. style-specific grammars exist, are proven, and are hand-written each time"
     },
     {
@@ -38830,7 +39200,7 @@
       "source_location": "L1528",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
-      "community": 17,
+      "community": 247,
       "norm_label": "s5 \u2014 intersections"
     },
     {
@@ -38840,7 +39210,7 @@
       "source_location": "L1550",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
-      "community": 17,
+      "community": 247,
       "norm_label": "what the literature adds"
     },
     {
@@ -38850,7 +39220,7 @@
       "source_location": "L1574",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "community": 17,
+      "community": 247,
       "norm_label": "the invariant that was violated: **every corner is an arc, always**"
     },
     {
@@ -38860,7 +39230,7 @@
       "source_location": "L1602",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
-      "community": 17,
+      "community": 247,
       "norm_label": "two rules the design left open, decided 2026-08-09"
     },
     {
@@ -38870,7 +39240,7 @@
       "source_location": "L1722",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
-      "community": 17,
+      "community": 247,
       "norm_label": "three constructions adopted from the civil sweep \u2014 2026-08-09"
     },
     {
@@ -38880,7 +39250,7 @@
       "source_location": "L1757",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "community": 17,
+      "community": 247,
       "norm_label": "higher-degree junctions \u2014 untested, and structurally unreachable from the field"
     },
     {
@@ -38890,7 +39260,7 @@
       "source_location": "L1783",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "community": 17,
+      "community": 247,
       "norm_label": "plazas and roundabouts at degenerate points"
     },
     {
@@ -39630,7 +40000,7 @@
       "source_location": "L4610",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6b_shipped_v1_assets",
-      "community": 247,
+      "community": 102,
       "norm_label": "6b. shipped v1 assets"
     },
     {
@@ -39640,7 +40010,7 @@
       "source_location": "L4612",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_old_chain_is_being_retired_status_2026_08_12",
-      "community": 247,
+      "community": 102,
       "norm_label": "the old chain is being retired \u2014 status 2026-08-12"
     },
     {
@@ -39650,7 +40020,7 @@
       "source_location": "L4645",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_retirement_finished_2026_08_12",
-      "community": 247,
+      "community": 102,
       "norm_label": "the retirement, finished \u2014 2026-08-12"
     },
     {
@@ -39660,7 +40030,7 @@
       "source_location": "L4652",
       "_origin": "ast",
       "id": "ideas_citygen_streets_every_promoted_parameter_measured_by_who_reads_it",
-      "community": 247,
+      "community": 102,
       "norm_label": "every promoted parameter, measured by who reads it"
     },
     {
@@ -39670,7 +40040,7 @@
       "source_location": "L4736",
       "_origin": "ast",
       "id": "ideas_citygen_streets_audit_of_the_trim_and_the_monolith_was_not_a_control_it_was_a_divergence_hazard",
-      "community": 247,
+      "community": 102,
       "norm_label": "\u2705 audit of the trim \u2014 and the monolith was not a control, it was a divergence hazard"
     },
     {
@@ -39680,7 +40050,7 @@
       "source_location": "L4777",
       "_origin": "ast",
       "id": "ideas_citygen_streets_closure_gate_py_ported_onto_tracer_segmenter",
-      "community": 247,
+      "community": 102,
       "norm_label": "`closure_gate.py` ported onto `tracer \u2192 segmenter`"
     },
     {
@@ -39690,7 +40060,7 @@
       "source_location": "L4832",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_original_v1_assets",
-      "community": 247,
+      "community": 102,
       "norm_label": "the original v1 assets"
     },
     {
@@ -39700,7 +40070,7 @@
       "source_location": "L4846",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_boundary_moved_2026_08_10_it_is_now_between_data_and_geometry",
-      "community": 247,
+      "community": 102,
       "norm_label": "\u26a0\ufe0f the boundary moved \u2014 2026-08-10. it is now between data and geometry"
     },
     {
@@ -39820,7 +40190,7 @@
       "source_location": "L5180",
       "_origin": "ast",
       "id": "ideas_citygen_streets_never_change_a_shared_vex_signature_under_existing_callers_2026_08_11",
-      "community": 247,
+      "community": 102,
       "norm_label": "\u26a0\ufe0f never change a shared vex signature under existing callers \u2014 2026-08-11"
     },
     {
@@ -40310,7 +40680,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "ideas_fabric_4_milestones",
-      "community": 67,
+      "community": 195,
       "norm_label": "4. milestones"
     },
     {
@@ -40320,7 +40690,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "ideas_fabric_m0_look_test_go_no_go_gate",
-      "community": 67,
+      "community": 195,
       "norm_label": "m0 \u2014 look test (go/no-go gate)"
     },
     {
@@ -40330,7 +40700,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "ideas_fabric_m1_swatch_generator_flat_no_shaping",
-      "community": 67,
+      "community": 195,
       "norm_label": "m1 \u2014 swatch generator (flat, no shaping)"
     },
     {
@@ -40340,7 +40710,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "ideas_fabric_m2_templates_fitted_rest_shape_relaxation",
-      "community": 67,
+      "community": 195,
       "norm_label": "m2 \u2014 templates fitted + rest-shape relaxation"
     },
     {
@@ -40350,7 +40720,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "ideas_fabric_m3_panels_shaping",
-      "community": 67,
+      "community": 195,
       "norm_label": "m3 \u2014 panels + shaping"
     },
     {
@@ -40360,7 +40730,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "ideas_fabric_m4_seams",
-      "community": 67,
+      "community": 195,
       "norm_label": "m4 \u2014 seams"
     },
     {
@@ -40370,7 +40740,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "ideas_fabric_m5_pattern_language",
-      "community": 67,
+      "community": 195,
       "norm_label": "m5 \u2014 pattern language"
     },
     {
@@ -40380,7 +40750,7 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "ideas_fabric_m6_hydra_generative_procedural",
-      "community": 67,
+      "community": 195,
       "norm_label": "m6 \u2014 hydra generative procedural"
     },
     {
@@ -40390,7 +40760,7 @@
       "source_location": "L176",
       "_origin": "ast",
       "id": "ideas_fabric_m7_hero_garment_demo",
-      "community": 67,
+      "community": 195,
       "norm_label": "m7 \u2014 hero garment demo"
     },
     {
@@ -40790,7 +41160,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_w\u0113t\u0101_barbershop_wig",
-      "community": 219,
+      "community": 176,
       "norm_label": "1. weta: barbershop \u2192 wig"
     },
     {
@@ -40800,7 +41170,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_1_lineage_and_status",
-      "community": 219,
+      "community": 176,
       "norm_label": "1.1 lineage and status"
     },
     {
@@ -40810,7 +41180,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_2_the_paradigm_why_this_is_not_houdini",
-      "community": 219,
+      "community": 176,
       "norm_label": "1.2 the paradigm \u2014 why this is not houdini"
     },
     {
@@ -40820,7 +41190,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_3_grooming_tools",
-      "community": 219,
+      "community": 176,
       "norm_label": "1.3 grooming tools"
     },
     {
@@ -40830,7 +41200,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_4_clumping_a_first_class_subsystem_not_a_modifier",
-      "community": 219,
+      "community": 176,
       "norm_label": "1.4 clumping \u2014 a first-class subsystem, not a modifier"
     },
     {
@@ -40840,7 +41210,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_5_coils_and_braids",
-      "community": 219,
+      "community": 176,
       "norm_label": "1.5 coils and braids"
     },
     {
@@ -40850,7 +41220,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_6_selection_and_masking",
-      "community": 219,
+      "community": 176,
       "norm_label": "1.6 selection and masking"
     },
     {
@@ -40860,7 +41230,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_7_the_animation_side_the_part_houdini_has_no_equivalent_for",
-      "community": 219,
+      "community": 176,
       "norm_label": "1.7 the animation side \u2014 the part houdini has no equivalent for"
     },
     {
@@ -40870,7 +41240,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_8_transferring_a_groom",
-      "community": 219,
+      "community": 176,
       "norm_label": "1.8 transferring a groom"
     },
     {
@@ -40880,7 +41250,7 @@
       "source_location": "L183",
       "_origin": "ast",
       "id": "ideas_hair_grooming_1_9_feathers_apteryx",
-      "community": 219,
+      "community": 176,
       "norm_label": "1.9 feathers \u2014 apteryx"
     },
     {
@@ -41570,7 +41940,7 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "ideas_polychain_3_data_contracts",
-      "community": 12,
+      "community": 269,
       "norm_label": "3. data contracts"
     },
     {
@@ -41580,7 +41950,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "ideas_polychain_3_1_input_spline_schema",
-      "community": 12,
+      "community": 269,
       "norm_label": "3.1 input spline schema"
     },
     {
@@ -41590,7 +41960,7 @@
       "source_location": "L229",
       "_origin": "ast",
       "id": "ideas_polychain_3_2_kit_format",
-      "community": 12,
+      "community": 269,
       "norm_label": "3.2 kit format"
     },
     {
@@ -41600,7 +41970,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "ideas_polychain_3_2b_prototype_identity_reuse_pf_merge_enum_and_keep_it_distinct_from_element_identity",
-      "community": 12,
+      "community": 269,
       "norm_label": "3.2b prototype identity \u2014 reuse `pf::merge_enum`, and keep it distinct from element identity"
     },
     {
@@ -41610,7 +41980,7 @@
       "source_location": "L283",
       "_origin": "ast",
       "id": "ideas_polychain_3_3_style_payload",
-      "community": 12,
+      "community": 269,
       "norm_label": "3.3 style payload"
     },
     {
@@ -41620,7 +41990,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "ideas_polychain_3_4_output",
-      "community": 12,
+      "community": 269,
       "norm_label": "3.4 output"
     },
     {
@@ -47155,7 +47525,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/__init__.py",
       "source_location": "L1",
-      "community": 288,
+      "community": 132,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_init_py"
     },
@@ -47191,7 +47561,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_credits_bar/__init__.py",
       "source_location": "L1",
-      "community": 278,
+      "community": 55,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_credits_bar_init_py"
     },
@@ -47200,7 +47570,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_grips/__init__.py",
       "source_location": "L1",
-      "community": 53,
+      "community": 55,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_grips_init_py"
     },
@@ -47263,7 +47633,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_slider/__init__.py",
       "source_location": "L1",
-      "community": 141,
+      "community": 55,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_slider_init_py"
     },
@@ -47281,7 +47651,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_title_bar/py_div.py",
       "source_location": "L1",
-      "community": 132,
+      "community": 213,
       "norm_label": "py_div.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_title_bar_py_div_py"
     },
@@ -47290,7 +47660,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_title_bar/__init__.py",
       "source_location": "L1",
-      "community": 132,
+      "community": 213,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_title_bar_init_py"
     },
@@ -47317,7 +47687,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/ui_framework/widgets/py_window/__init__.py",
       "source_location": "L1",
-      "community": 164,
+      "community": 15,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_ui_framework_widgets_py_window_init_py"
     },
@@ -47344,7 +47714,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/widgets/__init__.py",
       "source_location": "L1",
-      "community": 35,
+      "community": 56,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_widgets_init_py"
     }
@@ -56546,11 +56916,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L483",
+      "source_location": "L484",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_buildings_rationale_483",
-      "target": "citygen_buildings_build"
+      "source": "citygen_buildings_rationale_484",
+      "target": "citygen_buildings_build",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -85900,11 +86270,51 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L362",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings",
+      "target": "citygen_checks_buildings_cap_ring",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L467",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings",
+      "target": "citygen_checks_buildings_cap_seam",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L374",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings",
+      "target": "citygen_checks_buildings_corner_closure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L408",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "citygen_checks_buildings",
       "target": "citygen_checks_buildings_elem_ids_structural"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L322",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings",
+      "target": "citygen_checks_buildings_elements",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -85935,6 +86345,16 @@
       "confidence_score": 1.0,
       "source": "citygen_checks_buildings",
       "target": "citygen_checks_buildings_heights_follow_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L369",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings",
+      "target": "citygen_checks_buildings_in_box",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -86045,6 +86465,16 @@
       "confidence_score": 1.0,
       "source": "citygen_checks_buildings",
       "target": "citygen_checks_buildings_plan_key"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L448",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings",
+      "target": "citygen_checks_buildings_plane_y",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -86166,6 +86596,28 @@
       "confidence_score": 1.0,
       "source": "citygen_checks_buildings_attribute_storage",
       "target": "citygen_checks_buildings_result"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L548",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_cap_seam",
+      "target": "citygen_checks_buildings_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L440",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_corner_closure",
+      "target": "citygen_checks_buildings_result",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -86454,6 +86906,28 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L497",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_cap_seam",
+      "target": "citygen_checks_buildings_volumes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L406",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_corner_closure",
+      "target": "citygen_checks_buildings_volumes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L189",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -86685,6 +87159,17 @@
       "target": "citygen_checks_buildings_inside"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L453",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_plane_y",
+      "target": "citygen_checks_buildings_inside",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
@@ -86705,54 +87190,170 @@
       "target": "citygen_checks_buildings_encloses_courtyard"
     },
     {
-      "relation": "rationale_for",
+      "relation": "calls",
+      "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L324",
+      "source_location": "L500",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_324",
-      "target": "citygen_checks_buildings_plan_follows_data"
+      "source": "citygen_checks_buildings_cap_seam",
+      "target": "citygen_checks_buildings_elements",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L408",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_corner_closure",
+      "target": "citygen_checks_buildings_elements",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L397",
+      "source_location": "L323",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_397",
-      "target": "citygen_checks_buildings_rules_serve_more_than_one_style"
+      "source": "citygen_checks_buildings_rationale_323",
+      "target": "citygen_checks_buildings_elements",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L498",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_cap_seam",
+      "target": "citygen_checks_buildings_cap_ring",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L407",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_corner_closure",
+      "target": "citygen_checks_buildings_cap_ring",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L431",
+      "source_location": "L363",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_431",
-      "target": "citygen_checks_buildings_no_style_names_in_code"
+      "source": "citygen_checks_buildings_rationale_363",
+      "target": "citygen_checks_buildings_cap_ring",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L424",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_corner_closure",
+      "target": "citygen_checks_buildings_in_box",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L450",
+      "source_location": "L375",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_450",
-      "target": "citygen_checks_buildings_party_walls_are_real"
+      "source": "citygen_checks_buildings_rationale_375",
+      "target": "citygen_checks_buildings_corner_closure",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L517",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_cap_seam",
+      "target": "citygen_checks_buildings_plane_y",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L495",
+      "source_location": "L449",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_495",
-      "target": "citygen_checks_buildings_wanted"
+      "source": "citygen_checks_buildings_rationale_449",
+      "target": "citygen_checks_buildings_plane_y",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L468",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_rationale_468",
+      "target": "citygen_checks_buildings_cap_seam",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L557",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_rationale_557",
+      "target": "citygen_checks_buildings_plan_follows_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L668",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_rationale_668",
+      "target": "citygen_checks_buildings_rules_serve_more_than_one_style",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L702",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_rationale_702",
+      "target": "citygen_checks_buildings_no_style_names_in_code",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L721",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_rationale_721",
+      "target": "citygen_checks_buildings_party_walls_are_real",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/checks_buildings.py",
+      "source_location": "L766",
+      "weight": 1.0,
+      "source": "citygen_checks_buildings_rationale_766",
+      "target": "citygen_checks_buildings_wanted",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -86769,31 +87370,31 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L508",
+      "source_location": "L779",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_508",
-      "target": "citygen_checks_buildings_volume_count_matches_template"
+      "source": "citygen_checks_buildings_rationale_779",
+      "target": "citygen_checks_buildings_volume_count_matches_template",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L572",
+      "source_location": "L843",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_572",
-      "target": "citygen_checks_buildings_outward_normals"
+      "source": "citygen_checks_buildings_rationale_843",
+      "target": "citygen_checks_buildings_outward_normals",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L599",
+      "source_location": "L870",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_599",
-      "target": "citygen_checks_buildings_heights_follow_data"
+      "source": "citygen_checks_buildings_rationale_870",
+      "target": "citygen_checks_buildings_heights_follow_data",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -86810,81 +87411,81 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L632",
+      "source_location": "L903",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_632",
-      "target": "citygen_checks_buildings_plinth_follows_ground"
+      "source": "citygen_checks_buildings_rationale_903",
+      "target": "citygen_checks_buildings_plinth_follows_ground",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L697",
+      "source_location": "L968",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_697",
-      "target": "citygen_checks_buildings_attribute_storage"
+      "source": "citygen_checks_buildings_rationale_968",
+      "target": "citygen_checks_buildings_attribute_storage",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L728",
+      "source_location": "L999",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_728",
-      "target": "citygen_checks_buildings_elem_ids_structural"
+      "source": "citygen_checks_buildings_rationale_999",
+      "target": "citygen_checks_buildings_elem_ids_structural",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L746",
+      "source_location": "L1017",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_746",
-      "target": "citygen_checks_buildings_no_scratch"
+      "source": "citygen_checks_buildings_rationale_1017",
+      "target": "citygen_checks_buildings_no_scratch",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L771",
+      "source_location": "L1042",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_771",
-      "target": "citygen_checks_buildings_published_names"
+      "source": "citygen_checks_buildings_rationale_1042",
+      "target": "citygen_checks_buildings_published_names",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L784",
+      "source_location": "L1055",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_784",
-      "target": "citygen_checks_buildings_masses_inside_lots"
+      "source": "citygen_checks_buildings_rationale_1055",
+      "target": "citygen_checks_buildings_masses_inside_lots",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L819",
+      "source_location": "L1090",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_819",
-      "target": "citygen_checks_buildings_warns_on_unknown_rule"
+      "source": "citygen_checks_buildings_rationale_1090",
+      "target": "citygen_checks_buildings_warns_on_unknown_rule",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/checks_buildings.py",
-      "source_location": "L834",
+      "source_location": "L1105",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_checks_buildings_rationale_834",
-      "target": "citygen_checks_buildings_warns_on_cap_group_split"
+      "source": "citygen_checks_buildings_rationale_1105",
+      "target": "citygen_checks_buildings_warns_on_cap_group_split",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -88091,6 +88692,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_building_checks.py",
+      "source_location": "L293",
+      "weight": 1.0,
+      "source": "citygen_run_building_checks",
+      "target": "citygen_run_building_checks_patch_pysrc",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_building_checks.py",
       "source_location": "L160",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -88116,6 +88727,16 @@
       "confidence_score": 1.0,
       "source": "citygen_run_building_checks",
       "target": "citygen_run_building_checks_record"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_building_checks.py",
+      "source_location": "L155",
+      "weight": 1.0,
+      "source": "citygen_run_building_checks",
+      "target": "citygen_run_building_checks_ring_of",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -88208,6 +88829,16 @@
       "target": "citygen_run_building_checks"
     },
     {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_building_checks.py",
+      "source_location": "L156",
+      "weight": 1.0,
+      "source": "citygen_run_building_checks_rationale_156",
+      "target": "citygen_run_building_checks_ring_of",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -88244,11 +88875,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L202",
+      "source_location": "L233",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_run_building_checks_rationale_202",
-      "target": "citygen_run_building_checks_scene"
+      "source": "citygen_run_building_checks_rationale_233",
+      "target": "citygen_run_building_checks_scene",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -88265,11 +88896,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L229",
+      "source_location": "L260",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_run_building_checks_rationale_229",
-      "target": "citygen_run_building_checks_cook"
+      "source": "citygen_run_building_checks_rationale_260",
+      "target": "citygen_run_building_checks_cook",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -88281,6 +88912,16 @@
       "confidence_score": 1.0,
       "source": "citygen_run_building_checks_vx",
       "target": "citygen_run_building_checks_patch_vex"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_building_checks.py",
+      "source_location": "L294",
+      "weight": 1.0,
+      "source": "citygen_run_building_checks_rationale_294",
+      "target": "citygen_run_building_checks_patch_pysrc",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -88341,11 +88982,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L508",
+      "source_location": "L589",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_run_building_checks_rationale_508",
-      "target": "citygen_run_building_checks_sources_now"
+      "source": "citygen_run_building_checks_rationale_589",
+      "target": "citygen_run_building_checks_sources_now",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -88362,11 +89003,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L526",
+      "source_location": "L607",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_run_building_checks_rationale_526",
-      "target": "citygen_run_building_checks_record"
+      "source": "citygen_run_building_checks_rationale_607",
+      "target": "citygen_run_building_checks_record",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -88383,11 +89024,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L562",
+      "source_location": "L650",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_run_building_checks_rationale_562",
-      "target": "citygen_run_building_checks_budget"
+      "source": "citygen_run_building_checks_rationale_650",
+      "target": "citygen_run_building_checks_budget",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -88415,11 +89056,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_building_checks.py",
-      "source_location": "L611",
+      "source_location": "L698",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_run_building_checks_rationale_611",
-      "target": "citygen_run_building_checks_images"
+      "source": "citygen_run_building_checks_rationale_698",
+      "target": "citygen_run_building_checks_images",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -88430,6 +89071,381 @@
       "source_location": "L372",
       "weight": 1.0,
       "source": "citygen_run_building_checks_main",
+      "target": "polychain_run_mutation_registry_apply"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L394",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_budget",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L199",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_cook",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L315",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_cost",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L425",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_diff",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L77",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_ell",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L440",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_images",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L162",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_kit_geometry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L486",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L213",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_patch_vex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L290",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L274",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_run_checks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L187",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_scene",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L117",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_show",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L229",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks",
+      "target": "citygen_run_g2_checks_vx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_rationale_1",
+      "target": "citygen_run_g2_checks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L356",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_cost",
+      "target": "citygen_run_g2_checks_ell",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L500",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_main",
+      "target": "citygen_run_g2_checks_show",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L488",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_main",
+      "target": "citygen_run_g2_checks_kit_geometry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L202",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_cook",
+      "target": "citygen_run_g2_checks_scene",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L188",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_rationale_188",
+      "target": "citygen_run_g2_checks_scene",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L369",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_cost",
+      "target": "citygen_run_g2_checks_cook",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L455",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_images",
+      "target": "citygen_run_g2_checks_cook",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L495",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_main",
+      "target": "citygen_run_g2_checks_cook",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L200",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_rationale_200",
+      "target": "citygen_run_g2_checks_cook",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L230",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_vx",
+      "target": "citygen_run_g2_checks_patch_vex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L498",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_main",
+      "target": "citygen_run_g2_checks_run_checks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L502",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_main",
+      "target": "citygen_run_g2_checks_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L291",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_rationale_291",
+      "target": "citygen_run_g2_checks_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L561",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_main",
+      "target": "citygen_run_g2_checks_cost",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L316",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_rationale_316",
+      "target": "citygen_run_g2_checks_cost",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L563",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_main",
+      "target": "citygen_run_g2_checks_budget",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L395",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_rationale_395",
+      "target": "citygen_run_g2_checks_budget",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L509",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_main",
+      "target": "citygen_run_g2_checks_diff",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L523",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_main",
+      "target": "citygen_run_g2_checks_images",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L441",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_rationale_441",
+      "target": "citygen_run_g2_checks_images",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/citygen/run_g2_checks.py",
+      "source_location": "L532",
+      "weight": 1.0,
+      "source": "citygen_run_g2_checks_main",
       "target": "polychain_run_mutation_registry_apply"
     },
     {
@@ -121873,5 +122889,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "fc02b27b2f65b2a0df31af75f1ff9acd1316cc71"
+  "built_at_commit": "09d92882ae61ad50b54e0da0c7d774579a083fa0"
 }
