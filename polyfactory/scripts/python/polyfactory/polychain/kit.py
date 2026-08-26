@@ -332,14 +332,38 @@ def read(geo):
 
 
 def source_for(sources, module, nominal_y=1.0):
-    """The geometry behind a module name, or 3.4's blank stand-in box."""
+    """The geometry behind a module name, or 3.4's blank stand-in box, with
+    3.4's `pc_module` stamped on its POLYGONS.
+
+    ⚠️ THE STAMP IS ON THE POLYGONS AND NOT ONLY ON THE PIECE THEY BUILD.
+    A rigid piece ships PACKED, so the polygons are its CONTENTS: what an
+    artist unpacks is this geometry, and without the stamp it comes out
+    carrying `P` and nothing that says which module it is.  The native chain
+    has always done it - `kit_unpack` sets `transfer_attributes` to
+    `pc_module` because `copy_packed` matches its pieces on that name, and
+    `pack = 1` bakes it into every packed prim - so this was a REAL
+    difference in what the two paths deliver, invisible to any check that
+    reads a packed prim's OUTER attributes (run_generated's KNOWN entry,
+    dated 2026-08-25, on 207 of the 208 cases the native chain answered).
+    The seam is the same on both sides: the module's name is written where
+    the module's geometry leaves the kit.
+
+    A COPY, not the kit's own geometry: `sources` holds the kit input's
+    packed CONTENTS and D34 does not write to the input again.  One copy per
+    module per build - not per piece - so every placement of a module still
+    packs one shared geometry.
+    """
     src = sources.get(module.name)
+    geo = hou.Geometry()
     if src is not None:
-        return src
-    box = hou.Geometry()
-    box_mesh(box, 0.0, max(module.length, EPS), 0.0,
-             max(module.size[1] or nominal_y, EPS), -0.05, 0.05, 1)
-    return box
+        geo.merge(src)
+    else:
+        box_mesh(geo, 0.0, max(module.length, EPS), 0.0,
+                 max(module.size[1] or nominal_y, EPS), -0.05, 0.05, 1)
+    geo.addAttrib(hou.attribType.Prim, "pc_module", "")
+    geo.setPrimStringAttribValues(
+        "pc_module", [module.name] * geo.intrinsicValue("primitivecount"))
+    return geo
 
 
 # --- 7.7: slicing one chunk into a kit (`pf_polychain_slice`) ---------------

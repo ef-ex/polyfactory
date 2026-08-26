@@ -56,9 +56,10 @@ from polyfactory.polychain import kit as K                        # noqa: E402
 # FIRST on every invocation, however small `--seeds` is, which is also what
 # gives `run_generated.KNOWN`'s "still occurs" assertion its input.
 PINS = (
-    27,     # `pc_module` inside the packed contents, native only (KNOWN #1)
+    27,     # `pc_module` inside the packed contents - native wrote it, the
+            # reference did not (P3's fix; it was KNOWN #1 for a day)
     42,     # same, with an emoji curve id and fill=scale
-    150,    # same, corner_mode=bend - it is not a miter-only divergence
+    150,    # same, corner_mode=bend - it was never a miter-only divergence
     170,    # same, with an EMPTY-STRING curve id
     203,    # same, with no `corner` role in the kit at all
     12,     # the +-Z WALL that WIGGLES (F3), REFUSED at level 2

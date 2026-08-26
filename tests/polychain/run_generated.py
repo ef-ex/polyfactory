@@ -43,33 +43,16 @@ REPO = os.path.dirname(os.path.dirname(HERE))
 HDA_PATH = os.path.join(REPO, "polyfactory", "otls",
                         "pf_polychain.hda").replace("\\", "/")
 
-# --- KNOWN DIVERGENCES ------------------------------------------------------
-#
-# A real, dated, tracked difference between the two paths, matched on the DIFF
-# TEXT rather than on a seed number: keying it to a seed would go stale the
-# moment the sweep moves its range, and would say nothing about what the
-# divergence IS.  A case whose EVERY difference matches one of these is
-# reported `[KNOWN]` and does not fail the run.
-#
-# ⚠️ AND ITS DISAPPEARANCE FAILS THE RUN TOO (`still_occurs`).  A known
-# divergence that stops occurring has either been fixed - in which case the
-# entry must be deleted deliberately - or has stopped being REACHED, which is
-# the fixture-blindness class this whole file exists to attack.
-KNOWN = (
-    ("packed[", ".prim: 'pc_module' only on the RIGHT",
-     "2026-08-25, FOUND BY THIS FILE ON ITS FIRST 120-SEED RUN. The guarded "
-     "native output packs its pieces with `pc_module` written INSIDE the "
-     "packed geometry; the Python reference's packed contents carry `P` and "
-     "nothing else. Same outer attributes on both, so no v1 check could see "
-     "it: `_snapshot` never descended into a packed prim. What a consumer "
-     "sees differs after an `unpack`. ⚠️ IT READ '5 of 400 seeds' UNTIL THE "
-     "NATIVE LANE LANDED, AND THAT NUMBER WAS AN ARTEFACT OF THE GENERATOR, "
-     "NOT OF THE TOOL: the guard was refusing 97 % of cases, so 97 % of the "
-     "differential was Python against Python. With the lane it is 207 of the "
-     "208 cases the native chain actually answers - i.e. it is what the "
-     "native path DOES, not an edge case. Not diagnosed here - this is the "
-     "test cycle; it is a production finding for polyChain's owner."),
-)
+# ⚠️ THE `KNOWN DIVERGENCES` TABLE IS GONE, AND ITS ABSENCE IS THE FIX (P3,
+# 2026-08-26).  It held exactly one entry for its whole life - the guarded
+# native output wrote `pc_module` INSIDE its packed prims where the reference's
+# packed contents carried `P` and nothing else, on 136 of 406 seeds - and that
+# entry was a production finding parked in a test file.  `kit.source_for` now
+# stamps the module's name on the polygons the way `kit_unpack` always has,
+# both paths agree, and the table, its matcher and the
+# `known_divergences_still_occur` row are DELETED rather than left empty: a
+# zero-entry escape hatch is an invitation to FILE the next divergence instead
+# of fixing it.  Re-adding it is a deliberate act, visible in a diff.
 
 
 # --- 13.9 N6's ONE STATED TOLERANCE -----------------------------------------
@@ -122,23 +105,6 @@ CONFORM_TOL = 1e-12
 # arriving as 6.21e-09 on a `measuredvolume` of 0.00225, which is ten float32
 # ULP of ITS magnitude).
 CONFORM_SKIP = ("measuredarea", "measuredvolume")
-
-
-def _known(diff):
-    """-> the KNOWN entry every line of `diff` matches, or None.
-
-    `compare` ends its report with two META lines - the elision count and the
-    worst float deviation - which describe the report rather than name a
-    difference, so they are dropped before matching.  The elision one matters:
-    a case with 30 identical known differences was reported RED purely because
-    "... and 5 more difference(s)" did not look like the pattern.
-    """
-    real = [d for d in diff
-            if not d.startswith("... and ") and not d.startswith("worst float")]
-    for head, tail, _why in KNOWN:
-        if real and all(head in line and tail in line for line in real):
-            return head + tail
-    return None
 
 
 def _arg(argv, flag, default, cast=int):
@@ -250,9 +216,8 @@ def run(seeds, verbose=True):
                 bad = compare(ref, out, tol=CONFORM_TOL if conf else 0.0,
                               worst=worst, ulp=conf,
                               skip=CONFORM_SKIP if conf else ())
-            known = _known(bad)
             rows.append({"seed": seed, "label": case["label"],
-                         "native": answered, "ok": not bad, "known": known,
+                         "native": answered, "ok": not bad,
                          "surface": case.get("surface_kind", ""),
                          "worst": (worst[0] if worst else (0.0, 0.0, "", 0)),
                          "seconds": round(took, 3), "diff": bad[:6],
@@ -264,9 +229,7 @@ def run(seeds, verbose=True):
             # that moves its range would silently retire and invent hundreds
             # of them.  The two names this file contributes are printed once,
             # at the end, and they are what a mutation is paired against.
-            if bad and known:
-                print("   known  seed %-6d %s" % (seed, known))
-            elif bad:
+            if bad:
                 red.append(seed)
                 print("   RED    seed %-6d %s" % (seed, case["label"]))
                 for line in bad[:6]:
@@ -294,13 +257,6 @@ def main():
     t0 = time.time()
     rows, red = run(seeds, verbose="--quiet" not in argv)
 
-    # ⚠️ A KNOWN DIVERGENCE THAT STOPS OCCURRING FAILS THE RUN TOO.  Either it
-    # was fixed - delete the entry, deliberately - or the generator stopped
-    # REACHING it, which is the fixture-blindness class this file attacks.
-    # `gen_cases.PINS` is what guarantees it has an input on any `--seeds`.
-    seen = set(r["known"] for r in rows if r["known"])
-    missing = [h + t for h, t, _w in KNOWN if h + t not in seen]
-    nknown = len([r for r in rows if r["known"]])
     answered = len([r for r in rows if r.get("native")])
     print("")
     # ⚠️ THE FLOOR IS THE POINT, NOT THE PERCENTAGE.  A run in which the guard
@@ -339,9 +295,8 @@ def main():
     if surf_rows and sshare < sfloor:
         red = list(red) + ["only %.0f%% of CONFORMED cases reached the native "
                            "chain" % (100 * sshare)]
-    print("  [%s] generated_output_matches_the_reference   %d clean, %d known,"
-          " %d red" % ("FAIL" if red else "PASS",
-                       len(rows) - len(red) - nknown, nknown, len(red)))
+    print("  [%s] generated_output_matches_the_reference   %d clean, %d red"
+          % ("FAIL" if red else "PASS", len(rows) - len(red), len(red)))
     print("  [%s] conformed_cases_reach_the_native_chain   %d of %d "
           "(%.0f%%, floor %.0f%%)"
           % ("FAIL" if (surf_rows and sshare < sfloor) else "PASS",
@@ -362,21 +317,16 @@ def main():
           "(guard %.0e), %d float32 tie(s)"
           % ("FAIL" if over else "PASS", spent, CONFORM_TOL,
              CONFORM_TOL / 10.0, ties))
-    print("  [%s] known_divergences_still_occur            %d of %d reached%s"
-          % ("FAIL" if missing else "PASS", len(KNOWN) - len(missing),
-             len(KNOWN), "; MISSING " + ", ".join(missing) if missing else ""))
     out = _arg(argv, "--json", None, str)
     if out:
         with open(out, "w") as fh:
-            json.dump({"rows": rows, "red": red, "missing": missing}, fh,
-                      indent=1)
-    print("\n%d generated case(s), %d RED, %d KNOWN, %.1f s (%d pinned)"
-          % (len(rows), len(red), nknown, time.time() - t0,
-             len(gen_cases.PINS)))
+            json.dump({"rows": rows, "red": red}, fh, indent=1)
+    print("\n%d generated case(s), %d RED, %.1f s (%d pinned)"
+          % (len(rows), len(red), time.time() - t0, len(gen_cases.PINS)))
     if red:
         print("repro: gen_cases.make(%r)   # then pin it in gen_cases.PINS "
               "with one line saying what it caught" % red[0])
-    return 1 if (red or missing) else 0
+    return 1 if red else 0
 
 
 if __name__ == "__main__":

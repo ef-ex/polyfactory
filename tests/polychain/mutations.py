@@ -31,7 +31,7 @@ RUNNERS = {
     "hda":    "tests/polychain/run_hda_checks.py",
     "images": "tests/polychain/gate_images.py",
     # v2's differential oracle over GENERATED input, on the shipped asset.
-    # It prints exactly THREE names, deliberately: seed numbers are
+    # It prints a HANDFUL of names, deliberately: seed numbers are
     # diagnostics, not check names (a sweep that moves its range would
     # silently retire and invent hundreds of them).
     "generated": "tests/polychain/run_generated.py",
@@ -98,16 +98,19 @@ MUTATIONS = (
       ((VEX % "pc_deform.vfl",
         "v@pc_local = local;", "v@pc_local = local * 1.5;"),)),
 
-    M("generated_known_pattern_broken", "generated",
-      ("known_divergences_still_occur",
-       "generated_output_matches_the_reference"),
-      "The other half of a KNOWN divergence: an entry that stops occurring "
-      "has either been fixed (delete it deliberately) or stopped being "
-      "REACHED, which is the fixture-blindness class the generator exists "
-      "to attack.",
-      ((GEN, "\".prim: 'pc_module' only on the RIGHT\"",
-        "\".prim: 'pc_NEVER' only on the RIGHT\""),),
-      rebuild=False),
+    # ⚠️ `generated_known_pattern_broken` IS DELETED WITH THE TABLE IT GUARDED
+    # (P3): the one KNOWN divergence it kept honest - `pc_module` inside the
+    # native path's packed prims - is FIXED in `kit.source_for`, and the pins
+    # that reached it (`gen_cases.PINS` 27/42/150/170/203) now guard the
+    # agreement instead. `packed_module_stamp_dropped` below is what reddens
+    # if the stamp ever goes away again.
+    M("packed_module_stamp_dropped", "generated",
+      ("generated_output_matches_the_reference",),
+      "P3 - the packed CONTENTS, which no check saw for the whole native "
+      "build: `_snapshot` never descended into a packed prim and only "
+      "`diff.snapshot` does.",
+      ((PY % "kit.py", '"pc_module", [module.name] * geo',
+        '"pc_module", [""] * geo'),), rebuild=False),
 
     # ---- 13.9 N10, the guard switch: the flip, and its undo ----------------
     M("stage_output_repointed", "native",
@@ -1474,7 +1477,9 @@ EXPECT_CHECKS = {
     "2d": 43,
     # 13.9 N6 added `conformed_cases_reach_the_native_chain` and
     # `conform_parity_spends_its_tolerance`, both with a mutation.
-    "generated": 5,
+    # P3 deleted `known_divergences_still_occur` with the KNOWN table: its one
+    # entry was a production finding, and it is fixed rather than filed.
+    "generated": 4,
     "hda": 18,
     "images": 30,
     # C4a restored `output_guard_cost` (F2) - the v2 pass deleted it and 0.0
