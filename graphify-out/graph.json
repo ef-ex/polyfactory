@@ -4497,7 +4497,7 @@
       "label": "vex()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L94",
+      "source_location": "L105",
       "_origin": "ast",
       "id": "citygen_buildings_vex",
       "community": 178,
@@ -4507,7 +4507,7 @@
       "label": "style_path()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L106",
+      "source_location": "L117",
       "_origin": "ast",
       "id": "citygen_buildings_style_path",
       "community": 178,
@@ -4517,7 +4517,7 @@
       "label": "_plain()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L110",
+      "source_location": "L121",
       "_origin": "ast",
       "id": "citygen_buildings_plain",
       "community": 178,
@@ -4527,7 +4527,7 @@
       "label": "assert_storable()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L141",
+      "source_location": "L152",
       "_origin": "ast",
       "id": "citygen_buildings_assert_storable",
       "community": 178,
@@ -4537,7 +4537,7 @@
       "label": "load()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L179",
+      "source_location": "L190",
       "_origin": "ast",
       "id": "citygen_buildings_load",
       "community": 178,
@@ -4547,7 +4547,7 @@
       "label": "_merge()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L189",
+      "source_location": "L200",
       "_origin": "ast",
       "id": "citygen_buildings_merge",
       "community": 178,
@@ -4557,7 +4557,7 @@
       "label": "resolve()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L205",
+      "source_location": "L216",
       "_origin": "ast",
       "id": "citygen_buildings_resolve",
       "community": 178,
@@ -4567,7 +4567,7 @@
       "label": "stamp()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L213",
+      "source_location": "L224",
       "_origin": "ast",
       "id": "citygen_buildings_stamp",
       "community": 178,
@@ -4577,7 +4577,7 @@
       "label": "build()",
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L316",
+      "source_location": "L327",
       "_origin": "ast",
       "id": "citygen_buildings_build",
       "community": 178,
@@ -4597,9 +4597,9 @@
       "label": "The text of one .vfl, inlined into a snippet parm at build time.      Same reaso",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L95",
+      "source_location": "L106",
       "_origin": "ast",
-      "id": "citygen_buildings_rationale_95",
+      "id": "citygen_buildings_rationale_106",
       "community": 178,
       "norm_label": "the text of one .vfl, inlined into a snippet parm at build time.      same reaso"
     },
@@ -4607,9 +4607,9 @@
       "label": "Normalise what a Houdini dict attribute hands back into plain Python.      \u26a0\ufe0f NO",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L111",
+      "source_location": "L122",
       "_origin": "ast",
-      "id": "citygen_buildings_rationale_111",
+      "id": "citygen_buildings_rationale_122",
       "community": 178,
       "norm_label": "normalise what a houdini dict attribute hands back into plain python.      \u26a0\ufe0f no"
     },
@@ -4617,9 +4617,9 @@
       "label": "RAISE on a template shape this .geo format cannot carry.      \u26a0\ufe0f A GUARD, NOT A",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L142",
+      "source_location": "L153",
       "_origin": "ast",
-      "id": "citygen_buildings_rationale_142",
+      "id": "citygen_buildings_rationale_153",
       "community": 178,
       "norm_label": "raise on a template shape this .geo format cannot carry.      \u26a0\ufe0f a guard, not a"
     },
@@ -4627,9 +4627,9 @@
       "label": "One style template -> a plain dict.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L180",
+      "source_location": "L191",
       "_origin": "ast",
-      "id": "citygen_buildings_rationale_180",
+      "id": "citygen_buildings_rationale_191",
       "community": 178,
       "norm_label": "one style template -> a plain dict."
     },
@@ -4637,9 +4637,9 @@
       "label": "Deep merge, so a dict-valued field is a NAMESPACE and not a value.      Decided",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L190",
+      "source_location": "L201",
       "_origin": "ast",
-      "id": "citygen_buildings_rationale_190",
+      "id": "citygen_buildings_rationale_201",
       "community": 178,
       "norm_label": "deep merge, so a dict-valued field is a namespace and not a value.      decided"
     },
@@ -4647,9 +4647,9 @@
       "label": "Cascade level 1 (DEFAULTS) -> 3 (the template) -> 6 (overrides), last     wins.",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L206",
+      "source_location": "L217",
       "_origin": "ast",
-      "id": "citygen_buildings_rationale_206",
+      "id": "citygen_buildings_rationale_217",
       "community": 178,
       "norm_label": "cascade level 1 (defaults) -> 3 (the template) -> 6 (overrides), last     wins."
     },
@@ -4657,9 +4657,9 @@
       "label": "Flatten each lot prim's resolved template onto attributes VEX reads.      Reads",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L214",
+      "source_location": "L225",
       "_origin": "ast",
-      "id": "citygen_buildings_rationale_214",
+      "id": "citygen_buildings_rationale_225",
       "community": 178,
       "norm_label": "flatten each lot prim's resolved template onto attributes vex reads.      reads"
     },
@@ -4667,9 +4667,9 @@
       "label": "Wire B1+B2 under `parent`, downstream of the `lots` SOP.  -> the output     node",
       "file_type": "rationale",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L317",
+      "source_location": "L328",
       "_origin": "ast",
-      "id": "citygen_buildings_rationale_317",
+      "id": "citygen_buildings_rationale_328",
       "community": 178,
       "norm_label": "wire b1+b2 under `parent`, downstream of the `lots` sop.  -> the output     node"
     },
@@ -7310,7 +7310,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "polychain_corner_add",
-      "community": 131,
+      "community": 179,
       "norm_label": "_add()"
     },
     {
@@ -7450,7 +7450,7 @@
       "source_location": "L293",
       "_origin": "ast",
       "id": "polychain_corner_bevel_flatten",
-      "community": 179,
+      "community": 127,
       "norm_label": ".flatten()"
     },
     {
@@ -7560,7 +7560,7 @@
       "source_location": "L589",
       "_origin": "ast",
       "id": "polychain_corner_assembly_init",
-      "community": 179,
+      "community": 127,
       "norm_label": ".__init__()"
     },
     {
@@ -7810,7 +7810,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "polychain_corner_rationale_294",
-      "community": 179,
+      "community": 127,
       "norm_label": "d48 - re-solve this corner on yaw-flattened tangents.          a `vertical` or"
     },
     {
@@ -14920,7 +14920,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager",
-      "community": 42,
+      "community": 35,
       "norm_label": "bindingmanager"
     },
     {
@@ -15020,7 +15020,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_poll_parm_changes",
-      "community": 42,
+      "community": 35,
       "norm_label": "._poll_parm_changes()"
     },
     {
@@ -15040,7 +15040,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_cleanup",
-      "community": 42,
+      "community": 35,
       "norm_label": ".cleanup()"
     },
     {
@@ -15060,7 +15060,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_14",
-      "community": 42,
+      "community": 35,
       "norm_label": "manages parameter bindings for an hda python panel ui.          coordinates up"
     },
     {
@@ -15160,7 +15160,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_160",
-      "community": 42,
+      "community": 35,
       "norm_label": "poll for external parameter changes (from ui, expressions, etc)."
     },
     {
@@ -15180,7 +15180,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_192",
-      "community": 42,
+      "community": 35,
       "norm_label": "stop polling and clean up resources."
     },
     {
@@ -17240,7 +17240,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring",
-      "community": 281,
+      "community": 188,
       "norm_label": "parmstring"
     },
     {
@@ -17260,7 +17260,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 281,
+      "community": 188,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17270,7 +17270,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_on_changed",
-      "community": 281,
+      "community": 188,
       "norm_label": "._on_changed()"
     },
     {
@@ -17290,7 +17290,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_expression_style",
-      "community": 281,
+      "community": 188,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17550,7 +17550,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_28",
-      "community": 281,
+      "community": 188,
       "norm_label": "string input widget with enhanced label."
     },
     {
@@ -17560,7 +17560,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 281,
+      "community": 188,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -17570,7 +17570,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_101",
-      "community": 281,
+      "community": 188,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -22820,7 +22820,7 @@
       "source_location": "L193",
       "_origin": "ast",
       "id": "polychain_checks_affine_fit",
-      "community": 156,
+      "community": 181,
       "norm_label": "_affine_fit()"
     },
     {
@@ -22830,7 +22830,7 @@
       "source_location": "L219",
       "_origin": "ast",
       "id": "polychain_checks_inv3",
-      "community": 156,
+      "community": 181,
       "norm_label": "_inv3()"
     },
     {
@@ -22960,7 +22960,7 @@
       "source_location": "L435",
       "_origin": "ast",
       "id": "polychain_checks_station_xs",
-      "community": 177,
+      "community": 156,
       "norm_label": "_station_xs()"
     },
     {
@@ -23090,7 +23090,7 @@
       "source_location": "L704",
       "_origin": "ast",
       "id": "polychain_checks_assembly_recs",
-      "community": 177,
+      "community": 156,
       "norm_label": "_assembly_recs()"
     },
     {
@@ -23240,7 +23240,7 @@
       "source_location": "L1122",
       "_origin": "ast",
       "id": "polychain_checks_corner_abut",
-      "community": 177,
+      "community": 156,
       "norm_label": "corner_abut()"
     },
     {
@@ -23690,7 +23690,7 @@
       "source_location": "L194",
       "_origin": "ast",
       "id": "polychain_checks_rationale_194",
-      "community": 156,
+      "community": 181,
       "norm_label": "least-squares (origin, up, across) over every point of the face.      no pair to"
     },
     {
@@ -23700,7 +23700,7 @@
       "source_location": "L220",
       "_origin": "ast",
       "id": "polychain_checks_rationale_220",
-      "community": 156,
+      "community": 181,
       "norm_label": "inverse of a 3x3, or none when it is singular for this job."
     },
     {
@@ -23790,7 +23790,7 @@
       "source_location": "L436",
       "_origin": "ast",
       "id": "polychain_checks_rationale_436",
-      "community": 177,
+      "community": 156,
       "norm_label": "sorted distinct local x values of one built element."
     },
     {
@@ -23870,7 +23870,7 @@
       "source_location": "L705",
       "_origin": "ast",
       "id": "polychain_checks_rationale_705",
-      "community": 177,
+      "community": 156,
       "norm_label": "[(eid, rec)] for every piece 4.3 anchored on a leg - the corner slot,     plus d"
     },
     {
@@ -24000,7 +24000,7 @@
       "source_location": "L1123",
       "_origin": "ast",
       "id": "polychain_checks_rationale_1123",
-      "community": 177,
+      "community": 156,
       "norm_label": "the seam between the corner assembly and the fill that runs up to it -     the j"
     },
     {
@@ -32380,7 +32380,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_section",
-      "community": 48,
+      "community": 109,
       "norm_label": "section()"
     },
     {
@@ -32420,7 +32420,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_style",
-      "community": 109,
+      "community": 263,
       "norm_label": ".style()"
     },
     {
@@ -32450,7 +32450,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_corner_is_not_an_end_and_gets_no_caps",
-      "community": 109,
+      "community": 263,
       "norm_label": ".test_a_corner_is_not_an_end_and_gets_no_caps()"
     },
     {
@@ -32460,7 +32460,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_closed_spline_gets_no_caps_on_any_side",
-      "community": 109,
+      "community": 263,
       "norm_label": ".test_a_closed_spline_gets_no_caps_on_any_side()"
     },
     {
@@ -32470,7 +32470,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_pc_section_limit_does_cap_like_a_spline_end",
-      "community": 109,
+      "community": 263,
       "norm_label": ".test_a_pc_section_limit_does_cap_like_a_spline_end()"
     },
     {
@@ -32570,7 +32570,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testselection_test_sequence_walks_the_list_and_still_fills_exactly",
-      "community": 48,
+      "community": 205,
       "norm_label": ".test_sequence_walks_the_list_and_still_fills_exactly()"
     },
     {
@@ -32710,7 +32710,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_curves_are_reordered",
-      "community": 109,
+      "community": 263,
       "norm_label": ".test_the_plan_does_not_move_when_the_curves_are_reordered()"
     },
     {
@@ -32720,7 +32720,7 @@
       "source_location": "L389",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_markers_are_reordered",
-      "community": 109,
+      "community": 263,
       "norm_label": ".test_the_plan_does_not_move_when_the_markers_are_reordered()"
     },
     {
@@ -32740,7 +32740,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_two_sections_of_one_spline_correlate_under_spline_scope",
-      "community": 109,
+      "community": 263,
       "norm_label": ".test_two_sections_of_one_spline_correlate_under_spline_scope()"
     },
     {
@@ -32750,7 +32750,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_section_scope_does_not_correlate_across_sections",
-      "community": 109,
+      "community": 263,
       "norm_label": ".test_section_scope_does_not_correlate_across_sections()"
     },
     {
@@ -32870,7 +32870,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testwholecurves_test_ten_thousand_pieces_stay_addressable_and_unique",
-      "community": 48,
+      "community": 233,
       "norm_label": ".test_ten_thousand_pieces_stay_addressable_and_unique()"
     },
     {
@@ -32940,7 +32940,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_117",
-      "community": 109,
+      "community": 263,
       "norm_label": "d18. railclone puts start/end at spline ends and corner segments at         corn"
     },
     {
@@ -32950,7 +32950,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_128",
-      "community": 109,
+      "community": 263,
       "norm_label": "the corner-free loop was already covered; the rectangle was not -         it has"
     },
     {
@@ -32960,7 +32960,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_137",
-      "community": 109,
+      "community": 263,
       "norm_label": "the other half of d18: a material-id limit is where one generator         stops"
     },
     {
@@ -33020,7 +33020,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_249",
-      "community": 48,
+      "community": 205,
       "norm_label": "d14: a sequence is fitted as a pattern, so mixed sizes work. the         unit he"
     },
     {
@@ -33100,7 +33100,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_533",
-      "community": 48,
+      "community": 233,
       "norm_label": "pc-g3's own scale target, on the plan side: `pc_elem_id` is the key         the"
     },
     {
@@ -38710,7 +38710,7 @@
       "source_location": "L1528",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
-      "community": 263,
+      "community": 17,
       "norm_label": "s5 \u2014 intersections"
     },
     {
@@ -38720,7 +38720,7 @@
       "source_location": "L1550",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
-      "community": 263,
+      "community": 17,
       "norm_label": "what the literature adds"
     },
     {
@@ -38730,7 +38730,7 @@
       "source_location": "L1574",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "community": 263,
+      "community": 17,
       "norm_label": "the invariant that was violated: **every corner is an arc, always**"
     },
     {
@@ -38740,7 +38740,7 @@
       "source_location": "L1602",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
-      "community": 263,
+      "community": 17,
       "norm_label": "two rules the design left open, decided 2026-08-09"
     },
     {
@@ -38750,7 +38750,7 @@
       "source_location": "L1722",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
-      "community": 263,
+      "community": 17,
       "norm_label": "three constructions adopted from the civil sweep \u2014 2026-08-09"
     },
     {
@@ -38760,7 +38760,7 @@
       "source_location": "L1757",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "community": 263,
+      "community": 17,
       "norm_label": "higher-degree junctions \u2014 untested, and structurally unreachable from the field"
     },
     {
@@ -38770,7 +38770,7 @@
       "source_location": "L1783",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "community": 263,
+      "community": 17,
       "norm_label": "plazas and roundabouts at degenerate points"
     },
     {
@@ -47224,7 +47224,7 @@
       "file_type": "code",
       "source_file": "polyfactory/scripts/python/polyfactory/widgets/__init__.py",
       "source_location": "L1",
-      "community": 56,
+      "community": 35,
       "norm_label": "__init__.py",
       "id": "polyfactory_scripts_python_polyfactory_widgets_init_py"
     }
@@ -56187,11 +56187,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L95",
+      "source_location": "L106",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_buildings_rationale_95",
-      "target": "citygen_buildings_vex"
+      "source": "citygen_buildings_rationale_106",
+      "target": "citygen_buildings_vex",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -56219,31 +56219,31 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L111",
+      "source_location": "L122",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_buildings_rationale_111",
-      "target": "citygen_buildings_plain"
+      "source": "citygen_buildings_rationale_122",
+      "target": "citygen_buildings_plain",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L142",
+      "source_location": "L153",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_buildings_rationale_142",
-      "target": "citygen_buildings_assert_storable"
+      "source": "citygen_buildings_rationale_153",
+      "target": "citygen_buildings_assert_storable",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L180",
+      "source_location": "L191",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_buildings_rationale_180",
-      "target": "citygen_buildings_load"
+      "source": "citygen_buildings_rationale_191",
+      "target": "citygen_buildings_load",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -56260,11 +56260,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L190",
+      "source_location": "L201",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_buildings_rationale_190",
-      "target": "citygen_buildings_merge"
+      "source": "citygen_buildings_rationale_201",
+      "target": "citygen_buildings_merge",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -56281,11 +56281,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L206",
+      "source_location": "L217",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_buildings_rationale_206",
-      "target": "citygen_buildings_resolve"
+      "source": "citygen_buildings_rationale_217",
+      "target": "citygen_buildings_resolve",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -56302,11 +56302,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L214",
+      "source_location": "L225",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_buildings_rationale_214",
-      "target": "citygen_buildings_stamp"
+      "source": "citygen_buildings_rationale_225",
+      "target": "citygen_buildings_stamp",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -56323,11 +56323,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
-      "source_location": "L317",
+      "source_location": "L328",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_buildings_rationale_317",
-      "target": "citygen_buildings_build"
+      "source": "citygen_buildings_rationale_328",
+      "target": "citygen_buildings_build",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -121590,5 +121590,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "0ab29c72e0a4d569c414869693ce35fe01d65142"
+  "built_at_commit": "194704daba7d3dfbf1d59752d40a974a80c23377"
 }
