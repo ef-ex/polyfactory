@@ -64,7 +64,8 @@ BUILD_SCRIPT = "devScripts/create_pf_polychain_hda.py"
 # input label, the TAB submenu) reaches an artist only through a rebuild -
 # 21.4's rule, applied to the asset the mutation is actually about.
 BUILD_SCRIPTS = (BUILD_SCRIPT,
-                 "devScripts/create_pf_polychain_slice_hda.py")
+                 "devScripts/create_pf_polychain_slice_hda.py",
+                 "devScripts/create_pf_polychain_facade_hda.py")
 
 # ⚠️ THE NAME IS CAPTURED WHOLE, and an unparseable one is reported rather
 # than trimmed.  `([A-Za-z_0-9]+)` stopped at the first character outside the

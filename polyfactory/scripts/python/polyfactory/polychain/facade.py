@@ -290,6 +290,13 @@ def clip_loops(geo):
 MARKER_ATTR = "pc_marker"
 ARRAY_ATTR = "pc_array"           # 7.3.3's volume id, authored upstream
 CORNER_ATTR = "pc_corner"
+# D317 - the height is an INPUT DIMENSION, not a style, and a district has one
+# per building. `build_many` has taken `heights` since C3 and no caller could
+# reach it: the node has ONE parm and a style payload has no field for a
+# height (7.3.2), so 100 footprints through one node were 100 towers of the
+# same height. Authored on the footprint prim, it is the one per-building
+# number citygen has to be able to say.
+HEIGHT_ATTR = "pc_height"
 
 AUX_PURPOSE = "pc_purpose"        # D127 input 5's discriminator
 AUX_YSPLINE = "yspline"
@@ -301,12 +308,13 @@ WARN_YSPLINE_UNSUPPORTED = "pc_warn_yspline_unsupported"
 
 def footprint_loops(geo):
     """Input 1 -> ([loops], [per-loop `pc_corner` flags] | None, [ids] | None,
-    closed, [warnings]).
+    closed, [heights] | None, [warnings]).
 
     7.5's whole required interface read off geometry: one closed footprint per
     primitive, `pc_corner` per point (vertex type is data - 3.1), `pc_array`
     per prim (7.3.3's volume coordinate, so re-authoring a footprint does not
-    renumber a neighbour's elements).
+    renumber a neighbour's elements) and `pc_height` per prim (D317, the one
+    per-building number a district has to be able to say).
 
     ⚠️ CLOSURE IS ONE FLAG FOR THE WHOLE STREAM, because `build_many` takes
     one. It is read off the FIRST usable primitive and any primitive that
@@ -325,11 +333,12 @@ def footprint_loops(geo):
     footprint is solved by the 1D kernel, which has its own opinions (D124
     canonicalises the winding), so the only thing refused here is closure.
     """
-    loops, flags, ids, warns = [], [], [], []
+    loops, flags, ids, heights, warns = [], [], [], [], []
     if geo is None:
-        return (loops, None, None, True, warns)
+        return (loops, None, None, True, None, warns)
     has_corner = geo.findPointAttrib(CORNER_ATTR) is not None
     has_array = geo.findPrimAttrib(ARRAY_ATTR) is not None
+    has_height = geo.findPrimAttrib(HEIGHT_ATTR) is not None
     closed = None
     for prim in geo.prims():
         try:
@@ -352,6 +361,8 @@ def footprint_loops(geo):
         flags.append([int(p.attribValue(CORNER_ATTR)) for p in pts]
                      if has_corner else None)
         ids.append(str(prim.attribValue(ARRAY_ATTR)) if has_array else "")
+        heights.append(float(prim.attribValue(HEIGHT_ATTR))
+                       if has_height else 0.0)
     if geo.findPointAttrib(MARKER_ATTR) is not None:
         warns.append("%s: input 1 carries %s points and the 2D path builds "
                      "rows, not markers - they are ignored (7.9)"
@@ -360,6 +371,10 @@ def footprint_loops(geo):
             flags if any(f for f in flags) else None,
             ids if all(ids) and len(set(ids)) == len(ids) else None,
             True if closed is None else closed,
+            # a height of 0 is not a height - the parm answers for that prim,
+            # so a partly-authored district is legal rather than a row of
+            # zero-storey buildings.
+            heights if any(h > 0.0 for h in heights) else None,
             warns)
 
 

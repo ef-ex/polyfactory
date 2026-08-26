@@ -78,9 +78,38 @@ the label is the artist's face, the name is the kernel's.
 """
 
 import os
+import re
 import sys
 
 import hou
+
+# ⚠️ 5.1's TWO ACCEPTANCE CRITERIA, AND THIS SCRIPT IS THE THING THAT GOT THEM
+# WRONG - 5.1 was WRITTEN about this node in 2026-08-22 and the shipped asset
+# still had no `Tools.shelf`, the default `SOP_subnet` icon and four
+# `Sub-Network Input #N` labels four cycles later. It went unnoticed because
+# the only check that read them was `run_slice_checks`', which reads the SLICE
+# asset. `polychain_assets_carry_5_1_metadata` reads all three now.
+TOOLS_SHELF = """<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <tool name="$HDA_DEFAULT_TOOL" label="$HDA_LABEL" icon="$HDA_ICON">
+    <toolMenuContext name="viewer">
+      <contextNetType>SOP</contextNetType>
+    </toolMenuContext>
+    <toolMenuContext name="network">
+      <contextOpType>$HDA_TABLE_AND_NAME</contextOpType>
+    </toolMenuContext>
+    <toolSubmenu>Poly Factory/Modeling</toolSubmenu>
+    <script scriptType="python"><![CDATA[import soptoolutils
+
+soptoolutils.genericTool(kwargs, '$HDA_NAME')]]></script>
+  </tool>
+</shelfDocument>
+"""
+# 5.1b's own table, in its own words.
+INPUT_LABELS = ("Curves", "Kit", "Style Payload (optional)",
+                "Surface (optional)")
+OUTPUT_LABEL = "Built Geometry"
+ICON = "SOP_orientalongcurve"
 
 POLYFACTORY = os.environ.get("POLYFACTORY",
                              "F:/projects/polyfactory/polyfactory")
@@ -251,6 +280,9 @@ hda_node.allowEditingOfContents()
 defn = hda_node.type().definition()
 defn.setMinNumInputs(0)
 defn.setMaxNumInputs(4)
+# 5.1a - anything but the default subnet icon. `SOP_orientalongcurve` is what
+# the tool does and 5.1's own table names it as one of the two candidates.
+defn.setIcon(ICON)
 
 net = hda_node
 out_null = net.node("OUT")
@@ -1325,7 +1357,36 @@ _opts.setUnlockNewInstances(False)
 defn.setOptions(_opts)
 defn.save(HDA_PATH, template_node=hda_node)
 
+# --- 5.1's two metadata criteria, written onto the SAVED definition --------
+# `setParmTemplateGroup` regenerates `DialogScript` and there is no HOM API
+# for input labels on 22.0.398 (probed for `pf_polychain_slice`), so they are
+# patched here and read back off the file - 5.1's own "verify by INSPECTING
+# THE BUILT ASSET, never by trusting the build script".
+defn = hou.hda.definitionsInFile(HDA_PATH)[0]
+ds = defn.sections()["DialogScript"].contents()
+for i, label in enumerate(INPUT_LABELS):
+    ds = re.sub(r'inputlabel\t%d\t"[^"]*"' % (i + 1),
+                'inputlabel\t%d\t"%s"' % (i + 1, label), ds)
+out_line = 'outputlabel\t1\t"%s"' % OUTPUT_LABEL
+if "outputlabel" in ds:
+    ds = re.sub(r'outputlabel\t1\t"[^"]*"', out_line, ds)
+else:
+    last = 'inputlabel\t%d\t"%s"' % (len(INPUT_LABELS), INPUT_LABELS[-1])
+    ds = ds.replace(last, "%s\n    %s" % (last, out_line))
+defn.addSection("DialogScript", ds)
+defn.addSection("Tools.shelf", TOOLS_SHELF)
+
 hda_node.destroy()
 build_geo.destroy()
+
+back = hou.hda.definitionsInFile(HDA_PATH)[0]
+saved = back.sections()["DialogScript"].contents()
+assert "Poly Factory/Modeling" in \
+    back.sections()["Tools.shelf"].contents(), "TAB submenu missing"
+assert back.icon() == ICON, "icon is %r" % back.icon()
+for i, label in enumerate(INPUT_LABELS):
+    assert 'inputlabel\t%d\t"%s"' % (i + 1, label) in saved, \
+        "input %d unlabelled" % (i + 1)
+assert out_line in saved, "output unlabelled"
 
 print("[pf_polychain] created: " + HDA_PATH)

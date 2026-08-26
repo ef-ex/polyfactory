@@ -561,13 +561,13 @@ def _facade_loops(node, shape):
     if shape == "area":
         clip_geo = clip if clip is not None else foot
         loops, _modes, clip_warns = _facade.clip_loops(clip_geo)
-        return (loops, None, None, True, clip_geo, warns + clip_warns)
-    loops, flags, ids, closed, fw = _facade.footprint_loops(foot)
+        return (loops, None, None, True, None, clip_geo, warns + clip_warns)
+    loops, flags, ids, closed, heights, fw = _facade.footprint_loops(foot)
     if clip is not None:
         warns.append("input 5 carries clip boundaries and What To Build is "
                      "Footprint + Height - set it to Boundary Shape for them "
                      "to define and trim the array (7.6)")
-    return (loops, flags, ids, closed, None, warns + fw)
+    return (loops, flags, ids, closed, heights, None, warns + fw)
 
 
 def cook_facade(node):
@@ -595,7 +595,8 @@ def cook_facade(node):
     shape = _parm_str(parms, "shape", "footprint")
     if shape not in FACADE_SHAPES:
         shape = "footprint"
-    loops, flags, ids, closed, clip_geo, warns = _facade_loops(node, shape)
+    loops, flags, ids, closed, heights, clip_geo, warns = \
+        _facade_loops(node, shape)
     for warn in warns:
         say(warn)
     if not loops:
@@ -637,9 +638,14 @@ def cook_facade(node):
     if shape == "area":
         out, report = _facade.build_clipped(clip_geo, **kw)
     else:
+        # D317 - the footprint's own `pc_height` where it has one, the parm
+        # where it does not, per prim. A district is not one tower repeated.
+        tall = parms.evalParm("height")
         out, report = _facade.build_many(
-            loops, height=parms.evalParm("height"), array_ids=ids,
-            corner_flags=flags, closed=closed, **kw)
+            loops, height=tall, array_ids=ids, corner_flags=flags,
+            closed=closed,
+            heights=([h if h > 0.0 else tall for h in heights]
+                     if heights is not None else None), **kw)
     cook_s = time.time() - t0
     if display == "full" and cook_s > SLOW_COOK_S:
         say("this build took %.1f s - set Display to 'Proxy Boxes' while "

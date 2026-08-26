@@ -38,6 +38,9 @@ RUNNERS = {
     # 7.7's on-ramp, on BOTH shipped assets: the slicer's own inverse as the
     # oracle, then the kit it emits through `pf_polychain`.
     "slice": "tests/polychain/run_slice_checks.py",
+    # P2-9's node, judged against the shipped 2D entry point by the same
+    # differential comparator - plus 5.1's metadata on all THREE assets.
+    "facade": "tests/polychain/run_facade_hda_checks.py",
 }
 
 # D210 made a MOVED baselined value fail the run like a failing check.
@@ -82,6 +85,7 @@ RIG = "tests/polychain/native.py"
 RUNNER_NATIVE = "tests/polychain/run_native_checks.py"
 BUILD = "devScripts/create_pf_polychain_hda.py"
 SLICE_BUILD = "devScripts/create_pf_polychain_slice_hda.py"
+FACADE_BUILD = "devScripts/create_pf_polychain_facade_hda.py"
 IMG = "tests/polychain/gate_images.py"
 
 
@@ -1133,6 +1137,107 @@ MUTATIONS = (
       "are written into the .hda at build time and nowhere else.",
       ((SLICE_BUILD, 'INPUT_LABELS = ("Chunk", "Guides (optional)")',
         'INPUT_LABELS = ("Input 1", "Guides (optional)")'),)),
+
+    # ---- P2-9: the 2D node ------------------------------------------------
+    #
+    # ⚠️ THE THREE DIFFERENTIAL ROWS ARE MUTATED AT THE NODE'S OWN SEAM, not
+    # in the builder. A builder edit moves BOTH sides of the comparison and
+    # reddens nothing - the shape D296a's ladder had - so every entry here
+    # breaks the marshalling between the page and `facade.build*`, which is
+    # the only thing the node adds and therefore the only thing this runner
+    # can see.
+
+    M("facade_kit_port_unplugged", "facade",
+      ("facade_matches_entry_point",),
+      "The kit port dropped: every case builds the starter facade kit while "
+      "the oracle builds the one on input 2. It is the broadest of the "
+      "three and it proves input 2 is read at all.",
+      ((PY % "hda.py",
+        "    return kit_geometry(node, parms, fallback=_kit.starter_facade_kit)",
+        "    return _kit.starter_facade_kit()"),), rebuild=False),
+
+    M("facade_surface_port_unplugged", "facade",
+      ("facade_matches_entry_point",),
+      "The narrow half of the same claim: only ONE generated case wires a "
+      "terrain, so this reddens through that case alone and proves the "
+      "fixture reaches input 4 rather than merely declaring it.",
+      ((PY % "hda.py", "surface_geo=_input_geo(node, 3))",
+        "surface_geo=None)"),), rebuild=False),
+
+    M("facade_clip_policy_never_reaches_the_build", "facade",
+      ("facade_matches_entry_point_area",),
+      "7.6's cull policy stuck at `remove`: the five `slice` cases diverge "
+      "and the five `remove` ones do not, which is the parm-to-argument "
+      "class this runner exists for.",
+      ((PY % "hda.py", 'clip_mode=_parm_str(parms, "clip_mode", "remove"),',
+        'clip_mode="remove",'),), rebuild=False),
+
+    M("facade_payload_port_misread", "facade",
+      ("facade_matches_entry_point_payload", "facade_payload_beats_the_page"),
+      "D77 on the 2D node, undone: the payload is read off input 4 instead "
+      "of input 3, so the page builds the facade and a wired payload does "
+      "nothing.",
+      ((PY % "hda.py", "style, style_warns = _style.read(_input_geo(node, 2),",
+        "style, style_warns = _style.read(_input_geo(node, 3),"),),
+      rebuild=False),
+
+    M("facade_payload_cannot_override_expand", "facade",
+      ("facade_payload_beats_the_page",),
+      "D293's precedence broken on ONE key: a payload that names `expand` "
+      "loses to the page, so nudging the parm moves a build the payload was "
+      "supposed to own. The leak the sweep exists for, one key wide.",
+      ((PY % "facade.py", 'expand = settings.get("expand", expand)',
+        "expand = expand"),), rebuild=False),
+
+    M("facade_markers_never_refused", "facade",
+      ("facade_input_refusals_are_named",),
+      "7.9's marker refusal silenced. ⚠️ The obvious edit - renaming "
+      "`WARN_MARKERS_IGNORED` - proves NOTHING, because the check reads that "
+      "same constant; the guard is what has to go.",
+      ((PY % "facade.py",
+        "    if geo.findPointAttrib(MARKER_ATTR) is not None:",
+        "    if False and geo.findPointAttrib(MARKER_ATTR) is not None:"),),
+      rebuild=False),
+
+    M("facade_aux_exclude_not_converted", "facade",
+      ("facade_aux_exclude_cuts_the_hole",),
+      "D316's port-word to prim-word conversion dropped, so an `exclude` "
+      "sub-spline builds like any other and even-odd decides alone.",
+      ((PY % "facade.py",
+        '            "exclude" if str(p).strip().lower() == "exclude" else c',
+        "            c"),), rebuild=False),
+
+    M("facade_stage_rows_shows_the_output", "facade",
+      ("facade_stage_menu_reaches_every_stage",),
+      "13.7 rule 1: a Stage entry that shows a DIFFERENT stage than it "
+      "names. `rows` falls through to the finished build, so two entries "
+      "draw the same thing.",
+      ((PY % "hda.py", '    if stage == "rows":', '    if stage == "rowsX":'),),
+      rebuild=False),
+
+    M("facade_output_port_unlabelled", "facade",
+      ("facade_hda_metadata",),
+      "5.1b on the 2D asset. It rebuilds, because the label is written into "
+      "the .hda at build time and nowhere else - and the build script's own "
+      "read-back assertion stays green, which is exactly why the check has "
+      "to read the SAVED file rather than trust the script.",
+      ((FACADE_BUILD, 'OUTPUT_LABEL = "Facade"', 'OUTPUT_LABEL = "Output"'),)),
+
+    M("facade_height_label_loses_its_unit", "facade",
+      ("facade_parm_page_obeys_the_ux_law",),
+      "artist_ui 6's ranged/united/helped, on the built asset. A verifier "
+      "once stripped the help, the ranges and the units off `pf_polychain` "
+      "with every other check green; this is that attack, registered.",
+      ((FACADE_BUILD, '"height", "Building Height (m)"',
+        '"height", "Building Height"'),)),
+
+    M("polychain_icon_back_to_subnet", "facade",
+      ("polychain_assets_carry_5_1_metadata",),
+      "5.1a undone on the 1D node - the exact state it SHIPPED in for four "
+      "cycles after 5.1 was written about it. The build script's own "
+      "assertion is `icon() == ICON` and stays green through this, which is "
+      "how it went unnoticed.",
+      ((BUILD, 'ICON = "SOP_orientalongcurve"', 'ICON = "SOP_subnet"'),)),
 )
 
 # ⚠️ IDS ARE UNIQUE, ASSERTED HERE. Two entries once shared an id, and the
@@ -1189,6 +1294,8 @@ EXPECT_CHECKS = {
     # 7.7, added 2026-08-25 with 10 mutations covering all 14 names.
     # C1's audit added five, 2026-08-25: 19 names, 15 mutations.
     "slice": 19,
+    # P2-9, added 2026-08-26: 10 names, 11 mutations, 0 unproven.
+    "facade": 10,
 }
 
 

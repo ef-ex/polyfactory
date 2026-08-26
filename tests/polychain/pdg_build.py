@@ -173,6 +173,15 @@ def build(mode, mut_indices, seeds=SEEDS, slots=None):
     sl.parm("pdg_command").set(_cmd(HY, "tests/polychain/run_slice_checks.py"))
     made[sl] = "7.7's kit slicer, on the shipped assets"
 
+    # 1d. P2-9's 2D node, against the shipped 2D entry point. In the gate for
+    #     the same reason as 1c - it cooks a shipped asset, and at 6.7 s it is
+    #     the cheapest place a broken parm-to-argument wire shows up.
+    fc = top.createNode("genericgenerator", "facade")
+    fc.parm("itemcount").set(1)
+    fc.parm("pdg_command").set(
+        _cmd(HY, "tests/polychain/run_facade_hda_checks.py"))
+    made[fc] = "7's 2D node, against the shipped entry point"
+
     # 1b. THE BUDGET, as its own node so its red is never confused with the
     #     kernel's.  It is red until the v1 deletions land, and that is what a
     #     budget is for - see the file's own docstring.
