@@ -1324,9 +1324,10 @@ EXPECT_CHECKS = {
     # 7.7, added 2026-08-25 with 10 mutations covering all 14 names.
     # C1's audit added five, 2026-08-25: 19 names, 15 mutations.
     "slice": 19,
-    # P2-9, added 2026-08-26: 11 names, 12 mutations, 0 unproven.
-    # +1 for `facade_extend_picks_the_fallback` - D117's parm, which needed a
-    # kit with a GAP in it before any fixture could reach the fallback.
+    # P2-9, added 2026-08-26: 11 names, 13 mutations, 0 unproven.
+    # +1 name / +1 mutation for `facade_extend_picks_the_fallback` - D117's
+    # parm, which needed a kit with a GAP in it before any fixture could
+    # reach 7.2.2's fallback at all. 12 names, 14 mutations.
     "facade": 12,
 }
 
