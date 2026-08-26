@@ -15003,3 +15003,68 @@ collapses to one row spanning the whole span), so it is the Y stack's own.
 wants 7.1's owner rather than a patch. Pinned as what the build DOES, so the day it is
 closed the pin goes red and is deleted with its finding — the M2 convention this file
 already uses twice. `count` is bounded at 1 in the property above BECAUSE of this.
+
+### 33.3 13.9 N8 STAGE 2 — D340: THE DEGENERATE CORNER WAS A WARNING, NOT GEOMETRY
+
+**The one sentence: `[vex:corner_degen]` refused a whole build class over one string, and
+the geometry under it had been ported since stage 1.**
+
+`corner._joinable` gives TWO reasons to dissolve a corner boundary, and stage 1 read only the
+first. Reason one is `corner_mode == "bend"` (D36). Reason two is
+`corner.degenerate` — *"a narrow angle has no usable bisector, so 4.3's fallback is bend, and
+bend means the run continues through"* (D46) — and it applies **in either mode**. So a
+degenerate corner is the same weld `pc_sections.vfl` already builds; the only thing the native
+chain did not have was 4.3 item F's warning, which `plan_curve` collects BEFORE the weld
+(*"after the weld there is no boundary left to hang it on"*) and `_stamp_degenerate` puts on
+every piece whose span contains a dissolved vertex.
+
+**What landed.** `pc_sections.vfl` dissolves on `(bend || degen)` and carries two new things
+to the plan point: `_degen_s`, the dissolved degenerate vertices in curve-global metres, and
+`_curve_closed`, the CURVE's own closed flag — which is *not* `pc_sec_closed`, the WELD's
+`whole`. `pc_plan_emit.vfl` stamps, with `_stamp_degenerate`'s own inclusive bounds and its
+`reps` fold by ± the curve length. `pc_envelope.vfl`'s `[vex:corners]` row is now exactly
+**a NON-DEGENERATE corner in MITER mode**.
+
+⚠️ **IT WAS WRITTEN, IT WAS RIGHT, AND IT DID NOTHING — `PLAN_KEEP` IS DENY-BY-DEFAULT.**
+`pc_plan_clean` is an `attribdelete` with an explicit keep list, so `_degen_s` was deleted
+between `pc_sections` and `pc_plan_solve` and the warning was simply ABSENT, with every other
+byte of the build identical. The failure mode is the one worth recording: a new
+`pc_sections` output that nobody adds to `PLAN_KEEP` disappears silently, and the only
+symptom is the feature not existing. `n8_plan_keep_drops_the_degenerate_list` is that
+mutation, and it lives on `native.py` rather than on the VEX.
+
+**TWO FIXTURES, BECAUSE THE WIDENING REACHED NEITHER OF THE ONES WE HAD.** This is 32.1's
+lesson one layer on: the invariant is tested on the reference (`test_a_degenerate_corner_
+welds_in_miter_mode_too`, since 4.3 was written) and the port had no input that reached it.
+
+* **`AV_degenerate_miter`** — the same 90-degree L under a 120-degree
+  `min_included_angle_deg` as `AU`, in MITER mode. `AU` is bend and `AC` is a hairpin level 2
+  refuses anyway, so `(bend || degen)` would have been an **untested branch of the very edit
+  that added it**.
+* **`AW_ring_section_degenerate`** — 32.1's own owed item: *a closed ring carrying a
+  per-point `pc_section` key*, which it recorded as covered by nothing. 12 x 8 with a
+  mid-edge vertex on each long side and keys `a b b b a a`, so the two surviving breaks are
+  the two MID-EDGE vertices and the second span runs **26 → 46 m of a 40 m ring**. The
+  dissolved degenerate vertex at s = 0 is inside that span only as `s + total`, which is the
+  one place `reps` is reachable.
+
+⚠️ **AW's FIRST SHAPE PUT ITS KEY CHANGES ON TWO CORNERS, AND THAT MADE IT A SECOND CHECK'S
+CASE.** Each `pc_section` limit stacked an `end` post against a `start` post — D18's own
+hand-over, built correctly, parity-identical, and correctly flagged by `single_pillar` at
+0.06 m over two pairs. The fix was the FIXTURE, not the escape hatch: mid-edge breaks and a
+style with no `start`/`end`/`corner` rules at all. Reaching for `DOUBLE_PILLAR` would have
+parked an unrelated expectation in a case written for the wrap, and the next reader would
+have inherited a number with no argument under it.
+
+**`AC_degenerate_corner` JOINS `GUARD_FALLBACK_CASES`, AND IT IS D332 REPEATED.** Level 1
+admits it now — its only corner is degenerate, so 4.3 falls back to bend and the chain can
+answer it — while `pc_frames_transportable` refuses the straddling piece at level 2, so both
+chains cook. There is no cheap level-1 predicate for a frame flip; the refusal is EXACT and
+it FAILS SAFE, and what it costs is declared rather than hidden.
+
+**Evidence.** `output_guard_parity` **50 native / 60 reference over 110 cases → 53 / 59 over
+112, IDENTICAL** — prim attribute names, types and every value in order, packed world bounds,
+every point position, the detail arrays and the groups. `run_scene_checks` 0 failing /
+**0 moved**, `run_native_checks` 0, `run_2d_checks` 0 / 0, `run_hda_checks` 0,
+`run_generated --seeds 400` 406 cases **0 RED** / 136 KNOWN, per-cycle gate 6 nodes 0
+failures 27.6 s.

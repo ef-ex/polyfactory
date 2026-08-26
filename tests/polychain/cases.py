@@ -1000,29 +1000,21 @@ def build_all():
     _au.params.min_included_angle_deg = 120.0
     built["AU_degenerate_bend"] = _case(g, kit_geo, _au)
 
-    # AV - THE SAME SHAPE IN MITER MODE, and it is what 13.9 N8 stage 2's
-    # widening actually turns on (33.3).  `_joinable`'s second reason
-    # dissolves a degenerate corner in EITHER mode, so a miter build whose
-    # corners are all degenerate places NO assembly and is answerable - and
-    # nothing in the corpus reached that: `AU` is bend and `AC` is a hairpin
-    # level 2 refuses anyway, so `(bend || degen)` would have been an
-    # untested branch of the very edit that added it.
+    # AV - THE SAME SHAPE IN MITER MODE, which is what stage 2's widening
+    # turns on and what nothing in the corpus reached: `AU` is bend and `AC`
+    # is a hairpin level 2 refuses anyway, so `(bend || degen)` would have
+    # been an untested branch of its own edit.  33.3.
     g = hou.Geometry()
     polyline(g, L_SHAPE, curve_id="AV")
     _av = corner_style("miter")
     _av.params.min_included_angle_deg = 120.0
     built["AV_degenerate_miter"] = _case(g, kit_geo, _av)
 
-    # AW - A CLOSED RING CARRYING A PER-POINT `pc_section` KEY, which 32.1
-    # recorded as covered by NOTHING, plus a dissolved degenerate corner in
-    # its WRAPPING span.  A 12 x 8 ring with a mid-edge vertex on each long
-    # side, keys `a b b b a a`: the two surviving breaks are the two MID-EDGE
-    # vertices (6 m and 26 m of 40), so neither is also a corner, and the
-    # second span runs 26 -> 46 m.  The degenerate vertex at s = 0 is inside
-    # it only as `s + total` - `_stamp_degenerate`'s `reps`, reachable here
-    # and nowhere else in the corpus.  No `start`/`end`/`corner` rules on
-    # purpose: a cap module at a `pc_section` limit is D18's own double
-    # pillar and belongs to `single_pillar`'s escape hatch, not to this case.
+    # AW - A CLOSED RING CARRYING A PER-POINT `pc_section` KEY (32.1 recorded
+    # it as covered by NOTHING) with a dissolved degenerate corner in its
+    # WRAPPING span: the breaks are the two MID-EDGE vertices, span 1 runs
+    # 26 -> 46 m of 40, and the vertex at s = 0 is inside it only as
+    # `s + total`.  No cap rules on purpose - 33.3 says why.
     g = hou.Geometry()
     poly = polyline(g, [(0, 0, 0), (6, 0, 0), (12, 0, 0), (12, 0, 8),
                         (6, 0, 8), (0, 0, 8)], closed=True, curve_id="AW")
