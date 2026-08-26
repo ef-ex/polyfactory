@@ -19,6 +19,112 @@ RC-Slice kit ingestion) and what transfers to B4/B6, §12.9 kits, and phase 2 of
 
 Written 2026-08-17. Branch `cityGen`.
 
+---
+
+## 0.0 BUILD STATE — resume pointer (read this first, keep it current)
+
+⚠️ **If you are a fresh agent, or this session resumed after a usage-limit reset or a crash:
+start here.** This block is the single source of truth for where the build stands. §12 is the spec;
+this is the bookmark. **Every cycle must update this block and commit it** — it is cheap, and it is
+the only thing that survives a context loss.
+
+**Overnight autonomous build authorized by Hannes 2026-08-26.** This supersedes the
+"Nothing built / gates before stages" framing in the Status line above for the duration of the run.
+Opus 5 implements, an independent agent audits, headless `hython` verifies, **commit per cycle**,
+branch `worldengine`, **never push**, never rewrite history, stage named paths only.
+
+| Field | Value |
+|---|---|
+| Branch | `worldengine` (shared — three other polyfactory sessions are live) |
+| hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified headless by the polyChain build) |
+| Owning spec | §12 of this file. Build order is §12.10, **gates G1/G2 before any B-stage** |
+| Last completed | **NOTHING BUILT YET.** Cycle 0 = this pointer landing. |
+| Next up | ⚠️ **CHECK AGAINST `git log --oneline -25` BEFORE STARTING.** **G1 — topology as data** (§12.10): skeleton B2 only, two template files (Hannes' local Einhof vs Viennese perimeter block), both massings from ONE assembly-rule library + two data files, judged in the viewport. Pass ⇒ §12.5's "style is data" claim holds. Fail ⇒ re-scope §12.5 to "small rule library + data" and say so here. |
+| Gates | G1 topology-as-data ⬜ · G2 corner closure on an L ⬜ · G3 APEX-vs-VEX ⬜ (only after G1+G2). **None run.** Every gate owes a HUMAN viewport pass by Hannes — an agent looking at an image is not that, and it is never silently skipped. |
+
+### 0.0a Dependencies — check before picking a stage
+
+| Dependency | State (2026-08-26) | Blocks |
+|---|---|---|
+| **polyChain** | ✅ **DONE.** `polychain.md` §0.0: *"THE BUILD IS FINISHED AND THE RULE-0 QUEUE IS EMPTY."* A 2D facade node exists (`pf_polychain`, `facade.build_many`, gates PC-G5/PC-G6). ⚠️ That file's *top* Status line still says "Nothing built / parked" and is **stale** — §0.0 there supersedes it. | Unblocks **B4**, **B6**. Read `polychain.md` §0.0 + `railclone.md` §6 before writing either — B4 may be largely polyChain *configuration*, not new code. |
+| **Streets S8 determinism** | ⚠️ **ANSWERED, AND IT IS "UNTOUCHED"** (polyfactory-b1, 2026-08-26). Streets paused 2026-08-21 when polyChain took over; nobody has been near S8 since. Documented truth: `elem_id` survival is proven against **parameter** changes only, **unproven under geometry change**; `node_id` does not exist; provenance is not auto-stamped. | **DO NOT BLOCK — INSULATE.** §12.7's structural-address `elem_id` (`siteId` + stage + volume/face/bay/storey, **never generation order**) is the defence, and it is now load-bearing rather than a nicety. Source `siteId` from the lot **at B0 ingestion only**, and record the **lot→siteId mapping as the single seam** to revisit when streets resumes. Note it in every cycle's report. |
+| **B0 schema** (`citygen.md` §7 item 0) | ⚠️ **RESOLVED FOR THE BUILD, NOT RATIFIED.** polyfactory-b1: proceed with §12.4's **volume + face-roles**, planar lot as the degenerate case. | Build **B0 as an ADAPTER**: ingest today's planar S8 lot, stamp the volume-form schema. Streets needs no change, so **no seam mismatch can arise** and the work stays reversible. ⚠️ **Hannes ratifies, not an agent** — this goes in the morning report. |
+| **Streets tonight** | ✅ **S8 IS STABLE TONIGHT.** polyfactory-f2 is working upstream at S5 (junction merge mouth), in an **isolated worktree** `F:/projects/polyfactory-citygen`, branch `cityGen`. | Input contract is stable. ⛔ **Never `git worktree remove` `F:/projects/polyfactory-citygen`**, and never `git checkout` there. The shared checkout `F:/projects/polyfactory` is ours. |
+| **`conventions.md` `pf_` prefix** | ❌ **SPEC DEFECT.** §12 declares `siteId`/`faceRole`/`setback`/… with **zero** `pf_` prefixes; `conventions.md` §1 makes `pf_` law, flat prefix + descriptive name (`pf_elem_id`). | Blocks nothing, but **fix the §12 tables before B0 is written**, not after. `conventions.md` §9 lists "the CityGen field" as PENDING-Hannes-decides — check it. |
+
+### 0.0b Order of work (S8-independent first, deliberately)
+
+Everything here is buildable **without** streets or polyChain, so the run is not idle while
+dependencies resolve:
+
+`G1` → `G2` → `B5 cap/straight-skeleton` (largest from-scratch item; Labs supplies nothing) →
+`B3 structure tables` → `B1 footprint ops` → `§12.9 module library` → **then** `B4`/`B6` on
+polyChain → **then, only once S8 answers**, `B0` identity wiring + finalize/instancing.
+
+### 0.0c Operational rules — paid for in blood this week, do not rediscover them
+
+1. ⛔ **MACHINE SAFETY — THIS MACHINE HARD-FROZE TWICE** under 15 parallel `hython` processes
+   (`build_retrospective.md` §2c #11). **Never raw-parallel `hython`. Never use system `$TEMP`.**
+   Go through `tests/polychain/runguard.py` (owns slots via a commit-headroom guard, per-run
+   `HOUDINI_TEMP_DIR` on F:, orphan sweep) or copy its pattern exactly. This outranks throughput.
+2. ⛔ **TEST-SUITE COLLISION.** polyfactory-f2 is editing `tests/citygen/{cases,checks,run_scene_checks}.py`
+   and `baseline.json` on branch `cityGen`. `baseline.json` is a full-value snapshot regenerated by
+   `--update-baseline`; two branches regenerating it conflict badly and a careless resolution
+   **silently blesses the other branch's numbers.** → **Building checks go in NEW modules**
+   (`tests/citygen/checks_buildings.py` + its own baseline file), registered from the runner by a
+   **one-line import**, so the eventual merge is one line and not a 14 000-value diff. Agreed with
+   f2 2026-08-26.
+3. **Read every contract off the SHIPPED ASSET, never off prose or a rig** (CLAUDE.md). polyChain
+   ships `polyfactory/otls/pf_polychain.hda`, `pf_polychain_facade.hda`, `pf_polychain_slice.hda`;
+   kernel `polyfactory/scripts/python/polyfactory/polychain`; VEX `polyfactory/vex/polychain`;
+   builders `devScripts/create_pf_polychain*.py`; checks `tests/polychain` + `tests/unit/test_polychain*.py`.
+4. **D223 — an attribute's STORAGE is part of its contract.** An `int` `edge_id` shipped a
+   different fence *and* a different curve order, with zero test coverage. **Enroll storage checks
+   on `pf_site_id` / any id we mint from day one**, not later.
+5. **`testing` skill governs** (`~/.claude/skills/testing/SKILL.md`): a check is not written until
+   its mutation has been seen RED; state a size budget (test ≤ production) and **delete before
+   adding**.
+6. **Commit per cycle, named paths only.** No `-A`, no `--amend`, no `rebase`, no `reset`, no
+   `checkout` of files we did not edit. **Do not push** — b1 reports the project pushes when green,
+   but that is Hannes' call to give, not a peer's; ask in the morning report. A pre-commit hook
+   regenerates `graphify-out/` — that churn is normal, do not fight it.
+
+### 0.0d Read before designing B-anything
+
+- ⭐ **`polyfactory/resources/citygen/README.md` §4c** (gitignored KB, added by f2 2026-08-26): a
+  read of **metrum_rise**, an open-source city builder that independently converged on our
+  architecture. It has a section **directly on the B0 seam**: buildings attach to streets **without
+  splitting edges** — store `(edge_idx, side, cell_x, cell_y, width_cells, depth_cells)` plus an
+  entrance cache (distance along the edge centreline, door position from the asset anchor, kerb
+  handoff point); *"no virtual frontage nodes are inserted."* That is the alternative to splitting
+  an edge per driveway, which multiplies nodes and **breaks `edge_id` stability** — i.e. it is a
+  direct answer to the S8 identity problem above. Ten minutes, before B0.
+- ⚠️ **polyChain's miter is a MEASURED REFUSAL, not a native path.** `[vex:corners]` refuses a
+  non-degenerate corner in miter mode **by name**; those builds fall to the Python reference —
+  correct, but ~1.00x, no speedup. **Do not design B4/B6 assuming mitered corners are native.**
+- ⚠️ **polyChain's facade node has two open items that become ours if B4 sits on it**: PC-G7 is
+  asserted on `facade.build_many` and **not on the asset**, and `pf_polychain`'s `addWarning` route
+  is **invisible on the HDA an artist meets** — which collides with §12.8 (warnings persisted and
+  visible) and `citygen.md` §2.2.
+- ⚠️ **`polychain.md` has two staleness bugs** (found by polyfactory-47): its top Status line still
+  says "Nothing built / parked", and **its §0.0 resume table still says Branch `polychain`** when
+  the work is on `worldengine`. A fresh agent reading four lines draws the wrong conclusion and
+  checks out the wrong branch. **Not ours to edit** — one owner per topic; asked b1 to fix at source.
+
+### 0.0e Recovery procedure
+
+1. `git log --oneline -25` and `git status` — **the log outranks this block** if they disagree.
+2. Re-read this §0.0, then §12, then the relevant §§1–11 the stage cites.
+3. `houdini_get_skill("houdini-dev-loop")` — mandatory before any Houdini work; plus
+   `houdini-procedural-modeling` for geometry and `houdini-tool-design` for parameters.
+4. Apply the `testing` skill: a check is not written until its mutation has been seen RED; keep a
+   stated size budget and delete before adding.
+5. Nothing is "done" until an **independent** agent has audited it on the current build. Absent
+   that, the honest words are "implemented, unverified".
+6. Resume at **Next up**. Update this block and commit before ending the cycle.
+
+---
+
 This file exists because buildings are a subsystem, and this repo's convention is one design doc
 per subsystem ([`citygen_streets.md`](citygen_streets.md) is the precedent). It is deliberately
 *research*, kept separate from design: the survey below has to be settled before the parameter
