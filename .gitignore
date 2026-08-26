@@ -153,6 +153,12 @@ graphify-out/cost.json
 # polyChain gate renders - regenerate with `hython tests/polychain/gate_images.py`
 tests/polychain/gate_images/
 
+# per-run HOUDINI_TEMP_DIR / TEMP for the test runners (tests/polychain/
+# runguard.py). Deleted at exit and swept for >24 h orphans at the start of
+# every run - it exists on the REPO's drive because the system drive is where
+# 19.9 GB of orphaned hython temp was found.
+.tmp/
+
 # mutmut 2.5 cache (per-machine, and it rewrites source files in place -
 # see the warning in setup.cfg)
 .mutmut-cache

@@ -14,8 +14,10 @@ test afterwards. Add to this file rather than re-deriving.
 
 import math
 import os
+import shutil
 import subprocess
 import sys
+import time
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -654,6 +656,50 @@ class TestSamplerCacheParity(unittest.TestCase):
         self.assertEqual(his, [g[1] for g in segs])
         self.assertEqual(his, sorted(his))
 
+
+class TestRunGuard(unittest.TestCase):
+    """`tests/polychain/runguard.py` - the two protections that exist because
+    this machine hard-froze twice and left 19.9 GB of orphaned temp.
+    ⚠️ NEITHER FAILURE CAN BE REPRODUCED ON PURPOSE, so both are driven through
+    the parameters the module carries for exactly that - the headroom number
+    and the directory root.  The registry cannot pair these (it drives hython
+    runners printing `[PASS] name`), so each mutation lives here AS a test,
+    `test_polychain_budget`'s precedent.  BLIND SPOT: whether the environment
+    `begin` exports is honoured by anything."""
+
+    def setUp(self):
+        sys.path.insert(0, os.path.join(REPO, "tests", "polychain"))
+        import runguard
+        self.rg = runguard
+        self.root = os.path.join(REPO, "tests", "polychain",
+                                 "_guardtmp").replace("\\", "/")
+        self.addCleanup(shutil.rmtree, self.root, True)
+
+    def test_a_starved_machine_is_refused(self):
+        self.assertRaises(SystemExit, self.rg.safe_slots, 4,
+                          headroom=7 * self.rg.GB)          # under ONE slot
+        self.assertEqual(self.rg.safe_slots(4, headroom=20 * self.rg.GB)[0], 2)
+        self.assertEqual(self.rg.safe_slots(4, headroom=99 * self.rg.GB)[0], 4)
+
+    def test_the_sweep_takes_the_orphan_and_leaves_the_live_one(self):
+        for name in ("run_old_1", "run_new_2"):
+            os.makedirs(os.path.join(self.root, name))
+        old = os.path.join(self.root, "run_old_1")
+        os.utime(old, (time.time() - 48 * 3600,) * 2)
+        self.assertEqual(self.rg.sweep(self.root), ["run_old_1"])
+        self.assertFalse(os.path.isdir(old))
+        self.assertTrue(os.path.isdir(os.path.join(self.root, "run_new_2")))
+
+    def test_begin_exports_one_directory_and_a_child_reuses_it(self):
+        keep = {v: os.environ.get(v)
+                for v in ("HOUDINI_TEMP_DIR", "TEMP", "TMP")}
+        self.addCleanup(os.environ.update,
+                        {k: v for k, v in keep.items() if v is not None})
+        run, _ = self.rg.begin(self.root)
+        self.assertTrue(run.startswith(self.root + "/run_"))
+        self.assertEqual([os.environ[v] for v in keep], [run] * 3)
+        self.assertEqual(self.rg.begin(self.root), (run, []))   # the child
+        self.assertEqual(len(os.listdir(self.root)), 1)
 
 
 if __name__ == "__main__":

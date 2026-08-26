@@ -43,7 +43,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-import hou                                                        # noqa: E402
+import runguard                                                   # noqa: E402
+
+# ⚠️ BEFORE `import hou`, DELIBERATELY: `OUT` below expands `$TEMP`, which
+# Houdini resolves once at startup, so the per-run directory has to be in the
+# environment before the runtime reads it.
+RUN_TMP, SWEPT = runguard.begin()
+
+import hou                                                      # noqa: E402
 import mutations as REG                                           # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(HERE)).replace("\\", "/")
@@ -146,19 +153,15 @@ def build(mode, mut_indices, seeds=SEEDS, slots=None):
     # the registry's own control already had to grow a 3-attempt retry because
     # a second hython on this machine reddened them.
     #
-    # ⚠️ AND THE CEILING IS THE MACHINE, NOT THE CPU.  The old default (CPU-1
-    # = 15 hython sessions, each a full Houdini runtime committing multi-GB)
-    # HARD-FROZE the build machine twice on 2026-08-26 — Kernel-Power 41 with
-    # services starving a minute before the log stops, no GPU/WHEA events, a
-    # fixed 5.7 GB pagefile leaving the commit limit barely above physical
-    # RAM.  Retrospective §2c #11.  Default is 4; `--slots N` raises it
-    # DELIBERATELY, on a machine known to have the commit headroom.
-    if slots:
-        sch.parm("maxprocsmenu").set("1")
-        sch.parm("maxprocs").set(int(slots))
-    else:
-        sch.parm("maxprocsmenu").set("1")
-        sch.parm("maxprocs").set(4)              # stability first; see above
+    # ⚠️ AND THE CEILING IS THE MACHINE, NOT THE CPU - the two hard freezes,
+    # and why 4 is the default, are `runguard`'s docstring and NOT repeated
+    # here.  What matters at this line: a NUMBER is not a protection, so the
+    # count is checked against the commit headroom the OS will actually grant,
+    # and `--slots N` is a REQUEST the guard may shrink or refuse outright.
+    granted, why = runguard.safe_slots(int(slots) if slots else 4)
+    print("  headroom guard: %s" % why)
+    sch.parm("maxprocsmenu").set("1")
+    sch.parm("maxprocs").set(granted)
     sch.parm("pdg_workingdir").set(REPO)
     made = {}
 
@@ -350,8 +353,10 @@ def main():
              (" - " + ", ".join(REG.MUTATIONS[i].id for i in picked[:6]))
              if picked else ""))
     print("  python: %s" % PYTHON)
-    print("  slots: %s" % (slots or "CPU count less one"))
     print("  scratch: %s" % OUT)
+    print("  run temp: %s (swept %d orphan(s)%s)"
+          % (RUN_TMP, len(SWEPT), (": " + ", ".join(SWEPT[:4])) if SWEPT
+             else ""))
 
     # V4 finding 4: `proxy_is_interactive` (an absolute wall-clock ceiling)
     # reddened under the 32-way sweep and not alone. Work items inherit this

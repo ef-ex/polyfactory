@@ -54,6 +54,11 @@ REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 
 import mutations as REG                                          # noqa: E402
+import runguard                                                  # noqa: E402
+
+# Run STANDALONE too, and the heaviest temp producer here - `pcmut_*` trees
+# whose rmtree partially fails while the .hda is loaded (`discard` below).
+RUN_TMP, SWEPT = runguard.begin()
 
 HYTHON = os.environ.get(
     "HYTHON",
