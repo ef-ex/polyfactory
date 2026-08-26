@@ -40,7 +40,7 @@ branch `worldengine`, **never push**, never rewrite history, stage named paths o
 | Branch | `worldengine`. ⚠️ **Hannes 2026-08-26: EVERY agent works on `worldengine` from now on** — this supersedes any per-tool branch (`cityGen`, `polychain`) named in a sibling doc's resume pointer. ⚠️ **Mechanical constraint that follows:** git refuses to check out one branch in two worktrees at once. This shared checkout `F:/projects/polyfactory` holds `worldengine`; polyfactory-f2's worktree `F:/projects/polyfactory-citygen` cannot also check it out. Whoever moves second must merge/rebase their branch into `worldengine` from here, or take the checkout over — **not** `--ignore-other-worktrees`. Raised with f2 and Hannes 2026-08-26. |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified headless by the polyChain build) |
 | Owning spec | §12 of this file. Build order is §12.10, **gates G1/G2 before any B-stage** |
-| Last completed | **G1 — topology as data: PASSED**, 2026-08-26. Skeleton B2 + B1 `setback` built; four style templates; 13 checks, 13 mutations all seen RED. Full result and its limits in **§12.10a**. §12's attribute tables corrected to the `pf_` law in the same pass (§12.4/§12.6/§12.7/§12.8). |
+| Last completed | **G1 — topology as data: PASSED**, 2026-08-26, **independently audited on the current build**. Skeleton B2 + B1 `setback` built; four style templates with per-field provenance; 16 checks, 17 mutations all seen RED. Full result and its limits in **§12.10a** — read §12.10a's defect list before writing any check for G2, the audit broke four of these and every one is a repeating shape. §12's attribute tables corrected to the `pf_` law in the same pass (§12.4/§12.6/§12.7/§12.8). ⚠️ Test code is **8 % over the stated size budget** (1 105 vs 1 025 lines); the audit round is where it went, and the next test added should delete one. |
 | Next up | ⚠️ **CHECK AGAINST `git log --oneline -25` BEFORE STARTING.** **G2 — corner closure on an L** (§12.10), which is the acceptance test the whole survey points at (§5 Theme 4). Read §0.0d FIRST: polyChain's miter refusal is per-BUILD and B6's primary strategy walks into it, and ⭐ G2 must **record cook time per corner treatment** — those numbers are evidence for Hannes' pending §35.6 miter decision. ⚠️ G2 needs a **non-convex footprint**, which G1 never produced: `pf_inset.vfl` solves each corner independently and can fold a non-convex polygon through itself. That is the first thing to go and look at. |
 | Gates | G1 topology-as-data ✅ **PASS (agent-verified, §12.10a)** · G2 corner closure on an L ⬜ · G3 APEX-vs-VEX ⬜ (only after G1+G2). Every gate owes a HUMAN viewport pass by Hannes — an agent looking at an image is not that, and it is never silently skipped. ⚠️ **G1's human pass is OWED**: an agent looked at `tests/citygen/gate_images_buildings/` and judged the four masses correct; Hannes has not. Regenerate with `hython tests/citygen/run_building_checks.py --images`. |
 | Run it | `hython tests/citygen/run_building_checks.py [--mutations] [--images] [--update-baseline]`. ⚠️ **hython does not load the polyfactory package** — `POLYFACTORY` is unset and `polyfactory` resolves as a namespace package with no `citygen` in it; the runner puts `polyfactory/scripts/python` on `sys.path` itself. |
@@ -1330,7 +1330,7 @@ stand-in, never fail).
 
 | Warning | Fires when | What is built instead |
 |---|---|---|
-| `pf_warn_footprint_collapsed` | an inset flipped the polygon's signed area or collapsed it — setback deeper than the lot, or courtyard tract deeper than half the block | the ring degrades to ONE solid volume over the whole footprint |
+| `pf_warn_footprint_collapsed` | an inset flipped the polygon's signed area or collapsed it — setback deeper than the lot, or courtyard tract deeper than half the block | ONE solid volume; when it is the footprint that folded, built on the **lot** shape stashed before the offset, since building on the folded polygon puts the building outside its own lot. §12.8 above says "OBB fallback"; the lot polygon is the OBB's own input and never worse |
 | `pf_warn_topology_arity` | the template's `volumes` list is not as long as the cell count the rails produced | roles/storeys/cap groups cycle over the list |
 | `pf_warn_cap_group_split` | two volumes are told to share a roof and disagree on eave height | both are built at their own heights; ⭐ **this is the one that gives "which functions share a roof" teeth** — without it a cap group is a label nobody checks |
 | `pf_warn_unknown_rule` | a template names a rule the library does not have | the default rule is used |
@@ -1399,11 +1399,16 @@ family line: **`at_vierkanthof`, an Upper Austrian farm, is built on the perimet
 `rule_reuse` enumerates every value every rule takes and **fails if any is reached by fewer than
 two distinct `styleId`s**. Its mutation — the Vierkanthof stops using `ring` — reddens it.
 
-**Honest limits of that argument.** Reuse is necessary, not sufficient: two styles could use one
-rule for architecturally identical buildings. `rails` remains the one rule with mode-specific
-code, ~12 lines for `bar` and ~10 for `ring` inside a 306-line file, and the mode is chosen by a
-data value, not by a style name. And it is genuinely *four* styles, not four families —
-two Austrian rural, two Viennese urban.
+**Honest limits of that argument, and the auditor sharpened two of them.** Reuse is necessary, not
+sufficient: two styles could use one rule for architecturally identical buildings. `rails` remains
+the one rule with mode-specific code — measured by the audit at ~20 lines `bar` and ~18 `ring`
+against ~165 shared downstream, i.e. **~80 % shared** — and the mode is chosen by a data value, not
+by a style name. It is genuinely *four* styles, not four families: two Austrian rural, two Viennese
+urban. ⚠️ **And `rule_reuse` is weaker than it reads**: of its four rows, `lotToFootprint` is
+`setback` in every shipped template and so can never be lonely, and `cuts` is perfectly collinear
+with `rails`. **What carries the argument is the 2×2 CROSSING in the fixture** — bar/ring against
+`levelToHighest`/`none`, with a farm and an urban block in each column, so `rails` is orthogonal to
+farm-vs-urban rather than rigged — **not the check's count.**
 
 **Decisions this gate closes** (they were §12.12 open questions):
 1. **`volumeTopology` representation** = an ordered `volumes` list plus a rails/cuts/plinth rule
@@ -1417,24 +1422,69 @@ two Austrian rural, two Viennese urban.
 
 **What G1 did NOT test, and must not be read as having tested:** no facade, roof, module or
 ornament (B4/B5/B6); no HDA, so nothing is driven through a parameter face and none of
-`artist_ui.md` §6b applies yet; no cook-time measurement at district scale (one cook of four
-buildings); no non-convex footprint, no corner lot; and the storey/cut numbers that could not be
+`artist_ui.md` §6b applies yet; **no non-convex footprint and no corner lot** — every fixture lot is
+a rectangle, which is exactly what G2 stops being; and the storey/cut numbers that could not be
 sourced are placeholders, listed as such inside each template's own `sources` field.
 
-**Evidence.** 13 checks, each paired in a registry with the exact edit that reddens it, and all 13
-seen RED. Images at `tests/citygen/gate_images_buildings/` (regenerable, not committed — the same
-convention as `tests/polychain/gate_images/`), coloured by `pf_wall_role` so the party walls and
-the courtyard — the topology itself — are what the picture actually shows.
+**Carried into the next stages, from the audit:**
+- `stamp()` loops over VERTICES in Python to write `_inset`. Cheap today (measured above) and the
+  first thing to move to VEX if B1 grows.
+- `pf_mass` is a **detail** wrangle, so it is a single-threaded serial loop over buildings.
+  Irrelevant at 0.044 s for 400 buildings; worth knowing before B5/B6 pile work into it.
+- `_merge` treats a dict-valued field as a NAMESPACE, so `setbackM` can be added to but never
+  wholesale replaced by an override. Decided deliberately — an override raising the front setback
+  must not drop the other three roles — and now stated in the code.
+
+**Evidence.** 16 checks, each paired in a registry with the exact edit that reddens it, 17
+mutations, all seen RED. Images at `tests/citygen/gate_images_buildings/` (regenerable, not
+committed — the same convention as `tests/polychain/gate_images/`), coloured by `pf_wall_role` so
+the party walls and the courtyard — the topology itself — are what the picture actually shows.
 ⚠️ **An AGENT looked at those images, not Hannes.** Every gate owes a HUMAN viewport pass and this
 one is still owed (§0.0 Gates row).
+⚠️ **Size budget BLOWN, by 8 %**: 1 105 lines of test against 1 025 of production. The audit round
+is where it went. Recorded rather than quietly rounded off, because a budget nobody reports is not
+a budget.
 
-**Two defects the mutations found, recorded because both are the shape that recurs:**
+**Independently audited on the current build**, per Rule 0. The auditor signed the verdict above —
+"no style id anywhere in production source, and no proxy branch either" — measured the cost curve
+(4 / 100 / 400 buildings: marshalling 0.001 / 0.006 / 0.018 s, whole chain 0.011 / 0.019 / 0.044 s,
+linear at ~45 µs/building, so CLAUDE.md rule 4's batching holds), confirmed the storage contract
+off the cooked output, and looked at the geometry. It then **broke four of the checks**, and that
+is the more useful half.
+
+**Defects found by mutation and by audit — recorded because every one is a shape that recurs:**
 1. **Houdini's polygon normal is the NEGATIVE of the ordinary cross product of its edges** —
    measured on 22.0.398 after all 78 faces of the first build shipped inside out, which renders
    and measures identically and only shows up as backface shading.
-2. **`encloses_courtyard` claimed in its own docstring that the courtyard lies inside the outer
-   walls, and never tested it.** With the courtyard depth mutated to 0 it reported the whole
-   2 728 m² footprint as a courtyard and passed. A docstring is not an assertion.
+2. **A docstring is not an assertion.** `encloses_courtyard` claimed the courtyard "lies inside the
+   outer walls" and never tested it — depth 0 made the whole 2 728 m² footprint read as a
+   courtyard. Adding a built-band term closed that ONE case: the auditor then slid the courtyard
+   4 m sideways, wrecking the wings under it, and **both areas came back byte-identical**, because
+   a rigid translation preserves every area there is. Containment was not enough either — the
+   shifted block was still 8 m inside its outer wall. What works is a **differential oracle**: the
+   built tract depth re-derived against `courtyardDepthM`, reading 8 and 16 where 12 was asked for.
+3. **A fixture property was load-bearing without saying so.** Three checks keyed on style, which
+   worked only while every style had exactly one lot. Adding a second Einhof lot made two of the
+   three gate criteria FAIL on correct geometry. Everything keys on `pf_site_id` now — and the
+   image code had the identical bug.
+4. **A collapse test that catches one inversion does not catch two.** The sign flip missed a double
+   inversion: a 17 × 26 m lot produced a 3 402 m² "footprint", unflagged, massed outside its own
+   lot. Area that *grew* is now the proof, since an inward offset can only reduce area. ⚠️ And
+   **strictly** grew — `>=` flags `setback(0)`, which is §12.6 B1's identity op and what both
+   Viennese templates use, and it silently degraded two perimeter blocks to one solid mass each
+   with every other check green.
+5. **A name is not a value.** `pf_warn_footprint_collapsed` and `pf_warn_unknown_rule` were stamped
+   on the footprint prim, and `removeprim` keeps an attribute's *definition* while dropping its
+   value — so every shipped face read 0 whatever happened upstream, and the published-names
+   baseline listed both warnings and looked correct.
+6. **A volume can vanish in silence.** `pfb_cell` refuses a non-positive height and returns; the
+   auditor measured 7 volumes built where 13 were expected with the suite green, because every
+   check reasoned about the volumes that exist. `volume_count_matches` is the one that reasons
+   about the ones that do not — and it must be told which sites are *expected* to degrade, because
+   the first version read that off the warning and so believed the code's own account of itself.
+7. **The `.geo` round trip is not lossless**, and this doc's format decision was about to be
+   ratified on that sentence. A numeric list of length 2, 3 or 4 returns as a `hou.Vector2/3/4`;
+   other lengths return a tuple. `load()` normalises it; nothing may read the raw attribute.
 
 ### 12.11 v1 acceptance
 
