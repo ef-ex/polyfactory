@@ -126,6 +126,29 @@ cycle ran `--update-baseline` and *then* read the diff to confirm it was additiv
 **verified after blessing is not verified.** The order is the control; getting away with it is not
 evidence the order does not matter.
 
+**⚠️ A THIRD SHAPE, AND IT IS A READING FAILURE RATHER THAN A CHECKING ONE — see §2b row 14.**
+The first two shapes are defects in what a check *can see*. This one is a defect in what a human or
+agent *concludes* from output that was entirely correct:
+
+> **Two real findings in one output stream, attributed to each other. Adjacency read as causation.**
+
+Both reports named the same node in the same run, so one was taken to explain the other — and the
+resulting fix named **the wrong function**. Nothing was absent, nothing was stale, no number was
+wrong. **No check can catch this**, which is exactly why it belongs beside the other two: the
+countermeasure is not a better assertion but a habit — **when two findings coincide, measure each
+independently before letting either explain the other**, and be most suspicious when they share a
+location, because a shared location is what makes the story plausible.
+
+⚠️ **Direct exposure in this project tonight:** audit reports here routinely carry 6–8 defects that
+name the same file, node or attribute. This build has already produced one instance of an
+implementer misattributing a peer's uncommitted edits to the wrong agent on exactly this reasoning.
+
+**And the observation that pairs with the meta-lesson above, from the owner of instance 29:** they
+wrote the prose rule that failed, then re-read their own milestone record for two days without
+executing it. *"The rule wasn't the control and neither was writing it down; being told it a second
+way by someone else was."* — **an independent reader is a control that self-review is not**, which
+is Rule 0's argument arriving from a second direction.
+
 ### 2b. Wrong conclusions that propagated
 
 | # | Incident | Cost |
@@ -144,6 +167,8 @@ evidence the order does not matter.
 | 11 | *(f2)* **"The mover's arrival floor parks pairs below ~17.25°, so the unbounded shallow corner is unexercised risk"** — that floor gates **the mover, not the solver**, and a parked pair reaches the solver unchanged | A live blocker shipped as "recorded, not reachable". Measured after: 6° blew the cut 123 → **1121.72 m** and deleted up to two streets |
 | 12 | *(f2)* **A parm's help text claimed 1.0 m clears the geometric floor** — true for `arterial` and narrower, false for `highway` (1.083) and `boulevard_bus_bike` (1.333). **Root cause: derived from the widest class in the TEST CORPUS, not the widest in the shipped table** | Geometry was always correct (the solver floors it regardless); the *claim* was not |
 | 13 | *(f2)* **A census updated its corpus size and not its count** — "fires on exactly one corner pair in the seventeen-case corpus" when a 17th case had made it two. **A census that names its corpus has TWO numbers to re-measure** | Caught at audit |
+
+| 14 | *(f2, self-corrected within the hour)* **TWO REAL FINDINGS IN ONE OUTPUT STREAM, ATTRIBUTED TO EACH OTHER.** A staleness report (`E_00000.trim_end 5.0000 → 12.5290`) and a residual report (**−8.672 m** on `E_00005`) both named J's node `(48, 0)` in the same run, so one was read as explaining the other. **Neither was absent, neither was stale, and both numbers were correct.** Measured per arm afterwards, the planner models the arm that *moved* to within **46 mm** — it is not ignorant of the realign at all; it under-charges the **other two** arms, which must accommodate the squared corner (−5.555 and −8.672) | **The stated fix — "teach the planner the angle changed" — was the WRONG FUNCTION.** The real fix is *charge the square corner to the arms that accommodate it* |
 
 ### 2c. Harness and infrastructure
 
