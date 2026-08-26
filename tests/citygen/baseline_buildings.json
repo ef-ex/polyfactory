@@ -1,0 +1,125 @@
+{
+ "published": {
+  "detail": [],
+  "groups": [],
+  "point": [
+   "P:Float"
+  ],
+  "prim": [
+   "pf_cap_group:Int",
+   "pf_elem_id:String",
+   "pf_face_role:String",
+   "pf_plinth_top:Float",
+   "pf_seed:Int",
+   "pf_shared_with:String",
+   "pf_site_id:Int",
+   "pf_storey_height:Float",
+   "pf_storeys:Int",
+   "pf_style_id:String",
+   "pf_style_template:String",
+   "pf_volume_id:String",
+   "pf_volume_index:Int",
+   "pf_volume_role:String",
+   "pf_wall_role:String",
+   "pf_warn_cap_group_split:Int",
+   "pf_warn_footprint_collapsed:Int",
+   "pf_warn_topology_arity:Int",
+   "pf_warn_unknown_rule:Int"
+  ],
+  "vertex": []
+ },
+ "styles": {
+  "at_einhof": {
+   "capGroups": [
+    0
+   ],
+   "faces": 18,
+   "roles": [
+    "barn",
+    "dwelling",
+    "stable"
+   ],
+   "topY": [
+    5.313
+   ],
+   "volumes": 3,
+   "wallRoles": [
+    "cap",
+    "end",
+    "exterior",
+    "floor",
+    "party"
+   ]
+  },
+  "at_vienna_perimeter": {
+   "capGroups": [
+    0,
+    1
+   ],
+   "faces": 24,
+   "roles": [
+    "hoftrakt",
+    "seitentrakt",
+    "vorderhaus"
+   ],
+   "topY": [
+    13.2,
+    18.0
+   ],
+   "volumes": 4,
+   "wallRoles": [
+    "cap",
+    "courtyard",
+    "exterior",
+    "floor",
+    "party"
+   ]
+  },
+  "at_vierkanthof": {
+   "capGroups": [
+    0
+   ],
+   "faces": 24,
+   "roles": [
+    "barn",
+    "dwelling",
+    "granary",
+    "stable"
+   ],
+   "topY": [
+    -4.727
+   ],
+   "volumes": 4,
+   "wallRoles": [
+    "cap",
+    "courtyard",
+    "exterior",
+    "floor",
+    "party"
+   ]
+  },
+  "at_zinshaus_row": {
+   "capGroups": [
+    0,
+    1
+   ],
+   "faces": 12,
+   "roles": [
+    "hoftrakt",
+    "vorderhaus"
+   ],
+   "topY": [
+    13.2,
+    18.0
+   ],
+   "volumes": 2,
+   "wallRoles": [
+    "cap",
+    "end",
+    "exterior",
+    "floor",
+    "party"
+   ]
+  }
+ }
+}

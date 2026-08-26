@@ -1,0 +1,306 @@
+// pf_mass.vfl - B2 MASS, skeleton. DETAIL wrangle: one execution over every
+// building in the stream, whatever style each of them is.
+//
+// THIS FILE IS GATE G1'S ANSWER.  §12.5 claims a style is DATA, and
+// `volumeTopology` - a graph, not a number - is the weakest point of that
+// claim.  So nothing below may name a style.  What it holds instead is a small
+// vocabulary of assembly rules, each of which must serve MORE THAN ONE style
+// or it is that style's code wearing a rule's name:
+//
+//   RAILS      two matched point chains spanning the footprint.
+//              `bar`  - the two long opposite edges of a 4-gon, sampled at the
+//                       template's cut fractions.
+//              `ring` - the footprint boundary and its courtyard inset, edge
+//                       for edge (correspondence is exact: the inset is the
+//                       SAME polygon with its points moved, by `pf_inset.vfl`).
+//   ZIP        one cell per rail interval; every cell is the quad between the
+//              two rails.  Consecutive cells share their cross face - that
+//              face IS the party wall, found by construction, not by search.
+//   PRISM      a cell extruded between two datums, with every face tagged at
+//              creation: which rail it came from, which site face role it
+//              inherits, which neighbouring volume it is shared with.
+//   PLINTH     `none`, or `levelToHighest` - floor datum at the highest ground
+//              under the cell, skirt down to the lowest.
+//
+// Roles, storey counts and cap groups are per-cell DATA read off the prim; the
+// rules never inspect them.  `pf_cap_group` is the "which functions share a
+// roof" edge of the topology graph, and a group whose members disagree on
+// eave height cannot have one roof - hence `pf_warn_cap_group_split`.
+//
+// WHAT THIS CANNOT SEE.  It builds a skeleton mass, so it says nothing about
+// facades, roofs or openings (B4/B5).  Cells are planar quads: a wing that
+// turns a corner inside one volume is not expressible, and a non-quad
+// footprint in `bar` mode degrades to ONE volume with a warning rather than
+// being cut.  Party faces of unequal-height neighbours are tagged party over
+// their whole area, including the part that is exposed above the shorter
+// neighbour - that split belongs to B6.
+
+float pfb_area(vector q[]) {
+    float a = 0.0;
+    int n = len(q);
+    for (int k = 0; k < n; k++) {
+        vector p = q[k], r = q[(k + 1) % n];
+        a += p.x * r.z - r.x * p.z;
+    }
+    return a * 0.5;
+}
+
+float pfb_ground(vector p; int have) {
+    if (!have) return 0.0;
+    vector hitp = set(0.0, 0.0, 0.0), huv = set(0.0, 0.0, 0.0);
+    if (intersect(2, p + set(0.0, 1000.0, 0.0), set(0.0, -2000.0, 0.0),
+                  hitp, huv) < 0)
+        return 0.0;
+    return hitp.y;
+}
+
+// PRISM.  Builds one volume and tags every face it makes.
+void pfb_cell(vector plan[]; string sidetag[]; string wallrole[];
+              string facerole[]; string shared[];
+              float ybase; float ytop; float plinthtop;
+              int site; int k; string role; int storeys; int capgroup;
+              float storeyheight;
+              string styleid; int seed; int capsplit; int warnarity)
+{
+    int n = len(plan);
+    if (n < 3 || ytop - ybase < 1e-6) return;
+
+    vector q[] = plan;
+    string tg[] = sidetag, wr[] = wallrole, fr[] = facerole, sh[] = shared;
+    // Canonical winding: CCW in (x,z).  ⚠️ MEASURED ON 22.0.398, NOT DERIVED:
+    // Houdini's normal for such a loop is +Y - the NEGATIVE of the ordinary
+    // right-hand cross product of its edges.  The first build of this file
+    // reasoned it out the other way and every one of its 78 faces shipped
+    // inside out, which renders and measures identically and shades as a
+    // backface.  So: the CAP is the loop as walked, the FLOOR is its reverse,
+    // and a wall built (base[j], base[j+1], top[j+1], top[j]) faces OUT.
+    if (pfb_area(q) < 0.0) {
+        vector rq[]; string rt[], rw[], rf[], rs[];
+        for (int j = 0; j < n; j++) {
+            rq[j] = q[(n - j) % n];
+            int s = (n - 1 - j) % n;        // side j of the reverse is side s
+            rt[j] = tg[s]; rw[j] = wr[s]; rf[j] = fr[s]; rs[j] = sh[s];
+        }
+        q = rq; tg = rt; wr = rw; fr = rf; sh = rs;
+    }
+
+    int base[], top[];
+    for (int j = 0; j < n; j++) {
+        base[j] = addpoint(0, set(q[j].x, ybase, q[j].z));
+        top[j]  = addpoint(0, set(q[j].x, ytop,  q[j].z));
+    }
+
+    string vid = sprintf("%d:B2:v%d", site, k);
+    int made[], nf = 0;
+    string tags[];
+
+    int pfloor = addprim(0, "poly");
+    for (int j = 0; j < n; j++) addvertex(0, pfloor, base[(n - j) % n]);
+    made[nf] = pfloor; tags[nf] = "floor"; nf++;
+
+    int pcap = addprim(0, "poly");
+    for (int j = 0; j < n; j++) addvertex(0, pcap, top[j]);
+    made[nf] = pcap; tags[nf] = "cap"; nf++;
+
+    for (int j = 0; j < n; j++) {
+        int jn = (j + 1) % n;
+        int pw = addprim(0, "poly");
+        addvertex(0, pw, base[j]);  addvertex(0, pw, base[jn]);
+        addvertex(0, pw, top[jn]);  addvertex(0, pw, top[j]);
+        made[nf] = pw; tags[nf] = tg[j]; nf++;
+    }
+
+    for (int f = 0; f < nf; f++) {
+        int p = made[f];
+        string t = tags[f];
+        int side = f - 2;
+        setprimattrib(0, "pf_site_id", p, site);
+        setprimattrib(0, "pf_style_id", p, styleid);
+        setprimattrib(0, "pf_seed", p, seed);
+        setprimattrib(0, "pf_volume_id", p, vid);
+        setprimattrib(0, "pf_volume_index", p, k);
+        setprimattrib(0, "pf_volume_role", p, role);
+        setprimattrib(0, "pf_storeys", p, storeys);
+        setprimattrib(0, "pf_storey_height", p, storeyheight);
+        setprimattrib(0, "pf_cap_group", p, capgroup);
+        setprimattrib(0, "pf_plinth_top", p, plinthtop);
+        // §12.7: a STRUCTURAL address - site, stage, volume, face slot - and
+        // never generation order, so a recook reproduces it exactly.
+        setprimattrib(0, "pf_elem_id", p, sprintf("%s:%s", vid, t));
+        setprimattrib(0, "pf_wall_role", p, side < 0 ? t : wr[side]);
+        setprimattrib(0, "pf_face_role", p, side < 0 ? "" : fr[side]);
+        setprimattrib(0, "pf_shared_with", p, side < 0 ? "" : sh[side]);
+        setprimattrib(0, "pf_warn_cap_group_split", p, capsplit);
+        setprimattrib(0, "pf_warn_topology_arity", p, warnarity);
+    }
+}
+
+// ---------------------------------------------------------------------------
+
+int haveground = npoints(2) > 0;
+int np = nprimitives(0);
+
+for (int pr = 0; pr < np; pr++) {
+    int    site     = prim(0, "pf_site_id", pr);
+    string styleid  = prim(0, "pf_style_id", pr);
+    int    seed     = prim(0, "pf_seed", pr);
+    int    rails    = prim(0, "_rails", pr);          // 0 bar, 1 ring
+    float  cuts[]   = prim(0, "_cuts", pr);
+    string roles[]  = prim(0, "_roles", pr);
+    int    storeys[]= prim(0, "_storeys", pr);
+    int    caps[]   = prim(0, "_capgroups", pr);
+    float  sheight[]= prim(0, "_storeyh", pr);   // per volume: a barn's one
+                                                 // storey is as tall as the
+                                                 // dwelling's two, or the
+                                                 // shared eave cannot exist
+    int    plinth   = prim(0, "_plinth", pr);
+    float  plinthmin= prim(0, "_plinthmin", pr);
+    int    collapsed= prim(0, "pf_warn_footprint_collapsed", pr);
+
+    int pts[] = primpoints(0, pr);
+    int n = len(pts);
+    vector fp[]; string frole[];
+    for (int j = 0; j < n; j++) {
+        fp[j] = point(0, "P", pts[j]);
+        frole[j] = vertex(0, "pf_face_role", vertexindex(0, pr, j));
+    }
+
+    // ---- RULE: rails ------------------------------------------------------
+    vector railA[], railB[];
+    string sideOuter[], sideInner[], sideStart, sideEnd;
+    int closed = 0, degraded = 0;
+
+    if (rails == 1) {                                  // ring
+        int cpr = -1;
+        for (int c = 0; c < nprimitives(1); c++)
+            if (prim(1, "pf_site_id", c) == site) { cpr = c; break; }
+        int cpts[] = cpr < 0 ? array() : primpoints(1, cpr);
+        int cbad = cpr < 0 ? 1 : prim(1, "pf_warn_footprint_collapsed", cpr);
+        if (cpr < 0 || len(cpts) != n || collapsed || cbad) {
+            degraded = 1;
+        } else {
+            closed = 1;
+            for (int j = 0; j < n; j++) {
+                railA[j] = fp[j];
+                railB[j] = point(1, "P", cpts[j]);
+                sideOuter[j] = frole[j];
+                sideInner[j] = "courtyard";
+            }
+        }
+    } else if (n == 4) {                               // bar
+        float e0 = distance(fp[0], fp[1]), e1 = distance(fp[1], fp[2]);
+        int a0, a1, b0, b1, ea, eb, es, ee;
+        if (e0 >= e1) { a0=0; a1=1; b0=3; b1=2; ea=0; eb=2; es=3; ee=1; }
+        else          { a0=1; a1=2; b0=0; b1=3; ea=1; eb=3; es=0; ee=2; }
+        float ts[] = array(0.0);
+        for (int c = 0; c < len(cuts); c++)
+            if (cuts[c] > 0.0 && cuts[c] < 1.0) append(ts, cuts[c]);
+        append(ts, 1.0);
+        for (int j = 0; j < len(ts); j++) {
+            railA[j] = lerp(fp[a0], fp[a1], ts[j]);
+            railB[j] = lerp(fp[b0], fp[b1], ts[j]);
+            sideOuter[j] = frole[ea];
+            sideInner[j] = frole[eb];
+        }
+        sideStart = frole[es];
+        sideEnd   = frole[ee];
+    } else {
+        degraded = 1;
+    }
+
+    if (degraded) {          // never refuse: one volume over the whole plan
+        closed = 1;
+        resize(railA, 0); resize(railB, 0);
+        resize(sideOuter, 0); resize(sideInner, 0);
+    }
+
+    int ncells = degraded ? 1 : (closed ? n : len(railA) - 1);
+    if (ncells < 1) continue;
+    int warnarity = (len(roles) != ncells || len(storeys) != ncells
+                     || len(caps) != ncells) ? 1 : 0;
+
+    // ---- pass 1: datums, so a cap group can be judged before anything is
+    // built.  Two volumes sharing a roof must share an eave height.
+    //
+    // PLINTH.  The floor datum is ONE level for the WHOLE BUILDING - the
+    // highest ground under any of its cells - while the skirt of each cell
+    // follows the ground down to its own lowest corner.  That is what a
+    // farmhouse plinth on a slope is, and it is also the only way three
+    // volumes can carry one continuous eave over falling ground.  Per-CELL
+    // datums were the first build's mistake: the Einhof came out stepped,
+    // three eave heights under one declared roof.
+    float ybase[], ytop[], ptop[], lo[];
+    float hiall = -1e18;
+    for (int i = 0; i < ncells; i++) {
+        int i1 = (i + 1) % max(len(railA), 1);
+        vector corner[];
+        if (degraded) corner = fp;
+        else corner = array(railA[i], railA[closed ? i1 : i + 1],
+                            railB[closed ? i1 : i + 1], railB[i]);
+        lo[i] = 1e18;
+        for (int j = 0; j < len(corner); j++) {
+            float g = pfb_ground(corner[j], haveground);
+            lo[i] = min(lo[i], g); hiall = max(hiall, g);
+        }
+    }
+    if (plinth == 0) hiall = 0.0;
+    for (int i = 0; i < ncells; i++) {
+        ptop[i] = hiall;
+        ybase[i] = (plinth == 0) ? 0.0 : lo[i] - plinthmin;
+        int st = len(storeys) ? storeys[i % len(storeys)] : 1;
+        float sh = len(sheight) ? sheight[i % len(sheight)] : 3.0;
+        ytop[i] = hiall + float(st) * sh;
+    }
+    int capsplit[];
+    for (int i = 0; i < ncells; i++) {
+        capsplit[i] = 0;
+        int gi = len(caps) ? caps[i % len(caps)] : 0;
+        for (int j = 0; j < ncells; j++) {
+            int gj = len(caps) ? caps[j % len(caps)] : 0;
+            if (gi == gj && abs(ytop[i] - ytop[j]) > 1e-4) capsplit[i] = 1;
+        }
+    }
+
+    // ---- pass 2: RULE zip + RULE prism ------------------------------------
+    for (int i = 0; i < ncells; i++) {
+        int i1 = (i + 1) % max(len(railA), 1);
+        vector corner[]; string tag[], wall[], face[], shared[];
+        if (degraded) {
+            corner = fp;
+            for (int j = 0; j < len(fp); j++) {
+                tag[j] = sprintf("s%d", j);
+                wall[j] = "exterior"; face[j] = frole[j]; shared[j] = "";
+            }
+        } else {
+            int nx = closed ? i1 : i + 1;
+            corner = array(railA[i], railA[nx], railB[nx], railB[i]);
+            int prev = (i - 1 + ncells) % ncells, next = (i + 1) % ncells;
+            int haveprev = closed || i > 0, havenext = closed || i < ncells - 1;
+            tag  = array("outer", "crossB", "inner", "crossA");
+            wall = array("exterior",
+                         havenext ? "party" : "end",
+                         closed ? "courtyard" : "exterior",
+                         haveprev ? "party" : "end");
+            face = array(sideOuter[i],
+                         havenext ? "" : sideEnd,
+                         closed ? "" : sideInner[i],
+                         haveprev ? "" : sideStart);
+            shared = array("",
+                           havenext ? sprintf("%d:B2:v%d", site, next) : "",
+                           "",
+                           haveprev ? sprintf("%d:B2:v%d", site, prev) : "");
+        }
+        pfb_cell(corner, tag, wall, face, shared, ybase[i], ytop[i], ptop[i],
+                 site, i,
+                 len(roles) ? roles[i % len(roles)] : "volume",
+                 len(storeys) ? storeys[i % len(storeys)] : 1,
+                 len(caps) ? caps[i % len(caps)] : 0,
+                 len(sheight) ? sheight[i % len(sheight)] : 3.0,
+                 styleid, seed, capsplit[i], warnarity);
+        setdetailattrib(0, "_built", 1, "add");
+    }
+}
+
+// The footprints were the input, not the output.  Descending, so the new
+// prims keep their numbers.
+for (int pr = np - 1; pr >= 0; pr--) removeprim(0, pr, 1);

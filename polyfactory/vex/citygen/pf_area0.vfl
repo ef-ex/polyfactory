@@ -1,0 +1,12 @@
+// pf_area0.vfl - PRIM wrangle. Signed area of the loop in (x,z).
+// Its SIGN is the winding that `pf_inset.vfl` needs to know which side is
+// inside; its MAGNITUDE is what a collapse is measured against. `_` because
+// it is scaffolding and is swept before the output (conventions.md §2).
+int pts[] = primpoints(0, @primnum);
+float a = 0.0;
+for (int k = 0; k < len(pts); k++) {
+    vector p = point(0, "P", pts[k]);
+    vector r = point(0, "P", pts[(k + 1) % len(pts)]);
+    a += p.x * r.z - r.x * p.z;
+}
+f@_area0 = a * 0.5;

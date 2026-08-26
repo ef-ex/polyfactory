@@ -1,0 +1,6 @@
+// pf_yard_inset.vfl - VERTEX wrangle. Re-arms `_inset` for the courtyard
+// pass: the same inset rule, now with ONE depth on every edge instead of a
+// per-role table. A `bar` template leaves `_courtyard` at 0, so this branch
+// returns its footprint unchanged and `pf_mass.vfl` never reads it - which is
+// why there is no per-style branch in the network.
+f@_inset = prim(0, "_courtyard", @primnum);

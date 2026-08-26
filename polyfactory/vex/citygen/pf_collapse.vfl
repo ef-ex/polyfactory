@@ -1,0 +1,21 @@
+// pf_collapse.vfl - PRIM wrangle, immediately after an inset.
+//
+// An inset polygon whose signed area FLIPPED or vanished has folded through
+// itself: the setback was deeper than the lot, or the courtyard tract deeper
+// than half the block. §2.2 says advisory, never a wall - so this records the
+// fact on the prim and lets B2 degrade to one solid volume, which is what a
+// building on a lot too small for its courtyard actually is.
+//
+// It also refreshes `_area0` in place, because the courtyard pass insets this
+// same polygon again and needs the CURRENT winding, not the lot's.
+int pts[] = primpoints(0, @primnum);
+float a = 0.0;
+for (int k = 0; k < len(pts); k++) {
+    vector p = point(0, "P", pts[k]);
+    vector r = point(0, "P", pts[(k + 1) % len(pts)]);
+    a += p.x * r.z - r.x * p.z;
+}
+a *= 0.5;
+float was = f@_area0;
+i@pf_warn_footprint_collapsed = (a * was <= 0.0 || abs(a) < 1e-4) ? 1 : 0;
+f@_area0 = a;

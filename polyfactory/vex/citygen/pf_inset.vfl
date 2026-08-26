@@ -1,0 +1,57 @@
+// pf_inset.vfl - POINT wrangle. ONE RULE, USED BY EVERY TEMPLATE, TWICE EACH.
+//
+// Moves every boundary corner inward so that each EDGE sits `_inset` metres
+// inside the edge it came from: the offset lines of the two edges meeting at a
+// corner, intersected. Used for
+//   * B1 `lotToFootprint: setback`   - `_inset` = the per-role setback, and
+//   * B2 `volumeTopology: ring`      - `_inset` = the courtyard tract depth.
+// One VEX file serves both because both are the same operation with different
+// data, which is the whole claim gate G1 exists to test.
+//
+// WHY NOT `polyexpand2d`, WHICH IS NATIVE AND DOES OFFSETS.  Measured on
+// 22.0.398, not recalled: its per-edge Inside Scale treats a NON-POSITIVE
+// value as 1, so a 0.0 m setback silently becomes a 1 m one - and
+// `setback(0)` on the street edge is exactly what the Viennese perimeter block
+// is.  It is otherwise the better offsetter (straight skeleton, survives
+// non-convex input, and its Edge Distance Attribute is a real head start for
+// B5's roofs), so B1 should revisit it for the non-zero cases.
+//
+// WHAT THIS CANNOT SEE.  A non-convex footprint whose inset self-intersects:
+// the corners still solve, the polygon folds through itself, and only
+// `_area0`'s sign change downstream reports it (`pf_warn_footprint_collapsed`).
+// It also assumes one prim per point - lots are separate loops, not a shared
+// planar graph.
+
+int pr = pointprims(0, @ptnum)[0];
+int pts[] = primpoints(0, pr);
+int n = len(pts);
+int i = find(pts, @ptnum);
+if (n < 3 || i < 0) return;
+
+int im = (i + n - 1) % n;
+int ip = (i + 1) % n;
+vector pm = point(0, "P", pts[im]);
+vector p0 = point(0, "P", pts[i]);
+vector pp = point(0, "P", pts[ip]);
+
+// Interior lies to the LEFT of each directed edge when the loop is CCW in
+// (x,z); `_area0` carries that sign, computed once per prim upstream.
+float sgn = (prim(0, "_area0", pr) > 0.0) ? 1.0 : -1.0;
+vector d0 = p0 - pm, d1 = pp - p0;
+vector n0 = normalize(set(-d0.z, 0.0, d0.x)) * sgn;
+vector n1 = normalize(set(-d1.z, 0.0, d1.x)) * sgn;
+
+// `_inset` is a VERTEX attribute: it belongs to the EDGE that starts at that
+// vertex, which is the only class that can hold a different value per edge.
+float s0 = vertex(0, "_inset", vertexindex(0, pr, im));
+float s1 = vertex(0, "_inset", vertexindex(0, pr, i));
+
+float c0 = dot(p0, n0) + s0;
+float c1 = dot(p0, n1) + s1;
+float det = n0.x * n1.z - n0.z * n1.x;
+if (abs(det) < 1e-6) {          // collinear edges: no corner to solve
+    @P = p0 + n0 * s0;
+} else {
+    @P = set((c0 * n1.z - c1 * n0.z) / det, p0.y,
+             (n0.x * c1 - n1.x * c0) / det);
+}
