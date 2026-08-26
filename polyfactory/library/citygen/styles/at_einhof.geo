@@ -7,7 +7,7 @@
 	"info",{
 		"artist":"hannes",
 		"software":"Houdini 22.0.398",
-		"date":"2026-08-26 21:31:20",
+		"date":"2026-08-26 21:44:28",
 		"hostname":"DESKTOP-FRCBA3E",
 		"bounds":[1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38],
 		"attribute_summary":"     1 point attributes:\tP\n     1 global attributes:\tpf_style_template\n"
@@ -84,7 +84,7 @@
 								"value":{
 									"defaultSetbackM":{
 										"type":"float",
-										"value":3
+										"value":2.5
 									},
 									"op":{
 										"type":"string",
@@ -95,19 +95,15 @@
 										"value":{
 											"front":{
 												"type":"float",
-												"value":8
+												"value":2
 											},
 											"interiorSide":{
 												"type":"float",
-												"value":3
+												"value":2.5
 											},
 											"rear":{
 												"type":"float",
-												"value":12
-											},
-											"sideStreet":{
-												"type":"float",
-												"value":3
+												"value":43
 											}
 										}
 									}
@@ -115,11 +111,17 @@
 							},
 							"sources":{
 								"type":"stringarray",
-								"value":["https://de.wikipedia.org/wiki/Einhof","https://de.wikipedia.org/wiki/Streckhof"]
+								"value":["TYPE: Streckhof, Nordburgenland. Wohnhaus -> Stall -> Scheune in one line, gable to the street. BauNetz Wissen, Wohnhaus Streckhof in Weingraben - https://www.baunetzwissen.de/geneigtes-dach/objekte/wohnen/wohnhaus-streckhof-in-weingraben-6461652",
+									"footprint width 5.0 m: SOURCED, stated twice independently - 'Die Haeuser sind 20 Meter lang und 5 Meter breit, das ist sozusagen der Standard'. Zsabetich, Streckhoefe des Nordburgenlandes, TU Wien 2019 - https://repositum.tuwien.at/bitstream/20.500.12708/10488/2/Zsabetich%20Julia%20-%202019%20-%20Streckhoefe%20des%20Nordburgenlandes%20eine%20gefaehrdete...pdf",
+									"dwelling length 20 m of a 45 m bar (cut 0.444): SOURCED for the 20 m; the same sentence continues '...und dann reihen sich aussen die Neben- und Wirtschaftsraeume hinten an', so 20 m is the WOHNTEIL, not the whole hof. Zsabetich, Streckhoefe des Nordburgenlandes, TU Wien 2019 - https://repositum.tuwien.at/bitstream/20.500.12708/10488/2/Zsabetich%20Julia%20-%202019%20-%20Streckhoefe%20des%20Nordburgenlandes%20eine%20gefaehrdete...pdf",
+									"second cut 0.722 (stable vs barn): UNSOURCED. No ratio between Stall and Scheune was found in any source; a claimed 1.5-1.6x was traced to the pages it was attributed to and is not there. Split evenly, pending evidence.",
+									"storeys 1 (ebenerdig): SOURCED as the original form - upper floors are documented post-war additions. Zsabetich, Streckhoefe des Nordburgenlandes, TU Wien 2019 - https://repositum.tuwien.at/bitstream/20.500.12708/10488/2/Zsabetich%20Julia%20-%202019%20-%20Streckhoefe%20des%20Nordburgenlandes%20eine%20gefaehrdete...pdf",
+									"storeyHeightM 3.0: UNSOURCED. No Burgenland vernacular room height was found; modern Austrian code minima (2.50 m) must not be backdated.","roof Satteldach, gable to the street, pitch 45 deg: TYPE sourced ('Satteldach mit zur Strasse orientiertem Giebel'); the ANGLE is not sourced for this type. 45 deg is the Regeldachneigung for thatch, which constrains the straw-roofed originals, and is used here as a flagged proxy. Zsabetich, Streckhoefe des Nordburgenlandes, TU Wien 2019 - https://repositum.tuwien.at/bitstream/20.500.12708/10488/2/Zsabetich%20Julia%20-%202019%20-%20Streckhoefe%20des%20Nordburgenlandes%20eine%20gefaehrdete...pdf",
+									"plinth minM 0.4: UNSOURCED. Nothing dimensional about Sockel or building on slopes was found; the RULE is kept because slope adaptation is a \u00a712.6 B2 requirement, the NUMBER is a placeholder the cascade overrides."]
 							},
 							"storeyHeightM":{
 								"type":"float",
-								"value":2.5
+								"value":3
 							},
 							"styleId":{
 								"type":"string",
@@ -138,7 +140,7 @@
 									},
 									"cutsAt":{
 										"type":"vector2",
-										"value":[0.419999999999999984,0.660000000000000031]
+										"value":[0.444000000000000006,0.721999999999999975]
 									},
 									"plinth":{
 										"type":"dict",
@@ -171,7 +173,7 @@
 												},
 												"storeys":{
 													"type":"int",
-													"value":2
+													"value":1
 												}
 											},
 											{
@@ -182,10 +184,6 @@
 												"role":{
 													"type":"string",
 													"value":"stable"
-												},
-												"storeyHeightM":{
-													"type":"float",
-													"value":5
 												},
 												"storeys":{
 													"type":"int",
@@ -200,10 +198,6 @@
 												"role":{
 													"type":"string",
 													"value":"barn"
-												},
-												"storeyHeightM":{
-													"type":"float",
-													"value":5
 												},
 												"storeys":{
 													"type":"int",

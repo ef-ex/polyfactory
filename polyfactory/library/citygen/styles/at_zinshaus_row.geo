@@ -7,7 +7,7 @@
 	"info",{
 		"artist":"hannes",
 		"software":"Houdini 22.0.398",
-		"date":"2026-08-26 21:31:20",
+		"date":"2026-08-26 21:44:28",
 		"hostname":"DESKTOP-FRCBA3E",
 		"bounds":[1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38],
 		"attribute_summary":"     1 point attributes:\tP\n     1 global attributes:\tpf_style_template\n"
@@ -65,13 +65,17 @@
 							"capFamily":{
 								"type":"dict",
 								"value":{
-									"family":{
-										"type":"string",
-										"value":"parapet"
-									},
-									"parapetM":{
+									"corniceM":{
 										"type":"float",
 										"value":0.900000000000000022
+									},
+									"family":{
+										"type":"string",
+										"value":"skeletonRoof"
+									},
+									"pitchDeg":{
+										"type":"float",
+										"value":30
 									}
 								}
 							},
@@ -107,11 +111,16 @@
 							},
 							"sources":{
 								"type":"stringarray",
-								"value":["https://de.wikipedia.org/wiki/Wiener_Zinshaus","https://de.wikipedia.org/wiki/Gr%C3%BCnderzeit"]
+								"value":["TYPE: Gruenderzeit Zinshaus on a mid-block plot, street tract plus a lower commercial rear tract, no courtyard.","Parzellenbreite 15-20 m: SOURCED, so the 17 m fixture lot sits inside it. OEAW, Gruenderzeitliche Wohnhaustypen Wiens - https://epub.oeaw.ac.at/0xc1aa5576_0x003df00e.pdf",
+									"Vorderhaus depth 12 m (cut 0.462 of a 26 m plot): SOURCED, the Wiener Dachstuhl span again. Fierro, Ganzheitliche Modernisierung von Gruenderzeitbauten, TU Wien 2023 (Wiener Dachstuhl span and pitch) - https://repositum.tuwien.at/bitstream/20.500.12708/176593/1/Fierro%20Alan%20Andres%20-%202023%20-%20Ganzheitliche%20Modernisierung%20von%20Gruenderzeitbauten...pdf",
+									"5 storeys, 3.5 m: SOURCED as above (1883 \u00a742; Raumhoehe band). Braun, Souterrain Hochparterre - Die Halbgeschosse der Wiener Gruenderzeit, TU Wien 2024 (quotes Bauordnung fuer Wien 1883 \u00a742 and 1829 \u00a723) - https://repositum.tuwien.at/bitstream/20.500.12708/196379/1/Braun%20Andrea%20-%202024%20-%20Souterrain%20Hochparterre%20-%20Die%20Halbgeschosse%20der...pdf",
+									"rear tract LOWER: SOURCED only qualitatively - 'meist niedrigere Hofbebauungen, in der Regel fuer die gewerbliche Nutzung'. The 3 storeys is UNSOURCED; no storey differential was found in metres or counts. OEAW, Gruenderzeitliche Wohnhaustypen Wiens - https://epub.oeaw.ac.at/0xc1aa5576_0x003df00e.pdf",
+									"setback 0 on the street and on both party edges: SOURCED. Braun, Souterrain Hochparterre - Die Halbgeschosse der Wiener Gruenderzeit, TU Wien 2024 (quotes Bauordnung fuer Wien 1883 \u00a742 and 1829 \u00a723) - https://repositum.tuwien.at/bitstream/20.500.12708/196379/1/Braun%20Andrea%20-%202024%20-%20Souterrain%20Hochparterre%20-%20Die%20Halbgeschosse%20der...pdf",
+									"\u26a0\ufe0f The side walls are the party walls to the NEIGHBOURING BUILDINGS (Feuermauern). B2 emits them as exterior walls carrying the site role `abuts`; building-to-building junctions are deferred to v2 by \u00a712.1 and are B6's to resolve."]
 							},
 							"storeyHeightM":{
 								"type":"float",
-								"value":3.29999999999999982
+								"value":3.5
 							},
 							"styleId":{
 								"type":"string",
@@ -130,7 +139,7 @@
 									},
 									"cutsAt":{
 										"type":"floatarray",
-										"value":[0.550000000000000044]
+										"value":[0.462000000000000022]
 									},
 									"plinth":{
 										"type":"dict",
@@ -161,10 +170,6 @@
 													"type":"string",
 													"value":"vorderhaus"
 												},
-												"storeyHeightM":{
-													"type":"float",
-													"value":3.60000000000000009
-												},
 												"storeys":{
 													"type":"int",
 													"value":5
@@ -177,11 +182,11 @@
 												},
 												"role":{
 													"type":"string",
-													"value":"hoftrakt"
+													"value":"gewerbeHoftrakt"
 												},
 												"storeys":{
 													"type":"int",
-													"value":4
+													"value":3
 												}
 											}
 										]

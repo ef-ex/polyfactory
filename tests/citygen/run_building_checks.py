@@ -55,14 +55,22 @@ IMAGES = os.path.join(HERE, "gate_images_buildings")
 
 # site, style, (x, z) origin, (x, z) size, per-edge site roles walking
 # (x0,z0) -> (x1,z0) -> (x1,z1) -> (x0,z1)
+# The LOT sizes are fixture data, not template data - a lot comes from streets
+# S8, never from a style. Each is chosen to sit inside a sourced range where
+# one exists: the Anbauhof parcel 8-10 x 80-100 m; the Gruenderzeit
+# Parzellenbreite 15-20 m; a Vierkanter front of 30-60 m enclosing the measured
+# 54 x 30 m example. The Viennese block size is deliberately NOT taken from
+# search - no metre figure could be sourced - so 60 x 48 m is stated as
+# illustrative, chosen so the 12 m tracts leave a courtyard well over the 15 %
+# the 1883 Bauordnung §42 required.
 LOTS = [
-    (1, "at_einhof", (0.0, 0.0), (46.0, 30.0),
+    (1, "at_einhof", (0.0, 0.0), (10.0, 90.0),
      ["front", "interiorSide", "rear", "interiorSide"]),
-    (2, "at_vienna_perimeter", (80.0, 0.0), (62.0, 44.0),
+    (2, "at_vienna_perimeter", (30.0, 0.0), (60.0, 48.0),
      ["front", "sideStreet", "sideStreet", "sideStreet"]),
-    (3, "at_vierkanthof", (170.0, 0.0), (48.0, 48.0),
+    (3, "at_vierkanthof", (110.0, 0.0), (62.0, 38.0),
      ["front", "interiorSide", "rear", "interiorSide"]),
-    (4, "at_zinshaus_row", (240.0, 0.0), (17.0, 36.0),
+    (4, "at_zinshaus_row", (190.0, 0.0), (17.0, 26.0),
      ["front", "abuts", "rear", "abuts"]),
 ]
 STYLES = [lot[1] for lot in LOTS]
@@ -107,19 +115,21 @@ def scene(parent, lots=None):
 
     grid = parent.createNode("grid", "ground")
     grid.parm("orient").set(2)              # zx: lies in the XZ plane
-    grid.parm("sizex").set(420.0)
-    grid.parm("sizey").set(200.0)
-    grid.parm("tx").set(130.0)
-    grid.parm("tz").set(25.0)
+    grid.parm("sizex").set(300.0)
+    grid.parm("sizey").set(180.0)
+    grid.parm("tx").set(105.0)
+    grid.parm("tz").set(45.0)
     grid.parm("rows").set(90)
-    grid.parm("cols").set(180)
+    grid.parm("cols").set(150)
     slope = parent.createNode("attribwrangle", "slope")
     slope.setFirstInput(grid)
     slope.parm("class").set(2)
-    # A steady fall across the Einhof lot plus a gentle roll, so the plinth
-    # rule has something to adapt to and every cell sees a different datum.
+    # Falls in both directions plus a gentle roll: the Einhof bar runs 45 m
+    # along Z, so the plinth rule needs the ground to move along Z as well or
+    # every cell of it sees the same datum and the check has nothing to see.
     slope.parm("snippet").set(
-        "@P.y = @P.x * -0.06 + sin(@P.x * 0.11) * 0.6 + cos(@P.z * 0.09) * 0.4;")
+        "@P.y = @P.x * -0.03 + @P.z * -0.05 + sin(@P.x * 0.11) * 0.6"
+        " + cos(@P.z * 0.07) * 0.5;")
     return src, B.build(parent, src, ground=slope)
 
 
@@ -175,6 +185,10 @@ MUTATIONS = [
     ("single_roof", "einhof volume 1 leaves the shared cap group",
      lambda: patch_template(lambda s, t: s == "at_einhof"
                             and _volume(t, 1, "capGroup", 9))),
+    ("single_roof_ring", "a Vierkanthof farm wing loses its double height, so "
+     "the level ridge steps",
+     lambda: patch_template(lambda s, t: s == "at_vierkanthof"
+                            and _volume(t, 1, "storeyHeightM", 4.0))),
     ("encloses_courtyard", "the perimeter block's courtyard depth -> 0",
      lambda: patch_template(
          lambda s, t: s == "at_vienna_perimeter"
@@ -224,6 +238,12 @@ def run_checks(out, mirror, templates, sources):
     by_id = dict((t["styleId"], t) for t in templates)
     return [
         C.single_roof(geo, "at_einhof"),
+        # The Vierkanthof is the harder half of the same claim, and it is a
+        # SOURCED fact rather than a convenience: "Dachfirst auf allen vier
+        # Seiten gleich hoch". Its dwelling is two storeys and its three farm
+        # wings are one, so the ridge is only level because a volume carries
+        # its OWN storey height - the mechanism nothing else here exercises.
+        C.single_roof(geo, "at_vierkanthof", 4, name="single_roof_ring"),
         C.encloses_courtyard(geo, "at_vienna_perimeter"),
         C.rules_serve_more_than_one_style(templates),
         C.no_style_names_in_code(sources, STYLES),
@@ -318,8 +338,10 @@ def images(out, outdir):
         kill = [p for p in keep.prims()
                 if p.attribValue("pf_style_id") != style]
         keep.deletePrims(kill, True)
-        for axes, tag in (("iso", "iso"), (("x", "z"), "plan")):
-            G.rasterise(os.path.join(outdir, "g1_%s_%s.png" % (style, tag)),
+        for axes in ("iso", ("x", "z")):
+            G.rasterise(os.path.join(outdir, "g1_%s_%s.png"
+                                     % (style, "iso" if axes == "iso"
+                                        else "plan")),
                         keep, axes=axes, w=1000, h=700, colour_of=colour_of)
 
 

@@ -7,7 +7,7 @@
 	"info",{
 		"artist":"hannes",
 		"software":"Houdini 22.0.398",
-		"date":"2026-08-26 21:31:20",
+		"date":"2026-08-26 21:44:28",
 		"hostname":"DESKTOP-FRCBA3E",
 		"bounds":[1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38],
 		"attribute_summary":"     1 point attributes:\tP\n     1 global attributes:\tpf_style_template\n"
@@ -95,7 +95,7 @@
 										"value":{
 											"front":{
 												"type":"float",
-												"value":6
+												"value":4
 											},
 											"interiorSide":{
 												"type":"float",
@@ -103,7 +103,7 @@
 											},
 											"rear":{
 												"type":"float",
-												"value":6
+												"value":4
 											}
 										}
 									}
@@ -111,7 +111,12 @@
 							},
 							"sources":{
 								"type":"stringarray",
-								"value":["https://de.wikipedia.org/wiki/Vierkanthof"]
+								"value":["TYPE: Vierkanthof, Traun-/Mostviertel OOe. Built ring around a closed courtyard. Wikipedia Vierkanthof - https://de.wikipedia.org/wiki/Vierkanthof","outer 54 x 30 m and Innenhof 450 m2: SOURCED from a measured example, Vierkanter 'Mayr auf der Wim', Garsten. Vierkanter 'Mayr auf der Wim', Garsten OOe, measured - https://www.nextroom.at/article.php?id=42271",
+									"courtyardDepthM 9.0: DERIVED, NOT MEASURED, and the sources conflict. A uniform 9 m ring on 54 x 30 leaves 36 x 12 = 432 m2, close to the stated 450; but the same articles also call the atrium '30 x 15 m', which needs a NON-uniform ring. The uniform reading is preferred because the ridge height is equal on all four sides, and unequal tract depths under one ridge force a different pitch per side. Vierkanter 'Mayr auf der Wim', Garsten OOe, measured - https://www.nextroom.at/article.php?id=42271",
+									"fronts 30-60 m, mittlere Hoefe ~40 m: SOURCED. Forum OOe Geschichte, Die Vierkanter - https://www.ooegeschichte.at/archiv/themen/wir-oberoesterreicher/die-vierkanter","2 storeys: SOURCED - 'meist 2 Stockwerke, seltener 1'. Wikipedia Vierkanthof - https://de.wikipedia.org/wiki/Vierkanthof",
+									"ONE cap group over all four wings: SOURCED, and it is the fact this whole cap-group mechanism exists for - 'Dachfirst auf allen vier Seiten gleich hoch'. Austria-Forum, Vierkanthof - https://austria-forum.org/af/AustriaWiki/Vierkanthof",
+									"the farm wings single-storey at 5.2 m so the ridge stays level: DERIVED from that equal-ridge fact plus the 2-storey dwelling. The 2.6 m dwelling storey height itself is UNSOURCED.","wing order - Wohntrakt at the front, Stall to one side, Scheune opposite the Wohntrakt with a central Tenne, Wagenschuppen beside: SOURCED. Volkskundemuseum Wien, Vierkanthof model OEMV/41080 - https://www.volkskundemuseum.at/onlinesammlungen/oemv41080",
+									"plinth minM 0.4: UNSOURCED, same as the Einhof."]
 							},
 							"storeyHeightM":{
 								"type":"float",
@@ -130,7 +135,7 @@
 								"value":{
 									"courtyardDepthM":{
 										"type":"float",
-										"value":12
+										"value":9
 									},
 									"cutsAt":{
 										"type":"intarray",
@@ -213,11 +218,15 @@
 												},
 												"role":{
 													"type":"string",
-													"value":"granary"
+													"value":"cartShed"
+												},
+												"storeyHeightM":{
+													"type":"float",
+													"value":5.20000000000000018
 												},
 												"storeys":{
 													"type":"int",
-													"value":2
+													"value":1
 												}
 											}
 										]

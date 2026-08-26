@@ -7,7 +7,7 @@
 	"info",{
 		"artist":"hannes",
 		"software":"Houdini 22.0.398",
-		"date":"2026-08-26 21:31:20",
+		"date":"2026-08-26 21:44:28",
 		"hostname":"DESKTOP-FRCBA3E",
 		"bounds":[1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38,1.70141173e+38,-1.70141173e+38],
 		"attribute_summary":"     1 point attributes:\tP\n     1 global attributes:\tpf_style_template\n"
@@ -65,13 +65,17 @@
 							"capFamily":{
 								"type":"dict",
 								"value":{
-									"family":{
-										"type":"string",
-										"value":"parapet"
-									},
-									"parapetM":{
+									"corniceM":{
 										"type":"float",
 										"value":0.900000000000000022
+									},
+									"family":{
+										"type":"string",
+										"value":"skeletonRoof"
+									},
+									"pitchDeg":{
+										"type":"float",
+										"value":30
 									}
 								}
 							},
@@ -107,11 +111,16 @@
 							},
 							"sources":{
 								"type":"stringarray",
-								"value":["https://de.wikipedia.org/wiki/Wiener_Zinshaus","https://de.wikipedia.org/wiki/Gr%C3%BCnderzeit"]
+								"value":["TYPE: Gruenderzeit Blockrandbebauung inside the Guertel.","storeys 5 including the ground floor: SOURCED, and the counting convention with it - Bauordnung fuer Wien 1883 \u00a742, 'Wohnhaeuser duerfen nicht mehr als fuenf Geschosse erhalten, wobei Erdgeschoss und allfaelliges Mezzanin einzurechnen sind'. Braun, Souterrain Hochparterre - Die Halbgeschosse der Wiener Gruenderzeit, TU Wien 2024 (quotes Bauordnung fuer Wien 1883 \u00a742 and 1829 \u00a723) - https://repositum.tuwien.at/bitstream/20.500.12708/196379/1/Braun%20Andrea%20-%202024%20-%20Souterrain%20Hochparterre%20-%20Die%20Halbgeschosse%20der...pdf",
+									"storeyHeightM 3.5: SOURCED as a band, not a value - Raumhoehe 3.2-4.0 m, 'in der Erdgeschosszone oft auch darueber'. The ground floor being TALLER is documented and is NOT expressible here: B2 gives a volume one height, and per-storey splits are B3's. OEAW, Gruenderzeitliche Wohnhaustypen Wiens - https://epub.oeaw.ac.at/0xc1aa5576_0x003df00e.pdf",
+									"courtyardDepthM 12.0 (tract depth): SOURCED - the span of the 'Wiener Dachstuhl', ~12 m, caption 10-14 m, which is the same 12 m read as two ~6 m timber-spanned bays either side of a load-bearing Mittelmauer. Fierro, Ganzheitliche Modernisierung von Gruenderzeitbauten, TU Wien 2023 (Wiener Dachstuhl span and pitch) - https://repositum.tuwien.at/bitstream/20.500.12708/176593/1/Fierro%20Alan%20Andres%20-%202023%20-%20Ganzheitliche%20Modernisierung%20von%20Gruenderzeitbauten...pdf",
+									"the courtyard wings at the SAME depth and height as the street wing: DERIVED, not sourced. Seitentrakt/Hoftrakt depth was not found. The residential Hoftrakt is documented as a full-height part of the same Wohnhaus; it is the ANCILLARY and COMMERCIAL courtyard buildings that are 'meist niedriger'. So no storey differential is committed here. OEAW, Gruenderzeitliche Wohnhaustypen Wiens - https://epub.oeaw.ac.at/0xc1aa5576_0x003df00e.pdf",
+									"setback 0 on every street edge: SOURCED and strong - 'standen die Gebaeude direkt an der Grundstuecksgrenze'; permitted projections past the Baulinie were 10-23 cm. Vorgarten exceptions (Cottageviertel, 1873 servitude) are a different template. Braun, Souterrain Hochparterre - Die Halbgeschosse der Wiener Gruenderzeit, TU Wien 2024 (quotes Bauordnung fuer Wien 1883 \u00a742 and 1829 \u00a723) - https://repositum.tuwien.at/bitstream/20.500.12708/196379/1/Braun%20Andrea%20-%202024%20-%20Souterrain%20Hochparterre%20-%20Die%20Halbgeschosse%20der...pdf",
+									"roof pitch 30 deg behind a Kranzgesims: SOURCED as a band - Wiener Dachstuhl 25-45 deg over a ~12 m span, facade terminating in a Kranzgesims with the roof rising behind it. \u26a0\ufe0f The 45 deg envelope often quoted is CURRENT Bauordnung \u00a781, not Gruenderzeit law. Fierro, Ganzheitliche Modernisierung von Gruenderzeitbauten, TU Wien 2023 (Wiener Dachstuhl span and pitch) - https://repositum.tuwien.at/bitstream/20.500.12708/176593/1/Fierro%20Alan%20Andres%20-%202023%20-%20Ganzheitliche%20Modernisierung%20von%20Gruenderzeitbauten...pdf"]
 							},
 							"storeyHeightM":{
 								"type":"float",
-								"value":3.29999999999999982
+								"value":3.5
 							},
 							"styleId":{
 								"type":"string",
@@ -126,7 +135,7 @@
 								"value":{
 									"courtyardDepthM":{
 										"type":"float",
-										"value":14
+										"value":12
 									},
 									"cutsAt":{
 										"type":"intarray",
@@ -161,9 +170,19 @@
 													"type":"string",
 													"value":"vorderhaus"
 												},
-												"storeyHeightM":{
-													"type":"float",
-													"value":3.60000000000000009
+												"storeys":{
+													"type":"int",
+													"value":5
+												}
+											},
+											{
+												"capGroup":{
+													"type":"int",
+													"value":0
+												},
+												"role":{
+													"type":"string",
+													"value":"seitentrakt"
 												},
 												"storeys":{
 													"type":"int",
@@ -173,21 +192,7 @@
 											{
 												"capGroup":{
 													"type":"int",
-													"value":1
-												},
-												"role":{
-													"type":"string",
-													"value":"seitentrakt"
-												},
-												"storeys":{
-													"type":"int",
-													"value":4
-												}
-											},
-											{
-												"capGroup":{
-													"type":"int",
-													"value":1
+													"value":0
 												},
 												"role":{
 													"type":"string",
@@ -195,13 +200,13 @@
 												},
 												"storeys":{
 													"type":"int",
-													"value":4
+													"value":5
 												}
 											},
 											{
 												"capGroup":{
 													"type":"int",
-													"value":1
+													"value":0
 												},
 												"role":{
 													"type":"string",
@@ -209,7 +214,7 @@
 												},
 												"storeys":{
 													"type":"int",
-													"value":4
+													"value":5
 												}
 											}
 										]

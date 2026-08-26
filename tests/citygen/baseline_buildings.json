@@ -40,7 +40,7 @@
     "stable"
    ],
    "topY": [
-    5.313
+    3.609
    ],
    "volumes": 3,
    "wallRoles": [
@@ -53,8 +53,7 @@
   },
   "at_vienna_perimeter": {
    "capGroups": [
-    0,
-    1
+    0
    ],
    "faces": 24,
    "roles": [
@@ -63,8 +62,7 @@
     "vorderhaus"
    ],
    "topY": [
-    13.2,
-    18.0
+    17.5
    ],
    "volumes": 4,
    "wallRoles": [
@@ -82,12 +80,12 @@
    "faces": 24,
    "roles": [
     "barn",
+    "cartShed",
     "dwelling",
-    "granary",
     "stable"
    ],
    "topY": [
-    -4.727
+    2.044
    ],
    "volumes": 4,
    "wallRoles": [
@@ -105,12 +103,12 @@
    ],
    "faces": 12,
    "roles": [
-    "hoftrakt",
+    "gewerbeHoftrakt",
     "vorderhaus"
    ],
    "topY": [
-    13.2,
-    18.0
+    10.5,
+    17.5
    ],
    "volumes": 2,
    "wallRoles": [

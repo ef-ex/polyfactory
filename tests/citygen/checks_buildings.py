@@ -77,11 +77,6 @@ def volumes(geo, style=None):
     return by
 
 
-def _key(pts):
-    """A face's position, order-independent and winding-independent."""
-    return tuple(sorted(tuple(round(c, 3) for c in p) for p in pts))
-
-
 def _plan_key(pts):
     """A face's footprint in (x,z), ignoring Y.
 
