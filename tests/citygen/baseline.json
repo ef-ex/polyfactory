@@ -16262,7 +16262,7 @@
       "name": "selfx_city_merged",
       "ok": false,
       "skipped": false,
-      "value": 19
+      "value": 9
     },
     {
       "detail": "area inside the corridor that no road, junction or lot covers (>= 4 m2 each, 40 m2 allowed in total)",
@@ -17177,7 +17177,7 @@
     {
       "detail": "6 corners, 4 arcs fitted; 3 join two street classes, where the lesser one sets the radius (S5); 4 cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles",
       "name": "every_corner_is_an_arc",
-      "ok": false,
+      "ok": true,
       "skipped": false,
       "value": {
         "culdesac_skipped": 4,
@@ -17186,7 +17186,7 @@
         "radius": 0.0,
         "radius_fit": 0.005,
         "straight": 0,
-        "tangent": 3.1728578,
+        "tangent": 2.5e-05,
         "unfitted": 0
       }
     },
@@ -17195,7 +17195,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "107/107"
+      "value": "108/108"
     },
     {
       "detail": "",
@@ -17207,9 +17207,9 @@
     {
       "detail": "intersection points",
       "name": "selfx_junction_surface",
-      "ok": false,
+      "ok": true,
       "skipped": false,
-      "value": 2
+      "value": 0
     },
     {
       "detail": "each bulb is a circle of at least max(14.00 m, 1.35 x the road half-width) with both mouth corners ON it",
@@ -17237,7 +17237,7 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "min_ratio": 3.772,
+        "min_ratio": 3.097,
         "min_standing_m": 66.0,
         "under": 0,
         "under_ratio": 0,
@@ -17263,8 +17263,8 @@
         "mean": 0.0,
         "over_0.05m": 0,
         "worst_at": [
-          -300.0,
-          21.0
+          108.6,
+          43.88
         ]
       }
     },
@@ -17283,7 +17283,7 @@
       "value": {
         "folds": 0,
         "max_ratio": 0.0,
-        "min_seg": 1.0818
+        "min_seg": 2.45
       }
     },
     {
@@ -17403,7 +17403,7 @@
       "skipped": false,
       "value": {
         "blocks": 0,
-        "city": 2761,
+        "city": 2633,
         "edges": 5,
         "lots": 0
       }

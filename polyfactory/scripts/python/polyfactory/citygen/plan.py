@@ -109,6 +109,16 @@ RESERVED_JUNCTION_TYPES = ("roundabout",)   # in vocab, no builder yet.
 STANDING_OPTIMISM_M = 5.88          # measured 5.8763, C_radial / I_offset_radial
 CURVED_ARM_RESIDUAL_M = 4.58        # measured 4.5750, worst per-arm either way
 
+# ⚠️ A MERGE LANDING IS ITS OWN CLASS, and lumping it in with the curved
+# arms above would have quietly tripled a published bound. M5.3's mover
+# creates a node whose two shallow arms sit 13.55° apart in the NODE frame
+# and 22.00° at the cut, so `crossing_trims` mis-reads the corner there by
+# far more than any curve does - and unlike a curve, the arms are STRAIGHT,
+# so nothing about the arm's shape explains it. Measured worst per arm:
+# M 15.9618, O 8.0704, both PESSIMISTIC ONLY (the planner under-claims
+# standing street at a merge; the optimistic tail is exactly 0.0000).
+MERGE_LANDING_RESIDUAL_M = 15.97    # measured 15.9618 on M_shallow_y_24
+
 
 class Params(object):
     """The `s5j_params` values the corner solve reads. Defaults are the HDA's.

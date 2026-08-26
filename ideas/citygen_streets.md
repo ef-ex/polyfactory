@@ -64,7 +64,9 @@ HOUDINI_PATH="F:/projects/polyfactory-citygen/polyfactory;&" \
    `selfx_junction_surface` together; fixing one by moving the overlap into the other is not
    progress, and this is the trap that ate two variants.
 
-**NEXT ITEM — M5.4, the merge mouth contract.** The landing builds as a crossing at ~12°,
+**NEXT ITEM — M5.5 (§S5a item 4, the 75–90° T landing). M5.4 LANDED: gate 25.**
+
+**M5.4, done — kept for the reasoning:** The landing builds as a crossing at ~12°,
 below the 25° floor the corner solve was designed against; at arterial widths O ships a ~100 m
 gore wedge, 2 self-intersections, corner-arc tangent 3.17. Build the mouth in `s5j_solve` AND
 its mirror in `plan.node_trims` **in the same commit** (§11.5's rule). ⭐ The candidate
@@ -6063,6 +6065,69 @@ widths (O) ship a ~100 m gore wedge with 2 surface self-intersections and a 3.17
 tangent error — O's two rows in the known-failing table. The merge mouth in `s5j_solve` (and
 its `node_trims` mirror, same commit) is the remaining M5 work, and the artist has not yet
 ruled on the gore look at all.
+
+**M5.4 BUILT 2026-08-17 — the merge mouth, and the clamp that was inventing the defect.
+Gate 27 → 25 failing.** O's two mouth rows are GREEN: `selfx_junction_surface` **2 → 0**,
+`every_corner_is_an_arc` tangent **3.17 → 2.5e-05**. Nothing newly broken, and only O moved.
+
+⭐ **THE FIX WAS TO DELETE A SAFETY, NOT TO ADD ONE.** `s5j_solve` clamped the runaway miter
+spike to `miter_limit × half-width` along its own direction — a point lying on **neither kerb
+line**. The plate boundary therefore missed the real block corner and the fillet was fitted to
+a fiction, which is where both of O's failures came from. With the TRUE kerb intersection every
+boundary point is a real kerb point again and the plate is a long but SIMPLE gore.
+
+⚠️ **AND THE CUT HAD TO GET LONGER, WHICH IS THE OPPOSITE OF THE INSTINCT.** O's full ribbon
+is 26.8 + 3.0 + 3.0 = 32.80 m, so its two carriageways only separate at
+`32.80 / sin 22°` = **87.56 m**. The clamped cut was 102.92 m and the honest one is 121.00 m;
+both clear it. **Every shorter construction tried fell inside it and turned `selfx_roads` red**
+— cut-at-`max(wid)` (26.8 m), and "close straight across with no fillet" (72.94 m). The trade
+was measured from three sides before it was believed: `selfx_roads` and
+`selfx_junction_surface` must be read TOGETHER, because moving the overlap from one into the
+other looks exactly like progress.
+
+**Chosen by measurement, not by argument — three constructions were built in parallel
+worktrees and gated against the same baseline:** (A) plate owns the gore with the inner kerbs
+suppressed → 27 → 26, one row green, `every_corner_is_an_arc` still red because the check has
+no doctrine for a gore nose; (B) delete the clamp → 27 → 25, **both** rows green; (C) fuse the
+shallow pair into one virtual arm — the most ambitious, reported separately. B won outright.
+
+**Blast radius, measured BEFORE the change:** the clamp fired **9 times in 3,721 corner pairs**
+across all 16 cases, all at merge landings — once on M (iteration 0 only, discarded by the
+retreat-allowed passes, so M does not move at all) and on all 8 iterations at O's. That census
+is what made the change safe to attempt.
+
+⚠️ **TWO THINGS LEFT LOOSE, recorded rather than hidden.** `miter_limit` is now a parm that
+nothing reads — it must be retired from the interface or repurposed, and `parm_liveness` will
+call it DEAD. And the miter is no longer bounded at all: `pfsj_corner_lines` gives up below
+|sin| < 0.02 (~1.15°), so `K` could in principle reach `(hA + hB)/0.02` before anything catches
+it. Nothing in the suite approaches that and the mover's own arrival floor parks pairs below
+~17.25°, so it is unexercised risk, not a measured failure. **If the bound comes back, bound it
+against the ARM'S OWN LENGTH** — `trim_leaves_road_standing`'s currency — not a width multiple,
+because a width multiple is exactly what produced the fiction.
+
+⛔ **AND M5.4 EXPOSED A HOLE OF MY OWN MAKING, which is the more important finding.**
+`tests/unit/trim_calibration.json` was never regenerated after M5.3's mover: it recorded M and
+O with **three edges and one node** — the pre-mover topology, where `graph_min_angle` DELETED
+the shallow leg — while the shipped build had five edges and two plated nodes. **49 unit tests
+stayed green against a shape the builder had stopped producing a milestone earlier**, and the
+scene baseline being current was no evidence at all that this fixture was. Regenerated, the
+suite showed 19 failures, every one on M and O.
+
+What those failures actually say: **the planner does not model a merge landing.**
+`crossing_trims` solves in the NODE frame, where O's shallow pair reads 13.55°, while
+`s5j_solve` re-solves at the cut where it reads 22.00° — the same frame-refinement gap the
+curved cases have always had, arriving for the first time on STRAIGHT arms. So M and O leave
+`STRAIGHT_CASES` and take measured two-sided bounds (M 15.97 m, O 8.08 m), and a merge landing
+gets its own published constant, `MERGE_LANDING_RESIDUAL_M`, rather than quietly tripling
+`CURVED_ARM_RESIDUAL_M`. ✅ **What is NOT broken, checked before re-pinning anything: the
+standing VERDICT still agrees with the builder on all 326 edges — 0 false-OK, 0 false-BAD —
+and both residuals are PESSIMISTIC ONLY (optimistic tail exactly 0.0000).** The planner
+under-claims how much street stands at a merge; it never over-claims, which is the only
+direction §11.4 calls dangerous. Counts move 322 → 326 edges and 545 → 551 arms, because the
+mover keeps two legs that used to be deleted — and the legs come back LONGER than drawn
+(M 120 → 123.75, O 300 → 303.79), which is `merge_arc_length`'s prediction showing up in the
+fixture. **Regenerate that fixture in the same commit as any builder change that moves a
+trim.**
 
 **STILL OPEN after the mover shipped:** the merge MOUTH contract in `s5j_solve` and its
 `plan.node_trims` mirror, in one commit — the landing builds as a crossing at ~12°, below the
