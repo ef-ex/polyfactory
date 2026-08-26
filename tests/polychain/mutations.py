@@ -1348,11 +1348,12 @@ MUTATIONS = (
         "            int a = max(seam, 0);", "            int a = 0;"),)),
 
     M("n8_weld_is_never_whole", "native", ("output_guard_parity",),
-      "`_weld`'s `whole`: a welded group closing the ring has no boundary "
-      "left to carry a corner, a cap or an angle.",
+      "`_weld`'s `whole` deleted: a welded ring ships `pc_sec_closed = 0`. "
+      "The CAPS half of the same rule reddens nothing - a dissolved corner is "
+      "never a `pc_section` limit, so they were already 0.",
       ((VEX % "pc_sections.vfl",
-        "        if (welded && whole) { start_cap = 0; end_cap = 0; angle = 0.0; }",
-        "        if (0) { start_cap = 0; end_cap = 0; angle = 0.0; }"),)),
+        "        int whole = closed && (abs((s1 - s0) - total) <= 1e-6);",
+        "        int whole = 0;"),)),
 
     M("n8_welded_markers_unsorted", "native", ("output_guard_parity",),
       "A WELDED section re-sorts markers by `s_local`, `decompose` does not.",

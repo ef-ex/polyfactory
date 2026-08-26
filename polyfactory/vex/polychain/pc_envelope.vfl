@@ -129,10 +129,15 @@
 //   * [vex:corner_degen] a DEGENERATE corner, in EITHER mode.  D46 falls back
 //     to bend and stamps WARN_CORNER_DEGENERATE onto every piece that spans
 //     the dissolved vertex (`corner._stamp_degenerate`, plus D68's flattened
-//     ones).  The WELD is ported; that warning is not, and a hairpin that
-//     builds silently is exactly what warn-never-block forbids - so it is a
-//     refusal by name rather than a dropped sentence.  `pc_corner_degen` is
-//     `pc_corners`' own per-vertex answer, so the test is one read per corner.
+//     ones).  The WELD is ported; that warning is not, and a build that drops
+//     it is a divergence rather than a tidier output.
+//     ⚠️ AND IT IS NOT A HAIRPIN ROW, WHICH IS WHAT ITS FIRST FIXTURE ASSUMED.
+//     A 170 degree hairpin is refused at LEVEL 2 anyway - no piece straddling
+//     it can transport a frame - so the mutation reddened nothing.  What this
+//     row actually catches is a corner made degenerate by the PARAMETER: a
+//     90 degree L under a 120 degree `min_included_angle_deg` is degenerate,
+//     transportable, and would build natively and silently without it
+//     (`AU_degenerate_bend`).  31.2.
 //   * [vex:ndup] a DUPLICATED curve id.  D169: the reference fans a marker
 //     out onto every curve sharing the id and the native chain answers for
 //     the first, which is a DECLARED divergence with its own check.

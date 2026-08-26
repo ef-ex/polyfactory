@@ -55,8 +55,7 @@ EXPECTED_WARNS = {
                              "pc_warn_corner_degenerate"),
     # AT/AU - 13.9 N8 stage 1 (31.2); AU's hairpin says what AC does.
     "AT_ring_seam_marked": ("pc_warn_bend_resolution",),
-    "AU_degenerate_bend": ("pc_warn_bend_resolution",
-                           "pc_warn_corner_degenerate"),
+    "AU_degenerate_bend": ("pc_warn_corner_degenerate",),
     "AD_short_legs": ("pc_warn_overflow",),
     # AS - 3v's figure: every corner is a butt joint, no piece wraps one. A
     # clean build IS the assertion; the wedge is `corner_wedge_m2`'s (D36).

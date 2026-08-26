@@ -979,11 +979,16 @@ def build_all():
     built["AT_ring_seam_marked"] = _case(g, kit_geo,
                                          corner_style("bend", marker="gate"))
 
-    # AU - A DEGENERATE CORNER IN BEND MODE (31.2); AC is it in MITER, which
-    # the guard refuses on the MODE, so nothing separated the two refusals.
+    # AU - DEGENERATE IN BEND MODE BY PARAMETER, NOT BY HAIRPIN (31.2), and
+    # that is the whole fixture: a hairpin is refused at LEVEL 2 anyway (its
+    # piece cannot transport a frame), so `[vex:corner_degen]` reddened
+    # nothing.  A 90 degree L under a 120 degree floor is degenerate AND
+    # transportable, so only the level-1 row keeps it from building silently.
     g = hou.Geometry()
-    polyline(g, [(0, 0, 0), (6, 0, 0), (0.5, 0, 1.05)], curve_id="AU")
-    built["AU_degenerate_bend"] = _case(g, kit_geo, corner_style("bend"))
+    polyline(g, L_SHAPE, curve_id="AU")
+    _au = corner_style("bend")
+    _au.params.min_included_angle_deg = 120.0
+    built["AU_degenerate_bend"] = _case(g, kit_geo, _au)
 
     # ---- EA..EI - THE COMPOSITION THE ASSET ACTUALLY SHIPS, ON A CORNER.
     # D269 (§28.1(c) again): after D266 the shipped `panel` fill + `evenly
