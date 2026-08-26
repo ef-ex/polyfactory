@@ -110,7 +110,8 @@ NATIVE_CORNER_ANGLE = 45.0
 # native seeds past it, on SEED ARITHMETIC (a draw would move every seed).
 CORNER_LANE = 4          # one surface-free native seed in four is cornered
 CORNER_TURN_DEG = 70.0   # over NATIVE_CORNER_ANGLE, under degenerate
-CLOSE_MAX_TURN = 120.0   # a sharper closure is left OPEN
+CLOSE_MAX_TURN = 120.0   # a sharper closure is left OPEN - and 32.1 MEASURED
+                         # that as dead: 12 of 400 seeds ask to close, 0 do.
 
 
 # --- the curve --------------------------------------------------------------
