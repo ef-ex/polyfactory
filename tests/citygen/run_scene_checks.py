@@ -174,11 +174,19 @@ def run_case(name, built, field=None):
     maxfrac = parm("s5j_params_max_fillet_fraction")
     if patches and surface:
         out.append(C.no_degenerate_corner_segments(patches.geometry()))
+        # ⚠️ the two new arguments index STRAIGHT THROUGH and raise, per this
+        # file's own rule further down: `parm(x).eval() if parm(x) else
+        # <default>` fails OPEN, and for these it would fail open in the worst
+        # way — a missing `gore_radius` leaves the check asserting the class
+        # rule the solver no longer applies at a gore, which reads as an
+        # ordinary red row rather than as a missing parameter.
         out.append(C.every_corner_is_an_arc(
             patches.geometry(),
             solve.geometry() if solve else None,
             rscale.eval() if rscale else 1.0,
-            maxfrac.eval() if maxfrac else 0.4))
+            maxfrac.eval() if maxfrac else 0.4,
+            parm("s5j_params_gore_radius").eval(),
+            parm("s5j_params_miter_limit").eval()))
         out.append(C.sidewalk_bands_match_corners(patches.geometry(),
                                                   surface.geometry()))
         out.append(C.junction_boundary_is_simple(patches.geometry()))

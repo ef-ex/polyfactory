@@ -603,8 +603,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -3426,8 +3428,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -7404,8 +7408,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -8012,8 +8018,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -8124,8 +8132,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 2.5,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -8236,8 +8246,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -8348,8 +8360,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -8956,8 +8970,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -12934,8 +12950,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -13158,8 +13176,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -13477,8 +13497,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -13671,8 +13693,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -13865,8 +13889,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -13886,7 +13912,7 @@
      ],
      "street_class": "arterial",
      "trim_end": 0.0,
-     "trim_start": 121.0,
+     "trim_start": 78.08386993408203,
      "width": 26.79998016357422
     },
     {
@@ -13903,7 +13929,7 @@
      ],
      "street_class": "arterial",
      "trim_end": 0.0,
-     "trim_start": 120.91895294189453,
+     "trim_start": 77.87487030029297,
      "width": 26.799928665161133
     },
     {
@@ -13919,7 +13945,7 @@
       0.0
      ],
      "street_class": "arterial",
-     "trim_end": 0.354278564453125,
+     "trim_end": 0.3542184829711914,
      "trim_start": 13.54998779296875,
      "width": 26.800100326538086
     },
@@ -14017,7 +14043,7 @@
        ],
        "edge_id": "region_-01_+00/E_00000",
        "length": 296.0,
-       "measured_trim": 0.354278564453125,
+       "measured_trim": 0.3542184829711914,
        "principal": 0,
        "street_class": "arterial",
        "width": 26.800100326538086
@@ -14030,7 +14056,7 @@
        ],
        "edge_id": "region_+00_+00/E_00003",
        "length": 204.0,
-       "measured_trim": 121.0,
+       "measured_trim": 78.08386993408203,
        "principal": 0,
        "street_class": "arterial",
        "width": 26.79998016357422
@@ -14043,7 +14069,7 @@
        ],
        "edge_id": "region_+00_+00/E_00004",
        "length": 303.79469721957247,
-       "measured_trim": 120.91895294189453,
+       "measured_trim": 77.87487030029297,
        "principal": 0,
        "street_class": "arterial",
        "width": 26.799928665161133
@@ -14059,8 +14085,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -14171,8 +14199,10 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   },
@@ -14348,8 +14378,206 @@
    "params": {
     "arc_steps": 5,
     "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
     "max_fillet_fraction": 0.4,
     "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
+    "miter_limit": 4.0
+   }
+  },
+  "R_shallow_y_12_subfloor": {
+   "edges": [
+    {
+     "edge_id": "region_+00_+00/E_00003",
+     "length": 200.0,
+     "npts": 51,
+     "p0": [
+      0.0,
+      0.0
+     ],
+     "p1": [
+      200.0,
+      0.0
+     ],
+     "street_class": "arterial",
+     "trim_end": 0.0,
+     "trim_start": 137.0124969482422,
+     "width": 26.79996681213379
+    },
+    {
+     "edge_id": "region_+00_+00/E_00004",
+     "length": 299.9950862924386,
+     "npts": 76,
+     "p0": [
+      0.0,
+      0.0
+     ],
+     "p1": [
+      293.44000244140625,
+      62.369998931884766
+     ],
+     "street_class": "arterial",
+     "trim_end": 0.0,
+     "trim_start": 137.0125274658203,
+     "width": 26.8000545501709
+    },
+    {
+     "edge_id": "region_-01_+00/E_00000",
+     "length": 300.0,
+     "npts": 76,
+     "p0": [
+      -300.0,
+      0.0
+     ],
+     "p1": [
+      0.0,
+      0.0
+     ],
+     "street_class": "arterial",
+     "trim_end": 2.354930877685547,
+     "trim_start": 13.54998779296875,
+     "width": 26.8000545501709
+    },
+    {
+     "edge_id": "region_-02_+00/E_00001",
+     "length": 200.0,
+     "npts": 51,
+     "p0": [
+      -300.0,
+      0.0
+     ],
+     "p1": [
+      -500.0,
+      0.0
+     ],
+     "street_class": "arterial",
+     "trim_end": 0.0,
+     "trim_start": 13.54998779296875,
+     "width": 26.79996681213379
+    },
+    {
+     "edge_id": "region_-02_+00/E_00002",
+     "length": 100.0,
+     "npts": 26,
+     "p0": [
+      -300.0,
+      0.0
+     ],
+     "p1": [
+      -300.0,
+      100.0
+     ],
+     "street_class": "collector",
+     "trim_end": 0.0,
+     "trim_start": 21.0,
+     "width": 15.100001335144043
+    }
+   ],
+   "nodes": [
+    {
+     "arms": [
+      {
+       "at_start": true,
+       "dir": [
+        1.0,
+        0.0
+       ],
+       "edge_id": "region_-01_+00/E_00000",
+       "length": 300.0,
+       "measured_trim": 13.54998779296875,
+       "principal": 0,
+       "street_class": "arterial",
+       "width": 26.8000545501709
+      },
+      {
+       "at_start": true,
+       "dir": [
+        -1.0,
+        0.0
+       ],
+       "edge_id": "region_-02_+00/E_00001",
+       "length": 200.0,
+       "measured_trim": 13.54998779296875,
+       "principal": 0,
+       "street_class": "arterial",
+       "width": 26.79996681213379
+      },
+      {
+       "at_start": true,
+       "dir": [
+        0.0,
+        1.0
+       ],
+       "edge_id": "region_-02_+00/E_00002",
+       "length": 100.0,
+       "measured_trim": 21.0,
+       "principal": 0,
+       "street_class": "collector",
+       "width": 15.100001335144043
+      }
+     ],
+     "junction_type": "crossing",
+     "pos": [
+      -300.0,
+      0.0
+     ]
+    },
+    {
+     "arms": [
+      {
+       "at_start": false,
+       "dir": [
+        -1.0,
+        0.0
+       ],
+       "edge_id": "region_-01_+00/E_00000",
+       "length": 300.0,
+       "measured_trim": 2.354930877685547,
+       "principal": 0,
+       "street_class": "arterial",
+       "width": 26.8000545501709
+      },
+      {
+       "at_start": true,
+       "dir": [
+        1.0,
+        0.0
+       ],
+       "edge_id": "region_+00_+00/E_00003",
+       "length": 200.0,
+       "measured_trim": 137.0124969482422,
+       "principal": 0,
+       "street_class": "arterial",
+       "width": 26.79996681213379
+      },
+      {
+       "at_start": true,
+       "dir": [
+        0.9781493647037114,
+        0.20790339181871406
+       ],
+       "edge_id": "region_+00_+00/E_00004",
+       "length": 299.9950862924386,
+       "measured_trim": 137.0125274658203,
+       "principal": 0,
+       "street_class": "arterial",
+       "width": 26.8000545501709
+      }
+     ],
+     "junction_type": "crossing",
+     "pos": [
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "params": {
+    "arc_steps": 5,
+    "corner_radius_scale": 1.0,
+    "gore_radius": 1.0,
+    "max_fillet_fraction": 0.4,
+    "min_end_segment": 1.0,
+    "min_standing_widths": 1.0,
     "miter_limit": 4.0
    }
   }

@@ -132,6 +132,14 @@ STUB_TRIANGLE_STREETS = [
 # PROMISED FUTURE divergence - add the second sub-floor angle the day M5 gives
 # it something to assert.
 #
+# ⚠️ **THAT DAY ARRIVED, AND R IS THE SECOND SUB-FLOOR ANGLE.** L's argument for
+# deletion was that below the floor the published graph did not depend on the
+# angle - true only while `graph_min_angle` deleted the leg. Since M5.3 it does
+# not, so a sub-floor leg now REACHES the corner solve and the angle decides
+# everything: at 12 deg the corner used to reach 260 m and s5j_trim consumed a
+# 200 m arterial whole. R is not bit-identical to anything and it does not rest
+# on a promise; it fails on the pre-fix build. See its block in build_all().
+#
 # ⚠️ And the bracket is looser than it looks: the samples locate the threshold
 # only to (24, 32]. Swept live, the transition is at (24.998, 25.5]. A case
 # authored at exactly 25.0 deg still DELETES, because the leg endpoint below is
@@ -607,7 +615,61 @@ def build_all(parent=None):
                                   # rig, same angle as M's neighbour, opposite
                                   # victim - and nothing else in the suite
                                   # reaches it.
-                                  ("O_shallow_y_host_dies", 22.0, 300.0, 200.0)):
+                                  ("O_shallow_y_host_dies", 22.0, 300.0, 200.0),
+                                  # ...and R, THE SUB-FLOOR CASE, which is the
+                                  # one the gate could not see. Everything above
+                                  # sits at or above 22 deg; O at 13.55 deg in
+                                  # the NODE frame is the shallowest corner in
+                                  # the corpus and it is safe only because the
+                                  # mover fires there. Below the mover's ~17.25
+                                  # deg arrival floor the pair is PARKED and
+                                  # arrives at `s5j_solve` exactly as drawn -
+                                  # the mover's floor gates the MOVER, not the
+                                  # SOLVER, and since M5.3 `graph_min_angle` no
+                                  # longer deletes the leg on the way. Nothing
+                                  # in the suite reached that.
+                                  #
+                                  # 12 deg is chosen, not sampled: at the
+                                  # unbounded corner reach it is the shallowest
+                                  # angle whose failure is still a DELETION
+                                  # rather than a runaway (measured on this rig:
+                                  # 17 deg cuts 150 m and deletes nothing, 12
+                                  # deg cuts 260 m and s5j_trim consumes the
+                                  # 200 m host arm whole, 8 deg cuts 686 m, 6
+                                  # deg 1122 m and takes two streets). So R
+                                  # fails on the cheapest, most legible symptom
+                                  # the defect has - a street that is not there
+                                  # - instead of on a number nobody can read.
+                                  #
+                                  # It is O's rig, not M's, so only the ANGLE
+                                  # differs from a case the suite already
+                                  # trusts: 300 m leg against a 200 m east host
+                                  # half, which makes the leg the longer of the
+                                  # offending pair. Every threshold the family's
+                                  # comment above derives is re-cleared at 12
+                                  # deg: host halves 200 / 300 / 200 m are all
+                                  # over `arterial_len` (180), so the through
+                                  # street stays arterial; the anchor T 300 m
+                                  # west keeps the component alive and clears
+                                  # `min_node_dist` (40) by an order of
+                                  # magnitude; and the closest pair of arm tips
+                                  # is the leg's (293.4, 62.4) against the host
+                                  # east tip (200, 0) at 112.3 m, over
+                                  # `d_extend` (90), so `graph_extend` bridges
+                                  # nothing and the case measures the junction
+                                  # rather than the extender.
+                                  #
+                                  # ⚠️ R IS EXPECTED TO PASS ONLY BECAUSE THE
+                                  # BOUND WORKS. That is the point: on the
+                                  # pre-fix build it is red on
+                                  # `every_mouth_has_a_road`,
+                                  # `trim_leaves_road_standing` and
+                                  # `every_corner_is_an_arc`. If it ever goes
+                                  # green for a reason other than a bounded
+                                  # corner - a deleted leg, an empty graph -
+                                  # read `counts` before believing it.
+                                  ("R_shallow_y_12_subfloor", 12.0, 300.0,
+                                   200.0)):
         ydraw = parent.createNode("python", label + "_streets")
         ydraw.parm("python").set(_DRAW_SNIPPET.replace(
             repr(DRAWN_STREETS), repr(_shallow_y(deg, leg, east))))
@@ -761,6 +823,8 @@ LOT_FLOOR = {"A_drawn": 74, "B_grid": 560, "C_radial": 683, "D_offset": 55,
              # cycle, so there is no ring for S7 to close and no parcel to pin.
              "M_shallow_y_24": 0, "N_shallow_y_32": 0,
              "O_shallow_y_host_dies": 0, "P_stub_chain": 0,
+             # R is O's rig at 12 deg - same host and leg, no cycle, no block.
+             "R_shallow_y_12_subfloor": 0,
              # Q closes ONE block - the ring interior. The render was looked
              # at 2026-08-17 (verdict: the junction type builds as a crossing,
              # section 11.5's ruling), so the count is pinned from measurement

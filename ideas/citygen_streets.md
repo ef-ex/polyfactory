@@ -64,11 +64,17 @@ HOUDINI_PATH="F:/projects/polyfactory-citygen/polyfactory;&" \
    `selfx_junction_surface` together; fixing one by moving the overlap into the other is not
    progress, and this is the trap that ate two variants.
 
-⛔ **NEXT ITEM — M5.4b, THE GORE FIX. M5.4 IS LANDED BUT ITS AUDIT SAYS NOT SOUND:** the
-shallow corner has no bound and sub-floor angles blow the cut to 1122 m and delete
-streets. Fix = gore radius for the nose (short cut, real arc) + a bound against ARM
-LENGTH + a 12° case so the gate sees it. Full findings in §11.9's M5.4 record. M5.5
-(§S5a item 4) is in flight separately and does not depend on this.
+✅ **M5.4b DONE — the gore fix is landed and audited (gate 25, unit 52, parm_liveness 0).
+M5 IS COMPLETE.** Cut at 6° went 1121.72 → 249.71 m and no street is deleted at any angle.
+
+⛔ **NEXT ITEM — M5.4c, FINDING C: give the gore cap an epsilon.** It targets
+`trim_leaves_road_standing`'s floor exactly and already lands `under_ratio_all` at 1 (6°) and
+2 (2°); it is green only because those arms are outside the asserted droppable population.
+One line, but it moves geometry, so it needs its own gate + audit round. Full statement in
+§11.9's M5.4b record and §11.6's gore branch.
+
+⚠️ **THEN: merge `cityGen` → `worldengine`.** Coordinate with `polyfactory-c9` FIRST (protocol
+in this section); `tests/citygen/baseline.json` conflicts take **OURS** wholesale.
 
 **M5.4, done — kept for the reasoning:** The landing builds as a crossing at ~12°,
 below the 25° floor the corner solve was designed against; at arterial widths O ships a ~100 m
@@ -1679,6 +1685,15 @@ Radius clamping stays, but it clamps the *radius* against the shorter incident s
 not eat more than `max_fillet_fraction` of a street), and the clamp changes the tangent points too.
 Below the miter limit the corner becomes a **bevel** — a deliberate, straight, documented case, and
 the only one.
+
+⚠️ **ABOVE the miter limit the corner is a GORE NOSE, and since M5.4b that is the branch that
+matters (§11.9).** It takes `max(gore_radius, max(hA,hB)·tan²(θ/2))`, and its tangent lengths
+are capped per-arm at `elen - max(minseg, min_standing_widths·wid)`. **That cap has ZERO
+MARGIN** — it targets `trim_leaves_road_standing`'s floor exactly, and at 6°/2° already lands
+`under_ratio_all` at 1/2. It passes only because those arms are outside the asserted droppable
+population. **The next change here is to add the epsilon**, and the reason to write it down
+rather than patch it quietly is that the same mistake is available at every other bound in this
+file: a bound set to its target has no direction to fail in.
 
 #### Two rules the design left open, decided 2026-08-09
 
@@ -6138,6 +6153,81 @@ mover keeps two legs that used to be deleted — and the legs come back LONGER t
 (M 120 → 123.75, O 300 → 303.79), which is `merge_arc_length`'s prediction showing up in the
 fixture. **Regenerate that fixture in the same commit as any builder change that moves a
 trim.**
+
+✅ **M5.4b BUILT 2026-08-17 — THE GORE FIX. The blocker is closed and the audit cleared it.
+Gate 25 → 25 on the shared 16 cases** (26 over 17, the one new row being the sub-floor case's
+own `selfx_city_merged`), 74 unit tests green (52 of them the planner's), and `parm_liveness.py` **exit 1 → exit 0**.
+
+**A gore nose is not a street corner, and that was the whole bug.** `s5j_solve` now asks
+`pfsj_miter_ratio > miter_limit` whether the corner is a NOSE, and if it is, takes
+`max(gore_radius, max(hA,hB)·tan²(θ/2))` instead of the class corner radius. The floor is the
+carriageway-overlap clearance derived in the audit's item 2, so the nose can never be rounded
+inside its own gore. M5.4 had DELETED the miter clamp and left the shallow corner unbounded;
+the bound is back, but against **the arm's own length** — `trim_leaves_road_standing`'s
+currency — not a width multiple, which is what put the corner on neither kerb line originally.
+
+**Measured, cut distance before → after, on drawn sub-floor shallow-Ys** (the population M5.4
+was blind to, because the corpus' shallowest corner is O's 13.55° and O is only safe there
+because the mover fires): **22° 121.00 → 78.08 · 12° 259.98 → 137.01 · 8° 686.35 → 187.66 ·
+6° 1121.72 → 249.71 m.** And `every_mouth_has_a_road` is **0 at every angle 22→ 2°**, where
+before the fix 1/1/2/2/2 streets were deleted outright. O's plate: **5,743 m² / 121.3 m span
+→ 3,133 m² / 78.4 m** — the 46.30 m of fillet run that `9.0 / tan 11°` was buying is gone.
+
+**`R_shallow_y_12_subfloor` is new and is the point of the exercise:** a 12° case the gate can
+see, verified RED before the fix and GREEN after. The corpus is 17 cases.
+
+⚠️ **FINDING C, CLEARED TO LAND BUT NOT FIXED — THE CAP HAS ZERO MARGIN, AND ALREADY LANDS
+UNDER ITS OWN TARGET.** The per-arm cap is written as
+`elen - max(minseg, min_standing_widths·wid)`, which targets `trim_leaves_road_standing`'s
+floor **exactly** rather than the floor plus an epsilon. Measured: at 6° `under_ratio_all`
+is **1**, at 2° it is **2**. It ships green today only because those arms are not in the
+droppable population the check ASSERTS on — one such arm becoming droppable, or a 1-ulp shift,
+turns the row red. **This is the most likely way the gore fix surprises us later.** Root cause
+is stated plainly because it generalises: *a bound written as an exact target is a bound that
+has already failed half the time.* Fixing it is a behaviour change and therefore its own item,
+not a rider on the landing.
+
+⚠️ **AND A GREEN GATE AT 1.0° MEANS NOTHING — READ `counts` BEFORE BELIEVING ONE.** At 1.0°
+the leg is eaten by `graph_fuse` upstream (the weld law: a curve at angle α keeps points inside
+the 0.5 m radius for ~`0.5/sin α` of approach), `counts.edges` comes back **3**, and every row
+passes because there is nothing left to fail. A gate row is only evidence if the geometry it
+grades still exists.
+
+⚠️ **Two riders, named rather than shipped silently.** (1) The junction HDA's tab-menu label
+became `CityGen Junction (internal helper)` — defensible, since it is nested inside the
+segmenter and an artist should not drop it bare, but it was not part of the fix. (2) The
+`gore_radius` help text originally claimed 1.0 m clears the floor; **it clears it for
+`arterial` (0.893) and everything narrower, but NOT for `highway` (needs 1.083) or
+`boulevard_bus_bike` (needs 1.333)** — the justification had been derived from the widest class
+in the TEST CORPUS, not the widest in the shipped width table. The geometry was never wrong
+(the solver floors it regardless); the *claim* was. Help text corrected on all three HDAs.
+
+⚠️ **O's `selfx_city_merged` went 9 → 10, and it is the same cluster MOVED, not a new one.**
+Attributed by ablation — `miter_limit` raised past O's ratio turns the whole gore branch off in
+the shipped build (the cap lives inside `if (gore)`), which is the M5.4 path exactly. The fix
+**removes** the sites at `(117.0, ±1.0)` and `(109.0, 42.9)` and **adds** `(74.1, ±1.0)` and
+`(68.3, 28.7)×2`: the mouth cluster relocating from the 121 m cut to the 78 m one, with the
+leg-side point counting twice instead of once. Every one of O's ten sits on a ribbon
+CENTRELINE — six at `z = ±1.0` on the principal (the same three-station pattern M shows, and M
+is the clean reference at 6/6) and four on the leg's own centreline. That is the declared v1
+non-goal, not gore overlap. ⚠️ **And the first ablation attempt was WRONG and said "no change":**
+it found case A's segmenter by scanning siblings, so it ablated a different city. The rerun
+walks O's own input chain and now asserts the ablation moved something before it is believed —
+*an ablation that reports no difference has two explanations, and "the knob is not connected"
+is the likelier one.*
+
+⚠️ **R's ablation reads 11 → 6 with the fix OFF, and that is the deletion trap, not a win.**
+At 12° the unfixed cut is 259.98 m and takes streets with it; six intersections is what is
+left when the geometry is gone. Same lesson as the 1.0° green above. R does carry a cluster of
+three at `(-2.4, ±1.0)` — at the NODE rather than at a mouth — which is unexplained and is
+worth a look before the sub-floor band is called finished.
+
+✅ **What the audit checked and confirmed:** both control rigs survive
+(`merge_route_control_rig`, `realign_route_control_rig`); the landed VEX is byte-identical to
+the independently-replayed build; every `.def` difference in both HDAs is a timestamp, so no
+display/render flag rode along; and the gore rule fires on exactly **two** corner pairs in the
+17-case corpus — O and R — which is now what `checks.py` says (it said "one", stale from when
+the corpus was 16).
 
 ⛔ **M5.4's AUDIT REFUTED M5.4, and the verdict is NOT SOUND AS LANDED (2026-08-17).** Four
 of its published numbers were wrong and one of its safety claims does not hold. Recorded here

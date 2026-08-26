@@ -44,7 +44,8 @@ DEFAULT_OUT = os.path.join(os.path.dirname(HERE), "unit", "trim_calibration.json
 # same number the builder used — a calibration against the wrong parameter is
 # the kind of green that means nothing.
 PARM_NAMES = ("miter_limit", "corner_radius_scale", "max_fillet_fraction",
-              "arc_steps", "min_end_segment")
+              "arc_steps", "min_end_segment", "gore_radius",
+              "min_standing_widths")
 
 
 def _same_file(a, b):

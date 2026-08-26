@@ -314,7 +314,8 @@ def no_degenerate_corner_segments(patch_geo, tol=1e-3):
 
 
 def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
-                           max_fillet_fraction=0.4,
+                           max_fillet_fraction=0.4, gore_radius=1.0,
+                           miter_limit=4.0,
                            dot_tol=-0.985, fit_tol=1e-3, radius_tol=5e-3,
                            tangent_tol=1e-3):
     """A junction corner that is not a correctly-placed fillet arc.
@@ -356,6 +357,30 @@ def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
         that fraction of the shorter incident street, and the cap changes the
         radius, so the expected value is recomputed through it.
 
+    AND A THIRD RULE SINCE THE GORE FIX: a corner whose MITER RATIO exceeds
+    `miter_limit` is not a street corner at all, it is a GORE NOSE between two
+    diverging carriageways, and it takes `gore_radius` (floored at
+    `max(hA, hB) * tan^2(theta/2)`, the value below which the mouths land inside
+    the carriageway overlap) instead of the class radius. The ratio is
+    recomputed here from the two mouths' own directions and widths —
+    `|dA*hB + dB*hA| / (sin(theta) * max(hA, hB))`, `pfsj_miter_ratio`'s
+    quantity written out — so this does NOT read the solver's decision back; a
+    solver that applies the gore radius at an ordinary corner, or the class
+    radius at a gore, fails on `radius`. Measured: it fires on exactly **two**
+    corner pairs in the seventeen-case corpus - `O_shallow_y_host_dies`
+    (22.0 deg, ratio 5.241) and the sub-floor case `R_shallow_y_12_subfloor` -
+    and on none at M (24.0 deg, ratio 3.766) or N (32.0, 2.845).
+    ⚠️ This sentence read "one corner pair in the seventeen-case corpus" until
+    the audit caught it: the corpus size was updated for R and the count was
+    not. A census that names its corpus has TWO numbers to re-measure.
+
+    ⚠️ What it cannot see: the ratio is recomputed in the CUT frame from the cap
+    corners, while the solver computes it from `pfsj_corner_lines` on the two
+    refined frames. The two agree to the digit on every corner in the corpus,
+    but a corner sitting within ~1% of `miter_limit` could be classified
+    differently by the two and read as a wrong radius when nothing is wrong.
+    M's 3.766 is the closest approach and it has 6% of margin.
+
     Both the fitted circle AND the solver's own `corner_r` are compared against
     that expectation, so a solver that applies the right radius but draws the
     wrong arc, or vice versa, still fails. `mixed_class` stays as a reported
@@ -390,22 +415,29 @@ def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
                 except Exception:
                     continue
                 ep = [v.point().position() for v in e.vertices()]
+                try:
+                    w = float(e.attribValue("streetWidth"))
+                except Exception:
+                    w = 0.0
                 rs.add(r)
-                es.append((r, _arc_lengths(ep)[-1], ep))
+                es.append((r, _arc_lengths(ep)[-1], w, ep))
             node_radii[jp] = rs
             node_edges[jp] = es
 
     def _street_at(edges, capc):
         """The incident street a mouth belongs to: the one its cap centre lies
         on. Position, not direction — a curved arm's tangent at the cut is not
-        its direction at the node."""
+        its direction at the node.
+
+        Returns (class radius, length, WIDTH). The width is what the gore rule
+        below needs; it is read off the same prim, not re-derived from the cap."""
         best = None
-        for (r, ln, ep) in edges:
+        for (r, ln, w, ep) in edges:
             d = min(_seg_point_dist(ep[i - 1], ep[i], capc)
                     for i in range(1, len(ep)))
             if best is None or d < best[0]:
-                best = (d, r, ln)
-        return (best[1], best[2]) if best else (None, None)
+                best = (d, r, ln, w)
+        return (best[1], best[2], best[3]) if best else (None, None, None)
 
     def _street_dir(cin, cout, capc, centre):
         v = (cout[0] - cin[0], 0.0, cout[2] - cin[2])          # across the mouth
@@ -421,6 +453,7 @@ def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
     max_fit = max_rad = max_tan = max_radfit = 0.0
     fitted = unfitted = 0
     bulbs = 0
+    gores = 0
     for prim in patch_geo.prims():
         # A CUL-DE-SAC BULB IS NOT A FILLET. Everything below sizes a corner
         # from the two street classes that meet at it; a bulb is a turning
@@ -489,11 +522,21 @@ def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
             # the two. Both the fitted circle and the solver's own `corner_r`
             # have to land on it.
             if edges:
-                ra, la = _street_at(edges, pts[i].attribValue("capc"))
-                rb, lb = _street_at(edges, pts[k].attribValue("capc"))
+                ra, la, wa = _street_at(edges, pts[i].attribValue("capc"))
+                rb, lb, wb = _street_at(edges, pts[k].attribValue("capc"))
                 want = min(ra, rb)
-                half = math.acos(max(-1.0, min(1.0, a[0] * b[0] + a[2] * b[2]))) * 0.5
+                cos_t = max(-1.0, min(1.0, a[0] * b[0] + a[2] * b[2]))
+                half = math.acos(cos_t) * 0.5
                 tn = math.tan(half)
+                # the gore rule, recomputed rather than read back
+                ha, hb = wa * 0.5, wb * 0.5
+                mh, sin_t = max(ha, hb), math.sin(2.0 * half)
+                if mh > 1e-9 and sin_t > 1e-9:
+                    spike = math.sqrt(max(ha * ha + hb * hb
+                                          + 2.0 * ha * hb * cos_t, 0.0))
+                    if spike / (sin_t * mh) > miter_limit:
+                        gores += 1
+                        want = max(gore_radius, mh * tn * tn)
                 run_max = max_fillet_fraction * min(la, lb)
                 if tn > 1e-9 and run_max > 0 and want / tn > run_max:
                     want = run_max * tn
@@ -523,14 +566,16 @@ def every_corner_is_an_arc(patch_geo, solve_geo=None, radius_scale=1.0,
              "tangent": round(max_tan, 7),
              "unfitted": unfitted,
              "mixed_class": mixed,
+             "gore_noses": gores,
              "culdesac_skipped": bulbs}
     ok = (bad == 0 and max_fit <= fit_tol and max_tan <= tangent_tol
           and (not node_edges or (max_rad <= radius_tol and max_radfit <= 1.0)))
     return Result(name, ok, value,
                   "%d corners, %d arcs fitted; %d join two street classes, "
-                  "where the lesser one sets the radius (S5); %d cul-de-sac "
-                  "bulbs skipped, see culdesac_bulbs_are_circles"
-                  % (total, fitted, mixed, bulbs))
+                  "where the lesser one sets the radius (S5); %d are GORE "
+                  "NOSES over the miter limit and take the gore radius; "
+                  "%d cul-de-sac bulbs skipped, see culdesac_bulbs_are_circles"
+                  % (total, fitted, mixed, gores, bulbs))
 
 
 def culdesac_bulbs_are_circles(patch_geo, streets_geo, radius, fit_tol=1e-3,
