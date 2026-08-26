@@ -976,8 +976,14 @@ def build_all():
              closed=True, curve_id="AT")
     marker(g, (0.5, 2.0, 0.0), "AT", 7, dist=0.5)
     marker(g, (11.5, 2.0, 8.0), "AT", 7, dist=39.5)
-    built["AT_ring_seam_marked"] = _case(g, kit_geo,
-                                         corner_style("bend", marker="gate"))
+    # ...and its default rule reads `cornerAngle`, the ONLY thing on the corpus
+    # that can see `_weld`'s `whole`: a welded ring carries no angle, so the
+    # condition is FALSE and it fills with panel; without `whole`, 90 and post.
+    _at = corner_style("bend", marker="gate")
+    _at.rules.insert(0, Rule("default", "conditional", ["post", "panel"],
+                             cond={"subject": "cornerAngle", "op": "gt",
+                                   "value": 1.0}))
+    built["AT_ring_seam_marked"] = _case(g, kit_geo, _at)
 
     # AU - DEGENERATE IN BEND MODE BY PARAMETER, NOT BY HAIRPIN (31.2), and
     # that is the whole fixture: a hairpin is refused at LEVEL 2 anyway (its

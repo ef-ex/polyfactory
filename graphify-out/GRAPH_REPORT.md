@@ -1,7 +1,7 @@
 # Graph Report - polyfactory  (2026-08-26)
 
 ## Corpus Check
-- 184 files · ~790,824 words
+- 184 files · ~790,878 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3e7aaf1f`
+- Built from commit: `09cd7171`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -917,7 +917,7 @@ Nodes (17): _is_slot(), axis_bands(), Band, Cell, _deviation(), _fill_width(), g
 
 ### Community 156 - "Community 156"
 Cohesion: 0.13
-Nodes (21): _assembly_recs(), _axis_of(), axis_points(), _axis_stations(), conform_camber(), corner_abut(), _element_frame(), _face() (+13 more)
+Nodes (19): _affine_fit(), _axis_of(), axis_points(), _axis_stations(), conform_camber(), _element_frame(), _face(), _frame_of() (+11 more)
 
 ### Community 157 - "Community 157"
 Cohesion: 0.17
@@ -996,8 +996,8 @@ Cohesion: 0.06
 Nodes (31): 0. The one-paragraph answer, 1.1 Lineage and status, 1.2 The paradigm — why this is not Houdini, 1.3 Grooming tools, 1.4 Clumping — a first-class subsystem, not a modifier, 1.5 Coils and braids, 1.6 Selection and masking, 1.7 The animation side — the part Houdini has no equivalent for (+23 more)
 
 ### Community 177 - "Community 177"
-Cohesion: 0.15
-Nodes (22): _bevels(), _caps_by_element(), _centroid(), corner_breach(), _corner_caps(), corner_face_mate(), corner_outside_length(), _corner_sides() (+14 more)
+Cohesion: 0.12
+Nodes (28): _assembly_recs(), _bevels(), _caps_by_element(), _centroid(), corner_abut(), corner_breach(), _corner_caps(), corner_face_mate() (+20 more)
 
 ### Community 178 - "Community 178"
 Cohesion: 0.12
@@ -1008,8 +1008,8 @@ Cohesion: 0.09
 Nodes (5): Functions, PyDiv, PyTitleBar, PyTitleButton, _ToolTip
 
 ### Community 181 - "Community 181"
-Cohesion: 0.11
-Nodes (22): _affine_fit(), bank_adaptive(), _by_zmode(), collect_warns(), _inv3(), _is_upright(), _pair_excess(), polyChain geometry checks - the assertions, in one place.  Each check returns a (+14 more)
+Cohesion: 0.14
+Nodes (18): bank_adaptive(), _by_zmode(), collect_warns(), _is_upright(), _pair_excess(), polyChain geometry checks - the assertions, in one place.  Each check returns a, Slots that exist to put ONE piece at ONE place (D267)., Aspect off `pc_local` - the MODULE's own space, so the fitting solve     cannot (+10 more)
 
 ### Community 182 - "Community 182"
 Cohesion: 0.22

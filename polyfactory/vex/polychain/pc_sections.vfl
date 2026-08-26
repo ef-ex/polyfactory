@@ -310,11 +310,13 @@ for (int pr = 0; pr < nprim; pr++) {
         // runs at all.  `whole` is `_weld`'s own test, spelled the same way:
         // a welded group that closes the ring has no boundary left to carry a
         // corner, a cap or an angle.
-        // ⚠️ THE CAPS HALF OF THAT LINE IS BELT AND BRACES AND ITS MUTATION
-        // REDDENS NOTHING: a DISSOLVED boundary is never a `pc_section` limit
-        // (that is what `!is_secbreak[i]` above means), so `start_cap` and
-        // `end_cap` are already 0 wherever `welded` is true.  `pc_sec_closed`
-        // and the angle are the halves that carry weight.  31.2.
+        // ⚠️ ONLY THE ANGLE IS OBSERVABLE, MEASURED.  A dissolved boundary is
+        // never a `pc_section` limit (`!is_secbreak[i]` above), so both caps
+        // are ALREADY 0 wherever `welded` holds; and `Section.closed` moves no
+        // placement in `plan_section` for a capless section - 4 fills x 3
+        // justifies x evenly x adjust_to_end, 0 differing.  So `pc_sec_closed`
+        // is carried because the reference carries it, and it is the
+        // `cornerAngle` that `AT_ring_seam_marked` reddens on.  31.2.
         int nd = 0;
         for (int t = i0 + 1; t < i1; t++) if (dissolved[t % n]) nd++;
         int welded = (nd > 0);

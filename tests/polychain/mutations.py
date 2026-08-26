@@ -1348,9 +1348,9 @@ MUTATIONS = (
         "            int a = max(seam, 0);", "            int a = 0;"),)),
 
     M("n8_weld_is_never_whole", "native", ("output_guard_parity",),
-      "`_weld`'s `whole` deleted: a welded ring ships `pc_sec_closed = 0`. "
-      "The CAPS half of the same rule reddens nothing - a dissolved corner is "
-      "never a `pc_section` limit, so they were already 0.",
+      "`_weld`'s `whole` deleted, so a welded ring carries a `cornerAngle` "
+      "and ships `pc_sec_closed = 0`. Only the ANGLE is observable - the caps "
+      "were already 0 and `Section.closed` moves no placement (31.2).",
       ((VEX % "pc_sections.vfl",
         "        int whole = closed && (abs((s1 - s0) - total) <= 1e-6);",
         "        int whole = 0;"),)),
