@@ -11,6 +11,17 @@ Branch `cityGen`. Written 2026-08-08.
 
 ## 0.0 RESUME POINTER — overnight run started 2026-08-17
 
+⚠️ **TARGET BRANCH IS `worldengine` — Hannes, 2026-08-17: every agent works there.** Street
+work is COMMITTED on `cityGen` and **merges into `worldengine` when M5 is green**, because git
+refuses one branch in two worktrees and `worldengine` is checked out in the shared tree that
+the buildings and polychain agents are writing to. Merging under them mid-build is the exact
+hazard this project has been bitten by. Agreed with polyfactory-c9 (they offered to hand over
+the shared checkout; declined — they are about to write assets and moving them buys nothing).
+**Merge protocol: ping c9, wait for the go-ahead, then
+`git -C F:/projects/polyfactory merge --no-ff cityGen`. If `tests/citygen/baseline.json`
+conflicts, take OURS wholesale — it is a regenerated 14,000-value snapshot and a hand-merged
+one is meaningless.**
+
 ⚠️ **WORKTREE, NOT THE SHARED CHECKOUT.** All street work happens in
 **`F:/projects/polyfactory-citygen`** (a `git worktree` on `cityGen`). The shared checkout at
 `F:/projects/polyfactory` belongs to OTHER AGENTS and has been on `polychain` and `worldengine`
