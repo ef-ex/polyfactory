@@ -1163,7 +1163,8 @@ MUTATIONS = (
       "the oracle builds the one on input 2. It is the broadest of the "
       "three and it proves input 2 is read at all.",
       ((PY % "hda.py",
-        "    return kit_geometry(node, parms, fallback=_kit.starter_facade_kit)",
+        "    return kit_geometry(node, parms, fallback=_kit.starter_facade_kit,"
+        " say=say)",
         "    return _kit.starter_facade_kit()"),), rebuild=False),
 
     M("facade_surface_port_unplugged", "facade",
