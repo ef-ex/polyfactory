@@ -17,10 +17,13 @@ refuses one branch in two worktrees and `worldengine` is checked out in the shar
 the buildings and polychain agents are writing to. Merging under them mid-build is the exact
 hazard this project has been bitten by. Agreed with polyfactory-c9 (they offered to hand over
 the shared checkout; declined — they are about to write assets and moving them buys nothing).
-**Merge protocol: ping c9, wait for the go-ahead, then
-`git -C F:/projects/polyfactory merge --no-ff cityGen`. If `tests/citygen/baseline.json`
-conflicts, take OURS wholesale — it is a regenerated 14,000-value snapshot and a hand-merged
-one is meaningless.**
+✅ **Merge protocol, SETTLED 2026-08-27:** c9 owns the merge and runs
+`git -C F:/projects/polyfactory merge --no-ff origin/cityGen` from the shared checkout once
+their G2 agent clears it. Overlap was verified from BOTH sides — we share two directories and
+no files. If `tests/citygen/baseline.json` ever conflicts, take OURS wholesale: it is a
+regenerated 14,000-value snapshot and a hand-merged one is meaningless. **Do not merge from
+this worktree** — the hazard is two concurrent git operations on one checkout, which has
+already destroyed a staged edit on it once.
 
 ⚠️ **WORKTREE, NOT THE SHARED CHECKOUT.** All street work happens in
 **`F:/projects/polyfactory-citygen`** (a `git worktree` on `cityGen`). The shared checkout at
@@ -28,9 +31,21 @@ one is meaningless.**
 during this session — **never `git checkout` there, never `git worktree remove` this one while
 work is uncommitted.** Commit and push per item; interruptions are routine.
 
-**Where we are:** M5's mover shipped (`7ce975f`). `graph_min_angle` deletes nothing; M and O
-ship all their streets. Gate **27 failing** — the standing 25 plus O's two merge-mouth rows.
-49 unit tests. Baseline is current; a fresh gate must print **0 moved rows**.
+**Where we are (2026-08-27, tip `627b6e2`) — THIS PARAGRAPH IS THE ONE TO TRUST; everything
+below it that predates M5.4b is kept for reasoning and is marked where it is superseded.**
+
+* **M5.4b (the gore fix) is LANDED AND AUDITED.** Cut at 6° went 1121.72 → 249.71 m; no street
+  is deleted at any angle 22→ 2°.
+* ⛔ **M5.5 IS NOT SOUND. THE UNIT SUITE IS RED: 11 of 74**, all at `J_five_star` node
+  (48.000, 0.000). **Do NOT re-pin the bound to go green** — see the M5.5 block below for the
+  corrected per-arm diagnosis and the right fix.
+* **Gate: 26 failing** over **17** cases (25 on the original 16; the 17th, `R_shallow_y_12_subfloor`,
+  contributes its own row and is not a regression). **74 unit tests** (52 of them `test_plan.py`).
+* **Baseline is current** — a fresh gate prints **0 moved rows**. `trim_calibration.json` is
+  current too, and `calibration_is_not_stale` now enforces that every run.
+* **The merge to `worldengine` is agreed and pending c9**, who runs it once their G2 agent clears
+  the shared checkout. Expect gate **26** / unit **11 of 74**; both are expected, neither is a
+  regression.
 
 **Commands, from the worktree root:**
 ```
@@ -41,7 +56,16 @@ HOUDINI_PATH="F:/projects/polyfactory-citygen/polyfactory;&" \
   tests/citygen/run_scene_checks.py --json <scratch>.json
 ```
 
-⭐ **MEASURED 2026-08-17, BEFORE ANY MOUTH CODE LANDS — two findings that shape the fix:**
+⚠️ **SUPERSEDED BY M5.4b — kept for the reasoning, NOT for its numbers.** The block below was
+written before any mouth code landed. Its census (finding 1) still holds. **Finding 2's
+arithmetic does NOT: the "~94 m" separation is wrong.** Two ribbons of half-width `h` diverging
+at θ overlap in a rhombus whose far vertex is the kerb-line intersection, so the separation is
+`h·cot(θ/2)` — not `2h/sin θ` — and the width is the built ribbon **26.80 m**, not 32.80
+(`streetWidth` already contains the sidewalks). O's true figure is **68.94 m**. And its "next
+construction to try" was not what shipped: M5.4b gave the gore nose a GORE radius instead, which
+is why the cut is 78 m and not 94. Read it as history.
+
+⭐ **MEASURED 2026-08-17, BEFORE ANY MOUTH CODE LANDS — two findings that shaped the fix:**
 
 1. **The miter clamp fires ONLY on M and O.** Instrumented over all 16 cases: **9 fires in
    3,721 corner pairs**, every one at a merge landing (15.5° on M, 22.0° on O). So the mouth
