@@ -41,8 +41,8 @@ branch `worldengine`, **never push**, never rewrite history, stage named paths o
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified headless by the polyChain build) |
 | Owning spec | §12 of this file. Build order is §12.10, **gates G1/G2 before any B-stage** |
 | Last completed | ⭐ **G2 BUILT — B4 FACADE + B5 CAP + B6 JUNCTIONS, AND AN L THAT CLOSES**, 2026-08-27, on `HEAD` `bea6200`+. Full result in **§12.10b**. **5 checks / 8 clauses / 8 mutations all RED, 0 failing**; G1 re-run on the same build at **17 / 28 / 33, 0 failing, baseline unmoved** but for R4-1's new site. ⭐ **No hole and no misalignment at any of the L's five convex corners, at its REFLEX corner, or at the eave seam** — 15 768 perimeter samples per storey row, 0 uncovered, worst gap 0.000 m, a corner module at every corner. ⭐ **B4 turned out to be an ADAPTER, not a builder** (§0.0a predicted it): one wrangle turns B2's cap faces into what `facade.footprint_loops` wants and `pf_polychain_facade` does the rest, corner treatment included. **B5 is `polyexpand2d`'s straight skeleton plus `y = datum + travel × tan(pitch)`**; **B6's seam is one decision — the roof follows the facade that was BUILT, never the height that was asked for**. ⭐ **THE COOK-TIME MEASUREMENT §0.0d ASKED FOR IS DONE AND IT DISCRIMINATES**: at 64 L-shaped buildings `bend` 0.324 s / 12.2 µs per prim, `miter` 0.879 s / 42.3 µs per prim = **2.72×** — and the same build with the corners forced DEGENERATE is **1.08×**, so the cost IS the `[vex:corners]` refusal taking the reference, not the miter assembly. `bend` amortises (35.6 → 12.2 µs/prim), `miter` stays flat, so **the penalty worsens at district scale**. ⭐ **ONE PRODUCTION DEFECT FOUND AND FIXED, the one the brief sent G2 to look for:** `pf_inset.vfl`'s header said a self-intersecting fold would show as an `_area0` sign change — **measured FALSE**; an L whose short leg folds keeps every corner inside the lot AND keeps its area's sign while shrinking (+552 → +118.5), so containment and all three area terms are silent and the bowtie SHIPPED with a roof missing surface at two of its own corners. `pf_collapse.vfl` gains a strictly-proper edge-crossing test; no false positive on any G1 site and G1's baseline did not move. Also: `rails: solid` (§12.5 could not say "one volume, this shape" without also saying "something went wrong"), `plan_follows_data/footprint` **generalised from a bounding box to per-edge distances** (round 4 measured the box as exactly vacuous on an L), and **R4-1 and R4-5 closed**. ⚠️ **Budget 2.10× and the marginal ratio was 2.52× — the line was NOT held and the trend did NOT turn; commit `bea6200`'s "marginal 1.20x" is WRONG and §12.10b carries the correction.** ⛔ **Rule 0: implementer's own account. NO AGENT MAY RECORD G2 AS DECIDED ON IT, and G2's human viewport pass is owed exactly as G1's is.** *Previous entry:* ⭐ **ROUND-4 INDEPENDENT AUDIT — RAN, AND IT DECIDES G1**, 2026-08-26, inspect-only, on `HEAD` `756a787`. Full result in **§12.10a "Round 4"**. ✅ **G1 — topology as data — IS DECIDED.** It reproduced the suite exactly (17 checks / 28 clauses / 32 mutations, all RED, 0 failing, baseline 0 moved, budget 1.89×) and verified each of round 3's four conditions independently: ⭐ **the `R3-2` oracle has NOT re-entered the methodology trap** — it stands still under the VEX mutation *and* discriminates a production bug on the authored path (`stamp()` ignoring the authored value reddens `footprint` with the geometry at `[320, 0, 360, 20]` against a `want` of `[322, 2, 358, 18]`), and the whole registry was re-swept with no instance of the trap surviving; ⭐ **`R3-4`'s three-edit mutation is honest** — the two enabling edits ALONE leave `volume_count_matches` PASS and redden only `rule_reuse`, so the defect edit is what proves the clause; ⭐ **`R3-1`, `R3-5`, `R3-7` each redden the clause they NAME** (`R3-1` reads *"24 meet it in plan, 0 share height"* with `plan_match` green, radius 6; `R3-5` and `R3-7` radius 1); ⭐ **`_wanted` MUST NOT BE DELETED and round 3 was wrong** — measured on a 6-corner L lot under a 4-volume `ring` template, deleting it FAILS correct geometry with `[(11, 6, 4)]`, which is G2's own subject; and ⭐ **§12.12's per-storey height table IS authorable today as a list of dicts** (re-measured through the shipped authoring path). It found six defects, **`R4-1`…`R4-6`, none of them gate-blocking** — the sharpest is that **the `pf_setback` sentinel is defended by NO check** (reverting `stamp()` to `> 0.0` leaves all 28 clauses green and the baseline unmoved) and **fails unsafe, silently and tracelessly** (a B0 writing 0.0 by omission builds on the lot line with all four warnings at 0). ⚠️ **Hannes' human viewport pass is owed regardless and no agent may record it as satisfied**; ⚠️ **deciding G1 does NOT ratify the `pf_setback` schema change — §0.0g row 9 stays his.** *Previous entry:* **ROUND-3 FIX PASS — DONE, EVERY MUTATION SEEN RED FOR ITS OWN REASON**, 2026-08-26, on `HEAD` `39033d2`. Full result in **§12.10a "Round-3 FIX PASS"**. **All eight defects `R3-1`…`R3-8` are closed**, including the whole gate-closing set. Suite: **17 checks / 28 clauses / 32 mutations, all RED, 0 failing**, baseline regenerated (only the two new fixture sites moved), budget **1.89×**. ⭐ **No new check and no new clause** — round 3's debt condition 1, met by construction; the three added mutations all land on existing clauses and 20 production lines were added. Headline fixes: **`plan_follows_data` models cascade level 5** and no longer fails correct geometry (shown both ways on identical geometry, since a check defect cannot be shown by a mutation); **`pf_setback` gains a NEGATIVE-IS-ABSENT sentinel** so `setback(0)` is authorable at last — ⚠️ **that is a B0 schema change, §12.4 is amended and §0.0g ROW 9 is open for Hannes**; **arity is measured against the cells the rails produced**, so every degraded site warns without inventing `pf_warn_degraded` (§0.0g row 6 closed on its own terms); **`R3-1`'s mutation lifts `ybase` AND `ytop`**, giving "24 meet it in plan, 0 share height" with `plan_match` green; **`assert_storable()` raises at authoring** on the shapes the `.geo` format loses silently (§0.0g row 5 closed, zero test budget). ⛔ **Rule 0: this is the implementer's own account — the honest words until a round-4 INDEPENDENT audit runs are "implemented, verified only by its own suite", and NO AGENT MAY RECORD G1 AS DECIDED ON IT.** *Previous entry:* **ROUND-3 INDEPENDENT AUDIT — RAN, GATE WITHHELD AGAIN**, 2026-08-26, inspect-only, on `HEAD` `1429850`. Full result in **§12.10a "Round 3"**. It reproduced the suite exactly (17/28/29 all RED, 0 failing, baseline unmoved), ⭐ **verified that the methodology trap is genuinely avoided** — both `plan_follows_data` mutations are VEX-side and the oracle was measured standing still while the geometry moved, and the whole registry was swept for the same shape with no instance surviving — and confirmed 11 of the 12 newly-revealed mutations discriminate. It found **eight defects, `R3-1`…`R3-8`**. ⛔ **Blocking: `R3-2`** (`plan_follows_data`'s oracle ignores cascade level 5 and FAILS correct geometry), **`R3-3`** (a float `pf_setback` cannot express `setback(0)` — authoring 0.0 is indistinguishable from absent, and 0 is §12.6 B1's identity op), **`R3-4`** (a topology degradation can ship with all four warnings at 0 and `volume_count_matches` calling it correct). Plus `R3-1`: `elevation_overlap`'s mutation reddens for the wrong reason (it deletes cells, 16 → 10). **Budget ruled: 1.88× is the honest number, the breach is accepted as DEBT with three stated repayment conditions, and ~4 lines of coverage are redundant — no more.** *Previous entry:* **G1 fix pass — DONE AND GREEN**, 2026-08-26. Both round-2 audits' queues are cleared except the budget: **§0.0f items 1–4, 6, 7 and R2-1…R2-7 are fixed with every mutation seen RED**; item 5's storage check and the budget are carried, both with reasons in §0.0f. Suite is **17 checks / 28 clauses / 29 mutations, all RED, 0 failing**, baseline regenerated. Headline fixes: `pf_collapse.vfl` measures CONTAINMENT against `_p0` instead of area (the blocking defect); `plan_follows_data` gives the suite plan-dimension oracles it never had (R2-1); the mutation sweep now demands one mutation per CLAUSE; `pf_warn_footprint_collapsed` stopped firing on intact footprints (R2-6); `stamp()` stopped clobbering a lot's own `pf_seed` (R2-5). ⛔ **This is the implementer's own account — Rule 0 says the honest words until a round-3 INDEPENDENT audit runs are "implemented, verified only by its own suite".** ⚠️ Test code is **1.88× production** (861/457), UP from 1.53×; the runner prints the ratio every run and the denominator decision is Hannes'. |
-| Next up | ⚠️ **CHECK AGAINST `git log --oneline -25` BEFORE STARTING.** ⭐ **1. COMMISSION THE ROUND-N INDEPENDENT AUDIT OF G2** — §12.10b ends with a five-item queue written for it, and the first two items are attacks on G2's own headline clauses (`corner_closure` is a SAMPLED box test at 5 cm; `cap_seam/eave_meets_wall` probes corners and midpoints only). **2. Hannes owes TWO viewport passes now**, G1's and G2's; G2's are the sixteen `tests/citygen/gate_images_g2/g2_*_corner*_*.png`, regenerated with `hython tests/citygen/run_g2_checks.py --images`. **3. The §35.6 miter evidence is in §12.10b and is Hannes' to decide** — it is the one thing that could change how B4/B6 are budgeted at district scale. **4. Still open from round 4 and NOT G2's:** `R4-2`/`R4-3` (B0 and §0.0g row 9), `R4-4` (§0.0g row 6), `R4-6`. **5. Then G3** (§12.10), only after G2 is decided. ⚠️ **Two things G2 leaves for whoever picks up B5:** gables are NOT built (they need the weighted skeleton, `polyexpand2d`'s `uselocalinsidescale`), and that node's surface output REPEATS vertices where the wavefront collapses — 29 zero-length self-edges on this fixture, harmless but real and uncleaned. **6. `rails: solid` is used by ONE template**, which is the shape `rule_reuse` calls a style's code wearing a rule's name; worth Hannes' eye when a second template wants it. *Previously:* ✅ **G1 is decided — do not audit it a fifth time.** **1. `R3-3` shipped a B0 schema change — §12.4 is amended and §0.0g row 9 is open. It is Hannes' to ratify; an auditor may not, and DECIDING G1 DID NOT.** Round 4 added the evidence he needs (`R4-2`): the sentinel **fails unsafe, silently and tracelessly**, and option (c), the companion mask `pf_setback_set`, is the only one of the three that fails safe. **2. The round-4 queue, all cheap and all non-blocking** (§12.10a "Round 4"): `R4-1` the sentinel has no check — one fixture site authoring `[0,0,0,0]` on an `at_einhof` lot plus one registry row that monkeypatches `B.stamp`, no new check and no new clause; `R4-3` an authored **PRIM** `pf_setback` is silently ignored and leaks, and §12.4 declares that class legal — B0's; `R4-5` `assert_storable()` has zero coverage and imports no `hou`, so ~4 lines under `tests/unit/`. **3. Then G2 — corner closure on an L** (§12.10), the acceptance test the whole survey points at (§5 Theme 4). Read §0.0d FIRST: polyChain's miter refusal is per-BUILD and B6's primary strategy walks into it, and ⭐ G2 must **record cook time per corner treatment** for Hannes' pending §35.6 miter decision. ⚠️ G2 needs a **non-convex footprint**, which G1 still never produced: `pf_inset.vfl` solves each corner independently and can fold a non-convex polygon through itself — but note the fix pass changed the ground under this: `pf_collapse.vfl` now DETECTS that fold by containment rather than by area, and `plan_follows_data` is the plan oracle an L-footprint claim needs. Both were built for §0.0f-1 and both are on G2's critical path. ⚠️ Its `footprint` clause assumes a RECTANGULAR lot inset per role; an L lot needs that oracle generalised, and that is G2's first test-side task. |
-| Gates | ✅ **G1 IS DECIDED, 2026-08-26, by the round-4 INDEPENDENT audit** (§12.10a "Round 4", HEAD `756a787`). Round 3's four conditions — `R3-2`, `R3-3`, `R3-4` closed and `R3-1`'s clause given a mutation that discriminates — were each verified by an agent that wrote none of the fixes. ⛔ **Do not record it in stronger words than the block quoted at the end of §12.10a "Round 4".** ⚠️ **Three things "decided" does NOT include:** Hannes' human viewport pass (still owed, see below); ratification of the `pf_setback` sentinel (§0.0g row 9, still his — deciding G1 does not ratify a schema); and anything beyond **topology** — §12.10a's own "what G1 did NOT test" still binds. Round 4 found six further defects, `R4-1`…`R4-6`, **none of which bears on the gate**; they are queued work in §12.10a "Round 4". The gate's *own question* — is `volumeTopology` data? — was confirmed three times and **is not disputed**. **Do not re-litigate it.** G1 topology-as-data ✅ **DECIDED** · **G2 corner closure on an L — BUILT AND GREEN ON ITS OWN SUITE 2026-08-27, NOT DECIDED** (§12.10b; a round-N independent audit decides it, and ⚠️ **G2's OWN human viewport pass is now owed too** — sixteen per-corner images, `g2_1_corner3_reflex.png` first) · G3 APEX-vs-VEX ⬜ (only after G1+G2). ⚠️ **G1's HUMAN viewport pass is still OWED and no agent may record it as satisfied** — three agents have now looked at `tests/citygen/gate_images_buildings/`; Hannes has not. Regenerate with `hython tests/citygen/run_building_checks.py --images`. The image check no longer compares a number with itself (§12.10a R2-2) but it still cannot see framing or subject identity, so **the human pass remains G1's real image evidence.** |
+| Next up | ⚠️ **CHECK AGAINST `git log --oneline -25` BEFORE STARTING.** ⛔ **1. THE ROUND-N INDEPENDENT AUDIT OF G2 HAS RUN (2026-08-27, `9ba64c4`, inspect-only) AND IT WITHHELD THE GATE — DO NOT COMMISSION IT AGAIN; READ §12.10b "Round N" AND FIX ITS QUEUE.** All five queue items are answered there. **G2 IS NOT DECIDED**, and two of the reasons are not defects: the criterion's *"viewport-verified"* is unmet and is Hannes', and `run_g2_checks.py` **has no image assertion at all**, so his look is G2's ONLY image evidence. Gate-relevant: **`G2-1`** `corner_closure/no_gaps` cannot see an ABSENT storey row (delete all 98 modules of a storey and it reports `0 uncovered, worst 0.000 m` — §2a shape 1 inside the headline clause); **`G2-2`** the vertical axis is unmeasured (a module 2 m out of place in y passes everything; the sampler's real resolution is ≥0.06 m along the wall and ≥0.16 m in depth); **`G2-3`** the miter bench's third column is **bend's output under another name** (same 6 624 prims, `default*` cells only — so it removes the refusal AND the corner assembly together, §2a shape 3), and *"identical 26 496 prims"* is true against `bend`, FALSE against `miter` (20 778) — ⭐ **but a control that changes ONE thing (miter, non-degenerate corners, a kit with NO corner modules) still costs 2.57×, so the conclusion STANDS: the cost is the `[vex:corners]` refusal.** Production: **`G2-4`** the TANGENT fold is unguarded — `front` 8.0 on site 3's 12 m leg gives a self-touching footprint with **all four `pf_warn_*` at 0**, a 0.35 m facade hole and a roof 0.55 m off the wall; the strictly-proper test cannot fire on collinear points. Plus `G2-5` (a roof at TWICE the pitch is green on all five checks), `G2-6`, `G2-7` (`--update-baseline` never computes the diff), `G2-8`, `G2-9` (every G2 building is ONE volume, so the two-array corner the Labs complaint is about was never built). **2. Hannes owes TWO viewport passes now**, G1's and G2's; G2's are the sixteen `tests/citygen/gate_images_g2/g2_*_corner*_*.png`, regenerated with `hython tests/citygen/run_g2_checks.py --images`. **3. The §35.6 miter evidence is in §12.10b and is Hannes' to decide** — it is the one thing that could change how B4/B6 are budgeted at district scale. **4. Still open from round 4 and NOT G2's:** `R4-2`/`R4-3` (B0 and §0.0g row 9), `R4-4` (§0.0g row 6), `R4-6`. **5. Then G3** (§12.10), only after G2 is decided. ⚠️ **Two things G2 leaves for whoever picks up B5:** gables are NOT built (they need the weighted skeleton, `polyexpand2d`'s `uselocalinsidescale`), and that node's surface output REPEATS vertices where the wavefront collapses — 29 zero-length self-edges on this fixture, harmless but real and uncleaned. **6. `rails: solid` is used by ONE template**, which is the shape `rule_reuse` calls a style's code wearing a rule's name; worth Hannes' eye when a second template wants it. *Previously:* ✅ **G1 is decided — do not audit it a fifth time.** **1. `R3-3` shipped a B0 schema change — §12.4 is amended and §0.0g row 9 is open. It is Hannes' to ratify; an auditor may not, and DECIDING G1 DID NOT.** Round 4 added the evidence he needs (`R4-2`): the sentinel **fails unsafe, silently and tracelessly**, and option (c), the companion mask `pf_setback_set`, is the only one of the three that fails safe. **2. The round-4 queue, all cheap and all non-blocking** (§12.10a "Round 4"): `R4-1` the sentinel has no check — one fixture site authoring `[0,0,0,0]` on an `at_einhof` lot plus one registry row that monkeypatches `B.stamp`, no new check and no new clause; `R4-3` an authored **PRIM** `pf_setback` is silently ignored and leaks, and §12.4 declares that class legal — B0's; `R4-5` `assert_storable()` has zero coverage and imports no `hou`, so ~4 lines under `tests/unit/`. **3. Then G2 — corner closure on an L** (§12.10), the acceptance test the whole survey points at (§5 Theme 4). Read §0.0d FIRST: polyChain's miter refusal is per-BUILD and B6's primary strategy walks into it, and ⭐ G2 must **record cook time per corner treatment** for Hannes' pending §35.6 miter decision. ⚠️ G2 needs a **non-convex footprint**, which G1 still never produced: `pf_inset.vfl` solves each corner independently and can fold a non-convex polygon through itself — but note the fix pass changed the ground under this: `pf_collapse.vfl` now DETECTS that fold by containment rather than by area, and `plan_follows_data` is the plan oracle an L-footprint claim needs. Both were built for §0.0f-1 and both are on G2's critical path. ⚠️ Its `footprint` clause assumes a RECTANGULAR lot inset per role; an L lot needs that oracle generalised, and that is G2's first test-side task. |
+| Gates | ✅ **G1 IS DECIDED, 2026-08-26, by the round-4 INDEPENDENT audit** (§12.10a "Round 4", HEAD `756a787`). Round 3's four conditions — `R3-2`, `R3-3`, `R3-4` closed and `R3-1`'s clause given a mutation that discriminates — were each verified by an agent that wrote none of the fixes. ⛔ **Do not record it in stronger words than the block quoted at the end of §12.10a "Round 4".** ⚠️ **Three things "decided" does NOT include:** Hannes' human viewport pass (still owed, see below); ratification of the `pf_setback` sentinel (§0.0g row 9, still his — deciding G1 does not ratify a schema); and anything beyond **topology** — §12.10a's own "what G1 did NOT test" still binds. Round 4 found six further defects, `R4-1`…`R4-6`, **none of which bears on the gate**; they are queued work in §12.10a "Round 4". The gate's *own question* — is `volumeTopology` data? — was confirmed three times and **is not disputed**. **Do not re-litigate it.** G1 topology-as-data ✅ **DECIDED** · ⛔ **G2 corner closure on an L — THE ROUND-N INDEPENDENT AUDIT RAN 2026-08-27 (`9ba64c4`, inspect-only) AND WITHHELD THE GATE. NOT DECIDED** (§12.10b "Round N"). It reproduced the suite exactly (5/8/8 all RED, 0 failing, baseline 0 moved; G1 at 17/28/33, 0 failing, baseline 0 moved — which is the independent confirmation the new crossing test does NOT false-positive) and recounted the budget to the line with its own counter. **What IS established, in the only words the evidence supports:** *on a single-volume, axis-aligned, fully-hipped L, the facade closes IN PLAN at all five convex corners and at the reflex corner, a kit-tagged corner element stands at every corner, and the roof surface contains the wall-top line at every corner and edge midpoint.* Two of the reasons the gate is withheld are **not defects and not an agent's to waive**: §12.10's criterion ends *"viewport-verified"* and no human has looked, and the criterion says *"eave/gable seam"* while the gable half is not built. ⚠️ **G2's OWN human viewport pass is owed exactly as G1's is** — sixteen per-corner images in `tests/citygen/gate_images_g2/` (untracked), `g2_1_corner3_reflex.png` first — and it matters MORE here than on G1: `run_g2_checks.py` carries **no image assertion of any kind**, so unlike G1 (whose `image_contains_subject` at least measures bytes, `R3-6`) there is **no automated image evidence whatsoever**. Nine findings `G2-1`…`G2-10`, none of which falsifies the narrowed claim above · G3 APEX-vs-VEX ⬜ (only after G1+G2). ⚠️ **G1's HUMAN viewport pass is still OWED and no agent may record it as satisfied** — three agents have now looked at `tests/citygen/gate_images_buildings/`; Hannes has not. Regenerate with `hython tests/citygen/run_building_checks.py --images`. The image check no longer compares a number with itself (§12.10a R2-2) but it still cannot see framing or subject identity, so **the human pass remains G1's real image evidence.** |
 | Run it | `hython tests/citygen/run_building_checks.py [--mutations] [--images] [--update-baseline]`. ⚠️ **hython does not load the polyfactory package** — `POLYFACTORY` is unset and `polyfactory` resolves as a namespace package with no `citygen` in it; the runner puts `polyfactory/scripts/python` on `sys.path` itself. |
 
 ### 0.0a Dependencies — check before picking a stage
@@ -381,6 +381,21 @@ G1–G4; Hannes never has.
   (35.6 → 12.2 µs/prim from 1 to 64 buildings) and `miter` stays FLAT, so the penalty grows exactly
   where batching was supposed to pay. **One L is already enough to trigger it.** This is the
   evidence for Hannes' §35.6 decision; it is his, and G2 did not take it.
+  ⛔ **CORRECTED BY THE ROUND-N AUDIT, 2026-08-27 — READ §12.10b "Round N" `G2-3` BEFORE QUOTING THE
+  PARAGRAPH ABOVE.** Three of its sentences are wrong or imprecise and the conclusion is right.
+  (1) *"builds the identical prim count"* is true against **`bend`** (26 496) and **FALSE against
+  `miter`** (20 778); the degenerate column emits `default*` cells **only** — it is bend's output
+  reached by another parameter, so it removes the refusal AND the whole corner assembly at once and
+  **cannot tell them apart**. (2) The two ratios are not one number: **wall-clock 2.67–2.72×**, but
+  **µs/prim 12.2 vs 42.3 = 3.47×**, because the denominators differ by 21 %. Quote the wall-clock.
+  (3) *"`miter` stays FLAT"* — measured, `miter` also amortises 1→16 (66.1 → 38.8 µs/prim, 1.70×);
+  `bend` merely amortises more (2.99×). The claim that survives is the directional one: **the ratio
+  worsens with district size, 1.37× → 2.45× → 2.67×.**
+  ⭐ **AND THE CONCLUSION SURVIVES A CONTROL THAT CHANGES ONE THING.** `pc_envelope.vfl` decides the
+  refusal from `_cornerpt` + `pc_corner_degen` + `corner_mode`, **never from the kit** — so miter with
+  non-degenerate corners and a kit carrying **no `corner*` modules** still pays **2.57×** at 64
+  buildings while emitting **46 338 prims** (2.2× more geometry than full-kit miter, in less time).
+  **The cost IS the refusal.** Use that column, not the degenerate one.
 - ⚠️ **polyChain's facade node has two open items that become ours if B4 sits on it**: PC-G7 is
   asserted on `facade.build_many` and **not on the asset**, and `pf_polychain`'s `addWarning` route
   is **invisible on the HDA an artist meets** — which collides with §12.8 (warnings persisted and
@@ -2406,6 +2421,13 @@ bend in either mode). So the third column is the same geometry, the same corner 
 `min_included_angle_deg` raised to 120° — which makes the L's 90° corners degenerate.
 **Its cost collapses to `bend`'s (1.08×) and it builds the same 26 496 prims.** The miter
 cost IS the refusal sending the whole build to the reference; it is not the miter assembly.
+⛔ **THE ROUND-N AUDIT MEASURED THIS COLUMN AND IT IS NOT A DISCRIMINATOR — see `G2-3`.**
+26 496 is **`bend`'s** count, not `miter`'s (20 778), and the degenerate column emits
+`default*` cells only: it removes the refusal **and** the corner assembly together. The
+conclusion is nonetheless correct, established by a control that changes one thing (miter,
+non-degenerate corners, a kit with **no** corner modules: still **2.57×**). Replace this
+column with that one, and quote the **wall-clock** ratio (2.67–2.72×), not the µs/prim one
+(3.47×) — the two builds have different denominators.
 
 **Two more things the shape of the table says:**
 - **`bend` amortises and `miter` does not.** `bend` falls 35.6 → 12.2 µs/prim from 1 to 64
@@ -2470,6 +2492,12 @@ the function rather than left to be discovered.
    proper exists and matters; whether a footprint can self-intersect in a way that produces
    an even number of crossings the loop below terminates before seeing (it breaks on the
    first); and anything about non-rectilinear or curved lots — every G2 lot is axis-aligned.
+   ⛔ **THE ROUND-N AUDIT SETTLED TWO OF THESE THREE — see `G2-4`.** The **tangential** case
+   exists, is reachable by a rounder number than this fixture's own (`front` **8.0** on the
+   same 12 m leg, `rear` 4.0), and ships with **all four `pf_warn_*` at 0**: a self-touching
+   ring, a 0.35 m facade hole, two corners with no corner module and a roof 0.55 m off the
+   wall. **The even-crossing worry is NOT real** — `crosses` is a boolean, not a count, so
+   the `break` is safe; strike it. Non-rectilinear and curved lots remain unknown.
 
 ---
 
@@ -2617,6 +2645,297 @@ already established there is essentially no redundant coverage left in the G1 ha
    independently; both previous rounds did and both times it mattered.
 5. ⛔ **Do not record G2 as decided on the implementer's account, and do not record Hannes'
    viewport pass as satisfied.** Four agents have now declined to substitute for him on G1.
+
+✅ **THE ROUND-N AUDIT RAN — 2026-08-27, see the block below. Do not commission it again;
+the five items above are each answered there.**
+
+#### Round N (independent, inspect-only, 2026-08-27) — G2 IS NOT DECIDED, AND THE REASONS ARE NOT ALL THE IMPLEMENTER'S
+
+**Frame, stated first (`build_retrospective.md` §2a: *state what you measured against*).** Every
+number below was measured on **`HEAD` `9ba64c4`**, Houdini **22.0.398**, this machine, the G2
+fixture. `9ba64c4` differs from `e114696` — the tip when this audit started — **only** in
+`ideas/build_retrospective.md` and hook-generated `graphify-out/`; **no production file and no test
+file moved during the audit**, so these findings describe the build they were taken on. The auditor
+wrote **no fix** and **spawned no sub-auditor** (§0.0c-bis 1–2); every probe was an in-memory
+monkeypatch or a scratch `/obj` subtree, and the tree is as it was found.
+
+⛔ **VERDICT: G2 MAY NOT BE RECORDED AS DECIDED.** Two of the reasons are not defects at all and
+neither is an agent's to waive:
+
+1. ⭐ **§12.10's pass criterion ends "viewport-verified", and no one has done it.** ⚠️ **Hannes'
+   human viewport pass is owed on G1 AND on G2 and NO AGENT MAY RECORD EITHER AS SATISFIED.**
+   Worse here than on G1: G1 at least has `image_contains_subject`, and `R3-6` measured that it
+   sees **canvas, not subject** (it passes on 1 of 97 prims and on a different scene entirely).
+   ⛔ **`run_g2_checks.py` has NO image assertion of any kind** — `--images` rasterises 24 PNGs and
+   cannot fail. So for G2 the human look is not merely *the best* image evidence, it is **the only
+   image evidence that exists**. The sixteen `g2_*_corner*_*.png` are present and current
+   (`00:37`, all three sites, `g2_1_corner3_reflex.png` the subject) — and ⚠️ they are **untracked**,
+   so they live in this working tree only.
+2. **The criterion says "eave/gable seam" and the gable half is not built.** §12.10 already carries
+   that departure, so the honest form of the claim is narrower than §12.10b's headline sentence.
+
+**What IS established, in the words the evidence supports:** *on a single-volume, axis-aligned,
+fully-hipped L, the facade closes in PLAN at all five convex corners and at the reflex corner, a
+kit-tagged corner element stands at every corner, and the roof surface contains the wall-top line at
+every corner and edge midpoint.* Everything outside that sentence — the vertical axis, a second
+array, a slanted wall, a gable — is untested, and three of those four are named below.
+
+**Reproduced exactly, before anything was attacked.** G2: 5 checks / 8 clauses / **8 mutations all
+RED**, 0 failing, baseline **0 moved**, `[15768, 0, 0.000, 0]`. G1 on the same build: **17 checks /
+28 clauses / 33 mutations all RED, 0 failing, baseline 0 moved** — which is the independent
+confirmation that **the new crossing test does not false-positive on any of G1's ten sites**.
+Budget **1508 / 717 = 2.10×** recomputed with a *different* counter (tokenize, not `ast`) and
+agreeing to the line.
+
+---
+
+##### ⭐ G2-1 (GATE-RELEVANT) — `corner_closure/no_gaps` CANNOT SEE AN ABSENT STOREY ROW
+
+The row set is derived from the geometry under test:
+`for row in sorted(set(e["pc_row"] for e in el))`. **A row with no modules is not a row, so it is
+never sampled.** Measured: delete all **98** modules of site 1's ground storey and
+
+    corner_closure -> [14062, 0, 0.000, 0]   PASS, worst gap 0.000 m
+
+Same for the middle storey. (The **top** storey is caught, but by `cap_seam/height_as_asked`, not by
+this clause.) The whole suite's only trace is one recorded-baseline row,
+`facade_elements 294 -> 196` — a **count tripwire**, which by construction cannot catch the same
+defect on a fixture whose baseline was recorded while it was already there.
+⛔ **This is `build_retrospective.md` §2a shape 1 verbatim, inside G2's headline clause: the check
+passed because its subject was absent.** The cheap countermeasure is the shape rule itself — assert
+the row COUNT (three) before asserting coverage within a row.
+**Triggering input:** any build that drops a storey row; injected here by prim deletion on the
+shell output.
+
+##### ⭐ G2-2 (GATE-RELEVANT) — THE VERTICAL AXIS IS NOT MEASURED AT ALL
+
+`_in_box` compares **x and z only**. Measured on two mid-wall bays moved bodily through a SOP:
+
+| displacement | `corner_closure` | `cap_seam` | baseline |
+|---|---|---|---|
+| **±2.0 m in Y** | PASS `[15768, 0, 0.000, 0]` | PASS | **0 moved** |
+| 0.10 m in depth | PASS | PASS | 0 moved |
+| **0.16 m in depth** | **FAIL**, 6.100 m uncovered | PASS | 0 moved |
+| 0.04 m along the wall | PASS | PASS | 0 moved |
+| **0.06 m along the wall** | **FAIL**, 0.050 m uncovered | PASS | 0 moved |
+
+So the sampler's real resolution is now known rather than guessed: **≥ 0.06 m along the wall**
+(the 5 cm step, as the implementer stated) and **≥ 0.16 m in depth** — the docstring's flat
+"CANNOT SEE a module at the wrong DEPTH" is *over*-conservative, the true blind band is **±0.15 m**,
+half the module depth. But **a module 2 m out of place vertically passes every clause and moves no
+baseline value.** §12.10b's headline claims *"no hole and no misalignment"*; **misalignment in the
+axis a storey row lives in has no measurement**, and with G2-1 that leaves the facade's entire
+vertical structure unasserted.
+**Triggering input:** any y-displacement that does not change `max(ymax)`.
+
+##### ⭐ G2-3 (GATE-RELEVANT, AND IT IS SHAPE 3) — THE MITER BENCH'S DISCRIMINATOR DOES NOT DISCRIMINATE
+
+§12.10b calls the third column *"the same geometry, the same corner mode"* and says it *"builds the
+identical 26 496 prims"*. **Measured cell census, at 16 loops:**
+
+| column | prims | `pc_cell` classes emitted |
+|---|---|---|
+| `bend` | 6 624 | `default*` only |
+| `miter` | 5 205 | `corner*` **and** `default*` |
+| `miter`, corners forced degenerate | 6 624 | **`default*` only** |
+
+The third column is **bend's output reached by a different parameter** — same prim count, same
+cells, no corner modules. ⚠️ **"identical 26 496 prims" is true against `bend` and FALSE against
+`miter` (20 778)**, and it sits in the paragraph whose argument depends on the miter comparison.
+That is §2a's third shape: *two effects in one measurement, attributed to each other* — the control
+removes the `[vex:corners]` refusal **and** the entire miter corner assembly at once, so it cannot
+tell them apart. It is also why the two ratios in the table are not the same number: **wall-clock
+2.67–2.72×**, but **µs/prim 12.2 vs 42.3 = 3.47×**, because the denominators differ by 21 %.
+
+⭐ **A CONTROL THAT DOES SEPARATE THEM, AND IT VINDICATES THE CONCLUSION.** `pc_envelope.vfl` decides
+the refusal from `_cornerpt` + `pc_corner_degen` + `corner_mode` — **never from the kit**. So: miter,
+non-degenerate corners (refusal still fires), with a kit carrying **no `corner*` modules**:
+
+| 64 L-shaped buildings | cook s | prims | µs/prim | vs `bend` |
+|---|---|---|---|---|
+| `bend`, full kit | 0.3196 | 26 496 | 12.1 | 1.00× |
+| `miter`, full kit | 0.8663 | 20 778 | 41.7 | **2.71×** |
+| `miter`, corners degenerate | 0.3362 | 26 496 | 12.7 | 1.05× |
+| **`miter`, NO corner modules in the kit** | **0.8200** | **46 338** | 17.7 | **2.57×** |
+
+**The penalty survives with nothing to assemble** — 2.57× while building **2.2× more geometry than
+full-kit miter, in less time.** Cost is *anti-correlated with output volume* across the
+bend/miter boundary, which is the signature of a different code path. **So the miter cost IS the
+refusal taking the Python reference; the implementer's conclusion is right and their control did not
+establish it.** Replace the third column with this one.
+
+##### ⭐ G2-4 (PRODUCTION DEFECT, NOT GATE-BLOCKING) — THE TANGENT FOLD IS UNGUARDED, AND IT IS A ROUNDER NUMBER THAN THE BOWTIE
+
+§12.10b item 4 lists "a fold whose crossing is *tangential* rather than proper" as **suspected**.
+**It is now measured, and it is reachable by the roundest number in the fixture.** Site 3's short leg
+is 12 m deep and its `rear` setback is 4.0; author `front` = **8.0** and the two offset lines *meet*
+instead of crossing:
+
+    footprint ring  (102.5, 8.0) (128.0, 8.0) (128.0, 8.0) (114.5, 8.0) (114.5, 20.0) (102.5, 20.0)
+    pf_warn_footprint_collapsed [0]   pf_warn_topology_arity [0]
+    pf_warn_unknown_rule        [0]   pf_warn_cap_group_split [0]
+
+**All four warnings at 0.** The leg has collapsed to zero depth with two coincident points and four
+collinear ones, and a building ships on it: a facade with a **0.35 m hole**, **two corners with no
+corner module**, and a roof **0.55 m off the wall top at two corners**. Every *production* guard is
+silent — containment holds (all corners inside the lot), the area shrank and kept its sign
+(+552 → +144), |a| = 144 ≫ 1e-4, and the crossing test is **strictly** proper (`< 0.0`) so four
+collinear points give `d = 0` and it cannot fire. `plan_follows_data`, `inside_the_lot` and
+`volume_count_matches` all PASS; only `corner_closure` and `cap_seam` — which exist **only in the
+test harness** — go red. ⚠️ **In production the artist gets a broken building and no warning at all.**
+The behaviour is discontinuous: **7.99 → a 1 cm-deep leg, no warning, every check green; 8.00 →
+self-touching, no warning; 8.01 → detected and degraded.**
+**This is round-2 defect 1's shape for the THIRD time** — *a collapse test that catches one failure
+mode does not catch the next one.* The missing term is not another crossing test: `crosses` covers
+escape-by-fold, containment covers escape-by-translation, area covers vanishing, and **nothing covers
+a locally collapsed lobe** — a duplicate vertex or zero-length edge in the offset result.
+⚠️ **Naming the missing term is as far as an auditor goes; the fix is the fix pass's.**
+**Triggering input:** legal cascade-level-5 `pf_setback`, site 3, `front` = 8.0.
+
+⚠️ **One worry in item 4 is NOT real and should be struck:** *"an even number of crossings the loop
+terminates before seeing"*. `crosses` is a **boolean**, not a count — any single proper crossing sets
+it and the `break` is safe. What remains genuinely unknown is non-rectilinear and curved lots.
+
+##### G2-5 — `cap_seam/eave_meets_wall` CONSTRAINS THE SEAM LINE AND NOTHING ELSE
+
+Queue item 2 asked whether a roof wrong *between* the sampled points would pass. The answer is
+sharper than the question: **every point it probes — footprint corners and edge midpoints — lies ON
+the seam line**, and a plane is free to rotate about a line. Measured, VEX-side, on `pf_seam.vfl`:
+
+| mutation | ridge y (site 3) | suite | baseline |
+|---|---|---|---|
+| control | 15.850 | all PASS | 0 moved |
+| **pitch × 2** | **22.101** | **all PASS** | `topY` ×3 |
+| **pitch × 0.5** | **12.725** | **all PASS** | `topY` ×3 |
+| eave overhang × 2 | 16.397 | `cap_seam` **FAIL** (32 probes) | `topY` ×3 |
+| eave overhang → 0 | 15.303 | `cap_seam` **FAIL** (32 probes) | `topY` ×3 |
+
+**A roof at twice the pitch it was asked for — 6.25 m taller — is green on all five checks.** The
+overhang *is* caught (it moves the plane off the wall top), so the clause does what it says; it
+simply says less than "the roof follows the data". The only defence against pitch is `topY` in the
+recorded baseline — a tripwire, and see G2-7.
+**Triggering input:** any change to `_tanpitch` that `pf_seam.vfl` compensates for at the eave.
+
+##### G2-6 — THE THREE STOREY ROWS ARE DISTINCT ELEMENTS BUT AN IDENTICAL MEASUREMENT
+
+Verified as asked: `pc_row` ∈ {0, 1, 2} with 98/98/98 elements on site 1, y bands 0–4 / 4–8.6 /
+8.6–9.6 meeting at **exactly 0.0000**, and **all three `corner*` cells genuinely in use**
+(`corner_start` / `corner` / `corner_end`, 193 each over the fixture) — so the `corner_module` path
+is **not** vacuous and G1-round-1's "a rule used once" shape is **not** present here.
+⚠️ **But the three rows' plan box SETS are bit-identical** — 80/80/80 shared on site 1, 58 on site 2,
+90 on site 3. `corner_closure` measures x/z coverage, so **the per-row loop measures the same
+quantity three times**: 15 768 samples are **5 256 distinct plan positions × 3**. The docstring's
+rationale (*"a gap that exists on one row only"*) cannot be exercised on this pipeline, for the very
+reason §12.10b gives elsewhere — one array, one row solve, one kit. Not a defect; **a headline
+inflated 3×**. ⚠️ **And §0.0 says "15 768 perimeter samples per storey row", which reads as 47 304.**
+It is 15 768 in total.
+
+##### G2-7 — `--update-baseline` WRITES WITHOUT EVER COMPUTING THE DIFF
+
+In **both** runners the blessing path is an `if`/`elif`: when `--update-baseline` is given, `diff()`
+is **never called**. So the operator physically cannot see what moved at the moment of blessing —
+`build_retrospective.md` §2a's *"re-blessing is not maintenance, it is erasure"* is not merely
+possible here, it is **structurally unavoidable**, and the same file's *"verified after blessing is
+not verified"* is the only workflow available. Two lines fix it (compute and print `moved`, then
+write).
+
+⚖️ **RULING ON THE STALENESS EXPOSURE (queue item 3 / the retrospective's live-exposure note).**
+`baseline_g2.json` does **not** carry instance 28's failure mode. The streets fixture was consumed as
+an **oracle** — tests asserted against its values without re-deriving. `baseline_g2.json` is
+re-derived by **`record()`, the same function that writes it**, and compared **exactly** (`!=`, no
+tolerance) on **every run**. That is already the three-point pattern §2a names, met by construction,
+and a build that stopped producing the recorded shape would go red rather than stay green.
+**The real exposures are different and both are named above:** the blessing path erases silently
+(this finding), and **the baseline's COVERAGE excludes the gate's own subject** — it records
+`mass_faces`, `mass_volumes`, `planBox`, `planAreas`, `facade_elements`, `roof_faces`, `topY`, four
+warnings and the published-name list, and **nothing per-corner, no row count, and not
+`corner_closure`'s own sample count**. A regression at a corner that preserves the element count
+moves nothing.
+
+##### G2-8 — THE "KIT CORNER MODULE" IS A RAW POLYGON, AND THE STREAM IS MIXED
+
+`elements()` explains at length that every extent comes from the `bounds` intrinsic *because a packed
+prim has one vertex*. Measured on the shipped output: **595 Polygon prims and 249 PackedGeometry** —
+and the split is exactly by cell. **Every `corner*` prim is a raw Polygon** (193 each); every
+`default*` prim is packed (83 each). The miter corner comes back from the Python reference as loose
+polygons, ~12 per corner per row.
+Three consequences worth recording: `corner_module` asserts *"the corner point lies inside the
+bounding box of something tagged `corner*`"*, which is a **polygon shard**, not a kit module — the
+clause still discriminates presence (the `bend` mutation reddens it) but §12.10b's *"a corner module
+at every corner"* is stronger than what is measured; `facade_elements` in the baseline counts a
+**mixture of modules and polygons**, so 294 is not 294 modules; and **instancing is defeated at every
+corner**, which belongs beside §12.10b's "no instancing tested" note rather than inside it.
+
+##### G2-9 (SCOPE) — EVERY G2 BUILDING IS ONE VOLUME, SO THE CORNER THE LABS COMPLAINT IS ABOUT WAS NEVER BUILT
+
+The structural half of the claim is **verified**: `pf_facade_in.vfl` sets `s@pc_array =
+s@pf_volume_id`, and measured, `pc_array` takes exactly one value per volume — so both legs of the
+L are one array, one row solve, one kit, and a ledge-depth shift between them cannot arise.
+⚠️ **But all three fixture sites are `mass_volumes: 1`** (the template is `rails: solid`), so
+**B4/B5/B6 have never been cooked on a multi-volume building at all.** §5 Theme 4's failure is about
+a corner where two arrays meet; that corner does not exist in this fixture, so *"on this pipeline
+that failure cannot arise"* is demonstrated for a building's own corners and **untested for the case
+the complaint is actually about** — which is also where G1's `ring`/`bar` templates and `cell_split`
+live. Queue it for B6, not for G2.
+
+##### ⚖️ G2-10 — THE BUDGET RULING
+
+**The numbers are right and I recount them to the line**, with a tokenize-based counter written
+independently of the runner's `ast` walk:
+
+| | production | test | ratio |
+|---|---|---|---|
+| `0ab29c7` (G1 decided) | 477 | 901 | **1.889×** |
+| `9ba64c4` (HEAD) | 717 | 1508 | **2.103×** |
+| **marginal** | **+240** | **+607** | **2.529×** |
+
+So §12.10b's 2.10× / 2.53× are correct, `bea6200`'s *"marginal 1.20x"* is indeed wrong, and the
+correction-in-place rather than a history rewrite is the right call. ⚠️ §0.0 says **2.52×** where
+§12.10b says 2.53× — 2.529 is the number.
+
+⚠️ **Two corrections, and one of them is the numerator itself.**
+1. **`tests/unit/test_citygen.py::TestStorableGuard` is buildings test code and is NOT counted.**
+   G2 added it for `R4-5`; it is **23 counted lines** and it tests `buildings.assert_storable`.
+   The runner's own docstring says *"a new runner that its own ratio does not count is how a size
+   budget stops meaning anything"* — the same argument applies to a file under `tests/unit/`.
+   **The honest figure is 1531 / 717 = 2.14×.**
+2. **"Where the 607 went" is wrong in all three terms** though the total is right: `run_g2_checks.py`
+   is **429** counted lines, not ~330; `checks_buildings.py` grew **+145**, not ~215;
+   `run_building_checks.py` grew **+33**, not ~60. That matters to the deletion offer — §12.10b
+   presents ~100 deletable lines against a runner it sizes at ~330 (30 %); against the real 429 it is
+   23 %, and deleting **both** the `--cost` bench and the image emitter takes 2.10× to **≈1.96×**.
+
+⛔ **RULING: the round-3 terms are being met by the LETTER and broken in SUBSTANCE, and the trend
+cannot be arrested by the mechanism now in place.** Condition 1 was *no new check without a deletion
+or a production line*. G2 added 240 production lines and 3 new checks/5 new clauses, so the letter
+holds. But the substance of the condition was that the ratio would stop rising, and it has now risen
+**four cycles running** — 1.53 → 1.88 → 1.89 → **2.10** — with the **marginal** ratio rising too,
+2.0× → **2.53×**. **A rule that permits the average to rise every time it is obeyed is not a brake.**
+And the arithmetic says it cannot become one here: taking the only two honestly-deletable items
+still leaves **≈1.96×**, and §12.10b is right that nothing else is redundant — I found no clause
+without a mutation seen red for its own reason, and I found **three clauses that assert LESS than
+their names claim** (G2-1, G2-2, G2-5), which is an argument for more coverage, not less.
+⭐ **THIS IS A FINDING FOR HANNES, NOT A HOUSEKEEPING NOTE (§0.0g row 4).** The honest statement is:
+*at the current rate the building suite reaches 3× before B3–B5 land, the stated repayment condition
+("reassess when production grows") has now been tested once and production grew 50 % while the ratio
+rose anyway, and the choice is between changing the denominator rule, changing the target, or
+accepting an unbounded breach.* An auditor may not pick one.
+
+##### What this audit could NOT verify
+
+- **Anything a human eye is for.** No image was opened or judged, and no agent may substitute
+  (§0.0g row 3). G2 has no image assertion at all, so this gap is total rather than partial.
+- **Non-rectilinear or curved lots**, gables, module geometry *inside* its box, UVs, instancing,
+  district-scale cook of B5/B6, memory, any Houdini but 22.0.398, and any multi-volume building
+  (G2-9).
+- **Whether `_native_ok` was actually 0 in the miter runs.** `pc_envelope.vfl` writes it as `_*`
+  scratch and it is swept before the output, so the refusal is still **inferred** — G2-3's control
+  narrows the inference to one cause but does not observe the flag. A one-line debug output on the
+  facade asset would make it observable; that is polyChain's to give.
+- **Whether the tangency of G2-4 has siblings** at other exact sums, or on a non-axis-aligned lot.
+  One case is measured; the class is not enumerated.
+- **The cost bench's absolute numbers on a quiet machine.** Best-of-three on a machine also running
+  an editor; the ratios are stable across reruns, the absolute times are ±2 %.
 
 ### 12.11 v1 acceptance
 
