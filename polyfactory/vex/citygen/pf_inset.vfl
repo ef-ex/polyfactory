@@ -22,6 +22,14 @@
 // It also assumes one prim per point - lots are separate loops, not a shared
 // planar graph.
 
+// Stashed BEFORE anything moves, and before the early return below.  §12.8
+// wants a FALLBACK when an offset goes degenerate, and `pf_collapse.vfl`
+// measures containment against it - so a prim too degenerate to inset must
+// not leave `_p0` at the ORIGIN and hand both readers a polygon at 0,0,0.
+// Unreachable from a lot polygon today; written this way so it stays that
+// way.  `_*`, so it is swept before the output.
+v@_p0 = @P;
+
 int pr = pointprims(0, @ptnum)[0];
 int pts[] = primpoints(0, pr);
 int n = len(pts);
@@ -45,11 +53,6 @@ vector n1 = normalize(set(-d1.z, 0.0, d1.x)) * sgn;
 // vertex, which is the only class that can hold a different value per edge.
 float s0 = vertex(0, "_inset", vertexindex(0, pr, im));
 float s1 = vertex(0, "_inset", vertexindex(0, pr, i));
-
-// Stashed before the corner moves: §12.8 wants a FALLBACK when an offset goes
-// degenerate, and once the corners have been solved the shape they came from
-// is gone. `_*`, so it is swept before the output.
-v@_p0 = p0;
 
 float c0 = dot(p0, n0) + s0;
 float c1 = dot(p0, n1) + s1;

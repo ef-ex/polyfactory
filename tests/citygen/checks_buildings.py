@@ -23,18 +23,23 @@ TOL = 1e-3
 
 
 class Result(object):
-    __slots__ = ("name", "ok", "value", "detail", "skipped")
+    """`ok` is a bool, or a DICT of clause name -> bool.
+
+    The dict form exists because a four-clause check can ship three clauses
+    nobody ever proved, and the runner could not see it: its sweep demanded
+    one mutation per check NAME.  `party_walls_are_real`'s elevation clause
+    was the live example - real teeth, no mutation of its own.  Naming the
+    clauses is what lets the runner demand a mutation for each of them.
+    """
+    __slots__ = ("name", "ok", "value", "detail", "skipped", "clauses")
 
     def __init__(self, name, ok, value=None, detail="", skipped=False):
         self.name = name
-        self.ok = ok
+        self.clauses = dict(ok) if isinstance(ok, dict) else {name: bool(ok)}
+        self.ok = all(self.clauses.values())
         self.value = value
         self.detail = detail
         self.skipped = skipped
-
-    def as_dict(self):
-        return {"name": self.name, "ok": self.ok, "value": self.value,
-                "detail": self.detail, "skipped": self.skipped}
 
     def __repr__(self):
         state = "SKIP" if self.skipped else ("PASS" if self.ok else "FAIL")
@@ -53,10 +58,9 @@ def faces(geo, site=None):
     for prim in geo.prims():
         rec = {"prim": prim.number()}
         for name in ("pf_elem_id", "pf_volume_id", "pf_volume_role",
-                     "pf_wall_role", "pf_face_role", "pf_shared_with",
-                     "pf_style_id"):
+                     "pf_wall_role", "pf_shared_with", "pf_style_id"):
             rec[name] = prim.attribValue(name)
-        for name in ("pf_site_id", "pf_volume_index", "pf_storeys",
+        for name in ("pf_site_id", "pf_volume_index", "pf_seed",
                      "pf_cap_group", "pf_warn_cap_group_split",
                      "pf_warn_footprint_collapsed", "pf_warn_unknown_rule",
                      "pf_warn_topology_arity"):
@@ -84,15 +88,51 @@ def volumes(geo, site=None):
     return by
 
 
-def _plan_key(pts):
-    """A face's footprint in (x,z), ignoring Y.
+def _plan_key(face):
+    """A face's footprint in (x,z), ignoring Y.  The ONE identity, used by
+    both checks that match a face to its neighbour - it was written twice,
+    once here and once inside `party_walls_are_real`, which is two ways to
+    disagree about what "the same wall" means.
 
     Two volumes of one building meet in PLAN but not in elevation: their
     skirts reach different depths because the ground under each is different,
     so the shared face is only shared over the overlapping height.  Comparing
     the full 3D face would report a continuous farmhouse as three detached
     buildings - measured, it did."""
-    return tuple(sorted(set((round(p[0], 3), round(p[2], 3)) for p in pts)))
+    return tuple(sorted(set((round(p[0], 3), round(p[2], 3))
+                            for p in face["pts"])))
+
+
+def _area2d(pts):
+    """Shoelace in (x,z), unsigned."""
+    n = len(pts)
+    return abs(sum(pts[i][0] * pts[(i + 1) % n][2]
+                   - pts[(i + 1) % n][0] * pts[i][2]
+                   for i in range(n))) * 0.5
+
+
+def plan_box(fs):
+    """(xmin, zmin, xmax, zmax) of a set of faces."""
+    pts = [p for f in fs for p in f["pts"]]
+    return (min(p[0] for p in pts), min(p[2] for p in pts),
+            max(p[0] for p in pts), max(p[2] for p in pts))
+
+
+def plan_areas(geo, site):
+    """Each volume's CAP area in plan, ordered by `pf_volume_index`.
+
+    ⚠️ THE QUANTITY THE FIRST BUILD RECORDED NOWHERE.  A round-2 audit cut the
+    bar at half the fraction asked - `append(ts, cuts[c] * 0.5)` in shipped
+    VEX - which moved the Einhof dwelling from 20 m to 10 m and the barn from
+    12.5 m to 28.8 m, and all sixteen checks AND the baseline stayed green,
+    because between them they recorded volumes, faces, roles, cap groups, wall
+    roles and cap heights and not one plan dimension."""
+    out = []
+    for vfs in volumes(geo, site).values():
+        cap = [f for f in vfs if f["pf_wall_role"] == "cap"]
+        out.append((vfs[0]["pf_volume_index"],
+                    _area2d(cap[0]["pts"]) if cap else 0.0))
+    return [a for _i, a in sorted(out)]
 
 
 # --- the gate criteria ------------------------------------------------------
@@ -120,15 +160,23 @@ def single_roof(geo, site, min_roles=3, name="single_roof"):
         tops.update(round(f["ymax"], 3) for f in fs if
                     f["pf_wall_role"] == "cap")
     joined = 0
-    keys = dict((vid, set(_plan_key(f["pts"]) for f in fs
+    keys = dict((vid, set(_plan_key(f) for f in fs
                           if f["pf_wall_role"] == "party"))
                 for vid, fs in vols.items())
     ids = list(vols)
     for a in range(len(ids) - 1):
         if keys[ids[a]] & keys[ids[a + 1]]:
             joined += 1
-    ok = (len(groups) == 1 and len(tops) == 1 and len(roles) >= min_roles
-          and joined == len(ids) - 1 and len(ids) >= min_roles)
+    # Three conjuncts, ONE claim - a chain of N joined volumes carrying N
+    # functions - so they are one clause and fail together.  The two roof
+    # halves are separate claims and get separate clauses, because a shared
+    # cap group with a height step and a height-matched pair in two groups
+    # are different defects with different causes.
+    ok = {"one_cap_group": len(groups) == 1,
+          "one_eave": len(tops) == 1,
+          "chain_of_functions": (len(roles) >= min_roles
+                                 and len(ids) >= min_roles
+                                 and joined == len(ids) - 1)}
     return Result(name, ok,
                   [len(ids), sorted(roles), sorted(groups), sorted(tops),
                    joined],
@@ -210,6 +258,20 @@ def encloses_courtyard(geo, site, depth=None, name="encloses_courtyard"):
     `courtyardDepthM` from the outer wall, so the built tract depth is
     re-derived from the data file rather than compared with itself.
 
+    ⚠️ MEASURED AT EDGE MIDPOINTS, NOT AT CORNERS, and that is a fix not a
+    detail.  `_inside` returns the clearance to the NEAREST outer edge, and at
+    a corner that is `min(d_prev, d_next)` - so ONE correct neighbour per
+    corner was enough to pass.  A round-2 audit scaled one pair of opposite
+    edges 1.6x and built a 518.4 m2 courtyard where 864 m2 was asked for; this
+    check reported "12.00-12.00 m against 12.00 asked for".  An edge's
+    midpoint is nearest to that edge's own outer partner, so each edge is now
+    measured on its own account and the non-uniform ring reads 12 and 19.2.
+    ⚠️ Still a nearest-edge measure, not an index-matched one: a courtyard
+    edge that ends up nearer some OTHER outer edge than its own partner is
+    measured against the wrong one.  `pf_inset` preserves index
+    correspondence, so the index-matched version is available if a footprint
+    ever bends far enough to need it.
+
     ⚠️ This took three tries and each failure is worth keeping.  Version one
     measured the courtyard's AREA, so setting the depth to 0 made the whole
     2 728 m2 footprint read as a courtyard.  Version two added the band, which
@@ -237,13 +299,17 @@ def encloses_courtyard(geo, site, depth=None, name="encloses_courtyard"):
     closed, area, ring = _loop(yard)
     out_closed, out_area, out_ring = _loop(outer)
     band = out_area - area
-    gaps = ([_inside(out_ring, q) for q in ring]
+    mid = [((ring[i][0] + ring[(i + 1) % len(ring)][0]) * 0.5,
+            (ring[i][1] + ring[(i + 1) % len(ring)][1]) * 0.5)
+           for i in range(len(ring))]
+    gaps = ([_inside(out_ring, q) for q in mid]
             if closed and out_closed else [-1.0])
     lo, hi = min(gaps), max(gaps)
-    ok = (ends == 0 and closed and out_closed and len(vols) >= 3
-          and area > TOL and band > TOL and lo > TOL
-          and (depth is None or (abs(lo - depth) <= 0.01
-                                 and abs(hi - depth) <= 0.01)))
+    ok = {"closed_ring": (ends == 0 and closed and out_closed
+                          and len(vols) >= 3 and area > TOL and band > TOL),
+          "tract_depth": (lo > TOL
+                          and (depth is None or (abs(lo - depth) <= 0.01
+                                                 and abs(hi - depth) <= 0.01)))}
     return Result(name, ok, [len(vols), ends, len(yard), round(area, 2),
                              round(band, 2), round(lo, 2), round(hi, 2)],
                   "%d volumes, %d free ends, %d courtyard faces, courtyard "
@@ -251,6 +317,64 @@ def encloses_courtyard(geo, site, depth=None, name="encloses_courtyard"):
                   "against %s asked for"
                   % (len(vols), ends, len(yard), area, band, lo, hi,
                      "%.2f" % depth if depth is not None else "nothing"))
+
+
+def plan_follows_data(geo, lots, templates, degraded=(),
+                      name="plan_follows_data"):
+    """WHERE THE MASS IS AND HOW BIG IT IS IN PLAN - the dimension nothing in
+    the first build could see, and the one G2's L-footprint is made of.
+
+    Two DIFFERENTIAL ORACLES, both computed here from the fixture's own lot
+    rectangle and the template's numbers, never from the geometry:
+      * `footprint` - a rectangle inset per role is arithmetic, so the built
+        mass's plan bounds must equal `lot inset by setbackM`. `pf_inset.vfl`
+        solving corners is not consulted; the expected box is four additions.
+      * `cell_split` - under `bar` the cells' plan AREAS must be in the ratio
+        of the `cutsAt` intervals. Compared in `pf_volume_index` order, or its
+        reverse, because the rail direction follows the longer edge.
+
+    ⚠️ PAIR THIS ONLY WITH VEX MUTATIONS.  It reads the template, so a
+    template-side mutation moves the oracle and the geometry together and both
+    "pass" - auditor #2's first drafts of these oracles did exactly that.
+
+    CANNOT SEE: a degraded site (skipped - its footprint is by definition not
+    the one the data asked for); a lot whose setbacks are authored per vertex
+    rather than tabled per role (site 6, also degraded); anything about
+    elevation; nor two cells of equal area swapped.
+    """
+    bad = []
+    for site, style, (ox, oz), (sx, sz), roles in lots:
+        if site in degraded:
+            continue
+        tpl = templates[style]
+        fp = tpl["lotToFootprint"]
+        table = fp["setbackM"] if fp["op"] != "identity" else {}
+        s = [float(table.get(r, 0.0 if fp["op"] == "identity"
+                             else fp["defaultSetbackM"])) for r in roles]
+        want = (ox + s[3], oz + s[0], ox + sx - s[1], oz + sz - s[2])
+        got = plan_box(faces(geo, site))
+        if max(abs(g - w) for g, w in zip(got, want)) > TOL:
+            bad.append((site, "footprint", [round(v, 2) for v in got],
+                        [round(v, 2) for v in want]))
+        topo = tpl["volumeTopology"]
+        if topo["rails"] != "bar" or not topo["cutsAt"]:
+            continue
+        edge = [0.0] + sorted(float(c) for c in topo["cutsAt"]) + [1.0]
+        wants = [round(edge[i + 1] - edge[i], 4)
+                 for i in range(len(edge) - 1)]
+        area = plan_areas(geo, site)
+        total = sum(area) or 1.0
+        gots = [round(a / total, 4) for a in area]
+        if (len(gots) != len(wants)
+                or (max(abs(a - b) for a, b in zip(gots, wants)) > 1e-3
+                    and max(abs(a - b)
+                            for a, b in zip(gots, wants[::-1])) > 1e-3)):
+            bad.append((site, "cell_split", gots, wants))
+    return Result(name, {"footprint": not [b for b in bad if b[1] ==
+                                           "footprint"],
+                         "cell_split": not [b for b in bad if b[1] ==
+                                            "cell_split"]},
+                  len(bad), "plan against the data: %s" % (bad[:2] or "ok"))
 
 
 def rules_serve_more_than_one_style(templates, name="rule_reuse"):
@@ -328,36 +452,47 @@ def party_walls_are_real(geo, name="party_walls_real"):
     party = [(vid, f) for vid, fs in vols.items() for f in fs
              if f["pf_wall_role"] == "party"]
     named = sum(1 for _v, f in party if f["pf_shared_with"])
-
-    def base(f):
-        return tuple(sorted(tuple(round(c, 3) for c in (p[0], p[2]))
-                            for p in f["pts"]))
     plan = {}
     for vid, fs in vols.items():
         for f in fs:
             if f["pf_wall_role"] == "party":
-                plan.setdefault((vid, base(f)), []).append(f)
+                plan.setdefault((vid, _plan_key(f)), []).append(f)
     matched = overlapped = 0
     for vid, f in party:
-        peers = plan.get((f["pf_shared_with"], base(f)))
+        peers = plan.get((f["pf_shared_with"], _plan_key(f)))
         if not peers:
             continue
         matched += 1
         if any(min(f["ymax"], p["ymax"]) - max(f["ymin"], p["ymin"]) > TOL
                for p in peers):
             overlapped += 1
-    ok = (bool(party) and named == len(party) and matched == len(party)
-          and overlapped == len(party))
+    ok = {"named": bool(party) and named == len(party),
+          "plan_match": bool(party) and matched == len(party),
+          "elevation_overlap": bool(party) and overlapped == len(party)}
     return Result(name, ok, [len(party), named, matched, overlapped],
                   "%d party faces, %d name a neighbour, %d meet it in plan, "
                   "%d share height with it"
                   % (len(party), named, matched, overlapped))
 
 
+def _wanted(tpl, corners):
+    """How many volumes a template asks for ON THIS FOOTPRINT.
+
+    Under `ring` the cell count is the FOOTPRINT's edge count and `volumes` is
+    indexed cyclically, so a SHORTER list is legal - that is exactly what
+    `pf_warn_topology_arity` exists to say - and comparing against its length
+    would fail correct geometry.  Latent rather than live today: every fixture
+    lot is a 4-gon and every ring template happens to list four volumes."""
+    vols = len(tpl["volumeTopology"]["volumes"])
+    return corners if tpl["volumeTopology"]["rails"] == "ring" else vols
+
+
 def volume_count_matches_template(geo, templates, sites, degraded_sites=(),
                                   name="volume_count_matches"):
     """Every volume the template asks for is actually IN THE OUTPUT, and only
     the sites the FIXTURE says are impossible are allowed to degrade.
+
+    `sites` is {site: (styleId, corner count of the lot)}.
 
     ⚠️ A cell can vanish without a sound: `pfb_cell` refuses a non-positive
     height and returns, and nothing downstream counts.  An audit measured 7
@@ -375,7 +510,7 @@ def volume_count_matches_template(geo, templates, sites, degraded_sites=(),
     CANNOT SEE: a volume that is present and in the wrong place.
     """
     bad = []
-    for site, style in sorted(sites.items()):
+    for site, (style, corners) in sorted(sites.items()):
         fs = faces(geo, site)
         if not fs:
             bad.append((site, 0, "nothing built"))
@@ -383,11 +518,17 @@ def volume_count_matches_template(geo, templates, sites, degraded_sites=(),
         got = len(set(f["pf_volume_id"] for f in fs))
         warned = any(f["pf_warn_footprint_collapsed"] for f in fs)
         if site in degraded_sites:
-            if got != 1 or not warned:
-                bad.append((site, got, "expected 1 degraded + a warning"))
-        elif got != len(templates[style]["volumeTopology"]["volumes"]):
-            bad.append((site, got,
-                        len(templates[style]["volumeTopology"]["volumes"])))
+            # ⚠️ `degraded_sites` maps site -> whether the OFFSET is what went
+            # wrong there, and BOTH directions are asserted. §12.8 defines
+            # `pf_warn_footprint_collapsed` as "offset degenerate", so a site
+            # that degrades for a topology reason must NOT carry it - nothing
+            # else in the suite can see a warning that fires too often, and
+            # this one did, on a footprint that was provably the identity.
+            if got != 1 or bool(warned) != bool(degraded_sites[site]):
+                bad.append((site, got, "expected 1 volume, collapse warning %s"
+                            % bool(degraded_sites[site])))
+        elif got != _wanted(templates[style], corners):
+            bad.append((site, got, _wanted(templates[style], corners)))
         elif warned:
             bad.append((site, got, "degraded when it should not have"))
     return Result(name, not bad, len(bad),
@@ -479,8 +620,8 @@ def plinth_follows_ground(geo, site, name="plinth_follows_ground"):
         datum = fs[0]["pf_plinth_top"]
         datums.add(round(datum, 3))
         depths.add(round(datum - min(w["ymin"] for w in walls), 3))
-    ok = (len(datums) == 1 and len(depths) > 1
-          and min(depths) > TOL and len(vols) > 1)
+    ok = {"one_datum": len(datums) == 1 and len(vols) > 1,
+          "varying_skirts": (len(depths) > 1 and min(depths) > TOL)}
     return Result(name, ok, [sorted(datums), sorted(depths)],
                   "%d floor datum(s) over %d volumes, %d distinct skirt "
                   "depths %s" % (len(datums), len(vols), len(depths),
@@ -495,13 +636,17 @@ STORAGE = {"pf_elem_id": "String", "pf_volume_id": "String",
            "pf_style_id": "String", "pf_site_id": "Int",
            "pf_volume_index": "Int", "pf_storeys": "Int",
            "pf_cap_group": "Int", "pf_plinth_top": "Float",
-           "pf_storey_height": "Float"}
+           "pf_storey_height": "Float", "pf_seed": "Int",
+           "pf_warn_cap_group_split": "Int", "pf_warn_topology_arity": "Int",
+           "pf_warn_footprint_collapsed": "Int", "pf_warn_unknown_rule": "Int"}
 
 
 def attribute_storage(geo, name="attribute_storage"):
     """D223: an attribute's STORAGE is part of its contract.  An int id once
     shipped a different fence AND a different curve order with no coverage, so
-    every id B2 mints is enrolled here from day one.
+    every id B2 mints is enrolled here from day one.  ⚠️ "Every" was a claim
+    and not a fact until round 2: `pf_seed` and all four `pf_warn_*` were
+    missing from the table under a docstring that said they were in it.
 
     CANNOT SEE: an attribute of the right storage carrying a wrong value.
     """
@@ -524,7 +669,8 @@ def elem_ids_structural(geo, other, name="elem_ids_structural"):
     a = [f["pf_elem_id"] for f in faces(geo)]
     b = [f["pf_elem_id"] for f in faces(other)]
     dupes = [k for k, v in collections.Counter(a).items() if v > 1]
-    ok = not dupes and sorted(a) == sorted(b) and len(a) > 0
+    ok = {"unique": not dupes and len(a) > 0,
+          "order_independent": sorted(a) == sorted(b) and len(a) > 0}
     return Result(name, ok, [len(a), len(set(a)), len(set(b))],
                   "%d ids, %d duplicates, %d differ under reordered input"
                   % (len(a), len(dupes), len(set(a) ^ set(b))))
@@ -568,31 +714,39 @@ def published_names(geo):
             "groups": sorted(g.name() for g in geo.primGroups())}
 
 
-def degrades_never_refuses(geo, site, name="degrades_never_refuses"):
-    """§2.2, asserted rather than assumed: a lot too small for its own setbacks
-    still produces a BUILDING, and that building carries the warning.
+def masses_inside_lots(geo, lots, name="inside_the_lot"):
+    """THE ROUND-2 BLOCKING DEFECT, as a standing assertion: a building stands
+    on the lot it belongs to.
 
-    ⚠️ The second half is here because the first build failed it invisibly.
-    `pf_warn_footprint_collapsed` was written on the footprint prim, and the
-    mass wrangle then removed that prim - leaving the attribute DEFINITION,
-    so every shipped face read 0 and the published-names baseline listed the
-    warning as present. A warning that cannot be non-zero is not advisory
-    validation, it is a name.
+    Nothing else here could see it.  A legal cascade override inverted BOTH
+    axes of a 20 x 10 lot; the signed area kept its sign and shrank, so all
+    three collapse tests were silent, and `volume_count_matches`,
+    `outward_normals` and `party_walls_real` stayed green over a mass built
+    entirely outside its own lot with `pf_warn_footprint_collapsed` = 0 on
+    every face.  Fixture site 6 IS that override.
 
-    CANNOT SEE: whether the degraded mass is a SENSIBLE building - only that
-    one exists, is closed, and says so.
+    `lots` is {site: [(x, z), ...]} - the ring the FIXTURE built, never
+    anything the generator derived, so this is a differential oracle against
+    the input and not the output compared with itself.
+
+    ⚠️ Inside OR ON.  `setback(0)` puts a wall exactly on the lot line and is
+    what both Viennese templates ask for on every edge, and the degraded path
+    deliberately rebuilds on the lot polygon itself.
+
+    CANNOT SEE: a mass in the right lot in plan and at the wrong height; a
+    mass inside a lot that is not its own but overlaps it; nor anything about
+    lots this fixture does not build (every one is a rectangle).
     """
-    mine = [f for f in faces(geo) if f["pf_site_id"] == site]
-    if not mine:
-        return Result(name, False, 0,
-                      "site %d produced NOTHING - a refusal, not a warning"
-                      % site)
-    vols = set(f["pf_volume_id"] for f in mine)
-    warned = [f for f in mine if f["pf_warn_footprint_collapsed"]]
-    ok = len(vols) == 1 and len(warned) == len(mine) and len(mine) >= 5
-    return Result(name, ok, [len(vols), len(mine), len(warned)],
-                  "%d volume(s), %d faces, %d carrying the collapse warning"
-                  % (len(vols), len(mine), len(warned)))
+    bad, seen = [], 0
+    for site, ring in sorted(lots.items()):
+        for f in faces(geo, site):
+            seen += 1
+            gap = min(_inside(ring, (p[0], p[2])) for p in f["pts"])
+            if gap < -TOL:
+                bad.append((f["pf_elem_id"], round(gap, 2)))
+    return Result(name, seen > 0 and not bad, [seen, len(bad)],
+                  "%d faces measured against their own lot; outside it: %s"
+                  % (seen, bad[:3] or "none"))
 
 
 def warns_on_unknown_rule(geo, name="unknown_rule_warns"):

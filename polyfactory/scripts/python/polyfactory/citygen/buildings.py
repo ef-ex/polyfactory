@@ -28,8 +28,10 @@ prims in the same file when kits arrive.
 ⚠️ **It does NOT round-trip losslessly**, and an earlier version of this
 docstring claimed it did.  Measured on 22.0.398: a numeric list of length 2,
 3 or 4 returns as a `hou.Vector2/3/4` and every other length returns as a
-tuple.  `_plain()` is what makes the claim true, so nothing may read the raw
-attribute; `load()` is the only door.
+tuple.  `_plain()` restores the SHAPE, so nothing may read the raw attribute
+and `load()` is the only door - but it does not restore element STORAGE, and
+a nested list never survives authoring at all.  Both losses are named in
+`_plain`'s own docstring; neither occurs in the four shipped templates.
 """
 
 import io
@@ -72,14 +74,15 @@ PLINTH = {"none": 0, "levelToHighest": 1}
 # exactly the confusion §1 exists to prevent.  Named, because the check that
 # enforces the law is only worth having if its mutation can remove a sweep.
 #
-# `pf_style_template` goes the same way, for the same reason and one more: it
-# is B0's REQUEST, `pf_style_id` is the template that answered it, and after
+# `pf_style_template` and `pf_setback` go the same way, for the same reason
+# and one more: they are B0's REQUEST - `pf_style_id` is the template that
+# answered it, and the built wall is the setback that answered it - and after
 # the mass wrangle removes the footprint prims the request survives as an
-# attribute definition with an empty value on every face - a name in the
+# attribute definition with an empty value on every face, a name in the
 # published-names baseline carrying nothing. B6's per-building DNA point is
 # where the template id belongs (§12.6), not on every wall.
 CLEAN = (("doptdel", "ptdel", "_*"),
-         ("dovtxdel", "vtxdel", "_* pf_face_role"),
+         ("dovtxdel", "vtxdel", "_* pf_face_role pf_setback"),
          ("doprimdel", "primdel", "_* pf_style_template"),
          ("dodtldel", "dtldel", "_*"))
 
@@ -108,7 +111,19 @@ def _plain(value):
     while length 1 or 5 comes back as a tuple.  So `cutsAt: [0.444, 0.722]`
     round-trips as a Vector2 and `[0.4]` does not, and code that happens to
     iterate the value works while code that compares it does not.  Anything
-    iterable that is not a string or a dict is flattened here."""
+    iterable that is not a string or a dict is flattened here.
+
+    ⚠️ AND IT RESTORES SHAPE, NOT STORAGE - two measured losses, neither of
+    them repairable here, both named because D223 says an element's storage
+    is part of the contract:
+      * a MIXED numeric list `[1, 2.5, 3]` comes back all-float, so the ints
+        in it are gone by the time this function sees the value;
+      * a NESTED list never arrives at all.  It dies in the authoring script
+        at `setGlobalAttribValue`, before the `.geo` is written, silently -
+        so `load()` reads a template with the field simply absent and nothing
+        raises anywhere.
+    Neither shape occurs in the four shipped templates.  A template field that
+    needs either one needs a different storage decision, not a fix here."""
     if isinstance(value, dict):
         return dict((k, _plain(v)) for k, v in value.items())
     if isinstance(value, (str, bytes)):
@@ -166,6 +181,13 @@ def stamp(geo, overrides=None, cache=None):
     """
     import hou
     cache = {} if cache is None else cache
+    # §12.4: the seed belongs to the SITE, so a lot that arrives carrying one
+    # keeps it. This is read BEFORE the attribute is created below, because
+    # after that the two cases are indistinguishable. An audit measured the
+    # old line - `int(tpl.get("seed", 0))`, a key NO template defines -
+    # overwriting a lot's own `pf_seed` of 4242 with 0 on every prim, which
+    # left §12.4's per-site determinism row unimplemented rather than untested.
+    seeded = geo.findPrimAttrib("pf_seed") is not None
 
     for name, kind in (("_roles", hou.attribData.String),
                        ("_storeys", hou.attribData.Int),
@@ -198,7 +220,8 @@ def stamp(geo, overrides=None, cache=None):
                       or topo["plinth"]["mode"] not in PLINTH)
 
         prim.setAttribValue("pf_style_id", tpl["styleId"] or style_id)
-        prim.setAttribValue("pf_seed", int(tpl.get("seed", 0)))
+        if not seeded:
+            prim.setAttribValue("pf_seed", int(tpl.get("seed", 0)))
         prim.setAttribValue("_rails", RAILS.get(topo["rails"], 0))
         prim.setAttribValue("_cuts", [float(c) for c in topo["cutsAt"]])
         prim.setAttribValue("_roles", [str(v.get("role", "volume"))

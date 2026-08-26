@@ -33,10 +33,36 @@
     0
    ],
    "faces": 18,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    0
+   ],
+   "pf_warn_topology_arity": [
+    0
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    99.9,
+    62.55,
+    62.55
+   ],
+   "planBox": [
+    2.5,
+    2.0,
+    7.5,
+    47.0
+   ],
    "roles": [
     "barn",
     "dwelling",
     "stable"
+   ],
+   "seed": [
+    1000
    ],
    "topY": [
     3.74
@@ -55,10 +81,37 @@
     0
    ],
    "faces": 24,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    0
+   ],
+   "pf_warn_topology_arity": [
+    0
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    576.0,
+    432.0,
+    576.0,
+    432.0
+   ],
+   "planBox": [
+    30.0,
+    0.0,
+    90.0,
+    48.0
+   ],
    "roles": [
     "hoftrakt",
     "seitentrakt",
     "vorderhaus"
+   ],
+   "seed": [
+    2000
    ],
    "topY": [
     17.5
@@ -77,11 +130,38 @@
     0
    ],
    "faces": 24,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    0
+   ],
+   "pf_warn_topology_arity": [
+    0
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    405.0,
+    189.0,
+    405.0,
+    189.0
+   ],
+   "planBox": [
+    114.0,
+    4.0,
+    168.0,
+    34.0
+   ],
    "roles": [
     "barn",
     "cartShed",
     "dwelling",
     "stable"
+   ],
+   "seed": [
+    3000
    ],
    "topY": [
     3.296
@@ -101,9 +181,34 @@
     1
    ],
    "faces": 12,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    0
+   ],
+   "pf_warn_topology_arity": [
+    0
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    204.204,
+    237.796
+   ],
+   "planBox": [
+    190.0,
+    0.0,
+    207.0,
+    26.0
+   ],
    "roles": [
     "gewerbeHoftrakt",
     "vorderhaus"
+   ],
+   "seed": [
+    4000
    ],
    "topY": [
     10.5,
@@ -123,11 +228,119 @@
     0
    ],
    "faces": 6,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    1
+   ],
+   "pf_warn_topology_arity": [
+    1
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    36.0
+   ],
+   "planBox": [
+    215.0,
+    0.0,
+    221.0,
+    6.0
+   ],
    "roles": [
     "dwelling"
    ],
+   "seed": [
+    5000
+   ],
    "topY": [
     -1.36
+   ],
+   "volumes": 1,
+   "wallRoles": [
+    "cap",
+    "exterior",
+    "floor"
+   ]
+  },
+  "6_at_vienna_perimeter": {
+   "capGroups": [
+    0
+   ],
+   "faces": 6,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    1
+   ],
+   "pf_warn_topology_arity": [
+    1
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    200.0
+   ],
+   "planBox": [
+    250.0,
+    0.0,
+    270.0,
+    10.0
+   ],
+   "roles": [
+    "vorderhaus"
+   ],
+   "seed": [
+    6000
+   ],
+   "topY": [
+    17.5
+   ],
+   "volumes": 1,
+   "wallRoles": [
+    "cap",
+    "exterior",
+    "floor"
+   ]
+  },
+  "7_at_zinshaus_row": {
+   "capGroups": [
+    0
+   ],
+   "faces": 7,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    0
+   ],
+   "pf_warn_topology_arity": [
+    1
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    200.0
+   ],
+   "planBox": [
+    280.0,
+    0.0,
+    300.0,
+    10.0
+   ],
+   "roles": [
+    "vorderhaus"
+   ],
+   "seed": [
+    7000
+   ],
+   "topY": [
+    17.5
    ],
    "volumes": 1,
    "wallRoles": [

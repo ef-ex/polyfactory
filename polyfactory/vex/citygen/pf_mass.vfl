@@ -180,7 +180,14 @@ for (int pr = 0; pr < np; pr++) {
     // ---- RULE: rails ------------------------------------------------------
     vector railA[], railB[];
     string sideOuter[], sideInner[], sideStart, sideEnd;
-    int closed = 0, degraded = 0;
+    // `yardbad` is separate from `degraded` ON PURPOSE.  §12.8 defines
+    // `pf_warn_footprint_collapsed` as "offset degenerate -> OBB fallback",
+    // and this loop used to stamp `degraded ? 1 : collapsed` - so a five-
+    // corner lot under a `bar` template, whose every setback is 0 and whose
+    // offset is provably the identity, still shipped eighteen faces saying
+    // its footprint had collapsed.  Degrading for a TOPOLOGY reason and
+    // degrading because an offset folded are different facts.
+    int closed = 0, degraded = 0, yardbad = 0;
 
     if (rails == 1) {                                  // ring
         int cpr = -1;
@@ -190,6 +197,7 @@ for (int pr = 0; pr < np; pr++) {
         int cbad = cpr < 0 ? 1 : prim(1, "pf_warn_footprint_collapsed", cpr);
         if (cpr < 0 || len(cpts) != n || collapsed || cbad) {
             degraded = 1;
+            yardbad = cbad;
         } else {
             closed = 1;
             for (int j = 0; j < n; j++) {
@@ -317,7 +325,7 @@ for (int pr = 0; pr < np; pr++) {
                  len(caps) ? caps[i % len(caps)] : 0,
                  len(sheight) ? sheight[i % len(sheight)] : 3.0,
                  styleid, seed, capsplit[i], warnarity,
-                 degraded ? 1 : collapsed, unknown);
+                 (collapsed || yardbad) ? 1 : 0, unknown);
         setdetailattrib(0, "_built", 1, "add");
     }
 }

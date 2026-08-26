@@ -1,39 +1,76 @@
 // pf_collapse.vfl - PRIM wrangle, immediately after an inset.
 //
-// An inset polygon whose signed area FLIPPED or vanished has folded through
-// itself: the setback was deeper than the lot, or the courtyard tract deeper
-// than half the block. §2.2 says advisory, never a wall - so this records the
-// fact on the prim and lets B2 degrade to one solid volume, which is what a
+// An inset polygon that has folded through itself has left the lot it belongs
+// to: the setback was deeper than the lot, or the courtyard tract deeper than
+// half the block. §2.2 says advisory, never a wall - so this records the fact
+// on the prim and lets B2 degrade to one solid volume, which is what a
 // building on a lot too small for its courtyard actually is.
 //
 // It also refreshes `_area0` in place, because the courtyard pass insets this
 // same polygon again and needs the CURRENT winding, not the lot's.
 int pts[] = primpoints(0, @primnum);
+int n = len(pts);
 float a = 0.0;
-for (int k = 0; k < len(pts); k++) {
+for (int k = 0; k < n; k++) {
     vector p = point(0, "P", pts[k]);
-    vector r = point(0, "P", pts[(k + 1) % len(pts)]);
+    vector r = point(0, "P", pts[(k + 1) % n]);
     a += p.x * r.z - r.x * p.z;
 }
 a *= 0.5;
 float was = f@_area0;
 
-// THREE TESTS, and the middle one is the one that was missing.  A sign flip
-// catches a single inversion; it does NOT catch a DOUBLE inversion, which
-// restores the sign and looks healthy.  Measured by an audit: with every
-// setback at 40 m, footprint areas came out [-700, 640, 756, 3402] and only
-// the first was flagged - a 17 x 26 m lot (442 m2) produced a 3 402 m2
-// "footprint" and was massed far outside the lot it belongs to.
+// ⚠️ CONTAINMENT IS THE TEST.  AREA IS NOT, AND SAYING SO IS THE POINT OF
+// THIS BLOCK.  An inward offset of a simple polygon can only reduce its area,
+// so an earlier build tested for area that GREW and called that the proof.
+// Measured false by the round-2 audit: front 0 / sideStreet 25 / rear 12 /
+// alley 0 - a legal cascade override - on a 20 x 10 lot inverts BOTH axes,
+// and two negative extents multiply back to a POSITIVE, SMALLER area (+10
+// from +200).  Sign unchanged, magnitude shrunk, 10 >> 1e-4: all three area
+// tests silent, and three volumes shipped at x -5..0, z -2..0 - entirely
+// outside a lot at x 0..20, z 0..10 - with every downstream check green.
 //
-// An inward offset of a simple polygon can only REDUCE its area.  So area
-// that GREW is proof of a fold, whatever the sign did, and it costs nothing.
+// `_p0` holds each corner's position BEFORE `pf_inset.vfl` moved it, so the
+// shape the offset came from is still here.  Crossing count for in/out,
+// segment distance for the magnitude - the same pair the checks use.
 //
-// ⚠️ Strictly grew.  `>=` is wrong and was measured wrong: `setback(0)` is
-// the identity op §12.6 B1 names, the Viennese block and the row house both
-// use it on every edge, and equality flagged both of them as collapsed - two
-// perimeter blocks silently degraded to one solid mass while every other
-// check stayed green.
+// ⚠️ INSIDE OR ON, not strictly inside.  `setback(0)` is §12.6 B1's identity
+// op and is what both Viennese templates use on every edge; its corners land
+// exactly ON `_p0`, where a crossing count is a coin toss.  So only a corner
+// that is outside AND further than 1e-3 m from the boundary counts.  float32
+// `P` is ~1.5e-5 m at this fixture's 200 m domain, so that tolerance is two
+// orders above storage noise and three below anything architectural.
+//
+// ⚠️ WHAT IT CANNOT SEE, and why the three area tests below stay: a single
+// inversion whose corners all land back inside the parent (inset 6 m on both
+// long edges of a 10 m lot puts x 6..4 - inverted, and inside 0..10).  Only
+// the sign flip sees that one.  Nor a shape that shrank to nothing without
+// leaving its parent - that is the degeneracy term.
+//
+// ⚠️ With `_p0` absent this reads zeroes and flags EVERY prim, which is the
+// loud failure this file should have.  O(n^2) in the corner count, which is a
+// lot polygon and not a mesh.
+int outside = 0;
+for (int k = 0; k < n; k++) {
+    vector q = point(0, "P", pts[k]);
+    int in = 0;
+    float best = 1e18;
+    for (int e = 0; e < n; e++) {
+        vector p = point(0, "_p0", pts[e]);
+        vector r = point(0, "_p0", pts[(e + 1) % n]);
+        if ((p.z > q.z) != (r.z > q.z)
+            && q.x < p.x + (q.z - p.z) * (r.x - p.x) / (r.z - p.z))
+            in = !in;
+        vector d = r - p;
+        float l2 = d.x * d.x + d.z * d.z;
+        float t = (l2 < 1e-18) ? 0.0
+            : clamp(((q.x - p.x) * d.x + (q.z - p.z) * d.z) / l2, 0.0, 1.0);
+        best = min(best, length(set(q.x - p.x - d.x * t, 0.0,
+                                    q.z - p.z - d.z * t)));
+    }
+    if (!in && best > 1e-3) outside = 1;
+}
+
 i@pf_warn_footprint_collapsed =
-    (a * was <= 0.0 || abs(a) > abs(was) * (1.0 + 1e-6) + 1e-6
+    (outside || a * was <= 0.0 || abs(a) > abs(was) * (1.0 + 1e-6) + 1e-6
      || abs(a) < 1e-4) ? 1 : 0;
 f@_area0 = a;
