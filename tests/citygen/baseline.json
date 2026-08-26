@@ -972,6 +972,171 @@
       }
     },
     {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -2236,6 +2401,171 @@
       }
     },
     {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -3492,6 +3822,171 @@
         },
         "shape_parked": 2,
         "subband": 1
+      }
+    },
+    {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
       }
     },
     {
@@ -4771,6 +5266,171 @@
       }
     },
     {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -6015,6 +6675,171 @@
       }
     },
     {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -7240,6 +8065,171 @@
       }
     },
     {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -8456,6 +9446,171 @@
         },
         "shape_parked": 2,
         "subband": 1
+      }
+    },
+    {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
       }
     },
     {
@@ -9690,6 +10845,171 @@
         },
         "shape_parked": 2,
         "subband": 1
+      }
+    },
+    {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
       }
     },
     {
@@ -10952,6 +12272,171 @@
       }
     },
     {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -11453,18 +12938,18 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "max_kappa_over_clamp": 0.427,
-        "max_turn_spike": 1.01,
+        "max_kappa_over_clamp": 0.355,
+        "max_turn_spike": 0.779,
         "not_converged": 0,
         "over": 0,
-        "solver_turn_spike": 1.01,
+        "solver_turn_spike": 0.779,
         "spike_prim_at": [
-          82.68,
-          50.7
+          78.3,
+          48.77
         ],
         "worst_at": [
-          82.68,
-          50.7
+          48.81,
+          7.88
         ]
       }
     },
@@ -11474,11 +12959,11 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "min_segment_m": 3.8436,
+        "min_segment_m": 3.9286,
         "under": 0,
         "worst_at": [
-          95.25,
-          59.52
+          -17.05,
+          96.72
         ]
       }
     },
@@ -12212,6 +13697,171 @@
       }
     },
     {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -12225,12 +13875,12 @@
       "skipped": false,
       "value": {
         "culdesac_skipped": 5,
-        "fit": 5e-07,
+        "fit": 7e-07,
         "mixed_class": 7,
         "radius": 0.0,
-        "radius_fit": 0.002,
+        "radius_fit": 0.001,
         "straight": 0,
-        "tangent": 3.4e-06,
+        "tangent": 3.5e-06,
         "unfitted": 0
       }
     },
@@ -12239,7 +13889,7 @@
       "name": "sidewalk_bands_match_corners",
       "ok": true,
       "skipped": false,
-      "value": "139/139"
+      "value": "138/138"
     },
     {
       "detail": "",
@@ -12262,7 +13912,7 @@
       "skipped": false,
       "value": {
         "bulbs": 5,
-        "circle_fit": 5.6e-06,
+        "circle_fit": 5.5e-06,
         "malformed": 0,
         "mouth_off_circle": 1e-05,
         "under_radius": 0.0
@@ -12281,11 +13931,11 @@
       "ok": true,
       "skipped": false,
       "value": {
-        "min_ratio": 1.219,
-        "min_standing_m": 32.661,
+        "min_ratio": 0.938,
+        "min_standing_m": 25.132,
         "under": 0,
         "under_ratio": 0,
-        "under_ratio_all": 0,
+        "under_ratio_all": 1,
         "worst_at": [
           0.0,
           0.0
@@ -12307,8 +13957,8 @@
         "mean": 0.0,
         "over_0.05m": 0,
         "worst_at": [
-          65.63,
-          26.84
+          -3.84,
+          21.75
         ]
       }
     },
@@ -12326,7 +13976,7 @@
       "skipped": false,
       "value": {
         "folds": 0,
-        "max_ratio": 0.107,
+        "max_ratio": 0.066,
         "min_seg": 1.4834
       }
     },
@@ -12447,7 +14097,7 @@
       "skipped": false,
       "value": {
         "blocks": 0,
-        "city": 1688,
+        "city": 1694,
         "edges": 6,
         "lots": 0
       }
@@ -12467,7 +14117,7 @@
         "lots_worst_m2": null,
         "moved": null,
         "passes": 5,
-        "residual_m": 7.9e-06,
+        "residual_m": 8.5e-06,
         "reversed": 0,
         "tol_m": 0.001
       }
@@ -13454,6 +15104,171 @@
         },
         "shape_parked": 2,
         "subband": 1
+      }
+    },
+    {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
       }
     },
     {
@@ -14711,6 +16526,171 @@
       }
     },
     {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -15936,6 +17916,171 @@
         },
         "shape_parked": 2,
         "subband": 1
+      }
+    },
+    {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
       }
     },
     {
@@ -17168,6 +19313,171 @@
       }
     },
     {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
+      }
+    },
+    {
       "detail": "collapsed fillet arcs",
       "name": "no_degenerate_corner_segments",
       "ok": true,
@@ -18390,6 +20700,171 @@
         },
         "shape_parked": 2,
         "subband": 1
+      }
+    },
+    {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
       }
     },
     {
@@ -19624,6 +22099,171 @@
         },
         "shape_parked": 2,
         "subband": 1
+      }
+    },
+    {
+      "detail": "the shipped realign on M5.5's contract, swept across turn_radius_scale {1, 2, 4, 8}: an arrival inside 75-90 deg is always inside the class clamp, every branch leaves the leg attached to its landing, the arrival never depends on which way the prim is drawn, a CURVED host lands the same T as a straight one, a degree-4 node is left alone, and both feasibility flips fall inside the swept range",
+      "name": "realign_route_control_rig",
+      "ok": true,
+      "skipped": false,
+      "value": {
+        "landings": {
+          "curved": [
+            49.08,
+            8.26
+          ],
+          "deg4": null,
+          "mirrored": [
+            45.0,
+            0.0
+          ],
+          "refused": [
+            60.0,
+            0.0
+          ],
+          "reversed": [
+            45.0,
+            0.0
+          ],
+          "routed": [
+            45.0,
+            0.0
+          ]
+        },
+        "sweep": {
+          "1": {
+            "curved": [
+              85.31,
+              0.444,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.21,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              84.354,
+              0.897,
+              2.043,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.211,
+              3.432,
+              5.0
+            ]
+          },
+          "2": {
+            "curved": [
+              85.31,
+              0.888,
+              2.896,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              0.975,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.421,
+              3.432,
+              5.0
+            ]
+          },
+          "4": {
+            "curved": [
+              33.712,
+              2.639,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              87.19,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              1.95,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ],
+            "routed": [
+              87.191,
+              0.842,
+              3.432,
+              5.0
+            ]
+          },
+          "8": {
+            "curved": [
+              33.712,
+              5.278,
+              2.786,
+              5.0
+            ],
+            "deg4": null,
+            "mirrored": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "refused": [
+              20.858,
+              3.9,
+              1.954,
+              5.0
+            ],
+            "reversed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ],
+            "routed": [
+              54.406,
+              5.177,
+              3.258,
+              5.0
+            ]
+          }
+        }
       }
     },
     {

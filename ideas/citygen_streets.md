@@ -79,7 +79,8 @@ give both sides **ONE shared bisected cross-section axis** instead of a plate �
 implementation's rule, and its companion "no transverse cap" was already our fixed bug. Exit:
 O's two rows green, no other case moved, audited.
 
-**THEN M5.5 — ⛔ §S5a item 4**, the 75–90° T landing, the mover's second target (§11.6).
+✅ **M5.5 DONE** — §S5a item 4's approach angle closed (56.701° → 86.788°); its
+LANDING FLOOR is the open half, and it is an artist call.
 
 **RESERVED FOR THE ARTIST, do not decide alone:** the gore/mouth LOOK (renders live at
 `/obj/M5_merge_M` and `/obj/M5_merge_O` in Hannes' session; M4's render ruling was overturned
@@ -5528,9 +5529,14 @@ that follows from those failures:
    `min_node_dist + one resample step`. What is still unbuilt is **re-routing the last stretch** to
    meet the host at 75–90° inside S3b's `R > halfwidth`. Today the T's approach is whatever the
    crowded pair's angle was, softened by the blend: 48.25° on the artist's scene, 56.70° on
-   `J_five_star`. Both clear `min_junction_angle` by construction; neither is a right-angled T, and
-   re-routing is what would let the landing floor come down and make the dense C_radial sites
-   reachable.
+   `J_five_star`. Both clear `min_junction_angle` by construction; neither is a right-angled T. ✅ **BUILT
+   2026-08-17 (M5.5): 56.701° → 86.788°.** ⚠️ But "re-routing is what would let the landing
+   floor come down" was BACKWARDS — squaring the T charges a square corner, so the required
+   distance goes UP (J's landing-end trim 5.000 → 12.529, ratio ≥ 1 now needs ≈49.7 m against
+   a 45 m floor). The landing floor is the open half. ⚠️ **AND "K — the gate refuses it" is
+   wrong about WHICH gate**: `K_stub_triangle` never forms a degree-5 node (its junctions are
+   4/4/3, declined by the STUB-COLLAPSE gate), so `graph_realign` never sees it and the
+   realign's own `d < lo` refusal has never executed on any case in the corpus.
 5. **Roundabout is NOT the fallback it was assumed to be.** At 32.5° two mouths need 37.4 m of
    separation; an ICD inside §S5's 21–67 m band gives a radius of 10.5–33.5 m and cannot deliver
    it either. It remains right for *wide-angle* five-ways; it does not rescue a crowded pair.
@@ -6232,6 +6238,66 @@ widening `trim_metric_is_consistent`'s mouth detector from `== 1` to `!= 0`, and
 self-declared the blind spot — a genuine corner mislabelled `2` would then be skipped by every
 corner check. That is the "a check that can no longer fail" hazard this project keeps paying
 for, and it is the strongest argument against C as it stands.
+
+**M5.5 BUILT 2026-08-17 — ⛔ §S5a item 4's approach angle is CLOSED. Gate unmoved at 25;
+only `J_five_star` moves, and the prediction in the spec was BACKWARDS.**
+
+`graph_realign` lands a crowded leg into its own T, but the approach was whatever the crowded
+pair's angle happened to be, softened by a translation blend — **56.701°** measured, which
+confirms the spec's 56.70° exactly. It is now a **cubic Hermite** pinned at the landing
+(tangent ⊥ the host's LOCAL tangent, flipped onto the leg's side) and at the leg's own vertex
+`blend` out (tangent = the leg's onward direction, so the far end still never moves and the
+join is C1), gated on `pfsg_turn_residual(chain, rmin, 0) <= 1.0` — **the exact expression
+`graph_turn_clamp` solves against** — with the old translation blend kept as the fallback.
+Result: **56.701° → 86.788°**, and the clamp measurably STOPPED fighting the leg
+(`graph_turn_fuse` moved it 0.000000 m, `graph_turn_clamp` returned it bit-identical).
+
+⚠️ **AND THE 0° AND 75–90° TARGETS GENUINELY NEED SEPARATE CODE PATHS — §11.6 hoped they
+were one mechanism, and the WELD LAW is why they are not.** `0.5/sin α` is unbounded at 0° and
+just 0.50 m at 86.8°. So the merge's mechanism is defined by *not* writing a shape (every
+attempt to author one was dragged by the fuse), while here **the shape IS the entire
+mechanism**. Unifying them would mean sharing a branch neither takes.
+
+⚠️ **§S5a item 4's PREDICTION WAS BACKWARDS, and this is the finding to keep.** The spec said
+re-routing "is what would let the landing floor come DOWN". Measured: it pushes the required
+distance UP. On J's 48.000 m arterial stub the node-end trim is unchanged at 10.339 while the
+LANDING-end trim goes **5.000 → 12.529** — the same 11.8–13.0 m every other near-perpendicular
+arm in J pays, because **squaring a T charges a square corner**. `trim_leaves_road_standing`
+min_ratio therefore falls **1.219 → 0.938** and `under_ratio_all` goes 0 → 1 (the ASSERTED
+`under_ratio` stays 0, and C_radial's two-junction arterials already ship at 0.82–0.85, so it
+is inside the check's own precedent). Ratio ≥ 1 needs ≈**49.7 m** against a 45 m floor snapped
+to the 48 m vertex — **1.7 m short.** The landing floor is now the open half of item 4, and
+which way to resolve it is the artist's call.
+
+⚠️ **THE MILESTONE WAS NEARLY UNREACHABLE, and that bounds what this verifies.**
+`graph_realign` fires **exactly once in the entire 16-case corpus** — J_five_star, gap
+31.999°, landing (48, 0). So M5.5 rests on ONE measured site. A second is wanted, and the
+48.25° artist-scene site is not in the corpus and is unmeasured after this change.
+
+**Verification: `realign_route_control_rig`** (new, sibling to the merge rig — the 75–90°
+target lives in `graph_realign`, so a station on the MOVER's rig would have tested nothing).
+Six stations 600 m apart — re-routes / reversed prim / gate-refuses / curved host / degree-4 /
+leg on the −z side — **swept across `turn_radius_scale` {1, 2, 4, 8}** per §11.6, asserted as
+invariants rather than pinned values. **Eleven mutations of the production VEX were each seen
+to go red**, including both `n < 5` degree gates, the side-flip test, the curved-host oracle,
+the reversed-prim oracle, and the fallback's decay.
+
+⚠️ **Two audit rounds, and the second one is the lesson: I had asserted ATTACHMENT but not
+SHAPE.** Deleting the fallback's body was caught; HALVING its decay was not — that mutant tears
+the leg (last blended vertex ~30 m from a pin that never moved, curvature 0.975 → **12.20**)
+and shipped green at every scale, because the guard was vacuous on every fallback. Round 1 had
+separately caught the curved station passing its own mutation. Both are killed now. ⚠️ Also
+found and fixed: two mutants were "killed" by a margin of **1.0000000000047748e-3** against a
+1e-3 threshold on 3-dp-rounded values — a float coin flip, i.e. a kill that proved nothing and
+a latent flake that could fire on any 1-ulp shift.
+
+**Recorded gaps, unguarded and now known:** `need = (wA+wB)/(4·sin(gap/2))` — the formula that
+decides WHERE the T goes, and the whole basis of §S5a's "42 m plates on a 32 m gap" — can be
+HALVED with the corpus bit-identical; the crowding rail can be disabled with the corpus
+bit-identical; and `d < lo`, the realign's own refusal, **has never executed on any case**.
+`.OPfallbacks` records the nested junction HDA by ABSOLUTE path and now names this worktree —
+inert (the relative record is unchanged, and any edit from any checkout rewrites it), recorded
+so it is not mistaken for a real diff.
 
 **STILL OPEN after the mover shipped:** the merge MOUTH contract in `s5j_solve` and its
 `plan.node_trims` mirror, in one commit — the landing builds as a crossing at ~12°, below the

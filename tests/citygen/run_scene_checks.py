@@ -162,6 +162,10 @@ def run_case(name, built, field=None):
     out.append(C.turn_clamp_control_rig(trace))
     # M5: the mover's contract, same mould. See merge_route_control_rig().
     out.append(C.merge_route_control_rig(trace))
+    # M5.5: the 75-90 deg T landing lives in graph_realign, not in the
+    # mover - a station on the merge rig would test nothing. Sibling rig,
+    # swept across turn_radius_scale per 11.6.
+    out.append(C.realign_route_control_rig(trace))
 
     patches = inner("patches")
     surface = inner("surface")

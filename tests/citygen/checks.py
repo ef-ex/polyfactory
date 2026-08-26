@@ -4048,6 +4048,406 @@ def merge_route_control_rig(city_node):
                   "parameters flip feasibility INSIDE their shipped ranges")
 
 
+_REALIGN_RIG_SRC = """
+import hou, math
+g = hou.pwd().geometry(); g.clear()
+g.addAttrib(hou.attribType.Prim, "streetWidth", 0.0)
+g.addAttrib(hou.attribType.Prim, "street_class", "")
+CASES = %r
+# J_five_star's own fan: the host at 0 deg and the minor leg at `pair`, plus
+# 100 / 180 / 255. The tightest gap in that fan IS the pair for any pair under
+# 68 deg, so the station cannot silently select some other crowded corner.
+FAN = [(0.0, 200.0, 26.8, "arterial"), (None, None, 15.1, "collector"),
+       (100.0, 110.0, 15.1, "collector"), (180.0, 200.0, 26.8, "arterial"),
+       (255.0, 100.0, 15.1, "collector")]
+for ox, pair, leg_len, arms, rev, bend in CASES:
+    streets = []
+    for i in range(arms):
+        bd, L, w, cls = FAN[i]
+        if i == 1:
+            bd, L = pair, leg_len
+        a = math.radians(bd)
+        n = max(2, int(L / 5.0) + 1)
+        pts = []
+        for t in range(n):
+            s = L * t / (n - 1)
+            if i in (0, 3) and bend > 0.0:
+                # A CURVED HOST, so the perpendicular is taken off the host's
+                # LOCAL TANGENT and not off the node-to-landing chord. The two
+                # differ by s / (2 * bend) radians here - 9.2 deg at the
+                # landing on the shipped station - so a chord-based
+                # implementation lands outside this station's band.
+                ph = s / bend * (1.0 if i == 0 else -1.0)
+                pts.append((ox + bend * math.sin(ph), 0.0,
+                            bend * (1.0 - math.cos(ph))))
+            else:
+                pts.append((ox + s * math.cos(a), 0.0, s * math.sin(a)))
+        if rev and i == 1:
+            pts = pts[::-1]          # the minor drawn TOWARDS the node
+        streets.append((pts, w, cls))
+    shared = {}
+    for pts, ww, cc in streets:
+        poly = g.createPolygon(is_closed=False)
+        for pos in pts:
+            key = (round(pos[0], 6), round(pos[2], 6))
+            pt = shared.get(key)
+            if pt is None:
+                pt = g.createPoint(); pt.setPosition(pos); shared[key] = pt
+            poly.addVertex(pt)
+        poly.setAttribValue("streetWidth", ww)
+        poly.setAttribValue("street_class", cc)
+"""
+
+
+def _realign_probe(geo, ox, scale):
+    """The realigned leg at station `ox`, measured off the SHIPPED output.
+
+    Returns None when nothing realigned there, else
+    (arrival_deg, kappa_x_rmin, landing_offset_xz, first_seg_m, max_seg_m).
+
+    The arrival is taken against the host's LOCAL TANGENT at the landing
+    rather than against the x axis, so the curved-host station can
+    discriminate; the curvature is the same discrete expression
+    `pfsg_turn_residual` and `graph_turn_clamp` use. The landing is reported
+    RELATIVE to the station origin so the floor can be asserted without
+    hard-coding a distance.
+
+    ⚠️ **TWO SEGMENT LENGTHS, because one of them missed the defect.** The
+    first segment proves a last stretch was WRITTEN at all - an audit deleted
+    the fallback write and the rig stayed green, because a leg whose terminal
+    vertex has jumped 55 m to the landing still reports an arrival. But the
+    same audit then halved the fallback's decay, which TEARS the leg in the
+    MIDDLE - last blended vertex 30 m off a pin that never moved - while the
+    first segment stayed a healthy 3.46 m. The worst segment anywhere on the
+    leg is what sees that, and it subsumes the first.
+    """
+    import math
+    if geo.findPrimAttrib("realigned") is None:
+        return None
+    legs = [p for p in geo.prims()
+            if p.attribValue("realigned") == 1
+            and abs(p.vertices()[0].point().position()[0] - ox) < 300.0]
+    if not legs:
+        return None
+    leg = legs[0]
+    pts = [v.point().position() for v in leg.vertices()]
+
+    def on_other(q):
+        for p in geo.prims():
+            if p.number() == leg.number():
+                continue
+            vs = list(p.vertices())
+            for k, v in enumerate(vs):
+                if (v.point().position() - q).length() < 1e-3:
+                    return p, vs, k
+        return None, None, None
+
+    hp, hvs, k = on_other(pts[0])
+    if hp is not None:
+        land, nxt = pts[0], pts[1]
+    else:
+        hp, hvs, k = on_other(pts[-1])
+        if hp is None:
+            return None
+        land, nxt, pts = pts[-1], pts[-2], pts[::-1]
+    tan = (hvs[min(len(hvs) - 1, k + 1)].point().position()
+           - hvs[max(0, k - 1)].point().position())
+    arr = nxt - land
+    if tan.length() < 1e-9 or arr.length() < 1e-9:
+        return None
+    d = math.degrees(math.acos(max(-1.0, min(1.0,
+        (tan.normalized()).dot(arr.normalized())))))
+    rmin = 0.5 * leg.attribValue("streetWidth") * scale
+    worst = 0.0
+    for i in range(1, len(pts) - 1):
+        e1, e2 = pts[i] - pts[i - 1], pts[i + 1] - pts[i]
+        l1, l2 = e1.length(), e2.length()
+        if l1 < 1e-9 or l2 < 1e-9:
+            continue
+        u, v = e1.normalized(), e2.normalized()
+        phi = abs(math.atan2(u.cross(v)[1], u.dot(v)))
+        worst = max(worst, phi / (0.5 * (l1 + l2)) * rmin)
+    seg = max((pts[i] - pts[i - 1]).length() for i in range(1, len(pts)))
+    return (round(min(d, 180.0 - d), 3), round(worst, 3),
+            [round(land[0] - ox, 2), round(land[2], 2)],
+            round(arr.length(), 3), round(seg, 3))
+
+
+def realign_route_control_rig(city_node, lo=75.0, hi=90.0,
+                              seg_lo=1.0, seg_hi=6.0, tear_cap=8.0,
+                              curve_tol=2.5):
+    """Run the SHIPPED realign on the inputs that define M5.5's contract.
+
+    ⛔ §S5a item 4 asks for a T that meets its host at 75-90 deg inside S3b's
+    class clamp. The whole 16-case corpus contains **exactly one** realign
+    fire - J_five_star, measured - so the corpus cannot cover a single one of
+    the branches the re-route adds. This rig supplies them, in the
+    `merge_route_control_rig` mould, on five stations 600 m apart:
+
+      * a 32 deg crowded pair (J's own) -> RE-ROUTED at the shipped default.
+      * the SAME station with the minor prim drawn the other way round ->
+        the identical arrival, to 1e-3. A differential oracle, and the only
+        thing that catches an off-by-one in the leg walk: the wrangle indexes
+        off `atstart` in four places and a straight leg hides a sign error.
+      * an 8 deg pair -> at the default the Hermite cannot make the turn
+        inside the clamp, so the gate REFUSES and the old translation blend
+        ships instead. That branch is unreachable from the corpus.
+      * a CURVED host -> the perpendicular has to come off the host's local
+        tangent. The chord differs from it by 9.2 deg at the landing, so a
+        chord-based implementation leaves the band.
+      * a degree-4 node -> nothing realigns at all (the mechanism's own
+        `n < 5` bound; the day this fires the bound has silently widened).
+      * the SAME 32 deg pair with the leg on the OTHER side of the host ->
+        the identical arrival. Nothing else in the corpus or the rig reaches
+        `dot(tland, legdir) < 0`: J and every other station put the leg on
+        +z, so the side TEST was covered and the flip it guards was not.
+
+    ⚠️ **AND IT SWEEPS `turn_radius_scale`, because the first version was
+    green at exactly one value of it.** The audit measured it: at scale 1 the
+    8 deg station is legal and re-routes, so the "refused" premise vanishes;
+    at 4 the curved station falls back; at 8 the straight one does. A rig
+    that pins the shipped default asserts nothing about the parm the new code
+    reads, and §11.6 asks for this rig swept "across street classes and
+    `turn_radius_scale`". So the assertions are stated as INVARIANTS that
+    hold at every swept value -
+
+      1. **band implies clamp** - a leg arriving inside 75-90 deg is inside
+         `kappa x R_min <= 1`. This is what fails when the gate admits a turn
+         it cannot make (loosening it to 100 reddens this and nothing else).
+      2. **whichever branch ran, the leg is attached AND whole** - the first
+         segment out of the landing sits in [1, 6] m and no segment anywhere
+         on the leg exceeds 8 m. Two numbers because one was not enough:
+         deleting the fallback write leaves a 55 m first segment, but HALVING
+         the fallback's decay tears the leg in the MIDDLE - last blended
+         vertex 30 m off a pin that never moved - with the first segment
+         still a healthy 3.46 m and the arrival never in band, so rule 1 was
+         vacuous on it. Found by audit, on the one branch the corpus cannot
+         reach.
+      2b. **the landing never moves with `turn_radius_scale`** and is never
+         inside `min_node_dist + one resample step`, read off the live parms.
+         This is what holds the landing floor; two mutants of it were being
+         killed only by a 1-ulp difference in the reversed-prim oracle.
+      3. reversing the prim never changes the arrival, at any scale.
+      4. a curved host lands the same T as a straight one, *while both are
+         re-routing* - the chord mutant sits 10.6 deg out against a 2.5 deg
+         tolerance (true separation 1.881, so 33 percent of headroom; 4.0 let
+         a one-vertex index shift through at 3.849).
+
+    - plus the shipped default pinned (32 deg re-routes, 8 deg falls back),
+    and BOTH feasibility flips proven INSIDE {1, 2, 4, 8}, which is the range
+    `merge_route_control_rig` already calls the shipped one.
+
+    ⚠️ **Rule 1 is VACUOUS at scale 1 and that scale is here for the flip, not
+    for the rule.** At scale 1 R_min is 7.55 m, so no turn this construction
+    can admit exceeds the clamp - measured across every mutant that reddens
+    rule 1, not one violation ever came from scale 1, and even with the gate
+    removed entirely the 8 deg station routes legally there at kappa 0.897.
+    What scale 1 carries is the REFUSAL flip. The sweep as a whole is load
+    bearing for a different family: two mutants of `rmin` are bit-identical at
+    the shipped default and die only at 4 and 8, which is "the class clamp
+    silently stops honouring `turn_radius_scale` above some value".
+
+    ⚠️ Sweeping the scale is also why there is no separate street-class axis:
+    the mechanism reads class only through `0.5 * width * scale`, so scale in
+    {1, 2, 4, 8} on the 15.1 collector spans R_min 7.55-60.4 m and contains
+    both the 14.4 local and the 26.8 arterial at the shipped scale. Adding a
+    class axis would re-measure the same number.
+
+    ⚠️ What it cannot see: anything downstream. The stations measure the
+    wrangle's own output, before `graph_turn_resample`, `graph_turn_fuse` and
+    `graph_turn_clamp` have run - so a re-route that is legal here and then
+    destroyed by the clamp would still read green. J_five_star is the case
+    that measures the shipped end of that (56.701 -> 86.788 deg through the
+    whole pipeline), and it is one case.
+
+    ⚠️ **AND WHAT IT CANNOT SEE, named rather than left to look tested.**
+    (a) The minor-leg SELECTION rule and the mouth-separation formula that
+    decides WHERE the T goes - `need = (wA + wB) / (4 sin(gap/2))` - are
+    pre-M5.5 realign code and no station exercises them: every station's
+    crowded pair is host-plus-collector so width always decides, the length
+    tie-break is never reached, and an audit halved `need` and disabled the
+    crowding rail with the output BIT-IDENTICAL. That formula is the whole
+    basis of S5a's "42 m plates on a 32 m gap"; it is a real, recorded gap.
+    (b) Fifteen guards inside the wrangle are unreachable BY CONSTRUCTION on
+    anything `graph_resample` plus `graph_fuse` can produce, not merely
+    untested - both `length(tfar) < 1e-9` clauses and the out-of-range `nxt`
+    that feeds the first, `length(hdir) < 1e-9`, both host-endpoint clamps
+    (`chosen` can never be a host endpoint: the `elen[major] - sacc < lo`
+    break guarantees it), `distance(bfwd, farp) <= 1e-6` (`bk` always has a
+    successor because `blend <= 0.8 * elen[minor]`), `busy`, the adjacency
+    guard, the second `n < 5`, `gap < 1e-4`, `d < lo` (never executed
+    anywhere, including on K), the crowding rail, `length(off) < 1e-6` and
+    `!(bk >= 0 && nl >= 2)`. Reaching them needs a coincident-vertex fold the
+    pipeline cannot make.
+    """
+    name = "realign_route_control_rig"
+    ra = city_node.node("graph_realign")
+    if ra is None:
+        return _skip(name, "graph_realign not found")
+    shown = next((c for c in city_node.children() if c.isDisplayFlagSet()), None)
+    made = []
+    # (ox, pair_deg, leg_len, arms, reversed_minor, host_bend_radius)
+    stations = [(0.0,     32.0, 120.0, 5, 0, 0.0),      # re-routes
+                (600.0,   32.0, 120.0, 5, 1, 0.0),      # ...and reversed
+                (1200.0,   8.0, 120.0, 5, 0, 0.0),      # gate refuses
+                (1800.0,  32.0, 120.0, 5, 0, 150.0),    # curved host
+                (2400.0,  32.0, 120.0, 4, 0, 0.0),      # the degree bound
+                (3000.0, 328.0, 120.0, 5, 0, 0.0)]      # the leg on the -z side
+    LBL = ("routed", "reversed", "refused", "curved", "deg4", "mirrored")
+    SCALE_CH = 'chf("../graph_params/turn_radius_scale")'
+    try:
+        src = city_node.createNode("python", "__chk_realign_src")
+        made.append(src)
+        src.parm("python").set(_REALIGN_RIG_SRC % (stations,))
+        w = ra.copyTo(city_node)
+        made.append(w)
+        w.setInput(0, src)
+        base = w.parm("snippet").rawValue()
+        for chan in ('chf("../graph_params/min_node_dist")',
+                     'chf("../graph_resample/length")', SCALE_CH):
+            if chan not in base:
+                raise RuntimeError("graph_realign no longer reads %s" % chan)
+        # ...and the EVALUATED default, not just the string: the merge rig's
+        # own blocker was a promoted parm that had gone missing while literal
+        # substitution kept the sweep green.
+        live = city_node.node("graph_params").parm("turn_radius_scale")
+        if live is None or abs(live.eval() - 2.0) > 1e-9:
+            raise RuntimeError(
+                "turn_radius_scale evaluates %r, documented default is 2"
+                % (live.eval() if live else None))
+        # the landing FLOOR, read from the asset so the rig cannot drift from
+        # it: graph_realign places the T at the first host vertex at or past
+        # min_node_dist + one resample step
+        floor = (city_node.node("graph_params").parm("min_node_dist").eval()
+                 + city_node.node("graph_resample").parm("length").eval())
+
+        def cook(scale):
+            w.parm("snippet").set(base.replace(SCALE_CH, "%.6f" % scale))
+            w.cook(force=True)
+            if w.errors():
+                raise RuntimeError(w.errors()[0][:200])
+            geo = w.geometry()
+            return dict((lbl, _realign_probe(geo, s[0], scale))
+                        for lbl, s in zip(LBL, stations))
+
+        got, problems, sweep, pr2 = {}, [], {}, None
+        for scale in (2.0, 1.0, 4.0, 8.0):      # 2 FIRST: it is the reference
+            pr = cook(scale)                    # every other scale compares to
+            sweep["%g" % scale] = dict(
+                (k, None if v is None else [v[0], v[1], v[3], v[4]])
+                for k, v in pr.items())
+            for lbl in LBL[:4] + LBL[5:]:
+                p = pr[lbl]
+                if p is None:
+                    problems.append("scale %g %s: nothing realigned at all"
+                                    % (scale, lbl))
+                    continue
+                if lo <= p[0] <= hi and p[1] > 1.0:
+                    problems.append(
+                        "scale %g %s: arrival %.3f is in band on kappa x R_min "
+                        "%.3f - the gate ADMITTED a turn it cannot make"
+                        % (scale, lbl, p[0], p[1]))
+                if not (seg_lo <= p[3] <= seg_hi):
+                    problems.append(
+                        "scale %g %s: first segment %.2f m outside [%g, %g] - "
+                        "the last stretch was never written"
+                        % (scale, lbl, p[3], seg_lo, seg_hi))
+                if p[4] > tear_cap:
+                    problems.append(
+                        "scale %g %s: worst segment %.2f m - the last stretch "
+                        "is TORN, not re-routed" % (scale, lbl, p[4]))
+                if (p[2][0] ** 2 + p[2][1] ** 2) ** 0.5 < floor - 1e-6:
+                    problems.append(
+                        "scale %g %s: landing %.2f m out, under the %.2f m "
+                        "floor" % (scale, lbl,
+                                   (p[2][0] ** 2 + p[2][1] ** 2) ** 0.5, floor))
+                if scale != 2.0 and pr2 is not None and p[2] != pr2[lbl][2]:
+                    problems.append(
+                        "scale %g %s: the landing MOVED with turn_radius_scale, "
+                        "%s -> %s" % (scale, lbl, pr2[lbl][2], p[2]))
+            if pr["deg4"] is not None:
+                problems.append("scale %g deg4: a degree-4 node realigned (%s)"
+                                % (scale, pr["deg4"]))
+            r, v, c, m = (pr["routed"], pr["reversed"], pr["curved"],
+                          pr["mirrored"])
+            # 1e-2, NOT 1e-3. At 1e-3 on 3-dp values an audit killed two
+            # mutants by 86.783 against 86.782 - a 1.0000000000047748e-3 coin
+            # flip that does NOT fire one decade lower down the scale. A
+            # tolerance deciding a verdict on the last ulp is a flake, and
+            # those two mutants are killed by the landing FLOOR instead.
+            if r and v and abs(r[0] - v[0]) > 1e-2:
+                problems.append("scale %g: prim direction changed the arrival: "
+                                "%.3f vs %.3f" % (scale, r[0], v[0]))
+            # THE SIDE CORRECTION, which nothing else reaches: every other
+            # station puts the leg on +z, so `dot(tland, legdir) < 0` never
+            # fires and only the TEST is covered, never the flip it guards.
+            if r and m and abs(r[0] - m[0]) > 1e-2:
+                problems.append("scale %g: the leg on the -z side lands a "
+                                "different T: %.3f vs %.3f - the perpendicular "
+                                "is not flipped onto the leg's side"
+                                % (scale, r[0], m[0]))
+            # the curved oracle binds only while BOTH stations re-route: the
+            # bend is a genuinely tighter turn and legitimately falls back
+            # first as R_min grows (measured: it goes at scale 4, the straight
+            # one at 8).
+            if r and c and lo <= r[0] <= hi and lo <= c[0] <= hi \
+                    and abs(r[0] - c[0]) > curve_tol:
+                problems.append(
+                    "scale %g: a curved host lands a different T: %.3f vs "
+                    "%.3f - the perpendicular is not following the local "
+                    "tangent" % (scale, r[0], c[0]))
+            if scale == 2.0:
+                pr2 = pr
+                got["landings"] = dict((k, None if p is None else p[2])
+                                       for k, p in pr.items())
+        got["sweep"] = sweep
+
+        def inband(p):
+            return p is not None and lo <= p[0] <= hi
+        d = sweep["2"]
+        if not inband(d["routed"]):
+            problems.append("default: the 32 deg pair does not re-route (%s)"
+                            % (d["routed"],))
+        if d["refused"] is None or d["refused"][0] >= lo:
+            problems.append("default: the 8 deg pair was NOT refused (%s), so "
+                            "the fallback branch never ran" % (d["refused"],))
+        # both flips IN the swept range - the gain-sweep lesson. Without these
+        # the whole sweep could be reading a literal.
+        if inband(sweep["1"]["refused"]) == inband(sweep["2"]["refused"]):
+            problems.append("turn_radius_scale: the REFUSAL flip is not inside "
+                            "{1, 2, 4, 8}")
+        if inband(sweep["2"]["routed"]) == inband(sweep["8"]["routed"]):
+            problems.append("turn_radius_scale: the RE-ROUTE flip is not inside "
+                            "{1, 2, 4, 8}")
+    except Exception as exc:
+        # FAIL, do not skip - a rig that cannot run is a failure of the thing
+        # it is testing (the turn-clamp rig's lesson).
+        return Result(name, False, {"error": str(exc)[:160]},
+                      "the realign control rig could not be run at all")
+    finally:
+        for nd in reversed(made):
+            try:
+                nd.destroy()
+            except Exception:
+                pass
+        if shown is not None:
+            try:
+                shown.setDisplayFlag(True)
+            except Exception:
+                pass
+    if problems:
+        got["problems"] = problems[:4]
+    return Result(name, not problems, got,
+                  "the shipped realign on M5.5's contract, swept across "
+                  "turn_radius_scale {1, 2, 4, 8}: an arrival inside %g-%g deg "
+                  "is always inside the class clamp, every branch leaves the "
+                  "leg attached to its landing, the arrival never depends on "
+                  "which way the prim is drawn, a CURVED host lands the same T "
+                  "as a straight one, a degree-4 node is left alone, and both "
+                  "feasibility flips fall inside the swept range"
+                  % (lo, hi))
+
+
 def turn_clamp_control_rig(city_node, slack=1.02, floor=1.0, flat=1.25,
                            flat_ring=2.0):
     """Run the SHIPPED S3b clamp on the inputs that broke the first one.
