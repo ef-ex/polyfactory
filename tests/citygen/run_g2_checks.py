@@ -493,7 +493,7 @@ def diff(new, old, path=""):
 COLOUR = {"roof": (200, 90, 70), "facade": (150, 165, 190)}
 
 
-def images(shell, outdir):
+def images(shell, mass, outdir):
     """⚠️ UNPACKED FIRST.  A packed prim has ONE VERTEX
     (houdini-procedural-modeling §6), so a wireframe drawn off the facade
     stream contains the module COUNT in dots and none of the modules - the
@@ -534,6 +534,33 @@ def images(shell, outdir):
         for tag, axes in (("iso", "iso"), ("plan", ("x", "z"))):
             G.rasterise(os.path.join(outdir, "g2_%d_%s.png" % (site, tag)),
                         keep, axes=axes, w=1100, h=800, colour_of=colour_of)
+    # ⭐ ONE PICTURE PER CORNER, CLASSIFIED, because the corner IS the gate.
+    # §12.10 G2 asks for "no holes or misalignments at any convex/reflex
+    # corner, VIEWPORT-VERIFIED", and a whole-building wireframe is where a
+    # 4 cm hole goes to hide: the facade band is ~1 px wide at 1500 px across
+    # 500 m of fixture. `corner_closure` is the measurement; these are what a
+    # human can actually check it against, and the reflex one is the corner
+    # nothing in this project had ever built.
+    for site, _st, ring, _ro in LOTS:
+        fp = C._cap_ring(list(C.volumes(mass.geometry(), site).values())[0])
+        for j, q in enumerate(fp):
+            a, b = fp[j - 1], fp[(j + 1) % len(fp)]
+            turn = ((q[0] - a[0]) * (b[1] - q[1])
+                    - (q[1] - a[1]) * (b[0] - q[0]))
+            keep = hou.Geometry()
+            keep.merge(geo)
+            keep.deletePrims(
+                [p for p in keep.prims()
+                 if p.attribValue("pf_site_id") != site
+                 or max(abs(p.intrinsicValue("bounds")[0] - q[0]),
+                        abs(p.intrinsicValue("bounds")[4] - q[1])) > 2.0],
+                True)
+            if not keep.prims():
+                continue
+            G.rasterise(os.path.join(
+                outdir, "g2_%d_corner%d_%s.png"
+                % (site, j, "convex" if turn > 0 else "reflex")),
+                keep, axes="iso", w=900, h=900, colour_of=colour_of)
     unpack.destroy()
 
 
@@ -576,7 +603,7 @@ def main():
         outdir = (args[idx + 1] if len(args) > idx + 1
                   and not args[idx + 1].startswith("-") else IMAGES)
         print("\nimages ->", outdir)
-        images(shell, outdir)
+        images(shell, mass, outdir)
 
     if "--mutations" in args:
         print("\nmutations - each must redden the CLAUSE it is paired with")
