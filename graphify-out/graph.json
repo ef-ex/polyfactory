@@ -4810,7 +4810,7 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "citygen_plan_node",
-      "community": 42,
+      "community": 242,
       "norm_label": "node"
     },
     {
@@ -4820,7 +4820,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "citygen_plan_node_init",
-      "community": 42,
+      "community": 242,
       "norm_label": ".__init__()"
     },
     {
@@ -14990,7 +14990,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_binding_manager_bindingmanager_init",
-      "community": 42,
+      "community": 242,
       "norm_label": ".__init__()"
     },
     {
@@ -15130,7 +15130,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_27",
-      "community": 42,
+      "community": 242,
       "norm_label": "initialize binding manager for a node.                  args:             nod"
     },
     {
@@ -15520,7 +15520,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel",
-      "community": 35,
+      "community": 242,
       "norm_label": "parm_panel.py"
     },
     {
@@ -15530,7 +15530,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_floating_parm_panel",
-      "community": 35,
+      "community": 242,
       "norm_label": "show_floating_parm_panel()"
     },
     {
@@ -15540,7 +15540,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_selected_node_parms",
-      "community": 35,
+      "community": 242,
       "norm_label": "show_selected_node_parms()"
     },
     {
@@ -15550,7 +15550,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_1",
-      "community": 35,
+      "community": 242,
       "norm_label": "parameter panel utilities - helper functions for creating floating parameter win"
     },
     {
@@ -15560,7 +15560,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_11",
-      "community": 35,
+      "community": 242,
       "norm_label": "open a floating parameter panel for a node using houdini's native api."
     },
     {
@@ -15570,7 +15570,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_50",
-      "community": 35,
+      "community": 242,
       "norm_label": "show floating parameter panel for currently selected node.          useful for"
     },
     {
@@ -17300,7 +17300,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring",
-      "community": 55,
+      "community": 35,
       "norm_label": "parmstring"
     },
     {
@@ -17320,7 +17320,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 55,
+      "community": 35,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17330,7 +17330,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_on_changed",
-      "community": 55,
+      "community": 35,
       "norm_label": "._on_changed()"
     },
     {
@@ -17340,7 +17340,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_widget_value",
-      "community": 5,
+      "community": 48,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17350,7 +17350,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_expression_style",
-      "community": 55,
+      "community": 35,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17390,7 +17390,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_widget_value",
-      "community": 5,
+      "community": 48,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17460,7 +17460,7 @@
       "source_location": "L322",
       "_origin": "ast",
       "id": "widgets_widgets_parmmenu_update_widget_value",
-      "community": 5,
+      "community": 48,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17500,7 +17500,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor",
-      "community": 5,
+      "community": 35,
       "norm_label": "parmcolor"
     },
     {
@@ -17510,7 +17510,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_init",
-      "community": 5,
+      "community": 51,
       "norm_label": ".__init__()"
     },
     {
@@ -17520,7 +17520,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "parmtuple",
-      "community": 5,
+      "community": 51,
       "norm_label": "parmtuple"
     },
     {
@@ -17530,7 +17530,7 @@
       "source_location": "L449",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_on_color_changed",
-      "community": 5,
+      "community": 35,
       "norm_label": "._on_color_changed()"
     },
     {
@@ -17540,7 +17540,7 @@
       "source_location": "L462",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_get_parm_value",
-      "community": 5,
+      "community": 35,
       "norm_label": "._get_parm_value()"
     },
     {
@@ -17550,7 +17550,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_widget_value",
-      "community": 5,
+      "community": 48,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17560,7 +17560,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_expression_style",
-      "community": 5,
+      "community": 48,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17570,7 +17570,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_reset_to_default",
-      "community": 5,
+      "community": 35,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17610,7 +17610,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_28",
-      "community": 55,
+      "community": 35,
       "norm_label": "string input widget with enhanced label."
     },
     {
@@ -17620,7 +17620,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 55,
+      "community": 35,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -17630,7 +17630,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_101",
-      "community": 55,
+      "community": 35,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17710,7 +17710,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_409",
-      "community": 5,
+      "community": 35,
       "norm_label": "color picker widget using houdini's native colorfield."
     },
     {
@@ -17720,7 +17720,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_450",
-      "community": 5,
+      "community": 35,
       "norm_label": "handle color change from colorfield."
     },
     {
@@ -17730,7 +17730,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_467",
-      "community": 5,
+      "community": 48,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -17740,7 +17740,7 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_480",
-      "community": 5,
+      "community": 48,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17750,7 +17750,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_493",
-      "community": 5,
+      "community": 35,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -21657,7 +21657,7 @@
       "label": "show()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L121",
+      "source_location": "L138",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_show",
       "community": 145,
@@ -21667,7 +21667,7 @@
       "label": "kit_geometry()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L177",
+      "source_location": "L194",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_kit_geometry",
       "community": 145,
@@ -21677,7 +21677,7 @@
       "label": "scene()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L202",
+      "source_location": "L219",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_scene",
       "community": 145,
@@ -21687,7 +21687,7 @@
       "label": "cook()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L214",
+      "source_location": "L231",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_cook",
       "community": 145,
@@ -21697,7 +21697,7 @@
       "label": "patch_vex()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L228",
+      "source_location": "L245",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_patch_vex",
       "community": 145,
@@ -21707,7 +21707,7 @@
       "label": "vx()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L244",
+      "source_location": "L261",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_vx",
       "community": 145,
@@ -21717,7 +21717,7 @@
       "label": "bend()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L260",
+      "source_location": "L277",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_bend",
       "community": 145,
@@ -21727,7 +21727,7 @@
       "label": "drop_row()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L266",
+      "source_location": "L283",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_drop_row",
       "community": 145,
@@ -21737,7 +21737,7 @@
       "label": "run_checks()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L387",
+      "source_location": "L414",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_run_checks",
       "community": 145,
@@ -21747,7 +21747,7 @@
       "label": "record()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L408",
+      "source_location": "L435",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_record",
       "community": 145,
@@ -21757,7 +21757,7 @@
       "label": "cost()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L433",
+      "source_location": "L460",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_cost",
       "community": 145,
@@ -21767,7 +21767,7 @@
       "label": "budget()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L512",
+      "source_location": "L539",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_budget",
       "community": 145,
@@ -21777,7 +21777,7 @@
       "label": "diff()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L543",
+      "source_location": "L570",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_diff",
       "community": 145,
@@ -21787,7 +21787,7 @@
       "label": "images()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L558",
+      "source_location": "L585",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_images",
       "community": 145,
@@ -21797,7 +21797,7 @@
       "label": "main()",
       "file_type": "code",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L631",
+      "source_location": "L658",
       "_origin": "ast",
       "id": "citygen_run_g2_checks_main",
       "community": 145,
@@ -21817,9 +21817,9 @@
       "label": "Lots -> B2 mass -> B4 facade + B5 cap + B6 seam.  -> (mass, shell).",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L203",
+      "source_location": "L220",
       "_origin": "ast",
-      "id": "citygen_run_g2_checks_rationale_203",
+      "id": "citygen_run_g2_checks_rationale_220",
       "community": 145,
       "norm_label": "lots -> b2 mass -> b4 facade + b5 cap + b6 seam.  -> (mass, shell)."
     },
@@ -21827,9 +21827,9 @@
       "label": "A fresh /obj subtree per build, so no cook is served a stale cache.",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L215",
+      "source_location": "L232",
       "_origin": "ast",
-      "id": "citygen_run_g2_checks_rationale_215",
+      "id": "citygen_run_g2_checks_rationale_232",
       "community": 145,
       "norm_label": "a fresh /obj subtree per build, so no cook is served a stale cache."
     },
@@ -21837,9 +21837,9 @@
       "label": "\u2b50 THE AUDIT'S OWN INJECTED DEFECT, TURNED INTO A STANDING MUTATION.      Round-N",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L267",
+      "source_location": "L284",
       "_origin": "ast",
-      "id": "citygen_run_g2_checks_rationale_267",
+      "id": "citygen_run_g2_checks_rationale_284",
       "community": 145,
       "norm_label": "\u2b50 the audit's own injected defect, turned into a standing mutation.      round-n"
     },
@@ -21847,9 +21847,9 @@
       "label": "VALUES, not pass/fail.",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L409",
+      "source_location": "L436",
       "_origin": "ast",
-      "id": "citygen_run_g2_checks_rationale_409",
+      "id": "citygen_run_g2_checks_rationale_436",
       "community": 145,
       "norm_label": "values, not pass/fail."
     },
@@ -21857,9 +21857,9 @@
       "label": "Cook time per CORNER TREATMENT, and the miter/reference split.      \u2b50 THIS IS EV",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L434",
+      "source_location": "L461",
       "_origin": "ast",
-      "id": "citygen_run_g2_checks_rationale_434",
+      "id": "citygen_run_g2_checks_rationale_461",
       "community": 145,
       "norm_label": "cook time per corner treatment, and the miter/reference split.      \u2b50 this is ev"
     },
@@ -21867,9 +21867,9 @@
       "label": "test <= production, PRINTED EVERY RUN, over ALL THREE test files.      \u26a0\ufe0f A NEW",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L513",
+      "source_location": "L540",
       "_origin": "ast",
-      "id": "citygen_run_g2_checks_rationale_513",
+      "id": "citygen_run_g2_checks_rationale_540",
       "community": 145,
       "norm_label": "test <= production, printed every run, over all three test files.      \u26a0\ufe0f a new"
     },
@@ -21877,9 +21877,9 @@
       "label": "\u26a0\ufe0f UNPACKED FIRST.  A packed prim has ONE VERTEX     (houdini-procedural-modelin",
       "file_type": "rationale",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L559",
+      "source_location": "L586",
       "_origin": "ast",
-      "id": "citygen_run_g2_checks_rationale_559",
+      "id": "citygen_run_g2_checks_rationale_586",
       "community": 145,
       "norm_label": "\u26a0\ufe0f unpacked first.  a packed prim has one vertex     (houdini-procedural-modelin"
     },
@@ -33060,7 +33060,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_section",
-      "community": 179,
+      "community": 166,
       "norm_label": "section()"
     },
     {
@@ -33100,7 +33100,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_style",
-      "community": 166,
+      "community": 5,
       "norm_label": ".style()"
     },
     {
@@ -33130,7 +33130,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_corner_is_not_an_end_and_gets_no_caps",
-      "community": 166,
+      "community": 5,
       "norm_label": ".test_a_corner_is_not_an_end_and_gets_no_caps()"
     },
     {
@@ -33140,7 +33140,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_closed_spline_gets_no_caps_on_any_side",
-      "community": 166,
+      "community": 5,
       "norm_label": ".test_a_closed_spline_gets_no_caps_on_any_side()"
     },
     {
@@ -33150,7 +33150,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_pc_section_limit_does_cap_like_a_spline_end",
-      "community": 166,
+      "community": 5,
       "norm_label": ".test_a_pc_section_limit_does_cap_like_a_spline_end()"
     },
     {
@@ -33250,7 +33250,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testselection_test_sequence_walks_the_list_and_still_fills_exactly",
-      "community": 179,
+      "community": 212,
       "norm_label": ".test_sequence_walks_the_list_and_still_fills_exactly()"
     },
     {
@@ -33390,7 +33390,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_curves_are_reordered",
-      "community": 166,
+      "community": 5,
       "norm_label": ".test_the_plan_does_not_move_when_the_curves_are_reordered()"
     },
     {
@@ -33400,7 +33400,7 @@
       "source_location": "L389",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_markers_are_reordered",
-      "community": 166,
+      "community": 5,
       "norm_label": ".test_the_plan_does_not_move_when_the_markers_are_reordered()"
     },
     {
@@ -33420,7 +33420,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_two_sections_of_one_spline_correlate_under_spline_scope",
-      "community": 166,
+      "community": 5,
       "norm_label": ".test_two_sections_of_one_spline_correlate_under_spline_scope()"
     },
     {
@@ -33430,7 +33430,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_section_scope_does_not_correlate_across_sections",
-      "community": 166,
+      "community": 5,
       "norm_label": ".test_section_scope_does_not_correlate_across_sections()"
     },
     {
@@ -33550,7 +33550,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testwholecurves_test_ten_thousand_pieces_stay_addressable_and_unique",
-      "community": 179,
+      "community": 244,
       "norm_label": ".test_ten_thousand_pieces_stay_addressable_and_unique()"
     },
     {
@@ -33620,7 +33620,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_117",
-      "community": 166,
+      "community": 5,
       "norm_label": "d18. railclone puts start/end at spline ends and corner segments at         corn"
     },
     {
@@ -33630,7 +33630,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_128",
-      "community": 166,
+      "community": 5,
       "norm_label": "the corner-free loop was already covered; the rectangle was not -         it has"
     },
     {
@@ -33640,7 +33640,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_137",
-      "community": 166,
+      "community": 5,
       "norm_label": "the other half of d18: a material-id limit is where one generator         stops"
     },
     {
@@ -33700,7 +33700,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_249",
-      "community": 179,
+      "community": 212,
       "norm_label": "d14: a sequence is fitted as a pattern, so mixed sizes work. the         unit he"
     },
     {
@@ -33780,7 +33780,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_533",
-      "community": 179,
+      "community": 244,
       "norm_label": "pc-g3's own scale target, on the plan side: `pc_elem_id` is the key         the"
     },
     {
@@ -39590,7 +39590,7 @@
       "source_location": "L1746",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
-      "community": 17,
+      "community": 256,
       "norm_label": "s5 \u2014 intersections"
     },
     {
@@ -39600,7 +39600,7 @@
       "source_location": "L1768",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
-      "community": 17,
+      "community": 256,
       "norm_label": "what the literature adds"
     },
     {
@@ -39610,7 +39610,7 @@
       "source_location": "L1792",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "community": 17,
+      "community": 256,
       "norm_label": "the invariant that was violated: **every corner is an arc, always**"
     },
     {
@@ -39620,7 +39620,7 @@
       "source_location": "L1829",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
-      "community": 17,
+      "community": 256,
       "norm_label": "two rules the design left open, decided 2026-08-09"
     },
     {
@@ -39630,7 +39630,7 @@
       "source_location": "L1949",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
-      "community": 17,
+      "community": 256,
       "norm_label": "three constructions adopted from the civil sweep \u2014 2026-08-09"
     },
     {
@@ -39640,7 +39640,7 @@
       "source_location": "L1984",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "community": 17,
+      "community": 256,
       "norm_label": "higher-degree junctions \u2014 untested, and structurally unreachable from the field"
     },
     {
@@ -39650,7 +39650,7 @@
       "source_location": "L2010",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "community": 17,
+      "community": 256,
       "norm_label": "plazas and roundabouts at degenerate points"
     },
     {
@@ -46840,7 +46840,7 @@
       "source_location": "L14772",
       "_origin": "ast",
       "id": "ideas_polychain_32_native_network_build_log_cycle_c5v_the_c5_audit_worked_through",
-      "community": 146,
+      "community": 258,
       "norm_label": "32. native network build log \u2014 cycle c5v (the c5 audit, worked through)"
     },
     {
@@ -46850,7 +46850,7 @@
       "source_location": "L14782",
       "_origin": "ast",
       "id": "ideas_polychain_32_1_d336_a_bend_weld_renumbered_every_section_after_it_the_audit_s_finding_1",
-      "community": 146,
+      "community": 258,
       "norm_label": "32.1 d336 \u2014 a bend weld renumbered every section after it (the audit's finding 1)"
     },
     {
@@ -46860,7 +46860,7 @@
       "source_location": "L14850",
       "_origin": "ast",
       "id": "ideas_polychain_32_2_the_two_guard_holes_findings_2_and_3",
-      "community": 146,
+      "community": 258,
       "norm_label": "32.2 the two guard holes (findings 2 and 3)"
     },
     {
@@ -46870,7 +46870,7 @@
       "source_location": "L14880",
       "_origin": "ast",
       "id": "ideas_polychain_32_3_d337_the_budget_is_at_1_0000x_with_zero_headroom_and_that_is_a_standing_cost",
-      "community": 146,
+      "community": 258,
       "norm_label": "32.3 d337 \u2014 the budget is at 1.0000x with zero headroom, and that is a standing cost"
     },
     {
@@ -46880,7 +46880,7 @@
       "source_location": "L14903",
       "_origin": "ast",
       "id": "ideas_polychain_32_4_the_python_share_per_build_class_the_number_that_closes_the_language_law",
-      "community": 146,
+      "community": 258,
       "norm_label": "32.4 the python share, per build class \u2014 the number that closes the language law"
     },
     {
@@ -46890,7 +46890,7 @@
       "source_location": "L14936",
       "_origin": "ast",
       "id": "ideas_polychain_32_5_what_the_c5v_gate_reads",
-      "community": 146,
+      "community": 258,
       "norm_label": "32.5 what the c5v gate reads"
     },
     {
@@ -48095,7 +48095,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 55,
+      "community": 35,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -86432,9 +86432,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L528",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings",
-      "target": "citygen_checks_buildings_plane_slope",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_plane_slope"
     },
     {
       "relation": "contains",
@@ -87261,9 +87261,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L622",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_cap_seam",
-      "target": "citygen_checks_buildings_plane_slope",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_plane_slope"
     },
     {
       "relation": "rationale_for",
@@ -87271,9 +87271,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L529",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_529",
-      "target": "citygen_checks_buildings_plane_slope",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_plane_slope"
     },
     {
       "relation": "rationale_for",
@@ -87291,9 +87291,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L548",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_548",
-      "target": "citygen_checks_buildings_cap_seam",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_cap_seam"
     },
     {
       "relation": "rationale_for",
@@ -87301,9 +87301,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L663",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_663",
-      "target": "citygen_checks_buildings_plan_follows_data",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_plan_follows_data"
     },
     {
       "relation": "rationale_for",
@@ -87311,9 +87311,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L774",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_774",
-      "target": "citygen_checks_buildings_rules_serve_more_than_one_style",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_rules_serve_more_than_one_style"
     },
     {
       "relation": "rationale_for",
@@ -87321,9 +87321,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L808",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_808",
-      "target": "citygen_checks_buildings_no_style_names_in_code",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_no_style_names_in_code"
     },
     {
       "relation": "rationale_for",
@@ -87331,9 +87331,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L827",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_827",
-      "target": "citygen_checks_buildings_party_walls_are_real",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_party_walls_are_real"
     },
     {
       "relation": "rationale_for",
@@ -87351,9 +87351,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L872",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_872",
-      "target": "citygen_checks_buildings_wanted",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_wanted"
     },
     {
       "relation": "calls",
@@ -87372,9 +87372,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L885",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_885",
-      "target": "citygen_checks_buildings_volume_count_matches_template",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_volume_count_matches_template"
     },
     {
       "relation": "rationale_for",
@@ -87382,9 +87382,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L949",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_949",
-      "target": "citygen_checks_buildings_outward_normals",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_outward_normals"
     },
     {
       "relation": "rationale_for",
@@ -87392,9 +87392,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L976",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_976",
-      "target": "citygen_checks_buildings_heights_follow_data",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_heights_follow_data"
     },
     {
       "relation": "calls",
@@ -87413,9 +87413,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L1009",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_1009",
-      "target": "citygen_checks_buildings_plinth_follows_ground",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_plinth_follows_ground"
     },
     {
       "relation": "rationale_for",
@@ -87423,9 +87423,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L1074",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_1074",
-      "target": "citygen_checks_buildings_attribute_storage",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_attribute_storage"
     },
     {
       "relation": "rationale_for",
@@ -87433,9 +87433,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L1105",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_1105",
-      "target": "citygen_checks_buildings_elem_ids_structural",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_elem_ids_structural"
     },
     {
       "relation": "rationale_for",
@@ -87443,9 +87443,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L1123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_1123",
-      "target": "citygen_checks_buildings_no_scratch",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_no_scratch"
     },
     {
       "relation": "rationale_for",
@@ -87453,9 +87453,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L1148",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_1148",
-      "target": "citygen_checks_buildings_published_names",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_published_names"
     },
     {
       "relation": "rationale_for",
@@ -87463,9 +87463,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L1161",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_1161",
-      "target": "citygen_checks_buildings_masses_inside_lots",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_masses_inside_lots"
     },
     {
       "relation": "rationale_for",
@@ -87473,9 +87473,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L1196",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_1196",
-      "target": "citygen_checks_buildings_warns_on_unknown_rule",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_warns_on_unknown_rule"
     },
     {
       "relation": "rationale_for",
@@ -87483,9 +87483,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L1211",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_1211",
-      "target": "citygen_checks_buildings_warns_on_cap_group_split",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_warns_on_cap_group_split"
     },
     {
       "relation": "contains",
@@ -89280,11 +89280,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L203",
+      "source_location": "L220",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_run_g2_checks_rationale_203",
-      "target": "citygen_run_g2_checks_scene"
+      "source": "citygen_run_g2_checks_rationale_220",
+      "target": "citygen_run_g2_checks_scene",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -89323,11 +89323,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L215",
+      "source_location": "L232",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_run_g2_checks_rationale_215",
-      "target": "citygen_run_g2_checks_cook"
+      "source": "citygen_run_g2_checks_rationale_232",
+      "target": "citygen_run_g2_checks_cook",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -89344,11 +89344,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L267",
+      "source_location": "L284",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "citygen_run_g2_checks_rationale_267",
-      "target": "citygen_run_g2_checks_drop_row"
+      "source": "citygen_run_g2_checks_rationale_284",
+      "target": "citygen_run_g2_checks_drop_row",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -89376,9 +89376,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L409",
+      "source_location": "L436",
       "weight": 1.0,
-      "source": "citygen_run_g2_checks_rationale_409",
+      "source": "citygen_run_g2_checks_rationale_436",
       "target": "citygen_run_g2_checks_record",
       "confidence_score": 1.0
     },
@@ -89397,9 +89397,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L434",
+      "source_location": "L461",
       "weight": 1.0,
-      "source": "citygen_run_g2_checks_rationale_434",
+      "source": "citygen_run_g2_checks_rationale_461",
       "target": "citygen_run_g2_checks_cost",
       "confidence_score": 1.0
     },
@@ -89418,9 +89418,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L513",
+      "source_location": "L540",
       "weight": 1.0,
-      "source": "citygen_run_g2_checks_rationale_513",
+      "source": "citygen_run_g2_checks_rationale_540",
       "target": "citygen_run_g2_checks_budget",
       "confidence_score": 1.0
     },
@@ -89450,9 +89450,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/citygen/run_g2_checks.py",
-      "source_location": "L559",
+      "source_location": "L586",
       "weight": 1.0,
-      "source": "citygen_run_g2_checks_rationale_559",
+      "source": "citygen_run_g2_checks_rationale_586",
       "target": "citygen_run_g2_checks_images",
       "confidence_score": 1.0
     },
@@ -122974,5 +122974,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "5ab718077f80b1fe46d446a23da9deb27073f51c"
+  "built_at_commit": "d44d451e16824594cd45c83d8ed5cc218b6b1ad3"
 }

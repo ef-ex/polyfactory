@@ -87,6 +87,7 @@ LOTS = [
     (1, STYLE, ell(0.0, 0.0), ROLES_L),
     (2, STYLE, [(50, 0), (78, 0), (78, 18), (50, 18)], ROLES_R),
     (3, STYLE, ell(100.0, 0.0), ROLES_L),
+    (4, STYLE, ell(150.0, 0.0), ROLES_L),
 ]
 # Authored per-vertex `pf_setback`, cascade level 5, NEGATIVE = absent (§12.4).
 # Site 3 asks for 9 m off the `front` edge and 4 m off the `rear` edge of a leg
@@ -101,7 +102,23 @@ LOTS = [
 # and did not fold at all (7 + 4 < 12) - the fixture passed while proving
 # nothing, which is this build's most-repeated defect and was caught here only
 # because the numbers were re-derived by hand.
-SETBACKS = {3: [9.0, 2.0, 4.0, 1.5, 4.0, 2.5]}
+#
+# ⭐ SITE 4 IS THE SAME FOLD AT THE ROUNDEST NUMBER IN THE FIXTURE, and it is
+# the round-N audit's `G2-4` turned into a standing case.  `front` 8.0 against
+# `rear` 4.0 on the same 12 m leg makes the two offset lines MEET instead of
+# crossing: the ring comes out (152.5, 8) (178, 8) (178, 8) (164.5, 8)
+# (164.5, 20) (152.5, 20) - two coincident points and four collinear ones.
+# Site 3's proper crossing is caught by the crossing test; this one is not,
+# because that test is STRICTLY proper (`< 0.0`, and it has to be - collinear
+# lot points are legal) so four collinear points give d = 0 and it cannot
+# fire.  Measured before the fix: all four `pf_warn_*` at 0, a 0.35 m facade
+# hole, two corners with no corner module and a roof 0.55 m off the wall top -
+# in production an artist got a broken building and no warning at all.
+# ⚠️ The behaviour is DISCONTINUOUS in the authored number: 7.99 leaves a 1 cm
+# leg and ships silently, 8.00 self-touches and shipped silently, 8.01 crosses
+# and was already detected.  8.00 is the case a human authors.
+SETBACKS = {3: [9.0, 2.0, 4.0, 1.5, 4.0, 2.5],
+            4: [8.0, 2.0, 4.0, 1.5, 4.0, 2.5]}
 RINGS = dict((s, r) for s, _st, r, _ro in LOTS)
 STYLE_OF = dict((s, st) for s, st, _r, _ro in LOTS)
 ROLES = dict((s, ro) for s, _st, _r, ro in LOTS)
@@ -113,7 +130,7 @@ ROLES = dict((s, ro) for s, _st, _r, ro in LOTS)
 # and it is the OFFSET that went wrong there, so it degrades onto its lot
 # polygon carrying `pf_warn_footprint_collapsed` - §2.2, advisory and never a
 # refusal: a building still comes out, on the shape the offset came from.
-DEGRADED = {3: True}
+DEGRADED = {3: True, 4: True}
 
 FAIL = []
 
@@ -377,8 +394,18 @@ MUTATIONS = [
     ("volume_count_matches", "volume_count_matches",
      "`pf_collapse` loses its self-intersection test, so site 3's folded "
      "footprint stops being flagged and one solid volume is built on a bowtie",
-     vx("(outside || crosses || a * was <= 0.0",
-        "(outside || a * was <= 0.0", "pf_collapse")),
+     vx("outside || crosses ||", "outside ||", "pf_collapse")),
+    # ⭐ THE SECOND ROW ON THIS CLAUSE, AND IT IS DELIBERATE.  One mutation per
+    # clause is the sweep's FLOOR, not its ceiling: the crossing test and the
+    # lobe test catch two different folds, and a single row would leave
+    # whichever term it did not touch unproven - which is exactly how round
+    # 2's defect reached its third instance.
+    ("volume_count_matches", "volume_count_matches",
+     "`pf_collapse` loses its LOBE test, so site 4's TANGENTIAL fold - the one "
+     "a strictly-proper crossing test can never fire on, because four "
+     "collinear points give d = 0 - stops being flagged and a building ships "
+     "on a self-touching ring with all four `pf_warn_*` at 0",
+     vx("crosses || pinched ||", "crosses ||", "pf_collapse")),
 ]
 
 

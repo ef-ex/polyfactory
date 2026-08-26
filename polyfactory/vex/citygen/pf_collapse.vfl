@@ -114,8 +114,48 @@ for (int e = 0; e < n && !crosses; e++) {
     }
 }
 
+// ⭐ AND THE FIFTH TEST, ADDED BY THE ROUND-N FIX PASS: DID A LOBE COLLAPSE
+// WITHOUT CROSSING?
+//
+// The crossing test above is STRICTLY proper and must stay that way, so it
+// cannot fire on a fold that is TANGENTIAL - where the two offset lines meet
+// instead of crossing.  Measured on the gate's own L (fixture site 4): `front`
+// 8.0 against `rear` 4.0 on a leg exactly 12 m deep gives
+//   (152.5, 8) (178, 8) (178, 8) (164.5, 8) (164.5, 20) (152.5, 20)
+// - two COINCIDENT points and four collinear ones.  Containment holds (every
+// corner is still inside the lot), the area shrank and kept its sign
+// (+552 -> +144), |a| = 144 >> 1e-4, and four collinear points give d = 0 so
+// the crossing test is silent.  All four `pf_warn_*` were 0 and the building
+// SHIPPED: a 0.35 m facade hole, two corners with no corner module and a roof
+// 0.55 m off the wall top.  In production that is a broken building and no
+// warning at all.
+//
+// ⚠️ THE MISSING TERM IS NOT ANOTHER CROSSING TEST, and that is the whole
+// reason this one is three lines rather than another O(n^2) sweep.  `crosses`
+// covers escape-by-fold, containment covers escape-by-translation, the area
+// terms cover vanishing - and NOTHING covered a lobe that collapsed locally.
+// A lobe that collapses leaves a duplicate vertex, i.e. a zero-length edge.
+//
+// ⚠️ 1e-3 m, the same tolerance as the containment test, and for the same
+// reason: float32 `P` is ~1.5e-5 m at this fixture's ~200 m domain, so it is
+// two orders above storage noise and three below anything architectural.
+//
+// ⚠️ WHAT IT CANNOT SEE, stated because the behaviour is DISCONTINUOUS in the
+// authored number: `front` 7.99 leaves a leg 1 cm deep, whose edges are 0.01 m
+// long, and 0.01 > 1e-3 so this ships silently.  8.00 self-touches and is
+// caught here; 8.01 crosses and is caught above.  A lobe too THIN to build is
+// a different claim from a lobe that COLLAPSED, and where "too thin" sits is
+// an architectural number and therefore Hannes' (§0.0g), not one to invent
+// here.
+int pinched = 0;
+for (int k = 0; k < n && !pinched; k++) {
+    vector p = point(0, "P", pts[k]);
+    vector r = point(0, "P", pts[(k + 1) % n]);
+    if (length(set(p.x - r.x, 0.0, p.z - r.z)) < 1e-3) pinched = 1;
+}
+
 i@pf_warn_footprint_collapsed =
-    (outside || crosses || a * was <= 0.0
+    (outside || crosses || pinched || a * was <= 0.0
      || abs(a) > abs(was) * (1.0 + 1e-6) + 1e-6
      || abs(a) < 1e-4) ? 1 : 0;
 f@_area0 = a;

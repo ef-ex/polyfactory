@@ -141,6 +141,34 @@
    ],
    "roof_faces": 6,
    "topY": 15.85
+  },
+  "4_g2_lshape": {
+   "facade_elements": 324,
+   "mass_faces": 8,
+   "mass_volumes": 1,
+   "pf_warn_cap_group_split": [
+    0
+   ],
+   "pf_warn_footprint_collapsed": [
+    1
+   ],
+   "pf_warn_topology_arity": [
+    1
+   ],
+   "pf_warn_unknown_rule": [
+    0
+   ],
+   "planAreas": [
+    552.0
+   ],
+   "planBox": [
+    150.0,
+    0.0,
+    180.0,
+    24.0
+   ],
+   "roof_faces": 6,
+   "topY": 15.85
   }
  }
 }
