@@ -244,8 +244,21 @@ for (int pr = 0; pr < np; pr++) {
 
     int ncells = degraded ? 1 : (closed ? n : len(railA) - 1);
     if (ncells < 1) continue;
-    int warnarity = (len(roles) != ncells || len(storeys) != ncells
-                     || len(caps) != ncells) ? 1 : 0;
+    // ⚠️ ARITY IS MEASURED AGAINST WHAT THE RAILS PRODUCED, WHICH IS NOTHING
+    // WHEN THEY REFUSED THE FOOTPRINT.  §12.8 defines this warning as "the
+    // template's `volumes` list is not as long as the cell count the rails
+    // produced"; the first build compared it against `ncells`, which in the
+    // degraded case is the FALLBACK's single solid volume and not a rail cell
+    // at all.  So a five-corner lot under a bar template whose `volumes` list
+    // happens to have length 1 shipped DEGRADED with all four warnings at 0
+    // and `volume_count_matches` calling it correct - measured, and it is the
+    // whole of R3-4.  A degraded site never honoured its volume list, so the
+    // list is by definition not as long as the zero cells the rails made, and
+    // the warning §12.8 already has is the true statement about it.  No new
+    // artist-facing warning is invented here; §0.0g item 6 stays Hannes'.
+    int railcells = degraded ? 0 : ncells;
+    int warnarity = (len(roles) != railcells || len(storeys) != railcells
+                     || len(caps) != railcells) ? 1 : 0;
 
     // ---- pass 1: datums, so a cap group can be judged before anything is
     // built.  Two volumes sharing a roof must share an eave height.
