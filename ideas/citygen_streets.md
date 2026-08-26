@@ -9,6 +9,49 @@ Branch `cityGen`. Written 2026-08-08.
 
 ---
 
+## 0.0 RESUME POINTER — overnight run started 2026-08-17
+
+⚠️ **WORKTREE, NOT THE SHARED CHECKOUT.** All street work happens in
+**`F:/projects/polyfactory-citygen`** (a `git worktree` on `cityGen`). The shared checkout at
+`F:/projects/polyfactory` belongs to OTHER AGENTS and has been on `polychain` and `worldengine`
+during this session — **never `git checkout` there, never `git worktree remove` this one while
+work is uncommitted.** Commit and push per item; interruptions are routine.
+
+**Where we are:** M5's mover shipped (`7ce975f`). `graph_min_angle` deletes nothing; M and O
+ship all their streets. Gate **27 failing** — the standing 25 plus O's two merge-mouth rows.
+49 unit tests. Baseline is current; a fresh gate must print **0 moved rows**.
+
+**Commands, from the worktree root:**
+```
+python tests/unit/test_plan.py
+POLYFACTORY="F:/projects/polyfactory-citygen/polyfactory" \
+HOUDINI_PATH="F:/projects/polyfactory-citygen/polyfactory;&" \
+  "C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe" \
+  tests/citygen/run_scene_checks.py --json <scratch>.json
+```
+
+**NEXT ITEM — M5.4, the merge mouth contract.** The landing builds as a crossing at ~12°,
+below the 25° floor the corner solve was designed against; at arterial widths O ships a ~100 m
+gore wedge, 2 self-intersections, corner-arc tangent 3.17. Build the mouth in `s5j_solve` AND
+its mirror in `plan.node_trims` **in the same commit** (§11.5's rule). ⭐ The candidate
+construction is §4c of the KB (`polyfactory/resources/citygen/README.md`): at a shallow handoff
+give both sides **ONE shared bisected cross-section axis** instead of a plate — an independent
+implementation's rule, and its companion "no transverse cap" was already our fixed bug. Exit:
+O's two rows green, no other case moved, audited.
+
+**THEN M5.5 — ⛔ §S5a item 4**, the 75–90° T landing, the mover's second target (§11.6).
+
+**RESERVED FOR THE ARTIST, do not decide alone:** the gore/mouth LOOK (renders live at
+`/obj/M5_merge_M` and `/obj/M5_merge_O` in Hannes' session; M4's render ruling was overturned
+by his eye after every check went green). Also the `merge_parallel_run` value.
+
+**Recovery:** `git -C F:/projects/polyfactory-citygen status` — if dirty and the change is not
+understood, `git stash` NAMED PATHS only. Verify any brief against `git log` first; briefs go
+stale. HDA edits follow §11.11 (unexpandedString, definition-level parm templates, `hotl -X`
+verification, no `__pycache__` reuse across mutations).
+
+---
+
 ## 1. Hard constraints
 
 Set by Hannes, 2026-08-08. These are not negotiable and every decision below respects them.
