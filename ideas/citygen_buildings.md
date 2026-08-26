@@ -260,6 +260,27 @@ were reporting, so they belong on the same list:**
    but that is Hannes' call to give, not a peer's; ask in the morning report. A pre-commit hook
    regenerates `graphify-out/` — that churn is normal, do not fight it.
 
+### 0.0g OWED TO HANNES — decisions no agent may take (as of 2026-08-26)
+
+**None of these block the overnight run.** They are recorded here because they are his, and because
+an agent that silently decides one of them corrupts the record.
+
+| # | Decision | Why it is his |
+|---|---|---|
+| 1 | **Ratify the B0 adapter schema** — volume + face-roles, planar lot as the degenerate case ([`citygen.md`](citygen.md) §7 item 0). | A peer agreed it and the build proceeds on it, but §12.4 says *"to be ratified"*. It stays reversible until he says otherwise. |
+| 2 | **Push authorization.** Everything is committed on `worldengine`; **nothing is pushed.** | He authorized "implement overnight", not a push. A peer session has explicit push rights; this one does not. Commits are granular precisely because they sit local on a machine that hard-froze twice this week. |
+| 3 | ⭐ **The human viewport pass on G1** — four masses in `tests/citygen/gate_images_buildings/`. Regenerate: `hython tests/citygen/run_building_checks.py --images`. | **This is now load-bearing, not ceremonial.** `image_contains_subject` compared a count against itself (`R2-2`); its repair checks that the real render is >20× the bytes of an 8×8 one — so it sees **bytes, not subjects**. An agent has looked and judged the masses correct. **Hannes has not, and no agent may record that pass as satisfied.** |
+| 4 | ⚠️ **The test budget breach, and it is growing.** 1.53× → fix pass reports **1.88×**; an independent recount that counts docstrings gives **2.21×** (533 production / 1179 test). | The `testing` skill's law is test ≤ production, and it exists because a 4-day build once shipped a suite 4× its tool. The fixer's counter-argument is real: production is a **457-line skeleton** (B2 + part of B1) whose tests already cover the full contract, so meeting the budget now means **deleting proven coverage** — including the 12 clauses the per-clause sweep just revealed as never proved. Two honest options: **(a)** delete to budget and lose real defect-finding, or **(b)** accept the breach with a stated repayment condition (reassess when B3–B5 land and production grows). Round 3 is ruling on whether any coverage is genuinely redundant; the choice between (a) and (b) is his. |
+| 5 | **§12.5:** `_plain()` loses element storage on a mixed numeric list and drops a nested list silently. Neither shape exists in any shipped template. | The fixer declined a check on the grounds that a check for a shape no template contains asserts nothing — a template-schema decision, not a test one. |
+| 6 | **§12.8:** after `R2-6`, **no warning names a topology degradation at all.** There is no `pf_warn_degraded`; fixture site 7 is visible only because arity happens to fire. | New warning = new artist-facing contract. |
+| 7 | **§12.6 B3:** per-storey heights belong to B3, so the sourced *"Gründerzeit ground floor is taller"* is **currently inexpressible** in a template. | Scope call on where the field lives. |
+| 8 | [`conventions.md`](conventions.md) **§9 lists "the CityGen field" as PENDING — Hannes decides.** | Named as his in that doc. |
+
+**Not ours, but must not get lost** (from [`polychain.md`](polychain.md) §0.0, and its owner asked
+that they be stated properly): the **miter design decision** in its §35.6, and polyChain's own
+**human viewport passes** on PC-G1/G2/PC-G5/PC-G6 plus a conformed build — an agent looked at
+G1–G4; Hannes never has.
+
 ### 0.0c-bis Orchestration rules — learned the hard way on G1, 2026-08-26
 
 1. ⛔ **ONE WRITER PER FILE SET, ALWAYS.** On G1 the implementer spawned its own round-2 auditor
