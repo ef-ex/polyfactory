@@ -15559,6 +15559,7 @@ roughly the speed they had before the native lane existed.
 | `gate_images` / `facade_images` | 0 / 0 |
 | `pytest tests/unit` | 303 passed, 934 subtests |
 | new + changed mutations | 4 of 4 RED: `packed_module_stamp_dropped`, `refusal_list_claims_a_row_it_has_not_got`, `refusal_list_loses_a_refusal`, `miter_canonical_cut_biased` |
+| FULL milestone sweep (`pdg_build.py --full`) | **8 nodes, 0 failures, 1 585 s**; every registered mutation RED, 0 survivors, and the four new/changed ones among them |
 | budget | **19 113 / 19 113 = 1.0000x, ZERO headroom** |
 
 ⚠️ **THE BUDGET IS AT EXACTLY 1.0 AGAIN, AND IT WAS PAID FOR BEFORE IT WAS SPENT.** The two new
