@@ -319,7 +319,7 @@ def encloses_courtyard(geo, site, depth=None, name="encloses_courtyard"):
                      "%.2f" % depth if depth is not None else "nothing"))
 
 
-def plan_follows_data(geo, lots, templates, degraded=(),
+def plan_follows_data(geo, lots, templates, degraded=(), authored=None,
                       name="plan_follows_data"):
     """WHERE THE MASS IS AND HOW BIG IT IS IN PLAN - the dimension nothing in
     the first build could see, and the one G2's L-footprint is made of.
@@ -333,14 +333,27 @@ def plan_follows_data(geo, lots, templates, degraded=(),
         of the `cutsAt` intervals. Compared in `pf_volume_index` order, or its
         reverse, because the rail direction follows the longer edge.
 
+    ⚠️ IT MODELS THE WHOLE CASCADE, NOT JUST THE TEMPLATE, and the first
+    version did not: `s` came only from `lotToFootprint.setbackM`, so an
+    authored per-vertex `pf_setback` - cascade level 5, which WINS - was
+    invisible to the oracle and CORRECT GEOMETRY FAILED.  Measured: a 40 x 20
+    lot with 2.0 m authored all round builds correctly at 2..38 x 2..18 and
+    was reported as `[2.0, 2.0, 38.0, 18.0]` against `[0, 0, 40, 20]`.  It was
+    masked only because the one authored fixture site was degraded and
+    skipped - "a fixture property was load-bearing without saying so", which
+    is round-1 defect 3's shape.  `authored` is {site: [per-edge value]} with
+    NEGATIVE meaning absent, the same sentinel `stamp()` reads, taken from the
+    FIXTURE and never from the geometry.
+
     ⚠️ PAIR THIS ONLY WITH VEX MUTATIONS.  It reads the template, so a
     template-side mutation moves the oracle and the geometry together and both
     "pass" - auditor #2's first drafts of these oracles did exactly that.
 
     CANNOT SEE: a degraded site (skipped - its footprint is by definition not
-    the one the data asked for); a lot whose setbacks are authored per vertex
-    rather than tabled per role (site 6, also degraded); anything about
-    elevation; nor two cells of equal area swapped.
+    the one the data asked for); anything about elevation; two cells of equal
+    area swapped; nor a `footprint` claim on a non-rectangular lot, because it
+    compares BOUNDING BOXES - exact for these four-corner lots and nearly
+    vacuous for G2's L, which is why generalising it is G2's first test task.
     """
     bad = []
     for site, style, (ox, oz), (sx, sz), roles in lots:
@@ -349,8 +362,11 @@ def plan_follows_data(geo, lots, templates, degraded=(),
         tpl = templates[style]
         fp = tpl["lotToFootprint"]
         table = fp["setbackM"] if fp["op"] != "identity" else {}
-        s = [float(table.get(r, 0.0 if fp["op"] == "identity"
-                             else fp["defaultSetbackM"])) for r in roles]
+        over = (authored or {}).get(site) or []
+        s = [over[i] if i < len(over) and over[i] >= 0.0
+             else float(table.get(r, 0.0 if fp["op"] == "identity"
+                                  else fp["defaultSetbackM"]))
+             for i, r in enumerate(roles)]
         want = (ox + s[3], oz + s[0], ox + sx - s[1], oz + sz - s[2])
         got = plan_box(faces(geo, site))
         if max(abs(g - w) for g, w in zip(got, want)) > TOL:
@@ -507,7 +523,19 @@ def volume_count_matches_template(geo, templates, sites, degraded_sites=(),
     it correct degradation.  A check that takes the code's word for what was
     supposed to happen cannot catch the code being wrong about it.
 
-    CANNOT SEE: a volume that is present and in the wrong place.
+    ⚠️ AND A DEGRADED SITE MUST SAY SO.  §2.2 is "advisory, never a wall", and
+    the advice is the whole of it - a degradation nobody is told about is just
+    a wrong building.  Measured: a five-corner lot under a bar template whose
+    `volumes` list has length 1 shipped one volume with ALL FOUR `pf_warn_*`
+    at 0, and this check reported PASS because `_wanted` was 1 and 1 was
+    built.  Fixture site 7 was visible only because `len(roles) != ncells`
+    happens to hold there, which is a property of the template it was given.
+    So every degraded site must carry `pf_warn_topology_arity`: it never
+    honoured its volume list, and §12.8 already defines that warning as the
+    list not matching the cells the rails produced.
+
+    CANNOT SEE: a volume that is present and in the wrong place; nor WHY a
+    site degraded, beyond whether the offset was what folded.
     """
     bad = []
     for site, (style, corners) in sorted(sites.items()):
@@ -524,9 +552,13 @@ def volume_count_matches_template(geo, templates, sites, degraded_sites=(),
             # that degrades for a topology reason must NOT carry it - nothing
             # else in the suite can see a warning that fires too often, and
             # this one did, on a footprint that was provably the identity.
-            if got != 1 or bool(warned) != bool(degraded_sites[site]):
-                bad.append((site, got, "expected 1 volume, collapse warning %s"
-                            % bool(degraded_sites[site])))
+            arity = all(f["pf_warn_topology_arity"] for f in fs)
+            if (got != 1 or bool(warned) != bool(degraded_sites[site])
+                    or not arity):
+                bad.append((site, got, "expected 1 volume, collapse warning "
+                            "%s, arity warning True; got warnings %s/%s"
+                            % (bool(degraded_sites[site]), bool(warned),
+                               arity)))
         elif got != _wanted(templates[style], corners):
             bad.append((site, got, _wanted(templates[style], corners)))
         elif warned:
@@ -668,12 +700,26 @@ def attribute_storage(geo, name="attribute_storage"):
     and not a fact until round 2: `pf_seed` and all four `pf_warn_*` were
     missing from the table under a docstring that said they were in it.
 
-    CANNOT SEE: an attribute of the right storage carrying a wrong value.
+    ⚠️ BOTH DIRECTIONS.  The table said what must ship; nothing said what must
+    NOT.  Measured: adding `pf_undeclared` to every face left this check
+    green ("all 18 ok"), `no_scratch` green and all 28 clauses green - only
+    the baseline's `published/prim` row moved.  That row does fail the run, so
+    the gap was never silent; the risk is `--update-baseline` blessing a new
+    published name unread, and this build regenerated the baseline in the same
+    pass that added attributes.  A published `pf_*` prim attribute that is in
+    neither this table nor the table's reason for existing is now a failure
+    here, where a human has to add a row for it deliberately.
+
+    CANNOT SEE: an attribute of the right storage carrying a wrong value; nor
+    an undeclared name on the point, vertex or detail classes, where B2
+    publishes nothing and the baseline is the only guard.
     """
     have = dict((a.name(), str(a.dataType()).split(".")[-1])
                 for a in geo.primAttribs())
-    wrong = sorted("%s=%s want %s" % (k, have.get(k, "MISSING"), v)
-                   for k, v in STORAGE.items() if have.get(k) != v)
+    wrong = sorted(["%s=%s want %s" % (k, have.get(k, "MISSING"), v)
+                    for k, v in STORAGE.items() if have.get(k) != v]
+                   + ["%s=%s UNDECLARED" % (k, v) for k, v in have.items()
+                      if k.startswith("pf_") and k not in STORAGE])
     return Result(name, not wrong, len(wrong),
                   "; ".join(wrong) or "all %d ok" % len(STORAGE))
 
