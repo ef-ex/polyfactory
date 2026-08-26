@@ -704,7 +704,12 @@ D reuses A's input rather than sweeping the mode over all three: the mode only
 changes S8, so a sweep would re-run every street and junction check for no new
 information. Whole suite: ~17 s.
 
-⛔ **THE UNIT SUITE IS RED AS OF 2026-08-27: 11 of 74 fail, all on one site.** This is a real
+⛔ **CITYGEN'S UNIT TESTS ARE RED AS OF 2026-08-27: 11 of 74 fail, all on one site.**
+(⚠️ **74 is citygen's share — `test_plan.py` 52 + `test_citygen.py` 22 — NOT the suite
+total.** `tests/unit/` also holds polyChain's seven files, so `pytest tests/unit` reports
+**316**. The same eleven fail either way. A count measured in one branch reads as a
+different claim once the directory it names gains files from another: nothing about the
+code changed, the SCOPE moved under it.) This is a real
 defect in M5.5, not a broken suite — `graph_realign`'s landing was changed in the builder and
 never mirrored in `plan.py`. `J_five_star`, node (48.000, 0.000), edge `E_00005`, residual
 −8.671534 m. The standing VERDICT still agrees with the builder, so nothing is wrongly called

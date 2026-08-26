@@ -36,11 +36,11 @@ below it that predates M5.4b is kept for reasoning and is marked where it is sup
 
 * **M5.4b (the gore fix) is LANDED AND AUDITED.** Cut at 6° went 1121.72 → 249.71 m; no street
   is deleted at any angle 22→ 2°.
-* ⛔ **M5.5 IS NOT SOUND. THE UNIT SUITE IS RED: 11 of 74**, all at `J_five_star` node
+* ⛔ **M5.5 IS NOT SOUND. 11 of citygen's 74 unit tests are RED**, all at `J_five_star` node
   (48.000, 0.000). **Do NOT re-pin the bound to go green** — see the M5.5 block below for the
   corrected per-arm diagnosis and the right fix.
 * **Gate: 26 failing** over **17** cases (25 on the original 16; the 17th, `R_shallow_y_12_subfloor`,
-  contributes its own row and is not a regression). **74 unit tests** (52 of them `test_plan.py`).
+  contributes its own row and is not a regression). **74 citygen unit tests (52 `test_plan.py` + 22 `test_citygen.py`) — ⚠️ **that is citygen's SHARE, not the suite total**: on `worldengine` `tests/unit/` also holds polyChain's seven files, where `pytest tests/unit` reports **316**.**
 * **Baseline is current** — a fresh gate prints **0 moved rows**. `trim_calibration.json` is
   current too, and `calibration_is_not_stale` now enforces that every run.
 * **The merge to `worldengine` is agreed and pending c9**, who runs it once their G2 agent clears
@@ -88,7 +88,8 @@ is why the cut is 78 m and not 94. Read it as history.
    `selfx_junction_surface` together; fixing one by moving the overlap into the other is not
    progress, and this is the trap that ate two variants.
 
-⛔ **M5.5 IS NOT SOUND, AND A NEW CHECK FOUND IT (2026-08-27). THE UNIT SUITE IS RED: 11 of 74.**
+⛔ **M5.5 IS NOT SOUND, AND A NEW CHECK FOUND IT (2026-08-27). CITYGEN'S UNIT TESTS ARE RED:
+11 of 74** (post-merge on `worldengine` that reads as 11 of 316, same eleven).
 `graph_realign`'s cubic Hermite T landing changed what the BUILDER cuts and was never mirrored in
 `plan.py` — a straight §11.5 violation, "build the mouth AND mirror it in the planner, in the same
 commit". Every one of the 11 failures traces to **one site**: `J_five_star`, node (48.000, 0.000).
@@ -6284,7 +6285,7 @@ trim.**
 
 ✅ **M5.4b BUILT 2026-08-17 — THE GORE FIX. The blocker is closed and the audit cleared it.
 Gate 25 → 25 on the shared 16 cases** (26 over 17, the one new row being the sub-floor case's
-own `selfx_city_merged`), 74 unit tests green (52 of them the planner's), and `parm_liveness.py` **exit 1 → exit 0**.
+own `selfx_city_merged`), 74 citygen unit tests (52 `test_plan.py` + 22 `test_citygen.py`) — ⚠️ **that is citygen's SHARE, not the suite total**: on `worldengine` `tests/unit/` also holds polyChain's seven files, where `pytest tests/unit` reports **316** — all green, and `parm_liveness.py` **exit 1 → exit 0**.
 
 **A gore nose is not a street corner, and that was the whole bug.** `s5j_solve` now asks
 `pfsj_miter_ratio > miter_limit` whether the corner is a NOSE, and if it is, takes
