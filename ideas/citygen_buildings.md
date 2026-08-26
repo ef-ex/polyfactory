@@ -99,9 +99,21 @@ polyChain → **then, only once S8 answers**, `B0` identity wiring + finalize/in
   handoff point); *"no virtual frontage nodes are inserted."* That is the alternative to splitting
   an edge per driveway, which multiplies nodes and **breaks `edge_id` stability** — i.e. it is a
   direct answer to the S8 identity problem above. Ten minutes, before B0.
-- ⚠️ **polyChain's miter is a MEASURED REFUSAL, not a native path.** `[vex:corners]` refuses a
-  non-degenerate corner in miter mode **by name**; those builds fall to the Python reference —
-  correct, but ~1.00x, no speedup. **Do not design B4/B6 assuming mitered corners are native.**
+- ⛔ **polyChain's miter refusal hits FACADES HARDER THAN FENCES, and B6 walks straight into it.**
+  Mechanism, from polyfactory-b1 (the build's owner), 2026-08-26:
+  1. **The refusal is per-BUILD, not per-corner.** ONE non-degenerate mitered corner sends the
+     *entire* build to the Python reference.
+  2. **A facade has corners × storeys.** A 4-corner, 30-storey building is 120 mitered assemblies,
+     so virtually every real building lands in the refused class **if its corner treatment is
+     miter**.
+  3. **And §12.6 B6's primary strategy — "corner module from the kit" — IS the miter path** in
+     polyChain terms (corner modules cut at the bisector). Bend mode *is* native but places **no
+     corner module** (D37), which is almost certainly not what a building corner wants.
+  4. **Cost: correctness NOTHING** (the reference is the oracle, ~1.00x) — **cook time everything**,
+     at district scale. Fine for G2 and prototypes.
+  → **Do not design B4/B6 assuming native miters. Budget district-scale cook time at reference
+  speed.** And ⭐ **record cook time per corner treatment at G2** — those numbers are real evidence
+  for Hannes' pending §35.6 miter decision, which is the thing that could change this.
 - ⚠️ **polyChain's facade node has two open items that become ours if B4 sits on it**: PC-G7 is
   asserted on `facade.build_many` and **not on the asset**, and `pf_polychain`'s `addWarning` route
   is **invisible on the HDA an artist meets** — which collides with §12.8 (warnings persisted and
