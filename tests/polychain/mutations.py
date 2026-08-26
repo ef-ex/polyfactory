@@ -1147,6 +1147,16 @@ MUTATIONS = (
     # the only thing the node adds and therefore the only thing this runner
     # can see.
 
+    M("facade_starter_kit_loses_a_cell", "facade",
+      ("facade_defaults_build_a_facade",),
+      "D315's floor, one cell short: the shopfront stops claiming "
+      "`default_start`, so the ground floor takes 7.2.2's lattice walk and "
+      "the bare node builds five cells where the kit promises six. The row "
+      "asserts the SIX CELLS and the six modules rather than a prim count, "
+      "because a stand-in box is geometry too.",
+      ((PY % "kit.py", 'roles="default_start")', 'roles="spare")'),),
+      rebuild=False),
+
     M("facade_kit_port_unplugged", "facade",
       ("facade_matches_entry_point",),
       "The kit port dropped: every case builds the starter facade kit while "
@@ -1294,7 +1304,7 @@ EXPECT_CHECKS = {
     # 7.7, added 2026-08-25 with 10 mutations covering all 14 names.
     # C1's audit added five, 2026-08-25: 19 names, 15 mutations.
     "slice": 19,
-    # P2-9, added 2026-08-26: 11 names, 11 mutations, 0 unproven.
+    # P2-9, added 2026-08-26: 11 names, 12 mutations, 0 unproven.
     "facade": 11,
 }
 
