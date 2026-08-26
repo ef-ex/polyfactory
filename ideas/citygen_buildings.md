@@ -176,6 +176,28 @@ parameter; and in `faces()` the unread `pf_storeys` / `pf_face_role` — **but k
    but that is Hannes' call to give, not a peer's; ask in the morning report. A pre-commit hook
    regenerates `graphify-out/` — that churn is normal, do not fight it.
 
+### 0.0c-bis Orchestration rules — learned the hard way on G1, 2026-08-26
+
+1. ⛔ **ONE WRITER PER FILE SET, ALWAYS.** On G1 the implementer spawned its own round-2 auditor
+   while the orchestrator spawned another, and neither was told about the other. Two auditors ran in
+   parallel on the same build. **The orchestrator spawns audits; an implementer never spawns its
+   own.** (The parallel audits *did* converge and find complementary defects — but that was luck
+   bought with a corruption risk, and the honest way to get it is to commission two auditors
+   deliberately and tell each that the other exists.)
+2. ⛔ **AUDITS ARE INSPECT-ONLY.** An auditor that writes fixes into the repo destroys the thing
+   that makes it independent, and its findings then describe a build that has moved. **Auditors
+   report; the fix pass fixes.**
+3. ⛔ **NEVER EDIT PRODUCTION WHILE AN AUDIT IS IN FLIGHT.** G1's implementer did, so round 1's
+   findings described a build that had already changed underneath them.
+4. ⛔ **NEVER INFER THAT AN AGENT IS DEAD.** G1's implementer read a 0-byte transcript and 24
+   minutes of silence as a dead agent and began finishing its work — while it was alive, and its
+   output appeared in the file mid-edit. **Ask the orchestrator; only a task-notification or
+   `ListAgents` settles it.**
+5. ⚠️ **DIRTY-TREE ATTRIBUTION IS A TRAP.** The implementer reported ~490 uncommitted lines as a
+   stray auditor's edits; they were the fix pass's own in-flight work, and reverting them as
+   "foreign" would have destroyed a legitimate cycle. **Never `git checkout --` a file you did not
+   personally observe someone else write.** When in doubt, ask before reverting.
+
 ### 0.0d Read before designing B-anything
 
 - ⭐ **`polyfactory/resources/citygen/README.md` §4c** (gitignored KB, added by f2 2026-08-26): a
