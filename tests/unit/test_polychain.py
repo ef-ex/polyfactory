@@ -688,6 +688,16 @@ class TestRunGuard(unittest.TestCase):
         self.assertFalse(os.path.isdir(old))
         self.assertTrue(os.path.isdir(os.path.join(self.root, "run_new_2")))
 
+    def test_a_request_under_one_slot_is_clamped_not_obeyed(self):
+        """⚠️ `--slots -1` reached `maxprocs`, whose menu spells -1 "Equal to
+        CPU Count Less One" - what froze this machine twice, arriving THROUGH
+        its guard (32.2)."""
+        for asked in (-4, -1, 0):
+            self.assertEqual(
+                self.rg.safe_slots(asked, headroom=99 * self.rg.GB)[0], 1)
+        self.assertRaises(SystemExit, self.rg.safe_slots, -1,   # still refused
+                          headroom=7 * self.rg.GB)
+
     def test_begin_exports_one_directory_and_a_child_reuses_it(self):
         keep = {v: os.environ.get(v)
                 for v in ("HOUDINI_TEMP_DIR", "TEMP", "TMP")}

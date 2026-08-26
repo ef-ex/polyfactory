@@ -39,6 +39,8 @@ REPO = os.path.dirname(os.path.dirname(HERE))
 OUT = (sys.argv[1] if len(sys.argv) > 1
        else os.path.join(HERE, "gate_images"))
 
+import runguard                                                  # noqa: E402
+runguard.begin()          # before `hou`: `$TEMP` resolves once, at startup
 import checks as C                                               # noqa: E402
 import hou                                                       # noqa: E402
 import run_scene_checks as R                                     # noqa: E402

@@ -21,6 +21,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import runguard                                                  # noqa: E402
+runguard.begin()          # before `hou`: `$TEMP` resolves once, at startup
 import hou                                                       # noqa: E402
 from diff import snapshot, compare, ulp32                        # noqa: E402
 

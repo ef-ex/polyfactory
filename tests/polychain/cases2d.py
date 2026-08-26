@@ -19,18 +19,12 @@ real points.
 """
 
 import math
-import os
-import sys
 
-REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-
-def setup_env():
-    pkg = os.path.join(REPO, "polyfactory").replace("\\", "/")
-    pyp = "%s/scripts/python" % pkg
-    if pyp not in sys.path:
-        sys.path.insert(0, pyp)
-
+# ⚠️ `cases.setup_env` ITSELF - the copy here drifted the day it also began
+# claiming the per-run temp dir, leaving the two facade runners on the system
+# `$TEMP`.  One owner; the name is still exported (`REPO`/`os`/`sys` went with
+# the copy - nothing else used them).
+from cases import setup_env                                      # noqa: E402
 
 setup_env()
 

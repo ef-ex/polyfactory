@@ -59,6 +59,9 @@ def safe_slots(requested, headroom=None, per_slot=PER_SLOT):
     PURPOSE: freezing the machine to prove the guard bites is not a test, and
     without the parameter this file is unfalsifiable on every machine healthy
     enough to run the suite."""
+    # ⚠️ CLAMPED FIRST (32.2): `min(fits, requested)` passed a NEGATIVE
+    # through to `maxprocs`, whose menu spells -1 "CPU Count Less One".
+    requested = max(1, int(requested))
     if headroom is None:
         headroom = commit_headroom()
     if headroom is None:
