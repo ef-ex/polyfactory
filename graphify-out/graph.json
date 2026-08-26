@@ -480,7 +480,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider",
-      "community": 106,
+      "community": 182,
       "norm_label": "hoverslider"
     },
     {
@@ -510,7 +510,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hoverslider_paintevent",
-      "community": 147,
+      "community": 182,
       "norm_label": ".paintevent()"
     },
     {
@@ -520,7 +520,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox",
-      "community": 106,
+      "community": 182,
       "norm_label": "hovercombobox"
     },
     {
@@ -540,7 +540,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_hovercombobox_paintevent",
-      "community": 147,
+      "community": 182,
       "norm_label": ".paintevent()"
     },
     {
@@ -750,7 +750,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_assetthumbnailwidget_paintevent",
-      "community": 147,
+      "community": 182,
       "norm_label": ".paintevent()"
     },
     {
@@ -820,7 +820,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_49",
-      "community": 106,
+      "community": 182,
       "norm_label": "qslider with animated hover outline"
     },
     {
@@ -830,7 +830,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_62",
-      "community": 106,
+      "community": 182,
       "norm_label": "qcombobox with animated hover outline"
     },
     {
@@ -1000,7 +1000,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "asset_library_asset_browser_widgets_rationale_492",
-      "community": 147,
+      "community": 182,
       "norm_label": "draw widget with selection highlight and animated hover outline."
     },
     {
@@ -1060,7 +1060,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "vector3",
-      "community": 26,
+      "community": 60,
       "norm_label": "vector3"
     },
     {
@@ -1690,7 +1690,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_ui",
-      "community": 188,
+      "community": 92,
       "norm_label": "batch_ui.py"
     },
     {
@@ -1700,7 +1700,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow",
-      "community": 188,
+      "community": 92,
       "norm_label": "assetgrouprow"
     },
     {
@@ -1710,7 +1710,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_init",
-      "community": 188,
+      "community": 92,
       "norm_label": ".__init__()"
     },
     {
@@ -1720,7 +1720,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_setup_ui",
-      "community": 188,
+      "community": 92,
       "norm_label": "._setup_ui()"
     },
     {
@@ -1730,7 +1730,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_get_name",
-      "community": 188,
+      "community": 92,
       "norm_label": ".get_name()"
     },
     {
@@ -1740,7 +1740,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_get_category",
-      "community": 188,
+      "community": 92,
       "norm_label": ".get_category()"
     },
     {
@@ -1750,7 +1750,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_get_tags",
-      "community": 188,
+      "community": 92,
       "norm_label": ".get_tags()"
     },
     {
@@ -1760,7 +1760,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_is_checked",
-      "community": 188,
+      "community": 92,
       "norm_label": ".is_checked()"
     },
     {
@@ -1770,7 +1770,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_apply_defaults",
-      "community": 188,
+      "community": 92,
       "norm_label": ".apply_defaults()"
     },
     {
@@ -1780,7 +1780,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "asset_library_batch_ui_assetgrouprow_set_export_status",
-      "community": 188,
+      "community": 92,
       "norm_label": ".set_export_status()"
     },
     {
@@ -1790,7 +1790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_1",
-      "community": 188,
+      "community": 92,
       "norm_label": "asset group row widget used by the inline batch mode in assetexportdialog."
     },
     {
@@ -1800,7 +1800,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_14",
-      "community": 188,
+      "community": 92,
       "norm_label": "one row in the detected-assets list.      displays a checkbox, sequential inde"
     },
     {
@@ -1810,7 +1810,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_103",
-      "community": 188,
+      "community": 92,
       "norm_label": "returns the per-row name, or empty string if blank (caller applies dialog-level"
     },
     {
@@ -1820,7 +1820,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_116",
-      "community": 188,
+      "community": 92,
       "norm_label": "fill in category/tags only if the prim had no attributes for them."
     },
     {
@@ -1830,7 +1830,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "asset_library_batch_ui_rationale_123",
-      "community": 188,
+      "community": 92,
       "norm_label": "update the status dot to reflect export progress.          args:"
     },
     {
@@ -1870,7 +1870,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "asset_library_browser_ui_assetbrowserwidget_setup_ui",
-      "community": 106,
+      "community": 182,
       "norm_label": "._setup_ui()"
     },
     {
@@ -3300,7 +3300,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "object",
-      "community": 170,
+      "community": 253,
       "norm_label": "object"
     },
     {
@@ -4690,7 +4690,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "citygen_plan_params",
-      "community": 148,
+      "community": 253,
       "norm_label": "params"
     },
     {
@@ -4700,7 +4700,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "citygen_plan_params_init",
-      "community": 148,
+      "community": 253,
       "norm_label": ".__init__()"
     },
     {
@@ -4710,7 +4710,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "citygen_plan_arm",
-      "community": 148,
+      "community": 253,
       "norm_label": "arm"
     },
     {
@@ -4720,7 +4720,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "citygen_plan_arm_init",
-      "community": 148,
+      "community": 253,
       "norm_label": ".__init__()"
     },
     {
@@ -4730,7 +4730,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "citygen_plan_arm_bearing",
-      "community": 148,
+      "community": 253,
       "norm_label": ".bearing()"
     },
     {
@@ -4740,7 +4740,7 @@
       "source_location": "L162",
       "_origin": "ast",
       "id": "citygen_plan_arm_half_width",
-      "community": 148,
+      "community": 253,
       "norm_label": ".half_width()"
     },
     {
@@ -4820,7 +4820,7 @@
       "source_location": "L356",
       "_origin": "ast",
       "id": "citygen_plan_default_principal",
-      "community": 148,
+      "community": 286,
       "norm_label": "default_principal()"
     },
     {
@@ -4830,7 +4830,7 @@
       "source_location": "L397",
       "_origin": "ast",
       "id": "citygen_plan_principal_of",
-      "community": 148,
+      "community": 286,
       "norm_label": "principal_of()"
     },
     {
@@ -4950,7 +4950,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "citygen_plan_rationale_114",
-      "community": 148,
+      "community": 253,
       "norm_label": "the `s5j_params` values the corner solve reads. defaults are the hda's.      `re"
     },
     {
@@ -4960,7 +4960,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "citygen_plan_rationale_135",
-      "community": 148,
+      "community": 253,
       "norm_label": "one street as seen from a node: which end of it this is, and where it goes."
     },
     {
@@ -5010,7 +5010,7 @@
       "source_location": "L357",
       "_origin": "ast",
       "id": "citygen_plan_rationale_357",
-      "community": 148,
+      "community": 286,
       "norm_label": "the computed principal pair: the two arms of maximal width, as     `principal_st"
     },
     {
@@ -5020,7 +5020,7 @@
       "source_location": "L398",
       "_origin": "ast",
       "id": "citygen_plan_rationale_398",
-      "community": 148,
+      "community": 286,
       "norm_label": "the authored principal pair if the booleans name one, else computed.      an arm"
     },
     {
@@ -5200,7 +5200,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_init",
-      "community": 138,
+      "community": 170,
       "norm_label": "__init__.py"
     },
     {
@@ -5230,7 +5230,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "polychain_init_is_slot",
-      "community": 78,
+      "community": 155,
       "norm_label": "_is_slot()"
     },
     {
@@ -5480,7 +5480,7 @@
       "source_location": "L612",
       "_origin": "ast",
       "id": "polychain_init_kit",
-      "community": 170,
+      "community": 194,
       "norm_label": "kit"
     },
     {
@@ -5490,7 +5490,7 @@
       "source_location": "L613",
       "_origin": "ast",
       "id": "polychain_init_kit_init",
-      "community": 170,
+      "community": 194,
       "norm_label": ".__init__()"
     },
     {
@@ -5500,7 +5500,7 @@
       "source_location": "L632",
       "_origin": "ast",
       "id": "polychain_init_kit_by_name",
-      "community": 170,
+      "community": 194,
       "norm_label": ".by_name()"
     },
     {
@@ -5510,7 +5510,7 @@
       "source_location": "L635",
       "_origin": "ast",
       "id": "polychain_init_kit_by_role",
-      "community": 170,
+      "community": 194,
       "norm_label": ".by_role()"
     },
     {
@@ -5520,7 +5520,7 @@
       "source_location": "L639",
       "_origin": "ast",
       "id": "polychain_init_kit_resolve",
-      "community": 170,
+      "community": 194,
       "norm_label": ".resolve()"
     },
     {
@@ -5600,7 +5600,7 @@
       "source_location": "L740",
       "_origin": "ast",
       "id": "polychain_init_elem_id",
-      "community": 218,
+      "community": 170,
       "norm_label": "elem_id()"
     },
     {
@@ -5620,7 +5620,7 @@
       "source_location": "L754",
       "_origin": "ast",
       "id": "polychain_init_splitmix",
-      "community": 138,
+      "community": 170,
       "norm_label": "_splitmix()"
     },
     {
@@ -5630,7 +5630,7 @@
       "source_location": "L762",
       "_origin": "ast",
       "id": "polychain_init_scope_key",
-      "community": 138,
+      "community": 170,
       "norm_label": "scope_key()"
     },
     {
@@ -5640,7 +5640,7 @@
       "source_location": "L774",
       "_origin": "ast",
       "id": "polychain_init_seed_for",
-      "community": 138,
+      "community": 170,
       "norm_label": "seed_for()"
     },
     {
@@ -5650,7 +5650,7 @@
       "source_location": "L786",
       "_origin": "ast",
       "id": "polychain_init_rng_for",
-      "community": 232,
+      "community": 170,
       "norm_label": "rng_for()"
     },
     {
@@ -5660,7 +5660,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_init_rationale_1",
-      "community": 138,
+      "community": 170,
       "norm_label": "polychain - the contracts the 1d kernel is written against. no `hou`.  spec: `"
     },
     {
@@ -5800,7 +5800,7 @@
       "source_location": "L636",
       "_origin": "ast",
       "id": "polychain_init_rationale_636",
-      "community": 170,
+      "community": 194,
       "norm_label": "payload order preserved - deterministic, never set iteration."
     },
     {
@@ -5810,7 +5810,7 @@
       "source_location": "L640",
       "_origin": "ast",
       "id": "polychain_init_rationale_640",
-      "community": 170,
+      "community": 194,
       "norm_label": "name first, then role, then a stand-in. never returns none/[]."
     },
     {
@@ -5850,7 +5850,7 @@
       "source_location": "L741",
       "_origin": "ast",
       "id": "polychain_init_rationale_741",
-      "community": 218,
+      "community": 170,
       "norm_label": "the structural address (d1). collision-free by construction."
     },
     {
@@ -5870,7 +5870,7 @@
       "source_location": "L763",
       "_origin": "ast",
       "id": "polychain_init_rationale_763",
-      "community": 138,
+      "community": 170,
       "norm_label": "3.3's correlation key. a point number can never enter it."
     },
     {
@@ -5880,7 +5880,7 @@
       "source_location": "L775",
       "_origin": "ast",
       "id": "polychain_init_rationale_775",
-      "community": 138,
+      "community": 170,
       "norm_label": "deterministic across processes and sessions.      not builtin `hash()`: `pytho"
     },
     {
@@ -5940,7 +5940,7 @@
       "source_location": "L237",
       "_origin": "ast",
       "id": "polychain_array2d_split_style",
-      "community": 136,
+      "community": 217,
       "norm_label": "split_style()"
     },
     {
@@ -5970,7 +5970,7 @@
       "source_location": "L358",
       "_origin": "ast",
       "id": "polychain_array2d_row",
-      "community": 194,
+      "community": 237,
       "norm_label": "row"
     },
     {
@@ -5980,7 +5980,7 @@
       "source_location": "L370",
       "_origin": "ast",
       "id": "polychain_array2d_row_init",
-      "community": 194,
+      "community": 237,
       "norm_label": ".__init__()"
     },
     {
@@ -5990,7 +5990,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "polychain_array2d_row_height",
-      "community": 194,
+      "community": 237,
       "norm_label": ".height()"
     },
     {
@@ -6000,7 +6000,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "polychain_array2d_row_curve_id",
-      "community": 194,
+      "community": 237,
       "norm_label": ".curve_id()"
     },
     {
@@ -6020,7 +6020,7 @@
       "source_location": "L404",
       "_origin": "ast",
       "id": "polychain_array2d_row_repr",
-      "community": 194,
+      "community": 237,
       "norm_label": ".__repr__()"
     },
     {
@@ -6050,7 +6050,7 @@
       "source_location": "L511",
       "_origin": "ast",
       "id": "polychain_array2d_datum_bays",
-      "community": 269,
+      "community": 136,
       "norm_label": "datum_bays()"
     },
     {
@@ -6060,7 +6060,7 @@
       "source_location": "L542",
       "_origin": "ast",
       "id": "polychain_array2d_align_rows",
-      "community": 269,
+      "community": 136,
       "norm_label": "align_rows()"
     },
     {
@@ -6170,7 +6170,7 @@
       "source_location": "L684",
       "_origin": "ast",
       "id": "polychain_array2d_areaframe_world",
-      "community": 237,
+      "community": 61,
       "norm_label": ".world()"
     },
     {
@@ -6230,7 +6230,7 @@
       "source_location": "L813",
       "_origin": "ast",
       "id": "polychain_array2d_point_in_poly",
-      "community": 39,
+      "community": 61,
       "norm_label": "point_in_poly()"
     },
     {
@@ -6540,7 +6540,7 @@
       "source_location": "L238",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_238",
-      "community": 136,
+      "community": 217,
       "norm_label": "(x `style`, y `style`) off one payload. `style` itself is unchanged.      rules"
     },
     {
@@ -6570,7 +6570,7 @@
       "source_location": "L359",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_359",
-      "community": 194,
+      "community": 237,
       "norm_label": "one row of the stack: a band, a y class, and what fills the band.      `s0`/`s1`"
     },
     {
@@ -6580,7 +6580,7 @@
       "source_location": "L388",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_388",
-      "community": 194,
+      "community": 237,
       "norm_label": "7.3.3 - the row half of the 4d address: `<arrayid>#<row>`."
     },
     {
@@ -6610,7 +6610,7 @@
       "source_location": "L512",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_512",
-      "community": 269,
+      "community": 136,
       "norm_label": "{section index: default-fill piece count} for one row curve.      7.4's own sent"
     },
     {
@@ -6620,7 +6620,7 @@
       "source_location": "L543",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_543",
-      "community": 269,
+      "community": 136,
       "norm_label": "d122 aligned, stamped as data: every row but the datum carries the     datum's b"
     },
     {
@@ -6710,7 +6710,7 @@
       "source_location": "L814",
       "_origin": "ast",
       "id": "polychain_array2d_rationale_814",
-      "community": 39,
+      "community": 61,
       "norm_label": "even-odd crossing test, in the region's own 2-d chart."
     },
     {
@@ -6970,7 +6970,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "polychain_conform_probe_s",
-      "community": 22,
+      "community": 232,
       "norm_label": "_probe_s()"
     },
     {
@@ -7040,7 +7040,7 @@
       "source_location": "L381",
       "_origin": "ast",
       "id": "polychain_conform_conformpath",
-      "community": 22,
+      "community": 232,
       "norm_label": "conformpath"
     },
     {
@@ -7050,7 +7050,7 @@
       "source_location": "L392",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_init",
-      "community": 22,
+      "community": 232,
       "norm_label": ".__init__()"
     },
     {
@@ -7060,7 +7060,7 @@
       "source_location": "L406",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_plan_keys",
-      "community": 22,
+      "community": 232,
       "norm_label": ".plan_keys()"
     },
     {
@@ -7080,7 +7080,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_at",
-      "community": 22,
+      "community": 232,
       "norm_label": "._at()"
     },
     {
@@ -7100,7 +7100,7 @@
       "source_location": "L486",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_normal",
-      "community": 22,
+      "community": 232,
       "norm_label": ".normal()"
     },
     {
@@ -7110,7 +7110,7 @@
       "source_location": "L489",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_interior_vertices",
-      "community": 22,
+      "community": 232,
       "norm_label": ".interior_vertices()"
     },
     {
@@ -7120,7 +7120,7 @@
       "source_location": "L494",
       "_origin": "ast",
       "id": "polychain_conform_conformpath_missed",
-      "community": 22,
+      "community": 232,
       "norm_label": ".missed()"
     },
     {
@@ -7180,7 +7180,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "polychain_conform_rationale_103",
-      "community": 22,
+      "community": 232,
       "norm_label": "where to sample [sa, sb] - the piece's own stations when it has them.      d71"
     },
     {
@@ -7230,7 +7230,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "polychain_conform_rationale_382",
-      "community": 22,
+      "community": 232,
       "norm_label": "a `place.path` seen through the surface. same interface, draped answers."
     },
     {
@@ -7240,7 +7240,7 @@
       "source_location": "L407",
       "_origin": "ast",
       "id": "polychain_conform_rationale_407",
-      "community": 22,
+      "community": 232,
       "norm_label": "`[(key, s, forward)]` - the drops this curve's plan can name.          `spans`"
     },
     {
@@ -7260,7 +7260,7 @@
       "source_location": "L495",
       "_origin": "ast",
       "id": "polychain_conform_rationale_495",
-      "community": 22,
+      "community": 232,
       "norm_label": "did any station across [sa, sb] fall off the surface?          `fracs` is the"
     },
     {
@@ -7310,7 +7310,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "polychain_corner_add",
-      "community": 131,
+      "community": 179,
       "norm_label": "_add()"
     },
     {
@@ -7450,7 +7450,7 @@
       "source_location": "L293",
       "_origin": "ast",
       "id": "polychain_corner_bevel_flatten",
-      "community": 179,
+      "community": 127,
       "norm_label": ".flatten()"
     },
     {
@@ -7530,7 +7530,7 @@
       "source_location": "L569",
       "_origin": "ast",
       "id": "polychain_corner_cornerpiece",
-      "community": 127,
+      "community": 159,
       "norm_label": "cornerpiece"
     },
     {
@@ -7540,7 +7540,7 @@
       "source_location": "L575",
       "_origin": "ast",
       "id": "polychain_corner_cornerpiece_init",
-      "community": 127,
+      "community": 159,
       "norm_label": ".__init__()"
     },
     {
@@ -7560,7 +7560,7 @@
       "source_location": "L589",
       "_origin": "ast",
       "id": "polychain_corner_assembly_init",
-      "community": 179,
+      "community": 127,
       "norm_label": ".__init__()"
     },
     {
@@ -7810,7 +7810,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "polychain_corner_rationale_294",
-      "community": 179,
+      "community": 127,
       "norm_label": "d48 - re-solve this corner on yaw-flattened tangents.          a `vertical` or"
     },
     {
@@ -7860,7 +7860,7 @@
       "source_location": "L570",
       "_origin": "ast",
       "id": "polychain_corner_rationale_570",
-      "community": 127,
+      "community": 159,
       "norm_label": "one module of the composed corner run, already resolved onto a leg."
     },
     {
@@ -11020,7 +11020,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "polychain_plan_placement",
-      "community": 247,
+      "community": 218,
       "norm_label": "placement"
     },
     {
@@ -11030,7 +11030,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "polychain_plan_placement_init",
-      "community": 247,
+      "community": 218,
       "norm_label": ".__init__()"
     },
     {
@@ -11040,7 +11040,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "polychain_plan_placement_length",
-      "community": 247,
+      "community": 218,
       "norm_label": ".length()"
     },
     {
@@ -11050,7 +11050,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "polychain_plan_placement_elem_id",
-      "community": 247,
+      "community": 218,
       "norm_label": ".elem_id()"
     },
     {
@@ -11060,7 +11060,7 @@
       "source_location": "L126",
       "_origin": "ast",
       "id": "polychain_plan_placement_as_dict",
-      "community": 247,
+      "community": 218,
       "norm_label": ".as_dict()"
     },
     {
@@ -11070,7 +11070,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "polychain_plan_placement_repr",
-      "community": 247,
+      "community": 218,
       "norm_label": ".__repr__()"
     },
     {
@@ -11100,7 +11100,7 @@
       "source_location": "L262",
       "_origin": "ast",
       "id": "polychain_plan_pack",
-      "community": 287,
+      "community": 218,
       "norm_label": "pack()"
     },
     {
@@ -11110,7 +11110,7 @@
       "source_location": "L290",
       "_origin": "ast",
       "id": "polychain_plan_cond_subject",
-      "community": 281,
+      "community": 218,
       "norm_label": "cond_subject()"
     },
     {
@@ -11120,7 +11120,7 @@
       "source_location": "L299",
       "_origin": "ast",
       "id": "polychain_plan_evaluate_cond",
-      "community": 281,
+      "community": 218,
       "norm_label": "evaluate_cond()"
     },
     {
@@ -11130,7 +11130,7 @@
       "source_location": "L315",
       "_origin": "ast",
       "id": "polychain_plan_cell_role",
-      "community": 232,
+      "community": 218,
       "norm_label": "cell_role()"
     },
     {
@@ -11150,7 +11150,7 @@
       "source_location": "L365",
       "_origin": "ast",
       "id": "polychain_plan_candidates",
-      "community": 232,
+      "community": 218,
       "norm_label": "candidates()"
     },
     {
@@ -11160,7 +11160,7 @@
       "source_location": "L379",
       "_origin": "ast",
       "id": "polychain_plan_choose",
-      "community": 232,
+      "community": 218,
       "norm_label": "choose()"
     },
     {
@@ -11170,7 +11170,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "polychain_plan_pick",
-      "community": 232,
+      "community": 218,
       "norm_label": "pick()"
     },
     {
@@ -11200,7 +11200,7 @@
       "source_location": "L438",
       "_origin": "ast",
       "id": "polychain_plan_unit",
-      "community": 232,
+      "community": 218,
       "norm_label": "_unit()"
     },
     {
@@ -11280,7 +11280,7 @@
       "source_location": "L857",
       "_origin": "ast",
       "id": "polychain_plan_plan_dicts",
-      "community": 247,
+      "community": 218,
       "norm_label": "plan_dicts()"
     },
     {
@@ -11320,7 +11320,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "polychain_plan_rationale_79",
-      "community": 247,
+      "community": 218,
       "norm_label": "one plan point: what goes where, at what scale, and what went wrong."
     },
     {
@@ -11350,7 +11350,7 @@
       "source_location": "L263",
       "_origin": "ast",
       "id": "polychain_plan_rationale_263",
-      "community": 287,
+      "community": 218,
       "norm_label": "place one piece. padding moves the neighbour, so the gap belongs here.      -> ("
     },
     {
@@ -11360,7 +11360,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "polychain_plan_rationale_291",
-      "community": 281,
+      "community": 218,
       "norm_label": "3.3's subject list. `markerdata:<k>` and `attr:<n>` read the ctx bags."
     },
     {
@@ -11370,7 +11370,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "polychain_plan_rationale_300",
-      "community": 281,
+      "community": 218,
       "norm_label": "a data condition, never code (d3). anything unreadable is false."
     },
     {
@@ -11380,7 +11380,7 @@
       "source_location": "L316",
       "_origin": "ast",
       "id": "polychain_plan_rationale_316",
-      "community": 232,
+      "community": 218,
       "norm_label": "e1's tail - the 2d cell this piece is, or its plain x slot in 1d.      `yclass`"
     },
     {
@@ -11400,7 +11400,7 @@
       "source_location": "L366",
       "_origin": "ast",
       "id": "polychain_plan_rationale_366",
-      "community": 232,
+      "community": 218,
       "norm_label": "the rule's module list as real modules: name, then role, then stand-in.      `ro"
     },
     {
@@ -11410,7 +11410,7 @@
       "source_location": "L380",
       "_origin": "ast",
       "id": "polychain_plan_rationale_380",
-      "community": 232,
+      "community": 218,
       "norm_label": "one module for one piece, or none when a conditional rule declines."
     },
     {
@@ -11420,7 +11420,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "polychain_plan_rationale_409",
-      "community": 232,
+      "community": 218,
       "norm_label": "(rule, module) for `slot`: payload order, first rule that yields wins.      d119"
     },
     {
@@ -11430,7 +11430,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "polychain_plan_rationale_439",
-      "community": 232,
+      "community": 218,
       "norm_label": "the repeating unit of a run (d14): a whole sequence, or one module."
     },
     {
@@ -11500,7 +11500,7 @@
       "source_location": "L858",
       "_origin": "ast",
       "id": "polychain_plan_rationale_858",
-      "community": 247,
+      "community": 218,
       "norm_label": "what the python sop adapter writes onto the plan points."
     },
     {
@@ -14640,7 +14640,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_normal_indicator",
-      "community": 204,
+      "community": 60,
       "norm_label": "draw_normal_indicator()"
     },
     {
@@ -14670,7 +14670,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_50",
-      "community": 204,
+      "community": 60,
       "norm_label": "draw line indicating surface normal.          args:         drawable: houdini"
     },
     {
@@ -14890,7 +14890,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polyfactory_scripts_python_polyfactory_widgets_init_py_widgets_init",
-      "community": 56,
+      "community": 35,
       "norm_label": "__init__.py"
     },
     {
@@ -14900,7 +14900,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_init_rationale_1",
-      "community": 56,
+      "community": 35,
       "norm_label": "polyfactory widgets module  qt widgets for houdini workflows.  submodules:"
     },
     {
@@ -14910,7 +14910,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_binding_manager",
-      "community": 56,
+      "community": 35,
       "norm_label": "binding_manager.py"
     },
     {
@@ -15050,7 +15050,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_binding_manager_rationale_1",
-      "community": 56,
+      "community": 35,
       "norm_label": "binding manager - central coordinator for parameter-widget synchronization  ma"
     },
     {
@@ -15190,7 +15190,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_hover_outline",
-      "community": 56,
+      "community": 35,
       "norm_label": "hover_outline.py"
     },
     {
@@ -15270,7 +15270,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_hover_outline_rationale_1",
-      "community": 56,
+      "community": 35,
       "norm_label": "hover outline mixin - animated blue outline on hover for any widget"
     },
     {
@@ -15460,7 +15460,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel",
-      "community": 253,
+      "community": 35,
       "norm_label": "parm_panel.py"
     },
     {
@@ -15470,7 +15470,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_floating_parm_panel",
-      "community": 253,
+      "community": 35,
       "norm_label": "show_floating_parm_panel()"
     },
     {
@@ -15480,7 +15480,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "widgets_parm_panel_show_selected_node_parms",
-      "community": 253,
+      "community": 35,
       "norm_label": "show_selected_node_parms()"
     },
     {
@@ -15490,7 +15490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_1",
-      "community": 253,
+      "community": 35,
       "norm_label": "parameter panel utilities - helper functions for creating floating parameter win"
     },
     {
@@ -15500,7 +15500,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_11",
-      "community": 253,
+      "community": 35,
       "norm_label": "open a floating parameter panel for a node using houdini's native api."
     },
     {
@@ -15510,7 +15510,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "widgets_parm_panel_rationale_50",
-      "community": 253,
+      "community": 35,
       "norm_label": "show floating parameter panel for currently selected node.          useful for"
     },
     {
@@ -16330,7 +16330,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmfloat_init",
-      "community": 20,
+      "community": 56,
       "norm_label": ".__init__()"
     },
     {
@@ -16430,7 +16430,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_init",
-      "community": 20,
+      "community": 56,
       "norm_label": ".__init__()"
     },
     {
@@ -16460,7 +16460,7 @@
       "source_location": "L254",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_update_widget_value",
-      "community": 20,
+      "community": 56,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -16470,7 +16470,7 @@
       "source_location": "L265",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_parmint_update_expression_style",
-      "community": 20,
+      "community": 56,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -16520,7 +16520,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_27",
-      "community": 20,
+      "community": 56,
       "norm_label": "args:             parm: houdini parameter to bind to             label: option"
     },
     {
@@ -16620,7 +16620,7 @@
       "source_location": "L255",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_255",
-      "community": 20,
+      "community": 56,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -16630,7 +16630,7 @@
       "source_location": "L266",
       "_origin": "ast",
       "id": "widgets_parm_widgets_numeric_rationale_266",
-      "community": 20,
+      "community": 56,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17240,7 +17240,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring",
-      "community": 56,
+      "community": 281,
       "norm_label": "parmstring"
     },
     {
@@ -17260,7 +17260,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_reset_to_default",
-      "community": 56,
+      "community": 281,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17270,7 +17270,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_on_changed",
-      "community": 56,
+      "community": 281,
       "norm_label": "._on_changed()"
     },
     {
@@ -17280,7 +17280,7 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_widget_value",
-      "community": 168,
+      "community": 188,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17290,7 +17290,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "widgets_widgets_parmstring_update_expression_style",
-      "community": 56,
+      "community": 281,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17300,7 +17300,7 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle",
-      "community": 56,
+      "community": 168,
       "norm_label": "parmtoggle"
     },
     {
@@ -17320,7 +17320,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_on_changed",
-      "community": 56,
+      "community": 168,
       "norm_label": "._on_changed()"
     },
     {
@@ -17330,7 +17330,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_widget_value",
-      "community": 168,
+      "community": 188,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17340,7 +17340,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "widgets_widgets_parmtoggle_update_expression_style",
-      "community": 56,
+      "community": 168,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17400,7 +17400,7 @@
       "source_location": "L322",
       "_origin": "ast",
       "id": "widgets_widgets_parmmenu_update_widget_value",
-      "community": 168,
+      "community": 188,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17440,7 +17440,7 @@
       "source_location": "L408",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor",
-      "community": 56,
+      "community": 188,
       "norm_label": "parmcolor"
     },
     {
@@ -17450,7 +17450,7 @@
       "source_location": "L411",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_init",
-      "community": 51,
+      "community": 188,
       "norm_label": ".__init__()"
     },
     {
@@ -17460,7 +17460,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "parmtuple",
-      "community": 51,
+      "community": 188,
       "norm_label": "parmtuple"
     },
     {
@@ -17470,7 +17470,7 @@
       "source_location": "L449",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_on_color_changed",
-      "community": 56,
+      "community": 188,
       "norm_label": "._on_color_changed()"
     },
     {
@@ -17480,7 +17480,7 @@
       "source_location": "L462",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_get_parm_value",
-      "community": 56,
+      "community": 188,
       "norm_label": "._get_parm_value()"
     },
     {
@@ -17490,7 +17490,7 @@
       "source_location": "L466",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_widget_value",
-      "community": 168,
+      "community": 188,
       "norm_label": "._update_widget_value()"
     },
     {
@@ -17500,7 +17500,7 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_update_expression_style",
-      "community": 168,
+      "community": 188,
       "norm_label": "._update_expression_style()"
     },
     {
@@ -17510,7 +17510,7 @@
       "source_location": "L492",
       "_origin": "ast",
       "id": "widgets_widgets_parmcolor_reset_to_default",
-      "community": 56,
+      "community": 188,
       "norm_label": "._reset_to_default()"
     },
     {
@@ -17550,7 +17550,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_28",
-      "community": 56,
+      "community": 281,
       "norm_label": "string input widget with enhanced label."
     },
     {
@@ -17560,7 +17560,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_74",
-      "community": 56,
+      "community": 281,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -17570,7 +17570,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_101",
-      "community": 56,
+      "community": 281,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17580,7 +17580,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_179",
-      "community": 56,
+      "community": 168,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17650,7 +17650,7 @@
       "source_location": "L409",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_409",
-      "community": 56,
+      "community": 188,
       "norm_label": "color picker widget using houdini's native colorfield."
     },
     {
@@ -17660,7 +17660,7 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_450",
-      "community": 56,
+      "community": 188,
       "norm_label": "handle color change from colorfield."
     },
     {
@@ -17670,7 +17670,7 @@
       "source_location": "L467",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_467",
-      "community": 168,
+      "community": 188,
       "norm_label": "update widget from parameter value."
     },
     {
@@ -17680,7 +17680,7 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_480",
-      "community": 168,
+      "community": 188,
       "norm_label": "update visual feedback for expression state."
     },
     {
@@ -17690,7 +17690,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "widgets_widgets_rationale_493",
-      "community": 56,
+      "community": 188,
       "norm_label": "reset parameter to default value (ctrl+mmb on label)."
     },
     {
@@ -21780,7 +21780,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "polychain_cases_tent",
-      "community": 286,
+      "community": 280,
       "norm_label": "tent()"
     },
     {
@@ -22110,7 +22110,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "polychain_cases_rationale_223",
-      "community": 286,
+      "community": 280,
       "norm_label": "two facets and a crease - the surface coarser than the pieces (d56).      peak a"
     },
     {
@@ -25340,7 +25340,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_mutations",
-      "community": 170,
+      "community": 253,
       "norm_label": "mutations.py"
     },
     {
@@ -25350,7 +25350,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "polychain_mutations_m",
-      "community": 170,
+      "community": 253,
       "norm_label": "m"
     },
     {
@@ -25360,7 +25360,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "polychain_mutations_m_init",
-      "community": 170,
+      "community": 253,
       "norm_label": ".__init__()"
     },
     {
@@ -25370,7 +25370,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "polychain_mutations_rationale_1",
-      "community": 170,
+      "community": 253,
       "norm_label": "the mutation registry - every polychain check paired with the edit that proves i"
     },
     {
@@ -25380,7 +25380,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "polychain_mutations_rationale_52",
-      "community": 170,
+      "community": 253,
       "norm_label": "one registered mutation.      `edits`   ((repo-relative path, exact old text, ne"
     },
     {
@@ -30550,7 +30550,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_kit_of",
-      "community": 184,
+      "community": 105,
       "norm_label": "kit_of()"
     },
     {
@@ -30560,7 +30560,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_inside_xz",
-      "community": 105,
+      "community": 269,
       "norm_label": "_inside_xz()"
     },
     {
@@ -30580,7 +30580,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testvocabulary",
-      "community": 283,
+      "community": 78,
       "norm_label": "testvocabulary"
     },
     {
@@ -30590,7 +30590,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testvocabulary_test_bottom_row_is_the_phase_1_slot_list",
-      "community": 283,
+      "community": 78,
       "norm_label": ".test_bottom_row_is_the_phase_1_slot_list()"
     },
     {
@@ -30610,7 +30610,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain",
-      "community": 105,
+      "community": 287,
       "norm_label": "testfallbackchain"
     },
     {
@@ -30620,7 +30620,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_y_sheds_before_x",
-      "community": 105,
+      "community": 287,
       "norm_label": ".test_y_sheds_before_x()"
     },
     {
@@ -30630,7 +30630,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testfallbackchain_test_extend_y_reverses_steps_two_and_three",
-      "community": 105,
+      "community": 287,
       "norm_label": ".test_extend_y_reverses_steps_two_and_three()"
     },
     {
@@ -30730,7 +30730,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testroleclosure_test_a_marker_cell_closes_over_all_five_y_classes",
-      "community": 78,
+      "community": 184,
       "norm_label": ".test_a_marker_cell_closes_over_all_five_y_classes()"
     },
     {
@@ -30790,7 +30790,7 @@
       "source_location": "L247",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testysolve_test_evenly_on_y_is_a_string_course",
-      "community": 34,
+      "community": 105,
       "norm_label": ".test_evenly_on_y_is_a_string_course()"
     },
     {
@@ -30870,7 +30870,7 @@
       "source_location": "L308",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint",
-      "community": 105,
+      "community": 269,
       "norm_label": "testcanonicalfootprint"
     },
     {
@@ -30880,7 +30880,7 @@
       "source_location": "L314",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint_test_the_across_axis_points_out_of_the_building",
-      "community": 105,
+      "community": 269,
       "norm_label": ".test_the_across_axis_points_out_of_the_building()"
     },
     {
@@ -30890,7 +30890,7 @@
       "source_location": "L345",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testcanonicalfootprint_test_an_open_run_is_left_exactly_as_authored",
-      "community": 105,
+      "community": 269,
       "norm_label": ".test_an_open_run_is_left_exactly_as_authored()"
     },
     {
@@ -30990,7 +30990,7 @@
       "source_location": "L438",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions",
-      "community": 184,
+      "community": 105,
       "norm_label": "testkernelextensions"
     },
     {
@@ -31000,7 +31000,7 @@
       "source_location": "L441",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_cell_role_is_the_identity_without_a_row_class",
-      "community": 184,
+      "community": 105,
       "norm_label": ".test_cell_role_is_the_identity_without_a_row_class()"
     },
     {
@@ -31010,7 +31010,7 @@
       "source_location": "L448",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_rules_for_without_a_class_is_the_phase_1_call",
-      "community": 34,
+      "community": 105,
       "norm_label": ".test_rules_for_without_a_class_is_the_phase_1_call()"
     },
     {
@@ -31020,7 +31020,7 @@
       "source_location": "L454",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_a_scoped_rule_comes_first_and_a_foreign_one_is_excluded",
-      "community": 34,
+      "community": 105,
       "norm_label": ".test_a_scoped_rule_comes_first_and_a_foreign_one_is_excluded()"
     },
     {
@@ -31030,7 +31030,7 @@
       "source_location": "L465",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_candidates_resolve_the_cell_when_the_rule_names_nothing",
-      "community": 184,
+      "community": 105,
       "norm_label": ".test_candidates_resolve_the_cell_when_the_rule_names_nothing()"
     },
     {
@@ -31040,7 +31040,7 @@
       "source_location": "L473",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_stamps_the_cell_and_warns_the_walk",
-      "community": 184,
+      "community": 105,
       "norm_label": ".test_classify_stamps_the_cell_and_warns_the_walk()"
     },
     {
@@ -31050,7 +31050,7 @@
       "source_location": "L481",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_is_silent_where_the_kit_has_the_cell",
-      "community": 184,
+      "community": 105,
       "norm_label": ".test_classify_is_silent_where_the_kit_has_the_cell()"
     },
     {
@@ -31060,7 +31060,7 @@
       "source_location": "L487",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_classify_does_nothing_without_a_row_class",
-      "community": 184,
+      "community": 105,
       "norm_label": ".test_classify_does_nothing_without_a_row_class()"
     },
     {
@@ -31070,7 +31070,7 @@
       "source_location": "L493",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_testkernelextensions_test_the_transposed_kit_fits_on_height",
-      "community": 184,
+      "community": 105,
       "norm_label": ".test_the_transposed_kit_fits_on_height()"
     },
     {
@@ -31210,7 +31210,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_40",
-      "community": 184,
+      "community": 105,
       "norm_label": "one module per role, each 3 m wide and named after its role."
     },
     {
@@ -31220,7 +31220,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_50",
-      "community": 105,
+      "community": 269,
       "norm_label": "even-odd point-in-polygon in the plan, for the winding assertion."
     },
     {
@@ -31230,7 +31230,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_70",
-      "community": 283,
+      "community": 78,
       "norm_label": "7.2 / d116 - the 20 rc slice pieces are a 5 x 4 product table."
     },
     {
@@ -31240,7 +31240,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_73",
-      "community": 283,
+      "community": 78,
       "norm_label": "the compatibility claim, and it is checkable: a phase-1 kit is a         valid p"
     },
     {
@@ -31260,7 +31260,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_101",
-      "community": 105,
+      "community": 287,
       "norm_label": "7.2.2 - the lattice walk, and why y sheds first."
     },
     {
@@ -31320,7 +31320,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_192",
-      "community": 78,
+      "community": 184,
       "norm_label": "7.2's marker cells are legal by grammar and therefore unbounded, so         they"
     },
     {
@@ -31390,7 +31390,7 @@
       "source_location": "L309",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_309",
-      "community": 105,
+      "community": 269,
       "norm_label": "d124 - ids survive re-authoring, or 12.7's identity rule is a wish."
     },
     {
@@ -31400,7 +31400,7 @@
       "source_location": "L315",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_315",
-      "community": 105,
+      "community": 269,
       "norm_label": "d141 - the sign, measured as the thing it decides.          `place._frame` build"
     },
     {
@@ -31420,7 +31420,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "unit_test_polychain_array2d_rationale_439",
-      "community": 184,
+      "community": 105,
       "norm_label": "e1/e2/e3 seen from the kernel's side - the three named things only."
     },
     {
@@ -32380,7 +32380,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_section",
-      "community": 48,
+      "community": 109,
       "norm_label": "section()"
     },
     {
@@ -32420,7 +32420,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_style",
-      "community": 109,
+      "community": 247,
       "norm_label": ".style()"
     },
     {
@@ -32450,7 +32450,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_corner_is_not_an_end_and_gets_no_caps",
-      "community": 109,
+      "community": 247,
       "norm_label": ".test_a_corner_is_not_an_end_and_gets_no_caps()"
     },
     {
@@ -32460,7 +32460,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_closed_spline_gets_no_caps_on_any_side",
-      "community": 109,
+      "community": 247,
       "norm_label": ".test_a_closed_spline_gets_no_caps_on_any_side()"
     },
     {
@@ -32470,7 +32470,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_pc_section_limit_does_cap_like_a_spline_end",
-      "community": 109,
+      "community": 247,
       "norm_label": ".test_a_pc_section_limit_does_cap_like_a_spline_end()"
     },
     {
@@ -32570,7 +32570,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testselection_test_sequence_walks_the_list_and_still_fills_exactly",
-      "community": 48,
+      "community": 205,
       "norm_label": ".test_sequence_walks_the_list_and_still_fills_exactly()"
     },
     {
@@ -32710,7 +32710,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_curves_are_reordered",
-      "community": 109,
+      "community": 247,
       "norm_label": ".test_the_plan_does_not_move_when_the_curves_are_reordered()"
     },
     {
@@ -32720,7 +32720,7 @@
       "source_location": "L389",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_markers_are_reordered",
-      "community": 109,
+      "community": 247,
       "norm_label": ".test_the_plan_does_not_move_when_the_markers_are_reordered()"
     },
     {
@@ -32740,7 +32740,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_two_sections_of_one_spline_correlate_under_spline_scope",
-      "community": 109,
+      "community": 247,
       "norm_label": ".test_two_sections_of_one_spline_correlate_under_spline_scope()"
     },
     {
@@ -32750,7 +32750,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_section_scope_does_not_correlate_across_sections",
-      "community": 109,
+      "community": 247,
       "norm_label": ".test_section_scope_does_not_correlate_across_sections()"
     },
     {
@@ -32870,7 +32870,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testwholecurves_test_ten_thousand_pieces_stay_addressable_and_unique",
-      "community": 48,
+      "community": 233,
       "norm_label": ".test_ten_thousand_pieces_stay_addressable_and_unique()"
     },
     {
@@ -32940,7 +32940,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_117",
-      "community": 109,
+      "community": 247,
       "norm_label": "d18. railclone puts start/end at spline ends and corner segments at         corn"
     },
     {
@@ -32950,7 +32950,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_128",
-      "community": 109,
+      "community": 247,
       "norm_label": "the corner-free loop was already covered; the rectangle was not -         it has"
     },
     {
@@ -32960,7 +32960,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_137",
-      "community": 109,
+      "community": 247,
       "norm_label": "the other half of d18: a material-id limit is where one generator         stops"
     },
     {
@@ -33020,7 +33020,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_249",
-      "community": 48,
+      "community": 205,
       "norm_label": "d14: a sequence is fitted as a pattern, so mixed sizes work. the         unit he"
     },
     {
@@ -33100,7 +33100,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_533",
-      "community": 48,
+      "community": 233,
       "norm_label": "pc-g3's own scale target, on the plan side: `pc_elem_id` is the key         the"
     },
     {
@@ -36170,7 +36170,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "ideas_artist_ui_6b_the_study_applied_across_every_polyfactory_tool_audit_of_the_other_studies",
-      "community": 97,
+      "community": 262,
       "norm_label": "6b. the study applied across every polyfactory tool \u2014 audit of the other studies"
     },
     {
@@ -36180,7 +36180,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "ideas_artist_ui_streets_citygen_streets_md_citygen_streets_md_in_build",
-      "community": 97,
+      "community": 262,
       "norm_label": "streets \u2014 [`citygen_streets.md`](citygen_streets.md), in build"
     },
     {
@@ -36190,7 +36190,7 @@
       "source_location": "L398",
       "_origin": "ast",
       "id": "ideas_artist_ui_buildings_citygen_buildings_md_citygen_buildings_md_research_only",
-      "community": 97,
+      "community": 262,
       "norm_label": "buildings \u2014 [`citygen_buildings.md`](citygen_buildings.md), research only"
     },
     {
@@ -36200,7 +36200,7 @@
       "source_location": "L413",
       "_origin": "ast",
       "id": "ideas_artist_ui_traffic_crowds_citygen_simulation_md_citygen_simulation_md_design_spec_v0",
-      "community": 97,
+      "community": 262,
       "norm_label": "traffic / crowds \u2014 [`citygen_simulation.md`](citygen_simulation.md), design spec v0"
     },
     {
@@ -36210,7 +36210,7 @@
       "source_location": "L426",
       "_origin": "ast",
       "id": "ideas_artist_ui_terrain_presets_terrain_presets_md_terrain_presets_md_parked",
-      "community": 97,
+      "community": 262,
       "norm_label": "terrain presets \u2014 [`terrain_presets.md`](terrain_presets.md), parked"
     },
     {
@@ -36220,7 +36220,7 @@
       "source_location": "L439",
       "_origin": "ast",
       "id": "ideas_artist_ui_foliage_foliage_md_foliage_md_design_complete_parked",
-      "community": 97,
+      "community": 262,
       "norm_label": "foliage \u2014 [`foliage.md`](foliage.md), design complete, parked"
     },
     {
@@ -36230,7 +36230,7 @@
       "source_location": "L459",
       "_origin": "ast",
       "id": "ideas_artist_ui_fabric_polyknit_fabric_md_fabric_md_design_complete_parked",
-      "community": 97,
+      "community": 262,
       "norm_label": "fabric / polyknit \u2014 [`fabric.md`](fabric.md), design complete, parked"
     },
     {
@@ -36240,7 +36240,7 @@
       "source_location": "L474",
       "_origin": "ast",
       "id": "ideas_artist_ui_hair_grooming_hair_grooming_md_hair_grooming_md_research_parked",
-      "community": 97,
+      "community": 262,
       "norm_label": "hair grooming \u2014 [`hair_grooming.md`](hair_grooming.md), research, parked"
     },
     {
@@ -36250,7 +36250,7 @@
       "source_location": "L491",
       "_origin": "ast",
       "id": "ideas_artist_ui_asset_library_kitbash_asset_library_redesign_md_asset_library_redesign_md_planning",
-      "community": 97,
+      "community": 262,
       "norm_label": "asset library / kitbash \u2014 [`asset_library_redesign.md`](asset_library_redesign.md), planning"
     },
     {
@@ -36260,7 +36260,7 @@
       "source_location": "L499",
       "_origin": "ast",
       "id": "ideas_artist_ui_the_cross_study_observation",
-      "community": 97,
+      "community": 262,
       "norm_label": "the cross-study observation"
     },
     {
@@ -37057,7 +37057,7 @@
       "label": "0.0c-bis Orchestration rules \u2014 learned the hard way on G1, 2026-08-26",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L311",
+      "source_location": "L318",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_0_0c_bis_orchestration_rules_learned_the_hard_way_on_g1_2026_08_26",
       "community": 149,
@@ -37067,7 +37067,7 @@
       "label": "0.0d Read before designing B-anything",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L333",
+      "source_location": "L340",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_0_0d_read_before_designing_b_anything",
       "community": 149,
@@ -37077,7 +37077,7 @@
       "label": "0.0e Recovery procedure",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L367",
+      "source_location": "L374",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_0_0e_recovery_procedure",
       "community": 149,
@@ -37087,7 +37087,7 @@
       "label": "1. Headline finding",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L388",
+      "source_location": "L395",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_1_headline_finding",
       "community": 64,
@@ -37097,7 +37097,7 @@
       "label": "2. The paper map",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L431",
+      "source_location": "L438",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_2_the_paper_map",
       "community": 145,
@@ -37107,7 +37107,7 @@
       "label": "Era 1 \u2014 Grammars (2001\u20132014). The canon; still what production runs on.",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L435",
+      "source_location": "L442",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_era_1_grammars_2001_2014_the_canon_still_what_production_runs_on",
       "community": 145,
@@ -37117,7 +37117,7 @@
       "label": "Era 2 \u2014 Layout & optimisation (2010\u20132020). Interiors and floor plans.",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L450",
+      "source_location": "L457",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_era_2_layout_optimisation_2010_2020_interiors_and_floor_plans",
       "community": 145,
@@ -37127,7 +37127,7 @@
       "label": "Era 3 \u2014 Neural / hybrid / LLM (2023\u20132026). Watch, don't adopt.",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L459",
+      "source_location": "L466",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_era_3_neural_hybrid_llm_2023_2026_watch_don_t_adopt",
       "community": 145,
@@ -37137,7 +37137,7 @@
       "label": "3. The tool landscape",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L481",
+      "source_location": "L488",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_3_the_tool_landscape",
       "community": 139,
@@ -37147,7 +37147,7 @@
       "label": "3a. Text grammar",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L485",
+      "source_location": "L492",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_3a_text_grammar",
       "community": 139,
@@ -37157,7 +37157,7 @@
       "label": "3b. Node graph / parametric, artist-facing",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L492",
+      "source_location": "L499",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_3b_node_graph_parametric_artist_facing",
       "community": 139,
@@ -37167,7 +37167,7 @@
       "label": "3c. Bespoke in-house HDA toolsets \u2014 the closest analogues to what we're building",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L503",
+      "source_location": "L510",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_3c_bespoke_in_house_hda_toolsets_the_closest_analogues_to_what_we_re_building",
       "community": 139,
@@ -37177,7 +37177,7 @@
       "label": "3d. Discrete / tile-based \u2014 a genuinely different family",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L513",
+      "source_location": "L520",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_3d_discrete_tile_based_a_genuinely_different_family",
       "community": 139,
@@ -37187,7 +37187,7 @@
       "label": "3e. Asset-library and AI adjacents \u2014 not building generators",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L524",
+      "source_location": "L531",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_3e_asset_library_and_ai_adjacents_not_building_generators",
       "community": 139,
@@ -37197,7 +37197,7 @@
       "label": "4. The pivotal case study: Embark's Building Creator",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L539",
+      "source_location": "L546",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_4_the_pivotal_case_study_embark_s_building_creator",
       "community": 64,
@@ -37207,7 +37207,7 @@
       "label": "5. Artist feedback",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L568",
+      "source_location": "L575",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_5_artist_feedback",
       "community": 134,
@@ -37217,7 +37217,7 @@
       "label": "Theme 1 \u2014 Grammar/scripting is the adoption wall \u2014 \u2605\u2605\u2605 strongly corroborated",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L573",
+      "source_location": "L580",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_theme_1_grammar_scripting_is_the_adoption_wall_strongly_corroborated",
       "community": 134,
@@ -37227,7 +37227,7 @@
       "label": "Theme 2 \u2014 One generator = one look \u2014 \u2605\u2605\u2605 strongly corroborated, and Hannes' own finding",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L593",
+      "source_location": "L600",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_theme_2_one_generator_one_look_strongly_corroborated_and_hannes_own_finding",
       "community": 134,
@@ -37237,7 +37237,7 @@
       "label": "Theme 3 \u2014 Repetition and \"lifeless\" output; hero assets stay hand-made \u2014 \u2605\u2605\u2605 strongly corroborated",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L612",
+      "source_location": "L619",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_theme_3_repetition_and_lifeless_output_hero_assets_stay_hand_made_strongly_corroborated",
       "community": 134,
@@ -37247,7 +37247,7 @@
       "label": "Correction after reading the primary source (2026-08-17)",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L623",
+      "source_location": "L630",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_correction_after_reading_the_primary_source_2026_08_17",
       "community": 134,
@@ -37257,7 +37257,7 @@
       "label": "Theme 4 \u2014 Corners are the specific, concrete pain \u2014 \u2605\u2605\u2605 strongly corroborated, unusually specific",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L671",
+      "source_location": "L678",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_theme_4_corners_are_the_specific_concrete_pain_strongly_corroborated_unusually_specific",
       "community": 134,
@@ -37267,7 +37267,7 @@
       "label": "Theme 5 \u2014 Tools die of bad interfaces, not bad geometry \u2014 \u2605\u2605 moderately corroborated",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L695",
+      "source_location": "L702",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_theme_5_tools_die_of_bad_interfaces_not_bad_geometry_moderately_corroborated",
       "community": 134,
@@ -37277,7 +37277,7 @@
       "label": "Theme 6 \u2014 Downstream technical debt: UVs, LODs, interiors, performance \u2014 \u2605\u2605 moderately corroborated",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L709",
+      "source_location": "L716",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_theme_6_downstream_technical_debt_uvs_lods_interiors_performance_moderately_corroborated",
       "community": 134,
@@ -37287,7 +37287,7 @@
       "label": "6. What is genuinely unsolved",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L725",
+      "source_location": "L732",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_6_what_is_genuinely_unsolved",
       "community": 64,
@@ -37297,7 +37297,7 @@
       "label": "7. Footprint or envelope? \u2014 Hannes' two approaches",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L744",
+      "source_location": "L751",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_7_footprint_or_envelope_hannes_two_approaches",
       "community": 64,
@@ -37307,7 +37307,7 @@
       "label": "8. Architectural style \u2014 the variance problem",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L791",
+      "source_location": "L798",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_8_architectural_style_the_variance_problem",
       "community": 64,
@@ -37317,7 +37317,7 @@
       "label": "8a. Style taxonomies exist, and there are two incompatible kinds",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L800",
+      "source_location": "L807",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_8a_style_taxonomies_exist_and_there_are_two_incompatible_kinds",
       "community": 64,
@@ -37327,7 +37327,7 @@
       "label": "8b. Style-specific grammars exist, are proven, and are hand-written each time",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L831",
+      "source_location": "L838",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_8b_style_specific_grammars_exist_are_proven_and_are_hand_written_each_time",
       "community": 64,
@@ -37337,7 +37337,7 @@
       "label": "9. The tree analogy \u2014 can we simulate construction instead of describing style?",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L865",
+      "source_location": "L872",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_9_the_tree_analogy_can_we_simulate_construction_instead_of_describing_style",
       "community": 117,
@@ -37347,7 +37347,7 @@
       "label": "9a. Why the tree approach works",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L875",
+      "source_location": "L882",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_9a_why_the_tree_approach_works",
       "community": 117,
@@ -37357,7 +37357,7 @@
       "label": "9b. Three reasons the material\u2192form version fails for buildings",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L886",
+      "source_location": "L893",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_9b_three_reasons_the_material_form_version_fails_for_buildings",
       "community": 117,
@@ -37367,7 +37367,7 @@
       "label": "9c. Where material\u2192form *does* hold rigorously",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L913",
+      "source_location": "L920",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_9c_where_material_form_does_hold_rigorously",
       "community": 117,
@@ -37377,7 +37377,7 @@
       "label": "9c2. The two-layer model already exists, built, for one style \u2014 and it inverts the assumption",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L927",
+      "source_location": "L934",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_9c2_the_two_layer_model_already_exists_built_for_one_style_and_it_inverts_the_assumption",
       "community": 117,
@@ -37387,7 +37387,7 @@
       "label": "9d. The stronger analogy Hannes may be reaching for: growth, not material",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L987",
+      "source_location": "L994",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_9d_the_stronger_analogy_hannes_may_be_reaching_for_growth_not_material",
       "community": 117,
@@ -37397,7 +37397,7 @@
       "label": "9e. Verdict",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1010",
+      "source_location": "L1017",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_9e_verdict",
       "community": 117,
@@ -37407,7 +37407,7 @@
       "label": "9f. What the style layer actually is \u2014 and why it is smaller than it feels",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1029",
+      "source_location": "L1036",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_9f_what_the_style_layer_actually_is_and_why_it_is_smaller_than_it_feels",
       "community": 117,
@@ -37417,7 +37417,7 @@
       "label": "9g. Stress test \u2014 Babel and Coruscant",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1079",
+      "source_location": "L1086",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_9g_stress_test_babel_and_coruscant",
       "community": 117,
@@ -37427,7 +37427,7 @@
       "label": "10. Where this leaves the building subsystem",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1153",
+      "source_location": "L1160",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_10_where_this_leaves_the_building_subsystem",
       "community": 144,
@@ -37437,7 +37437,7 @@
       "label": "10a. What we already hold locally",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1187",
+      "source_location": "L1194",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_10a_what_we_already_hold_locally",
       "community": 144,
@@ -37447,7 +37447,7 @@
       "label": "Order of study before writing the design",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1218",
+      "source_location": "L1225",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_order_of_study_before_writing_the_design",
       "community": 144,
@@ -37457,7 +37457,7 @@
       "label": "The one prototype worth running",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1249",
+      "source_location": "L1256",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_the_one_prototype_worth_running",
       "community": 144,
@@ -37467,7 +37467,7 @@
       "label": "11. Evidence quality",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1260",
+      "source_location": "L1267",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_11_evidence_quality",
       "community": 64,
@@ -37477,7 +37477,7 @@
       "label": "Ledger for the second pass (\u00a7\u00a77\u20139)",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1307",
+      "source_location": "L1314",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_ledger_for_the_second_pass_7_9",
       "community": 64,
@@ -37487,7 +37487,7 @@
       "label": "12. Design spec v0 \u2014 for later pickup",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1340",
+      "source_location": "L1347",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_design_spec_v0_for_later_pickup",
       "community": 5,
@@ -37497,7 +37497,7 @@
       "label": "12.0 How to pick this up",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1347",
+      "source_location": "L1354",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_0_how_to_pick_this_up",
       "community": 5,
@@ -37507,7 +37507,7 @@
       "label": "12.1 Scope and non-goals",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1359",
+      "source_location": "L1366",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_1_scope_and_non_goals",
       "community": 5,
@@ -37517,7 +37517,7 @@
       "label": "12.2 Inherited constraints \u2014 binding, with sources",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1374",
+      "source_location": "L1381",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_2_inherited_constraints_binding_with_sources",
       "community": 5,
@@ -37527,7 +37527,7 @@
       "label": "12.3 Architecture",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1388",
+      "source_location": "L1395",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_3_architecture",
       "community": 5,
@@ -37537,7 +37537,7 @@
       "label": "12.4 B0 \u2014 the site contract",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1405",
+      "source_location": "L1412",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_4_b0_the_site_contract",
       "community": 5,
@@ -37547,7 +37547,7 @@
       "label": "12.5 The style template",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1435",
+      "source_location": "L1442",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_5_the_style_template",
       "community": 5,
@@ -37557,7 +37557,7 @@
       "label": "12.6 Stage specs",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1467",
+      "source_location": "L1474",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_6_stage_specs",
       "community": 5,
@@ -37567,7 +37567,7 @@
       "label": "12.7 Identity and overrides",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1533",
+      "source_location": "L1540",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_7_identity_and_overrides",
       "community": 5,
@@ -37577,7 +37577,7 @@
       "label": "12.8 Warnings",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1550",
+      "source_location": "L1557",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_8_warnings",
       "community": 5,
@@ -37587,7 +37587,7 @@
       "label": "12.9 Module library contract",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1572",
+      "source_location": "L1579",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_9_module_library_contract",
       "community": 5,
@@ -37597,7 +37597,7 @@
       "label": "12.10 Prototype gates \u2014 in order, before any B-stage build",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1581",
+      "source_location": "L1588",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_10_prototype_gates_in_order_before_any_b_stage_build",
       "community": 5,
@@ -37607,7 +37607,7 @@
       "label": "12.10a G1 result \u2014 topology as data: PASS",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1598",
+      "source_location": "L1605",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_10a_g1_result_topology_as_data_pass",
       "community": 279,
@@ -37617,7 +37617,7 @@
       "label": "Round 2 (independent, 2026-08-26) \u2014 the question is answered, the gate is withheld",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1749",
+      "source_location": "L1756",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_round_2_independent_2026_08_26_the_question_is_answered_the_gate_is_withheld",
       "community": 279,
@@ -37627,7 +37627,7 @@
       "label": "Round 3 (independent, inspect-only, 2026-08-26, HEAD `1429850`) \u2014 the question is decided, the gate is still not",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L1860",
+      "source_location": "L1867",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_round_3_independent_inspect_only_2026_08_26_head_1429850_the_question_is_decided_the_gate_is_still_not",
       "community": 279,
@@ -37637,17 +37637,27 @@
       "label": "Round-3 FIX PASS (2026-08-26, on `HEAD` `39033d2`) \u2014 the queue is closed; the gate is not mine to call",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L2070",
+      "source_location": "L2077",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_round_3_fix_pass_2026_08_26_on_head_39033d2_the_queue_is_closed_the_gate_is_not_mine_to_call",
       "community": 279,
       "norm_label": "round-3 fix pass (2026-08-26, on `head` `39033d2`) \u2014 the queue is closed; the gate is not mine to call"
     },
     {
+      "label": "Round 4 (independent, inspect-only, 2026-08-26, HEAD `756a787`) \u2014 G1 IS DECIDED",
+      "file_type": "document",
+      "source_file": "ideas/citygen_buildings.md",
+      "source_location": "L2131",
+      "_origin": "ast",
+      "id": "ideas_citygen_buildings_round_4_independent_inspect_only_2026_08_26_head_756a787_g1_is_decided",
+      "community": 279,
+      "norm_label": "round 4 (independent, inspect-only, 2026-08-26, head `756a787`) \u2014 g1 is decided"
+    },
+    {
       "label": "12.11 v1 acceptance",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L2124",
+      "source_location": "L2333",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_11_v1_acceptance",
       "community": 5,
@@ -37657,7 +37667,7 @@
       "label": "12.12 Open questions carried into the build",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L2135",
+      "source_location": "L2344",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_12_12_open_questions_carried_into_the_build",
       "community": 5,
@@ -37667,7 +37677,7 @@
       "label": "Sources",
       "file_type": "document",
       "source_file": "ideas/citygen_buildings.md",
-      "source_location": "L2151",
+      "source_location": "L2360",
       "_origin": "ast",
       "id": "ideas_citygen_buildings_sources",
       "community": 64,
@@ -38700,7 +38710,7 @@
       "source_location": "L1528",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
-      "community": 17,
+      "community": 263,
       "norm_label": "s5 \u2014 intersections"
     },
     {
@@ -38710,7 +38720,7 @@
       "source_location": "L1550",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
-      "community": 17,
+      "community": 263,
       "norm_label": "what the literature adds"
     },
     {
@@ -38720,7 +38730,7 @@
       "source_location": "L1574",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "community": 17,
+      "community": 263,
       "norm_label": "the invariant that was violated: **every corner is an arc, always**"
     },
     {
@@ -38730,7 +38740,7 @@
       "source_location": "L1602",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
-      "community": 17,
+      "community": 263,
       "norm_label": "two rules the design left open, decided 2026-08-09"
     },
     {
@@ -38740,7 +38750,7 @@
       "source_location": "L1722",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
-      "community": 17,
+      "community": 263,
       "norm_label": "three constructions adopted from the civil sweep \u2014 2026-08-09"
     },
     {
@@ -38750,7 +38760,7 @@
       "source_location": "L1757",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "community": 17,
+      "community": 263,
       "norm_label": "higher-degree junctions \u2014 untested, and structurally unreachable from the field"
     },
     {
@@ -38760,7 +38770,7 @@
       "source_location": "L1783",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "community": 17,
+      "community": 263,
       "norm_label": "plazas and roundabouts at degenerate points"
     },
     {
@@ -39500,7 +39510,7 @@
       "source_location": "L4610",
       "_origin": "ast",
       "id": "ideas_citygen_streets_6b_shipped_v1_assets",
-      "community": 289,
+      "community": 102,
       "norm_label": "6b. shipped v1 assets"
     },
     {
@@ -39510,7 +39520,7 @@
       "source_location": "L4612",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_old_chain_is_being_retired_status_2026_08_12",
-      "community": 289,
+      "community": 102,
       "norm_label": "the old chain is being retired \u2014 status 2026-08-12"
     },
     {
@@ -39520,7 +39530,7 @@
       "source_location": "L4645",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_retirement_finished_2026_08_12",
-      "community": 289,
+      "community": 102,
       "norm_label": "the retirement, finished \u2014 2026-08-12"
     },
     {
@@ -39530,7 +39540,7 @@
       "source_location": "L4652",
       "_origin": "ast",
       "id": "ideas_citygen_streets_every_promoted_parameter_measured_by_who_reads_it",
-      "community": 289,
+      "community": 102,
       "norm_label": "every promoted parameter, measured by who reads it"
     },
     {
@@ -39540,7 +39550,7 @@
       "source_location": "L4736",
       "_origin": "ast",
       "id": "ideas_citygen_streets_audit_of_the_trim_and_the_monolith_was_not_a_control_it_was_a_divergence_hazard",
-      "community": 289,
+      "community": 102,
       "norm_label": "\u2705 audit of the trim \u2014 and the monolith was not a control, it was a divergence hazard"
     },
     {
@@ -39550,7 +39560,7 @@
       "source_location": "L4777",
       "_origin": "ast",
       "id": "ideas_citygen_streets_closure_gate_py_ported_onto_tracer_segmenter",
-      "community": 289,
+      "community": 102,
       "norm_label": "`closure_gate.py` ported onto `tracer \u2192 segmenter`"
     },
     {
@@ -39560,7 +39570,7 @@
       "source_location": "L4832",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_original_v1_assets",
-      "community": 289,
+      "community": 102,
       "norm_label": "the original v1 assets"
     },
     {
@@ -39570,7 +39580,7 @@
       "source_location": "L4846",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_boundary_moved_2026_08_10_it_is_now_between_data_and_geometry",
-      "community": 289,
+      "community": 102,
       "norm_label": "\u26a0\ufe0f the boundary moved \u2014 2026-08-10. it is now between data and geometry"
     },
     {
@@ -39690,7 +39700,7 @@
       "source_location": "L5180",
       "_origin": "ast",
       "id": "ideas_citygen_streets_never_change_a_shared_vex_signature_under_existing_callers_2026_08_11",
-      "community": 289,
+      "community": 102,
       "norm_label": "\u26a0\ufe0f never change a shared vex signature under existing callers \u2014 2026-08-11"
     },
     {
@@ -41440,7 +41450,7 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "ideas_polychain_3_data_contracts",
-      "community": 262,
+      "community": 12,
       "norm_label": "3. data contracts"
     },
     {
@@ -41450,7 +41460,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "ideas_polychain_3_1_input_spline_schema",
-      "community": 262,
+      "community": 12,
       "norm_label": "3.1 input spline schema"
     },
     {
@@ -41460,7 +41470,7 @@
       "source_location": "L229",
       "_origin": "ast",
       "id": "ideas_polychain_3_2_kit_format",
-      "community": 262,
+      "community": 12,
       "norm_label": "3.2 kit format"
     },
     {
@@ -41470,7 +41480,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "ideas_polychain_3_2b_prototype_identity_reuse_pf_merge_enum_and_keep_it_distinct_from_element_identity",
-      "community": 262,
+      "community": 12,
       "norm_label": "3.2b prototype identity \u2014 reuse `pf::merge_enum`, and keep it distinct from element identity"
     },
     {
@@ -41480,7 +41490,7 @@
       "source_location": "L283",
       "_origin": "ast",
       "id": "ideas_polychain_3_3_style_payload",
-      "community": 262,
+      "community": 12,
       "norm_label": "3.3 style payload"
     },
     {
@@ -41490,7 +41500,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "ideas_polychain_3_4_output",
-      "community": 262,
+      "community": 12,
       "norm_label": "3.4 output"
     },
     {
@@ -46010,7 +46020,7 @@
       "source_location": "L14954",
       "_origin": "ast",
       "id": "ideas_polychain_33_native_network_build_log_cycle_c6_13_9_n8_stages_2_the_miter_assembly",
-      "community": 12,
+      "community": 283,
       "norm_label": "33. native network build log \u2014 cycle c6 (13.9 n8 stages 2+: the miter assembly)"
     },
     {
@@ -46020,7 +46030,7 @@
       "source_location": "L14960",
       "_origin": "ast",
       "id": "ideas_polychain_33_1_d338_the_deletion_32_3_named_paid_and_proven",
-      "community": 12,
+      "community": 283,
       "norm_label": "33.1 d338 \u2014 the deletion 32.3 named, paid and proven"
     },
     {
@@ -46030,7 +46040,7 @@
       "source_location": "L15011",
       "_origin": "ast",
       "id": "ideas_polychain_33_2_d339_fill_count_with_count_0_leaves_a_hole_in_the_y_stack",
-      "community": 12,
+      "community": 283,
       "norm_label": "33.2 d339 \u2014 `fill = count` with `count = 0` leaves a hole in the y stack"
     },
     {
@@ -46040,7 +46050,7 @@
       "source_location": "L15025",
       "_origin": "ast",
       "id": "ideas_polychain_33_3_13_9_n8_stage_2_d340_the_degenerate_corner_was_a_warning_not_geometry",
-      "community": 12,
+      "community": 283,
       "norm_label": "33.3 13.9 n8 stage 2 \u2014 d340: the degenerate corner was a warning, not geometry"
     },
     {
@@ -46050,7 +46060,7 @@
       "source_location": "L15090",
       "_origin": "ast",
       "id": "ideas_polychain_33_4_d341_the_miter_s_deciding_experiment_the_batched_cut_is_a_re_implementation_not_a_port",
-      "community": 12,
+      "community": 283,
       "norm_label": "33.4 d341 \u2014 the miter's deciding experiment: the batched cut is a re-implementation, not a port"
     },
     {
@@ -46060,7 +46070,7 @@
       "source_location": "L15160",
       "_origin": "ast",
       "id": "ideas_polychain_33_5_the_python_share_per_build_class_re_taken_32_4_s_table_two_rows_moved",
-      "community": 12,
+      "community": 283,
       "norm_label": "33.5 the python share per build class, re-taken \u2014 32.4's table, two rows moved"
     },
     {
@@ -46640,7 +46650,7 @@
       "source_location": "L329",
       "_origin": "ast",
       "id": "ideas_terrain_presets_8_verification_ledger",
-      "community": 263,
+      "community": 116,
       "norm_label": "8. verification ledger"
     },
     {
@@ -46650,7 +46660,7 @@
       "source_location": "L333",
       "_origin": "ast",
       "id": "ideas_terrain_presets_verified_probed_live_in_houdini_22_0_398_or_parsed_from_the_downloaded_files",
-      "community": 263,
+      "community": 116,
       "norm_label": "\u2705 verified \u2014 probed live in houdini 22.0.398 or parsed from the downloaded files"
     },
     {
@@ -46660,7 +46670,7 @@
       "source_location": "L351",
       "_origin": "ast",
       "id": "ideas_terrain_presets_computed_derived_by_me_correct_method_not_vendor_stated",
-      "community": 263,
+      "community": 116,
       "norm_label": "\ud83e\uddee computed \u2014 derived by me, correct method, not vendor-stated"
     },
     {
@@ -46670,7 +46680,7 @@
       "source_location": "L356",
       "_origin": "ast",
       "id": "ideas_terrain_presets_snippet_level_read_from_docs_not_exercised",
-      "community": 263,
+      "community": 116,
       "norm_label": "\ud83d\udcc4 snippet-level \u2014 read from docs, not exercised"
     },
     {
@@ -46680,7 +46690,7 @@
       "source_location": "L362",
       "_origin": "ast",
       "id": "ideas_terrain_presets_known_gaps_do_not_assume",
-      "community": 263,
+      "community": 116,
       "norm_label": "\u26a0\ufe0f known gaps \u2014 do not assume"
     },
     {
@@ -46780,7 +46790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_readme",
-      "community": 231,
+      "community": 62,
       "norm_label": "readme.md"
     },
     {
@@ -46790,7 +46800,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_readme_polyfactory_tests_the_v2_regime_2026_08_25",
-      "community": 231,
+      "community": 62,
       "norm_label": "polyfactory tests \u2014 the v2 regime (2026-08-25)"
     },
     {
@@ -46800,7 +46810,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_readme_the_five_pieces",
-      "community": 231,
+      "community": 62,
       "norm_label": "the five pieces"
     },
     {
@@ -46810,7 +46820,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "tests_readme_what_stays_from_v1",
-      "community": 231,
+      "community": 62,
       "norm_label": "what stays from v1"
     },
     {
@@ -46820,7 +46830,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_readme_v1_v2_migration_done_2026_08_25",
-      "community": 231,
+      "community": 62,
       "norm_label": "v1 \u2192 v2 migration \u2014 done (2026-08-25)"
     },
     {
@@ -46830,7 +46840,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_readme_what_the_deletion_pass_removed_and_what_it_kept",
-      "community": 231,
+      "community": 62,
       "norm_label": "what the deletion pass removed, and what it kept"
     },
     {
@@ -46840,7 +46850,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_readme_what_the_sweep_measured_after_the_deletion_2026_08_25_16_core_machine",
-      "community": 231,
+      "community": 62,
       "norm_label": "what the sweep measured after the deletion (2026-08-25, 16-core machine)"
     },
     {
@@ -46850,7 +46860,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "tests_readme_independently_verified_cycle_v4_audit_2026_08_25_head_7fabfff",
-      "community": 231,
+      "community": 62,
       "norm_label": "independently verified \u2014 cycle v4 audit, 2026-08-25, head `7fabfff`"
     },
     {
@@ -46860,7 +46870,7 @@
       "source_location": "L240",
       "_origin": "ast",
       "id": "tests_readme_the_v2_commands",
-      "community": 231,
+      "community": 62,
       "norm_label": "the v2 commands"
     },
     {
@@ -46870,7 +46880,7 @@
       "source_location": "L326",
       "_origin": "ast",
       "id": "tests_readme_the_v1_history",
-      "community": 231,
+      "community": 62,
       "norm_label": "the v1 history"
     },
     {
@@ -47205,7 +47215,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 56,
+      "community": 168,
       "norm_label": "baseparmwidget",
       "id": "baseparmwidget"
     },
@@ -56079,9 +56089,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L141",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings",
-      "target": "citygen_buildings_assert_storable",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_assert_storable"
     },
     {
       "relation": "contains",
@@ -56179,9 +56189,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L95",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_rationale_95",
-      "target": "citygen_buildings_vex",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_vex"
     },
     {
       "relation": "calls",
@@ -56211,9 +56221,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L111",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_rationale_111",
-      "target": "citygen_buildings_plain",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_plain"
     },
     {
       "relation": "rationale_for",
@@ -56221,9 +56231,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L142",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_rationale_142",
-      "target": "citygen_buildings_assert_storable",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_assert_storable"
     },
     {
       "relation": "rationale_for",
@@ -56231,9 +56241,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L180",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_rationale_180",
-      "target": "citygen_buildings_load",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_load"
     },
     {
       "relation": "calls",
@@ -56252,9 +56262,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L190",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_rationale_190",
-      "target": "citygen_buildings_merge",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_merge"
     },
     {
       "relation": "calls",
@@ -56273,9 +56283,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L206",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_rationale_206",
-      "target": "citygen_buildings_resolve",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_resolve"
     },
     {
       "relation": "calls",
@@ -56294,9 +56304,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L214",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_rationale_214",
-      "target": "citygen_buildings_stamp",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_stamp"
     },
     {
       "relation": "calls",
@@ -56315,9 +56325,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L317",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_rationale_317",
-      "target": "citygen_buildings_build",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_build"
     },
     {
       "relation": "contains",
@@ -86487,9 +86497,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L397",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_397",
-      "target": "citygen_checks_buildings_rules_serve_more_than_one_style",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_rules_serve_more_than_one_style"
     },
     {
       "relation": "rationale_for",
@@ -86497,9 +86507,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L431",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_431",
-      "target": "citygen_checks_buildings_no_style_names_in_code",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_no_style_names_in_code"
     },
     {
       "relation": "rationale_for",
@@ -86507,9 +86517,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L450",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_450",
-      "target": "citygen_checks_buildings_party_walls_are_real",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_party_walls_are_real"
     },
     {
       "relation": "rationale_for",
@@ -86517,9 +86527,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L495",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_495",
-      "target": "citygen_checks_buildings_wanted",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_wanted"
     },
     {
       "relation": "calls",
@@ -86538,9 +86548,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L508",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_508",
-      "target": "citygen_checks_buildings_volume_count_matches_template",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_volume_count_matches_template"
     },
     {
       "relation": "rationale_for",
@@ -86548,9 +86558,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L572",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_572",
-      "target": "citygen_checks_buildings_outward_normals",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_outward_normals"
     },
     {
       "relation": "rationale_for",
@@ -86558,9 +86568,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L599",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_599",
-      "target": "citygen_checks_buildings_heights_follow_data",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_heights_follow_data"
     },
     {
       "relation": "calls",
@@ -86579,9 +86589,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L632",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_632",
-      "target": "citygen_checks_buildings_plinth_follows_ground",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_plinth_follows_ground"
     },
     {
       "relation": "rationale_for",
@@ -86589,9 +86599,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L697",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_697",
-      "target": "citygen_checks_buildings_attribute_storage",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_attribute_storage"
     },
     {
       "relation": "rationale_for",
@@ -86599,9 +86609,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L728",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_728",
-      "target": "citygen_checks_buildings_elem_ids_structural",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_elem_ids_structural"
     },
     {
       "relation": "rationale_for",
@@ -86609,9 +86619,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L746",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_746",
-      "target": "citygen_checks_buildings_no_scratch",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_no_scratch"
     },
     {
       "relation": "rationale_for",
@@ -86619,9 +86629,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L771",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_771",
-      "target": "citygen_checks_buildings_published_names",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_published_names"
     },
     {
       "relation": "rationale_for",
@@ -86629,9 +86639,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L784",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_784",
-      "target": "citygen_checks_buildings_masses_inside_lots",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_masses_inside_lots"
     },
     {
       "relation": "rationale_for",
@@ -86639,9 +86649,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L819",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_819",
-      "target": "citygen_checks_buildings_warns_on_unknown_rule",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_warns_on_unknown_rule"
     },
     {
       "relation": "rationale_for",
@@ -86649,9 +86659,9 @@
       "source_file": "tests/citygen/checks_buildings.py",
       "source_location": "L834",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_checks_buildings_rationale_834",
-      "target": "citygen_checks_buildings_warns_on_cap_group_split",
-      "confidence_score": 1.0
+      "target": "citygen_checks_buildings_warns_on_cap_group_split"
     },
     {
       "relation": "contains",
@@ -88013,9 +88023,9 @@
       "source_file": "tests/citygen/run_building_checks.py",
       "source_location": "L202",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_building_checks_rationale_202",
-      "target": "citygen_run_building_checks_scene",
-      "confidence_score": 1.0
+      "target": "citygen_run_building_checks_scene"
     },
     {
       "relation": "calls",
@@ -88034,9 +88044,9 @@
       "source_file": "tests/citygen/run_building_checks.py",
       "source_location": "L229",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_building_checks_rationale_229",
-      "target": "citygen_run_building_checks_cook",
-      "confidence_score": 1.0
+      "target": "citygen_run_building_checks_cook"
     },
     {
       "relation": "calls",
@@ -88110,9 +88120,9 @@
       "source_file": "tests/citygen/run_building_checks.py",
       "source_location": "L508",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_building_checks_rationale_508",
-      "target": "citygen_run_building_checks_sources_now",
-      "confidence_score": 1.0
+      "target": "citygen_run_building_checks_sources_now"
     },
     {
       "relation": "calls",
@@ -88131,9 +88141,9 @@
       "source_file": "tests/citygen/run_building_checks.py",
       "source_location": "L526",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_building_checks_rationale_526",
-      "target": "citygen_run_building_checks_record",
-      "confidence_score": 1.0
+      "target": "citygen_run_building_checks_record"
     },
     {
       "relation": "calls",
@@ -88152,9 +88162,9 @@
       "source_file": "tests/citygen/run_building_checks.py",
       "source_location": "L562",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_building_checks_rationale_562",
-      "target": "citygen_run_building_checks_budget",
-      "confidence_score": 1.0
+      "target": "citygen_run_building_checks_budget"
     },
     {
       "relation": "calls",
@@ -88184,9 +88194,9 @@
       "source_file": "tests/citygen/run_building_checks.py",
       "source_location": "L611",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_run_building_checks_rationale_611",
-      "target": "citygen_run_building_checks_images",
-      "confidence_score": 1.0
+      "target": "citygen_run_building_checks_images"
     },
     {
       "relation": "calls",
@@ -112191,9 +112201,9 @@
       "source_file": "ideas/citygen_buildings.md",
       "source_location": "L2070",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_citygen_buildings_12_10a_g1_result_topology_as_data_pass",
-      "target": "ideas_citygen_buildings_round_3_fix_pass_2026_08_26_on_head_39033d2_the_queue_is_closed_the_gate_is_not_mine_to_call",
-      "confidence_score": 1.0
+      "target": "ideas_citygen_buildings_round_3_fix_pass_2026_08_26_on_head_39033d2_the_queue_is_closed_the_gate_is_not_mine_to_call"
     },
     {
       "relation": "contains",
@@ -112204,6 +112214,16 @@
       "confidence_score": 1.0,
       "source": "ideas_citygen_buildings_12_10a_g1_result_topology_as_data_pass",
       "target": "ideas_citygen_buildings_round_3_independent_inspect_only_2026_08_26_head_1429850_the_question_is_decided_the_gate_is_still_not"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "ideas/citygen_buildings.md",
+      "source_location": "L2131",
+      "weight": 1.0,
+      "source": "ideas_citygen_buildings_12_10a_g1_result_topology_as_data_pass",
+      "target": "ideas_citygen_buildings_round_4_independent_inspect_only_2026_08_26_head_756a787_g1_is_decided",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -121570,5 +121590,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "39033d20cfdf02471744d26558ff004631fe0e5e"
+  "built_at_commit": "756a787fdfdcafbc90fe3ae6e3cdb0a102cb2889"
 }
