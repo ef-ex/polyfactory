@@ -14925,7 +14925,9 @@ solve that parallelises WITHIN a curve — a cycle of its own.
 | budget | **18 964 / 18 964 = 1.0000x** |
 | `run_native_checks` | 0 failing; `output_guard_parity` 50 native / 60 reference over 110 cases, identical; `gate_parity` 54 cases / 1 217 pieces / 0 disagree |
 | `run_generated --seeds 400` | 406 cases, **0 RED**, 136 KNOWN, 32.9 s |
-| headroom guard | `91.0 GB commit headroom / 8.0 GB per slot = 11 - 4 requested, granted` |
+| **FULL sweep** (`--full`) | **111 of 111 mutations RED, 0 unreached, 0 survivors, 0 stale, 8 nodes 0 failures** — 1 303.1 s wall / 4 644.0 s summed (3.6x), control at `6fa085b`. The only code to move after that control is a comment line in `gen_cases.py`, which no registered edit targets. |
+| headroom guard | `91.3 GB commit headroom / 8.0 GB per slot = 11 - 4 requested, granted`, four slots throughout |
+| `.tmp/` afterwards | empty — every run deleted its own directory |
 
 ⚠️ **AND RULE 0 IS NOT DISCHARGED FOR THIS CYCLE EITHER.** C5V is the response to C5's audit;
 no independent agent has audited C5V. It joins C3a's own Rule-0 audit, which is now the last
