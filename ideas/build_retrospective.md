@@ -45,6 +45,29 @@ interruptions (usage limits, 529s) cost far less, because durable on-disk state 
 | 18 | **`edge_id` had zero occurrences under `tests/`** — citygen streets' own attribute, and an int-typed one shipped a different fence *and a different curve order* | D223 |
 | 19 | `parms_inert_under_payload` moved **only `fill` and `seed`**, and compared sorted ids not positions — the `padding` leak it existed to catch was invisible | D91 |
 | 20 | `stamp_calls_per_piece` ran on a **100 % packed fixture**, so an 8.4× regression on the deformed branch was invisible | D206 |
+| 21 | **A building massed ENTIRELY OUTSIDE ITS LOT with every check green** — 3 volumes at x −5..0 against a lot at x 0..20, collapse warning **0** on every face, `volume_count_matches` / `outward_normals` / `party_walls_real` all passing. Reached through a *legal* cascade override; both axes inverted, so the signed area kept its sign *and shrank* and all three guards stayed silent. **Nothing asserted where the mass was, or how big it was in plan.** | citygen buildings, G1 round 2 |
+| 22 | **The suite could not see a plan dimension at all.** Mutating shipped VEX to cut the bar at half the fraction moved the Einhof dwelling 20 m → 10 m and the barn 12.5 m → 28.8 m; **all 16 checks and the baseline stayed green.** `record()` snapshotted volumes/faces/roles/wall-roles/top-height — no plan quantity | G1 `R2-1` |
+| 23 | **`image_contains_subject` compared a count against itself by construction** — one segment per vertex per prim, checked against the vertex count. An **8×8 pixel** render passed. Repaired to a byte ratio, which still passes **1 of 97 prims** (40.2×) and **a different scene entirely** (90.7×) | G1 `R2-2` / `R3-6` |
+| 24 | **`encloses_courtyard` returned BYTE-IDENTICAL numbers** for a correct block and one whose courtyard was slid 4 m sideways — a rigid translation preserves every area there is. Its repair was still a MIN-oracle: a non-uniform ring built **518.4 m² instead of 864 m²** and it reported *"12.00–12.00 m against 12.00 asked for"* | G1 rounds 1–2 |
+| 25 | **The mutation sweep demanded one mutation per check NAME, not per clause** — so a four-clause check shipped **three clauses nobody had ever proved.** Fixing it revealed **12 owed mutations** in one pass | G1 `§0.0f-2` |
+| 26 | **`pf_setback` (cascade level 5) was dead code** — the authored branch had never once executed, and would have shipped as a name with a dead value on every wall. Separately, a float `pf_setback` **could not express `setback(0)`** (gated on `> 0.0`), so the one value the spec calls the identity op was the one an artist could not author | G1 fix pass / `R3-3` |
+| 27 | **A streets gate reported ALL-GREEN at 1.0°** because `graph_fuse` had eaten the leg and `counts.edges` was 3 — the check had no leg left to disagree with | citygen streets, M5 (polyfactory-f2) |
+
+**⭐ THE SUB-SHAPE THIS CLASS KEEPS TAKING, NAMED (2026-08-27, found independently by two sessions
+in one night):**
+
+> **The check passed because its subject was ABSENT, not because it was correct.**
+
+Instances 5, 16, 21, 22, 23, 26 and 27 are all this, and 21 and 27 were hit **the same night, in two
+different subsystems, by two agents who did not know the other had it** — a building with no
+assertion of where it was, and a gate with no leg left to measure. Instance 24 is its near neighbour:
+the subject was present but the oracle was invariant under the very error it existed to catch.
+
+**The rule that falls out, and it is cheap:** *assert the subject exists and is where it belongs
+before asserting anything about its properties.* A check whose oracle can be satisfied by absence is
+not a check. In practice that means a presence/extent assertion **preceding** every quality
+assertion — plan bounds before plan quality, segment content before image quality, attribute value
+before attribute name.
 
 ### 2b. Wrong conclusions that propagated
 

@@ -1,16 +1,16 @@
 # Graph Report - polyfactory  (2026-08-27)
 
 ## Corpus Check
-- 188 files · ~838,461 words
+- 188 files · ~839,034 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4737 nodes · 7209 edges · 287 communities (271 shown, 16 thin omitted)
+- 4737 nodes · 7209 edges · 288 communities (272 shown, 16 thin omitted)
 - Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 373 edges (avg confidence: 0.7)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4feb39e8`
+- Built from commit: `29176e8e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -298,6 +298,7 @@
 - [[_COMMUNITY_Community 284|Community 284]]
 - [[_COMMUNITY_Community 285|Community 285]]
 - [[_COMMUNITY_Community 286|Community 286]]
+- [[_COMMUNITY_Community 287|Community 287]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `Result` - 54 edges
@@ -329,15 +330,15 @@
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/ui_framework/__init__.py -> polyfactory/scripts/python/polyfactory/ui_framework/__init__.py`
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/viewer_utils/__init__.py -> polyfactory/scripts/python/polyfactory/viewer_utils/__init__.py`
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
-- 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
-- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/polychain/array2d.py -> polyfactory/scripts/python/polyfactory/polychain/kit.py -> polyfactory/scripts/python/polyfactory/polychain/place.py -> polyfactory/scripts/python/polyfactory/polychain/array2d.py`
 - 4-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 
-## Communities (287 total, 16 thin omitted)
+## Communities (288 total, 16 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.10
@@ -408,8 +409,8 @@ Cohesion: 0.05
 Nodes (41): Accessing Package Assets, Asset Database, Branch Structure, Code Quality - Error Handling, Code Style: Functional Over Object-Oriented, Common Patterns, Creative / Procedural Tool Requests Require Design Breakdown First, Critical Conventions (+33 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.09
-Nodes (22): 4. Stage design, ⚠️ A CONNECTION WAS BEING REFUSED FOR BEING TOO CLOSE — fixed 2026-08-10, ⚠️ AREA WAS NOT ENOUGH EITHER. The fifth wrong seam — 2026-08-10, Chaotic / organic patterns — clarified, not scrapped, Dead ends are the exception, not the norm — and the fix is in the papers, Higher-degree junctions — untested, and structurally unreachable from the field, Plazas and roundabouts at degenerate points, S0 — Domain (+14 more)
+Cohesion: 0.13
+Nodes (15): 4. Stage design, ⚠️ A CONNECTION WAS BEING REFUSED FOR BEING TOO CLOSE — fixed 2026-08-10, ⚠️ AREA WAS NOT ENOUGH EITHER. The fifth wrong seam — 2026-08-10, Chaotic / organic patterns — clarified, not scrapped, Dead ends are the exception, not the norm — and the fix is in the papers, S0 — Domain, S1 — Field (pluggable generators), S2 — Trace (+7 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.09
@@ -1406,6 +1407,10 @@ Nodes (6): 34.1 D342 — `_stamp_degenerate` HAS TWO SOURCES AND C6 PORTED ONE, 
 ### Community 286 - "Community 286"
 Cohesion: 0.50
 Nodes (4): align_rows(), datum_bays(), {section index: default-fill piece count} for ONE row curve.      7.4's own sent, D122 ALIGNED, stamped as data: every row but the datum carries the     datum's b
+
+### Community 287 - "Community 287"
+Cohesion: 0.29
+Nodes (7): Higher-degree junctions — untested, and structurally unreachable from the field, Plazas and roundabouts at degenerate points, S5 — Intersections, The invariant that was violated: **every corner is an arc, always**, Three constructions adopted from the civil sweep — 2026-08-09, Two rules the design left open, decided 2026-08-09, What the literature adds
 
 ## Knowledge Gaps
 - **1070 isolated node(s):** `Project Overview`, `Package Structure`, `Environment Variables`, `Temporary / One-Off Scripts`, `Houdini Bridge - AI Agent Integration` (+1065 more)

@@ -36647,7 +36647,7 @@
       "label": "2b. Wrong conclusions that propagated",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L49",
+      "source_location": "L72",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2b_wrong_conclusions_that_propagated",
       "community": 244,
@@ -36657,7 +36657,7 @@
       "label": "2c. Harness and infrastructure",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L62",
+      "source_location": "L85",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2c_harness_and_infrastructure",
       "community": 244,
@@ -36667,7 +36667,7 @@
       "label": "2d. My own spec and briefing failures",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L78",
+      "source_location": "L101",
       "_origin": "ast",
       "id": "ideas_build_retrospective_2d_my_own_spec_and_briefing_failures",
       "community": 244,
@@ -36677,7 +36677,7 @@
       "label": "3. The patterns",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L89",
+      "source_location": "L112",
       "_origin": "ast",
       "id": "ideas_build_retrospective_3_the_patterns",
       "community": 244,
@@ -36687,7 +36687,7 @@
       "label": "4. What should become a skill, an instruction, or code",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L122",
+      "source_location": "L145",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4_what_should_become_a_skill_an_instruction_or_code",
       "community": 244,
@@ -36697,7 +36697,7 @@
       "label": "4a. HIGHEST VALUE \u2014 a verification-integrity discipline (P1, P2, P3; ~20 incidents)",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L124",
+      "source_location": "L147",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4a_highest_value_a_verification_integrity_discipline_p1_p2_p3_20_incidents",
       "community": 244,
@@ -36707,7 +36707,7 @@
       "label": "4b. Houdini domain gotchas \u2192 extend `houdini-procedural-modeling`",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L146",
+      "source_location": "L169",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4b_houdini_domain_gotchas_extend_houdini_procedural_modeling",
       "community": 244,
@@ -36717,7 +36717,7 @@
       "label": "4c. Multi-agent operations \u2192 workflow-brief boilerplate (or a skill)",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L165",
+      "source_location": "L188",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4c_multi_agent_operations_workflow_brief_boilerplate_or_a_skill",
       "community": 244,
@@ -36727,7 +36727,7 @@
       "label": "4d. Spec-level rules for this project",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L177",
+      "source_location": "L200",
       "_origin": "ast",
       "id": "ideas_build_retrospective_4d_spec_level_rules_for_this_project",
       "community": 244,
@@ -36737,7 +36737,7 @@
       "label": "5. What worked and must not be lost",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L187",
+      "source_location": "L210",
       "_origin": "ast",
       "id": "ideas_build_retrospective_5_what_worked_and_must_not_be_lost",
       "community": 244,
@@ -36747,7 +36747,7 @@
       "label": "6. Status \u2014 what of \u00a74 is ENFORCED IN CODE, what is IN SKILLS, what is still prose",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L203",
+      "source_location": "L226",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6_status_what_of_4_is_enforced_in_code_what_is_in_skills_what_is_still_prose",
       "community": 244,
@@ -36757,7 +36757,7 @@
       "label": "6a. \u00a74a \u2014 verification integrity",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L211",
+      "source_location": "L234",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6a_4a_verification_integrity",
       "community": 244,
@@ -36767,7 +36767,7 @@
       "label": "6b. \u00a74b \u2014 Houdini domain gotchas",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L236",
+      "source_location": "L259",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6b_4b_houdini_domain_gotchas",
       "community": 244,
@@ -36777,7 +36777,7 @@
       "label": "6c. \u00a74c \u2014 multi-agent operations",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L245",
+      "source_location": "L268",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6c_4c_multi_agent_operations",
       "community": 244,
@@ -36787,7 +36787,7 @@
       "label": "6d. \u00a74d \u2014 spec-level rules",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L253",
+      "source_location": "L276",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6d_4d_spec_level_rules",
       "community": 244,
@@ -36797,7 +36797,7 @@
       "label": "6e. \u00a71 and \u00a75, MEASURED: what the v2 regime did to v1 (2026-08-25, cycle V4, verified independently on HEAD `7fabfff`)",
       "file_type": "document",
       "source_file": "ideas/build_retrospective.md",
-      "source_location": "L260",
+      "source_location": "L283",
       "_origin": "ast",
       "id": "ideas_build_retrospective_6e_1_and_5_measured_what_the_v2_regime_did_to_v1_2026_08_25_cycle_v4_verified_independently_on_head_7fabfff",
       "community": 244,
@@ -38830,7 +38830,7 @@
       "source_location": "L1528",
       "_origin": "ast",
       "id": "ideas_citygen_streets_s5_intersections",
-      "community": 17,
+      "community": 287,
       "norm_label": "s5 \u2014 intersections"
     },
     {
@@ -38840,7 +38840,7 @@
       "source_location": "L1550",
       "_origin": "ast",
       "id": "ideas_citygen_streets_what_the_literature_adds",
-      "community": 17,
+      "community": 287,
       "norm_label": "what the literature adds"
     },
     {
@@ -38850,7 +38850,7 @@
       "source_location": "L1574",
       "_origin": "ast",
       "id": "ideas_citygen_streets_the_invariant_that_was_violated_every_corner_is_an_arc_always",
-      "community": 17,
+      "community": 287,
       "norm_label": "the invariant that was violated: **every corner is an arc, always**"
     },
     {
@@ -38860,7 +38860,7 @@
       "source_location": "L1602",
       "_origin": "ast",
       "id": "ideas_citygen_streets_two_rules_the_design_left_open_decided_2026_08_09",
-      "community": 17,
+      "community": 287,
       "norm_label": "two rules the design left open, decided 2026-08-09"
     },
     {
@@ -38870,7 +38870,7 @@
       "source_location": "L1722",
       "_origin": "ast",
       "id": "ideas_citygen_streets_three_constructions_adopted_from_the_civil_sweep_2026_08_09",
-      "community": 17,
+      "community": 287,
       "norm_label": "three constructions adopted from the civil sweep \u2014 2026-08-09"
     },
     {
@@ -38880,7 +38880,7 @@
       "source_location": "L1757",
       "_origin": "ast",
       "id": "ideas_citygen_streets_higher_degree_junctions_untested_and_structurally_unreachable_from_the_field",
-      "community": 17,
+      "community": 287,
       "norm_label": "higher-degree junctions \u2014 untested, and structurally unreachable from the field"
     },
     {
@@ -38890,7 +38890,7 @@
       "source_location": "L1783",
       "_origin": "ast",
       "id": "ideas_citygen_streets_plazas_and_roundabouts_at_degenerate_points",
-      "community": 17,
+      "community": 287,
       "norm_label": "plazas and roundabouts at degenerate points"
     },
     {
@@ -56229,9 +56229,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L383",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings",
-      "target": "citygen_buildings_build_shell",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_build_shell"
     },
     {
       "relation": "contains",
@@ -56239,9 +56239,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L366",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings",
-      "target": "citygen_buildings_corner_mode",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_corner_mode"
     },
     {
       "relation": "contains",
@@ -56299,9 +56299,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L327",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings",
-      "target": "citygen_buildings_stamp_cap",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_stamp_cap"
     },
     {
       "relation": "contains",
@@ -56413,9 +56413,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L356",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_stamp_cap",
-      "target": "citygen_buildings_load",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_load"
     },
     {
       "relation": "rationale_for",
@@ -56466,9 +56466,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L356",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_stamp_cap",
-      "target": "citygen_buildings_resolve",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_resolve"
     },
     {
       "relation": "rationale_for",
@@ -56486,9 +56486,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L328",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_rationale_328",
-      "target": "citygen_buildings_stamp_cap",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_stamp_cap"
     },
     {
       "relation": "rationale_for",
@@ -56496,9 +56496,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L367",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_rationale_367",
-      "target": "citygen_buildings_corner_mode",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_corner_mode"
     },
     {
       "relation": "calls",
@@ -56517,9 +56517,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L385",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_rationale_385",
-      "target": "citygen_buildings_build_shell",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_build_shell"
     },
     {
       "relation": "calls",
@@ -56548,9 +56548,9 @@
       "source_file": "polyfactory/scripts/python/polyfactory/citygen/buildings.py",
       "source_location": "L483",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "citygen_buildings_rationale_483",
-      "target": "citygen_buildings_build",
-      "confidence_score": 1.0
+      "target": "citygen_buildings_build"
     },
     {
       "relation": "contains",
@@ -99944,9 +99944,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L165",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen",
-      "target": "unit_test_citygen_teststorableguard",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_teststorableguard"
     },
     {
       "relation": "contains",
@@ -100224,9 +100224,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L166",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_rationale_166",
-      "target": "unit_test_citygen_teststorableguard",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_teststorableguard"
     },
     {
       "relation": "method",
@@ -100234,9 +100234,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L183",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_teststorableguard",
-      "target": "unit_test_citygen_teststorableguard_setup",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_teststorableguard_setup"
     },
     {
       "relation": "method",
@@ -100244,9 +100244,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L203",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_teststorableguard",
-      "target": "unit_test_citygen_teststorableguard_test_accepts_what_the_templates_actually_carry",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_teststorableguard_test_accepts_what_the_templates_actually_carry"
     },
     {
       "relation": "method",
@@ -100254,9 +100254,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L194",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_teststorableguard",
-      "target": "unit_test_citygen_teststorableguard_test_names_the_path_it_refused",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_teststorableguard_test_names_the_path_it_refused"
     },
     {
       "relation": "method",
@@ -100264,9 +100264,9 @@
       "source_file": "tests/unit/test_citygen.py",
       "source_location": "L187",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "unit_test_citygen_teststorableguard",
-      "target": "unit_test_citygen_teststorableguard_test_refuses_the_three_measured_losses",
-      "confidence_score": 1.0
+      "target": "unit_test_citygen_teststorableguard_test_refuses_the_three_measured_losses"
     },
     {
       "relation": "contains",
@@ -121873,5 +121873,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "4feb39e8319ed3ea955b33ad4e458277a3104af8"
+  "built_at_commit": "29176e8e9bb934e15c6eb8ebffe7164509ad3329"
 }
