@@ -115,29 +115,27 @@
 //     `hda.config_resolved` writes that verdict into `pc_cfg["native_ok"]`
 //     because it is the node that already holds the Params, the Style and the
 //     Kit - which is the half of Hannes' rule Python keeps.
-//   * [vex:corners] a corner in MITER mode.  ⚠️ THIS ROW USED TO SAY "a
-//     CORNER", FULL STOP, AND 13.9 N8 STAGE 1 NARROWED IT.  The reason it was
-//     blanket is that a corner reserves span off both ends of every leg, so
-//     the same element address names a different span in the two plans - but
-//     that is the MITERED corner.  In `bend` mode, which is the parm page's
-//     DEFAULT Corner Treatment, D37 places no corner module, so there is no
-//     assembly, no reserve, no cut plane and no displacement policy: 4.3
-//     collapses to `merge_bend_sections`, and `pc_sections.vfl` ports it.
+//   * [vex:corners] a NON-DEGENERATE corner in MITER mode.  ⚠️ THIS ROW USED
+//     TO SAY "a CORNER", FULL STOP; 13.9 N8 STAGE 1 narrowed it to miter, and
+//     STAGE 2 took the degenerate half out.  The reason it was blanket is that
+//     a corner reserves span off both ends of every leg, so the same element
+//     address names a different span in the two plans - but that is the
+//     MITERED corner, and only where the miter actually happens.  In `bend`
+//     mode, which is the parm page's DEFAULT Corner Treatment, D37 places no
+//     corner module at all; and a DEGENERATE corner has no usable bisector, so
+//     D46's fallback is bend in EITHER mode (`corner._joinable`'s second
+//     reason).  Both collapse to `merge_bend_sections` plus 4.3 item F's
+//     warning stamp, and `pc_sections.vfl` + `pc_plan_emit.vfl` port them.
 //     What is still refused here is the assembly itself - compose symmetry,
-//     the offset, the displacement policy - and the whole of it is one string
-//     compare on CONFIG's `corner_mode`.
-//   * [vex:corner_degen] a DEGENERATE corner, in EITHER mode.  D46 falls back
-//     to bend and stamps WARN_CORNER_DEGENERATE onto every piece that spans
-//     the dissolved vertex (`corner._stamp_degenerate`, plus D68's flattened
-//     ones).  The WELD is ported; that warning is not, and a build that drops
-//     it is a divergence rather than a tidier output.
-//     ⚠️ AND IT IS NOT A HAIRPIN ROW, WHICH IS WHAT ITS FIRST FIXTURE ASSUMED.
-//     A 170 degree hairpin is refused at LEVEL 2 anyway - no piece straddling
-//     it can transport a frame - so the mutation reddened nothing.  What this
-//     row actually catches is a corner made degenerate by the PARAMETER: a
-//     90 degree L under a 120 degree `min_included_angle_deg` is degenerate,
-//     transportable, and would build natively and silently without it
-//     (`AU_degenerate_bend`).  31.2.
+//     the offset, the displacement policy, the cut plane - and the whole of it
+//     is one string compare plus one flag read per corner.
+//     ⚠️ AND THE DEGENERATE ROW WAS NEVER A HAIRPIN ROW, WHICH IS WHAT ITS
+//     FIRST FIXTURE ASSUMED.  A 170 degree hairpin is refused at LEVEL 2
+//     anyway - no piece straddling it can transport a frame.  What the
+//     degenerate case actually is is a corner made degenerate by the
+//     PARAMETER: a 90 degree L under a 120 degree `min_included_angle_deg` is
+//     degenerate, transportable, and now builds natively WITH its warning
+//     (`AU_degenerate_bend`).  31.2, 33.3.
 //   * [vex:ndup] a DUPLICATED curve id.  D169: the reference fans a marker
 //     out onto every curve sharing the id and the native chain answers for
 //     the first, which is a DECLARED divergence with its own check.
@@ -197,28 +195,30 @@ dict cfg = detail(0, "pc_cfg");
 int ok = 0;
 if (isvalidindex(cfg, "native_ok")) { float v = cfg["native_ok"]; ok = (int)v; }
 
-// [vex:corners] / [vex:corner_degen] - NARROWED BY 13.9 N8 STAGE 1.  A corner
-// used to refuse outright; what refuses now is a corner 4.3 would give an
-// ASSEMBLY, which is any corner in MITER mode (D37 - bend places no corner
-// module at all, so there is no joint to compose, offset or displace), plus a
-// DEGENERATE one in either mode (D46 falls back to bend and stamps
-// WARN_CORNER_DEGENERATE onto every piece spanning the dissolved vertex -
-// `_stamp_degenerate`, which this chain does not have).  `_cornerpt` and
-// `pc_corner_degen` are both `pc_corners`' own, so this costs one group
-// expansion and, in bend mode, one read per corner.
+// [vex:corners] - NARROWED AGAIN BY 13.9 N8 STAGE 2.  A corner used to refuse
+// outright; stage 1 narrowed that to "any corner in MITER mode, plus a
+// DEGENERATE one in either mode".  What refuses now is exactly a corner 4.3
+// would give an ASSEMBLY: a NON-DEGENERATE corner in MITER mode.
+//
+// The degenerate half went because D46's fallback IS bend - `_joinable`
+// dissolves a degenerate corner in either mode - so the geometry was already
+// the weld this chain ports; the only unported half was
+// `_stamp_degenerate`'s warning, and `pc_sections` + `pc_plan_emit` carry it
+// now.  So a MITER build whose corners are ALL degenerate is native too,
+// which is the class D327 named: a 90 degree L under a 120 degree
+// `min_included_angle_deg`.
+//
+// `_cornerpt` and `pc_corner_degen` are both `pc_corners`' own, so this costs
+// one group expansion and, in miter mode, one read per corner.
 int cornerpts[] = expandpointgroup(0, "_cornerpt");
 int corners = len(cornerpts);
 string cmode = "bend";
 if (isvalidindex(cfg, "corner_mode")) { string cm = cfg["corner_mode"]; cmode = cm; }
 int corner_refuse = 0;
-if (corners) {
-    if (cmode != "bend") {
-        corner_refuse = 1;
-    } else {
-        foreach (int cp; cornerpts) {
-            int degen = point(0, "pc_corner_degen", cp);
-            if (degen) { corner_refuse = 1; break; }
-        }
+if (corners && cmode != "bend") {
+    foreach (int cp; cornerpts) {
+        int degen = point(0, "pc_corner_degen", cp);
+        if (!degen) { corner_refuse = 1; break; }
     }
 }
 

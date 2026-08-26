@@ -1338,8 +1338,8 @@ MUTATIONS = (
       "D36 undone: each leg is fitted separately where the reference fits "
       "ONE run across the vertex.",
       ((VEX % "pc_sections.vfl",
-        "        if (bend && corner && !is_secbreak[i]) {",
-        "        if (0 && bend && corner && !is_secbreak[i]) {"),)),
+        "        if (corner && !is_secbreak[i] && (bend || degen)) {",
+        "        if (0 && corner && !is_secbreak[i] && (bend || degen)) {"),)),
 
     M("n8_ring_seam_ignored", "native", ("output_guard_parity",),
       "`_weld` keeps the FIRST section's `s0`: a dissolved ring starts at "
@@ -1366,7 +1366,7 @@ MUTATIONS = (
       "[vex:corners] widened too far: MITER admitted, so the chain answers a "
       "build with no assembly and no cut plane in it.",
       ((VEX % "pc_envelope.vfl",
-        '    if (cmode != "bend") {', "    if (0) {"),)),
+        'if (corners && cmode != "bend") {', "if (0) {"),)),
 
     M("n8_weld_renumbers_later_sections", "generated",
       ("generated_output_matches_the_reference",),
@@ -1376,11 +1376,45 @@ MUTATIONS = (
       ((VEX % "pc_sections.vfl",
         "push(r_index, span_ix[k]);", "push(r_index, k);"),)),
 
-    M("n8_guard_admits_degenerate", "native", ("output_guard_parity",),
-      "[vex:corner_degen] dropped: a hairpin builds natively and SILENTLY.",
+    M("n8_guard_reads_the_degeneracy_backwards", "native",
+      ("output_guard_parity",),
+      "13.9 N8 stage 2's own test inverted: a NON-degenerate miter corner is "
+      "admitted (no assembly, no cut plane) and a degenerate one refused.",
       ((VEX % "pc_envelope.vfl",
-        "            if (degen) { corner_refuse = 1; break; }",
-        "            if (0) { corner_refuse = 1; break; }"),)),
+        "        if (!degen) { corner_refuse = 1; break; }",
+        "        if (degen) { corner_refuse = 1; break; }"),)),
+
+    M("n8_miter_keeps_a_degenerate_corner", "native",
+      ("output_guard_parity",),
+      "D46's SECOND reason dropped: `_joinable` dissolves a degenerate corner "
+      "in EITHER mode, so a miter build whose corners are all degenerate gets "
+      "the reference's welded section list and the native chain a broken one "
+      "(`AV_degenerate_miter`).",
+      ((VEX % "pc_sections.vfl", "(bend || degen)", "(bend)"),)),
+
+    M("n8_degenerate_warning_dropped", "native", ("output_guard_parity",),
+      "4.3 item F: `_stamp_degenerate` deleted, so a dissolved degenerate "
+      "corner builds natively and SILENTLY - the divergence that kept the "
+      "whole class refused until stage 2.",
+      ((VEX % "pc_plan_emit.vfl",
+        "            if (hit) warns = pc_warn_join(warns, PC_W_CORNERDEG);",
+        "            if (0) warns = pc_warn_join(warns, PC_W_CORNERDEG);"),)),
+
+    M("n8_degenerate_stamp_ignores_the_ring", "native",
+      ("output_guard_parity",),
+      "`_stamp_degenerate`'s `reps`: on a CLOSED curve a span can wrap past "
+      "the seam, so a vertex is only inside it as `s + total`. Reached by "
+      "`AW_ring_section_degenerate` and by nothing else in the corpus.",
+      ((VEX % "pc_plan_emit.vfl",
+        "                if (!c_closed) continue;",
+        "                continue;"),)),
+
+    M("n8_plan_keep_drops_the_degenerate_list", "native",
+      ("output_guard_parity",),
+      "`PLAN_KEEP` is DENY-BY-DEFAULT: an output `pc_sections` adds that is "
+      "not named there is deleted before the solve sees it, and the warning "
+      "is simply absent. This is how stage 2 failed its first run.",
+      ((RIG, '"^_degen_s ^_curve_closed"', '""'),)),
 )
 
 # ⚠️ IDS ARE UNIQUE, ASSERTED HERE. Two entries once shared an id, and the

@@ -35,6 +35,7 @@
 #define PC_W_TILEFB   "pc_warn_tile_fallback"
 #define PC_W_VEXPR    "pc_warn_vexpr_ignored"
 #define PC_W_PAD      "pc_warn_degenerate_pad"
+#define PC_W_CORNERDEG "pc_warn_corner_degenerate"    // 4.3 item F / D46
 
 // `_cond_columns`' kinds, and they must match `hda.COND_*`.
 #define PC_C_NONE 0

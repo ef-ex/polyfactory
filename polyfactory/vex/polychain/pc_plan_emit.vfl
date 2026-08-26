@@ -86,6 +86,13 @@ for (int sp = 0; sp < nsec; sp++) {
     string sec_key_s = point(0, "_sec_key_s", sp);
     string style_key = point(0, "_style_key", sp);
     string yclass   = point(0, "pc_yclass", sp);
+    // 4.3 item F / D46 - `corner._stamp_degenerate`, ported.  ONCE PER
+    // SECTION, like the twelve above and for the same reason: an array read
+    // copies the whole array.  Empty on every build with no dissolved
+    // degenerate corner, which is almost all of them.
+    float degen_s[] = point(0, "_degen_s", sp);
+    int   c_closed  = point(0, "_curve_closed", sp);
+    int   ndeg      = len(degen_s);
 
     int n = via_row ? npieces : min(npieces, len(p_slot));
     for (int k = 0; k < n; k++) {
@@ -146,8 +153,34 @@ for (int sp = 0; sp < nsec; sp++) {
         // 0.596 s, so 23 % of the emit was one hash on one core.
         // every warning the solve raised, as its own int attribute - the
         // shape `place` / `hda` already publish and `colour_warnings` reads
-        setpointattrib(0, "pc_warns", pt, p_warns[rw]);
-        foreach (string w; split(p_warns[rw]))
+        //
+        // ⚠️ THE ROW STRING IS NOT MUTATED, AND THAT IS THE WHOLE CARE HERE.
+        // `p_warns` is the DEDUPED table (`_p_row`), so two pieces can share
+        // one row while only ONE of them spans the dissolved vertex; writing
+        // the stamp back into `p_warns[rw]` would warn the other piece too.
+        // The reference APPENDS at the end of the tuple and skips a placement
+        // that already carries it, which is what `pc_warn_join` /
+        // `pc_warn_has` spell.
+        string warns = p_warns[rw];
+        if (ndeg && !pc_warn_has(warns, PC_W_CORNERDEG)) {
+            float a = sec_s0 + s0, b = sec_s0 + s1;
+            int hit = 0;
+            foreach (float sv; degen_s) {
+                // `_stamp_degenerate`'s own `reps`, and its bounds are
+                // INCLUSIVE - a piece that merely ENDS on the vertex is
+                // stamped too (D68's note).
+                if (a - PC_PEPS <= sv && sv <= b + PC_PEPS) { hit = 1; break; }
+                if (!c_closed) continue;
+                float up = sv + curve_l, dn = sv - curve_l;
+                if ((a - PC_PEPS <= up && up <= b + PC_PEPS)
+                    || (a - PC_PEPS <= dn && dn <= b + PC_PEPS)) {
+                    hit = 1; break;
+                }
+            }
+            if (hit) warns = pc_warn_join(warns, PC_W_CORNERDEG);
+        }
+        setpointattrib(0, "pc_warns", pt, warns);
+        foreach (string w; split(warns))
             setpointattrib(0, w, pt, 1);
     }
 }

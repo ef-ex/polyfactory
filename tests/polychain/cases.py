@@ -1000,6 +1000,34 @@ def build_all():
     _au.params.min_included_angle_deg = 120.0
     built["AU_degenerate_bend"] = _case(g, kit_geo, _au)
 
+    # AV - THE SAME SHAPE IN MITER MODE, and it is what 13.9 N8 stage 2's
+    # widening actually turns on (33.3).  `_joinable`'s second reason
+    # dissolves a degenerate corner in EITHER mode, so a miter build whose
+    # corners are all degenerate places NO assembly and is answerable - and
+    # nothing in the corpus reached that: `AU` is bend and `AC` is a hairpin
+    # level 2 refuses anyway, so `(bend || degen)` would have been an
+    # untested branch of the very edit that added it.
+    g = hou.Geometry()
+    polyline(g, L_SHAPE, curve_id="AV")
+    _av = corner_style("miter")
+    _av.params.min_included_angle_deg = 120.0
+    built["AV_degenerate_miter"] = _case(g, kit_geo, _av)
+
+    # AW - A CLOSED RING CARRYING A PER-POINT `pc_section` KEY, which 32.1
+    # recorded as covered by NOTHING, plus a degenerate corner in its WRAPPING
+    # span.  The keys are [0, 1, 1, 0], so the surviving breaks are at
+    # vertices 1 and 3 and the second span runs 32 -> 52 m of a 40 m ring:
+    # the dissolved degenerate vertex at s = 0 is only inside it as s + total,
+    # which is `_stamp_degenerate`'s `reps` and the one place it is reachable.
+    g = hou.Geometry()
+    poly = polyline(g, RECT, closed=True, curve_id="AW")
+    g.addAttrib(hou.attribType.Point, "pc_section", 0)
+    for j, p in enumerate(poly.points()):
+        p.setAttribValue("pc_section", int(j in (1, 2)))
+    _aw = corner_style("bend")
+    _aw.params.min_included_angle_deg = 120.0
+    built["AW_ring_section_degenerate"] = _case(g, kit_geo, _aw)
+
     # ---- EA..EI - THE COMPOSITION THE ASSET ACTUALLY SHIPS, ON A CORNER.
     # D269 (§28.1(c) again): after D266 the shipped `panel` fill + `evenly
     # post` @ 2 m appeared ZERO times here, so the ~35 corner/closure checks

@@ -132,7 +132,14 @@ def stage_decompose(parent, spline, config):
 # survived in cycle N-1V.
 PLAN_KEEP = ("* ^pc_curve_id ^pc_curveprim ^pc_sec_* ^pc_curve_len "
              "^pc_start_cap ^pc_end_cap ^pc_corner_angle ^_style_key "
-             "^pc_trim_* ^_mk_* ^_attr_* ^pc_yclass ^_is_section ^_sec_* ^P")
+             "^pc_trim_* ^_mk_* ^_attr_* ^pc_yclass ^_is_section ^_sec_* ^P "
+             # 13.9 N8 stage 2 - 4.3 item F's dissolved degenerate vertices
+             # and the CURVE's own closed flag, which `pc_plan_emit` stamps
+             # with.  ⚠️ THIS LIST IS A DENY-BY-DEFAULT, so a new
+             # `pc_sections` output that is not named here is DELETED before
+             # the solve ever sees it - silently, and with the whole warning
+             # simply absent from the build (measured, before this line).
+             "^_degen_s ^_curve_closed")
 
 
 def stage_plan(parent, sections, config, suffix=""):

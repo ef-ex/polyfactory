@@ -122,6 +122,10 @@ string r_seckey_str[];
 int r_mk0[], r_mkn[];
 int flat_mk[];                          // marker POINT numbers, section-major
 float flat_mk_s[];                      // and each one's s_local
+// 13.9 N8 stage 2: the CURVE's own closed flag (which is not `pc_sec_closed`,
+// the WELD's `whole`) and the dissolved degenerate vertices, curve-major.
+int r_curve_closed[], r_deg0[], r_degn[];
+float flat_deg[];
 
 int pt_sec = haspointattrib(0, "pc_section");
 // ⚠️ THE POINT ATTRIBUTE HAS A TYPE TOO, and reading a STRING one as a float
@@ -254,14 +258,30 @@ for (int pr = 0; pr < nprim; pr++) {
     // than a `find` on the value because an open curve's cut list can repeat
     // an index (a `pc_section` limit at 0) and both spans are real.
     int ends[], ends_rank[];
+    float degen_s[];                    // 4.3 item F, below
     int anybreak_orig = 0, norig = 0;
     for (int i = 0; i < n; i++) {
         if (!isbreak[i]) continue;
         anybreak_orig = 1;
         norig++;
         int corner = point(0, "pc_iscorner", cpt[i]);
-        if (bend && corner && !is_secbreak[i]) {
+        // ---- 13.9 N8 STAGE 2: D46, MITER DISSOLVES A DEGENERATE CORNER ----
+        // `_joinable`'s SECOND reason, which stage 1 did not port: a narrow
+        // angle has no usable bisector, so 4.3's fallback is bend and bend
+        // means the run continues through - in EITHER mode.  Without this the
+        // native chain kept a boundary the reference had welded away, so a
+        // miter build whose corners are all degenerate had a different section
+        // list, a different fill phase and different `pc_elem_id`s.
+        int degen = corner ? point(0, "pc_corner_degen", cpt[i]) : 0;
+        if (corner && !is_secbreak[i] && (bend || degen)) {
             dissolved[i] = 1;
+            // 4.3 item F / D46: after the weld there is no boundary left to
+            // hang the warning on, so the dissolved DEGENERATE vertices ride
+            // to `pc_plan_emit` and are stamped onto whatever spans them.
+            // `_joinable`'s own two exclusions are the two tests above: a
+            // `pc_section` limit is never dissolved, and a spline end never
+            // carries a corner.
+            if (degen) push(degen_s, cum[i]);
             if (seam < 0) seam = i;
             continue;
         }
@@ -308,6 +328,10 @@ for (int pr = 0; pr < nprim; pr++) {
     int taken[];
     resize(taken, len(my_mk));
     for (int i = 0; i < len(taken); i++) taken[i] = 0;
+
+    // one copy of this curve's degenerate-vertex list, shared by its records
+    int deg_base = len(flat_deg), deg_n = len(degen_s);
+    foreach (float ds; degen_s) push(flat_deg, ds);
 
     // ---- one record per span ---------------------------------------------
     for (int k = 0; k < len(span_a); k++) {
@@ -359,6 +383,9 @@ for (int pr = 0; pr < nprim; pr++) {
         push(r_seckey_kind, keykind);
         push(r_seckey_num, seckey_num[i0]);
         push(r_seckey_str, seckey_str[i0]);
+        push(r_curve_closed, closed);
+        push(r_deg0, deg_base);
+        push(r_degn, deg_n);
         string skey = "";
         if (hasprimattrib(0, "pc_style")) skey = prim(0, "pc_style", pr);
         push(r_stylekey, skey);
@@ -454,11 +481,21 @@ foreach (int i; ord) {
     setpointattrib(0, "_sec_key_s",  p, r_seckey_str[i]);
     setpointattrib(0, "_sec_key_kind", p, r_seckey_kind[i]);
 
-    // 4.3's reserve, which the CORNER stage writes.  It is 0 until 13.9 N8
-    // lands: a native plan with no corner stage in front of it fits the whole
-    // section, which is exactly `plan.plan_sections`' own `trim=(0, 0)`.
+    // 4.3's reserve, which the CORNER stage writes.  It is 0 until the MITER
+    // assembly lands (13.9 N8 stages 3+): a native plan with no assembly in
+    // front of it fits the whole section, which is exactly
+    // `plan.plan_sections`' own `trim=(0, 0)`, and it is what BEND and the
+    // DEGENERATE fallback both want - neither places a corner module.
     setpointattrib(0, "pc_trim_a", p, 0.0);
     setpointattrib(0, "pc_trim_b", p, 0.0);
+
+    // 4.3 item F, for `pc_plan_emit`'s stamp: this CURVE's dissolved
+    // degenerate vertices in curve-global metres, and the curve's own closed
+    // flag (`_stamp_degenerate` folds by +/- the curve length on a ring).
+    float dsl[];
+    for (int j = 0; j < r_degn[i]; j++) push(dsl, flat_deg[r_deg0[i] + j]);
+    setpointattrib(0, "_degen_s", p, dsl);
+    setpointattrib(0, "_curve_closed", p, r_curve_closed[i]);
 
     // the markers, as parallel arrays on the section point
     int ids[]; float slocal[], us[];

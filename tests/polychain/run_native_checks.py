@@ -1592,8 +1592,15 @@ def output_guard_cost(root, built):
 # ⚠️ `CJ_bend_butt_120` JOINED IT WITH 13.9 N8 STAGE 1 (31.2): DECLARED COST,
 # not a regression - a bend corner is inside level 1, so a 120 degree kink
 # reaches `pc_frames_transportable`, which refuses the straddling piece.
+# `AC_degenerate_corner` joined at 13.9 N8 stage 2 and it is D332's argument
+# repeated, not a regression (33.3): a 10-degree-included hairpin is the one
+# shape level 1 now ADMITS - its only corner is degenerate, so 4.3 falls back
+# to bend and the chain can answer it - while `pc_frames_transportable`
+# refuses the piece that straddles it at level 2.  The refusal is EXACT and it
+# FAILS SAFE; what it costs is the double cook, and this row is what says the
+# set may not grow quietly.
 GUARD_FALLBACK_CASES = ("P_crest_bend", "BQ_conform_wall_bumps",
-                        "CJ_bend_butt_120")
+                        "CJ_bend_butt_120", "AC_degenerate_corner")
 
 
 def guard_polyline_geo(pts):
