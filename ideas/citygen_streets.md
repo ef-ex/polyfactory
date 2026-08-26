@@ -73,6 +73,25 @@ M5 IS COMPLETE.** Cut at 6° went 1121.72 → 249.71 m and no street is deleted 
 One line, but it moves geometry, so it needs its own gate + audit round. Full statement in
 §11.9's M5.4b record and §11.6's gore branch.
 
+⛔ **AND THE MERGE IS NOT HOUSEKEEPING — `cityGen` IS MISSING TWO DOCS `CLAUDE.md` CALLS
+BINDING.** Found 2026-08-27, after M5 was already built. `origin/worldengine` carries seven
+`ideas/*.md` that this branch does not, and two of them are named as non-negotiable in
+`CLAUDE.md`: **`conventions.md`** ("data conventions are law", rule 3) and
+**`build_retrospective.md`** ("read the incident history before running autonomous cycles",
+rule 6). M5 was built all night on a branch where neither could be read. Also absent:
+`polychain.md`, `artist_ui.md`, `citygen_simulation.md`, `railclone.md`, `rocks.md`.
+
+✅ **Audited after the fact rather than assumed, and M5 is clean.** Read from
+`git show origin/worldengine:ideas/conventions.md`: §2's `_*` law (LAW, and DONE) — **no `_*`
+attribute survives to any output on any of the 17 cases**, checked across point / prim / vertex
+/ detail on every built node. And §1's `pf_` prefix does not condemn the streets schema either,
+because §**9c** formally defers exactly that rename — it is blocked on the polyChain native
+rebuild reaching parity, and §9 says plainly that none of it is started. So M5 extended a
+knowingly-unprefixed schema in a knowingly-deferred area, which is allowed; it did not add a new
+violation. ⚠️ **But that was luck, not process** — the compliance was verified only because the
+merge coordination happened to surface the missing file. **A branch that cannot see the project's
+law should not be a branch autonomous work runs on for a night.**
+
 ⚠️ **BLOCKED, not forgotten: merge `cityGen` → `worldengine`.** Attempted 2026-08-27 and
 stopped deliberately. `worldengine` is checked out in the SHARED checkout `F:/projects/polyfactory`
 and `polyfactory-c9` has it dirty (`polyfactory/vex/citygen/pf_mass.vfl` modified, `pf_eave.vfl`
