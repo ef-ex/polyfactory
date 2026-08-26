@@ -56,6 +56,15 @@ EXPECTED_WARNS = {
     # AT/AU - 13.9 N8 stage 1 (31.2); AU's hairpin says what AC does.
     "AT_ring_seam_marked": ("pc_warn_bend_resolution",),
     "AU_degenerate_bend": ("pc_warn_corner_degenerate",),
+    # AV/AW - stage 2 (33.3). The warning IS what the two cases are for: AV
+    # says a degenerate corner falls back to bend in MITER too, and AW says
+    # the stamp folds by the curve length on a span that wraps the seam.
+    # Neither may pick up a second name: a piece that WRAPS the vertex is a
+    # `pc_warn_bend_resolution` case, and both of these place a panel that
+    # does exactly that - so `bend_resolution`'s ABSENCE here is the panel
+    # resolving its own 90 degrees, not the check looking away.
+    "AV_degenerate_miter": ("pc_warn_corner_degenerate",),
+    "AW_ring_section_degenerate": ("pc_warn_corner_degenerate",),
     "AD_short_legs": ("pc_warn_overflow",),
     # AS - 3v's figure: every corner is a butt joint, no piece wraps one. A
     # clean build IS the assertion; the wedge is `corner_wedge_m2`'s (D36).

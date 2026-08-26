@@ -1014,19 +1014,25 @@ def build_all():
     built["AV_degenerate_miter"] = _case(g, kit_geo, _av)
 
     # AW - A CLOSED RING CARRYING A PER-POINT `pc_section` KEY, which 32.1
-    # recorded as covered by NOTHING, plus a degenerate corner in its WRAPPING
-    # span.  The keys are [0, 1, 1, 0], so the surviving breaks are at
-    # vertices 1 and 3 and the second span runs 32 -> 52 m of a 40 m ring:
-    # the dissolved degenerate vertex at s = 0 is only inside it as s + total,
-    # which is `_stamp_degenerate`'s `reps` and the one place it is reachable.
+    # recorded as covered by NOTHING, plus a dissolved degenerate corner in
+    # its WRAPPING span.  A 12 x 8 ring with a mid-edge vertex on each long
+    # side, keys `a b b b a a`: the two surviving breaks are the two MID-EDGE
+    # vertices (6 m and 26 m of 40), so neither is also a corner, and the
+    # second span runs 26 -> 46 m.  The degenerate vertex at s = 0 is inside
+    # it only as `s + total` - `_stamp_degenerate`'s `reps`, reachable here
+    # and nowhere else in the corpus.  No `start`/`end`/`corner` rules on
+    # purpose: a cap module at a `pc_section` limit is D18's own double
+    # pillar and belongs to `single_pillar`'s escape hatch, not to this case.
     g = hou.Geometry()
-    poly = polyline(g, RECT, closed=True, curve_id="AW")
-    g.addAttrib(hou.attribType.Point, "pc_section", 0)
+    poly = polyline(g, [(0, 0, 0), (6, 0, 0), (12, 0, 0), (12, 0, 8),
+                        (6, 0, 8), (0, 0, 8)], closed=True, curve_id="AW")
+    g.addAttrib(hou.attribType.Point, "pc_section", "")
     for j, p in enumerate(poly.points()):
-        p.setAttribValue("pc_section", int(j in (1, 2)))
-    _aw = corner_style("bend")
-    _aw.params.min_included_angle_deg = 120.0
-    built["AW_ring_section_degenerate"] = _case(g, kit_geo, _aw)
+        p.setAttribValue("pc_section", "a" if j in (0, 4, 5) else "b")
+    built["AW_ring_section_degenerate"] = _case(g, kit_geo, Style(
+        "aw", 1, 9, rules=[Rule("default", "first", ["panel"])],
+        params=Params(fill="adaptive", corner_mode="bend",
+                      min_included_angle_deg=120.0)))
 
     # ---- EA..EI - THE COMPOSITION THE ASSET ACTUALLY SHIPS, ON A CORNER.
     # D269 (§28.1(c) again): after D266 the shipped `panel` fill + `evenly
