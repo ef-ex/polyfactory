@@ -27,8 +27,10 @@ It says nothing about cook cost at district scale (one cook of four buildings),
 and nothing about whether an artist can drive any of it - there is no HDA yet.
 """
 
+import ast
 import io
 import json
+import math
 import os
 import sys
 
@@ -115,6 +117,19 @@ RINGS = dict((s, [(ox, oz), (ox + sx, oz), (ox + sx, oz + sz), (ox, oz + sz)])
 STYLES = sorted(set(lot[1] for lot in LOTS),
                 key=[lot[1] for lot in LOTS].index)
 
+# The fixture's ground, written ONCE and read twice: the `slope` wrangle
+# evaluates it as VEX, and `GROUND` evaluates the same text as Python so
+# `plinth_follows_ground` has an oracle for `plinth.minM` that never passes
+# through the code it judges. Sharing the text is the point - two copies of a
+# formula is how an oracle silently stops describing its own fixture.
+SLOPE = ("%s * -0.02 + %s * -0.022 + sin(%s * 0.11) * 0.6"
+         " + cos(%s * 0.07) * 0.5")
+
+
+def GROUND(x, z):
+    return eval(SLOPE % ((x, z) * 2), {"sin": math.sin, "cos": math.cos})
+
+
 FAIL = []
 
 
@@ -178,8 +193,7 @@ def scene(parent, lots=None):
     # Einhof a 3.8 m plinth - arithmetically right, architecturally absurd,
     # and a fixture that makes the output look wrong teaches the wrong thing.
     slope.parm("snippet").set(
-        "@P.y = @P.x * -0.02 + @P.z * -0.022 + sin(@P.x * 0.11) * 0.6"
-        " + cos(@P.z * 0.07) * 0.5;")
+        "@P.y = " + SLOPE % (("@P.x", "@P.z") * 2) + ";")
     return src, B.build(parent, src, ground=slope)
 
 
@@ -321,6 +335,11 @@ MUTATIONS = [
      lambda: patch_template(
          lambda s, t: s == "at_einhof"
          and t["volumeTopology"]["plinth"].__setitem__("mode", "none"))),
+    ("plinth_follows_ground", "plinth_depth",
+     "the skirt stops reaching `minM` below the ground it stands on - 0.0 "
+     "and 25.0 were both green before this clause existed",
+     vx("ybase[i] = (plinth == 0) ? 0.0 : lo[i] - plinthmin;",
+        "ybase[i] = (plinth == 0) ? 0.0 : lo[i];")),
     ("plinth_follows_ground", "one_datum",
      "the floor datum goes back to being per CELL - the first build's "
      "stepped Einhof, three eave heights under one declared roof",
@@ -388,7 +407,10 @@ def run_checks(out, mirror, templates, sources):
         C.party_walls_are_real(geo),
         C.outward_normals(geo),
         C.heights_follow_data(geo, by_id),
-        C.plinth_follows_ground(geo, 1),
+        C.plinth_follows_ground(
+            geo, 1,
+            by_id["at_einhof"]["volumeTopology"]["plinth"]["minM"],
+            GROUND),
         C.attribute_storage(geo),
         C.elem_ids_structural(geo, mirror.geometry()),
         C.no_scratch(geo),
@@ -454,6 +476,38 @@ def record(out):
             row[w] = sorted(set(f[w] for f in fs))
         snap["sites"]["%d_%s" % (site, style)] = row
     return snap
+
+
+def budget():
+    """test <= production, PRINTED EVERY RUN so it cannot drift unstated
+    again - the first build recorded 8 % and was measured at 1.5x.
+
+    Code lines: non-blank, non-comment, non-docstring, over the artefacts B2
+    SHIPS. `devScripts/create_pf_building_styles.py` authors data and never
+    cooks, so it is not in the denominator; ~70 % of it is source citations,
+    and prose in a denominator is not production code. Both round-2 auditors
+    rejected it independently for that reason."""
+    def lines(path, mark):
+        src = io.open(path, encoding="utf-8").read()
+        doc = set()
+        for n in (ast.walk(ast.parse(src)) if mark == "#" else ()):
+            b = getattr(n, "body", None)
+            if (isinstance(n, (ast.Module, ast.FunctionDef, ast.ClassDef))
+                    and b and isinstance(b[0], ast.Expr)
+                    and isinstance(b[0].value, ast.Constant)):
+                doc.update(range(b[0].lineno, b[0].end_lineno + 1))
+        return sum(1 for i, l in enumerate(src.splitlines(), 1)
+                   if l.strip() and i not in doc
+                   and not l.strip().startswith(mark))
+    prod = lines(os.path.join(os.path.dirname(os.path.abspath(B.__file__)),
+                              "buildings.py"), "#")
+    prod += sum(lines(os.path.join(B.VEX_DIR, f), "//")
+                for f in os.listdir(B.VEX_DIR) if f.endswith(".vfl"))
+    test = sum(lines(os.path.join(HERE, f), "#")
+               for f in ("checks_buildings.py", "run_building_checks.py"))
+    print("\nsize budget: %d test / %d production code lines = %.2fx  %s"
+          % (test, prod, test / float(prod),
+             "OVER (target 1.00x)" if test > prod else "ok"))
 
 
 def diff(new, old, path=""):
@@ -616,6 +670,7 @@ def main():
             FAIL.append("clauses with no mutation: %s" % missing)
             print("    CLAUSES WITH NO MUTATION:", missing)
 
+    budget()
     print("\n%d failing" % len(FAIL), FAIL or "")
     return 1 if FAIL else 0
 

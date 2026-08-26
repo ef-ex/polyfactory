@@ -595,7 +595,8 @@ def heights_follow_data(geo, templates, name="heights_follow_data"):
                   % (seen, bad[:3] or "none"))
 
 
-def plinth_follows_ground(geo, site, name="plinth_follows_ground"):
+def plinth_follows_ground(geo, site, minm=None, ground=None,
+                          name="plinth_follows_ground"):
     """`levelToHighest` on a slope: ONE floor datum for the whole building,
     and a skirt under every volume that reaches the ground it stands on - so
     the datums are identical and the SKIRT DEPTHS are not.  Both halves are
@@ -604,6 +605,18 @@ def plinth_follows_ground(geo, site, name="plinth_follows_ground"):
 
     With the rule off, datum and base are both 0 everywhere, so the varying
     depth is what goes red.
+
+    ⚠️ AND `plinth.minM` IS MEASURED, because it was not: an audit set it to
+    0.0 and to 25.0 - buildings sunk twenty-five metres - and both left every
+    check green and the baseline unmoved.  The identity that pins it: the
+    floor datum is the HIGHEST ground under the building and each cell's
+    skirt reaches its OWN lowest corner minus `minM`, so the DEEPEST skirt is
+    exactly `(ground span over the base corners) + minM`.  `ground(x, z)` is
+    the fixture's slope in closed form, evaluated here, so the expected value
+    never passes through the code being judged.
+    ⚠️ Tolerance 0.05 m, not TOL: `ground` is the analytic surface while the
+    wrangle raycasts it SAMPLED on a 2 m grid, and the chord of that sampling
+    is ~5 mm at this curvature.  The number under test is 0.4 m.
 
     CANNOT SEE: whether the datum is the true maximum of the ground over the
     cells' whole AREA - it samples the plan CORNERS only, so a hump between
@@ -620,12 +633,19 @@ def plinth_follows_ground(geo, site, name="plinth_follows_ground"):
         datum = fs[0]["pf_plinth_top"]
         datums.add(round(datum, 3))
         depths.add(round(datum - min(w["ymin"] for w in walls), 3))
+    base = [(p[0], p[2]) for fs in vols.values() for f in fs
+            if f["pf_wall_role"] == "floor" for p in f["pts"]]
+    span = ([ground(x, z) for x, z in base] if ground and base else [0.0])
+    want = max(span) - min(span) + (minm or 0.0)
     ok = {"one_datum": len(datums) == 1 and len(vols) > 1,
-          "varying_skirts": (len(depths) > 1 and min(depths) > TOL)}
-    return Result(name, ok, [sorted(datums), sorted(depths)],
+          "varying_skirts": (len(depths) > 1 and min(depths) > TOL),
+          "plinth_depth": (minm is None or ground is None
+                           or abs(max(depths) - want) <= 0.05)}
+    return Result(name, ok, [sorted(datums), sorted(depths), round(want, 3)],
                   "%d floor datum(s) over %d volumes, %d distinct skirt "
-                  "depths %s" % (len(datums), len(vols), len(depths),
-                                 sorted(depths)))
+                  "depths %s; deepest %.3f against %.3f = ground span + minM"
+                  % (len(datums), len(vols), len(depths), sorted(depths),
+                     max(depths), want))
 
 
 # --- contract and law -------------------------------------------------------
