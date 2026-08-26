@@ -286,6 +286,18 @@ an agent that silently decides one of them corrupts the record.
 | 7 | **§12.6 B3:** per-storey heights belong to B3, so the sourced *"Gründerzeit ground floor is taller"* is **currently inexpressible** in a template. | Scope call on where the field lives. |
 | 8 | [`conventions.md`](conventions.md) **§9 lists "the CityGen field" as PENDING — Hannes decides.** | Named as his in that doc. |
 
+⚠️ **Rows 3, 4, 5 and 6 now have EVIDENCE — read §12.10a "Round 3" before deciding them, and do not
+re-derive the arguments.** Round 3 measured, rather than argued: **row 3** — the image check passes
+on a render of **1 of 97 prims** and on a **completely different scene**, so the human pass is the
+only image evidence there is; **row 4** — 1.88× and 2.21× are the same measurement under different
+rules, 1.88× is the internally consistent one, only ~4 lines of coverage are redundant, and a
+three-condition debt schedule is proposed for his yes/no; **row 5** — both losses are **silent**
+(a nested field vanishes from the loaded template with no exception at authoring or load), and the
+right repair is a production-side guard that raises, not a check, so it costs the budget nothing;
+**row 6** — a five-corner lot under a `bar` template with a one-entry `volumes` list ships with **all
+four warnings at 0** and `volume_count_matches` calling it correct, which is the concrete case a
+`pf_warn_degraded` would cover. **The decisions stay his; the derivations are done.**
+
 **Not ours, but must not get lost** (from [`polychain.md`](polychain.md) §0.0, and its owner asked
 that they be stated properly): the **miter design decision** in its §35.6, and polyChain's own
 **human viewport passes** on PC-G1/G2/PC-G5/PC-G6 plus a conformed build — an agent looked at
