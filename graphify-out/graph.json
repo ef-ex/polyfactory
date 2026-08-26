@@ -1060,7 +1060,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "vector3",
-      "community": 26,
+      "community": 60,
       "norm_label": "vector3"
     },
     {
@@ -14430,7 +14430,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "viewer_utils_drawing_draw_normal_indicator",
-      "community": 204,
+      "community": 60,
       "norm_label": "draw_normal_indicator()"
     },
     {
@@ -14460,7 +14460,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "viewer_utils_drawing_rationale_50",
-      "community": 204,
+      "community": 60,
       "norm_label": "draw line indicating surface normal.          args:         drawable: houdini"
     },
     {
@@ -31600,7 +31600,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_section",
-      "community": 48,
+      "community": 109,
       "norm_label": "section()"
     },
     {
@@ -31640,7 +31640,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_style",
-      "community": 109,
+      "community": 248,
       "norm_label": ".style()"
     },
     {
@@ -31670,7 +31670,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_corner_is_not_an_end_and_gets_no_caps",
-      "community": 109,
+      "community": 248,
       "norm_label": ".test_a_corner_is_not_an_end_and_gets_no_caps()"
     },
     {
@@ -31680,7 +31680,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_closed_spline_gets_no_caps_on_any_side",
-      "community": 109,
+      "community": 248,
       "norm_label": ".test_a_closed_spline_gets_no_caps_on_any_side()"
     },
     {
@@ -31690,7 +31690,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testslots_test_a_pc_section_limit_does_cap_like_a_spline_end",
-      "community": 109,
+      "community": 248,
       "norm_label": ".test_a_pc_section_limit_does_cap_like_a_spline_end()"
     },
     {
@@ -31790,7 +31790,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testselection_test_sequence_walks_the_list_and_still_fills_exactly",
-      "community": 48,
+      "community": 205,
       "norm_label": ".test_sequence_walks_the_list_and_still_fills_exactly()"
     },
     {
@@ -31930,7 +31930,7 @@
       "source_location": "L376",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_curves_are_reordered",
-      "community": 109,
+      "community": 248,
       "norm_label": ".test_the_plan_does_not_move_when_the_curves_are_reordered()"
     },
     {
@@ -31940,7 +31940,7 @@
       "source_location": "L389",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_the_plan_does_not_move_when_the_markers_are_reordered",
-      "community": 109,
+      "community": 248,
       "norm_label": ".test_the_plan_does_not_move_when_the_markers_are_reordered()"
     },
     {
@@ -31960,7 +31960,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_two_sections_of_one_spline_correlate_under_spline_scope",
-      "community": 109,
+      "community": 248,
       "norm_label": ".test_two_sections_of_one_spline_correlate_under_spline_scope()"
     },
     {
@@ -31970,7 +31970,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testdeterminism_test_section_scope_does_not_correlate_across_sections",
-      "community": 109,
+      "community": 248,
       "norm_label": ".test_section_scope_does_not_correlate_across_sections()"
     },
     {
@@ -32090,7 +32090,7 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_testwholecurves_test_ten_thousand_pieces_stay_addressable_and_unique",
-      "community": 48,
+      "community": 233,
       "norm_label": ".test_ten_thousand_pieces_stay_addressable_and_unique()"
     },
     {
@@ -32160,7 +32160,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_117",
-      "community": 109,
+      "community": 248,
       "norm_label": "d18. railclone puts start/end at spline ends and corner segments at         corn"
     },
     {
@@ -32170,7 +32170,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_128",
-      "community": 109,
+      "community": 248,
       "norm_label": "the corner-free loop was already covered; the rectangle was not -         it has"
     },
     {
@@ -32180,7 +32180,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_137",
-      "community": 109,
+      "community": 248,
       "norm_label": "the other half of d18: a material-id limit is where one generator         stops"
     },
     {
@@ -32240,7 +32240,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_249",
-      "community": 48,
+      "community": 205,
       "norm_label": "d14: a sequence is fitted as a pattern, so mixed sizes work. the         unit he"
     },
     {
@@ -32320,7 +32320,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "unit_test_polychain_plan_rationale_533",
-      "community": 48,
+      "community": 233,
       "norm_label": "pc-g3's own scale target, on the plan side: `pc_elem_id` is the key         the"
     },
     {
@@ -45247,7 +45247,7 @@
       "label": "What the deletion pass removed, and what it kept",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L60",
+      "source_location": "L61",
       "_origin": "ast",
       "id": "tests_readme_what_the_deletion_pass_removed_and_what_it_kept",
       "community": 253,
@@ -45257,7 +45257,7 @@
       "label": "What the sweep measured after the deletion (2026-08-25, 16-core machine)",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L89",
+      "source_location": "L90",
       "_origin": "ast",
       "id": "tests_readme_what_the_sweep_measured_after_the_deletion_2026_08_25_16_core_machine",
       "community": 253,
@@ -45267,7 +45267,7 @@
       "label": "Independently verified \u2014 cycle V4 audit, 2026-08-25, HEAD `7fabfff`",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L125",
+      "source_location": "L126",
       "_origin": "ast",
       "id": "tests_readme_independently_verified_cycle_v4_audit_2026_08_25_head_7fabfff",
       "community": 253,
@@ -45277,7 +45277,7 @@
       "label": "The v2 commands",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L204",
+      "source_location": "L205",
       "_origin": "ast",
       "id": "tests_readme_the_v2_commands",
       "community": 253,
@@ -45287,7 +45287,7 @@
       "label": "The v1 history",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L288",
+      "source_location": "L291",
       "_origin": "ast",
       "id": "tests_readme_the_v1_history",
       "community": 253,
@@ -45297,7 +45297,7 @@
       "label": "The other runners",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L300",
+      "source_location": "L303",
       "_origin": "ast",
       "id": "tests_readme_the_other_runners",
       "community": 62,
@@ -45307,7 +45307,7 @@
       "label": "Why this exists",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L343",
+      "source_location": "L346",
       "_origin": "ast",
       "id": "tests_readme_why_this_exists",
       "community": 62,
@@ -45317,7 +45317,7 @@
       "label": "Numbers first, renders second",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L357",
+      "source_location": "L360",
       "_origin": "ast",
       "id": "tests_readme_numbers_first_renders_second",
       "community": 62,
@@ -45327,7 +45327,7 @@
       "label": "The baselines",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L372",
+      "source_location": "L375",
       "_origin": "ast",
       "id": "tests_readme_the_baselines",
       "community": 62,
@@ -45337,7 +45337,7 @@
       "label": "Layout",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L387",
+      "source_location": "L390",
       "_origin": "ast",
       "id": "tests_readme_layout",
       "community": 62,
@@ -45347,7 +45347,7 @@
       "label": "The planner's calibration is a baseline too",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L423",
+      "source_location": "L426",
       "_origin": "ast",
       "id": "tests_readme_the_planner_s_calibration_is_a_baseline_too",
       "community": 62,
@@ -45357,7 +45357,7 @@
       "label": "The node schema, and why a closed vocabulary is not enough",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L450",
+      "source_location": "L453",
       "_origin": "ast",
       "id": "tests_readme_the_node_schema_and_why_a_closed_vocabulary_is_not_enough",
       "community": 62,
@@ -45367,7 +45367,7 @@
       "label": "And a second check, because the first one's blind spot had already bitten",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L495",
+      "source_location": "L498",
       "_origin": "ast",
       "id": "tests_readme_and_a_second_check_because_the_first_one_s_blind_spot_had_already_bitten",
       "community": 62,
@@ -45377,7 +45377,7 @@
       "label": "The closure sweep, and why it is a file rather than a habit",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L553",
+      "source_location": "L556",
       "_origin": "ast",
       "id": "tests_readme_the_closure_sweep_and_why_it_is_a_file_rather_than_a_habit",
       "community": 62,
@@ -45387,7 +45387,7 @@
       "label": "Test the union, and every branch",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L583",
+      "source_location": "L586",
       "_origin": "ast",
       "id": "tests_readme_test_the_union_and_every_branch",
       "community": 62,
@@ -45397,7 +45397,7 @@
       "label": "The cases",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L602",
+      "source_location": "L605",
       "_origin": "ast",
       "id": "tests_readme_the_cases",
       "community": 62,
@@ -45407,7 +45407,7 @@
       "label": "Known-failing \u2014 27 rows (re-measured 2026-08-17, post-M5.3)",
       "file_type": "document",
       "source_file": "tests/README.md",
-      "source_location": "L654",
+      "source_location": "L657",
       "_origin": "ast",
       "id": "tests_readme_known_failing_27_rows_re_measured_2026_08_17_post_m5_3",
       "community": 62,
@@ -114228,9 +114228,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3028",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_8_the_three_reviewer_pass_over_cycle_7_worked_through_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_3028",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_3028"
     },
     {
       "relation": "contains",
@@ -114308,9 +114308,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3206",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_9_independent_verification_of_cycle_8_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_3206",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_3206"
     },
     {
       "relation": "contains",
@@ -114318,9 +114318,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3199",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_9_independent_verification_of_cycle_8_2026_08_22",
-      "target": "ideas_polychain_final_state_3199",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_final_state_3199"
     },
     {
       "relation": "contains",
@@ -114388,9 +114388,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3343",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_10_4_4_s_flatten_under_and_its_two_hybrid_bands_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_3343",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_3343"
     },
     {
       "relation": "contains",
@@ -114438,9 +114438,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3421",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_10b_the_camber_s_off_spine_rotation_brought_into_the_budget_2026_08_22",
-      "target": "ideas_polychain_5_files_3421",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_5_files_3421"
     },
     {
       "relation": "contains",
@@ -114458,9 +114458,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3455",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_10b_the_camber_s_off_spine_rotation_brought_into_the_budget_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_3455",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_3455"
     },
     {
       "relation": "contains",
@@ -114538,9 +114538,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3577",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_10c_the_deform_path_s_rewrite_profiled_first_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_3577",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_3577"
     },
     {
       "relation": "contains",
@@ -114608,9 +114608,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3701",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_11_the_review_s_three_stayed_packed_sat_wrong_findings_reproduced_then_closed",
-      "target": "ideas_polychain_decisions_taken_3701",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_3701"
     },
     {
       "relation": "contains",
@@ -114618,9 +114618,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3731",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_12_independent_verification_of_cycle_11_and_phase_1_closed_2026_08_22",
-      "target": "ideas_polychain_1_the_suite_re_run_from_clean_3731",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_1_the_suite_re_run_from_clean_3731"
     },
     {
       "relation": "contains",
@@ -114668,9 +114668,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L3868",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_12_independent_verification_of_cycle_11_and_phase_1_closed_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_3868",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_3868"
     },
     {
       "relation": "contains",
@@ -115008,9 +115008,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L6468",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_12_phase_2_build_log",
-      "target": "ideas_polychain_cycle_p2_9_the_2d_node_pf_polychain_facade_2026_08_26",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_cycle_p2_9_the_2d_node_pf_polychain_facade_2026_08_26"
     },
     {
       "relation": "contains",
@@ -115038,9 +115038,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L5939",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_0_7_written_as_a_buildable_spec_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_5939",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_5939"
     },
     {
       "relation": "contains",
@@ -115118,9 +115118,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L6256",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_3r_the_three_reviewer_pass_over_p2_1_p2_3_reproduced_then_closed_2026_08_22",
-      "target": "ideas_polychain_decisions_taken_6256",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_decisions_taken_6256"
     },
     {
       "relation": "contains",
@@ -115218,9 +115218,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L6588",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_9_the_2d_node_pf_polychain_facade_2026_08_26",
-      "target": "ideas_polychain_5_1_four_cycles_late_on_the_node_it_was_written_about",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_5_1_four_cycles_late_on_the_node_it_was_written_about"
     },
     {
       "relation": "contains",
@@ -115228,9 +115228,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L6623",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_9_the_2d_node_pf_polychain_facade_2026_08_26",
-      "target": "ideas_polychain_d307_d311_s_2_66x_settled_the_ceiling_was_watching_a_different_shape",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_d307_d311_s_2_66x_settled_the_ceiling_was_watching_a_different_shape"
     },
     {
       "relation": "contains",
@@ -115238,9 +115238,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L6649",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_9_the_2d_node_pf_polychain_facade_2026_08_26",
-      "target": "ideas_polychain_evidence",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_evidence"
     },
     {
       "relation": "contains",
@@ -115248,9 +115248,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L6604",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_9_the_2d_node_pf_polychain_facade_2026_08_26",
-      "target": "ideas_polychain_pc_g5_and_pc_g6_rebuilt_through_the_node_s_face_and_looked_at",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_pc_g5_and_pc_g6_rebuilt_through_the_node_s_face_and_looked_at"
     },
     {
       "relation": "contains",
@@ -115258,9 +115258,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L6656",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_9_the_2d_node_pf_polychain_facade_2026_08_26",
-      "target": "ideas_polychain_still_owed_after_p2_9",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_still_owed_after_p2_9"
     },
     {
       "relation": "contains",
@@ -115268,9 +115268,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L6549",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_9_the_2d_node_pf_polychain_facade_2026_08_26",
-      "target": "ideas_polychain_the_acceptance_a_differential_and_the_two_things_it_caught_that_reading_did_not",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_the_acceptance_a_differential_and_the_two_things_it_caught_that_reading_did_not"
     },
     {
       "relation": "contains",
@@ -115278,9 +115278,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L6480",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_9_the_2d_node_pf_polychain_facade_2026_08_26",
-      "target": "ideas_polychain_the_decision_and_the_four_reasons_for_it",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_the_decision_and_the_four_reasons_for_it"
     },
     {
       "relation": "contains",
@@ -115288,9 +115288,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L6500",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_9_the_2d_node_pf_polychain_facade_2026_08_26",
-      "target": "ideas_polychain_the_decisions_building_it_took",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_the_decisions_building_it_took"
     },
     {
       "relation": "contains",
@@ -115298,9 +115298,9 @@
       "source_file": "ideas/polychain.md",
       "source_location": "L6530",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ideas_polychain_cycle_p2_9_the_2d_node_pf_polychain_facade_2026_08_26",
-      "target": "ideas_polychain_the_parm_page_5_artist_ui_md_6",
-      "confidence_score": 1.0
+      "target": "ideas_polychain_the_parm_page_5_artist_ui_md_6"
     },
     {
       "relation": "contains",
@@ -118297,5 +118297,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "a6d66501d55572acc4be51c7d0282523005e5fcb"
+  "built_at_commit": "d24f3c0199c250f373a1cb1040517001bb443eb8"
 }

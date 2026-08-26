@@ -53,6 +53,7 @@ missed says so.
 | 2a. Hypothesis over the kernel | `tests/unit/test_polychain_properties.py`, 11 properties, 1.6 s |
 | 2b. seeded scene generator | `tests/polychain/gen_cases.py` + `run_generated.py`, 400 scenes |
 | 3. PDG/TOPs runner | `tests/polychain/pdg_build.py` |
+| 3b. the SHIPPED assets, against the entry points | `run_slice_checks.py` (7.7) and `run_facade_hda_checks.py` (P2-9) — both in the per-cycle gate, because a parm-to-argument wire is invisible to every runner that calls the builder directly |
 | 4. mutmut | `setup.cfg` `[mutmut]`, **pin 2.5.0** |
 | 5. budget check | `tests/unit/test_polychain_budget.py` — **green in the working tree, RED at HEAD**, see below |
 | the deletions | **done** — 27 162 → 15 381 lines, 361 → 122 check names |
@@ -231,6 +232,8 @@ hython tests/polychain/run_scene_checks.py                       #  4 s
 hython tests/polychain/run_2d_checks.py                          # 14 s
 hython tests/polychain/run_hda_checks.py                         # 10 s
 hython tests/polychain/run_slice_checks.py                        #  6 s
+hython tests/polychain/run_facade_hda_checks.py                   #  7 s
+hython tests/polychain/facade_images.py [outdir]                 #  6 s
 hython tests/polychain/gate_images.py [outdir]                   #  4 s
 
 # the registry on its own, sequentially - the meta-check the PDG sweep does
