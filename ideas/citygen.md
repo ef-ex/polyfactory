@@ -1,5 +1,10 @@
 # CityGen — System Architecture
 
+> **WORLDENGINE** (Hannes, 2026-08-26) is the umbrella name for the whole endeavour — the
+> environment-generation vision below plus the standalone tools it consumes (polyChain, the
+> slicer, the facade node, and what follows). Branch `worldengine` is where it all lives;
+> this file remains the citygen subsystem's hub.
+
 **Status:** design. Streets V1 implemented (see [`citygen_streets.md`](citygen_streets.md) §6b);
 every other subsystem is still design only.
 Branch `cityGen`. Started 2026-08-08. Revised after clarification rounds 1 and 2, and again
