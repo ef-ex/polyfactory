@@ -63,11 +63,36 @@ different subsystems, by two agents who did not know the other had it** — a bu
 assertion of where it was, and a gate with no leg left to measure. Instance 24 is its near neighbour:
 the subject was present but the oracle was invariant under the very error it existed to catch.
 
+| 28 | *(f2)* **`tests/unit/trim_calibration.json` went stale for a WHOLE MILESTONE** — it recorded two cases at 3 edges / 1 node, the *pre-mover* topology, while the shipped builder produced 5 edges / 2 nodes. **49 unit tests stayed green against a shape the builder had stopped producing** | citygen streets, M5 |
+
 **The rule that falls out, and it is cheap:** *assert the subject exists and is where it belongs
 before asserting anything about its properties.* A check whose oracle can be satisfied by absence is
 not a check. In practice that means a presence/extent assertion **preceding** every quality
 assertion — plan bounds before plan quality, segment content before image quality, attribute value
 before attribute name.
+
+**⚠️ AND THE SECOND SUB-SHAPE, WHICH IS WORSE, because it survives the rule above (f2's find,
+instance 28):**
+
+> **A RECORDED BASELINE IS A SUBJECT TOO — and it can go missing while every check still passes.**
+
+Instance 28's fixture was **not** absent. It had content, it parsed, it compared, and 49 tests
+agreed with it. It was simply describing a topology the builder had stopped producing. **A stale
+subject passes "is it there?" and still proves nothing** — which is exactly why the presence rule
+does not catch it.
+
+**The rule for this one is different and costs more:** *a recorded baseline must be re-derived from
+the thing it describes, on a cadence tied to that thing changing — never merely re-blessed.* Two
+practical consequences already live in this project:
+- **Re-blessing is not maintenance, it is erasure.** `--update-baseline` after a change absorbs
+  whatever that change did. When a baseline moves unexpectedly that is a **finding**, not a number
+  to accept.
+- **A census that names its corpus has TWO numbers to re-measure** (instance 13 is the same defect
+  in prose), and a count pinned in a README is a baseline like any other.
+
+⚠️ **Live exposure right now:** `tests/citygen/baseline_buildings.json` and
+`tests/citygen/baseline.json` are both recorded-values snapshots carrying this risk, and
+`tests/README.md` pins unit-test counts that a new test file silently invalidates.
 
 ### 2b. Wrong conclusions that propagated
 
@@ -81,6 +106,12 @@ before attribute name.
 | 6 | A **2.10× speedup measured against a baseline that would not reproduce**; corrected to 1.81× | Self-corrected |
 | 7 | A comparand with **its own O(n²)** inflating the reported gain | Self-corrected |
 | 8 | *(mine)* A brief telling an agent to fix **five defects already closed two cycles earlier** | One cycle, spent on re-verification instead (the correct response) |
+
+| 9 | *(f2)* **`merge_parallel_run` documented as an artist decision for two milestones** while `parm_liveness.py` had it in `KNOWN_DEAD` with the exact cause since 2026-08-10. Swept 0/4/20 m on M/N/O the point set is **bit-identical**. **Root cause: the doc claim was written without reading the file that already answered it** | The resume pointer sent the next reader to ask Hannes to rule on a value that moves nothing |
+| 10 | *(f2)* **The separation arithmetic was wrong twice** — `2h/sin θ` for what is `h·cot(θ/2)` (overstates by `1/cos²(θ/2)`), and width 32.80 m where the built ribbon is **26.80** because `streetWidth` already contains the 3.0 m sidewalks | A milestone record's "14.6 m short" was false; the cut was already past the separation point |
+| 11 | *(f2)* **"The mover's arrival floor parks pairs below ~17.25°, so the unbounded shallow corner is unexercised risk"** — that floor gates **the mover, not the solver**, and a parked pair reaches the solver unchanged | A live blocker shipped as "recorded, not reachable". Measured after: 6° blew the cut 123 → **1121.72 m** and deleted up to two streets |
+| 12 | *(f2)* **A parm's help text claimed 1.0 m clears the geometric floor** — true for `arterial` and narrower, false for `highway` (1.083) and `boulevard_bus_bike` (1.333). **Root cause: derived from the widest class in the TEST CORPUS, not the widest in the shipped table** | Geometry was always correct (the solver floors it regardless); the *claim* was not |
+| 13 | *(f2)* **A census updated its corpus size and not its count** — "fires on exactly one corner pair in the seventeen-case corpus" when a 17th case had made it two. **A census that names its corpus has TWO numbers to re-measure** | Caught at audit |
 
 ### 2c. Harness and infrastructure
 
@@ -97,6 +128,12 @@ before attribute name.
 | 9 | **Scratchpad filename collision** between concurrent agents — one overwrote three of another's files | Namespaced copies |
 | 10 | **Houdini GUI bridge wedged** — answers pings (off-thread) while every main-thread call times out | Fell back to hython + a headless rasteriser |
 | 11 | **The build machine HARD-FROZE twice** (Kernel-Power 41, services starving before the log stops, no GPU/WHEA events) — the PDG runner's default of CPU-1 = **15 parallel hython sessions** met a fixed 5.7 GB pagefile (commit limit ≈ RAM) and work items that had grown to 123k-prim builds | Default capped to 4 slots IN CODE (`--slots N` is the deliberate opt-up); recommendation to Hannes: system-managed pagefile, close the GUI Houdini during unattended sweeps |
+
+| 12 | *(f2)* **`parm.eval()` evaluates backticks as HSCRIPT** — silently stripped every backtick from a 4 KB comment block (4170 → 4146 chars). Use `parm.unexpandedString()`, **never `eval()`**, for any parm holding prose or code |
+| 13 | *(f2)* **`updateFromNode` writes the instance's display/render flags into `hdaroot.def`** as stored flags. Keep the flags on a sibling null; verify with `hotl -X` tree diffs |
+| 14 | *(f2)* **Instance-level `setParmTemplateGroup` is not captured into the definition** — shipped a dead artist parm whose channel reference evaluated 0. Set on `definition().setParmTemplateGroup()`; instance edits are invisible to the save |
+| 15 | *(f2)* ⚠️ **`__pycache__` invalidates on (mtime, size)** — a byte-count-preserving mutation restored inside the same second makes the next run import the **mutant**. **Clear `__pycache__` between every mutation run**; four "failures" against a restored tree came from this |
+| 16 | *(f2)* **The OpenGL ROP needs a GL context and hython has none** — it dies with a thread dump, not an error. Draw the geometry directly (Pillow); for street work a top-down plan drawing beats a shaded render anyway |
 
 ### 2d. My own spec and briefing failures
 
