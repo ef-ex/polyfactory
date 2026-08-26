@@ -29,6 +29,7 @@ OUT = (sys.argv[1] if len(sys.argv) > 1
        else os.path.join(HERE, "gate_images"))
 
 import cases2d                                                   # noqa: E402
+from polyfactory.polychain import style as _style                # noqa: E402
 import gate_images as G                                          # noqa: E402
 import hou                                                       # noqa: E402
 
@@ -150,6 +151,54 @@ def near(geo, centre, radius):
     return out
 
 
+def through_the_node(name, foot_loops, kit_geo, style, aux_geo=None, **parms):
+    """The same gate figure, built by the SHIPPED `pf_polychain_facade`.
+
+    ⚠️ P2-9's own acceptance is that the node and the entry point agree
+    byte-for-byte (`run_facade_hda_checks`), and that is exactly why these
+    two pictures exist: a differential proves the two builds are the same
+    geometry and says nothing about whether the thing an ARTIST reaches
+    produces it. 5.1's whole finding was found by opening the node, not by
+    reading a number. These are the gate figures with the node's own face in
+    the path - the ports, the payload, the parm page.
+    """
+    hou.hda.installFile(os.path.join(
+        os.path.dirname(os.path.dirname(HERE)), "polyfactory", "otls",
+        "pf_polychain_facade.hda").replace("\\", "/"))
+    net = hou.node("/obj").createNode("geo", "facade_img_" + name)
+    store = {}
+
+    def wire(tag, geometry):
+        store[tag] = geometry
+        sop = net.createNode("python", tag)
+        sop.parm("python").set(
+            "import hou, sys\n"
+            "hou.pwd().geometry().merge("
+            "sys.modules['__main__'].NODE_FEED[%r])\n" % tag)
+        return sop
+
+    global NODE_FEED
+    node = net.createNode("pf_polychain_facade", "facade")
+    pay = hou.Geometry()
+    _style.write(pay, style)
+    feed = {name + "_foot": cases2d.clip_geometry(foot_loops)
+            if foot_loops else hou.Geometry(),
+            name + "_kit": kit_geo, name + "_pay": pay}
+    if aux_geo is not None:
+        feed[name + "_aux"] = aux_geo
+    NODE_FEED.update(feed)
+    for i, tag in enumerate((name + "_foot", name + "_kit", name + "_pay",
+                             None, name + "_aux")):
+        if tag is not None and tag in feed:
+            node.setInput(i, wire(tag, feed[tag]))
+    for key, value in parms.items():
+        node.parm(key).set(value)
+    return node.geometry()
+
+
+NODE_FEED = {}
+
+
 def main():
     if not os.path.isdir(OUT):
         os.makedirs(OUT)
@@ -175,6 +224,15 @@ def main():
         loops=[cases2d.tilt_plate(30.0)], clip_mode="remove")
     built["clip_floor"] = cases2d.clip_case(
         loops=[cases2d.tilt_plate(90.0)], clip_mode="remove")
+    # P2-9 - the two gate figures with the NODE's face in the path.
+    built["node_L_facade"] = {"out": through_the_node(
+        "g5", [cases2d.L_FOOTPRINT], cases2d.facade_kit(),
+        cases2d.facade_style(), shape="footprint",
+        height=cases2d.TOWER_H)}
+    built["node_clip_plate"] = {"out": through_the_node(
+        "g6", [], cases2d.clip_kit(), cases2d.clip_style(),
+        aux_geo=cases2d.clip_geometry(cases2d.CLIP_LOOPS), shape="area",
+        clip_mode="slice")}
     fail = []
     for name, view, axes, crop in (
             ("FA_L_facade", "iso", "iso", None),
@@ -186,14 +244,17 @@ def main():
             ("clip_plate", "plan", ("x", "y"), None),
             ("clip_hostile", "plan", ("x", "y"), None),
             ("clip_tilt30", "edge", ("z", "y"), None),
-            ("clip_floor", "edge", ("z", "y"), None)):
+            ("clip_floor", "edge", ("z", "y"), None),
+            ("node_L_facade", "iso", "iso", None),
+            ("node_L_facade", "reflex", "iso", ((12.0, 12.0), 5.0)),
+            ("node_clip_plate", "plan", ("x", "y"), None)):
         geo, colour_of = coloured(
             built[name]["out"],
-            _clip_colour if name.startswith("clip_") else _cell_colour)
+            _clip_colour if "clip_" in name else _cell_colour)
         if crop is not None:
             geo = near(geo, crop[0], crop[1])
         drawn = G.rasterise(os.path.join(
-            OUT, "%s_%s_%s.png" % ("PCG6" if name.startswith("clip_")
+            OUT, "%s_%s_%s.png" % ("PCG6" if "clip_" in name
                                    else "PCG5", name, view)),
             geo, axes=axes, w=1400, h=900, colour_of=colour_of)
         # D194's rule, `drawn_covers_packed`'s shape: the image must CONTAIN
