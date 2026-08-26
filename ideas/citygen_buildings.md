@@ -1,7 +1,9 @@
 # CityGen — Building Generation Research & Design Spec
 
-**Status:** research complete (§§1–11); **design spec v0 in §12**, written 2026-08-17 for later
-pickup. **Nothing built.** Two prototype gates (§12.10) must pass before any B-stage is implemented.
+**Status:** research complete (§§1–11); **design spec v0 in §12**, written 2026-08-17.
+**Gate G1 passed 2026-08-26 and skeleton B2 + B1 `setback` are built** (§12.10a) — §0.0 is the
+resume pointer and supersedes this line. G2 and G3 (§12.10) are still ahead of the remaining
+B-stages.
 **Owner doc for:** the building subsystem — [`citygen.md`](citygen.md) §6 roadmap item 4,
 *"largest unknown, written from scratch"*.
 **System-level architecture and cross-cutting contracts:** [`citygen.md`](citygen.md) — read first.
@@ -38,9 +40,10 @@ branch `worldengine`, **never push**, never rewrite history, stage named paths o
 | Branch | `worldengine`. ⚠️ **Hannes 2026-08-26: EVERY agent works on `worldengine` from now on** — this supersedes any per-tool branch (`cityGen`, `polychain`) named in a sibling doc's resume pointer. ⚠️ **Mechanical constraint that follows:** git refuses to check out one branch in two worktrees at once. This shared checkout `F:/projects/polyfactory` holds `worldengine`; polyfactory-f2's worktree `F:/projects/polyfactory-citygen` cannot also check it out. Whoever moves second must merge/rebase their branch into `worldengine` from here, or take the checkout over — **not** `--ignore-other-worktrees`. Raised with f2 and Hannes 2026-08-26. |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified headless by the polyChain build) |
 | Owning spec | §12 of this file. Build order is §12.10, **gates G1/G2 before any B-stage** |
-| Last completed | **NOTHING BUILT YET.** Cycle 0 = this pointer landing. |
-| Next up | ⚠️ **CHECK AGAINST `git log --oneline -25` BEFORE STARTING.** **G1 — topology as data** (§12.10): skeleton B2 only, two template files (Hannes' local Einhof vs Viennese perimeter block), both massings from ONE assembly-rule library + two data files, judged in the viewport. Pass ⇒ §12.5's "style is data" claim holds. Fail ⇒ re-scope §12.5 to "small rule library + data" and say so here. |
-| Gates | G1 topology-as-data ⬜ · G2 corner closure on an L ⬜ · G3 APEX-vs-VEX ⬜ (only after G1+G2). **None run.** Every gate owes a HUMAN viewport pass by Hannes — an agent looking at an image is not that, and it is never silently skipped. |
+| Last completed | **G1 — topology as data: PASSED**, 2026-08-26. Skeleton B2 + B1 `setback` built; four style templates; 13 checks, 13 mutations all seen RED. Full result and its limits in **§12.10a**. §12's attribute tables corrected to the `pf_` law in the same pass (§12.4/§12.6/§12.7/§12.8). |
+| Next up | ⚠️ **CHECK AGAINST `git log --oneline -25` BEFORE STARTING.** **G2 — corner closure on an L** (§12.10), which is the acceptance test the whole survey points at (§5 Theme 4). Read §0.0d FIRST: polyChain's miter refusal is per-BUILD and B6's primary strategy walks into it, and ⭐ G2 must **record cook time per corner treatment** — those numbers are evidence for Hannes' pending §35.6 miter decision. ⚠️ G2 needs a **non-convex footprint**, which G1 never produced: `pf_inset.vfl` solves each corner independently and can fold a non-convex polygon through itself. That is the first thing to go and look at. |
+| Gates | G1 topology-as-data ✅ **PASS (agent-verified, §12.10a)** · G2 corner closure on an L ⬜ · G3 APEX-vs-VEX ⬜ (only after G1+G2). Every gate owes a HUMAN viewport pass by Hannes — an agent looking at an image is not that, and it is never silently skipped. ⚠️ **G1's human pass is OWED**: an agent looked at `tests/citygen/gate_images_buildings/` and judged the four masses correct; Hannes has not. Regenerate with `hython tests/citygen/run_building_checks.py --images`. |
+| Run it | `hython tests/citygen/run_building_checks.py [--mutations] [--images] [--update-baseline]`. ⚠️ **hython does not load the polyfactory package** — `POLYFACTORY` is unset and `polyfactory` resolves as a namespace package with no `citygen` in it; the runner puts `polyfactory/scripts/python` on `sys.path` itself. |
 
 ### 0.0a Dependencies — check before picking a stage
 
@@ -50,16 +53,17 @@ branch `worldengine`, **never push**, never rewrite history, stage named paths o
 | **Streets S8 determinism** | ⚠️ **ANSWERED, AND IT IS "UNTOUCHED"** (polyfactory-b1, 2026-08-26). Streets paused 2026-08-21 when polyChain took over; nobody has been near S8 since. Documented truth: `elem_id` survival is proven against **parameter** changes only, **unproven under geometry change**; `node_id` does not exist; provenance is not auto-stamped. | **DO NOT BLOCK — INSULATE.** §12.7's structural-address `elem_id` (`siteId` + stage + volume/face/bay/storey, **never generation order**) is the defence, and it is now load-bearing rather than a nicety. Source `siteId` from the lot **at B0 ingestion only**, and record the **lot→siteId mapping as the single seam** to revisit when streets resumes. Note it in every cycle's report. |
 | **B0 schema** (`citygen.md` §7 item 0) | ⚠️ **RESOLVED FOR THE BUILD, NOT RATIFIED.** polyfactory-b1: proceed with §12.4's **volume + face-roles**, planar lot as the degenerate case. | Build **B0 as an ADAPTER**: ingest today's planar S8 lot, stamp the volume-form schema. Streets needs no change, so **no seam mismatch can arise** and the work stays reversible. ⚠️ **Hannes ratifies, not an agent** — this goes in the morning report. |
 | **Streets tonight** | ✅ **S8 IS STABLE TONIGHT.** polyfactory-f2 is working upstream at S5 (junction merge mouth), in an **isolated worktree** `F:/projects/polyfactory-citygen`, branch `cityGen`. | Input contract is stable. ⛔ **Never `git worktree remove` `F:/projects/polyfactory-citygen`**, and never `git checkout` there. The shared checkout `F:/projects/polyfactory` is ours. |
-| **`conventions.md` `pf_` prefix** | ❌ **SPEC DEFECT.** §12 declares `siteId`/`faceRole`/`setback`/… with **zero** `pf_` prefixes; `conventions.md` §1 makes `pf_` law, flat prefix + descriptive name (`pf_elem_id`). | Blocks nothing, but **fix the §12 tables before B0 is written**, not after. `conventions.md` §9 lists "the CityGen field" as PENDING-Hannes-decides — check it. |
+| **`conventions.md` `pf_` prefix** | ✅ **FIXED 2026-08-26 (G1).** §12.4, §12.6, §12.7 and §12.8 now spell every attribute `pf_*`; §12.5's keys are deliberately NOT renamed, because template fields inside a data file are not attributes that leave a node. B2 ships `pf_`-prefixed throughout and a check asserts nothing `_*` escapes on any of the four classes or in groups. | ⚠️ **Two things a later reader must not mistake for settled.** `conventions.md` §9b "the CityGen field contract" is a different item — it is the STREET FIELD (`field_type`/`weight`/`angle`/`falloff`), it is still PENDING-Hannes-decides, and **buildings do not touch it**, so G1 neither needed nor made that decision. And `pf_site_id` is **detail** in §12.4 but **prim** in a stream carrying several sites, which is what B2 cooks — B0 owns that conversion. |
 
 ### 0.0b Order of work (S8-independent first, deliberately)
 
 Everything here is buildable **without** streets or polyChain, so the run is not idle while
 dependencies resolve:
 
-`G1` → `G2` → `B5 cap/straight-skeleton` (largest from-scratch item; Labs supplies nothing) →
-`B3 structure tables` → `B1 footprint ops` → `§12.9 module library` → **then** `B4`/`B6` on
-polyChain → **then, only once S8 answers**, `B0` identity wiring + finalize/instancing.
+~~`G1`~~ ✅ → `G2` → `B5 cap/straight-skeleton` (largest from-scratch item; Labs supplies nothing) →
+`B3 structure tables` → `B1 footprint ops` (the `setback` op is done; `shapeL`/`shapeU`/`shapeO`/
+`offset` are not) → `§12.9 module library` → **then** `B4`/`B6` on polyChain → **then, only once
+S8 answers**, `B0` identity wiring + finalize/instancing.
 
 ### 0.0c Operational rules — paid for in blood this week, do not rediscover them
 
@@ -74,6 +78,13 @@ polyChain → **then, only once S8 answers**, `B0` identity wiring + finalize/in
    (`tests/citygen/checks_buildings.py` + its own baseline file), registered from the runner by a
    **one-line import**, so the eventual merge is one line and not a 14 000-value diff. Agreed with
    f2 2026-08-26.
+   ⚠️ **G1 built the new modules and did NOT add that one line, deliberately.** `checks_buildings.py`,
+   `run_building_checks.py` and `baseline_buildings.json` exist and are standalone; f2 is editing
+   `run_scene_checks.py` *right now* on another branch, and a one-line edit to a file under active
+   edit elsewhere is a merge conflict bought for nothing while the two suites are not yet run
+   together. **Registering it is a named pickup item for whoever merges the branches** — it is one
+   import and one call, and the building suite is `hython tests/citygen/run_building_checks.py`
+   until then.
 3. **Read every contract off the SHIPPED ASSET, never off prose or a rig** (CLAUDE.md). polyChain
    ships `polyfactory/otls/pf_polychain.hda`, `pf_polychain_facade.hda`, `pf_polychain_slice.hda`;
    kernel `polyfactory/scripts/python/polyfactory/polychain`; VEX `polyfactory/vex/polychain`;
@@ -1169,14 +1180,22 @@ case: lot polygon extruded to the envelope height, side faces inheriting the lot
 [`citygen.md`](citygen.md) §7 item 0 in the forward-compatible direction (§9g) while costing the
 planar case nothing — **proposed here, to be ratified when the schema is written.**
 
+⚠️ **The names below were corrected 2026-08-26 (G1).** The first draft of this
+table declared `siteId` / `faceRole` / `setback` / `styleTemplate` / `seed` with **no prefix**,
+which [`conventions.md`](conventions.md) §1 makes illegal on anything that leaves a node — flat
+`pf_` prefix, descriptive name. The corrected spellings are law and B0 must ship these.
+**Template FIELD names are a different thing and are deliberately left alone**: `styleId`,
+`volumeTopology`, `lotToFootprint` (§12.5) are keys inside a data file, not Houdini attributes,
+and §1 governs attributes.
+
 | Attr | Type | Content |
 |---|---|---|
-| `siteId` | detail, int | stable identity, from streets element identity |
-| `faceRole` | prim, string | `front` · `sideStreet` · `interiorSide` · `rear` · `alley` · `sky` · `skyLane` · `underside` · `abuts` |
-| `setback` | prim, float | per-face inset default, from zoning (per-edge role table, §10a) |
-| `coverageMax`, `farMax`, `heightMax` | detail, float | envelope caps — **advisory** (§2.2) |
-| `styleTemplate` | detail, string | template id; resolvable through the cascade (zone default → region → per-site) |
-| `seed` | detail, int | per-site determinism: same seed + template + overrides ⇒ identical geometry |
+| `pf_site_id` | int — **detail** on a single-site stream, **prim** once a stream carries several sites | stable identity, from streets element identity. ⚠️ G1 cooks four buildings in one stream and therefore carries it per prim; the two forms must stay interchangeable, and B0 owns the conversion |
+| `pf_face_role` | string — **prim** on the volume's faces (§12.4's volume form), **vertex** on the degenerate planar lot, where the role belongs to an EDGE and vertex is the only class that can hold one value per edge | `front` · `sideStreet` · `interiorSide` · `rear` · `alley` · `sky` · `skyLane` · `underside` · `abuts` |
+| `pf_setback` | vertex/prim, float | per-face inset **authored override**, cascade level 5 — present ⇒ it wins over the template's per-role number, absent ⇒ the template supplies it (§2.1: never *compute* alone) |
+| `pf_coverage_max`, `pf_far_max`, `pf_height_max` | detail, float | envelope caps — **advisory** (§2.2). ⚠️ **not implemented by G1** |
+| `pf_style_template` | prim/detail, string | template id; resolvable through the cascade (zone default → region → per-site) |
+| `pf_seed` | int | per-site determinism: same seed + template + overrides ⇒ identical geometry |
 | ground sample | input 2 | optional heightfield/prims for slope — Einhof plinths, Emilien-style slope adaptation |
 
 ⚠️ Open (§9g): whether the frontage-measured-on-chord / width-at-setback-line rules (§10a)
@@ -1189,11 +1208,21 @@ A template is **data + a small set of rule references** — never code of its ow
 §9f). Stored Houdini-native (geometry file carrying detail dict attributes + packed module prims),
 per the attributes-not-JSON decision. Missing field ⇒ cascade default, so a template may be sparse.
 
+✅ **Tested at its weakest point and it held** — see §12.10a. ⚠️ **Two things this table gets wrong
+about its own field names, both worth fixing in a reader's head before using it.** First, the keys
+below are **template fields, not Houdini attributes**, so `conventions.md` §1's `pf_` law does not
+apply to them and they stay camelCase; §12.4's table, which really was attributes, was corrected.
+Second, a template records **provenance per FIELD, not per template**: `sources` in the shipped
+templates is a list of one line per number, each saying SOURCED with a URL, DERIVED with the
+reasoning, or **UNSOURCED**. That last word is doing real work — the first pass at these templates
+was about to commit two numbers that a search returned confidently and that do not exist in the
+documents they were attributed to.
+
 | Field | Type | Notes |
 |---|---|---|
 | `styleId`, `version`, `sources` | meta | `sources` = provenance list; every template records where its numbers came from (this file's evidence-ledger discipline applies to style data too) |
 | `constructionSystem` | ref → data block | see B3 table below. **Input to** the engineering, §9e layer 1 |
-| `volumeTopology` | ref → assembly rule + params | one of the small topology library (Einhof, Paarhof, rowPartyWall, perimeterCourtyard, tower, pavilion…). **Representation decided by gate G1** |
+| `volumeTopology` | assembly rules + params + an ordered `volumes` list | ✅ **Decided by G1 (§12.10a), and the shape is not what this row expected.** There is no "topology library" keyed by type name — an `Einhof` entry and a `perimeterCourtyard` entry would each have been one style's code wearing a rule's name. What there is instead: `rails` (`bar`/`ring`), `cutsAt`, `courtyardDepthM`, `plinth`, and `volumes[]` carrying `role`/`storeys`/`storeyHeightM`/`capGroup`. A farmhouse and an apartment block pick the same rails |
 | `lotToFootprint` | op + per-role params | `setback` / `shapeL` / `shapeU` / `shapeO` / `offset` / `identity` (§7) |
 | `bayRhythm` | spec | regular/irregular, openings-per-bay, per-storey differentiation (ground floor ≠ upper), wall-to-window ratio |
 | `capFamily` | strategy + params | renamed from "roof" per §9g: `skeletonRoof` (pitch range, eave depth) · `flat` · `parapet` · `platform` · `spire` · `continueUp` |
@@ -1211,16 +1240,26 @@ Each stage: separately runnable HDA; consumes B(n−1) output + template fields 
 value overridable; violations `warn` + persist. Only the deciding details are specced here.
 
 **B1 footprint.** Applies `lotToFootprint` per face role inside the setback envelope.
-`identity` = `setback(0)`. Output: footprint polygon(s) + `frontageEdge` tags carried from face
-roles. Corner lots honoured (`cornerAngleMax` from the streets lot work). Non-convex output is
+`identity` = `setback(0)`. Output: footprint polygon(s) + `pf_face_role` tags carried from the lot
+edges. Corner lots honoured (`cornerAngleMax` from the streets lot work). Non-convex output is
 **legal and expected** — it is B6's acceptance input. Caps checked here and at B2: exceed ⇒
-`warnCoverageExceeded` / `warnFarExceeded`, never a refusal.
+`pf_warn_coverage_exceeded` / `pf_warn_far_exceeded`, never a refusal.
+
+⚠️ **G1 built the `setback` op only, and it is NOT `polyexpand2d`.** Measured on 22.0.398: that
+node is the native offsetter, it computes a straight skeleton, it survives non-convex input, its
+per-edge Inside Scale really does give non-uniform offsets — **and it treats a non-positive scale
+as 1**, so a `setback(0)` street edge silently becomes a 1 m one. That is precisely the Viennese
+perimeter block, so B1 uses `pf_inset.vfl` (offset lines of the two edges at a corner,
+intersected), which also preserves corner correspondence index-for-index and so carries the edge
+roles through for free. **Revisit `polyexpand2d` for the non-zero, non-convex cases** — and note
+its Edge Distance Attribute is documented as "raise the roof", i.e. a real head start for B5.
+`shapeL` / `shapeU` / `shapeO` / `offset` are **not built**; the courtyard that `shapeO` would cut
+is produced in B2 by insetting the footprint a second time with the same rule.
 
 **B2 mass.** Assembles volumes per `volumeTopology`: how many volumes, which functions share a
 roof, party walls, courtyard; plinth/foundation adaptation to the ground sample. Output: massing
-volumes with `volumeRole` (dwelling/stable/barn/stair…) and shared-wall tags. ⚠️ This is the stage
-gate G1 exists for — if each topology turns out to need bespoke code beyond a small assembly-rule
-library, the template idea shrinks and §9f's caveat fires.
+volumes with `pf_volume_role` (dwelling/stable/barn/stair…) and shared-wall tags. ⚠️ This is the
+stage gate G1 exists for. **G1 ran 2026-08-26 and PASSED** — the skeleton is built, see §12.10.
 
 **B3 structure.** **Table-driven, no simulation.** Reads the `constructionSystem` block:
 
@@ -1233,8 +1272,12 @@ library, the template idea shrinks and §9f's caveat fires.
 | `storeyHeightRangeM` | low | tall, ground floor taller |
 | `capPitchRangeDeg` | steep | shallow/parapet |
 
-Output: bay grid (`bayU`/`bayV`) on each volume face, storey splits, wall thickness — the inputs
-B4 and B5 consume. Exceeding a limit ⇒ `warnSpanExceeded` etc., persisted; the geometry is still
+Output: bay grid (`pf_bay_u`/`pf_bay_v`) on each volume face, storey splits, wall thickness — the
+inputs B4 and B5 consume. ⚠️ **B3 owns per-STOREY heights**, and that seam is already load-bearing:
+B2 gives a volume one height, so the sourced Gründerzeit fact that the ground floor is taller than
+the floors above it is **not expressible until B3 exists** and is recorded in
+`at_vienna_perimeter`'s provenance as a known gap rather than averaged away silently.
+Exceeding a limit ⇒ `pf_warn_span_exceeded` etc., persisted; the geometry is still
 built (Babel case, §9g). Fictional systems are just authored blocks (Coruscant case). ⚠️ The
 span→bay chain is this survey's own hypothesis (§9c flag) — G1/G2 double as its first test.
 
@@ -1260,18 +1303,41 @@ warning collation, `elem_id` stamping.
 ### 12.7 Identity and overrides
 
 Every emitted element (module instance, wall panel, corner piece, cap face) carries a stable
-`elem_id` derived from `siteId` + stage + structural address (volume/face/bay/storey), **not** from
-generation order — so a recook with identical inputs yields identical ids, and the override layer
-(keyed by `elem_id`, [`citygen.md`](citygen.md) Contract 2) survives regeneration. Override kinds,
+`pf_elem_id` derived from `pf_site_id` + stage + structural address (volume/face/bay/storey),
+**not** from generation order — so a recook with identical inputs yields identical ids, and the
+override layer (keyed by `pf_elem_id`, [`citygen.md`](citygen.md) Contract 2) survives
+regeneration. ⚠️ **`pf_elem_id` is a STRING address and its STORAGE is part of the contract**
+(D223) — it is the same spelling and the same kind of value as polyChain's `pc_elem_id`, which
+`conventions.md` §3 renames to `pf_elem_id` after its parity pass, and sharing the name here is
+deliberate (§1: a genuinely shared contract should be spelled the same way).
+**Built and checked at G1**: B2 emits `<site>:B2:v<k>` per volume and `<site>:B2:v<k>:<face slot>`
+per face, where the face slot is `outer`/`inner`/`crossA`/`crossB`/`cap`/`floor` — structural, and
+independent of the winding the cell happened to be built with. The check that guards it cooks the
+same lots in the **opposite order** and requires an identical id set. Override kinds,
 all per §2.1 level 5–6: parameter override, module **swap** (variant), geometry **replace**
 (hand-made), and `heroFacade` face tags.
 
 ### 12.8 Warnings
 
-Per §2.2, persisted as attributes on the offending element, viewport-visualisable. Initial set:
-`warnSpanExceeded`, `warnCoverageExceeded`, `warnFarExceeded`, `warnStoreysExceeded`,
-`warnUnbuildableCorner`, `warnFootprintCollapsed` (offset degenerate → OBB fallback, §10a),
-`warnModuleMissing` (kit gap — build a blank stand-in, never fail).
+Per §2.2, persisted as attributes on the offending element, viewport-visualisable. Names corrected
+to the `pf_` law 2026-08-26 with the rest of §12. Initial set:
+`pf_warn_span_exceeded`, `pf_warn_coverage_exceeded`, `pf_warn_far_exceeded`,
+`pf_warn_storeys_exceeded`, `pf_warn_unbuildable_corner`, `pf_warn_footprint_collapsed`
+(offset degenerate → OBB fallback, §10a), `pf_warn_module_missing` (kit gap — build a blank
+stand-in, never fail).
+
+**Shipping from B2 after G1**, all prim ints, all advisory, none of them ever a refusal:
+
+| Warning | Fires when | What is built instead |
+|---|---|---|
+| `pf_warn_footprint_collapsed` | an inset flipped the polygon's signed area or collapsed it — setback deeper than the lot, or courtyard tract deeper than half the block | the ring degrades to ONE solid volume over the whole footprint |
+| `pf_warn_topology_arity` | the template's `volumes` list is not as long as the cell count the rails produced | roles/storeys/cap groups cycle over the list |
+| `pf_warn_cap_group_split` | two volumes are told to share a roof and disagree on eave height | both are built at their own heights; ⭐ **this is the one that gives "which functions share a roof" teeth** — without it a cap group is a label nobody checks |
+| `pf_warn_unknown_rule` | a template names a rule the library does not have | the default rule is used |
+
+⚠️ **§12.8's other half is not built and is not B2's to build**: these are attributes, and nothing
+yet *visualises* them for an artist. That collides with the same open item §0.0d already records
+against polyChain's invisible `addWarning` route, and it belongs to the B-stage HDA work.
 
 ### 12.9 Module library contract
 
@@ -1284,10 +1350,10 @@ architectural names (Embark's naming lesson, §4).
 
 ### 12.10 Prototype gates — in order, before any B-stage build
 
-- **G1 — topology as data.** Skeleton B2 only. Two template files: **Hannes' local Einhof** vs
-  **Viennese perimeter block** (§10 "the one prototype worth running"). Pass: both massings emerge
-  from one assembly-rule library + two data files, judged in the viewport. Fail: each needs bespoke
-  code ⇒ shrink §12.5's claim to "small rule library + data" and re-scope.
+- **G1 — topology as data.** ✅ **PASSED 2026-08-26.** Skeleton B2 only. Full result in §12.10a.
+  Pass criterion was: both massings emerge from one assembly-rule library + two data files, judged
+  in the viewport. Fail: each needs bespoke code ⇒ shrink §12.5's claim to "small rule library +
+  data" and re-scope. **§12.5's claim stands as written.**
 - **G2 — corner closure.** L-shaped footprint (`shapeL`), walls + `skeletonRoof` cap, through
   B4–B6 at prototype quality. Pass: no holes or misalignments at any convex/reflex corner or
   eave/gable seam, viewport-verified. This is the acceptance test the whole survey points at
@@ -1298,6 +1364,77 @@ architectural names (Embark's naming lesson, §4).
 
 Build order after gates: B0+B1 (thin — most of it exists in the S8 interface) → B3 minimal tables →
 B4 → B5 → B6 hardening throughout → finalize/instancing. B2 arrives from G1.
+
+### 12.10a G1 result — topology as data: PASS
+
+**Verdict: `volumeTopology` is data.** Both required massings, and two more, are produced by one
+rule library reading four template files. No production source contains a style id — asserted, not
+asserted-about: `no_style_branching` greps every shipped `.vfl` and `buildings.py` for every
+template id and fails on a hit.
+
+**What was built.** `polyfactory/vex/citygen/pf_mass.vfl` (the rules, a detail wrangle — one
+execution over every building in the stream, whatever style each of them is), `pf_inset.vfl`,
+`pf_area0.vfl`, `pf_collapse.vfl`, `pf_yard_inset.vfl`;
+`polyfactory/scripts/python/polyfactory/citygen/buildings.py` (template load, cascade,
+marshalling, network build); `devScripts/create_pf_building_styles.py` →
+`polyfactory/library/citygen/styles/*.geo`; checks in `tests/citygen/checks_buildings.py` and
+`tests/citygen/run_building_checks.py` with `baseline_buildings.json`.
+⚠️ **Both the builder script and the template files sit under git-ignored paths** (`devScripts/`,
+`polyfactory/library/`) and were force-added, following the precedent of `create_pf_polychain*.py`.
+
+**The rule vocabulary — four rules, and every one of them serves more than one style:**
+
+| Rule | What it is | Data it reads |
+|---|---|---|
+| **rails** | two matched point chains spanning the footprint. `bar` = the two long opposite edges of a 4-gon, sampled at the cut fractions. `ring` = the boundary and its courtyard inset, edge for edge | `rails`, `cutsAt`, `courtyardDepthM` |
+| **zip** | one cell per rail interval. Consecutive cells share their cross face — **that face IS the party wall, found by construction rather than searched for** | — |
+| **prism** | a cell extruded between two datums, every face tagged at creation with the rail it came from, the site role it inherits and the volume it is shared with | `volumes[].role/storeys/storeyHeightM/capGroup` |
+| **plinth** | `none`, or `levelToHighest` — one floor datum for the whole building at the highest ground under it, each cell's skirt following the ground down to its own lowest corner | `plinth.mode`, `plinth.minM` |
+
+**Why four templates and not the two the gate names — this is the part that makes the PASS mean
+something.** With two templates every rule is used exactly once, and a rule used once is that
+template's code wearing a rule's name; the gate would pass vacuously. So the fixture crosses the
+family line: **`at_vierkanthof`, an Upper Austrian farm, is built on the perimeter block's `ring`;
+`at_zinshaus_row`, a Viennese apartment house, is built on the farmhouse's `bar`.** The check
+`rule_reuse` enumerates every value every rule takes and **fails if any is reached by fewer than
+two distinct `styleId`s**. Its mutation — the Vierkanthof stops using `ring` — reddens it.
+
+**Honest limits of that argument.** Reuse is necessary, not sufficient: two styles could use one
+rule for architecturally identical buildings. `rails` remains the one rule with mode-specific
+code, ~12 lines for `bar` and ~10 for `ring` inside a 306-line file, and the mode is chosen by a
+data value, not by a style name. And it is genuinely *four* styles, not four families —
+two Austrian rural, two Viennese urban.
+
+**Decisions this gate closes** (they were §12.12 open questions):
+1. **`volumeTopology` representation** = an ordered `volumes` list plus a rails/cuts/plinth rule
+   selection. Not a graph structure — the adjacency that matters (who shares a wall, who shares a
+   roof) is the cell ORDER plus `capGroup`, and both fall out of the rails.
+2. **Style template storage format** = a `.geo` carrying the whole template as one detail
+   **dictionary** attribute `pf_style_template`. Round-trips losslessly on 22.0.398 (measured;
+   note lists come back as tuples), needs no parser at cook time, ~6 KB, and unlike JSON it can
+   carry §12.9's packed module prims in the same file when kits arrive. ⚠️ It also carries a
+   Houdini `info` block with hostname and date, so rebuilding a template churns its diff.
+
+**What G1 did NOT test, and must not be read as having tested:** no facade, roof, module or
+ornament (B4/B5/B6); no HDA, so nothing is driven through a parameter face and none of
+`artist_ui.md` §6b applies yet; no cook-time measurement at district scale (one cook of four
+buildings); no non-convex footprint, no corner lot; and the storey/cut numbers that could not be
+sourced are placeholders, listed as such inside each template's own `sources` field.
+
+**Evidence.** 13 checks, each paired in a registry with the exact edit that reddens it, and all 13
+seen RED. Images at `tests/citygen/gate_images_buildings/` (regenerable, not committed — the same
+convention as `tests/polychain/gate_images/`), coloured by `pf_wall_role` so the party walls and
+the courtyard — the topology itself — are what the picture actually shows.
+⚠️ **An AGENT looked at those images, not Hannes.** Every gate owes a HUMAN viewport pass and this
+one is still owed (§0.0 Gates row).
+
+**Two defects the mutations found, recorded because both are the shape that recurs:**
+1. **Houdini's polygon normal is the NEGATIVE of the ordinary cross product of its edges** —
+   measured on 22.0.398 after all 78 faces of the first build shipped inside out, which renders
+   and measures identically and only shows up as backface shading.
+2. **`encloses_courtyard` claimed in its own docstring that the courtyard lies inside the outer
+   walls, and never tested it.** With the courtyard depth mutated to 0 it reported the whole
+   2 728 m² footprint as a courtyard and passed. A docstring is not an assertion.
 
 ### 12.11 v1 acceptance
 
@@ -1315,11 +1452,13 @@ B4 → B5 → B6 hardening throughout → finalize/instancing. B2 arrives from G
 | Question | Where it lands |
 |---|---|
 | Face-role generalisation of frontage rules | B0; ratify with schema |
-| `volumeTopology` representation | G1 decides |
+| ~~`volumeTopology` representation~~ | ✅ **DECIDED by G1, §12.10a**: ordered `volumes` list + rails/cuts/plinth rule selection |
 | Corner strategy per seam class | G2 informs; B6 |
 | APEX or SOP/VEX for rule fragments | G3 |
 | Instancing substrate | [`citygen.md`](citygen.md) §7 item 1, joint with streets |
-| Style template storage format detail | first template authored decides |
+| ~~Style template storage format detail~~ | ✅ **DECIDED by G1, §12.10a**: `.geo` + one detail dict attribute `pf_style_template` |
+| **NEW — per-storey heights** | B3. B2 gives a volume ONE height, so "the Gründerzeit ground floor is taller" is sourced and inexpressible today (§12.6 B3) |
+| **NEW — how a warning reaches an artist** | B-stage HDA. §12.8's attributes exist; nothing visualises them, and this is the same open item §0.0d records against polyChain |
 | Straight-skeleton: own implementation scope (weighted? holes?) | B5 design |
 
 ---
