@@ -136,6 +136,14 @@
 //     PARAMETER: a 90 degree L under a 120 degree `min_included_angle_deg` is
 //     degenerate, transportable, and now builds natively WITH its warning
 //     (`AU_degenerate_bend`).  31.2, 33.3.
+//   * [vex:ring_corner] a CLOSED curve carrying EXACTLY ONE corner - D342,
+//     the C6 audit's one production finding.  4.3 item F stamps a degenerate
+//     vertex from TWO sources and this chain ports one of them; D68's second
+//     source reads the bevel AFTER `flatten` yaw-projects it, which is a turn
+//     `pc_corner_degen` (3D edges only) cannot see.  The shape below is the
+//     only one on which a bend build still grows an assembly for D68 to read,
+//     and it shipped without `pc_warn_corner_degenerate`.  See the block by
+//     the code for the measurement and for why this is a tally, not a port.
 //   * [vex:ndup] a DUPLICATED curve id.  D169: the reference fans a marker
 //     out onto every curve sharing the id and the native chain answers for
 //     the first, which is a DECLARED divergence with its own check.
@@ -219,6 +227,51 @@ if (corners && cmode != "bend") {
     foreach (int cp; cornerpts) {
         int degen = point(0, "pc_corner_degen", cp);
         if (!degen) { corner_refuse = 1; break; }
+    }
+}
+
+// [vex:ring_corner] - A CLOSED CURVE WITH EXACTLY ONE CORNER, and it is the
+// C6 audit's ONE production finding (D342).  4.3 item F has a SECOND source
+// of degenerate vertices and the row above ports only the first.  D68:
+// `Bevel.flatten` re-runs the constructor on the YAW-FLATTENED tangents, so a
+// corner that is mild in 3D can be a hairpin in plan - and `plan_curve` adds
+// THAT bevel's vertex to `degenerate_s` as well.  `pc_corners.vfl` computes
+// `pc_corner_degen` from the 3D edge directions ONLY, so the native chain
+// cannot see it, and the build shipped WITHOUT `pc_warn_corner_degenerate` -
+// a schema divergence plus a missing artist warning, on a build both guard
+// levels admitted.  The same class `[vex:row_warns]` refuses outright.
+//
+// ⚠️ THE SHAPE IS EXACT, AND IT IS WHY THIS COSTS A TALLY RATHER THAN A PORT.
+// D68 can only fire where an ASSEMBLY exists, and in bend mode `_joinable`
+// dissolves every corner: `merge_bend_sections` welds them and a WHOLE welded
+// ring drops its `start_corner` (`_weld`'s `whole`), so `solve_corners` finds
+// no boundary to solve.  The one escape is its own early return, `if n < 2`,
+// which a curve decomposing to ONE section takes - and that is a CLOSED curve
+// carrying exactly one corner.  Measured, on a 24-point ring on a 0.7 grade
+// with one 43.110 degree corner (47.571 in plan) under
+// `min_included_angle_deg = 134.5`: reference `pc_warn_corner_degenerate:2`,
+// native nothing, every other byte identical.  Two corners on the same ring:
+// identical.  The same ring flat: identical.  Open: identical.
+//
+// It refuses rather than ports because the flattened turn is a REFERENCE
+// invariant re-derived in VEX, and a re-derivation with a float boundary can
+// be wrong in the direction that ships the bug again (32's parity lesson,
+// D341's own argument).  A tally has no boundary.  The cost is that a closed
+// single-corner curve takes the reference even where flattening changes
+// nothing; the port belongs with N8 stage 3, which owns `Bevel` anyway.
+int ring_corner = 0;
+if (corners) {
+    int nper[];
+    resize(nper, nprimitives(0));
+    foreach (int cp; cornerpts) {
+        int pp[] = pointprims(0, cp);
+        if (len(pp)) nper[pp[0]] += 1;
+    }
+    for (int i = 0; i < len(nper); i++) {
+        if (nper[i] == 1 && primintrinsic(0, "closed", i)) {
+            ring_corner = 1;
+            break;
+        }
     }
 }
 
@@ -401,10 +454,11 @@ if (up_t >= 0) {
     }
 }
 
-i@_native_ok = (ok && !corner_refuse && ndup == 0
+i@_native_ok = (ok && !corner_refuse && !ring_corner && ndup == 0
                 && !marker_in_prim && type_bad == "" && !row_warns && !row_2d
                 && nprimitives(0) > 0);
 i@_guard_corner_refuse = corner_refuse;
+i@_guard_ring_corner = ring_corner;
 i@_guard_row_2d = row_2d;
 i@_guard_row_warns = row_warns;
 i@_guard_markers = markers;

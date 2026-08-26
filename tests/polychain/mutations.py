@@ -130,8 +130,11 @@ MUTATIONS = (
       # ⚠️ RE-POINTED BY 13.9 N8 STAGE 1 - the verdict line's own text moved
       # (`corners == 0` became `!corner_refuse`), and an edit whose target
       # line has moved is D208 exactly: it reports green forever.
+      # ...and RE-POINTED AGAIN by D342, which added `!ring_corner` to the
+      # same line. Third time: this anchor is the verdict itself, so every
+      # widening of the guard moves it.
       ((VEX % "pc_envelope.vfl",
-        "i@_native_ok = (ok && !corner_refuse && ndup == 0",
+        "i@_native_ok = (ok && !corner_refuse && !ring_corner && ndup == 0",
         "i@_native_ok = (1 || ok && !corner_refuse && ndup == 0"),)),
 
     # ---- D223 / D262, storage as a contract --------------------------------
@@ -1408,6 +1411,16 @@ MUTATIONS = (
       ((VEX % "pc_plan_emit.vfl",
         "                if (!c_closed) continue;",
         "                continue;"),)),
+
+    M("n8_ring_corner_admitted", "native", ("output_guard_parity",),
+      "D342, the C6 audit's finding: the tally moved off its shape, so a "
+      "CLOSED curve with exactly ONE corner goes native again and ships "
+      "without `pc_warn_corner_degenerate` - D68 reads the bevel AFTER "
+      "`flatten`, which the 3D `pc_corner_degen` cannot see "
+      "(`AX_ring_one_corner`, and nothing else in the corpus).",
+      ((VEX % "pc_envelope.vfl",
+        "        if (nper[i] == 1 && primintrinsic(0, \"closed\", i)) {",
+        "        if (nper[i] == 99 && primintrinsic(0, \"closed\", i)) {"),)),
 
     M("n8_plan_keep_drops_the_degenerate_list", "native",
       ("output_guard_parity",),

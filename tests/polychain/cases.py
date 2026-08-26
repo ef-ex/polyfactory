@@ -1026,6 +1026,25 @@ def build_all():
         params=Params(fill="adaptive", corner_mode="bend",
                       min_included_angle_deg=120.0)))
 
+    # AX - D342, THE C6 AUDIT'S ONE PRODUCTION FINDING, PINNED AS A REFUSAL.
+    # A CLOSED ring with EXACTLY ONE corner is the only shape a BEND build
+    # still grows an assembly for (`merge_bend_sections`' `if n < 2` early
+    # return), so D68 re-reads the bevel after `flatten` yaw-projects it and
+    # stamps a vertex the 3D `pc_corner_degen` cannot see: 43.110 degrees in
+    # 3D on this 0.7 grade, 47.571 in plan, under a 134.5 degree floor. The
+    # reference published `pc_warn_corner_degenerate` and the native chain
+    # shipped without it, both guard levels reading 1. Delete
+    # `[vex:ring_corner]` and `output_guard_parity` reddens on this case.
+    _ax = [(15.0 * i, 10.8 if i == 4 else 10.0) for i in range(24)]
+    _ax = [(r * math.cos(math.radians(a)), 0.0, r * math.sin(math.radians(a)))
+           for a, r in _ax]
+    g = hou.Geometry()
+    polyline(g, [(x, 0.7 * x, z) for x, _y, z in _ax],
+             closed=True, curve_id="AX")
+    _axs = corner_style("bend")
+    _axs.params.min_included_angle_deg = 134.5
+    built["AX_ring_one_corner"] = _case(g, kit_geo, _axs)
+
     # ---- EA..EI - THE COMPOSITION THE ASSET ACTUALLY SHIPS, ON A CORNER.
     # D269 (§28.1(c) again): after D266 the shipped `panel` fill + `evenly
     # post` @ 2 m appeared ZERO times here, so the ~35 corner/closure checks

@@ -65,6 +65,11 @@ EXPECTED_WARNS = {
     # resolving its own 90 degrees, not the check looking away.
     "AV_degenerate_miter": ("pc_warn_corner_degenerate",),
     "AW_ring_section_degenerate": ("pc_warn_corner_degenerate",),
+    # AX - D342. The degenerate name is the one the NATIVE chain dropped, and
+    # the ring's 15 degree steps are what `bend_resolution` says about a 2 m
+    # panel: both are the reference's answer, and the guard now takes it.
+    "AX_ring_one_corner": ("pc_warn_bend_resolution",
+                           "pc_warn_corner_degenerate"),
     "AD_short_legs": ("pc_warn_overflow",),
     # AS - 3v's figure: every corner is a butt joint, no piece wraps one. A
     # clean build IS the assertion; the wedge is `corner_wedge_m2`'s (D36).
