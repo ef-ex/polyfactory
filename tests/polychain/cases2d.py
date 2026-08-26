@@ -61,7 +61,7 @@ def _box(x, y, z=0.30, divx=1):
     return g
 
 
-def facade_kit(roles=None, kit_id="pf_facade", ground_x=BAY_X):
+def facade_kit(roles=None, kit_id="pf_facade", ground_x=BAY_X, rename=""):
     """The PC-G5 starter facade kit: 6 of the 25 cells, authored by role.
 
     `roles` keeps only the named roles. ⚠️ IT DEMOTES THE OTHER MODULES, IT
@@ -71,6 +71,12 @@ def facade_kit(roles=None, kit_id="pf_facade", ground_x=BAY_X):
     then be measuring two variables at once. Demoted modules keep their
     geometry and their height and lose only their claim on a cell, which is
     exactly the one variable the kit-gap cases are for.
+
+    `rename` prefixes every module NAME and touches nothing else - same
+    geometry, same sizes, same roles. It is the P2-9a F1 fixture: the audit's
+    finding was that this suite's every kit is authored with the page's own
+    default module names, so a page that resolved its Y slots against nothing
+    agreed with an oracle doing the same thing.
     """
     spec = (
         # name          x       y           deform zmode       role
@@ -88,7 +94,7 @@ def facade_kit(roles=None, kit_id="pf_facade", ground_x=BAY_X):
     for name, x, y, deform, zmode, role in spec:
         if roles is not None and role not in roles:
             role = "spare"          # a role no cell of the 5 x 5 table names
-        K.add_module(geo, name, _box(x, y, divx=4 if deform else 1),
+        K.add_module(geo, rename + name, _box(x, y, divx=4 if deform else 1),
                      size=(x, y, 0.30), deform=deform, zmode=zmode,
                      roles=role)
     K.write_manifest(geo, kit_id, 1, sources=("cases2d.facade_kit",),

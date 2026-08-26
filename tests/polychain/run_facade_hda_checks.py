@@ -40,6 +40,7 @@ import cases2d                                                   # noqa: E402
 import diff                                                      # noqa: E402
 import hou                                                       # noqa: E402
 from polyfactory.polychain import Params, Rule, Style             # noqa: E402
+from polyfactory.polychain import array2d as A2                   # noqa: E402
 from polyfactory.polychain import facade as F                     # noqa: E402
 from polyfactory.polychain import hda as H                        # noqa: E402
 from polyfactory.polychain import kit as K                        # noqa: E402
@@ -127,7 +128,8 @@ def build_node(geo_node, name, foot, kit_geo, aux=None, payload=None,
                surface=None, **parms):
     node = geo_node.createNode("pf_polychain_facade", name)
     node.setInput(0, feed(geo_node, name + "_foot", foot))
-    node.setInput(1, feed(geo_node, name + "_kit", kit_geo))
+    if kit_geo is not None:                 # 5d needs input 2 UNWIRED
+        node.setInput(1, feed(geo_node, name + "_kit", kit_geo))
     if payload is not None:
         node.setInput(2, feed(geo_node, name + "_pay", payload))
     if surface is not None:
@@ -466,6 +468,119 @@ def main():
           "the same kit-gap facade with Corners Extend Into on X and on Y: "
           "%s  vs  %s" % (mods["x"], mods["y"]))
 
+    # ---- 5c. the page against a kit that is not the built-in one ----------
+    #
+    # ⚠️ EVERY OTHER FIXTURE HERE USES A KIT WHOSE MODULE NAMES ARE THE PAGE
+    # DEFAULTS, so the audit's F1 - three Y slots pre-filled with the STARTER
+    # KIT's own names, resolved against nothing the moment an artist wires
+    # their own kit - was invisible to all of them. `renamed_kit` is the same
+    # kit geometry, the same roles, every NAME prefixed. Measured before the
+    # fix: 858 prims over 13 stand-in bands, page saying `ok`.
+    print("\n=== 5c. a kit whose module names are not the defaults ===")
+    mine = cases2d.facade_kit(rename="mine_")
+    pairs = []
+    for label, k in (("own_names", kit), ("renamed", mine)):
+        n = build_node(geo_node, "rk_" + label,
+                       spline_geo([cases2d.RECT_FOOTPRINT]), k,
+                       **{"shape": "footprint", "height": 13.0})
+        g = n.geometry()
+        pairs.append((g.intrinsicValue("primitivecount"),
+                      len(set(g.primStringAttribValues("pc_cell"))),
+                      sorted(set(g.primIntAttribValues("pc_row"))),
+                      n.evalParm("notes")))
+    check("facade_defaults_survive_a_renamed_kit",
+          pairs[0] == pairs[1] and pairs[0][1] == 6, pairs[1][:3],
+          "the SAME facade from a kit renamed module for module - the Y "
+          "defaults must name 7.2 ROLES, not the starter kit's pieces. "
+          "notes: %r" % (pairs[1][3],))
+
+    # ...and a slot naming a module NO kit has must say so on the page. The
+    # payload face has had this since C3a (`style.read(kit=...)`); the parm
+    # face - the default one, the one an artist uses - validated nothing.
+    n = build_node(geo_node, "badslot", spline_geo([cases2d.RECT_FOOTPRINT]),
+                   kit, **{"shape": "footprint", "height": 13.0,
+                           "slot_default": "no_such_module"})
+    said = n.evalParm("notes")
+    check("facade_page_modules_checked_against_kit",
+          "no_such_module" in said and "stand-in box" in said
+          and n.geometry().intrinsicValue("primitivecount") > 0,
+          len(said), said[:150] or "the page said nothing")
+
+    # ---- 5d. a Kit File that cannot be read (D289's route, again) ---------
+    #
+    # `addWarning` on this asset reaches nobody - `cook_facade` says so in its
+    # own block - and this was the one warning in the facade cook path still
+    # going out on it alone. A typo'd path silently built the starter kit.
+    # ⚠️ INPUT 2 IS DELIBERATELY UNWIRED. The kit-file lane only runs when it
+    # is (`kit_geometry` prefers the port), so the first spelling of this
+    # check wired a kit, never reached the lane, and read `ok` off a page that
+    # was telling the truth.
+    print("\n=== 5d. an unreadable Kit File ===")
+    n = build_node(geo_node, "badkit", spline_geo([cases2d.RECT_FOOTPRINT]),
+                   None, **{"shape": "footprint", "height": 13.0,
+                            "kitfile": "F:/no/such/kit.bgeo"})
+    said = n.evalParm("notes")
+    check("facade_kit_file_failure_reaches_the_page",
+          "could not be read" in said and "no/such/kit.bgeo" in said,
+          len(said), said[:140] or "the page said nothing")
+
+    # ---- 5e. the two faces of 2.1 offer the SAME cull vocabulary ----------
+    #
+    # ⚠️ THE ORACLE IS THE OTHER FACE, not a table of prim counts. `none` was
+    # reachable from a payload and absent from the menu, so the parm face
+    # could not ask for a policy the kernel builds - and the shipped build
+    # script justified the gap with a claim about `CLIP_POLICIES.get` that
+    # `row_spans` refutes on its first line. Every menu token must build what
+    # the same token builds through a payload.
+    print("\n=== 5e. Boundary Treatment == the payload's own vocabulary ===")
+    defn = hou.hda.definitionsInFile(HDA_PATH)[0]
+    tokens = tuple(defn.parmTemplateGroup().find("clip_mode").menuItems())
+    tallies, bad = {}, []
+    for mode in tokens:
+        kw = {"foot": spline_geo([cases2d.RECT_FOOTPRINT]),
+              "aux": spline_geo(cases2d.CLIP_LOOPS, purpose="clip"),
+              "kit": cases2d.clip_kit()}
+        # ⚠️ BOTH SIDES CARRY THE SAME STYLE PAYLOAD and the ONLY variable is
+        # which face the cull policy arrived on - the page's menu, or the
+        # payload's `clip.mode`. Comparing the page's own default style
+        # against `facade_style` instead measured two things at once and
+        # disagreed on every token including `remove`.
+        page = build_node(geo_node, "cm_p_" + mode, kw["foot"], kw["kit"],
+                          aux=kw["aux"],
+                          payload=payload_geo(cases2d.facade_style()),
+                          **{"shape": "area", "clip_mode": mode})
+        pay = build_node(
+            geo_node, "cm_y_" + mode, kw["foot"], kw["kit"], aux=kw["aux"],
+            payload=payload_geo(cases2d.facade_style(
+                meta={"clip": {"mode": mode}})),
+            **{"shape": "area", "clip_mode": "remove"})
+        rows = diff.compare(diff.snapshot(page.geometry()),
+                            diff.snapshot(pay.geometry()))
+        tallies[mode] = page.geometry().intrinsicValue("primitivecount")
+        if rows:
+            bad.append("%s: %s" % (mode, rows[0]))
+    check("facade_clip_menu_is_the_payload_vocabulary",
+          set(tokens) == set(A2.CLIP_WORDS["mode"]) and not bad
+          and len(set(tallies.values())) > 1,
+          sorted(tallies.items()),
+          "menu %s vs payload %s; %s"
+          % (sorted(tokens), sorted(A2.CLIP_WORDS["mode"]),
+             "; ".join(bad)[:200] or "every token builds the same both ways"))
+
+    # ---- 5f. a pc_purpose token the discriminator does not know -----------
+    #
+    # D88's silent no-op on the port D316 built: `_keep(geo, ("",))` keeps the
+    # UNTAGGED prims, so a footprint helpfully tagged `pc_purpose=footprint`
+    # was deleted and the page blamed the artist for not drawing one.
+    print("\n=== 5f. an unknown pc_purpose ===")
+    n = build_node(geo_node, "purpose",
+                   spline_geo([cases2d.RECT_FOOTPRINT], purpose="footprint"),
+                   kit, **{"shape": "footprint", "height": 13.0})
+    said = n.evalParm("notes")
+    check("facade_unknown_purpose_is_named",
+          F.WARN_PURPOSE_UNKNOWN in said and "'footprint'" in said,
+          len(said), said[:150] or "the page said nothing")
+
     # ---- 6. 5.1's metadata and artist_ui 6's law, on the SAVED assets -----
     print("\n=== 6. 5.1 metadata + artist_ui 6, off the .hda ===")
     UNITED = {"height": "m", "expand": "m", "bend_tol": "m",
@@ -506,18 +621,27 @@ def main():
     # are in the saved file), so the assertion is the DialogScript's own
     # `disablewhen` line, per parm and by VALUE - a count would pass with all
     # four conditions pointing at the wrong mode.
-    EXPECTED_DISABLE = {"height": "{ shape != footprint }",
-                        "clip_mode": "{ shape != area }",
-                        "expand": "{ shape != area }",
-                        "auto_align": "{ shape != area }"}
+    #
+    # ⚠️ AND THE EXPECTED SET IS THE TOOL'S OWN `FACADE_DISABLE` NOW, COMPARED
+    # IN BOTH DIRECTIONS (P2-9a F5). It used to be a four-entry list written
+    # here, which could only ever check that those four were spelled right -
+    # so five mode-conditional parms (the two adaptive thresholds and the
+    # three MITER-only corner controls) shipped ungated and this row passed.
+    # An asset carrying a condition the table does not declare now fails too,
+    # which is the direction that catches a gate deleted from the declaration.
+    # WHAT IT STILL CANNOT SEE: a parm that is mode-conditional and gated in
+    # NEITHER place - `FACADE_DISABLE` is written by hand, and only drift
+    # between it and the built asset is mechanical.
     # ⚠️ THE BLOCKS ARE SPLIT, NOT REGEXED ACROSS. `default { 13 }` puts a
     # closing brace INSIDE a parm block, so a `name "x"[^}]*disablewhen` match
     # stops at the default and reports every condition missing - which is how
     # the first spelling of this failed on a page that had all four.
     blocks = dict((b.split('"')[1], b) for b in ds.split("    parm {")[1:]
                   if b.strip().startswith("name"))
-    wrong = [n for n, cond in sorted(EXPECTED_DISABLE.items())
+    wrong = [n for n, cond in sorted(H.FACADE_DISABLE.items())
              if 'disablewhen "%s"' % cond not in blocks.get(n, "")]
+    wrong += ["%s:undeclared" % n for n in sorted(blocks)
+              if "disablewhen" in blocks[n] and n not in H.FACADE_DISABLE]
     rows = list(walk(defn.parmTemplateGroup()))
     byname = dict((t.name(), t) for _f, t in rows)
     nohelp = [t.name() for _f, t in rows if not (t.help() or "").strip()]

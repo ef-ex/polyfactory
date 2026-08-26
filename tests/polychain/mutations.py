@@ -1258,8 +1258,67 @@ MUTATIONS = (
       "and stops saying so. Greyed out rather than hidden is the rule, and "
       "`hou.Parm.isDisabled()` does not answer it in hython - the assertion "
       "is the saved DialogScript's own `disablewhen`, per parm and by VALUE.",
-      ((FACADE_BUILD, '_height.setDisableWhen("{ shape != footprint }")',
-        '_height.setHelp(_height.help())'),)),
+      ((FACADE_BUILD,
+        "    _tpl.setConditional(hou.parmCondType.DisableWhen, _cond)",
+        "    _tpl.setHelp(_tpl.help())"),)),
+
+    # ---- P2-9a: the audit's six findings, each with its own edit ----------
+
+    M("facade_y_defaults_name_a_module_again", "facade",
+      ("facade_defaults_survive_a_renamed_kit",),
+      "P2-9a F1, exactly as it shipped: one Y slot goes back to naming the "
+      "STARTER KIT's own module instead of 7.2's role. Any kit that calls "
+      "its storey piece something else then resolves that slot against "
+      "nothing and the building collapses into 1 m stand-in bands - 858 "
+      "prims over 13 rows, page saying `ok`. ⚠️ EVERY OTHER FACADE FIXTURE "
+      "IS AUTHORED WITH THE PAGE'S OWN DEFAULT NAMES, which is why the whole "
+      "suite agreed with a page that resolved nothing.",
+      ((FACADE_BUILD, '"yslot_default", "Repeating Storey", "default",',
+        '"yslot_default", "Repeating Storey", "bay",'),)),
+
+    M("facade_page_modules_never_validated", "facade",
+      ("facade_page_modules_checked_against_kit",),
+      "P2-9a F1's other half: the parm face stops checking its module names "
+      "against the kit, so a slot naming a piece no kit has builds stand-in "
+      "boxes in silence. `style.read` has validated the PAYLOAD face since "
+      "C3a - this is the asymmetry, registered.",
+      ((PY % "hda.py",
+        "            for warn in _style.kit_gaps(index, rule.slot,"
+        " rule.modules, kit):",
+        "            for warn in []:"),), rebuild=False),
+
+    M("facade_kit_file_warning_off_the_page", "facade",
+      ("facade_kit_file_failure_reaches_the_page",),
+      "P2-9a F2: the Kit File failure goes back to `addWarning` alone, which "
+      "`cook_facade`'s own block records as reaching NOBODY on this asset. A "
+      "typo'd path then builds a plausible building out of the starter kit "
+      "and the page says `ok`.",
+      ((PY % "hda.py", "kit_geo = facade_kit_geometry(node, parms, say)",
+        "kit_geo = facade_kit_geometry(node, parms)"),), rebuild=False),
+
+    M("facade_clip_menu_loses_a_policy", "facade",
+      ("facade_clip_menu_is_the_payload_vocabulary",),
+      "P2-9a F3: the Boundary Treatment menu drops back to three entries, so "
+      "a cull policy the payload face accepts and `row_spans` builds is "
+      "unreachable from the parm face - 2.1's two faces disagreeing about "
+      "the vocabulary. The menu is built from `CLIP_WORDS` and the check "
+      "compares the two, so a hand-written third list cannot creep back.",
+      ((FACADE_BUILD,
+        '    [(k, _CLIP_LABELS[k]) for k in ("remove", "preserve", "slice",'
+        ' "none")',
+        '    [(k, _CLIP_LABELS[k]) for k in ("remove", "preserve", "slice")'),
+       )),
+
+    M("facade_unknown_purpose_stays_silent", "facade",
+      ("facade_unknown_purpose_is_named",),
+      "P2-9a F4: D88's silent no-op on D316's port. `_keep(geo, (\"\",))` "
+      "keeps the UNTAGGED prims, so a footprint tagged `pc_purpose = "
+      "footprint` is deleted and the page blames the artist for not drawing "
+      "one. `yspline` is refused by name one branch over; D294 says every "
+      "other unknown gets the same courtesy.",
+      ((PY % "facade.py",
+        "    unknown = sorted(set(purposes) - set(AUX_PURPOSES))",
+        "    unknown = []"),), rebuild=False),
 
     M("polychain_icon_back_to_subnet", "facade",
       ("polychain_assets_carry_5_1_metadata",),
@@ -1328,7 +1387,13 @@ EXPECT_CHECKS = {
     # +1 name / +1 mutation for `facade_extend_picks_the_fallback` - D117's
     # parm, which needed a kit with a GAP in it before any fixture could
     # reach 7.2.2's fallback at all. 12 names, 14 mutations.
-    "facade": 12,
+    # P2-9a, the audit: +5 names / +5 mutations, one per finding F1..F4 (F1
+    # is two claims and therefore two rows). All five are things the suite
+    # could not have seen, and four of the five for the SAME structural
+    # reason - every fixture kit was authored with the page's own default
+    # module names, so the page and the oracle resolved the same nothing.
+    # 17 names, 19 mutations.
+    "facade": 17,
 }
 
 
