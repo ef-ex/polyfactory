@@ -30,6 +30,29 @@ HOUDINI_PATH="F:/projects/polyfactory-citygen/polyfactory;&" \
   tests/citygen/run_scene_checks.py --json <scratch>.json
 ```
 
+⭐ **MEASURED 2026-08-17, BEFORE ANY MOUTH CODE LANDS — two findings that shape the fix:**
+
+1. **The miter clamp fires ONLY on M and O.** Instrumented over all 16 cases: **9 fires in
+   3,721 corner pairs**, every one at a merge landing (15.5° on M, 22.0° on O). So the mouth
+   construction can be changed inside that branch with a blast radius of exactly two cases —
+   proven, not assumed.
+2. ⚠️ **THE MOUTH IS A TRADE, and both ends of it are red.** Two variants were built and
+   gated (both reverted, HDA is back at HEAD):
+   * cut BOTH streets short (26.8 m) and close there → `selfx_junction_surface` **2 → 0**,
+     but `selfx_roads` **0 → red**: two carriageways leaving at 22° do not physically
+     separate until **~94 m**, so a short cut leaves ~67 m of DOUBLED asphalt.
+   * keep the long clamped cut and close straight across (no fillet) → **identical result**,
+     because dropping the fillet's tangent reach also shortens the cut.
+   The two failures are the same fact seen twice: **at 22° the paved region genuinely IS a
+   ~94 m gore, and the only question is who owns it — the plate or the two roads.** Today the
+   roads own it and overlap; before, the plate owned it and self-intersected.
+   → **The next construction to try: the plate owns the gore, but as a SIMPLE polygon** — two
+   outer kerbs plus one straight closing cross-section at the divergence station, with the two
+   inner kerbs suppressed (they are what cross). That is the shared bisected cross-section of
+   KB §4c, applied to the plate rather than to the cut. Measure `selfx_roads` AND
+   `selfx_junction_surface` together; fixing one by moving the overlap into the other is not
+   progress, and this is the trap that ate two variants.
+
 **NEXT ITEM — M5.4, the merge mouth contract.** The landing builds as a crossing at ~12°,
 below the 25° floor the corner solve was designed against; at arterial widths O ships a ~100 m
 gore wedge, 2 self-intersections, corner-arc tangent 3.17. Build the mouth in `s5j_solve` AND
