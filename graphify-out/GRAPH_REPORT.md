@@ -1,16 +1,16 @@
 # Graph Report - polyfactory  (2026-08-27)
 
 ## Corpus Check
-- 190 files · ~894,533 words
+- 190 files · ~894,832 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4797 nodes · 7227 edges · 302 communities (279 shown, 23 thin omitted)
+- 4797 nodes · 7227 edges · 299 communities (277 shown, 22 thin omitted)
 - Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 366 edges (avg confidence: 0.7)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f22ae101`
+- Built from commit: `e1146960`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -271,7 +271,6 @@
 - [[_COMMUNITY_Community 257|Community 257]]
 - [[_COMMUNITY_Community 258|Community 258]]
 - [[_COMMUNITY_Community 259|Community 259]]
-- [[_COMMUNITY_Community 260|Community 260]]
 - [[_COMMUNITY_Community 261|Community 261]]
 - [[_COMMUNITY_Community 262|Community 262]]
 - [[_COMMUNITY_Community 263|Community 263]]
@@ -287,7 +286,6 @@
 - [[_COMMUNITY_Community 273|Community 273]]
 - [[_COMMUNITY_Community 274|Community 274]]
 - [[_COMMUNITY_Community 275|Community 275]]
-- [[_COMMUNITY_Community 276|Community 276]]
 - [[_COMMUNITY_Community 277|Community 277]]
 - [[_COMMUNITY_Community 278|Community 278]]
 - [[_COMMUNITY_Community 279|Community 279]]
@@ -297,7 +295,6 @@
 - [[_COMMUNITY_Community 283|Community 283]]
 - [[_COMMUNITY_Community 284|Community 284]]
 - [[_COMMUNITY_Community 285|Community 285]]
-- [[_COMMUNITY_Community 286|Community 286]]
 - [[_COMMUNITY_Community 287|Community 287]]
 - [[_COMMUNITY_Community 288|Community 288]]
 - [[_COMMUNITY_Community 289|Community 289]]
@@ -346,12 +343,12 @@
 - 1-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 2-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
+- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
-- 3-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 - 4-file cycle: `polyfactory/scripts/python/polyfactory/widgets/__init__.py -> polyfactory/scripts/python/polyfactory/widgets/widgets.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_numeric.py -> polyfactory/scripts/python/polyfactory/widgets/parm_widgets_base.py -> polyfactory/scripts/python/polyfactory/widgets/__init__.py`
 
-## Communities (302 total, 23 thin omitted)
+## Communities (299 total, 22 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
@@ -598,8 +595,8 @@ Cohesion: 0.18
 Nodes (11): ⚠️ …AND `lots_moved` WAS LATENT HOLE 1 AGAIN — the count kept, the magnitude discarded, ⚠️ AND THE EXPERIMENT NEVER VERIFIED THAT IT RAN, ⚠️ AND THE EXPERIMENT THAT CAUGHT THE VERDICT WAS ASSERTING THE VERDICT'S OWN BLIND SPOT, ⚠️ AND THE FIX LEFT THE SAME PATTERN ONE LEVEL DOWNSTREAM, ⚠️ …AND THEN IT STOPPED TOO EARLY, BECAUSE FOUR AGGREGATES CANNOT SEE A REDISTRIBUTION, Layers — the change bridges force, Networks are typed, `pf_citygen_mesh` input 0 is NOT dead — it is under-observed (+3 more)
 
 ### Community 64 - "Community 64"
-Cohesion: 0.18
-Nodes (11): 11. Evidence quality, 1. Headline finding, 4. The pivotal case study: Embark's Building Creator, 6. What is genuinely unsolved, 7. Footprint or envelope? — Hannes' two approaches, 8. Architectural style — the variance problem, 8a. Style taxonomies exist, and there are two incompatible kinds, 8b. Style-specific grammars exist, are proven, and are hand-written each time (+3 more)
+Cohesion: 0.13
+Nodes (15): 11. Evidence quality, 1. Headline finding, 2. The paper map, 4. The pivotal case study: Embark's Building Creator, 6. What is genuinely unsolved, 7. Footprint or envelope? — Hannes' two approaches, 8. Architectural style — the variance problem, 8a. Style taxonomies exist, and there are two incompatible kinds (+7 more)
 
 ### Community 67 - "Community 67"
 Cohesion: 0.17
@@ -875,7 +872,7 @@ Nodes (23): Params, Every HDA parm the kernel reads. Angles in DEGREES (artist b
 
 ### Community 142 - "Community 142"
 Cohesion: 0.11
-Nodes (22): analyse(), _blank_to_none(), _native_for(), _native_tables(), Override, _override_for(), _pattr(), plan_points() (+14 more)
+Nodes (23): analyse(), _blank_to_none(), _identity_remap(), _native_for(), _native_tables(), _pattr(), plan_points(), _prattr() (+15 more)
 
 ### Community 143 - "Community 143"
 Cohesion: 0.08
@@ -902,8 +899,8 @@ Cohesion: 0.09
 Nodes (23): The blank box a missing module becomes. Never a failure (3.4)., stand_in(), _anchor_len(), _anchor_transform(), _band(), build(), _collate_warnings(), _declare() (+15 more)
 
 ### Community 149 - "Community 149"
-Cohesion: 0.15
-Nodes (19): _bend_deviation(), _chord_ratio(), _cross(), _frame(), _len(), Path, How much of a planned span the straight chord across it covers.      A rigid pie, D75 + D87 - how far the DEFORMED piece would sit from the PACKED     one, in met (+11 more)
+Cohesion: 0.13
+Nodes (23): _bend_deviation(), _chord_ratio(), _cross(), _flat_ratio(), _frame(), _len(), Path, How much of a planned span the straight chord across it covers.      A rigid pie (+15 more)
 
 ### Community 150 - "Community 150"
 Cohesion: 0.09
@@ -994,8 +991,8 @@ Cohesion: 0.17
 Nodes (6): D2. A 31 deg turn is a corner at the 30 deg default; its INCLUDED         angle, D9. 170 deg of turn leaves 10 deg between the legs - under the         15 deg f, D8. A repeated point has no direction, so it can neither confirm         nor de, The cleaned polyline is an internal convenience; `pc_corner` is         authore, The docstring contract is `turn > corner_angle_deg` spawns a corner,         so, TestCorners
 
 ### Community 172 - "Community 172"
-Cohesion: 0.15
-Nodes (5): D10, and RailClone's own documented limit about the closing vertex:         a c, The square's fourth corner is AT point 0, which an open-curve         implement, D18: start/end modules cap a RUN. A corner is not the end of one -         Rail, square(), TestSections
+Cohesion: 0.13
+Nodes (6): D10, and RailClone's own documented limit about the closing vertex:         a c, The square's fourth corner is AT point 0, which an open-curve         implement, The corner rules already exclude an open curve's endpoints; the         section, D18: start/end modules cap a RUN. A corner is not the end of one -         Rail, square(), TestSections
 
 ### Community 173 - "Community 173"
 Cohesion: 0.13
@@ -1090,8 +1087,8 @@ Cohesion: 0.18
 Nodes (12): _cond_columns(), cook_config(), _exact(), kit_table(), A float as the decimal string VEX's `atof` reads back bit for bit., One 3.3 condition as (kind, number, string, [(kind, num, str)]).      The LIST, `Kit` -> the flat arrays `pc_plan.h` binds.  Payload order, unsorted., `Style` -> the flat arrays `pc_plan.h` binds.  Payload order, unsorted.      ` (+4 more)
 
 ### Community 196 - "Community 196"
-Cohesion: 0.20
-Nodes (5): line(), D7: a per-POINT list is the only shape that can express a mid-curve         lim, The corner rules already exclude an open curve's endpoints; the         section, A polyline along +X at y = z = 0., TestMarkers
+Cohesion: 0.14
+Nodes (6): line(), D7: a per-POINT list is the only shape that can express a mid-curve         lim, Warn-never-block: none of these may raise, and none may hang., A polyline along +X at y = z = 0., TestDegenerateInput, TestMarkers
 
 ### Community 197 - "Community 197"
 Cohesion: 0.18
@@ -1138,8 +1135,8 @@ Cohesion: 0.20
 Nodes (10): 16.0 R1 IS DISSOLVED — §13.2 was wrong about VEX, and the correction is worth more than the code, 16.1 What exists now — 36 nodes, and one branch with no Python in its PER-PIECE path, 16.2 §4.2 in VEX — the parity, and it is EXACT, 16.3 Determinism — proved four ways, not asserted, 16.4 R8 answered, and §11.1's declined `copytopoints` retired, 16.5 Performance — the expander was quadratic, and the solve resolved the kit per piece, 16.6 Mutation — 14 mutations, 0 survivors, 16.7 Decisions (+2 more)
 
 ### Community 209 - "Community 209"
-Cohesion: 0.24
-Nodes (10): _at_height(), _flat(), _flat_ratio(), _packed_transform(), The 4x4 that maps module local space onto the chord A->B (D21).      `base_y` is, `v` with its `up_ref` component removed - "horizontal", generalised.      D296a:, `p` moved along `up_ref` so its height (`dot(p, up_ref)`) is `h`.      D98's fla, The two reads every span-shaped question in this file starts with.      A span i (+2 more)
+Cohesion: 0.18
+Nodes (12): _at_height(), _deform_positions(), _flat(), _follows(), _packed_transform(), Does the point at local height `y` FOLLOW the ground? (D99)      One expression, The 4x4 that maps module local space onto the chord A->B (D21).      `base_y` is, Every point of `src` re-read at its own arc position. Returns     (flat world po (+4 more)
 
 ### Community 210 - "Community 210"
 Cohesion: 0.24
@@ -1326,8 +1323,8 @@ Cohesion: 0.33
 Nodes (7): _dot(), _needs_deform(), D98 - the ONE elevation a `stepped` piece sits flat at.      D296a - "elevation", Does the ground move under this span at all? Metres of range.      D296a - along, 4.4 + the streets float32 lesson: rebuild ONLY when it changes something., _stepped_base(), _y_varies()
 
 ### Community 258 - "Community 258"
-Cohesion: 0.29
-Nodes (5): _identity_remap(), _prepare(), (kernel curve, Path on the REAL curve, flat->real remap, fillet warns).      4.5, s on the flattened curve -> s on the real one (D26, slope fixing).      Both cur, _Remap
+Cohesion: 0.33
+Nodes (4): Override, _override_for(), [Override] off the override input, in payload order (D63).      An unconnected i, read_overrides()
 
 ### Community 259 - "Community 259"
 Cohesion: 0.29
@@ -1389,10 +1386,6 @@ Nodes (6): 1. Vision and question (Hannes, 2026-08-21), 2. The answer, 3. Feasib
 Cohesion: 0.33
 Nodes (6): curve_prim_index(), _f32(), plan_geometry(), `x` as float32 storage will hold it - the head of the split above., {curve id: primitive number} - THE ids `place.read_curves` produced.      ⚠️ I, `plan_points` PLUS 13.3.4's frame inputs - the PLAN stage's output.      ⚠️ SC
 
-### Community 276 - "Community 276"
-Cohesion: 0.33
-Nodes (6): _deform_positions(), _follows(), Does the point at local height `y` FOLLOW the ground? (D99)      One expression, Every point of `src` re-read at its own arc position. Returns     (flat world po, D31 - the frame carried along the piece instead of re-derived per point.      `_, _transport()
-
 ### Community 279 - "Community 279"
 Cohesion: 0.40
 Nodes (5): 12.10a G1 result — topology as data: PASS, Round 2 (independent, 2026-08-26) — the question is answered, the gate is withheld, Round-3 FIX PASS (2026-08-26, on `HEAD` `39033d2`) — the queue is closed; the gate is not mine to call, Round 3 (independent, inspect-only, 2026-08-26, HEAD `1429850`) — the question is decided, the gate is still not, Round 4 (independent, inspect-only, 2026-08-26, HEAD `756a787`) — G1 IS DECIDED
@@ -1420,10 +1413,6 @@ Nodes (4): The VEX sources for polyChain's node network, loaded and inlined.  Th
 ### Community 285 - "Community 285"
 Cohesion: 0.50
 Nodes (4): 10. Where this leaves the building subsystem, 10a. What we already hold locally, Order of study before writing the design, The one prototype worth running
-
-### Community 286 - "Community 286"
-Cohesion: 0.50
-Nodes (4): 2. The paper map, Era 1 — Grammars (2001–2014). The canon; still what production runs on., Era 2 — Layout & optimisation (2010–2020). Interiors and floor plans., Era 3 — Neural / hybrid / LLM (2023–2026). Watch, don't adopt.
 
 ### Community 287 - "Community 287"
 Cohesion: 0.50
@@ -1456,7 +1445,7 @@ Nodes (3): 12.4 L0 — the lane graph, 12.4a L0-lite — the only pre-streets wo
 ## Knowledge Gaps
 - **1078 isolated node(s):** `Project Overview`, `Package Structure`, `Environment Variables`, `Temporary / One-Off Scripts`, `Houdini Bridge - AI Agent Integration` (+1073 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **23 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **22 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_

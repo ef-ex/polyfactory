@@ -126,7 +126,37 @@ cycle ran `--update-baseline` and *then* read the diff to confirm it was additiv
 **verified after blessing is not verified.** The order is the control; getting away with it is not
 evidence the order does not matter.
 
-**⚠️ A THIRD SHAPE, AND IT IS A READING FAILURE RATHER THAN A CHECKING ONE — see §2b row 14.**
+**⚠️ A THIRD STALENESS SHAPE, AND IT NEEDS NOTHING TO CHANGE AT ALL** *(f2, 2026-08-27 — found by
+raising a one-sentence observation rather than staying silent about it)*:
+
+> **COUNTS SCOPED BY A PATH ARE ONLY AS STABLE AS THE PATH.**
+
+`tests/README.md` said **"74 unit tests"**. That was **correct and correctly measured** —
+`test_plan.py` 52 + `test_citygen.py` 22 — on a branch where `tests/unit/` held only citygen's
+files. After the merge the same directory holds **316**, because `origin/worldengine` carried seven
+polyChain test files `cityGen` had never seen. **No code changed. No fixture went stale. The true
+statement became a misleading one because the directory it names gained files.**
+
+That is distinct from the two shapes above: there the recorded value **became wrong**; here the
+recorded value **is still right for what it measured**, and only the reader's assumption about its
+scope is wrong. A staleness check of the kind that caught instance 29 would **pass** on it.
+
+**⭐ AND ITS UNIFICATION WITH THE 22-vs-25, WHICH IS THE SHARPEST LESSON OF THE NIGHT.** The same
+session, hours earlier, read `git show origin/worldengine:tests/unit/test_citygen.py`, counted **22**
+where the other session had **25**, and concluded a commit had been lost. **The count was right; the
+frame was wrong** — 34 commits sat unpushed and invisible. Two errors, opposite directions, one
+cause:
+
+> **State what you measured *against*, not just what you measured.**
+
+A number without its frame — which branch, which path, which build, which corpus — is a claim that
+will be true when written and false when read. §2b row 13 (*a census that names its corpus has TWO
+numbers to re-measure*) is this same defect caught one step earlier.
+
+⚠️ **Live consequence right now:** `tests/README.md`'s **22** is correct **for `origin`** and becomes
+wrong the moment this session's 34 commits are pushed. **Whoever pushes moves that number.**
+
+**⚠️ A READING FAILURE RATHER THAN A CHECKING ONE — see §2b row 14.**
 The first two shapes are defects in what a check *can see*. This one is a defect in what a human or
 agent *concludes* from output that was entirely correct:
 
