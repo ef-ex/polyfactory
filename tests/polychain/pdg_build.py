@@ -144,13 +144,21 @@ def build(mode, mut_indices, seeds=SEEDS, slots=None):
     # ⚠️ SLOTS ARE A TRADE, NOT A FREE SPEEDUP.  `run_native_checks.py` holds
     # WALL-CLOCK ceilings (`bench_deform_20km`, the `*_wall_clock` rows), and
     # the registry's own control already had to grow a 3-attempt retry because
-    # a second hython on this machine reddened them.  CPU-1 is the default;
-    # `--slots N` is how an operator buys stability back.
+    # a second hython on this machine reddened them.
+    #
+    # ⚠️ AND THE CEILING IS THE MACHINE, NOT THE CPU.  The old default (CPU-1
+    # = 15 hython sessions, each a full Houdini runtime committing multi-GB)
+    # HARD-FROZE the build machine twice on 2026-08-26 — Kernel-Power 41 with
+    # services starving a minute before the log stops, no GPU/WHEA events, a
+    # fixed 5.7 GB pagefile leaving the commit limit barely above physical
+    # RAM.  Retrospective §2c #11.  Default is 4; `--slots N` raises it
+    # DELIBERATELY, on a machine known to have the commit headroom.
     if slots:
         sch.parm("maxprocsmenu").set("1")
         sch.parm("maxprocs").set(int(slots))
     else:
-        sch.parm("maxprocsmenu").set("-1")       # CPU count less one
+        sch.parm("maxprocsmenu").set("1")
+        sch.parm("maxprocs").set(4)              # stability first; see above
     sch.parm("pdg_workingdir").set(REPO)
     made = {}
 

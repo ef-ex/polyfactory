@@ -73,6 +73,7 @@ interruptions (usage limits, 529s) cost far less, because durable on-disk state 
 | 8 | **`git commit --amend` on a shared branch rolled another workstream's committed HDAs out of HEAD twice** | Recovered, md5-verified. Now a standing prohibition |
 | 9 | **Scratchpad filename collision** between concurrent agents — one overwrote three of another's files | Namespaced copies |
 | 10 | **Houdini GUI bridge wedged** — answers pings (off-thread) while every main-thread call times out | Fell back to hython + a headless rasteriser |
+| 11 | **The build machine HARD-FROZE twice** (Kernel-Power 41, services starving before the log stops, no GPU/WHEA events) — the PDG runner's default of CPU-1 = **15 parallel hython sessions** met a fixed 5.7 GB pagefile (commit limit ≈ RAM) and work items that had grown to 123k-prim builds | Default capped to 4 slots IN CODE (`--slots N` is the deliberate opt-up); recommendation to Hannes: system-managed pagefile, close the GUI Houdini during unattended sweeps |
 
 ### 2d. My own spec and briefing failures
 
