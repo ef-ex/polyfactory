@@ -305,6 +305,25 @@ def _sheet(kind, x0, x1, z0, z1, n, phase, y0=0.0, reverse=False, skip=None):
 WALL_LANE = 3            # one conformed seed in three drops onto a WALL
 
 
+def _straighten(curve_geo):
+    """Every curve re-laid DEAD STRAIGHT along +X, attributes untouched.
+
+    ⚠️ AND THIS IS HALF OF WHAT MAKES THE WALL LANE REACH ANYTHING. A
+    generated spline kinks, and a kink is already in `pc_frames_transportable`'s
+    sample set, so the KINKS alone refuse the piece and the stations decide
+    nothing: measured, dropping the station loop took seed 12 from 0 built to
+    15 of 26 - a change the guard still swallowed, because level 2 refuses on
+    `planned != built` either way and the output stayed the reference's. With
+    a straight spline the stations are the ONLY thing that can refuse, so
+    dropping them takes built to planned, level 2 admits, and the wrong fence
+    reaches the differential.
+    """
+    for prim in curve_geo.prims():
+        for k, vtx in enumerate(prim.vertices()):
+            vtx.point().setPosition((2.0 * k, 0.0, 6.0 * prim.number()))
+    return curve_geo
+
+
 def _wall(curve_geo, wiggly):
     """A near-vertical sheet BESIDE the run, dropped onto along +-Z (F3).
 
@@ -456,6 +475,7 @@ def make(seed):
         lane = seed // (NATIVE_LANE * SURFACE_LANE)
         if lane % WALL_LANE == 0:
             wiggly = bool((lane // WALL_LANE) % 2)
+            curve = _straighten(curve)
             surface = _wall(curve, wiggly)
             skind = "wall+wiggle" if wiggly else "wall"
             style.params.conform_axis = (0.0, 0.0, -1.0) if (lane % 2) \

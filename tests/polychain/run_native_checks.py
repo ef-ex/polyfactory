@@ -1478,8 +1478,11 @@ def output_snapshot_sees_the_deformed_branch(root):
 
 # 13.9 N5 - the scene cases that legitimately pay the level-1-pass /
 # level-2-refuse double cook, declared rather than counted (`P_crest_bend`:
-# overhanging crest).  A case joining this set is a widening to look at.
-GUARD_FALLBACK_CASES = ("P_crest_bend",)
+# overhanging crest; `BQ_conform_wall_bumps`: the C4 audit's F3 - a straight
+# span whose CONFORMED tangent reverses inside a piece, which is the one shape
+# `pc_frames_transportable`'s station set exists for and the one no fixture
+# reached).  A case joining this set is a widening to look at.
+GUARD_FALLBACK_CASES = ("P_crest_bend", "BQ_conform_wall_bumps")
 
 
 def guard_polyline_geo(pts):

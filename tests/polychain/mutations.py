@@ -231,13 +231,16 @@ MUTATIONS = (
     # tangent direction is the spline's own and the stations can add nothing;
     # only a +-X or +-Z axis can reach the branch, and no committed or
     # generated case ever set one.  `gen_cases._wall` sets one now.
-    M("transport_stations_dropped", "generated",
-      ("generated_output_matches_the_reference",),
+    M("transport_stations_dropped", "native",
+      ("output_guard_parity",),
       "`pc_frames_transportable` stops adding the piece's OWN STATIONS to its "
-      "sample set on a conformed build, so a dead-straight span over a "
-      "wiggling wall reads as un-reversed, the native chain BUILDS the pieces "
-      "it should have declared unanswerable, and they are wrong by up to "
-      "0.059 m.",
+      "sample set on a conformed build.  `BQ_conform_wall_bumps` is the shape "
+      "that answers: a DEAD STRAIGHT 20 m run dropped along -Z onto a wall "
+      "with a 0.6 m bump at the centre of every 2 m piece, so the conformed "
+      "tangent reverses INSIDE the piece while both of its ends still point "
+      "down the run - no kink anywhere for the spline-only sample set to "
+      "find.  Shipped: 10 planned, 0 built, level 2 refuses.  Mutated: 10 "
+      "built, level 2 ADMITS, and the native fence is not the reference's.",
       ((VEX % "pc_gate.h",
         "    if (conformed)\n"
         "        foreach (float x; st) push(ss, s0 + (x - ax) * scale);",

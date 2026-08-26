@@ -153,6 +153,33 @@ def surface(fn, x0=-4.0, x1=24.0, z0=-6.0, z1=6.0, nx=28, nz=12,
     return geo
 
 
+def wall(fn, x0=-2.0, x1=22.0, n=480):
+    """A near-VERTICAL sheet at z = fn(x), spanning y in [-3, 3].
+
+    ⚠️ THE ONLY SHAPE IN THE SUITE A +-Z DROP CAN LAND ON, and it exists for
+    one branch: `pc_frames_transportable` adds the piece's OWN STATIONS to its
+    sample set on a conformed build (13.9 N6), and with a +-Y axis that branch
+    decides NOTHING - the drop selects x and z from the QUERY, so the conformed
+    horizontal tangent direction is the spline's own. The C4 audit registered
+    the deletion of that loop as a mutation and it survived the entire suite.
+    """
+    geo = hou.Geometry()
+    pts = {}
+    for i in range(n + 1):
+        x = x0 + (x1 - x0) * i / float(n)
+        for j in range(3):
+            pt = geo.createPoint()
+            pt.setPosition((x, -3.0 + 3.0 * j, fn(x)))
+            pts[(i, j)] = pt
+    for i in range(n):
+        for j in range(2):
+            poly = geo.createPolygon()
+            for pt in (pts[(i, j)], pts[(i, j + 1)],
+                       pts[(i + 1, j + 1)], pts[(i + 1, j)]):
+                poly.addVertex(pt)
+    return geo
+
+
 def ramp_x(x, _z):
     return CONFORM_GRADE * x
 
@@ -1271,6 +1298,34 @@ def build_all():
         Style("strays", 1, 3, rules=[Rule("default", "first", ["panel"])],
               params=Params(fill="adaptive", zmode="adaptive")),
         surface_geo=strays)
+
+    # BP/BQ - A +-Z DROP ONTO A WALL (the C4 audit's F3), the same straight
+    # 20 m run twice, one wall parm apart. The spline is DEAD STRAIGHT, so
+    # `pc_frames_transportable` has no kink to sample and its conformed
+    # STATIONS are the only thing that can refuse a piece:
+    #   BP a gentle wall - every piece transportable, the build is NATIVE, and
+    #      it is the suite's only native +-Z conform;
+    #   BQ a 0.6 m bump at the CENTRE of every 2 m piece, steep enough that
+    #      the conformed tangent reverses inside the piece while both of its
+    #      ENDS still point down the run. That is the header's own "a dead
+    #      straight span over an overhanging crest reverses with no kink", as
+    #      geometry. Shipped: 10 planned, 0 built, level 2 refuses, the
+    #      reference ships. With the station loop deleted: 10 built, level 2
+    #      ADMITS, and `output_guard_parity` goes red.
+    for name, fn in (
+            ("BP_conform_wall",
+             lambda x: -4.0 + 0.6 * math.sin(0.35 * x)),
+            ("BQ_conform_wall_bumps",
+             lambda x: -4.0 + 0.6 * math.exp(-((x % 2.0 - 1.0) ** 2)
+                                             / (2 * 0.15 ** 2)))):
+        g = hou.Geometry()
+        polyline(g, [(float(x), 0.0, 0.0) for x in range(21)],
+                 curve_id=name[:2])
+        built[name] = _case(g, kit_geo, Style(
+            "wall", 1, 3, rules=[Rule("default", "first", ["panel"])],
+            params=Params(fill="adaptive", zmode="adaptive",
+                          conform_axis=(0.0, 0.0, -1.0))),
+            surface_geo=wall(fn))
 
     # CG - A RESAMPLED STRAIGHT LINE, BENDABLE MODULE (D69): CF's rigid beam
     # short-circuits `_needs_deform` at D27, so CF cannot see D69. Measured
