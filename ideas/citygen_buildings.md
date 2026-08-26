@@ -40,9 +40,9 @@ branch `worldengine`, **never push**, never rewrite history, stage named paths o
 | Branch | `worldengine`. ⚠️ **Hannes 2026-08-26: EVERY agent works on `worldengine` from now on** — this supersedes any per-tool branch (`cityGen`, `polychain`) named in a sibling doc's resume pointer. ⚠️ **Mechanical constraint that follows:** git refuses to check out one branch in two worktrees at once. This shared checkout `F:/projects/polyfactory` holds `worldengine`; polyfactory-f2's worktree `F:/projects/polyfactory-citygen` cannot also check it out. Whoever moves second must merge/rebase their branch into `worldengine` from here, or take the checkout over — **not** `--ignore-other-worktrees`. Raised with f2 and Hannes 2026-08-26. |
 | hython | `"C:/Program Files/Side Effects Software/Houdini 22.0.398/bin/hython.exe"` (verified headless by the polyChain build) |
 | Owning spec | §12 of this file. Build order is §12.10, **gates G1/G2 before any B-stage** |
-| Last completed | ⭐ **ROUND-4 INDEPENDENT AUDIT — RAN, AND IT DECIDES G1**, 2026-08-26, inspect-only, on `HEAD` `756a787`. Full result in **§12.10a "Round 4"**. ✅ **G1 — topology as data — IS DECIDED.** It reproduced the suite exactly (17 checks / 28 clauses / 32 mutations, all RED, 0 failing, baseline 0 moved, budget 1.89×) and verified each of round 3's four conditions independently: ⭐ **the `R3-2` oracle has NOT re-entered the methodology trap** — it stands still under the VEX mutation *and* discriminates a production bug on the authored path (`stamp()` ignoring the authored value reddens `footprint` with the geometry at `[320, 0, 360, 20]` against a `want` of `[322, 2, 358, 18]`), and the whole registry was re-swept with no instance of the trap surviving; ⭐ **`R3-4`'s three-edit mutation is honest** — the two enabling edits ALONE leave `volume_count_matches` PASS and redden only `rule_reuse`, so the defect edit is what proves the clause; ⭐ **`R3-1`, `R3-5`, `R3-7` each redden the clause they NAME** (`R3-1` reads *"24 meet it in plan, 0 share height"* with `plan_match` green, radius 6; `R3-5` and `R3-7` radius 1); ⭐ **`_wanted` MUST NOT BE DELETED and round 3 was wrong** — measured on a 6-corner L lot under a 4-volume `ring` template, deleting it FAILS correct geometry with `[(11, 6, 4)]`, which is G2's own subject; and ⭐ **§12.12's per-storey height table IS authorable today as a list of dicts** (re-measured through the shipped authoring path). It found six defects, **`R4-1`…`R4-6`, none of them gate-blocking** — the sharpest is that **the `pf_setback` sentinel is defended by NO check** (reverting `stamp()` to `> 0.0` leaves all 28 clauses green and the baseline unmoved) and **fails unsafe, silently and tracelessly** (a B0 writing 0.0 by omission builds on the lot line with all four warnings at 0). ⚠️ **Hannes' human viewport pass is owed regardless and no agent may record it as satisfied**; ⚠️ **deciding G1 does NOT ratify the `pf_setback` schema change — §0.0g row 9 stays his.** *Previous entry:* **ROUND-3 FIX PASS — DONE, EVERY MUTATION SEEN RED FOR ITS OWN REASON**, 2026-08-26, on `HEAD` `39033d2`. Full result in **§12.10a "Round-3 FIX PASS"**. **All eight defects `R3-1`…`R3-8` are closed**, including the whole gate-closing set. Suite: **17 checks / 28 clauses / 32 mutations, all RED, 0 failing**, baseline regenerated (only the two new fixture sites moved), budget **1.89×**. ⭐ **No new check and no new clause** — round 3's debt condition 1, met by construction; the three added mutations all land on existing clauses and 20 production lines were added. Headline fixes: **`plan_follows_data` models cascade level 5** and no longer fails correct geometry (shown both ways on identical geometry, since a check defect cannot be shown by a mutation); **`pf_setback` gains a NEGATIVE-IS-ABSENT sentinel** so `setback(0)` is authorable at last — ⚠️ **that is a B0 schema change, §12.4 is amended and §0.0g ROW 9 is open for Hannes**; **arity is measured against the cells the rails produced**, so every degraded site warns without inventing `pf_warn_degraded` (§0.0g row 6 closed on its own terms); **`R3-1`'s mutation lifts `ybase` AND `ytop`**, giving "24 meet it in plan, 0 share height" with `plan_match` green; **`assert_storable()` raises at authoring** on the shapes the `.geo` format loses silently (§0.0g row 5 closed, zero test budget). ⛔ **Rule 0: this is the implementer's own account — the honest words until a round-4 INDEPENDENT audit runs are "implemented, verified only by its own suite", and NO AGENT MAY RECORD G1 AS DECIDED ON IT.** *Previous entry:* **ROUND-3 INDEPENDENT AUDIT — RAN, GATE WITHHELD AGAIN**, 2026-08-26, inspect-only, on `HEAD` `1429850`. Full result in **§12.10a "Round 3"**. It reproduced the suite exactly (17/28/29 all RED, 0 failing, baseline unmoved), ⭐ **verified that the methodology trap is genuinely avoided** — both `plan_follows_data` mutations are VEX-side and the oracle was measured standing still while the geometry moved, and the whole registry was swept for the same shape with no instance surviving — and confirmed 11 of the 12 newly-revealed mutations discriminate. It found **eight defects, `R3-1`…`R3-8`**. ⛔ **Blocking: `R3-2`** (`plan_follows_data`'s oracle ignores cascade level 5 and FAILS correct geometry), **`R3-3`** (a float `pf_setback` cannot express `setback(0)` — authoring 0.0 is indistinguishable from absent, and 0 is §12.6 B1's identity op), **`R3-4`** (a topology degradation can ship with all four warnings at 0 and `volume_count_matches` calling it correct). Plus `R3-1`: `elevation_overlap`'s mutation reddens for the wrong reason (it deletes cells, 16 → 10). **Budget ruled: 1.88× is the honest number, the breach is accepted as DEBT with three stated repayment conditions, and ~4 lines of coverage are redundant — no more.** *Previous entry:* **G1 fix pass — DONE AND GREEN**, 2026-08-26. Both round-2 audits' queues are cleared except the budget: **§0.0f items 1–4, 6, 7 and R2-1…R2-7 are fixed with every mutation seen RED**; item 5's storage check and the budget are carried, both with reasons in §0.0f. Suite is **17 checks / 28 clauses / 29 mutations, all RED, 0 failing**, baseline regenerated. Headline fixes: `pf_collapse.vfl` measures CONTAINMENT against `_p0` instead of area (the blocking defect); `plan_follows_data` gives the suite plan-dimension oracles it never had (R2-1); the mutation sweep now demands one mutation per CLAUSE; `pf_warn_footprint_collapsed` stopped firing on intact footprints (R2-6); `stamp()` stopped clobbering a lot's own `pf_seed` (R2-5). ⛔ **This is the implementer's own account — Rule 0 says the honest words until a round-3 INDEPENDENT audit runs are "implemented, verified only by its own suite".** ⚠️ Test code is **1.88× production** (861/457), UP from 1.53×; the runner prints the ratio every run and the denominator decision is Hannes'. |
-| Next up | ⚠️ **CHECK AGAINST `git log --oneline -25` BEFORE STARTING.** ✅ **G1 is decided — do not audit it a fifth time.** **1. `R3-3` shipped a B0 schema change — §12.4 is amended and §0.0g row 9 is open. It is Hannes' to ratify; an auditor may not, and DECIDING G1 DID NOT.** Round 4 added the evidence he needs (`R4-2`): the sentinel **fails unsafe, silently and tracelessly**, and option (c), the companion mask `pf_setback_set`, is the only one of the three that fails safe. **2. The round-4 queue, all cheap and all non-blocking** (§12.10a "Round 4"): `R4-1` the sentinel has no check — one fixture site authoring `[0,0,0,0]` on an `at_einhof` lot plus one registry row that monkeypatches `B.stamp`, no new check and no new clause; `R4-3` an authored **PRIM** `pf_setback` is silently ignored and leaks, and §12.4 declares that class legal — B0's; `R4-5` `assert_storable()` has zero coverage and imports no `hou`, so ~4 lines under `tests/unit/`. **3. Then G2 — corner closure on an L** (§12.10), the acceptance test the whole survey points at (§5 Theme 4). Read §0.0d FIRST: polyChain's miter refusal is per-BUILD and B6's primary strategy walks into it, and ⭐ G2 must **record cook time per corner treatment** for Hannes' pending §35.6 miter decision. ⚠️ G2 needs a **non-convex footprint**, which G1 still never produced: `pf_inset.vfl` solves each corner independently and can fold a non-convex polygon through itself — but note the fix pass changed the ground under this: `pf_collapse.vfl` now DETECTS that fold by containment rather than by area, and `plan_follows_data` is the plan oracle an L-footprint claim needs. Both were built for §0.0f-1 and both are on G2's critical path. ⚠️ Its `footprint` clause assumes a RECTANGULAR lot inset per role; an L lot needs that oracle generalised, and that is G2's first test-side task. |
-| Gates | ✅ **G1 IS DECIDED, 2026-08-26, by the round-4 INDEPENDENT audit** (§12.10a "Round 4", HEAD `756a787`). Round 3's four conditions — `R3-2`, `R3-3`, `R3-4` closed and `R3-1`'s clause given a mutation that discriminates — were each verified by an agent that wrote none of the fixes. ⛔ **Do not record it in stronger words than the block quoted at the end of §12.10a "Round 4".** ⚠️ **Three things "decided" does NOT include:** Hannes' human viewport pass (still owed, see below); ratification of the `pf_setback` sentinel (§0.0g row 9, still his — deciding G1 does not ratify a schema); and anything beyond **topology** — §12.10a's own "what G1 did NOT test" still binds. Round 4 found six further defects, `R4-1`…`R4-6`, **none of which bears on the gate**; they are queued work in §12.10a "Round 4". The gate's *own question* — is `volumeTopology` data? — was confirmed three times and **is not disputed**. **Do not re-litigate it.** G1 topology-as-data ✅ **DECIDED** · G2 ⬜ · G3 ⬜ · G2 corner closure on an L ⬜ · G3 APEX-vs-VEX ⬜ (only after G1+G2). ⚠️ **G1's HUMAN viewport pass is still OWED and no agent may record it as satisfied** — three agents have now looked at `tests/citygen/gate_images_buildings/`; Hannes has not. Regenerate with `hython tests/citygen/run_building_checks.py --images`. The image check no longer compares a number with itself (§12.10a R2-2) but it still cannot see framing or subject identity, so **the human pass remains G1's real image evidence.** |
+| Last completed | ⭐ **G2 BUILT — B4 FACADE + B5 CAP + B6 JUNCTIONS, AND AN L THAT CLOSES**, 2026-08-27, on `HEAD` `bea6200`+. Full result in **§12.10b**. **5 checks / 8 clauses / 8 mutations all RED, 0 failing**; G1 re-run on the same build at **17 / 28 / 33, 0 failing, baseline unmoved** but for R4-1's new site. ⭐ **No hole and no misalignment at any of the L's five convex corners, at its REFLEX corner, or at the eave seam** — 15 768 perimeter samples per storey row, 0 uncovered, worst gap 0.000 m, a corner module at every corner. ⭐ **B4 turned out to be an ADAPTER, not a builder** (§0.0a predicted it): one wrangle turns B2's cap faces into what `facade.footprint_loops` wants and `pf_polychain_facade` does the rest, corner treatment included. **B5 is `polyexpand2d`'s straight skeleton plus `y = datum + travel × tan(pitch)`**; **B6's seam is one decision — the roof follows the facade that was BUILT, never the height that was asked for**. ⭐ **THE COOK-TIME MEASUREMENT §0.0d ASKED FOR IS DONE AND IT DISCRIMINATES**: at 64 L-shaped buildings `bend` 0.324 s / 12.2 µs per prim, `miter` 0.879 s / 42.3 µs per prim = **2.72×** — and the same build with the corners forced DEGENERATE is **1.08×**, so the cost IS the `[vex:corners]` refusal taking the reference, not the miter assembly. `bend` amortises (35.6 → 12.2 µs/prim), `miter` stays flat, so **the penalty worsens at district scale**. ⭐ **ONE PRODUCTION DEFECT FOUND AND FIXED, the one the brief sent G2 to look for:** `pf_inset.vfl`'s header said a self-intersecting fold would show as an `_area0` sign change — **measured FALSE**; an L whose short leg folds keeps every corner inside the lot AND keeps its area's sign while shrinking (+552 → +118.5), so containment and all three area terms are silent and the bowtie SHIPPED with a roof missing surface at two of its own corners. `pf_collapse.vfl` gains a strictly-proper edge-crossing test; no false positive on any G1 site and G1's baseline did not move. Also: `rails: solid` (§12.5 could not say "one volume, this shape" without also saying "something went wrong"), `plan_follows_data/footprint` **generalised from a bounding box to per-edge distances** (round 4 measured the box as exactly vacuous on an L), and **R4-1 and R4-5 closed**. ⚠️ **Budget 2.10× and the marginal ratio was 2.52× — the line was NOT held and the trend did NOT turn; commit `bea6200`'s "marginal 1.20x" is WRONG and §12.10b carries the correction.** ⛔ **Rule 0: implementer's own account. NO AGENT MAY RECORD G2 AS DECIDED ON IT, and G2's human viewport pass is owed exactly as G1's is.** *Previous entry:* ⭐ **ROUND-4 INDEPENDENT AUDIT — RAN, AND IT DECIDES G1**, 2026-08-26, inspect-only, on `HEAD` `756a787`. Full result in **§12.10a "Round 4"**. ✅ **G1 — topology as data — IS DECIDED.** It reproduced the suite exactly (17 checks / 28 clauses / 32 mutations, all RED, 0 failing, baseline 0 moved, budget 1.89×) and verified each of round 3's four conditions independently: ⭐ **the `R3-2` oracle has NOT re-entered the methodology trap** — it stands still under the VEX mutation *and* discriminates a production bug on the authored path (`stamp()` ignoring the authored value reddens `footprint` with the geometry at `[320, 0, 360, 20]` against a `want` of `[322, 2, 358, 18]`), and the whole registry was re-swept with no instance of the trap surviving; ⭐ **`R3-4`'s three-edit mutation is honest** — the two enabling edits ALONE leave `volume_count_matches` PASS and redden only `rule_reuse`, so the defect edit is what proves the clause; ⭐ **`R3-1`, `R3-5`, `R3-7` each redden the clause they NAME** (`R3-1` reads *"24 meet it in plan, 0 share height"* with `plan_match` green, radius 6; `R3-5` and `R3-7` radius 1); ⭐ **`_wanted` MUST NOT BE DELETED and round 3 was wrong** — measured on a 6-corner L lot under a 4-volume `ring` template, deleting it FAILS correct geometry with `[(11, 6, 4)]`, which is G2's own subject; and ⭐ **§12.12's per-storey height table IS authorable today as a list of dicts** (re-measured through the shipped authoring path). It found six defects, **`R4-1`…`R4-6`, none of them gate-blocking** — the sharpest is that **the `pf_setback` sentinel is defended by NO check** (reverting `stamp()` to `> 0.0` leaves all 28 clauses green and the baseline unmoved) and **fails unsafe, silently and tracelessly** (a B0 writing 0.0 by omission builds on the lot line with all four warnings at 0). ⚠️ **Hannes' human viewport pass is owed regardless and no agent may record it as satisfied**; ⚠️ **deciding G1 does NOT ratify the `pf_setback` schema change — §0.0g row 9 stays his.** *Previous entry:* **ROUND-3 FIX PASS — DONE, EVERY MUTATION SEEN RED FOR ITS OWN REASON**, 2026-08-26, on `HEAD` `39033d2`. Full result in **§12.10a "Round-3 FIX PASS"**. **All eight defects `R3-1`…`R3-8` are closed**, including the whole gate-closing set. Suite: **17 checks / 28 clauses / 32 mutations, all RED, 0 failing**, baseline regenerated (only the two new fixture sites moved), budget **1.89×**. ⭐ **No new check and no new clause** — round 3's debt condition 1, met by construction; the three added mutations all land on existing clauses and 20 production lines were added. Headline fixes: **`plan_follows_data` models cascade level 5** and no longer fails correct geometry (shown both ways on identical geometry, since a check defect cannot be shown by a mutation); **`pf_setback` gains a NEGATIVE-IS-ABSENT sentinel** so `setback(0)` is authorable at last — ⚠️ **that is a B0 schema change, §12.4 is amended and §0.0g ROW 9 is open for Hannes**; **arity is measured against the cells the rails produced**, so every degraded site warns without inventing `pf_warn_degraded` (§0.0g row 6 closed on its own terms); **`R3-1`'s mutation lifts `ybase` AND `ytop`**, giving "24 meet it in plan, 0 share height" with `plan_match` green; **`assert_storable()` raises at authoring** on the shapes the `.geo` format loses silently (§0.0g row 5 closed, zero test budget). ⛔ **Rule 0: this is the implementer's own account — the honest words until a round-4 INDEPENDENT audit runs are "implemented, verified only by its own suite", and NO AGENT MAY RECORD G1 AS DECIDED ON IT.** *Previous entry:* **ROUND-3 INDEPENDENT AUDIT — RAN, GATE WITHHELD AGAIN**, 2026-08-26, inspect-only, on `HEAD` `1429850`. Full result in **§12.10a "Round 3"**. It reproduced the suite exactly (17/28/29 all RED, 0 failing, baseline unmoved), ⭐ **verified that the methodology trap is genuinely avoided** — both `plan_follows_data` mutations are VEX-side and the oracle was measured standing still while the geometry moved, and the whole registry was swept for the same shape with no instance surviving — and confirmed 11 of the 12 newly-revealed mutations discriminate. It found **eight defects, `R3-1`…`R3-8`**. ⛔ **Blocking: `R3-2`** (`plan_follows_data`'s oracle ignores cascade level 5 and FAILS correct geometry), **`R3-3`** (a float `pf_setback` cannot express `setback(0)` — authoring 0.0 is indistinguishable from absent, and 0 is §12.6 B1's identity op), **`R3-4`** (a topology degradation can ship with all four warnings at 0 and `volume_count_matches` calling it correct). Plus `R3-1`: `elevation_overlap`'s mutation reddens for the wrong reason (it deletes cells, 16 → 10). **Budget ruled: 1.88× is the honest number, the breach is accepted as DEBT with three stated repayment conditions, and ~4 lines of coverage are redundant — no more.** *Previous entry:* **G1 fix pass — DONE AND GREEN**, 2026-08-26. Both round-2 audits' queues are cleared except the budget: **§0.0f items 1–4, 6, 7 and R2-1…R2-7 are fixed with every mutation seen RED**; item 5's storage check and the budget are carried, both with reasons in §0.0f. Suite is **17 checks / 28 clauses / 29 mutations, all RED, 0 failing**, baseline regenerated. Headline fixes: `pf_collapse.vfl` measures CONTAINMENT against `_p0` instead of area (the blocking defect); `plan_follows_data` gives the suite plan-dimension oracles it never had (R2-1); the mutation sweep now demands one mutation per CLAUSE; `pf_warn_footprint_collapsed` stopped firing on intact footprints (R2-6); `stamp()` stopped clobbering a lot's own `pf_seed` (R2-5). ⛔ **This is the implementer's own account — Rule 0 says the honest words until a round-3 INDEPENDENT audit runs are "implemented, verified only by its own suite".** ⚠️ Test code is **1.88× production** (861/457), UP from 1.53×; the runner prints the ratio every run and the denominator decision is Hannes'. |
+| Next up | ⚠️ **CHECK AGAINST `git log --oneline -25` BEFORE STARTING.** ⭐ **1. COMMISSION THE ROUND-N INDEPENDENT AUDIT OF G2** — §12.10b ends with a five-item queue written for it, and the first two items are attacks on G2's own headline clauses (`corner_closure` is a SAMPLED box test at 5 cm; `cap_seam/eave_meets_wall` probes corners and midpoints only). **2. Hannes owes TWO viewport passes now**, G1's and G2's; G2's are the sixteen `tests/citygen/gate_images_g2/g2_*_corner*_*.png`, regenerated with `hython tests/citygen/run_g2_checks.py --images`. **3. The §35.6 miter evidence is in §12.10b and is Hannes' to decide** — it is the one thing that could change how B4/B6 are budgeted at district scale. **4. Still open from round 4 and NOT G2's:** `R4-2`/`R4-3` (B0 and §0.0g row 9), `R4-4` (§0.0g row 6), `R4-6`. **5. Then G3** (§12.10), only after G2 is decided. ⚠️ **Two things G2 leaves for whoever picks up B5:** gables are NOT built (they need the weighted skeleton, `polyexpand2d`'s `uselocalinsidescale`), and that node's surface output REPEATS vertices where the wavefront collapses — 29 zero-length self-edges on this fixture, harmless but real and uncleaned. **6. `rails: solid` is used by ONE template**, which is the shape `rule_reuse` calls a style's code wearing a rule's name; worth Hannes' eye when a second template wants it. *Previously:* ✅ **G1 is decided — do not audit it a fifth time.** **1. `R3-3` shipped a B0 schema change — §12.4 is amended and §0.0g row 9 is open. It is Hannes' to ratify; an auditor may not, and DECIDING G1 DID NOT.** Round 4 added the evidence he needs (`R4-2`): the sentinel **fails unsafe, silently and tracelessly**, and option (c), the companion mask `pf_setback_set`, is the only one of the three that fails safe. **2. The round-4 queue, all cheap and all non-blocking** (§12.10a "Round 4"): `R4-1` the sentinel has no check — one fixture site authoring `[0,0,0,0]` on an `at_einhof` lot plus one registry row that monkeypatches `B.stamp`, no new check and no new clause; `R4-3` an authored **PRIM** `pf_setback` is silently ignored and leaks, and §12.4 declares that class legal — B0's; `R4-5` `assert_storable()` has zero coverage and imports no `hou`, so ~4 lines under `tests/unit/`. **3. Then G2 — corner closure on an L** (§12.10), the acceptance test the whole survey points at (§5 Theme 4). Read §0.0d FIRST: polyChain's miter refusal is per-BUILD and B6's primary strategy walks into it, and ⭐ G2 must **record cook time per corner treatment** for Hannes' pending §35.6 miter decision. ⚠️ G2 needs a **non-convex footprint**, which G1 still never produced: `pf_inset.vfl` solves each corner independently and can fold a non-convex polygon through itself — but note the fix pass changed the ground under this: `pf_collapse.vfl` now DETECTS that fold by containment rather than by area, and `plan_follows_data` is the plan oracle an L-footprint claim needs. Both were built for §0.0f-1 and both are on G2's critical path. ⚠️ Its `footprint` clause assumes a RECTANGULAR lot inset per role; an L lot needs that oracle generalised, and that is G2's first test-side task. |
+| Gates | ✅ **G1 IS DECIDED, 2026-08-26, by the round-4 INDEPENDENT audit** (§12.10a "Round 4", HEAD `756a787`). Round 3's four conditions — `R3-2`, `R3-3`, `R3-4` closed and `R3-1`'s clause given a mutation that discriminates — were each verified by an agent that wrote none of the fixes. ⛔ **Do not record it in stronger words than the block quoted at the end of §12.10a "Round 4".** ⚠️ **Three things "decided" does NOT include:** Hannes' human viewport pass (still owed, see below); ratification of the `pf_setback` sentinel (§0.0g row 9, still his — deciding G1 does not ratify a schema); and anything beyond **topology** — §12.10a's own "what G1 did NOT test" still binds. Round 4 found six further defects, `R4-1`…`R4-6`, **none of which bears on the gate**; they are queued work in §12.10a "Round 4". The gate's *own question* — is `volumeTopology` data? — was confirmed three times and **is not disputed**. **Do not re-litigate it.** G1 topology-as-data ✅ **DECIDED** · **G2 corner closure on an L — BUILT AND GREEN ON ITS OWN SUITE 2026-08-27, NOT DECIDED** (§12.10b; a round-N independent audit decides it, and ⚠️ **G2's OWN human viewport pass is now owed too** — sixteen per-corner images, `g2_1_corner3_reflex.png` first) · G3 APEX-vs-VEX ⬜ (only after G1+G2). ⚠️ **G1's HUMAN viewport pass is still OWED and no agent may record it as satisfied** — three agents have now looked at `tests/citygen/gate_images_buildings/`; Hannes has not. Regenerate with `hython tests/citygen/run_building_checks.py --images`. The image check no longer compares a number with itself (§12.10a R2-2) but it still cannot see framing or subject identity, so **the human pass remains G1's real image evidence.** |
 | Run it | `hython tests/citygen/run_building_checks.py [--mutations] [--images] [--update-baseline]`. ⚠️ **hython does not load the polyfactory package** — `POLYFACTORY` is unset and `polyfactory` resolves as a namespace package with no `citygen` in it; the runner puts `polyfactory/scripts/python` on `sys.path` itself. |
 
 ### 0.0a Dependencies — check before picking a stage
@@ -61,10 +61,18 @@ branch `worldengine`, **never push**, never rewrite history, stage named paths o
 Everything here is buildable **without** streets or polyChain, so the run is not idle while
 dependencies resolve:
 
-~~`G1`~~ ✅ → `G2` → `B5 cap/straight-skeleton` (largest from-scratch item; Labs supplies nothing) →
+~~`G1`~~ ✅ → ~~`G2`~~ ✅ built 2026-08-27 (§12.10b; **decided by an audit, not by this line**) →
 `B3 structure tables` → `B1 footprint ops` (the `setback` op is done; `shapeL`/`shapeU`/`shapeO`/
-`offset` are not) → `§12.9 module library` → **then** `B4`/`B6` on polyChain → **then, only once
-S8 answers**, `B0` identity wiring + finalize/instancing.
+`offset` are not) → `§12.9 module library` → **then, only once S8 answers**, `B0` identity wiring
++ finalize/instancing.
+⚠️ **THIS ORDER IS OUT OF DATE AND G2 IS WHY.** It put `B5 cap/straight-skeleton` next as "the
+largest from-scratch item" and `B4`/`B6` last, "on polyChain". G2 had to build a prototype of all
+three to close a corner, and the sizes came out inverted: **B4 is an ADAPTER** (~12 lines of VEX
+plus the shipped facade asset, §0.0a's own prediction), **B5 is one native node plus one line of
+arithmetic** (`polyexpand2d`'s straight skeleton, ~55 lines with the tagging), and **B6's seam is
+~16 lines**. What is left of B5 is the part G2 scoped out and it is a STYLE-RANGE item, not a
+volume-of-code one: the **weighted** skeleton, i.e. gables and mixed pitches. Re-plan against
+§12.10b before picking any of these up.
 
 ### 0.0f G1 round-2 audit — the open queue (2026-08-26)
 
@@ -361,8 +369,16 @@ G1–G4; Hannes never has.
   4. **Cost: correctness NOTHING** (the reference is the oracle, ~1.00x) — **cook time everything**,
      at district scale. Fine for G2 and prototypes.
   → **Do not design B4/B6 assuming native miters. Budget district-scale cook time at reference
-  speed.** And ⭐ **record cook time per corner treatment at G2** — those numbers are real evidence
-  for Hannes' pending §35.6 miter decision, which is the thing that could change this.
+  speed.**
+  ⭐ **MEASURED AT G2, 2026-08-27 — the numbers are in §12.10b and every clause of this block held.**
+  At 64 L-shaped buildings: `bend` **12.2 µs/prim**, `miter` **42.3 µs/prim** = **2.72×**. And it
+  DISCRIMINATES rather than merely timing: the same geometry in miter mode with the corners forced
+  DEGENERATE (`min_included_angle_deg` 120°, which D46 falls back to bend) costs **1.08×** and
+  builds the identical prim count — so the cost is the `[vex:corners]` refusal taking the reference,
+  not the miter assembly. ⚠️ **Worse than a constant factor:** `bend` amortises with district size
+  (35.6 → 12.2 µs/prim from 1 to 64 buildings) and `miter` stays FLAT, so the penalty grows exactly
+  where batching was supposed to pay. **One L is already enough to trigger it.** This is the
+  evidence for Hannes' §35.6 decision; it is his, and G2 did not take it.
 - ⚠️ **polyChain's facade node has two open items that become ours if B4 sits on it**: PC-G7 is
   asserted on `facade.build_many` and **not on the asset**, and `pf_polychain`'s `addWarning` route
   is **invisible on the HDA an artist meets** — which collides with §12.8 (warnings persisted and
@@ -1596,6 +1612,12 @@ architectural names (Embark's naming lesson, §4).
   B4–B6 at prototype quality. Pass: no holes or misalignments at any convex/reflex corner or
   eave/gable seam, viewport-verified. This is the acceptance test the whole survey points at
   (§5 Theme 4); run it **before** polishing anything.
+  ⚠️ **BUILT AND GREEN ON ITS OWN SUITE, 2026-08-27 — full result in §12.10b, and it is the
+  implementer's account, not a decision.** Two departures from this bullet, both stated
+  there: `shapeL` is a B1 op and B1 has only `setback`, so the L arrives as a LOT and is
+  inset (the harder case — the reflex corner is `pf_inset`'s to solve); and **the gable half
+  of "eave/gable" is NOT built**, because a gable needs the weighted skeleton. Every roof is
+  fully hipped, with a valley over the reflex corner.
 - **G3 — APEX vs VEX/SOP for rule fragments** ([`citygen.md`](citygen.md) §4b): only after G1+G2,
   using the G1 templates as the test corpus. Fallback is plain SOP/VEX feature nodes; APEX must
   earn its place.
@@ -2330,6 +2352,269 @@ inside a headless hython session, no `.hip` was saved, hython was run strictly S
 file was modified except this section. `git status` after the run shows only the pre-existing
 `graphify-out/` hook churn and the untracked `tests/citygen/gate_images_buildings/`, both present
 before it started.*
+
+### 12.10b G2 result — corner closure on an L: PASS (implementer's own account)
+
+**Verdict: an L-shaped footprint closes.** No hole and no misalignment at any of its five
+convex corners, at its **reflex** corner, or at the eave seam — measured by
+`corner_closure` and `cap_seam`, and looked at in the viewport.
+⛔ **Rule 0: this is the account of the agent that wrote it. The honest words until an
+independent round-N audit runs are "implemented, verified only by its own suite", and
+NO AGENT MAY RECORD G2 AS DECIDED ON IT.** ⚠️ **Hannes' human viewport pass is owed here
+exactly as it is on G1, and no agent may record it as satisfied** — regenerate with
+`hython tests/citygen/run_g2_checks.py --images`; the sixteen `g2_<site>_corner<n>_*.png`
+are the pictures to open first, and `g2_1_corner3_reflex.png` is the gate's actual subject.
+
+**Evidence.** 5 checks / 8 clauses / 8 mutations, all seen RED, 0 failing, on
+`hython tests/citygen/run_g2_checks.py --mutations`. G1 re-run on the same build:
+17 checks / 28 clauses / **33** mutations, all RED, 0 failing, **baseline unmoved** apart
+from the one new fixture site R4-1 asked for.
+
+| clause | what it measures | its mutation |
+|---|---|---|
+| `corner_closure/no_gaps` | 15 768 perimeter samples at 5 cm, **per storey row**, against B4's own input ring — uncovered runs: **0**, worst gap **0.000 m** | the footprint arrives OPEN, so the run does not wrap |
+| `corner_closure/corner_module` | §12.6 B6's primary strategy as an assertion: every corner point lies inside a `corner*` cell's box | the cascade drops `miter` for `bend`, which places **no corner module and leaves no gap** — the discriminating pair |
+| `cap_seam/eave_meets_wall` | the roof surface passes through the wall top at every footprint corner **and edge midpoint**, so the valley over the reflex corner is measured on its own account | the roof forgets its wavefront starts outside the wall |
+| `cap_seam/height_as_asked` | the built facade top is `pf_plinth_top + storeys × storeyHeight` — B2's number, and through it the template's | B4 is handed half the height B2 built |
+| `cap_seam/roof_closed` | the roof's only boundary is its eave: one boundary edge per footprint edge, all at the lowest y | one roof face is dropped |
+| `plan_follows_data/footprint` | **generalised from a bounding box to per-edge distances** | half the setback; and R4-1's sentinel revert |
+| `inside_the_lot` | every face against its own lot ring | setback applied outward **plus** the collapse warning nailed shut |
+| `volume_count_matches` | the fold is flagged and degrades | `pf_collapse` loses its self-intersection test |
+
+---
+
+#### ⭐ Cook time per corner treatment — the measurement §0.0d asks G2 for
+
+**This is evidence for polyChain's §35.6 miter decision, which is Hannes'.** Measured on
+22.0.398, fresh node per timing so nothing is served from cache, best of three, one
+6-corner L per "loop", `pf_polychain_facade` cooked headlessly.
+
+| L-shaped buildings | `bend` | `miter` | `miter`, corners forced DEGENERATE |
+|---|---|---|---|
+| 1 | 0.0148 s · 35.6 µs/prim | 0.0212 s · 65.9 µs/prim | 0.0141 s · 34.1 µs/prim |
+| 16 | 0.0821 s · 12.4 µs/prim | 0.2007 s · 38.6 µs/prim | 0.0892 s · 13.5 µs/prim |
+| 64 | 0.3239 s · 12.2 µs/prim | **0.8794 s · 42.3 µs/prim** | 0.3490 s · 13.2 µs/prim |
+| **ratio vs `bend` at 64** | 1.00× | **2.72×** | **1.08×** |
+
+⭐ **THE THIRD COLUMN IS THE POINT, and it is why this is a measurement rather than a
+stopwatch reading.** A clock cannot tell "miter takes the Python reference" apart from
+"miter simply does more work". `pc_envelope.vfl`'s `[vex:corners]` row refuses a
+**non-degenerate** corner in **miter** mode and admits a degenerate one (D46 falls back to
+bend in either mode). So the third column is the same geometry, the same corner mode, with
+`min_included_angle_deg` raised to 120° — which makes the L's 90° corners degenerate.
+**Its cost collapses to `bend`'s (1.08×) and it builds the same 26 496 prims.** The miter
+cost IS the refusal sending the whole build to the reference; it is not the miter assembly.
+
+**Two more things the shape of the table says:**
+- **`bend` amortises and `miter` does not.** `bend` falls 35.6 → 12.2 µs/prim from 1 to 64
+  buildings (a fixed per-build cost spread over a batched native chain); `miter` sits flat
+  at 38.6–42.3. That is the signature of a per-element Python cost, and it means **the
+  penalty gets worse, not better, at district scale** — the opposite of what batching buys.
+- **It is per BUILD, and one corner is enough.** A single L already pays it. §0.0d's
+  "a facade has corners × storeys" is if anything understated: the refusal does not care how
+  many corners there are, only that one exists.
+
+⚠️ **What this does NOT measure:** correctness (the reference is the oracle, so ~1.00×, and
+this run found no output difference between the two treatments beyond the corner module
+itself); memory; any Houdini but 22.0.398; and it is 64 buildings, not a district of
+thousands — the per-prim figures are flat by 16, so extrapolation is linear, but it is
+extrapolation.
+
+⚠️ **And the corner treatment is per BUILD in our code too, inherited rather than chosen.**
+`buildings.corner_mode()` resolves one treatment for the whole stream because the facade
+asset carries it as a single parm. A stream mixing two templates that disagree about corners
+cannot be built in one cook today; B6 will have to split the stream by treatment. Named in
+the function rather than left to be discovered.
+
+---
+
+#### ⭐ What `pf_inset.vfl` actually does at a reflex corner
+
+**It solves it correctly, and its own header was wrong about what happens when it does not.**
+
+1. **The corner itself is right.** On the gate's L — a 30 × 24 m lot with a 14 × 12 m notch,
+   inset per role at front 3.0 / sideStreet 2.0 / rear 4.0 / interiorSide 1.5 / alley 2.5 —
+   the reflex corner is where `rear` (4.0) meets `interiorSide` (1.5), i.e. the case where
+   the two edges *disagree* about how far to move. `plan_follows_data/footprint`, now
+   measuring per edge, reports every one of the six edges at exactly its own setback.
+   Offsetting a reflex corner moves it **away** from the material along the bisector, and the
+   two-offset-lines-intersected rule handles that with no special case: the sign of `_area0`
+   already tells it which side is inside, and the same rule serves B1's setback, B2's
+   courtyard and now **B5's eave overhang, which is the same rule with a NEGATIVE distance**
+   — an outward offset, i.e. the reflex corner exercised in the mirror direction too.
+2. ⭐ **The self-intersection was real, was reachable, and NOTHING SAW IT.**
+   `pf_inset.vfl`'s header said the fold would be reported by `_area0`'s sign change.
+   **Measured false.** Authoring `front` 9 m and `rear` 4 m across a leg only 12 m deep folds
+   the L's short leg inside out while the tall leg stays perfectly well formed, and:
+   - every corner of the folded polygon still lands **inside the lot** (x 2.5..28, z 8..20 in
+     a lot of 0..30 × 0..24) — so `pf_collapse`'s containment test is silent;
+   - the signed area **shrinks and keeps its sign**, +552 → +118.5 — so the sign test, the
+     growth test and the degeneracy test are all silent.
+
+   The bowtie shipped: `pf_warn_footprint_collapsed` = 0, one solid volume built on a
+   self-intersecting plan, a facade wrapped around it, and a roof with **no surface at two of
+   its own corners** (`cap_seam/eave_meets_wall` named them). This is round-2 defect 1's exact
+   shape one level up — *a collapse test that catches one failure mode does not catch the
+   next one* — and it is the third time this project has found it.
+3. **The fix, and it is in production.** `pf_collapse.vfl` gains a fourth test: a **proper**
+   crossing between two non-adjacent edges, in VEX, O(n²) in the corner count (a lot polygon,
+   not a mesh — the same order as the containment test already there). **Strictly** proper
+   (`< 0.0`, never `<= 0.0`) because `setback(0)` leaves consecutive edges touching at a
+   shared endpoint and a lot may legally carry three collinear points; accepting those would
+   flag every Viennese street edge. **No false positive on any of G1's ten sites and G1's
+   baseline did not move.** Fixture site 3 is the case; deleting the term ships the bowtie
+   again and `volume_count_matches` goes red.
+4. **What is still not known.** Whether a fold whose crossing is *tangential* rather than
+   proper exists and matters; whether a footprint can self-intersect in a way that produces
+   an even number of crossings the loop below terminates before seeing (it breaks on the
+   first); and anything about non-rectilinear or curved lots — every G2 lot is axis-aligned.
+
+---
+
+#### What was built, and the shape of it is the finding
+
+**B4 is an ADAPTER, not a builder — §0.0a predicted this and it is right.**
+`pf_facade_in.vfl` turns B2's cap faces into the three things `facade.footprint_loops` asks
+for (a closed loop per prim, `pc_height`, `pc_array`) and the shipped `pf_polychain_facade`
+asset does the rest, **corner treatment included**. So B6's wall-corner half is polyChain's
+machinery configured, not new code, and the whole of what G2 added in production is:
+
+| file | what it is | lines |
+|---|---|---|
+| `pf_facade_in.vfl` | B2 cap faces → facade loops at the plinth datum | ~12 |
+| `pf_eave.vfl` | arms the SAME inset rule with a negative distance; flattens for one skeleton plane | ~8 |
+| `pf_seam.vfl` | **B6**: the roof datum, taken from the facade that was BUILT | ~16 |
+| `pf_cap.vfl` | **B5**: `polyexpand2d`'s skeleton raised by `travel × tan(pitch)`, owner found by `xyzdist`, faces addressed by their eave edge | ~55 |
+| `pf_finalize.vfl` | **B6**: §12.7 identity on B4's output, which had none | ~12 |
+| `pf_mass.vfl` | `rails: solid` | ~6 |
+| `pf_collapse.vfl` | the crossing test | ~22 |
+
+**B5 is written from scratch but not from first principles**, and the distinction is the
+whole of it. `polyexpand2d` on 22.0.398 computes a straight skeleton, survives non-convex
+input, and publishes the wavefront's travel as a **vertex** attribute — its own help calls
+that the way to raise a roof, and §12.6 B1 had already recorded it as "a real head start for
+B5" while rejecting the node for B1's own job (non-positive Inside Scale reads as 1, so
+`setback(0)` silently became 1 m). **That rejection does not transfer**: B5 only ever asks
+for a positive offset. So the roof is one native node plus one line of arithmetic, and the
+**valley** over the reflex corner is produced by the same mechanism as the hips.
+
+**Measured while building it, and worth keeping:**
+- `edgedist` is a **vertex** attribute and the spread between the vertices sharing one
+  skeleton point is **exactly 0.0** — the straight skeleton's defining property, so no
+  promote is needed and the roof cannot crack from disagreeing datums.
+- The skeleton is **offset-independent** above the inradius: 10, 12, 20 and 46.3 m all give
+  the identical 10 faces / 30 points / max travel 6.700 m. The offset is taken off the input
+  bounds anyway, because a value *below* the inradius silently truncates the roof to a flat
+  top.
+- ⚠️ **`polyexpand2d`'s surface output REPEATS vertices where the wavefront collapses** —
+  29 zero-length self-edges over this fixture's 10 roof faces. Harmless (the faces are
+  planar and the surface is closed) but it is real, shipped geometry, and it made
+  `cap_seam/roof_closed` read *"7 boundary edges for 6 footprint edges"* on a roof that is
+  closed — the seventh was the apex touching itself. The clause now excludes zero-length
+  edges, which is accounting rather than leniency. **Not cleaned up; a stated limit of the
+  B5 prototype.**
+
+**`rails: solid`** is new in `pf_mass.vfl`: one volume over the whole footprint, whatever its
+corner count. The gap is real — before it, the only way a non-convex footprint became one
+mass was the **degraded fallback**, which is the same geometry carrying
+`pf_warn_topology_arity`, so §12.5's vocabulary could not say *"one volume, this shape"*
+without also saying *"something went wrong"*. ⚠️ **It is used by ONE template today**, which
+is precisely the shape G1's `rule_reuse` calls a style's code wearing a rule's name. Stated
+in the file rather than hidden; the argument for it is that a single-volume building is the
+commonest building there is, not that two of today's five templates happen to use it.
+**Worth Hannes' eye when a second template wants it.**
+
+**`plan_follows_data/footprint` generalised**, which was G2's stated first test-side task.
+Round 4 measured the bounding-box form as *exactly vacuous* on a `setback(0)` L. The
+per-edge form measures the built mass's closest approach to each lot edge, over only the
+points that project inside that edge's own segment — which is what makes it work on a
+non-convex ring, where the far leg of an L is nearest to an edge it does not face. On a
+rectangle it is arithmetically the same four numbers the box compared, so **G1 did not move**.
+`ring_of()` also collapses the lot polygon to ONE definition; `RINGS` had been building a
+4-corner rectangle where the fixture cooks a 5-corner polygon for site 7.
+
+**`cell_split` is now reported only when a site reaches it.** A clause no fixture exercises
+would otherwise ship PASS forever *and* be demanded by the per-clause mutation sweep on a
+fixture that cannot produce one — G2's every template is `solid`. "Assert truth, not
+presence" applies to a clause's own existence.
+
+---
+
+#### ⚠️ THE TEST BUDGET — the line was not held, and the trend did not turn
+
+| | production | test | ratio |
+|---|---|---|---|
+| `0ab29c7` (G1 decided) | 477 | 901 | 1.89× |
+| **`HEAD` after G2** | **717** | **1508** | **2.10×** |
+| **marginal, this cycle** | +240 | +607 | **2.53×** |
+
+⛔ **Stated plainly, as the brief demanded, rather than quietly: I did not hold the line.**
+The average rose for the **fourth cycle running** (1.53 → 1.88 → 1.89 → 2.10) and the
+marginal ratio rose too, 2.0× → **2.53×**. G2 added real production (240 lines) and that
+legitimately buys test lines, but it bought **fewer than it spent**.
+⚠️ **A correction on the record:** commit `bea6200`'s message says *"marginal 1.20x"*. **That
+number is wrong** — it was computed against a partial denominator before the G2 runner was
+finished. The right numbers are the table above; history is not rewritten on a shared branch,
+so the correction lives here.
+
+**Where the 607 lines went, measured not guessed:** `run_g2_checks.py` is ~330 of them and it
+is a whole second harness — fixture, lot code, kit, mutation registry, baseline, the cost
+bench and the image emitter. `checks_buildings.py` grew ~215 (`elements`, `corner_closure`,
+`cap_seam`, `_plane_y`, `_cap_ring`, `_in_box`, and the per-edge rewrite). `run_building_checks.py`
+grew ~60 (`ring_of`, `patch_pysrc`, site 10, two registry rows).
+
+**What could honestly be deleted, if the ruling goes that way:** the `--cost` bench (~55
+lines) is a one-shot measurement for a decision that is about to be taken, not a standing
+check — it could go once §35.6 is decided, and this section carries its numbers. The image
+emitter (~45 lines including the per-corner crops) buys no assertion at all; it buys Hannes'
+viewport pass, which §0.0g row 3 says is the only image evidence there is. **Nothing else
+here is redundant**: every clause holds a mutation seen red for its own reason, and round 4
+already established there is essentially no redundant coverage left in the G1 half.
+**The choice is Hannes' (§0.0g row 4) and this cycle has not made it easier.**
+
+---
+
+#### What G2 did NOT test, and must not be read as having tested
+
+- **Gables.** Every roof here is fully hipped. A gable needs a per-edge wavefront speed —
+  the weighted skeleton, which is `polyexpand2d`'s `uselocalinsidescale` on the same node
+  and is a §2 Era 1 style-range item the brief scoped out. **So of the criterion's
+  "eave/gable seam", the eave half is tested and the gable half is not built.**
+- **Non-rectilinear corners.** Every G2 lot is axis-aligned and every wall runs along X or Z.
+  `corner_closure` reads axis-aligned bounds, which is exact for that and would **over-report
+  coverage on a slanted wall** — a later non-rectilinear fixture would silently weaken the
+  check rather than fail it. Stated in `elements`' docstring.
+- **The Labs failure mode itself.** §5 Theme 4's second complaint is *"module misalignment
+  producing gaps because corners with different ledges shift to different depths"*. ⭐ **On
+  this pipeline that failure cannot arise**, because both legs of a corner belong to ONE
+  array with ONE row solve and ONE kit — which is a genuine architectural finding and also
+  means `corner_closure` has nothing to catch there. The misalignment that CAN arise is at
+  the facade↔cap seam, and `cap_seam`'s three clauses are what cover it.
+- **One kit, one cap family, one building per site, no ground sample, no HDA** — so nothing
+  of `artist_ui.md` §6b applies yet, and §12.9's citygen kit does not exist (the gate
+  authors one in its own fixture).
+- **Whether the corner MODULE's own geometry is watertight in 3D.** `corner_closure` measures
+  coverage of the perimeter by module boxes, not the modules' internal geometry; a miter cut
+  leaving a wedge inside its own box would pass.
+- **Cook cost of B5/B6.** Only B4's corner treatments were benched. The roof is one native
+  node plus a detail wrangle and was not measured at district scale.
+- **`pf_polychain_facade`'s two open items** (§0.0d): PC-G7 is asserted on `facade.build_many`
+  and not on the asset, and the `addWarning` route is invisible on the HDA an artist meets.
+  Both are now **ours too**, because B4 sits on that asset.
+
+#### Queue for the round-N audit
+
+1. **Attack `corner_closure`.** It is the gate's headline clause and it is a sampled box
+   test. Can a hole survive it? Try a gap narrower than the 5 cm step, and a module present
+   but at the wrong depth.
+2. **Attack `cap_seam/eave_meets_wall`'s sampling.** It probes corners and edge midpoints
+   only. A roof wrong *between* those points would pass.
+3. **Re-derive the crossing test's blind spots** — §12.10b's item 4 above lists what is
+   suspected, not what is known.
+4. **The budget ruling is Hannes' and this cycle made it worse.** Confirm the numbers
+   independently; both previous rounds did and both times it mattered.
+5. ⛔ **Do not record G2 as decided on the implementer's account, and do not record Hannes'
+   viewport pass as satisfied.** Four agents have now declined to substitute for him on G1.
 
 ### 12.11 v1 acceptance
 
