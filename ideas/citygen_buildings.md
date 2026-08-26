@@ -42,7 +42,7 @@ branch `worldengine`, **never push**, never rewrite history, stage named paths o
 | Owning spec | §12 of this file. Build order is §12.10, **gates G1/G2 before any B-stage** |
 | Last completed | **G1 — topology as data: PASSED**, 2026-08-26, **independently audited on the current build**. Skeleton B2 + B1 `setback` built; four style templates with per-field provenance; 16 checks, 17 mutations all seen RED. Full result and its limits in **§12.10a** — read §12.10a's defect list before writing any check for G2, the audit broke four of these and every one is a repeating shape. §12's attribute tables corrected to the `pf_` law in the same pass (§12.4/§12.6/§12.7/§12.8). ⚠️ Test code is **8 % over the stated size budget** (1 105 vs 1 025 lines); the audit round is where it went, and the next test added should delete one. |
 | Next up | ⚠️ **CHECK AGAINST `git log --oneline -25` BEFORE STARTING.** **G2 — corner closure on an L** (§12.10), which is the acceptance test the whole survey points at (§5 Theme 4). Read §0.0d FIRST: polyChain's miter refusal is per-BUILD and B6's primary strategy walks into it, and ⭐ G2 must **record cook time per corner treatment** — those numbers are evidence for Hannes' pending §35.6 miter decision. ⚠️ G2 needs a **non-convex footprint**, which G1 never produced: `pf_inset.vfl` solves each corner independently and can fold a non-convex polygon through itself. That is the first thing to go and look at. |
-| Gates | ⏳ **A ROUND-2 INDEPENDENT AUDIT IS IN FLIGHT ON G1 as of 2026-08-26 22:1x** — round 1 broke four checks, so round 2 audits the fixes plus the test-budget breach, check discriminating power, storage/D223, determinism across recook+reload, and whether the ~38 mode-specific lines make the rule library a union of two private code paths. **Its verdict may OVERTURN the PASS below; do not treat G1 as closed until it reports.** G1 topology-as-data ✅ **PASS (agent-verified, round 1, §12.10a)** · G2 corner closure on an L ⬜ · G3 APEX-vs-VEX ⬜ (only after G1+G2). Every gate owes a HUMAN viewport pass by Hannes — an agent looking at an image is not that, and it is never silently skipped. ⚠️ **G1's human pass is OWED**: an agent looked at `tests/citygen/gate_images_buildings/` and judged the four masses correct; Hannes has not. Regenerate with `hython tests/citygen/run_building_checks.py --images`. |
+| Gates | ⛔ **G1 IS NOT DECIDED. ROUND-2 AUDIT REPORTED 2026-08-26 AND WITHHELD IT.** The gate's *own question* — "is `volumeTopology` data?" — was re-verified and **is not disputed**: the rule library is genuinely shared and no style is named in production code. What blocks "decided" is a **production defect**: `pf_collapse.vfl` ships a building **massed entirely outside its own lot with no warning** (§0.0f defect 1). Fix, re-run, then round 3. Do **not** start G2 on an undecided G1. G1 topology-as-data ⏳ **question answered, gate withheld** · G2 ⬜ · G3 ⬜ · G2 corner closure on an L ⬜ · G3 APEX-vs-VEX ⬜ (only after G1+G2). Every gate owes a HUMAN viewport pass by Hannes — an agent looking at an image is not that, and it is never silently skipped. ⚠️ **G1's human pass is OWED**: an agent looked at `tests/citygen/gate_images_buildings/` and judged the four masses correct; Hannes has not. Regenerate with `hython tests/citygen/run_building_checks.py --images`. |
 | Run it | `hython tests/citygen/run_building_checks.py [--mutations] [--images] [--update-baseline]`. ⚠️ **hython does not load the polyfactory package** — `POLYFACTORY` is unset and `polyfactory` resolves as a namespace package with no `citygen` in it; the runner puts `polyfactory/scripts/python` on `sys.path` itself. |
 
 ### 0.0a Dependencies — check before picking a stage
@@ -64,6 +64,60 @@ dependencies resolve:
 `B3 structure tables` → `B1 footprint ops` (the `setback` op is done; `shapeL`/`shapeU`/`shapeO`/
 `offset` are not) → `§12.9 module library` → **then** `B4`/`B6` on polyChain → **then, only once
 S8 answers**, `B0` identity wiring + finalize/instancing.
+
+### 0.0f G1 round-2 audit — the open queue (2026-08-26)
+
+⛔ **Item 1 blocks G1. Items 2–3 are systemic and affect G2/G3 too, so fix them now, not later.**
+
+1. ⛔ **`pf_collapse.vfl` builds outside the lot, silently. BLOCKING.** Via a *legal* cascade
+   level-6 override (`citygen.md` §2.1) on a 20×10 lot — front 0, rear 12, sideStreet 25, alley 0 —
+   **both axes invert**. The signed area keeps its sign (+10 from +200) *and shrinks*, so the growth
+   test is silent; 10 > 1e-4, so the degeneracy test is silent. Result: 3 volumes, 18 faces at
+   **x −5..0, z −2..0, entirely outside a lot at x 0..20, z 0..10**, with
+   `pf_warn_footprint_collapsed` = 0 on every face — and `volume_count_matches`, `outward_normals`,
+   `party_walls_real` all green.
+   → **§12.10a's "Area that *grew* is now the proof" is FALSE as written.** A double inversion
+   multiplies two negative extents, so shrinkage proves nothing. **The correct test is already
+   free:** `_p0` holds the pre-offset polygon per point — assert every inset corner is *inside* it
+   (same crossing-count the checks already use, in VEX). ✅ Confirmed *not* a false positive on the
+   `setback(0)` identity case.
+2. ⛔ **SYSTEMIC — the runner's `missing` sweep only requires ≥1 mutation per check NAME**, so a
+   multi-clause check can ship with clauses nobody ever proved. Live example:
+   `party_walls_are_real`'s elevation clause *has* teeth (lifting a cell 30 m took `overlapped`
+   22→8) but **has no mutation of its own**. **Fix the sweep to demand a mutation per CLAUSE**
+   before G2 writes more multi-clause checks.
+3. ⛔ **SYSTEMIC — "a name is not a value".** `pf_warn_topology_arity` is asserted by no check and
+   recorded by no baseline row: forcing `warnarity = 0` leaves all 16 checks green and the baseline
+   unmoved. **Fix once, permanently: put all four `pf_warn_*` values per site into `record()`**
+   (~3 lines, no new check or mutation needed).
+4. **`encloses_courtyard` is a MIN-oracle, not per-edge.** Catches rotation, uniform over-depth, the
+   4 m slide. **Misses a non-uniform ring**: scaling one pair of opposite edges 1.6× built a
+   courtyard of **518.4 m² instead of 864 m²** and the check reported *"12.00–12.00 m against 12.00
+   asked for"*. Cause: `_inside()` returns clearance to the *nearest* outer edge, and at a corner
+   that is `min(d_prev, d_next)` — one correct neighbour per corner is enough to pass. `pf_inset`
+   preserves index correspondence, so **measure courtyard edge *j* against outer edge *j***, or use
+   edge midpoints not corners. Not reachable from today's uniform data, but per-role courtyard depth
+   or `polyexpand2d`'s per-edge Inside Scale drives straight through it.
+5. **`_plain()` is not lossless and the doc overstates it.** A **mixed** numeric list (`[1, 2.5, 3]`)
+   returns all-float — shape restored, **element storage lost, which D223 says is the contract** —
+   and a **nested list is dropped entirely and silently**, dying at `setGlobalAttribValue` *before*
+   saving, so `load()` never sees it and nothing raises. Neither shape is in the four shipped
+   templates. **Fix the doc at minimum; enrol a storage check.**
+6. **`STORAGE` omits `pf_seed` and all four `pf_warn_*`** (all Int) though its docstring claims
+   "every id B2 mints is enrolled here".
+7. **Latent false positive:** under `ring`, `volume_count_matches` takes the cell count from the
+   footprint's edge count, so a template with a shorter `volumes` list is *legal* (that is what
+   `pf_warn_topology_arity` is for) but would fail the check. Fixture-safe today.
+
+**⚠️ THE TEST BUDGET IS 52 % OVER, NOT 8 %.** §12.10a reached "1 025 production" only by counting
+`devScripts/create_pf_building_styles.py` (296 lines) — a template-authoring script that **never
+cooks**. What ships is `buildings.py` (283) + five `.vfl` (446) = **729**, against 1 108 test lines.
+**Delete first (~45–50 lines, more than the overrun):** `degrades_never_refuses` + its mutation row
++ its `run_checks` line (measured redundant — its own paired mutation reddens `volume_count_matches`
+too, with a better message; its only unique clause is `len(mine) >= 5`); `Result.as_dict` (never
+called); `_plan_key` vs `base()` (two functions, one identity); `record()`'s unused `templates`
+parameter; and in `faces()` the unread `pf_storeys` / `pf_face_role` — **but keep the
+`pf_warn_topology_arity` read, it is currently the only thing asserting that attribute exists.**
 
 ### 0.0c Operational rules — paid for in blood this week, do not rediscover them
 
