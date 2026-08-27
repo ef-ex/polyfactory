@@ -3118,6 +3118,31 @@ rule, change the target, or accept an unbounded breach. ⚠️ **The two honestl
 still deletable** — the `--cost` bench once §35.6 is decided (its numbers are in this file), and the
 image emitter, which now carries three real clauses and so is no longer free to drop.
 
+##### ⭐ WHAT THE FIX PASS FOUND THAT THE AUDIT COULD NOT: adding a production term unmoored two of G1's mutations
+
+Not in any queue, and it is the sharpest thing this pass learned. Adding `pinched ||` to
+`pf_collapse.vfl` made **both of G1's `pf_collapse` registry rows unmatchable** — their anchors were
+the *whole* warning expression. The sweep said so out loud:
+
+    [GREEN] inside_the_lot  UNFAILABLE -> MUTATION DID NOT APPLY:
+            mutation anchor gone from pf_collapse: '(outside || crosses || a * was <= 0.0'
+    3 failing  ['mutation:inside_the_lot/inside_the_lot',
+                'mutation:volume_count_matches/volume_count_matches',
+                "clauses with no mutation: ['inside_the_lot/inside_the_lot']"]
+
+⭐ **That is the anchor assert doing exactly its job** — the alternative is a `.replace` that matches
+nothing, survives, and "proves" a check while editing no code. Both anchors were narrowed to the
+**terms they are about** rather than the expression they sit in (`outside || crosses` → `crosses`;
+the three area terms alone), each verified to occur **once** in the file — the expression at line
+158, not the prose above it — and both are RED again for the clauses they name.
+⚠️ **The general form, and this is now the second time it has bitten in this file**: `bea6200`'s own
+comment records the same drift when `rails: solid` moved `int ncells = (degraded || whole) ? 1 :`.
+**An anchor that spans more of a statement than the mutation needs is a tripwire on unrelated
+edits.** ⛔ **And it is a cross-suite coupling nobody had written down:** a G2 production change
+broke a G1 registry row, and only running **both** sweeps found it. Run both.
+✅ Unit suite unchanged at **11 failed / 305 passed**, all `TestCalibration::J_five_star` — M5.5's
+deliberate finding, not touched and not counted here.
+
 ##### What this fix pass did NOT do, and why
 
 - **`G2-8` — every `corner*` prim is a raw polygon, not a packed module** (595 poly / 249 packed at
