@@ -1,8 +1,14 @@
 // pf_site.vfl - PRIM wrangle.  B0's WRITE side: §12.4's site contract, stamped.
 //
 // Reads only the `_*` scratch `pf_site_in.vfl` captured off the INPUT; writes
-// only the contract.  Splitting the two is what makes the tests in that file
-// honest - see its header.
+// only the contract.  ⚠️ THE SPLIT IS NOT WHAT MAKES THAT FILE'S TESTS HONEST,
+// and this header used to say it was.  What makes them honest is that
+// everything the read side writes lands on `_*` scratch, so every `has*attrib`
+// there is asked of the INPUT - a property a reader can verify by reading the
+// file.  The structural argument the split USED to rest on ("a wrangle that
+// writes an attribute has already created it") is measured false on 22.0.398;
+// see that file's header.  The split is kept because it is harmless, not
+// because the guarantee needs it.
 //
 // ⛔ EVERY WRITE BELOW IS UNCONDITIONAL, AND THAT IS THE WHOLE POINT OF THIS
 // FILE.  §12.4's `pf_setback` sentinel reads `>= 0` authored, negative absent -
